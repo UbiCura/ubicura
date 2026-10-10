@@ -179,7 +179,7 @@ def proteger_pdf(pdf: Path, titre: str, sujet: str, doi: str | None = None) -> N
     tmp.replace(pdf)
 
 
-def lisez_moi_donnees(dossier: Path) -> str:
+def lisez_moi_donnees(dossier: Path, archivee: bool | None = None) -> str:
     """Notice de l'archive des données (dépôt Zenodo et page Données), sources, licences et citation. La licence ODbL
     demande que la notice accompagne les données qui en dérivent."""
     import json
@@ -195,6 +195,8 @@ def lisez_moi_donnees(dossier: Path) -> str:
                                + (f", données du {e['date_donnees']}" if e.get("date_donnees") else "")
                                + (f", {e['page']}" if e.get("page") else ""))
     doi = config.DOI_DONNEES
+    if archivee is None:
+        archivee = version == config.VERSION_ZENODO
     lignes = [f"# {config.TITRES_DEPOTS['donnees']}", "",
               f"Version du {date_longue(version)}. Auteur, {config.AUTEUR} (ORCID {config.ORCID}). "
               f"Contact, {config.CONTACT}.", "",
@@ -211,7 +213,7 @@ def lisez_moi_donnees(dossier: Path) -> str:
               "## Comment citer", "",
               (f"{config.CITATION_AUTEUR} ({version[:4]}). {config.TITRES_DEPOTS['donnees']}. Version du "
                f"{date_longue(version)}. Zenodo." + (f" https://doi.org/{doi}" if doi else ""))
-              if version == config.VERSION_ZENODO or not config.ADRESSE_SITE else
+              if archivee or not config.ADRESSE_SITE else
               (f"{config.CITATION_AUTEUR} ({version[:4]}). {config.TITRES_DEPOTS['donnees']}. Version du "
                f"{date_longue(version)}, {config.ADRESSE_SITE}." + (f" Dernière version archivée, Zenodo, "
                                                                      f"https://doi.org/{doi}" if doi else "")), "",
@@ -239,11 +241,14 @@ def citation_territoire(titre: str, date: str, page: str) -> dict:
     return {"texte": texte, "doi_rapport": None, "doi_donnees": config.DOI_DONNEES}
 
 
-def citation(cle: str, titre: str, date: str, iso: str | None = None) -> dict:
+def citation(cle: str, titre: str, date: str, iso: str | None = None, archivee: bool | None = None) -> dict:
     """Citation d'un rapport, avec les DOI quand ils existent. Une version qui n'est pas archivée sur Zenodo est citée par
-    son adresse sur le site, avec le DOI général de la dernière version archivée."""
+    son adresse sur le site, avec le DOI général de la dernière version archivée. archivee=True force la citation d'une
+    version archivée, pour les fichiers déposés sur Zenodo (outils/zenodo.py)."""
     doi_r, doi_d = config.DOI_RAPPORTS.get(cle), config.DOI_DONNEES
-    if doi_r and iso and iso != config.VERSION_ZENODO and config.ADRESSE_SITE:
+    if archivee is None:
+        archivee = not iso or iso == config.VERSION_ZENODO
+    if doi_r and not archivee and config.ADRESSE_SITE:
         texte = (f"{config.CITATION_AUTEUR} ({date[-4:]}). {config.TITRES_DEPOTS.get(cle, titre)}. Version du {date}, "
                  f"{config.ADRESSE_SITE.rstrip('/')}/rapports/{iso}/{cle}.html. Dernière version archivée, Zenodo, "
                  f"https://doi.org/{doi_r}")
@@ -327,6 +332,77 @@ def journal_page() -> dict:
     return {"entrees": sortie, "etat": etat}
 
 
+# ---------------------------------------------------------------- briques partagées avec outils/zenodo.py
+def _environnement() -> Environment:
+    env = Environment(loader=FileSystemLoader(GABARITS), autoescape=select_autoescape(["html"]))
+    env.globals.update(nom_projet=config.NOM_PROJET, sous_titre=config.SOUS_TITRE)
+    return env
+
+
+def _commun(dernier: Path, site_data: dict) -> dict:
+    return {"date_longue": date_longue(dernier.name), "licences": site_data["meta"].get("licences", ""),
+            "description": "Offre de soins et de santé mentale en France, par territoire, à partir des données publiques.",
+            # empreinte de la feuille de style, pour que les navigateurs chargent la nouvelle version après une mise à jour
+            "version_css": hashlib.sha1((GABARITS / "style.css").read_bytes()).hexdigest()[:10]}
+
+
+def imprimer_rapport(env: Environment, ctx: dict, d: Path, cle: str, cible_pdf: Path, exe: str) -> bool:
+    """Imprime le rapport national cle de la version d en PDF (volets ouverts), puis pose métadonnées et verrou. La page
+    d'impression est écrite à côté des pages du site, pour que la feuille de style et les polices soient trouvées."""
+    fichier, titre = RAPPORTS[cle]
+    t, corps_imp, _ = md_html((d / fichier).read_text(encoding="utf-8"), d / "graphiques", imprimer=True)
+    dossier = SITE / "rapports" / d.name
+    dossier.mkdir(parents=True, exist_ok=True)
+    tmp = dossier / f"{cle}.{cible_pdf.stem}.impression.html"
+    tmp.write_text(env.get_template("rapport.html").render(ctx, titre_rapport=t, corps=corps_imp, sommaire="", pdf=None,
+                                                           impression=True), encoding="utf-8")
+    ok = imprimer_pdf(tmp, cible_pdf, exe)
+    tmp.unlink(missing_ok=True)
+    if ok:
+        proteger_pdf(cible_pdf, f"{titre}, {date_longue(d.name)}",
+                     config.TITRES_DEPOTS.get(cle, f"{config.NOM_PROJET}, rapport national"), config.DOI_RAPPORTS.get(cle))
+    return ok
+
+
+def archive_donnees(dossier: Path, cible: Path, archivee: bool | None = None) -> Path:
+    """Archive zip de tous les fichiers CSV d'une version, avec le dictionnaire des colonnes et la notice LISEZ-MOI.md."""
+    import zipfile
+    with zipfile.ZipFile(cible, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:
+        for f in sorted(dossier.glob("*.csv")):
+            z.write(f, f.name)
+        z.write(dossier / "dictionnaire_des_colonnes.md", "dictionnaire_des_colonnes.md")
+        z.writestr("LISEZ-MOI.md", lisez_moi_donnees(dossier, archivee))
+    return cible
+
+
+def fichiers_zenodo(iso: str, cible: Path) -> dict[str, Path]:
+    """Les trois fichiers d'une version à déposer sur Zenodo, l'archive des données et les deux rapports nationaux en
+    PDF. Ils portent la citation d'une version archivée (titre du dépôt, Zenodo, DOI général), puisqu'ils seront la
+    version archivée. Ceux du site gardent la citation par l'adresse du site tant que Zenodo n'a pas publié la version."""
+    d = config.RESULTATS / iso
+    if not (d / "rapport_sante_mentale.md").exists():
+        raise FileNotFoundError(f"aucun résultat complet pour la version {iso} dans {config.RESULTATS}")
+    exe = navigateur()
+    if not exe:
+        raise RuntimeError("aucun navigateur Edge, Chrome ou Chromium trouvé pour imprimer les rapports en PDF")
+    cible.mkdir(parents=True, exist_ok=True)
+    env = _environnement()
+    commun = _commun(d, json.loads((d / "site_data.json").read_text(encoding="utf-8")))
+    sortie = {"donnees": archive_donnees(d, cible / f"donnees_{iso}.zip", archivee=True)}
+    for cle, (_fichier, titre) in RAPPORTS.items():
+        autre = "sante" if cle == "sante-mentale" else "sante-mentale"
+        ctx = dict(commun, date_longue=date_longue(iso), racine="../../", page="rapports",
+                   citation=citation(cle, titre, date_longue(iso), iso, archivee=True),
+                   titre=f"{titre}, {date_longue(iso)}", autre_lien=f"{autre}.html",
+                   autre_titre="Lire le rapport santé" if cle == "sante-mentale" else "Lire le rapport santé mentale")
+        pdf = cible / f"{cle}.pdf"
+        pdf.unlink(missing_ok=True)
+        if not imprimer_rapport(env, ctx, d, cle, pdf, exe):
+            raise RuntimeError(f"le rapport {cle} de la version {iso} n'a pas pu être imprimé en PDF")
+        sortie[cle] = pdf
+    return sortie
+
+
 # ---------------------------------------------------------------- construction
 def construire(pdf=True) -> Path:
     dates = sorted(p for p in config.RESULTATS.glob("20*") if (p / "rapport_sante_mentale.md").exists())
@@ -346,13 +422,9 @@ def construire(pdf=True) -> Path:
     shutil.copy(GABARITS / "style.css", SITE / "style.css")
     # polices hébergées sur le site (licence OFL, texte joint), aucune requête vers un service tiers
     shutil.copytree(GABARITS / "polices", SITE / "polices", dirs_exist_ok=True)
-    env = Environment(loader=FileSystemLoader(GABARITS), autoescape=select_autoescape(["html"]))
-    env.globals.update(nom_projet=config.NOM_PROJET, sous_titre=config.SOUS_TITRE)
+    env = _environnement()
     site_data = json.loads((dernier / "site_data.json").read_text(encoding="utf-8"))
-    commun = {"date_longue": date_longue(dernier.name), "licences": site_data["meta"].get("licences", ""),
-              "description": "Offre de soins et de santé mentale en France, par territoire, à partir des données publiques.",
-              # empreinte de la feuille de style, pour que les navigateurs chargent la nouvelle version après une mise à jour
-              "version_css": hashlib.sha1((GABARITS / "style.css").read_bytes()).hexdigest()[:10]}
+    commun = _commun(dernier, site_data)
     exe = navigateur() if pdf else None
     if pdf and not exe:
         JOURNAL.note("Site, PDF des rapports", "ignoré", "aucun navigateur Edge, Chrome ou Chromium trouvé")
@@ -375,22 +447,17 @@ def construire(pdf=True) -> Path:
                 {"prefixe": f"../../donnees/{d.name}/", "dossier": d} if d == dernier else None))
             cible_pdf = dossier / f"{cle}.pdf"
             refaire = d == dernier or not cible_pdf.exists()
+            # une version archivée sur Zenodo garde sur le site le PDF exact qui y est déposé (outils/zenodo.py)
+            depose = config.DONNEES / "zenodo" / d.name / f"{cle}.pdf"
+            if d.name == config.VERSION_ZENODO and depose.exists():
+                shutil.copy2(depose, cible_pdf)
+                refaire = False
             html = env.get_template("rapport.html").render(ctx, titre_rapport=t, corps=corps, sommaire=sommaire,
                                                            pdf=f"{cle}.pdf" if (cible_pdf.exists() or (exe and refaire)) else None)
             (dossier / f"{cle}.html").write_text(html, encoding="utf-8")
             pages.append(dossier / f"{cle}.html")
             if exe and refaire:
-                t, corps_imp, _ = md_html(texte, d / "graphiques", imprimer=True)
-                tmp = dossier / f"{cle}.impression.html"
-                tmp.write_text(env.get_template("rapport.html").render(ctx, titre_rapport=t, corps=corps_imp,
-                                                                       sommaire="", pdf=None, impression=True),
-                               encoding="utf-8")
-                ok = imprimer_pdf(tmp, cible_pdf, exe)
-                tmp.unlink(missing_ok=True)
-                if ok:
-                    proteger_pdf(cible_pdf, f"{titre}, {date_longue(d.name)}",
-                                 config.TITRES_DEPOTS.get(cle, f"{config.NOM_PROJET}, rapport national"), config.DOI_RAPPORTS.get(cle))
-                if not ok:
+                if not imprimer_rapport(env, ctx, d, cle, cible_pdf, exe):
                     log.warning("PDF non produit pour %s %s", d.name, cle)
             v["pdf_sm" if cle == "sante-mentale" else "pdf_sante"] = cible_pdf.exists()
         versions.append(v)
@@ -410,12 +477,7 @@ def construire(pdf=True) -> Path:
     ddir = SITE / "donnees" / dernier.name
     ddir.mkdir(parents=True, exist_ok=True)
     import zipfile
-    tout = ddir / f"donnees_{dernier.name}.zip"
-    with zipfile.ZipFile(tout, "w", zipfile.ZIP_DEFLATED, compresslevel=9) as z:
-        for f in sorted(dernier.glob("*.csv")):
-            z.write(f, f.name)
-        z.write(dernier / "dictionnaire_des_colonnes.md", "dictionnaire_des_colonnes.md")
-        z.writestr("LISEZ-MOI.md", lisez_moi_donnees(dernier))
+    tout = archive_donnees(dernier, ddir / f"donnees_{dernier.name}.zip")
     fichiers = []
     for f in sorted(dernier.glob("*.csv")):
         cible = ddir / f.name

@@ -10,6 +10,9 @@ Mise à jour des données, des résultats et du site, à lancer à la main ou pa
 4. Vérifie à nouveau après coup que chaque source est bien à jour, puis recalcule une série de chiffres publiés
    depuis les fichiers bruts par un code indépendant (outils\controle_independant.py).
 5. Garde un compte rendu de chaque passage dans donnees\journaux\.
+6. Chaque jour, regarde sur Zenodo si une nouvelle version des trois dépôts a été publiée (outils\zenodo.py, tutoriel
+   07). Si oui, le site est refait pour la citer par son DOI, et publié avec -Publier. Une fenêtre rappelle aussi
+   d'archiver une version chaque trimestre.
 
 .PARAMETER Simuler
 Fait seulement la vérification et dit ce qui serait fait, sans rien télécharger ni recalculer.
@@ -49,6 +52,12 @@ function Prevenir([string]$texte) {
     try { Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show($texte, "Ubi Cura, mise à jour") | Out-Null } catch {}
 }
 
+function PublierSite {
+    Ecrire "Publication du site, après comparaison avec la version en ligne."
+    & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot "publier.ps1") | Out-Host
+    return $LASTEXITCODE
+}
+
 function Verifier {
     # renvoie le code de sortie de la vérification (0 à jour, 10 à mettre à jour, 20 incomplète)
     $sortie = & $python run.py --verifier 2>&1 | ForEach-Object { "$_" }
@@ -77,6 +86,31 @@ if (Test-Path $verrou) {
 Set-Content -Path $verrou -Value $PID
 
 try {
+    # nouvelle version archivée sur Zenodo, constatée chaque jour (code 10), sans clé rangée rien n'est fait (code 20)
+    if (-not $Simuler) {
+        $sortieZ = & $python outils\zenodo.py constater --discret 2>&1 | ForEach-Object { "$_" }
+        $codeZ = $LASTEXITCODE
+        if ($codeZ -eq 10 -or $codeZ -eq 1) { foreach ($l in $sortieZ) { if ($l.Trim()) { Ecrire $l } } }
+        if ($codeZ -eq 10) {
+            Ecrire "Reconstruction du site pour citer la version archivée sur Zenodo."
+            & $python -m pipeline.site 2>&1 | Out-Null
+            if ($LASTEXITCODE -ne 0) {
+                Ecrire "La reconstruction du site a échoué, voir donnees\execution.log."
+            } elseif ($Publier) {
+                if ((PublierSite) -ne 0) { Ecrire "Site non publié, voir le compte rendu de publication dans donnees\journaux." }
+            }
+        }
+    }
+
+    # rappel trimestriel d'archivage sur Zenodo (tutoriel 07), au plus une fois par semaine tant que ce n'est pas fait
+    if (-not $Simuler) {
+        $rappel = (& $python outils\zenodo.py rappel 2>&1 | ForEach-Object { "$_" }) -join " "
+        if ($LASTEXITCODE -eq 10) {
+            Ecrire $rappel
+            Prevenir ("Archivage trimestriel sur Zenodo.`n`n" + $rappel + "`n`nCommande à lancer dans PowerShell`ncd D:\offre_soins`n.\.venv\Scripts\python.exe outils\zenodo.py preparer")
+        }
+    }
+
     if (-not $Forcer -and -not $Simuler -and (Test-Path $etatFichier)) {
         $etat = Get-Content $etatFichier -Raw -Encoding UTF8 | ConvertFrom-Json
         if ($etat.derniere_verification) {
@@ -142,9 +176,7 @@ try {
     }
     Enregistrer @{ dernier_controle = "conforme" }
     if ($Publier) {
-        Ecrire "Publication du site, après comparaison avec la version en ligne."
-        & powershell -NoProfile -ExecutionPolicy Bypass -File (Join-Path $PSScriptRoot "publier.ps1")
-        if ($LASTEXITCODE -ne 0) { Ecrire "Site non publié, voir le compte rendu de publication dans donnees\journaux."; exit 1 }
+        if ((PublierSite) -ne 0) { Ecrire "Site non publié, voir le compte rendu de publication dans donnees\journaux."; exit 1 }
     }
     exit 0
 }

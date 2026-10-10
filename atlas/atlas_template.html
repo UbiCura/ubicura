@@ -98,6 +98,18 @@ svg.map.zoome{cursor:grab}svg.map.zoome:active{cursor:grabbing}
 .vuebar .seg{background:var(--panel)}
 svg text{fill:var(--muted);font-family:var(--sans);font-size:11px}
 /* graphiques, taille de dessin respectée (pas d'agrandissement au-delà de 1,15 fois), même interaction que les rapports */
+.cb-grille{display:grid;grid-template-columns:minmax(0,640px) minmax(0,1fr);gap:32px;align-items:start}
+@media (max-width:1100px){.cb-grille{grid-template-columns:minmax(0,1fr)}}
+.cb-vue h3{font-family:var(--serif);font-size:18px;font-weight:600;margin:8px 0 6px}
+.cb-q{font-size:12.5px;color:var(--muted);margin:14px 0 4px;padding-bottom:3px;border-bottom:1px solid var(--line)}
+.cb-axe{display:grid;grid-template-columns:minmax(0,1fr) 132px 44px;gap:10px;font-size:11.5px;color:var(--muted);padding:0 6px}
+.cb-axe span{display:flex;justify-content:space-between}
+.cb-ligne{display:grid;grid-template-columns:minmax(0,1fr) 132px 44px;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;border-radius:6px;padding:5px 6px;color:var(--ink);font:inherit;font-size:13px;line-height:1.35;cursor:pointer}
+.cb-ligne:hover{background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.cb-ligne.on{background:color-mix(in srgb,var(--accent) 18%,transparent);box-shadow:inset 3px 0 0 var(--accent)}
+.cb-ligne:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
+.cb-ligne svg{width:132px;height:16px;display:block}
+.cb-ligne .rho{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
 #scatter,#cbPlot,#indPlot,#regPlot,#lorenz,#escalier,#funnel,#acpPlan{max-width:640px;display:block}
 table td,table th{hyphens:manual;-webkit-hyphens:manual;overflow-wrap:normal;word-break:normal}
 /* texte courant justifié (consigne de Lucas du 9 octobre 2026), avec césures, jamais dans les tableaux ni les infobulles */
@@ -358,11 +370,20 @@ dl.gl dt{font-weight:600;margin-top:12px}dl.gl dd{margin:2px 0 0;max-width:75ch}
   </div>
   <div class="panel pad" style="margin-top:24px"><h2>Croisements entre bases, par département <button class="how" data-how="correlation,force,effet_ville,ecologique">Comment lire</button></h2><div class="howtxt hidden"></div>
     <p class="note">Questions posées en croisant des bases différentes (temps de trajet, hôpital, dépassements d’honoraires, protection de l’enfance, handicap, médecin traitant). Hors Mayotte. Choisissez un croisement, chaque point est un département.</p>
-    <div class="bar" style="padding:6px 0"><select id="cbSel" aria-label="Croisement entre bases"></select></div>
-    <p class="phrase" id="cbPhrase"></p>
-    <svg id="cbPlot" role="img" aria-label="Croisement entre bases, un point par département" viewBox="0 0 560 360"></svg>
-    <details class="plus"><summary>Tous les croisements entre bases</summary><div class="scroll"><table id="cbTable"></table></div></details>
-    <div id="cbLimite"></div></div>
+    <div class="cb-grille">
+      <div class="cb-nuage">
+        <div class="bar" style="padding:6px 0"><select id="cbSel" aria-label="Croisement entre bases"></select></div>
+        <p class="phrase" id="cbPhrase"></p>
+        <svg id="cbPlot" role="img" aria-label="Croisement entre bases, un point par département" viewBox="0 0 560 360"></svg>
+        <div id="cbLimite"></div>
+      </div>
+      <div class="cb-vue">
+        <h3>Tous les croisements, d’un coup d’œil</h3>
+        <p class="note">Chaque ligne est un croisement. Le point donne la force du lien entre les départements, à gauche quand l’une augmente pendant que l’autre baisse, à droite quand elles augmentent ensemble, au centre aucun lien. Point plein, lien net. Point creux, lien incertain, sa fourchette plausible (le trait) comprend zéro. Cliquez sur une ligne pour l’afficher dans le nuage.</p>
+        <div id="cbListe" role="list"></div>
+      </div>
+    </div>
+    <details class="plus"><summary>Tous les croisements entre bases, en tableau</summary><div class="scroll"><table id="cbTable"></table></div></details></div>
   <div class="two" style="margin-top:24px">
     <div class="panel pad"><h2>Offre et indicateur sur une même carte <button class="how" data-how="ecologique">Comment lire</button></h2><div class="howtxt hidden"></div>
       <p class="note">Par département, hors Mayotte, pour la profession choisie en haut de la page. Chaque département est classé en tiers pour l’offre et pour l’indicateur.</p>
@@ -902,9 +923,10 @@ function croisementsBases(){
   const r=T[S.cb];ph.textContent=phraseCroisement(r)+" Ce lien décrit des départements et ne dit rien d’une cause.";
   const pts=r.pts.filter(d=>d[1]!=null&&d[2]!=null),m={l:52,r:14,t:16,b:44},w=560,h=360;
   const xs=d3.scaleLinear().domain(d3.extent(pts,d=>d[1])).nice().range([m.l,w-m.r]),ys=d3.scaleLinear().domain(d3.extent(pts,d=>d[2])).nice().range([h-m.b,m.t]);
-  svg.append("g").attr("transform","translate(0,"+(h-m.b)+")").call(d3.axisBottom(xs).ticks(6,"~g")).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
+  const nbCb=v=>(+v).toLocaleString("fr-FR",{maximumSignificantDigits:3});
+  svg.append("g").attr("transform","translate(0,"+(h-m.b)+")").call(d3.axisBottom(xs).ticks(6).tickFormat(nbCb)).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
   grille(svg,ys,m,w,5);
-  svg.append("g").attr("transform","translate("+m.l+",0)").call(d3.axisLeft(ys).ticks(5,"~g")).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
+  svg.append("g").attr("transform","translate("+m.l+",0)").call(d3.axisLeft(ys).ticks(5).tickFormat(nbCb)).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
   svg.append("text").attr("x",w-m.r).attr("y",h-6).attr("text-anchor","end").text(coupeLib(r.x,70)[0]);
   svg.append("text").attr("x",m.l).attr("y",10).text(coupeLib(r.y,70)[0]);
   const nomDep=c=>{const i=IDX.dep.get(c);return i==null?c:D.niveaux.dep.units[i].nm};
@@ -915,6 +937,14 @@ function croisementsBases(){
   pts.filter(d=>fragile("dep",d[0],suiCb)).forEach(d=>symboleFragile(gCb,xs(d[1]),ys(d[2]),fragile("dep",d[0],suiCb),5));
   const ch=S.sel&&S.sel.lv==="dep"&&pts.find(d=>d[0]===S.sel.c);
   if(ch)svg.append("text").attr("x",xs(ch[1])+8).attr("y",ys(ch[2])-8).attr("font-weight",600).attr("fill",css("--ink")).text(nomDep(ch[0]));
+  {const X=v=>66+v*60,mini=x=>{const net=x.lo>0||x.hi<0,c=net?css("--r4"):css("--muted");
+      return '<svg viewBox="0 0 132 16" aria-hidden="true"><line x1="6" x2="126" y1="8" y2="8" stroke="'+css("--line")+'"/><line x1="66" x2="66" y1="2" y2="14" stroke="'+css("--muted")+'" stroke-width="1"/>'
+        +'<line x1="'+X(Math.max(-1,x.lo))+'" x2="'+X(Math.min(1,x.hi))+'" y1="8" y2="8" stroke="'+c+'" stroke-width="2" stroke-linecap="round"/>'
+        +'<circle cx="'+X(x.rho)+'" cy="8" r="4.5" fill="'+(net?c:css("--panel"))+'" stroke="'+c+'" stroke-width="1.6"/></svg>'};
+    document.getElementById("cbListe").innerHTML='<div class="cb-axe"><span></span><span><span>−1</span><span>0</span><span>+1</span></span><span style="text-align:right">rho</span></div>'
+      +qs.map(t=>{const g=T.filter(x=>x.theme===t),q=(g.find(x=>x.question)||{}).question||"";
+        return '<div class="cb-q">'+esc(q)+'</div>'+g.map(x=>{const k=T.indexOf(x);
+          return '<button type="button" role="listitem" class="cb-ligne'+(k===S.cb?' on':'')+'" data-cb="'+k+'" aria-label="'+esc(phraseCroisement(x))+'"><span>'+esc(x.x+" et "+minuscule(x.y))+'</span>'+mini(x)+'<span class="rho">'+f2.format(x.rho)+'</span></button>'}).join("")}).join("")}
   document.getElementById("cbTable").innerHTML='<tr><th>Question</th><th>Mesure</th><th>Croisée avec</th><th>rho</th><th>Fourchette (95 %)</th><th>À densité de population égale</th><th>Départements</th></tr>'
     +T.map(x=>'<tr><td>'+esc(x.question||"")+'</td><td>'+esc(x.x)+'</td><td>'+esc(x.y)+'</td><td>'+f2.format(x.rho)+'</td><td>de '+f2.format(x.lo)+' à '+f2.format(x.hi)+'</td><td>'+(x.rp==null?"":f2.format(x.rp))+'</td><td>'+x.n+'</td></tr>').join("");
   const sigCb=[...new Set(pts.map(d=>fragile("dep",d[0],suiCb)).filter(Boolean))];
@@ -1649,6 +1679,7 @@ function niveauPourNuage(){
 document.getElementById("xvar").addEventListener("change",e=>{S.xvar=e.target.value;niveauPourNuage()});
 document.getElementById("yvar").addEventListener("change",e=>{S.yvar=e.target.value;niveauPourNuage()});
 document.getElementById("cbSel").addEventListener("change",e=>{S.cb=+e.target.value;croisementsBases();signer()});
+document.getElementById("cbListe").addEventListener("click",e=>{const b=e.target.closest("[data-cb]");if(!b)return;S.cb=+b.dataset.cb;croisementsBases();signer()});
 document.getElementById("indRef").addEventListener("change",e=>{S.indRef=e.target.value;indicateursEntreEux();signer()});
 document.getElementById("regRes").addEventListener("change",e=>{S.regRes=e.target.value;regressions();signer()});
 document.getElementById("q").addEventListener("input",table);

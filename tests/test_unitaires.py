@@ -660,6 +660,22 @@ def test_binomiale_negative():
     assert abs(alpha - .5) < .06, alpha
     assert abs(beta[1] - .3) < .04 and abs(beta[0] + 8) < .05, beta
 
+def test_citation_zenodo():
+    """Une version archivée est citée par Zenodo et son DOI, une version plus récente par l'adresse du site, avec le DOI
+    de la dernière version archivée. Les fichiers déposés sur Zenodo forcent la citation d'une version archivée."""
+    from pipeline import config, site
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "outils"))
+    import zenodo
+    arch = site.citation("sante", "Rapport santé", "9 octobre 2026", config.VERSION_ZENODO)["texte"]
+    assert "Zenodo. https://doi.org/" in arch and config.ADRESSE_SITE not in arch
+    if config.ADRESSE_SITE:
+        recente = site.citation("sante", "Rapport santé", "1er janvier 2099", "2099-01-01")["texte"]
+        assert "/rapports/2099-01-01/sante.html" in recente and "Dernière version archivée" in recente
+        forcee = site.citation("sante", "Rapport santé", "1er janvier 2099", "2099-01-01", archivee=True)["texte"]
+        assert forcee.endswith("Zenodo. https://doi.org/" + config.DOI_RAPPORTS["sante"])
+    assert zenodo.concept("10.5281/zenodo.23264933") == "23264933"
+
+
 if __name__ == "__main__":
     n = 0
     for nom, f in list(globals().items()):

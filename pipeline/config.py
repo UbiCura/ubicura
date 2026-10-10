@@ -901,6 +901,10 @@ DOI_RAPPORTS = {"sante-mentale": "10.5281/zenodo.23265073", "sante": "10.5281/ze
 # dernière version archivée sur Zenodo (date du dossier de résultats). Une version plus récente du site est citée par son
 # adresse, avec le DOI général à côté. À mettre à jour à chaque nouvelle version publiée sur Zenodo (tutoriels 05 et 07).
 VERSION_ZENODO = "2026-10-09"
+# les versions suivantes sont constatées sur Zenodo par outils/zenodo.py (tutoriel 07), qui l'écrit dans donnees/zenodo.json
+if (DONNEES / "zenodo.json").exists():
+    import json as _json
+    VERSION_ZENODO = _json.loads((DONNEES / "zenodo.json").read_text(encoding="utf-8")).get("version_archivee") or VERSION_ZENODO
 # titres des dépôts Zenodo, descriptifs et sans le nom du site (décision de Lucas du 9 octobre 2026), repris par les
 # citations
 TITRES_DEPOTS = {"donnees": "Offre de soins et santé mentale en France par territoire, données agrégées",
