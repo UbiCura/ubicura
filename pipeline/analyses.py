@@ -859,7 +859,7 @@ def correlations_contexte(agg, ref, ctx, rng):
     for niv in config.NIVEAUX_ANALYSE:
         if niv not in ctx:
             continue
-        for mode in ["all", "lib"]:
+        for mode in ["all", "lib", "sal"]:
             _n, dens, pop = tables(agg, ref, niv, mode)
             c = ctx[niv].reindex(dens.index)
             # contrôle de l'effet ville, logarithme de la densité de population (les rangs n'en dépendent pas)

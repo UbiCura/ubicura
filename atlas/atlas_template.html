@@ -98,6 +98,14 @@ svg.map.zoome{cursor:grab}svg.map.zoome:active{cursor:grabbing}
 .vuebar .seg{background:var(--panel)}
 svg text{fill:var(--muted);font-family:var(--sans);font-size:11px}
 /* graphiques, taille de dessin respectée (pas d'agrandissement au-delà de 1,15 fois), même interaction que les rapports */
+.legende-ev{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--muted);margin:4px 0 8px}
+.legende-ev span{display:inline-flex;align-items:center;gap:6px}
+.legende-ev i{display:inline-block;width:22px;height:10px;border-radius:2px}
+#cbTable{min-width:640px}
+#cbTable td{vertical-align:top;line-height:1.4}
+#cbTable td:first-child{min-width:280px}
+#cbTable .cb-titre th{text-align:left;font-weight:600;padding-top:14px;border-bottom:1px solid var(--line);white-space:normal}
+#cbTable .num{text-align:right}
 .cb-grille{display:grid;grid-template-columns:minmax(0,640px) minmax(0,1fr);gap:32px;align-items:start}
 @media (max-width:1100px){.cb-grille{grid-template-columns:minmax(0,1fr)}}
 .cb-vue h3{font-family:var(--serif);font-size:18px;font-weight:600;margin:8px 0 6px}
@@ -404,10 +412,12 @@ dl.gl dt{font-weight:600;margin-top:12px}dl.gl dd{margin:2px 0 0;max-width:75ch}
   </div>
   <div class="panel pad" style="margin-top:24px">
     <h2>L’effet ville retiré <button class="how" data-how="effet_ville,correlation,force">Comment lire</button></h2><div class="howtxt hidden"></div>
+    <p class="note" id="evReglages"></p>
+    <p class="legende-ev"><span><i style="background:var(--r2)"></i>Tous les territoires comparés entre eux</span><span><i style="background:var(--r5)"></i>Territoires de même densité de population comparés entre eux</span></p>
     <p class="phrase" id="evPhrase"></p>
     <svg id="effetVille" role="img" aria-label="Corrélations avec et sans effet de la densité de population" viewBox="0 0 900 400"></svg>
     <div class="hmbar" style="margin-top:6px"><button class="btn ghost" id="evTout" type="button" hidden></button></div>
-    <p class="note">Barre claire, lien entre tous les territoires. Barre foncée, lien entre territoires de même densité de population.</p>
+    <p class="note">Une barre vers la droite indique plus de professionnels là où l’indicateur est élevé, vers la gauche moins. Les pointillés marquent un lien modéré (0,3). Quand la barre foncée est bien plus courte que la claire, le lien tenait surtout à la taille des villes.</p>
     <p class="phrase synthese" id="evSynthese"></p>
     <details class="plus"><summary>Pour aller plus loin</summary><p id="evNote"></p></details>
   </div>
@@ -643,13 +653,15 @@ function boutonsHtml(){
     bx.onclick=()=>{const q=v=>/[;"]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v,nom=(titre().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,80)||id).toLowerCase();
       telecharger(new Blob(["﻿"+lignesHtml(el).map(l=>l.map(q).join(";")).join("\r\n")+"\r\n\r\n"+citationTexte(titre())],{type:"text/csv;charset=utf-8"}),nom+".csv");bx.textContent="Données enregistrées"}}}
 function boutonsCiter(){
-  boutonsTableaux();boutonsHtml();
+  // les graphiques d'abord, leur bouton Citer donne aussi l'image. Un tableau du même panneau garde ses boutons
+  // juste au-dessus de lui (citation et CSV)
   // une marque sur le graphique lui-même, car son bouton peut être placé hors de son panneau (carte des groupes)
   for(const id of GRAPHES){const el=document.getElementById(id);if(!el||el.dataset.citeGraphe)continue;const pan=el.closest(".panel");if(!pan||pan.querySelector("button.citer"))continue;
     el.dataset.citeGraphe="1";
     const b=document.createElement("button");b.type="button";b.className="citer";b.textContent="Citer";b.setAttribute("aria-expanded","false");b.dataset.graphe=id;
     const boite=document.createElement("div");boite.className="citation hidden";
-    const h2=pan.querySelector("h2");if(h2&&id!=="map"&&id!=="tmap"){h2.appendChild(b);h2.after(boite)}
+    const h2=id==="tmap"?document.getElementById("tyLegende").closest(".panel").querySelector("h2"):pan.querySelector("h2");
+    if(h2&&id!=="map"){h2.appendChild(b);(h2.nextElementSibling&&h2.nextElementSibling.classList.contains("howtxt")?h2.nextElementSibling:h2).after(boite)}
     else{const z=document.createElement("div");z.style.cssText="padding:0 16px 10px";z.appendChild(b);z.appendChild(boite);
       // carte principale, Citer à côté de Comment lire, sous la légende et au-dessus des « À savoir »
       const outils=id==="map"?document.querySelector("#mapOutils .outils"):null;
@@ -666,7 +678,8 @@ function boutonsCiter(){
             else{const png=await pngExport(id,t);if(a==="png"){telecharger(png,fichier+".png");ok("Image enregistrée")}
               else{await navigator.clipboard.write([new ClipboardItem({"image/png":png})]);ok("Image copiée")}}}
           catch(e){ok(a==="img"?"Copie impossible ici, utilisez le téléchargement":"Opération impossible")}})}
-      boite.classList.toggle("hidden",!ouvert)}}}
+      boite.classList.toggle("hidden",!ouvert)}}
+  boutonsTableaux();boutonsHtml()}
 
 // ---------- « Comment lire »
 let GL=new Map();
@@ -947,8 +960,13 @@ function croisementsBases(){
       +qs.map(t=>{const g=T.filter(x=>x.theme===t),q=(g.find(x=>x.question)||{}).question||"";
         return '<div class="cb-q">'+esc(q)+'</div>'+g.map(x=>{const k=T.indexOf(x);
           return '<button type="button" role="listitem" class="cb-ligne'+(k===S.cb?' on':'')+'" data-cb="'+k+'" aria-label="'+esc(phraseCroisement(x))+'"><span>'+esc(x.x+" et "+minuscule(x.y))+'</span>'+mini(x)+'<span class="rho">'+f2.format(x.rho)+'</span></button>'}).join("")}).join("")}
-  document.getElementById("cbTable").innerHTML='<tr><th>Question</th><th>Mesure</th><th>Croisée avec</th><th>rho</th><th>Fourchette (95 %)</th><th>À densité de population égale</th><th>Départements</th></tr>'
-    +T.map(x=>'<tr><td>'+esc(x.question||"")+'</td><td>'+esc(x.x)+'</td><td>'+esc(x.y)+'</td><td>'+f2.format(x.rho)+'</td><td>de '+f2.format(x.lo)+' à '+f2.format(x.hi)+'</td><td>'+(x.rp==null?"":f2.format(x.rp))+'</td><td>'+x.n+'</td></tr>').join("");
+  // une ligne de titre par question, puis un croisement par ligne, le lien écrit en mots avec sa valeur
+  const motLien=(v,lo,hi)=>lo!=null&&lo<=0&&hi>=0?"incertain":forceLien(v);
+  document.getElementById("cbTable").innerHTML='<thead><tr><th>Croisement</th><th>Lien entre départements</th><th>Fourchette plausible</th><th>À densité de population égale</th><th class="num">Départements</th></tr></thead><tbody>'
+    +qs.map(t=>{const g=T.filter(x=>x.theme===t),q=(g.find(x=>x.question)||{}).question||"";
+      return '<tr class="cb-titre"><th colspan="5">'+esc(q)+'</th></tr>'+g.map(x=>'<tr><td>'+esc(x.x)+'<br><span class="muted">et '+esc(minuscule(x.y))+'</span></td>'
+        +'<td>'+motLien(x.rho,x.lo,x.hi)+' ('+f2.format(x.rho)+')</td><td>de '+f2.format(x.lo)+' à '+f2.format(x.hi)+'</td>'
+        +'<td>'+(x.rp==null?"non calculé":motLien(x.rp,x.lop,x.hip)+' ('+f2.format(x.rp)+')')+'</td><td class="num">'+x.n+'</td></tr>').join("")}).join("")+'</tbody>';
   const sigCb=[...new Set(pts.map(d=>fragile("dep",d[0],suiCb)).filter(Boolean))];
   document.getElementById("cbLimite").innerHTML=(sigCb.length?'<p class="legende-signaux">'+legendeSignaux(sigCb)+'</p>':"")+limiteHtml([...(r.theme==="trajet_suicide"?["suicides","route"]:suiCb?["suicides"]:[]),...sigCb],[]);
 }
@@ -1423,9 +1441,12 @@ function heatmap(){
 // ---------- effet ville (corrélation brute et à densité de population égale)
 function effetVille(){
   const lv=S.level,p=S.prof,lab=profLab(p),svg=d3.select("#effetVille");svg.selectAll("*").remove();
+  document.getElementById("evReglages").textContent="La figure suit les choix faits en haut de la page, ici les "+pluriel(lab)+", "
+    +({dep:"par département",epci:"par intercommunalité"}[lv]||"")+", "+modeLab[S.mode]+". Chaque ligne met en regard un indicateur du profil des habitants et la densité de ces professionnels. "
+    +"La barre foncée tient égale une seule chose, la densité de population (habitants au kilomètre carré), pour comparer des territoires aussi urbains les uns que les autres. Les autres indicateurs ne sont pas tenus égaux entre eux, chacun est regardé seul, et le lien ne dit rien d’une cause.";
   const rows=(D.correlations||[]).filter(r=>r.niv===lv&&r.mode===S.mode&&r.prof===p&&r.var!=="densite_pop"&&r.rho!=null)
     .map(r=>({...r,lab:(IDX.ctx.find(c=>c.id===r.var)||{}).label||r.var})).sort((a,b)=>Math.abs(b.rho)-Math.abs(a.rho));
-  if(!rows.length||rows.every(r=>r.rp==null)){svg.append("text").attr("x",10).attr("y",30).text("Corrélations à densité égale absentes pour cette profession ou ce niveau.");document.getElementById("evPhrase").textContent="";document.getElementById("evSynthese").textContent="";return}
+  if(!rows.length||rows.every(r=>r.rp==null)){svg.append("text").attr("x",10).attr("y",30).text("Ces liens ne sont pas calculés pour ce choix. Essayez un autre mode d’exercice ou une autre profession en haut de la page.");document.getElementById("evPhrase").textContent="";document.getElementById("evSynthese").textContent="";return}
   // les 15 indicateurs les plus liés d'abord, les autres sur demande
   const total=rows.length,EV_MAX=15,bEv=document.getElementById("evTout");
   bEv.hidden=total<=EV_MAX;bEv.textContent=S.evTout?"Afficher les "+EV_MAX+" indicateurs les plus liés":"Afficher les "+total+" indicateurs";

@@ -4,7 +4,7 @@
 <h1>Rapports par territoire</h1>
 <p class="chapeau">Pour chaque région et chaque département, l'offre de soins en santé mentale et l'offre de soins générale. Effectifs et densités par profession, répartition dans le territoire, temps de trajet, évolution depuis 2016, indicateurs de besoin et de recours aux soins, comparés à la région, à la moyenne des départements et à des départements de profil comparable. Chaque chiffre renvoie à sa source.</p>
 <p class="small muted">Données du {{ date_longue }}. Pour les régions d'outre-mer, qui ne comptent qu'un département, le rapport départemental tient lieu de rapport régional. Chaque rapport s'enregistre en PDF.</p>
-<p class="small muted">Pour citer un rapport par territoire, indiquez l'auteur, le titre du rapport, sa version et l'adresse de la page, par exemple « {{ exemple_citation }} ». Chaque rapport donne sa citation en tête de page.</p>
+<p class="small muted">Pour citer un rapport par territoire, indiquez l'auteur, le titre du rapport, sa version et l'adresse de la page, par exemple « {{ exemple_citation|liens }} ». Chaque rapport donne sa citation en tête de page.</p>
 {% for r in regions %}
 <h2>{{ r.nom }}</h2>
 <table class="simple">

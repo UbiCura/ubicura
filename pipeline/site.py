@@ -333,9 +333,17 @@ def journal_page() -> dict:
 
 
 # ---------------------------------------------------------------- briques partagées avec outils/zenodo.py
+def liens(texte: str):
+    """Texte échappé dont les adresses web (DOI, pages du site) deviennent des liens cliquables. Le point final d'une
+    phrase n'entre pas dans le lien."""
+    from markupsafe import Markup, escape
+    return Markup(re.sub(r"(https?://[^\s<]+?)(?=[.,;)]?(?:\s|$))", r'<a href="\1">\1</a>', str(escape(texte))))
+
+
 def _environnement() -> Environment:
     env = Environment(loader=FileSystemLoader(GABARITS), autoescape=select_autoescape(["html"]))
     env.globals.update(nom_projet=config.NOM_PROJET, sous_titre=config.SOUS_TITRE)
+    env.filters["liens"] = liens
     return env
 
 

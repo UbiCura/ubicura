@@ -36,6 +36,8 @@ Les ajouts prévus, sans date ferme et à peu près dans l'ordre où ils viendro
 
 ## Site
 
+**Encadrés plus simples à utiliser.** Chaque encadré aura la même présentation, son titre puis « Comment lire » et un seul bouton pour citer et exporter tout ce qu'il contient (images, tableaux, données), et les tableaux les plus denses seront rendus plus faciles à lire.
+
 **Définitions précisées partout.** Chaque chiffre qui peut être mal lu à cause de sa définition (spécialité déclarée ou qualification réelle, lieu d'exercice déclaré, salariés et libéraux...) recevra une précision et sa source à côté de lui, comme c'est déjà fait pour les pédopsychiatres et les centres médico-psychologiques.
 
 **Fond clair revu.** Des couleurs plus contrastées pour la lecture sur fond clair.
