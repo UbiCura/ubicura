@@ -332,10 +332,16 @@ def cmd_constater(args) -> int:
               "changé.")
         return 0
     if v == etat.get("version_archivee", config.VERSION_ZENODO):
+        # version déjà notée, mais le site n'a peut-être pas encore été refait pour la citer (par exemple quand
+        # « publier » l'a notée juste avant la mise à jour)
+        if etat.get("site_a_refaire"):
+            print(f"La version {v} est archivée sur Zenodo, le site doit encore être refait pour la citer.")
+            return 10
         if not getattr(args, "discret", False):
             print(f"Version archivée citée par le site, {v}, déjà à jour.")
         return 0
-    etat.update({"version_archivee": v, "date_constat": dt.datetime.now().isoformat("T", "seconds")})
+    etat.update({"version_archivee": v, "date_constat": dt.datetime.now().isoformat("T", "seconds"),
+                 "site_a_refaire": True})
     if etat.get("en_preparation") == v:
         etat.pop("en_preparation", None)
         etat.pop("brouillons", None)
@@ -343,6 +349,14 @@ def cmd_constater(args) -> int:
     print(f"La version {v} est archivée sur Zenodo pour les trois dépôts. Le site la citera par son DOI après sa "
           "prochaine reconstruction (python -m pipeline.site, puis publication).")
     return 10
+
+
+def cmd_site_refait(_args) -> int:
+    """Appelé par mise_a_jour.ps1 une fois le site refait (et publié avec -Publier) pour la version archivée."""
+    etat = lire_etat()
+    if etat.pop("site_a_refaire", None):
+        ecrire_etat(etat)
+    return 0
 
 
 def cmd_rappel(args) -> int:
@@ -384,6 +398,7 @@ def main() -> int:
     p = sous.add_parser("constater")
     p.add_argument("--discret", action="store_true", help="pour la tâche planifiée, code 20 sans erreur si Zenodo "
                                                           "n'est pas joignable ou si aucune clé n'est rangée")
+    sous.add_parser("site-refait")
     p = sous.add_parser("rappel")
     p.add_argument("--jours", type=int, default=JOURS_RAPPEL, help="âge de la dernière version archivée qui déclenche "
                                                                     "le rappel")
@@ -392,7 +407,7 @@ def main() -> int:
     try:
         return {"cle": cmd_cle, "verifier": cmd_verifier, "preparer": cmd_preparer, "publier": cmd_publier,
                 "abandonner": cmd_abandonner, "constater": cmd_constater,
-                "rappel": cmd_rappel}[args.commande](args)
+                "rappel": cmd_rappel, "site-refait": cmd_site_refait}[args.commande](args)
     except Arret as e:
         print(f"Arrêt, {e}")
         return 1

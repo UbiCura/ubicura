@@ -98,7 +98,8 @@ try {
                 Ecrire "La reconstruction du site a échoué, voir donnees\execution.log."
             } elseif ($Publier) {
                 if ((PublierSite) -ne 0) { Ecrire "Site non publié, voir le compte rendu de publication dans donnees\journaux." }
-            }
+                else { & $python outils\zenodo.py site-refait | Out-Null; Ecrire "Site publié, il cite la version archivée sur Zenodo." }
+            } else { & $python outils\zenodo.py site-refait | Out-Null }
         }
     }
 
