@@ -8,6 +8,7 @@ authors:
     orcid: "https://orcid.org/0000-0003-2400-368X"
 license: EUPL-1.2
 date-released: "2026-10-09"
+url: "https://ubicura.fr"
 references:
   - type: dataset
     title: "Offre de soins et santé mentale en France par territoire, données agrégées"

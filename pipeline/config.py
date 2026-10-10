@@ -892,7 +892,7 @@ DOI_RAPPORTS = {"sante-mentale": "10.5281/zenodo.23265073", "sante": "10.5281/ze
 TITRES_DEPOTS = {"donnees": "Offre de soins et santé mentale en France par territoire, données agrégées",
                  "sante-mentale": "L'offre de soins en santé mentale en France, rapport national",
                  "sante": "L'offre de soins en France, rapport national"}
-ADRESSE_SITE = None                  # adresse publique du site, après la mise en ligne
+ADRESSE_SITE = "https://ubicura.fr"   # adresse publique du site, en ligne depuis le 10 octobre 2026 (GitHub Pages)
 
 # ---------------------------------------------------------------- journal des mises à jour
 # Chaque fichier brut porte sa date côté producteur (maj_source dans le .meta.json). Le journal regroupe les fichiers

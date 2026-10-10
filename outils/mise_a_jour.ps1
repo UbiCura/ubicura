@@ -44,6 +44,10 @@ function Ecrire([string]$texte) {
     Write-Host $ligne
     Add-Content -Path $log -Value $ligne -Encoding UTF8
 }
+function Prevenir([string]$texte) {
+    # fenêtre d'avertissement quand la mise à jour s'arrête, pour que Lucas le sache sans ouvrir les comptes rendus
+    try { Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show($texte, "Ubi Cura, mise à jour") | Out-Null } catch {}
+}
 
 function Verifier {
     # renvoie le code de sortie de la vérification (0 à jour, 10 à mettre à jour, 20 incomplète)
@@ -63,7 +67,7 @@ function Enregistrer([hashtable]$changements) {
     $etat | ConvertTo-Json | Set-Content -Path $etatFichier -Encoding UTF8
 }
 
-if (-not (Test-Path $python)) { Ecrire "Environnement Python introuvable ($python)."; exit 1 }
+if (-not (Test-Path $python)) { Ecrire "Environnement Python introuvable ($python)."; Prevenir "La mise à jour n'a pas pu démarrer, l'environnement Python est introuvable.`n`nVoir $log"; exit 1 }
 
 # une seule mise à jour à la fois (par exemple un lancement à la main pendant celui de la tâche planifiée)
 if (Test-Path $verrou) {
@@ -107,6 +111,7 @@ try {
     if ($codeRun -ne 0) {
         Ecrire "La chaîne complète s'est arrêtée en erreur après $minutes min (code $codeRun), voir donnees\execution.log."
         Enregistrer @{ dernier_resultat = "erreur"; derniere_erreur = (Get-Date -Format s) }
+        Prevenir "La mise à jour s'est arrêtée en erreur. Rien n'a été publié, le site en ligne n'a pas changé.`n`nVoir $log"
         exit 1
     }
     Ecrire "Chaîne complète terminée en $minutes min."
@@ -119,6 +124,7 @@ try {
     } elseif ($apres -eq 10) {
         Ecrire "Attention, une source signalée n'a pas été reprise. Voir donnees\verification.json et donnees\execution.log."
         Enregistrer @{ derniere_mise_a_jour = (Get-Date -Format s); dernier_resultat = "mise à jour partielle" }
+        Prevenir "Une source signalée n'a pas été reprise. Rien n'a été publié, le site en ligne n'a pas changé.`n`nVoir $log"
         exit 1
     } else {
         Ecrire "Contrôle après coup incomplet (producteur injoignable), la mise à jour elle-même a réussi."
@@ -131,6 +137,7 @@ try {
     if ($codeCtrl -ne 0) {
         Ecrire "Attention, le contrôle indépendant relève au moins un écart. Ne pas publier cette version avant vérification."
         Enregistrer @{ dernier_controle = "écart" }
+        Prevenir "Le contrôle indépendant relève un écart dans les chiffres. Rien n'a été publié, le site en ligne n'a pas changé.`n`nVoir $log"
         exit 1
     }
     Enregistrer @{ dernier_controle = "conforme" }

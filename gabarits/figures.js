@@ -42,7 +42,15 @@
     var v=[x,y,w,h].map(function(n){return +n.toFixed(2)}).join(" ");s.setAttribute("viewBox",v);s.dataset.vbz=v;boutons(s)}
   function entier(s){return !s.dataset.vb0||s.getAttribute("viewBox")===s.dataset.vb0}
   function boutons(s){
-    var hote=s.closest("figure")||s.parentNode;if(!hote||hote.querySelector(":scope > .zoom-boutons"))return;
+    var hote=s.closest("figure");
+    if(!hote){
+      // hors d'une figure (atlas), les boutons vont sur une ligne à eux juste au-dessus du graphique, sans recouvrir le
+      // titre du panneau ni le bouton Citer
+      hote=s.parentNode;
+      if(hote&&!hote.classList.contains("fig-zoom")){var enveloppe=document.createElement("div");enveloppe.className="fig-zoom";
+        hote.insertBefore(enveloppe,s);enveloppe.appendChild(s);hote=enveloppe}
+    }
+    if(!hote||hote.querySelector(":scope > .zoom-boutons"))return;
     var bz=document.createElement("div");bz.className="zoom-boutons";
     bz.innerHTML='<button type="button" aria-label="Zoomer">+</button><button type="button" aria-label="Dézoomer">−</button><button type="button" aria-label="Revenir à la vue entière">⟲</button>';
     if(getComputedStyle(hote).position==="static")hote.style.position="relative";
