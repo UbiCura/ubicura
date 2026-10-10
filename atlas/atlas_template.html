@@ -218,6 +218,7 @@ ul.src{padding-left:1.1em;margin:8px 0}ul.src li{margin-bottom:6px}
 .panel h2 > button.how,.panel h2 > button.how ~ button.citer{margin-left:0}
 .panel h2 > button:first-of-type{margin-left:auto}
 .selhead h2 > button:first-of-type{margin-left:12px}
+#mapOutils .outils{display:flex;gap:8px;align-items:center}
 .legende-barres svg{width:46px;height:10px;vertical-align:-1px;margin-right:6px}
 .repli-fiche .chevron{display:inline-block;transition:transform .15s}
 .repli-fiche[aria-expanded="false"] .chevron{transform:rotate(-90deg)}
@@ -285,8 +286,8 @@ dl.gl dt{font-weight:600;margin-top:12px}dl.gl dd{margin:2px 0 0;max-width:75ch}
       <div class="vuebar"><div class="seg" data-k="vue" role="group" aria-label="Présentation"><button data-v="carte">Carte</button><button data-v="tuiles" title="Un carré de même taille par département">Tuiles</button></div></div>
       <svg class="map" id="map" viewBox="0 0 960 800" role="img" aria-label="Carte de France"></svg>
       <div class="legend" id="legend"></div>
-      <div id="mapLimite" style="padding:0 16px"></div>
-      <div style="padding:0 16px 14px"><button class="how" data-how="densite,attendu,accessibilite,zones,epci">Comment lire</button><div class="howtxt hidden"></div></div>
+      <div id="mapOutils" style="padding:0 16px 8px"><span class="outils"><button class="how" data-how="densite,attendu,accessibilite,zones,epci">Comment lire</button></span><div class="howtxt hidden"></div></div>
+      <div id="mapLimite" style="padding:0 16px 14px"></div>
       <div class="tip" id="tip"></div>
     </div>
     <div class="side"><div class="dedans">
@@ -627,8 +628,11 @@ function boutonsCiter(){
     const boite=document.createElement("div");boite.className="citation hidden";
     const h2=pan.querySelector("h2");if(h2&&id!=="map"&&id!=="tmap"){h2.appendChild(b);h2.after(boite)}
     else{const z=document.createElement("div");z.style.cssText="padding:0 16px 10px";z.appendChild(b);z.appendChild(boite);
-      const apres=id==="map"?document.getElementById("legend"):id==="tmap"?document.getElementById("tyLegende"):null;
-      if(apres)apres.after(z);else pan.appendChild(z)}
+      // carte principale, Citer à côté de Comment lire, sous la légende et au-dessus des « À savoir »
+      const outils=id==="map"?document.querySelector("#mapOutils .outils"):null;
+      if(outils){outils.appendChild(b);outils.after(boite)}
+      else{const apres=id==="tmap"?document.getElementById("tyLegende"):null;
+        if(apres)apres.after(z);else pan.appendChild(z)}}
     b.onclick=()=>{const ouvert=boite.classList.contains("hidden");b.setAttribute("aria-expanded",String(ouvert));
       if(ouvert){const t=citationTexte(titreGraphe(id));
         boite.innerHTML='<p>'+esc(t)+'</p><div class="hmbar"><button class="btn ghost" type="button" data-a="cit">Copier la citation</button><button class="btn ghost" type="button" data-a="img">Copier l’image</button><button class="btn ghost" type="button" data-a="png">Télécharger en PNG</button><button class="btn ghost" type="button" data-a="svg">Télécharger en SVG</button></div><p class="small muted" style="margin:6px 0 0">L’image porte la source, merci de joindre la citation à toute reprise.</p>';
