@@ -1,0 +1,59 @@
+#!/bin/sh
+# Vérification avant tout envoi (git push). Bloque l'envoi si
+#  1. un commit porte un nom ou une adresse autre que l'identité autorisée ;
+#  2. un fichier de donnees/, un fichier RPPS ou un journal d'exécution a été commité, même dans
+#     un commit ancien ;
+#  3. un identifiant RPPS (11 chiffres commençant par 810) figure dans le contenu envoyé.
+# L'identité autorisée est lue dans la configuration du dépôt
+#   git config offresoins.nomautorise "Lucas Pithon"
+#   git config offresoins.adresseautorisee "<numero>+<pseudo>@users.noreply.github.com"
+# Lancement manuel, sans rien envoyer : git hook run pre-push
+
+nom_ok=$(git config --get offresoins.nomautorise)
+adresse_ok=$(git config --get offresoins.adresseautorisee)
+erreur=0
+
+echo "Vérification avant envoi..."
+
+if [ -z "$nom_ok" ] || [ -z "$adresse_ok" ]; then
+  echo "BLOQUÉ. Identité autorisée non configurée (offresoins.nomautorise, offresoins.adresseautorisee)."
+  exit 1
+fi
+if ! echo "$adresse_ok" | grep -Eq '^[0-9]+\+[A-Za-z0-9-]+@users\.noreply\.github\.com$'; then
+  echo "BLOQUÉ. L'adresse autorisée n'est pas une adresse anonyme GitHub : $adresse_ok"
+  exit 1
+fi
+
+# 1. identités de tous les commits (auteur et committer)
+mauvais=$(git log --all --format='%an <%ae>%n%cn <%ce>' | sort -u | grep -vxF "$nom_ok <$adresse_ok>")
+if [ -n "$mauvais" ]; then
+  echo "BLOQUÉ. Identités non autorisées dans l'historique :"
+  echo "$mauvais" | sed 's/^/    /'
+  erreur=1
+fi
+
+# 2. fichiers interdits, dans tout l'historique
+interdits=$(git log --all --name-only --format='' | sort -u | \
+  grep -Ei '^donnees/|(^|/)rpps_[^/]*$|rpps[^/]*\.(txt|csv|parquet)$|_activites\.parquet$|\.log$|(^|/)journal\.json$|^resultats/')
+if [ -n "$interdits" ]; then
+  echo "BLOQUÉ. Fichiers de données présents dans l'historique (il faudra nettoyer l'historique) :"
+  echo "$interdits" | sed 's/^/    /'
+  erreur=1
+fi
+
+# 3. identifiants RPPS dans le contenu de chaque branche
+for ref in $(git for-each-ref --format='%(objectname)' refs/heads); do
+  trouve=$(git grep -lE '(^|[^0-9])810[0-9]{8}([^0-9]|$)' "$ref" -- . ':!*.min.js' 2>/dev/null)
+  if [ -n "$trouve" ]; then
+    echo "BLOQUÉ. Identifiants RPPS possibles dans :"
+    echo "$trouve" | sed 's/^/    /'
+    erreur=1
+  fi
+done
+
+if [ "$erreur" -ne 0 ]; then
+  echo "Envoi annulé. Rien n'a été publié."
+  exit 1
+fi
+echo "Vérification réussie, aucune donnée sensible ni identité étrangère."
+exit 0

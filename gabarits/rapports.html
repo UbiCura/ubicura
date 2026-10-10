@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block contenu %}
+<div class="etroit">
+<h1>Rapports nationaux</h1>
+<p class="chapeau">L'offre de soins en France, en santé mentale et en santé générale. Effectifs et densités par profession, inégalités entre territoires, liens avec le profil des habitants, temps d'accès, évolution depuis 2016 et indicateurs de besoin, avec les précautions de lecture et les sources de chaque chiffre.</p>
+{% set derniere = versions[0] %}
+<div class="cartes">
+  <div class="carte rapport-carte">
+    <strong>Santé mentale</strong>
+    <span>Psychologues, psychiatres et psychiatres de l'enfant, psychiatrie à l'hôpital, besoins et recours aux soins, protection de l'enfance, handicap et précarité.</span>
+    <span class="version">Version du {{ derniere.date_longue }}</span>
+    <span class="actions"><a class="bouton" href="{{ derniere.dossier }}/sante-mentale.html">Lire le rapport</a>{% if derniere.pdf_sm %} <a class="bouton secondaire" href="{{ derniere.dossier }}/sante-mentale.pdf">PDF</a>{% endif %}</span>
+  </div>
+  <div class="carte rapport-carte">
+    <strong>Santé</strong>
+    <span>Médecins généralistes et spécialistes, infirmiers, rééducation, pharmacies, sages-femmes et autres professions, maladies chroniques, accès financier.</span>
+    <span class="version">Version du {{ derniere.date_longue }}</span>
+    <span class="actions"><a class="bouton" href="{{ derniere.dossier }}/sante.html">Lire le rapport</a>{% if derniere.pdf_sante %} <a class="bouton secondaire" href="{{ derniere.dossier }}/sante.pdf">PDF</a>{% endif %}</span>
+  </div>
+</div>
+<p>Chaque rapport se termine par un court chapitre qui croise santé mentale et santé. Des rapports par région et par département sont aussi disponibles, voir <a href="territoires/index.html">Rapports par territoire</a>.</p>
+{% if versions|length > 1 %}
+<details class="versions">
+<summary>Versions précédentes</summary>
+<table class="simple">
+<thead><tr><th>Version</th><th>Santé mentale</th><th>Santé</th></tr></thead>
+<tbody>
+{% for v in versions[1:] %}
+<tr>
+  <td>{{ v.date_longue }}</td>
+  <td><a href="{{ v.dossier }}/sante-mentale.html">Lire</a>{% if v.pdf_sm %}, <a href="{{ v.dossier }}/sante-mentale.pdf">PDF</a>{% endif %}</td>
+  <td><a href="{{ v.dossier }}/sante.html">Lire</a>{% if v.pdf_sante %}, <a href="{{ v.dossier }}/sante.pdf">PDF</a>{% endif %}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</details>
+{% endif %}
+<p class="small muted">Chaque version décrit les données disponibles à sa date. Les chiffres d'une version à l'autre peuvent varier parce que les données ont changé, mais aussi parce que la méthode a été améliorée. Les changements de méthode sont signalés dans la page Méthode, données et limites.</p>
+</div>
+{% endblock %}

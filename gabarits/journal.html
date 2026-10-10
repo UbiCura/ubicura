@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block contenu %}
+<div class="etroit">
+<h1>Journal des mises à jour</h1>
+<p class="chapeau">Les données sont reprises auprès de chaque producteur à chaque mise à jour. Cette page indique ce qui a changé, jeu par jeu, et les nouveautés du site.</p>
+
+<h2>État des jeux de données</h2>
+<p>La version du producteur est la date de mise à jour qu'il annonce. Chaque changement de version est signalé dans l'historique plus bas.</p>
+<div class="defile"><table class="simple">
+<thead><tr><th>Jeu de données</th><th>Producteur</th><th>Version du producteur</th><th>Récupéré le</th><th>Dernier changement constaté</th></tr></thead>
+<tbody>
+{% for s in etat %}
+<tr><td>{{ s.jeu }}</td><td>{{ s.producteur }}</td><td>{{ s.maj or "non annoncée" }}</td><td>{{ s.recupere }}</td><td>{{ s.change }}</td></tr>
+{% endfor %}
+</tbody></table></div>
+
+<h2>Historique</h2>
+{% for e in entrees %}
+<section class="journal-entree">
+<h3>{{ e.date_longue }}</h3>
+{% if e.premiere %}
+<p>Première mise à jour consignée dans ce journal, avec {{ e.n_jeux }} jeux de données suivis. Les versions de chaque jeu sont dans le tableau précédent.</p>
+{% endif %}
+{% if not e.premiere or e.sources %}
+<h4>Données</h4>
+{% if e.sources %}
+<ul>
+{% for s in e.sources %}
+<li>{{ s.jeu }} ({{ s.producteur }}){% if s.nature == "nouveau" %}, ajouté au site{% if s.maj %}, version du {{ s.maj }}{% endif %}{% elif s.nature == "retiré" %}, retiré du site{% else %}, nouvelle version{% if s.maj %} du {{ s.maj }}{% endif %}{% if s.maj_avant and s.maj_avant != s.maj %} (précédente du {{ s.maj_avant }}){% endif %}{% if s.total and s.total > 1 %}, {{ s.fichiers }} fichier{{ "s" if s.fichiers > 1 }} sur {{ s.total }}{% endif %}{% endif %}.</li>
+{% endfor %}
+</ul>
+{% else %}
+<p>Aucun jeu de données n'a changé depuis la mise à jour précédente.</p>
+{% endif %}
+{% endif %}
+{% if e.variations %}
+<h4>Effectifs nationaux</h4>
+<table class="simple"><thead><tr><th>Profession</th><th>Avant</th><th>Maintenant</th><th>Écart</th></tr></thead><tbody>
+{% for v in e.variations %}<tr><td>{{ v.libelle }}</td><td>{{ v.avant_txt }}</td><td>{{ v.apres_txt }}</td><td>{{ v.ecart_txt }}</td></tr>{% endfor %}
+</tbody></table>
+{% endif %}
+{% if e.site %}
+<h4>Site</h4>
+<ul>{% for l in e.site %}<li>{{ l }}</li>{% endfor %}</ul>
+{% endif %}
+{% if e.indisponibles %}
+<p class="small">Sources indisponibles lors de cette mise à jour, {{ e.indisponibles|join(", ") }}. Le détail est sur la page <a href="{{ racine }}methode.html">Méthode, données et limites</a>.</p>
+{% endif %}
+</section>
+{% else %}
+<p>Aucune mise à jour consignée pour l'instant.</p>
+{% endfor %}
+</div>
+{% endblock %}

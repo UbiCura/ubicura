@@ -1,0 +1,35 @@
+<nav class="site" aria-label="Navigation du site">
+  <div class="in">
+    <a class="marque" href="{{ racine }}index.html" title="{{ sous_titre }}">{{ nom_projet }}</a>
+    <a class="l{% if page == 'atlas' %} on{% endif %}" href="{{ racine }}atlas.html">Atlas</a>
+    <a class="l{% if page == 'rapports' %} on{% endif %}" href="{{ racine }}rapports.html">Rapports nationaux</a>
+    <a class="l{% if page == 'territoires' %} on{% endif %}" href="{{ racine }}territoires/index.html">Rapports par territoire</a>
+    <a class="l{% if page == 'methode' %} on{% endif %}" href="{{ racine }}methode.html">Méthode, données et limites</a>
+    {% set pages_projet = [('apropos', 'a-propos.html', 'À propos'), ('publications', 'publications.html', 'Publications'),
+                           ('journal', 'journal.html', 'Journal des mises à jour'), ('a-venir', 'a-venir.html', 'À venir'),
+                           ('contribuer', 'contribuer.html', 'Proposer une base de données')] %}
+    <div class="projet">
+      <button class="l{% if page in pages_projet|map(attribute=0)|list %} on{% endif %}" id="bouton-projet" type="button" aria-expanded="false" aria-controls="menu-projet">Le projet <span class="fleche" aria-hidden="true">▾</span></button>
+      <div class="sous-menu" id="menu-projet" hidden>
+        {% for cle, lien, titre in pages_projet %}<a href="{{ racine }}{{ lien }}"{% if page == cle %} aria-current="page"{% endif %}>{{ titre }}</a>
+        {% endfor %}
+      </div>
+    </div>
+    <button class="theme" id="bascule-theme" type="button" aria-pressed="false">Fond clair</button>
+  </div>
+</nav>
+<script>
+// menu « Le projet », ouvert au clic ou au clavier, fermé par Échap ou par un clic ailleurs
+(function(){var b=document.getElementById("bouton-projet"),m=document.getElementById("menu-projet");if(!b||!m)return;
+function ouvrir(o,focus){m.hidden=!o;b.setAttribute("aria-expanded",String(o));if(o&&focus){var a=m.querySelector("a");if(a)a.focus()}}
+b.addEventListener("click",function(){ouvrir(m.hidden,false)});
+b.addEventListener("keydown",function(e){if(e.key==="ArrowDown"){e.preventDefault();ouvrir(true,true)}});
+m.addEventListener("keydown",function(e){var l=[].slice.call(m.querySelectorAll("a")),i=l.indexOf(document.activeElement);
+  if(e.key==="ArrowDown"){e.preventDefault();l[(i+1)%l.length].focus()}else if(e.key==="ArrowUp"){e.preventDefault();l[(i-1+l.length)%l.length].focus()}});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!m.hidden){ouvrir(false);b.focus()}});
+document.addEventListener("click",function(e){if(!m.hidden&&!b.parentNode.contains(e.target))ouvrir(false)})})();
+(function(){var b=document.getElementById("bascule-theme"),r=document.documentElement;
+function maj(){var c=r.getAttribute("data-theme")==="light";b.textContent=c?"Fond sombre":"Fond clair";b.setAttribute("aria-pressed",String(c))}
+maj();b.addEventListener("click",function(){var t=r.getAttribute("data-theme")==="light"?"dark":"light";r.setAttribute("data-theme",t);
+try{localStorage.setItem("theme",t)}catch(e){}maj();window.dispatchEvent(new Event("theme"))})})();
+</script>

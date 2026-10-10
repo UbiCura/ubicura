@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block contenu %}
+<h1>Méthode, données et limites</h1>
+<p class="chapeau">Comment les chiffres sont produits, d'où ils viennent, ce qu'ils ne disent pas, comment les vérifier et les réutiliser.</p>
+<div class="rapport">
+<aside class="sommaire" aria-label="Sommaire de la page">
+<ul>
+<li><a href="#methode">Comment les chiffres sont établis</a></li>
+{% if limites %}<li><a href="#limites">Limites connues des données</a></li>{% endif %}
+<li><a href="#sources">Sources</a></li>
+<li><a href="#origine">D'où vient chaque chiffre</a></li>
+{% if concordance %}<li><a href="#concordance">Concordance des effectifs avec les chiffres officiels</a></li>{% endif %}
+{% if inscrits %}<li><a href="#inscrits">Inscrits sans activité déclarée</a></li>{% endif %}
+<li><a href="#indicateurs">Indicateurs du profil des territoires</a></li>
+<li><a href="#controles">Contrôles</a></li>
+{% if logiciels %}<li><a href="#logiciels">Logiciels et reproductibilité</a></li>{% endif %}
+<li><a href="#libelles">Noms des établissements</a></li>
+<li><a href="#licences">Licences et conditions de réutilisation</a></li>
+<li><a href="#telecharger">Données à télécharger</a></li>
+</ul>
+</aside>
+<div class="methode">
+
+<h2 id="methode">Comment les chiffres sont établis</h2>
+<p>Les chiffres proviennent des bases publiques listées plus bas. Les professionnels sont comptés par territoire, puis ces effectifs sont rapprochés du profil des habitants. Un professionnel est compté une fois par territoire où il déclare exercer, et une seule fois pour la France entière. Les analyses portent sur des territoires (communes, intercommunalités, départements, régions), jamais sur des personnes. Les résultats ne contiennent que des comptages, aucun nom ni identifiant de professionnel.</p>
+<p>Les données couvrent tous les professionnels inscrits au répertoire, pas un échantillon. Les tests statistiques sont donc indicatifs, et chaque résultat est accompagné d'une mesure de sa force et de son incertitude. Les liens entre territoires ne disent rien d'une cause.</p>
+
+{% if limites %}
+<h2 id="limites">Limites connues des données</h2>
+<p>Certaines données sont incomplètes ou sous-déclarées. Chaque limite est rappelée là où la donnée est montrée, avec la source qui l'établit. Les voici réunies.</p>
+<div class="defile"><table class="simple limites">
+<thead><tr><th>Donnée</th><th>Nature de la limite</th><th>Ce qu'il faut savoir</th><th>Source</th></tr></thead>
+<tbody>
+{% for l in limites %}<tr><td>{{ l.cle }}</td><td>{{ l.risque }}</td><td>{{ l.texte }}</td><td>{% for s in l.sources %}<a href="{{ s.url }}">{{ s.titre }}</a>{% if not loop.last %}<br>{% endif %}
+{% endfor %}</td></tr>
+{% endfor %}</tbody></table></div>
+{% endif %}
+
+
+<h2 id="sources">Sources</h2>
+<p>Chaque source renvoie à la page du jeu de données chez son producteur. La date est celle de la dernière mise à jour annoncée par le producteur, à défaut celle du téléchargement.</p>
+<table class="simple">
+<thead><tr><th>Source</th><th>Producteur</th><th>Licence</th><th>Données du</th><th>Statut</th><th>Détail</th></tr></thead>
+<tbody>
+{% for s in sources %}
+<tr><td>{% if s.page or s.url %}<a href="{{ s.page or s.url }}">{{ s.source }}</a>{% else %}{{ s.source }}{% endif %}{% if s.url and s.page and s.url != s.page %} <span class="small">(<a href="{{ s.url }}">fichier lu</a>)</span>{% endif %}</td>
+<td>{{ s.producteur }}</td><td>{{ s.licence }}</td><td>{{ s.date_donnees }}</td>
+<td class="statut-{{ 'ok' if s.statut == 'ok' else 'erreur' }}">{{ s.statut }}</td><td>{{ s.detail }}</td></tr>
+{% endfor %}
+</tbody></table>
+<p class="small">Chaque jeu de données a sa fiche (fichiers lus, versions, indicateurs qui en dérivent) sur la page <a href="{{ racine }}donnees-sources.html">Données sources</a>. Les changements de version de chaque jeu sont consignés dans le <a href="{{ racine }}journal.html">journal des mises à jour</a>. D'autres bases sont prévues, voir la page <a href="{{ racine }}a-venir.html">À venir</a>. Une base publique utile peut être <a href="{{ racine }}contribuer.html">proposée</a>.</p>
+
+<h2 id="origine">D'où vient chaque chiffre</h2>
+<p>Pour chaque type de chiffre affiché sur le site et dans les rapports, la source et le calcul. Les sources sont détaillées dans le tableau précédent, avec leur date et leur licence.</p>
+<div class="defile"><table class="simple">
+<thead><tr><th>Chiffre affiché</th><th>Source</th><th>Calcul</th></tr></thead>
+<tbody>
+<tr><td>Nombre de professionnels en France</td><td>RPPS (Agence du numérique en santé)</td><td>Personnes ayant au moins une activité déclarée, comptées une seule fois. Les étudiants (internes remplaçants) et les personnels non soignants du répertoire sont écartés. La spécialité d'un médecin est sa spécialité ordinale, à défaut sa compétence exclusive.</td></tr>
+<tr><td>Nombre de professionnels d'un territoire</td><td>RPPS</td><td>Personnes ayant au moins une activité de soins avec un lieu d'exercice dans le territoire. Une personne qui exerce dans plusieurs territoires compte dans chacun. Les activités sans soins à la population (téléconsultation, industrie, sièges...) et les activités sans lieu (remplacements) sont comptées à part.</td></tr>
+<tr><td>Densité pour 10 000 habitants</td><td>RPPS et population municipale de l'INSEE (référentiel d'Etalab)</td><td>Nombre de professionnels divisé par la population, multiplié par 10 000.</td></tr>
+<tr><td>Établissements et périmètre élargi de la santé mentale</td><td>FINESS, apparié au RPPS par le numéro d'établissement</td><td>Salariés d'un établissement de catégorie psychiatrique ou médico-psychologique, toutes professions.</td></tr>
+<tr><td>Profil des territoires (âge, revenu, pauvreté, chômage, diplôme, logement...)</td><td>INSEE, dossier complet</td><td>Valeurs publiées par l'INSEE pour chaque intercommunalité, département et région. Pour les parts, le numérateur et le dénominateur publiés par l'INSEE. Voir le tableau des indicateurs.</td></tr>
+<tr><td>Patients pris en charge pour troubles psychiques, psychotropes</td><td>Assurance Maladie, cartographie des pathologies</td><td>Patients divisés par la population couverte. La prévalence standardisée sur l'âge est calculée ici par la méthode directe, avec la structure d'âge de la France.</td></tr>
+<tr><td>Suicides, gestes auto-infligés</td><td>Santé publique France, portail Odissé</td><td>Valeurs publiées, lues telles quelles, dernière année disponible.</td></tr>
+<tr><td>Dépassements d'honoraires, patients sans médecin traitant</td><td>Assurance Maladie</td><td>Part des libéraux en secteur 2 ou non conventionnés, calculée ici à partir des effectifs par secteur. Part des patients sans médecin traitant lue telle quelle.</td></tr>
+<tr><td>Psychiatrie à l'hôpital</td><td>DREES, SAE</td><td>Lits, places, CMP, temps plein et file active des établissements additionnés par département, rapportés à la population (aux moins de 15 ans pour la psychiatrie de l'enfant).</td></tr>
+<tr><td>Protection de l'enfance, handicap</td><td>DREES, indicateurs sociaux départementaux</td><td>Valeurs publiées, lues telles quelles.</td></tr>
+<tr><td>Temps de trajet par la route</td><td>INSEE, distancier</td><td>Durée du trajet en voiture, aux heures creuses, de chaque carreau habité de 200 mètres vers l'équipement le plus proche (professionnels libéraux et structures de la base permanente des équipements), résumée par commune puis par territoire en tenant compte des habitants.</td></tr>
+<tr><td>Accessibilité calculée ici, distances</td><td>RPPS, contours des communes de l'IGN</td><td>Distance à vol d'oiseau entre centres de communes et méthode à deux étapes, comparée à l'accessibilité potentielle localisée de la DREES.</td></tr>
+<tr><td>Effectif attendu</td><td>RPPS et INSEE</td><td>Modèle de comptage (Poisson, vérifié par un modèle binomial négatif) sur les indicateurs de l'INSEE. Ce n'est pas un besoin de soins.</td></tr>
+<tr><td>Indices d'inégalité, corrélations, tests</td><td>Calculés ici à partir des chiffres ci-dessus</td><td>Méthodes décrites dans les volets « Pour aller plus loin » des rapports, avec leurs intervalles de confiance.</td></tr>
+</tbody></table></div>
+
+
+{% if concordance %}
+<h2 id="concordance">Concordance des effectifs avec les chiffres officiels</h2>
+<p>Les effectifs calculés ici sont rapprochés, profession par profession, des séries publiées par la DREES sur <a href="https://data.drees.solidarites-sante.gouv.fr/explore/dataset/la-demographie-des-professionnels-de-sante-depuis-2012/information/">la démographie des professionnels de santé</a>. Les deux comptages ne portent pas toujours sur le même champ ni sur la même date. Chaque écart est expliqué dans la dernière colonne. Pour les professions que la DREES compte aussi à partir du RPPS, la colonne « écart à la tendance » compare notre effectif à celui de la DREES prolongé jusqu'à la date de notre extraction, à croissance constante. La colonne « classement des départements » vaut 1 quand les deux sources classent les départements exactement dans le même ordre.</p>
+<div class="defile"><table class="simple">
+<thead><tr><th>Profession</th><th>Ici</th><th>DREES</th><th>Année DREES</th><th>Écart</th><th>Écart à la tendance</th><th>Classement des départements</th><th>Explication</th></tr></thead>
+<tbody>
+{% for c in concordance %}<tr><td>{{ c.libelle }}</td><td>{{ c.nous }}</td><td>{{ c.drees }}</td><td>{{ c.annee }}</td><td>{{ c.ecart }}</td><td>{{ c.tendance }}</td><td>{{ c.rang }}</td><td>{{ c.explication }}</td></tr>
+{% endfor %}</tbody></table></div>
+<p>Le détail, avec les départements, est dans les fichiers concordance_effectifs.csv et concordance_effectifs_dep.csv.</p>
+{% endif %}
+
+{% if inscrits %}
+<h2 id="inscrits">Inscrits sans activité déclarée</h2>
+<p>Le RPPS compte aussi des personnes inscrites qui ne déclarent aucune activité. Pour elles, le fichier ne donne ni lieu, ni mode d'exercice, ni âge, ni date. On ne peut donc pas dire qu'elles n'exercent pas. Il peut s'agir de personnes retraitées, en congé, ayant changé de métier, ou exerçant sans avoir déclaré leur activité. Les effectifs publiés sur ce site sont ceux de la colonne « avec une activité déclarée ». Les étudiants sont exclus.</p>
+<div class="defile"><table class="simple">
+<thead><tr><th>Profession (libellé du RPPS)</th><th>Inscrits</th><th>Avec une activité déclarée</th><th>Sans activité déclarée</th><th>Part sans activité déclarée</th></tr></thead>
+<tbody>
+{% for c in inscrits %}<tr><td>{{ c.libelle }}</td><td>{{ c.inscrits }}</td><td>{{ c.avec }}</td><td>{{ c.sans }}</td><td>{{ c.part }}</td></tr>
+{% endfor %}</tbody></table></div>
+{% endif %}
+
+<h2 id="indicateurs">Indicateurs du profil des territoires</h2>
+<table class="simple">
+<thead><tr><th>Indicateur</th><th>Unité</th><th>Explication</th><th>Disponible pour</th><th>Source</th><th>Licence</th></tr></thead>
+<tbody>
+{% for c in indicateurs %}
+<tr><td>{{ c.label }}</td><td>{{ c.unite }}</td><td>{{ c.explication }}</td><td>{{ (c.niveaux or [])|join(', ') }}</td><td>{% if c.fiche %}<a href="{{ racine }}donnees-sources.html#{{ c.fiche }}">{{ c.source }}</a>{% else %}{{ c.source }}{% endif %}</td><td>{{ c.licence }}</td></tr>
+{% endfor %}
+</tbody></table>
+
+<h2 id="controles">Contrôles</h2>
+<p>Chaque version fait l'objet de contrôles de cohérence (appariement des bases, part des activités localisées, millésimes). Leurs résultats sont repris ici.</p>
+<table class="simple"><tbody>
+{% for nom, res in controles %}<tr><td>{{ nom }}</td><td>{{ res }}</td></tr>{% endfor %}
+</tbody></table>
+
+{% if logiciels %}
+<h2 id="logiciels">Logiciels et reproductibilité</h2>
+<p>Les calculs sont réalisés en Python {{ logiciels.python }}. Les tirages aléatoires (rééchantillonnage pour les intervalles de confiance, permutations) utilisent une graine fixe, {{ logiciels.graine }}, pour que les résultats soient identiques d'une exécution à l'autre sur les mêmes données. Chaque source est consignée avec la date annoncée par son producteur et la date de téléchargement. Le code sera publié avec la première version citable du jeu de données.</p>
+<div class="defile"><table class="simple">
+<thead><tr><th>Bibliothèque</th><th>Version</th><th>Usage</th></tr></thead>
+<tbody>
+{% for b in logiciels.bibliotheques %}<tr><td>{{ b.nom }}</td><td>{{ b.version }}</td><td>{{ b.role }}</td></tr>
+{% endfor %}</tbody></table></div>
+{% endif %}
+
+<h2 id="libelles">Noms des établissements</h2>
+<p>Certaines nomenclatures officielles emploient des formulations datées ou stigmatisantes. Elles sont remplacées à l'affichage par des formulations respectueuses des personnes, en gardant les sigles d'usage. Les fichiers de données gardent les deux libellés, et la table de correspondance ({{ libelles|length }} libellés, avec le libellé officiel de chaque nomenclature) est disponible dans le fichier <a href="{{ lien_libelles }}">libelles.csv</a>.</p>
+
+<h2 id="licences">Licences et conditions de réutilisation</h2>
+<p>{{ licences }}</p>
+<p>Les sources sous <a href="https://www.etalab.gouv.fr/licence-ouverte-open-licence/">Licence Ouverte 2.0</a> (répertoire RPPS, FINESS, INSEE, Santé publique France, DREES, référentiel géographique, contours de l'IGN) peuvent être réutilisées librement, à condition d'en citer le producteur et la date de mise à jour, ce que fait le tableau des sources. Les temps de trajet de l'INSEE reposent sur le réseau routier d'OpenStreetMap, © ses contributeurs.</p>
+<p>Les bases de l'Assurance Maladie (cartographie des pathologies, effectifs par secteur conventionnel, patients sans médecin traitant) sont sous <a href="https://opendatacommons.org/licenses/odbl/1-0/">licence ODbL 1.0</a>. Toute base qui en dérive et qui est diffusée doit l'être sous la même licence, sous une forme lisible par une machine, avec la mention de la source. C'est le cas ici des fichiers suffixés _odbl, qui isolent ces indicateurs et ce qui en dérive (prévalences à âge égal, parts de secteur 2, corrélations, quadrants), et des données intégrées à l'atlas. Les rapports et les cartes qui affichent ces indicateurs le signalent dans leurs sources. Si vous réutilisez ces fichiers, ils restent sous ODbL et doivent citer l'Assurance Maladie (Cnam).</p>
+<p>Ce site est une réutilisation indépendante. Il n'est ni produit ni validé par les organismes producteurs des données.</p>
+<p>Logiciels et polices intégrés au site, <a href="https://d3js.org">d3</a> et <a href="https://github.com/topojson/topojson-client">topojson-client</a> (licence ISC, © Mike Bostock), polices Newsreader et Work Sans (SIL Open Font License).</p>
+
+<h2 id="telecharger">Données à télécharger</h2>
+<p><a href="{{ archive.lien }}">Télécharger toutes les données de la version</a> (archive zip, {{ archive.taille }}).</p>
+<p>Fichiers CSV de la version du {{ date_longue }}, séparateur point-virgule et virgule décimale, pour s'ouvrir directement dans un tableur. Les plus gros sont compressés en zip. Le <a href="{{ lien_dictionnaire }}">dictionnaire des colonnes</a> décrit chaque fichier et chaque colonne.</p>
+<table class="simple"><thead><tr><th>Fichier</th><th>Contenu</th><th>Taille</th></tr></thead><tbody>
+{% for f in fichiers %}<tr><td><a href="{{ f.lien }}">{{ f.nom }}</a></td><td>{{ f.description }}</td><td>{{ f.taille }}</td></tr>{% endfor %}
+</tbody></table>
+</div>
+</div>
+{% endblock %}

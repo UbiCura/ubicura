@@ -1,0 +1,30 @@
+# Données téléchargées, tables intermédiaires et archives. Les fichiers RPPS bruts contiennent
+# des noms de professionnels et des identifiants RPPS. Rien de ce dossier ne doit être commité.
+donnees/
+donnees/archives/
+
+# Tout fichier qui pourrait contenir des identifiants RPPS, même hors de donnees/
+*rpps*.txt
+*rpps*.parquet
+*rpps*.csv
+rpps_*
+*_activites.parquet
+
+# Résultats datés, journaux d'exécution et historique (produits à chaque exécution)
+resultats/
+*.log
+journal.json
+execution.log
+
+# Atlas assemblé et site statique (produits par le programme)
+atlas/atlas.html
+site/
+
+# Environnement Python
+.venv/
+__pycache__/
+*.pyc
+
+# Fichiers temporaires de téléchargement
+*.part
+*.verif.*

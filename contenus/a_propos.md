@@ -1,0 +1,51 @@
+# À propos
+
+<!-- Texte de la page « À propos » du site, validé avec Lucas le 9 octobre 2026.
+Les marques entre accolades sont remplacées à la construction du site (pipeline/site.py, fonction a_propos_variables). -->
+
+## Ce que montre ce site
+
+Ce site décrit l'offre de soins en France, territoire par territoire, à partir des seules bases publiques (répertoire des professionnels de santé, établissements, INSEE, Assurance Maladie, Santé publique France, DREES). La santé mentale y est présentée à part, puis l'offre de soins générale.
+
+Son nom, *Ubi Cura*, signifie en latin « là où est le soin ». C'est la question qu'il pose à chaque territoire.
+
+Il s'adresse aux habitants et aux élus comme aux professionnels, aux chercheurs et aux acteurs publics. Il décrit les écarts entre territoires et précise à chaque fois ce que les chiffres permettent de dire et ce qu'ils ne disent pas.
+
+## Qui le réalise
+
+Ce site est réalisé par Lucas Pithon, psychologue clinicien et enseignant-chercheur, à titre personnel ([ORCID {orcid}](https://orcid.org/{orcid})).
+
+## Indépendance
+
+Ce site est un projet personnel, mené sans financement et sans lien avec une organisation professionnelle, un établissement ou un laboratoire. Les organismes qui produisent les données ne l'ont ni réalisé ni validé.
+
+## Comment citer
+
+Les données et les deux rapports nationaux sont archivés sur Zenodo, chacun avec un identifiant permanent (DOI). Merci de citer la version utilisée.
+
+- **Les données.** Pithon L. ({annee}). {titre_donnees}. Version du {version}. Zenodo. [https://doi.org/{doi_donnees}](https://doi.org/{doi_donnees})
+- **Le rapport santé mentale.** Pithon L. ({annee}). {titre_sm}. Version du {version}. Zenodo. [https://doi.org/{doi_sm}](https://doi.org/{doi_sm})
+- **Le rapport santé.** Pithon L. ({annee}). {titre_sante}. Version du {version}. Zenodo. [https://doi.org/{doi_sante}](https://doi.org/{doi_sante})
+- **Le site.** Pithon L. Ubi Cura, {sous_titre}. Consulté le (date de consultation).
+
+Chaque rapport et chaque graphique de l'atlas donnent aussi leur propre citation.
+
+## Contact et signalements
+
+Pour toute question ou remarque, vous pouvez écrire à [{contact}](mailto:{contact}).
+
+Signalez en particulier une erreur repérée (chiffre qui semble faux, formulation maladroite, donnée manquante) ou une base de données publique qui mériterait d'être ajoutée. Les erreurs qui viennent des bases d'origine sont signalées à leur producteur. Les corrections importantes sont indiquées dans le journal des mises à jour, avec la version qui les apporte.
+
+Vous pouvez aussi écrire pour une collaboration, une étude sur un territoire, une intervention ou un échange autour de ces données.
+
+## Mentions légales
+
+**Éditeur et directeur de la publication.** Lucas Pithon, à titre personnel et non professionnel. Contact, [{contact}](mailto:{contact}). Conformément à l'article 1-1 de la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique, l'éditeur, personne physique agissant à titre non professionnel, ne publie pas son adresse personnelle et indique ci-dessous les coordonnées de l'hébergeur.
+
+**Hébergeur.** GitHub, Inc. (service GitHub Pages), 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis, [https://support.github.com](https://support.github.com).
+
+**Nom de domaine.** ubicura.fr, enregistré auprès d'OVHcloud (OVH SAS, 2 rue Kellermann, 59100 Roubaix, France).
+
+**Données personnelles.** Ce site ne dépose aucun cookie, ne mesure pas l'audience et ne charge aucune ressource chez un tiers. Seul votre choix d'affichage (fond clair ou sombre) est gardé dans votre navigateur. L'hébergeur peut conserver des journaux techniques, dont l'adresse IP, pour la sécurité de son service, selon sa propre politique de confidentialité. Les messages envoyés à l'adresse de contact servent uniquement à y répondre et ne sont transmis à personne. Les résultats publiés sont des agrégats par territoire et ne contiennent ni nom ni identifiant de professionnel.
+
+**Réutilisation.** Le code est sous licence EUPL 1.2. Les données produites sont sous Licence Ouverte 2.0, sauf celles qui intègrent des données de l'Assurance Maladie, sous licence ODbL. Le détail figure dans la page [Méthode, données et limites](methode.html#licences).

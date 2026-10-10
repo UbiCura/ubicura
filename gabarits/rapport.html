@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block contenu %}
+{% if impression %}
+<style>
+@page{size:A4;margin:16mm 15mm 18mm;
+  @bottom-left{content:"{{ nom_projet }}, {{ titre_rapport|replace('"','') }}";font:8pt "Work Sans",sans-serif;color:#666}
+  @bottom-right{content:"Page " counter(page) " sur " counter(pages);font:8pt "Work Sans",sans-serif;color:#666}}
+@page :first{@bottom-left{content:none}@bottom-right{content:none}}
+</style>
+<section class="couverture">
+  <p class="couv-projet">{{ nom_projet }}</p>
+  <p class="couv-sous-titre">{{ sous_titre }}</p>
+  <h1>{{ titre_rapport }}</h1>
+  <p class="couv-version">Version du {{ date_longue }}</p>
+  <p class="couv-auteur">Lucas Pithon</p>
+  {% if citation %}<div class="couv-citer"><p><strong>Comment citer ce rapport.</strong> {{ citation.texte }}</p>
+  {% if citation.doi_rapport %}<p>DOI du rapport, {{ citation.doi_rapport }}.</p>{% endif %}
+  {% if citation.doi_donnees %}<p>DOI des données, {{ citation.doi_donnees }}.</p>{% endif %}</div>{% endif %}
+  <p class="couv-sources">Données publiques, répertoire RPPS, FINESS, INSEE, Assurance Maladie, Santé publique France, DREES, CAF, IGN. Sources et licences détaillées en fin de rapport.</p>
+</section>
+{% endif %}
+<h1>{{ titre_rapport }}</h1>
+<p class="chapeau">Version du {{ date_longue }}.
+{% if pdf %}<a class="pas-imprime" href="{{ pdf }}">Télécharger en PDF</a>.{% endif %}
+<a class="pas-imprime" href="{{ autre_lien }}">{{ autre_titre }}</a>.
+<a class="pas-imprime" href="{{ racine }}rapports.html">Autres versions</a>.</p>
+<div class="rapport">
+  <aside class="sommaire" aria-label="Sommaire">{{ sommaire|safe }}</aside>
+  <article class="corps">{{ corps|safe }}
+  {% if citation %}<section class="citer">
+  <h2>Comment citer ce rapport</h2>
+  <p>{{ citation.texte }}</p>
+  {% if citation.doi_rapport %}<p>DOI du rapport, <a href="https://doi.org/{{ citation.doi_rapport }}">{{ citation.doi_rapport }}</a>.</p>{% endif %}
+  {% if citation.doi_donnees %}<p>DOI des données de cette version, <a href="https://doi.org/{{ citation.doi_donnees }}">{{ citation.doi_donnees }}</a>.</p>{% endif %}
+  </section>{% endif %}</article>
+</div>
+{% endblock %}

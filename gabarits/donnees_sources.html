@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block contenu %}
+<div class="etroit">
+<h1>Données sources</h1>
+<p class="chapeau">Les jeux de données publics d'où viennent les chiffres de ce site, avec leur producteur, leur licence, les fichiers lus et les indicateurs qui en dérivent.</p>
+<p>Chaque jeu est vérifié auprès de son producteur avant chaque mise à jour et n'est repris que si une nouvelle version est publiée. Les changements de version sont consignés dans le <a href="{{ racine }}journal.html">journal des mises à jour</a>, la méthode de calcul est décrite sur la page <a href="{{ racine }}methode.html">Méthode, données et limites</a>.</p>
+
+<nav class="sommaire-sources" aria-label="Jeux de données">
+<ul>
+{% for f in fiches %}<li><a href="#{{ f.ancre }}">{{ f.nom }}</a> <span class="small muted">{{ f.producteur }}</span></li>
+{% endfor %}</ul>
+</nav>
+
+{% for f in fiches %}
+<section class="fiche-source" id="{{ f.ancre }}">
+<h2>{{ f.nom }}</h2>
+<p>{{ f.usage }}</p>
+<table class="simple fiche">
+<tbody>
+<tr><th scope="row">Producteur</th><td>{{ f.producteur }}</td></tr>
+<tr><th scope="row">Licence</th><td>{{ f.licences|join(", ") or "non renseignée" }}</td></tr>
+<tr><th scope="row">Page du jeu</th><td>{% for p in f.pages %}<a href="{{ p }}">{{ p|replace("https://", "")|truncate(70, True, "…") }}</a>{% if not loop.last %}<br>{% endif %}{% else %}non renseignée{% endfor %}</td></tr>
+<tr><th scope="row">Version utilisée</th><td>{{ f.version or "date non annoncée par le producteur" }}{% if f.recupere %}, récupérée le {{ f.recupere }}{% endif %}</td></tr>
+<tr><th scope="row">Versions constatées</th><td>{% if f.versions %}nouvelle version repérée le {{ f.versions|join(", le ") }}{% else %}aucun changement depuis le début du suivi{% if f.suivi_depuis %}, le {{ f.suivi_depuis }}{% endif %}{% endif %}</td></tr>
+</tbody>
+</table>
+{% if f.fichiers %}
+<details class="plus"><summary>Fichiers lus ({{ f.fichiers|length }})</summary>
+<ul class="small">
+{% for x in f.fichiers %}<li>{% if x.url %}<a href="{{ x.url }}">{{ x.titre or x.nom }}</a>{% else %}{{ x.titre or x.nom }}{% endif %}{% if x.version %}, version du {{ x.version }}{% endif %}</li>
+{% endfor %}</ul>
+</details>
+{% endif %}
+{% if f.indicateurs %}
+<details class="plus"><summary>Indicateurs qui en dérivent ({{ f.indicateurs|length }})</summary>
+<ul class="small">
+{% for c in f.indicateurs %}<li>{{ c.label }}{% if c.unite %} ({{ c.unite }}){% endif %}{% if c.niveaux %}, publié pour {{ c.niveaux|join(", ") }}{% endif %}</li>
+{% endfor %}</ul>
+</details>
+{% endif %}
+{% if f.lu %}
+<p class="small muted">{% for s in f.lu %}{{ s.source }}{% if s.detail %}, {{ s.detail }}{% endif %}{% if not loop.last %}. {% endif %}{% endfor %}.</p>
+{% endif %}
+</section>
+{% endfor %}
+</div>
+{% endblock %}

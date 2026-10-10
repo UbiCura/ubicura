@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block contenu %}
+<div class="etroit">
+<h1>Rapports par territoire</h1>
+<p class="chapeau">Pour chaque région et chaque département, l'offre de soins en santé mentale et l'offre de soins générale. Effectifs et densités par profession, répartition dans le territoire, temps de trajet, évolution depuis 2016, indicateurs de besoin et de recours aux soins, comparés à la région, à la moyenne des départements et à des départements de profil comparable. Chaque chiffre renvoie à sa source.</p>
+<p class="small muted">Données du {{ date_longue }}. Pour les régions d'outre-mer, qui ne comptent qu'un département, le rapport départemental tient lieu de rapport régional. Chaque rapport s'enregistre en PDF.</p>
+{% for r in regions %}
+<h2>{{ r.nom }}</h2>
+<table class="simple">
+<thead><tr><th>Territoire</th><th>Santé mentale</th><th>Santé</th></tr></thead>
+<tbody>
+{% if r.rapport %}<tr><td><strong>Ensemble de la région</strong></td>
+  <td>{% if r.rapport.sm %}<a href="{{ r.rapport.sm }}">Lire</a>{% endif %}</td>
+  <td>{% if r.rapport.sante %}<a href="{{ r.rapport.sante }}">Lire</a>{% endif %}</td></tr>{% endif %}
+{% for d in r.deps %}<tr><td>{{ d.nom }} ({{ d.code }})</td>
+  <td>{% if d.sm %}<a href="{{ d.sm }}">Lire</a>{% endif %}</td>
+  <td>{% if d.sante %}<a href="{{ d.sante }}">Lire</a>{% endif %}</td></tr>
+{% endfor %}
+</tbody>
+</table>
+{% endfor %}
+</div>
+{% endblock %}

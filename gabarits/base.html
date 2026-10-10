@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ titre }} · {{ nom_projet }}</title>
+<meta name="description" content="{{ description }}">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%233E2563%22/%3E%3Crect%20x%3D%227%22%20y%3D%2217%22%20width%3D%224.5%22%20height%3D%228%22%20rx%3D%221%22%20fill%3D%22%23B39BCB%22/%3E%3Crect%20x%3D%2213.75%22%20y%3D%2212%22%20width%3D%224.5%22%20height%3D%2213%22%20rx%3D%221%22%20fill%3D%22%23D4C3EA%22/%3E%3Crect%20x%3D%2220.5%22%20y%3D%227%22%20width%3D%224.5%22%20height%3D%2218%22%20rx%3D%221%22%20fill%3D%22%23FFFFFF%22/%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="{{ nom_projet }}">
+<meta property="og:title" content="{{ titre }}">
+<meta property="og:description" content="{{ description }}">
+<meta name="theme-color" content="#15171C">
+<link rel="stylesheet" href="{{ racine }}polices/polices.css">
+<link rel="stylesheet" href="{{ racine }}style.css?v={{ version_css }}">
+<script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||"dark")}catch(e){document.documentElement.setAttribute("data-theme","dark")}</script>
+</head>
+<body>
+{% include "nav.html" %}
+<main class="{{ classe_main|default('') }}">
+{% block contenu %}{% endblock %}
+<footer>
+  Données du {{ date_longue }}. Sources, répertoire RPPS, FINESS, INSEE, Assurance Maladie, Santé publique France, DREES, IGN (voir <a href="{{ racine }}methode.html">Méthode, données et limites</a>).
+  {{ licences }}
+  <p class="pied-liens"><a href="{{ racine }}donnees-sources.html">Données sources</a> <a href="{{ racine }}journal.html">Journal des mises à jour</a> <a href="{{ racine }}a-venir.html">À venir</a> <a href="{{ racine }}contribuer.html">Proposer une base de données</a> <a href="{{ racine }}a-propos.html">À propos</a></p>
+</footer>
+</main>
+<script>
+// tableaux plus larges que la colonne de texte, fondu à droite et phrase d'indication tant qu'il reste des colonnes
+(function(){function maj(t){var d=t.scrollWidth>t.clientWidth+2;t.classList.toggle("deborde-d",d&&t.scrollLeft+t.clientWidth<t.scrollWidth-2);
+var n=t.nextElementSibling;if(!(n&&n.classList.contains("indice-defil"))){if(!d)return;n=document.createElement("p");n.className="indice-defil";n.textContent="Faites défiler le tableau vers la droite pour voir les autres colonnes.";t.after(n)}n.hidden=!d}
+// figures, choix de la profession (rapports, 9 octobre 2026)
+document.querySelectorAll("figure.graphique").forEach(function(fig){
+  var leg=fig.querySelector(".leg");
+  fig.querySelectorAll(".choix-variante button").forEach(function(b,i,tous){b.addEventListener("click",function(){
+    var vs=fig.querySelectorAll(".variante");vs.forEach(function(v,j){v.hidden=j!==i});
+    tous.forEach(function(x,j){x.setAttribute("aria-pressed",String(j===i))});
+    var t=vs[i].querySelector("title");if(leg&&t)leg.textContent=t.textContent})})});
+var ts=document.querySelectorAll(".corps table");ts.forEach(function(t){maj(t);t.addEventListener("scroll",function(){maj(t)},{passive:true})});
+addEventListener("resize",function(){ts.forEach(maj)})})();
+</script>
+<script>
+{% include "figures.js" %}
+</script>
+</body>
+</html>

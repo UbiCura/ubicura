@@ -1,0 +1,17 @@
+cff-version: 1.2.0
+message: "Pour citer ce travail, merci d'utiliser les références ci-dessous."
+title: "Ubi Cura, offre de soins et santé mentale en France, territoire par territoire"
+type: software
+authors:
+  - family-names: "Pithon"
+    given-names: "Lucas"
+    orcid: "https://orcid.org/0000-0003-2400-368X"
+license: EUPL-1.2
+date-released: "2026-10-09"
+references:
+  - type: dataset
+    title: "Offre de soins et santé mentale en France par territoire, données agrégées"
+    authors:
+      - family-names: "Pithon"
+        given-names: "Lucas"
+    doi: "10.5281/zenodo.23264933"
