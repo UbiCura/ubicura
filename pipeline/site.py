@@ -194,9 +194,6 @@ def lisez_moi_donnees(dossier: Path, archivee: bool | None = None) -> str:
                 sources.append(f"- {e['source']}, {e['producteur']}, {e.get('licence', '')}"
                                + (f", données du {e['date_donnees']}" if e.get("date_donnees") else "")
                                + (f", {e['page']}" if e.get("page") else ""))
-    doi = config.DOI_DONNEES
-    if archivee is None:
-        archivee = version == config.VERSION_ZENODO
     lignes = [f"# {config.TITRES_DEPOTS['donnees']}", "",
               f"Version du {date_longue(version)}. Auteur, {config.AUTEUR} (ORCID {config.ORCID}). "
               f"Contact, {config.CONTACT}.", "",
@@ -211,14 +208,21 @@ def lisez_moi_donnees(dossier: Path, archivee: bool | None = None) -> str:
               "licence. Les autres fichiers sont sous Licence Ouverte 2.0 (Etalab), "
               "https://www.etalab.gouv.fr/licence-ouverte-open-licence/.", "",
               "## Comment citer", "",
-              (f"{config.CITATION_AUTEUR} ({version[:4]}). {config.TITRES_DEPOTS['donnees']}. Version du "
-               f"{date_longue(version)}. Zenodo." + (f" https://doi.org/{doi}" if doi else ""))
-              if archivee or not config.ADRESSE_SITE else
-              (f"{config.CITATION_AUTEUR} ({version[:4]}). {config.TITRES_DEPOTS['donnees']}. Version du "
-               f"{date_longue(version)}, {config.ADRESSE_SITE}." + (f" Dernière version archivée, Zenodo, "
-                                                                     f"https://doi.org/{doi}" if doi else "")), "",
+              citation_donnees(version, archivee), "",
               "## Sources", ""] + sources + [""]
     return "\n".join(lignes)
+
+
+def citation_donnees(version: str, archivee: bool | None = None) -> str:
+    """Citation des données d'une version, par Zenodo si elle y est archivée, sinon par l'adresse du site avec le DOI
+    général de la dernière version archivée."""
+    doi = config.DOI_DONNEES
+    if archivee is None:
+        archivee = version == config.VERSION_ZENODO
+    debut = f"{config.CITATION_AUTEUR} ({version[:4]}). {config.TITRES_DEPOTS['donnees']}. Version du {date_longue(version)}"
+    if archivee or not config.ADRESSE_SITE:
+        return debut + ". Zenodo." + (f" https://doi.org/{doi}" if doi else "")
+    return f"{debut}, {config.ADRESSE_SITE}." + (f" Dernière version archivée, Zenodo, https://doi.org/{doi}" if doi else "")
 
 
 def a_propos_variables(version: str) -> dict:
@@ -472,6 +476,7 @@ def construire(pdf=True) -> Path:
     ctx = dict(commun, racine="", page="rapports", titre="Rapports nationaux")
     (SITE / "rapports.html").write_text(env.get_template("rapports.html").render(
         ctx, versions=versions,
+        citation_donnees=citation_donnees(dernier.name),
         citation_sm=citation("sante-mentale", "Rapport santé mentale", date_longue(dernier.name), dernier.name)["texte"],
         citation_sante=citation("sante", "Rapport santé", date_longue(dernier.name), dernier.name)["texte"]), encoding="utf-8")
     pages.append(SITE / "rapports.html")
