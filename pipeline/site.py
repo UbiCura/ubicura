@@ -89,19 +89,19 @@ def md_html(texte: str, graphiques: Path | None, imprimer=False, donnees: dict |
                                for i, n in enumerate(noms)) + "</div>")
             contenu = "".join(f'<div class="variante"{"" if i == 0 else " hidden"}>{x}</div>' for i, x in enumerate(svgs))
         zoom = any(z in nom for z in ZOOMABLES) and not imprimer
-        lien = ""
+        # données de la figure, proposées par « Citer et exporter » (gabarits/figures.js)
+        attr = ""
         if donnees:
             csv = next((c for k, c in DONNEES_FIGURES if (nom.startswith(k) if k.endswith("_") else k in nom)), None)
             src = donnees["dossier"] / csv if csv else None
             if src is not None and src.exists():
                 fichier = csv + (".zip" if src.stat().st_size > 2_000_000 else "")
-                lien = (f' <a class="pas-imprime" href="{donnees["prefixe"]}{fichier}">Données de la figure '
-                        f'({fichier})</a>.')
-        return (f'<figure class="graphique{" zoomable" if zoom else ""}">{choix}{contenu}'
+                attr = f' data-donnees="{donnees["prefixe"]}{fichier}" data-donnees-nom="{fichier}"'
+        # titre au-dessus de la figure, comme dans l'atlas, puis la figure elle-même
+        return (f'<figure class="graphique{" zoomable" if zoom else ""}"{attr}>'
                 + (f'<figcaption class="small muted"><strong>Figure {numero[0]}.</strong> <span class="leg">'
-                   f'{legende.group(1)}</span>.{lien}</figcaption>'
-                   if legende else "")
-                + "</figure>")
+                   f'{legende.group(1)}</span>.</figcaption>' if legende else "")
+                + f'<div class="fig-corps">{choix}{contenu}</div></figure>')
     corps = re.sub(r"<!--GRAPHIQUE (\S+)-->", figure, corps)
     # les paragraphes « Comment lire » en encadré, comme dans l'atlas
     corps = corps.replace("<p><strong>Comment lire.</strong>", '<p class="comment-lire"><strong>Comment lire.</strong>')

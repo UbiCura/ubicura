@@ -187,15 +187,22 @@ main td p,main th p,main td li,main nav li,main .sommaire li,main .toc li,main f
 .choix-variante{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
 .choix-variante button{font:inherit;font-size:.8rem;border:1px solid var(--line);background:none;color:var(--muted);border-radius:999px;padding:2px 11px;cursor:pointer}
 .choix-variante button[aria-pressed="true"]{color:var(--ink);border-color:var(--ink);background:color-mix(in srgb,var(--r1) 35%,transparent)}
-figure.zoomable{position:relative}
+figure.zoomable .fig-corps{position:relative}
+figure.graphique > figcaption{margin:0 0 6px}
+.outils-figure{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
+button.citer-fig{font:inherit;font-size:.78rem;border:1px solid var(--line);background:none;color:var(--muted);border-radius:999px;padding:1px 10px;cursor:pointer}
+button.citer-fig[aria-expanded="true"]{color:var(--ink);border-color:var(--ink)}
+.citation-fig ul.exports{list-style:none;padding:0;margin:8px 0 6px;display:grid;gap:6px}
+.citation-fig ul.exports li{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding-top:6px}
+.citation-fig .genre{color:var(--muted)}
+.citation-actions a.bouton{font-size:.8rem;border:1px solid var(--line);color:var(--ink);border-radius:5px;padding:2px 8px;text-decoration:none}
 figure.zoomable svg{cursor:grab;touch-action:none}
 .zoom-boutons{position:absolute;top:10px;right:10px;display:flex;gap:4px;z-index:2}
-.zoom-boutons button.citer-fig{width:auto;padding:0 10px;font-size:.78rem;border-radius:999px}
 .citation-fig{font-size:.84rem;background:var(--panel);border-left:3px solid var(--focus);padding:8px 12px;margin:8px 0;border-radius:0 6px 6px 0}
-.citation-fig p{margin:0 0 6px}
+.citation-fig p{margin:0 0 6px;text-align:left;hyphens:manual}
 .citation-actions{display:flex;flex-wrap:wrap;gap:6px}
 .citation-actions button{font:inherit;font-size:.8rem;border:1px solid var(--line);background:none;color:var(--ink);border-radius:5px;padding:2px 8px;cursor:pointer}
-@media print{.citation-fig{display:none}}
+@media print{.citation-fig,.outils-figure{display:none}}
 .zoom-boutons button{font:inherit;font-size:.85rem;width:28px;height:28px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:5px;cursor:pointer}
 .bulle-fig{position:fixed;pointer-events:none;white-space:pre-line;background:var(--ink);color:var(--bg);font-size:.8rem;padding:6px 9px;border-radius:4px;max-width:min(420px,calc(100vw - 16px));opacity:0;z-index:50;transition:opacity .1s}
 svg [data-choisi]{stroke:var(--ink);stroke-width:2}

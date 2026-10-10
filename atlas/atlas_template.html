@@ -65,8 +65,6 @@ details.donnees summary{color:var(--ink);font-weight:500}
 .citation p{margin:0 0 6px}
 button.citer{background:none;border:1px solid var(--line);border-radius:999px;padding:1px 10px;font-family:var(--sans);font-size:.72rem;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap}
 button.citer[aria-expanded="true"]{color:var(--ink);border-color:var(--ink)}
-.tab-citer{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;align-items:center;margin:0 0 6px}
-.tab-citer .citation{flex-basis:100%}
 svg text.signature{font-size:10px;opacity:.75}
 @media (max-width:600px){.bar select{max-width:100%;min-width:0;flex:1 1 100%}.seg{flex-wrap:wrap;max-width:100%}.seg button+button{border-left:0}.seg button{border-right:1px solid var(--line)}}
 .grid{display:grid;grid-template-columns:minmax(0,1fr) clamp(280px,32vw,360px);gap:24px;align-items:start}
@@ -98,6 +96,15 @@ svg.map.zoome{cursor:grab}svg.map.zoome:active{cursor:grabbing}
 .vuebar .seg{background:var(--panel)}
 svg text{fill:var(--muted);font-family:var(--sans);font-size:11px}
 /* graphiques, taille de dessin respectée (pas d'agrandissement au-delà de 1,15 fois), même interaction que les rapports */
+.two>*,.grid>*{min-width:0}
+.bar select{max-width:100%;min-width:0}
+.outils-encadre{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:-2px 0 10px}
+#mapOutils .outils-encadre{margin:0}
+.citation ul.exports{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:6px}
+.citation ul.exports li{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding-top:6px}
+.citation ul.exports .nom{flex:1 1 240px;font-size:.84rem}
+.citation ul.exports .genre{color:var(--muted);margin-right:4px}
+.citation ul.exports .acts{display:flex;flex-wrap:wrap;gap:6px}
 .legende-ev{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--muted);margin:4px 0 8px}
 .legende-ev span{display:inline-flex;align-items:center;gap:6px}
 .legende-ev i{display:inline-block;width:22px;height:10px;border-radius:2px}
@@ -235,9 +242,6 @@ ul.src{padding-left:1.1em;margin:8px 0}ul.src li{margin-bottom:6px}
 .famrow .lbl{font-size:.85rem;color:var(--muted)}
 .seg.fam button{padding:7px 16px;font-size:.92rem}
 .panel h2{display:flex;justify-content:flex-start;align-items:baseline;gap:8px;flex-wrap:wrap}
-.panel h2 > button.how,.panel h2 > button.how ~ button.citer{margin-left:0}
-.panel h2 > button:first-of-type{margin-left:auto}
-.selhead h2 > button:first-of-type{margin-left:12px}
 #mapOutils .outils{display:flex;gap:8px;align-items:center}
 .legende-barres svg{width:46px;height:10px;vertical-align:-1px;margin-right:6px}
 .repli-fiche .chevron{display:inline-block;transition:transform .15s}
@@ -306,7 +310,7 @@ dl.gl dt{font-weight:600;margin-top:12px}dl.gl dd{margin:2px 0 0;max-width:75ch}
       <div class="vuebar"><div class="seg" data-k="vue" role="group" aria-label="Présentation"><button data-v="carte">Carte</button><button data-v="tuiles" title="Un carré de même taille par département">Tuiles</button></div></div>
       <svg class="map" id="map" viewBox="0 0 960 800" role="img" aria-label="Carte de France"></svg>
       <div class="legend" id="legend"></div>
-      <div id="mapOutils" style="padding:0 16px 8px"><span class="outils"><button class="how" data-how="densite,attendu,accessibilite,zones,epci">Comment lire</button></span><div class="howtxt hidden"></div></div>
+      <div id="mapOutils" style="padding:0 16px 8px"><span class="outils outils-encadre" data-elements="map"><button class="how" data-how="densite,attendu,accessibilite,zones,epci">Comment lire</button></span><div class="howtxt hidden"></div></div>
       <div id="mapLimite" style="padding:0 16px 14px"></div>
       <div class="tip" id="tip"></div>
     </div>
@@ -335,7 +339,7 @@ dl.gl dt{font-weight:600;margin-top:12px}dl.gl dd{margin:2px 0 0;max-width:75ch}
     <select id="grp" aria-label="Groupe de professions"></select>
     <input type="search" id="q" placeholder="Filtrer les territoires" aria-label="Filtrer les territoires">
   </div>
-  <p class="note" style="margin:0 0 10px">Densité pour 10 000 habitants. La couleur compare chaque case à la moyenne des territoires du même niveau, ocre en dessous, violet au-dessus. <button class="how" data-how="densite,indice100,familles">Comment lire</button></p><div class="howtxt hidden"></div>
+  <p class="note" style="margin:0 0 10px">Densité pour 10 000 habitants. La couleur compare chaque case à la moyenne des territoires du même niveau, ocre en dessous, violet au-dessus.</p><div class="outils-encadre" data-elements="tbl"><button class="how" data-how="densite,indice100,familles">Comment lire</button></div><div class="howtxt hidden"></div>
   <div class="panel scroll"><table id="tbl"><thead></thead><tbody></tbody></table></div>
 </section>
 
@@ -352,8 +356,8 @@ dl.gl dt{font-weight:600;margin-top:12px}dl.gl dd{margin:2px 0 0;max-width:75ch}
       <div id="scLimite"></div>
       <p class="note" id="xvarNote"></p>
       <details class="plus donnees" id="scDonnees"><summary>Voir les données par territoire</summary>
-        <div class="hmbar" style="margin-top:8px"><input type="search" id="scFiltre" placeholder="Filtrer les territoires" aria-label="Filtrer les territoires"><button class="btn ghost" id="scCsv" type="button">Télécharger en CSV</button></div>
-        <div class="scroll tabdonnees"><table id="scTable"></table></div></details>
+        <div class="hmbar" style="margin-top:8px"><input type="search" id="scFiltre" placeholder="Filtrer les territoires" aria-label="Filtrer les territoires"></div>
+        <div class="scroll tabdonnees"><table id="scTable" data-export="scTable"></table></div></details>
       <details class="plus"><summary>Pour aller plus loin</summary><p id="scNote"></p></details>
     </div>
     <div class="panel pad">
@@ -445,7 +449,7 @@ dl.gl dt{font-weight:600;margin-top:12px}dl.gl dd{margin:2px 0 0;max-width:75ch}
 <section data-p="typologie" class="hidden">
   <div class="two typo">
     <div class="panel mapbox" id="tmapbox"><div class="zoombar" role="group" aria-label="Zoom de la carte" data-carte="tmap"><button type="button" data-z="in" title="Zoomer" aria-label="Zoomer">+</button><button type="button" data-z="out" title="Dézoomer" aria-label="Dézoomer">−</button><button type="button" data-z="reset" title="Revenir à la vue d’ensemble">Recentrer</button></div><svg class="map" id="tmap" viewBox="0 0 960 800" role="img" aria-label="Carte des groupes de territoires"></svg></div>
-    <div class="panel droite"><div class="dedans pad defile" tabindex="0" aria-label="Groupes de la typologie"><h2>Profils d’offre des intercommunalités <button class="how" data-how="typologie,indice100">Comment lire</button></h2><div class="howtxt hidden"></div><p class="note" id="tyNote"></p><p class="phrase" id="tyPhrase"></p>
+    <div class="panel droite" data-avec="tmap"><div class="dedans pad defile" tabindex="0" aria-label="Groupes de la typologie"><h2>Profils d’offre des intercommunalités <button class="how" data-how="typologie,indice100">Comment lire</button></h2><div class="howtxt hidden"></div><p class="note" id="tyNote"></p><p class="phrase" id="tyPhrase"></p>
       <ul class="tylegende" id="tyLegende"></ul>
       <details class="plus"><summary>Pour aller plus loin</summary><p id="tyMethode"></p></details></div></div>
   </div>
@@ -554,13 +558,18 @@ function citationTexte(titre){const c=D.citation||{},a=(D.meta.genere_le||"").sl
   // version plus récente que la dernière archivée sur Zenodo, citée par l'adresse du site
   if(c.doi&&c.titre_donnees)return (c.auteur_court||"Pithon L.")+" ("+a+"). "+titre+". D’après « "+c.titre_donnees+" », version du "+dateDonnees()+", "+c.adresse+". Dernière version archivée, Zenodo, https://doi.org/"+c.doi;
   return (c.auteur_court||"Pithon L.")+" ("+a+"). "+titre+". "+(c.projet||"Ubi Cura")+", données du "+dateDonnees()+"."+(c.adresse?" "+c.adresse:"")}
-const GRAPHES=["map","pcPlot","bvmap","gwrmap","scatter","cbPlot","effetVille","indPlot","regPlot","lorenz","escalier","funnel","tmap","acpPlan"];
+const GRAPHES=[...document.querySelectorAll('svg[role="img"][id]')].map(x=>x.id);
 function titreGraphe(id){
   if(id==="map"){const mb=document.querySelector('#metricSeg [aria-pressed="true"]');return "Carte, "+pluriel(profLab(S.prof))+", "+(mb?mb.textContent.toLowerCase():"")+", par "+({reg:"région",dep:"département",epci:"intercommunalité"}[S.level])}
   if(id==="scatter"){const cx=IDX.ctx.find(c=>c.id===S.xvar),cy=S.yvar?IDX.ctx.find(c=>c.id===S.yvar):null;return "Nuage de points, "+(cy?minuscule(cy.label):pluriel(profLab(S.prof)))+" et "+(cx?minuscule(cx.label):"")+", par "+(S.level==="dep"?"département":"intercommunalité")}
   if(id==="tmap")return "Carte des groupes de territoires, "+({sm:"santé mentale",sante:"santé",tout:"toute l’offre"}[famCle()]||"")+", par intercommunalité";
   if(id==="regPlot"){const r=document.getElementById("regRes");return "Régression multiple, "+(r&&r.selectedOptions[0]?minuscule(r.selectedOptions[0].textContent):"")+", par département"}
-  const h=document.getElementById(id).closest(".panel").querySelector("h2");return h?h.firstChild.textContent.trim():id}
+  // titre du panneau, puis la profession quand la figure en dépend, puis le choix fait dans le menu du panneau
+  const pan=document.getElementById(id).closest(".panel"),h=pan&&pan.querySelector("h2"),sel=pan&&pan.querySelector("select");
+  let t=h?texteTitre(h):(document.getElementById(id).getAttribute("aria-label")||id);
+  if(["escalier","funnel","effetVille","pcPlot"].includes(id))t+=", "+pluriel(profLab(S.prof))+(id==="pcPlot"?"":", par "+({dep:"département",epci:"intercommunalité",reg:"région"}[S.level]||""));
+  if(sel&&sel.selectedOptions[0])t+=", "+minuscule(sel.selectedOptions[0].textContent.trim());
+  return t}
 // repère les tableaux qui défilent de côté (fondu sur le bord, phrase d'indication sous le tableau)
 const DEFIL=new ResizeObserver(es=>es.forEach(e=>majDefil(e.target.parentElement)));
 function majDefil(b){if(!b)return;const d=b.scrollWidth>b.clientWidth+2;b.classList.toggle("deborde-d",d&&b.scrollLeft+b.clientWidth<b.scrollWidth-2);b.classList.toggle("deborde-g",d&&b.scrollLeft>2);
@@ -613,74 +622,74 @@ function telecharger(blob,nom){const a=document.createElement("a");a.href=URL.cr
 // tableaux citables et exportables, la citation et le fichier reprennent ce qui est affiché (famille, niveau, mode, filtre)
 const TABLEAUX={tbl:()=>"Professionnels de santé par territoire, "+famLab[S.fam]+", "+({reg:"régions",dep:"départements",epci:"intercommunalités"}[S.level]||S.level),
   hm:()=>"Liens entre l’offre de soins et le profil des habitants, "+famLab[S.fam],ttab:()=>"Groupes de territoires (typologie), "+famLab[S.fam],
-  gtab:()=>"Écarts entre territoires",cbTable:()=>"Croisements entre bases, par département"};
-function tableauCsv(t){const lignes=[...t.querySelectorAll("tr")].filter(tr=>tr.offsetParent!==null||!tr.closest("tbody"));
+  gtab:()=>"Professions classées par concentration, entre "+({dep:"départements",epci:"intercommunalités",reg:"régions"}[S.level]||""),cbTable:()=>"Croisements entre bases, par département"};
+function tableauCsv(t){const lignes=[...t.querySelectorAll("tr")].filter(tr=>!tr.hidden&&tr.style.display!=="none");
   const cell=c=>{const v=c.textContent.replace(/\s+/g," ").trim();return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
   return "\ufeff"+lignes.map(tr=>[...tr.children].map(cell).join(";")).join("\r\n")}
-function boutonsTableaux(){
-  for(const [id,titre] of Object.entries(TABLEAUX)){const t=document.getElementById(id);if(!t)continue;const hote=t.closest(".panel.scroll")||t.parentElement;
-    if(t.dataset.cite)continue;t.dataset.cite="1";
-    const z=document.createElement("div");z.className="tab-citer";
-    z.innerHTML='<button type="button" class="citer" aria-expanded="false">Citer</button><button type="button" class="citer" data-a="csv">Télécharger en CSV</button><div class="citation hidden"></div>';
-    // dans un panneau titré, les boutons rejoignent le titre comme partout ailleurs, la boîte de citation va sous le titre
-    const panT=(hote.parentElement&&hote.parentElement.closest(".panel"))||null,h2T=panT&&panT.querySelector(":scope > h2");
-    if(h2T&&!h2T.querySelector("button.citer")){const bs=[...z.querySelectorAll("button.citer")];bs.forEach(x=>h2T.appendChild(x));h2T.after(z.querySelector(".citation"));z.remove()}
-    else hote.before(z);
-    const [bc,bx]=h2T&&!z.isConnected?[...h2T.querySelectorAll("button.citer")].slice(-2):z.querySelectorAll("button"),boite=h2T&&!z.isConnected?h2T.nextElementSibling:z.querySelector(".citation");
-    bc.onclick=()=>{const ouvert=boite.classList.contains("hidden");bc.setAttribute("aria-expanded",String(ouvert));
-      if(ouvert){const c=citationTexte(titre());boite.innerHTML='<p>'+esc(c)+'</p><div class="hmbar"><button class="btn ghost" type="button">Copier la citation</button></div>';
-        boite.querySelector("button").onclick=async e=>{try{await navigator.clipboard.writeText(c);e.target.textContent="Citation copiée"}catch(_){e.target.textContent="Copie impossible ici"}}}
-      boite.classList.toggle("hidden",!ouvert)};
-    bx.onclick=()=>{const nom=(titre().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,80)||id).toLowerCase();
-      telecharger(new Blob([tableauCsv(t)+"\r\n\r\n"+citationTexte(titre())],{type:"text/csv;charset=utf-8"}),nom+".csv");bx.textContent="Tableau enregistré"}}}
 // figures en barres HTML (pas en image), citables avec leurs valeurs en CSV, boutons dans le titre du panneau
 const FIG_HTML={secBars:()=>"Où exercent les "+pluriel(profLab(S.prof))+", par mode d’exercice et secteur",
   catBars:()=>"Établissements où exercent les "+pluriel(profLab(S.prof)),
-  acpCharges:()=>"Poids de chaque profession dans les axes de la typologie, "+famLab[S.fam]};
+  acpCharges:()=>"Poids de chaque profession dans les axes de la typologie, "+famLab[S.fam],
+  acpAxes:()=>"Part des différences entre intercommunalités résumée par chaque axe, "+famLab[S.fam]};
 function lignesHtml(el){
   if(el.querySelector("div.r"))return [["Libellé","Valeur"],...[...el.querySelectorAll("div.r")].map(r=>[...r.querySelectorAll(":scope > span")].map(x=>x.textContent.trim()))];
   const cases=[...el.children].map(x=>x.textContent.trim()),n=3,out=[];for(let k=0;k<cases.length;k+=n)out.push(cases.slice(k,k+n));if(out.length)out[0][0]=out[0][0]||"Profession";return out}
-function boutonsHtml(){
-  for(const [id,titre] of Object.entries(FIG_HTML)){const el=document.getElementById(id);if(!el||el.dataset.cite)continue;
-    const pan=el.closest(".panel"),h2=pan&&pan.querySelector("h2");if(!h2)continue;el.dataset.cite="1";
-    const bc=document.createElement("button"),bx=document.createElement("button"),boite=document.createElement("div");
-    bc.type=bx.type="button";bc.className=bx.className="citer";bc.textContent="Citer";bx.textContent="Télécharger en CSV";bc.setAttribute("aria-expanded","false");
-    boite.className="citation hidden";h2.appendChild(bc);h2.appendChild(bx);(h2.nextElementSibling&&h2.nextElementSibling.classList.contains("howtxt")?h2.nextElementSibling:h2).after(boite);
-    bc.onclick=()=>{const ouvert=boite.classList.contains("hidden");bc.setAttribute("aria-expanded",String(ouvert));
-      if(ouvert){const c=citationTexte(titre());boite.innerHTML='<p>'+esc(c)+'</p><div class="hmbar"><button class="btn ghost" type="button">Copier la citation</button></div>';
-        boite.querySelector("button").onclick=async e=>{try{await navigator.clipboard.writeText(c);e.target.textContent="Citation copiée"}catch(_){e.target.textContent="Copie impossible ici"}}}
-      boite.classList.toggle("hidden",!ouvert)};
-    bx.onclick=()=>{const q=v=>/[;"]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v,nom=(titre().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,80)||id).toLowerCase();
-      telecharger(new Blob(["﻿"+lignesHtml(el).map(l=>l.map(q).join(";")).join("\r\n")+"\r\n\r\n"+citationTexte(titre())],{type:"text/csv;charset=utf-8"}),nom+".csv");bx.textContent="Données enregistrées"}}}
-function boutonsCiter(){
-  // les graphiques d'abord, leur bouton Citer donne aussi l'image. Un tableau du même panneau garde ses boutons
-  // juste au-dessus de lui (citation et CSV)
-  // une marque sur le graphique lui-même, car son bouton peut être placé hors de son panneau (carte des groupes)
-  for(const id of GRAPHES){const el=document.getElementById(id);if(!el||el.dataset.citeGraphe)continue;const pan=el.closest(".panel");if(!pan||pan.querySelector("button.citer"))continue;
-    el.dataset.citeGraphe="1";
-    const b=document.createElement("button");b.type="button";b.className="citer";b.textContent="Citer";b.setAttribute("aria-expanded","false");b.dataset.graphe=id;
-    const boite=document.createElement("div");boite.className="citation hidden";
-    const h2=id==="tmap"?document.getElementById("tyLegende").closest(".panel").querySelector("h2"):pan.querySelector("h2");
-    if(h2&&id!=="map"){h2.appendChild(b);(h2.nextElementSibling&&h2.nextElementSibling.classList.contains("howtxt")?h2.nextElementSibling:h2).after(boite)}
-    else{const z=document.createElement("div");z.style.cssText="padding:0 16px 10px";z.appendChild(b);z.appendChild(boite);
-      // carte principale, Citer à côté de Comment lire, sous la légende et au-dessus des « À savoir »
-      const outils=id==="map"?document.querySelector("#mapOutils .outils"):null;
-      if(outils){outils.appendChild(b);outils.after(boite)}
-      else{const apres=id==="tmap"?document.getElementById("tyLegende"):null;
-        if(apres)apres.after(z);else pan.appendChild(z)}}
-    b.onclick=()=>{const ouvert=boite.classList.contains("hidden");b.setAttribute("aria-expanded",String(ouvert));
-      if(ouvert){const t=citationTexte(titreGraphe(id));
-        boite.innerHTML='<p>'+esc(t)+'</p><div class="hmbar"><button class="btn ghost" type="button" data-a="cit">Copier la citation</button><button class="btn ghost" type="button" data-a="img">Copier l’image</button><button class="btn ghost" type="button" data-a="png">Télécharger en PNG</button><button class="btn ghost" type="button" data-a="svg">Télécharger en SVG</button></div><p class="small muted" style="margin:6px 0 0">L’image porte la source, merci de joindre la citation à toute reprise.</p>';
-        const fichier=(titreGraphe(id).normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,80)||id).toLowerCase();
-        boite.querySelectorAll("button[data-a]").forEach(bt=>bt.onclick=async()=>{const a=bt.dataset.a,ok=m=>{bt.textContent=m};
-          try{if(a==="cit"){await navigator.clipboard.writeText(t);ok("Citation copiée")}
-            else if(a==="svg"){telecharger(new Blob([svgExport(id,t)],{type:"image/svg+xml"}),fichier+".svg");ok("Image enregistrée")}
-            else{const png=await pngExport(id,t);if(a==="png"){telecharger(png,fichier+".png");ok("Image enregistrée")}
-              else{await navigator.clipboard.write([new ClipboardItem({"image/png":png})]);ok("Image copiée")}}}
-          catch(e){ok(a==="img"?"Copie impossible ici, utilisez le téléchargement":"Opération impossible")}})}
-      boite.classList.toggle("hidden",!ouvert)}}
-  boutonsTableaux();boutonsHtml()}
-
+// ---------- encadrés, même tête partout et un seul « Citer et exporter » (version 2, point 1, 10 octobre 2026)
+// Chaque encadré a son titre, puis une ligne avec « Comment lire » et « Citer et exporter ». La boîte de citation liste
+// ce que contient l'encadré, repéré de lui-même (graphique ou carte, tableau, figure en barres, données sur mesure), avec
+// les exports de chaque élément, chacun avec sa propre citation. Une nouvelle figure reçoit ses exports sans rien ajouter.
+const EXPORT_CSV={};  // exports de données sur mesure, id de l'élément -> ()=>({titre,nom,texte})
+const texteTitre=h=>{if(!h)return "";const c=h.cloneNode(true);c.querySelectorAll('[aria-hidden="true"],button.how,button.citer').forEach(x=>x.remove());return c.textContent.replace(/\s+/g," ").trim()};
+function titreEncadre(row){const pan=row.closest(".panel");return texteTitre(pan&&pan.querySelector("h2"))}
+const CANDIDATS='svg[role="img"][id],table[id],.hbars[id],.acpbar[id],[data-export]';
+function elementsEncadre(row){
+  let els;
+  if(row.dataset.elements)els=row.dataset.elements.split(",").map(id=>document.getElementById(id)).filter(Boolean);
+  else{const pan=row.closest(".panel");if(!pan)return [];els=[...pan.querySelectorAll(CANDIDATS)];
+    const avec=(row.closest("[data-avec]")||pan).dataset.avec;if(avec)els.push(...avec.split(",").map(id=>document.getElementById(id)).filter(Boolean))}
+  return els}
+function genreElement(el){return el.dataset.export?"donnees":el.tagName==="svg"?(el.classList.contains("map")?"carte":"graphique"):el.tagName==="TABLE"?"tableau":"barres"}
+function titreElement(el){const id=el.id,g=genreElement(el);
+  if(g==="donnees"&&EXPORT_CSV[el.dataset.export])return EXPORT_CSV[el.dataset.export]().titre;
+  if(g==="carte"||g==="graphique")return titreGraphe(id);
+  if(g==="tableau")return TABLEAUX[id]?TABLEAUX[id]():(el.getAttribute("aria-label")||texteTitre(el.closest(".panel")?.querySelector("h2")));
+  return FIG_HTML[id]?FIG_HTML[id]():texteTitre(el.closest(".panel")?.querySelector("h2"))}
+const nomFichier=(t,id)=>(t.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,80)||id).toLowerCase();
+const qCsv=v=>{v=String(v);return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+function exporterCsv(el,titre,c){
+  const sur=el.dataset.export?EXPORT_CSV[el.dataset.export]:EXPORT_CSV[el.id];
+  if(sur){const x=sur();telecharger(new Blob(["﻿"+x.texte+"\r\n\r\n"+c],{type:"text/csv;charset=utf-8"}),(x.nom||nomFichier(titre,el.id))+".csv");return}
+  const corps=el.tagName==="TABLE"?tableauCsv(el):"﻿"+lignesHtml(el).map(l=>l.map(qCsv).join(";")).join("\r\n");
+  telecharger(new Blob([corps+"\r\n\r\n"+c],{type:"text/csv;charset=utf-8"}),nomFichier(titre,el.id)+".csv")}
+function remplirCitation(row,boite){
+  const els=elementsEncadre(row).filter(el=>el.childElementCount>0&&!el.closest(".hidden"));
+  const titreE=els.length===1?titreElement(els[0]):titreEncadre(row),c0=citationTexte(titreE);
+  const LIB={carte:"Carte",graphique:"Graphique",tableau:"Tableau",barres:"Figure",donnees:"Données"};
+  let h='<p>'+esc(c0)+'</p><div class="hmbar"><button class="btn ghost" type="button" data-a="cit">Copier la citation</button></div>';
+  if(els.length){h+='<ul class="exports">'+els.map((el,k)=>{const g=genreElement(el),img=g==="carte"||g==="graphique";
+    return '<li><span class="nom"><span class="genre">'+LIB[g]+'</span> '+esc(titreElement(el))+'</span><span class="acts">'
+      +(img?'<button class="btn ghost" type="button" data-a="img" data-k="'+k+'">Copier l’image</button><button class="btn ghost" type="button" data-a="png" data-k="'+k+'">PNG</button><button class="btn ghost" type="button" data-a="svg" data-k="'+k+'">SVG</button>'
+        :'<button class="btn ghost" type="button" data-a="csv" data-k="'+k+'">CSV</button>')+'</span></li>'}).join("")+'</ul>';
+    h+='<p class="small muted" style="margin:6px 0 0">Chaque fichier porte sa propre citation, avec la version des données. Merci de la joindre à toute reprise.</p>'}
+  boite.innerHTML=h;
+  boite.querySelector('[data-a="cit"]').onclick=async e=>{try{await navigator.clipboard.writeText(c0);e.target.textContent="Citation copiée"}catch(_){e.target.textContent="Copie impossible ici"}};
+  boite.querySelectorAll("button[data-k]").forEach(bt=>bt.onclick=async()=>{const el=els[+bt.dataset.k],a=bt.dataset.a,t=titreElement(el),c=citationTexte(t),ok=m=>{bt.textContent=m};
+    try{if(a==="csv"){exporterCsv(el,t,c);ok("Enregistré")}
+      else if(a==="svg"){telecharger(new Blob([svgExport(el.id,c)],{type:"image/svg+xml"}),nomFichier(t,el.id)+".svg");ok("Enregistré")}
+      else{const png=await pngExport(el.id,c);if(a==="png"){telecharger(png,nomFichier(t,el.id)+".png");ok("Enregistré")}
+        else{await navigator.clipboard.write([new ClipboardItem({"image/png":png})]);ok("Image copiée")}}}
+    catch(e){ok(a==="img"?"Copie impossible ici, utilisez PNG":"Opération impossible")}})}
+function normaliserEncadres(){
+  // tête de chaque encadré, les boutons « Comment lire » quittent le titre pour la ligne d'en dessous
+  document.querySelectorAll(".panel").forEach(pan=>{const h=pan.querySelector("h2");if(!h||h.closest(".panel")!==pan||pan.querySelector(".outils-encadre"))return;
+    const hows=[...h.querySelectorAll("button.how")],row=document.createElement("div");row.className="outils-encadre";
+    hows.forEach(b=>row.appendChild(b));if(h.lastChild&&h.lastChild.nodeType===3)h.lastChild.textContent=h.lastChild.textContent.replace(/\s+$/,"");
+    if(hows.length||pan.querySelector(CANDIDATS)||((pan.dataset.avec||pan.querySelector("[data-avec]"))))h.after(row)});
+  // un seul « Citer et exporter » par ligne, quand l'encadré contient de quoi citer
+  document.querySelectorAll(".outils-encadre").forEach(row=>{if(row.querySelector("button.citer")||!elementsEncadre(row).length)return;
+    const b=document.createElement("button");b.type="button";b.className="citer";b.textContent="Citer et exporter";b.setAttribute("aria-expanded","false");
+    const boite=document.createElement("div");boite.className="citation hidden";row.appendChild(b);row.after(boite);
+    b.onclick=()=>{const ouvert=boite.classList.contains("hidden");b.setAttribute("aria-expanded",String(ouvert));if(ouvert)remplirCitation(row,boite);boite.classList.toggle("hidden",!ouvert)}})}
 // ---------- « Comment lire »
 let GL=new Map();
 function howHtml(keys){return keys.split(",").map(k=>GL.get(k)).filter(Boolean).map(g=>'<p><strong>'+esc(g.terme)+'.</strong> '+esc(g.definition)+'</p>').join("")||'<p>Explication absente de ce fichier de données.</p>'}
@@ -1019,7 +1028,7 @@ function selCard(){
   el.classList.remove("hidden");
   const lv=S.sel.lv,i=IDX[lv].get(S.sel.c),u=D.niveaux[lv].units[i];
   const parent=lv==="epci"?(IDX.depName.get(u.p)||u.p):lv==="reg"?"Région":u.p;
-  let h='<div class="selhead"><div><h2>'+esc(u.nm)+' <button class="how" data-how="indice100,attendu,entonnoir">Comment lire</button><button type="button" class="citer" data-fiche="1" aria-expanded="false">Citer</button></h2><div class="howtxt hidden"></div><div class="citation hidden" id="ficheCitation"></div><div class="muted small">'+esc(parent)+', '+fmt.format(u.pop)+' habitants</div></div><div class="actions">'+[["sante-mentale","Rapport santé mentale"],["sante","Rapport santé"]].filter(([k])=>(D.rapports_territoires||[]).includes(lv+"-"+S.sel.c+"-"+k)).map(([k,l])=>'<a class="btn ghost" href="'+(D.rapports_dossier||"territoires")+'/'+lv+'-'+S.sel.c+'-'+k+'.html">'+l+'</a>').join("")+'<button class="btn ghost repli-fiche" id="selReplier" type="button" aria-controls="selCorps" aria-expanded="'+!S.selReplie+'"><span class="chevron" aria-hidden="true">▾</span> '+(S.selReplie?"Afficher le détail":"Masquer le détail")+'</button></div></div>';
+  let h='<div class="selhead"><div><h2>'+esc(u.nm)+' <button class="how" data-how="indice100,attendu,entonnoir">Comment lire</button></h2><div class="howtxt hidden"></div><div class="muted small">'+esc(parent)+', '+fmt.format(u.pop)+' habitants</div></div><div class="actions">'+[["sante-mentale","Rapport santé mentale"],["sante","Rapport santé"]].filter(([k])=>(D.rapports_territoires||[]).includes(lv+"-"+S.sel.c+"-"+k)).map(([k,l])=>'<a class="btn ghost" href="'+(D.rapports_dossier||"territoires")+'/'+lv+'-'+S.sel.c+'-'+k+'.html">'+l+'</a>').join("")+'<button class="btn ghost repli-fiche" id="selReplier" type="button" aria-controls="selCorps" aria-expanded="'+!S.selReplie+'"><span class="chevron" aria-hidden="true">▾</span> '+(S.selReplie?"Afficher le détail":"Masquer le détail")+'</button></div></div>';
   const finTete=h.length;
   let court="",precision="";
   // phrase sur la profession affichée
@@ -1074,20 +1083,13 @@ function selCard(){
   if(fragile(lv,S.sel.c))lims.unshift(fragile(lv,S.sel.c));
   h+=limiteHtml(["prof:"+p0,...lims],codes);
   // le détail se masque ou s'affiche par la flèche, l'en-tête reste visible (le choix est gardé d'un territoire à l'autre)
-  el.innerHTML=h.slice(0,finTete)+'<div id="selCorps"'+(S.selReplie?' hidden':'')+'>'+h.slice(finTete)+'</div>';
-  {const bc=el.querySelector("button[data-fiche]"),boite=el.querySelector("#ficheCitation");
-    bc.onclick=()=>{const ouvert=boite.classList.contains("hidden");bc.setAttribute("aria-expanded",String(ouvert));
-      if(ouvert){const titre="Profil de "+u.nm+", offre de soins comparée à la moyenne "+MOYLAB[lv],c=citationTexte(titre);
-        boite.innerHTML='<p>'+esc(c)+'</p><div class="hmbar"><button class="btn ghost" type="button" data-a="cit">Copier la citation</button><button class="btn ghost" type="button" data-a="csv">Télécharger en CSV</button></div>';
-        boite.querySelector('[data-a="cit"]').onclick=async e=>{try{await navigator.clipboard.writeText(c);e.target.textContent="Citation copiée"}catch(_){e.target.textContent="Copie impossible ici"}};
-        boite.querySelector('[data-a="csv"]').onclick=e=>{const q=v=>/[;"]/.test(String(v))?'"'+String(v).replace(/"/g,'""')+'"':String(v);
-          const lignes=[["Profession","Effectif","Pour 10 000 habitants","Indice (moyenne "+MOYLAB[lv]+" = 100)"]];
-          for(const pr of D.professions.filter(x=>(S.fam==="*"||famOf(x)===S.fam)&&!x.id.startsWith("esm_")&&natN(x.id)>0)){const n=unitN(lv,pr.id,i),d=unitD(lv,pr.id,i),r=refD(lv,pr.id);
-            lignes.push([pr.libelle,fmt.format(n),f1.format(d),r?fmt.format(Math.round(d/r*100)):""])}
-          if(u.x){lignes.push([]);lignes.push(["Indicateur","Valeur"]);for(const cx of ctxVisibles())if(u.x[cx.i]!=null)lignes.push([cx.label+(cx.unite?" ("+cx.unite+")":""),f1.format(u.x[cx.i])])}
-          const nom=("profil_"+u.nm).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9]+/g,"_").toLowerCase().slice(0,80);
-          telecharger(new Blob(["\ufeff"+lignes.map(l=>l.map(q).join(";")).join("\r\n")+"\r\n\r\n"+c],{type:"text/csv;charset=utf-8"}),nom+".csv");e.target.textContent="Fiche enregistrée"}}
-      boite.classList.toggle("hidden",!ouvert)}}
+  el.innerHTML=h.slice(0,finTete)+'<div id="selCorps" data-export="fiche"'+(S.selReplie?' hidden':'')+'>'+h.slice(finTete)+'</div>';
+  // valeurs de la fiche, exportées par « Citer et exporter »
+  EXPORT_CSV.fiche=()=>{const lignes=[["Profession","Effectif","Pour 10 000 habitants","Indice (moyenne "+MOYLAB[lv]+" = 100)"]];
+    for(const pr of D.professions.filter(x=>(S.fam==="*"||famOf(x)===S.fam)&&!x.id.startsWith("esm_")&&natN(x.id)>0)){const n=unitN(lv,pr.id,i),d=unitD(lv,pr.id,i),r=refD(lv,pr.id);
+      lignes.push([pr.libelle,fmt.format(n),f1.format(d),r?fmt.format(Math.round(d/r*100)):""])}
+    if(u.x){lignes.push([]);lignes.push(["Indicateur","Valeur"]);for(const cx of ctxVisibles())if(u.x[cx.i]!=null)lignes.push([cx.label+(cx.unite?" ("+cx.unite+")":""),f1.format(u.x[cx.i])])}
+    return {titre:"Profil de "+u.nm+", offre de soins comparée à la moyenne "+MOYLAB[lv],nom:nomFichier("profil_"+u.nm,"profil"),texte:lignes.map(l=>l.map(qCsv).join(";")).join("\r\n")}};
   br.innerHTML='<h2>'+esc(u.nm)+'</h2><div class="muted small">'+esc(parent)+', '+fmt.format(u.pop)+' habitants</div>'+(court?'<p class="phrase">'+esc(court.split(". ")[0].replace(/\.$/,""))+'.'+(precision?' '+esc(precision):'')+'</p>':'')+'<button class="lien" id="selVoir">Voir son profil complet sous la carte</button>';
   document.getElementById("selVoir").onclick=()=>el.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});
   document.getElementById("selReplier").onclick=()=>{S.selReplie=!S.selReplie;const b=document.getElementById("selReplier");
@@ -1147,11 +1149,9 @@ function tableNuage(lv,cx,p,pts,cy){
   document.getElementById("scTable").innerHTML='<thead><tr>'+th("nm",lv==="dep"?"Département":"Intercommunalité")+th("pop","Habitants")+th("x",cx.label+(cx.unite?" ("+cx.unite+")":""))+th("y",cy?cy.label+(cy.unite?" ("+cy.unite+")":""):cap(pluriel(lab))+", pour 10 000 hab.")+'</tr></thead><tbody>'
     +rows.map(d=>'<tr><td>'+esc(d.u.nm)+'</td><td>'+fmt.format(d.u.pop)+'</td><td>'+fx(d.x)+'</td><td>'+(cy?(cy.unite==="€"?fmt.format(Math.round(d.y)):f1.format(d.y)):f2.format(d.y))+'</td></tr>').join("")+'</tbody>';
   document.querySelectorAll("#scTable th button").forEach(b=>b.onclick=()=>{const k=b.dataset.s;if(SC.tri===k)SC.asc=!SC.asc;else{SC.tri=k;SC.asc=k==="nm"}tableNuage(lv,cx,p,pts,cy)});
-  document.getElementById("scCsv").onclick=()=>{
-    const l=[["code","territoire","habitants",cx.id,cy?cy.id:"densite_"+p].join(";")].concat(pts.slice().sort((a,b)=>a.u.nm.localeCompare(b.u.nm,"fr")).map(d=>[d.u.c,'"'+d.u.nm.replace(/"/g,'""')+'"',d.u.pop,String(d.x).replace(".",","),String(Math.round(d.y*1e4)/1e4).replace(".",",")].join(";")));
-    l.push("");l.push("# Source, "+citationTexte(cx.label+" et "+(cy?minuscule(cy.label):pluriel(lab))+", par "+(lv==="dep"?"département":"intercommunalité")));
-    const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["\ufeff"+l.join("\r\n")],{type:"text/csv;charset=utf-8"}));
-    a.download=cx.id+"_"+(cy?cy.id:p)+"_"+lv+".csv";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)};
+  // données complètes du nuage (codes, valeurs non arrondies), exportées par « Citer et exporter »
+  EXPORT_CSV.scTable=()=>({titre:"Données du nuage, "+cx.label+" et "+(cy?minuscule(cy.label):pluriel(lab))+", par "+(lv==="dep"?"département":"intercommunalité"),nom:cx.id+"_"+(cy?cy.id:p)+"_"+lv,
+    texte:[["code","territoire","habitants",cx.id,cy?cy.id:"densite_"+p].join(";")].concat(pts.slice().sort((a,b)=>a.u.nm.localeCompare(b.u.nm,"fr")).map(d=>[d.u.c,'"'+d.u.nm.replace(/"/g,'""')+'"',d.u.pop,String(d.x).replace(".",","),String(Math.round(d.y*1e4)/1e4).replace(".",",")].join(";"))).join("\r\n")});
 }
 function scatter(){
   const lv=S.level,L=D.niveaux[lv],p=S.prof,cx=IDX.ctx.find(c=>c.id===S.xvar),cy=S.yvar?IDX.ctx.find(c=>c.id===S.yvar):null;
@@ -1676,7 +1676,7 @@ function syncBar(){
   const rb=document.querySelector('.seg[data-k="level"] [data-v="reg"]');rb.disabled=!D.niveaux.reg||!["carte","tableau"].includes(S.tab);
 }
 function render(){
-  hideTip();boutonsCiter();
+  hideTip();
   if(S.level==="reg"&&(!D.niveaux.reg||!["carte","tableau"].includes(S.tab))){S.level="dep";S.sel=null}
   syncBar();
   document.querySelectorAll("section[data-p]").forEach(s=>s.classList.toggle("hidden",s.dataset.p!==S.tab));
@@ -1687,7 +1687,7 @@ function render(){
   if(S.tab==="typologie")typologie();
   if(S.tab==="sources")sources();
   if(S.tab==="comprendre")comprendre();
-  signer();
+  normaliserEncadres();signer();
 }
 document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;S.tab=b.dataset.t;document.querySelectorAll("#tabs button").forEach(x=>x.setAttribute("aria-selected",String(x===b)));render()});
 document.querySelectorAll(".seg[data-k]").forEach(sg=>sg.addEventListener("click",e=>{const b=e.target.closest("button");if(!b||b.disabled)return;S[sg.dataset.k]=b.dataset.v;if(sg.dataset.k==="level"){S.sel=null;S.niveauAuto=false}if(sg.dataset.k==="vue"&&S.vue==="tuiles"&&S.level!=="dep"){S.level="dep";S.sel=null}if(sg.dataset.k==="fam"){S.sort=null;buildSelects()}render()}));
@@ -1717,6 +1717,7 @@ document.querySelector("#tbl tbody").addEventListener("click",e=>{const tr=e.tar
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change",render);
 window.addEventListener("theme",()=>{M=null;TM=null;render()});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&S.sel&&S.tab==="carte"){S.sel=null;render()}});
+normaliserEncadres();
 // panneaux repliables sous la carte, ouverts sur grand écran et repliés sur téléphone, choix gardé par le navigateur
 document.querySelectorAll("[data-repli]").forEach(p=>{const h=p.querySelector("h2"),cle="atlas-repli-"+p.dataset.repli,corps=document.createElement("div");
   let n=h.nextElementSibling;if(n&&n.classList.contains("howtxt"))n=n.nextElementSibling;

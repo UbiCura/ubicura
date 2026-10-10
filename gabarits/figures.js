@@ -42,7 +42,7 @@
     var v=[x,y,w,h].map(function(n){return +n.toFixed(2)}).join(" ");s.setAttribute("viewBox",v);s.dataset.vbz=v;boutons(s)}
   function entier(s){return !s.dataset.vb0||s.getAttribute("viewBox")===s.dataset.vb0}
   function boutons(s){
-    var hote=s.closest("figure");
+    var hote=s.closest(".fig-corps")||s.closest("figure");
     if(!hote){
       // hors d'une figure (atlas), les boutons vont sur une ligne à eux juste au-dessus du graphique, sans recouvrir le
       // titre du panneau ni le bouton Citer
@@ -76,32 +76,39 @@
     var v=[x,y,b[2],b[3]].map(function(n){return +n.toFixed(2)}).join(" ");dep.s.setAttribute("viewBox",v);dep.s.dataset.vbz=v});
   addEventListener("pointerup",function(){dep=null});
 
-  // figures des rapports, bouton Citer en haut à droite (à côté du zoom), citation du rapport suivie du numéro et de la
-  // légende de la figure, copie de la citation et image enregistrée avec la citation dessous. La citation du rapport est
-  // donnée par la page (attribut data-citation), l'atlas a ses propres boutons.
+  // figures des rapports, même modèle que l'atlas (10 octobre 2026). Sous le titre « Figure N. légende », une ligne
+  // « Citer et exporter » ouvre la citation du rapport suivie du numéro et de la légende, l'image (copie, PNG, SVG, avec
+  // la citation dessous) et les données de la figure. La citation du rapport est donnée par la page (data-citation).
   function citerFigures(){
     var porte=document.querySelector("[data-citation]");if(!porte)return;var base=porte.dataset.citation;
     document.querySelectorAll("figure.graphique").forEach(function(f){
       if(f.dataset.cite)return;f.dataset.cite="1";
-      var cap=f.querySelector("figcaption"),num=cap&&cap.querySelector("strong"),leg=cap&&cap.querySelector(".leg");
-      var ref=(num?num.textContent.replace(/\.$/,""):"Figure")+(leg?", "+leg.textContent.trim():"");
-      var texte=base.replace(/\s*$/,"")+(/[.]$/.test(base.trim())?" ":". ")+ref+".";
-      var bz=f.querySelector(":scope > .zoom-boutons");
-      if(!bz){bz=document.createElement("div");bz.className="zoom-boutons";if(getComputedStyle(f).position==="static")f.style.position="relative";f.insertBefore(bz,f.firstChild)}
-      var bc=document.createElement("button");bc.type="button";bc.className="citer-fig";bc.textContent="Citer";bc.setAttribute("aria-expanded","false");bz.insertBefore(bc,bz.firstChild);
-      var boite=document.createElement("div");boite.className="citation-fig";boite.hidden=true;(cap||f.lastElementChild).after(boite);
-      var nom=(ref.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,80)||"figure").toLowerCase();
+      var cap=f.querySelector("figcaption");
+      var ligne=document.createElement("div");ligne.className="outils-figure";
+      var bc=document.createElement("button");bc.type="button";bc.className="citer-fig";bc.textContent="Citer et exporter";bc.setAttribute("aria-expanded","false");ligne.appendChild(bc);
+      if(cap)cap.after(ligne);else f.insertBefore(ligne,f.firstChild);
+      var boite=document.createElement("div");boite.className="citation-fig";boite.hidden=true;ligne.after(boite);
       bc.onclick=function(){var ouvert=boite.hidden;bc.setAttribute("aria-expanded",String(ouvert));boite.hidden=!ouvert;if(!ouvert)return;
-        boite.innerHTML='<p></p><div class="citation-actions"><button type="button" data-a="cit">Copier la citation</button><button type="button" data-a="png">Enregistrer l’image (PNG)</button><button type="button" data-a="svg">Enregistrer l’image (SVG)</button></div>';
+        // la légende suit la profession choisie, la citation est donc refaite à chaque ouverture
+        var num=cap&&cap.querySelector("strong"),leg=cap&&cap.querySelector(".leg");
+        var ref=(num?num.textContent.replace(/\.$/,""):"Figure")+(leg?", "+leg.textContent.trim():"");
+        var texte=base.replace(/\s*$/,"")+(/[.]$/.test(base.trim())?" ":". ")+ref+".";
+        var nom=(ref.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,80)||"figure").toLowerCase();
+        boite.innerHTML='<p></p><div class="citation-actions"><button type="button" data-a="cit">Copier la citation</button></div>'
+          +'<ul class="exports"><li><span class="nom"><span class="genre">Image</span> de la figure</span><span class="citation-actions"><button type="button" data-a="img">Copier l’image</button><button type="button" data-a="png">PNG</button><button type="button" data-a="svg">SVG</button></span></li>'
+          +(f.dataset.donnees?'<li><span class="nom"><span class="genre">Données</span> de la figure, '+f.dataset.donneesNom+'</span><span class="citation-actions"><a class="bouton" download href="'+f.dataset.donnees+'">CSV</a></span></li>':'')
+          +'</ul><p class="small muted">Chaque fichier porte la citation du rapport, merci de la joindre à toute reprise.</p>';
         boite.querySelector("p").textContent=texte;
         boite.querySelectorAll("button").forEach(function(b){b.onclick=function(){var a=b.dataset.a;
           if(a==="cit"){navigator.clipboard.writeText(texte).then(function(){b.textContent="Citation copiée"},function(){b.textContent="Copie impossible ici"});return}
           var src=f.querySelector(".variante:not([hidden]) svg")||f.querySelector("svg");if(!src)return;
           var svg=imageCitee(src,texte);
-          if(a==="svg"){enregistrer(new Blob([svg],{type:"image/svg+xml"}),nom+".svg");b.textContent="Image enregistrée";return}
+          if(a==="svg"){enregistrer(new Blob([svg],{type:"image/svg+xml"}),nom+".svg");b.textContent="Enregistré";return}
           var img=new Image(),url=URL.createObjectURL(new Blob([svg],{type:"image/svg+xml"}));
           img.onload=function(){var c=document.createElement("canvas");c.width=img.width;c.height=img.height;c.getContext("2d").drawImage(img,0,0);URL.revokeObjectURL(url);
-            c.toBlob(function(png){if(png){enregistrer(png,nom+".png");b.textContent="Image enregistrée"}})};img.src=url}})}})}
+            c.toBlob(function(png){if(!png)return;
+              if(a==="png"){enregistrer(png,nom+".png");b.textContent="Enregistré";return}
+              navigator.clipboard.write([new ClipboardItem({"image/png":png})]).then(function(){b.textContent="Image copiée"},function(){b.textContent="Copie impossible ici, utilisez PNG"})})};img.src=url}})}})}
   function imageCitee(src,texte){
     var ns="http://www.w3.org/2000/svg",c=src.cloneNode(true),vb=(src.dataset.vb0||src.getAttribute("viewBox")||"0 0 600 400").split(/[ ,]+/).map(Number);
     var fs=Math.max(10,vb[2]/70),par=Math.max(40,Math.floor((vb[2]-16)/(fs*.52))),lignes=[];
