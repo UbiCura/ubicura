@@ -644,7 +644,9 @@ function boutonsHtml(){
       telecharger(new Blob(["﻿"+lignesHtml(el).map(l=>l.map(q).join(";")).join("\r\n")+"\r\n\r\n"+citationTexte(titre())],{type:"text/csv;charset=utf-8"}),nom+".csv");bx.textContent="Données enregistrées"}}}
 function boutonsCiter(){
   boutonsTableaux();boutonsHtml();
-  for(const id of GRAPHES){const el=document.getElementById(id);if(!el)continue;const pan=el.closest(".panel");if(!pan||pan.querySelector("button.citer"))continue;
+  // une marque sur le graphique lui-même, car son bouton peut être placé hors de son panneau (carte des groupes)
+  for(const id of GRAPHES){const el=document.getElementById(id);if(!el||el.dataset.citeGraphe)continue;const pan=el.closest(".panel");if(!pan||pan.querySelector("button.citer"))continue;
+    el.dataset.citeGraphe="1";
     const b=document.createElement("button");b.type="button";b.className="citer";b.textContent="Citer";b.setAttribute("aria-expanded","false");b.dataset.graphe=id;
     const boite=document.createElement("div");boite.className="citation hidden";
     const h2=pan.querySelector("h2");if(h2&&id!=="map"&&id!=="tmap"){h2.appendChild(b);h2.after(boite)}
