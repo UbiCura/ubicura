@@ -7,9 +7,13 @@
 {% if lien_region %}<a class="pas-imprime" href="{{ lien_region }}">Rapport de la région</a>.{% endif %}
 <a class="pas-imprime" href="{{ racine }}{{ lien_national }}">Rapport national</a>.
 <a class="pas-imprime" href="index.html">Tous les territoires</a>.</p>
+
 <div class="rapport">
   <aside class="sommaire" aria-label="Sommaire">{{ sommaire|safe }}</aside>
-  <article class="corps">{{ corps|safe }}</article>
+  <article class="corps">{% if citation %}<div class="citer-haut">
+<p><strong>Comment citer ce rapport.</strong> {{ citation.texte }}</p>
+{% if citation.doi_donnees %}<p class="small">Les données de ce rapport sont archivées avec un identifiant permanent, <a href="https://doi.org/{{ citation.doi_donnees }}">doi:{{ citation.doi_donnees }}</a>. Voir aussi <a href="{{ racine }}a-propos.html#comment-citer">Comment citer</a>.</p>{% endif %}
+</div>{% endif %}{{ corps|safe }}</article>
 </div>
 <script>
 // les volets « Pour aller plus loin » sont ouverts à l'impression, puis refermés

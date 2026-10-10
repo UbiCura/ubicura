@@ -209,8 +209,12 @@ def lisez_moi_donnees(dossier: Path) -> str:
               "licence. Les autres fichiers sont sous Licence Ouverte 2.0 (Etalab), "
               "https://www.etalab.gouv.fr/licence-ouverte-open-licence/.", "",
               "## Comment citer", "",
-              f"{config.CITATION_AUTEUR} ({version[:4]}). {config.TITRES_DEPOTS['donnees']}. Version du "
-              f"{date_longue(version)}. Zenodo." + (f" https://doi.org/{doi}" if doi else ""), "",
+              (f"{config.CITATION_AUTEUR} ({version[:4]}). {config.TITRES_DEPOTS['donnees']}. Version du "
+               f"{date_longue(version)}. Zenodo." + (f" https://doi.org/{doi}" if doi else ""))
+              if version == config.VERSION_ZENODO or not config.ADRESSE_SITE else
+              (f"{config.CITATION_AUTEUR} ({version[:4]}). {config.TITRES_DEPOTS['donnees']}. Version du "
+               f"{date_longue(version)}, {config.ADRESSE_SITE}." + (f" Dernière version archivée, Zenodo, "
+                                                                     f"https://doi.org/{doi}" if doi else "")), "",
               "## Sources", ""] + sources + [""]
     return "\n".join(lignes)
 
@@ -218,6 +222,7 @@ def lisez_moi_donnees(dossier: Path) -> str:
 def a_propos_variables(version: str) -> dict:
     """Valeurs reprises dans contenus/a_propos.md (citations, DOI, contact), toutes tirées de config."""
     return {"version": date_longue(version), "annee": version[:4], "nom_projet": config.NOM_PROJET,
+            "version_zenodo": date_longue(config.VERSION_ZENODO), "annee_zenodo": config.VERSION_ZENODO[:4],
             "sous_titre": config.SOUS_TITRE[0].lower() + config.SOUS_TITRE[1:], "orcid": config.ORCID,
             "contact": config.CONTACT, "doi_donnees": config.DOI_DONNEES or "",
             "doi_sm": config.DOI_RAPPORTS.get("sante-mentale") or "", "doi_sante": config.DOI_RAPPORTS.get("sante") or "",
@@ -225,11 +230,25 @@ def a_propos_variables(version: str) -> dict:
             "titre_sante": config.TITRES_DEPOTS["sante"]}
 
 
-def citation(cle: str, titre: str, date: str) -> dict:
-    """Citation d'un rapport, avec les DOI quand ils existent."""
+def citation_territoire(titre: str, date: str, page: str) -> dict:
+    """Citation d'un rapport par territoire. Ces rapports ne sont pas archivés sur Zenodo, la citation donne l'adresse de
+    la page et le DOI des données."""
+    adresse = f"{config.ADRESSE_SITE.rstrip('/')}/territoires/{page}" if config.ADRESSE_SITE else page
+    titre = re.sub(r",\s*\d{1,2}(er)?\s+\S+\s+\d{4}\s*$", "", titre)   # la date du titre est donnée par la version
+    texte = f"{config.CITATION_AUTEUR} ({date[-4:]}). {titre}. Version du {date}. {config.NOM_PROJET}, {adresse}"
+    return {"texte": texte, "doi_rapport": None, "doi_donnees": config.DOI_DONNEES}
+
+
+def citation(cle: str, titre: str, date: str, iso: str | None = None) -> dict:
+    """Citation d'un rapport, avec les DOI quand ils existent. Une version qui n'est pas archivée sur Zenodo est citée par
+    son adresse sur le site, avec le DOI général de la dernière version archivée."""
     doi_r, doi_d = config.DOI_RAPPORTS.get(cle), config.DOI_DONNEES
+    if doi_r and iso and iso != config.VERSION_ZENODO and config.ADRESSE_SITE:
+        texte = (f"{config.CITATION_AUTEUR} ({date[-4:]}). {config.TITRES_DEPOTS.get(cle, titre)}. Version du {date}, "
+                 f"{config.ADRESSE_SITE.rstrip('/')}/rapports/{iso}/{cle}.html. Dernière version archivée, Zenodo, "
+                 f"https://doi.org/{doi_r}")
     # citation formelle sur le titre du dépôt Zenodo, sans le nom du site
-    if doi_r:
+    elif doi_r:
         texte = (f"{config.CITATION_AUTEUR} ({date[-4:]}). {config.TITRES_DEPOTS.get(cle, titre)}. Version du {date}. "
                  f"Zenodo. https://doi.org/{doi_r}")
     else:
@@ -349,7 +368,7 @@ def construire(pdf=True) -> Path:
             texte = (d / fichier).read_text(encoding="utf-8")
             autre = "sante" if cle == "sante-mentale" else "sante-mentale"
             ctx = dict(commun, date_longue=date_longue(d.name), racine="../../", page="rapports",
-                       citation=citation(cle, titre, date_longue(d.name)),
+                       citation=citation(cle, titre, date_longue(d.name), d.name),
                        titre=f"{titre}, {date_longue(d.name)}", autre_lien=f"{autre}.html",
                        autre_titre="Lire le rapport santé" if cle == "sante-mentale" else "Lire le rapport santé mentale")
             t, corps, sommaire = md_html(texte, d / "graphiques", donnees=(
@@ -376,7 +395,10 @@ def construire(pdf=True) -> Path:
             v["pdf_sm" if cle == "sante-mentale" else "pdf_sante"] = cible_pdf.exists()
         versions.append(v)
     ctx = dict(commun, racine="", page="rapports", titre="Rapports nationaux")
-    (SITE / "rapports.html").write_text(env.get_template("rapports.html").render(ctx, versions=versions), encoding="utf-8")
+    (SITE / "rapports.html").write_text(env.get_template("rapports.html").render(
+        ctx, versions=versions,
+        citation_sm=citation("sante-mentale", "Rapport santé mentale", date_longue(dernier.name), dernier.name)["texte"],
+        citation_sante=citation("sante", "Rapport santé", date_longue(dernier.name), dernier.name)["texte"]), encoding="utf-8")
     pages.append(SITE / "rapports.html")
     pages += _territoires(env, commun, dernier)
 
@@ -527,7 +549,8 @@ def _territoires(env, commun, dernier) -> list[Path]:
                 autre_lien=f"{base}-{autre}.html" if autre in t["fichiers"] else "index.html",
                 autre_titre="Lire le rapport santé" if cle == "sante-mentale" else "Lire le rapport santé mentale",
                 lien_region=f"reg-{t['reg']}-{cle}.html" if t["niveau"] == "dep" and t["reg"] in reg_avec_rapport else None,
-                lien_national=f"rapports/{dernier.name}/{cle}.html")
+                lien_national=f"rapports/{dernier.name}/{cle}.html",
+                citation=citation_territoire(titre_r, date_longue(dernier.name), f"{base}-{cle}.html"))
             (dossier / f"{base}-{cle}.html").write_text(html, encoding="utf-8")
             pages.append(dossier / f"{base}-{cle}.html")
     lien = lambda t, c: f"{t['niveau']}-{t['code']}-{c}.html" if c in t["fichiers"] else None  # noqa: E731
@@ -543,7 +566,10 @@ def _territoires(env, commun, dernier) -> list[Path]:
     from .util import norm
     regions.sort(key=lambda r: norm(r["nom"]))
     ctx = dict(commun, racine="../", page="territoires", titre="Rapports par territoire")
-    (dossier / "index.html").write_text(env.get_template("territoires.html").render(ctx, regions=regions),
+    (dossier / "index.html").write_text(env.get_template("territoires.html").render(
+        ctx, regions=regions,
+        exemple_citation=citation_territoire("Offre de soins en santé mentale, Eure", date_longue(dernier.name),
+                                             "dep-27-sante-mentale.html")["texte"]),
                                         encoding="utf-8")
     pages.append(dossier / "index.html")
     return pages

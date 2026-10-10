@@ -65,6 +65,8 @@ details.donnees summary{color:var(--ink);font-weight:500}
 .citation p{margin:0 0 6px}
 button.citer{background:none;border:1px solid var(--line);border-radius:999px;padding:1px 10px;font-family:var(--sans);font-size:.72rem;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap}
 button.citer[aria-expanded="true"]{color:var(--ink);border-color:var(--ink)}
+.tab-citer{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end;align-items:center;margin:0 0 6px}
+.tab-citer .citation{flex-basis:100%}
 svg text.signature{font-size:10px;opacity:.75}
 @media (max-width:600px){.bar select{max-width:100%;min-width:0;flex:1 1 100%}.seg{flex-wrap:wrap;max-width:100%}.seg button+button{border-left:0}.seg button{border-right:1px solid var(--line)}}
 .grid{display:grid;grid-template-columns:minmax(0,1fr) clamp(280px,32vw,360px);gap:24px;align-items:start}
@@ -186,7 +188,7 @@ tbody tr:hover td{filter:brightness(.97)}
 .bvlegende{display:flex;gap:18px;align-items:center;flex-wrap:wrap;font-size:.8rem;color:var(--muted);margin:8px 0}
 .bvlegende .grille{display:grid;grid-template-columns:repeat(3,16px);grid-template-rows:repeat(3,16px)}
 .bvlegende .grille i{display:block}
-.bvlegende .legende-signaux{flex-basis:100%;margin:0}
+.bvlegende .legende-signaux,.legend .legende-signaux{flex-basis:100%;margin:0}
 .sig-leg{display:inline-flex!important;align-items:center;gap:5px;flex:0 1 auto;min-width:0;width:auto!important}
 .sig-leg svg{flex:none;width:13px!important;height:13px!important;max-width:none}
 .cherche label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:4px}
@@ -512,9 +514,11 @@ function grille(svg,y,m,w,n){svg.append("g").attr("class","grille").attr("transf
 function dateDonnees(){const g=D.meta.genere_le||"";return g?new Date(g+"T12:00").toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"}):""}
 function citationTexte(titre){const c=D.citation||{},a=(D.meta.genere_le||"").slice(0,4);
   // avec un DOI, citation formelle sur le titre du dépôt Zenodo des données, sans le nom du site
-  if(c.doi&&c.titre_donnees)return (c.auteur_court||"Pithon L.")+" ("+a+"). "+titre+". D’après « "+c.titre_donnees+" », version du "+dateDonnees()+". Zenodo. https://doi.org/"+c.doi;
+  if(c.doi&&c.titre_donnees&&(!c.version_zenodo||c.version_zenodo===D.meta.genere_le||!c.adresse))return (c.auteur_court||"Pithon L.")+" ("+a+"). "+titre+". D’après « "+c.titre_donnees+" », version du "+dateDonnees()+". Zenodo. https://doi.org/"+c.doi;
+  // version plus récente que la dernière archivée sur Zenodo, citée par l'adresse du site
+  if(c.doi&&c.titre_donnees)return (c.auteur_court||"Pithon L.")+" ("+a+"). "+titre+". D’après « "+c.titre_donnees+" », version du "+dateDonnees()+", "+c.adresse+". Dernière version archivée, Zenodo, https://doi.org/"+c.doi;
   return (c.auteur_court||"Pithon L.")+" ("+a+"). "+titre+". "+(c.projet||"Ubi Cura")+", données du "+dateDonnees()+"."+(c.adresse?" "+c.adresse:"")}
-const GRAPHES=["map","pcPlot","bvmap","gwrmap","scatter","effetVille","indPlot","regPlot","lorenz","escalier","funnel","tmap","acpPlan"];
+const GRAPHES=["map","pcPlot","bvmap","gwrmap","scatter","cbPlot","effetVille","indPlot","regPlot","lorenz","escalier","funnel","tmap","acpPlan"];
 function titreGraphe(id){
   if(id==="map"){const mb=document.querySelector('#metricSeg [aria-pressed="true"]');return "Carte, "+pluriel(profLab(S.prof))+", "+(mb?mb.textContent.toLowerCase():"")+", par "+({reg:"région",dep:"département",epci:"intercommunalité"}[S.level])}
   if(id==="scatter"){const cx=IDX.ctx.find(c=>c.id===S.xvar),cy=S.yvar?IDX.ctx.find(c=>c.id===S.yvar):null;return "Nuage de points, "+(cy?minuscule(cy.label):pluriel(profLab(S.prof)))+" et "+(cx?minuscule(cx.label):"")+", par "+(S.level==="dep"?"département":"intercommunalité")}
@@ -570,12 +574,34 @@ function pngExport(id,citation){return new Promise((ok,ko)=>{const img=new Image
   img.onload=()=>{const c=document.createElement("canvas");c.width=img.width;c.height=img.height;c.getContext("2d").drawImage(img,0,0);URL.revokeObjectURL(url);c.toBlob(b=>b?ok(b):ko(new Error("png")),"image/png")};
   img.onerror=ko;img.src=url})}
 function telecharger(blob,nom){const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=nom;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
+// tableaux citables et exportables, la citation et le fichier reprennent ce qui est affiché (famille, niveau, mode, filtre)
+const TABLEAUX={tbl:()=>"Professionnels de santé par territoire, "+famLab[S.fam]+", "+({reg:"régions",dep:"départements",epci:"intercommunalités"}[S.level]||S.level),
+  hm:()=>"Liens entre l’offre de soins et le profil des habitants, "+famLab[S.fam],ttab:()=>"Groupes de territoires (typologie), "+famLab[S.fam],
+  gtab:()=>"Écarts entre territoires",cbTable:()=>"Croisements entre bases, par département"};
+function tableauCsv(t){const lignes=[...t.querySelectorAll("tr")].filter(tr=>tr.offsetParent!==null||!tr.closest("tbody"));
+  const cell=c=>{const v=c.textContent.replace(/\s+/g," ").trim();return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v};
+  return "\ufeff"+lignes.map(tr=>[...tr.children].map(cell).join(";")).join("\r\n")}
+function boutonsTableaux(){
+  for(const [id,titre] of Object.entries(TABLEAUX)){const t=document.getElementById(id);if(!t)continue;const hote=t.closest(".panel.scroll")||t.parentElement;
+    if(hote.previousElementSibling?.classList.contains("tab-citer"))continue;
+    const z=document.createElement("div");z.className="tab-citer";
+    z.innerHTML='<button type="button" class="citer" aria-expanded="false">Citer</button><button type="button" class="citer" data-a="csv">Télécharger en CSV</button><div class="citation hidden"></div>';
+    hote.before(z);const [bc,bx]=z.querySelectorAll("button"),boite=z.querySelector(".citation");
+    bc.onclick=()=>{const ouvert=boite.classList.contains("hidden");bc.setAttribute("aria-expanded",String(ouvert));
+      if(ouvert){const c=citationTexte(titre());boite.innerHTML='<p>'+esc(c)+'</p><div class="hmbar"><button class="btn ghost" type="button">Copier la citation</button></div>';
+        boite.querySelector("button").onclick=async e=>{try{await navigator.clipboard.writeText(c);e.target.textContent="Citation copiée"}catch(_){e.target.textContent="Copie impossible ici"}}}
+      boite.classList.toggle("hidden",!ouvert)};
+    bx.onclick=()=>{const nom=(titre().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,80)||id).toLowerCase();
+      telecharger(new Blob([tableauCsv(t)+"\r\n\r\n"+citationTexte(titre())],{type:"text/csv;charset=utf-8"}),nom+".csv");bx.textContent="Tableau enregistré"}}}
 function boutonsCiter(){
+  boutonsTableaux();
   for(const id of GRAPHES){const el=document.getElementById(id);if(!el)continue;const pan=el.closest(".panel");if(!pan||pan.querySelector("button.citer"))continue;
     const b=document.createElement("button");b.type="button";b.className="citer";b.textContent="Citer";b.setAttribute("aria-expanded","false");b.dataset.graphe=id;
     const boite=document.createElement("div");boite.className="citation hidden";
     const h2=pan.querySelector("h2");if(h2&&id!=="map"&&id!=="tmap"){h2.appendChild(b);h2.after(boite)}
-    else{const z=document.createElement("div");z.style.cssText="padding:0 16px 10px";z.appendChild(b);z.appendChild(boite);pan.appendChild(z)}
+    else{const z=document.createElement("div");z.style.cssText="padding:0 16px 10px";z.appendChild(b);z.appendChild(boite);
+      const apres=id==="map"?document.getElementById("legend"):id==="tmap"?document.getElementById("tyLegende"):null;
+      if(apres)apres.after(z);else pan.appendChild(z)}
     b.onclick=()=>{const ouvert=boite.classList.contains("hidden");b.setAttribute("aria-expanded",String(ouvert));
       if(ouvert){const t=citationTexte(titreGraphe(id));
         boite.innerHTML='<p>'+esc(t)+'</p><div class="hmbar"><button class="btn ghost" type="button" data-a="cit">Copier la citation</button><button class="btn ghost" type="button" data-a="img">Copier l’image</button><button class="btn ghost" type="button" data-a="png">Télécharger en PNG</button><button class="btn ghost" type="button" data-a="svg">Télécharger en SVG</button></div><p class="small muted" style="margin:6px 0 0">L’image porte la source, merci de joindre la citation à toute reprise.</p>';
@@ -773,7 +799,7 @@ function drawMap(){
       .on("keydown",(ev,[k])=>{if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();S.sel=S.sel&&S.sel.c===k?null:{lv:"dep",c:k};render()}});
     gs.select("text").attr("x",(c-4)/2).attr("y",(c-4)/2+5).text(([k])=>k).attr("fill",([k])=>lum(color(vals[ix.get(k)]))>.55?"#1F2430":"#FFFFFF");
     gs.selectAll("g.fragile").remove();gs.filter(([k])=>fragile("dep",k)).each(function([k]){symboleFragile(d3.select(this),c-11,7,fragile("dep",k),4.5)});
-    if(gs.filter(([k])=>fragile("dep",k)).size())legend+=legendeSignaux(["mayotte"]);
+    if(gs.filter(([k])=>fragile("dep",k)).size())legend+='<div class="legende-signaux">'+legendeSignaux(["mayotte"])+'</div>';
     M.gt.selectAll("text.om").data([0]).join("text").attr("class","om").attr("x",x0).attr("y",y0+(nl-1)*c-8).text("Outre-mer");
     document.getElementById("legend").innerHTML=legend;
     document.getElementById("mapLimite").innerHTML=(S.metric==="trajet"?limiteHtml(["route"]):S.metric==="evol"?limiteHtml(["evol:"]):"")+limiteHtml(["mayotte"]);
@@ -789,19 +815,15 @@ function drawMap(){
     .on("click",(ev,f)=>{const c=keyOf(lv,f);S.sel=S.sel&&S.sel.lv===lv&&S.sel.c===c?null:{lv,c};render()});
   M.g.selectAll("path.sel").raise();M.gdom.selectAll("path.sel").raise();
   bordures(M,lv==="epci"?geom.dep:[]);
-  // symbole posé sur les territoires sans psychiatre déclaré qui accueillent un CMP de FINESS, sans changer leur couleur
+  // territoires sans psychiatre déclaré qui accueillent un CMP de FINESS, signalés dans l'infobulle et la fiche (plus
+  // de ronds sur la carte, trop nombreux, décision de Lucas du 10 octobre 2026), compte gardé pour la limite écrite
   M.svg.selectAll("circle.cmp").remove();
   const cm=D.niveaux[lv].cmp,avecCmp=cm&&PSY_CMP.includes(p)&&(S.metric==="dens"||S.metric==="n");let nCmp=0;
-  if(avecCmp)[M.g,M.gdom].forEach(g=>g.selectAll("path").each(function(f){if(!f)return;const i=ix.get(keyOf(lv,f));
-    if(i==null||!cm[i]||unitN(lv,p,i,"all")>0)return;const b=this.getBBox();nCmp++;
-    g.append("circle").attr("class","cmp").attr("cx",b.x+b.width/2).attr("cy",b.y+b.height/2).attr("r",2.8)
-      .attr("fill",css("--panel")).attr("stroke",css("--ink")).attr("stroke-width",1.1).attr("vector-effect","non-scaling-stroke")
-      .style("pointer-events","none")}));
+  if(avecCmp)D.niveaux[lv].units.forEach((u,i)=>{if(cm[i]&&unitN(lv,p,i,"all")===0)nCmp++});
   const sigs=signauxCarte(M,lv,false);
-  if(nCmp)legend+='<span style="display:inline-flex;align-items:center;gap:5px"><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="4" fill="'+css("--panel")+'" stroke="'+css("--ink")+'" stroke-width="1.3"/></svg>aucun '+(p==="pedopsychiatre"?"pédopsychiatre":"psychiatre")+' déclaré, mais au moins un CMP selon FINESS ('+nCmp+')</span>';
-  legend+=legendeSignaux(sigs);
+  if(sigs.length)legend+='<div class="legende-signaux">'+legendeSignaux(sigs)+'</div>';
   document.getElementById("legend").innerHTML=legend;
-  document.getElementById("mapLimite").innerHTML=(S.metric==="trajet"?limiteHtml(["route"]):S.metric==="evol"?limiteHtml(["evol:"]):nCmp?limiteHtml(["prof:psychiatre"]):"")+(sigs.length?limiteHtml(sigs):"");
+  document.getElementById("mapLimite").innerHTML=(S.metric==="trajet"?limiteHtml(["route"]):S.metric==="evol"?limiteHtml(["evol:"]):(p==="pedopsychiatre"?limiteHtml(["prof:pedopsychiatre"]):"")+(nCmp?limiteHtml(["prof:psychiatre"]):""))+(sigs.length?limiteHtml(sigs):"");
 }
 const PSY_CMP=["psychiatre","pedopsychiatre"];
 // signaux « donnée fragile ici » (9 octobre 2026), symbole ocre marqué « ! » posé sur le territoire, sa couleur ne change
@@ -877,6 +899,12 @@ function bulle(lv,i,p){const u=D.niveaux[lv].units[i];
   let h='<strong>'+esc(u.nm)+'</strong><div class="tl">'+esc(par)+', '+fmt.format(u.pop)+' habitants. Écart à la moyenne '+MOYLAB[lv]+'.</div>'+ligneSignal(lv,u.c)+'<table><tr><th></th><th>Effectif</th><th style="white-space:nowrap">Pour 10&nbsp;000</th><th>Écart à la moyenne</th></tr>';
   for(const q of ids){const n=unitN(lv,q,i),d=unitD(lv,q,i),r=refD(lv,q);h+='<tr'+(q===p?' class="on"':'')+'><td>'+esc(profLab(q))+'</td><td>'+fmt.format(n)+'</td><td>'+f1.format(d)+'</td><td>'+(n===0?'aucun':Math.abs(d/r-1)<.05?'autant':esc(fois(d,r)))+'</td></tr>'}
   h+='</table>';
+  // aucun psychiatre déclaré, mais un ou des CMP de FINESS, où des psychiatres peuvent consulter
+  const cmI=D.niveaux[lv].cmp?.[i]||0;
+  if(PSY_CMP.includes(p)&&cmI&&unitN(lv,p,i,"all")===0)h+='<div class="tl">Aucun '+(p==="pedopsychiatre"?"pédopsychiatre":"psychiatre")+' déclaré, mais '+cmI+' centre'+(cmI>1?'s':'')+' médico-psychologique'+(cmI>1?'s':'')+' (CMP) selon FINESS, où des psychiatres peuvent consulter.</div>';
+  // pédopsychiatres, définition étroite au répertoire, signalée quand le territoire n'en compte aucun (cas d'Évreux)
+  if(ids.includes("pedopsychiatre")&&unitN(lv,"pedopsychiatre",i)===0&&IDX.prof.has("q_psychiatrie_enfant")){const q=unitN(lv,"q_psychiatrie_enfant",i);
+    if(q>0)h+='<div class="tl">Aucun pédopsychiatre déclaré comme tel, mais '+fmt.format(q)+' psychiatre'+(q>1?'s':'')+' qualifié'+(q>1?'s':'')+' pour l’enfant et l’adolescent.</div>'}
   const a=att(lv,p,i);if(a&&S.mode==="all")h+='<div class="tl">'+esc(profLab(p))+', d’après le profil de la population on en attendrait '+f1.format(a)+' pour 10 000 hab.</div>';
   if(S.metric==="acces"&&D.niveaux[lv].distance?.[p]?.[i]!=null)h+='<div class="tl">Distance moyenne au plus proche '+f1.format(D.niveaux[lv].distance[p][i])+' km, accessibilité '+f1.format(D.niveaux[lv].acces[p][i])+' pour 10 000 hab.</div>';
   const ev=evol(lv,p,i),ei=evolInfo(p);if(ev)h+='<div class="tl">'+esc(ei.lib)+', évolution de la densité de '+ei.debut+' à '+ei.fin+' selon la DREES, '+signe(ev[2])+' (France '+signe(ei.fr[2])+').</div>';
@@ -908,7 +936,7 @@ function selCard(){
   const parent=lv==="epci"?(IDX.depName.get(u.p)||u.p):lv==="reg"?"Région":u.p;
   let h='<div class="selhead"><div><h2>'+esc(u.nm)+' <button class="how" data-how="indice100,attendu,entonnoir">Comment lire</button></h2><div class="howtxt hidden"></div><div class="muted small">'+esc(parent)+', '+fmt.format(u.pop)+' habitants</div></div><div class="actions">'+[["sante-mentale","Rapport santé mentale"],["sante","Rapport santé"]].filter(([k])=>(D.rapports_territoires||[]).includes(lv+"-"+S.sel.c+"-"+k)).map(([k,l])=>'<a class="btn ghost" href="'+(D.rapports_dossier||"territoires")+'/'+lv+'-'+S.sel.c+'-'+k+'.html">'+l+'</a>').join("")+'<button class="btn ghost repli-fiche" id="selReplier" type="button" aria-controls="selCorps" aria-expanded="'+!S.selReplie+'"><span class="chevron" aria-hidden="true">▾</span> '+(S.selReplie?"Afficher le détail":"Masquer le détail")+'</button></div></div>';
   const finTete=h.length;
-  let court="";
+  let court="",precision="";
   // phrase sur la profession affichée
   const p0=S.prof,lab=profLab(p0),d=unitD(lv,p0,i),nd=refD(lv,p0),n0=unitN(lv,p0,i);
   if(natOf(IDX.prof.get(p0)||{})!=="perimetre_elargi"){
@@ -920,6 +948,9 @@ function selCard(){
     if(st!=null)ph+=" Compte tenu de sa taille, ce territoire est "+STATUT[String(st)]+".";
     // aucun psychiatre déclaré, mais des CMP où des psychiatres peuvent consulter (FINESS)
     const ncmp=D.niveaux[lv].cmp?.[i]||0;
+    if(n0===0&&p0==="pedopsychiatre"&&IDX.prof.has("q_psychiatrie_enfant")){const q=unitN(lv,"q_psychiatrie_enfant",i);
+      if(q>0){precision="On y compte toutefois "+q+" psychiatre"+(q>1?"s":"")+" qualifié"+(q>1?"s":"")+" pour l’enfant et l’adolescent.";
+        ph+=" Aucun pédopsychiatre n’y est déclaré comme tel, mais "+q+" psychiatre"+(q>1?"s":"")+" qualifié"+(q>1?"s":"")+" pour l’enfant et l’adolescent y exerce"+(q>1?"nt":"")+"."}}
     if(n0===0&&ncmp&&PSY_CMP.includes(p0))ph+=" D’après FINESS, il accueille pourtant "+ncmp+" centre"+(ncmp>1?"s":"")+" médico-psychologique"+(ncmp>1?"s":"")+" (CMP), où des psychiatres peuvent consulter sans y être déclarés.";
     const ev=evol(lv,p0,i),ei=evolInfo(p0);
     // activités sans soins à la population déclarées dans ce territoire (sièges, téléconsultation), non comptées
@@ -957,7 +988,7 @@ function selCard(){
   h+=limiteHtml(["prof:"+p0,...lims],codes);
   // le détail se masque ou s'affiche par la flèche, l'en-tête reste visible (le choix est gardé d'un territoire à l'autre)
   el.innerHTML=h.slice(0,finTete)+'<div id="selCorps"'+(S.selReplie?' hidden':'')+'>'+h.slice(finTete)+'</div>';
-  br.innerHTML='<h2>'+esc(u.nm)+'</h2><div class="muted small">'+esc(parent)+', '+fmt.format(u.pop)+' habitants</div>'+(court?'<p class="phrase">'+esc(court.split(". ")[0].replace(/\.$/,""))+'.</p>':'')+'<button class="lien" id="selVoir">Voir son profil complet sous la carte</button>';
+  br.innerHTML='<h2>'+esc(u.nm)+'</h2><div class="muted small">'+esc(parent)+', '+fmt.format(u.pop)+' habitants</div>'+(court?'<p class="phrase">'+esc(court.split(". ")[0].replace(/\.$/,""))+'.'+(precision?' '+esc(precision):'')+'</p>':'')+'<button class="lien" id="selVoir">Voir son profil complet sous la carte</button>';
   document.getElementById("selVoir").onclick=()=>el.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});
   document.getElementById("selReplier").onclick=()=>{S.selReplie=!S.selReplie;const b=document.getElementById("selReplier");
     document.getElementById("selCorps").hidden=S.selReplie;b.setAttribute("aria-expanded",String(!S.selReplie));b.lastChild.textContent=" "+(S.selReplie?"Afficher le détail":"Masquer le détail")};

@@ -21,11 +21,11 @@ Ce site est un projet personnel, mené sans financement et sans lien avec une or
 
 ## Comment citer
 
-Les données et les deux rapports nationaux sont archivés sur Zenodo, chacun avec un identifiant permanent (DOI). Merci de citer la version utilisée.
+Les données et les deux rapports nationaux sont archivés sur Zenodo, chacun avec un identifiant permanent (DOI) qui renvoie toujours à la dernière version archivée, celle du {version_zenodo}. Merci de citer la version utilisée. Une version plus récente du site se cite par son adresse, comme l'indique chaque rapport en tête de page.
 
-- **Les données.** Pithon L. ({annee}). {titre_donnees}. Version du {version}. Zenodo. [https://doi.org/{doi_donnees}](https://doi.org/{doi_donnees})
-- **Le rapport santé mentale.** Pithon L. ({annee}). {titre_sm}. Version du {version}. Zenodo. [https://doi.org/{doi_sm}](https://doi.org/{doi_sm})
-- **Le rapport santé.** Pithon L. ({annee}). {titre_sante}. Version du {version}. Zenodo. [https://doi.org/{doi_sante}](https://doi.org/{doi_sante})
+- **Les données.** Pithon L. ({annee_zenodo}). {titre_donnees}. Version du {version_zenodo}. Zenodo. [https://doi.org/{doi_donnees}](https://doi.org/{doi_donnees})
+- **Le rapport santé mentale.** Pithon L. ({annee_zenodo}). {titre_sm}. Version du {version_zenodo}. Zenodo. [https://doi.org/{doi_sm}](https://doi.org/{doi_sm})
+- **Le rapport santé.** Pithon L. ({annee_zenodo}). {titre_sante}. Version du {version_zenodo}. Zenodo. [https://doi.org/{doi_sante}](https://doi.org/{doi_sante})
 - **Le site.** Pithon L. Ubi Cura, {sous_titre}. Consulté le (date de consultation).
 
 Chaque rapport et chaque graphique de l'atlas donnent aussi leur propre citation.

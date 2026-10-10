@@ -4,13 +4,13 @@ Les ajouts prévus, sans date ferme et à peu près dans l'ordre où ils viendro
 
 **L'offre mois après mois.** Le répertoire des professionnels de santé est publié chaque semaine. Une photographie des effectifs par territoire sera gardée à chaque version, pour suivre leur évolution mois après mois, sans aucune donnée personnelle.
 
+**Toutes les spécialités médicales.** Une trentaine de spécialités distinguées (anesthésie-réanimation, radiologie, gastro-entérologie, chirurgies, pneumologie, rhumatologie, urgences, ORL...), aujourd'hui réunies sous « autre spécialité », dans l'atlas et dans les rapports, et un repère « médecins spécialistes, ensemble » dans les typologies.
+
 **Violences sexistes, sexuelles et intrafamiliales.** Victimes enregistrées par la police et la gendarmerie, par département, et structures d'aide aux victimes. Seule une petite partie des victimes porte plainte, ces chiffres ne mesureront donc pas l'ampleur des violences, ce qui sera écrit à chaque fois.
 
 **Lieux de soins spécialisés.** Centres médico-psychologiques (CMP), centres d'accueil thérapeutique à temps partiel (CATTP), centres de crise, centres médico-psycho-pédagogiques (CMPP), centres d'action médico-sociale précoce (CAMSP), centres de soins en addictologie (CSAPA), protection maternelle et infantile (PMI), comptés par territoire, placés sur la carte et listés par nom, avec leur distance (FINESS). Un lieu n'indique pas sa capacité.
 
 **Où exercent les professionnels de la psychiatrie.** Pour chaque profession, la répartition entre types de structures (hôpitaux, établissements spécialisés, CMP, CATTP, établissements pour enfants...). Ces chiffres reposent sur le lieu que chacun déclare au répertoire, souvent l'hôpital de rattachement plutôt que le CMP où il consulte, ce qui sera signalé avec le tableau.
-
-**Toutes les professions de santé.** Chaque spécialité médicale et chaque profession de santé dans le rapport santé, selon ce que les statistiques publiques permettent.
 
 **Zonages des agences régionales de santé.** Zones jugées sous-dotées par les ARS, pour comparer avec les constats de ce site.
 
@@ -35,6 +35,8 @@ Les ajouts prévus, sans date ferme et à peu près dans l'ordre où ils viendro
 **Ce que dit la littérature.** Travaux scientifiques sur chaque thème, avec leurs références.
 
 ## Site
+
+**Définitions précisées partout.** Chaque chiffre qui peut être mal lu à cause de sa définition (spécialité déclarée ou qualification réelle, lieu d'exercice déclaré, salariés et libéraux...) recevra une précision et sa source à côté de lui, comme c'est déjà fait pour les pédopsychiatres et les centres médico-psychologiques.
 
 **Fond clair revu.** Des couleurs plus contrastées pour la lecture sur fond clair.
 

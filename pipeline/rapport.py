@@ -200,7 +200,7 @@ def _panorama(C: Contexte, famille):
             "de la catégorie. Cela ne veut pas dire qu'ils n'y ont pas accès, le plus proche peut exercer juste à "
             "côté.",
             "Sur les cartes, un rond ocre marqué « ! » signale une donnée fragile, sans changer la couleur du "
-            "territoire.", limites.phrase_md(["mayotte"]))
+            "territoire.", limites.phrase_md(["mayotte"] + (["prof:pedopsychiatre"] if famille == SM else [])))
     if famille == SM:
         L += _qualifications(C) + _elargi(C)
     L += _hors_soins(C, famille)

@@ -66,7 +66,8 @@ def construire(src: Path, dest: Path, nav: str = "") -> Path:
     data.setdefault("tuiles", _tuiles())
     # citation de l'atlas et de ses graphiques, DOI repris dès qu'il est renseigné dans config
     data["citation"] = {"projet": config.NOM_PROJET, "auteur_court": config.CITATION_AUTEUR, "doi": config.DOI_DONNEES,
-                        "adresse": config.ADRESSE_SITE, "titre_donnees": config.TITRES_DEPOTS["donnees"]}
+                        "adresse": config.ADRESSE_SITE, "titre_donnees": config.TITRES_DEPOTS["donnees"],
+                        "version_zenodo": config.VERSION_ZENODO}
     # rapports par territoire publiés à côté de l'atlas, pour y renvoyer depuis la fiche d'un territoire
     # l'atlas autonome (atlas/atlas.html) renvoie aux rapports publiés dans site/territoires
     dossier = Path(dest).parent / "territoires"

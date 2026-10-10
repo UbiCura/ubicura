@@ -416,7 +416,8 @@ def _professions(B, T, famille, cle_fig):
         "Les activités sans soins à la population (contrôle médical, industrie, recherche, administration, "
         "téléconsultation...) ne sont pas comptées, car elles sont souvent déclarées au siège d'un organisme. Elles "
         "sont décrites plus bas quand elles sont notables.",
-        limites.phrase_md(["mayotte"]) if code == "976" or "976" in T.get("deps", []) else "")
+        limites.phrase_md((["mayotte"] if code == "976" or "976" in T.get("deps", []) else [])
+                          + (["prof:pedopsychiatre"] if famille == SM else [])))
     plus = []
     if sem:
         plus.append("Départements de profil semblable, retenus parce que leur population ressemble à celle du "

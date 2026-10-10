@@ -785,6 +785,17 @@ LIMITES = {
                   "psychiatre déclaré peut donc accueillir des consultations de psychiatrie, le nombre de CMP de "
                   "chaque territoire est donné à côté quand il est connu."),
         "sources": [SRC_RPPS, SRC_FINESS]},
+    "prof:pedopsychiatre": {
+        "risque": "définition étroite",
+        "texte": ("La spécialité « pédopsychiatrie » déclarée au répertoire ne concerne qu'une partie des médecins qui "
+                  "soignent des enfants et des adolescents. La plupart sont inscrits comme psychiatres, avec une "
+                  "qualification pour l'enfant obtenue par une autre voie. La Cour des comptes comptait 545 "
+                  "pédopsychiatres au sens strict en 2021, et environ 2 000 en ajoutant les psychiatres qualifiés pour "
+                  "l'enfant. Un territoire sans pédopsychiatre déclaré comme tel peut donc compter des psychiatres qui "
+                  "soignent des enfants. Le nombre de psychiatres qualifiés pour l'enfant et l'adolescent, toutes "
+                  "voies, est donné à côté."),
+        "sources": [("Cour des comptes, la pédopsychiatrie, un accès et une offre de soins à réorganiser, mars 2023",
+                     "https://www.ccomptes.fr/fr/publications/la-pedopsychiatrie"), SRC_RPPS]},
     "prof:psychologue": {
         "risque": "répertoire récent",
         "texte": ("Les psychologues sont inscrits au RPPS depuis la reprise du répertoire ADELI. Leur nombre est un "
@@ -887,6 +898,9 @@ CITATION_AUTEUR = "Pithon L."
 # première publication, les remplacer par les DOI généraux, qui renvoient toujours à la dernière version.
 DOI_DONNEES = "10.5281/zenodo.23264933"   # DOI général des données (première version publiée le 9 octobre 2026, 10.5281/zenodo.23264934)
 DOI_RAPPORTS = {"sante-mentale": "10.5281/zenodo.23265073", "sante": "10.5281/zenodo.23265208"}
+# dernière version archivée sur Zenodo (date du dossier de résultats). Une version plus récente du site est citée par son
+# adresse, avec le DOI général à côté. À mettre à jour à chaque nouvelle version publiée sur Zenodo (tutoriels 05 et 07).
+VERSION_ZENODO = "2026-10-09"
 # titres des dépôts Zenodo, descriptifs et sans le nom du site (décision de Lucas du 9 octobre 2026), repris par les
 # citations
 TITRES_DEPOTS = {"donnees": "Offre de soins et santé mentale en France par territoire, données agrégées",
