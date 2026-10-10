@@ -214,7 +214,11 @@ ul.src{padding-left:1.1em;margin:8px 0}ul.src li{margin-bottom:6px}
 .famrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:22px}
 .famrow .lbl{font-size:.85rem;color:var(--muted)}
 .seg.fam button{padding:7px 16px;font-size:.92rem}
-.panel h2{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.panel h2{display:flex;justify-content:flex-start;align-items:baseline;gap:8px;flex-wrap:wrap}
+.panel h2 > button.how,.panel h2 > button.how ~ button.citer{margin-left:0}
+.panel h2 > button:first-of-type{margin-left:auto}
+.selhead h2 > button:first-of-type{margin-left:12px}
+.legende-barres svg{width:46px;height:10px;vertical-align:-1px;margin-right:6px}
 .repli-fiche .chevron{display:inline-block;transition:transform .15s}
 .repli-fiche[aria-expanded="false"] .chevron{transform:rotate(-90deg)}
 @media (prefers-reduced-motion:reduce){.repli-fiche .chevron{transition:none}}
@@ -583,18 +587,41 @@ function tableauCsv(t){const lignes=[...t.querySelectorAll("tr")].filter(tr=>tr.
   return "\ufeff"+lignes.map(tr=>[...tr.children].map(cell).join(";")).join("\r\n")}
 function boutonsTableaux(){
   for(const [id,titre] of Object.entries(TABLEAUX)){const t=document.getElementById(id);if(!t)continue;const hote=t.closest(".panel.scroll")||t.parentElement;
-    if(hote.previousElementSibling?.classList.contains("tab-citer"))continue;
+    if(t.dataset.cite)continue;t.dataset.cite="1";
     const z=document.createElement("div");z.className="tab-citer";
     z.innerHTML='<button type="button" class="citer" aria-expanded="false">Citer</button><button type="button" class="citer" data-a="csv">Télécharger en CSV</button><div class="citation hidden"></div>';
-    hote.before(z);const [bc,bx]=z.querySelectorAll("button"),boite=z.querySelector(".citation");
+    // dans un panneau titré, les boutons rejoignent le titre comme partout ailleurs, la boîte de citation va sous le titre
+    const panT=(hote.parentElement&&hote.parentElement.closest(".panel"))||null,h2T=panT&&panT.querySelector(":scope > h2");
+    if(h2T&&!h2T.querySelector("button.citer")){const bs=[...z.querySelectorAll("button.citer")];bs.forEach(x=>h2T.appendChild(x));h2T.after(z.querySelector(".citation"));z.remove()}
+    else hote.before(z);
+    const [bc,bx]=h2T&&!z.isConnected?[...h2T.querySelectorAll("button.citer")].slice(-2):z.querySelectorAll("button"),boite=h2T&&!z.isConnected?h2T.nextElementSibling:z.querySelector(".citation");
     bc.onclick=()=>{const ouvert=boite.classList.contains("hidden");bc.setAttribute("aria-expanded",String(ouvert));
       if(ouvert){const c=citationTexte(titre());boite.innerHTML='<p>'+esc(c)+'</p><div class="hmbar"><button class="btn ghost" type="button">Copier la citation</button></div>';
         boite.querySelector("button").onclick=async e=>{try{await navigator.clipboard.writeText(c);e.target.textContent="Citation copiée"}catch(_){e.target.textContent="Copie impossible ici"}}}
       boite.classList.toggle("hidden",!ouvert)};
     bx.onclick=()=>{const nom=(titre().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,80)||id).toLowerCase();
       telecharger(new Blob([tableauCsv(t)+"\r\n\r\n"+citationTexte(titre())],{type:"text/csv;charset=utf-8"}),nom+".csv");bx.textContent="Tableau enregistré"}}}
+// figures en barres HTML (pas en image), citables avec leurs valeurs en CSV, boutons dans le titre du panneau
+const FIG_HTML={secBars:()=>"Où exercent les "+pluriel(profLab(S.prof))+", par mode d’exercice et secteur",
+  catBars:()=>"Établissements où exercent les "+pluriel(profLab(S.prof)),
+  acpCharges:()=>"Poids de chaque profession dans les axes de la typologie, "+famLab[S.fam]};
+function lignesHtml(el){
+  if(el.querySelector("div.r"))return [["Libellé","Valeur"],...[...el.querySelectorAll("div.r")].map(r=>[...r.querySelectorAll(":scope > span")].map(x=>x.textContent.trim()))];
+  const cases=[...el.children].map(x=>x.textContent.trim()),n=3,out=[];for(let k=0;k<cases.length;k+=n)out.push(cases.slice(k,k+n));if(out.length)out[0][0]=out[0][0]||"Profession";return out}
+function boutonsHtml(){
+  for(const [id,titre] of Object.entries(FIG_HTML)){const el=document.getElementById(id);if(!el||el.dataset.cite)continue;
+    const pan=el.closest(".panel"),h2=pan&&pan.querySelector("h2");if(!h2)continue;el.dataset.cite="1";
+    const bc=document.createElement("button"),bx=document.createElement("button"),boite=document.createElement("div");
+    bc.type=bx.type="button";bc.className=bx.className="citer";bc.textContent="Citer";bx.textContent="Télécharger en CSV";bc.setAttribute("aria-expanded","false");
+    boite.className="citation hidden";h2.appendChild(bc);h2.appendChild(bx);(h2.nextElementSibling&&h2.nextElementSibling.classList.contains("howtxt")?h2.nextElementSibling:h2).after(boite);
+    bc.onclick=()=>{const ouvert=boite.classList.contains("hidden");bc.setAttribute("aria-expanded",String(ouvert));
+      if(ouvert){const c=citationTexte(titre());boite.innerHTML='<p>'+esc(c)+'</p><div class="hmbar"><button class="btn ghost" type="button">Copier la citation</button></div>';
+        boite.querySelector("button").onclick=async e=>{try{await navigator.clipboard.writeText(c);e.target.textContent="Citation copiée"}catch(_){e.target.textContent="Copie impossible ici"}}}
+      boite.classList.toggle("hidden",!ouvert)};
+    bx.onclick=()=>{const q=v=>/[;"]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v,nom=(titre().normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,80)||id).toLowerCase();
+      telecharger(new Blob(["﻿"+lignesHtml(el).map(l=>l.map(q).join(";")).join("\r\n")+"\r\n\r\n"+citationTexte(titre())],{type:"text/csv;charset=utf-8"}),nom+".csv");bx.textContent="Données enregistrées"}}}
 function boutonsCiter(){
-  boutonsTableaux();
+  boutonsTableaux();boutonsHtml();
   for(const id of GRAPHES){const el=document.getElementById(id);if(!el)continue;const pan=el.closest(".panel");if(!pan||pan.querySelector("button.citer"))continue;
     const b=document.createElement("button");b.type="button";b.className="citer";b.textContent="Citer";b.setAttribute("aria-expanded","false");b.dataset.graphe=id;
     const boite=document.createElement("div");boite.className="citation hidden";
@@ -823,7 +850,7 @@ function drawMap(){
   const sigs=signauxCarte(M,lv,false);
   if(sigs.length)legend+='<div class="legende-signaux">'+legendeSignaux(sigs)+'</div>';
   document.getElementById("legend").innerHTML=legend;
-  document.getElementById("mapLimite").innerHTML=(S.metric==="trajet"?limiteHtml(["route"]):S.metric==="evol"?limiteHtml(["evol:"]):(p==="pedopsychiatre"?limiteHtml(["prof:pedopsychiatre"]):"")+(nCmp?limiteHtml(["prof:psychiatre"]):""))+(sigs.length?limiteHtml(sigs):"");
+  document.getElementById("mapLimite").innerHTML=(S.metric==="trajet"?limiteHtml(["route"]):S.metric==="evol"?limiteHtml(["evol:"]):limiteHtml(["prof:"+p,...(nCmp?["prof:psychiatre"]:[])]))+(sigs.length?limiteHtml(sigs):"");
 }
 const PSY_CMP=["psychiatre","pedopsychiatre"];
 // signaux « donnée fragile ici » (9 octobre 2026), symbole ocre marqué « ! » posé sur le territoire, sa couleur ne change
@@ -900,11 +927,15 @@ function bulle(lv,i,p){const u=D.niveaux[lv].units[i];
   for(const q of ids){const n=unitN(lv,q,i),d=unitD(lv,q,i),r=refD(lv,q);h+='<tr'+(q===p?' class="on"':'')+'><td>'+esc(profLab(q))+'</td><td>'+fmt.format(n)+'</td><td>'+f1.format(d)+'</td><td>'+(n===0?'aucun':Math.abs(d/r-1)<.05?'autant':esc(fois(d,r)))+'</td></tr>'}
   h+='</table>';
   // aucun psychiatre déclaré, mais un ou des CMP de FINESS, où des psychiatres peuvent consulter
-  const cmI=D.niveaux[lv].cmp?.[i]||0;
+  const cmI=D.niveaux[lv].cmp?.[i]||0,hAvant=h,zeroP=unitN(lv,p,i)===0;
   if(PSY_CMP.includes(p)&&cmI&&unitN(lv,p,i,"all")===0)h+='<div class="tl">Aucun '+(p==="pedopsychiatre"?"pédopsychiatre":"psychiatre")+' déclaré, mais '+cmI+' centre'+(cmI>1?'s':'')+' médico-psychologique'+(cmI>1?'s':'')+' (CMP) selon FINESS, où des psychiatres peuvent consulter.</div>';
   // pédopsychiatres, définition étroite au répertoire, signalée quand le territoire n'en compte aucun (cas d'Évreux)
   if(ids.includes("pedopsychiatre")&&unitN(lv,"pedopsychiatre",i)===0&&IDX.prof.has("q_psychiatrie_enfant")){const q=unitN(lv,"q_psychiatrie_enfant",i);
     if(q>0)h+='<div class="tl">Aucun pédopsychiatre déclaré comme tel, mais '+fmt.format(q)+' psychiatre'+(q>1?'s':'')+' qualifié'+(q>1?'s':'')+' pour l’enfant et l’adolescent.</div>'}
+  // un 0 n'est jamais laissé seul, il ne veut pas dire que les habitants n'ont aucun accès
+  if(zeroP){const lim=cleLimite("prof:"+p),lab=profLab(p).toLowerCase();
+    if(h===hAvant)h+='<div class="tl">'+(FEM.has(p)?"Aucune ":"Aucun ")+esc(lab)+' déclaré'+(FEM.has(p)?"e":"")+' ici. Cela ne veut pas dire que les habitants n’y ont pas accès, le plus proche peut exercer dans un territoire voisin.</div>';
+    if(lim)h+='<div class="tl"><em>Voir « À savoir » sous la carte, sur ce que ce chiffre peut cacher.</em></div>'}
   const a=att(lv,p,i);if(a&&S.mode==="all")h+='<div class="tl">'+esc(profLab(p))+', d’après le profil de la population on en attendrait '+f1.format(a)+' pour 10 000 hab.</div>';
   if(S.metric==="acces"&&D.niveaux[lv].distance?.[p]?.[i]!=null)h+='<div class="tl">Distance moyenne au plus proche '+f1.format(D.niveaux[lv].distance[p][i])+' km, accessibilité '+f1.format(D.niveaux[lv].acces[p][i])+' pour 10 000 hab.</div>';
   const ev=evol(lv,p,i),ei=evolInfo(p);if(ev)h+='<div class="tl">'+esc(ei.lib)+', évolution de la densité de '+ei.debut+' à '+ei.fin+' selon la DREES, '+signe(ev[2])+' (France '+signe(ei.fr[2])+').</div>';
@@ -934,7 +965,7 @@ function selCard(){
   el.classList.remove("hidden");
   const lv=S.sel.lv,i=IDX[lv].get(S.sel.c),u=D.niveaux[lv].units[i];
   const parent=lv==="epci"?(IDX.depName.get(u.p)||u.p):lv==="reg"?"Région":u.p;
-  let h='<div class="selhead"><div><h2>'+esc(u.nm)+' <button class="how" data-how="indice100,attendu,entonnoir">Comment lire</button></h2><div class="howtxt hidden"></div><div class="muted small">'+esc(parent)+', '+fmt.format(u.pop)+' habitants</div></div><div class="actions">'+[["sante-mentale","Rapport santé mentale"],["sante","Rapport santé"]].filter(([k])=>(D.rapports_territoires||[]).includes(lv+"-"+S.sel.c+"-"+k)).map(([k,l])=>'<a class="btn ghost" href="'+(D.rapports_dossier||"territoires")+'/'+lv+'-'+S.sel.c+'-'+k+'.html">'+l+'</a>').join("")+'<button class="btn ghost repli-fiche" id="selReplier" type="button" aria-controls="selCorps" aria-expanded="'+!S.selReplie+'"><span class="chevron" aria-hidden="true">▾</span> '+(S.selReplie?"Afficher le détail":"Masquer le détail")+'</button></div></div>';
+  let h='<div class="selhead"><div><h2>'+esc(u.nm)+' <button class="how" data-how="indice100,attendu,entonnoir">Comment lire</button><button type="button" class="citer" data-fiche="1" aria-expanded="false">Citer</button></h2><div class="howtxt hidden"></div><div class="citation hidden" id="ficheCitation"></div><div class="muted small">'+esc(parent)+', '+fmt.format(u.pop)+' habitants</div></div><div class="actions">'+[["sante-mentale","Rapport santé mentale"],["sante","Rapport santé"]].filter(([k])=>(D.rapports_territoires||[]).includes(lv+"-"+S.sel.c+"-"+k)).map(([k,l])=>'<a class="btn ghost" href="'+(D.rapports_dossier||"territoires")+'/'+lv+'-'+S.sel.c+'-'+k+'.html">'+l+'</a>').join("")+'<button class="btn ghost repli-fiche" id="selReplier" type="button" aria-controls="selCorps" aria-expanded="'+!S.selReplie+'"><span class="chevron" aria-hidden="true">▾</span> '+(S.selReplie?"Afficher le détail":"Masquer le détail")+'</button></div></div>';
   const finTete=h.length;
   let court="",precision="";
   // phrase sur la profession affichée
@@ -959,11 +990,13 @@ function selCard(){
     if(ev)ph+=" D’après les séries de la DREES, qui comptent chaque professionnel dans un seul département, la densité "+deMot(ei.lib.split(",")[0].toLowerCase())+" a évolué de "+signe(ev[2])+" de "+ei.debut+" à "+ei.fin+", contre "+signe(ei.fr[2])+" en France.";
     h+='<p class="phrase">'+esc(ph)+'</p>';court=ph;
   }
-  h+='<p class="small muted" style="margin:14px 0 0">Densité comparée à la moyenne '+MOYLAB[lv]+' (indice 100), '+modeLab[S.mode]+'. Cliquez sur une profession pour la cartographier.</p>';
+  h+='<p class="small muted legende-barres" style="margin:14px 0 0"><svg viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><rect x="22" y="2" width="28" height="6" fill="'+css("--d1")+'"/><line x1="50" x2="50" y1="0" y2="10" stroke="'+css("--muted")+'" stroke-width="1"/><rect x="50" y="2" width="20" height="6" fill="'+css("--d5")+'"/></svg>'
+    +'Chaque barre compare la densité du territoire à la moyenne '+MOYLAB[lv]+', marquée par le trait vertical, '+modeLab[S.mode]+'. Vers la gauche en ocre, la densité est plus faible, vers la droite en violet, plus forte, jusqu’à quatre fois moins ou quatre fois plus au bord. Le nombre est l’indice, 100 pour la moyenne, 50 pour deux fois moins, 200 pour deux fois plus. Survolez une ligne pour l’effectif et la densité, cliquez pour la cartographier.</p>';
   const dv=DIV();
   const ligne=p=>{const ind=unitD(lv,p.id,i)/refD(lv,p.id)*100,l=Math.max(-2,Math.min(2,Math.log2(Math.max(ind,1)/100)));
       const w=Math.abs(l)/2*50,left=l<0?50-w:50,c=l<0?dv[1]:dv[5];
-      return'<div class="prow'+(p.id===S.prof?' on':'')+'" data-p="'+p.id+'"><span class="lbl" title="'+esc(p.libelle)+'">'+esc(p.libelle)+'</span><svg viewBox="0 0 100 10" preserveAspectRatio="none" style="height:10px"><line x1="50" x2="50" y1="0" y2="10" stroke="'+css("--muted")+'" stroke-width=".6"/><rect x="'+left+'" width="'+w+'" y="2" height="6" fill="'+c+'"/></svg><span class="v">'+fmt.format(Math.round(ind))+'</span></div>'};
+      const nP=unitN(lv,p.id,i),dP=unitD(lv,p.id,i),bulleP=p.libelle+", "+fmt.format(nP)+" professionnel"+(nP>1?"s":"")+", "+f1.format(dP)+" pour 10 000 habitants, indice "+fmt.format(Math.round(ind))+" (moyenne "+MOYLAB[lv]+" = 100)";
+      return'<div class="prow'+(p.id===S.prof?' on':'')+'" data-p="'+p.id+'" title="'+esc(bulleP)+'"><span class="lbl">'+esc(p.libelle)+'</span><svg viewBox="0 0 100 10" preserveAspectRatio="none" style="height:10px"><line x1="50" x2="50" y1="0" y2="10" stroke="'+css("--muted")+'" stroke-width=".6"/><rect x="'+left+'" width="'+w+'" y="2" height="6" fill="'+c+'"/></svg><span class="v">'+fmt.format(Math.round(ind))+'</span></div>'};
   const blocs={};
   // deux blocs séparés, santé mentale puis santé
   for(const fam of [SM,SANTE]){
@@ -988,6 +1021,19 @@ function selCard(){
   h+=limiteHtml(["prof:"+p0,...lims],codes);
   // le détail se masque ou s'affiche par la flèche, l'en-tête reste visible (le choix est gardé d'un territoire à l'autre)
   el.innerHTML=h.slice(0,finTete)+'<div id="selCorps"'+(S.selReplie?' hidden':'')+'>'+h.slice(finTete)+'</div>';
+  {const bc=el.querySelector("button[data-fiche]"),boite=el.querySelector("#ficheCitation");
+    bc.onclick=()=>{const ouvert=boite.classList.contains("hidden");bc.setAttribute("aria-expanded",String(ouvert));
+      if(ouvert){const titre="Profil de "+u.nm+", offre de soins comparée à la moyenne "+MOYLAB[lv],c=citationTexte(titre);
+        boite.innerHTML='<p>'+esc(c)+'</p><div class="hmbar"><button class="btn ghost" type="button" data-a="cit">Copier la citation</button><button class="btn ghost" type="button" data-a="csv">Télécharger en CSV</button></div>';
+        boite.querySelector('[data-a="cit"]').onclick=async e=>{try{await navigator.clipboard.writeText(c);e.target.textContent="Citation copiée"}catch(_){e.target.textContent="Copie impossible ici"}};
+        boite.querySelector('[data-a="csv"]').onclick=e=>{const q=v=>/[;"]/.test(String(v))?'"'+String(v).replace(/"/g,'""')+'"':String(v);
+          const lignes=[["Profession","Effectif","Pour 10 000 habitants","Indice (moyenne "+MOYLAB[lv]+" = 100)"]];
+          for(const pr of D.professions.filter(x=>(S.fam==="*"||famOf(x)===S.fam)&&!x.id.startsWith("esm_")&&natN(x.id)>0)){const n=unitN(lv,pr.id,i),d=unitD(lv,pr.id,i),r=refD(lv,pr.id);
+            lignes.push([pr.libelle,fmt.format(n),f1.format(d),r?fmt.format(Math.round(d/r*100)):""])}
+          if(u.x){lignes.push([]);lignes.push(["Indicateur","Valeur"]);for(const cx of ctxVisibles())if(u.x[cx.i]!=null)lignes.push([cx.label+(cx.unite?" ("+cx.unite+")":""),f1.format(u.x[cx.i])])}
+          const nom=("profil_"+u.nm).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^A-Za-z0-9]+/g,"_").toLowerCase().slice(0,80);
+          telecharger(new Blob(["\ufeff"+lignes.map(l=>l.map(q).join(";")).join("\r\n")+"\r\n\r\n"+c],{type:"text/csv;charset=utf-8"}),nom+".csv");e.target.textContent="Fiche enregistrée"}}
+      boite.classList.toggle("hidden",!ouvert)}}
   br.innerHTML='<h2>'+esc(u.nm)+'</h2><div class="muted small">'+esc(parent)+', '+fmt.format(u.pop)+' habitants</div>'+(court?'<p class="phrase">'+esc(court.split(". ")[0].replace(/\.$/,""))+'.'+(precision?' '+esc(precision):'')+'</p>':'')+'<button class="lien" id="selVoir">Voir son profil complet sous la carte</button>';
   document.getElementById("selVoir").onclick=()=>el.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});
   document.getElementById("selReplier").onclick=()=>{S.selReplie=!S.selReplie;const b=document.getElementById("selReplier");

@@ -190,6 +190,12 @@ main td p,main th p,main td li,main nav li,main .sommaire li,main .toc li,main f
 figure.zoomable{position:relative}
 figure.zoomable svg{cursor:grab;touch-action:none}
 .zoom-boutons{position:absolute;top:10px;right:10px;display:flex;gap:4px;z-index:2}
+.zoom-boutons button.citer-fig{width:auto;padding:0 10px;font-size:.78rem;border-radius:999px}
+.citation-fig{font-size:.84rem;background:var(--panel);border-left:3px solid var(--focus);padding:8px 12px;margin:8px 0;border-radius:0 6px 6px 0}
+.citation-fig p{margin:0 0 6px}
+.citation-actions{display:flex;flex-wrap:wrap;gap:6px}
+.citation-actions button{font:inherit;font-size:.8rem;border:1px solid var(--line);background:none;color:var(--ink);border-radius:5px;padding:2px 8px;cursor:pointer}
+@media print{.citation-fig{display:none}}
 .zoom-boutons button{font:inherit;font-size:.85rem;width:28px;height:28px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:5px;cursor:pointer}
 .bulle-fig{position:fixed;pointer-events:none;white-space:pre-line;background:var(--ink);color:var(--bg);font-size:.8rem;padding:6px 9px;border-radius:4px;max-width:min(420px,calc(100vw - 16px));opacity:0;z-index:50;transition:opacity .1s}
 svg [data-choisi]{stroke:var(--ink);stroke-width:2}

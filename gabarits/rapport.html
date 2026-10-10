@@ -26,7 +26,7 @@
 <a class="pas-imprime" href="{{ racine }}rapports.html">Autres versions</a>.</p>
 <div class="rapport">
   <aside class="sommaire" aria-label="Sommaire">{{ sommaire|safe }}</aside>
-  <article class="corps">{% if not impression %}{% if citation %}<div class="citer-haut">
+  <article class="corps"{% if citation %} data-citation="{{ citation.texte }}"{% endif %}>{% if not impression %}{% if citation %}<div class="citer-haut">
 <p><strong>Comment citer ce rapport.</strong> {{ citation.texte }}</p>
 {% if citation.doi_donnees %}<p class="small">Les données de ce rapport sont archivées avec un identifiant permanent, <a href="https://doi.org/{{ citation.doi_donnees }}">doi:{{ citation.doi_donnees }}</a>. Voir aussi <a href="{{ racine }}a-propos.html#comment-citer">Comment citer</a>.</p>{% endif %}
 </div>{% endif %}{% endif %}{{ corps|safe }}</article>
