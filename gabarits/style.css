@@ -117,8 +117,22 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:16px;color:v
   .rapport{display:block}
   h2{break-before:page;border-top:none}
   h2:first-of-type{break-before:auto}
+  /* chaque grande partie sur une nouvelle page, les précautions de lecture à la suite des contrôles (10 octobre 2026) */
+  h3.partie{break-before:page;page-break-before:always}
+  h2#precautions-de-lecture{break-before:auto;page-break-before:auto;margin-top:18pt}
   main.territoire h2{break-before:auto}
-  figure.graphique,table,details{break-inside:avoid}
+  figure.graphique,table{break-inside:avoid}
+  /* un titre n'est jamais laissé seul en bas de page, il reste avec ce qui le suit (10 octobre 2026) */
+  h1,h2,h3,h4,h5{break-after:avoid;page-break-after:avoid;break-inside:avoid}
+  h1+*,h2+*,h3+*,h4+*,h5+*{break-before:avoid;page-break-before:avoid}
+  p,li,dd{orphans:3;widows:3}
+  .comment-lire,.a-savoir,blockquote,.citer-haut,figcaption{break-inside:avoid}
+  /* les volets « Pour aller plus loin » peuvent être longs, ils se coupent, leur titre reste avec leur début */
+  details{break-inside:auto}
+  details>summary{break-after:avoid;page-break-after:avoid}
+  table.longue{break-inside:auto;page-break-inside:auto}
+  thead{display:table-header-group}
+  tr{break-inside:avoid}
   /* à l'impression, les tableaux tiennent dans la largeur de la page au lieu de défiler */
   .corps table{display:table;overflow:visible;font-size:8pt;-webkit-mask-image:none;mask-image:none}
   .corps table.large{font-size:6.6pt}

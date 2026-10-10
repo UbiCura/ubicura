@@ -204,7 +204,7 @@ def cmd_verifier(_args) -> int:
     for cle, x in e.items():
         ligne = f"- {NOMS[cle]}, dernière version publiée {version_du_depot(x['derniere'])}"
         if x["brouillon"]:
-            ligne += f", brouillon en cours (https://zenodo.org/uploads/{x['brouillon']['id']})"
+            ligne += f", brouillon en cours ({x['brouillon']['links'].get('html') or 'https://zenodo.org/deposit/' + str(x['brouillon']['id'])})"
         print(ligne)
     print(f"Version archivée citée par le site, {config.VERSION_ZENODO}.")
     return 0
@@ -245,18 +245,21 @@ def cmd_preparer(args) -> int:
         # les fichiers repris de la version précédente sont retirés, puis les nouveaux sont envoyés
         for f in z.appel("GET", f"/deposit/depositions/{bid}/files").json():
             z.appel("DELETE", f"/deposit/depositions/{bid}/files/{f['id']}")
-        f = fichiers[cle]
-        with open(f, "rb") as fh:
-            rep = z.appel("PUT", f"{brouillon['links']['bucket']}/{f.name}", data=fh, timeout=1800).json()
-        if rep.get("checksum", "").removeprefix("md5:") != md5(f):
-            raise Arret(f"le fichier {f.name} reçu par Zenodo ne correspond pas au fichier envoyé. Lancer "
-                        "python outils\\zenodo.py abandonner, puis recommencer.")
+        for f in fichiers[cle]:
+            with open(f, "rb") as fh:
+                rep = z.appel("PUT", f"{brouillon['links']['bucket']}/{f.name}", data=fh, timeout=1800).json()
+            if rep.get("checksum", "").removeprefix("md5:") != md5(f):
+                raise Arret(f"le fichier {f.name} reçu par Zenodo ne correspond pas au fichier envoyé. Lancer "
+                            "python outils\\zenodo.py abandonner, puis recommencer.")
         meta = brouillon["metadata"]
         meta.update({"version": version, "publication_date": version})
         z.appel("PUT", f"/deposit/depositions/{bid}", json={"metadata": meta})
-        lien = f"https://zenodo.org/uploads/{bid}"
-        etat["brouillons"][cle] = {"id": bid, "lien": lien, "fichier": f.name, "md5": md5(f)}
-        print(f"- {NOMS[cle]}, brouillon prêt, {f.name} ({f.stat().st_size / 1e6:.1f} Mo), {lien}")
+        # adresse donnée par Zenodo lui-même (le brouillon n'est visible que du titulaire du compte, connecté)
+        lien = brouillon["links"].get("latest_draft_html") or brouillon["links"].get("html") or f"https://zenodo.org/deposit/{bid}"
+        etat["brouillons"][cle] = {"id": bid, "lien": lien, "fichiers": sorted(f.name for f in fichiers[cle]),
+                                   "md5": {f.name: md5(f) for f in fichiers[cle]}}
+        print(f"- {NOMS[cle]}, brouillon prêt, " + ", ".join(f"{f.name} ({f.stat().st_size / 1e6:.1f} Mo)"
+                                                               for f in fichiers[cle]) + f", {lien}")
     ecrire_etat(etat)
     print("\nRien n'est publié. Relire chaque brouillon sur Zenodo (bouton Preview), puis publier, soit sur Zenodo "
           "(bouton Publish), soit par python outils\\zenodo.py publier.")
@@ -275,10 +278,11 @@ def cmd_publier(args) -> int:
         if d.get("submitted"):
             print(f"- {NOMS[cle]}, déjà publié.")
             continue
-        noms = [f["filename"] for f in z.appel("GET", f"/deposit/depositions/{b['id']}/files").json()]
-        if noms != [b["fichier"]]:
-            raise Arret(f"le brouillon du dépôt {NOMS[cle]} ne contient pas le seul fichier attendu ({b['fichier']}), "
-                        f"mais {', '.join(noms) or 'aucun fichier'}. Rien n'a été publié.")
+        noms = sorted(f["filename"] for f in z.appel("GET", f"/deposit/depositions/{b['id']}/files").json())
+        attendus = b.get("fichiers") or [b["fichier"]]
+        if noms != attendus:
+            raise Arret(f"le brouillon du dépôt {NOMS[cle]} ne contient pas exactement les fichiers attendus "
+                        f"({', '.join(attendus)}), mais {', '.join(noms) or 'aucun fichier'}. Rien n'a été publié.")
         a_publier.append((cle, b))
     if a_publier:
         print(f"Publication de la version {etat['en_preparation']} pour "

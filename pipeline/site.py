@@ -63,6 +63,11 @@ def md_html(texte: str, graphiques: Path | None, imprimer=False, donnees: dict |
     md = markdown.Markdown(extensions=["tables", "md_in_html", "sane_lists", "toc"],
                            extension_configs={"toc": {"toc_depth": "2-4", "slugify": _ancre}})
     corps = md.convert(corps_md)
+    if imprimer:
+        corps = _parties_imprimees(corps)
+        # un tableau de plus de 15 lignes peut se couper entre deux lignes, son en-tête est répété (style.css)
+        corps = re.sub(r"<table>(.*?)</table>", lambda m: ('<table class="longue">' if m.group(1).count("<tr") > 16
+                                                            else "<table>") + m.group(1) + "</table>", corps, flags=re.S)
 
     numero = [0]
 
@@ -111,6 +116,23 @@ def md_html(texte: str, graphiques: Path | None, imprimer=False, donnees: dict |
 
 
 CESURES = re.compile(r"(Psycho|psycho|Pédo|pédo|Kinési|kinési|Ortho|ortho|Gynéco|gynéco|Ophtalmo)(?=\w)")
+
+
+def _parties_imprimees(corps: str) -> str:
+    """À l'impression, chaque grande partie d'un rapport national (titre de niveau 3 sous « Santé mentale » ou « Santé »,
+    hors « En bref ») commence une nouvelle page, pour qu'aucun titre de partie ne reste en bas de page avec son
+    introduction (demande de Lucas du 10 octobre 2026)."""
+    famille = [False]
+
+    def marque(m):
+        balise, attrs = m.group(1), m.group(2) or ""
+        if balise == "h2":
+            famille[0] = bool(re.search(r'id="sante(-mentale)?"', attrs))
+            return m.group(0)
+        if famille[0] and 'id="en-bref' not in attrs:
+            return f'<h3 class="partie"{attrs}>'
+        return m.group(0)
+    return re.sub(r"<(h2|h3)(\s[^>]*)?>", marque, corps)
 
 
 def tableaux_larges(corps: str) -> str:
@@ -387,9 +409,38 @@ def archive_donnees(dossier: Path, cible: Path, archivee: bool | None = None) ->
     return cible
 
 
-def fichiers_zenodo(iso: str, cible: Path) -> dict[str, Path]:
-    """Les trois fichiers d'une version à déposer sur Zenodo, l'archive des données et les deux rapports nationaux en
-    PDF. Ils portent la citation d'une version archivée (titre du dépôt, Zenodo, DOI général), puisqu'ils seront la
+def html_autonome(iso: str, cle: str, cible: Path, archivee: bool = True) -> Path:
+    """Rapport national en un seul fichier HTML qui s'ouvre sans connexion, feuille de style, polices et figures
+    intégrées, pour le dépôt sur Zenodo. Les liens de navigation renvoient vers le site. Les données des figures sont
+    dans l'archive des données de la même version, citée en tête du rapport par son DOI."""
+    import base64
+    d = config.RESULTATS / iso
+    fichier, titre = RAPPORTS[cle]
+    env = _environnement()
+    commun = _commun(d, json.loads((d / "site_data.json").read_text(encoding="utf-8")))
+    racine = config.ADRESSE_SITE.rstrip("/") + "/" if config.ADRESSE_SITE else ""
+    autre = "sante" if cle == "sante-mentale" else "sante-mentale"
+    ctx = dict(commun, date_longue=date_longue(iso), racine=racine, page="rapports",
+               citation=citation(cle, titre, date_longue(iso), iso, archivee=archivee),
+               titre=f"{titre}, {date_longue(iso)}", autre_lien=f"{racine}rapports/{iso}/{autre}.html",
+               autre_titre="Lire le rapport santé" if cle == "sante-mentale" else "Lire le rapport santé mentale")
+    t, corps, sommaire = md_html((d / fichier).read_text(encoding="utf-8"), d / "graphiques")
+    html = env.get_template("rapport.html").render(ctx, titre_rapport=t, corps=corps, sommaire=sommaire, pdf=None)
+    polices = (GABARITS / "polices" / "polices.css").read_text(encoding="utf-8")
+    polices = re.sub(r"url\(([\w.-]+\.woff2)\)", lambda m: "url(data:font/woff2;base64," + base64.b64encode(
+        (GABARITS / "polices" / m.group(1)).read_bytes()).decode("ascii") + ")", polices)
+    html = re.sub(r'<link rel="stylesheet" href="[^"]*polices/polices\.css">', lambda m: f"<style>{polices}</style>", html)
+    html = re.sub(r'<link rel="stylesheet" href="[^"]*style\.css[^"]*">',
+                  lambda m: "<style>" + (GABARITS / "style.css").read_text(encoding="utf-8") + "</style>", html)
+    if "<link rel=\"stylesheet\"" in html:
+        raise RuntimeError("feuille de style non intégrée dans le rapport HTML autonome")
+    cible.write_text(html, encoding="utf-8")
+    return cible
+
+
+def fichiers_zenodo(iso: str, cible: Path) -> dict[str, list[Path]]:
+    """Les fichiers d'une version à déposer sur Zenodo, l'archive des données, et chaque rapport national en PDF et en
+    HTML autonome. Ils portent la citation d'une version archivée (titre du dépôt, Zenodo, DOI général), puisqu'ils seront la
     version archivée. Ceux du site gardent la citation par l'adresse du site tant que Zenodo n'a pas publié la version."""
     d = config.RESULTATS / iso
     if not (d / "rapport_sante_mentale.md").exists():
@@ -400,7 +451,7 @@ def fichiers_zenodo(iso: str, cible: Path) -> dict[str, Path]:
     cible.mkdir(parents=True, exist_ok=True)
     env = _environnement()
     commun = _commun(d, json.loads((d / "site_data.json").read_text(encoding="utf-8")))
-    sortie = {"donnees": archive_donnees(d, cible / f"donnees_{iso}.zip", archivee=True)}
+    sortie = {"donnees": [archive_donnees(d, cible / f"donnees_{iso}.zip", archivee=True)]}
     for cle, (_fichier, titre) in RAPPORTS.items():
         autre = "sante" if cle == "sante-mentale" else "sante-mentale"
         ctx = dict(commun, date_longue=date_longue(iso), racine="../../", page="rapports",
@@ -411,7 +462,7 @@ def fichiers_zenodo(iso: str, cible: Path) -> dict[str, Path]:
         pdf.unlink(missing_ok=True)
         if not imprimer_rapport(env, ctx, d, cle, pdf, exe):
             raise RuntimeError(f"le rapport {cle} de la version {iso} n'a pas pu être imprimé en PDF")
-        sortie[cle] = pdf
+        sortie[cle] = [pdf, html_autonome(iso, cle, cible / f"{cle}.html")]
     return sortie
 
 
@@ -592,6 +643,16 @@ def construire(pdf=True) -> Path:
     for x in pb:
         log.warning("terme à proscrire dans le site : %s", x)
     JOURNAL.controle("Site, termes à proscrire dans les pages", "aucun" if not pb else f"{len(pb)} occurrence(s)")
+    # mise en page des PDF de la dernière version, aucun titre seul en bas de page (outils/controle_pdf.py)
+    if exe:
+        sys.path.insert(0, str(config.RACINE / "outils"))
+        import controle_pdf  # noqa: E402
+        pb_pdf = [x for f in sorted((SITE / "rapports" / dernier.name).glob("*.pdf")) if f.with_suffix(".html").exists()
+                  for x in controle_pdf.controle(f, f.with_suffix(".html"))]
+        for x in pb_pdf:
+            log.warning("mise en page PDF : %s", x)
+        JOURNAL.controle("Rapports PDF, titres seuls en bas de page ou pages presque vides",
+                         "aucun" if not pb_pdf else f"{len(pb_pdf)} cas")
     nb_pdf = len(list((SITE / "rapports").glob("*/*.pdf")))
     JOURNAL.note("Site statique", "ok", f"{len(versions)} version(s) des rapports, {nb_pdf} PDF, dossier {SITE}")
     return SITE
