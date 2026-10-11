@@ -793,9 +793,12 @@ LIMITES = {
                   "pédopsychiatres au sens strict en 2021, et environ 2 000 en ajoutant les psychiatres qualifiés pour "
                   "l'enfant. Un territoire sans pédopsychiatre déclaré comme tel peut donc compter des psychiatres qui "
                   "soignent des enfants. Le nombre de psychiatres qualifiés pour l'enfant et l'adolescent, toutes "
-                  "voies, est donné à côté."),
+                  "voies, est donné à côté. Comme les psychiatres, ils consultent aussi dans des structures où ils ne "
+                  "sont pas déclarés, rattachées à un hôpital ou à une association, CMP pour enfants et adolescents, "
+                  "centres médico-psycho-pédagogiques (CMPP) ou centres d'action médico-sociale précoce (CAMSP). Un "
+                  "territoire sans pédopsychiatre déclaré peut donc accueillir des consultations pour enfants."),
         "sources": [("Cour des comptes, la pédopsychiatrie, un accès et une offre de soins à réorganiser, mars 2023",
-                     "https://www.ccomptes.fr/fr/publications/la-pedopsychiatrie"), SRC_RPPS]},
+                     "https://www.ccomptes.fr/fr/publications/la-pedopsychiatrie"), SRC_RPPS, SRC_FINESS]},
     "prof:psychologue": {
         "risque": "répertoire récent",
         "texte": ("Les psychologues sont inscrits au RPPS depuis la reprise du répertoire ADELI. Leur nombre est un "
