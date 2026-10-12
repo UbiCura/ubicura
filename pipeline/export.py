@@ -10,6 +10,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
+from . import limites as limites_mod
 from . import (build, cartes, config, dictionnaire, graphiques, indicateurs, libelles, mises_a_jour, rapport,
                rapport_territoire)
 from .analyses import tables
@@ -373,7 +374,9 @@ def _site(agg, ref, professions, insee, R, serie, jour):
     noms_classes = {}
     if isinstance(prof_typo, pd.DataFrame) and len(prof_typo):
         lab = dict(zip(professions["id"], professions["libelle"]))
-        for fam, gf in prof_typo.groupby("famille"):
+        # les noms de groupes ne tiennent qu'aux professions qui forment les groupes, pas aux spécialités décrites
+        formees = prof_typo[prof_typo["dans_typologie"]] if "dans_typologie" in prof_typo else prof_typo
+        for fam, gf in formees.groupby("famille"):
             profils = {k: {lab.get(p, p): v for p, v in zip(g["prof"], g["indice_vs_national"])}
                        for k, g in gf.groupby("classe")}
             noms_classes.update({f"{fam}|{k}": v for k, v in noms_classes_uniques(profils).items()})
@@ -383,6 +386,8 @@ def _site(agg, ref, professions, insee, R, serie, jour):
         "meta": {"genere_le": jour, "demo": False, "journal": JOURNAL.to_dict(),
                  "millesimes_insee": insee["millesimes"] if insee else {},
                  "familles": config.FAMILLES,
+                 # groupes des spécialités médicales, repliés dans la fiche d'un territoire (version 2)
+                 "groupes_specialites": config.GROUPES_SPECIALITES + [config.MEDECIN_AUTRE[2]],
                  "glossaire": [{"id": g[0], "terme": g[1], "definition": g[2], "famille": g[3]} for g in GLOSSAIRE],
                  "exclus_croisements": list(config.DEPARTEMENTS_EXCLUS_CROISEMENTS),
                  "noms_classes": noms_classes,
@@ -408,7 +413,8 @@ def _site(agg, ref, professions, insee, R, serie, jour):
         "entonnoir": _entonnoir_site(R),
         # limites connues des données avec leurs sources (5 octobre 2026), affichées là où la donnée est montrée
         "limites": {k: {"risque": L["risque"], "texte": L["texte"], "sources": L["sources"],
-                        "territoires": L.get("territoires", {})} for k, L in config.LIMITES.items()},
+                        "territoires": L.get("territoires", {}), "nom": limites_mod.NOMS.get(k, k)}
+                    for k, L in config.LIMITES.items()},
         "limites_alias": config.LIMITES_ALIAS,
         "sensibilite": _sensibilite_site(R),
         "route": _route_site(R),

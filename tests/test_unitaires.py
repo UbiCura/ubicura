@@ -265,11 +265,27 @@ def test_classement():
     # libellés relevés dans le RPPS le 5 octobre 2026 (DES de 2017 et options)
     assert rpps.classer_medecin("Gynéco-obstétrique et Gynéco médicale option Gynéco-obst")[0] == "gynecologue"
     assert rpps.classer_medecin("Méd cardiovasculaire opt card interventionnelle")[0] == "cardiologue"
-    assert rpps.classer_medecin("Chirurgie thoracique et cardio-vasculaire")[0] == "medecin_autre"
+    # la chirurgie cardio-vasculaire n'est jamais comptée avec les cardiologues
+    assert rpps.classer_medecin("Chirurgie thoracique et cardio-vasculaire")[0] == "chirurgien_thoracique"
     assert rpps.classer_medecin("Pédiatrie option néonatologie")[0] == "pediatre"
-    assert rpps.classer_medecin("Chirurgie pédiatrique option orthopédie pédiatrique")[0] == "medecin_autre"
-    assert rpps.classer_medecin("Anesthésie-réanimation opt anesthésie-pédiatrique")[0] == "medecin_autre"
     assert rpps.classer_medecin("Ophtalmologie opt chir ophtalmopéd strabologique")[0] == "ophtalmologue"
+    # spécialités ajoutées le 11 octobre 2026 (version 2), libellés relevés dans le fichier savoir-faire du RPPS
+    cas = {"Chirurgie pédiatrique option orthopédie pédiatrique": "chirurgien_pediatrique",
+           "Anesthésie-réanimation opt anesthésie-pédiatrique": "anesthesiste",
+           "Médecine intensive-réanimation": "reanimateur",
+           "O.R.L et chirurgie cervico faciale": "orl", "Oto-rhino-laryngologie": "orl",
+           "ORL - chir cervico-faciale opt audiophonologie": "orl",
+           "Oncologie option radiothérapie": "radiotherapeute", "Radio-thérapie": "radiotherapeute",
+           "Radio-diagnostic": "radiologue", "Radiologie et imagerie médicale opt radio inter av": "radiologue",
+           "Oncologie (option onco-hématologie)": "oncologue", "Hématologie (option Onco-hématologie)": "hematologue",
+           "Chirurgie maxillo-faciale et stomatologie": "chirurgien_maxillo_facial", "CHIRURGIE ORALE": "chirurgien_maxillo_facial",
+           "Neuro-chirurgie": "neurochirurgien", "Chirurgie vasculaire": "chirurgien_vasculaire",
+           "Médecine vasculaire": "medecin_vasculaire", "Médecine du travail": "medecin_travail",
+           "Endocrinologie, diabétologie, nutrition": "endocrinologue", "Génétique médicale": "medecin_autre",
+           # un médecin déjà classé le reste (généraliste avant toute autre spécialité)
+           "Anesthesie-réanimation ; Médecine Générale": "medecin_generaliste"}
+    for lib, attendu in cas.items():
+        assert rpps.classer_medecin(lib)[0] == attendu, (lib, rpps.classer_medecin(lib)[0])
 
 
 def test_colonnes():
@@ -674,6 +690,20 @@ def test_citation_zenodo():
         forcee = site.citation("sante", "Rapport santé", "1er janvier 2099", "2099-01-01", archivee=True)["texte"]
         assert forcee.endswith("Zenodo. https://doi.org/" + config.DOI_RAPPORTS["sante"])
     assert zenodo.concept("10.5281/zenodo.23264933") == "23264933"
+
+
+def test_specialites_salariees():
+    """Une spécialité dont moins d'un tiers des médecins exercent en libéral reçoit sa précision, pas les autres, ni
+    les spécialités de prévention, qui ont leur propre texte."""
+    import pandas as pd
+    from pipeline import config, limites
+    nat = pd.DataFrame({"prof": ["reanimateur"] * 2 + ["radiologue"] * 2 + ["medecin_travail"] * 2,
+                        "mode": ["all", "lib"] * 3, "n": [100, 9, 100, 77, 100, 1]})
+    pro = pd.DataFrame({"id": ["reanimateur", "radiologue", "medecin_travail"],
+                        "libelle": ["Médecin réanimateur", "Radiologue", "Médecin du travail"],
+                        "groupe": [config.G_MED, config.G_TECH, config.G_PREV]})
+    r = limites.specialites_salariees(nat, pro)
+    assert set(r) == {"prof:reanimateur"} and "9 %" in r["prof:reanimateur"]["texte"]
 
 
 if __name__ == "__main__":

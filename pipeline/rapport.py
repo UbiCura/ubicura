@@ -167,6 +167,13 @@ class Contexte:
 def _panorama(C: Contexte, famille):
     L = []
     profs = [p for p in C.ids(famille) if p in C.ineg.index]
+    # en santé, les spécialités médicales ont leur propre partie (version 2), le tableau général garde le repère
+    # « médecins spécialistes, ensemble »
+    specialites = []
+    if famille == SANTE:
+        grp = C.prof["groupe"]
+        specialites = [p for p in profs if grp.get(p) in config.GROUPES_SPECIALITES]
+        profs = [p for p in profs if p not in specialites] + [p for p in C.ids(famille, "ensemble") if p in C.ineg.index]
     t = pd.DataFrame({"prof": profs})
     t["libelle"] = t["prof"].map(C.lab)
     t["effectif"] = t["prof"].map(C.nat)
@@ -203,7 +210,55 @@ def _panorama(C: Contexte, famille):
             "territoire.", limites.phrase_md(["mayotte"] + (["prof:pedopsychiatre"] if famille == SM else [])))
     if famille == SM:
         L += _qualifications(C) + _elargi(C)
+    if specialites:
+        L += _specialites(C, specialites)
     L += _hors_soins(C, famille)
+    return L
+
+
+def _specialites(C: Contexte, profs) -> list[str]:
+    """Les spécialités médicales, un tableau par groupe (version 2, 11 octobre 2026), avec la part des médecins qui
+    exercent en libéral et les précisions qui s'imposent (exercice surtout salarié, prévention)."""
+    nat = C.agg.national.pivot_table(index="prof", columns="mode", values="n", aggfunc="sum")
+    t = pd.DataFrame({"prof": profs})
+    t["libelle"] = t["prof"].map(C.lab)
+    t["groupe"] = t["prof"].map(C.prof["groupe"])
+    t["effectif"] = t["prof"].map(C.nat)
+    t["densite"] = t["prof"].map(C.densite)
+    t["liberal"] = [nat.at[p, "lib"] / nat.at[p, "all"] if p in nat.index and "lib" in nat.columns and nat.at[p, "all"]
+                    else None for p in t["prof"]]
+    t["gini"] = t["prof"].map(C.ineg["gini"])
+    t["sans"] = t["prof"].map(C.ineg["part_population_sans_professionnel"])
+    t["precision"] = ["exercice surtout salarié" if f"prof:{p}" in config.LIMITES and
+                      config.LIMITES[f"prof:{p}"]["risque"] == "exercice surtout salarié" else
+                      "pas de soins à la population" if f"prof:{p}" in config.LIMITES and
+                      config.LIMITES[f"prof:{p}"]["risque"] == "pas de soins à la population" else "aucune"
+                      for p in t["prof"]]
+    ens = [p for p in C.ids(SANTE, "ensemble") if p in C.nat.index]
+    total = nombre(C.nat[ens[0]]) if ens else nombre(t["effectif"].sum())
+    L = ["### Les spécialités médicales", "",
+         f"Les {total} médecins spécialistes, hors généralistes, se répartissent entre les spécialités ci-dessous, "
+         "rangées en spécialités médicales, chirurgicales et médico-techniques, plus la prévention et la santé publique. "
+         "Chaque médecin est compté dans la spécialité de son inscription à l'Ordre, une seule fois.", ""]
+    for g in config.GROUPES_SPECIALITES:
+        tg = t[t["groupe"] == g].sort_values("effectif", ascending=False)
+        if tg.empty:
+            continue
+        L += [f"#### {g}", "",
+              _tableau(tg, ["libelle", "effectif", "densite", "liberal", "gini", "sans", "precision"],
+                       ["Spécialité", "Effectif en France", "Pour 10 000 habitants", "Part en libéral",
+                        "Inégalité (Gini)", "Habitants sans ce spécialiste dans leur intercommunalité", "Précision"],
+                       {"effectif": nombre, "densite": lambda v: nombre(v, 1), "liberal": pct,
+                        "gini": lambda v: nombre(v, 2), "sans": pct}, vide="aucune"), ""]
+    cles = [f"prof:{p}" for p in t.sort_values("effectif", ascending=False)["prof"] if f"prof:{p}" in config.LIMITES]
+    L += _comment_lire(
+        "La part en libéral est celle des médecins de la spécialité qui déclarent au moins une activité libérale, en "
+        "cabinet, en centre (par exemple un centre d'imagerie) ou en clinique. Une partie d'entre eux exerce aussi à "
+        "l'hôpital, la part ne veut donc pas dire qu'ils n'exercent qu'en libéral. "
+        "Quand elle est faible, les médecins exercent surtout à l'hôpital ou dans d'autres structures, et leur densité "
+        "dit où se trouvent ces établissements plutôt que l'accès des habitants. Les spécialités hospitalières se "
+        "lisent mieux par département ou par région que par intercommunalité.",
+        "", limites.phrase_specialites_md(cles))
     return L
 
 
@@ -1914,7 +1969,12 @@ def _typologie(C: Contexte, fam="tout"):
     tp = tp[tp["famille"] == fam]
     if tp.empty:
         return []
-    piv = tp.pivot_table(index="classe", columns="prof", values="indice_vs_national")
+    piv_tout = tp.pivot_table(index="classe", columns="prof", values="indice_vs_national")
+    # professions qui forment les groupes, les spécialités seulement décrites viennent ensuite (version 2)
+    formees = (tp.loc[tp["dans_typologie"], "prof"].unique().tolist() if "dans_typologie" in tp
+               else list(piv_tout.columns))
+    decrites = [x for x in piv_tout.columns if x not in formees]
+    piv = piv_tout[[x for x in piv_tout.columns if x in formees]]
     info = tp.drop_duplicates("classe").set_index("classe")
     noms = noms_classes({k: {C.lab.get(p, p): v for p, v in r.items()} for k, r in piv.iterrows()})
     qq = q[q["famille"] == fam].iloc[0]
@@ -1938,12 +1998,19 @@ def _typologie(C: Contexte, fam="tout"):
     titre = {"sm": "### Profils d'offre de santé mentale des intercommunalités",
              "sante": "### Profils d'offre de soins des intercommunalités",
              "tout": "### Profils d'offre des intercommunalités, santé et santé mentale ensemble"}[fam]
+    # groupes en colonnes et professions en lignes, lisible même avec toutes les spécialités (version 2)
+    classes = list(piv.index)
     L = [titre, "", tete, "",
-         "| Groupe | Intercommunalités | Habitants | " + " | ".join(C.lab.get(x, x) for x in piv.columns) + " |",
-         "|" + "---|" * (len(piv.columns) + 3)]
-    for k, r in piv.iterrows():
-        L.append(f"| {noms[k]} | {info.at[k, 'territoires']} | {nombre(info.at[k, 'population'])} | "
-                 + " | ".join(nombre(v) for v in r) + " |")
+         "| | " + " | ".join(noms[k] for k in classes) + " |", "|" + "---|" * (len(classes) + 1),
+         "| Intercommunalités | " + " | ".join(nombre(info.at[k, "territoires"]) for k in classes) + " |",
+         "| Habitants | " + " | ".join(nombre(info.at[k, "population"]) for k in classes) + " |"]
+    for x in piv.columns:
+        L.append(f"| {C.lab.get(x, x)} | " + " | ".join(nombre(piv_tout.at[k, x]) for k in classes) + " |")
+    groupe = C.prof["groupe"].to_dict()
+    for g in [g for g in config.GROUPES_SPECIALITES + [config.MEDECIN_AUTRE[2]] if any(groupe.get(x) == g for x in decrites)]:
+        L.append(f"| **{g}, à titre descriptif, sans servir à former les groupes** |" + " |" * len(classes))
+        for x in [x for x in decrites if groupe.get(x) == g]:
+            L.append(f"| {C.lab.get(x, x)} | " + " | ".join(nombre(piv_tout.at[k, x]) for k in classes) + " |")
     L.append("")
     k0, p0 = piv.index[0], piv.columns[0]
     L += _comment_lire(

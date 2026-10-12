@@ -260,6 +260,17 @@ def lire_activites(fichiers: dict, ref) -> tuple[pd.DataFrame, pd.DataFrame]:
             qdefs.append((qid, lab, config.GROUPE_QUALIFICATIONS, fam, "qualification"))
             vus.add(qid)
         JOURNAL.controle(f"Médecins comptés dans « {lab} »", entier_fr(len(ids_q)))
+    # Repère « médecins spécialistes, ensemble » (version 2, 11 octobre 2026), chaque médecin spécialiste compté une
+    # fois, hors généralistes et médecins sans spécialité renseignée, comme dans les séries de la DREES. Il réunit les
+    # spécialités et ne s'y ajoute pas (nature « ensemble »).
+    eid, elab, egrp, efam, enat = config.ENSEMBLE_SPECIALISTES
+    specialistes = est_med & ~act["prof"].isin(["medecin_generaliste", config.MEDECIN_INCONNU[0]])
+    if specialistes.any():
+        ajouts.append(act[specialistes].assign(prof=eid))
+        qdefs.append((eid, elab, egrp, efam, enat))
+        vus.add(eid)
+        JOURNAL.controle("Médecins spécialistes, ensemble (hors généralistes)",
+                         entier_fr(act.loc[specialistes, "id"].nunique()))
     if qdefs:
         professions = pd.concat([professions, pd.DataFrame(
             qdefs, columns=["id", "libelle", "groupe", "famille", "nature"])], ignore_index=True)

@@ -39,10 +39,12 @@ def controle(pdf: Path, html: Path) -> list[str]:
             continue
         fin = lignes[-2:]
         for t in ts:
-            if any(t[:30] and l.startswith(t[:30]) for l in fin):
+            # la ligne doit être le titre lui-même, pas une phrase qui commence par les mêmes mots
+            if any(t[:30] and l.startswith(t[:30]) and len(l) <= len(t) + 3 for l in fin):
                 pb.append(f"{pdf.name}, page {k}, titre en bas de page, « {t[:60]} »")
                 break
-        if len(lignes) <= 4 and k not in (1, len(pages)):
+        # une page occupée par une figure porte peu de texte, elle n'est pas « presque vide »
+        if len(lignes) <= 4 and k not in (1, len(pages)) and not any(l.startswith("figure ") for l in lignes):
             pb.append(f"{pdf.name}, page {k}, page presque vide ({len(lignes)} lignes)")
     return pb
 

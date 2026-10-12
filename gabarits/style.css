@@ -127,6 +127,10 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:16px;color:v
   h1+*,h2+*,h3+*,h4+*,h5+*{break-before:avoid;page-break-before:avoid}
   p,li,dd{orphans:3;widows:3}
   .comment-lire,.a-savoir,blockquote,.citer-haut,figcaption{break-inside:avoid}
+  /* un paragraphe qui annonce une figure reste avec elle, et avec son titre (12 octobre 2026) */
+  p:has(+ figure.graphique){break-after:avoid;page-break-after:avoid}
+  /* une figure tient avec son titre et sa phrase d'annonce sur une même page */
+  figure.graphique svg{max-height:185mm}
   /* les volets « Pour aller plus loin » peuvent être longs, ils se coupent, leur titre reste avec leur début */
   details{break-inside:auto}
   details>summary{break-after:avoid;page-break-after:avoid}

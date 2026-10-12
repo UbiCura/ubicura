@@ -452,6 +452,20 @@ DREES_DEMOGRAPHIE = [
     (r"^medecins rpps", r"ophtalmologie", "all", ["ophtalmologue"], "Ophtalmologues", _RPPS),
     (r"^medecins rpps", r"cardiologie", "all", ["cardiologue"], "Cardiologues", _RPPS),
     (r"^medecins rpps", r"dermatologie", "all", ["dermatologue"], "Dermatologues", _RPPS),
+    # version 2, spécialités ajoutées le 11 octobre 2026, regroupements publiés par la DREES dans le même classeur
+    # (colonnes « spécialités » et « spécialités agrégées », lues le 11 octobre 2026)
+    (r"^medecins rpps", r"agr:autres specialites", "all", ["ens_medecin_specialiste"],
+     "Médecins spécialistes, hors généralistes", _RPPS),
+    (r"^medecins rpps", r"anesthesie", "all", ["anesthesiste", "reanimateur"],
+     "Anesthésistes-réanimateurs et médecins réanimateurs", _RPPS + ", la DREES range la médecine intensive-réanimation avec l'anesthésie"),
+    (r"^medecins rpps", r"oto rhino", "all", ["orl"], "Oto-rhino-laryngologistes", _RPPS),
+    (r"^medecins rpps", r"gastro", "all", ["gastro_enterologue"], "Gastro-entérologues", _RPPS),
+    (r"^medecins rpps", r"pneumolog", "all", ["pneumologue"], "Pneumologues", _RPPS),
+    (r"^medecins rpps", r"^chirurgie$", "all",
+     ["chirurgien_orthopediste", "chirurgien_general", "urologue", "chirurgien_visceral", "chirurgien_plasticien",
+      "chirurgien_maxillo_facial", "chirurgien_vasculaire", "neurochirurgien", "chirurgien_thoracique",
+      "chirurgien_pediatrique"], "Chirurgiens (hors ORL, ophtalmologie et gynécologie)",
+     _RPPS + ", regroupement « chirurgie » de la DREES, dont la composition exacte peut différer un peu"),
     (r"^chirurgiens dentistes rpps", None, "all", ["chirurgien_dentiste"], "Chirurgiens-dentistes", _RPPS),
     (r"^kinesitherapeutes rpps", None, "all", ["masseur_kinesitherapeute"], "Masseurs-kinésithérapeutes", _RPPS),
     (r"^sages femmes rpps", None, "all", ["sage_femme"], "Sages-femmes", _RPPS),
@@ -566,24 +580,80 @@ PROFESSIONS = [
     (r"chiropracteur", "chiropracteur", "Chiropracteur", "Rééducation", SANTE),
 ]
 # Spécialités des médecins (libellé normalisé de la spécialité ordinale), par ordre de priorité.
-# Chaque médecin reçoit une seule spécialité, celle de son inscription à l'Ordre.
+# Chaque médecin reçoit une seule spécialité, celle de son inscription à l'Ordre. Groupes des spécialités (version 2,
+# validés par Lucas le 11 octobre 2026), d'après le partage des diplômes d'études spécialisées entre spécialités
+# médicales, chirurgicales et médico-techniques, plus la prévention et la santé publique, qui ne sont pas des soins
+# à la population.
+G_MED, G_CHIR, G_TECH, G_PREV = ("Spécialités médicales", "Spécialités chirurgicales", "Spécialités médico-techniques",
+                                 "Prévention et santé publique")
+GROUPES_SPECIALITES = [G_MED, G_CHIR, G_TECH, G_PREV]
 SPECIALITES_MEDECINS = [
     (r"psychiatr.*(enfant|adolescent)|pedopsychiatr", "pedopsychiatre", "Pédopsychiatre", "Psychiatrie", SANTE_MENTALE),
     (r"psychiatr", "psychiatre", "Psychiatre", "Psychiatrie", SANTE_MENTALE),
     (r"medecine generale", "medecin_generaliste", "Médecin généraliste", "Premier recours", SANTE),
     # « pédiatrie » seulement, pas la chirurgie pédiatrique ni la réanimation pédiatrique (vérifié le 5 octobre 2026)
-    (r"\bpediatrie\b", "pediatre", "Pédiatre", "Médecins spécialistes", SANTE),
-    (r"neurolog", "neurologue", "Neurologue", "Médecins spécialistes", SANTE),
-    (r"geriatr", "geriatre", "Gériatre", "Médecins spécialistes", SANTE),
+    (r"\bpediatrie\b", "pediatre", "Pédiatre", G_MED, SANTE),
+    (r"neurolog", "neurologue", "Neurologue", G_MED, SANTE),
+    (r"geriatr", "geriatre", "Gériatre", G_MED, SANTE),
     # « gyneco » couvre aussi le DES de 2017 « Gynéco-obstétrique et Gynéco médicale option... »
-    (r"gyneco", "gynecologue", "Gynécologue", "Médecins spécialistes", SANTE),
-    (r"ophtalmolog", "ophtalmologue", "Ophtalmologue", "Médecins spécialistes", SANTE),
+    (r"gyneco", "gynecologue", "Gynécologue", G_CHIR, SANTE),
+    (r"ophtalmolog", "ophtalmologue", "Ophtalmologue", G_CHIR, SANTE),
     # « Méd cardiovasculaire opt... » est le DES de cardiologie depuis 2017, la chirurgie cardio-vasculaire est exclue
-    (r"cardiolog|\bmed\w* cardiovasculaire", "cardiologue", "Cardiologue", "Médecins spécialistes", SANTE),
-    (r"dermatolog", "dermatologue", "Dermatologue", "Médecins spécialistes", SANTE),
+    (r"cardiolog|\bmed\w* cardiovasculaire", "cardiologue", "Cardiologue", G_MED, SANTE),
+    (r"dermatolog", "dermatologue", "Dermatologue", G_MED, SANTE),
+    # Spécialités ajoutées le 11 octobre 2026 (version 2), placées après les précédentes pour que les médecins déjà
+    # classés le restent. Libellés anciens et diplômes de la réforme de 2017 réunis (inventaire du fichier
+    # savoir-faire du RPPS du 10 octobre 2026). L'ordre compte, la radiothérapie avant la radiologie et l'oncologie,
+    # l'anesthésie avant la réanimation, la chirurgie pédiatrique avant l'orthopédie.
+    (r"radiotherap|radio therap", "radiotherapeute", "Radiothérapeute", G_TECH, SANTE),
+    (r"anesthes", "anesthesiste", "Anesthésiste-réanimateur", G_TECH, SANTE),
+    (r"^oncologie", "oncologue", "Oncologue médical", G_MED, SANTE),
+    (r"hematolog", "hematologue", "Hématologue", G_MED, SANTE),
+    (r"chirurgie infantile|chirurgie pediatrique", "chirurgien_pediatrique", "Chirurgien pédiatrique", G_CHIR, SANTE),
+    (r"gastro entero", "gastro_enterologue", "Gastro-entérologue", G_MED, SANTE),
+    (r"pneumolog", "pneumologue", "Pneumologue", G_MED, SANTE),
+    (r"medecine interne", "interniste", "Médecin interniste", G_MED, SANTE),
+    (r"medecine d urgence", "urgentiste", "Médecin urgentiste", G_MED, SANTE),
+    (r"medecine physique|readaptation", "medecin_mpr", "Médecin de médecine physique et de réadaptation", G_MED, SANTE),
+    (r"rhumatolog", "rhumatologue", "Rhumatologue", G_MED, SANTE),
+    (r"endocrinolog|diabetolog", "endocrinologue", "Endocrinologue", G_MED, SANTE),
+    (r"nephrolog", "nephrologue", "Néphrologue", G_MED, SANTE),
+    (r"medecine vasculaire", "medecin_vasculaire", "Médecin vasculaire", G_MED, SANTE),
+    (r"medecine intensive|reanimation", "reanimateur", "Médecin réanimateur", G_MED, SANTE),
+    (r"maladies infectieuses", "infectiologue", "Infectiologue", G_MED, SANTE),
+    (r"allergolog", "allergologue", "Allergologue", G_MED, SANTE),
+    (r"orthoped", "chirurgien_orthopediste", "Chirurgien orthopédiste", G_CHIR, SANTE),
+    (r"\bo r l\b|\borl\b|oto rhino", "orl", "Oto-rhino-laryngologiste (ORL)", G_CHIR, SANTE),
+    (r"urolog", "urologue", "Urologue", G_CHIR, SANTE),
+    (r"viscerale", "chirurgien_visceral", "Chirurgien viscéral et digestif", G_CHIR, SANTE),
+    (r"plastique", "chirurgien_plasticien", "Chirurgien plasticien", G_CHIR, SANTE),
+    (r"maxillo|stomatolog|chirurgie orale", "chirurgien_maxillo_facial", "Chirurgien maxillo-facial et stomatologue",
+     G_CHIR, SANTE),
+    (r"chirurgie vasculaire", "chirurgien_vasculaire", "Chirurgien vasculaire", G_CHIR, SANTE),
+    (r"neuro ?chirurg", "neurochirurgien", "Neurochirurgien", G_CHIR, SANTE),
+    (r"thoracique", "chirurgien_thoracique", "Chirurgien thoracique et cardiovasculaire", G_CHIR, SANTE),
+    (r"chirurgie generale", "chirurgien_general", "Chirurgien général", G_CHIR, SANTE),
+    (r"radiolog|radio diagnostic|imagerie medicale", "radiologue", "Radiologue", G_TECH, SANTE),
+    (r"biologie medicale", "biologiste", "Biologiste médical", G_TECH, SANTE),
+    (r"anatomie", "anatomopathologiste", "Anatomopathologiste", G_TECH, SANTE),
+    (r"medecine nucleaire", "medecin_nucleaire", "Médecin nucléaire", G_TECH, SANTE),
+    (r"medecine du travail", "medecin_travail", "Médecin du travail", G_PREV, SANTE),
+    (r"sante publique", "medecin_sante_publique", "Médecin de santé publique", G_PREV, SANTE),
 ]
-MEDECIN_AUTRE = ("medecin_autre", "Médecin, autre spécialité", "Médecins spécialistes", SANTE)
-MEDECIN_INCONNU = ("medecin_non_precise", "Médecin, spécialité non renseignée", "Médecins spécialistes", SANTE)
+# spécialités ajoutées en version 2, regroupées sous « autre spécialité » dans le périmètre élargi de la santé
+# mentale, où elles sont trop peu nombreuses une à une (build.perimetre_elargi)
+SPECIALITES_AJOUTEES = [e[1] for e in SPECIALITES_MEDECINS[[e[1] for e in SPECIALITES_MEDECINS].index("dermatologue") + 1:]]
+MEDECIN_AUTRE = ("medecin_autre", "Médecin, autre spécialité", "Autres médecins", SANTE)
+MEDECIN_INCONNU = ("medecin_non_precise", "Médecin, spécialité non renseignée", "Autres médecins", SANTE)
+# Repère « médecins spécialistes, ensemble » (version 2, 11 octobre 2026), chaque médecin spécialiste compté une fois
+# quelle que soit sa spécialité, hors généralistes, comme dans les séries de la DREES. Il réunit les spécialités et ne
+# s'y ajoute pas (nature « ensemble », préfixe écarté des sommes comme les qualifications).
+PREFIXE_ENSEMBLE = "ens_"
+ENSEMBLE_SPECIALISTES = ("ens_medecin_specialiste", "Médecin spécialiste (toutes spécialités)", "Médecins spécialistes, ensemble",
+                         SANTE, "ensemble")
+# Précision « exercice surtout salarié », écrite pour toute spécialité dont moins d'un tiers des médecins exercent en
+# libéral (calculée à chaque exécution, build.limites_specialites), validée par Lucas le 11 octobre 2026
+SEUIL_LIBERAL_SPECIALITE = 1 / 3
 GROUPE_AUTRES = ("Autres", SANTE)   # libellés RPPS non reconnus par les motifs ci-dessus
 # Libellés RPPS qui ne désignent pas une profession de soin et sont écartés des comptages.
 # « Acteur du système de santé caractérisé par un rôle » regroupe environ 65 000 personnes
@@ -631,7 +701,7 @@ ELARGI_EFFECTIF_MIN = 100   # en dessous, la profession n'est pas présentée da
 PROFESSIONS_PRINCIPALES = [
     "psychologue", "psychiatre", "pedopsychiatre", "medecin_generaliste", "infirmier",
     "masseur_kinesitherapeute", "orthophoniste", "psychomotricien", "pharmacien",
-    "chirurgien_dentiste", "sage_femme", "pediatre",
+    "chirurgien_dentiste", "sage_femme", "pediatre", "ens_medecin_specialiste",
 ]
 
 # Public concerné par une profession, pour la densité rapportée à ce public (indicateurs de part de
@@ -799,6 +869,16 @@ LIMITES = {
                   "territoire sans pédopsychiatre déclaré peut donc accueillir des consultations pour enfants."),
         "sources": [("Cour des comptes, la pédopsychiatrie, un accès et une offre de soins à réorganiser, mars 2023",
                      "https://www.ccomptes.fr/fr/publications/la-pedopsychiatrie"), SRC_RPPS, SRC_FINESS]},
+    "prof:medecin_travail": {
+        "risque": "pas de soins à la population",
+        "texte": ("Les médecins du travail suivent les salariés de leur entreprise ou de leur service de santé au "
+                  "travail. Ils ne soignent pas la population du territoire où ils sont déclarés."),
+        "sources": [SRC_RPPS]},
+    "prof:medecin_sante_publique": {
+        "risque": "pas de soins à la population",
+        "texte": ("Les médecins de santé publique exercent surtout dans des administrations, des agences ou des services "
+                  "d'épidémiologie et de prévention, rarement en soins à la population."),
+        "sources": [SRC_RPPS]},
     "prof:psychologue": {
         "risque": "répertoire récent",
         "texte": ("Les psychologues sont inscrits au RPPS depuis la reprise du répertoire ADELI. Leur nombre est un "

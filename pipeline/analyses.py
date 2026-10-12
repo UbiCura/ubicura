@@ -1318,9 +1318,13 @@ def cah_ward(Z, kmin=3, kmax=6):
 TYPOLOGIE_FAMILLES = {
     "sm": ["psychologue", "psychiatre", "q_psychiatrie_enfant", "psychotherapeute"],
     "sante": ["medecin_generaliste", "infirmier", "masseur_kinesitherapeute", "orthophoniste", "psychomotricien",
-              "pharmacien", "chirurgien_dentiste", "sage_femme", "pediatre"],
+              "pharmacien", "chirurgien_dentiste", "sage_femme", "pediatre", "ens_medecin_specialiste"],
     "tout": None,   # professions principales des deux familles
 }
+# Professions décrites dans le profil de chaque groupe sans servir à former les groupes (version 2, 11 octobre 2026,
+# demande de Lucas), toutes les spécialités médicales pour la santé et l'ensemble.
+TYPOLOGIE_DECRITES = {f: [pid for _m, pid, _l, _g, fam in config.SPECIALITES_MEDECINS if fam == config.SANTE]
+                      + [config.MEDECIN_AUTRE[0]] for f in ("sante", "tout")}
 
 
 def typologie(agg, ref, rng=None):
@@ -1339,13 +1343,16 @@ def typologie(agg, ref, rng=None):
         lab, k, sil, r2 = cah_ward(Z)
         affect.append(pd.DataFrame({"famille": fam, "code": dens.index, "classe": lab,
                                     "axe1": coords[:, 0], "axe2": coords[:, 1]}))
-        nat = n[profs].sum() / pop.sum() * 1e4
+        decrites = [p for p in TYPOLOGIE_DECRITES.get(fam, []) if p in dens and p not in profs and n[p].sum() > 0]
+        tous = profs + decrites
+        nat = n[tous].sum() / pop.sum() * 1e4
         for c in range(1, k + 1):
             m = lab == c
-            dc = n[profs][m].sum() / pop[m].sum() * 1e4
-            for p in profs:
+            dc = n[tous][m].sum() / pop[m].sum() * 1e4
+            for p in tous:
                 profils.append({"famille": fam, "classe": c, "prof": p, "indice_vs_national": 100 * dc[p] / nat[p],
-                                "territoires": int(m.sum()), "population": pop[m].sum()})
+                                "territoires": int(m.sum()), "population": pop[m].sum(),
+                                "dans_typologie": p in profs})
         inertie += [{"famille": fam, "axe": i + 1, "valeur_propre": vp[i], "part_inertie": part[i]} for i in range(len(vp))]
         charges += [{"famille": fam, "prof": p, "axe": a + 1, "correlation": ch[j, a]}
                     for j, p in enumerate(profs) for a in range(min(3, len(profs)))]

@@ -95,6 +95,9 @@ def _lire(chemin, specs):
         for spec in specs:
             if spec is None:
                 ok = j_spe is None or (_ensemble(r[j_spe]) and (j_agr is None or _ensemble(r[j_agr])))
+            elif spec.startswith("agr:"):   # spécialités agrégées (« autres spécialités », hors médecine générale)
+                ok = (j_agr is not None and (j_spe is None or _ensemble(r[j_spe]))
+                      and re.search(spec[4:], norm(re.sub(r"^\d+-", "", str(r[j_agr])))) is not None)
             else:
                 ok = j_spe is not None and re.search(spec, norm(re.sub(r"^\d+-", "", str(r[j_spe])))) is not None
             if ok:

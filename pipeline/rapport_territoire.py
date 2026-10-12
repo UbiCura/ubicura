@@ -434,8 +434,42 @@ def _professions(B, T, famille, cle_fig):
     L += _plus_loin(plus)
     if famille == SM:
         L += _elargi(B, T)
+    else:
+        L += _specialites(B, T)
     L += _sans_soins(B, T, famille)
     return L
+
+
+def _specialites(B, T) -> list[str]:
+    """Toutes les spécialités médicales du territoire dans un volet replié, rangées par groupe (version 2,
+    11 octobre 2026), avec les précisions qui s'imposent (exercice surtout salarié, prévention)."""
+    niv, code = T["niveau"], T["code"]
+    n, d, _pop = B.t[niv]
+    groupe = B.C.prof["groupe"].to_dict()
+    lignes, cles = [], []
+    for g in config.GROUPES_SPECIALITES:
+        ps = [p for p in B.C.ids(SANTE) if groupe.get(p) == g and p in n.columns and B.C.present(p)]
+        if not ps:
+            continue
+        lignes.append(f"| **{g}** | | | | |")
+        for p in sorted(ps, key=lambda x: -B.C.nat.get(x, 0)):
+            x = int(n.at[code, p])
+            ref = B.reference(p, niv)
+            lignes.append(f"| {B.lab[p]} | {nombre(x)} | {nombre(d.at[code, p], 2)} | {nombre(ref, 2)} | "
+                          f"{position(d.at[code, p], d[p])} |")
+            if f"prof:{p}" in config.LIMITES:
+                cles.append(f"prof:{p}")
+    if not lignes:
+        return []
+    moy = "Moyenne des départements" if niv == "dep" else "Moyenne des régions"
+    corps = ["| Spécialité | Effectif | Pour 10 000 habitants | " + moy + " | Position |", "|---|---|---|---|---|"] + lignes
+    return (["<details>", "<summary>Les spécialités médicales, détail par spécialité</summary>", ""] + corps + [""]
+            + _comment_lire("Chaque médecin est compté dans la spécialité de son inscription à l'Ordre. Les petits "
+                            "effectifs varient beaucoup d'une année à l'autre, une ou deux arrivées suffisent à changer "
+                            "la position du territoire. Les spécialités surtout exercées à l'hôpital se trouvent là où "
+                            "sont les établissements, les habitants consultent souvent dans un territoire voisin.",
+                            limites.phrase_specialites_md(cles))
+            + ["</details>", ""])
 
 
 PARTICULIERES = {SM: ["psychologue", "psychiatre"], SANTE: ["medecin_generaliste", "infirmier"]}

@@ -203,6 +203,7 @@ th button{background:none;border:0;padding:0;cursor:pointer;font-weight:600;colo
 th button.on{color:var(--ink)}
 tbody tr{cursor:pointer}
 tbody tr:hover td{filter:brightness(.97)}
+#ttab tr.ty-sous th{text-align:left;font-weight:600;padding-top:12px;white-space:normal}
 #gtab tbody tr:nth-child(even) td,#scTable tbody tr:nth-child(even) td,#ttab tr:nth-child(even) td:first-child{background:color-mix(in srgb,var(--ink) 3%,var(--panel))}
 .hmbox{max-height:620px;overflow:auto;overscroll-behavior:contain;border:1px solid var(--line);border-radius:4px}
 .hm{border-collapse:separate;border-spacing:0}
@@ -722,9 +723,13 @@ function prep(){
   const gl=D.meta.genere_le||"";document.getElementById("maj").textContent=gl?"Données du "+new Date(gl+"T12:00").toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"})+", répertoire RPPS, FINESS et INSEE.":"";
   buildSelects();
 }
+// ordre des groupes de professions, premier recours, médecins spécialistes, spécialités par groupe, puis le reste dans
+// l'ordre des données (version 2, 11 octobre 2026)
+function ordreGroupe(g){const sp=D.meta.groupes_specialites||[];
+  return g==="Premier recours"?0:g==="Médecins spécialistes, ensemble"?1:sp.includes(g)?2+sp.indexOf(g):50}
 function buildSelects(){
   const visibles=D.professions.filter(p=>inFam(p)&&natN(p.id,"all")>0);
-  const g=[...new Set(visibles.map(p=>p.groupe))];
+  const g=[...new Set(visibles.map(p=>p.groupe))].sort((a,b)=>ordreGroupe(a)-ordreGroupe(b));
   const ps=document.getElementById("prof");ps.innerHTML="";
   for(const gr of g){const og=document.createElement("optgroup");og.label=gr;for(const p of visibles.filter(p=>p.groupe===gr)){const o=document.createElement("option");o.value=p.id;o.textContent=p.libelle;og.appendChild(o)}ps.appendChild(og)}
   if(!visibles.find(p=>p.id===S.prof)){const pref=S.fam===SANTE?"medecin_generaliste":"psychologue";S.prof=(visibles.find(p=>p.id===pref)||visibles[0]||D.professions[0]).id}
@@ -876,9 +881,10 @@ function drawMap(){
     gs.select("text").attr("x",(c-4)/2).attr("y",(c-4)/2+5).text(([k])=>k).attr("fill",([k])=>lum(color(vals[ix.get(k)]))>.55?"#1F2430":"#FFFFFF");
     gs.selectAll("g.fragile").remove();gs.filter(([k])=>fragile("dep",k)).each(function([k]){symboleFragile(d3.select(this),c-11,7,fragile("dep",k),4.5)});
     if(gs.filter(([k])=>fragile("dep",k)).size())legend+='<div class="legende-signaux">'+legendeSignaux(["mayotte"])+'</div>';
+    legend+=legendeHospitaliere(p,"dep");
     M.gt.selectAll("text.om").data([0]).join("text").attr("class","om").attr("x",x0).attr("y",y0+(nl-1)*c-8).text("Outre-mer");
     document.getElementById("legend").innerHTML=legend;
-    document.getElementById("mapLimite").innerHTML=(S.metric==="trajet"?limiteHtml(["route"]):S.metric==="evol"?limiteHtml(["evol:"]):"")+limiteHtml(["mayotte"]);
+    document.getElementById("mapLimite").innerHTML=(S.metric==="trajet"?limiteHtml(["route"]):S.metric==="evol"?limiteHtml(["evol:"]):limiteHtml(["prof:"+p]))+limiteHtml(["mayotte"]);
     return;
   }
   M.gt.selectAll("*").remove();M.tuiles=false;
@@ -897,10 +903,17 @@ function drawMap(){
   const psyBulle=S.fam!==SANTE?PSY_CMP.filter(x=>IDX.prof.has(x)):[];
   const sigs=signauxCarte(M,lv,false);
   if(sigs.length)legend+='<div class="legende-signaux">'+legendeSignaux(sigs)+'</div>';
+  legend+=legendeHospitaliere(p,lv);
   document.getElementById("legend").innerHTML=legend;
   document.getElementById("mapLimite").innerHTML=(S.metric==="trajet"?limiteHtml(["route"]):S.metric==="evol"?limiteHtml(["evol:"]):limiteHtml(["prof:"+p,...psyBulle.map(x=>"prof:"+x)]))+(sigs.length?limiteHtml(sigs):"");
 }
 const PSY_CMP=["psychiatre","pedopsychiatre"];
+// spécialité exercée surtout à l'hôpital (précision calculée à chaque mise à jour), signalée dans la légende de la carte,
+// sans changer les couleurs, avec le conseil de la lire par département (demande de Lucas du 11 octobre 2026)
+function legendeHospitaliere(p,lv){const k=cleLimite("prof:"+p);
+  if(!k||D.limites[k]?.risque!=="exercice surtout salarié"||S.metric==="trajet"||S.metric==="evol")return "";
+  SIG.hospitalier="Exercice surtout hospitalier"+(lv==="epci"?", à lire de préférence par département":"")+", voir « À savoir » sous la carte";
+  return '<div class="legende-signaux">'+legendeSignaux(["hospitalier"])+'</div>'}
 // signaux « donnée fragile ici » (9 octobre 2026), symbole ocre marqué « ! » posé sur le territoire, sa couleur ne change
 // pas et la limite est écrite sous la figure. Mayotte partout, l'Île-de-France sur les figures du suicide.
 const IDF=["75","77","78","91","92","93","94","95"];
@@ -1018,7 +1031,8 @@ function natCard(){
   if(natOf(pr)==="perimetre_elargi")ph=fmt.format(natN(p))+" "+pluriel(lab)+" en France, salariés d’un établissement psychiatrique ou médico-psychologique. Ce chiffre se lit à côté de celui de la profession et ne s’y ajoute pas.";
   else if(natD(p)>0){ph=cap(un(p))+" "+lab.toLowerCase()+" pour "+unPour(natD(p))+" habitants en France.";
     if(ineg)ph+=" Répartition "+phraseGini(ineg.gini)+" entre "+niv+". "+cap(f1.format(ineg.zero*100))+" % de la population vit dans "+UNLAB[S.level]+" sans "+lab.toLowerCase()+".";
-    if(natOf(pr)==="qualification")ph+=" Ces médecins sont aussi comptés dans leur spécialité, les chiffres ne s’additionnent pas."}
+    if(natOf(pr)==="qualification")ph+=" Ces médecins sont aussi comptés dans leur spécialité, les chiffres ne s’additionnent pas.";
+    if(natOf(pr)==="ensemble")ph+=" Chaque médecin spécialiste y est compté une fois, hors généralistes. Ce chiffre réunit les spécialités et ne s’y ajoute pas."}
   let h='<h2>'+esc(lab)+' <button class="how" data-how="densite,gini,sans_pro'+(natOf(pr)==="qualification"?",qualification":natOf(pr)==="perimetre_elargi"?",elargi":"")+'">Comment lire</button></h2><div class="howtxt hidden"></div><div class="muted small">France entière, '+modeLab[S.mode]+'</div><div class="big">'+f1.format(natD(p))+'</div><div class="muted small">pour 10 000 habitants, soit '+fmt.format(natN(p))+' professionnels</div><p class="phrase">'+esc(ph)+'</p><dl class="f">';
   if(ineg)h+='<dt>Concentration (Gini, '+NIVLAB[S.level]+')</dt><dd>'+f2.format(ineg.gini)+'</dd><dt>Population sans aucun professionnel</dt><dd>'+f1.format(ineg.zero*100)+' %</dd>';
   if(sp&&sp.moran_I!=null)h+='<dt>Ressemblance entre voisins (Moran)</dt><dd>'+f2.format(sp.moran_I)+'</dd>';
@@ -1072,9 +1086,11 @@ function selCard(){
     if(S.fam!=="*"&&S.fam!==fam)continue;
     const ps=D.professions.filter(p=>famOf(p)===fam&&natN(p.id)>0);if(!ps.length)continue;
     const h0=h;h='<div class="bloc"><div class="bt">'+(fam===SM?"Santé mentale":"Santé")+'</div>';
-    for(const g of [...new Set(ps.map(p=>p.groupe))]){
+    for(const g of [...new Set(ps.map(p=>p.groupe))].sort((a,b)=>ordreGroupe(a)-ordreGroupe(b))){
       const pg=ps.filter(p=>p.groupe===g),annexe=pg.some(p=>natOf(p)!=="profession");
       if(annexe){h+='<details class="groupe"'+(pg.some(p=>p.id===S.prof)?' open':'')+'><summary>'+esc(g)+' <span class="tag">ne s’additionne pas</span></summary>';for(const p of pg)h+=ligne(p);h+='</details>'}
+      // spécialités médicales repliées par groupe, ouvertes quand la profession affichée en fait partie (version 2)
+      else if((D.meta.groupes_specialites||[]).includes(g)){h+='<details class="groupe"'+(pg.some(p=>p.id===S.prof)?' open':'')+'><summary>'+esc(g)+' <span class="tag">'+pg.length+'</span></summary>';for(const p of pg)h+=ligne(p);h+='</details>'}
       else{h+='<div class="gh">'+esc(g)+'</div>';for(const p of pg)h+=ligne(p)}
     }
     h+='</div>';blocs[fam]=h;h=h0;
@@ -1588,11 +1604,14 @@ function typologie(){
   signauxCarte(TM,"epci",false);
   const T=(D.typologie||[]).filter(r=>!r.famille||r.famille===fam);
   const A=D.acp?.[fam];
-  const libs=[...new Set(T.map(r=>r.prof))].map(profLab);
+  // professions qui forment les groupes, puis spécialités seulement décrites (version 2, 11 octobre 2026)
+  const forme=r=>r.dans_typologie!==false;
+  const libs=[...new Set(T.filter(forme).map(r=>r.prof))].map(profLab);
   document.getElementById("tyNote").textContent="Groupes construits à partir des densités "+(fam==="sm"?"de l’offre de santé mentale":fam==="sante"?"des principales professions de santé":"des principales professions, santé et santé mentale ensemble")+" ("+libs.join(", ").toLowerCase()+"). Indice 100 pour la moyenne des intercommunalités.";
   document.getElementById("tyMethode").textContent=A?"Analyse en composantes principales sur le logarithme des densités, centrées et réduites, puis classification ascendante hiérarchique (méthode de Ward) sur les mêmes données. Nombre de groupes choisi par la silhouette moyenne entre 3 et 6 ("+A.classes+" groupes, silhouette "+f2.format(A.silhouette)+"). Les groupes réunissent "+Math.round(A.inertie_classes*100)+" % des différences entre intercommunalités. Une silhouette inférieure à 0,25 signale des groupes peu séparés.":"";
   if(!T.length){document.getElementById("ttab").innerHTML='<tr><td>Typologie absente du fichier.</td></tr>';return}
-  const classes=[...new Set(T.map(r=>r.classe))].sort(),profs=[...new Set(T.map(r=>r.prof))];
+  const classes=[...new Set(T.map(r=>r.classe))].sort(),profs=[...new Set(T.filter(forme).map(r=>r.prof))],
+    decrites=[...new Set(T.filter(r=>!forme(r)).map(r=>r.prof))];
   const get=new Map(T.map(r=>[r.classe+"|"+r.prof,r]));
   const dv=DIV(),sc=d3.scaleThreshold().domain([50,70,90,110,140,200]).range(dv);
   nomC=c=>(D.meta.noms_classes||{})[fam+"|"+c]||(D.meta.noms_classes||{})[c]||nomClasse(Object.fromEntries(profs.map(p=>[profLab(p),get.get(c+"|"+p).indice_vs_national])));
@@ -1601,7 +1620,12 @@ function typologie(){
   let h='<tr><th>Profession</th>'+classes.map(c=>'<th style="white-space:normal;min-width:140px"><span style="display:inline-block;width:10px;height:10px;background:'+pal[(c-1)%10]+';margin-right:5px"></span>'+esc(nomC(c))+'</th>').join("")+'</tr>';
   h+='<tr><td class="muted small">Territoires</td>'+classes.map(c=>'<td class="muted small">'+fmt.format(get.get(c+"|"+profs[0]).territoires)+'</td>').join("")+'</tr>';
   h+='<tr><td class="muted small">Habitants</td>'+classes.map(c=>'<td class="muted small">'+fmt.format(Math.round(get.get(c+"|"+profs[0]).population/1e3))+' k</td>').join("")+'</tr>';
-  for(const p of profs)h+='<tr><td>'+esc(profLab(p))+'</td>'+classes.map(c=>{const v=get.get(c+"|"+p).indice_vs_national;return'<td style="'+styleCase(sc(v),false)+'">'+fmt.format(Math.round(v))+'</td>'}).join("")+'</tr>';
+  const ligneT=p=>'<tr><td>'+esc(profLab(p))+'</td>'+classes.map(c=>{const v=get.get(c+"|"+p)?.indice_vs_national;return v==null?'<td></td>':'<td style="'+styleCase(sc(v),false)+'">'+fmt.format(Math.round(v))+'</td>'}).join("")+'</tr>';
+  for(const p of profs)h+=ligneT(p);
+  // chaque spécialité médicale décrite dans le groupe, sans avoir servi à le former, rangée par groupe de spécialités
+  if(decrites.length){const grp=p=>(IDX.prof.get(p)||{}).groupe||"Autres médecins";
+    for(const g of [...new Set(decrites.map(grp))]){h+='<tr class="ty-sous"><th colspan="'+(classes.length+1)+'">'+esc(g)+', à titre descriptif, sans servir à former les groupes</th></tr>';
+      for(const p of decrites.filter(x=>grp(x)===g))h+=ligneT(p)}}
   document.getElementById("ttab").innerHTML=h;
   document.getElementById("tyLegende").innerHTML=classes.map(c=>{const r=get.get(c+"|"+profs[0]);return'<li><i style="background:'+pal[(c-1)%10]+'"></i><span>'+esc(nomC(c))+'</span><span class="n">'+fmt.format(r.territoires)+' intercommunalités, '+habitantsTxt(r.population)+'</span></li>'}).join("");
   acpPanneau(fam,A,cl,pal);

@@ -2,8 +2,6 @@ Les ajouts prévus, sans date ferme et à peu près dans l'ordre où ils viendro
 
 ## Données
 
-**Toutes les spécialités médicales.** Une trentaine de spécialités distinguées (anesthésie-réanimation, radiologie, gastro-entérologie, chirurgies, pneumologie, rhumatologie, urgences, ORL...), aujourd'hui réunies sous « autre spécialité », dans l'atlas, dans les rapports et dans le profil de chaque groupe de territoires, et un repère « médecins spécialistes, ensemble » dans les typologies.
-
 **L'offre mois après mois.** Le répertoire des professionnels de santé est publié chaque semaine. Une photographie des effectifs par territoire sera gardée à chaque version, pour suivre leur évolution mois après mois, sans aucune donnée personnelle.
 
 **Violences sexistes, sexuelles et intrafamiliales.** Victimes enregistrées par la police et la gendarmerie, par département, et structures d'aide aux victimes. Seule une petite partie des victimes porte plainte, ces chiffres ne mesureront donc pas l'ampleur des violences, ce qui sera écrit à chaque fois.

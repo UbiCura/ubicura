@@ -87,6 +87,12 @@ def main(argv=None):
 
     act, professions = build.perimetre_elargi(act, fin, professions)
     agg = build.agreger(act, ref, fin)
+    # précisions des spécialités surtout salariées, calculées sur cette exécution (version 2, 11 octobre 2026)
+    from pipeline import limites as _limites
+    _spec = _limites.specialites_salariees(agg.national, professions)
+    _limites.completer(_spec)
+    JOURNAL.controle("Spécialités médicales dont moins d'un tiers des médecins exercent en libéral",
+                     ", ".join(L["nom"].split(",")[0] for L in _spec.values()) or "aucune")
     R = analyses.tout(agg, ref, ctx if contexte else None, voisins, offres, externes)
     # effectifs rapprochés des séries publiées par la DREES (tableau de concordance)
     series = drees_demographie.charger(hl, rf)

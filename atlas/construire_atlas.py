@@ -69,8 +69,10 @@ def construire(src: Path, dest: Path, nav: str = "") -> Path:
                         "adresse": config.ADRESSE_SITE, "titre_donnees": config.TITRES_DEPOTS["donnees"],
                         "version_zenodo": config.VERSION_ZENODO}
     # limites des données relues dans config, pour qu'une précision ajoutée paraisse sans attendre la prochaine exécution
-    data["limites"] = {k: {"risque": L["risque"], "texte": L["texte"], "sources": L["sources"],
-                           "territoires": L.get("territoires", {})} for k, L in config.LIMITES.items()}
+    # (les limites calculées à l'exécution, comme celles des spécialités surtout salariées, sont gardées)
+    data["limites"] = {**(data.get("limites") or {}),
+                       **{k: {"risque": L["risque"], "texte": L["texte"], "sources": L["sources"],
+                              "territoires": L.get("territoires", {})} for k, L in config.LIMITES.items()}}
     data["limites_alias"] = config.LIMITES_ALIAS
     # rapports par territoire publiés à côté de l'atlas, pour y renvoyer depuis la fiche d'un territoire
     # l'atlas autonome (atlas/atlas.html) renvoie aux rapports publiés dans site/territoires

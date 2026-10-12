@@ -487,6 +487,8 @@ def construire(pdf=True) -> Path:
     shutil.copytree(GABARITS / "polices", SITE / "polices", dirs_exist_ok=True)
     env = _environnement()
     site_data = json.loads((dernier / "site_data.json").read_text(encoding="utf-8"))
+    # limites calculées à l'exécution (spécialités surtout salariées), reprises pour la page méthode
+    limites.completer(site_data.get("limites"))
     commun = _commun(dernier, site_data)
     exe = navigateur() if pdf else None
     if pdf and not exe:

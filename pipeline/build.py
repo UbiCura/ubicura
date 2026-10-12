@@ -120,6 +120,8 @@ def perimetre_elargi(act: pd.DataFrame, finess: pd.DataFrame | None, professions
     cat = finess.set_index("nofinesset")["categetab"]
     reelles = professions.loc[professions["nature"] == "profession", "id"]
     prof = act["prof"].astype(str)
+    # les spécialités ajoutées en version 2 restent réunies sous « autre spécialité » dans ce périmètre
+    prof = prof.where(~prof.isin(config.SPECIALITES_AJOUTEES), config.MEDECIN_AUTRE[0])
     m = (act["mode"].astype(str) == "sal") & prof.isin(reelles) & (act["finess"] != "") \
         & act["finess"].map(cat).isin(list(config.FINESS_SANTE_MENTALE))
     sel = act[m]
@@ -132,7 +134,7 @@ def perimetre_elargi(act: pd.DataFrame, finess: pd.DataFrame | None, professions
     if not len(gardees):
         return act, professions
     sel = sel[prof[m].isin(gardees)]
-    ajout = sel.assign(prof=config.PREFIXE_ELARGI + sel["prof"].astype(str))
+    ajout = sel.assign(prof=config.PREFIXE_ELARGI + prof[sel.index])
     lab = professions.set_index("id")["libelle"]
     defs = pd.DataFrame({"id": [config.PREFIXE_ELARGI + p for p in gardees],
                          "libelle": [f"{lab[p]}, en établissement psychiatrique" for p in gardees],
@@ -171,7 +173,7 @@ def parcours(act, cat, loc) -> pd.DataFrame:
     sec = act["secteur"].astype(str)
     tele = sec.map({v: bool(re.search(config.SECTEUR_TELECONSULTATION, norm(v))) for v in sec.unique()}).astype(bool)
     a = act.assign(prof=act["prof"].astype(str), categorie=cat, tele=tele, lieu=act["com"].notna())
-    a = a[~a["prof"].str.startswith(("q_", config.PREFIXE_ELARGI))]
+    a = a[~a["prof"].str.startswith(("q_", config.PREFIXE_ELARGI, config.PREFIXE_ENSEMBLE))]
     l = loc.assign(prof=loc["prof"].astype(str))
     dans = set(zip(l["prof"], l["id"]))
     ss = a[a["lieu"] & (a["categorie"] == "sans_soins")]
@@ -253,7 +255,7 @@ def agreger(act: pd.DataFrame, ref, finess: pd.DataFrame | None) -> Agregats:
 
     # contrôle : la somme des effectifs départementaux tous modes doit être >= au national localisé
     nat_loc = _compter(loc.assign(_fr="FR"), ["_fr", "prof"])
-    vraies = lambda t: t[(t["mode"] == "all") & ~t["prof"].astype(str).str.startswith(("q_", config.PREFIXE_ELARGI))]  # noqa: E731
+    vraies = lambda t: t[(t["mode"] == "all") & ~t["prof"].astype(str).str.startswith(("q_", config.PREFIXE_ELARGI, config.PREFIXE_ENSEMBLE))]  # noqa: E731
     tot_dep = vraies(eff["dep"])["n"].sum()
     tot_nat = vraies(nat_loc)["n"].sum()
     JOURNAL.controle("Effectifs localisés, somme des départements et total national",
