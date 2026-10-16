@@ -88,11 +88,11 @@ FOND_ATLAS = config.INTER / "fond_atlas.topojson.json"
 # ocre en dessous de la moyenne, violet au-dessus, et un gris neutre pour les territoires proches de la moyenne,
 # pour que la couleur soit réservée aux vrais écarts (révision du 4 octobre 2026).
 CLASSES = [(None, "var(--d0, #7A4E00)", "aucun professionnel"),
-           (.5, "var(--d1, #B88A2E)", "moins de la moitié de la moyenne"),
-           (.8, "var(--d2, #E6D3A6)", "de la moitié à 0,8 fois la moyenne"),
-           (1.25, "var(--d3, #E9E7EC)", "proche de la moyenne (0,8 à 1,25 fois)"),
-           (2, "var(--d4, #C6B3DB)", "de 1,25 à 2 fois la moyenne"),
-           (math.inf, "var(--d6, #3E2563)", "plus de 2 fois la moyenne")]
+           (.5, "var(--d1, #B88A2E)", "moins de la moitié de cette moyenne"),
+           (.8, "var(--d2, #E6D3A6)", "de la moitié à 0,8 fois cette moyenne"),
+           (1.25, "var(--d3, #E9E7EC)", "proche de cette moyenne (0,8 à 1,25 fois)"),
+           (2, "var(--d4, #C6B3DB)", "de 1,25 à 2 fois cette moyenne"),
+           (math.inf, "var(--d6, #3E2563)", "plus de 2 fois cette moyenne")]
 
 
 def _simplifier(d: dict, tol: float) -> dict:
@@ -284,10 +284,41 @@ def _anneaux(g):
 MARQUE_CMP = "aucun psychiatre déclaré, mais au moins un CMP selon FINESS"
 
 
+def libelles_classes(reference=None, unite="pour 10 000 hab."):
+    """Libellés de la légende des classes. Avec une valeur de référence, chaque classe donne aussi ses bornes en
+    valeurs réelles (remarque de Lucas du 12 octobre 2026, la légende ne parlait qu'en fois la moyenne)."""
+    if not reference:
+        return [lab for _b, _c, lab in CLASSES]
+    v = lambda r: nombre(r * reference, 1)  # noqa: E731
+    bornes = [b for b, _c, _l in CLASSES]
+    out = []
+    for i, (b, _c, lab) in enumerate(CLASSES):
+        if b is None:
+            out.append(lab)
+        elif i == 1:
+            out.append(f"moins de {v(b)} {unite}, {lab}")
+        elif b == math.inf:
+            out.append(f"plus de {v(bornes[i - 1])} {unite}, {lab}")
+        else:
+            out.append(f"de {v(bornes[i - 1])} à {v(b)} {unite}, {lab}")
+    return out
+
+
+def info_territoire(code, r_, reference=None, unite="pour 10 000 habitants"):
+    """Texte de l'infobulle d'un territoire, sa valeur et son écart à la moyenne."""
+    if r_ is None or not math.isfinite(r_):
+        return nom(code)
+    if reference:
+        return f"{nom(code)}, {nombre(r_ * reference, 1)} {unite}, {nombre(r_, 1)} fois la moyenne"
+    return f"{nom(code)}, indice {nombre(r_ * 100)} (moyenne = 100)"
+
+
 def carte(geoms: dict, rapports: dict, etiquettes: dict, titre: str, largeur=560, hauteur_max=520, legende=True,
-          marques=None, legende_marque=MARQUE_CMP) -> str:
-    """Carte choroplèthe. geoms {code: géométrie}, rapports {code: densité / densité France},
-    etiquettes {code: texte court posé sur le territoire}."""
+          marques=None, legende_marque=MARQUE_CMP, reference=None, moyenne="", note_etiquettes="") -> str:
+    """Carte choroplèthe. geoms {code: géométrie}, rapports {code: densité / densité de référence},
+    etiquettes {code: texte court posé sur le territoire}. reference est la densité de référence (pour 10 000
+    habitants), moyenne son nom (« moyenne des intercommunalités de France »), note_etiquettes dit à quoi renvoient
+    les étiquettes posées sur la carte."""
     geoms = {k: g for k, g in geoms.items() if g is not None and not g.is_empty}
     if not geoms:
         return ""
@@ -296,7 +327,9 @@ def carte(geoms: dict, rapports: dict, etiquettes: dict, titre: str, largeur=560
     k = math.cos(math.radians((y0 + y1) / 2))
     lw, lh = (x1 - x0) * k or 1e-6, (y1 - y0) or 1e-6
     marques = [c for c in (marques or []) if c in geoms]
-    marge, leg = 8, (22 * (len(CLASSES) + (1 if marques else 0)) + 12) if legende else 0
+    entete = ([f"{moyenne[0].upper() + moyenne[1:]}, {nombre(reference, 1)} pour 10 000 habitants"] if reference and moyenne
+              else []) + ([note_etiquettes] if note_etiquettes and etiquettes else [])
+    marge, leg = 8, (22 * (len(CLASSES) + len(entete) + (1 if marques else 0)) + 12) if legende else 0
     s = min((largeur - 2 * marge) / lw, (hauteur_max - 2 * marge) / lh)
     h = lh * s + 2 * marge
     P = lambda x, y: (marge + (x - x0) * k * s, marge + (y1 - y) * s)  # noqa: E731
@@ -304,8 +337,7 @@ def carte(geoms: dict, rapports: dict, etiquettes: dict, titre: str, largeur=560
     for code, g in geoms.items():
         c = CLASSES[classe(rapports.get(code))][1]
         d = _trace_relatif(_anneaux(g), P)
-        r_ = rapports.get(code)
-        info = nom(code) + (f", indice {nombre(r_ * 100)} (moyenne = 100)" if r_ is not None and math.isfinite(r_) else "")
+        info = info_territoire(code, rapports.get(code), reference)
         el.append(f'<path d="{d}" fill="{c}" fill-rule="evenodd" stroke="var(--bg, #FFFFFF)" stroke-width=".8">'
                   f'<title>{escape(info)}</title></path>')
     for code, t in etiquettes.items():
@@ -323,14 +355,20 @@ def carte(geoms: dict, rapports: dict, etiquettes: dict, titre: str, largeur=560
         px, py = P(*geoms[code].representative_point().coords[0])
         el.append(f'<circle cx="{px + 13:.1f}" cy="{py - 9:.1f}" r="4.5" fill="var(--bg, #FFFFFF)" stroke="{ENCRE}" '
                   f'stroke-width="1.6"><title>{escape(nom(code))}, {escape(legende_marque)}</title></circle>')
-    for i, (_b, c, lab) in enumerate(CLASSES if legende else []):
-        y = h + 8 + 22 * i
+    if legende:
+        for j, txt in enumerate(entete):
+            gras = ' font-weight="600"' if j == 0 and reference and moyenne else ""
+            el.append(f'<text x="{marge}" y="{h + 19 + 22 * j:.1f}" font-size="12" fill="{ENCRE if gras else DISCRET}"'
+                      f'{gras}>{escape(txt)}</text>')
+    h0 = h + 22 * len(entete) if legende else h
+    for i, ((_b, c, _l), lab) in enumerate(zip(CLASSES, libelles_classes(reference)) if legende else []):
+        y = h0 + 8 + 22 * i
         el.append(f'<rect x="{marge}" y="{y:.1f}" width="16" height="14" fill="{c}" stroke="{LIGNE}"/>')
         el.append(f'<text x="{marge + 24}" y="{y + 11:.1f}" font-size="12" fill="{DISCRET}">{escape(lab)}</text>')
     if legende and fragiles:
-        legende_signaux(el, marge, h + 8 + 22 * (len(CLASSES) + (1 if marques else 0)), fragiles.values(), largeur)
+        legende_signaux(el, marge, h0 + 8 + 22 * (len(CLASSES) + (1 if marques else 0)), fragiles.values(), largeur)
     if legende and marques:
-        y = h + 8 + 22 * len(CLASSES)
+        y = h0 + 8 + 22 * len(CLASSES)
         el.append(f'<circle cx="{marge + 8}" cy="{y + 7:.1f}" r="4.5" fill="var(--bg, #FFFFFF)" stroke="{ENCRE}" '
                   f'stroke-width="1.6"/>')
         el.append(f'<text x="{marge + 24}" y="{y + 11:.1f}" font-size="12" fill="{DISCRET}">{escape(legende_marque)}</text>')
@@ -514,9 +552,18 @@ def _trace_relatif(anneaux, P) -> str:
     return "".join(morceaux)
 
 
-def carte_temps(geoms: dict, minutes: dict, titre: str, largeur=560, hauteur_max=520) -> str:
+CLASSES_DISTANCE = [(5, "var(--d3, #E9E7EC)", "moins de 5 km"),
+                    (10, "var(--d2, #E6D3A6)", "de 5 à 10 km"),
+                    (20, "var(--d1, #B88A2E)", "de 10 à 20 km"),
+                    (math.inf, "var(--d0, #7A4E00)", "20 km et plus")]
+
+
+def carte_temps(geoms: dict, minutes: dict, titre: str, largeur=560, hauteur_max=520, classes=None,
+                unite="min") -> str:
     """Carte des communes d'un département selon le temps médian de leurs habitants jusqu'à l'équipement le plus
-    proche, en quatre classes. Une commune sans valeur reste en gris clair."""
+    proche, en quatre classes. Une commune sans valeur reste en gris clair. Avec classes=CLASSES_DISTANCE et
+    unite="km", la même carte donne la distance à la structure la plus proche."""
+    classes = classes or CLASSES_TEMPS
     geoms = {k: g for k, g in geoms.items() if g is not None and not g.is_empty}
     if not geoms or not any(minutes.get(k) is not None for k in geoms):
         return ""
@@ -532,13 +579,14 @@ def carte_temps(geoms: dict, minutes: dict, titre: str, largeur=560, hauteur_max
     for code, g in geoms.items():
         m = minutes.get(code)
         c = ("var(--nodata, #E3E4E8)" if m is None or not math.isfinite(m) else
-             next(col for borne, col, _l in CLASSES_TEMPS if m < borne))
+             next(col for borne, col, _l in classes if m < borne))
         d = _trace_relatif(_anneaux(g), P)
         if d:
-            info = nom(code) + (f", {nombre(m)} min" if m is not None and math.isfinite(m) else ", non couverte")
+            info = nom(code) + (f", {nombre(m, 1 if unite == 'km' else 0)} {unite}" if m is not None and math.isfinite(m)
+                                else ", non couverte")
             el.append(f'<path d="{d}" fill="{c}"><title>{escape(info)}</title></path>')
     el.append("</g>")
-    for i, (_b, c, lab) in enumerate(CLASSES_TEMPS):
+    for i, (_b, c, lab) in enumerate(classes):
         xx, yy = marge + (i % 2) * (largeur / 2), h + 8 + 20 * (i // 2)
         el.append(f'<rect x="{xx:.0f}" y="{yy:.0f}" width="14" height="12" fill="{c}" stroke="{LIGNE}"/>')
         el.append(f'<text x="{xx + 20:.0f}" y="{yy + 10:.0f}" font-size="11" fill="{DISCRET}">{escape(lab)}</text>')

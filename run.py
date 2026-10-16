@@ -13,9 +13,12 @@ import sys
 import time
 from datetime import date
 
-from pipeline import analyses, build, concordance, config, evolution, export, mises_a_jour, site
-from pipeline.sources import (acces_route, ameli, ameli_acces, ameli_ald, apl, caf, drees_demographie, drees_isd, sae, complements, finess, insee, insee_estimations, odisse, optionnels,
-                              referentiel, rpps)
+import numpy as np
+
+from pipeline import analyses, build, concordance, config, evolution, export, lieux, mises_a_jour, site
+from pipeline.sources import (acces_route, ameli, ameli_acces, ameli_ald, apl, caf, drees_demographie, drees_isd, sae, complements,
+                              has_certification, sirene, finess, insee, insee_estimations, odisse, optionnels,
+                              referentiel, ror, rpps)
 from pipeline.util import JOURNAL, detecter_separateur, premiere_ligne
 
 
@@ -84,9 +87,36 @@ def main(argv=None):
         contexte.update(externes)
     voisins = None if args.sans_spatial else optionnels.voisinages(ref, hl, rf)
     offres = optionnels.offres_france_travail(ref, hl)
+    # lieux de soins, FINESS et ROR réunis sans double compte (version 2, 12 octobre 2026)
+    lieux_res = lieux.calculer(ror.charger(hl, rf), fin, act, ref, voisins, hl,
+                               has_certification.charger(hl, rf), sirene.charger(hl, rf))
+    # lieux pour 100 000 habitants et distances, ajoutés aux indicateurs de contexte pour être croisés
+    src_lieux = lieux.indicateurs(lieux_res, ref, ctx) if contexte else None
+    if src_lieux:
+        for niv, t in src_lieux["contexte"].items():
+            ctx[niv] = ctx[niv].join(t, how="left") if niv in ctx else t
+        indicateurs += src_lieux["defs"]
+    if lieux_res and "epci" in ctx and "revenu_median" in ctx["epci"]:
+        lieux_res["escalier"] = lieux.escalier_distances(lieux_res, ref, ctx["epci"]["revenu_median"])
+        lieux_res["inegalites"] = lieux.inegalites_distances(lieux_res, ref, ctx["epci"],
+                                                             np.random.default_rng(config.GRAINE))
+    if lieux_res:
+        # sensibilité au niveau de confirmation, charge par CMP (SAE), zones d'éloignement (15 octobre 2026)
+        from pipeline import structures_analyses
+        structures_analyses.appliquer_tout(lieux_res, ref, (voisins or {}).get("centres"), ctx if contexte else None,
+                                           voisins, hop, np.random.default_rng(config.GRAINE))
+        lieux_res["concordance_sae"] = lieux.concordance_sae(lieux_res, hop, ref)
+        lieux_res["concordance_etablissements"] = lieux.concordance_etablissements(lieux_res, hop, fin)
 
     act, professions = build.perimetre_elargi(act, fin, professions)
-    agg = build.agreger(act, ref, fin)
+    agg = build.agreger(act, ref, fin, lieux_res)
+    if lieux_res:
+        # double éloignement, sans professionnel déclaré et loin d'une structure (besoin des effectifs agrégés)
+        try:
+            lieux_res["double_eloignement"] = structures_analyses.double_eloignement(agg, lieux_res, ref)
+        except Exception as e:  # noqa: BLE001
+            logging.exception("double éloignement")
+            JOURNAL.note("Structures de soins, double éloignement", "erreur", str(e)[:300])
     # précisions des spécialités surtout salariées, calculées sur cette exécution (version 2, 11 octobre 2026)
     from pipeline import limites as _limites
     _spec = _limites.specialites_salariees(agg.national, professions)

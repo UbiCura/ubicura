@@ -132,8 +132,31 @@ def _caf():
         yield config.BRUT / f"caf_{jeu}.csv", _modifie(config.CAF_API + jeu), {"mois": mois}
 
 
+def _ror():
+    from .sources import ror
+    for r in ressources_datagouv(config.ROR_JEU):
+        if r["url_directe"].lower().endswith(".zip"):
+            yield ror.DOSSIER / r["url_directe"].rsplit("/", 1)[-1], r["maj"], {}
+
+
+def _has_certification():
+    from .sources import has_certification as h
+    for slug_, mg, md, cle in config.HAS_CERTIFICATION:
+        res = ressources_datagouv(slug_)
+        for motif, suffixe in ((mg, "sites"), (md, "demarches")):
+            r = next((x for x in res if x["format"] == "csv" and re.match(motif, x["titre"].lower())), None)
+            yield h.DOSSIER / f"{cle}_{suffixe}.csv", (r or {}).get("maj", ""), {}
+
+
+def _sirene():
+    from .sources import sirene as s
+    r = [x for x in ressources_datagouv(config.SIRENE_JEU)
+         if x["titre"].startswith("Sirene : Fichier StockEtablissement -") and x["format"] == "parquet"]
+    yield s.EXTRAIT, r[0]["maj"] if r else "", {}
+
+
 VERIFICATIONS = [_rpps, _finess, _insee, _insee_estimations, _acces_route, _referentiel, _contours, _apl,
-                 _drees_demographie, _drees_isd, _sae, _ameli, _ald, _odisse, _caf]
+                 _drees_demographie, _drees_isd, _sae, _ameli, _ald, _odisse, _caf, _ror, _has_certification, _sirene]
 
 
 def comparer(dest: Path, distante: str, attendu: dict) -> tuple[str, str]:

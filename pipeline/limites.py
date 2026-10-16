@@ -51,7 +51,9 @@ NOMS = {"suicides": "Décès par suicide", "hospit_gestes_auto_infliges": "Hospi
         "sae": "Psychiatrie à l'hôpital (SAE)", "ald": "Affections de longue durée",
         "caf": "Allocations de la CAF", "evolution": "Évolution depuis 2016 (séries de la DREES)",
         "mayotte": "Mayotte", "prof:medecin_travail": "Médecins du travail",
-        "prof:medecin_sante_publique": "Médecins de santé publique"}
+        "prof:medecin_sante_publique": "Médecins de santé publique", "prof:orthophoniste": "Orthophonistes, tous les âges",
+        "prof:psychomotricien": "Psychomotriciens, tous les âges",
+        "lieux": "Structures de soins, FINESS et ROR réunis"}
 
 
 def specialites_salariees(national, professions) -> dict:

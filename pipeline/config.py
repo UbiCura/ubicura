@@ -15,7 +15,7 @@ DATAGOUV_API = "https://www.data.gouv.fr/api/1/datasets/{}/"
 # Durée pendant laquelle un fichier téléchargé est réutilisé sans être retéléchargé (jours)
 CACHE_JOURS = {"rpps": 7, "finess": 30, "insee": 90, "ref": 90, "contours": 365, "complements": 30, "ameli": 30, "odisse": 30,
                "acces_route": 90, "apl": 90, "drees_isd": 30, "sae": 30,
-               "drees_demographie": 30, "ald": 30, "caf": 30, "insee_estimations": 90}
+               "drees_demographie": 30, "ald": 30, "caf": 30, "insee_estimations": 90, "ror": 7}
 
 # familles d'offre (voir la section Professions plus bas)
 SANTE_MENTALE, SANTE = "Santé mentale", "Santé"
@@ -505,6 +505,28 @@ CONTOURS_PAGE_PRODUCTEUR = ("https://www.data.gouv.fr/datasets/admin-express-adm
 # vérifiées le 4 octobre 2026 sur l'API de data.gouv (champ license), les métadonnées des portails Opendatasoft
 # (Assurance Maladie, Santé publique France, DREES) et les pages des producteurs. Motif sur le nom de la source
 # dans le journal, producteur, licence, page de présentation du jeu de données.
+# HAS, certification des établissements de santé, sites rattachés à chaque démarche (jeux data.gouv vérifiés par
+# l'API le 13 octobre 2026), slug, motif du titre du fichier des sites, motif du fichier des démarches, clé locale
+HAS_CERTIFICATION = [
+    ("certification-des-etablissements-de-sante-pour-la-qualite-des-soins-referentiel-deploye-2021-2025",
+     r"etablissement-geo", r"demarche", "has_2021_2025"),
+    ("certification-des-etablissements-de-sante-pour-la-qualite-des-soins-6eme-cycle",
+     r"etablissement_geo", r"demarche", "has_6e_cycle"),
+]
+HAS_PAGE = ("https://www.data.gouv.fr/datasets/certification-des-etablissements-de-sante-pour-la-qualite-des-soins-"
+            "referentiel-deploye-2021-2025")
+# INSEE, base Sirene des entreprises et de leurs établissements (jeu data.gouv vérifié par l'API le 13 octobre 2026)
+SIRENE_JEU = "base-sirene-des-entreprises-et-de-leurs-etablissements-siren-siret"
+SIRENE_PAGE = "https://www.data.gouv.fr/datasets/" + SIRENE_JEU
+SIRENE_TYPES_VOIE = {"AV": "avenue", "BD": "boulevard", "PL": "place", "CHE": "chemin", "RTE": "route", "ALL": "allée",
+                     "IMP": "impasse", "QUA": "quai", "CRS": "cours", "R": "rue", "SQ": "square", "PROM": "promenade",
+                     "LD": "lieu-dit", "RES": "résidence", "CITE": "cité", "FG": "faubourg", "PASS": "passage"}
+# enseigne Sirene qui désigne chaque type de structure, pour confirmer une structure des bases (CMP d'abord, les autres
+# types de santé mentale ensuite)
+SIRENE_ENSEIGNES = {
+    "lieu_cmp": r"\bC\s?\.?\s?M\s?\.?\s?P\b(?!\s?\.?\s?P)|M[EÉ]DICO.?PSYCHOLOG|\bCMPEA\b|\bCMPI\b|\bCMPPA\b",
+}
+
 SOURCES_INFO = [
     (r"^RPPS", "Agence du numérique en santé (ANS)", "Licence Ouverte 2.0",
      "https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps"),
@@ -531,6 +553,14 @@ SOURCES_INFO = [
     (r"^Référentiel", "Etalab, d'après le Code officiel géographique et les populations légales de l'INSEE",
      "Licence Ouverte 2.0", "https://github.com/etalab/decoupage-administratif"),
     (r"^Contours", "IGN, ADMIN EXPRESS COG CARTO PE", "Licence Ouverte 2.0", CONTOURS_PAGE_PRODUCTEUR),
+    (r"^HAS, certification", "Haute Autorité de santé (HAS)", "Licence Ouverte 2.0", HAS_PAGE),
+    (r"^INSEE, répertoire Sirene", "Institut national de la statistique et des études économiques (INSEE)",
+     "Licence Ouverte 2.0", SIRENE_PAGE),
+    (r"^ANS, offres de santé", "Agence du numérique en santé (ANS), Répertoire opérationnel des ressources",
+     "Licence Ouverte 2.0", "https://www.data.gouv.fr/datasets/offres-de-sante-sanitaire-medico-social-et-de-ville-en-"
+     "france-metropolitaine-et-drom-1"),
+    (r"^IGN, géocodage", "IGN, service de géocodage de la Géoplateforme (Base Adresse Nationale)", "Licence Ouverte 2.0",
+     "https://geoservices.ign.fr/documentation/services/services-geoplateforme/geocodage"),
 ]
 
 # ---------------------------------------------------------------- France Travail (optionnel)
@@ -710,8 +740,8 @@ PUBLICS_CIBLES = {
     "pedopsychiatre": (["part_0_14"], "moins de 15 ans"),
     "q_psychiatrie_enfant": (["part_0_14"], "moins de 15 ans"),
     "pediatre": (["part_0_14"], "moins de 15 ans"),
-    "orthophoniste": (["part_0_14"], "moins de 15 ans"),
-    "psychomotricien": (["part_0_14"], "moins de 15 ans"),
+    # orthophonistes et psychomotriciens retirés le 12 octobre 2026 (remarque de Lucas), ils soignent tous les âges
+    # (LIMITES["prof:orthophoniste"] et ["prof:psychomotricien"])
     "geriatre": (["part_65_79", "part_80p"], "65 ans et plus"),
 }
 
@@ -743,6 +773,9 @@ SECTEUR_AUTRE = "Autre ou non renseigné"
 #   soins                 soins à la population, chiffres principaux (densités, cartes, comparaisons)
 #   public_particulier    soins ou prévention pour un public particulier, gardés dans les chiffres principaux
 #                         et repérables dans les fichiers
+#   a_distance            soins à distance pour une société de téléconsultation, déclarés à l'adresse de son siège,
+#                         donc impossibles à rattacher au territoire des patients. Ce sont bien des soins (remarque
+#                         de Lucas du 12 octobre 2026), retirés des densités et comptés à part.
 #   sans_soins            activités sans soins à la population, souvent déclarées au siège d'un organisme, retirées
 #                         des densités et comptées à part, territoire par territoire. Les personnes restent dans
 #                         l'effectif national.
@@ -750,7 +783,7 @@ SECTEUR_TELECONSULTATION = r"teleconsultation"
 MEDECINS = ({x[1] for x in SPECIALITES_MEDECINS} | {MEDECIN_AUTRE[0], MEDECIN_INCONNU[0]}
             | {x[1] for x in QUALIFICATIONS_MEDECINS})
 SECTEURS_CATEGORIES = [
-    (SECTEUR_TELECONSULTATION, None, "sans_soins"),
+    (SECTEUR_TELECONSULTATION, None, "a_distance"),
     (r"^organisme de securite sociale$", None, "sans_soins"),          # contrôle médical
     (r"^autres structures du ssa$", None, "sans_soins"),              # un seul établissement, « SSA Paris »
     (r"^assurances privees$", None, "sans_soins"),
@@ -775,7 +808,10 @@ SECTEURS_CATEGORIES = [
     (r"^centre de transfusion sanguine$", None, "public_particulier"),
 ]
 CATEGORIES_SECTEURS = {"soins": "Soins à la population", "public_particulier": "Public particulier",
+                       "a_distance": "Soins à distance (téléconsultation)",
                        "sans_soins": "Sans soins à la population"}
+# catégories retirées des densités, comptées à part dans chaque territoire où elles sont déclarées
+CATEGORIES_HORS_DENSITES = ("a_distance", "sans_soins")
 
 # Loi inverse des soins (Tudor Hart), indicateurs de besoin qui classent les départements et professions testées
 # ---------------------------------------------------------------- limites connues des données
@@ -805,9 +841,316 @@ SRC_CAF_MSA = ("Mon parcours handicap, la Caf et la MSA",
                "https://www.monparcourshandicap.gouv.fr/principaux-interlocuteurs/la-caf-et-la-msa")
 SRC_FINESS = ("FINESS, établissements sanitaires et médico-sociaux (Finess+, data.gouv)",
               "https://www.data.gouv.fr/datasets/finess-structures-1")
+SRC_ROR = ("Agence du numérique en santé, offres de santé du Répertoire opérationnel des ressources (data.gouv)",
+           "https://www.data.gouv.fr/datasets/offres-de-sante-sanitaire-medico-social-et-de-ville-en-france-metropolitaine-et-drom-1")
+SRC_ARS_MARTINIQUE = ("ARS Martinique, offre de soins en psychiatrie (document de 2018)",
+                      "https://www.martinique.ars.sante.fr/media/9531/download")
 SRC_RPPS = ("Annuaire santé, extractions en libre accès du RPPS (data.gouv)",
             "https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps")
 FINESS_CMP = "156"   # catégorie FINESS des centres médico-psychologiques
+
+# ---------------------------------------------------------------- lieux de soins, ROR et FINESS réunis
+# Extraction « Offres de santé » du Répertoire opérationnel des ressources (ROR), Agence du numérique en santé, un zip
+# par région, mis à jour chaque semaine, Licence Ouverte (vérifié le 12 octobre 2026 sur l'API de data.gouv).
+ROR_JEU = "offres-de-sante-sanitaire-medico-social-et-de-ville-en-france-metropolitaine-et-drom-1"
+ROR_PAGE = "https://www.data.gouv.fr/datasets/" + ROR_JEU
+# identifiants des structures dans le fichier IHE CSD (numéro FINESS, catégorie d'établissement FINESS)
+ROR_OID_FINESS = "1.2.250.1.213.3.2"
+ROR_OID_IDNST = "1.2.250.1.71.4.2.2"   # identifiant national de structure, 1 suivi du numéro FINESS
+ROR_OID_CATEGORIE_FINESS = "1.2.250.1.213.1.6.1.8"
+# Nomenclatures de l'ANS (NOS) dont les codes sont repris ici, vérifiées le 12 octobre 2026 sur mos.esante.gouv.fr,
+# catégorie d'organisation (TRE_R244), champ d'activité (TRE_R227), mode de prise en charge (TRE_R213)
+ROR_NOMENCLATURE = "https://mos.esante.gouv.fr/NOS/TRE_R244-CategorieOrganisation/"
+ROR_CHAMP_VILLE = "05"   # consultations de ville, déclarées seulement en Île-de-France, écartées
+# Géocodage des adresses sans coordonnées dans FINESS, service de l'IGN sur la Géoplateforme qui remplace l'API Adresse
+# de data.gouv depuis janvier 2026 (vérifié le 12 octobre 2026), Base Adresse Nationale, Licence Ouverte
+GEOCODAGE_CSV = "https://data.geopf.fr/geocodage/search/csv"
+GEOCODAGE_PAGE = "https://geoservices.ign.fr/documentation/services/services-geoplateforme/geocodage"
+GEOCODAGE_SCORE_MIN = 0.5
+# modes de prise en charge (TRE_R213) regroupés
+MODES_CONSULTATION = {"02", "20", "32", "54", "57"}
+MODES_MOBILE = {"10", "11", "43", "44", "45", "52", "53", "59"}
+MODES_HC = {"28", "34"}
+MODES_TEMPS_PARTIEL = {"29", "30", "42", "47"}
+CHAMP_PSY = "03"
+# Une unité est réservée aux enfants et aux adolescents quand l'âge maximal de ses patients ne dépasse pas cette
+# limite (des CMP pour enfants et adolescents déclarent 21 ans, constat du 12 octobre 2026 dans le Haut-Rhin), ou
+# quand son nom le dit
+AGE_MAX_ENFANTS = 21
+NOM_ENFANTS = r"enfant|adolescen|\bados?\b|pedo|infanto|juvenil|bebe|perinat|petite enfance|cmpea|cmpi\b"
+# Mots qui ne désignent jamais une commune quand on cherche la commune d'une unité dans son nom (beaucoup d'unités de
+# psychiatrie du ROR n'ont pas de commune propre, constat du 12 octobre 2026)
+MOTS_NON_COMMUNES = {"centre", "pavillon", "secteur", "adulte", "adultes", "enfant", "enfants", "psy", "maison",
+                     "hopital", "clinique", "consultation", "consultations", "cmp", "cattp", "cattg", "unite", "pole",
+                     "service", "soins", "accueil", "jour", "nuit", "equipe", "mobile", "site", "antenne",
+                     "intersecteur", "ado", "ados", "age", "avance", "sud", "nord", "est", "ouest", "ville", "val",
+                     "plaine", "bourg", "village",
+                     # prénom dans un nom d'unité (CMP Marie-Béatrice de Menton, pas la commune de Marie)
+                     "marie"}
+# Nom de l'établissement gestionnaire cité à la fin du nom d'une unité (« CMP ADULTES CARVIN CH HENIN BEAUMONT »,
+# « CMP 59G30 CONDE/ESCAU CH VALENCIENNES », « CMP CATTP LE CHEMIN VERT IDAC CAMIERS »). Ce qui suit ces mots est
+# retiré avant de chercher la commune de l'unité dans son nom, sinon la commune de l'hôpital l'emportait (constat du
+# 15 octobre 2026, une quarantaine de CMP placés dans la commune de leur hôpital)
+NOM_ETABLISSEMENT_GESTIONNAIRE = r"\b(?:ch|chs|chu|chi|chr|chg|chic|chru|epsm|epsmd|eps|idac|ghu|aphp|ap hp|centre hospitalier)\b.*$"
+# Unités de la catégorie CMP qui sont en réalité des équipes mobiles, de la liaison ou d'autres activités, écartées du
+# comptage des CMP (constat du 12 octobre 2026 en Martinique, voir docs/plan_lieux_de_soins_2026-10-12.md)
+# « cmpp » seul, pas « cmppa » (CMP pour personnes âgées de l'Ain, écarté à tort jusqu'au 12 octobre 2026), et les
+# consultations spécialisées que des hôpitaux déclarent comme CMP (stimulation magnétique, électroconvulsivothérapie)
+LIEUX_EXCLUS_CMP = (r"equipe|liaison|sociotherap|mobile|intervention|pedagogique|\bcmpp\b|\btms\b|stimulation magnetique|"
+                    r"sismotherap|electro.?convuls|psycho.?legal|psychiatrie legale|\beapl\b|\breseau\b|"
+                    # addictologie, milieu pénitentiaire et soins pénalement ordonnés déclarés comme CMP (Charente,
+                    # 12 octobre 2026), ils ont leurs propres types
+                    r"\bcsapa\b|maison d.?arret|detention|peniten[ct]|\busmp\b|\bsmpr\b|medico.?psychologique regional|judiciaire|"
+                    # urgences psychiatriques et cellule d'urgence médico-psychologique déclarées comme CMP (Moselle,
+                    # Doubs, 13 octobre 2026)
+                    r"^urgences psychiatriques|cellule d.?urgence|"
+                    # unités spécialisées rangées parmi les CMP par le ROR, qui ont leur propre type ou ne sont pas des
+                    # CMP (revue de tous les noms qui ne disent pas CMP, 13 octobre 2026)
+                    r"tabacolog|\bucsa\b|\buhcd\b|carceral|recidive|\bemopsi\b|appartements? de transition|"
+                    r"ssr delocalise|autis[mt]|\bted\b|\bcrtla\b|troubles des apprentissages|"
+                    # sauf quand le nom dit aussi CMP (« HJ CMP CATTP », « CMP addictologie », « CMP MDA »)
+                    r"^(?!.*(?:\bcmp|\bc m p\b|medico psycho)).*(?:maisons? des ado|\bmda\b|addictolog|alcoolog|"
+                    r"\bhj\b|hopital de jour|surdite|clinique (?:de psy|medicale)|psychotraumato|"
+                    # équipes et dispositifs qui ne sont pas des CMP (revue des noms restant à vérifier, 14 octobre 2026)
+                    r"\bempp\b|perinatal|rehabilitation|therapie familiale|accueil familial|\bsaft\b|"
+                    r"groupes au long cours|enfants victimes|psy\w* legal|"
+                    # groupes pour les proches, thérapie familiale, diagnostic et orientation (15 octobre 2026)
+                    r"psycho ?education|entretiens familiaux|troubles globaux du developpement|"
+                    r"accueil d.?evaluation et d.?orientation|"
+                    # unités d'hospitalisation et CATTP rangés parmi les CMP (revue du 15 octobre 2026)
+                    r"hospitalisation|\bcattp\b)|"
+                    # consultations qui ne sont pas celles d'un secteur (voir LIEUX_CONSULT_HORS_CMP)
+                    r"non sectoris|transculturel|consultation de psych\w* maternite|avis specialise|"
+                    r"consultation regionale|consultation psychologie clinique|"
+                    r"pathologie du travail|souffrance au travail|cons ext specialisees|^ce psychiatrie$|relais etudiants|"
+                    # unités nommées seulement « Consultation(s) de psychiatrie » (voir CONSULT_GENERIQUE)
+                    r"^(?:psychiatrie )?consult\w*(?: (?:de|des|en|psy\w*|pedo ?psy\w*|geronto ?psy\w*|adultes?|"
+                    r"generale?s?|ambulatoires?|externes?|medicales?|et|plus|60|ans|psychologie))*$")
+# Unités du ROR nommées seulement « Consultation(s) », « Consultations psychiatrie adultes », « Psychiatrie
+# consultations », sans CMP ni numéro de secteur. Ce sont les consultations d'un hôpital ou d'une clinique privée (Garches,
+# Meudon, Ville-d'Avray, Crosne, Saint-Mandé, Osny, Meaux, Nantes...), pas un CMP de secteur (revue des CMP restant à
+# vérifier, 14 octobre 2026). Le CMP d'un hôpital à la même adresse, s'il existe, est inscrit sous son propre nom.
+CONSULT_GENERIQUE = (r"^(?:psychiatrie )?consult\w*(?: (?:de|des|en|psy\w*|pedo ?psy\w*|geronto ?psy\w*|adultes?|"
+                     r"generale?s?|ambulatoires?|externes?|medicales?|et|plus|60|ans|psychologie))*$")
+# Consultations de psychiatrie que le ROR range parmi les CMP mais qui n'en sont pas (un CMP est la consultation d'un
+# secteur), comptées parmi les consultations hors CMP (AP-HP, Nancy, Caen, Besançon, revue du 14 octobre 2026)
+LIEUX_CONSULT_HORS_CMP = (r"non sectoris|transculturel|consultation de psych\w* maternite|avis specialise|"
+                          r"consultation regionale|consultation psychologie clinique|"
+                          # consultations externes, du travail et des étudiants (revue du 15 octobre 2026)
+                          r"pathologie du travail|souffrance au travail|cons ext specialisees|^ce psychiatrie$|"
+                          r"relais etudiants|" + CONSULT_GENERIQUE)
+# Nom d'un CMP, pour reconnaître les unités de consultation en psychiatrie qui n'ont pas de catégorie dans le ROR
+# (constat du 12 octobre 2026 en Guyane, « Centre médico-psychologique adulte » sans catégorie)
+NOM_CMP = r"\bcmp\b|\bcmpea\b|\bcmpi\b|\bcmppa\b|medico.?psy?c?h?ologique|centre de sante mentale"
+# Établissements enregistrés dans FINESS comme CMP (catégorie 156) dont le nom dit qu'ils sont autre chose, rangés dans
+# le type que leur nom désigne, comme les unités du ROR (constat de Lucas du 12 octobre 2026, CMP de l'Ain, vérifié
+# sur toute la France). Motif sur le nom sans accents ni majuscules, type visé, dans l'ordre, le premier qui convient.
+# Un nom qui cite aussi un CMP (« CMP CATTP de Barriol ») reste un CMP pour les CATTP seulement.
+RETYPAGE_CMP_FINESS = [
+    (r"\belsa\b|liaison.{0,40}addicto|addicto.{0,40}liaison", "lieu_addicto_hosp"),
+    (r"equipe|\beq\b|mobile|liaison|intervention|\bempp\b", "lieu_mobile_psy"),
+    (r"urgence|\bcrise\b|\bcap \d", "lieu_crise_psy"),
+    (r"post.?traumat|psychotrauma|enfants victimes", "lieu_psychotrauma"),
+    (r"autis[mt]|neuro.?developpement|\btnd\b", "lieu_tnd"),
+    (r"usmp|smpr|medico.?psychologique regional|\bucsa\b|carceral|detention|maison (?:centrale|d.?arret)|peniten[ct]|psycho.?legal|psychiatrie legale|psy\w* legal|judiciaire",
+     "lieu_consult_psy"),
+    (r"\bcsapa\b", "lieu_csapa"),
+    (r"hop(?:ital)? de jour|\bhj\b|\bhdj\b", "hdj"),
+    (r"appart|\bappts?\b|rehab|sociotherap|accueil familial|\bsaft\b", "lieu_rehab_psy"),
+    (r"plateforme|precarite|\bpass\b|consultations? (?:memoire|externes|avancees)|non sectoris|transculturel|avis specialise|\bcmpp\b|pedagogique|\btms\b|therap\w* famil|entretiens familiaux|psycho ?education|"
+     r"troubles globaux du developpement|groupes au long cours",
+     "lieu_consult_psy"),
+]
+RETYPAGE_CATTP = r"cattp|cattg|accueil therapeutique"
+# Établissements de FINESS dont le nom dit CMP mais enregistrés dans une autre catégorie (centre hospitalier spécialisé,
+# centre hospitalier, CHR, CATTP...), environ 490 en France (constat du 13 octobre 2026, « HJ - CMP Loudun » du CH
+# Laborit, CMP adultes de l'Allier). Ils sont comptés comme CMP, sauf les services médico-psychologiques régionaux en
+# milieu pénitentiaire (415) et les centres de vaccination (645) dont le sigle se ressemble.
+FINESS_CMP_PAR_NOM = {"292", "355", "101", "106", "161", "425", "365", "366", "362"}
+# Catégories FINESS des hôpitaux (centres hospitaliers régionaux et universitaires, centres hospitaliers, centres
+# hospitaliers spécialisés en psychiatrie...), qui servent à reconnaître une unité du ROR déclarée dans la commune d'un
+# hôpital de son gestionnaire plutôt qu'à son propre lieu
+FINESS_HOPITAUX = {"101", "106", "355", "292", "362", "365", "366"}
+# public d'un CMP connu de FINESS seul (sans âges déclarés dans le ROR), déduit de son nom. Codes de secteur de
+# psychiatrie, « G » pour la psychiatrie générale (adultes), « I » pour les intersecteurs infanto-juvéniles
+NOM_SECTEUR_ENFANTS = r"\b(?:\d{2}|2a|2b)\s?i\s?\d{1,2}\b"
+NOM_ADULTES = r"adulte|\b(?:\d{2}|2a|2b)\s?g\s?\d{1,2}\b|geronto|sujet age|personnes agees|psychiatrie generale"
+# Aucun nom de personne n'est publié. Une unité du ROR dont le nom en contient un (consultation nominative) est écartée,
+# et un contrôle bloquant le vérifie sur les noms tirés du ROR. Les raisons sociales d'établissements de FINESS, qui
+# portent parfois le nom d'un fondateur (« EHPAD Docteur ... »), sont autorisées.
+NOM_PERSONNE = r"\b(?:dr|docteur|professeur)\b\.?\s"
+
+# Types de lieux. Identifiant, libellé, famille, groupe, règle. Règle, catégories du ROR (TRE_R244, None pour les unités
+# sans catégorie), champs d'activité, modes de prise en charge, public (enfants ou adultes), motif d'exclusion sur le
+# nom, catégories FINESS réunies au ROR sans double compte (pipeline/lieux.py), type dont la provenance est reprise
+# (parent), modes ou type de maternité qui suffisent à eux seuls. Un lieu compte une fois par type, sa clé étant son
+# numéro FINESS d'établissement et sa commune.
+G_PSY, G_PSY_A, G_PSY_E = "Psychiatrie, tous âges", "Psychiatrie, adultes", "Psychiatrie, enfants et adolescents"
+G_ENF, G_ADD, G_URG = "Enfance et développement", "Addictions", "Urgences et soins non programmés"
+G_PERI, G_HOP, G_SMR = "Périnatalité et santé sexuelle", "Hôpital, médecine et chirurgie", "Réadaptation et domicile"
+G_PA, G_HE, G_HA = "Personnes âgées", "Handicap, enfants", "Handicap, adultes"
+G_PREC, G_PREM = "Précarité et prévention", "Premier recours organisé"
+_C = MODES_CONSULTATION
+LIEUX_TYPES = [
+    # santé mentale
+    ("lieu_cmp", "CMP, tous publics", SANTE_MENTALE, G_PSY,
+     {"cats": {"10", "281"}, "champs": {CHAMP_PSY}, "modes": _C, "hors": LIEUX_EXCLUS_CMP, "finess": {FINESS_CMP},
+      "noms_sans_categorie": NOM_CMP}),
+    ("lieu_cmp_adultes", "CMP pour adultes", SANTE_MENTALE, G_PSY_A,
+     {"cats": {"10"}, "champs": {CHAMP_PSY}, "modes": _C, "public": "adultes", "hors": LIEUX_EXCLUS_CMP,
+      "parent": "lieu_cmp", "noms_sans_categorie": NOM_CMP}),
+    ("lieu_cmp_enfants", "CMP pour enfants et adolescents", SANTE_MENTALE, G_PSY_E,
+     {"cats": {"10", "281"}, "champs": {CHAMP_PSY}, "modes": _C, "public": "enfants", "hors": LIEUX_EXCLUS_CMP,
+      "parent": "lieu_cmp", "noms_sans_categorie": NOM_CMP}),
+    # consultations de psychiatrie déclarées sans catégorie ou comme unité hospitalière, qui ne se disent pas CMP
+    # (consultations de secteur dans un hôpital général, à Thiers, Ambert ou Mayotte par exemple)
+    ("lieu_consult_psy", "Consultations de psychiatrie hors CMP", SANTE_MENTALE, G_PSY,
+     {"cats": {None, "174", "16", "69", "282"}, "champs": {CHAMP_PSY}, "modes": _C,
+      "hors": (r"^(?!.*(?:" + LIEUX_CONSULT_HORS_CMP + r"))(?:.*(?:" + LIEUX_EXCLUS_CMP + "|" + NOM_CMP +
+               "|urgence|crise|addicto|csapa|criavs|maison des adolescents))"),
+      "noms_categories": ({"10"}, LIEUX_CONSULT_HORS_CMP)}),
+    ("lieu_cattp", "CATTP, accueil thérapeutique à temps partiel", SANTE_MENTALE, G_PSY,
+     {"cats": {"05", "02"}, "champs": {CHAMP_PSY}, "finess": {"425", "366"}}),
+    ("lieu_hdj_psy_adultes", "Hôpitaux de jour en psychiatrie, adultes", SANTE_MENTALE, G_PSY_A,
+     {"cats": {"11", "12", "16", "174", None}, "champs": {CHAMP_PSY}, "modes": MODES_TEMPS_PARTIEL, "public": "adultes"}),
+    ("lieu_hdj_psy_enfants", "Hôpitaux de jour en psychiatrie, enfants et adolescents", SANTE_MENTALE, G_PSY_E,
+     {"cats": {"11", "12", "16", "174", "282", None}, "champs": {CHAMP_PSY}, "modes": MODES_TEMPS_PARTIEL,
+      "public": "enfants"}),
+    ("lieu_hc_psy_adultes", "Hospitalisation complète en psychiatrie, adultes", SANTE_MENTALE, G_PSY_A,
+     {"cats": {"16", "174", "15", "68", "18", "17", "14", None}, "champs": {CHAMP_PSY}, "modes": MODES_HC,
+      "public": "adultes"}),
+    ("lieu_hc_psy_enfants", "Hospitalisation complète en psychiatrie, enfants et adolescents", SANTE_MENTALE, G_PSY_E,
+     {"cats": {"16", "282", "174", "119", None}, "champs": {CHAMP_PSY}, "modes": MODES_HC, "public": "enfants"}),
+    ("lieu_crise_psy", "Urgences psychiatriques, centres de crise et d'accueil permanent", SANTE_MENTALE, G_PSY,
+     {"cats": {"301", "06", "302", "04", "76", "07"}, "finess": {"444"}}),
+    ("lieu_mobile_psy", "Équipes mobiles de psychiatrie", SANTE_MENTALE, G_PSY,
+     {"cats": {"280", "77", "78", "144", "279", "283", "300", "70"}}),
+    ("lieu_rehab_psy", "Réhabilitation psychosociale, appartements et accueil familial thérapeutiques", SANTE_MENTALE,
+     G_PSY, {"cats": {"113", "01", "13"}, "finess": {"412"}}),
+    ("lieu_psychotrauma", "Psychotraumatisme et urgences médico-psychologiques", SANTE_MENTALE, G_PSY,
+     {"cats": {"127", "03"}}),
+    ("lieu_cmpp", "CMPP, centres médico-psycho-pédagogiques", SANTE_MENTALE, G_ENF, {"cats": {"62"}, "finess": {"189"}}),
+    ("lieu_camsp", "CAMSP, centres d'action médico-sociale précoce", SANTE_MENTALE, G_ENF,
+     {"cats": {"61"}, "finess": {"190"}}),
+    ("lieu_mda", "Maisons des adolescents", SANTE_MENTALE, G_ENF, {"cats": {"134"}}),
+    ("lieu_bapu", "BAPU, aide psychologique universitaire", SANTE_MENTALE, G_ENF, {"cats": {"64"}, "finess": {"221"}}),
+    ("lieu_tnd", "Repérage et diagnostic des troubles du neurodéveloppement", SANTE_MENTALE, G_ENF, {"cats": {"08", "84"}}),
+    ("lieu_csapa", "CSAPA, soins et prévention en addictologie", SANTE_MENTALE, G_ADD, {"cats": {"80"}, "finess": {"197"}}),
+    ("lieu_caarud", "CAARUD, réduction des risques", SANTE_MENTALE, G_ADD, {"cats": {"81"}, "finess": {"178"}}),
+    ("lieu_addicto_hosp", "Addictologie à l'hôpital", SANTE_MENTALE, G_ADD, {"cats": {"145", "147", "108", "272"}}),
+    # santé
+    # beaucoup d'unités hospitalières du ROR n'ont pas de catégorie, les urgences sont aussi repérées par leur mode
+    # (accueil des urgences), les maternités par leur type de maternité
+    # services d'urgences générales ou pédiatriques, comme la DREES, sans les urgences spécialisées ni les salles
+    # d'accueil des urgences vitales, qui font partie d'un service compté par ailleurs (constat du 12 octobre 2026)
+    ("lieu_urgences", "Services d'urgences", SANTE, G_URG,
+     {"cats": {"20"}, "modes_seuls": {"33"}, "champs_seuls": {"01"},
+      "hors": r"obstetri|gyneco|psychiatr|dentaire|odonto|ophtalm|\bmains?\b|vasculaire|tete et cou|\bsauv\b|"
+              r"urgences vitales|maternite|salle de naissance"}),
+    ("lieu_smur", "SMUR, interventions d'urgence", SANTE, G_URG, {"cats": {"247"}}),
+    ("lieu_soins_non_programmes", "Soins non programmés", SANTE, G_URG, {"cats": {"138", "92", "278"}}),
+    # le type de maternité est attaché à toutes les unités d'un hôpital qui en a une, il ne compte que pour les unités
+    # d'obstétrique, de gynécologie ou de grossesse, ou dont le nom le dit (constat du 12 octobre 2026)
+    ("lieu_maternite", "Maternités", SANTE, G_PERI,
+     {"cats": {"290"}, "maternite": {"cats": {"288", "293"}, "nom": r"matern|obstetri|accouch|naissance|salle de naissance"}}),
+    ("lieu_neonatalogie", "Néonatalogie", SANTE, G_PERI, {"cats": {"289", "286", "287", "288"}}),
+    ("lieu_perinatal_proximite", "Centres périnatals de proximité", SANTE, G_PERI, {"cats": {"251"}}),
+    ("lieu_pmi", "PMI, protection maternelle et infantile", SANTE, G_PERI, {"cats": {"125"}, "finess": {"223"}}),
+    ("lieu_sante_sexuelle", "Centres de santé sexuelle", SANTE, G_PERI, {"cats": {"89", "98"}, "finess": {"228", "649"}}),
+    ("lieu_pediatrie", "Pédiatrie à l'hôpital", SANTE, G_HOP, {"cats": {"162", "241"}}),
+    ("lieu_medecine", "Médecine polyvalente à l'hôpital", SANTE, G_HOP, {"cats": {"238", "176"}}),
+    ("lieu_geriatrie", "Gériatrie à l'hôpital", SANTE, G_HOP, {"cats": {"156"}}),
+    ("lieu_cardiologie", "Cardiologie à l'hôpital", SANTE, G_HOP, {"cats": {"149", "262"}}),
+    ("lieu_neurologie", "Neurologie à l'hôpital", SANTE, G_HOP, {"cats": {"161", "263"}}),
+    ("lieu_cancerologie", "Cancérologie et radiothérapie", SANTE, G_HOP, {"cats": {"171", "117", "118", "116"}}),
+    ("lieu_reanimation", "Réanimation et soins intensifs", SANTE, G_HOP,
+     {"cats": {"121", "122", "123", "124", "139", "264"}}),
+    ("lieu_chirurgie", "Chirurgie à l'hôpital", SANTE, G_HOP,
+     {"cats": {"150", "153", "152", "151", "160", "242", "234", "173", "172", "166", "157"}}),
+    ("lieu_dialyse", "Dialyse", SANTE, G_HOP, {"cats": {"275", "273", "274", "271"}, "finess": {"141", "146"}}),
+    ("lieu_soins_palliatifs", "Soins palliatifs", SANTE, G_HOP, {"cats": {"175", "252", "253"}}),
+    ("lieu_douleur", "Structures douleur chronique", SANTE, G_HOP, {"cats": {"126", "265"}}),
+    ("lieu_smr", "Soins médicaux et de réadaptation", SANTE, G_SMR,
+     {"cats": {"100", "101", "102", "103", "104", "105", "106", "107", "109", "110", "111", "112"}}),
+    ("lieu_had", "Hospitalisation à domicile", SANTE, G_SMR, {"cats": {"128", "129", "130", "131"}, "finess": {"127"}}),
+    ("lieu_ssiad", "Soins infirmiers à domicile (SSIAD)", SANTE, G_SMR, {"cats": {"28", "75"}, "finess": {"354"}}),
+    ("lieu_ehpad", "EHPAD", SANTE, G_PA, {"cats": {"21", "23", "24", "26"}, "finess": {"500"}}),
+    ("lieu_residence_autonomie", "Résidences autonomie", SANTE, G_PA, {"cats": {"22", "27"}, "finess": {"202"}}),
+    ("lieu_usld", "Soins de longue durée (USLD)", SANTE, G_PA, {"cats": {"249"}, "finess": {"362"}}),
+    ("lieu_alzheimer", "Équipes spécialisées Alzheimer, accueil de jour et répit", SANTE, G_PA,
+     {"cats": {"29", "38"}, "finess": {"207"}}),
+    ("lieu_ime", "Instituts médico-éducatifs (IME)", SANTE, G_HE, {"cats": {"48"}, "finess": {"183"}}),
+    ("lieu_itep", "Instituts thérapeutiques, éducatifs et pédagogiques (ITEP)", SANTE, G_HE,
+     {"cats": {"50"}, "finess": {"186"}}),
+    ("lieu_sessad", "Services d'éducation spéciale et de soins à domicile (SESSAD)", SANTE, G_HE,
+     {"cats": {"57", "58", "59", "60"}, "finess": {"182"}}),
+    ("lieu_polyhandicap_enfants", "Établissements pour enfants en situation de polyhandicap, de handicap moteur ou sensoriel",
+     SANTE, G_HE, {"cats": {"51", "49", "52", "53", "54"}, "finess": {"188", "192", "194", "195", "390", "396"}}),
+    ("lieu_mas_fam", "Maisons d'accueil spécialisées et foyers d'accueil médicalisés", SANTE, G_HA,
+     {"cats": {"40", "39"}, "finess": {"255", "437"}}),
+    ("lieu_foyers_handicap", "Foyers de vie et d'hébergement pour adultes en situation de handicap", SANTE, G_HA,
+     {"cats": {"41", "96", "97", "256"}, "finess": {"382", "252", "253", "395"}}),
+    ("lieu_esat", "Établissements et services d'accompagnement par le travail (ESAT)", SANTE, G_HA,
+     {"cats": {"43"}, "finess": {"246"}}),
+    ("lieu_accompagnement_handicap", "Services d'accompagnement à domicile pour adultes en situation de handicap",
+     SANTE, G_HA, {"cats": {"31", "32"}, "finess": {"445", "446"}}),
+    ("lieu_precarite", "Soins pour personnes en situation de précarité (PASS, LHSS, LAM, ACT)", SANTE, G_PREC,
+     {"cats": {"295", "93", "95", "94", "142", "115"}, "finess": {"180", "213", "165", "608"}}),
+    ("lieu_depistage", "Dépistage, vaccination et lutte antituberculeuse", SANTE, G_PREC,
+     {"cats": {"250", "268", "269", "270"}, "finess": {"638", "645", "646", "143", "637"}}),
+    ("lieu_msp", "Maisons de santé pluriprofessionnelles", SANTE, G_PREM, {"cats": {"99"}, "finess": {"603"}}),
+    ("lieu_centre_sante", "Centres de santé", SANTE, G_PREM, {"finess": {"124"}}),
+    ("lieu_cpts", "Communautés professionnelles territoriales de santé (CPTS)", SANTE, G_PREM, {"cats": {"255"}}),
+]
+# Un type n'est présenté par territoire (cartes, croisements, comparaisons) que s'il est recensé dans au moins cette
+# part des départements. En dessous, il reste dans la liste des lieux avec la mention d'un recensement incomplet.
+LIEUX_COUVERTURE_MIN = 0.9
+# Chiffres publiés auxquels les lieux sont confrontés (concordance, page méthode). Type, chiffre, date, ce qui est
+# compté, source. Vérifiés le 12 octobre 2026.
+DREES_PANORAMA_ES_2025 = ("DREES, Les établissements de santé en 2023, édition 2025",
+                          "https://drees.solidarites-sante.gouv.fr/publications-communique-de-presse-documents-de-reference/"
+                          "panoramas-de-la-drees/250522_Panorama_etablissements-de-sante2025")
+LIEUX_REFERENCES = [
+    ("lieu_maternite", 457, "fin 2023", "maternités", DREES_PANORAMA_ES_2025),
+    ("lieu_urgences", 685, "2023", "structures des urgences générales ou pédiatriques", DREES_PANORAMA_ES_2025),
+]
+# Types de lieux qui deviennent des indicateurs de contexte (lieux pour 100 000 habitants et distance médiane des
+# habitants), donc croisables avec les professions et les autres indicateurs dans l'atlas et les rapports. Seuls des
+# types recensés presque partout (LIEUX_COUVERTURE_MIN) sont gardés à l'exécution.
+LIEUX_INDICATEURS = ["lieu_cmp_adultes", "lieu_cmp_enfants", "lieu_cattp", "lieu_hdj_psy_adultes", "lieu_hdj_psy_enfants",
+                     "lieu_hc_psy_adultes", "lieu_cmpp", "lieu_camsp", "lieu_csapa", "lieu_urgences", "lieu_maternite",
+                     "lieu_ehpad", "lieu_ime", "lieu_sessad", "lieu_msp", "lieu_centre_sante"]
+GROUPE_LIEUX = "Structures de soins (FINESS et ROR)"
+# Public de chaque type de structure, pour la rapporter aux habitants concernés plutôt qu'à toute la population (accord
+# de Lucas du 15 octobre 2026, même règle que PUBLICS_CIBLES pour les professions). Le recensement publie les moins de
+# 15 ans, pas les moins de 18 ans.
+LIEUX_PUBLICS = {"lieu_cmp_enfants": (["part_0_14"], "moins de 15 ans"),
+                 "lieu_hdj_psy_enfants": (["part_0_14"], "moins de 15 ans"),
+                 "lieu_cmpp": (["part_0_14"], "moins de 15 ans"), "lieu_camsp": (["part_0_14"], "moins de 15 ans"),
+                 "lieu_ime": (["part_0_14"], "moins de 15 ans"), "lieu_sessad": (["part_0_14"], "moins de 15 ans"),
+                 "lieu_ehpad": (["part_80p"], "80 ans et plus")}
+# Analyses complémentaires des structures (pipeline/structures_analyses.py, 15 octobre 2026). Types recalculés avec les
+# seules structures confirmées, champs du double éloignement (professions, structures, libellé), seuil en km, et types
+# dont on cherche les zones d'éloignement contiguës.
+LIEUX_SENSIBILITE = ["lieu_cmp_adultes", "lieu_cmp_enfants"]
+DOUBLE_ELOIGNEMENT_KM = 20
+DOUBLE_ELOIGNEMENT = {
+    "adultes": (["psychiatre"], ["lieu_cmp_adultes"],
+                "Sans psychiatre déclaré dans l'intercommunalité et à plus de 20 km d'un CMP pour adultes"),
+    "enfants": (["q_psychiatrie_enfant"], ["lieu_cmp_enfants", "lieu_cmpp", "lieu_camsp"],
+                "Sans psychiatre qualifié pour l'enfant dans l'intercommunalité et à plus de 20 km d'un CMP pour "
+                "enfants, d'un CMPP ou d'un CAMSP"),
+}
+LIEUX_ZONES = ["lieu_cmp_adultes", "lieu_cmp_enfants", "lieu_urgences"]
+# lieux décrits dans le profil des groupes de la typologie, à titre descriptif (décision de Lucas du 12 octobre 2026)
+LIEUX_TYPOLOGIE = {"sm": ["lieu_cmp_adultes", "lieu_cmp_enfants", "lieu_cattp", "lieu_hdj_psy_adultes", "lieu_cmpp"],
+                   "sante": ["lieu_urgences", "lieu_maternite", "lieu_ehpad", "lieu_msp", "lieu_centre_sante"],
+                   "tout": ["lieu_cmp_adultes", "lieu_cmp_enfants", "lieu_urgences", "lieu_maternite", "lieu_msp"]}
+GROUPE_DISTANCES = "Distance aux structures de soins"
+SOURCE_LIEUX = "ANS, offres de santé (ROR) et FINESS, réunis sans double compte"
+# groupes de lieux montrés point par point dans l'atlas (carte et fiche d'un territoire), les autres restent dans les
+# fichiers publiés, pour garder l'atlas léger
+LIEUX_ATLAS_GROUPES = {G_PSY, G_PSY_A, G_PSY_E, G_ENF, G_ADD, G_URG, G_PERI, G_HE}
 SRC_INSEE_MAYOTTE = ("INSEE, au 1er janvier 2026 la population de Mayotte est de 323 153 habitants",
                      "https://www.insee.fr/fr/information/9022279")
 SRC_CAF_EPCI = ("CAF, allocataires par prestation et par intercommunalité", "https://data.caf.fr/explore/dataset/s_ben_epci_f/")
@@ -850,11 +1193,11 @@ LIMITES = {
     "prof:psychiatre": {
         "risque": "lieu déclaré",
         "texte": ("Le répertoire situe chaque psychiatre à l'adresse de la structure où il déclare exercer. La plupart "
-                  "des centres médico-psychologiques (CMP) de FINESS n'ont aucun psychiatre déclaré à leur adresse, "
-                  "les consultations y sont rattachées à l'établissement dont ils dépendent. Un territoire sans "
-                  "psychiatre déclaré peut donc accueillir des consultations de psychiatrie, le nombre de CMP de "
-                  "chaque territoire est donné à côté quand il est connu."),
-        "sources": [SRC_RPPS, SRC_FINESS]},
+                  "des centres médico-psychologiques (CMP) n'ont aucun psychiatre déclaré à leur adresse, les "
+                  "consultations y sont rattachées à l'établissement dont ils dépendent. Un territoire sans "
+                  "psychiatre déclaré peut donc accueillir des consultations de psychiatrie. Le nombre de CMP de "
+                  "chaque territoire, recensés par FINESS et le ROR réunis sans double compte, est donné à côté."),
+        "sources": [SRC_RPPS, SRC_FINESS, SRC_ROR]},
     "prof:pedopsychiatre": {
         "risque": "définition étroite",
         "texte": ("La spécialité « pédopsychiatrie » déclarée au répertoire ne concerne qu'une partie des médecins qui "
@@ -866,9 +1209,60 @@ LIMITES = {
                   "voies, est donné à côté. Comme les psychiatres, ils consultent aussi dans des structures où ils ne "
                   "sont pas déclarés, rattachées à un hôpital ou à une association, CMP pour enfants et adolescents, "
                   "centres médico-psycho-pédagogiques (CMPP) ou centres d'action médico-sociale précoce (CAMSP). Un "
-                  "territoire sans pédopsychiatre déclaré peut donc accueillir des consultations pour enfants."),
+                  "territoire sans pédopsychiatre déclaré peut donc accueillir des consultations pour enfants. Ces "
+                  "lieux, recensés par FINESS et le ROR réunis sans double compte, sont donnés à côté."),
         "sources": [("Cour des comptes, la pédopsychiatrie, un accès et une offre de soins à réorganiser, mars 2023",
-                     "https://www.ccomptes.fr/fr/publications/la-pedopsychiatrie"), SRC_RPPS, SRC_FINESS]},
+                     "https://www.ccomptes.fr/fr/publications/la-pedopsychiatrie"), SRC_RPPS, SRC_FINESS, SRC_ROR]},
+    "lieux": {
+        "risque": "recensement incomplet",
+        "texte": ("Les structures de soins réunissent FINESS et le Répertoire opérationnel des ressources (ROR), rapprochés "
+                  "par le numéro FINESS d'établissement, l'entité juridique gestionnaire et la commune, puis par le nom, "
+                  "pour qu'une même structure ne compte qu'une fois. Ni l'une ni l'autre base n'est complète. FINESS "
+                  "enregistre souvent un CMP sous le numéro de son hôpital, et le ROR est rempli par les établissements "
+                  "eux-mêmes, avec une complétude inégale selon les régions et des catégories parfois approximatives "
+                  "(équipes mobiles rangées parmi les CMP, unités sans catégorie). Ces erreurs de classement sont "
+                  "corrigées par des règles appliquées à toute la France, décrites et chiffrées dans la page méthode. "
+                  "Certaines structures manquent aux deux bases, par exemple deux CMP de Martinique cités par l'ARS en "
+                  "2018, ou des CMP listés sur le site de leur hôpital (voir les vérifications sur d'autres sources). Une structure n'est pas une capacité, une antenne peut n'ouvrir "
+                  "que quelques demi-journées. Les professionnels déclarés sur place viennent du RPPS, beaucoup "
+                  "déclarent leur hôpital de rattachement plutôt que le lieu où ils consultent. Les distances sont "
+                  "mesurées à vol d'oiseau depuis le centre de chaque commune, l'emplacement d'une structure sans coordonnées "
+                  "connues étant le centre de sa commune. Un type recensé dans moins de 90 % des départements est "
+                  "listé, mais pas comparé entre territoires."),
+        "sources": [SRC_ROR, SRC_FINESS, SRC_ARS_MARTINIQUE,
+                    ("IGN, service de géocodage de la Géoplateforme", GEOCODAGE_PAGE)]},
+    "confirmation": {
+        "risque": "confirmation incomplète",
+        "texte": ("Chaque CMP est confronté à deux listes indépendantes de FINESS et du ROR, les sites que son "
+                  "établissement déclare à sa certification par la HAS, et les établissements de son gestionnaire "
+                  "inscrits au répertoire Sirene sous une enseigne de CMP. La liste de la HAS reprend les numéros "
+                  "FINESS déclarés par l'établissement à la date de sa certification, parfois ancienne de plusieurs "
+                  "années, sans adresse ni activité réelle. Les hôpitaux ferment rarement leurs anciens établissements "
+                  "dans Sirene, un établissement encore actif dans Sirene peut avoir cessé son activité. Un CMP "
+                  "confirmé par l'une ou l'autre existe dans les listes officielles de son établissement, un CMP "
+                  "confirmé par aucune reste à vérifier sur les sources de l'établissement."),
+        "sources": [("HAS, certification des établissements de santé, données ouvertes", HAS_PAGE),
+                    ("INSEE, base Sirene des entreprises et de leurs établissements", SIRENE_PAGE)]},
+    "prof:orthophoniste": {
+        "risque": "tous les âges",
+        "texte": ("Les orthophonistes soignent des patients de tous les âges, pas seulement des enfants. Le code de la "
+                  "santé publique vise les troubles congénitaux, développementaux ou acquis, ce qui comprend les "
+                  "troubles du langage après un accident vasculaire cérébral, les maladies neurodégénératives, la voix "
+                  "et la déglutition. Leur densité est donc rapportée à toute la population, et un croisement avec "
+                  "l'offre pour les enfants n'en décrit qu'une partie de l'activité."),
+        "sources": [("Code de la santé publique, article L4341-1 (Légifrance)",
+                     "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000047568519"), SRC_RPPS]},
+    "prof:psychomotricien": {
+        "risque": "tous les âges",
+        "texte": ("Les psychomotriciens interviennent auprès des jeunes enfants et des adolescents, mais aussi des "
+                  "adultes et des personnes âgées, en psychiatrie, en gériatrie et en établissement pour personnes "
+                  "âgées. Leur densité est donc rapportée à toute la population. Beaucoup sont salariés d'un "
+                  "établissement, un croisement avec la seule offre libérale n'en décrit qu'une partie."),
+        "sources": [("Onisep, fiche métier psychomotricien ou psychomotricienne",
+                     "https://www.onisep.fr/ressources/univers-metier/metiers/psychomotricien-psychomotricienne"),
+                    ("Ministère de la Santé, répertoire des métiers de la fonction publique hospitalière, psychomotricien",
+                     "http://www.metiers-fonctionpubliquehospitaliere.sante.gouv.fr/spip.php?page=fiche-metier&idmet=13"),
+                    SRC_RPPS]},
     "prof:medecin_travail": {
         "risque": "pas de soins à la population",
         "texte": ("Les médecins du travail suivent les salariés de leur entreprise ou de leur service de santé au "
@@ -919,7 +1313,7 @@ LIMITES["evolution"] = {
               "dans chaque territoire où elle exerce. Les populations des trois dernières années sont provisoires."),
     "sources": [("DREES, la démographie des professionnels de santé", DREES_DEMOGRAPHIE_PAGE),
                 ("INSEE, estimations localisées de population", INSEE_ESTIMATIONS_PAGE)]}
-LIMITES_ALIAS = {"sae_": "sae", "ald_": "ald", "caf_": "caf", "evol:": "evolution"}
+LIMITES_ALIAS = {"sae_": "sae", "ald_": "ald", "caf_": "caf", "evol:": "evolution", "lieu_": "lieux", "lieux:": "lieux"}
 
 LOI_INVERSE_BESOINS = ["suicides", "hospit_gestes_auto_infliges", "pec_troubles_psy"]
 LOI_INVERSE_PROFESSIONS = ["psychiatre", "psychologue", "q_psychiatrie_enfant", "medecin_generaliste"]
@@ -960,6 +1354,21 @@ CROISEMENTS = [
     ("dens_lib:medecin_generaliste", "ald_sans_medecin_traitant", "medecin_traitant",
      "Les patients sans médecin traitant sont-ils plus nombreux là où les généralistes libéraux manquent ?"),
     ("ctx:part_80p", "ald_sans_medecin_traitant", "medecin_traitant", ""),
+    # lieux de soins, FINESS et ROR réunis (version 2, 12 octobre 2026)
+    ("dens_lib:psychiatre", "lieux_lieu_cmp_adultes", "lieux_psy",
+     "Les CMP sont-ils plus nombreux là où les psychiatres libéraux manquent ?"),
+    ("dens:psychiatre", "lieux_lieu_cmp_adultes", "lieux_psy", ""),
+    ("dens:q_psychiatrie_enfant", "lieux_lieu_cmp_enfants", "lieux_enfants",
+     "Les structures de soins pour enfants suivent-elles l'offre de psychiatres pour l'enfant ?"),
+    ("dens:q_psychiatrie_enfant", "lieux_lieu_cmpp", "lieux_enfants", ""),
+    ("dens:q_psychiatrie_enfant", "lieux_lieu_camsp", "lieux_enfants", ""),
+    ("ctx:taux_pauvrete", "dist_lieu_cmp_adultes", "lieux_social",
+     "Les habitants des départements modestes sont-ils plus loin des CMP ?"),
+    ("ctx:taux_pauvrete", "dist_lieu_cmp_enfants", "lieux_social", ""),
+    ("dist_lieu_urgences", "urgences_gestes_auto_infliges", "lieux_urgences",
+     "Les départements éloignés des urgences comptent-ils plus ou moins de passages pour geste auto-infligé ?"),
+    ("dist_lieu_maternite", "ctx:part_0_14", "lieux_maternite",
+     "Les départements où les maternités sont loin ont-ils moins d'enfants ?"),
 ]
 
 NIVEAUX = ["com", "epci", "dep", "reg"]
@@ -1037,6 +1446,15 @@ SOURCES_SUIVIES = [
      "Suicides, gestes auto-infligés, indicateurs du Baromètre de Santé publique France."),
     (r"^caf_", "Allocataires de l'AAH, de l'AEEH et du RSA", "CAF", r"^CAF",
      "Allocations liées au handicap et au revenu de solidarité active, par intercommunalité et département."),
+    (r"^has/", "Certification des établissements de santé, sites rattachés", "Haute Autorité de santé",
+     r"^HAS, certification", "Confirmation des structures inscrites dans FINESS par les sites que chaque établissement "
+     "déclare à sa certification."),
+    (r"^sirene/", "Répertoire Sirene des établissements", "INSEE", r"^INSEE, répertoire Sirene",
+     "Confirmation des CMP par l'enseigne des établissements de leur gestionnaire, et leur adresse."),
+    (r"^ror/", "Offres de santé, Répertoire opérationnel des ressources (ROR)", "Agence du numérique en santé",
+     r"^ANS, offres de santé",
+     "Structures de soins (CMP, CATTP, hôpitaux de jour, CMPP, CAMSP, urgences, maternités, établissements médico-sociaux...), "
+     "réunies à FINESS sans double compte, distances aux structures les plus proches."),
 ]
 # Professions dont l'effectif national figure dans le journal quand il change
 JOURNAL_PROFESSIONS = ["psychologue", "psychiatre", "pedopsychiatre", "medecin_generaliste", "infirmier",

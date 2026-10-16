@@ -39,7 +39,9 @@ ASSISTANT = "cla" + "ude"
 EXCLUS = re.compile(rf"^({ASSISTANT.upper()}\.md|\.{ASSISTANT}/|prototypes/|docs/)")
 INTERDITS_CHEMIN = re.compile(r"^(donnees|resultats|site)/|\.(parquet|log)$|(^|/)rpps[^/]*\.(txt|csv)$", re.I)
 INTERDITS_TEXTE = [
-    (re.compile(ASSISTANT + "|anthr" + "opic", re.I), "mention d'un assistant"),
+    # noms propres écartés (Camille-Claudel, rue Claude-Monet, Jean-Claude), toute autre forme reste bloquante
+    (re.compile(r"(?i:(?<![\w-])" + ASSISTANT + r"(?!l))(?!-[A-ZÀ-Ý][a-zà-ÿ])|(?i:anthr" + "opic)"),
+     "mention d'un assistant"),
     (re.compile(r"@gmail\.|a-remplacer\.invalid|univ-[a-z]+\.fr", re.I), "adresse personnelle"),
     (re.compile(r"(?<![\d.,])(10\d{9}|810\d{8})(?![\d.,])"), "identifiant RPPS possible"),
 ]

@@ -217,12 +217,26 @@ tbody tr:hover td{filter:brightness(.97)}
 .bvlegende .grille{display:grid;grid-template-columns:repeat(3,16px);grid-template-rows:repeat(3,16px)}
 .bvlegende .grille i{display:block}
 .bvlegende .legende-signaux,.legend .legende-signaux{flex-basis:100%;margin:0}
+.legend .legende-lieux{flex-basis:100%;font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.lieuxbar{padding:4px 16px 2px;font-size:13.5px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.lieuxbar select{max-width:100%}
+.lieuinfo{border-left:3px solid var(--accent);margin:4px 16px 8px;padding:2px 0}
+button.lien{background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit}
+.liste-lieux{color:var(--muted);font-size:12.5px;margin:0 0 6px}
 .sig-leg{display:inline-flex!important;align-items:center;gap:5px;flex:0 1 auto;min-width:0;width:auto!important}
 .sig-leg svg{flex:none;width:13px!important;height:13px!important;max-width:none}
 .cherche label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:4px}
 .cherche input{width:100%;box-sizing:border-box;background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:6px 8px}
 .cherche input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .hmbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 8px}
+.hmliens{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+#alTable th{vertical-align:bottom}
+#alTable thead tr:last-child th{white-space:normal;min-width:7.5em;max-width:12em;hyphens:none;overflow-wrap:normal}
+#alTable th.groupe-col{text-align:center;font-weight:600;border-bottom:1px solid var(--line)}
+.hmliens li{font-size:.85rem;line-height:1.35}
+.hmliens button{background:none;border:0;padding:0;color:var(--accent);font:inherit;font-weight:600;cursor:pointer;text-align:left;text-decoration:underline;text-underline-offset:2px}
+.hmliens span{color:var(--muted)}
+#hmCadres>.panel{margin-top:24px}
 .acpbar{display:grid;grid-template-columns:minmax(120px,190px) 1fr 1fr;gap:4px 10px;align-items:center;font-size:.8rem}
 .acpbar .h{color:var(--muted);font-size:.72rem}
 .acpbar svg{height:12px;width:100%}
@@ -299,7 +313,7 @@ dl.gl dt{font-weight:600;margin-top:12px}dl.gl dd{margin:2px 0 0;max-width:75ch}
   <select id="prof" aria-label="Profession"></select>
   <div class="seg" data-k="level"><button data-v="reg">Régions</button><button data-v="dep">Départements</button><button data-v="epci">Intercommunalités</button></div>
   <div class="seg" data-k="mode"><button data-v="all">Tous modes</button><button data-v="lib">Libéral</button><button data-v="sal">Salarié</button></div>
-  <div class="seg" data-k="metric" id="metricSeg"><button data-v="dens">Pour 10 000 hab.</button><button data-v="n">Effectif</button><button data-v="ecart">Écart à l’attendu</button><button data-v="acces">Accessibilité</button><button data-v="trajet">Temps de trajet</button><button data-v="evol">Évolution</button><button data-v="zones">Zones</button></div>
+  <div class="seg" data-k="metric" id="metricSeg"><button data-v="dens">Pour 10 000 hab.</button><button data-v="n">Effectif</button><button data-v="ecart">Écart à l’attendu</button><button data-v="acces">Accessibilité</button><button data-v="trajet">Temps de trajet</button><button data-v="lieux" title="Distance médiane des habitants au structure de soins choisi sous la carte">Distance aux structures</button><button data-v="evol">Évolution</button><button data-v="zones">Zones</button></div>
 </div>
 </div>
 
@@ -311,6 +325,8 @@ dl.gl dt{font-weight:600;margin-top:12px}dl.gl dd{margin:2px 0 0;max-width:75ch}
       <div class="vuebar"><div class="seg" data-k="vue" role="group" aria-label="Présentation"><button data-v="carte">Carte</button><button data-v="tuiles" title="Un carré de même taille par département">Tuiles</button></div></div>
       <svg class="map" id="map" viewBox="0 0 960 800" role="img" aria-label="Carte de France"></svg>
       <div class="legend" id="legend"></div>
+      <div class="lieuxbar" id="lieuxBar" hidden><label for="lieuxType">Structures de soins sur la carte</label> <select id="lieuxType"><option value="">Aucun</option></select></div>
+      <div class="lieuinfo small" id="lieuInfo" hidden aria-live="polite"></div>
       <div id="mapOutils" style="padding:0 16px 8px"><span class="outils outils-encadre" data-elements="map"><button class="how" data-how="densite,attendu,accessibilite,zones,epci">Comment lire</button></span><div class="howtxt hidden"></div></div>
       <div id="mapLimite" style="padding:0 16px 14px"></div>
       <div class="tip" id="tip"></div>
@@ -330,7 +346,7 @@ dl.gl dt{font-weight:600;margin-top:12px}dl.gl dd{margin:2px 0 0;max-width:75ch}
   </div>
   <div class="panel pad" data-repli="parcours" style="margin-top:24px"><h2>Du répertoire aux densités</h2>
     <div class="parcours"><svg id="pcPlot" role="img" aria-label="Du répertoire aux densités, personnes à chaque étape" viewBox="0 0 640 250"></svg>
-    <div><p class="phrase" id="pcPhrase"></p><p class="note">Chaque barre compte des personnes, une seule fois, pour la France entière. Le pointillé montre ce qui est écarté à chaque étape, avec sa raison. Seule la dernière barre entre dans les densités et les cartes, les autres personnes restent dans l’effectif national. Les activités sans soins à la population (sièges d’organismes, contrôle médical, industrie, recherche, sociétés de téléconsultation) sont déclarées à l’adresse d’un siège, le plus souvent à Paris, et ne soignent pas les habitants de ce territoire.</p></div></div>
+    <div><p class="phrase" id="pcPhrase"></p><p class="note">Chaque barre compte des personnes, une seule fois, pour la France entière. Le pointillé montre ce qui est écarté à chaque étape, avec sa raison. Seule la dernière barre entre dans les densités et les cartes, les autres personnes restent dans l’effectif national. La téléconsultation est bien une activité de soins, mais elle est déclarée au siège de la société, presque toujours à Paris, et non là où vivent les patients. Les activités sans soins à la population (sièges d’organismes, contrôle médical, industrie, recherche) sont elles aussi déclarées à l’adresse d’un siège. Ni l’une ni les autres ne peuvent être rattachées à un territoire.</p></div></div>
   </div>
 </section>
 
@@ -362,12 +378,12 @@ dl.gl dt{font-weight:600;margin-top:12px}dl.gl dd{margin:2px 0 0;max-width:75ch}
       <details class="plus"><summary>Pour aller plus loin</summary><p id="scNote"></p></details>
     </div>
     <div class="panel pad">
-      <h2>Toutes les corrélations <button class="how" data-how="correlation,force,q">Comment lire</button></h2><div class="howtxt hidden"></div>
-      <p class="note" style="margin:0 0 8px">Corrélation de rang (Spearman) entre la densité de chaque profession et chaque indicateur, au niveau choisi. Les cases pâles correspondent à des liens incertains, qui peuvent tenir au hasard. Cliquez sur une case pour l’afficher dans le nuage.</p>
-      <div class="hmbar"><button class="btn ghost" id="hmTout" type="button"></button></div>
-      <div class="hmbox"><table class="hm" id="hm"></table></div>
+      <h2>Corrélations par groupe d’indicateurs <button class="how" data-how="correlation,force,q">Comment lire</button></h2><div class="howtxt hidden"></div>
+      <p class="note" style="margin:0 0 8px">Corrélation de rang (Spearman) entre la densité de chaque profession et chaque indicateur, au niveau choisi. Chaque groupe d’indicateurs a son cadre sous cette ligne, avec ses propres exports. Les cases pâles correspondent à des liens incertains, qui peuvent tenir au hasard. Cliquez sur une case pour l’afficher dans le nuage.</p>
+      <ul class="hmliens" id="hmLiens"></ul>
     </div>
   </div>
+  <div id="hmCadres"></div>
   <div class="two" style="margin-top:24px">
     <div class="panel pad"><h2>Besoins, recours et conditions de vie, croisés entre eux <button class="how" data-how="correlation,force,ecologique">Comment lire</button></h2><div class="howtxt hidden"></div>
       <p class="note">Par département, hors Mayotte (population de référence incertaine). Trois sortes d’indicateurs sont réunies ici, ceux liés à la santé mentale (suicide, gestes auto-infligés, personnes prises en charge, affections psychiatriques de longue durée, antidépresseurs), des situations suivies par les services publics (aide sociale à l’enfance, allocations liées au handicap, RSA) et des conditions de vie connues pour peser sur la santé mentale (pauvreté, chômage, isolement, diplôme, logement, âge). Aucun ne mesure à lui seul la santé mentale d’une population. Choisissez un indicateur pour voir ses liens avec les autres, puis cliquez sur une barre pour afficher la paire dans le nuage de points.</p>
@@ -444,6 +460,23 @@ dl.gl dt{font-weight:600;margin-top:12px}dl.gl dd{margin:2px 0 0;max-width:75ch}
       <p class="note">Chaque point est un territoire. Zone claire, écart compatible avec le hasard à 95 %. Lignes pointillées, limites à 99,8 %.</p>
       <details class="plus"><summary>Pour aller plus loin</summary><p id="fuNote"></p></details></div>
   </div>
+
+  <div class="two" style="margin-top:24px" id="inegLieux">
+    <div class="panel pad"><h2>Distance aux structures de soins selon le niveau de vie <button class="how" data-how="escalier,concentration,acces_lieux">Comment lire</button></h2><div class="howtxt hidden"></div>
+      <div class="bar" style="padding:6px 0"><select id="ilType" aria-label="Structure de soins"></select></div>
+      <p class="phrase" id="ilPhrase"></p><svg id="ilEscalier" viewBox="0 0 520 360" role="img" aria-label="Distance aux structures de soins selon le niveau de vie des territoires"></svg>
+      <p class="note">Intercommunalités de toute la France classées de la plus modeste à la plus aisée, puis regroupées en dix tranches de population égale. Distance à vol d’oiseau depuis le centre de chaque commune, médiane des habitants de la tranche. Barre ocre, plus loin que la médiane de la France entière (pointillés).</p>
+      <details class="plus"><summary>Pour aller plus loin</summary><p id="ilNote"></p></details></div>
+    <div class="panel pad"><h2>Distance aux structures de soins selon le type de territoire <button class="how" data-how="acces_lieux,effet_ville">Comment lire</button></h2><div class="howtxt hidden"></div>
+      <p class="phrase" id="icPhrase"></p><svg id="ilClasses" viewBox="0 0 520 300" role="img" aria-label="Distance aux structures de soins selon la densité de population des intercommunalités"></svg>
+      <p class="note">Intercommunalités réparties selon leur densité de population. Distance médiane des habitants de chaque classe, même lieu que la figure voisine. La part des habitants à plus de 20 km est donnée au survol.</p>
+      <details class="plus"><summary>Pour aller plus loin</summary><p id="icNote"></p></details></div>
+  </div>
+
+  <div class="panel pad" style="margin-top:24px" id="accesLieux"><h2>Accès aux structures de soins <button class="how" data-how="acces_lieux,lieux">Comment lire</button></h2><div class="howtxt hidden"></div>
+    <p class="phrase" id="alPhrase"></p>
+    <div class="scroll"><table class="tri" id="alTable" aria-label="Accès aux structures de soins par territoire"></table></div>
+    <p class="note" id="alNote"></p><div id="alLimite"></div></div>
 </section>
 
 <!-- TYPOLOGIE -->
@@ -499,9 +532,18 @@ dl.gl dt{font-weight:600;margin-top:12px}dl.gl dd{margin:2px 0 0;max-width:75ch}
 (function(){
 const topo=window.TOPO;
 let D=window.DONNEES;
-const S={vue:"carte",tab:"carte",fam:"Santé mentale",prof:"psychologue",level:"epci",mode:"all",metric:"dens",sel:null,grp:"*",sort:null,asc:false,xvar:"revenu_median",ylog:"1",bvMode:"tiers",bvVar:"suicides",gwProf:"psychologue"};
+const S={lieux:"",vue:"carte",tab:"carte",fam:"Santé mentale",prof:"psychologue",level:"epci",mode:"all",metric:"dens",sel:null,grp:"*",sort:null,asc:false,xvar:"revenu_median",ylog:"1",bvMode:"tiers",bvVar:"suicides",gwProf:"psychologue"};
 const SM="Santé mentale",SANTE="Santé";
 const MI={lib:0,sal:1,all:2};
+// graduations des axes, nombres en français (jamais « 16k » ni « 20% ») et libellés jamais serrés. En échelle
+// logarithmique, les valeurs rondes (1, 2, 5 de chaque puissance de 10) passent d'abord, les autres seulement s'il reste
+// la place (au moins minPx pixels entre deux libellés).
+const nbAxe=v=>(+v).toLocaleString("fr-FR",{maximumSignificantDigits:3});
+const pctAxe=v=>(+v*100).toLocaleString("fr-FR",{maximumFractionDigits:0})+" %";
+function graduations(sc,n,minPx){const cand=sc.base?sc.ticks(n*3):sc.ticks(n);if(!sc.base)return cand;
+  const mant=v=>+(v/10**Math.floor(Math.log10(v))).toFixed(6),rang=v=>{const k=mant(v);return k===1?0:k===2||k===5?1:k===1.5||k===3||k===4?2:3};
+  const pris=[];for(const v of cand.slice().sort((a,b)=>rang(a)-rang(b)))if(pris.every(u=>Math.abs(sc(u)-sc(v))>=minPx))pris.push(v);
+  return pris.sort((a,b)=>a-b)}
 const fmt=new Intl.NumberFormat("fr-FR"),f1=new Intl.NumberFormat("fr-FR",{minimumFractionDigits:1,maximumFractionDigits:1}),f2=new Intl.NumberFormat("fr-FR",{minimumFractionDigits:2,maximumFractionDigits:2});
 const css=v=>getComputedStyle(document.documentElement).getPropertyValue(v).trim();
 const RAMP=()=>["--r0","--r1","--r2","--r3","--r4","--r5"].map(css);
@@ -547,7 +589,7 @@ function limiteHtml(ids,codes){const vues=new Set();let h="";
 
 // ---------- grille très légère, la même sur tous les graphiques
 function grille(svg,y,m,w,n){svg.append("g").attr("class","grille").attr("transform","translate("+m.l+",0)")
-  .call(d3.axisLeft(y).tickValues(y.base?y.ticks(n).filter(v=>[1,2,5].includes(+v.toExponential()[0])):y.ticks(n)).tickSize(-(w-m.l-m.r)).tickFormat(""))
+  .call(d3.axisLeft(y).tickValues(graduations(y,n,24)).tickSize(-(w-m.l-m.r)).tickFormat(""))
   .call(g=>{g.select(".domain").remove();g.selectAll("line").attr("stroke",css("--line")).attr("stroke-opacity",.45)})}
 
 // ---------- citation et signature des graphiques
@@ -769,6 +811,7 @@ function val(lv,p,i){
   if(S.metric==="n")return unitN(lv,p,i);
   if(S.metric==="acces"){const a=D.niveaux[lv].acces?.[p];return a?a[i]:null}
   if(S.metric==="trajet"){const t=trajet(lv,p,i);return t?t[1]:null}
+  if(S.metric==="lieux"){const d=D.niveaux[lv].lieux_dist?.[S.lieux];return d?d[i]:null}
   if(S.metric==="evol"){const e=evol(lv,p,i);return e?e[2]:null}
   if(S.metric==="ecart"){const a=att(lv,p,i);return a?unitD(lv,p,i,"all")/a:null}
   return unitD(lv,p,i);
@@ -805,7 +848,9 @@ function mapInit(svgId){
   Mx.zoom=d3.zoom().scaleExtent([1,6]).translateExtent([[0,0],[W,H]]).clickDistance(4)
     .filter(ev=>!Mx.tuiles&&(ev.type==="wheel"||(!ev.button&&ev.type!=="dblclick")))
     .on("zoom",ev=>{zoomable.attr("transform",ev.transform);svg.classed("zoome",ev.transform.k>1);hideTip();
-      zoomable.selectAll("g.fragile").attr("transform",function(){return "translate("+this.dataset.x+","+this.dataset.y+") scale("+1/ev.transform.k+")"})});
+      zoomable.selectAll("g.fragile").attr("transform",function(){return "translate("+this.dataset.x+","+this.dataset.y+") scale("+1/ev.transform.k+")"});
+      zoomable.selectAll("circle.lieu").attr("r",d=>(d===LIEU_CHOISI?5:2.4)/ev.transform.k).attr("stroke-width",.6/ev.transform.k);
+      visibiliteLieux(Mx)});
   svg.call(Mx.zoom).on("dblclick.zoom",null);
   return Mx;
 }
@@ -845,6 +890,13 @@ function drawMap(){
     const dv=DIV(),dom=[-.2,-.1,-.03,.03,.1,.2],e=evolInfo(p);
     const sc=d3.scaleThreshold().domain(dom).range(dv);color=v=>v==null?css("--nodata"):sc(v);
     legend='<span>Évolution de la densité de '+e.debut+' à '+e.fin+' (France '+signe(e.fr[2])+')</span><div><div class="sw">'+dv.map(c=>'<span style="background:'+c+'"></span>').join("")+'</div><div class="ticks"><span></span>'+dom.map(b=>'<span>'+(b>0?"+":"")+Math.round(b*100)+'</span>').join("")+'</div></div><span>En %, ocre en baisse, violet en hausse.</span>';
+  }else if(S.metric==="lieux"){
+    // distance médiane des habitants à la structure la plus proche du type choisi, couleur forte pour une structure proche
+    const pos=vals.filter(v=>v!=null).sort(d3.ascending),r=RAMP().slice().reverse(),t=LX.types.find(x=>x.id===S.lieux);
+    const br=[...new Set(d3.range(1,6).map(i=>d3.quantile(pos,i/6)).filter(x=>x!=null).map(b=>Math.round(b*10)/10))];
+    const sc=d3.scaleThreshold().domain(br).range(r.slice(0,br.length+1));
+    color=v=>v==null?css("--nodata"):sc(v);
+    legend='<span>Distance médiane des habitants à la structure la plus proche, '+esc(minLib(t.lib))+', en km à vol d’oiseau</span><div><div class="sw">'+sc.range().map(c=>'<span style="background:'+c+'"></span>').join("")+'</div><div class="ticks"><span></span>'+br.map(b=>'<span>'+f1.format(b)+'</span>').join("")+'</div></div>';
   }else if(S.metric==="trajet"){
     // couleur forte pour un trajet court, comme pour une offre abondante sur les autres cartes
     const pos=vals.filter(v=>v!=null).sort(d3.ascending),r=RAMP().slice().reverse(),e=routeEq(p);
@@ -904,14 +956,103 @@ function drawMap(){
   const sigs=signauxCarte(M,lv,false);
   if(sigs.length)legend+='<div class="legende-signaux">'+legendeSignaux(sigs)+'</div>';
   legend+=legendeHospitaliere(p,lv);
+  legend+=dessinerLieux(M);
   document.getElementById("legend").innerHTML=legend;
-  document.getElementById("mapLimite").innerHTML=(S.metric==="trajet"?limiteHtml(["route"]):S.metric==="evol"?limiteHtml(["evol:"]):limiteHtml(["prof:"+p,...psyBulle.map(x=>"prof:"+x)]))+(sigs.length?limiteHtml(sigs):"");
+  document.getElementById("mapLimite").innerHTML=(S.metric==="trajet"?limiteHtml(["route"]):S.metric==="evol"?limiteHtml(["evol:"]):limiteHtml(["prof:"+p,...psyBulle.map(x=>"prof:"+x)]))+(sigs.length?limiteHtml(sigs):"")+(S.lieux?limiteHtml(["lieux"]):"");
 }
+// ---------- structures de soins (FINESS et ROR réunis sans double compte), points posés sur la carte sans en changer les
+// couleurs. Un clic repère le lieu et affiche sa fiche sous la carte, sans zoom (règle du 5 octobre 2026).
+const LX=D.lieux||null;
+let LIEU_CHOISI=null;
+// libellé en minuscule sauf les sigles (« CMP pour adultes » reste tel quel)
+const minLib=s=>/^[A-ZÉ]{2}/.test(s)?s:s.charAt(0).toLowerCase()+s.slice(1);
+const lieuDep=c=>c&&c.startsWith("97")?c.slice(0,3):(c||"").slice(0,2);
+function lieuxOptions(){const sel=document.getElementById("lieuxType"),bar=document.getElementById("lieuxBar");
+  if(!LX){bar.hidden=true;return}bar.hidden=false;
+  const types=LX.types.map((t,k)=>({...t,k})).filter(t=>LX.pts.some(p=>p[0]===t.k)&&(S.fam==="*"||t.famille===S.fam));
+  const grp=[...new Set(types.map(t=>t.groupe))];
+  sel.innerHTML='<option value="">Aucun</option>'+grp.map(g=>'<optgroup label="'+esc(g)+'">'+types.filter(t=>t.groupe===g)
+    .map(t=>'<option value="'+t.id+'"'+(S.lieux===t.id?" selected":"")+'>'+esc(t.lib)+(t.complet?"":" (recensement incomplet)")+'</option>').join("")+'</optgroup>').join("");
+  if(S.lieux&&!types.some(t=>t.id===S.lieux))S.lieux="";sel.value=S.lieux||""}
+function projLieu(pt){const d=lieuDep(pt[4]),ll=[pt[2]/1e4,pt[1]/1e4];return DOMS.includes(d)?(P[d]?P[d].projection()(ll):null):metro(ll)}
+function dessinerLieux(Mx){Mx.zoomable.selectAll("g.lieux").remove();Mx.svg.selectAll("g.lieuxdom").remove();
+  if(!LX||!S.lieux||Mx.tuiles){document.getElementById("lieuInfo").hidden=true;return ""}
+  const k=LX.types.findIndex(t=>t.id===S.lieux),t=LX.types[k],pts=LX.pts.filter(p=>p[0]===k);
+  const z=d3.zoomTransform(Mx.svg.node()).k;
+  const dessin=(g,data)=>g.selectAll("circle").data(data).join("circle").attr("class","lieu")
+    .attr("cx",d=>projLieu(d)[0]).attr("cy",d=>projLieu(d)[1]).attr("r",d=>(d===LIEU_CHOISI?5:2.4)/(g.node().parentNode===Mx.zoomable.node()?z:1))
+    .attr("fill",d=>d===LIEU_CHOISI?css("--accent"):css("--ink")).attr("fill-opacity",.85).attr("stroke",css("--panel")).attr("stroke-width",.8)
+    .attr("tabindex",0).attr("role","button").attr("aria-label",d=>LX.noms[d[3]]+", "+(LX.communes[d[4]]||""))
+    .on("mousemove",(ev,d)=>showTip(ev,'<div class="tt">'+esc(LX.noms[d[3]])+'</div><div class="tl">'+esc(t.lib)+", "+esc(LX.communes[d[4]]||d[4])+'</div>'))
+    .on("mouseleave",hideTip)
+    .on("click",(ev,d)=>{ev.stopPropagation();LIEU_CHOISI=LIEU_CHOISI===d?null:d;ficheLieu();drawMap()})
+    .on("keydown",(ev,d)=>{if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();LIEU_CHOISI=LIEU_CHOISI===d?null:d;ficheLieu();drawMap()}});
+  const ok=pts.filter(d=>projLieu(d));
+  dessin(Mx.zoomable.append("g").attr("class","lieux"),ok.filter(d=>!DOMS.includes(lieuDep(d[4]))));
+  dessin(Mx.svg.append("g").attr("class","lieuxdom"),ok.filter(d=>DOMS.includes(lieuDep(d[4]))));
+  if(LIEU_CHOISI&&LIEU_CHOISI[0]!==k)LIEU_CHOISI=null;
+  visibiliteLieux(Mx);
+  ficheLieu();
+  return '<div class="legende-lieux"><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="4" fill="'+css("--ink")+'"/></svg> '
+    +fmt.format(pts.length)+' structures, '+esc(minLib(t.lib))+', recensés par FINESS et le ROR, réunis sans double compte'+(t.complet?"":", recensement incomplet")
+    +'. Les points s’affichent en zoomant sur la carte ou pour le territoire choisi'+(t.complet&&D.niveaux[S.level].lieux_dist?.[S.lieux]?", la mesure « Distance aux structures » en donne la vue d’ensemble":"")+'.</div>'}
+// à l'échelle de la France les points chargent trop la carte, ils ne paraissent qu'en zoomant (au moins 2 fois) ou
+// dans le territoire choisi d'un clic (remarque de Lucas du 12 octobre 2026)
+function visibiliteLieux(Mx){if(!Mx)return;const k=d3.zoomTransform(Mx.svg.node()).k,lv=S.sel?.lv,code=S.sel?.c;
+  const champ={epci:8,dep:9,reg:10}[lv];
+  const dedans=d=>champ!=null&&d[champ]===code;
+  Mx.zoomable.selectAll("circle.lieu").style("display",d=>k>=2||dedans(d)||d===LIEU_CHOISI?null:"none");
+  Mx.svg.selectAll("g.lieuxdom circle.lieu").style("display",d=>dedans(d)||d===LIEU_CHOISI?null:"none")}
+function ficheLieu(){const el=document.getElementById("lieuInfo");const d=LIEU_CHOISI;
+  if(!d){el.hidden=true;el.innerHTML="";return}
+  const t=LX.types[d[0]],dec=d[7];
+  let h='<strong>'+esc(LX.noms[d[3]])+'</strong>, '+esc(minLib(t.lib))+', '+esc(LX.communes[d[4]]||d[4])+'. ';
+  const pv=LX.provenances[d[5]];
+  h+=(pv.includes("ne distingue")?"Décrit par le ROR seulement, FINESS ne distinguant pas ce type de structure":pv.includes("seul")?(pv.startsWith("ROR")?"Recensé comme tel par le ROR seulement, FINESS l’enregistrant sous une autre catégorie ou pas du tout":"Recensé par FINESS seulement"):"Recensé par FINESS et le ROR")+'. Emplacement, '+esc(LX.precisions[d[6]])+'.';
+  if(dec===0)h+=' Aucun de ces professionnels (psychiatres, psychologues, infirmiers...) n’y est déclaré au répertoire, ce qui n’exclut pas des consultations de professionnels déclarés à leur établissement de rattachement.';
+  else if(dec){const parts=LX.professions.map((p,k)=>dec[k]?fmt.format(dec[k])+" "+(dec[k]>1?pluriel(profLab(p)):profLab(p).toLowerCase()):null).filter(Boolean);
+    h+=' '+(parts.length?"Déclarés sur place au répertoire, "+parts.join(", ")+".":"Aucun de ces professionnels n’y est déclaré au répertoire, ce qui n’exclut pas des consultations de professionnels déclarés à leur établissement de rattachement.")}
+  else h+=' Sans numéro FINESS propre, les professionnels déclarés sur place ne sont pas connus.';
+  el.innerHTML='<p style="margin:6px 16px">'+h+' <button type="button" class="lien" id="lieuFermer">Fermer</button></p>';el.hidden=false;
+  document.getElementById("lieuFermer").onclick=()=>{LIEU_CHOISI=null;ficheLieu();drawMap()}}
+document.getElementById("lieuxType").addEventListener("change",e=>{S.lieux=e.target.value;LIEU_CHOISI=null;if(!S.lieux&&S.metric==="lieux")S.metric="dens";render()});
 const PSY_CMP=["psychiatre","pedopsychiatre"];
+// lieux pour enfants d'un territoire (FINESS et ROR réunis), pour préciser « aucun pédopsychiatre déclaré »
+// volet replié de la fiche, nombre de lieux de chaque type dans le territoire et liste des structures montrés sur la carte
+function voletLieux(lv,i,code){if(!LX)return "";const L=D.niveaux[lv].lieux||{};
+  const types=LX.types.filter(t=>t.complet&&L[t.id]&&(S.fam==="*"||t.famille===S.fam));if(!types.length)return "";
+  const champ={epci:8,dep:9,reg:10}[lv],ici=LX.pts.filter(p=>p[champ]===code);
+  let h='<details class="plus" style="margin-top:14px"><summary>Structures de soins dans ce territoire, FINESS et ROR réunis</summary>';
+  for(const g of [...new Set(types.map(t=>t.groupe))]){h+='<div class="gh">'+esc(g)+'</div><dl class="f">';
+    for(const t of types.filter(x=>x.groupe===g)){const k=LX.types.indexOf(t),liste=ici.filter(p=>p[0]===k);
+      h+='<dt>'+esc(t.lib)+'</dt><dd>'+fmt.format(L[t.id][i]||0)+'</dd>';
+      // CMP par public, adultes, enfants, les deux, public non précisé (FINESS seul sans âges), pour que le total se retrouve
+      const cp=D.niveaux[lv].cmp_public;
+      if(t.id==="lieu_cmp"&&cp&&(L[t.id][i]||0)>0){const v=k=>cp[k][i]||0;
+        h+='<dd class="note" style="grid-column:1/-1;margin:0">dont '+fmt.format(v("adultes"))+' pour adultes et '+fmt.format(v("enfants"))+' pour enfants et adolescents'
+          +(v("les_deux")?', '+fmt.format(v("les_deux"))+' accueillant les deux':'')
+          +(v("non_precise")?', '+fmt.format(v("non_precise"))+' au public non précisé (connu'+(v("non_precise")>1?"s":"")+' de FINESS seul)':'')
+          +(v("antennes")?'. '+(v("antennes")>1?fmt.format(v("antennes"))+' sont des antennes ou des permanences':'L’un d’eux est une antenne ou une permanence')+' (en mairie, en CCAS ou en maison de santé, par exemple)':'')+'</dd>'}
+      // concordance avec la SAE (CMP déclarés par les établissements dont le siège est dans le territoire)
+      const cs=D.niveaux[lv].cmp_sae?.[i];
+      if(t.id==="lieu_cmp"&&cs)h+='<dd class="note" style="grid-column:1/-1;margin:0">'+esc(cs[1].charAt(0).toUpperCase()+cs[1].slice(1))+' ('+fmt.format(cs[0])+' CMP déclarés à la SAE par les établissements dont le siège est ici), voir la page méthode</dd>';
+      if(liste.length)h+='<dd class="liste-lieux" style="grid-column:1/-1">'+liste.map(p=>esc(LX.noms[p[3]])+" ("+esc(LX.communes[p[4]]||p[4])+")").sort((a,b)=>a.localeCompare(b,"fr")).join(", ")+'</dd>'}
+    h+='</dl>'}
+  // constats vérifiés sur d'autres sources (sites des établissements, ARS, listes ouvertes), pour le département
+  const depV=lv==="dep"?code:lv==="epci"?(LX.pts.find(p=>p[8]===code)||[])[9]:null;
+  const ver=(D.verifications_lieux||[]).filter(v=>v.code===depV);
+  if(ver.length)h+='<div class="note" style="margin-top:8px"><strong>Vérifié sur d’autres sources.</strong> '+ver.map(v=>esc(v.constat)+' Source, <a href="'+esc(v.adresse)+'" target="_blank" rel="noopener">'+esc(v.source)+'</a>, consultée le '+esc(v.date.split("-").reverse().join("/"))+(v.a_refaire?", vérification à refaire":"")+'.').join(" ")+'</div>';
+  return h+limiteHtml(["lieux"])+'</details>'}
+function lieuxEnfants(lv,i){const L=D.niveaux[lv].lieux||{},n=k=>L[k]?.[i]||0;
+  const parts=[[n("lieu_cmp_enfants"),"CMP pour enfants et adolescents","CMP pour enfants et adolescents"],[n("lieu_cmpp"),"CMPP","CMPP"],
+    [n("lieu_camsp"),"CAMSP","CAMSP"],[n("lieu_hdj_psy_enfants"),"hôpital de jour pour enfants","hôpitaux de jour pour enfants"]].filter(x=>x[0]>0);
+  if(!parts.length)return "";
+  const txt=parts.map(([k,s,pl])=>fmt.format(k)+" "+(k>1?pl:s));
+  return(txt.length>1?txt.slice(0,-1).join(", ")+" et "+txt.at(-1):txt[0])+" recensés par FINESS et le ROR, où des pédopsychiatres peuvent consulter"}
 // spécialité exercée surtout à l'hôpital (précision calculée à chaque mise à jour), signalée dans la légende de la carte,
 // sans changer les couleurs, avec le conseil de la lire par département (demande de Lucas du 11 octobre 2026)
 function legendeHospitaliere(p,lv){const k=cleLimite("prof:"+p);
-  if(!k||D.limites[k]?.risque!=="exercice surtout salarié"||S.metric==="trajet"||S.metric==="evol")return "";
+  if(!k||D.limites[k]?.risque!=="exercice surtout salarié"||["trajet","evol","lieux"].includes(S.metric))return "";
   SIG.hospitalier="Exercice surtout hospitalier"+(lv==="epci"?", à lire de préférence par département":"")+", voir « À savoir » sous la carte";
   return '<div class="legende-signaux">'+legendeSignaux(["hospitalier"])+'</div>'}
 // signaux « donnée fragile ici » (9 octobre 2026), symbole ocre marqué « ! » posé sur le territoire, sa couleur ne change
@@ -1009,7 +1150,8 @@ function bulle(lv,i,p){const u=D.niveaux[lv].units[i];
     const morceaux=[];
     if(q==="pedopsychiatre"&&IDX.prof.has("q_psychiatrie_enfant")){const k=unitN(lv,"q_psychiatrie_enfant",i);
       if(k>0)morceaux.push(fmt.format(k)+' psychiatre'+(k>1?'s':'')+' qualifié'+(k>1?'s':'')+' pour l’enfant et l’adolescent')}
-    if(PSY_CMP.includes(q)&&cmI&&unitN(lv,q,i,"all")===0)morceaux.push(cmI+' centre'+(cmI>1?'s':'')+' médico-psychologique'+(cmI>1?'s':'')+' (CMP) selon FINESS, où des psychiatres peuvent consulter');
+    if(q==="psychiatre"&&cmI&&unitN(lv,q,i,"all")===0)morceaux.push(cmI+' centre'+(cmI>1?'s':'')+' médico-psychologique'+(cmI>1?'s':'')+' (CMP) recensé'+(cmI>1?'s':'')+' par FINESS et le ROR, où des psychiatres peuvent consulter');
+    if(q==="pedopsychiatre"&&unitN(lv,q,i,"all")===0){const e=lieuxEnfants(lv,i);if(e)morceaux.push(e)}
     zeros.push({q,morceaux});if(cleLimite("prof:"+q))limZero.push(q)}
   // professions à 0 pour la même raison réunies en une phrase (« aucun psychiatre ni pédopsychiatre »)
   for(const cle of [...new Set(zeros.map(z=>z.morceaux.join("|")))]){const g=zeros.filter(z=>z.morceaux.join("|")===cle),q0=g[0].q,m=g[0].morceaux;
@@ -1065,11 +1207,14 @@ function selCard(){
     if(n0===0&&p0==="pedopsychiatre"&&IDX.prof.has("q_psychiatrie_enfant")){const q=unitN(lv,"q_psychiatrie_enfant",i);
       if(q>0){precision="On y compte toutefois "+q+" psychiatre"+(q>1?"s":"")+" qualifié"+(q>1?"s":"")+" pour l’enfant et l’adolescent.";
         ph+=" Aucun pédopsychiatre n’y est déclaré comme tel, mais "+q+" psychiatre"+(q>1?"s":"")+" qualifié"+(q>1?"s":"")+" pour l’enfant et l’adolescent y exerce"+(q>1?"nt":"")+"."}}
-    if(n0===0&&ncmp&&PSY_CMP.includes(p0))ph+=" D’après FINESS, il accueille pourtant "+ncmp+" centre"+(ncmp>1?"s":"")+" médico-psychologique"+(ncmp>1?"s":"")+" (CMP), où des psychiatres peuvent consulter sans y être déclarés.";
+    if(n0===0&&ncmp&&p0==="psychiatre")ph+=" D’après FINESS et le ROR réunis, il accueille pourtant "+ncmp+" centre"+(ncmp>1?"s":"")+" médico-psychologique"+(ncmp>1?"s":"")+" (CMP), où des psychiatres peuvent consulter sans y être déclarés.";
+    if(n0===0&&p0==="pedopsychiatre"){const e=lieuxEnfants(lv,i);if(e)ph+=" Il accueille "+e+" sans y être déclarés."}
     const ev=evol(lv,p0,i),ei=evolInfo(p0);
-    // activités sans soins à la population déclarées dans ce territoire (sièges, téléconsultation), non comptées
-    const hs=D.niveaux[lv].hors_soins?.[p0]?.[S.sel.c];
-    if(hs)ph+=" Par ailleurs, "+fmt.format(hs)+" "+(hs>1?pluriel(lab):lab.toLowerCase())+" "+(hs>1?"déclarent":"déclare")+" ici une activité sans soins à la population (siège d’organisme, contrôle médical, téléconsultation…), non comptée dans la densité.";
+    // téléconsultation et activités sans soins à la population déclarées dans ce territoire, non comptées
+    const td=D.niveaux[lv].a_distance?.[p0]?.[S.sel.c],hs=D.niveaux[lv].hors_soins?.[p0]?.[S.sel.c];
+    const nb=k=>fmt.format(k)+" "+(k>1?pluriel(lab):lab.toLowerCase())+" "+(k>1?"déclarent":"déclare");
+    if(td)ph+=" Par ailleurs, "+nb(td)+" ici une activité de téléconsultation, des soins à distance déclarés au siège de la société et non rattachés au territoire des patients, non comptée dans la densité.";
+    if(hs)ph+=(td?" De plus, ":" Par ailleurs, ")+nb(hs)+" ici une activité sans soins à la population (siège d’organisme, contrôle médical…), non comptée dans la densité.";
     if(ev)ph+=" D’après les séries de la DREES, qui comptent chaque professionnel dans un seul département, la densité "+deMot(ei.lib.split(",")[0].toLowerCase())+" a évolué de "+signe(ev[2])+" de "+ei.debut+" à "+ei.fin+", contre "+signe(ei.fr[2])+" en France.";
     h+='<p class="phrase">'+esc(ph)+'</p>';court=ph;
   }
@@ -1100,6 +1245,7 @@ function selCard(){
   // santé mentale et profil de la population à gauche, santé à droite (ou profil à droite si une seule famille)
   const g1=[blocs[SM],S.fam==="*"?blocs.pop:"",S.fam===SANTE?blocs[SANTE]:""].join(""),g2=S.fam==="*"?(blocs[SANTE]||""):(blocs.pop||"");
   h+='<div class="selcols"><div>'+g1+'</div><div>'+g2+'</div></div>';
+  h+=voletLieux(lv,i,S.sel.c);
   // limites propres à ce territoire (par exemple les suicides en Île-de-France)
   const codes=[S.sel.c,lv==="epci"?u.p:null],lims=Object.keys(D.limites||{}).filter(k=>codes.some(c=>c&&D.limites[k].territoires?.[c]));
   if(fragile(lv,S.sel.c))lims.unshift(fragile(lv,S.sel.c));
@@ -1183,23 +1329,20 @@ function scatter(){
   if(!ctxDispo(lv,cx)){svg.append("text").attr("x",20).attr("y",40).text("Cet indicateur n’existe qu’au niveau des départements. Choisissez « Départements » en haut de la page.");document.getElementById("scPhrase").textContent="";document.getElementById("scLimite").innerHTML="";document.getElementById("xvarNote").textContent=cx.explication||"";document.getElementById("scNote").textContent="";return}
   const pts=L.units.map((u,i)=>({u,i,x:u.x[cx.i],y:cy?u.x[cy.i]:unitD(lv,p,i)})).filter(d=>d.x!=null&&d.y!=null&&d.u.pop>0);
   if(cy&&!pts.length){svg.append("text").attr("x",20).attr("y",40).text("Ces deux indicateurs n’existent pas ensemble à ce niveau. Choisissez « Départements ».");document.getElementById("scPhrase").textContent="";document.getElementById("scLimite").innerHTML="";return}
-  const m={l:52,r:14,t:14,b:44},w=560,h=420;
+  const m={l:52,r:14,t:30,b:44},w=560,h=420;
   const xs=(cx.id==="densite_pop"?d3.scaleLog().domain(d3.extent(pts.filter(d=>d.x>0),d=>d.x)):d3.scaleLinear().domain(d3.extent(pts,d=>d.x))).nice().range([m.l,w-m.r]);
   const yl=!cy&&S.ylog==="1",ypos=pts.map(d=>d.y).filter(v=>v>0);
   // en logarithmique, l'axe suit les valeurs observées (un peu de marge) au lieu d'être arrondi aux puissances de 10,
   // sinon les points se tassent au milieu et le graphique ressemble à l'échelle linéaire
   const logSerre=(a,b)=>d3.scaleLog().domain([(a||.01)/1.15,(b||1)*1.15]);
   const ys=(yl?logSerre(d3.min(ypos),d3.max(ypos)):cy?(cy.id==="densite_pop"?d3.scaleLog().domain(d3.extent(pts.filter(d=>d.y>0),d=>d.y)).nice():d3.scaleLinear().domain(d3.extent(pts,d=>d.y)).nice()):d3.scaleLinear().domain([0,d3.max(pts,d=>d.y)||1]).nice()).range([h-m.b,m.t]);
-  const nbFr=v=>(+v).toLocaleString("fr-FR",{maximumSignificantDigits:3});
-  // en logarithmique sur une grande plage, seulement 1, 2 et 5 de chaque puissance de 10, sinon toutes les graduations
-  const plageY=yl?ys.domain()[1]/ys.domain()[0]:1,graduationY=v=>yl&&plageY>30&&![1,2,5].includes(+(+v).toExponential()[0])?"":nbFr(v);
   const rs=d3.scaleSqrt().domain([0,d3.max(pts,d=>d.u.pop)]).range([1.5,lv==="dep"?14:9]);
-  svg.append("g").attr("transform","translate(0,"+(h-m.b)+")").call(d3.axisBottom(xs).ticks(6,cx.id==="densite_pop"?"~s":"~s")).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
+  svg.append("g").attr("transform","translate(0,"+(h-m.b)+")").call(d3.axisBottom(xs).tickValues(graduations(xs,6,46)).tickFormat(nbAxe)).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
   grille(svg,ys,m,w,6);
-  svg.append("g").attr("transform","translate("+m.l+",0)").call(d3.axisLeft(ys).ticks(6).tickFormat(graduationY)).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
+  svg.append("g").attr("transform","translate("+m.l+",0)").call(d3.axisLeft(ys).tickValues(graduations(ys,6,24)).tickFormat(nbAxe)).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
   svg.append("text").attr("x",w-m.r).attr("y",h-6).attr("text-anchor","end").text(cx.label+(cx.unite?" ("+cx.unite+")":""));
   const ylab=cy?cy.label+(cy.unite?" ("+cy.unite+")":""):profLab(p)+", pour 10 000 hab."+(yl?" (log)":"");
-  svg.append("text").attr("x",m.l).attr("y",10).text(ylab);
+  svg.append("text").attr("x",m.l).attr("y",12).text(ylab);
   const box=document.getElementById("scatter");
   svg.append("g").selectAll("circle").data(pts.filter(d=>!yl||d.y>0)).join("circle")
     .attr("cx",d=>xs(Math.max(d.x,xs.domain()[0])) ).attr("cy",d=>ys(d.y)).attr("r",d=>rs(d.u.pop))
@@ -1221,9 +1364,8 @@ function scatter(){
     const mx=d3.median(pq,d=>d.x),my=d3.median(pq,d=>d.y);
     svg.append("line").attr("x1",xs(mx)).attr("x2",xs(mx)).attr("y1",m.t).attr("y2",h-m.b).attr("stroke",css("--accent")).attr("stroke-dasharray","4 3");
     svg.append("line").attr("x1",m.l).attr("x2",w-m.r).attr("y1",ys(Math.max(my,yl?ys.domain()[0]:0))).attr("y2",ys(Math.max(my,yl?ys.domain()[0]:0))).attr("stroke",css("--accent")).attr("stroke-dasharray","4 3");
-    svg.append("text").attr("x",w-m.r-4).attr("y",h-m.b-6).attr("text-anchor","end").text("indicateur élevé, offre faible");
     const crit=pq.filter(d=>d.x>mx&&d.y<=my);
-    quad=" Lignes pointillées, médianes des départements. "+crit.length+" départements ont un indicateur au-dessus de la médiane et une densité "+deMot(pluriel(profLab(p)))+" au-dessous. Cette position par rapport aux médianes ne mesure pas une insuffisance au sens d’une norme.";
+    quad=" Lignes pointillées, médianes des départements, en bas à droite un indicateur élevé et une offre faible. "+crit.length+" départements ont un indicateur au-dessus de la médiane et une densité "+deMot(pluriel(profLab(p)))+" au-dessous. Cette position par rapport aux médianes ne mesure pas une insuffisance au sens d’une norme.";
     quadListe='<details class="plus"><summary>Liste de ces '+crit.length+' départements, par ordre alphabétique</summary><div class="scroll"><table><tr><th>Département</th><th>'+esc(cx.label)+'</th><th>'+esc(profLab(p))+', pour 10 000 hab.</th></tr>'+crit.slice().sort((a,b)=>a.u.nm.localeCompare(b.u.nm,"fr")).map(d=>'<tr><td>'+esc(d.u.nm)+'</td><td>'+f1.format(d.x)+'</td><td>'+f2.format(d.y)+'</td></tr>').join("")+'</table></div></details>';
   }
   const s=spearman(pts.map(d=>d.x),pts.map(d=>d.y));
@@ -1284,7 +1426,10 @@ function lienFiche(c){if(!c.fiche)return esc(c.source||"");const base=(D.site_do
   return'<a href="'+base+'donnees-sources.html#'+c.fiche+'">'+esc(c.source)+'</a>'}
 // du répertoire aux densités, personnes à chaque étape pour la profession choisie (France entière)
 const ETAPES=[[0,"Inscrits au répertoire",""],[1,"Avec une activité déclarée","sans activité déclarée"],
-  [3,"Avec un lieu d’exercice","sans lieu fixe (remplacements, exercice sans site)"],[6,"Comptés dans les densités","seulement des activités sans soins à la population"]];
+  [3,"Avec un lieu d’exercice","sans lieu fixe (remplacements, exercice sans site)"],[6,"Comptés dans les densités","seulement des activités non rattachées à un territoire"]];
+// « , dont 4 226 en téléconsultation (soins à distance) et 120 sans soins à la population »
+function detailNonRattaches(dist,sans){const p=[];if(dist)p.push(fmt.format(dist)+" en téléconsultation (soins à distance)");
+  if(sans)p.push(fmt.format(sans)+" sans soins à la population");return p.length?", dont "+p.join(" et "):""}
 function parcoursAtlas(){
   const svg=d3.select("#pcPlot");svg.selectAll("*").remove();const p=S.prof,v=(D.parcours||{})[p],ph=document.getElementById("pcPhrase");
   if(!v){ph.textContent="Pas de décompte par étape pour cette sélection (qualification ou périmètre élargi), seulement pour les professions du répertoire.";svg.attr("viewBox","0 0 640 20");delete document.getElementById("pcPlot").dataset.vbSigne;return}
@@ -1302,12 +1447,13 @@ function parcoursAtlas(){
     if(prec!=null&&prec>n){svg.append("rect").attr("x",x(n)).attr("y",y+19).attr("width",x(prec)-x(n)).attr("height",bh)
         .attr("fill","none").attr("stroke",css("--d1")).attr("stroke-width",1).attr("stroke-dasharray","3 2");
       svg.append("text").attr("x",0).attr("y",y+42).attr("fill",css("--muted")).attr("font-size",11.5)
-        .text("− "+fmt.format(prec-n)+" "+raison+(der&&v[5]?", dont "+fmt.format(v[5])+" en téléconsultation":""))}
+        .text("− "+fmt.format(prec-n)+" "+raison+(der?detailNonRattaches(v[5],v[4]):""))}
     prec=n});
   const pl=pluriel(profLab(p));
   ph.textContent=(v[0]?"Sur "+fmt.format(v[0])+" "+pl+" inscrits au répertoire, "+fmt.format(v[1])+" déclarent une activité":"Sur "+fmt.format(v[1])+" "+pl+" qui déclarent une activité")
     +", "+fmt.format(v[3])+" ont au moins un lieu d’exercice et "+fmt.format(v[6])+" sont comptés dans les densités des territoires."
-    +(v[4]?" "+fmt.format(v[4])+" n’exercent qu’à des activités sans soins à la population"+(v[5]?", dont "+fmt.format(v[5])+" en téléconsultation":"")+".":"");
+    +(v[5]?" "+fmt.format(v[5])+" n’exercent, avec un lieu déclaré, qu’en téléconsultation, des soins à distance déclarés au siège de la société et non rattachés au territoire des patients.":"")
+    +(v[4]?" "+fmt.format(v[4])+" n’exercent qu’à des activités sans soins à la population.":"");
 }
 // offre et indicateur sur une même carte (audit 4.2) et Moran local bivarié (2.5), par département
 let BV=null,GW=null;
@@ -1425,7 +1571,8 @@ function regressions(){
   document.getElementById("regLimite").innerHTML=limiteHtml([S.regRes],[]);
 }
 const HM_PRINC={[SM]:["psychologue","psychiatre","pedopsychiatre","q_psychiatrie_enfant","psychotherapeute"],[SANTE]:["medecin_generaliste","infirmier","masseur_kinesitherapeute","orthophoniste","pediatre","sage_femme","chirurgien_dentiste","pharmacien"]};
-const HM_OUVERTS=new Set();
+// un cadre par groupe d'indicateurs (demande de Lucas du 12 octobre 2026), chacun avec son titre, « Comment lire »,
+// « Citer et exporter » et son tableau, professions en colonnes, indicateurs du groupe en lignes
 function heatmap(){
   const lv=S.level,toutes=D.professions.filter(p=>inFam(p)&&natOf(p)!=="perimetre_elargi"&&natN(p.id,"all")>=30);
   const princ=new Set([...(S.fam!==SANTE?HM_PRINC[SM]:[]),...(S.fam!==SM?HM_PRINC[SANTE]:[])]);
@@ -1436,28 +1583,43 @@ function heatmap(){
   const dv=DIV(),sc=d3.scaleLinear().domain([-.6,-.3,-.1,0,.1,.3,.6]).range(dv).clamp(true);
   const cols=ctxVisibles().filter(c=>ctxDispo(lv,c));
   const groupes=[...new Set(cols.map(c=>c.groupe||"Profil de la population"))];
-  if(!HM_OUVERTS.size&&groupes.length)HM_OUVERTS.add(groupes[0]);
-  let h='<thead><tr><th>Indicateur</th>'+profs.map(p=>'<th>'+coupureMots(esc(p.libelle))+'</th>').join("")+'</tr></thead>';
-  for(const g of groupes){
-    const cg=cols.filter(c=>(c.groupe||"Profil de la population")===g),ouvert=HM_OUVERTS.has(g);
-    h+='<tbody><tr class="gr" data-g="'+esc(g)+'"><td colspan="'+(profs.length+1)+'" aria-expanded="'+ouvert+'">'+(ouvert?"▾ ":"▸ ")+esc(g)+' <span>'+cg.length+' indicateur'+(cg.length>1?"s":"")+'</span></td></tr>';
-    if(ouvert)for(const c of cg){
+  const nivLab={reg:"régions",dep:"départements",epci:"intercommunalités"}[lv]||lv;
+  const tete='<thead><tr><th>Indicateur</th>'+profs.map(p=>'<th>'+coupureMots(esc(p.libelle))+'</th>').join("")+'</tr></thead>';
+  const cadres=document.getElementById("hmCadres"),liens=[];
+  cadres.innerHTML="";
+  groupes.forEach((g,gi)=>{
+    const cg=cols.filter(c=>(c.groupe||"Profil de la population")===g);
+    let h=tete+'<tbody>',fort=null;
+    for(const c of cg){
       h+='<tr><td class="ind" title="'+esc((c.explication||"")+(c.source?" Source, "+c.source+".":""))+'">'+esc(c.label)+'</td>';
       for(const p of profs){
         let r=get.get(p.id+"|"+c.id),rho,q;
         if(r){rho=r.rho;q=r.q}else if(L.units[0].x){const s=spearman(L.units.map(u=>u.x[c.i]),L.units.map((u,i)=>unitD(lv,p.id,i)));rho=s.rho;q=null}
         const incertain=(q!=null&&q>=.05)||(r&&r.lo!=null&&r.lo<0&&r.hi>0);
+        if(rho!=null&&!isNaN(rho)&&!incertain&&(!fort||Math.abs(rho)>Math.abs(fort.rho)))fort={rho,p:p.libelle,c:c.label};
         const tt=rho==null||isNaN(rho)?"":p.libelle+" et "+c.label+", rho "+f2.format(rho)+(r&&r.lo!=null?", fourchette plausible de "+f2.format(r.lo)+" à "+f2.format(r.hi):"")+(incertain?", lien incertain":"");
         h+='<td data-p="'+p.id+'" data-x="'+c.id+'" title="'+esc(tt)+'" style="'+styleCase(rho==null||isNaN(rho)?null:sc(rho),incertain)+'">'+(rho==null||isNaN(rho)?"":f2.format(rho))+'</td>';
       }
       h+='</tr>';
     }
     h+='</tbody>';
-  }
-  const t=document.getElementById("hm");t.innerHTML=h;
-  const b=document.getElementById("hmTout");b.textContent=S.hmTout?"Professions principales seulement":"Afficher toutes les professions ("+toutes.length+")";b.hidden=toutes.length<=profs.length&&!S.hmTout;
-  t.querySelectorAll("tr.gr").forEach(tr=>tr.onclick=()=>{const g=tr.dataset.g;HM_OUVERTS.has(g)?HM_OUVERTS.delete(g):HM_OUVERTS.add(g);heatmap()});
-  t.querySelectorAll("td[data-p]").forEach(td=>td.onclick=()=>{S.prof=td.dataset.p;S.xvar=td.dataset.x;document.getElementById("prof").value=S.prof;document.getElementById("xvar").value=S.xvar;scatter();document.getElementById("scatter").scrollIntoView({behavior:"smooth",block:"center"})});
+    const id="hm"+gi,pan=document.createElement("div");pan.className="panel pad";pan.id="cadre-"+id;
+    TABLEAUX[id]=()=>"Liens entre l’offre de soins et les indicateurs, "+g+", "+famLab[S.fam]+", "+nivLab;
+    pan.innerHTML='<h2>Corrélations, '+esc(g)+' <button class="how" data-how="correlation,force,q">Comment lire</button></h2><div class="howtxt hidden"></div>'
+      +'<p class="note" style="margin:0 0 8px">'+cg.length+' indicateur'+(cg.length>1?"s":"")+', '+nivLab+', '+(S.mode==="all"?"tous modes d’exercice":S.mode==="lib"?"exercice libéral":"exercice salarié")+'.'
+      +(fort?' Lien le plus net du groupe, '+esc(fort.p.toLowerCase())+' et '+esc(minLib(fort.c))+' ('+f2.format(fort.rho)+').':' Aucun lien net dans ce groupe.')+'</p>'
+      +(toutes.length>profs.length||S.hmTout?'<div class="hmbar"><button class="btn ghost hmtout" type="button">'+(S.hmTout?"Professions principales seulement":"Afficher toutes les professions de la famille ("+toutes.length+")")+'</button></div>':'')
+      +'<div class="hmbox"><table class="hm" id="'+id+'">'+h+'</table></div>';
+    cadres.appendChild(pan);
+    liens.push('<li><button type="button" data-cadre="cadre-'+id+'">'+esc(g)+'</button> <span>'+cg.length+' indicateur'+(cg.length>1?"s":"")+'</span></li>');
+    const b=pan.querySelector(".hmbox");b.addEventListener("scroll",()=>majDefil(b),{passive:true});const tb=b.querySelector("table");tb.dataset.observe=1;DEFIL.observe(tb);
+  });
+  document.getElementById("hmLiens").innerHTML=liens.join("");
+  document.querySelectorAll("#hmLiens button").forEach(b=>b.onclick=()=>document.getElementById(b.dataset.cadre).scrollIntoView({behavior:"smooth",block:"start"}));
+  cadres.querySelectorAll("button.hmtout").forEach(b=>b.onclick=()=>{const y=b.closest(".panel").getBoundingClientRect().top;const id=b.closest(".panel").id;S.hmTout=!S.hmTout;heatmap();normaliserEncadres();signer();
+    // le cadre cliqué reste sous les yeux après le changement
+    const n=document.getElementById(id);if(n)window.scrollBy(0,n.getBoundingClientRect().top-y)});
+  cadres.querySelectorAll("td[data-p]").forEach(td=>td.onclick=()=>{S.prof=td.dataset.p;S.xvar=td.dataset.x;document.getElementById("prof").value=S.prof;document.getElementById("xvar").value=S.xvar;scatter();document.getElementById("scatter").scrollIntoView({behavior:"smooth",block:"center"})});
 }
 
 // ---------- effet ville (corrélation brute et à densité de population égale)
@@ -1544,7 +1706,7 @@ function funnel(){
   const x=d3.scaleLog().domain(d3.extent(pts,d=>d.x)).nice().range([m.l,w-m.r]);
   const ymax=Math.max(d3.quantile(pts.map(d=>d.y).sort(d3.ascending),.98)||1,d3.max(lim,r=>r[2])*.5||1)*1.1;
   const y=d3.scaleLinear().domain([0,ymax]).range([h-m.b,m.t]).clamp(true);
-  svg.append("g").attr("transform","translate(0,"+(h-m.b)+")").call(d3.axisBottom(x).ticks(5,"~s")).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
+  svg.append("g").attr("transform","translate(0,"+(h-m.b)+")").call(d3.axisBottom(x).tickValues(graduations(x,5,46)).tickFormat(nbAxe)).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
   grille(svg,y,m,w,5);
   svg.append("g").attr("transform","translate("+m.l+",0)").call(d3.axisLeft(y).ticks(5).tickFormat(f1.format)).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
   const lp=lim.filter(r=>r[0]>=x.domain()[0]&&r[0]<=x.domain()[1]);
@@ -1568,12 +1730,82 @@ function lorenzOf(lv,p){
   for(const d of a){const nx=cx+d.pop/P,ny=cy+d.n/N;g+=(nx-cx)*(ny+cy);cx=nx;cy=ny;pts.push([cx,cy])}
   return{pts,gini:1-g};
 }
+// distance aux structures de soins selon le niveau de vie (escalier, indice de concentration) et selon le type de territoire,
+// intercommunalités de toute la France (demande de Lucas du 12 octobre 2026)
+// borne d'une fourchette, trois décimales quand deux afficheraient « -0,00 »
+const borneIC=v=>Math.abs(v)<.005?new Intl.NumberFormat("fr-FR",{minimumFractionDigits:3,maximumFractionDigits:3}).format(v):f2.format(v);
+function inegLieux(){
+  const bloc=document.getElementById("inegLieux"),sel=document.getElementById("ilType");
+  const types=(LX?.types||[]).filter(t=>t.complet&&(LX.escalier||[]).some(r=>r.type===t.id)&&(S.fam==="*"||t.famille===S.fam));
+  bloc.hidden=!types.length;if(!types.length)return;
+  if(!S.ilType||!types.some(t=>t.id===S.ilType))S.ilType=(types.find(t=>t.id===(S.fam===SANTE?"lieu_urgences":"lieu_cmp_adultes"))||types[0]).id;
+  sel.innerHTML=types.map(t=>'<option value="'+t.id+'"'+(t.id===S.ilType?" selected":"")+'>'+esc(t.lib)+'</option>').join("");
+  const ty=types.find(t=>t.id===S.ilType),lib=minLib(ty.lib),fr=LX.fr?.[ty.id]?.[0];
+  const es=LX.escalier.filter(r=>r.type===ty.id).sort((a,b)=>a.decile-b.decile),v=es.map(r=>r.distance_mediane_km);
+  const svg=d3.select("#ilEscalier");svg.selectAll("*").remove();
+  const m={l:46,r:14,t:16,b:44},w=520,h=360;
+  const x=d3.scaleBand().domain(d3.range(1,11)).range([m.l,w-m.r]).padding(.18),y=d3.scaleLinear().domain([0,Math.max(d3.max(v),fr||0)*1.15||1]).nice().range([h-m.b,m.t]);
+  svg.append("g").attr("transform","translate(0,"+(h-m.b)+")").call(d3.axisBottom(x)).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
+  grille(svg,y,m,w,5);
+  svg.append("g").attr("transform","translate("+m.l+",0)").call(d3.axisLeft(y).ticks(5).tickFormat(f1.format)).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
+  svg.selectAll("rect.b").data(es).join("rect").attr("x",d=>x(d.decile)).attr("width",x.bandwidth()).attr("y",d=>y(d.distance_mediane_km)).attr("height",d=>y(0)-y(d.distance_mediane_km)).attr("rx",2)
+    .attr("fill",d=>css(fr!=null&&d.distance_mediane_km>fr?"--d1":"--r3"))
+    .append("title").text(d=>"Tranche "+d.decile+", niveau de vie de "+fmt.format(d.niveau_de_vie_min)+" à "+fmt.format(d.niveau_de_vie_max)+" €, distance médiane "+f1.format(d.distance_mediane_km)+" km, "+f1.format(d.part_plus_20_km*100)+" % des habitants à plus de 20 km");
+  svg.selectAll("text.v").data(es).join("text").attr("class","v").attr("x",d=>x(d.decile)+x.bandwidth()/2).attr("y",d=>y(d.distance_mediane_km)-4).attr("text-anchor","middle").attr("font-size",10).attr("fill",css("--ink")).text(d=>f1.format(d.distance_mediane_km));
+  if(fr!=null){svg.append("line").attr("x1",m.l).attr("x2",w-m.r).attr("y1",y(fr)).attr("y2",y(fr)).attr("stroke",css("--d1")).attr("stroke-dasharray","5 3");
+    svg.append("text").attr("x",w-m.r).attr("y",y(fr)-4).attr("text-anchor","end").text("France "+f1.format(fr)+" km")}
+  svg.append("text").attr("x",m.l).attr("y",h-6).text("Plus modestes");svg.append("text").attr("x",w-m.r).attr("y",h-6).attr("text-anchor","end").text("Plus aisés");
+  svg.append("text").attr("x",m.l).attr("y",10).text("Distance médiane, en km");
+  const c=(LX.concentration||[]).find(r=>r.type===ty.id);
+  let ph="La moitié des habitants de la tranche la plus modeste vit à moins de "+f1.format(v[0])+" km de la structure la plus proche ("+lib+"), contre "+f1.format(v[9])+" km pour la tranche la plus aisée.";
+  if(c)ph+=(c.ic95_bas<=0&&c.ic95_haut>=0)?" L’éloignement n’a pas de lien net avec le niveau de vie.":" L’éloignement pèse "+(Math.abs(c.indice_concentration)<.15?"un peu ":"")+"davantage sur les territoires "+(c.indice_concentration<0?"modestes":"aisés")+".";
+  document.getElementById("ilPhrase").textContent=ph;
+  document.getElementById("ilNote").textContent=c?"Indice de concentration des habitants-kilomètres selon le niveau de vie "+f2.format(c.indice_concentration)+", fourchette plausible à 95 % de "+borneIC(c.ic95_bas)+" à "+borneIC(c.ic95_haut)+" (tirages des intercommunalités). Il vaut 0 quand l’éloignement suit la population, il est négatif quand il pèse surtout sur les territoires modestes. Les intercommunalités sans niveau de vie publié (Guadeloupe, Martinique, Guyane, Mayotte) sont écartées. Une intercommunalité très peuplée peut remplir presque seule une tranche, d’où des ruptures dans l’escalier.":"";
+  // selon le type de territoire
+  const cl=(LX.classes||[]).filter(r=>r.type===ty.id),s2=d3.select("#ilClasses");s2.selectAll("*").remove();
+  const m2={l:190,r:50,t:10,b:30},h2=300,y2=d3.scaleBand().domain(cl.map(r=>r.classe)).range([m2.t,h2-m2.b]).padding(.3),x2=d3.scaleLinear().domain([0,d3.max(cl,r=>r.distance_mediane_km)*1.1||1]).nice().range([m2.l,w-m2.r]);
+  s2.append("g").attr("transform","translate(0,"+(h2-m2.b)+")").call(d3.axisBottom(x2).ticks(5).tickFormat(f1.format)).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
+  s2.selectAll("text.c").data(cl).join("text").attr("class","c").attr("x",m2.l-8).attr("y",d=>y2(d.classe)+y2.bandwidth()/2+4).attr("text-anchor","end").attr("font-size",11).text(d=>d.classe);
+  s2.selectAll("rect").data(cl).join("rect").attr("x",m2.l).attr("y",d=>y2(d.classe)).attr("height",y2.bandwidth()).attr("width",d=>x2(d.distance_mediane_km)-m2.l).attr("rx",2)
+    .attr("fill",d=>css(fr!=null&&d.distance_mediane_km>fr?"--d1":"--r3"))
+    .append("title").text(d=>d.classe+", "+fmt.format(d.population)+" habitants, distance médiane "+f1.format(d.distance_mediane_km)+" km, "+f1.format(d.part_plus_20_km*100)+" % à plus de 20 km");
+  s2.selectAll("text.v").data(cl).join("text").attr("class","v").attr("x",d=>x2(d.distance_mediane_km)+4).attr("y",d=>y2(d.classe)+y2.bandwidth()/2+4).attr("font-size",10).attr("fill",css("--ink")).text(d=>f1.format(d.distance_mediane_km)+" km");
+  s2.append("text").attr("x",w-m2.r).attr("y",h2-2).attr("text-anchor","end").text("Distance médiane, en km");
+  const dm=cl.map(r=>r.distance_mediane_km);
+  const proche=cl[dm.indexOf(d3.min(dm))],loin=cl[dm.indexOf(d3.max(dm))];
+  document.getElementById("icPhrase").textContent=cl.length?"Selon le type de territoire, la distance médiane à la structure la plus proche ("+lib+") va de "+f1.format(d3.min(dm))+" km ("+proche.classe.split(" (")[0].toLowerCase()+") à "+f1.format(d3.max(dm))+" km ("+loin.classe.split(" (")[0].toLowerCase()+").":"";
+  const te=(LX.tests||[]).find(r=>r.type===ty.id);
+  document.getElementById("icNote").textContent=te?"Test de Kruskal-Wallis sur les distances médianes des intercommunalités, epsilon carré "+f2.format(te.epsilon2)+" (part des écarts entre intercommunalités qui tient au type de territoire), q-valeur de Benjamini-Hochberg "+(te.q_bh<.001?"inférieure à 0,001":f2.format(te.q_bh))+". Classes de densité de population des intercommunalités, les mêmes que pour les professions. Ce n’est pas un temps de trajet, et une structure n'est pas une capacité.":"";
+}
+document.getElementById("ilType").addEventListener("change",e=>{S.ilType=e.target.value;inegLieux();normaliserEncadres()});
+// accès aux structures de soins par territoire, temps par la route de l'INSEE et distance à la structure la plus proche
+function accesLieux(){const tab=document.getElementById("alTable"),lv=S.level==="reg"?"dep":S.level,N=D.niveaux[lv];
+  const route=(D.route||[]).filter(r=>S.fam==="*"||r.fam===S.fam),RT=N.route||{};
+  const types=LX?LX.types.filter(t=>t.complet&&N.lieux_dist?.[t.id]&&(S.fam==="*"||t.famille===S.fam)):[];
+  if(!route.length&&!types.length){tab.innerHTML="";document.getElementById("alPhrase").textContent="Pas de données d’accès pour cette sélection.";return}
+  const court=s=>{s=s.replace(/^Structures? de psychiatrie ambulatoire, dont les centres médico-psychologiques \(CMP\)/,"Psychiatrie ambulatoire, dont CMP").split(", ")[0];return s};
+  const cols=[...route.filter(r=>RT[r.id]).map(r=>({id:"r:"+r.id,g:"r",lib:court(r.lib),plein:r.lib,v:i=>RT[r.id][i]?.[1]})),
+    ...types.map(t=>({id:"l:"+t.id,g:"l",lib:court(t.lib),plein:t.lib,v:i=>N.lieux_dist[t.id][i]}))];
+  const tri=S.alTri||{c:cols[0]?.id,asc:false};
+  const lignes=N.units.map((u,i)=>({u,i})).filter(x=>x.u.pop>0);
+  const col=cols.find(c=>c.id===tri.c)||cols[0];
+  lignes.sort((a,b)=>{const x=col.v(a.i),y=col.v(b.i);if(x==null)return 1;if(y==null)return -1;return tri.asc?x-y:y-x});
+  const nr=cols.filter(c=>c.g==="r").length,nl=cols.filter(c=>c.g==="l").length;
+  tab.innerHTML='<thead><tr><th rowspan="2">'+(lv==="dep"?"Département":"Intercommunalité")+'</th><th rowspan="2">Habitants</th>'
+    +(nr?'<th colspan="'+nr+'" class="groupe-col">Temps médian par la route, en minutes</th>':'')+(nl?'<th colspan="'+nl+'" class="groupe-col">Distance médiane à la structure la plus proche, en km à vol d’oiseau</th>':'')+'</tr><tr>'
+    +cols.map(c=>'<th title="'+esc(c.plein)+'"><button type="button" class="tri" data-c="'+c.id+'" aria-sort="'+(c.id===col.id?(tri.asc?"ascending":"descending"):"none")+'">'+esc(c.lib)+'</button></th>').join("")+'</tr></thead><tbody>'
+    +lignes.map(({u,i})=>'<tr><td>'+esc(u.nm)+'</td><td>'+fmt.format(u.pop)+'</td>'+cols.map(c=>{const v=c.v(i);return'<td>'+(v==null?"non disponible":f1.format(v))+'</td>'}).join("")+'</tr>').join("")+'</tbody>';
+  tab.querySelectorAll("button.tri").forEach(b=>b.onclick=()=>{S.alTri={c:b.dataset.c,asc:S.alTri?.c===b.dataset.c?!S.alTri.asc:false};accesLieux();normaliserEncadres()});
+  const t0=types.find(t=>t.id==="lieu_cmp_adultes")||types[0],fr=t0&&LX.fr?.[t0.id];
+  document.getElementById("alPhrase").textContent=fr?"En France, la moitié des habitants vit à moins de "+f1.format(fr[0])+" km à vol d’oiseau de la structure la plus proche de type « "+t0.lib+" », et "+f1.format(fr[2]*100)+" % à plus de 30 km.":"";
+  document.getElementById("alNote").textContent="Un clic sur l’en-tête d’une colonne trie le tableau. Temps de trajet de l’INSEE, en voiture aux heures creuses, vers l’équipement le plus proche. Distances à vol d’oiseau depuis le centre de chaque commune, médiane des habitants du territoire, vers les structures recensées par FINESS et le ROR réunis sans double compte."+(S.level==="reg"?" Présenté par département.":"");
+  document.getElementById("alLimite").innerHTML=limiteHtml(["route","lieux"])}
 function inegalites(){
   const lv=S.level,svg=d3.select("#lorenz");svg.selectAll("*").remove();
   const m={l:46,r:14,t:14,b:40},w=520,h=440,x=d3.scaleLinear().range([m.l,w-m.r]),y=d3.scaleLinear().range([h-m.b,m.t]);
-  svg.append("g").attr("transform","translate(0,"+(h-m.b)+")").call(d3.axisBottom(x).ticks(5,"%")).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
+  svg.append("g").attr("transform","translate(0,"+(h-m.b)+")").call(d3.axisBottom(x).ticks(5).tickFormat(pctAxe)).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
   grille(svg,y,m,w,5);
-  svg.append("g").attr("transform","translate("+m.l+",0)").call(d3.axisLeft(y).ticks(5,"%")).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
+  svg.append("g").attr("transform","translate("+m.l+",0)").call(d3.axisLeft(y).ticks(5).tickFormat(pctAxe)).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
   svg.append("line").attr("x1",x(0)).attr("y1",y(0)).attr("x2",x(1)).attr("y2",y(1)).attr("stroke",css("--muted")).attr("stroke-dasharray","3 3");
   const ref=S.fam===SM?["psychologue","psychiatre","pedopsychiatre"]:S.fam===SANTE?["medecin_generaliste","infirmier","masseur_kinesitherapeute"]:["medecin_generaliste","psychologue","psychiatre"];
   const comp=[S.prof,...ref].filter((p,i,a)=>IDX.prof.has(p)&&a.indexOf(p)===i).slice(0,4);
@@ -1626,6 +1858,13 @@ function typologie(){
   if(decrites.length){const grp=p=>(IDX.prof.get(p)||{}).groupe||"Autres médecins";
     for(const g of [...new Set(decrites.map(grp))]){h+='<tr class="ty-sous"><th colspan="'+(classes.length+1)+'">'+esc(g)+', à titre descriptif, sans servir à former les groupes</th></tr>';
       for(const p of decrites.filter(x=>grp(x)===g))h+=ligneT(p)}}
+  // structures de soins décrits dans chaque groupe, sans servir à les former (12 octobre 2026)
+  const TL=(LX?.typologie||[]).filter(r=>r.famille===fam);
+  if(TL.length){const libL=id=>(LX.types.find(x=>x.id===id)||{}).lib||id,tl=new Map(TL.map(r=>[r.classe+"|"+r.type,r])),tys=[...new Set(TL.map(r=>r.type))];
+    h+='<tr class="ty-sous"><th colspan="'+(classes.length+1)+'">Structures de soins pour 100 000 habitants, indice 100 pour la France (FINESS et ROR), à titre descriptif</th></tr>';
+    for(const ty of tys)h+='<tr><td>'+esc(libL(ty))+'</td>'+classes.map(c=>{const v=tl.get(c+"|"+ty)?.indice_vs_national;return v==null?'<td></td>':'<td style="'+styleCase(sc(v),false)+'">'+fmt.format(Math.round(v))+'</td>'}).join("")+'</tr>';
+    h+='<tr class="ty-sous"><th colspan="'+(classes.length+1)+'">Distance médiane des habitants à la structure la plus proche, en km, à titre descriptif</th></tr>';
+    for(const ty of tys)h+='<tr><td>'+esc(libL(ty))+'</td>'+classes.map(c=>{const v=tl.get(c+"|"+ty)?.distance_mediane_km;return'<td>'+(v==null?"":f1.format(v))+'</td>'}).join("")+'</tr>'}
   document.getElementById("ttab").innerHTML=h;
   document.getElementById("tyLegende").innerHTML=classes.map(c=>{const r=get.get(c+"|"+profs[0]);return'<li><i style="background:'+pal[(c-1)%10]+'"></i><span>'+esc(nomC(c))+'</span><span class="n">'+fmt.format(r.territoires)+' intercommunalités, '+habitantsTxt(r.population)+'</span></li>'}).join("");
   acpPanneau(fam,A,cl,pal);
@@ -1639,9 +1878,9 @@ function acpPanneau(fam,A,cl,pal){
   const ax=A.inertie,ch=Object.entries(A.charges).map(([p,v])=>({p,a:v[0],b:v[1]})).sort((a,b)=>b.a-a.a);
   const m={l:40,r:12,t:12,b:40},w=520,h=420;
   const x=d3.scaleLinear().domain(d3.extent(pts,d=>d.x)).nice().range([m.l,w-m.r]),y=d3.scaleLinear().domain(d3.extent(pts,d=>d.y)).nice().range([h-m.b,m.t]);
-  svg.append("g").attr("transform","translate(0,"+(h-m.b)+")").call(d3.axisBottom(x).ticks(6)).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
+  svg.append("g").attr("transform","translate(0,"+(h-m.b)+")").call(d3.axisBottom(x).ticks(6).tickFormat(nbAxe)).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
   grille(svg,y,m,w,6);
-  svg.append("g").attr("transform","translate("+m.l+",0)").call(d3.axisLeft(y).ticks(6)).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
+  svg.append("g").attr("transform","translate("+m.l+",0)").call(d3.axisLeft(y).ticks(6).tickFormat(nbAxe)).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
   [[x(0),x(0),m.t,h-m.b],[m.l,w-m.r,y(0),y(0)]].forEach(([x1,x2,y1,y2])=>svg.append("line").attr("x1",x1).attr("x2",x2).attr("y1",y1).attr("y2",y2).attr("stroke",css("--muted")).attr("stroke-dasharray","3 3"));
   svg.append("text").attr("x",w-m.r).attr("y",h-6).attr("text-anchor","end").text("Axe 1, "+Math.round(ax[0]*100)+" % des différences");
   svg.append("text").attr("x",m.l+4).attr("y",m.t+10).text("Axe 2, "+Math.round(ax[1]*100)+" %");
@@ -1687,6 +1926,8 @@ function syncBar(){
   const evb=document.querySelector('#metricSeg [data-v="evol"]');evb.disabled=!(D.niveaux[S.level].evolution?.[S.prof])||S.mode!=="all";
   evb.title=evb.disabled?"Disponible pour les régions et les départements, pour les professions suivies par la DREES depuis 2016":"";
   if(evb.disabled&&S.metric==="evol")S.metric="dens";
+  const lb=document.querySelector('#metricSeg [data-v="lieux"]');lb.disabled=!(S.lieux&&D.niveaux[S.level].lieux_dist?.[S.lieux]);
+  if(lb.disabled&&S.metric==="lieux")S.metric="dens";
   const tb=document.querySelector('#metricSeg [data-v="trajet"]');tb.disabled=!(routeEq(S.prof)&&D.niveaux[S.level].route);
   if(tb.disabled&&S.metric==="trajet")S.metric="dens";
   document.querySelectorAll('.seg[data-k="metric"] button').forEach(b=>b.setAttribute("aria-pressed",String(S.metric===b.dataset.v)));
@@ -1710,10 +1951,10 @@ function render(){
   if(S.level==="reg"&&(!D.niveaux.reg||!["carte","tableau"].includes(S.tab))){S.level="dep";S.sel=null}
   syncBar();
   document.querySelectorAll("section[data-p]").forEach(s=>s.classList.toggle("hidden",s.dataset.p!==S.tab));
-  if(S.tab==="carte"){drawMap();natCard();selCard();lowerPanels();parcoursAtlas();listeCherche()}
+  if(S.tab==="carte"){lieuxOptions();drawMap();natCard();selCard();lowerPanels();parcoursAtlas();listeCherche()}
   if(S.tab==="tableau")table();
   if(S.tab==="croisements"){scatter();heatmap();effetVille();indicateursEntreEux();croisementsBases();offreBesoin();gwrCarte()}
-  if(S.tab==="inegalites"){inegalites();escalier();funnel()}
+  if(S.tab==="inegalites"){inegalites();escalier();funnel();inegLieux();accesLieux()}
   if(S.tab==="typologie")typologie();
   if(S.tab==="sources")sources();
   if(S.tab==="comprendre")comprendre();
@@ -1736,7 +1977,7 @@ document.getElementById("cbListe").addEventListener("click",e=>{const b=e.target
 document.getElementById("indRef").addEventListener("change",e=>{S.indRef=e.target.value;indicateursEntreEux();signer()});
 document.getElementById("regRes").addEventListener("change",e=>{S.regRes=e.target.value;regressions();signer()});
 document.getElementById("q").addEventListener("input",table);
-document.getElementById("hmTout").addEventListener("click",()=>{S.hmTout=!S.hmTout;heatmap()});
+
 document.getElementById("evTout").addEventListener("click",()=>{S.evTout=!S.evTout;effetVille();signer()});
 document.getElementById("scFiltre").addEventListener("input",()=>scatter());
 addEventListener("scroll",hideTip,{passive:true});

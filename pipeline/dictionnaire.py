@@ -13,6 +13,63 @@ MODES = {"all": "tous modes d'exercice", "lib": "exercice libéral", "sal": "exe
 
 # (motif sur le nom de fichier, description du fichier)
 FICHIERS = [
+    (r"^sensibilite_confirmation\.csv$", lambda m: "Résultats clés sur les structures de soins recalculés avec les seules "
+     "structures confirmées par une source indépendante de FINESS et du ROR (sources de l'établissement, autre source "
+     "publique, certification de la HAS, Sirene), pour dire si la conclusion tient sans les structures non confirmées."),
+    (r"^double_eloignement\.csv$", lambda m: "Part des habitants qui vivent dans une intercommunalité sans professionnel "
+     "déclaré du champ et à plus de 20 km à vol d'oiseau d'une structure du même champ, France, régions et départements."),
+    (r"^charge_cmp_sae\.csv$", lambda m: "File active ambulatoire et psychiatres salariés en temps plein rapportés aux CMP "
+     "que les établissements déclarent à la statistique annuelle des établissements de santé (SAE), par discipline. "
+     "Département du siège de l'établissement. La file active ambulatoire compte aussi les patients vus hors CMP "
+     "(CATTP, consultations, liaison)."),
+    (r"^zones_eloignement\.csv$", lambda m: "Zones où l'éloignement des habitants à une structure de soins se concentre, "
+     "Moran local des distances médianes par intercommunalité, avec correction de Benjamini-Hochberg."),
+    (r"^lieux_soins\.csv$", lambda m: "Structures de soins réunies de FINESS et du Répertoire opérationnel des ressources (ROR), "
+                                       "sans double compte. Une ligne par structure et par type, avec son emplacement, sa "
+                                       "provenance et les professionnels déclarés sur place au répertoire."),
+    (r"^lieux_soins_(epci|dep|reg)\.csv$", lambda m: f"Nombre de structures de soins de chaque type par {NIVEAUX[m.group(1)]}, "
+                                                    "et pour 100 000 habitants."),
+    (r"^distances_lieux_(epci|dep|reg|france)\.csv$",
+     lambda m: "Distance à vol d'oiseau des habitants à la structure de soins la plus proche de chaque type, "
+               + (f"par {NIVEAUX[m.group(1)]}." if m.group(1) in NIVEAUX else "France entière.")),
+    (r"^distances_lieux_classes_densite\.csv$", lambda m: "Distance des habitants à la structure de soins la plus proche selon "
+                                                            "le type de territoire (classes de densité des "
+                                                            "intercommunalités), avec le test de l'écart entre classes."),
+    (r"^concentration_distance_lieux\.csv$", lambda m: "Indice de concentration de la distance aux structures de soins selon "
+                                                         "le niveau de vie des intercommunalités, avec sa fourchette."),
+    (r"^concordance_cmp_sae\.csv$", lambda m: "CMP recensés par FINESS et le ROR confrontés aux CMP que les "
+                                               "établissements déclarent à la SAE de la DREES, par département et région."),
+    (r"^sirene_sans_correspondant\.csv$", lambda m: "Établissements actifs du répertoire Sirene, sous une enseigne "
+                                                     "de CMP, sans structure correspondante dans FINESS ou le ROR, à "
+                                                     "vérifier."),
+    (r"^verdicts_sans_structure\.csv$", lambda m: "Verdicts de la vérification à la main qui ne retrouvent plus leur structure "
+     "(clé changée par une mise à jour des bases ou structure déjà réunie à une autre), à revoir."),
+    (r"^etablissements_verifies\.csv$", lambda m: "Établissements dont les structures ont été reprises une à une sur "
+                                                    "leurs propres sources (liste vérifiée)."),
+    (r"^structures_non_retenues\.csv$", lambda m: "Inscriptions de FINESS ou du ROR qui ne correspondent à aucune "
+                                                  "structure de la liste vérifiée de leur établissement."),
+    (r"^structures_gardees_a_verifier\.csv$", lambda m: "Inscriptions de FINESS ou du ROR absentes de la liste "
+                                                        "vérifiée de leur établissement mais confirmées par la "
+                                                        "certification HAS ou Sirene, gardées en attendant une "
+                                                        "vérification à la main."),
+    (r"^concordance_cmp_etablissements\.csv$", lambda m: "CMP et CATTP confrontés hôpital par hôpital (entité juridique) "
+                                                         "aux déclarations de la SAE, pour repérer les établissements à "
+                                                         "vérifier."),
+    (r"^relecture_structures\.csv$", lambda m: "Relecture de FINESS et du ROR, chaque correction apportée avec le nombre "
+                                                 "de structures concernées."),
+    (r"^cmp_par_public\.csv$", lambda m: "Centres médico-psychologiques par public, pour adultes, pour enfants et "
+                                          "adolescents, accueillant les deux, au public non précisé, par territoire."),
+    (r"^typologie_lieux\.csv$", lambda m: "Structures de soins et distances décrites dans chaque groupe de la typologie, à "
+                                           "titre descriptif (ils ne servent pas à former les groupes)."),
+    (r"^escalier_distance_lieux\.csv$", lambda m: "Distance des habitants à la structure de soins la plus proche selon le niveau "
+                                                    "de vie de leur intercommunalité, par dixième de la population."),
+    (r"^distances_lieux_communes\.csv$", lambda m: "Distance à vol d'oiseau du centre de chaque commune à la structure de soins la "
+                                                     "plus proche de chaque type recensé presque partout."),
+    (r"^concordance_finess_ror\.csv$", lambda m: "Provenance des structures de soins par département et par type, dans les "
+                                                  "deux bases, dans FINESS seul ou dans le ROR seul."),
+    (r"^lieux_couverture\.csv$", lambda m: "Part des départements où chaque type de lieu est recensé. Sous 90 %, le type "
+                                            "est listé mais pas comparé entre territoires."),
+    (r"^lieux_references\.csv$", lambda m: "Nombre de lieux rapproché des chiffres publiés par la DREES."),
     (r"^effectifs_(com|epci|dep|reg)_(all|lib|sal)\.csv$",
      lambda m: f"Effectifs et densités par {NIVEAUX[m.group(1)]}, {MODES[m.group(2)]}. Une ligne par territoire, "
                "une paire de colonnes par profession."),
@@ -156,8 +213,9 @@ FICHIERS = [
                                       "répartition des coefficients locaux, test de variation spatiale)."),
     (r"^parcours_activites\.csv$", lambda m: "Du répertoire aux densités. Pour chaque profession, personnes inscrites "
                                                "(quand la profession correspond à un libellé du RPPS), personnes avec une "
-                                               "activité déclarée, sans lieu d'exercice, avec un lieu, exerçant seulement "
-                                               "sans soins à la population et comptées dans les densités des territoires."),
+                                               "activité déclarée, sans lieu d'exercice, avec un lieu, n'exerçant qu'en "
+                                               "téléconsultation ou sans soins à la population, et comptées dans les "
+                                               "densités des territoires."),
     (r"^inscrits_sans_activite\.csv$", lambda m: "Personnes inscrites au RPPS (hors étudiants) et personnes ayant au "
                                                  "moins une activité déclarée, par profession. Sans activité déclarée ne "
                                                  "veut pas dire sans exercice, le fichier ne dit rien de ces inscrits."),
@@ -178,6 +236,114 @@ FICHIERS = [
 
 # (motif sur le nom de colonne, description)
 COLONNES = [
+    (r"^mesure$", "Résultat recalculé (nombre, distance médiane, part à plus de 20 km, classement des départements, "
+                  "éloignement selon le niveau de vie)."),
+    (r"^toutes$", "Valeur avec toutes les structures recensées."),
+    (r"^confirmees$", "Valeur avec les seules structures confirmées par une source indépendante de FINESS et du ROR."),
+    (r"^conclusion_identique$", "Vrai quand la conclusion ne change pas (écart de moins d'un kilomètre ou de deux points, "
+                                "corrélation de rang d'au moins 0,9, même sens et même netteté du lien)."),
+    (r"^champ$", "Champ du double éloignement (adultes, enfants)."),
+    (r"^part_sans_professionnel$", "Part des habitants dont l'intercommunalité ne compte aucun professionnel déclaré du champ."),
+    (r"^part_loin_structure$", "Part des habitants à plus de 20 km de la structure du champ la plus proche."),
+    (r"^part_double_eloignement$", "Part des habitants dans les deux situations à la fois."),
+    (r"^habitants_double_eloignement$", "Nombre d'habitants dans les deux situations à la fois."),
+    (r"^public$", "Public de la discipline, adultes (psychiatrie générale) ou enfants (psychiatrie infanto-juvénile)."),
+    (r"^cmp_sae$", "CMP déclarés à la SAE par les établissements de la discipline."),
+    (r"^file_active_ambulatoire$", "Patients vus au moins une fois dans l'année en ambulatoire, déclarés à la SAE."),
+    (r"^etp_psychiatres$", "Psychiatres salariés en équivalents temps plein, déclarés à la SAE."),
+    (r"^patients_par_cmp$", "File active ambulatoire rapportée au nombre de CMP déclarés."),
+    (r"^etp_psychiatres_par_cmp$", "Psychiatres salariés en temps plein rapportés au nombre de CMP déclarés."),
+    (r"^type_structure$", "Type de structure dont la distance est étudiée."),
+    (r"^zone$", "Zone d'éloignement groupé (intercommunalité éloignée entourée d'intercommunalités éloignées), de "
+                "proximité groupée, intercommunalité éloignée ou proche isolée, ou non significatif après correction."),
+    (r"^(moran_global|p_moran_global)$", "Indice de Moran global des distances et sa p-valeur par permutations."),
+    (r"^sae_(cmp|adultes|enfants)$", "CMP déclarés à la SAE (bordereau psychiatrie), en tout, en psychiatrie générale "
+                                     "(adultes) ou infanto-juvénile (enfants et adolescents), dans le département ou la "
+                                     "région du siège de l'établissement."),
+    (r"^unites_ror$", "Unités déclarées comme CMP dans le ROR, avant leur réunion en lieux (plusieurs unités d'un même "
+                      "CMP, ou des CMP déclarés à l'adresse de leur hôpital, ne font qu'une structure)."),
+    (r"^ecart_relatif$", "Écart relatif entre les CMP recensés ici et ceux déclarés à la SAE."),
+    (r"^confirmation$", "Niveau de confirmation de la structure (vérifiée sur les sources de l'établissement, sur une "
+                        "autre source publique, confirmée par la certification HAS ou par Sirene, examinée à la main et maintenue, ou à "
+                        "vérifier)."),
+    (r"^site_certification_has$", "Vrai quand un numéro FINESS de la structure est un site de la dernière "
+                                  "certification HAS de son établissement."),
+    (r"^siret_sirene$", "Numéro SIRET de l'établissement Sirene correspondant."),
+    (r"^enseigne_sirene$", "Enseigne de cet établissement dans Sirene."),
+    (r"^adresse_sirene$", "Adresse de cet établissement dans Sirene."),
+    (r"^verdict$", "Résultat de la vérification à la main d'une structure inscrite seulement dans les bases ou absente "
+                   "de la liste de son établissement (existe, ou pas_un_cmp pour une unité rangée dans son type réel). "
+                   "Vide sans vérification à la main."),
+    (r"^examen$", "Constat et source de cette vérification à la main (site de l'établissement, Sirene, fiche "
+                  "Santé.fr, appel téléphonique...)."),
+    (r"^siret$", "Numéro SIRET de l'établissement Sirene."),
+    (r"^enseigne$", "Enseigne de l'établissement dans Sirene."),
+    (r"^date_creation$", "Date de création de l'établissement dans Sirene."),
+    (r"^verification$", "Statut de la structure dans la liste vérifiée (confirmée par l'établissement, par une autre "
+                        "source publique, ou seulement inscrite dans les bases), vide hors liste vérifiée."),
+    (r"^source_verification$", "Source qui confirme la structure."),
+    (r"^adresse_source_verification$", "Adresse de la page de cette source."),
+    (r"^date_verification$", "Date de la vérification."),
+    (r"^types$", "Types de structures vérifiés pour cet établissement."),
+    (r"^sources$", "Sources consultées."),
+    (r"^structures_etablissement$", "Structures confirmées par l'établissement."),
+    (r"^structures_source_publique$", "Structures confirmées par une autre source publique."),
+    (r"^structures_bases$", "Structures seulement inscrites dans FINESS ou le ROR."),
+    (r"^a_reverifier$", "Vrai quand les inscriptions des bases ont changé depuis la vérification, ou qu'elle a plus d'un an."),
+    (r"^raison$", "Raison pour laquelle l'inscription n'est pas retenue."),
+    (r"^ej$", "Numéro FINESS de l'entité juridique (l'hôpital ou l'association gestionnaire)."),
+    (r"^dep_siege$", "Département du siège de l'établissement d'après la SAE."),
+    (r"^ici_(cmp|adultes|enfants|cattp)$", "CMP (tous, pour adultes, pour enfants) ou CATTP recensés ici et rattachés à "
+                                          "l'établissement."),
+    (r"^sae_cattp$", "CATTP déclarés par l'établissement à la SAE."),
+    (r"^ecart$", "CMP recensés ici moins CMP déclarés à la SAE."),
+    (r"^statut$", "Concorde (écart d'au plus 20 % ou d'un CMP), moins ici, plus ici, ou établissement absent de la SAE."),
+    (r"^concordance$", "Niveau de concordance des sources, d'après l'écart avec la SAE (20 % et 40 %)."),
+    (r"^base$", "Base relue (FINESS, ROR, ou les deux)."),
+    (r"^constat$", "Ce qui a été constaté dans la base."),
+    (r"^traitement$", "Ce qui en a été fait."),
+    (r"^libelle_type$", "Libellé du type de structure de soins."),
+    (r"^groupe$", "Groupe du type de lieu ou de la profession."),
+    (r"^unite_ror$", "Nom de l'unité dans le ROR (vide pour une structure présente dans FINESS seul)."),
+    (r"^secteur$", "Code du secteur de psychiatrie quand le nom de la structure le cite (93G16, 31I01, G pour la psychiatrie générale, I pour la psychiatrie infanto-juvénile, Z pour un intersecteur), vide sinon. Il ne dit pas quelles communes le secteur dessert."),
+    (r"^finess_rapproche$", "Numéro FINESS d'un CMP de FINESS rapproché de la structure du ROR par l'entité juridique et la commune."),
+    (r"^finess_rapproche$", "Numéro FINESS d'un CMP de FINESS rapproché de la structure du ROR par l'entité juridique et la "
+                            "commune."),
+    (r"^entite_juridique$", "Numéro FINESS de l'entité juridique gestionnaire."),
+    (r"^nom_commune$", "Nom de la commune."),
+    (r"^adresse$", "Adresse de la structure (voie), quand elle est connue."),
+    (r"^(latitude|longitude)$", "Coordonnées de la structure, en degrés (WGS 84)."),
+    (r"^emplacement$", "Précision de l'emplacement, coordonnées de FINESS, du ROR, adresse géocodée (numéro, rue ou "
+                       "lieu-dit), établissement de rattachement ou centre de la commune."),
+    (r"^provenance$", "FINESS et ROR, FINESS seul ou ROR seul."),
+    (r"^categories_ror$", "Codes des catégories du ROR des unités réunies dans le lieu (nomenclature TRE_R244 de l'ANS)."),
+    (r"^categorie_finess$", "Code de catégorie FINESS de l'établissement, quand le lieu y est présent."),
+    (r"^age_(min|max)$", "Âge minimal ou maximal des patients déclaré dans le ROR, en années."),
+    (r"^lits_ror$", "Lits déclarés dans le ROR pour les unités de la structure."),
+    (r"^unites_ror$", "Nombre d'unités du ROR réunies dans le lieu."),
+    (r"^declares_(.+)$", "Personnes déclarant au répertoire une activité à l'établissement et dans la commune de la structure, "
+                         "pour cette profession. Vide pour une structure sans numéro FINESS propre."),
+    (r"^n_lieu_.+$", "Nombre de structures de ce type dans le territoire."),
+    (r"^pour_100000_lieu_.+$", "Nombre de structures de ce type pour 100 000 habitants."),
+    (r"^lieux_lieu_.+$", "Nombre de structures de ce type pour 100 000 habitants (FINESS et ROR réunis)."),
+    (r"^dist_lieu_.+$", "Distance médiane des habitants à la structure la plus proche de ce type, en km, à vol d'oiseau."),
+    (r"^finess_absorbes$", "Autres numéros FINESS du même lieu, enregistré plusieurs fois (sous deux entités juridiques "
+                           "ou deux catégories) et compté une seule fois."),
+    (r"^cmp$", "Centres médico-psychologiques distincts, tous publics (FINESS et ROR réunis)."),
+    (r"^(adultes|enfants)$", "CMP qui accueillent les adultes, ou les enfants et adolescents (un CMP qui accueille les "
+                             "deux compte dans les deux colonnes)."),
+    (r"^les_deux$", "CMP qui accueillent à la fois les adultes et les enfants."),
+    (r"^non_precise$", "CMP connus de FINESS seul, sans âges déclarés ni indice du public dans leur nom."),
+    (r"^antennes$", "CMP dont le nom dit qu'il s'agit d'une antenne ou d'une permanence (en mairie, en CCAS, en maison "
+                    "de santé), comptés parmi les CMP et signalés comme tels."),
+    (r"^lieux_pour_100000$", "Nombre de structures de soins de ce type pour 100 000 habitants."),
+    (r"^distance_mediane_km$", "Distance médiane des habitants à la structure la plus proche, en km, à vol d'oiseau."),
+    (r"^part_plus_(20|30)_km$", "Part des habitants à plus de 20 ou 30 km de la structure la plus proche."),
+    (r"^lieux_(les_deux|finess|ror)$", "Lieux présents dans les deux bases, dans FINESS seul ou dans le ROR seul."),
+    (r"^part_departements$", "Part des départements (Mayotte écartée) où au moins une structure de ce type est recensée."),
+    (r"^complet$", "Vrai quand le type est recensé dans au moins 90 % des départements et comparé entre territoires."),
+    (r"^(lieux|reference|date_reference|objet|ecart)$", "Lieux recensés ici, chiffre publié, sa date, ce qu'il compte, "
+                                                        "écart relatif."),
     (r"^ald$", "Numéro de l'affection dans la liste des ALD (1 à 30)."),
     (r"^resultat$", "Indicateur étudié par la régression."),
     (r"^champ$", "Départements retenus, Hexagone avec ou sans l'Île-de-France."),
@@ -229,9 +395,12 @@ COLONNES = [
     (r"^sans_lieu$", "Personnes dont aucune activité n'a de commune d'exercice (remplacements, exercice sans site "
                      "fixe). Comptées dans l'effectif national, pas dans les territoires."),
     (r"^avec_lieu$", "Personnes ayant au moins une activité avec une commune d'exercice."),
+    (r"^a_distance_seulement$", "Personnes dont aucune activité localisée n'entre dans les densités et qui ont au "
+                                "moins une activité pour une société de téléconsultation (soins à distance, déclarés "
+                                "au siège de la société). Retirées des densités, comptées dans l'effectif national."),
     (r"^sans_soins_seulement$", "Personnes dont toutes les activités localisées sont sans soins à la population "
-                                "(sièges, contrôle médical, industrie, recherche, téléconsultation...). Retirées des "
-                                "densités, comptées dans l'effectif national."),
+                                "(sièges, contrôle médical, industrie, recherche...), sans téléconsultation. Retirées "
+                                "des densités, comptées dans l'effectif national."),
     (r"^dans_densites$", "Personnes ayant au moins une activité localisée de soins ou pour un public particulier, "
                          "comptées dans la densité d'au moins un territoire."),
     (r"^nous$", "Effectif calculé ici, personnes ayant au moins une activité dans l'extraction du RPPS."),
@@ -409,11 +578,12 @@ COLONNES = [
     (r"^part$", "Part dans la classe de territoires."),
     (r"^personnes$", "Nombre de personnes distinctes."),
     (r"^categorie$", "Catégorie du secteur d'activité, soins (soins à la population), public_particulier (soins ou "
-                     "prévention pour un public particulier, gardés dans les densités) ou sans_soins (retirés des "
-                     "densités et comptés à part). Liste dans config.SECTEURS_CATEGORIES."),
+                     "prévention pour un public particulier, gardés dans les densités), a_distance (téléconsultation, "
+                     "soins à distance déclarés au siège de la société, retirés des densités et comptés à part) ou "
+                     "sans_soins (sans soins à la population, retirés des densités et comptés à part). Liste dans "
+                     "config.SECTEURS_CATEGORIES."),
     (r"^categorie_libelle$", "Libellé de la catégorie."),
-    (r"^dont_teleconsultation$", "Personnes dont au moins une de ces activités est exercée pour une société de téléconsultation."),
-    (r"^sans_autre_lieu_de_soins$", "Personnes comptées dans aucune densité, car toutes leurs activités avec un lieu d'exercice sont de cette catégorie (même définition que sans_soins_seulement de parcours_activites.csv)."),
+    (r"^sans_autre_lieu_de_soins$", "Personnes comptées dans aucune densité, car toutes leurs activités avec un lieu d'exercice sont de cette catégorie (même définition que a_distance_seulement et sans_soins_seulement de parcours_activites.csv)."),
     (r"^part_profession$", "Part de la profession en France."),
     (r"^plusieurs_(communes|epci)$", "Personnes exerçant dans au moins deux communes ou intercommunalités."),
     (r"^part_plusieurs_(communes|epci)$", "Part de ces personnes."),

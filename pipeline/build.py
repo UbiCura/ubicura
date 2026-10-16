@@ -24,13 +24,29 @@ class Agregats:
     feminisation: pd.DataFrame | None = None    # niveau, code, prof, mode, personnes, femmes, part_femmes
     particulieres: dict | None = None   # activités sans soins à la population et pour un public particulier
     parcours: pd.DataFrame | None = None   # prof et personnes à chaque étape, de l'activité déclarée aux densités
-    cmp: pd.DataFrame | None = None        # CMP actifs de FINESS par intercommunalité, dont avec un psychiatre déclaré
+    cmp: pd.DataFrame | None = None        # CMP par intercommunalité (FINESS et ROR), dont avec un psychiatre déclaré
+    lieux: dict | None = None              # lieux de soins réunis de FINESS et du ROR (pipeline/lieux.py)
 
 
-def cmp_et_psychiatres(act: pd.DataFrame, finess: pd.DataFrame | None, ref) -> pd.DataFrame | None:
+def cmp_et_psychiatres(act: pd.DataFrame, finess: pd.DataFrame | None, ref, lieux_res=None) -> pd.DataFrame | None:
     """Centres médico-psychologiques (CMP) actifs de FINESS par intercommunalité, et nombre d'entre eux où au moins un
     psychiatre déclare une activité au répertoire (numéro FINESS de l'établissement). Sert à nuancer « aucun
-    psychiatre ne déclare exercer » (question de Lucas du 9 octobre 2026)."""
+    psychiatre ne déclare exercer » (question de Lucas du 9 octobre 2026). Depuis le 12 octobre 2026, les CMP sont
+    ceux de FINESS et du ROR réunis sans double compte (pipeline/lieux.py), FINESS seul étant très incomplet pour les
+    CMP rattachés à leur hôpital (aucun en Martinique). FINESS seul ne sert plus qu'en repli."""
+    if lieux_res:
+        l = lieux_res["lieux"]
+        f = l[l["type"] == "lieu_cmp"].copy()
+        pros = lieux_res["pros"]
+        cols = [c for c in ("psychiatre", "pedopsychiatre") if c in pros]
+        psy = pros[cols].sum(axis=1) if cols else pd.Series(dtype=float)
+        f["avec_psychiatre"] = f["lieu"].map(psy).fillna(0) > 0
+        JOURNAL.controle("CMP (FINESS et ROR réunis) où au moins un psychiatre déclare son activité au répertoire",
+                         f"{int(f['avec_psychiatre'].sum())} sur {len(f)}, {int(f['epci'].isna().sum())} hors du référentiel")
+        t = (f.dropna(subset=["epci"]).groupby(["epci", "dep"], as_index=False)
+             .agg(cmp=("lieu", "size"), cmp_avec_psychiatre=("avec_psychiatre", "sum")))
+        t.attrs["total"], t.attrs["avec"], t.attrs["source"] = len(f), int(f["avec_psychiatre"].sum()), "FINESS et ROR"
+        return t
     if finess is None or "com" not in finess:
         return None
     f = finess[(finess["categetab"] == config.FINESS_CMP) & finess["actif"]].copy()
@@ -151,7 +167,7 @@ def perimetre_elargi(act: pd.DataFrame, finess: pd.DataFrame | None, professions
 
 
 def categories_activites(act: pd.DataFrame) -> pd.Series:
-    """Catégorie de chaque activité (soins, public_particulier, sans_soins) d'après son secteur et la
+    """Catégorie de chaque activité (soins, public_particulier, a_distance, sans_soins) d'après son secteur et la
     profession, selon config.SECTEURS_CATEGORIES."""
     regles = [(re.compile(m), profs, c) for m, profs, c in config.SECTEURS_CATEGORIES]
 
@@ -167,35 +183,40 @@ def parcours(act, cat, loc) -> pd.DataFrame:
     """Personnes distinctes à chaque étape, de l'activité déclarée au répertoire à la densité d'un territoire.
     avec_activite, au moins une activité déclarée (effectif national). sans_lieu, aucune activité avec une commune
     d'exercice (remplacements, exercice sans site fixe), comptées au national seulement. avec_lieu, au moins une
-    activité localisée. sans_soins_seulement, toutes les activités localisées sont sans soins à la population
-    (sièges, contrôle médical, industrie, téléconsultation...), dont_teleconsultation parmi elles. dans_densites,
-    au moins une activité localisée de soins ou pour un public particulier, comptées dans les territoires."""
+    activité localisée. Parmi les personnes dont aucune activité localisée n'entre dans les densités,
+    a_distance_seulement, au moins une activité de téléconsultation (soins à distance déclarés au siège de la
+    société), et sans_soins_seulement, les autres (sièges, contrôle médical, industrie, recherche...).
+    dans_densites, au moins une activité localisée de soins ou pour un public particulier, comptées dans les
+    territoires."""
     sec = act["secteur"].astype(str)
     tele = sec.map({v: bool(re.search(config.SECTEUR_TELECONSULTATION, norm(v))) for v in sec.unique()}).astype(bool)
     a = act.assign(prof=act["prof"].astype(str), categorie=cat, tele=tele, lieu=act["com"].notna())
     a = a[~a["prof"].str.startswith(("q_", config.PREFIXE_ELARGI, config.PREFIXE_ENSEMBLE))]
     l = loc.assign(prof=loc["prof"].astype(str))
     dans = set(zip(l["prof"], l["id"]))
-    ss = a[a["lieu"] & (a["categorie"] == "sans_soins")]
+    ss = a[a["lieu"] & a["categorie"].isin(config.CATEGORIES_HORS_DENSITES)]
     ss = ss[[(p, i) not in dans for p, i in zip(ss["prof"], ss["id"])]]
+    # une personne écartée qui a au moins une activité de téléconsultation relève des soins à distance
+    pers = ss.groupby(["prof", "id"])["tele"].any()
     t = pd.DataFrame({
         "avec_activite": a.groupby("prof")["id"].nunique(),
         "avec_lieu": a[a["lieu"]].groupby("prof")["id"].nunique(),
         "dans_densites": l.groupby("prof")["id"].nunique(),
-        "sans_soins_seulement": ss.groupby("prof")["id"].nunique(),
-        "dont_teleconsultation": ss[ss["tele"]].groupby("prof")["id"].nunique(),
+        "a_distance_seulement": pers[pers].groupby(level="prof").size(),
+        "sans_soins_seulement": pers[~pers].groupby(level="prof").size(),
     }).fillna(0).astype(int)
     t = t[t["avec_activite"] > 0]
     t.insert(1, "sans_lieu", t["avec_activite"] - t["avec_lieu"])
-    # contrôle, toute personne avec un lieu est soit comptée dans les densités, soit écartée comme sans soins
-    ecart = int((t["avec_lieu"] - t["dans_densites"] - t["sans_soins_seulement"]).abs().sum())
-    JOURNAL.controle("Du répertoire aux densités, personnes avec un lieu = comptées dans les densités + sans soins seulement",
+    # contrôle, toute personne avec un lieu est soit comptée dans les densités, soit écartée (à distance ou sans soins)
+    ecart = int((t["avec_lieu"] - t["dans_densites"] - t["a_distance_seulement"] - t["sans_soins_seulement"]).abs().sum())
+    JOURNAL.controle("Du répertoire aux densités, personnes avec un lieu = comptées dans les densités + soins à distance seulement + sans soins seulement",
                      "vérifié" if ecart == 0 else f"écart de {ecart} personnes")
     return t.rename_axis("prof").reset_index()
 
 
 def particulieres(act, cat, loc, rattach) -> dict | None:
-    """Activités sans soins à la population (retirées des densités) et pour un public particulier (gardées),
+    """Soins à distance et activités sans soins à la population (retirés des densités), activités pour un public
+    particulier (gardées),
     comptées à part. Renvoie {"france": ..., "dep" / "reg" / "epci": ...}, effectifs en personnes distinctes."""
     sec = act["secteur"].astype(str)
     tele = sec.map({v: bool(re.search(config.SECTEUR_TELECONSULTATION, norm(v))) for v in sec.unique()})
@@ -210,8 +231,7 @@ def particulieres(act, cat, loc, rattach) -> dict | None:
     for c, g in a.groupby("categorie"):
         p = g.assign(lieu=g["com"].notna()).groupby(["prof", "id"]).agg(tele=("tele", "any"), lieu=("lieu", "any")).reset_index()
         p["seule"] = [l and (i, q) not in comptes for i, q, l in zip(p["id"], p["prof"], p["lieu"])]
-        r = p.groupby("prof").agg(personnes=("id", "size"), dont_teleconsultation=("tele", "sum"),
-                                  sans_autre_lieu_de_soins=("seule", "sum")).reset_index()
+        r = p.groupby("prof").agg(personnes=("id", "size"), sans_autre_lieu_de_soins=("seule", "sum")).reset_index()
         r["categorie"] = c
         fr.append(r)
     fr = pd.concat(fr, ignore_index=True)
@@ -221,23 +241,25 @@ def particulieres(act, cat, loc, rattach) -> dict | None:
     for niv in ("dep", "reg", "epci"):
         out[niv] = (l[[niv, "prof", "categorie", "id"]].drop_duplicates().groupby([niv, "prof", "categorie"]).size()
                     .rename("n").reset_index().rename(columns={niv: "code"}))
+    ad = a[a["categorie"] == "a_distance"]
+    JOURNAL.controle("Soins à distance (téléconsultation), retirés des densités",
+                     f"{len(ad)} activités, {ad['id'].nunique()} personnes")
     ss = a[a["categorie"] == "sans_soins"]
     JOURNAL.controle("Activités sans soins à la population, retirées des densités",
-                     f"{len(ss)} activités, {ss['id'].nunique()} personnes, dont {int(ss.loc[ss['tele'], 'id'].nunique())} "
-                     f"en téléconsultation")
+                     f"{len(ss)} activités, {ss['id'].nunique()} personnes")
     pp = a[a["categorie"] == "public_particulier"]
     JOURNAL.controle("Activités pour un public particulier, gardées dans les densités",
                      f"{len(pp)} activités, {pp['id'].nunique()} personnes")
     return out
 
 
-def agreger(act: pd.DataFrame, ref, finess: pd.DataFrame | None) -> Agregats:
+def agreger(act: pd.DataFrame, ref, finess: pd.DataFrame | None, lieux_res=None) -> Agregats:
     rattach = ref.communes.set_index("code")[["epci", "dep", "reg"]]
-    # Les activités sans soins à la population (contrôle médical, industrie, recherche, téléconsultation...) sont
-    # souvent déclarées au siège d'un organisme. Elles sont retirées des comptages par territoire et décrites à
-    # part (config.SECTEURS_CATEGORIES). Les personnes restent comptées une fois dans l'effectif national.
+    # Les soins à distance (téléconsultation) et les activités sans soins à la population (contrôle médical,
+    # industrie, recherche...) sont déclarés au siège d'un organisme. Ils sont retirés des comptages par territoire
+    # et décrits à part (config.SECTEURS_CATEGORIES). Les personnes restent comptées une fois dans l'effectif national.
     cat_act = categories_activites(act)
-    loc = act[act["com"].notna() & (cat_act != "sans_soins")].assign(categorie=cat_act).copy()
+    loc = act[act["com"].notna() & ~cat_act.isin(config.CATEGORIES_HORS_DENSITES)].assign(categorie=cat_act).copy()
     loc["com"] = loc["com"].astype(str)
     loc = loc.join(rattach, on="com")
     eff = {}
@@ -313,4 +335,4 @@ def agreger(act: pd.DataFrame, ref, finess: pd.DataFrame | None) -> Agregats:
     fem = feminisation(act, loc)
     return Agregats(eff, nat, secteurs, categories, structures, app, ms, liens, fem,
                     particulieres(act, cat_act, loc, rattach), parcours(act, cat_act, loc),
-                    cmp_et_psychiatres(act, finess, ref))
+                    cmp_et_psychiatres(act, finess, ref, lieux_res), lieux_res)

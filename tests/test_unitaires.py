@@ -505,6 +505,553 @@ def test_gwr():
     assert 20 <= r["k"] <= 400 and r["enp"] > 3 and r["seuil_t"] > 1.96
 
 
+def test_lieux_libelles():
+    """Libellés des types de lieux conformes au langage respectueux, identifiants uniques, catégories en texte."""
+    from pipeline import config, libelles
+    ids = [x[0] for x in config.LIEUX_TYPES]
+    assert len(ids) == len(set(ids))
+    for tid, lib, fam, groupe, r in config.LIEUX_TYPES:
+        assert not libelles.termes_proscrits(lib) and not libelles.termes_proscrits(groupe), lib
+        assert all(c is None or isinstance(c, str) for c in r.get("cats", set()) | r.get("finess", set())), tid
+
+
+def test_coherence_config():
+    """Chaque liste de config.py ne contient que des éléments de sa forme (un ajout placé dans la mauvaise liste avait
+    créé des indicateurs fantômes le 12 octobre 2026), chaque thème de croisement a sa question dans les rapports."""
+    from pipeline import config, rapport
+    for x in config.AMELI_SECTEURS_PROFESSIONS:
+        assert len(x) == 4 and x[3] in (config.SANTE_MENTALE, config.SANTE) and ":" not in x[1], x
+    themes = {t for t in (x[2] for x in config.CROISEMENTS)}
+    connus = {t for d in rapport.THEMES_CROISEMENTS.values() for t in d}
+    assert themes <= connus, themes - connus
+    for xa, yb, theme, q in config.CROISEMENTS:
+        assert isinstance(q, str) and xa != yb, (xa, yb)
+    premiers = {}
+    for _xa, _yb, theme, q in config.CROISEMENTS:
+        premiers.setdefault(theme, q)
+    assert all(premiers.values()), [t for t, q in premiers.items() if not q]
+
+
+def test_escalier_distances():
+    """Distance au lieu le plus proche par dixième de la population classé selon le niveau de vie."""
+    from types import SimpleNamespace
+    import numpy as np
+    import pandas as pd
+    from pipeline.lieux import escalier_distances
+    codes = [f"c{i:02d}" for i in range(20)]
+    ref = SimpleNamespace(communes=pd.DataFrame({"code": codes, "pop": [100] * 20,
+                                                 "epci": [f"e{i:02d}" for i in range(20)]}))
+    # la distance croît avec le niveau de vie, deux intercommunalités par dixième
+    L = {"distances_communes": pd.DataFrame({"lieu_cmp_adultes": np.arange(20.0)}, index=codes),
+         "couverture": pd.DataFrame({"type": ["lieu_cmp_adultes"], "complet": [True]})}
+    rev = pd.Series(np.arange(20) * 1000.0, index=[f"e{i:02d}" for i in range(20)])
+    t = escalier_distances(L, ref, rev)
+    assert list(t["decile"]) == list(range(1, 11))
+    assert (t["population"] == 200).all()
+    assert t["distance_mediane_km"].is_monotonic_increasing
+    assert t.loc[t["decile"] == 10, "part_plus_20_km"].iloc[0] == 0
+    assert t.loc[t["decile"] == 1, "niveau_de_vie_max"].iloc[0] == 1000
+    assert escalier_distances(L, ref, None) is None
+
+
+def test_structures_verifiees():
+    """La liste vérifiée remplace les inscriptions des bases d'un établissement vérifié, garde leurs numéros FINESS,
+    ajoute une structure absente des bases et consigne une inscription non retenue."""
+    import tempfile
+    from pathlib import Path
+    import pandas as pd
+    from pipeline import structures_verifiees as sv
+    d = Path(tempfile.mkdtemp())
+    origine = (sv.FICHIER_ETAB, sv.FICHIER)
+    sv.FICHIER_ETAB, sv.FICHIER = d / "e.csv", d / "s.csv"
+    pd.DataFrame([{"ej": "E", "etablissement": "CH", "departement": "06", "types": "lieu_cmp", "date": "2026-10-13",
+                   "sources": "site", "empreinte": "", "remarque": ""}]).to_csv(sv.FICHIER_ETAB, sep=";", index=False)
+    pd.DataFrame([{"ej": "E", "etablissement": "CH", "type": "lieu_cmp", "public": "adultes", "nom": "CMP Rembrandt",
+                   "adresse": "", "commune": "06088", "statut": "etablissement", "finess": "111", "source": "site",
+                   "adresse_source": "https://x", "date": "2026-10-13", "remarque": ""},
+                  {"ej": "E", "etablissement": "CH", "type": "lieu_cmp", "public": "enfants", "nom": "CMP Carros",
+                   "adresse": "", "commune": "06033", "statut": "etablissement", "finess": "", "source": "site",
+                   "adresse_source": "https://x", "date": "2026-10-13", "remarque": ""}]).to_csv(sv.FICHIER, sep=";",
+                                                                                                 index=False)
+    lieux = pd.DataFrame({"type": ["lieu_cmp", "lieu_cmp_adultes", "lieu_cmp", "lieu_cmp"],
+                          "lieu": ["a", "a", "b", "c"], "nom": ["CMP LE REMBRANDT", "CMP LE REMBRANDT", "CMP X", "CMP Y"],
+                          "ej": ["E", "E", "E", "F"], "finess": ["111", "111", "222", "333"],
+                          "commune": ["06088", "06088", "06088", "06088"], "dep": ["06"] * 4,
+                          "adresse": ["R A", "R A", "R B", "R C"], "provenance": ["les_deux", "les_deux", "finess", "ror"],
+                          "lat": [43.7] * 4, "lon": [7.2] * 4, "precision": ["finess"] * 4})
+
+    class Ref:
+        communes = pd.DataFrame({"code": ["06088", "06033"], "nom": ["Nice", "Carros"], "dep": ["06", "06"],
+                                 "epci": ["X", "X"], "reg": ["93", "93"]})
+    x, r = sv.appliquer(lieux, Ref(), {"06033": (7.18, 43.78)}, True)
+    assert set(x.loc[x["type"] == "lieu_cmp", "nom"]) == {"CMP Rembrandt", "CMP Carros", "CMP Y"}
+    assert set(x.loc[x["type"] == "lieu_cmp_enfants", "nom"]) == {"CMP Carros"}
+    assert x.loc[(x["nom"] == "CMP Rembrandt") & (x["type"] == "lieu_cmp"), "provenance"].iloc[0] == "les_deux"
+    assert x.loc[(x["nom"] == "CMP Carros") & (x["type"] == "lieu_cmp"), "provenance"].iloc[0] == "sources"
+    sv.FICHIER_ETAB, sv.FICHIER = origine
+    assert [n["finess"] for n in r["non_retenues"]] == ["222"] and r["ajoutees"] == 1
+
+
+def test_structures_verifiees_sans_etablissement():
+    """Une unité du ROR sans établissement, dans la commune d'une structure vérifiée et de nom concordant, lui est
+    rattachée au lieu de compter à part. Une autre unité sans établissement de la même commune reste."""
+    import tempfile
+    from pathlib import Path
+    import pandas as pd
+    from pipeline import structures_verifiees as sv
+    d = Path(tempfile.mkdtemp())
+    origine = (sv.FICHIER_ETAB, sv.FICHIER)
+    sv.FICHIER_ETAB, sv.FICHIER = d / "e.csv", d / "s.csv"
+    pd.DataFrame([{"ej": "E", "etablissement": "CHU", "departement": "", "types": "lieu_cmp", "date": "2026-10-14",
+                   "sources": "site", "empreinte": "", "remarque": ""}]).to_csv(sv.FICHIER_ETAB, sep=";", index=False)
+    pd.DataFrame([{"ej": "E", "etablissement": "CHU", "type": "lieu_cmp", "public": "adultes", "nom": "CMP de Saint-Renan",
+                   "adresse": "56 rue de Saint-Mathieu", "commune": "29260", "statut": "etablissement", "finess": "",
+                   "source": "site", "adresse_source": "https://x", "date": "2026-10-14", "remarque": ""}]
+                 ).to_csv(sv.FICHIER, sep=";", index=False)
+    lieux = pd.DataFrame({"type": ["lieu_cmp", "lieu_cmp_adultes", "lieu_cmp"], "lieu": ["a", "a", "b"],
+                          "nom": ["CMP adulte Saint Renan 29G01", "CMP adulte Saint Renan 29G01", "CMP Kerzouar"],
+                          "ej": [None, None, None], "finess": [None] * 3, "commune": ["29260"] * 3, "dep": ["29"] * 3,
+                          "adresse": ["RUE DE BREST", "RUE DE BREST", "RUE X"], "provenance": ["ror"] * 3,
+                          "lat": [48.4] * 3, "lon": [-4.6] * 3, "precision": ["ror"] * 3})
+
+    class Ref:
+        communes = pd.DataFrame({"code": ["29260"], "nom": ["Saint-Renan"], "dep": ["29"], "epci": ["X"], "reg": ["53"]})
+    x, r = sv.appliquer(lieux, Ref(), {"29260": (-4.62, 48.43)}, True)
+    sv.FICHIER_ETAB, sv.FICHIER = origine
+    assert set(x.loc[x["type"] == "lieu_cmp", "nom"]) == {"CMP de Saint-Renan", "CMP Kerzouar"}
+    assert list(x.loc[x["type"] == "lieu_cmp_adultes", "nom"]) == ["CMP de Saint-Renan"]
+    assert x.loc[x["nom"] == "CMP de Saint-Renan", "provenance"].iloc[0] == "ror" and r["non_retenues"] == []
+
+
+def test_structures_analyses():
+    """Analyses complémentaires des structures. Médiane pondérée, structures confirmées gardées pour la sensibilité,
+    double éloignement sur un cas construit, charge par CMP d'après la SAE."""
+    import numpy as np
+    import pandas as pd
+    from types import SimpleNamespace
+    from pipeline import structures_analyses as sa, config
+    assert sa._mediane(np.array([1., 5., 30.]), np.array([1., 1., 10.])) == 30.0
+    x = pd.DataFrame({"type": ["lieu_cmp_adultes"] * 3 + ["lieu_urgences"],
+                      "confirmation": ["has", "bases", "examinee", None]})
+    k = sa._confirmees(x)
+    assert k["type"].tolist() == ["lieu_cmp_adultes", "lieu_urgences"] and k["confirmation"].iloc[0] == "has"
+    # double éloignement, deux intercommunalités (E1 sans psychiatre), trois communes
+    ref = SimpleNamespace(communes=pd.DataFrame({"code": ["c1", "c2", "c3"], "epci": ["E1", "E1", "E2"],
+                                                 "dep": ["01", "01", "01"], "reg": ["84", "84", "84"],
+                                                 "pop": [100, 300, 600]}),
+                          epci=pd.DataFrame({"code": ["E1", "E2"], "pop": [400, 600]}),
+                          deps=pd.DataFrame({"code": ["01"], "pop": [1000]}), regs=pd.DataFrame({"code": ["84"], "pop": [1000]}))
+    agg = SimpleNamespace(effectifs={"epci": pd.DataFrame({"code": ["E1", "E2"], "mode": ["all", "all"],
+                                                           "prof": ["psychiatre", "psychiatre"], "n": [0, 3]})})
+    L = {"distances_communes": pd.DataFrame({"lieu_cmp_adultes": [25., 5., 30.]}, index=["c1", "c2", "c3"])}
+    garde = dict(config.DOUBLE_ELOIGNEMENT)
+    try:
+        config.DOUBLE_ELOIGNEMENT = {"adultes": (["psychiatre"], ["lieu_cmp_adultes"], "test")}
+        d = sa.double_eloignement(agg, L, ref)
+    finally:
+        config.DOUBLE_ELOIGNEMENT = garde
+    fr = d[d["niveau"] == "fr"].iloc[0]
+    # c1 (100 habitants) sans psychiatre et à 25 km, c2 sans psychiatre mais proche, c3 loin mais avec psychiatres
+    assert abs(fr["part_double_eloignement"] - .1) < 1e-9 and abs(fr["part_sans_professionnel"] - .4) < 1e-9
+    assert abs(fr["part_loin_structure"] - .7) < 1e-9
+    # charge par CMP, deux départements, adultes
+    sae = {"charge_disciplines": pd.DataFrame({"dep": ["01", "02"], "DIS": ["GEN", "GEN"], "FIL_AMB": [1000., 3000.],
+                                               "NB_CMP_SEUL": [2., 4.], "ETPSAL_PKT": [4., 6.]})}
+    ref2 = SimpleNamespace(deps=pd.DataFrame({"code": ["01", "02"], "reg": ["84", "84"]}))
+    c = sa.charge_cmp(sae, ref2)
+    f = c[(c["niveau"] == "fr")].iloc[0]
+    assert f["patients_par_cmp"] == 4000 / 6 and abs(f["etp_psychiatres_par_cmp"] - 10 / 6) < 1e-9
+    assert c[(c["niveau"] == "dep") & (c["code"] == "01")]["patients_par_cmp"].iloc[0] == 500
+
+
+def test_verdicts_appliques():
+    """Verdicts de la vérification à la main. Un doublon est retiré avec sa ligne par public, une unité qui n'est pas
+    un CMP est rangée dans son type réel, un CMP qui existe passe au niveau « examinée à la main », un CMP écarté par
+    la liste de son établissement est remis, un verdict sans structure est compté à part."""
+    import pandas as pd
+    from types import SimpleNamespace
+    from pipeline import verdicts
+    ref = SimpleNamespace(communes=pd.DataFrame({"code": ["62215", "62427"], "nom": ["Carvin", "Hénin-Beaumont"],
+                                                 "dep": ["62", "62"], "epci": ["E1", "E1"], "reg": ["32", "32"]}))
+    base = {"ej": "EJ", "provenance": "les_deux", "epci": "E1", "dep": "62", "reg": "32", "lat": 50.4, "lon": 2.9,
+            "precision": "finess", "adresse": "rue X", "nom_finess": None, "finess_rapproche": None, "finess_absorbes": None}
+    x = pd.DataFrame([
+        {**base, "type": "lieu_cmp", "lieu": "L1", "nom": "CMP A", "nom_affiche": "CMP A", "finess": "1", "commune": "62215", "confirmation": "bases"},
+        {**base, "type": "lieu_cmp_adultes", "lieu": "L1", "nom": "CMP A", "nom_affiche": "CMP A", "finess": "1", "commune": "62215", "confirmation": "bases"},
+        {**base, "type": "lieu_cmp", "lieu": "L2", "nom": "HDJ B", "nom_affiche": "HDJ B", "finess": "2", "commune": "62215", "confirmation": "bases"},
+        {**base, "type": "lieu_cmp", "lieu": "L3", "nom": "CMP C", "nom_affiche": "CMP C", "finess": "3", "commune": "62427", "confirmation": "bases"},
+    ])
+    avant = pd.concat([x, pd.DataFrame([{**base, "type": "lieu_cmp", "lieu": "L4", "nom": "CMP D", "nom_affiche": "CMP D",
+                                         "finess": "4", "commune": "62427", "confirmation": "has"}])], ignore_index=True)
+    k = lambda f, c, n: verdicts.cle("EJ", f, c, n)  # noqa: E731
+    v = pd.DataFrame([
+        {"cle": k("1", "Carvin", "CMP A"), "verdict": "doublon"},
+        {"cle": k("2", "Carvin", "HDJ B"), "verdict": "pas_un_cmp", "type_reel": "lieu_hdj_psy_adultes"},
+        {"cle": k("3", "Hénin-Beaumont", "CMP C"), "verdict": "existe", "commentaire": "Sirene"},
+        {"cle": k("4", "Hénin-Beaumont", "CMP D"), "verdict": "existe", "commentaire": "site"},
+        {"cle": k("9", "Carvin", "CMP Z"), "verdict": "ferme"},
+    ]).fillna("").assign(etablissement="", structure="", adresse_reelle="", date="")
+    for c in ("type_reel", "commentaire"):
+        v[c] = v[c].fillna("")
+    out, rendu = verdicts.appliquer(x, avant, ref, None, True, v)
+    t = out.set_index(["type", "lieu"])
+    assert ("lieu_cmp", "L1") not in t.index and ("lieu_cmp_adultes", "L1") not in t.index
+    assert ("lieu_cmp", "L2") not in t.index and ("lieu_hdj_psy_adultes", "L2") in t.index
+    assert t.at[("lieu_cmp", "L3"), "confirmation"] == "examinee" and t.at[("lieu_cmp", "L3"), "examen"] == "Sirene"
+    assert ("lieu_cmp", "L4") in t.index and t.at[("lieu_cmp", "L4"), "confirmation"] == "has"
+    assert len(rendu["non_trouves"]) == 1 and rendu["remises"] == 1 and len(rendu["retirees"]) == 2
+
+
+def test_structures_verifiees_garde_confirmees():
+    """Une inscription absente de la liste vérifiée mais confirmée par la HAS ou Sirene (garder) reste, avec sa ligne
+    pour adultes, et elle est consignée à part. Une inscription non confirmée est retirée."""
+    import tempfile
+    from pathlib import Path
+    import pandas as pd
+    from pipeline import structures_verifiees as sv
+    d = Path(tempfile.mkdtemp())
+    origine = (sv.FICHIER_ETAB, sv.FICHIER)
+    sv.FICHIER_ETAB, sv.FICHIER = d / "e.csv", d / "s.csv"
+    pd.DataFrame([{"ej": "E", "etablissement": "CH", "departement": "", "types": "lieu_cmp", "date": "2026-10-14",
+                   "sources": "site", "empreinte": "", "remarque": ""}]).to_csv(sv.FICHIER_ETAB, sep=";", index=False)
+    pd.DataFrame([{"ej": "E", "etablissement": "CH", "type": "lieu_cmp", "public": "adultes", "nom": "CMP Rembrandt",
+                   "adresse": "", "commune": "06088", "statut": "etablissement", "finess": "111", "source": "site",
+                   "adresse_source": "https://x", "date": "2026-10-14", "remarque": ""}]).to_csv(sv.FICHIER, sep=";",
+                                                                                                 index=False)
+    lieux = pd.DataFrame({"type": ["lieu_cmp", "lieu_cmp", "lieu_cmp_adultes", "lieu_cmp"], "lieu": ["a", "b", "b", "c"],
+                          "nom": ["CMP LE REMBRANDT", "CMP GARDE", "CMP GARDE", "CMP RETIRE"], "ej": ["E"] * 4,
+                          "finess": ["111", "222", "222", "333"], "commune": ["06088"] * 4, "dep": ["06"] * 4,
+                          "adresse": ["R A", "R B", "R B", "R C"], "provenance": ["les_deux"] * 4,
+                          "lat": [43.7] * 4, "lon": [7.2] * 4, "precision": ["finess"] * 4})
+
+    class Ref:
+        communes = pd.DataFrame({"code": ["06088"], "nom": ["Nice"], "dep": ["06"], "epci": ["X"], "reg": ["93"]})
+    x, r = sv.appliquer(lieux, Ref(), {}, True, garder={1})
+    sv.FICHIER_ETAB, sv.FICHIER = origine
+    assert set(x.loc[x["type"] == "lieu_cmp", "nom"]) == {"CMP Rembrandt", "CMP GARDE"}
+    assert list(x.loc[x["type"] == "lieu_cmp_adultes", "nom"]) == ["CMP Rembrandt", "CMP GARDE"] or \
+        set(x.loc[x["type"] == "lieu_cmp_adultes", "nom"]) == {"CMP Rembrandt", "CMP GARDE"}
+    assert [g["finess"] for g in r["gardees"]] == ["222"] and [n["finess"] for n in r["non_retenues"]] == ["333"]
+
+
+def test_structures_verifiees_un_public():
+    """Liste vérifiée pour les seuls CMP pour adultes (« lieu_cmp:adultes ») : un CMP pour adultes non cité est retiré,
+    un CMP pour enfants et un CMP au public non précisé restent tels que les bases les donnent."""
+    import tempfile
+    from pathlib import Path
+    import pandas as pd
+    from pipeline import structures_verifiees as sv
+    d = Path(tempfile.mkdtemp())
+    origine = (sv.FICHIER_ETAB, sv.FICHIER)
+    sv.FICHIER_ETAB, sv.FICHIER = d / "e.csv", d / "s.csv"
+    pd.DataFrame([{"ej": "E", "etablissement": "CHU", "departement": "", "types": "lieu_cmp:adultes",
+                   "date": "2026-10-15", "sources": "site", "empreinte": "", "remarque": ""}]).to_csv(
+        sv.FICHIER_ETAB, sep=";", index=False)
+    pd.DataFrame([{"ej": "E", "etablissement": "CHU", "type": "lieu_cmp", "public": "adultes", "nom": "CMP Massane",
+                   "adresse": "", "commune": "34172", "statut": "etablissement", "finess": "111", "source": "site",
+                   "adresse_source": "https://x", "date": "2026-10-15", "remarque": ""}]).to_csv(sv.FICHIER, sep=";",
+                                                                                                 index=False)
+    lieux = pd.DataFrame({"type": ["lieu_cmp", "lieu_cmp_adultes", "lieu_cmp", "lieu_cmp_adultes", "lieu_cmp",
+                                   "lieu_cmp_enfants", "lieu_cmp"],
+                          "lieu": ["a", "a", "b", "b", "c", "c", "d"],
+                          "nom": ["CMP MASSANE", "CMP MASSANE", "CMP GIGNAC", "CMP GIGNAC", "CMP ENFANTS LUNEL",
+                                  "CMP ENFANTS LUNEL", "CMP SANS PUBLIC"], "ej": ["E"] * 7,
+                          "finess": ["111", "111", "222", "222", "333", "333", "444"], "commune": ["34172"] * 7,
+                          "dep": ["34"] * 7, "adresse": ["R A", "R A", "R B", "R B", "R C", "R C", "R D"],
+                          "provenance": ["les_deux"] * 7, "lat": [43.6] * 7, "lon": [3.9] * 7,
+                          "precision": ["finess"] * 7})
+
+    class Ref:
+        communes = pd.DataFrame({"code": ["34172"], "nom": ["Montpellier"], "dep": ["34"], "epci": ["X"], "reg": ["76"]})
+    x, r = sv.appliquer(lieux, Ref(), {}, True)
+    sv.FICHIER_ETAB, sv.FICHIER = origine
+    assert set(x.loc[x["type"] == "lieu_cmp", "nom"]) == {"CMP Massane", "CMP ENFANTS LUNEL", "CMP SANS PUBLIC"}
+    assert list(x.loc[x["type"] == "lieu_cmp_adultes", "nom"]) == ["CMP Massane"]
+    assert list(x.loc[x["type"] == "lieu_cmp_enfants", "nom"]) == ["CMP ENFANTS LUNEL"]
+    assert [n["finess"] for n in r["non_retenues"]] == ["222"] and not r["gardees"]
+
+
+def test_structures_verifiees_orphelin_meme_rue():
+    """Une structure vérifiée donnée par son numéro FINESS absorbe aussi l'unité du ROR sans établissement de la même
+    commune et de la même rue, pas celle d'une autre rue."""
+    import tempfile
+    from pathlib import Path
+    import pandas as pd
+    from pipeline import structures_verifiees as sv
+    d = Path(tempfile.mkdtemp())
+    origine = (sv.FICHIER_ETAB, sv.FICHIER)
+    sv.FICHIER_ETAB, sv.FICHIER = d / "e.csv", d / "s.csv"
+    pd.DataFrame([{"ej": "E", "etablissement": "H", "departement": "", "types": "lieu_cmp", "date": "2026-10-15",
+                   "sources": "site", "empreinte": "", "remarque": ""}]).to_csv(sv.FICHIER_ETAB, sep=";", index=False)
+    pd.DataFrame([{"ej": "E", "etablissement": "H", "type": "lieu_cmp", "public": "enfants", "nom": "CMP Anatole-France",
+                   "adresse": "33 avenue Anatole France", "commune": "94018", "statut": "etablissement",
+                   "finess": "111", "source": "site", "adresse_source": "https://x", "date": "2026-10-15",
+                   "remarque": ""}]).to_csv(sv.FICHIER, sep=";", index=False)
+    lieux = pd.DataFrame({"type": ["lieu_cmp"] * 3, "lieu": ["a", "b", "c"],
+                          "nom": ["CMP ANATOLE FRANCE", "CMP perinatalite 94I03", "CMP AUTRE 94I03"],
+                          "ej": ["E", None, None], "finess": ["111", None, None], "commune": ["94018"] * 3,
+                          "dep": ["94"] * 3, "adresse": ["AV ANATOLE FRANCE", "AVENUE ANATOLE FRANCE", "RUE DE PARIS"],
+                          "provenance": ["les_deux", "ror", "ror"], "lat": [48.8] * 3, "lon": [2.4] * 3,
+                          "precision": ["finess"] * 3})
+
+    class Ref:
+        communes = pd.DataFrame({"code": ["94018"], "nom": ["Charenton-le-Pont"], "dep": ["94"], "epci": ["X"],
+                                 "reg": ["11"]})
+    x, r = sv.appliquer(lieux, Ref(), {}, True)
+    sv.FICHIER_ETAB, sv.FICHIER = origine
+    assert set(x.loc[x["type"] == "lieu_cmp", "nom"]) == {"CMP Anatole-France", "CMP AUTRE 94I03"}
+
+
+def test_confirmation():
+    """Un CMP est confirmé par la HAS quand son numéro FINESS est un site de certification nommé CMP, par Sirene
+    quand son gestionnaire a un établissement actif sous une enseigne de CMP dans la même commune. Un établissement
+    Sirene sans correspondant est listé, pas ajouté."""
+    import pandas as pd
+    from pipeline.confirmation import confirmer
+    L = pd.DataFrame({"type": ["lieu_cmp", "lieu_cmp", "lieu_cmp", "lieu_cmp_adultes"], "lieu": ["a", "b", "c", "a"],
+                      "nom": ["CMP Les Lilas", "CMP Nord", "CMP X", "CMP Les Lilas"], "ej": ["E"] * 4,
+                      "finess": ["111", "222", "333", "111"], "commune": ["01001", "01002", "01003", "01001"],
+                      "adresse": ["rue A", "rue B", "rue C", "rue A"], "statut_verification": [None] * 4})
+    has = {"sites": pd.DataFrame({"FINESS_EJ": ["E", "E"], "FINESS_EG": ["111", "333"],
+                                  "RS_eg": ["CMP LES LILAS", "HOPITAL DE JOUR"]})}
+    sir = {"siren": {"E": "S1"}, "etablissements": pd.DataFrame({
+        "siren": ["S1", "S1", "S1"], "siret": ["1", "2", "3"], "etatAdministratifEtablissement": ["A", "A", "F"],
+        "enseigne": ["CMP NORD", "CMP SUD", "CMP X"], "adresse": ["rue B", "rue D", "rue C"],
+        "codeCommuneEtablissement": ["01002", "01004", "01003"], "dateCreationEtablissement": ["2000", "2001", "1999"]})}
+    x, sans = confirmer(L, has, sir)
+    c = x[x["type"] == "lieu_cmp"].set_index("lieu")["confirmation"]
+    assert c["a"] == "has" and c["b"] == "sirene" and c["c"] == "bases"
+    assert x.loc[x["type"] == "lieu_cmp_adultes", "confirmation"].iloc[0] == "has"
+    assert list(sans["siret"]) == ["2"]
+
+
+def test_fusion_meme_adresse():
+    """Un même lieu déclaré deux fois à la même adresse est réuni, deux lieux distincts de la même avenue restent deux."""
+    import pandas as pd
+    from pipeline.lieux import fusion_meme_adresse
+    L = pd.DataFrame({
+        "type": ["lieu_cmp", "lieu_cmp", "lieu_cmp", "lieu_cmp", "lieu_cmp_adultes", "lieu_cmp_adultes"],
+        "lieu": ["a|A", "b|A", "c|A", "d|A", "a|A", "b|A"],
+        "nom": ["CMP Le Petit Nice", "CMP Petit Nice - 05G05", "CMP La Viste", "CMP Le Parc", "CMP Le Petit Nice",
+                "CMP Petit Nice - 05G05"],
+        "adresse": ["R de la liberté", "R DE LA LIBERTE", "AV DE LA VISTE", "AV DE LA VISTE", "R de la liberté",
+                    "R DE LA LIBERTE"],
+        "commune": ["05046"] * 2 + ["13215"] * 2 + ["05046"] * 2, "ej": ["E1"] * 2 + ["E2"] * 2 + ["E1"] * 2,
+        "finess": ["111", "222", "333", "444", "111", "222"], "provenance": ["les_deux"] * 6,
+        "categorie_finess": ["156", "292", "156", "156", "156", "292"]})
+    r, n = fusion_meme_adresse(L)
+    assert n == 1 and len(r[r["type"] == "lieu_cmp"]) == 3
+    assert r.loc[(r["type"] == "lieu_cmp") & (r["lieu"] == "a|A"), "finess_absorbes"].iloc[0] == "222"
+    assert len(r[r["type"] == "lieu_cmp_adultes"]) == 1
+    # deux établissements de FINESS de la même catégorie, ou de deux catégories propres au type, restent deux lieux
+    L3 = L.assign(type="lieu_foyers_handicap", categorie_finess=["382", "252", "382", "382", "382", "252"])
+    r3, n3 = fusion_meme_adresse(L3)
+    assert n3 == 0
+    L2 = L.assign(categorie_finess="156")
+    r2, n2 = fusion_meme_adresse(L2)
+    assert n2 == 0
+    # deux structures du ROR seul sous deux numéros FINESS médico-sociaux restent deux, même si leurs noms se ressemblent
+    L4 = L.assign(type="lieu_foyers_handicap", provenance="ror", categorie_finess=None,
+                  nom=["FOYER LE RIOU - Accueil de Jour", "FOYER LE RIOU - Hébergement complet"] + ["x", "y"] * 2)
+    assert fusion_meme_adresse(L4, pd.Series({"111": "382", "222": "252"}))[1] == 0
+    # sous le numéro d'un hôpital, un même CMP décrit deux fois est réuni, deux secteurs ou deux publics restent deux
+    L5 = L.assign(provenance="ror", categorie_finess=None, finess="999",
+                  nom=["CATTP Gaillac 81I01", "CATTP Gaillac 81G01", "CMP pédo La Possession", "CMP La Possession",
+                       "a", "b"])
+    assert fusion_meme_adresse(L5, pd.Series({"999": "355"}))[1] == 0
+    L6 = L5.assign(nom=["CMP Autun", "CMP adultes Autun", "CMP x", "CMP y", "a", "b"])
+    assert fusion_meme_adresse(L6, pd.Series({"999": "355"}))[1] == 1
+    # un CMP du ROR seul placé à l'adresse de son hôpital (commune tirée du nom) rejoint le CMP du même hôpital, du même
+    # public et de la même commune décrit avec son adresse, sauf s'il dit un autre public (gérontopsychiatrie)
+    L7 = pd.DataFrame({"type": ["lieu_cmp"] * 3, "lieu": ["p|A", "q|A", "s|A"],
+                       "nom": ["PLVD - CMP Apt", "CMP APT - Secteur PSEV", "Gérontopsychiatrie Apt"],
+                       "adresse": ["AV DE LA PINEDE", "R PHILIPPE DE GIRARD", "AV DE LA PINEDE"],
+                       "commune": ["84003"] * 3, "ej": ["E"] * 3, "finess": ["9", "8", "9"],
+                       "provenance": ["ror", "les_deux", "ror"], "origine_commune": ["nom", "unite", "nom"],
+                       "categorie_finess": [None, "156", None]})
+    r7, n7 = fusion_meme_adresse(L7, pd.Series({"9": "292", "8": "156"}))
+    assert n7 == 1 and set(r7["nom"]) == {"CMP APT - Secteur PSEV", "Gérontopsychiatrie Apt"}
+    # même CMP décrit à deux adresses (ancienne et nouvelle), noms réduits à la commune et à un sigle de pôle, réunis à
+    # l'adresse donnée par l'unité du ROR. Deux CMP de FINESS de même nom, ou « Nord » et « Sud », restent deux.
+    L8 = pd.DataFrame({"type": ["lieu_cmp"] * 6, "lieu": ["c1|E", "c2|E", "m1", "m2", "t1|A", "t2|A"],
+                       "nom": ["CMPI CAVAILLON - Secteur PES", "PPEA - CMPEA CAVAILLON", "CMP DE MANTES",
+                               "CMP DE MANTES", "CMP Troyes Nord", "CMP Troyes Sud"],
+                       "adresse": ["R du comtat", "AV de verdun", "222 BD", "222 BD", "AV PASTEUR", "AV FOCH"],
+                       "commune": ["84035", "84035", "78361", "78361", "10387", "10387"], "ej": ["E", "E", "M", "M", "T", "T"],
+                       "finess": ["1", "2", "3", "4", "5", "6"],
+                       "provenance": ["les_deux", "ror", "finess", "finess", "les_deux", "ror"],
+                       "origine_commune": ["unite", "unite", None, None, "unite", "unite"], "categorie_finess": None})
+    noms_c = pd.Series({"84035": "Cavaillon", "78361": "Mantes-la-Jolie", "10387": "Troyes"})
+    r8, n8 = fusion_meme_adresse(L8, None, noms_c)
+    assert n8 == 1 and len(r8) == 5
+    assert r8.loc[r8["lieu"] == "c1|E", "adresse"].iloc[0] == "AV de verdun"
+
+
+def test_concordance_etablissements():
+    """Confrontation des CMP à la SAE hôpital par hôpital, tolérance de 20 % ou d'un CMP."""
+    import pandas as pd
+    from pipeline.lieux import concordance_etablissements, niveau_concordance
+    L = {"lieux": pd.DataFrame({"type": ["lieu_cmp"] * 5 + ["lieu_cmp_adultes"] * 5,
+                                "ej": ["A", "A", "B", "C", "C"] * 2, "nom_finess": ["x"] * 10})}
+    s = pd.DataFrame({"sae_adultes": [2, 10, 2], "sae_enfants": [0, 0, 0], "sae_cattp": [0, 0, 0],
+                      "nom_sae": ["Hôpital A", "Hôpital B", "Hôpital D"], "dep_siege": ["01", "02", "03"]},
+                     index=pd.Index(["A", "B", "D"], name="ej"))
+    t = concordance_etablissements(L, {"etablissements": s}).set_index("ej")
+    assert t.at["A", "statut"] == "concorde" and t.at["B", "statut"] == "moins ici qu'à la SAE"
+    assert t.at["C", "statut"] == "absent de la SAE" and t.at["D", "statut"] == "moins ici qu'à la SAE"
+    assert t.at["B", "ecart"] == -9
+    assert niveau_concordance(.1) == "les sources concordent" and niveau_concordance(-.5).startswith("écart important")
+
+
+def test_cmp_publics_et_retypage():
+    """Le total des CMP se retrouve par public, et un établissement enregistré comme CMP dont le nom désigne autre chose
+    (équipe mobile, CATTP, unité pénitentiaire) est rangé dans le bon type, sans écarter un CMP pour personnes âgées."""
+    import re
+    import pandas as pd
+    from pipeline import config
+    from pipeline.lieux import repartition_cmp
+    from pipeline.util import norm
+    L = pd.DataFrame({"type": ["lieu_cmp"] * 4 + ["lieu_cmp_adultes", "lieu_cmp_enfants", "lieu_cmp_adultes",
+                                                   "lieu_cmp_enfants"],
+                      "lieu": ["a", "b", "c", "d", "a", "b", "c", "c"], "dep": ["01"] * 8})
+    r = repartition_cmp(L, "dep").loc["01"]
+    assert (r["cmp"], r["adultes"], r["enfants"], r["les_deux"], r["non_precise"]) == (4, 2, 2, 1, 1)
+    assert r["adultes"] + r["enfants"] - r["les_deux"] + r["non_precise"] == r["cmp"]
+    def cible(nom):
+        n = norm(nom)
+        return next((t for m, t in config.RETYPAGE_CMP_FINESS if re.search(m, n)), None)
+    assert cible("EQUIPE MOBILE DE SOUTIEN AU LOGEMENT") == "lieu_mobile_psy"
+    assert cible("USMP MAISON CENTRALE ARLES") == "lieu_consult_psy"
+    assert cible("EQUIPE DE LIAISON EN SOINS EN ADDICTOLOGIE (ELSA)") == "lieu_addicto_hosp"
+    assert cible("CMP FORCALQUIER") is None
+    assert not re.search(config.LIEUX_EXCLUS_CMP, norm("CMPPA")) and re.search(config.NOM_CMP, norm("CMPPA"))
+    assert re.search(config.LIEUX_EXCLUS_CMP, norm("CMPP Les Tilleuls"))
+    assert re.search(config.NOM_SECTEUR_ENFANTS, norm("CENTRE MEDICO-PSYCHOLOGIQUE 59I12"))
+    assert re.search(config.NOM_ADULTES, norm("LIAISON URGENCES LISIEUX (14G07)"))
+
+
+def test_lieux_noms_respectueux():
+    """Les termes à proscrire des raisons sociales sont remplacés sans perdre le sigle ni le nom propre."""
+    from pipeline import libelles
+    from pipeline.lieux import nom_respectueux as n
+    assert n("IME POLY HANDICAPES LES MUSCARIS") == "IME POUR PERSONNES EN SITUATION DE POLYHANDICAP LES MUSCARIS"
+    assert n("Foyer pour adultes handicapés") == "Foyer pour adultes en situation de handicap"
+    assert n("EHPAD PERS AGEES DEPENDANTES") == "EHPAD POUR PERSONNES ÂGÉES EN PERTE D'AUTONOMIE"
+    assert n("Centre pour alcooliques") == "Centre pour personnes ayant une addiction à l'alcool"
+    assert n("ESAT Les Papillons") == "ESAT Les Papillons"
+    for s in ["SESSAD DEFICIENTS AUDITIFS", "AIDE AUX HANDICAPES", "CURE POUR TOXICOMANES", "ENFANTS INADAPTES"]:
+        assert not libelles.termes_proscrits(n(s)), s
+    # nom affiché, nom propre gardé, terme retiré s'il reste de quoi identifier le lieu, réécrit sinon
+    from pipeline.lieux import nom_lisible as nl
+    assert nl("IME POLY HANDICAPES LES MUSCARIS")[0] == "IME LES MUSCARIS"
+    assert nl("ESAT LES OLIVIERS - Aide par le travail pour Adultes Handicapés - Accueil de jour - "
+              "Déficience intellectuelle")[0] == "ESAT LES OLIVIERS"
+    assert nl("SAMSAH - LES PAPILLONS BLANCS")[0] == "SAMSAH - LES PAPILLONS BLANCS"
+    assert nl("Hébergement pour personnes âgées dépendantes", "EHPAD Le Parc") == ("EHPAD Le Parc", "rattachement")
+    assert nl("FOYER POUR HANDICAPES")[1] == "reecrit"
+    assert nl("CMP Munster - Psy adulte")[0] == "CMP Munster - Psy adulte"
+
+
+def test_lieux_enfants_et_communes():
+    """Unités pour enfants (âge, catégorie, nom) et commune citée dans le nom d'une unité."""
+    import pandas as pd
+    from types import SimpleNamespace
+    from pipeline import lieux
+    u = pd.DataFrame({"categorie": ["10", "281", "10", "10"], "age_max": [21.0, 150.0, 150.0, 65.0],
+                      "nom": ["CMP Rouffach", "CMP", "CMP pédopsychiatrie Nord", "CMP Munster - Psy adulte"]})
+    assert lieux._enfants(u).tolist() == [True, True, True, False]
+    ref = SimpleNamespace(communes=pd.DataFrame({"code": ["68226", "68287", "68004", "68005"],
+                                                 "nom": ["Munster", "Rouffach", "Saint-Louis", "Saint-Louis"],
+                                                 "dep": ["68", "68", "68", "68"]}))
+    noms = pd.Series(["CMP Munster - Psy adulte", "CMP Pavillon 4", "CMP St Louis"], index=[10, 11, 12])
+    r = lieux.communes_du_nom(noms, pd.Series(["68", "68", "68"], index=noms.index), ref)
+    # Munster trouvée, aucune commune dans « Pavillon 4 », « St Louis » ambigu (deux communes de ce nom) écarté
+    assert r.to_dict() == {10: "68226"}, r
+    # le nom de l'hôpital gestionnaire, cité en fin de nom, n'est pas la commune de l'unité (constat du 15 octobre 2026)
+    ref = SimpleNamespace(communes=pd.DataFrame({"code": ["62215", "62427", "59606"],
+                                                 "nom": ["Carvin", "Hénin-Beaumont", "Valenciennes"],
+                                                 "dep": ["62", "62", "59"]}))
+    noms = pd.Series(["CMP ADULTES CARVIN CH HENIN BEAUMONT", "CMP 59G30 CONDE/ESCAU CH VALENCIENNES"], index=[1, 2])
+    r = lieux.communes_du_nom(noms, pd.Series(["62", "59"], index=noms.index), ref)
+    # sans commune avant le nom de l'hôpital, le nom entier est lu
+    assert r.to_dict() == {1: "62215", 2: "59606"}, r
+    # Valenciennes, seulement dans le nom de l'hôpital et commune d'un hôpital du gestionnaire, n'est pas retenue
+    r = lieux.communes_du_nom(noms, pd.Series(["62", "59"], index=noms.index), ref,
+                              pd.Series({1: {"62427"}, 2: {"59606"}}))
+    assert r.to_dict() == {1: "62215"}, r
+
+
+def test_lieux_reunion_sans_double_compte():
+    """Un même établissement dans les deux bases compte une fois, un CMP de FINESS rattaché dans le ROR à son hôpital
+    (même entité juridique et même commune) aussi, deux CMP de FINESS d'un même hôpital restent deux lieux."""
+    import pandas as pd
+    from pipeline import lieux
+    lr = pd.DataFrame({"type": ["lieu_cmp"] * 3, "lieu": ["F111|01001", "F900|02002|A", "F900|02002|E"],
+                       "finess": ["111", "900", "900"], "ej": ["EJ1", "EJ9", "EJ9"], "commune": ["01001", "02002", "02002"],
+                       "nom": ["CMP A", "CMP adultes B", "CMP enfants B"], "structure_nom": ["CMP A", "CH", "CH"]})
+    lf = pd.DataFrame({"type": ["lieu_cmp"] * 4, "lieu": ["F111|01001", "F201|02002", "F202|02002", "F301|03003"],
+                       "finess": ["111", "201", "202", "301"], "ej": ["EJ1", "EJ9", "EJ9", "EJ3"],
+                       "commune": ["01001", "02002", "02002", "03003"], "nom_finess": ["CMP A", "CMP B1", "CMP B2", "CMP C"],
+                       "categorie_finess": ["156"] * 4})
+    cat = pd.Series({"111": "156", "900": "292", "201": "156", "202": "156", "301": "156"})
+    out, stats = lieux.reunir(lr, lf, cat)
+    assert len(out) == 4 and not out.duplicated(["type", "lieu"]).any(), out
+    assert stats["rapproches_entite_juridique"] == 2 and stats["finess_seul"] == 1, stats
+    assert out["provenance"].value_counts().to_dict() == {"les_deux": 3, "finess": 1}
+
+
+def test_lieux_unite_a_la_commune_du_siege():
+    """Un CMP enregistré sous son propre numéro FINESS, que le ROR déclare dans la commune de l'hôpital de son
+    gestionnaire, prend la commune et l'adresse de FINESS. Déclaré dans une commune sans hôpital du gestionnaire, il
+    garde celle du ROR (cas de Carvin et d'une antenne réelle)."""
+    import numpy as np
+    import pandas as pd
+    from pipeline import lieux
+    fin = pd.DataFrame({"nofinesset": ["H1", "C1", "C2", "K1"], "nofinessej": ["EJ"] * 4,
+                        "categetab": ["355", "156", "156", "292"], "com": ["62427", "62215", "62413", "62160"],
+                        "adresse": ["rue de l'hôpital", "29 rue Florent-Évrard", "rue Émile-Zola", "163 rue du Chemin-Vert"],
+                        "rs": ["CH Hénin-Beaumont", "CMP Carvin", "CMP Harnes", "CMP CATTP Le Chemin vert"]})
+    u = pd.DataFrame({"cle": ["u1", "u2", "u3"], "commune": ["62427", "62999", "62427"], "structure": ["s1", "s2", "s3"],
+                      "finess_ror": ["C1", "C2", "K1"], "voie": ["29 rue Florent Evrard", "place X", "163 rue du Chemin vert"],
+                      "nom": ["CMP adultes Carvin CH Hénin", "CMP adultes Harnes", "CMP Chemin vert"],
+                      "lat": [50.4, 50.5, 50.4], "lon": [2.9, 2.9, 2.9], "categorie": ["10"] * 3, "age_min": [18.0] * 3,
+                      "age_max": [99.0] * 3, "lits": [0] * 3, "maj": ["2026"] * 3, "structure_nom": ["CMP"] * 3,
+                      "origine_commune": ["unite"] * 3})
+    classes = pd.DataFrame({"cle": ["u1", "u2", "u3"], "type": ["lieu_cmp"] * 3})
+    x = lieux._lieux_ror(u, classes, fin).set_index("finess")
+    # Carvin, déclaré à Hénin-Beaumont (commune de l'hôpital), placé à Carvin avec l'adresse de FINESS
+    assert x.at["C1", "commune"] == "62215" and x.at["C1", "voie"] == "29 rue Florent-Évrard"
+    assert np.isnan(x.at["C1", "lat_ror"])
+    # déclaré ailleurs que dans une commune d'hôpital du gestionnaire, le ROR garde la main
+    assert x.at["C2", "commune"] == "62999"
+    # un CMP que FINESS range parmi les hôpitaux spécialisés n'est pas pris pour un hôpital
+    assert x.at["K1", "commune"] == "62160"
+
+
+def test_finess_coordonnees_en_degres():
+    """Finess+ range parfois le Lambert 93 dans coordonneeX et coordonneeY et les degrés dans les champs direction,
+    la paire en degrés est retenue."""
+    from pipeline.sources import finess
+    assert finess._degres({"coordonneeX": "5.254203", "coordonneeY": "46.211257",
+                           "directionLatitude": "6570414.61", "directionLongitude": "873766.07"}) == (46.211257, 5.254203)
+    assert finess._degres({"coordonneeX": "872835.21", "coordonneeY": "6569568.1",
+                           "directionLatitude": "46.203876", "directionLongitude": "5.241822"}) == (46.203876, 5.241822)
+    assert finess._degres({"coordonneeX": None, "coordonneeY": "6569568.1"}) == (None, None)
+
+
+def test_lieux_hors_commune():
+    """Un point hors du contour de sa commune (à la tolérance près) est repéré, un point sans contour connu non."""
+    import pandas as pd
+    from shapely.geometry import box
+    from pipeline import lieux
+    formes = {"A": box(0, 0, 1, 1)}
+    lat = pd.Series([0.5, 2.0, 1.001, 0.5])
+    lon = pd.Series([0.5, 0.5, 0.5, 0.5])
+    r = lieux.hors_commune(lat, lon, pd.Series(["A", "A", "A", "B"]), formes)
+    assert r.tolist() == [False, True, False, False], r
+    assert not lieux.hors_commune(lat, lon, pd.Series(["A"] * 4), None).any()
+
+
 def test_parcours():
     import pandas as pd
     from pipeline import build
@@ -515,12 +1062,12 @@ def test_parcours():
         "secteur": ["Cabinet", "Société de téléconsultation", "Cabinet", "Société de téléconsultation",
                     "Industrie", "Cabinet"],
     })
-    cat = pd.Series(["soins", "sans_soins", "soins", "sans_soins", "sans_soins", "soins"], index=act.index)
-    loc = act[act["com"].notna() & (cat != "sans_soins")]
+    cat = pd.Series(["soins", "a_distance", "soins", "a_distance", "sans_soins", "soins"], index=act.index)
+    loc = act[act["com"].notna() & ~cat.isin(["a_distance", "sans_soins"])]
     t = build.parcours(act, cat, loc).set_index("prof").loc["psychologue"]
     # a soigne (compté), b et e sans lieu, c seulement téléconsultation, d seulement industrie
     assert (t["avec_activite"], t["sans_lieu"], t["avec_lieu"], t["dans_densites"]) == (5, 2, 3, 1)
-    assert (t["sans_soins_seulement"], t["dont_teleconsultation"]) == (2, 1)
+    assert (t["a_distance_seulement"], t["sans_soins_seulement"]) == (1, 1)
 
 
 def test_journal_meme_jour():
@@ -650,7 +1197,7 @@ def test_categories_secteurs():
                                     "Services de Prévention et de Santé au Travail", "Secteur non renseigné"],
                         "prof": ["psychologue", "medecin_generaliste", "psychologue", "medecin_generaliste",
                                  "medecin_generaliste", "infirmier", "psychiatre"]})
-    assert build.categories_activites(act).tolist() == ["soins", "sans_soins", "public_particulier", "sans_soins", "sans_soins",
+    assert build.categories_activites(act).tolist() == ["soins", "a_distance", "public_particulier", "sans_soins", "sans_soins",
                                               "public_particulier", "soins"]
 
 def test_moyenne_territoires():
@@ -704,6 +1251,50 @@ def test_specialites_salariees():
                         "groupe": [config.G_MED, config.G_TECH, config.G_PREV]})
     r = limites.specialites_salariees(nat, pro)
     assert set(r) == {"prof:reanimateur"} and "9 %" in r["prof:reanimateur"]["texte"]
+
+
+def test_consultations_non_sectorisees():
+    """Une consultation de psychiatrie non sectorisée que le ROR range parmi les CMP compte parmi les consultations
+    hors CMP, un CMP ordinaire reste un CMP."""
+    import pandas as pd
+    from pipeline import config, lieux
+    noms = ["Consultation psychiatrie non sectorisée", "CMP de Créteil", "Consultations Psychiatrie Adultes",
+            "Psychiatrie consultations", "Consultations psychiatrie adultes 62G05", "CMP consultations adultes"]
+    n = len(noms)
+    u = pd.DataFrame({"cle": list("abcdef"), "nom": noms, "categorie": ["10"] * n, "champ": [config.CHAMP_PSY] * n,
+                      "mode": ["02"] * n, "age_max": [None] * n})
+    t = lieux.classer_unites(u).groupby("cle")["type"].apply(set)
+    assert t["a"] == {"lieu_consult_psy"} and "lieu_cmp" in t["b"] and "lieu_consult_psy" not in t["b"]
+    # consultations d'hôpital ou de clinique au nom seulement générique, sans CMP ni numéro de secteur
+    assert t["c"] == {"lieu_consult_psy"} and t["d"] == {"lieu_consult_psy"}
+    assert "lieu_cmp" in t["e"] and "lieu_cmp" in t["f"]
+
+
+def test_code_secteur():
+    """Code du secteur de psychiatrie lu dans un nom, écrit sur deux chiffres, rien quand le nom n'en cite pas."""
+    from pipeline.lieux import code_secteur
+    assert code_secteur("CMP Ados Neuilly 93G16") == "93G16"
+    assert code_secteur("CMP Adultes Brignoles - Secteur 83 G 6") == "83G06"
+    assert code_secteur("CMP de Lons", "Secteur 31I01.") == "31I01"
+    assert code_secteur("CMP de Lons") is None and code_secteur(None) is None
+
+
+def test_exclus_cmp_noms():
+    """Groupes pour les proches, entretiens familiaux et centres de diagnostic rangés parmi les CMP sont écartés, sauf
+    quand leur nom dit CMP."""
+    import re
+    from pipeline import config
+    from pipeline.lieux import _simple
+    ex = re.compile(config.LIEUX_EXCLUS_CMP)
+    for nom in ["Psycho Education des aidants Pontivy 56G09", "CTRE ENTRETIENS FAMILIAUX DU LITTORAL",
+                "Centre de diagnostic et d'évaluation pour les troubles globaux du développement",
+                "CADEO CENTRE D'ACCUEIL D'EVALUATION ET D'ORIENTATION", "CMM HOSPITALISATION",
+                "Psychiatrie 2 - CATTP Ambulatoire CE CAREST EMOTION (3794)", "CE psychiatrie",
+                "Consultation de psychiatrie générale et de psycho-pathologie du travail", "Relais Etudiants Lycéens"]:
+        assert ex.search(_simple(nom)), nom
+    for nom in ["CMP Addictologie adulte Loudéac", "CMP POUR L ENFANT ET LA FAMILLE", "CMP enfant Rostrenen 22I03",
+                "CMP CATTP hospitalisation à domicile", "Pédopsychiatrie CMP consultations externes"]:
+        assert not ex.search(_simple(nom)), nom
 
 
 if __name__ == "__main__":

@@ -195,6 +195,57 @@ for res in ["suicides", "hospit_gestes_auto_infliges"]:
         note(f"régression {res}, coefficient {c}", round(pub.loc[c, "coef_standardise"], 4), round(beta[k + 1], 4), .0005)
         note(f"régression {res}, erreur type HC3 {c}", round(pub.loc[c, "erreur_std"], 4), round(se[k + 1], 4), .0005)
 
+# ------------------------------------------------------------------ lieux de soins, FINESS et ROR réunis
+# Tous les CMP actifs de FINESS, relus directement dans Finess+, doivent se retrouver dans la liste des lieux (sous
+# leur numéro, ou rapprochés d'un lieu du ROR), et la somme des départements doit redonner le total de la liste.
+import gzip  # noqa: E402
+fp = json.load(gzip.open(B / "finess_plus.json.gz", "rt", encoding="utf-8"))
+cmp_fin = {(e.get("informationsGeneralesEGE") or {}).get("numFinessEge") for pm in fp.get("pmej", [])
+           for e in (pm.get("ege") or []) if e.get("etatObjet") == "A" and e.get("categorieentiteGeographiqueExercice") == "156"}
+ls = lire("lieux_soins.csv", dtype={"finess": str, "finess_rapproche": str, "finess_absorbes": str, "commune": str,
+                                   "dep": str})
+c = ls[ls["type"] == "lieu_cmp"]
+# depuis le 12 octobre 2026, un établissement enregistré comme CMP dont le nom désigne autre chose (équipe mobile,
+# CATTP, unité en milieu pénitentiaire...) est rangé dans le type que son nom désigne, il doit se retrouver là
+retrouves = set(ls["finess"].dropna()) | set(ls["finess_rapproche"].dropna())
+# un CMP inscrit deux fois et réuni à un autre garde son numéro dans finess_absorbes (13 octobre 2026)
+if "finess_absorbes" in ls:
+    retrouves |= {n for v in ls["finess_absorbes"].dropna().astype(str) for n in v.split(",") if n}
+# une inscription écartée par la liste vérifiée de son établissement est consignée dans structures_non_retenues.csv
+if (R / "structures_non_retenues.csv").exists():
+    _nr = pd.read_csv(R / "structures_non_retenues.csv", sep=";", dtype=str)
+    retrouves |= {n for v in _nr["finess"].dropna() for n in v.split(",") if n}
+note("CMP actifs de FINESS retrouvés dans les lieux réunis (comme CMP ou sous le type que désigne leur nom)",
+     float(len(cmp_fin)), float(len(cmp_fin & retrouves)), 0)
+ld = lire("lieux_soins_dep.csv", dtype={"code": str})
+note("CMP, somme des départements et liste des lieux", float(ld["n_lieu_cmp"].sum()), float(len(c.dropna(subset=["dep"]))), 0)
+note("Lieux sans nom de personne tiré du ROR", 0.0,
+     float(ls["unite_ror"].fillna("").str.contains(r"\b(?:Dr|Docteur|Professeur)\b\.?\s", case=False).sum()), 0)
+
+# confirmation des CMP par la certification HAS, recalculée depuis les fichiers bruts de la HAS (dernière démarche de
+# chaque entité juridique, sites dont le nom dit CMP)
+if "site_certification_has" in ls and (B / "has" / "has_2021_2025_sites.csv").exists():
+    import re as _re
+    _l = lambda f: pd.read_csv(B / "has" / f, sep=None, engine="python", dtype=str, encoding="utf-8-sig")  # noqa: E731
+    _g = []
+    for cle in ("has_2021_2025", "has_6e_cycle"):
+        _s, _d = _l(f"{cle}_sites.csv"), _l(f"{cle}_demarches.csv")
+        _g.append(_s.merge(_d[["code_demarche", "date_de_decision"]], on="code_demarche"))
+    _g = pd.concat(_g)
+    for _c in ("FINESS_EJ", "FINESS_EG"):
+        _g[_c] = _g[_c].astype(str).str.zfill(9)
+    _g["_d"] = pd.to_datetime(_g["date_de_decision"], dayfirst=True, errors="coerce")
+    _der = _g.dropna(subset=["_d"]).sort_values("_d").groupby("FINESS_EJ")["code_demarche"].last()
+    _g = _g[_g.set_index(["FINESS_EJ", "code_demarche"]).index.isin(list(_der.items()))]
+    _eg = set(_g.loc[_g["RS_eg"].fillna("").str.contains(r"\bC\s?\.?\s?M\s?\.?\s?P\b(?!\s?\.?\s?P)|M[EÉ]DICO.?PSYCHOLOG|"
+                                                         r"\bCMPEA\b|\bCMPI\b|\bCMPPA\b", case=False, regex=True),
+                     "FINESS_EG"])
+    _c = c.copy()
+    _n = _c.apply(lambda r: bool(({str(r.get("finess")), str(r.get("finess_rapproche"))}
+                                  | set(str(r.get("finess_absorbes") or "").split(","))) & _eg), axis=1)
+    note("CMP confirmés par un site de la certification HAS", float(_c["site_certification_has"].astype(str).eq("True").sum()),
+         float(_n.sum()), 0)
+
 print("\n".join(lignes))
 print(f"\nRésultats contrôlés, {R}")
 print(f"{sum(l.startswith('ok') for l in lignes)} contrôles conformes, {sum(l.startswith('ÉCART') for l in lignes)} écarts")

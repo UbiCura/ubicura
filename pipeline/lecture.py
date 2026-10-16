@@ -13,6 +13,17 @@ SM = "Santé mentale"
 # (identifiant, terme, définition, famille). Une famille vide signifie que la notion vaut pour
 # toute l'offre de soins. L'atlas filtre le glossaire selon la famille choisie.
 GLOSSAIRE = [
+    ("lieux", "Structures de soins",
+     "Établissements ou services de soins (CMP, CMPP, CAMSP, hôpital de jour, service d'urgences, maternité, "
+     "établissement médico-social...) recensés par FINESS ou par le Répertoire opérationnel des ressources (ROR), à une "
+     "adresse donnée. Deux structures distinctes à la même adresse comptent pour deux, une même structure décrite par les "
+     "deux bases ou inscrite deux fois ne compte qu'une fois. Une structure n'est pas une capacité, et les structures ne "
+     "s'ajoutent pas aux professionnels, elles se lisent à côté.", ""),
+    ("acces_lieux", "Accès aux structures de soins",
+     "Le temps de trajet vient de l'INSEE, en voiture aux heures creuses, vers l'équipement le plus proche recensé "
+     "dans sa base des équipements. La distance à la structure de soins la plus proche est mesurée ici à vol d'oiseau, depuis "
+     "le centre de la commune des habitants. Ce n'est pas un temps de trajet. Pour un territoire, la valeur donnée est "
+     "la médiane des habitants, la moitié d'entre eux est plus près, l'autre moitié plus loin.", ""),
     ("densite", "Densité pour 10 000 habitants",
      "Nombre de professionnels rapporté à la population. Une densité de 5 signifie 5 professionnels pour 10 000 "
      "habitants, soit environ un pour 2 000 habitants. C'est la mesure qui permet de comparer un petit territoire "
@@ -22,7 +33,7 @@ GLOSSAIRE = [
      "nombre de professionnels de tous les départements rapporté à la population de la France, compté comme pour "
      "chaque département, avec les seules activités de soins qui ont un lieu d'exercice. Elle diffère un peu du "
      "chiffre de la France entière, qui compte chaque personne une fois, y compris les remplacements et les "
-     "activités sans soins à la population.", ""),
+     "activités non rattachées à un territoire (téléconsultation, activités sans soins à la population).", ""),
     ("effectif", "Effectif",
      "Nombre de personnes distinctes qui déclarent exercer dans le territoire. Une personne qui exerce dans deux "
      "territoires compte dans chacun, mais une seule fois pour la France entière.", ""),

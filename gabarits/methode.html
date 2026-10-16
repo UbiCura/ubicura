@@ -10,6 +10,7 @@
 <li><a href="#sources">Sources</a></li>
 <li><a href="#origine">D'où vient chaque chiffre</a></li>
 {% if concordance %}<li><a href="#concordance">Concordance des effectifs avec les chiffres officiels</a></li>{% endif %}
+{% if lieux %}<li><a href="#lieux">Structures de soins, FINESS et ROR réunis</a></li>{% endif %}
 {% if inscrits %}<li><a href="#inscrits">Inscrits sans activité déclarée</a></li>{% endif %}
 <li><a href="#indicateurs">Indicateurs du profil des territoires</a></li>
 <li><a href="#controles">Contrôles</a></li>
@@ -56,8 +57,9 @@
 <thead><tr><th>Chiffre affiché</th><th>Source</th><th>Calcul</th></tr></thead>
 <tbody>
 <tr><td>Nombre de professionnels en France</td><td>RPPS (Agence du numérique en santé)</td><td>Personnes ayant au moins une activité déclarée, comptées une seule fois. Les étudiants (internes remplaçants) et les personnels non soignants du répertoire sont écartés. La spécialité d'un médecin est sa spécialité ordinale, à défaut sa compétence exclusive.</td></tr>
-<tr><td>Nombre de professionnels d'un territoire</td><td>RPPS</td><td>Personnes ayant au moins une activité de soins avec un lieu d'exercice dans le territoire. Une personne qui exerce dans plusieurs territoires compte dans chacun. Les activités sans soins à la population (téléconsultation, industrie, sièges...) et les activités sans lieu (remplacements) sont comptées à part.</td></tr>
+<tr><td>Nombre de professionnels d'un territoire</td><td>RPPS</td><td>Personnes ayant au moins une activité de soins avec un lieu d'exercice dans le territoire. Une personne qui exerce dans plusieurs territoires compte dans chacun. La téléconsultation (des soins à distance, déclarés au siège de la société et non là où vivent les patients), les activités sans soins à la population (contrôle médical, industrie, sièges...) et les activités sans lieu (remplacements) sont comptées à part.</td></tr>
 <tr><td>Densité pour 10 000 habitants</td><td>RPPS et population municipale de l'INSEE (référentiel d'Etalab)</td><td>Nombre de professionnels divisé par la population, multiplié par 10 000.</td></tr>
+<tr><td>Structures de soins (CMP, CMPP, CAMSP, urgences, maternités...) et distance au plus proche</td><td>FINESS et ROR (Agence du numérique en santé), adresses géocodées par l'IGN</td><td>Structures distinctes réunies sans double compte, rapportées à 100 000 habitants. Distance à vol d'oiseau entre le centre de la commune des habitants et la structure la plus proche, médiane des habitants du territoire.</td></tr>
 <tr><td>Établissements et périmètre élargi de la santé mentale</td><td>FINESS, apparié au RPPS par le numéro d'établissement</td><td>Salariés d'un établissement de catégorie psychiatrique ou médico-psychologique, toutes professions.</td></tr>
 <tr><td>Profil des territoires (âge, revenu, pauvreté, chômage, diplôme, logement...)</td><td>INSEE, dossier complet</td><td>Valeurs publiées par l'INSEE pour chaque intercommunalité, département et région. Pour les parts, le numérateur et le dénominateur publiés par l'INSEE. Voir le tableau des indicateurs.</td></tr>
 <tr><td>Patients pris en charge pour troubles psychiques, psychotropes</td><td>Assurance Maladie, cartographie des pathologies</td><td>Patients divisés par la population couverte. La prévalence standardisée sur l'âge est calculée ici par la méthode directe, avec la structure d'âge de la France.</td></tr>
@@ -81,6 +83,91 @@
 {% for c in concordance %}<tr><td>{{ c.libelle }}</td><td>{{ c.nous }}</td><td>{{ c.drees }}</td><td>{{ c.annee }}</td><td>{{ c.ecart }}</td><td>{{ c.tendance }}</td><td>{{ c.rang }}</td><td>{{ c.explication }}</td></tr>
 {% endfor %}</tbody></table></div>
 <p>Le détail, avec les départements, est dans les fichiers concordance_effectifs.csv et concordance_effectifs_dep.csv.</p>
+{% endif %}
+
+{% if lieux %}
+<h2 id="lieux">Structures de soins, FINESS et ROR réunis</h2>
+<p><strong>Ce qui est compté.</strong> Une structure de soins est un établissement ou un service recensé par FINESS (le fichier national des établissements sanitaires et sociaux) ou par l'extraction « Offres de santé » du Répertoire opérationnel des ressources (ROR) de l'Agence du numérique en santé, à une adresse donnée. Deux structures distinctes à la même adresse, par exemple un foyer de vie et un foyer d'hébergement de la même association, comptent pour deux. Une même structure décrite par les deux bases, ou inscrite deux fois, ne compte qu'une fois. Une structure n'est pas une capacité, une antenne ouverte une demi-journée par semaine compte autant qu'un centre ouvert tous les jours. Les antennes et permanences de CMP tenues en mairie, en CCAS ou en maison de santé sont comptées parmi les CMP quand le ROR les décrit comme tels, et leur nombre est donné à part pour chaque territoire (colonne antennes de cmp_par_public.csv).</p>
+<p><strong>Ce que chaque base apporte.</strong> FINESS est le registre administratif des autorisations. Il ne recense pas chaque antenne, enregistre souvent un CMP sous le numéro de son hôpital, et classe parfois sous une catégorie des structures qui relèvent d'une autre. Le ROR est rempli par les établissements eux-mêmes et décrit chaque unité, sa catégorie, son mode de prise en charge et l'âge de ses patients, mais certains hôpitaux y déclarent leurs unités à leur propre adresse.</p>
+<p><strong>Comment les deux bases sont réunies, dans l'ordre.</strong></p>
+<ol>
+<li>Dans FINESS, chaque établissement ouvert de la catégorie d'un type est retenu. Un établissement dont le nom dit CMP mais enregistré sous une autre catégorie (hôpital, établissement de santé mentale, CATTP, centre de santé) est compté comme CMP. Un établissement enregistré comme CMP dont le nom désigne autre chose (équipe mobile, CATTP, psychiatrie de liaison, unité en milieu pénitentiaire, CSAPA, hôpital de jour) est rangé dans le type que son nom désigne.</li>
+<li>Dans le ROR, chaque unité de soins est classée par sa catégorie, son champ, son mode de prise en charge et l'âge de ses patients. Ne sont pas comptées parmi les CMP, même quand le ROR les y range, les équipes mobiles, la psychiatrie de liaison, les urgences psychiatriques, les consultations non sectorisées et les consultations d'un hôpital ou d'une clinique désignées seulement comme consultations de psychiatrie, sans CMP ni numéro de secteur dans leur nom (comptées parmi les consultations de psychiatrie hors CMP, un CMP étant la consultation d'un secteur), les consultations spécialisées (stimulation magnétique, psychiatrie légale, psychotraumatisme, addictologie, diagnostic de l'autisme, troubles des apprentissages), les maisons des adolescents, les hôpitaux de jour, la réhabilitation, la thérapie familiale et les entretiens familiaux, les groupes de psychoéducation des proches, les centres de diagnostic ou d'évaluation et d'orientation, les unités d'hospitalisation et les CATTP, les consultations externes, de pathologie du travail ou pour étudiants, l'accueil familial thérapeutique, les unités de périnatalité qui ne se disent pas CMP, les soins en milieu pénitentiaire, les appartements de transition et les consultations de ville nominatives, sauf quand leur nom dit aussi CMP (« HJ CMP CATTP », « CMP addictologie »). Les unités rattachées au même établissement de FINESS dans la même commune forment une seule structure (plusieurs équipes ou secteurs d'un même CMP). Une unité rattachée à un hôpital mais située ailleurs garde sa propre structure, d'après son adresse ou la commune citée dans son nom.</li>
+<li>Les deux bases sont rapprochées par le même numéro FINESS et la même commune, puis par le même numéro dans une autre commune, puis par la même entité juridique gestionnaire et la même commune (appariées une à une), puis par le même nom distinctif.</li>
+<li>Deux structures restantes sont encore réunies en une seule quand elles décrivent la même structure, c'est-à-dire quand toutes ces conditions sont remplies. Même type, même établissement gestionnaire, même commune, même rue, même numéro dans la rue ou numéro absent d'un côté. Même nom, à des mots descriptifs près (l'un des deux noms contient tous les mots distinctifs de l'autre, « CMP Autun » et « CMP adultes Autun »), sans code de secteur ni public différents (« CATTP 81I01 » et « CATTP 81G01 », un CMP pour enfants et un CMP pour adultes restent deux). L'une ne vient que du ROR, ou les deux sont inscrites dans FINESS sous deux catégories dont l'une n'est pas celle du type. Enfin, deux numéros FINESS différents désignent deux établissements distincts, sauf quand l'un est celui d'un hôpital, sous lequel le ROR déclare souvent ses unités. Les numéros FINESS des structures ainsi réunies restent attachés à la structure gardée (colonne finess_absorbes).</li>
+<li>Le public d'un CMP vient des âges déclarés au ROR, sinon de son nom (enfants, adolescents, infanto-juvénile, code de secteur de psychiatrie générale ou infanto-juvénile). Sans indice, il est écrit « public non précisé ».</li>
+</ol>
+{% if lieux.relecture %}
+<p><strong>Relecture des deux bases.</strong> Chaque correction apportée à FINESS et au ROR est appliquée par une règle, la même pour toute la France, refaite à chaque mise à jour. Le tableau donne, pour cette version, ce qui a été constaté et le nombre de structures concernées.</p>
+<div class="defile"><table class="simple">
+<thead><tr><th>Base</th><th>Constat</th><th>Nombre</th><th>Ce qui en est fait</th></tr></thead>
+<tbody>
+{% for r in lieux.relecture %}<tr><td>{{ r.base }}</td><td>{{ r.constat }}</td><td>{{ r.nombre }}</td><td>{{ r.traitement }}</td></tr>
+{% endfor %}</tbody></table></div>
+{% endif %}
+<p><strong>Contrôles.</strong> Aucun établissement ouvert de FINESS ne doit disparaître de la réunion, sous son numéro ou rapproché d'une structure du ROR. Les CMP sont confrontés pour chaque département, chaque région et chaque établissement gestionnaire au nombre de CMP déclarés à la SAE de la DREES (voir plus bas), et les territoires où les sources divergent sont vérifiés sur les publications des établissements, des ARS et des collectivités. Les nombres de chaque étape figurent dans le tableau des contrôles de cette page.</p>
+<p>L'emplacement d'une structure vient des coordonnées de FINESS, sinon du ROR, sinon de son adresse géocodée par le service de l'IGN (Base Adresse Nationale), sinon du centre de sa commune, et cette précision est donnée pour chaque structure. Les distances sont mesurées à vol d'oiseau depuis le centre de chaque commune. Un type recensé dans moins de 90 % des départements est listé, mais il n'est pas comparé entre territoires. Les consultations de ville nominatives, déclarées seulement en Île-de-France, ne sont pas reprises, et aucun nom de personne n'est publié.</p>
+{% if lieux.references %}
+<div class="defile"><table class="simple">
+<thead><tr><th>Ce qui est compté</th><th>Structures recensées ici</th><th>Chiffre publié</th><th>Date</th><th>Écart</th><th>Source</th></tr></thead>
+<tbody>
+{% for r in lieux.references %}<tr><td>{{ r.libelle }}</td><td>{{ r.nous }}</td><td>{{ r.pub }}</td><td>{{ r.date }}</td><td>{{ r.ecart }}</td><td><a href="{{ r.adresse }}">{{ r.source }}</a></td></tr>
+{% endfor %}</tbody></table></div>
+{% endif %}
+<div class="defile"><table class="simple">
+<thead><tr><th>Type de structure</th><th>Structures</th><th>Dans les deux bases</th><th>FINESS seul</th><th>ROR seul</th><th>Sources de l'établissement seules</th><th>Départements où il est recensé</th><th>Comparé entre territoires</th></tr></thead>
+<tbody>
+{% for r in lieux.couverture %}<tr><td>{{ r.libelle }}</td><td>{{ r.n }}</td><td>{{ r.deux }}</td><td>{{ r.finess }}</td><td>{{ r.ror }}</td><td>{{ r.sources }}</td><td>{{ r.part }}</td><td>{{ r.compare }}</td></tr>
+{% endfor %}</tbody></table></div>
+{% if lieux.sae %}
+<h3 id="lieux-sae">Les CMP confrontés à la SAE</h3>
+<p>Pour vérifier les CMP par une source indépendante, ils sont confrontés au nombre de CMP que chaque établissement de psychiatrie déclare chaque année à la statistique annuelle des établissements de santé (SAE) de la DREES, en psychiatrie générale (adultes) et infanto-juvénile (enfants et adolescents). Les deux sources ne comptent pas la même chose. Ici, un CMP est une structure distincte. La SAE compte les CMP que chaque établissement déclare, et un hôpital peut y compter plusieurs équipes ou activités installées au même endroit, ou des CMP qu'il déclare dans le ROR à sa propre adresse, sans structure distincte connu (le cas des CMP du CHU de Guadeloupe). La colonne des unités du ROR montre ce que l'hôpital déclare avant la réunion en lieux. La SAE range aussi tous les CMP d'un établissement dans le département de son siège, même ceux situés dans un département voisin, d'où une comparaison par région. Par département, {{ lieux.sae_resume }} sont à 20 % près. Un CMP connu de FINESS seul, sans âges déclarés ni indice dans son nom, est compté sans public précisé. Un établissement que FINESS enregistre comme CMP mais dont le nom désigne autre chose (équipe mobile, CATTP, liaison, unité en milieu pénitentiaire) est rangé dans le type que son nom désigne.</p>
+<div class="defile"><table class="simple">
+<thead><tr><th>Région</th><th>CMP recensés ici (structures distinctes)</th><th>Adultes</th><th>Enfants et adolescents</th><th>Public non précisé</th><th>Unités de CMP déclarées au ROR</th><th>CMP déclarés à la SAE</th><th>SAE, adultes</th><th>SAE, enfants</th><th>Écart avec la SAE</th></tr></thead>
+<tbody>
+{% for r in lieux.sae %}<tr><td>{{ r.nom }}</td><td>{{ r.cmp }}</td><td>{{ r.adultes }}</td><td>{{ r.enfants }}</td><td>{{ r.np }}</td><td>{{ r.ur }}</td><td>{{ r.sae }}</td><td>{{ r.sae_a }}</td><td>{{ r.sae_e }}</td><td>{{ r.ecart }}</td></tr>
+{% endfor %}</tbody></table></div>
+<p>Un CMP qui accueille adultes et enfants compte dans les deux colonnes. Détail par département dans concordance_cmp_sae.csv et cmp_par_public.csv.</p>
+{% endif %}
+{% if lieux.etab %}
+<h3 id="lieux-sae-etablissements">Les CMP confrontés à la SAE, établissement par établissement</h3>
+<p>La confrontation est aussi faite pour chaque établissement gestionnaire (hôpital ou association, identifié par son entité juridique dans FINESS), ce qui désigne précisément où vérifier. Les CMP d'un établissement sont ceux que FINESS ou le ROR rattachent à son entité juridique, où qu'ils soient. L'écart est toléré jusqu'à 20 % ou un CMP. Bilan, {{ lieux.etab_resume }}. Un écart signale une différence entre les sources, souvent des CMP déclarés à l'adresse de l'hôpital ou plusieurs équipes comptées à part à la SAE, pas une erreur de l'établissement. Les établissements en écart sont vérifiés un à un sur leurs propres publications, et les règles de réunion corrigées quand c'est nécessaire.</p>
+<details><summary>Établissements où les sources divergent ({{ lieux.etab|length }})</summary>
+<div class="defile"><table class="simple">
+<thead><tr><th>Établissement gestionnaire</th><th>Département du siège</th><th>CMP déclarés à la SAE (adultes et enfants)</th><th>CMP recensés ici (adultes et enfants)</th><th>Unités de CMP au ROR</th><th>Constat</th></tr></thead>
+<tbody>
+{% for r in lieux.etab %}<tr><td>{{ r.nom }}</td><td>{{ r.dep }}</td><td>{{ r.sae }}</td><td>{{ r.ici }}</td><td>{{ r.ror }}</td><td>{{ r.statut }}</td></tr>
+{% endfor %}</tbody></table></div></details>
+<p>Détail pour tous les établissements dans concordance_cmp_etablissements.csv.</p>
+{% endif %}
+{% if lieux.verifs %}
+{% if lieux.confirmation %}
+<h3 id="lieux-confirmation">Confirmation des CMP par des listes indépendantes</h3>
+<p>Chaque CMP réuni de FINESS et du ROR est confronté à deux listes officielles qui ne viennent ni de l'une ni de l'autre base. La première est la liste des sites que son établissement déclare à sa certification par la Haute Autorité de santé (données ouvertes de la HAS, décisions de 2021 à 2026). Un CMP dont un numéro FINESS est un site de certification dont le nom désigne un CMP est confirmé. La seconde est le répertoire Sirene de l'INSEE, où chaque établissement d'un hôpital porte une enseigne (« CMP-CATTP enfants ») et une adresse. Un CMP est confirmé quand son gestionnaire a, dans la même commune, un établissement actif sous une enseigne de CMP, apparié un à un par le nom, le public et la rue. Un CMP confirmé par aucune des deux, ou connu de Sirene seul, est vérifié sur les sources de son établissement (liste ci-dessous). {{ lieux.confirmation.resume }}</p>
+<div class="defile"><table class="simple">
+<thead><tr><th>Niveau</th><th>CMP</th></tr></thead>
+<tbody>
+{% for c in lieux.confirmation.niveaux %}<tr><td>{{ c.niveau }}</td><td>{{ c.n }}</td></tr>
+{% endfor %}</tbody></table></div>
+{% endif %}
+{% if lieux.liste_verifiee %}
+<h3 id="lieux-liste-verifiee">Liste vérifiée, établissement par établissement</h3>
+<p>FINESS et le ROR réunis par les règles ci-dessus contiennent des erreurs que seules les sources des établissements permettent de corriger, par exemple des CMP déclarés à l'adresse de l'hôpital, un hôpital de jour décrit comme un CMP, ou une structure fermée encore inscrite. Pour chaque établissement de la liste ci-dessous, ses structures ont été reprises une à une sur des sources fiables, son site, la liste des sites de sa certification par la HAS, les documents de l'agence régionale de santé ou des collectivités, les données ouvertes publiques. Cette liste remplace alors, pour cet établissement, la réunion des deux bases. Chaque structure porte un statut, confirmée par l'établissement, confirmée par une autre source publique, ou seulement inscrite dans FINESS ou le ROR sans confirmation par les sources de l'établissement. Les inscriptions des bases qui ne correspondent à aucune structure vérifiée sont écartées et listées dans structures_non_retenues.csv. À chaque mise à jour, un établissement dont les inscriptions dans FINESS ou le ROR ont changé, ou dont la vérification a plus d'un an, est signalé à revérifier. {{ lieux.liste_verifiee.resume }}</p>
+<div class="defile"><table class="simple">
+<thead><tr><th>Établissement</th><th>Département</th><th>Types vérifiés</th><th>Confirmées par l'établissement</th><th>Confirmées par une autre source</th><th>Bases seules</th><th>Inscriptions non retenues</th><th>Sources</th><th>Date</th></tr></thead>
+<tbody>
+{% for e in lieux.liste_verifiee.etablissements %}<tr><td>{{ e.etablissement }}</td><td>{{ e.departement }}</td><td>{{ e.types }}</td><td>{{ e.etab }}</td><td>{{ e.publique }}</td><td>{{ e.bases }}</td><td>{{ e.non_retenues }}</td><td>{{ e.sources }}</td><td>{{ e.date }}{% if e.a_reverifier %}, à revérifier{% endif %}</td></tr>
+{% endfor %}</tbody></table></div>
+{% endif %}
+<h3 id="lieux-verifications">Vérifications sur d'autres sources</h3>
+<p>Les territoires et les établissements où les sources divergent sont vérifiés un à un sur leurs propres publications (site de l'établissement, documents des agences régionales de santé, listes ouvertes des collectivités). Pour les établissements de la liste vérifiée ci-dessus, leurs structures sont reprises une à une et remplacent la réunion des deux bases. Les autres constats ne modifient pas les chiffres. Ils servent à corriger les règles de réunion pour toute la France quand une erreur de règle apparaît, et à écrire, là où la donnée est montrée, ce qui a été constaté, avec sa source et sa date. Une vérification de plus de douze mois est signalée comme à refaire.</p>
+<div class="defile"><table class="simple">
+<thead><tr><th>Département</th><th>Ce qui a été vérifié</th><th>Constat</th><th>Source</th><th>Date</th></tr></thead>
+<tbody>
+{% for v in lieux.verifs %}<tr><td>{{ v.code }}</td><td>{{ v.etablissement }}</td><td>{{ v.constat }}</td><td><a href="{{ v.adresse }}">{{ v.source }}</a></td><td>{{ v.date }}{% if v.a_refaire %}, à refaire{% endif %}</td></tr>
+{% endfor %}</tbody></table></div>
+{% endif %}
+<p>« Sans objet » signale un type que FINESS ne distingue pas (unités hospitalières, équipes mobiles...), décrit seulement par le ROR. Le détail est dans les fichiers lieux_soins.csv (une structure par ligne, avec son emplacement, sa provenance et les professionnels déclarés sur place), lieux_soins_dep.csv, distances_lieux_dep.csv, concordance_finess_ror.csv et lieux_references.csv.</p>
 {% endif %}
 
 {% if inscrits %}

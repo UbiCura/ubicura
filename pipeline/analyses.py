@@ -20,7 +20,7 @@ def moyenne_territoires(effectifs, prof, population, mode="all"):
     """Densité de référence d'un niveau de territoires pour 10 000 habitants. Somme des effectifs des territoires
     (code, prof, mode, n) rapportée à la population totale, c'est-à-dire la moyenne des densités des territoires
     pondérée par leur population. Les territoires sont comparés à elle, et non au chiffre national, qui compte en
-    plus les activités sans lieu et sans soins à la population (décision de Lucas du 5 octobre 2026)."""
+    plus les activités sans lieu et celles non rattachées à un territoire (téléconsultation, sans soins) (décision de Lucas du 5 octobre 2026)."""
     if effectifs is None or not population:
         return float("nan")
     n = effectifs.loc[(effectifs["prof"] == prof) & (effectifs["mode"] == mode), "n"].sum()
@@ -1421,6 +1421,10 @@ def tout(agg, ref, ctx, voisins, offres, externes=None):
     log.info("analyse : typologie")
     (R["typologie_affectation"], R["typologie_profils"], R["acp_inertie"], R["acp_charges"],
      R["typologie_qualite"]) = typologie(agg, ref, rng)
+    # lieux de soins décrits dans chaque groupe, sans servir à les former (12 octobre 2026)
+    from . import lieux as _lieux
+    R["typologie_lieux"] = _lieux.typologie_lieux(R["typologie_affectation"], getattr(agg, "lieux", None), ref)
+    agg.typologie_lieux = R["typologie_lieux"]
     log.info("analyse : autocorrélation spatiale")
     R["spatial"] = spatial(agg, ref, voisins, rng)
     log.info("analyse : zones de désert et de concentration (Moran local)")

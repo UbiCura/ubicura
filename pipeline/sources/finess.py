@@ -17,6 +17,9 @@ from .. import config
 from ..util import (JOURNAL, choisir_ressource, date_version, lire_meta, log, ressources_datagouv, telecharger)
 
 SORTIE = ["nofinesset", "rs", "categetab", "libcategetab", "categagretab", "libcategagretab", "com", "actif"]
+# colonnes ajoutées le 12 octobre 2026 pour réunir FINESS et le ROR sans double compte (pipeline/lieux.py), entité
+# juridique gestionnaire, adresse et coordonnées (Finess+ seulement, géocodées par la Base Adresse Nationale)
+LIEU = ["nofinessej", "adresse", "lat", "lon", "score_ban"]
 # codes de département du flux historique pour l'outre-mer
 DOM_HISTO = {"9A": "971", "9B": "972", "9C": "973", "9D": "974", "9F": "976"}
 
@@ -55,7 +58,23 @@ def _historique(hors_ligne, rafraichir):
     df["com"] = [DOM_HISTO[d] + c[1:] if d in DOM_HISTO else d + c
                  for d, c in zip(df["departement"].str.strip(), df["commune"].str.strip())]
     df["actif"] = True   # le flux historique ne contient que les établissements ouverts
-    return df[SORTIE].copy(), dest
+    df["adresse"] = (df["numvoie"].str.strip() + " " + df["typvoie"].str.strip() + " " + df["voie"].str.strip()).str.strip()
+    df["lat"] = df["lon"] = df["score_ban"] = float("nan")
+    return df[SORTIE + LIEU].copy(), dest
+
+
+def _degres(geo: dict) -> tuple:
+    """Latitude et longitude en degrés. Finess+ range tantôt les degrés dans coordonneeY et coordonneeX et le Lambert 93
+    (en mètres) dans directionLatitude et directionLongitude, tantôt l'inverse (environ 24 000 établissements le
+    15 octobre 2026). La paire retenue est celle dont la latitude est en degrés, sinon aucune."""
+    for la, lo in (("coordonneeY", "coordonneeX"), ("directionLatitude", "directionLongitude")):
+        try:
+            y, x = float(geo.get(la)), float(geo.get(lo))
+        except (TypeError, ValueError):
+            continue
+        if -90 <= y <= 90 and -180 <= x <= 180:
+            return y, x
+    return None, None
 
 
 def _nouveau(hors_ligne, rafraichir, libelles: pd.DataFrame | None):
@@ -76,10 +95,17 @@ def _nouveau(hors_ligne, rafraichir, libelles: pd.DataFrame | None):
     for pm in d.get("pmej", []):
         for e in pm.get("ege", []) or []:
             info = e.get("informationsGeneralesEGE") or {}
-            com = next((a.get("cogCommune") for a in (e.get("adresse") or []) if a.get("cogCommune")), "")
+            adr = next((a for a in (e.get("adresse") or []) if a.get("cogCommune")), {}) or {}
+            geo = adr.get("coordonneesGeographique") or {}
+            ej = (pm.get("informationsGeneralesPMEJ") or {}).get("numFinessPm") or ""
             lignes.append((info.get("numFinessEge") or "", info.get("nomEgeLong") or info.get("nomEgeCourt") or "",
-                           e.get("categorieentiteGeographiqueExercice") or "", e.get("etatObjet") or "", com))
-    df = pd.DataFrame(lignes, columns=["nofinesset", "rs", "categetab", "etat", "com"])
+                           e.get("categorieentiteGeographiqueExercice") or "", e.get("etatObjet") or "",
+                           adr.get("cogCommune") or "", ej, adr.get("ligneQuatre") or "",
+                           *_degres(geo), geo.get("scoreBAN")))
+    df = pd.DataFrame(lignes, columns=["nofinesset", "rs", "categetab", "etat", "com", "nofinessej", "adresse",
+                                       "lat", "lon", "score_ban"])
+    for c in ("lat", "lon", "score_ban"):
+        df[c] = pd.to_numeric(df[c], errors="coerce")
     df["actif"] = df["etat"] == "A"
     if df.empty:
         raise ValueError("aucun établissement lu dans Finess+ (structure du fichier modifiée ?)")
@@ -97,7 +123,9 @@ def _nouveau(hors_ligne, rafraichir, libelles: pd.DataFrame | None):
     if sans.any():
         JOURNAL.controle("Finess+, catégories sans libellé dans la nomenclature historique",
                          f"{df.loc[sans, 'categetab'].nunique()} catégories, {int(sans.sum())} établissements")
-    return df[SORTIE].copy(), dest
+    JOURNAL.controle("Finess+, établissements actifs avec coordonnées géographiques",
+                     f"{int((df['actif'] & df['lat'].notna()).sum())} sur {int(df['actif'].sum())}")
+    return df[SORTIE + LIEU].copy(), dest
 
 
 def charger(hors_ligne=False, rafraichir=False) -> pd.DataFrame | None:

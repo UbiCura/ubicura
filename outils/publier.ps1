@@ -152,6 +152,11 @@ try {
 
 $c["version"] = $version; $c["date"] = (Get-Date -Format s)
 if ($Restaurer) { $c["version"] = $libelle }
+else {
+    # versions mises en ligne, seules gardées par le site avec la dernière (pipeline/site.py)
+    $vp = @(); if ($c["versions_publiees"]) { $vp = @($c["versions_publiees"]) }
+    $c["versions_publiees"] = @(($vp + $version) | Sort-Object -Unique)
+}
 $c | ConvertTo-Json | Set-Content -Path $config -Encoding UTF8
 Ecrire "Site en ligne, $libelle. Il apparaît sur GitHub Pages en une ou deux minutes."
 exit 0

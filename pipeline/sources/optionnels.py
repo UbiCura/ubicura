@@ -64,6 +64,7 @@ def voisinages(ref, hors_ligne=False, rafraichir=False) -> dict | None:
         actuels = set(ref.communes["code"])
         geoms, codes = [], []
         centres = {}   # code commune actuel -> (longitude, latitude, surface) du plus grand morceau
+        formes = {}    # code commune actuel -> contour (pour vérifier qu'un lieu est bien dans sa commune)
         for f in gj["features"]:
             c = f["properties"].get("code")
             c = c if c in actuels else ref.anciens.get(c)
@@ -72,6 +73,7 @@ def voisinages(ref, hors_ligne=False, rafraichir=False) -> dict | None:
                 g = g if g.is_valid else g.buffer(0)
                 geoms.append(g)
                 codes.append(c)
+                formes[c] = formes[c].union(g) if c in formes else g
                 pt = g.representative_point()
                 if c not in centres or g.area > centres[c][2]:
                     centres[c] = (pt.x, pt.y, g.area)
@@ -89,6 +91,7 @@ def voisinages(ref, hors_ligne=False, rafraichir=False) -> dict | None:
                         voisins[niv].setdefault(x, set()).add(y)
                         voisins[niv].setdefault(y, set()).add(x)
         voisins["centres"] = {c: (x, y) for c, (x, y, _a) in centres.items()}
+        voisins["formes"] = formes
         contours.note_journal(f"{len(voisins['epci'])} EPCI et {len(voisins['dep'])} départements avec voisins, "
                               f"{len(centres)} communes situées")
         JOURNAL.controle("Communes du référentiel situées sur la carte (pour les distances)",

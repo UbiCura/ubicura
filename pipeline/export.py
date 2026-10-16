@@ -85,6 +85,7 @@ def ecrire(agg, ref, professions, insee, R, diplomes, jour=None):
         _csv(agg.liens.assign(nom_a=agg.liens["epci_a"].map(nom), nom_b=agg.liens["epci_b"].map(nom)),
              out / "liens_entre_intercommunalites.csv")
     _csv(agg.feminisation, out / "feminisation.csv")
+    _lieux_csv(agg, noms, lab, out)
     if agg.particulieres:
         cat_lab = config.CATEGORIES_SECTEURS
         x = agg.particulieres["france"]
@@ -184,6 +185,259 @@ def ecrire(agg, ref, professions, insee, R, diplomes, jour=None):
     return out
 
 
+def _lieux_csv(agg, noms, lab, out: Path):
+    """Structures de soins réunies de FINESS et du ROR (pipeline/lieux.py), liste, comptes par territoire, distances,
+    concordance des deux bases et couverture de chaque type."""
+    from . import lieux as lieux_mod
+    from . import structures_verifiees as sv
+    from . import confirmation as conf_mod
+    L = getattr(agg, "lieux", None)
+    if not L:
+        return
+    x = L["lieux"]
+    t = pd.DataFrame({
+        "type": x["type"], "libelle_type": x["libelle_type"], "famille": x["famille"], "groupe": x["groupe"],
+        "nom": x["nom_affiche"], "unite_ror": x["nom"],
+        "secteur": [lieux_mod.code_secteur(a, b, c, d) for a, b, c, d in zip(
+            x["nom_affiche"], x["nom"], x.get("nom_finess", pd.Series(index=x.index, dtype=object)),
+            x.get("remarque_verification", pd.Series(index=x.index, dtype=object)))],
+        "finess": x["finess"].fillna(x.get("finess_rapproche")),
+        "finess_rapproche": x.get("finess_rapproche"), "finess_absorbes": x.get("finess_absorbes"),
+        "entite_juridique": x["ej"], "commune": x["commune"],
+        "nom_commune": x["commune"].map(noms["com"].set_index("code")["nom"]), "epci": x["epci"], "dep": x["dep"],
+        "reg": x["reg"], "adresse": x["adresse"], "latitude": x["lat"].round(5), "longitude": x["lon"].round(5),
+        "emplacement": x["precision"].map(lieux_mod.PRECISIONS),
+        "provenance": x["provenance"].map(lieux_mod.PROVENANCES),
+        "categories_ror": x.get("categories_ror"), "categorie_finess": x.get("categorie_finess"),
+        "age_min": x.get("age_min"), "age_max": x.get("age_max"), "lits_ror": x.get("lits"),
+        "unites_ror": x.get("unites_ror"),
+        "verification": x.get("statut_verification", pd.Series(index=x.index, dtype=object)).map(sv.STATUTS),
+        "source_verification": x.get("source_verification"), "adresse_source_verification": x.get("adresse_source"),
+        "date_verification": x.get("date_verification"),
+        "confirmation": x.get("confirmation", pd.Series(index=x.index, dtype=object)).map(conf_mod.NIVEAUX),
+        "site_certification_has": x.get("confirmee_has"), "siret_sirene": x.get("siret_sirene"),
+        "enseigne_sirene": x.get("enseigne_sirene"), "adresse_sirene": x.get("adresse_sirene"),
+        "verdict": x.get("verdict"), "examen": x.get("examen"), "lieu": x["lieu"]})
+    pros = L["pros"].add_prefix("declares_")
+    t = t.merge(pros, left_on="lieu", right_index=True, how="left")
+    sans_num = t["finess"].isna()
+    for c in pros.columns:
+        t[c] = t[c].where(sans_num, t[c].fillna(0))
+    _csv(t.drop(columns="lieu").sort_values(["type", "dep", "commune", "nom"]), out / "lieux_soins.csv")
+    # établissements Sirene actifs sous une enseigne de CMP sans structure correspondante, à vérifier
+    ss = L.get("sirene_seul")
+    if isinstance(ss, pd.DataFrame):
+        _csv(ss.assign(nom_commune=ss["commune"].map(noms["com"].set_index("code")["nom"])),
+             out / "sirene_sans_correspondant.csv")
+    # liste vérifiée, établissements vérifiés et inscriptions des bases non retenues
+    ver = L.get("verification") or {}
+    if isinstance(ver.get("etablissements"), pd.DataFrame) and len(ver["etablissements"]):
+        e = ver["etablissements"].drop(columns=["empreinte"], errors="ignore")
+        n = x[x.get("verifiee", False) == True]  # noqa: E712
+        n = n[~n["type"].isin([c for v in sv.ENFANTS_DE.values() for c in v])]
+        par = (n.groupby(["ej", "dep", "statut_verification"]).size().unstack(fill_value=0)
+               .reindex(columns=list(sv.STATUTS), fill_value=0))
+        tout = par.groupby(level="ej").sum()
+        cols = [f"structures_{k}" for k in sv.STATUTS]
+        # un établissement vérifié sur tous ses départements (departement vide) compte toutes ses structures
+        vals = [(tout.loc[r.ej] if r.departement == "" and r.ej in tout.index else
+                 par.loc[(r.ej, r.departement)] if (r.ej, r.departement) in par.index else
+                 pd.Series(0, index=list(sv.STATUTS))).to_numpy() for r in e.itertuples()]
+        e = pd.concat([e.reset_index(drop=True), pd.DataFrame(vals, columns=cols)], axis=1)
+        a_rev = {(r[0]) for r in ver.get("a_reverifier", [])}
+        e["a_reverifier"] = e["ej"].isin(a_rev)
+        _csv(e, out / "etablissements_verifies.csv")
+        _csv(pd.DataFrame(ver.get("non_retenues") or [], columns=["ej", "etablissement", "type", "nom", "commune",
+                                                                  "nom_commune", "finess", "provenance", "raison"]),
+             out / "structures_non_retenues.csv")
+        _csv(pd.DataFrame(ver.get("gardees") or [], columns=["ej", "etablissement", "type", "nom", "commune",
+                                                             "nom_commune", "finess", "provenance", "raison"]),
+             out / "structures_gardees_a_verifier.csv")
+        # aucun nom de personne dans les textes de vérification publiés (règle de Lucas du 15 octobre 2026, son nom
+        # ne figure que dans les citations et les mentions légales)
+        prenom = config.AUTEUR.split()[0]
+        textes = pd.concat([t[c].astype(str) for c in ("examen", "source_verification") if c in t]
+                           + [e[c].astype(str) for c in ("remarque", "sources") if c in e]
+                           + [pd.Series([str(r.get("raison", "")) for r in (ver.get("non_retenues") or [])], dtype=str)])
+        n_nom = int(textes.str.contains(prenom, regex=False).sum())
+        JOURNAL.controle("Nom de personne dans les textes de vérification publiés (attendu, aucun)",
+                         "aucun" if not n_nom else f"{n_nom} textes")
+        # verdicts de la vérification à la main sans structure correspondante (clé changée, structure déjà réunie)
+        _csv(pd.DataFrame((ver.get("verdicts") or {}).get("non_trouves") or [], columns=["cle", "structure", "verdict"]),
+             out / "verdicts_sans_structure.csv")
+    types = {tp[0]: tp[1] for tp in config.LIEUX_TYPES}
+    for niv in ("epci", "dep", "reg"):
+        c = L["comptes"][niv].pivot_table(index="code", columns="type", values="n", fill_value=0)
+        base = noms[niv].set_index("code")[["nom", "pop"]].rename(columns={"pop": "population"})
+        n = c.reindex(base.index).fillna(0)
+        taux = n.div(base["population"].where(base["population"] > 0), axis=0) * 1e5
+        w = pd.concat([base, n.add_prefix("n_"), taux.add_prefix("pour_100000_")], axis=1)
+        w.index.name = "code"
+        _csv(w.reset_index(), out / f"lieux_soins_{niv}.csv")
+        d = (L.get("distances") or {}).get(niv)
+        if isinstance(d, pd.DataFrame):
+            d = d.assign(libelle_type=d["type"].map(types), nom=d["code"].map(noms[niv].set_index("code")["nom"]))
+            _csv(d, out / f"distances_lieux_{niv}.csv")
+    d = (L.get("distances") or {}).get("fr")
+    if isinstance(d, pd.DataFrame):
+        _csv(d.assign(libelle_type=d["type"].map(types)), out / "distances_lieux_france.csv")
+    # CMP par public, chaque niveau et la France
+    rc = []
+    for niv in ("epci", "dep", "reg", "fr"):
+        r = lieux_mod.repartition_cmp(x, niv).reset_index()
+        rc.append(r.assign(niveau=niv, nom=r["code"].map(noms[niv].set_index("code")["nom"]) if niv in noms else "France"))
+    _csv(pd.concat(rc, ignore_index=True)[["niveau", "code", "nom", "cmp", "adultes", "enfants", "les_deux", "non_precise",
+                                          "antennes"]],
+         out / "cmp_par_public.csv")
+    es = L.get("escalier")
+    if isinstance(es, pd.DataFrame):
+        _csv(es.assign(libelle_type=es["type"].map(types)), out / "escalier_distance_lieux.csv")
+    # analyses complémentaires des structures (pipeline/structures_analyses.py, 15 octobre 2026)
+    def _nom(n, c):
+        return noms[n].set_index("code")["nom"].get(c, "") if n in noms else "France"
+    sb = L.get("sensibilite")
+    if isinstance(sb, pd.DataFrame) and len(sb):
+        _csv(sb, out / "sensibilite_confirmation.csv")
+    de = L.get("double_eloignement")
+    if isinstance(de, pd.DataFrame) and len(de):
+        _csv(de, out / "double_eloignement.csv")
+    ch = L.get("charge_cmp")
+    if isinstance(ch, pd.DataFrame) and len(ch):
+        _csv(ch.assign(nom=[_nom(n, c) for n, c in zip(ch["niveau"], ch["code"])]), out / "charge_cmp_sae.csv")
+    ze = L.get("zones_eloignement")
+    if isinstance(ze, pd.DataFrame) and len(ze):
+        _csv(ze.assign(libelle_type=ze["type_structure"].map(types),
+                       nom=ze["code"].map(noms["epci"].set_index("code")["nom"])), out / "zones_eloignement.csv")
+    cs = L.get("concordance_sae")
+    if isinstance(cs, pd.DataFrame) and len(cs):
+        # noms selon le niveau, les codes des régions et des départements se recouvrent (« 01 », Ain et Guadeloupe)
+        nom = [noms[n].set_index("code")["nom"].get(c, "") if n in noms else "France" for n, c in zip(cs["niveau"], cs["code"])]
+        cols = ["niveau", "code", "nom", "cmp", "adultes", "enfants", "les_deux", "non_precise", "unites_ror", "sae_cmp",
+                "sae_adultes", "sae_enfants", "ecart_relatif"]
+        _csv(cs.assign(nom=nom)[[c for c in cols if c in cs or c == "nom"]], out / "concordance_cmp_sae.csv")
+    ce = L.get("concordance_etablissements")
+    if isinstance(ce, pd.DataFrame) and len(ce):
+        _csv(ce[["ej", "nom", "dep_siege", "sae_cmp", "sae_adultes", "sae_enfants", "ici_cmp", "ici_adultes", "ici_enfants",
+                 "unites_ror", "sae_cattp", "ici_cattp", "ecart", "statut"]].sort_values(["statut", "ecart"]),
+             out / "concordance_cmp_etablissements.csv")
+    rl = L.get("relecture")
+    if isinstance(rl, pd.DataFrame) and len(rl):
+        _csv(rl, out / "relecture_structures.csv")
+    ig = L.get("inegalites") or {}
+    cl, te, co = ig.get("classes"), ig.get("tests"), ig.get("concentration")
+    if isinstance(cl, pd.DataFrame) and len(cl):
+        if isinstance(te, pd.DataFrame) and len(te):
+            cl = cl.merge(te, on="type", how="left")
+        _csv(cl.assign(libelle_type=cl["type"].map(types)), out / "distances_lieux_classes_densite.csv")
+    if isinstance(co, pd.DataFrame) and len(co):
+        _csv(co.assign(libelle_type=co["type"].map(types)), out / "concentration_distance_lieux.csv")
+    # distance de chaque commune au lieu le plus proche, types recensés presque partout (cartes des rapports)
+    ok = set(L["couverture"].loc[L["couverture"]["complet"], "type"])
+    dc = L["distances_communes"][[t for t in L["distances_communes"].columns if t in ok]].round(1)
+    com = noms["com"].set_index("code")
+    dc = dc.add_prefix("dist_").assign(nom=com["nom"].reindex(dc.index).to_numpy(),
+                                       dep=com["dep"].reindex(dc.index).to_numpy())
+    dc.index.name = "code"
+    _csv(dc.reset_index()[["code", "nom", "dep"] + [c for c in dc.columns if c.startswith("dist_")]],
+         out / "distances_lieux_communes.csv")
+    _csv(L["concordance"].rename(columns={k: f"lieux_{k}" for k in lieux_mod.PROVENANCES})
+         .assign(libelle_type=lambda z: z["type"].map(types)), out / "concordance_finess_ror.csv")
+    _csv(L["couverture"].assign(libelle_type=lambda z: z["type"].map(types)), out / "lieux_couverture.csv")
+    _csv(L.get("references"), out / "lieux_references.csv")
+
+
+def _lieux_site(agg, niv, codes):
+    """Comptes et distance médiane des habitants par type de lieu, pour les types recensés presque partout."""
+    L = getattr(agg, "lieux", None)
+    if not L:
+        return None, None
+    ok = set(L["couverture"].loc[L["couverture"]["complet"], "type"])
+    c = L["comptes"][niv]
+    c = c[c["type"].isin(ok)]
+    comptes = {k: [int(v) for v in g.set_index("code")["n"].reindex(codes).fillna(0)] for k, g in c.groupby("type")}
+    for k in ok - set(comptes):
+        comptes[k] = [0] * len(codes)
+    d = (L.get("distances") or {}).get(niv)
+    dist = None
+    if isinstance(d, pd.DataFrame):
+        d = d[d["type"].isin(ok)]
+        dist = {k: [_r(v, 1) for v in g.set_index("code")["distance_mediane_km"].reindex(codes)] for k, g in d.groupby("type")}
+    return comptes, dist
+
+
+def _lieux_points(agg, ref):
+    """Lieux montrés point par point dans l'atlas (config.LIEUX_ATLAS_GROUPES). Type, latitude et longitude en
+    dix-millièmes de degré, nom (dans une liste à part), commune, provenance et précision de l'emplacement."""
+    from . import lieux as lieux_mod
+    L = getattr(agg, "lieux", None)
+    if not L:
+        return None
+    x = L["lieux"]
+    x = x[x["groupe"].isin(config.LIEUX_ATLAS_GROUPES) & x["lat"].notna()]
+    types = [tp for tp in config.LIEUX_TYPES]
+    couv = L["couverture"].set_index("type")
+    ordre = {tp[0]: i for i, tp in enumerate(types)}
+    noms = sorted(set(x["nom_affiche"].fillna("")))
+    inom = {n: i for i, n in enumerate(noms)}
+    prov, prec = list(lieux_mod.PROVENANCES), list(lieux_mod.PRECISIONS)
+    pros = L["pros"]
+    psy = [c for c in ("psychiatre", "pedopsychiatre", "psychologue", "infirmier", "orthophoniste", "psychomotricien")
+           if c in pros]
+    pts = []
+    for r in x.itertuples():
+        # professionnels déclarés sur place, 0 quand le lieu a un numéro FINESS mais personne de ces professions,
+        # rien quand le lieu n'a pas de numéro FINESS propre (inconnu)
+        dec = pros.loc[r.lieu, psy].astype(int).tolist() if r.lieu in pros.index else None
+        if dec is None and r.lieu.startswith("F"):
+            dec = 0
+        elif dec is not None and not any(dec):
+            dec = 0
+        pts.append([ordre[r.type], int(round(r.lat * 1e4)), int(round(r.lon * 1e4)), inom[r.nom_affiche or ""],
+                    r.commune, prov.index(r.provenance), prec.index(r.precision) if r.precision in prec else len(prec) - 1,
+                    dec, r.epci if isinstance(r.epci, str) else "", r.dep if isinstance(r.dep, str) else "",
+                    r.reg if isinstance(r.reg, str) else ""])
+    return {"types": [{"id": tp[0], "lib": tp[1], "famille": tp[2], "groupe": tp[3],
+                       "complet": bool(couv.at[tp[0], "complet"]) if tp[0] in couv.index else False,
+                       "part": _r(couv.at[tp[0], "part_departements"]) if tp[0] in couv.index else None}
+                      for tp in types],
+            "provenances": [lieux_mod.PROVENANCES[k] for k in prov],
+            "precisions": [lieux_mod.PRECISIONS[k] for k in prec],
+            "professions": psy, "noms": noms, "pts": pts,
+            # distance médiane des habitants et part à plus de 20 et 30 km, France entière, par type
+            "fr": {r.type: [_r(r.distance_mediane_km, 1), _r(r.part_plus_20_km, 4), _r(r.part_plus_30_km, 4)]
+                   for r in ((L.get("distances") or {}).get("fr", pd.DataFrame(columns=["type"]))).itertuples()},
+            "communes": ref.communes[ref.communes["code"].isin(set(x["commune"]))].set_index("code")["nom"].to_dict(),
+            "champs": ["type", "lat", "lon", "nom", "commune", "provenance", "precision", "declares", "epci", "dep", "reg"],
+            # inégalités de distance (12 octobre 2026), escalier selon le niveau de vie, classes de densité, indice de
+            # concentration avec sa fourchette, lieux décrits dans les groupes de la typologie
+            "escalier": _enregistrements(L.get("escalier"), ["type", "decile", "niveau_de_vie_min", "niveau_de_vie_max",
+                                                             "distance_mediane_km", "part_plus_20_km"]),
+            "classes": _enregistrements((L.get("inegalites") or {}).get("classes"),
+                                        ["type", "classe", "population", "distance_mediane_km", "part_plus_20_km"]),
+            "tests": _enregistrements((L.get("inegalites") or {}).get("tests"), ["type", "epsilon2", "q_bh"]),
+            "concentration": _enregistrements((L.get("inegalites") or {}).get("concentration"),
+                                              ["type", "indice_concentration", "ic95_bas", "ic95_haut"]),
+            "typologie": _enregistrements(getattr(agg, "typologie_lieux", None),
+                                          ["famille", "classe", "type", "lieux_pour_100000", "indice_vs_national",
+                                           "distance_mediane_km"])}
+
+
+def _verifications_site():
+    from . import verifications_lieux
+    v = verifications_lieux.charger()
+    return [{k: (bool(r[k]) if k == "a_refaire" else r[k]) for k in ["code", "etablissement", "date", "source", "adresse",
+                                                                    "constat", "a_refaire"]} for _, r in v.iterrows()]
+
+
+def _enregistrements(t, cols):
+    """Lignes d'un tableau pour le site, nombres arrondis à quatre chiffres significatifs."""
+    if not isinstance(t, pd.DataFrame) or t.empty:
+        return None
+    t = t[[c for c in cols if c in t]]
+    return [{k: (float(f"{v:.4g}") if isinstance(v, float) and v == v else (None if isinstance(v, float) else v))
+             for k, v in r.items()} for r in t.to_dict("records")]
+
+
 def _historique(hist: Path):
     fichiers = sorted(hist.glob("effectifs_dep_*.csv"))
     if not fichiers:
@@ -244,7 +498,7 @@ def _parcours_site(agg, professions):
     t = _parcours(agg, professions.attrs.get("inscrits"), dict(zip(professions["id"], professions["libelle"])))
     if t is None:
         return None
-    cols = ["inscrits", "avec_activite", "sans_lieu", "avec_lieu", "sans_soins_seulement", "dont_teleconsultation",
+    cols = ["inscrits", "avec_activite", "sans_lieu", "avec_lieu", "sans_soins_seulement", "a_distance_seulement",
             "dans_densites"]
     return {r["prof"]: [None if c not in r or pd.isna(r[c]) else int(r[c]) for c in cols] for _i, r in t.iterrows()}
 
@@ -277,7 +531,24 @@ def _site(agg, ref, professions, insee, R, serie, jour):
             unites.append(u)
         bloc = {"units": unites, "n": {p: {m: tab[m][p].tolist() if p in tab[m] else [0] * len(codes)
                                            for m in tab} for p in professions["id"]}}
-        # centres médico-psychologiques actifs de FINESS, pour nuancer « aucun psychiatre déclaré » (9 octobre 2026)
+        # lieux de soins (FINESS et ROR réunis), comptes et distance médiane des habitants par type
+        lc, ld = _lieux_site(agg, niv, codes)
+        if lc:
+            bloc["lieux"] = lc
+        if ld:
+            bloc["lieux_dist"] = ld
+        # CMP par public, pour dire les CMP qui accueillent les deux publics et ceux au public non précisé
+        if getattr(agg, "lieux", None):
+            from . import lieux as lieux_mod
+            rc = lieux_mod.repartition_cmp(agg.lieux["lieux"], niv).reindex(codes).fillna(0).astype(int)
+            bloc["cmp_public"] = {k: rc[k].tolist() for k in ("adultes", "enfants", "les_deux", "non_precise", "antennes")}
+            cs = agg.lieux.get("concordance_sae")
+            if isinstance(cs, pd.DataFrame) and niv in ("dep", "reg"):
+                c = cs[cs["niveau"] == niv].set_index("code")
+                bloc["cmp_sae"] = [[int(c.at[k, "sae_cmp"]), c.at[k, "concordance"]] if k in c.index and
+                                   isinstance(c.at[k, "concordance"], str) else None for k in codes]
+        # centres médico-psychologiques (FINESS et ROR réunis depuis le 12 octobre 2026), pour nuancer « aucun
+        # psychiatre déclaré » (9 octobre 2026)
         cm = getattr(agg, "cmp", None)
         if isinstance(cm, pd.DataFrame) and not cm.empty:
             cle_niv = {"epci": cm["epci"], "dep": cm["dep"], "reg": cm["dep"].map(reg_de_dep)}[niv]
@@ -328,12 +599,13 @@ def _site(agg, ref, professions, insee, R, serie, jour):
                                  [_r(r.part_population_a_plus_de_20_min, 4), _r(r.temps_median_min, 1)]
                                  for r in g.set_index("code").reindex(codes).itertuples()]
                              for e, g in t.groupby("equipement")}
-        # personnes déclarant ici une activité sans soins à la population (sièges, téléconsultation...), non
-        # comptées dans la densité du territoire, pour les professions où il y en a
+        # personnes déclarant ici une activité sans soins à la population (sièges, contrôle médical...) ou de
+        # soins à distance (téléconsultation), non comptées dans la densité du territoire
         ap = (agg.particulieres or {}).get(niv)
         if isinstance(ap, pd.DataFrame) and len(ap):
-            a = ap[ap["categorie"] == "sans_soins"]
-            bloc["hors_soins"] = {p: {c: int(n) for c, n in zip(g["code"], g["n"])} for p, g in a.groupby("prof")}
+            for cle, cat in (("hors_soins", "sans_soins"), ("a_distance", "a_distance")):
+                a = ap[ap["categorie"] == cat]
+                bloc[cle] = {p: {c: int(n) for c, n in zip(g["code"], g["n"])} for p, g in a.groupby("prof")}
         niveaux[niv] = bloc
 
     def top(df, cle_lab, niveau_fr=True, k=10):
@@ -361,6 +633,10 @@ def _site(agg, ref, professions, insee, R, serie, jour):
     corr = None
     cc = R.get("correlations_contexte")
     if isinstance(cc, pd.DataFrame) and len(cc):
+        # pour les lieux de soins, l'atlas ne garde que le mode « tous modes » (atlas plus léger), les autres modes
+        # restent dans correlations_contexte.csv
+        lieux_v = cc["variable"].astype(str).str.startswith(("lieux_", "dist_"))
+        cc = cc[~lieux_v | (cc["mode"] == "all")]
         corr = [{"niv": r["niveau"], "mode": r["mode"], "prof": r["prof"], "var": r["variable"],
                  "rho": _r(r["rho_spearman"], 3), "lo": _r(r["ic95_bas"], 3), "hi": _r(r["ic95_haut"], 3),
                  "q": _r(r["q_bh"], 4), "rp": _r(r.get("rho_partiel_densite"), 3),
@@ -426,6 +702,9 @@ def _site(agg, ref, professions, insee, R, serie, jour):
         "parcours": _parcours_site(agg, professions),
         "offre_besoin": _offre_besoin_site(R),
         "gwr": _gwr_site(R, niveaux.get("epci")),
+        "lieux": _lieux_points(agg, ref),
+        # vérifications des lieux sur d'autres sources, par département (13 octobre 2026)
+        "verifications_lieux": _verifications_site(),
     }
 
 

@@ -192,6 +192,45 @@ def escalier(R, lab, cle, densite_nationale, p=None):
     return f.svg(f"Densité de {lab.get(p, p).lower()}s selon le niveau de vie des territoires")
 
 
+# lieux montrés par l'escalier de la distance, le premier est commenté par le rapport
+ELOIGNEMENT = {"sm": ["lieu_cmp_adultes", "lieu_cmp_enfants", "lieu_cmpp"],
+               "sante": ["lieu_urgences", "lieu_maternite", "lieu_ehpad"]}
+
+
+def eloignement(L, tid):
+    """Distance médiane des habitants à la structure la plus proche, par dixième de la population classé selon le niveau de
+    vie de l'intercommunalité, avec la distance médiane de la France entière."""
+    es = (L or {}).get("escalier")
+    dfr = ((L or {}).get("distances") or {}).get("fr")
+    if not isinstance(es, pd.DataFrame) or es.empty or not isinstance(dfr, pd.DataFrame):
+        return None
+    t = es[es["type"] == tid].sort_values("decile")
+    fr = dfr.loc[dfr["type"] == tid, "distance_mediane_km"]
+    if len(t) < 10 or fr.empty:
+        return None
+    fr = float(fr.iloc[0])
+    lib = {x[0]: x[1] for x in config.LIEUX_TYPES}.get(tid, tid)
+    vmax = max(t["distance_mediane_km"].max(), fr) * 1.15
+    f = Figure()
+    f.echelles(.5, 10.5, 0, vmax)
+    pas = pas_rond(vmax / 4)
+    f.axes(range(1, 11), np.arange(0, vmax, pas), lambda v: str(v), lambda v: nombre(v, 1 if pas < 1 else 0),
+           "Dixième de la population, du plus modeste au plus aisé", "Distance médiane, en km à vol d'oiseau")
+    largeur = (f.X(2) - f.X(1)) * .7
+    for _, r in t.iterrows():
+        x = f.X(r["decile"]) - largeur / 2
+        # plus loin que la médiane de la France en ocre, comme les territoires moins dotés de l'escalier des densités
+        c = OCRE_PALE if r["distance_mediane_km"] > fr else VIOLET[2]
+        f.ajout(f'<rect x="{x:.1f}" y="{f.Y(r["distance_mediane_km"]):.1f}" width="{largeur:.1f}" '
+                f'height="{f.Y(0) - f.Y(r["distance_mediane_km"]):.1f}" fill="{c}" rx="2"/>')
+        f.texte(x + largeur / 2, f.Y(r["distance_mediane_km"]) - 5, nombre(r["distance_mediane_km"], 1), "middle",
+                ENCRE, 10)
+    f.ligne(f.g, f.Y(fr), f.w - f.d, f.Y(fr), OCRE, 1.5, "5 3")
+    f.texte(f.w - f.d, f.Y(fr) - 5, f"France {nombre(fr, 1)} km", "end", OCRE)
+    return f.svg(f"Distance des habitants à la structure la plus proche ({lib if lib[1:2].isupper() else lib[0].lower() + lib[1:]}) selon le niveau de vie "
+                 f"des territoires")
+
+
 def entonnoir(R, lab, cle, p=None):
     en, lim = R.get("entonnoir"), R.get("entonnoir_limites")
     p = p or PRINCIPALE[cle]
@@ -420,8 +459,15 @@ ETAPES_PARCOURS = [
     ("inscrits", "Inscrits au répertoire", ""),
     ("avec_activite", "Avec une activité déclarée", "sans activité déclarée"),
     ("avec_lieu", "Avec un lieu d'exercice", "sans lieu fixe (remplacements, exercice sans site)"),
-    ("dans_densites", "Comptés dans les densités", "seulement des activités sans soins à la population"),
+    ("dans_densites", "Comptés dans les densités", "seulement des activités non rattachées à un territoire"),
 ]
+
+
+def detail_non_rattaches(dist, sans):
+    """« , dont 4 226 en téléconsultation (soins à distance) et 120 sans soins à la population »."""
+    parts = ([f"{nombre(dist)} en téléconsultation (soins à distance)"] if dist else []) + (
+        [f"{nombre(sans)} sans soins à la population"] if sans else [])
+    return ", dont " + " et ".join(parts) if parts else ""
 
 
 def parcours(agg, lab, prof):
@@ -450,8 +496,8 @@ def parcours(agg, lab, prof):
             f.ajout(f'<rect x="{f.X(v):.1f}" y="{y + 19}" width="{f.X(prec) - f.X(v):.1f}" height="7" '
                     f'fill="none" stroke="{OCRE_PALE}" stroke-dasharray="3 2"/>')
             detail = f"− {nombre(prec - v)} {raison}"
-            if der and int(r["dont_teleconsultation"]):
-                detail += f", dont {nombre(int(r['dont_teleconsultation']))} en téléconsultation"
+            if der:
+                detail += detail_non_rattaches(int(r["a_distance_seulement"]), int(r["sans_soins_seulement"]))
             f.texte(0, y + 42, detail, taille=11)
         prec = v
     return f.svg(f"Du répertoire aux densités, {pluriel_simple(lab.get(prof, prof)).lower()}")
@@ -586,6 +632,15 @@ def ecrire(out, agg, ref, professions, contexte, R):
         variantes(f"porte_{cle}", lambda q, c=cle: porte(R, lab, c, q), pr, PRINCIPALE[cle])
         figures[f"distance_{cle}"] = distances(R, lab, cle)
         variantes(f"parcours_{cle}", lambda q: parcours(agg, lab, q), pr, PRINCIPALE[cle])
+    L = getattr(agg, "lieux", None)
+    for cle, types in ELOIGNEMENT.items():
+        for tid in types:
+            svg = eloignement(L, tid)
+            if not svg:
+                continue
+            lib = {x[0]: x[1] for x in config.LIEUX_TYPES}.get(tid, tid)
+            court = lib.replace("Centres médico-psychologiques (CMP)", "CMP").split(",")[0]
+            figures[f"eloignement_{cle}" if tid == types[0] else f"eloignement_{cle}__{tid}"] = marquer(svg, court)
     figures.update(cartes_nationales(agg, ref, lab, R))
     ctx = contexte["contexte"] if contexte else None
     variantes("bivariee_sm", lambda q: bivariee(ref, ctx, agg, lab, ctxlab, q), ["psychiatre", "psychologue"], "psychiatre")

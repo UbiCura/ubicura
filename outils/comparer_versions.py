@@ -32,6 +32,7 @@ DEPARTEMENT = (.25, .60)       # variation relative d'un effectif départemental
 POPULATION = (.01, .05)        # variation de la population totale
 LIGNES = (.20, .50)            # variation du nombre de lignes d'un fichier
 VIDES = .05                    # hausse de la part de valeurs manquantes d'un indicateur
+LIEUX = (.15, .40)             # variation du nombre de lieux de soins d'un type (FINESS et ROR, mis à jour chaque semaine)
 PRINCIPALES = ["psychologue", "psychiatre", "pedopsychiatre", "psychotherapeute", "medecin_generaliste", "infirmier",
                "masseur_kinesitherapeute", "orthophoniste", "psychomotricien", "pharmacien", "chirurgien_dentiste",
                "sage_femme", "pediatre"]
@@ -128,10 +129,66 @@ def comparer(avant: Path, apres: Path, c: Compte):
                 c.note(10, f"{f}, l'indicateur {col} a {vb:.0%} de valeurs manquantes contre {va:.0%} avant")
         for col in sorted(set(a.columns) - set(b.columns)):
             c.note(10, f"{f}, l'indicateur {col} a disparu")
-    # 5. rapports territoriaux
+    # 5. lieux de soins par type, le ROR étant rempli par les établissements, une région peut changer d'un coup
+    a, b = lire(avant / "lieux_soins.csv"), lire(apres / "lieux_soins.csv")
+    if a is not None and b is not None:
+        na, nb = a.groupby("libelle_type").size(), b.groupby("libelle_type").size()
+        for k in na.index:
+            if na[k] >= 30:
+                v = (nb.get(k, 0) - na[k]) / na[k]
+                if abs(v) > LIEUX[0]:
+                    c.note(20 if abs(v) > LIEUX[1] else 10, f"Lieux de soins, {k}, {int(na[k])} avant, {int(nb.get(k, 0))} après ({v:+.0%})")
+    elif a is not None and b is None:
+        c.note(20, "Lieux de soins, fichier lieux_soins.csv disparu")
+    # 6. rapports territoriaux
     ta, tb = len(list((avant / "territoires").glob("*.md"))), len(list((apres / "territoires").glob("*.md")))
     if tb < ta:
         c.note(20, f"Rapports territoriaux, {ta} avant, {tb} après")
+    # 7. cohérence des indicateurs et des croisements (exigence de Lucas du 12 octobre 2026, après des indicateurs
+    # fantômes nés d'un ajout placé dans la mauvaise liste de config.py)
+    coherence(apres, c)
+
+
+# libellé qui laisse voir un identifiant du code (« lieux_psy libéraux... »)
+IDENTIFIANT = re.compile(r"\b[a-z0-9]+_[a-z0-9_]+\b|\b(?:dens|ctx|route|dens_lib):")
+
+
+def coherence(version: Path, c: Compte):
+    """Chaque indicateur de contexte a un identifiant unique, un libellé lisible et des données à au moins un niveau.
+    Chaque question de croisement de config.CROISEMENTS produit un résultat, sinon la source manque ou la question
+    est mal écrite."""
+    sd = version / "site_data.json"
+    if not sd.exists():
+        return
+    data = json.loads(sd.read_text(encoding="utf-8"))
+    ind = data.get("contexte") or []
+    ids = [x.get("id") for x in ind]
+    doubles = sorted({i for i in ids if ids.count(i) > 1})
+    vides = [x["id"] for x in ind if not x.get("niveaux")]
+    bruts = [f'{x["id"]} (« {x.get("label", "")[:60]} »)' for x in ind if IDENTIFIANT.search(x.get("label") or "")]
+    labs = [x.get("label") for x in ind]
+    memes = sorted({l_ for l_ in labs if l_ and labs.count(l_) > 1})
+    for titre, ls in (("Indicateurs en double", doubles), ("Indicateurs sans donnée à aucun niveau", vides),
+                      ("Indicateurs dont le libellé laisse voir un identifiant du code", bruts),
+                      ("Indicateurs différents sous le même libellé", memes)):
+        c.note(20 if ls else 0, f"{titre}, " + ("; ".join(ls[:8]) + (" ..." if len(ls) > 8 else "") if ls else "aucun"))
+    sys.path.insert(0, str(RACINE))
+    from pipeline import config
+    faits = {x.get("theme") for x in data.get("croisements_bases") or []}
+    attendus = []
+    for _xa, _yb, theme, q in config.CROISEMENTS:
+        if theme not in attendus:
+            attendus.append(theme)
+    manquants = [t for t in attendus if t not in faits]
+    c.note(10 if manquants else 0, "Questions de croisement sans résultat, "
+           + (", ".join(manquants) if manquants else f"aucune sur {len(attendus)}"))
+    # chiffres des rapports confrontés aux tableaux publiés (demande de Lucas du 13 octobre 2026)
+    sys.path.insert(0, str(RACINE / "outils"))
+    import coherence_rapports
+    ecarts = coherence_rapports.controler(version)
+    c.note(20 if ecarts else 0, "Chiffres des rapports différents des tableaux, "
+           + ("; ".join(ecarts[:6]) + (f" ... ({len(ecarts)} en tout)" if len(ecarts) > 6 else "") if ecarts
+              else "aucun"))
 
 
 RPPS = re.compile(r"(?<![\d.,])10\d{9}(?![\d.,])")   # identifiant RPPS, onze chiffres commençant par 10

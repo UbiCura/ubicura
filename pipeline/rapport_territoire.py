@@ -207,7 +207,7 @@ def _sans(B, T, profs):
 
 
 def cmp_pieces(B) -> pd.Series:
-    """CMP actifs de FINESS par morceau d'intercommunalité situé dans un département (code dep_epci)."""
+    """CMP (FINESS et ROR réunis) par morceau d'intercommunalité situé dans un département (code dep_epci)."""
     c = getattr(B.agg, "cmp", None)
     if not isinstance(c, pd.DataFrame) or c.empty:
         return pd.Series(dtype=float)
@@ -215,7 +215,7 @@ def cmp_pieces(B) -> pd.Series:
 
 
 def _phrase_cmp(B, T) -> str:
-    """Nuance « aucun psychiatre ne déclare exercer » par les CMP de FINESS situés dans ces morceaux."""
+    """Nuance « aucun psychiatre ne déclare exercer » par les CMP (FINESS et ROR) situés dans ces morceaux."""
     pieces = B.piece_pop.index[B.piece_dep.reindex(B.piece_pop.index).isin(T["deps"])]
     cmp_ = cmp_pieces(B)
     if cmp_.empty or "psychiatre" not in B.piece_n or not len(pieces):
@@ -225,13 +225,13 @@ def _phrase_cmp(B, T) -> str:
         return ""
     avec = [p for p in zero if cmp_.get(p, 0) > 0]
     if not avec:
-        return ("D'après FINESS, aucune de ces intercommunalités n'accueille de centre médico-psychologique (CMP)."
-                if len(zero) > 1 else "D'après FINESS, cette intercommunalité n'accueille pas de centre "
+        return ("D'après FINESS et le ROR réunis, aucune de ces intercommunalités n'accueille de centre médico-psychologique (CMP)."
+                if len(zero) > 1 else "D'après FINESS et le ROR réunis, cette intercommunalité n'accueille pas de centre "
                                       "médico-psychologique (CMP).")
     if len(zero) == 1:
-        return ("D'après FINESS, cette intercommunalité accueille pourtant un centre médico-psychologique (CMP) ou "
+        return ("D'après FINESS et le ROR réunis, cette intercommunalité accueille pourtant un centre médico-psychologique (CMP) ou "
                 "plus, où des psychiatres peuvent consulter sans y être déclarés.")
-    return (f"D'après FINESS, {nombre(len(avec))} de ces {nombre(len(zero))} intercommunalités "
+    return (f"D'après FINESS et le ROR réunis, {nombre(len(avec))} de ces {nombre(len(zero))} intercommunalités "
             f"{'accueille' if len(avec) == 1 else 'accueillent'} pourtant au "
             f"moins un centre médico-psychologique (CMP), où des psychiatres peuvent consulter sans y être déclarés.")
 
@@ -341,15 +341,49 @@ def _odisse(B, niveau):
     return out
 
 
+def _zero_pedopsychiatre(B, T, famille):
+    """Un territoire sans pédopsychiatre au sens de la spécialité ordinale reçoit une phrase avec ses propres chiffres,
+    psychiatres qualifiés pour l'enfant et structures de soins pour enfants (constat de Lucas du 12 octobre 2026, 15
+    départements à 0, tous avec des psychiatres qualifiés pour l'enfant)."""
+    niv, code = T["niveau"], T["code"]
+    n = B.t[niv][0]
+    if famille != SM or "pedopsychiatre" not in n or int(n.at[code, "pedopsychiatre"]) > 0:
+        return []
+    q = int(n.at[code, "q_psychiatrie_enfant"]) if "q_psychiatrie_enfant" in n else 0
+    L = getattr(B.agg, "lieux", None)
+    lieux_txt = ""
+    if L:
+        c = L["comptes"][niv]
+        c = c[c["code"] == code].set_index("type")["n"]
+        parts = [(int(c.get(k, 0)), s, pl) for k, s, pl in
+                 (("lieu_cmp_enfants", "CMP pour enfants et adolescents", "CMP pour enfants et adolescents"),
+                  ("lieu_cmpp", "CMPP", "CMPP"), ("lieu_camsp", "CAMSP", "CAMSP"),
+                  ("lieu_hdj_psy_enfants", "hôpital de jour pour enfants", "hôpitaux de jour pour enfants"))]
+        parts = [f"{nombre(k)} {pl if k > 1 else s}" for k, s, pl in parts if k]
+        if parts:
+            lieux_txt = (", et FINESS et le ROR y recensent " + (", ".join(parts[:-1]) + " et " + parts[-1]
+                                                              if len(parts) > 1 else parts[0]))
+    return [f"Le territoire ne compte aucun pédopsychiatre au sens de la spécialité ordinale, la définition la plus "
+            f"étroite. Il compte {nombre(q)} psychiatre{'s' if q > 1 else ''} qualifié{'s' if q > 1 else ''} pour "
+            f"l'enfant et l'adolescent, toutes voies confondues{lieux_txt}. Les médecins qui y consultent peuvent aussi "
+            f"être déclarés dans un autre territoire, à l'hôpital de rattachement.", ""]
+
+
 def _professions(B, T, famille, cle_fig):
     niv, code = T["niveau"], T["code"]
     n, d, pop = B.t[niv]
-    profs = B.profs(famille)
+    profs = list(B.profs(famille))
+    # les psychiatres qualifiés pour l'enfant juste après les pédopsychiatres au sens strict, pour qu'un 0 ne soit
+    # jamais lu seul (demande de Lucas du 12 octobre 2026)
+    if "pedopsychiatre" in profs and "q_psychiatrie_enfant" in profs:
+        profs.remove("q_psychiatrie_enfant")
+        profs.insert(profs.index("pedopsychiatre") + 1, "q_psychiatrie_enfant")
     sem = B.semblables.get(code, []) if niv == "dep" else []
     lignes, regl, ics = [], [], []
     for p in profs:
         x = int(n.at[code, p])
-        r = {"libelle": B.lab[p], "effectif": x, "densite": d.at[code, p], "france": B.reference(p, niv),
+        lib = "Pédopsychiatre (spécialité ordinale seule)" if p == "pedopsychiatre" else B.lab[p]
+        r = {"libelle": lib, "effectif": x, "densite": d.at[code, p], "france": B.reference(p, niv),
              "position": position(d.at[code, p], d[p])}
         if niv == "dep":
             r["region"] = B.t["reg"][1].at[T["reg"], p]
@@ -385,6 +419,7 @@ def _professions(B, T, famille, cle_fig):
     L = [f"## {titre}", "",
          _tableau(T_, cols, ents, {"effectif": nombre, "densite": f1, "region": f1, "semblables": f1, "france": f1,
                                    "regions": f1}), ""]
+    L += _zero_pedopsychiatre(B, T, famille)
     if regl:
         svg = cartes.halteres(regl, f"Écart à la moyenne des {'départements' if niv == 'dep' else 'régions'}, densité "
                                     f"pour 10 000 habitants en indice (moyenne = 100)")
@@ -393,8 +428,8 @@ def _professions(B, T, famille, cle_fig):
             L += graphique(f"{cle_fig}_position")
     moy = ("La moyenne des départements rapporte l'ensemble des professionnels des départements à la population de "
            "la France, comptés comme ici, avec les seules activités de soins qui ont un lieu d'exercice. Elle diffère "
-           "un peu du chiffre de la France entière du rapport national, qui compte aussi les remplacements et les "
-           "activités sans soins à la population.") if niv == "dep" else (
+           "un peu du chiffre de la France entière du rapport national, qui compte aussi les remplacements, la "
+           "téléconsultation et les activités sans soins à la population.") if niv == "dep" else (
            "La moyenne des régions rapporte l'ensemble des professionnels des régions à la population de la France, "
            "comptés comme ici, avec les seules activités de soins qui ont un lieu d'exercice.")
     comp = ("Les colonnes suivantes donnent la même densité pour la région, pour le milieu de cinq départements "
@@ -413,9 +448,10 @@ def _professions(B, T, famille, cle_fig):
         "bande claire réunit leur moitié centrale.",
         "Les qualifications des médecins (enfant et adolescent, addictologie) se lisent à côté des spécialités et "
         "ne s'y ajoutent pas." if famille == SM else "",
-        "Les activités sans soins à la population (contrôle médical, industrie, recherche, administration, "
-        "téléconsultation...) ne sont pas comptées, car elles sont souvent déclarées au siège d'un organisme. Elles "
-        "sont décrites plus bas quand elles sont notables.",
+        "La téléconsultation (des soins à distance) et les activités sans soins à la population (contrôle médical, "
+        "industrie, recherche, administration...) ne sont pas comptées, car elles sont déclarées au siège d'une "
+        "société ou d'un organisme, et non là où vivent les patients. Elles sont décrites plus bas quand elles sont "
+        "notables.",
         limites.phrase_md((["mayotte"] if code == "976" or "976" in T.get("deps", []) else [])
                           + (["prof:pedopsychiatre"] if famille == SM else [])))
     plus = []
@@ -484,18 +520,25 @@ def _particulieres(B, T, categorie):
 
 
 def _sans_soins(B, T, famille):
-    """Activités sans soins à la population déclarées dans le territoire, retirées du tableau."""
-    x = _particulieres(B, T, "sans_soins")
+    """Soins à distance (téléconsultation) et activités sans soins à la population déclarés dans le territoire,
+    retirés du tableau."""
     n = B.t[T["niveau"]][0]
-    parts = [(p, int(x[p])) for p in PARTICULIERES[famille] if p in x.index and x[p] >= 3
-             and (p not in n or x[p] >= .02 * max(n.at[T["code"], p], 1))]
-    if not parts:
-        return []
     lieu = "le département" if T["niveau"] == "dep" else "la région"
-    return [f"{_liste(f'{nombre(k)} {pluriel(B.lab[p]) if k > 1 else B.lab[p].lower()}' for p, k in parts).capitalize()} "
-            f"déclarent aussi dans {lieu} une activité sans soins à la population (contrôle médical, "
-            f"administration, recherche, industrie, téléconsultation...). Ces activités ne sont pas comptées dans le "
-            f"tableau, une même personne pouvant y figurer au titre d'une activité de soins.", ""]
+    phrases = []
+    for cat, quoi in (("a_distance", "une activité de téléconsultation, des soins à distance déclarés au siège de la "
+                                     "société et non rattachés au territoire des patients"),
+                      ("sans_soins", "une activité sans soins à la population (contrôle médical, administration, "
+                                     "recherche, industrie...)")):
+        x = _particulieres(B, T, cat)
+        parts = [(p, int(x[p])) for p in PARTICULIERES[famille] if p in x.index and x[p] >= 3
+                 and (p not in n or x[p] >= .02 * max(n.at[T["code"], p], 1))]
+        if parts:
+            phrases.append(f"{_liste(f'{nombre(k)} {pluriel(B.lab[p]) if k > 1 else B.lab[p].lower()}' for p, k in parts).capitalize()} "
+                           f"déclarent aussi dans {lieu} {quoi}.")
+    if not phrases:
+        return []
+    return [" ".join(phrases) + " Ces activités ne sont pas comptées dans le tableau, une même personne pouvant y "
+            "figurer au titre d'une activité de soins.", ""]
 
 
 def _public_particulier(B, T, famille):
@@ -517,7 +560,9 @@ def _elargi(B, T):
     n, _d, pop = B.t[T["niveau"]]
     tot = n.loc[T["code"], es].sum()
     ref_niv = sum(B.reference(p, T["niveau"]) for p in es)
-    return [f"Environ {nombre(tot)} personnes sont salariées d'un établissement psychiatrique ou médico-psychologique "
+    qui = (f"Environ {nombre(tot)} personnes sont salariées" if tot >= 2 else
+           "Une seule personne est salariée" if tot >= 1 else "Aucune personne n'est déclarée salariée")
+    return [f"{qui} d'un établissement psychiatrique ou médico-psychologique "
             f"situé dans {'le département' if T['niveau'] == 'dep' else 'la région'} (CMP, hôpital de jour, "
             f"établissement spécialisé en psychiatrie...), soit {nombre(tot / pop[T['code']] * 1e4, 1)} pour 10 000 "
             f"habitants contre {nombre(ref_niv, 1)} en moyenne dans les "
@@ -588,7 +633,11 @@ def _interne(B, T, famille, cle_fig):
                        if p == "psychiatre" and "cmp" in t else [])
             svg = cartes.carte(g, rap_p, dict(zip(t["code"], t["etiquette"])),
                                f"{pluriel(B.lab[p]).capitalize()} pour 10 000 habitants, par {unite}, comparés à la "
-                               f"moyenne {moy_u} de France", marques=marques)
+                               f"moyenne {moy_u} de France", marques=marques, reference=ref_p,
+                               moyenne=f"moyenne {moy_u} de France",
+                               note_etiquettes=("Les numéros renvoient au tableau sous la carte, du territoire le plus "
+                                                "peuplé au moins peuplé." if unite != "département"
+                                                else "Les codes des départements renvoient au tableau sous la carte."))
             if svg:
                 svg = svg.replace("<svg ", f'<svg data-variante="{pluriel(B.lab[p]).capitalize()}" ', 1)
                 (B.dossier_fig / (f"{cle_fig}_carte.svg" if k == 0 else f"{cle_fig}_carte__{p}.svg")).write_text(
@@ -602,7 +651,7 @@ def _interne(B, T, famille, cle_fig):
     if unite == "département":
         cols, ents = ["etiquette"] + cols, ["Code"] + ents
     if "cmp" in t:
-        cols, ents = cols + ["cmp"], ents + ["CMP (FINESS)"]
+        cols, ents = cols + ["cmp"], ents + ["CMP (FINESS et ROR)"]
     L += [_tableau(t, cols, ents, {"pop": nombre, f"n_{p0}": nombre, f"n_{p1}": nombre, f"d_{p0}": f1, f"d_{p1}": f1,
                                    "cmp": nombre}), ""]
     L += _comment_lire(
@@ -617,7 +666,8 @@ def _interne(B, T, famille, cle_fig):
         "deux arrivées ou départs suffisent à changer fortement la densité d'une année à l'autre.",
         (f"Dans la version en ligne, des boutons au-dessus de la carte affichent aussi les "
          f"{pluriel(B.lab[p1])}." if geoms else ""),
-        ("La colonne CMP donne le nombre de centres médico-psychologiques actifs de FINESS. Sur la carte des "
+        ("La colonne CMP donne le nombre de centres médico-psychologiques recensés par FINESS et le ROR, réunis "
+         "sans double compte. Sur la carte des "
          "psychiatres, un petit cercle signale une intercommunalité sans psychiatre déclaré qui en accueille au "
          "moins un." if "cmp" in t else ""),
         limites.phrase_md(["prof:psychiatre"]) if "cmp" in t and "psychiatre" in (p0, p1) else "")
@@ -812,18 +862,41 @@ def _sae(B, T):
     if not lignes:
         return []
     d = pd.DataFrame(lignes)
+    # l'unité du taux dans le nom de l'indicateur, le nombre puis les taux, pour qu'aucune colonne ne se devine
+    # (remarque de Lucas du 12 octobre 2026, « on ne comprend pas ce que veut dire Ce territoire »)
+    d["libelle"] = d["libelle"] + " (taux " + d["unite"].astype(str) + ")"
     f = lambda v: nombre(v, 1)  # noqa: E731
     avec_reg = "region" in d
-    cols = ["libelle", "nombre", "valeur", "unite"] + (["region"] if avec_reg else []) + ["milieu", "france"]
-    ents = ["Indicateur", "Nombre", "Ce territoire", "Unité"] + (["Région"] if avec_reg else []) + [
-        f"Milieu des {'départements' if niv == 'dep' else 'régions'}", "France"]
+    milieu = "départements" if niv == "dep" else "régions"
+    cols = ["libelle", "nombre", "valeur"] + (["region"] if avec_reg else []) + ["milieu", "france"]
+    ents = (["Indicateur et unité du taux", "Nombre déclaré par les établissements du territoire", "Taux du territoire"]
+            + (["Taux de sa région"] if avec_reg else []) + [f"Taux du milieu des {milieu}", "Taux de la France"])
     L = ["## Psychiatrie à l'hôpital", "", _tableau(d, cols, ents, {"nombre": nombre, "valeur": f, "region": f, "milieu": f,
                                                                        "france": f}), ""]
+    # CMP de la SAE et CMP recensés comme lieux, deux comptes différents à expliquer avec les chiffres du territoire
+    cmp_txt = ""
+    Lx = getattr(B.agg, "lieux", None)
+    cs = Lx.get("concordance_sae") if Lx else None
+    if isinstance(cs, pd.DataFrame):
+        r = cs[(cs["niveau"] == niv) & (cs["code"] == code)]
+        if len(r):
+            r = r.iloc[0]
+            cmp_txt = (f"Les établissements dont le siège est dans le territoire déclarent {nombre(r['sae_cmp'])} CMP à la "
+                       f"SAE, alors que la partie « Structures de soins » compte {nombre(r['cmp'])} CMP situés dans le "
+                       f"territoire, quel que soit l'établissement qui les gère"
+                       + (f", et que le ROR y décrit {nombre(r['unites_ror'])} unités de CMP" if "unites_ror" in r and
+                          pd.notna(r["unites_ror"]) else "")
+                       + ". Les trois comptes ne mesurent pas la même chose. La SAE range les CMP au siège de leur "
+                         "établissement et peut compter plusieurs équipes installées au même endroit, la partie « Structures "
+                         "de soins » compte des structures distinctes (deux structures à la même adresse comptent pour deux, "
+                         "une même structure déclarée deux fois ne compte qu'une fois), et le ROR décrit des unités, parfois déclarées à "
+                         "l'adresse de l'hôpital plutôt qu'à celle du CMP.")
     L += _comment_lire(
-        "Lits, places, CMP et personnels déclarés par les établissements autorisés en psychiatrie (SAE), en "
-        "équivalents temps plein pour les personnels. Chaque établissement est rattaché au département où il est "
-        "enregistré, même si certains de ses CMP sont situés ailleurs, et un territoire voisin peut accueillir une "
-        f"partie de ses habitants. Source, DREES, SAE {sae.get('annee', '')}, Licence Ouverte.")
+        "Le nombre est le total déclaré par les établissements autorisés en psychiatrie dont le siège est dans le "
+        "territoire, en équivalents temps plein pour les personnels. Les colonnes suivantes le rapportent à la "
+        "population, dans l'unité indiquée entre parenthèses, pour le territoire, sa région, le territoire du milieu et "
+        "la France. Un territoire voisin peut accueillir une partie de ses habitants.",
+        cmp_txt, f"Source, DREES, SAE {sae.get('annee', '')}, Licence Ouverte.")
     return L
 
 
@@ -1094,6 +1167,178 @@ def territoires(ref) -> list[dict]:
     return out
 
 
+CARTE_LIEU = {SM: ("lieu_cmp_adultes", "le CMP pour adultes le plus proche", "au CMP pour adultes le plus proche"),
+              SANTE: ("lieu_urgences", "le service d'urgences le plus proche", "au service d'urgences le plus proche")}
+
+
+def _carte_distance_lieux(B, T, famille, L):
+    """Carte des communes du département selon la distance à la structure la plus proche (FINESS et ROR réunis), qui couvre
+    tous les départements, y compris ceux où les temps de trajet de l'INSEE manquent."""
+    if T["niveau"] != "dep":
+        return []
+    tid, quoi, jusqu = CARTE_LIEU[famille]
+    dist = L.get("distances_communes")
+    couv = L["couverture"].set_index("type")
+    if not isinstance(dist, pd.DataFrame) or tid not in dist or tid not in couv.index or not couv.at[tid, "complet"]:
+        return []
+    geoms = B.communes_dep(T["code"])
+    if len(geoms) < 5:   # une carte par commune n'a pas de sens à Paris (une seule commune)
+        return []
+    m = {c: float(dist.at[c, tid]) for c in geoms if c in dist.index}
+    svg = cartes.carte_temps(geoms, m, f"Distance à vol d'oiseau du centre de chaque commune jusqu'{jusqu}",
+                             classes=cartes.CLASSES_DISTANCE, unite="km")
+    if not svg:
+        return []
+    cle = f"{T['niveau']}-{T['code']}_{COURT[famille]}_distlieux"
+    (B.dossier_fig / f"{cle}.svg").write_text(svg, encoding="utf-8")
+    vals = list(m.values())
+    loin = sum(1 for v in vals if v >= 20)
+    return ([f"Commune par commune, la carte donne la distance à vol d'oiseau entre le centre de la commune et {quoi}, "
+             f"y compris hors du département. "
+             + (f"{loin} commune{'s' if loin > 1 else ''} sur {len(vals)} {'sont' if loin > 1 else 'est'} à 20 km ou "
+                f"plus." if loin else f"Aucune des {len(vals)} communes n'est à 20 km ou plus."), ""]
+            + graphique(cle))
+
+
+def _verification_cmp(L, T):
+    """Concordance des sources pour les CMP du territoire (structures recensées, unités du ROR, SAE), puis, en volet replié,
+    la confrontation hôpital par hôpital (13 octobre 2026). Décrit des écarts entre sources, ne juge aucun établissement."""
+    niv, code = T["niveau"], T["code"]
+    cs, ce = L.get("concordance_sae"), L.get("concordance_etablissements")
+    out = []
+    # constats vérifiés sur d'autres sources (contenus/verifications_lieux.csv), avec leur source et leur date
+    from . import verifications_lieux
+    v = verifications_lieux.phrases_md(verifications_lieux.charger(), T.get("deps") or [code] if niv == "reg" else [code])
+    if v:
+        out += ["**Vérifié sur d'autres sources.** " + " ".join(v), ""]
+    # confirmation de chaque CMP par des listes officielles (certification HAS, Sirene) ou par une vérification
+    xl = L["lieux"]
+    if "confirmation" in xl:
+        xc = xl[(xl[niv] == code) & (xl["type"] == "lieu_cmp")]
+        nc_ = xc["confirmation"].value_counts()
+        if len(xc):
+            v_ = int(nc_.get("etablissement", 0) + nc_.get("source_publique", 0))
+            o_ = int(nc_.get("has_sirene", 0) + nc_.get("has", 0) + nc_.get("sirene", 0))
+            e_ = int(nc_.get("examinee", 0))
+            b_ = int(nc_.get("bases", 0))
+            out += [f"**Confirmation des CMP.** Sur les {nombre(len(xc))} CMP du territoire, {nombre(v_)} "
+                    f"{'est vérifié' if v_ == 1 else 'sont vérifiés'} sur les sources de leur établissement, "
+                    f"{nombre(o_)} {'est confirmé' if o_ == 1 else 'sont confirmés'} par la liste des sites de "
+                    f"certification de la HAS ou par le répertoire Sirene, "
+                    + (f"{nombre(e_)} {'a été examiné' if e_ == 1 else 'ont été examinés'} à la main et "
+                       f"{'maintenu' if e_ == 1 else 'maintenus'}, " if e_ else "")
+                    + f"et {nombre(b_)} "
+                    f"{'reste' if b_ == 1 else 'restent'} à vérifier (inscrits dans FINESS ou le ROR seulement). "
+                    f"Le niveau de chaque CMP est dans la colonne confirmation de lieux_soins.csv.", ""]
+    # structures reprises une à une sur les sources des établissements (liste vérifiée)
+    if "verifiee" in xl:
+        xv = xl[(xl[niv] == code) & (xl["type"] == "lieu_cmp")]
+        nv = int(xv["verifiee"].sum())
+        if nv:
+            st = xv.loc[xv["verifiee"], "statut_verification"].value_counts()
+            out += [f"**Liste vérifiée.** {nombre(nv)} des {nombre(len(xv))} CMP du territoire viennent de la liste "
+                    f"reprise une à une sur les sources de leur établissement, dont {nombre(int(st.get('etablissement', 0)))} "
+                    f"confirmés par l'établissement, {nombre(int(st.get('source_publique', 0)))} par une autre source "
+                    f"publique et {nombre(int(st.get('bases', 0)))} seulement inscrits dans FINESS ou le ROR. Les autres "
+                    f"viennent de la réunion de FINESS et du ROR. Détail dans la page méthode et dans lieux_soins.csv.", ""]
+    if isinstance(cs, pd.DataFrame):
+        r = cs[(cs["niveau"] == niv) & (cs["code"] == code)]
+        if len(r) and isinstance(r.iloc[0].get("concordance"), str):
+            r = r.iloc[0]
+            from . import lieux as lieux_mod
+            rc_ = lieux_mod.repartition_cmp(L["lieux"][L["lieux"][niv] == code], niv)
+            ant = int(rc_.at[code, "antennes"]) if code in rc_.index else 0
+            dont = f", dont {nombre(ant)} antenne{'s' if ant > 1 else ''} ou permanence{'s' if ant > 1 else ''}" if ant else ""
+            out += [f"Concordance des sources pour les CMP, {r['concordance']} ({nombre(r['cmp'])} structures recensées ici{dont}, "
+                    f"{nombre(r['sae_cmp'])} CMP déclarés à la SAE par les établissements dont le siège est dans le "
+                    f"territoire).", ""]
+    if not isinstance(ce, pd.DataFrame) or ce.empty:
+        return out
+    x = L["lieux"]
+    ejs = set(x.loc[(x[niv] == code) & (x["type"] == "lieu_cmp"), "ej"].dropna())
+    deps = set(T.get("deps") or [code]) if niv == "reg" else {code}
+    e = ce[ce["ej"].isin(ejs) | ce["dep_siege"].isin(deps)]
+    if e.empty:
+        return out
+    e = e.sort_values(["statut", "nom"])
+    e = e.assign(sae=e["sae_adultes"].map(nombre) + " et " + e["sae_enfants"].map(nombre),
+                 ici=e["ici_adultes"].map(nombre) + " et " + e["ici_enfants"].map(nombre))
+    ecarts = int(e["statut"].isin(["moins ici qu'à la SAE", "plus ici qu'à la SAE"]).sum())
+    out += ["<details>", f"<summary>Vérification établissement par établissement ({nombre(len(e))} établissements, "
+                         f"{nombre(ecarts)} en écart)</summary>", "",
+            _tableau(e, ["nom", "sae", "ici", "unites_ror", "statut"],
+                     ["Établissement gestionnaire", "CMP déclarés à la SAE (adultes et enfants)",
+                      "CMP recensés ici (adultes et enfants)", "Unités de CMP au ROR", "Constat"],
+                     {"unites_ror": nombre}), "",
+            "Les CMP d'un établissement sont ceux que FINESS ou le ROR rattachent à son entité juridique, où qu'ils soient. "
+            "Un écart signale une différence entre les sources, à vérifier, pas une erreur de l'établissement. Détail "
+            "pour toute la France dans concordance_cmp_etablissements.csv.", "", "</details>", ""]
+    return out
+
+
+def _lieux(B, T, famille):
+    """Structures de soins du territoire, FINESS et ROR réunis sans double compte, nombre, distance des habitants au plus
+    proche comparée à la France, et liste des structures en volet replié."""
+    L = getattr(B.agg, "lieux", None)
+    if not L:
+        return []
+    niv, code = T["niveau"], T["code"]
+    x = L["lieux"]
+    x = x[(x["famille"] == famille) & (x[niv] == code)]
+    couv = L["couverture"].set_index("type")
+    dist = (L.get("distances") or {}).get(niv)
+    dfr = (L.get("distances") or {}).get("fr")
+    d_ici = dist[dist["code"] == code].set_index("type") if isinstance(dist, pd.DataFrame) else pd.DataFrame()
+    d_fr = dfr.set_index("type") if isinstance(dfr, pd.DataFrame) else pd.DataFrame()
+    pop = float(B.noms_pop[niv].get(code, 0)) if hasattr(B, "noms_pop") else float(
+        (B.ref.deps if niv == "dep" else B.ref.regs).set_index("code")["pop"].get(code, 0))
+    lignes = []
+    for tid, lib, fam, groupe, _r in config.LIEUX_TYPES:
+        if fam != famille or tid not in couv.index or not couv.at[tid, "complet"]:
+            continue
+        n = int((x["type"] == tid).sum())
+        lignes.append({"libelle": lib, "n": n, "p100k": n / pop * 1e5 if pop else None,
+                       "dist": d_ici.at[tid, "distance_mediane_km"] if tid in d_ici.index else None,
+                       "dist_fr": d_fr.at[tid, "distance_mediane_km"] if tid in d_fr.index else None,
+                       "p30": d_ici.at[tid, "part_plus_30_km"] if tid in d_ici.index else None})
+    if not lignes:
+        return []
+    t = pd.DataFrame(lignes)
+    f1 = lambda v: nombre(v, 1)  # noqa: E731
+    lieu = "le département" if niv == "dep" else "la région"
+    out = ["## Structures de soins, FINESS et ROR réunis", "",
+           f"FINESS et le Répertoire opérationnel des ressources (ROR), réunis sans double compte, recensent dans {lieu} "
+           f"les structures suivantes. La distance est celle qui sépare la moitié des habitants de la structure la plus proche, à vol "
+           f"d'oiseau depuis le centre de leur commune, y compris quand cette structure se trouve hors du territoire.", "",
+           _tableau(t, ["libelle", "n", "p100k", "dist", "dist_fr", "p30"],
+                    ["Type de structure", "Structures", "Pour 100 000 hab.", "Distance médiane (km)", "France, distance médiane",
+                     "Habitants à plus de 30 km"],
+                    {"n": nombre, "p100k": f1, "dist": f1, "dist_fr": f1, "p30": pct}, vide="non calculé"), ""]
+    if famille == SM:
+        from . import lieux as lieux_mod
+        rc = lieux_mod.repartition_cmp(L["lieux"][L["lieux"][niv] == code], niv)
+        if code in rc.index and rc.at[code, "cmp"]:
+            out += [f"Sur les {nombre(rc.at[code, 'cmp'])} CMP du territoire, "
+                    + lieux_mod.phrase_publics_cmp(rc.loc[code]), ""]
+        out += _verification_cmp(L, T)
+    out += _comment_lire("Une structure n'est pas une capacité, et les structures ne s'ajoutent pas aux professionnels. Les "
+                         "professionnels déclarés dans chaque structure figurent dans lieux_soins.csv.",
+                         limites.phrase_md(["lieux"]))
+    out += _carte_distance_lieux(B, T, famille, L)
+    liste = []
+    for tid, lib, fam, groupe, _r in config.LIEUX_TYPES:
+        g = x[x["type"] == tid]
+        if fam != famille or g.empty:
+            continue
+        noms = sorted(f"{n.replace(';', ',')} ({B.noms['com'].get(c, c)})"
+                      for n, c in zip(g["nom_affiche"].fillna(""), g["commune"]))
+        # point-virgule entre les structures, leurs noms contiennent souvent des virgules
+        liste.append(f"- **{lib}** ({nombre(len(g))}). " + "; ".join(noms) + ".")
+    if liste:
+        out += ["<details>", "<summary>Liste des structures</summary>", ""] + liste + ["", "</details>", ""]
+    return out
+
+
 def rapport(B, T, famille, jour) -> str:
     from .lecture import date_longue
     cle_fig = f"{T['niveau']}-{T['code']}_{COURT[famille]}"
@@ -1111,6 +1356,7 @@ def rapport(B, T, famille, jour) -> str:
     if famille == SM:
         L += _sae(B, T)
     L += _interne(B, T, famille, cle_fig)
+    L += _lieux(B, T, famille)
     L += _route(B, T, famille)
     L += _financier(B, T, famille)
     if famille == SANTE:

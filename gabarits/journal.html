@@ -15,13 +15,17 @@
 </tbody></table></div>
 
 <h2>Historique</h2>
-{% for e in entrees %}
+<p>L'essentiel de chaque mise à jour, nouvelles versions des données, nouveautés et corrections qui touchent des chiffres publiés. Les mois précédents sont repliés.</p>
+{% for m in mois %}
+<details class="journal-mois"{% if loop.first %} open{% endif %}>
+<summary>{{ m.mois|capitalize }}</summary>
+{% for e in m.entrees %}
 <section class="journal-entree">
 <h3>{{ e.date_longue }}</h3>
 {% if e.premiere %}
 <p>Première mise à jour consignée dans ce journal, avec {{ e.n_jeux }} jeux de données suivis. Les versions de chaque jeu sont dans le tableau précédent.</p>
 {% endif %}
-{% if not e.premiere or e.sources %}
+{% if e.sources %}
 <h4>Données</h4>
 {% if e.sources %}
 <ul>
@@ -29,8 +33,6 @@
 <li>{{ s.jeu }} ({{ s.producteur }}){% if s.nature == "nouveau" %}, ajouté au site{% if s.maj %}, version du {{ s.maj }}{% endif %}{% elif s.nature == "retiré" %}, retiré du site{% else %}, nouvelle version{% if s.maj %} du {{ s.maj }}{% endif %}{% if s.maj_avant and s.maj_avant != s.maj %} (précédente du {{ s.maj_avant }}){% endif %}{% if s.total and s.total > 1 %}, {{ s.fichiers }} fichier{{ "s" if s.fichiers > 1 }} sur {{ s.total }}{% endif %}{% endif %}.</li>
 {% endfor %}
 </ul>
-{% else %}
-<p>Aucun jeu de données n'a changé depuis la mise à jour précédente.</p>
 {% endif %}
 {% endif %}
 {% if e.variations %}
@@ -40,13 +42,15 @@
 </tbody></table>
 {% endif %}
 {% if e.site %}
-<h4>Site</h4>
+<h4>Nouveautés et corrections</h4>
 <ul>{% for l in e.site %}<li>{{ l }}</li>{% endfor %}</ul>
 {% endif %}
 {% if e.indisponibles %}
 <p class="small">Sources indisponibles lors de cette mise à jour, {{ e.indisponibles|join(", ") }}. Le détail est sur la page <a href="{{ racine }}methode.html">Méthode, données et limites</a>.</p>
 {% endif %}
 </section>
+{% endfor %}
+</details>
 {% else %}
 <p>Aucune mise à jour consignée pour l'instant.</p>
 {% endfor %}

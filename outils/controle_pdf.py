@@ -37,7 +37,10 @@ def controle(pdf: Path, html: Path) -> list[str]:
             lignes.pop()
         if not lignes:
             continue
-        fin = lignes[-2:]
+        # la dernière ligne, ou l'avant-dernière quand la dernière est aussi un titre (un mot de fin de cellule de
+        # tableau, « handicap », n'est pas un titre, faux signal du 13 octobre 2026)
+        est_titre = lambda l: any(t[:30] and l.startswith(t[:30]) and len(l) <= len(t) + 3 for t in ts)  # noqa: E731
+        fin = lignes[-2:] if len(lignes) >= 2 and est_titre(lignes[-1]) else lignes[-1:]
         for t in ts:
             # la ligne doit être le titre lui-même, pas une phrase qui commence par les mêmes mots
             if any(t[:30] and l.startswith(t[:30]) and len(l) <= len(t) + 3 for l in fin):

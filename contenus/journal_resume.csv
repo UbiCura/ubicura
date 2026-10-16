@@ -1,0 +1,12 @@
+date;texte
+2026-10-08;Une page « Données sources » présente chaque jeu de données utilisé, et un schéma montre pour chaque profession qui est compté dans les densités et pourquoi.
+2026-10-09;Les rapports sont réorganisés de l'offre aux besoins, avec de nouveaux croisements (temps de trajet et suicide, handicap de l'enfant, patients sans médecin traitant) et des cartes commune par commune dans les rapports départementaux.
+2026-10-09;Le site prend le nom d'Ubi Cura.
+2026-10-10;Les données et les deux rapports nationaux sont archivés sur Zenodo avec un DOI, et chaque figure ou tableau se cite et s'exporte.
+2026-10-12;Les médecins spécialistes sont distingués par spécialité, une trentaine.
+2026-10-12;Les structures de soins (CMP, CATTP, hôpitaux de jour, CMPP, CAMSP, urgences, maternités, établissements médico-sociaux) sont recensées à partir de FINESS et du Répertoire opérationnel des ressources, avec la distance des habitants à la plus proche.
+2026-10-13;Les CMP sont confrontés à la statistique annuelle des établissements de santé, à la certification de la HAS et au répertoire Sirene, et les unités rangées à tort parmi eux sont comptées dans leur propre type.
+2026-10-14;Les CMP de près de quatre-vingt-dix établissements sont vérifiés un à un sur leurs propres sources, et chaque CMP porte un niveau de confirmation.
+2026-10-15;La vérification des CMP est close, chacun est compté avec son niveau de confirmation et ceux qu'elle a montrés fermés, en double ou d'un autre type sont retirés ou reclassés.
+2026-10-15;Des erreurs de localisation sont corrigées (528 structures, dont 44 CMP, sortaient de la carte, et des CMP étaient comptés dans la commune de leur hôpital), les distances sont recalculées.
+2026-10-15;Le rapport santé mentale montre les habitants éloignés à la fois de tout psychiatre et de tout CMP, les patients suivis par CMP et les zones où l'éloignement se regroupe, et les structures pour enfants et pour personnes âgées sont rapportées aux moins de 15 ans et aux 80 ans et plus.

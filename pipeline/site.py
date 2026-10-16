@@ -46,10 +46,11 @@ DONNEES_FIGURES = [("lorenz_", "lorenz.csv"), ("effet_ville_", "correlations_con
                    ("carte_dep_", "effectifs_dep_all.csv"), ("tuiles_dep_", "effectifs_dep_all.csv"),
                    ("multiples_", "effectifs_dep_all.csv"), ("unites_", "temps_acces.csv"),
                    ("_position", "effectifs_dep_all.csv"), ("_carte", "effectifs_epci_all.csv"),
-                   ("_trajet", "temps_acces_communes.csv"), ("_unites", "temps_acces.csv")]
+                   ("_trajet", "temps_acces_communes.csv"), ("_unites", "temps_acces.csv"),
+                   ("eloignement_", "escalier_distance_lieux.csv"), ("_distlieux", "distances_lieux_communes.csv")]
 # figures où l'on zoome et où l'on clique sur un point ou une zone pour lire son nom
 ZOOMABLES = ("entonnoir_", "quadrants_", "carte_dep_", "multiples_", "bivariee_", "gwr_", "_carte", "_trajet",
-             "_position", "tuiles_dep_")
+             "_position", "tuiles_dep_", "_distlieux")
 
 
 def md_html(texte: str, graphiques: Path | None, imprimer=False, donnees: dict | None = None):
@@ -68,6 +69,10 @@ def md_html(texte: str, graphiques: Path | None, imprimer=False, donnees: dict |
         # un tableau de plus de 15 lignes peut se couper entre deux lignes, son en-tête est répété (style.css)
         corps = re.sub(r"<table>(.*?)</table>", lambda m: ('<table class="longue">' if m.group(1).count("<tr") > 16
                                                             else "<table>") + m.group(1) + "</table>", corps, flags=re.S)
+        # un petit titre suivi d'un tableau court forme un bloc insécable, sinon le titre peut rester seul en bas de
+        # page (rapport santé du 13 octobre 2026, « Handicap, adultes »)
+        corps = re.sub(r"(<h([4-6])[^>]*>(?:(?!</h\2>).)*</h\2>\s*)(<table>(?:(?!</table>).)*</table>)",
+                       r'<div class="ensemble">\1\3</div>', corps, flags=re.S)
 
     numero = [0]
 
@@ -116,6 +121,51 @@ def md_html(texte: str, graphiques: Path | None, imprimer=False, donnees: dict |
 
 
 CESURES = re.compile(r"(Psycho|psycho|Pédo|pédo|Kinési|kinési|Ortho|ortho|Gynéco|gynéco|Ophtalmo)(?=\w)")
+
+
+def _confirmation(dossier, lire, nb):
+    """Niveaux de confirmation des CMP (page méthode)."""
+    f = dossier / "lieux_soins.csv"
+    if not f.exists():
+        return None
+    import pandas as pd
+    x = pd.read_csv(f, sep=";", dtype=str, usecols=lambda c: c in ("type", "confirmation"))
+    if "confirmation" not in x:
+        return None
+    from .confirmation import NIVEAUX
+    n = x.loc[x["type"] == "lieu_cmp", "confirmation"].value_counts()
+    rows = [{"niveau": lib[0].upper() + lib[1:], "n": nb(int(n.get(lib, 0)))} for lib in NIVEAUX.values()]
+    fs = dossier / "sirene_sans_correspondant.csv"
+    ns = sum(1 for _ in lire(fs)) if fs.exists() else 0
+    resume = (f"Sirene compte en outre {nb(ns)} établissements actifs sous une enseigne de CMP sans structure "
+              f"correspondante, listés dans sirene_sans_correspondant.csv et vérifiés établissement par établissement.")
+    return {"niveaux": rows, "resume": resume}
+
+
+def _liste_verifiee(dossier, lire, nb):
+    """Établissements dont la liste des structures a été vérifiée sur leurs propres sources (page méthode)."""
+    fe, fn = dossier / "etablissements_verifies.csv", dossier / "structures_non_retenues.csv"
+    if not fe.exists():
+        return None
+    from . import config
+    lib = {t[0]: t[1].split(",")[0] for t in config.LIEUX_TYPES}
+    non = {}
+    for r in (lire(fn) if fn.exists() else []):
+        non[(r["ej"], r["etablissement"])] = non.get((r["ej"], r["etablissement"]), 0) + 1
+    rows = []
+    for r in lire(fe):
+        rows.append({"etablissement": r["etablissement"], "departement": r["departement"],
+                     "types": ", ".join(lib.get(t.strip(), t) for t in r["types"].split(",")),
+                     "etab": nb(r.get("structures_etablissement", 0)), "publique": nb(r.get("structures_source_publique", 0)),
+                     "bases": nb(r.get("structures_bases", 0)),
+                     "non_retenues": nb(non.get((r["ej"], r["etablissement"]), 0)), "sources": r["sources"],
+                     "date": r["date"], "a_reverifier": r.get("a_reverifier") in ("True", "true", "1")})
+    if not rows:
+        return None
+    n = len(rows)
+    resume = (f"{n} établissement{'s' if n > 1 else ''} vérifié{'s' if n > 1 else ''} à ce jour. La vérification de "
+              f"tous les établissements qui gèrent des CMP est en cours.")
+    return {"etablissements": rows, "resume": resume}
 
 
 def _parties_imprimees(corps: str) -> str:
@@ -178,6 +228,12 @@ def navigateur() -> str | None:
               r"C:\Program Files\Google\Chrome\Application\chrome.exe"]:
         if Path(p).exists():
             return p
+    # Depuis octobre 2026, Edge s'installe dans EdgeCore\<version>\msedge.exe
+    for base in (r"C:\Program Files (x86)\Microsoft\EdgeCore", r"C:\Program Files\Microsoft\EdgeCore"):
+        exes = sorted(Path(base).glob("*/msedge.exe"),
+                      key=lambda x: [int(n) if n.isdigit() else 0 for n in x.parent.name.split(".")])
+        if exes:
+            return str(exes[-1])
     return None
 
 
@@ -348,14 +404,37 @@ def journal_page() -> dict:
             premiere = next((e["date"] for e in entrees if jeu in e["etat"]), "")
             etat.append({"jeu": jeu, "producteur": j["producteur"], "maj": dl(j["maj"]), "recupere": dl(j["recupere"]),
                          "change": dl(vu[-1]) if vu else f"aucun depuis le {dl(premiere)}"})
+    # résumé de l'essentiel par jour (contenus/journal_resume.csv), à la place des lignes « Journal: » des commits,
+    # trop détaillées pour le lecteur (point 11 de la version 2, demande de Lucas du 11 octobre 2026). Le détail reste
+    # dans l'historique du dépôt.
+    resume = {}
+    f_resume = config.RACINE / "contenus" / "journal_resume.csv"
+    if f_resume.exists():
+        with open(f_resume, encoding="utf-8") as f:
+            for r in csv.DictReader(f, delimiter=";"):
+                resume.setdefault(r["date"], []).append(r["texte"])
     sortie = []
     for e in reversed(entrees):
         sources = [dict(s, maj=dl(s.get("maj")), maj_avant=dl(s.get("maj_avant"))) for s in e["sources"]]
         variations = [dict(v, avant_txt=nombre(v["avant"]), apres_txt=nombre(v["apres"]),
                            ecart_txt=("+" if v["apres"] > v["avant"] else "−") + nombre(abs(v["apres"] - v["avant"])))
                       for v in e.get("variations", [])]
-        sortie.append(dict(e, date_longue=dl(e["date"]), sources=sources, variations=variations, n_jeux=len(e["etat"])))
-    return {"entrees": sortie, "etat": etat}
+        site_ = resume.get(e["date"], e.get("site") or [])
+        # un jour sans changement de données, d'effectifs ni du site n'apparaît pas (sauf la première entrée)
+        if not (e.get("premiere") or sources or variations or site_):
+            continue
+        sortie.append(dict(e, date_longue=dl(e["date"]), sources=sources, variations=variations, site=site_,
+                           n_jeux=len(e["etat"])))
+    # regroupement par mois, le plus récent ouvert, les autres repliés
+    from .lecture import MOIS
+    mois = []
+    for e in sortie:
+        a, m = e["date"][:4], int(e["date"][5:7])
+        lib = f"{MOIS[m - 1]} {a}"
+        if not mois or mois[-1]["mois"] != lib:
+            mois.append({"mois": lib, "entrees": []})
+        mois[-1]["entrees"].append(e)
+    return {"entrees": sortie, "mois": mois, "etat": etat}
 
 
 # ---------------------------------------------------------------- briques partagées avec outils/zenodo.py
@@ -472,11 +551,20 @@ def construire(pdf=True) -> Path:
     # seules les versions depuis la première mise en ligne sont publiées (donnees/publication.json, écrit par
     # outils/publier.ps1), les versions de travail antérieures restent sur le PC
     pub = config.RACINE / "donnees" / "publication.json"
-    premiere = json.loads(pub.read_text(encoding="utf-8-sig")).get("premiere_version") if pub.exists() else None
+    etat_pub = json.loads(pub.read_text(encoding="utf-8-sig")) if pub.exists() else {}
+    premiere = etat_pub.get("premiere_version")
+    # versions réellement mises en ligne (ajoutées par publier.ps1), plus la dernière, les versions de travail
+    # intermédiaires ne partent pas
+    vp = etat_pub.get("versions_publiees") or []
+    publiees = {vp} if isinstance(vp, str) else set(vp)
     if premiere:
         dates = [d for d in dates if d.name >= premiere] or dates[-1:]
+    if publiees and dates:
+        dates = [d for d in dates if d.name in publiees or d == dates[-1]]
+    if premiere or publiees:
+        gardees = {d.name for d in dates}
         for vieux in (SITE / "rapports").glob("20*"):
-            if vieux.name < premiere:
+            if vieux.name not in gardees:
                 shutil.rmtree(vieux, ignore_errors=True)
     if not dates:
         raise FileNotFoundError("aucun résultat avec rapports séparés, lancez d'abord python run.py")
@@ -573,11 +661,12 @@ def construire(pdf=True) -> Path:
         table_lib = list(csv.DictReader(fh, delimiter=";"))
     concordance = _concordance(dernier)
     inscrits = _inscrits(dernier)
+    lieux_m = _lieux_methode(dernier)
     ctx = dict(commun, racine="", page="methode", titre="Méthode, données et limites", limites=limites.tableau(),
                logiciels=logiciels())
     (SITE / "methode.html").write_text(env.get_template("methode.html").render(
         ctx, sources=journal["sources"], controles=journal["controles"], indicateurs=site_data["contexte"],
-        libelles=table_lib, fichiers=fichiers, concordance=concordance, inscrits=inscrits, archive={"lien": f"donnees/{dernier.name}/{tout.name}",
+        libelles=table_lib, fichiers=fichiers, concordance=concordance, inscrits=inscrits, lieux=lieux_m, archive={"lien": f"donnees/{dernier.name}/{tout.name}",
                                                         "taille": f"{tout.stat().st_size / 1e6:.0f} Mo"}, lien_dictionnaire=f"donnees/{dernier.name}/dictionnaire.html",
         lien_libelles=f"donnees/{dernier.name}/libelles.csv"),
         encoding="utf-8")
@@ -803,6 +892,88 @@ def logiciels() -> dict:
             v = "non installée"
         libs.append({"nom": nom, "version": v, "role": role})
     return {"python": sys.version.split()[0], "bibliotheques": libs, "graine": config.GRAINE}
+
+
+def _lieux_methode(dossier):
+    """Tableaux de la page méthode sur les structures de soins, couverture et provenance de chaque type, confrontation aux
+    chiffres publiés."""
+    fc, fr, fl = dossier / "lieux_couverture.csv", dossier / "lieux_references.csv", dossier / "lieux_soins.csv"
+    if not fc.exists() or not fl.exists():
+        return None
+
+    def lire(chemin):
+        with open(chemin, encoding="utf-8-sig") as fh:
+            return list(csv.DictReader(fh, delimiter=";"))
+
+    def nb(v):
+        return f"{float(str(v).replace(',', '.')):,.0f}".replace(",", "\u00a0") if v not in ("", None) else ""
+
+    def pc(v, signe=False):
+        return (f"{float(str(v).replace(',', '.')):{'+' if signe else ''}.0%}".replace("%", "\u00a0%")
+                if v not in ("", None) else "")
+    prov = {}
+    for r in lire(fl):
+        d = prov.setdefault(r["type"], {"FINESS et ROR": 0, "FINESS seul": 0, "ROR seul": 0,
+                                        "ROR, type que FINESS ne distingue pas": 0})
+        d[r["provenance"]] = d.get(r["provenance"], 0) + 1
+    couverture = []
+    for r in lire(fc):
+        p = prov.get(r["type"], {})
+        n = sum(p.values())
+        if not n:
+            continue
+        seul_ror = p.get("ROR, type que FINESS ne distingue pas", 0) == n
+        couverture.append({"libelle": r["libelle_type"], "n": nb(n),
+                           "deux": "sans objet" if seul_ror else nb(p.get("FINESS et ROR", 0)),
+                           "finess": "sans objet" if seul_ror else nb(p.get("FINESS seul", 0)),
+                           # le ROR seul compte aussi les unités d'un type que FINESS ne distingue pas, pour que les
+                           # trois colonnes refassent le total
+                           "ror": "sans objet" if seul_ror else nb(p.get("ROR seul", 0)
+                                                                   + p.get("ROR, type que FINESS ne distingue pas", 0)),
+                           "sources": "sans objet" if seul_ror else nb(p.get("Absente des deux bases, d'après les sources de l'établissement", 0)),
+                           "part": pc(r["part_departements"]),
+                           "compare": "oui" if r["complet"] in ("True", "true", "1") else "non, listé seulement"})
+    refs = [{"libelle": r.get("objet", ""), "nous": nb(r["lieux"]), "pub": nb(r["reference"]),
+             "date": r["date_reference"], "ecart": pc(r["ecart"], True), "source": r["source"], "adresse": r["adresse"]}
+            for r in lire(fr)] if fr.exists() else []
+    # CMP confrontés à la SAE par région (les CMP d'un établissement sont rangés au département de son siège)
+    sae, fs = [], dossier / "concordance_cmp_sae.csv"
+    if fs.exists():
+        rows = lire(fs)
+        for r in [x for x in rows if x["niveau"] == "reg"] + [x for x in rows if x["niveau"] == "fr"]:
+            sae.append({"nom": r["nom"], "cmp": nb(r["cmp"]), "adultes": nb(r["adultes"]), "enfants": nb(r["enfants"]),
+                        "np": nb(r["non_precise"]), "ur": nb(r.get("unites_ror", "")), "sae": nb(r["sae_cmp"]),
+                        "sae_a": nb(r["sae_adultes"]),
+                        "sae_e": nb(r["sae_enfants"]), "ecart": pc(r["ecart_relatif"], True)})
+        dep = [x for x in rows if x["niveau"] == "dep" and x["ecart_relatif"] not in ("", None)]
+        proches = sum(abs(float(x["ecart_relatif"].replace(",", "."))) <= .2 for x in dep)
+        sae_resume = f"{proches} départements sur {len(dep)}"
+    else:
+        sae_resume = ""
+    # confrontation hôpital par hôpital, établissements en écart (13 octobre 2026)
+    etab, etab_resume, fe = [], "", dossier / "concordance_cmp_etablissements.csv"
+    if fe.exists():
+        rows = lire(fe)
+        compte = {}
+        for r in rows:
+            compte[r["statut"]] = compte.get(r["statut"], 0) + 1
+        etab_resume = ", ".join(f"{v} {k}" for k, v in sorted(compte.items(), key=lambda kv: -kv[1]))
+        ecarts = [r for r in rows if r["statut"] in ("moins ici qu'à la SAE", "plus ici qu'à la SAE")]
+        ecarts.sort(key=lambda r: -abs(float(str(r["ecart"]).replace(",", ".") or 0)))
+        etab = [{"nom": r["nom"], "dep": r["dep_siege"], "sae": f"{nb(r['sae_adultes'])} et {nb(r['sae_enfants'])}",
+                 "ici": f"{nb(r['ici_adultes'])} et {nb(r['ici_enfants'])}", "ror": nb(r["unites_ror"]),
+                 "statut": r["statut"]} for r in ecarts]
+    relecture, fr_ = [], dossier / "relecture_structures.csv"
+    if fr_.exists():
+        relecture = [{"base": r["base"], "constat": r["constat"], "nombre": nb(r["nombre"]), "traitement": r["traitement"]}
+                     for r in lire(fr_)]
+    from . import verifications_lieux
+    verifs = [{"code": r["code"], "etablissement": r["etablissement"], "date": r["date"], "source": r["source"],
+               "adresse": r["adresse"], "constat": r["constat"], "a_refaire": bool(r["a_refaire"])}
+              for _, r in verifications_lieux.charger().iterrows()]
+    return {"couverture": couverture, "references": refs, "sae": sae, "sae_resume": sae_resume, "etab": etab,
+            "etab_resume": etab_resume, "verifs": verifs, "relecture": relecture,
+            "liste_verifiee": _liste_verifiee(dossier, lire, nb), "confirmation": _confirmation(dossier, lire, nb)}
 
 
 def _concordance(dossier):

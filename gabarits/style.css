@@ -121,7 +121,7 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:16px;color:v
   h3.partie{break-before:page;page-break-before:always}
   h2#precautions-de-lecture{break-before:auto;page-break-before:auto;margin-top:18pt}
   main.territoire h2{break-before:auto}
-  figure.graphique,table{break-inside:avoid}
+  figure.graphique,table,.ensemble{break-inside:avoid}
   /* un titre n'est jamais laissé seul en bas de page, il reste avec ce qui le suit (10 octobre 2026) */
   h1,h2,h3,h4,h5{break-after:avoid;page-break-after:avoid;break-inside:avoid}
   h1+*,h2+*,h3+*,h4+*,h5+*{break-before:avoid;page-break-before:avoid}
@@ -133,6 +133,7 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:16px;color:v
   figure.graphique svg{max-height:185mm}
   /* les volets « Pour aller plus loin » peuvent être longs, ils se coupent, leur titre reste avec leur début */
   details{break-inside:auto}
+  details p,details li{break-inside:avoid}
   details>summary{break-after:avoid;page-break-after:avoid}
   table.longue{break-inside:auto;page-break-inside:auto}
   thead{display:table-header-group}
@@ -254,3 +255,7 @@ table.fiche td{text-align:left}
 /* aucun mot coupé au hasard dans un tableau, une colonne n'est jamais plus étroite que son mot le plus long ; un
    tableau trop large défile dans son cadre (demande de Lucas du 9 octobre 2026) */
 table td,table th{hyphens:manual;-webkit-hyphens:manual;overflow-wrap:normal;word-break:normal}
+/* journal des mises à jour, regroupé par mois (le plus récent ouvert) */
+.corps details.journal-mois{background:none;border:none;border-top:1px solid var(--line);border-radius:0;padding:6px 0;margin:8px 0;font-size:1rem}
+.corps details.journal-mois>summary{font-family:var(--serif);font-size:1.25rem;font-weight:600;color:var(--ink);padding:6px 0}
+.journal-entree h3{margin-top:18px}
