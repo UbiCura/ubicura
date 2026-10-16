@@ -1,0 +1,69 @@
+﻿prof;libelle;inscrits;avec_activite;sans_lieu;avec_lieu;dans_densites;a_distance_seulement;sans_soins_seulement
+allergologue;Allergologue;;459;23;436;435;1;0
+anatomopathologiste;Anatomopathologiste;;1735;95;1640;1628;0;12
+anesthesiste;Anesthésiste-réanimateur;;13251;1354;11897;11870;0;27
+appareilleur;Appareilleur;72;4346;336;4010;3983;0;27
+assistant_de_service_social;Assistant de service social;51583;25703;2835;22868;22339;0;529
+assistant_dentaire;Assistant dentaire;27225;11107;1245;9862;9832;0;30
+audioprothesiste;Audioprothésiste;7472;6287;132;6155;6151;0;4
+biologiste;Biologiste médical;;3130;153;2977;2917;0;60
+cardiologue;Cardiologue;;7884;424;7460;7447;0;13
+chiropracteur;Chiropracteur;2390;1960;205;1755;1755;0;0
+chirurgien_dentiste;Chirurgien-dentiste;61666;50295;1010;49285;49108;0;177
+chirurgien_general;Chirurgien général;;2070;135;1935;1924;0;11
+chirurgien_maxillo_facial;Chirurgien maxillo-facial et stomatologue;;1036;31;1005;1005;0;0
+chirurgien_orthopediste;Chirurgien orthopédiste;;4356;172;4184;4179;0;5
+chirurgien_pediatrique;Chirurgien pédiatrique;;458;11;447;443;0;4
+chirurgien_plasticien;Chirurgien plasticien;;1171;21;1150;1147;0;3
+chirurgien_thoracique;Chirurgien thoracique et cardiovasculaire;;665;21;644;643;0;1
+chirurgien_vasculaire;Chirurgien vasculaire;;745;27;718;717;0;1
+chirurgien_visceral;Chirurgien viscéral et digestif;;1682;66;1616;1607;0;9
+dermatologue;Dermatologue;;3736;261;3475;3447;15;13
+dieteticien;Diététicien;28746;17916;965;16951;16901;0;50
+endocrinologue;Endocrinologue;;2395;77;2318;2302;3;13
+ergotherapeute;Ergothérapeute;21365;17901;723;17178;17156;0;22
+gastro_enterologue;Gastro-entérologue;;4080;205;3875;3858;1;16
+geriatre;Gériatre;;3580;263;3317;3300;3;14
+gynecologue;Gynécologue;;8211;471;7740;7696;30;14
+hematologue;Hématologue;;1174;29;1145;1134;0;11
+infectiologue;Infectiologue;;480;24;456;452;0;4
+infirmier;Infirmier;633358;551314;48780;502534;498428;0;4106
+interniste;Médecin interniste;;3014;160;2854;2680;0;174
+manipulateur_erm;Manipulateur en électroradiologie;45071;35553;1532;34021;33966;0;55
+masseur_kinesitherapeute;Masseur-kinésithérapeute;117833;112737;9553;103184;102694;0;490
+medecin_autre;Médecin, autre spécialité;;566;12;554;546;0;8
+medecin_generaliste;Médecin généraliste;;103828;9872;93956;88820;1600;3536
+medecin_mpr;Médecin de médecine physique et de réadaptation;;2723;210;2513;2498;0;15
+medecin_non_precise;Médecin, spécialité non renseignée;;4;0;4;3;0;1
+medecin_nucleaire;Médecin nucléaire;;920;74;846;846;0;0
+medecin_sante_publique;Médecin de santé publique;;1596;99;1497;1167;0;330
+medecin_travail;Médecin du travail;;4879;419;4460;4065;0;395
+medecin_vasculaire;Médecin vasculaire;;1559;69;1490;1489;0;1
+nephrologue;Néphrologue;;2285;142;2143;2132;0;11
+neurochirurgien;Neurochirurgien;;741;18;723;720;0;3
+neurologue;Neurologue;;3529;127;3402;3388;0;14
+oncologue;Oncologue médical;;1817;84;1733;1724;0;9
+ophtalmologue;Ophtalmologue;;6216;413;5803;5787;12;4
+opticien_lunetier;Opticien-lunetier;55080;41253;1881;39372;39338;0;34
+orl;Oto-rhino-laryngologiste (ORL);;2993;130;2863;2857;1;5
+orthophoniste;Orthophoniste;33129;31375;1467;29908;29901;0;7
+orthoptiste;Orthoptiste;8544;7140;557;6583;6569;2;12
+osteopathe;Ostéopathe;45889;41114;6537;34577;34573;0;4
+pediatre;Pédiatre;;9676;614;9062;8987;27;48
+pedicure_podologue;Pédicure-podologue;15059;14956;618;14338;14338;0;0
+pedopsychiatre;Pédopsychiatre;;698;43;655;649;3;3
+pharmacien;Pharmacien;75936;75906;4330;71576;66355;0;5221
+physicien_medical;Physicien médical;822;798;17;781;760;0;21
+pneumologue;Pneumologue;;3510;185;3325;3310;2;13
+psychiatre;Psychiatre;;15672;660;15012;14880;76;56
+psychologue;Psychologue;120157;80954;3220;77734;77415;1;318
+psychomotricien;Psychomotricien;22033;18691;688;18003;17985;0;18
+psychotherapeute;Psychothérapeute;22662;18604;391;18213;18193;0;20
+radiologue;Radiologue;;9918;1198;8720;8710;0;10
+radiotherapeute;Radiothérapeute;;1169;76;1093;1091;0;2
+reanimateur;Médecin réanimateur;;1182;59;1123;1119;0;4
+rhumatologue;Rhumatologue;;2611;103;2508;2495;0;13
+sage_femme;Sage-femme;32350;27021;1438;25583;25581;1;1
+technicien_labo;Technicien de laboratoire;62228;56386;4827;51559;51376;0;183
+urgentiste;Médecin urgentiste;;3007;298;2709;2685;17;7
+urologue;Urologue;;1886;54;1832;1826;0;6

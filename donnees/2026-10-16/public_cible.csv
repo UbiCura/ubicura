@@ -1,0 +1,9 @@
+﻿niveau;prof;public;densite_nationale_cible;gini_population;gini_public;rho_classements;part_public_sans_professionnel
+epci;pedopsychiatre;moins de 15 ans;0,601265;0,597695;0,609877;0,999859;0,420947
+epci;q_psychiatrie_enfant;moins de 15 ans;1,73316;0,522683;0,537608;0,999398;0,286202
+epci;pediatre;moins de 15 ans;8,33501;0,455191;0,461044;0,998263;0,201028
+epci;geriatre;65 ans et plus;2,48391;0,40908;0,467811;0,992166;0,218532
+dep;pedopsychiatre;moins de 15 ans;0,601265;0,369173;0,385932;0,988098;0,0629624
+dep;q_psychiatrie_enfant;moins de 15 ans;1,73316;0,358078;0,378886;0,982142;0
+dep;pediatre;moins de 15 ans;8,33501;0,274813;0,275332;0,968701;0
+dep;geriatre;65 ans et plus;2,48391;0,209209;0,280505;0,871095;0

@@ -1,0 +1,13 @@
+﻿type;libelle_type;mesure;toutes;confirmees;conclusion_identique
+lieu_cmp_adultes;CMP pour adultes;Nombre de structures, France;1510;1414;True
+lieu_cmp_adultes;CMP pour adultes;Distance médiane des habitants (km), France;3,18328;3,33387;True
+lieu_cmp_adultes;CMP pour adultes;Part des habitants à plus de 20 km;0,0177156;0,0263481;True
+lieu_cmp_adultes;CMP pour adultes;Classement des départements, structures pour 100 000 habitants (corrélation de rang entre les deux versions);1;0,957461;True
+lieu_cmp_adultes;CMP pour adultes;Classement des départements, distance médiane des habitants (corrélation de rang entre les deux versions);1;0,962364;True
+lieu_cmp_enfants;CMP pour enfants et adolescents;Nombre de structures, France;1190;1089;True
+lieu_cmp_enfants;CMP pour enfants et adolescents;Distance médiane des habitants (km), France;3,85548;4,12927;True
+lieu_cmp_enfants;CMP pour enfants et adolescents;Part des habitants à plus de 20 km;0,0528909;0,0749146;False
+lieu_cmp_enfants;CMP pour enfants et adolescents;Classement des départements, structures pour 100 000 habitants (corrélation de rang entre les deux versions);1;0,896318;False
+lieu_cmp_enfants;CMP pour enfants et adolescents;Classement des départements, distance médiane des habitants (corrélation de rang entre les deux versions);1;0,961852;True
+lieu_cmp_adultes;CMP pour adultes;Éloignement selon le niveau de vie (indice de concentration);-0,0975317;-0,106378;True
+lieu_cmp_enfants;CMP pour enfants et adolescents;Éloignement selon le niveau de vie (indice de concentration);-0,111417;-0,110869;True

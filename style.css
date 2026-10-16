@@ -1,0 +1,261 @@
+:root{
+  --bg:#F4F5F7;--panel:#FFFFFF;--ink:#1F2430;--muted:#5F6675;--line:#D9DCE3;--nodata:#E3E4E8;
+  --accent:#B07D0A;--focus:#3E2563;
+  --r0:#EEE8F3;--r1:#D5C6E3;--r2:#B39BCB;--r3:#8C6DAE;--r4:#64458C;--r5:#3E2563;
+  --d0:#7A4E00;--d1:#B88A2E;--d2:#E6D3A6;--d3:#EFEDF2;--d4:#C6B3DB;--d5:#8C6DAE;--d6:#3E2563;
+  --serif:"Newsreader",Georgia,"Times New Roman",serif;
+  --sans:"Work Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#15171C;--panel:#1D2027;--ink:#E8E9EE;--muted:#A0A5B2;--line:#343844;--nodata:#2A2D35;--accent:#E0B04A;--focus:#D4C3EA;
+  --r0:#2A2533;--r1:#43355A;--r2:#5E4A82;--r3:#7E66A8;--r4:#A58CCB;--r5:#D4C3EA;
+  --d0:#E8B34A;--d1:#A97F2C;--d2:#6E5A36;--d3:#3A404A;--d4:#4A3C66;--d5:#7E66A8;--d6:#D4C3EA;}}
+:root[data-theme="dark"]{
+  --bg:#15171C;--panel:#1D2027;--ink:#E8E9EE;--muted:#A0A5B2;--line:#343844;--nodata:#2A2D35;--accent:#E0B04A;--focus:#D4C3EA;
+  --r0:#2A2533;--r1:#43355A;--r2:#5E4A82;--r3:#7E66A8;--r4:#A58CCB;--r5:#D4C3EA;
+  --d0:#E8B34A;--d1:#A97F2C;--d2:#6E5A36;--d3:#3A404A;--d4:#4A3C66;--d5:#7E66A8;--d6:#D4C3EA;}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:70px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6}
+a{color:var(--r4)}a:hover{color:var(--r5)}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+
+/* navigation */
+nav.site{position:sticky;top:0;z-index:10;background:var(--panel);border-bottom:1px solid var(--line)}
+nav.site .in{max-width:1180px;margin:0 auto;padding:10px 20px;display:flex;align-items:center;gap:8px 14px;flex-wrap:wrap}
+/* titre lu par les lecteurs d'écran, invisible à l'écran */
+.cache{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.couv-sous-titre{color:var(--muted);margin-top:-.4em}
+nav.site .marque{font-family:var(--serif);font-size:1.05rem;white-space:nowrap;color:var(--ink);text-decoration:none;margin-right:auto}
+nav.site a.l{color:var(--muted);text-decoration:none;font-size:.88rem;padding:4px 0;border-bottom:2px solid transparent;white-space:nowrap}
+nav.site a.l:hover,nav.site a.l.on{color:var(--ink);border-bottom-color:var(--ink)}
+nav.site button.theme{background:none;border:1px solid var(--line);border-radius:999px;color:var(--muted);font:inherit;font-size:.78rem;padding:2px 10px;cursor:pointer;white-space:nowrap}
+nav.site button.theme:hover{color:var(--ink);border-color:var(--ink)}
+nav.site .projet{position:relative}
+nav.site .projet button.l{background:none;border:0;border-bottom:2px solid transparent;font:inherit;font-size:.88rem;color:var(--muted);padding:4px 0;cursor:pointer;white-space:nowrap}
+nav.site .projet button.l:hover,nav.site .projet button.l.on,nav.site .projet button.l[aria-expanded="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+nav.site .projet .fleche{font-size:.75em;margin-left:2px}
+nav.site .sous-menu{position:absolute;right:0;top:calc(100% + 8px);min-width:250px;background:var(--panel);border:1px solid var(--line);border-radius:6px;box-shadow:0 8px 24px rgba(0,0,0,.28);padding:6px;z-index:20;display:flex;flex-direction:column}
+nav.site .sous-menu[hidden]{display:none}
+nav.site .sous-menu a{color:var(--ink);text-decoration:none;font-size:.88rem;padding:7px 10px;border-radius:4px}
+nav.site .sous-menu a:hover,nav.site .sous-menu a:focus-visible{background:color-mix(in srgb,var(--ink) 8%,transparent);outline:none}
+nav.site .sous-menu a[aria-current="page"]{font-weight:600}
+nav.site button:focus-visible,nav.site a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+main{max-width:1100px;margin:0 auto;padding:32px 20px 64px}
+.etroit{max-width:50rem}
+h1{font-family:var(--serif);font-weight:400;font-size:clamp(2rem,4.4vw,3rem);line-height:1.05;margin:0 0 12px;letter-spacing:-.01em}
+h2{font-family:var(--serif);font-weight:600;font-size:1.55rem;line-height:1.2;margin:48px 0 10px;padding-top:12px;border-top:1px solid var(--line)}
+h3{font-family:var(--serif);font-weight:600;font-size:1.22rem;margin:32px 0 8px}
+h4{font-size:1rem;font-weight:600;margin:24px 0 6px;color:var(--muted)}
+.chapeau{color:var(--muted);font-size:1.08rem}
+.chapeau.pleine{max-width:none}
+/* une seule largeur de texte par page, celle de la colonne (demande de Lucas du 10 octobre 2026) */
+p,li{max-width:none}
+.citer-haut{border-left:3px solid var(--focus);background:var(--panel);padding:10px 14px;margin:0 0 24px;border-radius:0 6px 6px 0}
+.citer-haut p{margin:.3em 0}
+main:has(> .etroit) > footer{max-width:50rem}
+main:has(> .rapport) > footer{margin-left:260px;max-width:50rem}
+@media (max-width:900px){main:has(> .rapport) > footer{margin-left:0}}
+.muted{color:var(--muted)}.small{font-size:.86rem}
+
+/* rapport */
+.rapport{display:grid;grid-template-columns:220px minmax(0,1fr);gap:40px;align-items:start}
+@media (max-width:900px){.rapport{grid-template-columns:1fr}.sommaire{position:static!important}}
+.sommaire{position:sticky;top:70px;font-size:.86rem;max-height:calc(100vh - 90px);overflow:auto}
+.sommaire ul{list-style:none;padding:0;margin:0}.sommaire ul ul{padding-left:12px}
+.sommaire a{color:var(--muted);text-decoration:none;display:block;padding:2px 0}
+.methode h2{scroll-margin-top:80px}
+/* tableaux de la page méthode, dans la largeur de la colonne, texte qui passe à la ligne (9 octobre 2026) */
+.methode table.simple{width:100%;font-size:.86rem}
+.methode > table.simple{display:block;overflow-x:auto}
+.methode table.simple td,.methode table.simple th{vertical-align:top}
+.methode table.simple td:first-child{min-width:9em}
+/* limites, colonnes courtes pas plus larges que nécessaire, le texte prend le reste */
+.methode table.limites th:nth-child(3){width:45%}.methode h2:first-child{margin-top:0}
+.sommaire a.actif{color:var(--ink);font-weight:600}.sommaire a:hover{color:var(--ink)}
+.corps table{border-collapse:collapse;width:100%;font-size:.86rem;margin:12px 0 18px;display:block;overflow-x:auto}
+.corps th,.corps td{padding:6px 9px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;vertical-align:top}
+.corps th{font-weight:600;color:var(--muted);text-align:right;vertical-align:bottom;hyphens:manual}
+/* tableau plus large que la colonne de texte, estompé à droite tant qu'il reste des colonnes */
+.corps table.deborde-d{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 36px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 36px),transparent)}
+.indice-defil{font-size:.78rem;color:var(--muted);margin:-12px 0 18px;text-align:right}
+.corps th:first-child,.corps td:first-child{text-align:left}
+.corps details{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 14px;margin:12px 0;font-size:.9rem}
+.corps details summary{cursor:pointer;color:var(--muted);font-weight:500}
+.corps p strong:first-child{font-weight:600}
+figure.graphique{margin:18px 0 22px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px}
+figure.graphique svg{width:100%;height:auto;display:block}
+figure.graphique svg text{font-family:var(--sans)}
+.versions{font-size:.88rem}
+.encart{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:6px;padding:12px 16px;margin:16px 0}
+
+/* accueil */
+.tuiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin:24px 0}
+.tuile{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 16px}
+.tuile .v{font-family:var(--serif);font-size:2.1rem;line-height:1.05;font-variant-numeric:tabular-nums}
+.tuile .l{color:var(--muted);font-size:.88rem}
+.cartes{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin:24px 0}
+.carte{display:block;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:16px 18px;text-decoration:none;color:var(--ink)}
+.carte:hover{border-color:var(--r4)}
+.carte strong{font-family:var(--serif);font-size:1.2rem;font-weight:600;display:block;margin-bottom:4px}
+.carte span{color:var(--muted);font-size:.9rem}
+table.simple{border-collapse:collapse;width:100%;font-size:.88rem}
+table.simple th,table.simple td{padding:6px 9px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+table.simple th{color:var(--muted);font-weight:600}
+.statut-ok{color:var(--r4)}.statut-erreur{color:var(--accent)}
+footer{border-top:1px solid var(--line);margin-top:48px;padding-top:16px;color:var(--muted);font-size:.84rem}
+
+/* impression (PDF) */
+@media print{
+  :root,:root[data-theme]{--bg:#fff;--panel:#fff;--ink:#1F2430;--muted:#4A5060;--line:#D9DCE3;--accent:#8A6208;
+    --r1:#D5C6E3;--r2:#B39BCB;--r3:#8C6DAE;--r4:#64458C;--r5:#3E2563;--d0:#7A4E00;--d1:#B88A2E;
+    --d2:#E6D3A6;--d3:#EFEDF2;--d4:#C6B3DB;--d5:#8C6DAE;--d6:#3E2563}
+  nav.site,.sommaire,.pas-imprime{display:none!important}
+  body{font-size:10.5pt}
+  main{padding:0;max-width:none}
+  .rapport{display:block}
+  h2{break-before:page;border-top:none}
+  h2:first-of-type{break-before:auto}
+  /* chaque grande partie sur une nouvelle page, les précautions de lecture à la suite des contrôles (10 octobre 2026) */
+  h3.partie{break-before:page;page-break-before:always}
+  h2#precautions-de-lecture{break-before:auto;page-break-before:auto;margin-top:18pt}
+  main.territoire h2{break-before:auto}
+  figure.graphique,table,.ensemble{break-inside:avoid}
+  /* un titre n'est jamais laissé seul en bas de page, il reste avec ce qui le suit (10 octobre 2026) */
+  h1,h2,h3,h4,h5{break-after:avoid;page-break-after:avoid;break-inside:avoid}
+  h1+*,h2+*,h3+*,h4+*,h5+*{break-before:avoid;page-break-before:avoid}
+  p,li,dd{orphans:3;widows:3}
+  .comment-lire,.a-savoir,blockquote,.citer-haut,figcaption{break-inside:avoid}
+  /* un paragraphe qui annonce une figure reste avec elle, et avec son titre (12 octobre 2026) */
+  p:has(+ figure.graphique){break-after:avoid;page-break-after:avoid}
+  /* une figure tient avec son titre et sa phrase d'annonce sur une même page */
+  figure.graphique svg{max-height:185mm}
+  /* les volets « Pour aller plus loin » peuvent être longs, ils se coupent, leur titre reste avec leur début */
+  details{break-inside:auto}
+  details p,details li{break-inside:avoid}
+  details>summary{break-after:avoid;page-break-after:avoid}
+  table.longue{break-inside:auto;page-break-inside:auto}
+  thead{display:table-header-group}
+  tr{break-inside:avoid}
+  /* à l'impression, les tableaux tiennent dans la largeur de la page au lieu de défiler */
+  .corps table{display:table;overflow:visible;font-size:8pt;-webkit-mask-image:none;mask-image:none}
+  .corps table.large{font-size:6.6pt}
+  .corps th,.corps td{padding:3px 4px}
+  .indice-defil{display:none}
+  .corps details{border:none;padding:0}
+  .corps details summary{font-weight:600}
+  a{color:inherit;text-decoration:none}
+}
+@page{size:A4;margin:16mm 14mm}
+.bouton-lien{background:none;border:none;padding:0;font:inherit;color:var(--r4);text-decoration:underline;cursor:pointer}
+.bouton-lien:hover{color:var(--r5)}
+
+.corps blockquote{margin:8px 0 12px;padding:6px 12px;border-left:3px solid var(--accent);background:var(--panel);color:var(--muted);font-size:.9rem}
+.corps blockquote p{margin:0}
+.defile{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.pied-liens{display:flex;flex-wrap:wrap;gap:6px 18px;margin:10px 0 0}
+/* page des rapports nationaux et bloc de citation */
+.rapport-carte{display:flex;flex-direction:column;gap:8px}
+.rapport-carte .version{font-size:.82rem;color:var(--muted)}
+.rapport-carte .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+a.bouton{display:inline-block;background:var(--ink);color:var(--bg);text-decoration:none;border-radius:4px;padding:7px 14px;font-size:.9rem;font-weight:500}
+a.bouton.secondaire{background:none;color:var(--ink);border:1px solid var(--line)}
+a.bouton:hover{opacity:.9}
+details.versions{margin:20px 0}details.versions summary{cursor:pointer;color:var(--muted)}
+.citer{margin-top:40px;padding:14px 18px;border:1px solid var(--line);border-left:3px solid var(--r4);border-radius:6px;background:var(--panel)}
+.citer h2{margin-top:0;padding-top:0;border-top:0;font-size:1.2rem}
+/* chiffres alignés, relief discret, lignes alternées (8 octobre 2026) */
+table,dd,.tuile .v{font-variant-numeric:tabular-nums}
+.tuile,.carte,.encart,.citer{box-shadow:inset 0 1px 0 color-mix(in srgb,var(--ink) 6%,transparent),0 1px 2px rgb(0 0 0 / .12)}
+table.simple tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--ink) 3%,transparent)}
+/* accueil, aperçu de la carte et évolution (8 octobre 2026) */
+.apercu{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;margin:24px 0}
+@media (max-width:760px){.apercu{grid-template-columns:1fr}}
+.apercu-carte{display:block;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px;text-decoration:none;color:var(--muted)}
+.apercu-carte svg{width:100%;height:auto;max-height:420px;display:block}
+.apercu-carte span{display:block;font-size:.88rem;margin-top:6px}
+.apercu-carte:hover{border-color:var(--r4)}
+.apercu-evol{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 18px}
+.apercu-evol h2{margin:0 0 8px;padding:0;border:0;font-size:1.25rem}
+.evol{color:var(--r4);margin:14px 0}
+.evol-t{display:flex;justify-content:space-between;color:var(--ink);font-size:.95rem}
+.evol-t span{font-variant-numeric:tabular-nums;color:var(--muted)}
+.evol svg{width:100%;height:46px;display:block}
+.evol-b{display:flex;justify-content:space-between;font-size:.78rem;color:var(--muted);font-variant-numeric:tabular-nums}
+/* rapports, encadrés « Comment lire », figures numérotées, page de titre du PDF (8 octobre 2026) */
+.comment-lire{background:color-mix(in srgb,var(--r1) 30%,transparent);border-left:3px solid var(--r3);border-radius:0 4px 4px 0;padding:8px 12px;font-size:.92rem}
+figure.graphique figcaption strong{color:var(--ink)}
+/* une seule largeur pour le texte, les encadrés et les volets, texte justifié (9 octobre 2026) */
+.corps{max-width:50rem}
+.corps p,.corps li{max-width:none;text-align:justify;hyphens:auto;-webkit-hyphens:auto;hyphenate-limit-chars:7 3 3}
+/* texte courant justifié sur tout le site (consigne de Lucas du 9 octobre 2026), avec césures, jamais dans les tableaux */
+main p,main li,main dd,main blockquote{text-align:justify;hyphens:auto;-webkit-hyphens:auto;hyphenate-limit-chars:7 3 3}
+main td p,main th p,main td li,main nav li,main .sommaire li,main .toc li,main figcaption p{text-align:left;hyphens:manual}
+.corps .comment-lire,.corps .a-savoir{font-size:.94rem;margin:14px 0}
+.a-savoir{background:color-mix(in srgb,var(--d1) 12%,transparent);border-left:3px solid var(--d1);border-radius:0 4px 4px 0;padding:8px 12px}
+.corps details{font-size:.94rem}
+.corps details summary{text-align:left}
+/* titres des rapports, hiérarchie marquée */
+.corps h2{font-size:1.85rem;margin-top:56px;padding-top:16px;border-top:2px solid var(--r3)}
+.corps h3{font-size:1.45rem;margin:44px 0 12px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+.corps h4{font-family:var(--serif);font-size:1.2rem;font-weight:600;color:var(--ink);margin:34px 0 10px;padding-left:11px;border-left:3px solid var(--r3);line-height:1.25}
+.corps h5{font-family:var(--sans);font-size:1rem;font-weight:600;color:var(--ink);margin:24px 0 8px}
+.corps h2+h3,.corps h3+h4{margin-top:18px}
+/* figures, choix de la profession, zoom et clic (9 octobre 2026) */
+.choix-variante{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}
+.choix-variante button{font:inherit;font-size:.8rem;border:1px solid var(--line);background:none;color:var(--muted);border-radius:999px;padding:2px 11px;cursor:pointer}
+.choix-variante button[aria-pressed="true"]{color:var(--ink);border-color:var(--ink);background:color-mix(in srgb,var(--r1) 35%,transparent)}
+figure.zoomable .fig-corps{position:relative}
+figure.graphique > figcaption{margin:0 0 6px}
+.outils-figure{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
+button.citer-fig{font:inherit;font-size:.78rem;border:1px solid var(--line);background:none;color:var(--muted);border-radius:999px;padding:1px 10px;cursor:pointer}
+button.citer-fig[aria-expanded="true"]{color:var(--ink);border-color:var(--ink)}
+.citation-fig ul.exports{list-style:none;padding:0;margin:8px 0 6px;display:grid;gap:6px}
+.citation-fig ul.exports li{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding-top:6px}
+.citation-fig .genre{color:var(--muted)}
+.citation-actions a.bouton{font-size:.8rem;border:1px solid var(--line);color:var(--ink);border-radius:5px;padding:2px 8px;text-decoration:none}
+figure.zoomable svg{cursor:grab;touch-action:none}
+.zoom-boutons{position:absolute;top:10px;right:10px;display:flex;gap:4px;z-index:2}
+.citation-fig{font-size:.84rem;background:var(--panel);border-left:3px solid var(--focus);padding:8px 12px;margin:8px 0;border-radius:0 6px 6px 0}
+.citation-fig p{margin:0 0 6px;text-align:left;hyphens:manual}
+.citation-actions{display:flex;flex-wrap:wrap;gap:6px}
+.citation-actions button{font:inherit;font-size:.8rem;border:1px solid var(--line);background:none;color:var(--ink);border-radius:5px;padding:2px 8px;cursor:pointer}
+@media print{.citation-fig,.outils-figure{display:none}}
+.zoom-boutons button{font:inherit;font-size:.85rem;width:28px;height:28px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:5px;cursor:pointer}
+.bulle-fig{position:fixed;pointer-events:none;white-space:pre-line;background:var(--ink);color:var(--bg);font-size:.8rem;padding:6px 9px;border-radius:4px;max-width:min(420px,calc(100vw - 16px));opacity:0;z-index:50;transition:opacity .1s}
+svg [data-choisi]{stroke:var(--ink);stroke-width:2}
+figure.graphique svg [data-info]{cursor:pointer}
+.sommaire ul ul ul{font-size:.8rem}
+@media print{.choix-variante,.zoom-boutons,.bulle-fig{display:none}}
+.couverture{display:none}
+@media print{
+  .couverture{display:flex;flex-direction:column;justify-content:center;min-height:240mm;break-after:page;page-break-after:always}
+  .couverture h1{font-size:30pt;margin:6mm 0}
+  .couv-projet{font-family:var(--serif);font-size:14pt;color:#64458C;margin:0}
+  .couv-version,.couv-auteur{font-size:12pt;margin:1mm 0}
+  .couv-citer{margin-top:14mm;padding:4mm 5mm;border-left:2pt solid #64458C;font-size:10pt}
+  .couv-sources{margin-top:8mm;font-size:9pt;color:#555}
+  .couverture + h1{display:none}
+  .comment-lire{background:#F3EFF8;border-left-color:#8C6DAE}
+  .a-savoir{background:#FAF3E6;border-left-color:#B88A2E}
+  .corps{max-width:none}
+  .corps h2{border-top-color:#8C6DAE}.corps h4{border-left-color:#8C6DAE}
+}
+
+/* page « Données sources », une fiche par jeu */
+.sommaire-sources ul{columns:2 320px;column-gap:28px;padding-left:1.1em;margin:12px 0 28px}
+.sommaire-sources li{break-inside:avoid;margin:0 0 6px}
+.fiche-source{border-top:1px solid var(--line);padding-top:6px;margin-top:26px;scroll-margin-top:80px}
+.fiche-source h2{margin-top:12px}
+table.fiche th{width:11em;white-space:nowrap}
+table.fiche td{text-align:left}
+.fiche-source:target h2{color:var(--accent)}
+
+/* aucun mot coupé au hasard dans un tableau, une colonne n'est jamais plus étroite que son mot le plus long ; un
+   tableau trop large défile dans son cadre (demande de Lucas du 9 octobre 2026) */
+table td,table th{hyphens:manual;-webkit-hyphens:manual;overflow-wrap:normal;word-break:normal}
+/* journal des mises à jour, regroupé par mois (le plus récent ouvert) */
+.corps details.journal-mois{background:none;border:none;border-top:1px solid var(--line);border-radius:0;padding:6px 0;margin:8px 0;font-size:1rem}
+.corps details.journal-mois>summary{font-family:var(--serif);font-size:1.25rem;font-weight:600;color:var(--ink);padding:6px 0}
+.journal-entree h3{margin-top:18px}

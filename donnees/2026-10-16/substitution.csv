@@ -1,0 +1,8 @@
+﻿prof_a;prof_b;rho;ic95_bas;ic95_haut;rho_partiel_densite;ic95_bas_partiel;ic95_haut_partiel;territoires
+medecin_generaliste;psychologue;0,580037;0,540537;0,61577;0,548049;0,502871;0,587064;1259
+medecin_generaliste;psychiatre;0,45786;0,408351;0,504966;0,410352;0,364496;0,456113;1259
+psychologue;psychiatre;0,61048;0,568972;0,647464;0,546208;0,502878;0,58974;1259
+psychiatre;pedopsychiatre;0,42244;0,373653;0,469111;0,31689;0,265882;0,360922;1259
+orthophoniste;psychomotricien;0,392899;0,343998;0,444882;0,283229;0,229384;0,338766;1259
+pediatre;medecin_generaliste;0,449015;0,400469;0,499716;0,39958;0,343972;0,444022;1259
+infirmier;medecin_generaliste;0,655932;0,617425;0,691078;0,642701;0,605348;0,676255;1259

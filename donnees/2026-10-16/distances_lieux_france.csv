@@ -1,0 +1,61 @@
+﻿code;type;distance_mediane_km;part_plus_20_km;part_plus_30_km;libelle_type
+FR;lieu_accompagnement_handicap;3,81353;0,0494675;0,00862966;Services d'accompagnement à domicile pour adultes en situation de handicap
+FR;lieu_addicto_hosp;10,427;0,285404;0,145873;Addictologie à l'hôpital
+FR;lieu_alzheimer;5,27165;0,10733;0,0354478;Équipes spécialisées Alzheimer, accueil de jour et répit
+FR;lieu_bapu;72,4673;0,745045;0,688123;BAPU, aide psychologique universitaire
+FR;lieu_caarud;12,45;0,356922;0,210449;CAARUD, réduction des risques
+FR;lieu_camsp;6,80364;0,171271;0,0643306;CAMSP, centres d'action médico-sociale précoce
+FR;lieu_cancerologie;8,88522;0,302032;0,199584;Cancérologie et radiothérapie
+FR;lieu_cardiologie;9,21651;0,298629;0,190298;Cardiologie à l'hôpital
+FR;lieu_cattp;4,11532;0,0984342;0,0491719;CATTP, accueil thérapeutique à temps partiel
+FR;lieu_centre_sante;2,66402;0,0321416;0,00590932;Centres de santé
+FR;lieu_chirurgie;7,40583;0,249698;0,157624;Chirurgie à l'hôpital
+FR;lieu_cmp;2,52796;0,0122754;0,00242239;CMP, tous publics
+FR;lieu_cmp_adultes;3,18328;0,0177156;0,00331573;CMP pour adultes
+FR;lieu_cmp_enfants;3,85548;0,0528909;0,0111818;CMP pour enfants et adolescents
+FR;lieu_cmpp;6,92708;0,192398;0,0852589;CMPP, centres médico-psycho-pédagogiques
+FR;lieu_consult_psy;9,36743;0,304668;0,18932;Consultations de psychiatrie hors CMP
+FR;lieu_cpts;9,94266;0,312911;0,22559;Communautés professionnelles territoriales de santé (CPTS)
+FR;lieu_crise_psy;19,1281;0,489998;0,392817;Urgences psychiatriques, centres de crise et d'accueil permanent
+FR;lieu_csapa;6,07394;0,15801;0,0524747;CSAPA, soins et prévention en addictologie
+FR;lieu_depistage;7,58817;0,209568;0,0931672;Dépistage, vaccination et lutte antituberculeuse
+FR;lieu_dialyse;5,00534;0,0881086;0,0213927;Dialyse
+FR;lieu_douleur;31,5382;0,587285;0,511621;Structures douleur chronique
+FR;lieu_ehpad;1,20866;0,00242119;0,00165135;EHPAD
+FR;lieu_esat;3,5717;0,0234709;0,00396705;Établissements et services d'accompagnement par le travail (ESAT)
+FR;lieu_foyers_handicap;2,68851;0,020387;0,00747371;Foyers de vie et d'hébergement pour adultes en situation de handicap
+FR;lieu_geriatrie;11,1892;0,351962;0,248678;Gériatrie à l'hôpital
+FR;lieu_had;8,87689;0,209859;0,0827991;Hospitalisation à domicile
+FR;lieu_hc_psy_adultes;5,76296;0,151418;0,0480047;Hospitalisation complète en psychiatrie, adultes
+FR;lieu_hc_psy_enfants;12,0724;0,353334;0,212305;Hospitalisation complète en psychiatrie, enfants et adolescents
+FR;lieu_hdj_psy_adultes;4,284;0,0826502;0,0215765;Hôpitaux de jour en psychiatrie, adultes
+FR;lieu_hdj_psy_enfants;5,80039;0,129239;0,0447484;Hôpitaux de jour en psychiatrie, enfants et adolescents
+FR;lieu_ime;3,53168;0,0363733;0,00657663;Instituts médico-éducatifs (IME)
+FR;lieu_itep;7,18271;0,156299;0,0487235;Instituts thérapeutiques, éducatifs et pédagogiques (ITEP)
+FR;lieu_mas_fam;3,7825;0,0303212;0,00609068;Maisons d'accueil spécialisées et foyers d'accueil médicalisés
+FR;lieu_maternite;5,85064;0,13226;0,0318706;Maternités
+FR;lieu_mda;147,392;0,972878;0,963715;Maisons des adolescents
+FR;lieu_medecine;6,64015;0,192639;0,137242;Médecine polyvalente à l'hôpital
+FR;lieu_mobile_psy;11,0914;0,335408;0,220209;Équipes mobiles de psychiatrie
+FR;lieu_msp;2,4653;0,00574497;0,0024327;Maisons de santé pluriprofessionnelles
+FR;lieu_neonatalogie;20,6929;0,507892;0,422902;Néonatalogie
+FR;lieu_neurologie;12,948;0,383935;0,274183;Neurologie à l'hôpital
+FR;lieu_pediatrie;13,1366;0,389717;0,279137;Pédiatrie à l'hôpital
+FR;lieu_perinatal_proximite;114,802;0,964934;0,926884;Centres périnatals de proximité
+FR;lieu_pmi;7,45436;0,301894;0,189791;PMI, protection maternelle et infantile
+FR;lieu_polyhandicap_enfants;7,69402;0,237263;0,10842;Établissements pour enfants en situation de polyhandicap, de handicap moteur ou sensoriel
+FR;lieu_precarite;6,29622;0,164006;0,0508658;Soins pour personnes en situation de précarité (PASS, LHSS, LAM, ACT)
+FR;lieu_psychotrauma;24,6128;0,554752;0,445637;Psychotraumatisme et urgences médico-psychologiques
+FR;lieu_reanimation;11,0425;0,349954;0,223288;Réanimation et soins intensifs
+FR;lieu_rehab_psy;10,5073;0,324556;0,201886;Réhabilitation psychosociale, appartements et accueil familial thérapeutiques
+FR;lieu_residence_autonomie;2,64578;0,0223931;0,00526044;Résidences autonomie
+FR;lieu_sante_sexuelle;8,46515;0,284884;0,189302;Centres de santé sexuelle
+FR;lieu_sessad;3,18745;0,0396724;0,00663299;Services d'éducation spéciale et de soins à domicile (SESSAD)
+FR;lieu_smr;3,42699;0,0207354;0,00302971;Soins médicaux et de réadaptation
+FR;lieu_smur;25,5493;0,534707;0,47905;SMUR, interventions d'urgence
+FR;lieu_soins_non_programmes;9,17737;0,276032;0,193156;Soins non programmés
+FR;lieu_soins_palliatifs;10,7269;0,339721;0,236806;Soins palliatifs
+FR;lieu_ssiad;3,28711;0,0227321;0,00331942;Soins infirmiers à domicile (SSIAD)
+FR;lieu_tnd;16,6071;0,445148;0,29031;Repérage et diagnostic des troubles du neurodéveloppement
+FR;lieu_urgences;5,08369;0,0825611;0,0129545;Services d'urgences
+FR;lieu_usld;6,17465;0,105086;0,02673;Soins de longue durée (USLD)

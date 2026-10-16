@@ -1,0 +1,3 @@
+﻿type;lieux;reference;date_reference;objet;ecart;source;adresse
+lieu_maternite;477;457;fin 2023;maternités;0,0437637;DREES, Les établissements de santé en 2023, édition 2025;https://drees.solidarites-sante.gouv.fr/publications-communique-de-presse-documents-de-reference/panoramas-de-la-drees/250522_Panorama_etablissements-de-sante2025
+lieu_urgences;648;685;2023;structures des urgences générales ou pédiatriques;-0,0540146;DREES, Les établissements de santé en 2023, édition 2025;https://drees.solidarites-sante.gouv.fr/publications-communique-de-presse-documents-de-reference/panoramas-de-la-drees/250522_Panorama_etablissements-de-sante2025

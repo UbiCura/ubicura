@@ -1,0 +1,1420 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Offre de soins en santé, Paris, 16 octobre 2026 · Ubi Cura</title>
+<meta name="description" content="Offre de soins et de santé mentale en France, par territoire, à partir des données publiques.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%233E2563%22/%3E%3Crect%20x%3D%227%22%20y%3D%2217%22%20width%3D%224.5%22%20height%3D%228%22%20rx%3D%221%22%20fill%3D%22%23B39BCB%22/%3E%3Crect%20x%3D%2213.75%22%20y%3D%2212%22%20width%3D%224.5%22%20height%3D%2213%22%20rx%3D%221%22%20fill%3D%22%23D4C3EA%22/%3E%3Crect%20x%3D%2220.5%22%20y%3D%227%22%20width%3D%224.5%22%20height%3D%2218%22%20rx%3D%221%22%20fill%3D%22%23FFFFFF%22/%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="Ubi Cura">
+<meta property="og:title" content="Offre de soins en santé, Paris, 16 octobre 2026">
+<meta property="og:description" content="Offre de soins et de santé mentale en France, par territoire, à partir des données publiques.">
+<meta name="theme-color" content="#15171C">
+<link rel="stylesheet" href="../polices/polices.css">
+<link rel="stylesheet" href="../style.css?v=5d14c64b72">
+<script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||"dark")}catch(e){document.documentElement.setAttribute("data-theme","dark")}</script>
+</head>
+<body>
+<nav class="site" aria-label="Navigation du site">
+  <div class="in">
+    <a class="marque" href="../index.html" title="Offre de soins et santé mentale en France, territoire par territoire">Ubi Cura</a>
+    <a class="l" href="../atlas.html">Atlas</a>
+    <a class="l" href="../rapports.html">Rapports nationaux</a>
+    <a class="l on" href="../territoires/index.html">Rapports par territoire</a>
+    <a class="l" href="../methode.html">Méthode, données et limites</a>
+    
+    <div class="projet">
+      <button class="l" id="bouton-projet" type="button" aria-expanded="false" aria-controls="menu-projet">Le projet <span class="fleche" aria-hidden="true">▾</span></button>
+      <div class="sous-menu" id="menu-projet" hidden>
+        <a href="../a-propos.html">À propos</a>
+        <a href="../publications.html">Publications</a>
+        <a href="../journal.html">Journal des mises à jour</a>
+        <a href="../a-venir.html">À venir</a>
+        <a href="../contribuer.html">Proposer une base de données</a>
+        
+      </div>
+    </div>
+    <button class="theme" id="bascule-theme" type="button" aria-pressed="false">Fond clair</button>
+  </div>
+</nav>
+<script>
+// menu « Le projet », ouvert au clic ou au clavier, fermé par Échap ou par un clic ailleurs
+(function(){var b=document.getElementById("bouton-projet"),m=document.getElementById("menu-projet");if(!b||!m)return;
+function ouvrir(o,focus){m.hidden=!o;b.setAttribute("aria-expanded",String(o));if(o&&focus){var a=m.querySelector("a");if(a)a.focus()}}
+b.addEventListener("click",function(){ouvrir(m.hidden,false)});
+b.addEventListener("keydown",function(e){if(e.key==="ArrowDown"){e.preventDefault();ouvrir(true,true)}});
+m.addEventListener("keydown",function(e){var l=[].slice.call(m.querySelectorAll("a")),i=l.indexOf(document.activeElement);
+  if(e.key==="ArrowDown"){e.preventDefault();l[(i+1)%l.length].focus()}else if(e.key==="ArrowUp"){e.preventDefault();l[(i-1+l.length)%l.length].focus()}});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!m.hidden){ouvrir(false);b.focus()}});
+document.addEventListener("click",function(e){if(!m.hidden&&!b.parentNode.contains(e.target))ouvrir(false)})})();
+(function(){var b=document.getElementById("bascule-theme"),r=document.documentElement;
+function maj(){var c=r.getAttribute("data-theme")==="light";b.textContent=c?"Fond sombre":"Fond clair";b.setAttribute("aria-pressed",String(c))}
+maj();b.addEventListener("click",function(){var t=r.getAttribute("data-theme")==="light"?"dark":"light";r.setAttribute("data-theme",t);
+try{localStorage.setItem("theme",t)}catch(e){}maj();window.dispatchEvent(new Event("theme"))})})();
+</script>
+<main class="territoire">
+
+<h1>Offre de soins en santé, Paris, 16 octobre 2026</h1>
+<p class="chapeau">Version du 16 octobre 2026.
+<button type="button" class="pas-imprime bouton-lien" onclick="window.print()">Enregistrer en PDF</button>.
+<a class="pas-imprime" href="dep-75-sante-mentale.html">Lire le rapport santé mentale</a>.
+<a class="pas-imprime" href="reg-11-sante.html">Rapport de la région</a>.
+<a class="pas-imprime" href="../rapports/2026-10-16/sante.html">Rapport national</a>.
+<a class="pas-imprime" href="index.html">Tous les territoires</a>.</p>
+
+<div class="rapport">
+  <aside class="sommaire" aria-label="Sommaire"><div class="toc">
+<ul>
+<li><a href="#en-bref">En bref</a></li>
+<li><a href="#les-professions-de-sante">Les professions de santé</a></li>
+<li><a href="#evolution-depuis-2016">Évolution depuis 2016</a></li>
+<li><a href="#repartition-a-l-interieur-du-departement">Répartition à l'intérieur du département</a></li>
+<li><a href="#structures-de-soins-finess-et-ror-reunis">Structures de soins, FINESS et ROR réunis</a></li>
+<li><a href="#temps-de-trajet-par-la-route">Temps de trajet par la route</a></li>
+<li><a href="#acces-financier-et-medecin-traitant">Accès financier et médecin traitant</a></li>
+<li><a href="#maladies-chroniques-en-affection-de-longue-duree">Maladies chroniques en affection de longue durée</a></li>
+<li><a href="#handicap">Handicap</a></li>
+<li><a href="#liberal-ou-salarie-et-part-des-femmes">Libéral ou salarié, et part des femmes</a></li>
+<li><a href="#ecart-a-l-effectif-attendu-compte-tenu-du-profil-des-territo">Écart à l'effectif attendu compte tenu du profil des territoires</a></li>
+<li><a href="#sources">Sources</a></li>
+</ul>
+</div>
+</aside>
+  <article class="corps" data-citation="Pithon L. (2026). Offre de soins en santé, Paris. Version du 16 octobre 2026. Ubi Cura, https://ubicura.fr/territoires/dep-75-sante.html"><div class="citer-haut">
+<p><strong>Comment citer ce rapport.</strong> Pithon L. (2026). Offre de soins en santé, Paris. Version du 16 octobre 2026. Ubi Cura, <a href="https://ubicura.fr/territoires/dep-75-sante.html">https://ubicura.fr/territoires/dep-75-sante.html</a></p>
+<p class="small">Les données de ce rapport sont archivées avec un identifiant permanent, <a href="https://doi.org/10.5281/zenodo.23264933">doi:10.5281/zenodo.23264933</a>. Voir aussi <a href="../a-propos.html#comment-citer">Comment citer</a>.</p>
+</div><p>Ce rapport décrit l'offre de soins en santé dans le département Paris (75), à partir des répertoires publics des professionnels de santé et d'autres données publiques. Il compare le territoire à sa région, à la moyenne des départements et à des départements de profil semblable. Il décrit sans classer. Les détails techniques sont repliés sous « Pour aller plus loin ».</p>
+<h2 id="en-bref">En bref</h2>
+<ul>
+<li>4 904 médecins généralistes exercent dans le département, soit 23,3 pour 10 000 habitants (un pour 430 habitants), contre 11,8 dans la région et 13,6 en moyenne dans les départements.</li>
+<li>D'après les séries de la DREES, la densité de médecins généralistes a baissé de 0,3 % de 2016 à 2026, contre une baisse de 4,4 % en France.</li>
+<li>Pour 10 000 habitants, le département compte 112,1 infirmiers (74,2 en moyenne dans les départements, dans le quart le mieux doté) et 23,4 masseurs-kinésithérapeutes (15,3 en moyenne, dans le quart le mieux doté).</li>
+<li>Chaque habitant vit dans une intercommunalité qui compte au moins un pédiatre (20,6 % des habitants n'en ont aucun dans leur intercommunalité en France).</li>
+<li>Par la route, la moitié des habitants vit à moins de 2 minutes d'un médecin généraliste libéral. Aucun habitant ne vit à plus de 20 minutes d'un service d'urgences, contre 20,3 % en France.</li>
+</ul>
+<h2 id="les-professions-de-sante">Les professions de santé</h2>
+<table>
+<thead>
+<tr>
+<th>Profession</th>
+<th>Effectif</th>
+<th>Pour 10 000 habitants</th>
+<th>Région</th>
+<th>Départements semblables (milieu)</th>
+<th>Moyenne des départements</th>
+<th>Position parmi les départements</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Médecin généraliste</td>
+<td>4 904</td>
+<td>23,3</td>
+<td>11,8</td>
+<td>14,1</td>
+<td>13,6</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Infirmier</td>
+<td>23 584</td>
+<td>112,1</td>
+<td>60,1</td>
+<td>68,0</td>
+<td>74,2</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Masseur-kinésithérapeute</td>
+<td>4 929</td>
+<td>23,4</td>
+<td>12,1</td>
+<td>15,1</td>
+<td>15,3</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Orthophoniste</td>
+<td>1 382</td>
+<td>6,6</td>
+<td>3,6</td>
+<td>4,5</td>
+<td>4,5</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Psychomotricien</td>
+<td>907</td>
+<td>4,3</td>
+<td>3,5</td>
+<td>4,2</td>
+<td>2,8</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Pharmacien</td>
+<td>3 535</td>
+<td>16,8</td>
+<td>9,2</td>
+<td>10,4</td>
+<td>9,8</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Chirurgien-dentiste</td>
+<td>3 984</td>
+<td>18,9</td>
+<td>8,7</td>
+<td>9,8</td>
+<td>7,7</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Sage-femme</td>
+<td>1 241</td>
+<td>5,9</td>
+<td>3,6</td>
+<td>4,5</td>
+<td>4,0</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Pédiatre</td>
+<td>1 081</td>
+<td>5,1</td>
+<td>2,0</td>
+<td>2,0</td>
+<td>1,4</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Gériatre</td>
+<td>229</td>
+<td>1,1</td>
+<td>0,74</td>
+<td>0,72</td>
+<td>0,50</td>
+<td>quart le mieux doté</td>
+</tr>
+</tbody>
+</table>
+<figure class="graphique zoomable" data-donnees="../donnees/2026-10-16/effectifs_dep_all.csv" data-donnees-nom="effectifs_dep_all.csv"><figcaption class="small muted"><strong>Figure 1.</strong> <span class="leg">Écart à la moyenne des départements, densité pour 10 000 habitants en indice (moyenne = 100)</span>.</figcaption><div class="fig-corps"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 262" role="img" aria-label="Écart à la moyenne des départements, densité pour 10 000 habitants en indice (moyenne = 100)" font-family="Work Sans, system-ui, sans-serif"><title>Écart à la moyenne des départements, densité pour 10 000 habitants en indice (moyenne = 100)</title><line x1="200.0" y1="26" x2="200.0" y2="238" stroke="var(--line, #D9DCE3)" stroke-width="1"/><text x="200.0" y="18" text-anchor="middle" font-size="10" fill="var(--muted, #5F6675)">4 fois moins</text><line x1="295.0" y1="26" x2="295.0" y2="238" stroke="var(--line, #D9DCE3)" stroke-width="1"/><text x="295.0" y="18" text-anchor="middle" font-size="10" fill="var(--muted, #5F6675)">2 fois moins</text><line x1="390.0" y1="26" x2="390.0" y2="238" stroke="var(--line, #D9DCE3)" stroke-width="2"/><text x="390.0" y="18" text-anchor="middle" font-size="10" fill="var(--muted, #5F6675)">Moyenne</text><line x1="485.0" y1="26" x2="485.0" y2="238" stroke="var(--line, #D9DCE3)" stroke-width="1"/><text x="485.0" y="18" text-anchor="middle" font-size="10" fill="var(--muted, #5F6675)">2 fois plus</text><line x1="580.0" y1="26" x2="580.0" y2="238" stroke="var(--line, #D9DCE3)" stroke-width="1"/><text x="580.0" y="18" text-anchor="middle" font-size="10" fill="var(--muted, #5F6675)">4 fois plus</text><text x="190" y="48" text-anchor="end" font-size="12" fill="var(--ink, #1F2430)">Médecin généraliste</text><rect x="369.9" y="39" width="31.4" height="10" fill="var(--r1, #D5C6E3)" rx="2"/><g fill="var(--muted, #5F6675)" fill-opacity=".45"><circle cx="268" cy="39" r="2"><title>Mayotte, 5,6</title></circle><circle cx="327" cy="44" r="2"><title>Eure, 8,6</title></circle><circle cx="327" cy="49" r="2"><title>Eure-et-Loir, 8,6</title></circle><circle cx="335" cy="42" r="2"><title>Seine-et-Marne, 9,1</title></circle><circle cx="335" cy="46" r="2"><title>Loiret, 9,1</title></circle><circle cx="337" cy="39" r="2"><title>Ain, 9,2</title></circle><circle cx="337" cy="44" r="2"><title>Guyane, 9,3</title></circle><circle cx="338" cy="49" r="2"><title>Essonne, 9,3</title></circle><circle cx="341" cy="42" r="2"><title>Oise, 9,5</title></circle><circle cx="341" cy="46" r="2"><title>Val-d&#x27;Oise, 9,5</title></circle><circle cx="344" cy="39" r="2"><title>Yvelines, 9,7</title></circle><circle cx="345" cy="44" r="2"><title>Cher, 9,8</title></circle><circle cx="345" cy="49" r="2"><title>Mayenne, 9,8</title></circle><circle cx="349" cy="42" r="2"><title>Sarthe, 10,1</title></circle><circle cx="350" cy="46" r="2"><title>Aube, 10,1</title></circle><circle cx="350" cy="39" r="2"><title>Aisne, 10,2</title></circle><circle cx="351" cy="44" r="2"><title>Seine-Saint-Denis, 10,2</title></circle><circle cx="355" cy="49" r="2"><title>Yonne, 10,5</title></circle><circle cx="362" cy="42" r="2"><title>Ardennes, 11,1</title></circle><circle cx="365" cy="46" r="2"><title>Tarn-et-Garonne, 11,3</title></circle><circle cx="365" cy="39" r="2"><title>Moselle, 11,3</title></circle><circle cx="365" cy="44" r="2"><title>Loir-et-Cher, 11,4</title></circle><circle cx="367" cy="49" r="2"><title>Indre, 11,5</title></circle><circle cx="368" cy="42" r="2"><title>Lot-et-Garonne, 11,6</title></circle><circle cx="369" cy="46" r="2"><title>Deux-Sèvres, 11,6</title></circle><circle cx="370" cy="39" r="2"><title>Charente, 11,7</title></circle><circle cx="370" cy="44" r="2"><title>Haute-Marne, 11,8</title></circle><circle cx="371" cy="49" r="2"><title>Dordogne, 11,8</title></circle><circle cx="371" cy="42" r="2"><title>Vendée, 11,8</title></circle><circle cx="372" cy="46" r="2"><title>Saône-et-Loire, 11,9</title></circle><circle cx="372" cy="39" r="2"><title>Haut-Rhin, 11,9</title></circle><circle cx="374" cy="44" r="2"><title>Meuse, 12,1</title></circle><circle cx="375" cy="49" r="2"><title>Pas-de-Calais, 12,2</title></circle><circle cx="375" cy="42" r="2"><title>Haute-Saône, 12,2</title></circle><circle cx="376" cy="46" r="2"><title>Allier, 12,2</title></circle><circle cx="376" cy="39" r="2"><title>Manche, 12,3</title></circle><circle cx="377" cy="44" r="2"><title>Orne, 12,3</title></circle><circle cx="377" cy="49" r="2"><title>Gard, 12,4</title></circle><circle cx="379" cy="42" r="2"><title>Ardèche, 12,5</title></circle><circle cx="382" cy="46" r="2"><title>Nièvre, 12,8</title></circle><circle cx="382" cy="39" r="2"><title>Seine-Maritime, 12,8</title></circle><circle cx="383" cy="44" r="2"><title>Côtes-d&#x27;Armor, 12,9</title></circle><circle cx="384" cy="49" r="2"><title>Val-de-Marne, 13,0</title></circle><circle cx="385" cy="42" r="2"><title>Aveyron, 13,1</title></circle><circle cx="385" cy="46" r="2"><title>Vaucluse, 13,1</title></circle><circle cx="386" cy="39" r="2"><title>Gers, 13,2</title></circle><circle cx="386" cy="44" r="2"><title>Tarn, 13,2</title></circle><circle cx="387" cy="49" r="2"><title>Territoire de Belfort, 13,3</title></circle><circle cx="389" cy="42" r="2"><title>Martinique, 13,4</title></circle><circle cx="389" cy="46" r="2"><title>Corrèze, 13,5</title></circle><circle cx="390" cy="39" r="2"><title>Marne, 13,6</title></circle><circle cx="391" cy="44" r="2"><title>Isère, 13,7</title></circle><circle cx="392" cy="49" r="2"><title>Vosges, 13,8</title></circle><circle cx="392" cy="42" r="2"><title>Vienne, 13,8</title></circle><circle cx="393" cy="46" r="2"><title>Drôme, 13,8</title></circle><circle cx="393" cy="39" r="2"><title>Loire-Atlantique, 13,9</title></circle><circle cx="393" cy="44" r="2"><title>Nord, 13,9</title></circle><circle cx="393" cy="49" r="2"><title>Doubs, 13,9</title></circle><circle cx="395" cy="42" r="2"><title>Hauts-de-Seine, 14,1</title></circle><circle cx="395" cy="46" r="2"><title>Haute-Savoie, 14,1</title></circle><circle cx="396" cy="39" r="2"><title>Aude, 14,2</title></circle><circle cx="396" cy="44" r="2"><title>Jura, 14,2</title></circle><circle cx="396" cy="49" r="2"><title>Haute-Garonne, 14,2</title></circle><circle cx="397" cy="42" r="2"><title>Lot, 14,3</title></circle><circle cx="398" cy="46" r="2"><title>Somme, 14,4</title></circle><circle cx="398" cy="39" r="2"><title>Lozère, 14,4</title></circle><circle cx="398" cy="44" r="2"><title>Maine-et-Loire, 14,4</title></circle><circle cx="399" cy="49" r="2"><title>Var, 14,5</title></circle><circle cx="399" cy="42" r="2"><title>Guadeloupe, 14,5</title></circle><circle cx="399" cy="46" r="2"><title>Ille-et-Vilaine, 14,5</title></circle><circle cx="400" cy="39" r="2"><title>Haute-Corse, 14,6</title></circle><circle cx="401" cy="44" r="2"><title>Hérault, 14,7</title></circle><circle cx="401" cy="49" r="2"><title>Pyrénées-Orientales, 14,7</title></circle><circle cx="401" cy="42" r="2"><title>Haute-Loire, 14,7</title></circle><circle cx="401" cy="46" r="2"><title>Loire, 14,7</title></circle><circle cx="401" cy="39" r="2"><title>Puy-de-Dôme, 14,8</title></circle><circle cx="401" cy="44" r="2"><title>Indre-et-Loire, 14,8</title></circle><circle cx="403" cy="49" r="2"><title>Côte-d&#x27;Or, 15,0</title></circle><circle cx="403" cy="42" r="2"><title>Meurthe-et-Moselle, 15,0</title></circle><circle cx="404" cy="46" r="2"><title>Corse-du-Sud, 15,0</title></circle><circle cx="404" cy="39" r="2"><title>La Réunion, 15,1</title></circle><circle cx="405" cy="44" r="2"><title>Rhône, 15,2</title></circle><circle cx="405" cy="49" r="2"><title>Bas-Rhin, 15,2</title></circle><circle cx="408" cy="42" r="2"><title>Alpes-Maritimes, 15,4</title></circle><circle cx="408" cy="46" r="2"><title>Cantal, 15,5</title></circle><circle cx="409" cy="39" r="2"><title>Haute-Vienne, 15,6</title></circle><circle cx="409" cy="44" r="2"><title>Calvados, 15,6</title></circle><circle cx="409" cy="49" r="2"><title>Gironde, 15,6</title></circle><circle cx="413" cy="42" r="2"><title>Alpes-de-Haute-Provence, 16,1</title></circle><circle cx="414" cy="46" r="2"><title>Morbihan, 16,2</title></circle><circle cx="415" cy="39" r="2"><title>Charente-Maritime, 16,3</title></circle><circle cx="417" cy="44" r="2"><title>Bouches-du-Rhône, 16,5</title></circle><circle cx="418" cy="49" r="2"><title>Landes, 16,6</title></circle><circle cx="419" cy="42" r="2"><title>Finistère, 16,8</title></circle><circle cx="426" cy="46" r="2"><title>Ariège, 17,7</title></circle><circle cx="430" cy="39" r="2"><title>Hautes-Pyrénées, 18,2</title></circle><circle cx="436" cy="44" r="2"><title>Pyrénées-Atlantiques, 19,0</title></circle><circle cx="440" cy="49" r="2"><title>Savoie, 19,6</title></circle><circle cx="456" cy="42" r="2"><title>Creuse, 22,1</title></circle><circle cx="481" cy="46" r="2"><title>Hautes-Alpes, 26,4</title></circle></g><line x1="390.0" y1="44" x2="463.9" y2="44" stroke="var(--r5, #3E2563)" stroke-width="3"/><circle cx="390.0" cy="44" r="4" fill="var(--bg, #fff)" stroke="var(--muted, #5F6675)" stroke-width="1.5"/><circle cx="463.9" cy="44" r="6" fill="var(--r5, #3E2563)"/><text x="586" y="48" font-size="11" fill="var(--ink, #1F2430)">172</text><text x="190" y="82" text-anchor="end" font-size="12" fill="var(--ink, #1F2430)">Infirmier</text><rect x="377.6" y="73" width="33.9" height="10" fill="var(--r1, #D5C6E3)" rx="2"/><g fill="var(--muted, #5F6675)" fill-opacity=".45"><circle cx="262" cy="73" r="2"><title>Mayotte, 29,2</title></circle><circle cx="301" cy="78" r="2"><title>Seine-Saint-Denis, 38,6</title></circle><circle cx="321" cy="83" r="2"><title>Seine-et-Marne, 45,0</title></circle><circle cx="323" cy="76" r="2"><title>Guyane, 45,5</title></circle><circle cx="324" cy="80" r="2"><title>Essonne, 45,7</title></circle><circle cx="328" cy="73" r="2"><title>Val-d&#x27;Oise, 47,1</title></circle><circle cx="329" cy="78" r="2"><title>Yvelines, 47,4</title></circle><circle cx="333" cy="83" r="2"><title>Eure, 49,0</title></circle><circle cx="337" cy="76" r="2"><title>Ain, 50,5</title></circle><circle cx="342" cy="80" r="2"><title>Oise, 52,3</title></circle><circle cx="348" cy="73" r="2"><title>Vendée, 54,6</title></circle><circle cx="353" cy="78" r="2"><title>Mayenne, 56,8</title></circle><circle cx="361" cy="83" r="2"><title>Loire-Atlantique, 60,1</title></circle><circle cx="364" cy="76" r="2"><title>Haute-Savoie, 61,3</title></circle><circle cx="366" cy="80" r="2"><title>Eure-et-Loir, 62,4</title></circle><circle cx="369" cy="73" r="2"><title>Sarthe, 63,6</title></circle><circle cx="370" cy="78" r="2"><title>Loir-et-Cher, 64,2</title></circle><circle cx="371" cy="83" r="2"><title>Cher, 64,7</title></circle><circle cx="372" cy="76" r="2"><title>Hauts-de-Seine, 64,9</title></circle><circle cx="373" cy="80" r="2"><title>Jura, 65,7</title></circle><circle cx="374" cy="73" r="2"><title>Indre-et-Loire, 65,8</title></circle><circle cx="375" cy="78" r="2"><title>Aube, 66,7</title></circle><circle cx="376" cy="83" r="2"><title>Charente-Maritime, 66,8</title></circle><circle cx="376" cy="76" r="2"><title>Gers, 67,0</title></circle><circle cx="376" cy="80" r="2"><title>Indre, 67,2</title></circle><circle cx="378" cy="73" r="2"><title>Charente, 67,8</title></circle><circle cx="378" cy="78" r="2"><title>Val-de-Marne, 68,0</title></circle><circle cx="378" cy="83" r="2"><title>Ille-et-Vilaine, 68,0</title></circle><circle cx="378" cy="76" r="2"><title>Pas-de-Calais, 68,2</title></circle><circle cx="379" cy="80" r="2"><title>Loiret, 68,6</title></circle><circle cx="379" cy="73" r="2"><title>Morbihan, 68,6</title></circle><circle cx="380" cy="78" r="2"><title>Meuse, 69,0</title></circle><circle cx="380" cy="83" r="2"><title>Haute-Saône, 69,0</title></circle><circle cx="380" cy="76" r="2"><title>Côtes-d&#x27;Armor, 69,2</title></circle><circle cx="382" cy="80" r="2"><title>Manche, 69,8</title></circle><circle cx="384" cy="73" r="2"><title>Tarn-et-Garonne, 70,9</title></circle><circle cx="384" cy="78" r="2"><title>Isère, 71,1</title></circle><circle cx="384" cy="83" r="2"><title>Moselle, 71,1</title></circle><circle cx="385" cy="76" r="2"><title>Vaucluse, 71,5</title></circle><circle cx="385" cy="80" r="2"><title>Doubs, 71,8</title></circle><circle cx="386" cy="73" r="2"><title>Maine-et-Loire, 72,0</title></circle><circle cx="387" cy="78" r="2"><title>Vosges, 72,4</title></circle><circle cx="389" cy="83" r="2"><title>La Réunion, 73,4</title></circle><circle cx="390" cy="76" r="2"><title>Savoie, 74,2</title></circle><circle cx="391" cy="80" r="2"><title>Dordogne, 74,9</title></circle><circle cx="392" cy="73" r="2"><title>Yonne, 75,1</title></circle><circle cx="392" cy="78" r="2"><title>Landes, 75,2</title></circle><circle cx="392" cy="83" r="2"><title>Bas-Rhin, 75,2</title></circle><circle cx="392" cy="76" r="2"><title>Haute-Marne, 75,4</title></circle><circle cx="393" cy="80" r="2"><title>Lot-et-Garonne, 75,7</title></circle><circle cx="393" cy="73" r="2"><title>Aisne, 76,1</title></circle><circle cx="394" cy="78" r="2"><title>Haute-Garonne, 76,6</title></circle><circle cx="395" cy="83" r="2"><title>Haut-Rhin, 77,3</title></circle><circle cx="397" cy="76" r="2"><title>Ardennes, 77,9</title></circle><circle cx="397" cy="80" r="2"><title>Nièvre, 78,1</title></circle><circle cx="398" cy="73" r="2"><title>Orne, 78,8</title></circle><circle cx="399" cy="78" r="2"><title>Nord, 79,1</title></circle><circle cx="399" cy="83" r="2"><title>Ardèche, 79,1</title></circle><circle cx="399" cy="76" r="2"><title>Saône-et-Loire, 79,1</title></circle><circle cx="399" cy="80" r="2"><title>Alpes-de-Haute-Provence, 79,3</title></circle><circle cx="399" cy="73" r="2"><title>Aude, 79,3</title></circle><circle cx="401" cy="78" r="2"><title>Alpes-Maritimes, 80,7</title></circle><circle cx="402" cy="83" r="2"><title>Drôme, 81,0</title></circle><circle cx="403" cy="76" r="2"><title>Corse-du-Sud, 81,7</title></circle><circle cx="403" cy="80" r="2"><title>Puy-de-Dôme, 81,9</title></circle><circle cx="404" cy="73" r="2"><title>Gard, 81,9</title></circle><circle cx="404" cy="78" r="2"><title>Var, 82,1</title></circle><circle cx="404" cy="83" r="2"><title>Gironde, 82,2</title></circle><circle cx="405" cy="76" r="2"><title>Rhône, 82,9</title></circle><circle cx="406" cy="80" r="2"><title>Tarn, 83,3</title></circle><circle cx="406" cy="73" r="2"><title>Pyrénées-Atlantiques, 83,6</title></circle><circle cx="408" cy="78" r="2"><title>Somme, 84,5</title></circle><circle cx="409" cy="83" r="2"><title>Meurthe-et-Moselle, 85,1</title></circle><circle cx="409" cy="76" r="2"><title>Finistère, 85,1</title></circle><circle cx="411" cy="80" r="2"><title>Haute-Corse, 86,8</title></circle><circle cx="412" cy="73" r="2"><title>Marne, 86,8</title></circle><circle cx="412" cy="78" r="2"><title>Martinique, 87,0</title></circle><circle cx="413" cy="83" r="2"><title>Seine-Maritime, 87,9</title></circle><circle cx="414" cy="76" r="2"><title>Vienne, 88,5</title></circle><circle cx="414" cy="80" r="2"><title>Pyrénées-Orientales, 88,7</title></circle><circle cx="414" cy="73" r="2"><title>Lot, 88,7</title></circle><circle cx="415" cy="78" r="2"><title>Haute-Loire, 88,9</title></circle><circle cx="415" cy="83" r="2"><title>Allier, 89,4</title></circle><circle cx="416" cy="76" r="2"><title>Hautes-Pyrénées, 89,7</title></circle><circle cx="416" cy="80" r="2"><title>Hérault, 89,8</title></circle><circle cx="416" cy="73" r="2"><title>Guadeloupe, 90,0</title></circle><circle cx="416" cy="78" r="2"><title>Calvados, 90,0</title></circle><circle cx="419" cy="83" r="2"><title>Ariège, 91,8</title></circle><circle cx="421" cy="76" r="2"><title>Côte-d&#x27;Or, 92,9</title></circle><circle cx="422" cy="80" r="2"><title>Cantal, 93,7</title></circle><circle cx="424" cy="73" r="2"><title>Hautes-Alpes, 94,8</title></circle><circle cx="424" cy="78" r="2"><title>Territoire de Belfort, 95,3</title></circle><circle cx="426" cy="83" r="2"><title>Bouches-du-Rhône, 96,2</title></circle><circle cx="428" cy="76" r="2"><title>Creuse, 97,6</title></circle><circle cx="430" cy="80" r="2"><title>Aveyron, 99,6</title></circle><circle cx="432" cy="73" r="2"><title>Loire, 100,6</title></circle><circle cx="436" cy="78" r="2"><title>Deux-Sèvres, 104,2</title></circle><circle cx="440" cy="83" r="2"><title>Corrèze, 107,0</title></circle><circle cx="463" cy="76" r="2"><title>Lozère, 126,0</title></circle><circle cx="463" cy="80" r="2"><title>Haute-Vienne, 126,4</title></circle></g><line x1="390.0" y1="78" x2="446.5" y2="78" stroke="var(--r5, #3E2563)" stroke-width="3"/><circle cx="390.0" cy="78" r="4" fill="var(--bg, #fff)" stroke="var(--muted, #5F6675)" stroke-width="1.5"/><circle cx="446.5" cy="78" r="6" fill="var(--r5, #3E2563)"/><text x="586" y="82" font-size="11" fill="var(--ink, #1F2430)">151</text><text x="190" y="116" text-anchor="end" font-size="12" fill="var(--ink, #1F2430)">Masseur-kinésithérapeute</text><rect x="338.3" y="107" width="71.7" height="10" fill="var(--r1, #D5C6E3)" rx="2"/><g fill="var(--muted, #5F6675)" fill-opacity=".45"><circle cx="200" cy="107" r="2"><title>Mayotte, 3,1</title></circle><circle cx="249" cy="112" r="2"><title>Guyane, 5,4</title></circle><circle cx="278" cy="117" r="2"><title>Eure-et-Loir, 6,8</title></circle><circle cx="286" cy="110" r="2"><title>Oise, 7,2</title></circle><circle cx="288" cy="114" r="2"><title>Aisne, 7,2</title></circle><circle cx="291" cy="107" r="2"><title>Seine-Saint-Denis, 7,4</title></circle><circle cx="294" cy="112" r="2"><title>Haute-Marne, 7,6</title></circle><circle cx="298" cy="117" r="2"><title>Deux-Sèvres, 7,8</title></circle><circle cx="300" cy="110" r="2"><title>Cher, 7,9</title></circle><circle cx="302" cy="114" r="2"><title>Meuse, 8,0</title></circle><circle cx="305" cy="107" r="2"><title>Mayenne, 8,2</title></circle><circle cx="308" cy="112" r="2"><title>Eure, 8,4</title></circle><circle cx="314" cy="117" r="2"><title>Indre, 8,8</title></circle><circle cx="315" cy="110" r="2"><title>Yonne, 8,8</title></circle><circle cx="316" cy="114" r="2"><title>Essonne, 8,9</title></circle><circle cx="317" cy="107" r="2"><title>Sarthe, 9,0</title></circle><circle cx="318" cy="112" r="2"><title>Territoire de Belfort, 9,1</title></circle><circle cx="319" cy="117" r="2"><title>Seine-et-Marne, 9,1</title></circle><circle cx="321" cy="110" r="2"><title>Loir-et-Cher, 9,3</title></circle><circle cx="322" cy="114" r="2"><title>Val-d&#x27;Oise, 9,3</title></circle><circle cx="325" cy="107" r="2"><title>Charente, 9,5</title></circle><circle cx="329" cy="112" r="2"><title>Nièvre, 9,8</title></circle><circle cx="332" cy="117" r="2"><title>Orne, 10,0</title></circle><circle cx="333" cy="110" r="2"><title>Ain, 10,1</title></circle><circle cx="338" cy="114" r="2"><title>Haute-Saône, 10,4</title></circle><circle cx="338" cy="107" r="2"><title>Aube, 10,5</title></circle><circle cx="341" cy="112" r="2"><title>Dordogne, 10,7</title></circle><circle cx="342" cy="117" r="2"><title>Manche, 10,8</title></circle><circle cx="343" cy="110" r="2"><title>Vienne, 10,8</title></circle><circle cx="344" cy="114" r="2"><title>Vosges, 10,9</title></circle><circle cx="344" cy="107" r="2"><title>Seine-Maritime, 10,9</title></circle><circle cx="344" cy="112" r="2"><title>Saône-et-Loire, 10,9</title></circle><circle cx="346" cy="117" r="2"><title>Creuse, 11,1</title></circle><circle cx="347" cy="110" r="2"><title>Loiret, 11,1</title></circle><circle cx="347" cy="114" r="2"><title>Côtes-d&#x27;Armor, 11,2</title></circle><circle cx="348" cy="107" r="2"><title>Yvelines, 11,2</title></circle><circle cx="349" cy="112" r="2"><title>Somme, 11,3</title></circle><circle cx="353" cy="117" r="2"><title>Cantal, 11,7</title></circle><circle cx="353" cy="110" r="2"><title>Moselle, 11,7</title></circle><circle cx="354" cy="114" r="2"><title>Val-de-Marne, 11,8</title></circle><circle cx="358" cy="107" r="2"><title>Jura, 12,1</title></circle><circle cx="359" cy="112" r="2"><title>Lot-et-Garonne, 12,2</title></circle><circle cx="359" cy="117" r="2"><title>Maine-et-Loire, 12,2</title></circle><circle cx="360" cy="110" r="2"><title>Marne, 12,2</title></circle><circle cx="361" cy="114" r="2"><title>Vendée, 12,3</title></circle><circle cx="363" cy="107" r="2"><title>Indre-et-Loire, 12,5</title></circle><circle cx="363" cy="112" r="2"><title>Ardennes, 12,6</title></circle><circle cx="365" cy="117" r="2"><title>Calvados, 12,7</title></circle><circle cx="367" cy="110" r="2"><title>Haut-Rhin, 12,9</title></circle><circle cx="369" cy="114" r="2"><title>Doubs, 13,1</title></circle><circle cx="370" cy="107" r="2"><title>Haute-Loire, 13,2</title></circle><circle cx="374" cy="112" r="2"><title>Meurthe-et-Moselle, 13,6</title></circle><circle cx="376" cy="117" r="2"><title>Corrèze, 13,8</title></circle><circle cx="377" cy="110" r="2"><title>Allier, 13,9</title></circle><circle cx="377" cy="114" r="2"><title>Pas-de-Calais, 13,9</title></circle><circle cx="380" cy="107" r="2"><title>Loire, 14,2</title></circle><circle cx="380" cy="112" r="2"><title>Ardèche, 14,2</title></circle><circle cx="380" cy="117" r="2"><title>Lot, 14,2</title></circle><circle cx="382" cy="110" r="2"><title>Loire-Atlantique, 14,4</title></circle><circle cx="389" cy="114" r="2"><title>Hauts-de-Seine, 15,1</title></circle><circle cx="391" cy="107" r="2"><title>Tarn-et-Garonne, 15,4</title></circle><circle cx="392" cy="112" r="2"><title>Drôme, 15,5</title></circle><circle cx="395" cy="117" r="2"><title>Vaucluse, 15,9</title></circle><circle cx="396" cy="110" r="2"><title>Gers, 16,0</title></circle><circle cx="397" cy="114" r="2"><title>Ille-et-Vilaine, 16,1</title></circle><circle cx="398" cy="107" r="2"><title>Finistère, 16,2</title></circle><circle cx="398" cy="112" r="2"><title>Tarn, 16,2</title></circle><circle cx="400" cy="117" r="2"><title>Haute-Vienne, 16,4</title></circle><circle cx="400" cy="110" r="2"><title>Lozère, 16,5</title></circle><circle cx="401" cy="114" r="2"><title>Puy-de-Dôme, 16,5</title></circle><circle cx="402" cy="107" r="2"><title>Morbihan, 16,6</title></circle><circle cx="404" cy="112" r="2"><title>Aveyron, 16,9</title></circle><circle cx="404" cy="117" r="2"><title>Nord, 16,9</title></circle><circle cx="408" cy="110" r="2"><title>Charente-Maritime, 17,4</title></circle><circle cx="410" cy="114" r="2"><title>Aude, 17,6</title></circle><circle cx="410" cy="107" r="2"><title>Rhône, 17,7</title></circle><circle cx="410" cy="112" r="2"><title>Côte-d&#x27;Or, 17,7</title></circle><circle cx="411" cy="117" r="2"><title>Gard, 17,8</title></circle><circle cx="416" cy="110" r="2"><title>Isère, 18,5</title></circle><circle cx="418" cy="114" r="2"><title>Gironde, 18,8</title></circle><circle cx="424" cy="107" r="2"><title>Alpes-de-Haute-Provence, 19,5</title></circle><circle cx="424" cy="112" r="2"><title>Haute-Savoie, 19,6</title></circle><circle cx="429" cy="117" r="2"><title>Ariège, 20,3</title></circle><circle cx="431" cy="110" r="2"><title>Haute-Garonne, 20,6</title></circle><circle cx="436" cy="114" r="2"><title>Bas-Rhin, 21,4</title></circle><circle cx="437" cy="107" r="2"><title>Bouches-du-Rhône, 21,6</title></circle><circle cx="437" cy="112" r="2"><title>Alpes-Maritimes, 21,6</title></circle><circle cx="440" cy="117" r="2"><title>Haute-Corse, 22,0</title></circle><circle cx="444" cy="110" r="2"><title>Var, 22,7</title></circle><circle cx="445" cy="114" r="2"><title>La Réunion, 22,8</title></circle><circle cx="449" cy="107" r="2"><title>Corse-du-Sud, 23,4</title></circle><circle cx="450" cy="112" r="2"><title>Hautes-Pyrénées, 23,7</title></circle><circle cx="453" cy="117" r="2"><title>Guadeloupe, 24,2</title></circle><circle cx="457" cy="110" r="2"><title>Savoie, 24,9</title></circle><circle cx="460" cy="114" r="2"><title>Martinique, 25,4</title></circle><circle cx="461" cy="107" r="2"><title>Landes, 25,6</title></circle><circle cx="461" cy="112" r="2"><title>Hérault, 25,6</title></circle><circle cx="478" cy="117" r="2"><title>Pyrénées-Atlantiques, 29,1</title></circle><circle cx="480" cy="110" r="2"><title>Pyrénées-Orientales, 29,3</title></circle><circle cx="494" cy="114" r="2"><title>Hautes-Alpes, 32,6</title></circle></g><line x1="390.0" y1="112" x2="448.7" y2="112" stroke="var(--r5, #3E2563)" stroke-width="3"/><circle cx="390.0" cy="112" r="4" fill="var(--bg, #fff)" stroke="var(--muted, #5F6675)" stroke-width="1.5"/><circle cx="448.7" cy="112" r="6" fill="var(--r5, #3E2563)"/><text x="586" y="116" font-size="11" fill="var(--ink, #1F2430)">153</text><text x="190" y="150" text-anchor="end" font-size="12" fill="var(--ink, #1F2430)">Orthophoniste</text><rect x="330.3" y="141" width="69.1" height="10" fill="var(--r1, #D5C6E3)" rx="2"/><g fill="var(--muted, #5F6675)" fill-opacity=".45"><circle cx="200" cy="141" r="2"><title>Mayotte, 0,2</title></circle><circle cx="212" cy="146" r="2"><title>Guyane, 1,2</title></circle><circle cx="258" cy="151" r="2"><title>Indre, 1,7</title></circle><circle cx="266" cy="144" r="2"><title>Deux-Sèvres, 1,8</title></circle><circle cx="275" cy="148" r="2"><title>Cher, 1,9</title></circle><circle cx="276" cy="141" r="2"><title>Allier, 2,0</title></circle><circle cx="285" cy="146" r="2"><title>Cantal, 2,1</title></circle><circle cx="287" cy="151" r="2"><title>Seine-Saint-Denis, 2,1</title></circle><circle cx="288" cy="144" r="2"><title>Aisne, 2,1</title></circle><circle cx="291" cy="148" r="2"><title>Eure-et-Loir, 2,2</title></circle><circle cx="298" cy="141" r="2"><title>Yonne, 2,3</title></circle><circle cx="299" cy="146" r="2"><title>Eure, 2,3</title></circle><circle cx="300" cy="151" r="2"><title>Haute-Saône, 2,3</title></circle><circle cx="300" cy="144" r="2"><title>Orne, 2,3</title></circle><circle cx="305" cy="148" r="2"><title>Seine-et-Marne, 2,4</title></circle><circle cx="306" cy="141" r="2"><title>Nièvre, 2,4</title></circle><circle cx="307" cy="146" r="2"><title>Haute-Marne, 2,4</title></circle><circle cx="308" cy="151" r="2"><title>Oise, 2,5</title></circle><circle cx="311" cy="144" r="2"><title>Creuse, 2,5</title></circle><circle cx="319" cy="148" r="2"><title>Saône-et-Loire, 2,7</title></circle><circle cx="320" cy="141" r="2"><title>Val-d&#x27;Oise, 2,7</title></circle><circle cx="321" cy="146" r="2"><title>Aube, 2,7</title></circle><circle cx="324" cy="151" r="2"><title>Lot-et-Garonne, 2,8</title></circle><circle cx="325" cy="144" r="2"><title>Sarthe, 2,8</title></circle><circle cx="330" cy="148" r="2"><title>Mayenne, 2,9</title></circle><circle cx="330" cy="141" r="2"><title>Dordogne, 2,9</title></circle><circle cx="332" cy="146" r="2"><title>Vosges, 2,9</title></circle><circle cx="333" cy="151" r="2"><title>Charente, 2,9</title></circle><circle cx="333" cy="144" r="2"><title>Loiret, 3,0</title></circle><circle cx="333" cy="148" r="2"><title>Essonne, 3,0</title></circle><circle cx="337" cy="141" r="2"><title>Loir-et-Cher, 3,0</title></circle><circle cx="340" cy="146" r="2"><title>Jura, 3,1</title></circle><circle cx="340" cy="151" r="2"><title>Marne, 3,1</title></circle><circle cx="341" cy="144" r="2"><title>Territoire de Belfort, 3,1</title></circle><circle cx="345" cy="148" r="2"><title>Haut-Rhin, 3,2</title></circle><circle cx="345" cy="141" r="2"><title>Vienne, 3,2</title></circle><circle cx="347" cy="146" r="2"><title>Haute-Vienne, 3,3</title></circle><circle cx="350" cy="151" r="2"><title>Aude, 3,3</title></circle><circle cx="355" cy="144" r="2"><title>Gers, 3,5</title></circle><circle cx="356" cy="148" r="2"><title>Manche, 3,5</title></circle><circle cx="356" cy="141" r="2"><title>Haute-Loire, 3,5</title></circle><circle cx="357" cy="146" r="2"><title>Corrèze, 3,5</title></circle><circle cx="357" cy="151" r="2"><title>Lozère, 3,5</title></circle><circle cx="358" cy="144" r="2"><title>Meuse, 3,5</title></circle><circle cx="359" cy="148" r="2"><title>Val-de-Marne, 3,6</title></circle><circle cx="361" cy="141" r="2"><title>Vendée, 3,6</title></circle><circle cx="364" cy="146" r="2"><title>Loire, 3,7</title></circle><circle cx="367" cy="151" r="2"><title>Lot, 3,8</title></circle><circle cx="369" cy="144" r="2"><title>Moselle, 3,8</title></circle><circle cx="369" cy="148" r="2"><title>Ain, 3,9</title></circle><circle cx="370" cy="141" r="2"><title>Seine-Maritime, 3,9</title></circle><circle cx="374" cy="146" r="2"><title>Yvelines, 4,0</title></circle><circle cx="374" cy="151" r="2"><title>Landes, 4,0</title></circle><circle cx="375" cy="144" r="2"><title>Tarn-et-Garonne, 4,0</title></circle><circle cx="378" cy="148" r="2"><title>Guadeloupe, 4,1</title></circle><circle cx="379" cy="141" r="2"><title>Charente-Maritime, 4,1</title></circle><circle cx="379" cy="146" r="2"><title>Vaucluse, 4,1</title></circle><circle cx="379" cy="151" r="2"><title>Doubs, 4,1</title></circle><circle cx="380" cy="144" r="2"><title>Var, 4,2</title></circle><circle cx="381" cy="148" r="2"><title>Somme, 4,2</title></circle><circle cx="382" cy="141" r="2"><title>Martinique, 4,2</title></circle><circle cx="382" cy="146" r="2"><title>Ardèche, 4,2</title></circle><circle cx="382" cy="151" r="2"><title>Puy-de-Dôme, 4,2</title></circle><circle cx="383" cy="144" r="2"><title>Aveyron, 4,3</title></circle><circle cx="384" cy="148" r="2"><title>Haute-Savoie, 4,3</title></circle><circle cx="387" cy="141" r="2"><title>Pyrénées-Orientales, 4,4</title></circle><circle cx="388" cy="146" r="2"><title>Hautes-Pyrénées, 4,4</title></circle><circle cx="389" cy="151" r="2"><title>Côte-d&#x27;Or, 4,4</title></circle><circle cx="391" cy="144" r="2"><title>Hauts-de-Seine, 4,5</title></circle><circle cx="392" cy="148" r="2"><title>Ariège, 4,6</title></circle><circle cx="393" cy="141" r="2"><title>Alpes-de-Haute-Provence, 4,6</title></circle><circle cx="393" cy="146" r="2"><title>Haute-Corse, 4,6</title></circle><circle cx="395" cy="151" r="2"><title>Côtes-d&#x27;Armor, 4,7</title></circle><circle cx="396" cy="144" r="2"><title>Gard, 4,7</title></circle><circle cx="399" cy="148" r="2"><title>Pas-de-Calais, 4,8</title></circle><circle cx="399" cy="141" r="2"><title>Maine-et-Loire, 4,8</title></circle><circle cx="400" cy="146" r="2"><title>Corse-du-Sud, 4,8</title></circle><circle cx="401" cy="151" r="2"><title>Tarn, 4,9</title></circle><circle cx="405" cy="144" r="2"><title>Isère, 5,0</title></circle><circle cx="406" cy="148" r="2"><title>Calvados, 5,0</title></circle><circle cx="408" cy="141" r="2"><title>Finistère, 5,1</title></circle><circle cx="408" cy="146" r="2"><title>Drôme, 5,1</title></circle><circle cx="409" cy="151" r="2"><title>Ardennes, 5,2</title></circle><circle cx="410" cy="144" r="2"><title>Bas-Rhin, 5,2</title></circle><circle cx="414" cy="148" r="2"><title>Meurthe-et-Moselle, 5,3</title></circle><circle cx="415" cy="141" r="2"><title>Gironde, 5,4</title></circle><circle cx="417" cy="146" r="2"><title>Savoie, 5,4</title></circle><circle cx="417" cy="151" r="2"><title>Alpes-Maritimes, 5,5</title></circle><circle cx="426" cy="144" r="2"><title>Pyrénées-Atlantiques, 5,8</title></circle><circle cx="426" cy="148" r="2"><title>Morbihan, 5,8</title></circle><circle cx="428" cy="141" r="2"><title>Ille-et-Vilaine, 5,9</title></circle><circle cx="430" cy="146" r="2"><title>Loire-Atlantique, 6,0</title></circle><circle cx="435" cy="151" r="2"><title>Bouches-du-Rhône, 6,2</title></circle><circle cx="449" cy="144" r="2"><title>Nord, 6,9</title></circle><circle cx="450" cy="148" r="2"><title>Haute-Garonne, 6,9</title></circle><circle cx="450" cy="141" r="2"><title>La Réunion, 7,0</title></circle><circle cx="451" cy="146" r="2"><title>Hautes-Alpes, 7,0</title></circle><circle cx="453" cy="151" r="2"><title>Hérault, 7,1</title></circle><circle cx="456" cy="144" r="2"><title>Indre-et-Loire, 7,3</title></circle><circle cx="457" cy="148" r="2"><title>Rhône, 7,3</title></circle></g><line x1="390.0" y1="146" x2="442.5" y2="146" stroke="var(--r5, #3E2563)" stroke-width="3"/><circle cx="390.0" cy="146" r="4" fill="var(--bg, #fff)" stroke="var(--muted, #5F6675)" stroke-width="1.5"/><circle cx="442.5" cy="146" r="6" fill="var(--r5, #3E2563)"/><text x="586" y="150" font-size="11" fill="var(--ink, #1F2430)">147</text><text x="190" y="184" text-anchor="end" font-size="12" fill="var(--ink, #1F2430)">Psychomotricien</text><rect x="347.6" y="175" width="54.9" height="10" fill="var(--r1, #D5C6E3)" rx="2"/><g fill="var(--muted, #5F6675)" fill-opacity=".45"><circle cx="200" cy="175" r="2"><title>Mayotte, 0,3</title></circle><circle cx="245" cy="180" r="2"><title>Moselle, 1,0</title></circle><circle cx="254" cy="185" r="2"><title>Meurthe-et-Moselle, 1,0</title></circle><circle cx="268" cy="178" r="2"><title>Vosges, 1,1</title></circle><circle cx="286" cy="182" r="2"><title>Bas-Rhin, 1,3</title></circle><circle cx="289" cy="175" r="2"><title>Aisne, 1,3</title></circle><circle cx="294" cy="180" r="2"><title>Meuse, 1,4</title></circle><circle cx="304" cy="185" r="2"><title>Guyane, 1,5</title></circle><circle cx="311" cy="178" r="2"><title>Indre, 1,6</title></circle><circle cx="312" cy="182" r="2"><title>Sarthe, 1,6</title></circle><circle cx="324" cy="175" r="2"><title>Corse-du-Sud, 1,7</title></circle><circle cx="326" cy="180" r="2"><title>Somme, 1,8</title></circle><circle cx="327" cy="185" r="2"><title>Ardennes, 1,8</title></circle><circle cx="327" cy="178" r="2"><title>Pyrénées-Orientales, 1,8</title></circle><circle cx="331" cy="182" r="2"><title>Côte-d&#x27;Or, 1,8</title></circle><circle cx="332" cy="175" r="2"><title>Martinique, 1,8</title></circle><circle cx="333" cy="180" r="2"><title>Puy-de-Dôme, 1,9</title></circle><circle cx="335" cy="185" r="2"><title>Alpes-Maritimes, 1,9</title></circle><circle cx="340" cy="178" r="2"><title>Eure, 1,9</title></circle><circle cx="340" cy="182" r="2"><title>Cantal, 1,9</title></circle><circle cx="341" cy="175" r="2"><title>Yonne, 2,0</title></circle><circle cx="342" cy="180" r="2"><title>Deux-Sèvres, 2,0</title></circle><circle cx="342" cy="185" r="2"><title>Haute-Saône, 2,0</title></circle><circle cx="342" cy="178" r="2"><title>Haute-Corse, 2,0</title></circle><circle cx="343" cy="182" r="2"><title>Creuse, 2,0</title></circle><circle cx="348" cy="175" r="2"><title>Saône-et-Loire, 2,1</title></circle><circle cx="348" cy="180" r="2"><title>Aube, 2,1</title></circle><circle cx="348" cy="185" r="2"><title>Haut-Rhin, 2,1</title></circle><circle cx="349" cy="178" r="2"><title>Manche, 2,1</title></circle><circle cx="349" cy="182" r="2"><title>Cher, 2,1</title></circle><circle cx="350" cy="175" r="2"><title>Guadeloupe, 2,1</title></circle><circle cx="353" cy="180" r="2"><title>Marne, 2,1</title></circle><circle cx="353" cy="185" r="2"><title>Pas-de-Calais, 2,1</title></circle><circle cx="353" cy="178" r="2"><title>Haute-Marne, 2,1</title></circle><circle cx="353" cy="182" r="2"><title>Gard, 2,1</title></circle><circle cx="354" cy="175" r="2"><title>Ille-et-Vilaine, 2,2</title></circle><circle cx="355" cy="180" r="2"><title>Loir-et-Cher, 2,2</title></circle><circle cx="356" cy="185" r="2"><title>Vendée, 2,2</title></circle><circle cx="357" cy="178" r="2"><title>Finistère, 2,2</title></circle><circle cx="358" cy="182" r="2"><title>Lot, 2,2</title></circle><circle cx="358" cy="175" r="2"><title>Orne, 2,2</title></circle><circle cx="359" cy="180" r="2"><title>Mayenne, 2,2</title></circle><circle cx="359" cy="185" r="2"><title>Vienne, 2,2</title></circle><circle cx="360" cy="178" r="2"><title>Seine-Maritime, 2,2</title></circle><circle cx="362" cy="182" r="2"><title>Corrèze, 2,3</title></circle><circle cx="362" cy="175" r="2"><title>Doubs, 2,3</title></circle><circle cx="363" cy="180" r="2"><title>Maine-et-Loire, 2,3</title></circle><circle cx="364" cy="185" r="2"><title>Côtes-d&#x27;Armor, 2,3</title></circle><circle cx="365" cy="178" r="2"><title>Calvados, 2,3</title></circle><circle cx="366" cy="182" r="2"><title>Allier, 2,3</title></circle><circle cx="366" cy="175" r="2"><title>Eure-et-Loir, 2,4</title></circle><circle cx="367" cy="180" r="2"><title>Ardèche, 2,4</title></circle><circle cx="367" cy="185" r="2"><title>Charente-Maritime, 2,4</title></circle><circle cx="368" cy="178" r="2"><title>Haute-Vienne, 2,4</title></circle><circle cx="369" cy="182" r="2"><title>Oise, 2,4</title></circle><circle cx="372" cy="175" r="2"><title>Loire-Atlantique, 2,5</title></circle><circle cx="373" cy="180" r="2"><title>Loiret, 2,5</title></circle><circle cx="373" cy="185" r="2"><title>Aude, 2,5</title></circle><circle cx="374" cy="178" r="2"><title>Hérault, 2,5</title></circle><circle cx="374" cy="182" r="2"><title>Territoire de Belfort, 2,5</title></circle><circle cx="375" cy="175" r="2"><title>Indre-et-Loire, 2,5</title></circle><circle cx="376" cy="180" r="2"><title>Jura, 2,5</title></circle><circle cx="379" cy="185" r="2"><title>Haute-Loire, 2,6</title></circle><circle cx="379" cy="178" r="2"><title>Loire, 2,6</title></circle><circle cx="384" cy="182" r="2"><title>Vaucluse, 2,7</title></circle><circle cx="385" cy="175" r="2"><title>Lot-et-Garonne, 2,7</title></circle><circle cx="390" cy="180" r="2"><title>Seine-Saint-Denis, 2,8</title></circle><circle cx="394" cy="185" r="2"><title>Lozère, 2,9</title></circle><circle cx="396" cy="178" r="2"><title>Charente, 2,9</title></circle><circle cx="396" cy="182" r="2"><title>Morbihan, 2,9</title></circle><circle cx="396" cy="175" r="2"><title>Nièvre, 2,9</title></circle><circle cx="400" cy="180" r="2"><title>Haute-Savoie, 3,0</title></circle><circle cx="401" cy="185" r="2"><title>Var, 3,0</title></circle><circle cx="402" cy="178" r="2"><title>Isère, 3,0</title></circle><circle cx="402" cy="182" r="2"><title>Drôme, 3,1</title></circle><circle cx="403" cy="175" r="2"><title>Dordogne, 3,1</title></circle><circle cx="404" cy="180" r="2"><title>Ain, 3,1</title></circle><circle cx="406" cy="185" r="2"><title>Nord, 3,2</title></circle><circle cx="408" cy="178" r="2"><title>Aveyron, 3,2</title></circle><circle cx="410" cy="182" r="2"><title>Landes, 3,2</title></circle><circle cx="412" cy="175" r="2"><title>La Réunion, 3,3</title></circle><circle cx="413" cy="180" r="2"><title>Gironde, 3,3</title></circle><circle cx="414" cy="185" r="2"><title>Seine-et-Marne, 3,3</title></circle><circle cx="416" cy="178" r="2"><title>Savoie, 3,4</title></circle><circle cx="419" cy="182" r="2"><title>Val-d&#x27;Oise, 3,4</title></circle><circle cx="419" cy="175" r="2"><title>Bouches-du-Rhône, 3,5</title></circle><circle cx="424" cy="180" r="2"><title>Essonne, 3,6</title></circle><circle cx="429" cy="185" r="2"><title>Tarn, 3,7</title></circle><circle cx="433" cy="178" r="2"><title>Rhône, 3,8</title></circle><circle cx="436" cy="182" r="2"><title>Alpes-de-Haute-Provence, 3,9</title></circle><circle cx="438" cy="175" r="2"><title>Hautes-Pyrénées, 4,0</title></circle><circle cx="442" cy="180" r="2"><title>Tarn-et-Garonne, 4,1</title></circle><circle cx="443" cy="185" r="2"><title>Ariège, 4,1</title></circle><circle cx="446" cy="178" r="2"><title>Pyrénées-Atlantiques, 4,2</title></circle><circle cx="447" cy="182" r="2"><title>Hauts-de-Seine, 4,2</title></circle><circle cx="448" cy="175" r="2"><title>Val-de-Marne, 4,3</title></circle><circle cx="449" cy="180" r="2"><title>Gers, 4,3</title></circle><circle cx="457" cy="185" r="2"><title>Yvelines, 4,5</title></circle><circle cx="458" cy="178" r="2"><title>Haute-Garonne, 4,6</title></circle><circle cx="476" cy="182" r="2"><title>Hautes-Alpes, 5,2</title></circle></g><line x1="390.0" y1="180" x2="449.3" y2="180" stroke="var(--r5, #3E2563)" stroke-width="3"/><circle cx="390.0" cy="180" r="4" fill="var(--bg, #fff)" stroke="var(--muted, #5F6675)" stroke-width="1.5"/><circle cx="449.3" cy="180" r="6" fill="var(--r5, #3E2563)"/><text x="586" y="184" font-size="11" fill="var(--ink, #1F2430)">154</text><text x="190" y="218" text-anchor="end" font-size="12" fill="var(--ink, #1F2430)">Pharmacien</text><rect x="371.4" y="209" width="27.7" height="10" fill="var(--r1, #D5C6E3)" rx="2"/><g fill="var(--muted, #5F6675)" fill-opacity=".45"><circle cx="251" cy="209" r="2"><title>Mayotte, 3,5</title></circle><circle cx="285" cy="214" r="2"><title>Guyane, 4,6</title></circle><circle cx="333" cy="219" r="2"><title>Seine-Saint-Denis, 6,5</title></circle><circle cx="334" cy="212" r="2"><title>Val-d&#x27;Oise, 6,5</title></circle><circle cx="335" cy="216" r="2"><title>Eure-et-Loir, 6,6</title></circle><circle cx="335" cy="209" r="2"><title>Seine-et-Marne, 6,6</title></circle><circle cx="345" cy="214" r="2"><title>Eure, 7,1</title></circle><circle cx="346" cy="219" r="2"><title>Essonne, 7,1</title></circle><circle cx="349" cy="212" r="2"><title>Cher, 7,3</title></circle><circle cx="349" cy="216" r="2"><title>Loiret, 7,3</title></circle><circle cx="350" cy="209" r="2"><title>Ain, 7,3</title></circle><circle cx="351" cy="214" r="2"><title>Sarthe, 7,4</title></circle><circle cx="351" cy="219" r="2"><title>Yonne, 7,4</title></circle><circle cx="351" cy="212" r="2"><title>Mayenne, 7,4</title></circle><circle cx="354" cy="216" r="2"><title>Meuse, 7,5</title></circle><circle cx="358" cy="209" r="2"><title>Loir-et-Cher, 7,8</title></circle><circle cx="358" cy="214" r="2"><title>Yvelines, 7,8</title></circle><circle cx="360" cy="219" r="2"><title>Oise, 7,9</title></circle><circle cx="363" cy="212" r="2"><title>Tarn-et-Garonne, 8,1</title></circle><circle cx="364" cy="216" r="2"><title>Haute-Marne, 8,1</title></circle><circle cx="367" cy="209" r="2"><title>Lot-et-Garonne, 8,3</title></circle><circle cx="367" cy="214" r="2"><title>Aube, 8,3</title></circle><circle cx="368" cy="219" r="2"><title>Indre, 8,4</title></circle><circle cx="370" cy="212" r="2"><title>Dordogne, 8,5</title></circle><circle cx="371" cy="216" r="2"><title>Côtes-d&#x27;Armor, 8,6</title></circle><circle cx="371" cy="209" r="2"><title>Vosges, 8,6</title></circle><circle cx="372" cy="214" r="2"><title>Deux-Sèvres, 8,6</title></circle><circle cx="372" cy="219" r="2"><title>Lot, 8,6</title></circle><circle cx="373" cy="212" r="2"><title>Orne, 8,6</title></circle><circle cx="373" cy="216" r="2"><title>Ardèche, 8,7</title></circle><circle cx="374" cy="209" r="2"><title>Vendée, 8,7</title></circle><circle cx="374" cy="214" r="2"><title>Loire, 8,8</title></circle><circle cx="375" cy="219" r="2"><title>Charente, 8,8</title></circle><circle cx="376" cy="212" r="2"><title>Aisne, 8,9</title></circle><circle cx="377" cy="216" r="2"><title>Martinique, 8,9</title></circle><circle cx="377" cy="209" r="2"><title>Finistère, 9,0</title></circle><circle cx="378" cy="214" r="2"><title>Moselle, 9,0</title></circle><circle cx="378" cy="219" r="2"><title>Ariège, 9,0</title></circle><circle cx="378" cy="212" r="2"><title>La Réunion, 9,0</title></circle><circle cx="379" cy="216" r="2"><title>Manche, 9,0</title></circle><circle cx="380" cy="209" r="2"><title>Val-de-Marne, 9,1</title></circle><circle cx="381" cy="214" r="2"><title>Jura, 9,2</title></circle><circle cx="381" cy="219" r="2"><title>Gers, 9,2</title></circle><circle cx="381" cy="212" r="2"><title>Tarn, 9,2</title></circle><circle cx="382" cy="216" r="2"><title>Nièvre, 9,2</title></circle><circle cx="383" cy="209" r="2"><title>Haut-Rhin, 9,3</title></circle><circle cx="383" cy="214" r="2"><title>Loire-Atlantique, 9,3</title></circle><circle cx="384" cy="219" r="2"><title>Maine-et-Loire, 9,4</title></circle><circle cx="384" cy="212" r="2"><title>Guadeloupe, 9,4</title></circle><circle cx="385" cy="216" r="2"><title>Morbihan, 9,5</title></circle><circle cx="385" cy="209" r="2"><title>Hautes-Pyrénées, 9,5</title></circle><circle cx="385" cy="214" r="2"><title>Saône-et-Loire, 9,5</title></circle><circle cx="387" cy="219" r="2"><title>Seine-Maritime, 9,6</title></circle><circle cx="389" cy="212" r="2"><title>Allier, 9,7</title></circle><circle cx="389" cy="216" r="2"><title>Ille-et-Vilaine, 9,8</title></circle><circle cx="390" cy="209" r="2"><title>Haute-Saône, 9,8</title></circle><circle cx="390" cy="214" r="2"><title>Pyrénées-Orientales, 9,8</title></circle><circle cx="391" cy="219" r="2"><title>Pas-de-Calais, 9,8</title></circle><circle cx="391" cy="212" r="2"><title>Territoire de Belfort, 9,9</title></circle><circle cx="391" cy="216" r="2"><title>Haute-Savoie, 9,9</title></circle><circle cx="392" cy="209" r="2"><title>Isère, 10,0</title></circle><circle cx="393" cy="214" r="2"><title>Vaucluse, 10,0</title></circle><circle cx="393" cy="219" r="2"><title>Alpes-de-Haute-Provence, 10,1</title></circle><circle cx="395" cy="212" r="2"><title>Haute-Loire, 10,1</title></circle><circle cx="395" cy="216" r="2"><title>Landes, 10,1</title></circle><circle cx="395" cy="209" r="2"><title>Ardennes, 10,2</title></circle><circle cx="395" cy="214" r="2"><title>Drôme, 10,2</title></circle><circle cx="395" cy="219" r="2"><title>Charente-Maritime, 10,2</title></circle><circle cx="395" cy="212" r="2"><title>Corrèze, 10,2</title></circle><circle cx="396" cy="216" r="2"><title>Var, 10,3</title></circle><circle cx="397" cy="209" r="2"><title>Vienne, 10,3</title></circle><circle cx="398" cy="214" r="2"><title>Bas-Rhin, 10,4</title></circle><circle cx="398" cy="219" r="2"><title>Hauts-de-Seine, 10,4</title></circle><circle cx="399" cy="212" r="2"><title>Lozère, 10,5</title></circle><circle cx="399" cy="216" r="2"><title>Gard, 10,5</title></circle><circle cx="399" cy="209" r="2"><title>Aude, 10,5</title></circle><circle cx="400" cy="214" r="2"><title>Haute-Garonne, 10,5</title></circle><circle cx="400" cy="219" r="2"><title>Nord, 10,5</title></circle><circle cx="401" cy="212" r="2"><title>Creuse, 10,6</title></circle><circle cx="402" cy="216" r="2"><title>Aveyron, 10,7</title></circle><circle cx="402" cy="209" r="2"><title>Indre-et-Loire, 10,7</title></circle><circle cx="403" cy="214" r="2"><title>Gironde, 10,8</title></circle><circle cx="404" cy="219" r="2"><title>Marne, 10,9</title></circle><circle cx="406" cy="212" r="2"><title>Haute-Corse, 11,1</title></circle><circle cx="408" cy="216" r="2"><title>Alpes-Maritimes, 11,2</title></circle><circle cx="409" cy="209" r="2"><title>Cantal, 11,2</title></circle><circle cx="409" cy="214" r="2"><title>Pyrénées-Atlantiques, 11,3</title></circle><circle cx="409" cy="219" r="2"><title>Calvados, 11,3</title></circle><circle cx="410" cy="212" r="2"><title>Somme, 11,3</title></circle><circle cx="411" cy="216" r="2"><title>Savoie, 11,4</title></circle><circle cx="412" cy="209" r="2"><title>Doubs, 11,5</title></circle><circle cx="413" cy="214" r="2"><title>Puy-de-Dôme, 11,6</title></circle><circle cx="413" cy="219" r="2"><title>Meurthe-et-Moselle, 11,6</title></circle><circle cx="414" cy="212" r="2"><title>Côte-d&#x27;Or, 11,7</title></circle><circle cx="419" cy="216" r="2"><title>Rhône, 12,2</title></circle><circle cx="422" cy="209" r="2"><title>Corse-du-Sud, 12,4</title></circle><circle cx="424" cy="214" r="2"><title>Hérault, 12,5</title></circle><circle cx="428" cy="219" r="2"><title>Haute-Vienne, 13,0</title></circle><circle cx="430" cy="212" r="2"><title>Bouches-du-Rhône, 13,1</title></circle><circle cx="433" cy="216" r="2"><title>Hautes-Alpes, 13,4</title></circle></g><line x1="390.0" y1="214" x2="463.7" y2="214" stroke="var(--r5, #3E2563)" stroke-width="3"/><circle cx="390.0" cy="214" r="4" fill="var(--bg, #fff)" stroke="var(--muted, #5F6675)" stroke-width="1.5"/><circle cx="463.7" cy="214" r="6" fill="var(--r5, #3E2563)"/><text x="586" y="218" font-size="11" fill="var(--ink, #1F2430)">171</text><circle cx="206" cy="248" r="5" fill="var(--accent, #B07D0A)"/><circle cx="218" cy="248" r="5" fill="var(--r5, #3E2563)"/><text x="228" y="252" font-size="11" fill="var(--muted, #5F6675)">ce territoire (indice, moyenne = 100)</text><circle cx="428" cy="248" r="2.4" fill="var(--muted, #5F6675)" fill-opacity=".6"/><text x="436" y="252" font-size="11" fill="var(--muted, #5F6675)">les autres</text><rect x="500" y="243" width="14" height="9" fill="var(--r1, #D5C6E3)"/><text x="520" y="252" font-size="11" fill="var(--muted, #5F6675)">moitié centrale</text></svg></div></figure>
+
+<p class="comment-lire"><strong>Comment lire.</strong> L'effectif compte chaque personne une seule fois, même si elle exerce dans plusieurs communes du territoire. La densité rapporte cet effectif à la population, pour 10 000 habitants. Les colonnes suivantes donnent la même densité pour la région, pour le milieu de cinq départements dont la population ressemble à celle du département, et en moyenne pour les départements. La moyenne des départements rapporte l'ensemble des professionnels des départements à la population de la France, comptés comme ici, avec les seules activités de soins qui ont un lieu d'exercice. Elle diffère un peu du chiffre de la France entière du rapport national, qui compte aussi les remplacements, la téléconsultation et les activités sans soins à la population. La dernière colonne situe le territoire sans le classer. Les territoires comparés sont partagés en quatre groupes de même taille, du quart le moins doté au quart le mieux doté. La figure compare chaque densité à la moyenne (indice 100). Le gros point est le territoire de ce rapport, à gauche pour une densité plus faible, à droite pour une densité plus forte. Les petits points gris sont les autres territoires comparés, et la bande claire réunit leur moitié centrale. La téléconsultation (des soins à distance) et les activités sans soins à la population (contrôle médical, industrie, recherche, administration...) ne sont pas comptées, car elles sont déclarées au siège d'une société ou d'un organisme, et non là où vivent les patients. Elles sont décrites plus bas quand elles sont notables.</p>
+<details>
+<summary>Pour aller plus loin</summary>
+<p>Départements de profil semblable, retenus parce que leur population ressemble à celle du département (densité de population, âge, niveau de vie, pauvreté, chômage), sans tenir compte de l'offre de soins, Hauts-de-Seine (92), Val-de-Marne (94), Rhône (69), Yvelines (78) et Bas-Rhin (67). Ils servent de point de repère et non de norme.</p>
+<p>Fourchettes à 95 % des densités, qui tiennent compte des petits effectifs (loi de Poisson, intervalle exact), Médecin généraliste, de 22,66 à 23,97; Infirmier, de 110,68 à 113,54; Masseur-kinésithérapeute, de 22,78 à 24,09; Orthophoniste, de 6,23 à 6,92; Psychomotricien, de 4,04 à 4,60; Pharmacien, de 16,25 à 17,37; Chirurgien-dentiste, de 18,35 à 19,53; Sage-femme, de 5,58 à 6,24; Pédiatre, de 4,84 à 5,45; Gériatre, de 0,95 à 1,24. Quand la fourchette est large, une ou deux arrivées ou départs suffisent à changer nettement la densité.</p>
+<p>Parmi les professionnels comptés, certains exercent pour un public particulier (médecine du travail, santé scolaire, services de l'État, pompiers, hôpitaux militaires...), 243 médecins généralistes sur 4 904 et 1 497 infirmiers sur 23 584. Ils restent dans le tableau. Détail dans activites_particulieres_dep.csv et activites_particulieres_reg.csv.</p>
+</details>
+<details>
+<summary>Les spécialités médicales, détail par spécialité</summary>
+<table>
+<thead>
+<tr>
+<th>Spécialité</th>
+<th>Effectif</th>
+<th>Pour 10 000 habitants</th>
+<th>Moyenne des départements</th>
+<th>Position</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Spécialités médicales</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Pédiatre</td>
+<td>1 081</td>
+<td>5,14</td>
+<td>1,39</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Cardiologue</td>
+<td>828</td>
+<td>3,94</td>
+<td>1,28</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Gastro-entérologue</td>
+<td>406</td>
+<td>1,93</td>
+<td>0,63</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Dermatologue</td>
+<td>602</td>
+<td>2,86</td>
+<td>0,55</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Gériatre</td>
+<td>229</td>
+<td>1,09</td>
+<td>0,50</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Neurologue</td>
+<td>485</td>
+<td>2,31</td>
+<td>0,52</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Pneumologue</td>
+<td>328</td>
+<td>1,56</td>
+<td>0,52</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Médecin interniste</td>
+<td>362</td>
+<td>1,72</td>
+<td>0,41</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Médecin urgentiste</td>
+<td>158</td>
+<td>0,75</td>
+<td>0,42</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Médecin de médecine physique et de réadaptation</td>
+<td>173</td>
+<td>0,82</td>
+<td>0,39</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Rhumatologue</td>
+<td>318</td>
+<td>1,51</td>
+<td>0,40</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Endocrinologue</td>
+<td>305</td>
+<td>1,45</td>
+<td>0,36</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Néphrologue</td>
+<td>238</td>
+<td>1,13</td>
+<td>0,34</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Oncologue médical</td>
+<td>183</td>
+<td>0,87</td>
+<td>0,27</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Médecin vasculaire</td>
+<td>140</td>
+<td>0,67</td>
+<td>0,25</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Médecin réanimateur</td>
+<td>103</td>
+<td>0,49</td>
+<td>0,17</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Hématologue</td>
+<td>156</td>
+<td>0,74</td>
+<td>0,17</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Infectiologue</td>
+<td>66</td>
+<td>0,31</td>
+<td>0,07</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Allergologue</td>
+<td>59</td>
+<td>0,28</td>
+<td>0,07</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td><strong>Spécialités chirurgicales</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Gynécologue</td>
+<td>994</td>
+<td>4,72</td>
+<td>1,23</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Ophtalmologue</td>
+<td>868</td>
+<td>4,13</td>
+<td>1,06</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Chirurgien orthopédiste</td>
+<td>450</td>
+<td>2,14</td>
+<td>0,74</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Oto-rhino-laryngologiste (ORL)</td>
+<td>402</td>
+<td>1,91</td>
+<td>0,47</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Chirurgien général</td>
+<td>199</td>
+<td>0,95</td>
+<td>0,32</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Urologue</td>
+<td>192</td>
+<td>0,91</td>
+<td>0,33</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Chirurgien viscéral et digestif</td>
+<td>112</td>
+<td>0,53</td>
+<td>0,26</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Chirurgien plasticien</td>
+<td>301</td>
+<td>1,43</td>
+<td>0,22</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Chirurgien maxillo-facial et stomatologue</td>
+<td>175</td>
+<td>0,83</td>
+<td>0,18</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Chirurgien vasculaire</td>
+<td>54</td>
+<td>0,26</td>
+<td>0,13</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Neurochirurgien</td>
+<td>98</td>
+<td>0,47</td>
+<td>0,12</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Chirurgien thoracique et cardiovasculaire</td>
+<td>81</td>
+<td>0,39</td>
+<td>0,10</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Chirurgien pédiatrique</td>
+<td>53</td>
+<td>0,25</td>
+<td>0,07</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td><strong>Spécialités médico-techniques</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Anesthésiste-réanimateur</td>
+<td>1 146</td>
+<td>5,45</td>
+<td>1,82</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Radiologue</td>
+<td>1 173</td>
+<td>5,58</td>
+<td>1,78</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Biologiste médical</td>
+<td>302</td>
+<td>1,44</td>
+<td>0,44</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Anatomopathologiste</td>
+<td>230</td>
+<td>1,09</td>
+<td>0,48</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Radiothérapeute</td>
+<td>100</td>
+<td>0,48</td>
+<td>0,20</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Médecin nucléaire</td>
+<td>81</td>
+<td>0,39</td>
+<td>0,17</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td><strong>Prévention et santé publique</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Médecin du travail</td>
+<td>606</td>
+<td>2,88</td>
+<td>0,62</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Médecin de santé publique</td>
+<td>172</td>
+<td>0,82</td>
+<td>0,18</td>
+<td>quart le mieux doté</td>
+</tr>
+</tbody>
+</table>
+<p class="comment-lire"><strong>Comment lire.</strong> Chaque médecin est compté dans la spécialité de son inscription à l'Ordre. Les petits effectifs varient beaucoup d'une année à l'autre, une ou deux arrivées suffisent à changer la position du territoire. Les spécialités surtout exercées à l'hôpital se trouvent là où sont les établissements, les habitants consultent souvent dans un territoire voisin.</p>
+<p class="a-savoir"><strong>À savoir.</strong> Pour certaines spécialités, moins d'un tiers des médecins exercent en libéral (gériatre 7 %, médecin interniste 11 %, médecin urgentiste 9 %, médecin de médecine physique et de réadaptation 18 %, néphrologue 31 %, oncologue médical 20 %, médecin réanimateur 9 %, hématologue 11 %, infectiologue 6 %). La plupart sont salariés, le plus souvent à l'hôpital, si bien que leur densité par territoire montre surtout où se trouvent les établissements, pas l'accès des habitants, qui consultent souvent dans un territoire voisin. Source, <a href="https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps">Annuaire santé, extractions en libre accès du RPPS (data.gouv)</a>. Les médecins du travail suivent les salariés de leur entreprise ou de leur service de santé au travail. Ils ne soignent pas la population du territoire où ils sont déclarés. Les médecins de santé publique exercent surtout dans des administrations, des agences ou des services d'épidémiologie et de prévention, rarement en soins à la population. Source, <a href="https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps">Annuaire santé, extractions en libre accès du RPPS (data.gouv)</a>.</p>
+</details>
+<p>4 255 médecins généralistes déclarent aussi dans le département une activité de téléconsultation, des soins à distance déclarés au siège de la société et non rattachés au territoire des patients. 2 006 médecins généralistes et 2 343 infirmiers déclarent aussi dans le département une activité sans soins à la population (contrôle médical, administration, recherche, industrie...). Ces activités ne sont pas comptées dans le tableau, une même personne pouvant y figurer au titre d'une activité de soins.</p>
+<h2 id="evolution-depuis-2016">Évolution depuis 2016</h2>
+<table>
+<thead>
+<tr>
+<th>Profession</th>
+<th>Période</th>
+<th>Densité au début (DREES)</th>
+<th>Densité à la fin (DREES)</th>
+<th>Évolution ici</th>
+<th>Évolution de la région</th>
+<th>Évolution en France</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Médecins généralistes</td>
+<td>2016 à 2026</td>
+<td>24,70</td>
+<td>24,61</td>
+<td>-0,3 %</td>
+<td>-14,6 %</td>
+<td>-4,4 %</td>
+</tr>
+<tr>
+<td>Pédiatres</td>
+<td>2016 à 2026</td>
+<td>4,31</td>
+<td>5,50</td>
+<td>+27,6 %</td>
+<td>+10,3 %</td>
+<td>+15,3 %</td>
+</tr>
+<tr>
+<td>Gynécologues</td>
+<td>2016 à 2026</td>
+<td>3,77</td>
+<td>4,41</td>
+<td>+17,0 %</td>
+<td>-0,9 %</td>
+<td>-1,4 %</td>
+</tr>
+<tr>
+<td>Ophtalmologues</td>
+<td>2016 à 2026</td>
+<td>3,05</td>
+<td>3,32</td>
+<td>+8,9 %</td>
+<td>-4,5 %</td>
+<td>+0,2 %</td>
+</tr>
+<tr>
+<td>Sages-femmes</td>
+<td>2016 à 2026</td>
+<td>3,99</td>
+<td>5,35</td>
+<td>+34,2 %</td>
+<td>+11,4 %</td>
+<td>+14,3 %</td>
+</tr>
+<tr>
+<td>Chirurgiens-dentistes</td>
+<td>2016 à 2026</td>
+<td>13,99</td>
+<td>16,48</td>
+<td>+17,8 %</td>
+<td>+17,9 %</td>
+<td>+12,9 %</td>
+</tr>
+<tr>
+<td>Masseurs-kinésithérapeutes</td>
+<td>2017 à 2026</td>
+<td>17,35</td>
+<td>24,02</td>
+<td>+38,4 %</td>
+<td>+17,5 %</td>
+<td>+27,5 %</td>
+</tr>
+<tr>
+<td>Pharmaciens</td>
+<td>2016 à 2026</td>
+<td>18,33</td>
+<td>19,57</td>
+<td>+6,8 %</td>
+<td>-5,0 %</td>
+<td>-2,5 %</td>
+</tr>
+</tbody>
+</table>
+<p class="comment-lire"><strong>Comment lire.</strong> Professionnels pour 10 000 habitants au 1er janvier, d'après les séries de la DREES. Ces densités peuvent différer de celles du début du rapport, qui comptent une personne dans chaque département où elle exerce. Une densité peut baisser alors que le nombre de professionnels augmente, si la population augmente plus vite. Les infirmiers, les orthophonistes, les psychomotriciens et les autres professions du répertoire ADELI ne figurent pas ici, leur série change de source en 2024.</p>
+<p class="a-savoir"><strong>À savoir.</strong> L'évolution vient des séries de la DREES, qui comptent chaque professionnel une seule fois, dans le département de son activité principale, alors que les autres chiffres de ce site comptent une personne dans chaque territoire où elle exerce. Les populations des trois dernières années sont provisoires. Sources, <a href="https://data.drees.solidarites-sante.gouv.fr/explore/dataset/la-demographie-des-professionnels-de-sante-depuis-2012/information/">DREES, la démographie des professionnels de santé</a>, <a href="https://catalogue-donnees.insee.fr/fr/catalogue/recherche/DS_ESTIMATION_POPULATION">INSEE, estimations localisées de population</a>.</p>
+<h2 id="repartition-a-l-interieur-du-departement">Répartition à l'intérieur du département</h2>
+<p>Le département ne compte qu'une commune et une intercommunalité, la répartition interne n'est donc pas détaillée ici.</p>
+<h2 id="structures-de-soins-finess-et-ror-reunis">Structures de soins, FINESS et ROR réunis</h2>
+<p>FINESS et le Répertoire opérationnel des ressources (ROR), réunis sans double compte, recensent dans le département les structures suivantes. La distance est celle qui sépare la moitié des habitants de la structure la plus proche, à vol d'oiseau depuis le centre de leur commune, y compris quand cette structure se trouve hors du territoire.</p>
+<table>
+<thead>
+<tr>
+<th>Type de structure</th>
+<th>Structures</th>
+<th>Pour 100 000 hab.</th>
+<th>Distance médiane (km)</th>
+<th>France, distance médiane</th>
+<th>Habitants à plus de 30 km</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Services d'urgences</td>
+<td>16</td>
+<td>0,8</td>
+<td>0,0</td>
+<td>5,1</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Maternités</td>
+<td>16</td>
+<td>0,8</td>
+<td>0,0</td>
+<td>5,9</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>PMI, protection maternelle et infantile</td>
+<td>51</td>
+<td>2,4</td>
+<td>0,0</td>
+<td>7,5</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Dialyse</td>
+<td>17</td>
+<td>0,8</td>
+<td>0,0</td>
+<td>5,0</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Soins médicaux et de réadaptation</td>
+<td>30</td>
+<td>1,4</td>
+<td>0,0</td>
+<td>3,4</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Hospitalisation à domicile</td>
+<td>1</td>
+<td>0,0</td>
+<td>0,0</td>
+<td>8,9</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Soins infirmiers à domicile (SSIAD)</td>
+<td>27</td>
+<td>1,3</td>
+<td>0,0</td>
+<td>3,3</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>EHPAD</td>
+<td>90</td>
+<td>4,3</td>
+<td>0,0</td>
+<td>1,2</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Résidences autonomie</td>
+<td>140</td>
+<td>6,7</td>
+<td>0,0</td>
+<td>2,6</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Soins de longue durée (USLD)</td>
+<td>8</td>
+<td>0,4</td>
+<td>0,0</td>
+<td>6,2</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Équipes spécialisées Alzheimer, accueil de jour et répit</td>
+<td>27</td>
+<td>1,3</td>
+<td>0,0</td>
+<td>5,3</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Instituts médico-éducatifs (IME)</td>
+<td>32</td>
+<td>1,5</td>
+<td>0,0</td>
+<td>3,5</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Instituts thérapeutiques, éducatifs et pédagogiques (ITEP)</td>
+<td>2</td>
+<td>0,1</td>
+<td>0,0</td>
+<td>7,2</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Services d'éducation spéciale et de soins à domicile (SESSAD)</td>
+<td>38</td>
+<td>1,8</td>
+<td>0,0</td>
+<td>3,2</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Établissements pour enfants en situation de polyhandicap, de handicap moteur ou sensoriel</td>
+<td>12</td>
+<td>0,6</td>
+<td>0,0</td>
+<td>7,7</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Maisons d'accueil spécialisées et foyers d'accueil médicalisés</td>
+<td>44</td>
+<td>2,1</td>
+<td>0,0</td>
+<td>3,8</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Foyers de vie et d'hébergement pour adultes en situation de handicap</td>
+<td>61</td>
+<td>2,9</td>
+<td>0,0</td>
+<td>2,7</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Établissements et services d'accompagnement par le travail (ESAT)</td>
+<td>32</td>
+<td>1,5</td>
+<td>0,0</td>
+<td>3,6</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Services d'accompagnement à domicile pour adultes en situation de handicap</td>
+<td>39</td>
+<td>1,9</td>
+<td>0,0</td>
+<td>3,8</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Soins pour personnes en situation de précarité (PASS, LHSS, LAM, ACT)</td>
+<td>26</td>
+<td>1,2</td>
+<td>0,0</td>
+<td>6,3</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Dépistage, vaccination et lutte antituberculeuse</td>
+<td>8</td>
+<td>0,4</td>
+<td>0,0</td>
+<td>7,6</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Maisons de santé pluriprofessionnelles</td>
+<td>43</td>
+<td>2,0</td>
+<td>0,0</td>
+<td>2,5</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Centres de santé</td>
+<td>279</td>
+<td>13,3</td>
+<td>0,0</td>
+<td>2,7</td>
+<td>0 %</td>
+</tr>
+</tbody>
+</table>
+<p class="comment-lire"><strong>Comment lire.</strong> Une structure n'est pas une capacité, et les structures ne s'ajoutent pas aux professionnels. Les professionnels déclarés dans chaque structure figurent dans lieux_soins.csv.</p>
+<p class="a-savoir"><strong>À savoir.</strong> Les structures de soins réunissent FINESS et le Répertoire opérationnel des ressources (ROR), rapprochés par le numéro FINESS d'établissement, l'entité juridique gestionnaire et la commune, puis par le nom, pour qu'une même structure ne compte qu'une fois. Ni l'une ni l'autre base n'est complète. FINESS enregistre souvent un CMP sous le numéro de son hôpital, et le ROR est rempli par les établissements eux-mêmes, avec une complétude inégale selon les régions et des catégories parfois approximatives (équipes mobiles rangées parmi les CMP, unités sans catégorie). Ces erreurs de classement sont corrigées par des règles appliquées à toute la France, décrites et chiffrées dans la page méthode. Certaines structures manquent aux deux bases, par exemple deux CMP de Martinique cités par l'ARS en 2018, ou des CMP listés sur le site de leur hôpital (voir les vérifications sur d'autres sources). Une structure n'est pas une capacité, une antenne peut n'ouvrir que quelques demi-journées. Les professionnels déclarés sur place viennent du RPPS, beaucoup déclarent leur hôpital de rattachement plutôt que le lieu où ils consultent. Les distances sont mesurées à vol d'oiseau depuis le centre de chaque commune, l'emplacement d'une structure sans coordonnées connues étant le centre de sa commune. Un type recensé dans moins de 90 % des départements est listé, mais pas comparé entre territoires. Sources, <a href="https://www.data.gouv.fr/datasets/offres-de-sante-sanitaire-medico-social-et-de-ville-en-france-metropolitaine-et-drom-1">Agence du numérique en santé, offres de santé du Répertoire opérationnel des ressources (data.gouv)</a>, <a href="https://www.data.gouv.fr/datasets/finess-structures-1">FINESS, établissements sanitaires et médico-sociaux (Finess+, data.gouv)</a>, <a href="https://www.martinique.ars.sante.fr/media/9531/download">ARS Martinique, offre de soins en psychiatrie (document de 2018)</a>, <a href="https://geoservices.ign.fr/documentation/services/services-geoplateforme/geocodage">IGN, service de géocodage de la Géoplateforme</a>.</p>
+<details>
+<summary>Liste des structures</summary>
+<ul>
+<li><strong>Services d'urgences</strong> (16). Accueil Urgences Chirurgicales (Paris); Accueil des urgences médecine et chirurgie (Paris); CPOA Urgence Ambulatoire (Paris); GHU APHP CUP SITE COCHIN PORT ROYAL (Paris); GHU APHP NUP SITE BICHAT C BERNARD (Paris); GHU APHP NUP SITE SAINT LOUIS (Paris); GHU APHP SUN SITE TENON (Paris); HOPITAL DE LA CROIX SAINT SIMON (Paris); UMC Accueil Urgences (835) (Paris); Unité d'hospitalisation en aval des urgences (Paris); Unité médicale de garde (Paris); Urgences chirurgicales (Paris); Urgences chirurgie pédiatrique orthopédique et traumatologique de recours (Paris); Urgences chirurgie pédiatrique viscérale et digestive de recours (Paris); Urgences chirurgie pédiatrique viscérale et digestive de recours (Paris); Urgences traumatologiques (Paris).</li>
+<li><strong>SMUR, interventions d'urgence</strong> (5). GHU APHP NUP SITE LARIBOISIERE (Paris); GHU APHP SUN SITE PITIE SALPETRIERE (Paris); SMUR (214) (Paris); SMUR Pédiatrique Robert Debré (Paris); SMUR pédiatrique (559) (Paris).</li>
+<li><strong>Soins non programmés</strong> (12). GHU APHP NUP SITE LARIBOISIERE (Paris); GHU APHP SUN SITE PITIE SALPETRIERE (Paris); GHU APHP SUN SITE ST ANTOINE (Paris); Hospitalisation de Courte Durée (108) (Paris); Lits porte (Paris); Portes Urgences (Paris); Unité d'Hospitalisation Courte Durée (026-235) (Paris); Unité d'hospitalisation de courte durée (322-A09) (Paris); Urgences Hospitalisation de Courte Durée - UHCD (Paris); Urgences Hospitalisations (Paris); ZSTCD (Paris); ZSTCD (Paris).</li>
+<li><strong>Maternités</strong> (16). Bloc opératoire Gynéco-Obstétrique (Paris); Bloc opératoire obstétrique (132) (Paris); CLINIQUE DE LA MUETTE (Paris); CLINIQUE JEANNE D'ARC (Paris); CLINIQUE STE THERESE (Paris); Echographie obstetrique (Paris); GHU APHP NUP SITE LARIBOISIERE (Paris); GHU APHP NUP SITE ROBERT DEBRE (Paris); HOPITAL DES DIACONESSES (Paris); HOPITAL PIERRE ROUQUES LES BLUETS (Paris); Hôpital de jour Obstétrique (Paris); INSTITUT MEDICO-CHIRURGICAL MONTSOURIS (Paris); Salle de naissance (864) (Paris); Unité de néonatalogie (Paris); Urgences Obstétriques (Paris); Urgences Obstétriques (Paris).</li>
+<li><strong>Néonatalogie</strong> (11). GHU APHP NUP SITE BICHAT C BERNARD (Paris); GHU APHP NUP SITE LARIBOISIERE (Paris); GHU APHP SUN SITE PITIE SALPETRIERE (Paris); GHU APHP SUN SITE TENON (Paris); HC Néonatologie Unité Mère Enfant (530) (Paris); Hospitalisation médecine spécialisée néonatologie (Paris); Lits médecine néonatale (Paris); Médecine néonatale (Paris); Néonatologie (Paris); Soins Intensifs de Néonatologie (Paris); Unité de néonatalogie (Paris).</li>
+<li><strong>PMI, protection maternelle et infantile</strong> (51). CENTRE DE PROTECTION INFANTILE DE LA CRF VANDREZANNE (Paris); CENTRE DE PROTECTION MATERNELLE INFANTILE CLAVEL (Paris); CENTRE DECPROTECTION MARTERNELLE INFANTILE BRUNE (Paris); CENTRE DEPARTEMENTAL CPMI DOROTHEE CHELLIER (Paris); CENTRE DEPARTEMENTAL DE PROTECTION MATERNELLE ET INFANTILE (Paris); CENTRE DEPARTEMENTAL DE PROTECTION MATERNELLE ET INFANTILE (Paris); CPMI DE LA VIERGE (Paris); CPMI WAGRAM (Paris); CTRE DEPART DE PROTECTION MATERNELLE ET INFANTILE AQUEDUC (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE 134 MASSENA (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE 49 MASSENA (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE BINET (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE BOINOD (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE CAILLEBOTTE (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE CARPEAUX (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE CAVE (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE CESBRON (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE CHAPELLE (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE CHORON (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE DEMOURS (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE EUPATORIA (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE GAUTHEY (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE GEFFROY (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE GOSCINNY (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE HAINAUT (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE LAURISTON (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE LEON SECHE (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE MENILMONTANT (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE MERCOURI (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE ORDONER (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE PERICHAUX (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE PICPUS (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE POLIVEAU (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE REBEVAL (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE RIBIERE (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE SATRAGNE (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE TERRASSE (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE THIONVILLE (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE TOURNEUX (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE VAUCOULEURS (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE VERNEUIL (Paris); CTRE DEPT DE PROTECTION MATERNELLE ET INFANTILE VILLETTE (Paris); CTRE DEPT DE PROTECTION MATERNELLE INFANTILE BERTHE HIRSCH (Paris); CTRE DEPT PROTECTION MATERNELLE ET INFANTILE GARENNE (Paris); CTRE DEPT PROTECTION MATERNELLE ET INFANTILE RASPAIL (Paris); CTRE DEPT PROTECTION MATERNELLE ET INFANTILE RHIN ET DANUBE (Paris); CTRE DEPT PROTECTION MATERNELLE ET INFANTILE TCHAIKOVSKI (Paris); PM SAGES FEMMES - PMI CENTRAL (Paris); PMI - CENTRE DE PROTECTIO MATERNELLE CITE (Paris); PROTECTION MATERNELLE ET INFANTILE DE L ASS ENFANT ET SANTE (Paris); PROTECTION MATERNELLE ET INFANTILE OEUVRE CROIX SAINT SIMON (Paris).</li>
+<li><strong>Centres de santé sexuelle</strong> (19). CDS SEXUELLE CHECKPOINT PARIS (Paris); CENTRE DE SANTE SEXUELLE (Paris); CENTRE DE SANTE SEXUELLE BOURSAULT (Paris); CENTRE DE SANTE SEXUELLE CLAVEL (Paris); CENTRE DE SANTE SEXUELLE L ARRIVEE (Paris); CENTRE DE SANTE SEXUELLE LASSON (Paris); CENTRE DE SANTE SEXUELLE MASSENA (Paris); CENTRE DE SANTE SEXUELLE MINISTERE DES AFFAIRES SOC ET INT (Paris); CENTRE DE SANTE SEXUELLE OSE (Paris); CENTRE DE SANTE SEXUELLE PICPUS (Paris); CENTRE DE SANTE SEXUELLE SAINT JACQUES (Paris); CENTRE DE SANTE SEXUELLE SANTERRE (Paris); CSS BELLEVILLE (Paris); CSS CAVE (Paris); CSS COLLIARD (Paris); CSS CURNONSKY (Paris); CSS FOCSS (Paris); CSS GASTON TESSIER (Paris); CSS RIDDER (Paris).</li>
+<li><strong>Pédiatrie à l'hôpital</strong> (4). EPIVER (UH 277) (Paris); HDJ Asterya bilan admission (A16) (Paris); HDJ Nouveaux nés vulnérables (489) (Paris); Hôpital de Jour de Pédiatrie Générale (Paris).</li>
+<li><strong>Médecine polyvalente à l'hôpital</strong> (18). Explorations multi-disciplinaires (Paris); HDJ Hyper croissance (151) (Paris); HDJ WEIJI post crise suicidaire MDA MCO (A44) (Paris); HJ Urologie (290) (Paris); Hopital de jour Médecine Interne (Paris); Hospitalisation  médecine interne A SUPPRIMER (Paris); Hospitalisation Complète Médecine Interne (Paris); Hospitalisation de semaine - médecine interne et immuno clinique (Paris); Hospitalisation de semaine médecine interne (Paris); Hôpital de jour CASPER (179/200/202/201) (Paris); Hôpital de jour Médecine Interne 2 (Paris); Hôpital de jour médecine adolescents (Paris); Hôpital de jour médecine interne (Paris); Hôpital de semaine centre du sommeil (Paris); Médecine Générale (Paris); Médecine interne (HDJ) (Paris); UPD CHIRURGICALE HC (Paris); Unité Post Urgences Médecine Interne UPUMI (Paris).</li>
+<li><strong>Gériatrie à l'hôpital</strong> (16). CLINIQUE DU MONT LOUIS (Paris); GHU APHP NUP SITE BICHAT C BERNARD (Paris); Gériatrie aigüe hospitalisation complète (Paris); HDJ G2 Evaluation (221) (Paris); HDJ MED GERIATRIQUE (Paris); Hôpital de jour Médecine Gériatrique (Paris); Hôpital de jour gériatrie (Paris); Hôpital de jour gériatrie - HDJ Evaluation (Paris); Hôpital de jour médecine interne gériatrique (Paris); Médecine Aigue Gériatrique (Paris); Médecine Gériatrique HDJ  MCO (Paris); Psychogériatrie hospitalisation (Paris); SE Chimio gériatrie (821) (Paris); UPOG (Unité Post Opératoire Gériatrique) (Paris); UPREG USC (Paris); Unité de Gériatrie Aigue (Paris).</li>
+<li><strong>Cardiologie à l'hôpital</strong> (17). CLINIQUE INTERNATIONALE PARC MONCEAU (Paris); CLINIQUE TURIN (Paris); Cardiologie médicale / HC (Paris); GHU APHP NUP SITE ROBERT DEBRE (Paris); GHU APHP SUN SITE PITIE SALPETRIERE (Paris); HC Cardiologie Pédiatrique (167) (Paris); HDJ Cardiologie (647-653-802-A21) (Paris); HDJ HTA et PCV (592) (Paris); HDJ Maladies rares - Maladies Cardiaques Héréditaires (Paris); HDJ Oncologie cardio (226) (Paris); HOPITAL PRIVE GEOFFROY SAINT HILAIRE (Paris); Hospitalisation cardiologie - rythmologie (Paris); Hospitalisation de semaine de cardiologie (Paris); Hospitalisation traditionnelle cardiologie (Paris); Hospitalisations en cardiologie interventionnelle (Paris); Hôpital de jour Cardiologie (Paris); Hôpital de semaine cardiologie (Paris).</li>
+<li><strong>Neurologie à l'hôpital</strong> (13). Hospitalisation Urgences cérébro Vasculaire (Paris); Hospitalisation soins palliatifs Neuropédiatrie (Paris); Hôpital de Jour MCO MPR (Paris); Hôpital de Jour de la première crise d'Epilepsie (Paris); Hôpital de jour de Neurologie (Paris); Hôpital de jour neurologie (Paris); Hôpital de jour neurologie (Paris); Neurologie / Ambulatoire (Paris); Neurologie Hôpital de Jour (Paris); SI unité hospit thérapies innovantes (378) (Paris); USINV (Paris); USINV (Paris); hospitalisation complète de neuro oncologie (Paris).</li>
+<li><strong>Cancérologie et radiothérapie</strong> (20). Cancérologie médicale / HC (Paris); Chimiothérapie (Paris); Chirurgie cancérologique (Paris); Chirurgie onco-pédiatrique (Paris); HC Onco Thoracique (Paris); HCS Chimio oncologie thoracique (A56) (Paris); HDS Onco immunologie (593) (Paris); HOPITAL PRIVE DES PEUPLIERS (Paris); Hospitalisation Soins Palliatif Onco-hémato-immuno (Paris); Hospitalisation complète oncologie (Paris); Hospitalisation de jour Oncologie (Paris); Hospitalisation oncologie médicale (Paris); Hôpital de jour oncologie (Paris); Hôpital de jour oncologie (Paris); Hôpital de semaine radiothérapie - curiethérapie (Paris); INSTITUT MEDICO-CHIRURGICAL MONTSOURIS (Paris); Médecine oncologique (Paris); Oncologie - Pédiatrie - Secteur Adolescents Jeunes Adultes (Paris); Oncologie ORL (Paris); hôpital de jour de neuro oncologie (Paris).</li>
+<li><strong>Réanimation et soins intensifs</strong> (15). GH PARIS SITE SAINT JOSEPH (Paris); Hospitalisation réanimation chirurgicale (Paris); Lits réanimation chirurgicale (Paris); Oncologie - Pédiatrie - Secteur Protégé (Paris); Réanimation chirurgie cardiaque (Paris); Réanimation médico‑chirurgicale (Paris); Soins Intensifs Hemato Sénior (Paris); Soins Intensifs maladies infectieuses et tropicales adulte (702) (Paris); Soins intensifs pneumo non covid (359) (Paris); USI Gastro-entérologie pédiatrique (Paris); USI Neurochirurgie (Paris); USIP GASTON CORDIER (UH 20U) (Paris); USIP Réanimation Chirurgicale (Paris); Unité de soins intensifs néphrologiques SINRA (Paris); Unité de soins intensifs pédiatrie générale (Paris).</li>
+<li><strong>Chirurgie à l'hôpital</strong> (43). Ambulatoire Coelio-chirurgie (Paris); Ambulatoire chirurgie gynécologique (Paris); Ambulatoire ophtalmologie (Paris); CLINIQUE CHIRURGICALE DU TROCADERO (Paris); CLINIQUE JEANNE D'ARC (Paris); Centre d'Evaluation et de Traitement de la Douleur (CETD) (Paris); Chirurgie Ambulatoire - Vasculaire (Paris); Chirurgie Plastique et Reconstructrice (Paris); Chirurgie ambulatoire en ORL (Paris); Chirurgie de la vulve service ambulatoire (Paris); Chirurgie du Rachis (Paris); Chirurgie du membre inférieur (pied) ambulatoire (Paris); Chirurgie du membre supérieur (Paris); Chirurgie gynécologique en hospitalisation complète (Paris); Chirurgie vasculaire / Ambulatoire (Paris); FGC de chirurgie ambulatoire (Paris); HC Chirurgie cardiaque vasculaire pédiatrique (190) (Paris); HDJ - Chirurgie esthétique, plastique et reconstructrice (Paris); HDJ UCA accès vasculaire ambulatoire (A05) (Paris); HDJ Urologie et Lithothérapie (290-291) (Paris); HDS OPH (Paris); Hospitalisation Chirurgie Vasculaire (Phlébologie) (Paris); Hospitalisation Ophtalmologie (Paris); Hospitalisation Orthopédie traumatologie (Paris); Hospitalisation ambulatoire maxillo-faciale (Paris); Hospitalisation chirurgie du pied (Paris); Hospitalisation chirurgie orthopédie-Traumatologie (Paris); Hospitalisation complète Chirurgie Orthopédique - épaule, genou, hanche, main, pied, rachis (Paris); Hospitalisation de jour ophtalmologie (Paris); Hospitalisation médecine obstétrique (Paris); Hospitalisation ophtalmologie (Paris); Hospitalisation traditionnelle urologie (Paris); Hôpital de jour CRIC (Paris); Hôpital de jour Gynécologie (Paris); Hôpital de jour gynécologie (Paris); Neurochirurgie Hospitalisation Complète (Paris); Orthopédie du genou (Paris); Unité Post Opérationnelle Gériatrique 2 (Paris); Unité Péri opératoire Gériatrie - UPOG (Paris); Unité d'hospitalisation d'ophtalmologie (Paris); Unité de chirurgie ambulatoire (Paris); Unité de chirurgie réparatrice et dermatologique en ambulatoire (Paris); Urologie ambulatoire (Paris).</li>
+<li><strong>Dialyse</strong> (17). AURA  HD DP (Paris); Auto dialyse assistée (Paris); CENTRE D AUTODIALYSE CLINIQUE ALMA (Paris); CENTRE DE NEPHROLOGIE B BRAUN AVITUM DES BUTTES CHAUMONT (Paris); CLINIQUE TURIN (Paris); Centre lourd (Paris); DIAVERUM SAINT DENIS PARIS BOURET (Paris); Dialyse néphrologie pédiatrique (236) (Paris); Hemodialyse - centre lourd (Paris); UG 5213 (Paris); UNITE AUTODIALYSE JAVEL (Paris); UNITE AUTODIALYSE ROSA PARKS (Paris); UNITE D AUTODIALYSE PARC MONCEAU (Paris); UNITE DE DIALYSE AURA BICHAT (Paris); UNITE DE DIALYSE AURA PELLEPORT (Paris); UNITE EURODIALYSE NEPHROS (Paris); Unité de dilayse médicalisée (Paris).</li>
+<li><strong>Soins palliatifs</strong> (19). CS Soins Palliatifs (Paris); Equipe Mobile de Soins Pallatifs (807) (Paris); Equipe mobile de soins palliatifs (299) (Paris); GHU APHP NUP SITE BICHAT C BERNARD (Paris); GHU APHP NUP SITE BRETONNEAU (Paris); GHU APHP NUP SITE LARIBOISIERE (Paris); GHU APHP SUN SITE ROTHSCHILD (Paris); GHU APHP SUN SITE TENON (Paris); HC NEONAT SOINS PALLIATIFS (UH 100) (Paris); HOPITAL JEAN JAURES (Paris); HOPITAL PRIVE COGNACQ JAY (Paris); HOPITAL PRIVE DES PEUPLIERS (Paris); Hôpital de Jour de Soins de Support-Soins Palliatifs (Paris); Hôpital de jour soins palliatifs (Paris); MAISON MEDICALE JEANNE GARNIER (Paris); S.PALL GAT.DOUL.CHRO (Paris); Unité Mobile d'Accompagnement et de Soins Palliatifs (UG 7522) (Paris); Unité mobile d'accompagnement et de soins palliatifs (Paris); Unité mobile de soins palliatifs (Paris).</li>
+<li><strong>Structures douleur chronique</strong> (5). Equipe mobile plaie (741) (Paris); GHU APHP NUP SITE SAINT LOUIS (Paris); HDJ Algoped (557) (Paris); HDJ Douleur (Paris); HDJ Douleur Péri-Opératoire(462-A34) (Paris).</li>
+<li><strong>Soins médicaux et de réadaptation</strong> (30). Centre ambulatoire de réadaptation du XXème POLYVALENT (Paris); GHU APHP NUP SITE BICHAT C BERNARD (Paris); HC - MPR Locomoteur (Paris); HC - SSR gériatrique (Paris); HC SMR Cardio-vasculaires - Expertise - Réadaptation précoce post-aiguë cardiologique (PREPAC) (Paris); HC SMR Post Opératoire Gériatrique Orthopédie (Paris); HDJ Douleur (163) (Paris); HDJ MPR Lombalgie - LRB (Paris); HDJ MPR Système nerveux (Paris); HDJ Médecine physique et réadaptation SSR (389) (Paris); HDJ SMR GERIATRIQUE (Paris); HDJ SMR Neurologie (Paris); HDJ SMR gériatrie (Paris); HDJ SSR CARDIO VASCULAIRE (Paris); HDJ SSR personnes âgés(192) (Paris); HDJ gérontologie 2 SMR (200) (Paris); HOPITAL MERE ENFANT DE L EST PARISIEN (Paris); Hopital de jour SSR Gériatrique (Paris); Hospitalisation de jour (HDJ) SSR COVID long (Paris); Hôpital de jour Affection de l'appareil locomoteur (Paris); Hôpital de jour SMRG Espace IMAGINE (Paris); MPR NEUROLOGIE (Paris); Médecine Physique et Réadapatation Hôpital de Jour (Paris); SMR CHOPIN (Paris); SMR Neurologie - Hôpital de jour (Paris); SMR lymphologie et CRMR lymphoedème (Paris); SSR Gériatrique - Gériatrie Plaie &amp; Aval (Paris); SSR Polyvalent - HC - Drs El Hassar, Damerdji et Bouasria (Paris); Troubles sphinctériens - neuro-urologie (Paris); Virose chronique - adolescents et jeunes adultes - 13-25 ans - HC (Paris).</li>
+<li><strong>Hospitalisation à domicile</strong> (1). HOSPITALISATION A DOMICILE CROIX SAINT SIMON (Paris).</li>
+<li><strong>Soins infirmiers à domicile (SSIAD)</strong> (27). AMSAD Soins infirmiers à domicile (Paris); APSSAD SSIAD NUIT (Paris); SPASAD ADIAM (Paris); SPASAD AMSAV (Paris); SPASAD NOTRE VILLAGE (Paris); SSIAD ADMR 20 (Paris); SSIAD AMICAL 75 (Paris); SSIAD ASSISTANCE PARIS (Paris); SSIAD ATMOSPHERE (Paris); SSIAD CASVP (Paris); SSIAD COEUR DE VILLE (Paris); SSIAD DE JOUR UNION SOINS ET SERVICES ILE DE FRANCE (Paris); SSIAD DOMUSVI DOMICILE MONTMARTRE (Paris); SSIAD DOMUSVI DOMICILE PARIS 8 (Paris); SSIAD DOMUSVI DOMICILE PARIS16 (Paris); SSIAD GERBIER (Paris); SSIAD ISATIS (Paris); SSIAD LA CROIX SAINT-SIMON (Paris); SSIAD PARIS 75 (Paris); SSIAD PARIS 75 SOS GROUPE SENIOR (Paris); SSIAD PARIS GROUPE SOS SENIORS (Paris); SSIAD PRESENCE A DOMICILE (Paris); SSIAD USSIF PARIS NORD (Paris); Service Autonomie Aide et Soins (Paris); Service autonomie aide et soin (Paris); UNA Paris 12 (Paris); UNIONS SOINS ET SERVICES ILE DE FRANCE (Paris).</li>
+<li><strong>EHPAD</strong> (90). CAJ CASA DELTA 7 19E - HEROLD (Paris); CAJ EDITH KREMSDORF (Paris); CAJ ESPACE AURELIE JOUSSET (Paris); CAJ FOYER DOCTEUR JEAN COLIN (Paris); CAJ L ETIMOE (Paris); CAJ LA VIE EN MAUVE (Paris); CAJ LES BALKANS (Paris); CAJ LES FRANCS BOURGEOIS (Paris); CAJ MADELEINE MEYER (Paris); CAJ MARIE DE MIRIBEL (Paris); CAJ VILLA RUBENS (Paris); CENTRE D'ACCUEIL DE JOUR CASA DELTA 7 - PARIS 17 (Paris); CENTRE D'ACCUEIL DE JOUR CASA DELTA 7 - PARIS 18 (Paris); CHAILLOT (Paris); Centre de Jour Alzheimer Les Portes du Sud (Paris); EHPAD ACPPA PEAN (Paris); EHPAD AMITIE ET PARTAGE (Paris); EHPAD ANTOINE PORTAIL (Paris); EHPAD ASSOMPTION (Paris); EHPAD BASTILLE (Paris); EHPAD CASVP ALICE PRIN (Paris); EHPAD CASVP HUGUETTE VALSECCHI (Paris); EHPAD CENTRE ROBERT DOISNEAU (Paris); EHPAD COS ALICE GUY (Paris); EHPAD COS JACQUES BARROT (Paris); EHPAD COS JEANNE D ARC (Paris); EHPAD DES SOEURS AUGUSTINES (Paris); EHPAD FOYER DES ISRAELITES REFUGIES (Paris); EHPAD GRENELLE (Paris); EHPAD KORIAN BRUNE (Paris); EHPAD KORIAN JARDINS D ALESIA (Paris); EHPAD KORIAN LES AMANDIERS (Paris); EHPAD KORIAN LES ARCADES (Paris); EHPAD KORIAN MAGENTA (Paris); EHPAD KORIAN MONCEAU (Paris); EHPAD KORIAN SAINT SIMON (Paris); EHPAD LA MAISON DU PARC (Paris); EHPAD LA SOURCE D AUTEUIL (Paris); EHPAD LE TREFLE BLEU CARDINET (Paris); EHPAD LES JARDINS D IROISE (Paris); EHPAD LES JARDINS DE MONTMARTRE (Paris); EHPAD LES PARENTELES (Paris); EHPAD LES TERRASSES DE MOZART (Paris); EHPAD LES TERRASSES DU 20EME (Paris); EHPAD MA MAISON BRETEUIL (Paris); EHPAD MA MAISON PICPUS (Paris); EHPAD MAISON DE RETRAITE ET GERIATRIE (Paris); EHPAD MAPAD SANTE (Paris); EHPAD MARIE THERESE (Paris); EHPAD ORPEA BATIGNOLLES (Paris); EHPAD PROTESTANTE DE LA MUETTE (Paris); EHPAD PUV CITE DE LA CHAPELLE (Paris); EHPAD REPOTEL GAMBETTA (Paris); EHPAD RESIDENCE AMARAGGI (Paris); EHPAD RESIDENCE CASTAGNARY (Paris); EHPAD RESIDENCE CATHERINE LABOURE (Paris); EHPAD RESIDENCE CLUB LE MONTSOURIS (Paris); EHPAD RESIDENCE DE SEVRES (Paris); EHPAD RESIDENCE DU MARAIS (Paris); EHPAD RESIDENCE EDITH PIAF ORPEA (Paris); EHPAD RESIDENCE GOBELINS (Paris); EHPAD RESIDENCE HEROLD (Paris); EHPAD RESIDENCE LES AIRELLES (Paris); EHPAD RESIDENCE LES ISSAMBRES (Paris); EHPAD RESIDENCE LES MUSICIENS (Paris); EHPAD RESIDENCE NOTRE DAME DES CHAMPS (Paris); EHPAD RESIDENCE OCEANE (Paris); EHPAD RESIDENCE ORNANO (Paris); EHPAD RESIDENCE SANTE ANSELME PAYEN (Paris); EHPAD RESIDENCE SANTE OASIS (Paris); EHPAD RESIDENCE TIERS TEMPS PARIS (Paris); EHPAD RESIDENCE TROCADERO (Paris); EHPAD SAINT AUGUSTIN (Paris); EHPAD SAINTE MONIQUE (Paris); EHPAD SARA WEILL-RAYNAL (Paris); EHPAD VILLA DANIELLE TORELLI (Paris); EHPAD VILLA JULES JANIN (Paris); EHPAD VILLA LECOURBE (Paris); ETAB.HEBERGT.PERS.AGEES DEP RESIDENCE JEAN-BAPTISTE CARPEAUX (Paris); FURTADO HEINE (Paris); LA PIRANDELLE (Paris); MEMOIRE PLUS (Paris); MOZART - CLASSIQUE (Paris); PASA (Pôle d'activités et de soins adaptés) (Paris); Saint Jacques (Paris); UPPD - RDC (Paris); Unité d'Hébergement renforcée (Paris); Unité sécurisée Alzheimer (Paris); Unité sécurisée pour personnes atteintes de maladie Alzheimer ou apparentée (Paris); Unitée protégée (Paris).</li>
+<li><strong>Résidences autonomie</strong> (140). EHPA LA NOUVELLE MAISON ISATIS (Paris); EHPA VILLA SAINT ROMAIN (Paris); LA PROVIDENCE (Paris); RESIDENCE AUTONOME QUAI DE SEINE (Paris); RESIDENCE AUTONOMIE  BOINOD  DU C A S DE PARIS (Paris); RESIDENCE AUTONOMIE ALLEE VERTE (Paris); RESIDENCE AUTONOMIE ALLERAY (Paris); RESIDENCE AUTONOMIE ANDRE LEROUX - OMEG AGE GESTION (Paris); RESIDENCE AUTONOMIE ANDRE MALRAUX (Paris); RESIDENCE AUTONOMIE ARAGO (Paris); RESIDENCE AUTONOMIE AU MAIRE (Paris); RESIDENCE AUTONOMIE BEAUCOUR (Paris); RESIDENCE AUTONOMIE BEAUHARNAIS DU C A S DE PARIS (Paris); RESIDENCE AUTONOMIE BEDIER BOUTROUX (Paris); RESIDENCE AUTONOMIE BOIS LE VENT (Paris); RESIDENCE AUTONOMIE BOUTEBRIE (Paris); RESIDENCE AUTONOMIE CAULAINCOURT (Paris); RESIDENCE AUTONOMIE CHARCOT (Paris); RESIDENCE AUTONOMIE CHARLES DELESCLUZE (Paris); RESIDENCE AUTONOMIE CHATEAU DES RENTIERS (Paris); RESIDENCE AUTONOMIE CITE DE LA CHAPELLE (Paris); RESIDENCE AUTONOMIE CLAUDE BERNARD (Paris); RESIDENCE AUTONOMIE CLAUZEL (Paris); RESIDENCE AUTONOMIE CLERY (Paris); RESIDENCE AUTONOMIE COEUR DE BELLEVILLE - ARPAVIE (Paris); RESIDENCE AUTONOMIE DAMET (Paris); RESIDENCE AUTONOMIE DE LA PRESENTATION (Paris); RESIDENCE AUTONOMIE DELBET (Paris); RESIDENCE AUTONOMIE DENOYEZ (Paris); RESIDENCE AUTONOMIE DES ABBESSES (Paris); RESIDENCE AUTONOMIE DES BERNARDINS (Paris); RESIDENCE AUTONOMIE DES MARECHAUX (Paris); RESIDENCE AUTONOMIE DES PERICHAUX (Paris); RESIDENCE AUTONOMIE DES SAINTS SIMONIENS (Paris); RESIDENCE AUTONOMIE DOSNE (Paris); RESIDENCE AUTONOMIE DU BON ACCUEIL (Paris); RESIDENCE AUTONOMIE DU JARDIN DES MOINES OMEG AGE GESTION (Paris); RESIDENCE AUTONOMIE DU MONTPARNASSE LOGEMENTS LES ARTISTES (Paris); RESIDENCE AUTONOMIE DUHESME (Paris); RESIDENCE AUTONOMIE FAUBOURG DU TEMPLE (Paris); RESIDENCE AUTONOMIE FLANDRE (Paris); RESIDENCE AUTONOMIE GAMBETTA (Paris); RESIDENCE AUTONOMIE GAUTIER WENDELEN (Paris); RESIDENCE AUTONOMIE GEOFFROY ST HILAIRE (Paris); RESIDENCE AUTONOMIE GEORGETTE AGUTTE (Paris); RESIDENCE AUTONOMIE GRAMONT (Paris); RESIDENCE AUTONOMIE GRENELLE (Paris); RESIDENCE AUTONOMIE HAXO (Paris); RESIDENCE AUTONOMIE JEAN CALVIN (Paris); RESIDENCE AUTONOMIE JEAN MOREAS (Paris); RESIDENCE AUTONOMIE JEAN NICOT (Paris); RESIDENCE AUTONOMIE JEANNE D ARC (Paris); RESIDENCE AUTONOMIE JEMMAPES (Paris); RESIDENCE AUTONOMIE JOUVENET (Paris); RESIDENCE AUTONOMIE JUGE (Paris); RESIDENCE AUTONOMIE KELLER (Paris); RESIDENCE AUTONOMIE LA CHINE (Paris); RESIDENCE AUTONOMIE LA DEMEURE DE LONGCHAMP (Paris); RESIDENCE AUTONOMIE LA FOLIE MERICOURT (Paris); RESIDENCE AUTONOMIE LA GLACIERE (Paris); RESIDENCE AUTONOMIE LA GRANGE AUX BELLES (Paris); RESIDENCE AUTONOMIE LA JONQUIERE (Paris); RESIDENCE AUTONOMIE LA REUNION ORTEAUX - ARPAVIE (Paris); RESIDENCE AUTONOMIE LA ROCHEFOUCAULD (Paris); RESIDENCE AUTONOMIE LA ROQUETTE (Paris); RESIDENCE AUTONOMIE LA SABLIERE (Paris); RESIDENCE AUTONOMIE LACUEE (Paris); RESIDENCE AUTONOMIE LAMARCK (Paris); RESIDENCE AUTONOMIE LEIBNITZ (Paris); RESIDENCE AUTONOMIE LEON FROT (Paris); RESIDENCE AUTONOMIE LEON FROT (Paris); RESIDENCE AUTONOMIE LES AMANDIERS DU C A S DE PARIS (Paris); RESIDENCE AUTONOMIE LES BOIS (Paris); RESIDENCE AUTONOMIE LES CELESTINS (Paris); RESIDENCE AUTONOMIE LES FETES (Paris); RESIDENCE AUTONOMIE LES PETITES SOEURS DES PAUVRES (Paris); RESIDENCE AUTONOMIE LES RECULETTES (Paris); RESIDENCE AUTONOMIE LES SOLANACEES (Paris); RESIDENCE AUTONOMIE LESECQ (Paris); RESIDENCE AUTONOMIE LUNEVILLE (Paris); RESIDENCE AUTONOMIE MADELEINE BEJART (Paris); RESIDENCE AUTONOMIE MALAR (Paris); RESIDENCE AUTONOMIE MARECHAL LECLERC (Paris); RESIDENCE AUTONOMIE MASSENA (Paris); RESIDENCE AUTONOMIE MEAUX CHAUFOURNIERS (Paris); RESIDENCE AUTONOMIE MENILMONTANT (Paris); RESIDENCE AUTONOMIE MESLAY (Paris); RESIDENCE AUTONOMIE MOISE LEON DU C A S I P (Paris); RESIDENCE AUTONOMIE MONTMARTROIS (Paris); RESIDENCE AUTONOMIE MORAND (Paris); RESIDENCE AUTONOMIE MOZART (Paris); RESIDENCE AUTONOMIE NATIONALE (Paris); RESIDENCE AUTONOMIE NAVARIN (Paris); RESIDENCE AUTONOMIE NOTRE DAME DE BON SECOURS (Paris); RESIDENCE AUTONOMIE PAJOU (Paris); RESIDENCE AUTONOMIE PELLEPORT (Paris); RESIDENCE AUTONOMIE PERSONNES AGEES LAMARTINE - ARPAVIE (Paris); RESIDENCE AUTONOMIE PERSONNES AGEES LES PRECHEURS (Paris); RESIDENCE AUTONOMIE PETITES SOEURS DES PAUVRES NOTRE DAME DES CHAMPS (Paris); RESIDENCE AUTONOMIE PHILIPPE AUGUSTE (Paris); RESIDENCE AUTONOMIE PIAT (Paris); RESIDENCE AUTONOMIE PIERRE AVIA (Paris); RESIDENCE AUTONOMIE POLIVEAU (Paris); RESIDENCE AUTONOMIE POUR PERSONNES AGEES MALVOYANTES (Paris); RESIDENCE AUTONOMIE RAMPAL (Paris); RESIDENCE AUTONOMIE RICHARD LENOIR (Paris); RESIDENCE AUTONOMIE RIDDER (Paris); RESIDENCE AUTONOMIE ROBERT BLACHE (Paris); RESIDENCE AUTONOMIE ROSALIE RENDU (Paris); RESIDENCE AUTONOMIE SAINT BLAISE (Paris); RESIDENCE AUTONOMIE SAINT FARGEAU (Paris); RESIDENCE AUTONOMIE SAINT HONORE (Paris); RESIDENCE AUTONOMIE SANTOS DUMONT (Paris); RESIDENCE AUTONOMIE SAUSSURE (Paris); RESIDENCE AUTONOMIE SERVICE AVE MARIA (Paris); RESIDENCE AUTONOMIE SERVICES AU PETIT REMOULEUR (Paris); RESIDENCE AUTONOMIE SERVICES BEAUNIER (Paris); RESIDENCE AUTONOMIE SERVICES DES ARBUSTES (Paris); RESIDENCE AUTONOMIE SERVICES DU MAINE (Paris); RESIDENCE AUTONOMIE SERVICES EPINETTES (Paris); RESIDENCE AUTONOMIE SERVICES LEPRINCE (Paris); RESIDENCE AUTONOMIE SERVICES LES TOURELLES (Paris); RESIDENCE AUTONOMIE SERVICES MOUFFETARD (Paris); RESIDENCE AUTONOMIE SERVICES OMER TALON (Paris); RESIDENCE AUTONOMIE SERVICES OSCAR ROTY (Paris); RESIDENCE AUTONOMIE SERVICES QUINTINIE PROCESSION (Paris); RESIDENCE AUTONOMIE SERVICES SAINT ELOI (Paris); RESIDENCE AUTONOMIE SERVICES SAINT SAUVEUR (Paris); RESIDENCE AUTONOMIE SERVICES VAUGELAS (Paris); RESIDENCE AUTONOMIE ST JACQUES (Paris); RESIDENCE AUTONOMIE STEINLEN (Paris); RESIDENCE AUTONOMIE STEPHENSON (Paris); RESIDENCE AUTONOMIE TISSERAND (Paris); RESIDENCE AUTONOMIE VILLA SAINT ANGE (Paris); RESIDENCE AUTONOMIE VISCONTI (Paris); RESIDENCE AUTONOMIEDUNOIS DU BUREAU D'AIDE SOCIALE DE PARIS (Paris); RESIDENCE AUTONOMIESERVICES DES TERNES (Paris); RESIDENCE DE CATERS AGEFO (Paris); RÉSIDENCE AUTONOMIE CHARENTON MEUNIERS (Paris); RÉSIDENCE AUTONOMIE JARDIN DES PLANTES (Paris).</li>
+<li><strong>Soins de longue durée (USLD)</strong> (8). CENTRE DE LONG SEJOUR HENRY DUNANT (Paris); GHU AP-HP UNIVERSITE PARIS SACLAY SITE USLD SAINTE PERINE (Paris); GHU APHP CENTRE-UNIVERSITE PARIS CITE SITE LA COLLEGIALE (Paris); GHU APHP CENTRE-UNIVERSITE PARIS CITE SITE USLD BROCA (Paris); GHU APHP NORD UNIVERSITE PARIS CITE SITE USLD BRETONNEAU (Paris); GHU APHP NORD UNIVERSITE PARIS CITE SITE USLD FERNAND WIDAL (Paris); GHU APHP SORBONNE UNIVERSITE USLD PITIE SALPETRIERE (Paris); USLD SITE VAUGIRARD GHU APHP CENTRE-UNIVERSITE PARIS CITE (Paris).</li>
+<li><strong>Équipes spécialisées Alzheimer, accueil de jour et répit</strong> (27). ACCUEIL DE JOUR NOTRE DAME DU BON SECOURS ST AUGUSTIN (Paris); ACCUEIL DE JOUR POUR PERSONNES ÂGÉES EN PERTE D'AUTONOMIE (Paris); CAJ CASA DELTA 7 18E (Paris); CAJ CASA DELTA 7 19E - HEROLD (Paris); CAJ CITE DE LA CHAPELLE (Paris); CAJ EDITH KREMSDORF (Paris); CAJ FOYER DOCTEUR JEAN COLIN (Paris); CAJ GENEVIEVE LAROQUE (Paris); CAJ ISATIS (Paris); CAJ JOSEPH WEILL (Paris); CAJ L ETIMOE (Paris); CAJ LES BALKANS (Paris); CAJ MEMOIRE PLUS ISATIS (Paris); CENTRE ACCUEIL DE JOUR MEDICALISE MARIE DE MIRIBEL (Paris); CENTRE ACCUEIL JOUR ESPACE AURELIE JOUSSET (Paris); CENTRE D ACCUEIL DE JOUR DE L ASSOCIATION OSE (Paris); CENTRE D ACCUEIL DE JOUR LA VIE EN MAUVE (Paris); CENTRE DE JOUR PA LES PORTES DU SUD MASSENA (Paris); CENTRE DE JOUR PA SAINT GERMAIN (Paris); Plateforme d'accompagnement et de répit pour les aidants - Paris Nord (Paris); SAD MIXTE MAISON DES CHAMPS (Paris); SAFIRH (Service des Aidants Familiaux d'Information et de Ressources Liée au Handicap (Paris); SPASAD ADIAM (Paris); SPASAD APSSAD JOUR (Paris); SSIAD ADMR 20 (Paris); SSIAD ATMOSPHERE (Paris); SSIAD COEUR DE VILLE (Paris).</li>
+<li><strong>Instituts médico-éducatifs (IME)</strong> (32). 12 20 ANS (Paris); CENTRE TEDYBEAR 75 (Paris); EMPro CARDINET (Paris); IME AGIR ET VIVRE L AUTISME (Paris); IME ANGELA DAVIS JUNIOR (Paris); IME BINET SIMON (Paris); IME CAP AUTISME (Paris); IME CENTRE FRANCHEMONT (Paris); IME CENTRE ROBERT DOISNEAU (Paris); IME CEREP (Paris); IME CHERIOUX (Paris); IME COGNACQ JAY (Paris); IME COUR DE VENISE (Paris); IME DE BELLEVILLE (Paris); IME DE SAUSSURE (Paris); IME DU LUXEMBOURG (Paris); IME DYSPHASIA (Paris); IME ECOLE DE CHAILLOT (Paris); IME HOVIA (Paris); IME LES PETITES VICTOIRES (Paris); IME LES TOUT PETITS (Paris); IME NORBERT DANA (Paris); IME NOTRE ECOLE (Paris); IME SILENCE DES JUSTES (Paris); IME SUZANNE CORDES (Paris); IMP COURS HERVE (Paris); MAIA AUTISME DE PARIS (Paris); MAISON PERCE-NEIGE ALTERNANCE DE PARIS (Paris); SERVICES INCLUSIFS (Paris); SERVICES INCLUSIFS DE RELIANCES (Paris); UNITE IMPRO APAJH SEMI INTERNAT (Paris); UNITE INSTITUT MEDICO-EDUCATIF ACCEUIL DE JOUR - EMP NOLLET (Paris).</li>
+<li><strong>Instituts thérapeutiques, éducatifs et pédagogiques (ITEP)</strong> (2). UNITE INSTITUT THERAPEUTIQUE EDUCATIF ET PEDAGOGIQUE (Paris); UNITE INSTITUT THERAPEUTIQUE EDUCATIF ET PEDAGOGIQUE (Paris).</li>
+<li><strong>Services d'éducation spéciale et de soins à domicile (SESSAD)</strong> (38). Antenne Pajol (Paris); IME AGIR ET VIVRE L AUTISME (Paris); PROFESSIONNEL 16 25 ANS - PARIS 15 (Paris); SAFEP  SSEFIS (Paris); SESSAD (Paris); SESSAD ANGELA DAVIS JUNIOR (Paris); SESSAD APF (Paris); SESSAD AUTISME RELAIS PARENTS (Paris); SESSAD AVVEJ (Paris); SESSAD BERNARD LAFAY NOLLET (Paris); SESSAD Bernard LAFAY (Paris); SESSAD CELEM LANGAGE ET INTEGRATION (Paris); SESSAD CENTRE ROBERT DOISNEAU (Paris); SESSAD DU CENTRE POUR ENFANTS PLURIH (Paris); SESSAD DU LOUVRE (Paris); SESSAD DYSPHASIA (Paris); SESSAD ENVOLUDIA (Paris); SESSAD ESSOR (Paris); SESSAD EVELYNE ET SALOMON MADAR (Paris); SESSAD JENNY AUBRY (Paris); SESSAD L EVEIL (Paris); SESSAD L'ÉLAN TCC (Paris); SESSAD LA COLLINE (Paris); SESSAD LA COURTE ECHELLE (Paris); SESSAD LE PASSAGE (Paris); SESSAD LES SEPT LIEUX (Paris); SESSAD LES TOUT PETITS (Paris); SESSAD MOZAIQUE (Paris); SESSAD PAI (Paris); SESSAD SAFEP SSEFIS LEOPOLD BELLAN (Paris); SESSAD SIAM 75 (Paris); UNITE ACCOMPAGNEMENT A L ACQUISITION DE L AUTONOMIE ET LA SCOLARISATION (Paris); UNITE ACCOMPAGNEMENT A L ACQUISITION DE L AUTONOMIE ET LA SCOLARISATION (Paris); UNITE ACCOMPAGNEMENT A L ACQUISITION DE L AUTONOMIE ET LA SCOLARISATION MILIEU ORDINAIRE (Paris); UNITE ACCOMPAGNEMENT A L ACQUISITION DE L AUTONOMIE ET LA SCOLARISATION MILIEU ORDINAIRE (Paris); UNITE D'ÉVALUATION D'INTERVENTION ET DE GUIDANCE PARENTALE EN AUTISME (Paris); UNITE IEM (Paris); USSAD ROTHSCHILD (Paris).</li>
+<li><strong>Établissements pour enfants en situation de polyhandicap, de handicap moteur ou sensoriel</strong> (12). CENTRE AUGUSTIN GROSSELIN (Paris); CENTRE POUR ENFANTS PLURI- (CEPH) DAVIEL (Paris); DISPIOSITIF TRANSITION ADULTE (Paris); IEM LA CROIX FAUBIN (Paris); INSTITUT D EDUCATION SENSORIELLE (Paris); INSTITUT NATIONAL DES JEUNES AVEUGLES (Paris); INSTITUT NATIONAL DES JEUNES SOURDS (Paris); SEES DU CELEM (Paris); UNITE EME LES CASCADES (Paris); UNITE ETABLISSEMENT POUR ENFANT OU ADO POLYHANDICAPE ACCUEIL DE JOUR (Paris); UNITE ETABLISSEMENT POUR ENFANT OU ADO POLYHANDICAPE HEBERGEMENT TEMPORAIRE (Paris); UNITE IEM - MAISON DES REPITS (Paris).</li>
+<li><strong>Maisons d'accueil spécialisées et foyers d'accueil médicalisés</strong> (44). CAJM LE RELAIS ILE DE FRANCE (Paris); CAJM La Note Bleue (Paris); CAJM ROBERT DOISNEAU (Paris); EAM ANNE BERGUNION (Paris); EAM CAJM LES COLOMBAGES (Paris); EAM DUMONTEIL (Paris); EAM JEAN FAVERIS (Paris); EAM LES PETITES VICTOIRES (Paris); EAM MARAICHERS (Paris); EAM SAINT MARTIN (Paris); EAM SAINTE GERMAINE (Paris); FAM BRUNSWIC (Paris); FAM CENTRE ROBERT DOISNEAU (Paris); FAM HOVIA (Paris); FAM JEAN CALVINO (Paris); FAM LA MAISON DE PENELOPE (Paris); FAM LE PONT DE FLANDRE (Paris); FAM LES AMIS DE L ATELIER (Paris); FAM RESIDENCE DU MAINE (Paris); FAM SAAMEYA (Paris); FAM SAINTE GENEVIEVE (Paris); IEM CMS LECOURBE - SAINT JEAN DE DIEU (Paris); MAISON PERCE-NEIGE CENTRE RENE ZAZZO (Paris); MAISON PERCE-NEIGE FOYER DE L'ARIA (Paris); MAS ALAIN RAOUL MOSSE (Paris); MAS Accueil de jour La Croix Faubin (Paris); MAS CESAP CHARLES-ANTOINE KOUAKOU (PCCAK) (Paris); MAS CLEMENT WURTZ  ADJ (Paris); MAS DU DOCTEUR ARNAUD (Paris); MAS ISA 13 PARIS (Paris); MAS LES AMIS DE CLAIRE (Paris); MAS LES AMIS DE CLAIRE ANNEXE (Paris); MAS LES DEUX MARRONNIERS (Paris); MAS MICHELLE CASSAR (Paris); MAS ROBERT DOISNEAU (Paris); MAS SAINT JEAN DE MALTE (Paris); MAS SILENCE DES JUSTES (Paris); UNITE FOYER D ACCUEIL MEDICALISE EN TOUT OU PARTIE (Paris); UNITE FOYER D ACCUEIL MEDICALISE EN TOUT OU PARTIE HEBERGEMENT TEMPORAIRE (Paris); UNITE FOYER D'ACCUEIL MEDICALISE EN TOUT OU PARTIE ACCUEIL DE JOUR (Paris); UNITE MAS ACCUEIL DE JOUR JEUNES ADULTES (Paris); UNITE MAS INTERNAT ALTERNATIF FOYER DE L'ARIA (Paris); UNITE MAS URAT HEBERGEMENT COMPLET (Paris); VIH VHC (Paris).</li>
+<li><strong>Foyers de vie et d'hébergement pour adultes en situation de handicap</strong> (61). APPARTEMENT SEMI-AUTONOME (Paris); CAJ APAJH 75 RIGOLES (Paris); CAJ B ET PH LAFAY (Paris); CAJ DE L ARCHE A PARIS (Paris); CAJ LADAPT (Paris); CAJ LE PONT DE FLANDRE (Paris); CAJ LES COLOMBAGES (Paris); CAJ LOUISE DUMONTEIL (Paris); CAJ La Maison de Penelope (Paris); CAJ Le 157 (Paris); CAJ MENILMONTANT (Paris); CAJ SUZANNE AUSSAGUEL (Paris); CAJ Saint-Joseph (Paris); CENTRE D'ACTIVITES DE JOUR MOZART (Paris); EAM SAINTE GERMAINE (Paris); EANM CAJ RESOLUX (Paris); EANM FOYER DE VIE BARBANEGRE (Paris); EANM FOYER HEBERGEMENT JEAN MOULIN (Paris); EANM HERBERGEMENT HOVIA PARIS 16 (Paris); FAM BRUNSWIC (Paris); FAM HOVIA (Paris); FOYER D'ACCUEIL MEDICALISE SIMONE VEIL (Paris); FOYER D'ACCUEIL POLYVALENT (Paris); FOYER D'HEBERGEMENT DU PONT DE FLANDRE (Paris); FOYER DE VIE CAMILLE CLAUDEL (Paris); FOYER DE VIE DARTY 13 (Paris); FOYER DE VIE DE L ARCHE A PARIS (Paris); FOYER DE VIE DU PONT DE FLANDRE (Paris); FOYER DE VIE KELLERMANN (Paris); FOYER DE VIE MARIE LAURENCIN (Paris); FOYER DE VIE MICHEL CAHEN (Paris); FOYER DE VIE MIRYAM (Paris); FOYER DE VIE PETITES VICTOIRES (Paris); FOYER DE VIE PLANCHETTE (Paris); FOYER DE VIE SAINT JOSEPH (Paris); FOYER DE VIE SAINTE GERMAINE (Paris); FOYER DE VIE SAUSSURE (Paris); FOYER HEBERGEMENT APOLLINAIRE (Paris); FOYER HEBERGEMENT BERCY (Paris); FOYER HEBERGEMENT BERNARD LAFAY (Paris); FOYER HEBERGEMENT ET DE VIE DUMONTEIL (Paris); FOYER HEBERGEMENT L ESPERANCE (Paris); FOYER HEBERGEMENT L'AVENIR ACCUEIL TEMPORAIRE (Paris); FOYER HEBERGEMENT LES PLEIADES (Paris); FOYER HEBERGEMENT MARCO POLO (Paris); FOYER HERBERGEMENT TURBULENCES (Paris); FPAH ACTIVITE DE JOUR ROBERT JOB (Paris); Foyer de vie Bercy (Paris); RESIDENCE CHOISIR SON AVENIR (Paris); RUA COLLIARD FSEF PARIS 5 (Paris); SECTION D'ADAPTATION SPECIALISEE (Paris); UNITE APPARTEMENTS RELAIS - ANNEXES DU CENTRE PLEIN CIEL (Paris); UNITE CAJ ACCUEIL DE JOUR (Paris); UNITE ETABLISSEMENT D'ACCUEIL NON MEDICALISE HEBERGEMENT TEMPORAIRE Apajh75 (Paris); UNITE FOYER D'HEBERGEMENT ARCHIPEL ARCHE A PARIS 16EME (Paris); UNITE FOYER D'HEBERGEMENT DE L ARCHE A PARIS 15ème (Paris); UNITE FOYER D'HEBERGEMENT JEAN ESCUDIE HEBERGEMENT PERMANENT (Paris); UNITE FOYER D'HEBERGEMENT LES STUDIOS MOZART (Paris); UNITE FOYER HEBERGEMENT MICHELLE DARTY 13 (Paris); UNITE FOYER HEBERGEMENT SAINT GERMAIN (Paris); foyer de vie La Maison de Penelope (Hébergement Temporaire) (Paris).</li>
+<li><strong>Établissements et services d'accompagnement par le travail (ESAT)</strong> (32). ESAT AGNES BOSSART RALLION (Paris); ESAT ANAIS de Paris (Paris); ESAT ANDRE BUSQUET (Paris); ESAT ANRH PARIS 11 (Paris); ESAT APTE (Paris); ESAT BASTILLE (Paris); ESAT BERTHIER (Paris); ESAT COS REGAIN (Paris); ESAT DE LA BANQUE DE FRANCE (Paris); ESAT ECODAIR (Paris); ESAT ESPACE AURORE (Paris); ESAT FALGUIERE (Paris); ESAT HOVIA PARIS 16 (Paris); ESAT Hors les murs (Paris); ESAT JEAN CLAUDE BONNET (Paris); ESAT JEAN MOULIN (Paris); ESAT JULES ET MARCELLE LEVY (Paris); ESAT L ELAN RETROUVE (Paris); ESAT L ESPERANCE (Paris); ESAT LEOPOLD BELLAN (Paris); ESAT LES ATELIERS DE JEMMAPES (Paris); ESAT LES ATELIERS DE LA COOPERATION (Paris); ESAT LES COLOMBAGES (Paris); ESAT MENILMONTANT (Paris); ESAT MONTGALLET (Paris); ESAT PERE LACHAISE (Paris); ESAT RESTAURANT SOCIAL (Paris); ESAT TURBULENCES (Paris); ESAT de la Bièvre (Paris); ESAT les Ateliers 19 (Paris); ETABLISSEMENT ET SERVICE D AIDE PAR LE TRAVAIL (Paris); SAIPPH (Paris).</li>
+<li><strong>Services d'accompagnement à domicile pour adultes en situation de handicap</strong> (39). APPARTEMENT (Paris); EAM MARAICHERS (Paris); SAMSAH Charonne Vie et Avenir (Paris); SAMSAH HOVIA Paris (Paris); SAMSAH LA NOTE BLEUE (Paris); SAMSAH LE PONT DE FLANDRE (Paris); SAMSAH LES AMIS DE L ATELIER (Paris); SAMSAH OEUVRE FALRET (Paris); SAMSAH PLATEAU (Paris); SAMSAH SIMON DE CYRENE (Paris); SAMSAH VALENTIN HAUY (Paris); SAMSAH maisonnée Vie et Avenir (Paris); SAVS AIDES 75 (Paris); SAVS AMSAD LEOPOLD BELLAND (Paris); SAVS APF France Handicap Paris (Paris); SAVS ARCAT (Paris); SAVS AURORE (Paris); SAVS AVH (Paris); SAVS BELMONDO (Paris); SAVS BERNARD WYBO (Paris); SAVS CADET (Paris); SAVS CHAMPIONNET (Paris); SAVS DE L ADAPT POISSONNIERS (Paris); SAVS DE L ARCHE A PARIS (Paris); SAVS EPI INSERTION (Paris); SAVS GUSTAVE BEAUVOIS (Paris); SAVS MAISON DES CHAMPS (Paris); SAVS OEUVRE FALRET (Paris); SAVS ROUSSIN (Paris); SAVS RUNGIS APF (Paris); SAVS SAUSSURE (Paris); SERVICE D ACCOMPAGNEMENT A LA VIE SOCIALE (Paris); SERVICE D'ACCOMPAGNEMENT MEDICO-SOCIAL ADULTES HANDI ESCAL' (Paris); SERVICE D'ACCOMPAGNEMENT MEDICO-SOCIAL POUR ADULTES AYANT EU UN PREMIER EPISODE PSYCHOTIQUE (Paris); SERVICE D'ACCOMPAGNEMENT À LA VIE SOCIALE 157 (Paris); UNITE SAVS  SAPHMA Vie et Avenir (Paris); UNITE SAVS CENTRE LIONEL (Paris); UNITE SAVS avec Dispositif logement accompagné (Paris); Unité SAMSAH BATIGNOLLES (Paris).</li>
+<li><strong>Soins pour personnes en situation de précarité (PASS, LHSS, LAM, ACT)</strong> (26). ACT CHARONNE (Paris); ACT CONFLUENCES (Paris); ACT CORDIA PARIS (HLM) (Paris); ACT ESPACE RIVIERE (Paris); ACT LA BERLUGANE (Paris); ACT LE VILLAGE (Paris); ACT LES STUDIOS DE LA TOURELLE (Paris); ACT MAAVAR - OFEK (Paris); ACT MAISON CHEMIN VERT (Paris); ACT MAISON DES CHAMPS (Paris); ACT MAISON MARIE-LOUISE (Paris); ACT NDBS (HLM) (Paris); ACT UN CHEZ SOI D ABORD (Paris); ACT crack 110 Les Halles (Paris); EMASP (Paris); EMSP AURORE 92 (Paris); EMSP AURORE 94 (Paris); EMSP PERINATALITE BASILIADE (Paris); Equipes Spécialisées de Soins Infirmiers Précarité (ESSIP) (Paris); LAM NDBS PARIS 14EME (Paris); LHSS LES LILAS (Paris); LHSS RIDER PLAISANCE (Paris); LHSS SAINT-MICHEL (Paris); LHSS hébergement (Paris); LITS HALTE SOINS SANTE PERINATALITE BASILIADE (Paris); PASS Pédiatrique (091) (Paris).</li>
+<li><strong>Dépistage, vaccination et lutte antituberculeuse</strong> (8). CENTRE BILANS SANTE VACCINATION INTER MONTAIGNE SANTE (Paris); Centre de Santé Sexuelle Frédéric Edelmann - Hôtel Dieu - AP-HP / Ville de Paris (Paris); DISPENSAIRE ANTIVENERIEN DU SIDA DE LA CRF (Paris); GHU APHP NUP SITE BICHAT C BERNARD (Paris); GHU APHP NUP SITE FERNAND WIDAL (Paris); GHU APHP NUP SITE SAINT LOUIS (Paris); GHU APHP SUN SITE PITIE SALPETRIERE (Paris); GHU APHP SUN SITE ST ANTOINE (Paris).</li>
+<li><strong>Maisons de santé pluriprofessionnelles</strong> (43). Equipe de soin primaire (Paris); MAISON DE SANTE PLURIDISCIPLINAIRE CHARONNE (Paris); MAISON DE SANTE PLURIDISCIPLINAIRE CITÉ-MICHELET (Paris); MAISON DE SANTE PLURIDISCIPLINAIRE DES DEUX PORTES (Paris); MAISON DE SANTE PLURIDISCIPLINAIRE FAIDHERBE (Paris); MAISON DE SANTE PLURIDISCIPLINAIRE JEAN JAURES (Paris); MAISON DE SANTE PLURIDISCIPLINAIRE POLE DE SANTE DES EIDERS (Paris); MAISON DE SANTE PLURIDISCIPLINAIRES POLE DE SANTE VILLAUMED (Paris); MAISON DE SANTE PLURIOPROFESSIONNELLE DAUMESNIL PICPUS (Paris); MAISON DE SANTE POLE SANTE DE LA GOUTTE D OR (Paris); MSP ALESIA DENFERT (Paris); MSP ASCLEPIADE (Paris); MSP BARRIER (Paris); MSP BELLE MENIL (Paris); MSP CENTRE MEDICAL ET PARAMEDICAL DE LA GRANGE AUX BELLES (Paris); MSP CHEMIN VERT (Paris); MSP CONVENTION LECOURBE (Paris); MSP DAVIEL (Paris); MSP DE REUILLY (Paris); MSP DEVELOPPEMENT DES SOINS PRIMAIRE PARIS CENTRE (Paris); MSP DU CHEVALERET (Paris); MSP DU SQUARE CALMETTE (Paris); MSP EPINETTES GRANDES CARRIERES (Paris); MSP FONTARABIE (Paris); MSP IPSO PARIS (Paris); MSP JEAN-PIERRE TIMBAUD (Paris); MSP JULES JOFFRIN (Paris); MSP LAHIRE JEANNE D'ARC (Paris); MSP MAISON BLANCHE (Paris); MSP MAISON DE SANTÉ BERCY SANTE (Paris); MSP MARY JACOBI (Paris); MSP MARYSE BASTIE (Paris); MSP MATHAGON (Paris); MSP MENILMONTANT (Paris); MSP MOTTE PICQUET DUPLEIX (Paris); MSP PARIS LILAS (Paris); MSP PELLEPORT (Paris); MSP PORTE DE VANVES (Paris); MSP QUAI DE SEINE (Paris); MSP THIBOUMERY (Paris); MSP VILLAGE JOURDAIN (Paris); MSP VINCENT AURIOL (Paris); MSP YERSIN (Paris).</li>
+<li><strong>Centres de santé</strong> (279). ASSOCIATION MARIE-THERESE - CENTRE DE PARIS 14 (Paris); AST CENTRE MEDICO DENTAIRE 49 BD BARBES (Paris); CDS  MEDICO DENTAIRE SAINT ANTOINE (Paris); CDS 38.2 CLICHY (Paris); CDS 38.2 OLYMPIADES (Paris); CDS 38.2 SANTE (Paris); CDS ACCES VISION (Paris); CDS ACCES VISION PARIS 8 (Paris); CDS ACCESS ECHOGRAPHIE TERNES (Paris); CDS ACCESS RADIOLOGIE DOUDEAUVILLE (Paris); CDS ACCESS RADIOLOGIE PARIS 10 (Paris); CDS ACCESS RADIOLOGIE PARIS 19 (Paris); CDS ACCESS RADIOLOGIE POISSONNIERE (Paris); CDS ACCESS RADIOLOGIE VAUGIRARD (Paris); CDS ACCESS SANTE PARIS 17 (Paris); CDS ACTION SOINS PARIS (Paris); CDS ADOS MINISTERE DE L'EUROPE ET DES AFFAIRES ETRANGERES (Paris); CDS ASSO CENTRE CHATEAU DES RENTIERS (Paris); CDS ASSOCIATION DES AMIS D ELVIRE (Paris); CDS BAUCHAT NATION FONDATION ROTHSCHILD (Paris); CDS BAUCHAT NATION GROUPE HOSPITALIER DIACONESSES (Paris); CDS CENTRE ACCESS RADIOLOGIE (Paris); CDS CENTRE DE PSYCHOTHERAPIE DES VICTIMES (Paris); CDS CENTRE DE SANTE GARE DU NORD (Paris); CDS CENTRE DE SPECIALITE MEDICALE ODON VALLET (Paris); CDS CENTRE DENTAIRE BOETIE (Paris); CDS CENTRE DENTAIRE DAUMESNIL (Paris); CDS CENTRE DENTAIRE PARIS AVRON (Paris); CDS CENTRE DENTAIRE PARIS FRANKLIN (Paris); CDS CENTRE DU CHATEAU (Paris); CDS CENTRE MEDICAL PARIS CRIMEE (Paris); CDS CENTRE MEDICAL RAMSAY SANTE ATLAS (Paris); CDS CENTRE MEDICAL RAMSAY SANTE AUBER (Paris); CDS CENTRE MEDICAL RAMSAY SANTE MAGENTA (Paris); CDS CENTRE MEDICAL RAMSAY SANTE MIROMESNIL (Paris); CDS CENTRE MEDICAL RAMSAY SANTE SAINT LAZARE (Paris); CDS CENTRE MEDICAL RAMSAY SANTE SAINT MICHEL (Paris); CDS CENTRE OPHTAVIE DAUMESNIL PARIS 12 (Paris); CDS CENTRE VICTOR HUGO (Paris); CDS COURCELLES MEDICAL (Paris); CDS CTAR II (Paris); CDS D OPHTLMOLOGIE MEDICAL ST MICHEL (Paris); CDS DE PARIS (Paris); CDS DE SOINS DU CTAR (Paris); CDS DENTAIRE ADS BRUNE (Paris); CDS DENTAIRE AL DENTE (Paris); CDS DENTAIRE BASTILLE (Paris); CDS DENTAIRE BEAUGRENELLE (Paris); CDS DENTAIRE CDC (Paris); CDS DENTAIRE CHAUSSEE D'ANTIN (Paris); CDS DENTAIRE CLINADENT PARIS LOUVRE (Paris); CDS DENTAIRE DE LA GARE DE LYON (Paris); CDS DENTAIRE DE LA PORTE D'AUTEUIL (Paris); CDS DENTAIRE DE LA PORTE DE VINCENNES (Paris); CDS DENTAIRE DE PARIS (Paris); CDS DENTAIRE DE PARIS REUILLY (Paris); CDS DENTAIRE DENTALLIANCE (Paris); CDS DENTAIRE DENTALPLAN MAGENTA (Paris); CDS DENTAIRE DENTALPLAN OPERA (Paris); CDS DENTAIRE DENTALPLAN PIGALLE (Paris); CDS DENTAIRE DENTEGO (Paris); CDS DENTAIRE DENTEGO PORTE D ORLEANS (Paris); CDS DENTAIRE DU CHATEAU - CDC 34 (Paris); CDS DENTAIRE DU LAC 19 (Paris); CDS DENTAIRE DU MARAIS (Paris); CDS DENTAIRE ELISE REPUBLIQUE (Paris); CDS DENTAIRE ET D OPHTALMOLOGIE DE L HOTEL DE VILLE (Paris); CDS DENTAIRE ET D ORTHODONTIE DU XIVEME (Paris); CDS DENTAIRE ET OPHTALMOLOGIE REPUBLIQUE MAGENTA (Paris); CDS DENTAIRE ET OPHTALMOLOGIQUE ORTEAUX MARAICHERS (Paris); CDS DENTAIRE FAIDHERBE (Paris); CDS DENTAIRE GARE DE LYON (Paris); CDS DENTAIRE LECOURBE (Paris); CDS DENTAIRE LECOURBE CONVENTION (Paris); CDS DENTAIRE LEON GIRAUD (Paris); CDS DENTAIRE LES HALLES (Paris); CDS DENTAIRE LISZT LA FAYETTE (Paris); CDS DENTAIRE MAUBEUGE (Paris); CDS DENTAIRE MEDICAL OPHTALMOLOGIQUE CHAUSSEE D'ANTIN (Paris); CDS DENTAIRE NETTER (Paris); CDS DENTAIRE NOTRE DAME DE LORETTE (Paris); CDS DENTAIRE OPERA PYRAMIDES (Paris); CDS DENTAIRE ORTHODONTIE &amp; PEDODONTIE (Paris); CDS DENTAIRE PARIS BICHAT (Paris); CDS DENTAIRE PARIS CLICHY (Paris); CDS DENTAIRE PARIS CLICHY (Paris); CDS DENTAIRE PARIS FLANDRES (Paris); CDS DENTAIRE PARIS SAINT LAZARE (Paris); CDS DENTAIRE PARIS VERSAILLES (Paris); CDS DENTAIRE PARIS VICTOR HUGO (Paris); CDS DENTAIRE PELLEPORT (Paris); CDS DENTAIRE PERNETY (Paris); CDS DENTAIRE POMPIDOU (Paris); CDS DENTAIRE PORTE D'ASNIERES (Paris); CDS DENTAIRE REPUBLIQUE PARMENTIER (Paris); CDS DENTAIRE REUILLY (Paris); CDS DENTAIRE ROME (Paris); CDS DENTAIRE RUE DE LA POMPE (Paris); CDS DENTAIRE SIMON BOLIVAR (Paris); CDS DENTAIRE SOURIRE HAUSSMANN (Paris); CDS DENTAIRE TERNES WAGRAM (Paris); CDS DENTAIRE VAUGIRARD (Paris); CDS DENTAIRE VAUGIRARD CONVENTION (Paris); CDS DENTAIRE VOLTAIRE (Paris); CDS DES BUTTES CHAUMONT (Paris); CDS DU CANAL (CDC) (Paris); CDS ESPACE MEDICO DENTAIRE CURIAL (Paris); CDS ESPACE SANTE CHAMPIONNET (Paris); CDS ESPACE SANTE DENFERT (Paris); CDS ESPACE SANTE LACHAMBEAUDIE (Paris); CDS FLANDRE (Paris); CDS GAITE MONTPARNASSE (Paris); CDS GARE DE LYON OPHSEM (Paris); CDS IMAGRIE MED UBISANTE ROSA PARKS (Paris); CDS INSTITUT DENTAIRE GARIBALDI (Paris); CDS ITALIE 2 (Paris); CDS IWC QUAI DES ORFEVRES (Paris); CDS IYAR MEDICO DENTAL (Paris); CDS JONQIIERE LIVI (Paris); CDS LA VILLA VAUVENARGUES (Paris); CDS LE 190 (Paris); CDS LE BON COUP D OEIL (Paris); CDS MARIE DE MIRIBEL (Paris); CDS MARIE THERESE PARIS 15 (Paris); CDS MARIE THERESE PARIS 20EME (Paris); CDS MEDICAL  HAHNEMANN (Paris); CDS MEDICAL BELLEVILLE (Paris); CDS MEDICAL DENTAIRE ET D OPHTALMOLOGIE LEDRU ROLLIN (Paris); CDS MEDICAL DENTAIRE IMOLAIR POTEAU (Paris); CDS MEDICAL ET DENTAIRE CHEVALERET (Paris); CDS MEDICAL ET DENTAIRE DE BELLEVILLE (Paris); CDS MEDICAL ET DENTAIRE EPEE DE BOIS (Paris); CDS MEDICAL ET DENTAIRE GRENELLE (Paris); CDS MEDICAL ET DENTAIRE PARIS GOBELINS (Paris); CDS MEDICAL ET DENTAIRE SAINT GEORGES (Paris); CDS MEDICAL ET DENTAIRE ST MICHEL LUXEMBOURG (Paris); CDS MEDICAL ET DENTAIRE ST VINCENT (Paris); CDS MEDICAL IDEAL SANTE (Paris); CDS MEDICAL IYAR SANTE (Paris); CDS MEDICAL OSFI (Paris); CDS MEDICAL PARIS REPUBLIQUE (Paris); CDS MEDICAL PARIS SANTE (Paris); CDS MEDICAL PEUPLIERS (Paris); CDS MEDICAL ROSA PARKS (Paris); CDS MEDICAL SYGMA SANTE (Paris); CDS MEDICAL VISIONEO (Paris); CDS MEDICALE ET DENTAIRE CLIGNANCOURT (Paris); CDS MEDICALET DENTAIRE BELLEVILLE COURONNES (Paris); CDS MEDICO DENTAIRE ALEXANDRE DUMAS (Paris); CDS MEDICO DENTAIRE BALARD (Paris); CDS MEDICO DENTAIRE BASTILLE (Paris); CDS MEDICO DENTAIRE CHARONNE (Paris); CDS MEDICO DENTAIRE CHATELET RIVOLI (Paris); CDS MEDICO DENTAIRE CURIAL (Paris); CDS MEDICO DENTAIRE DU POTEAU (Paris); CDS MEDICO DENTAIRE GLACIERE (Paris); CDS MEDICO DENTAIRE PARIS ALESIA (Paris); CDS MEDICO DENTAIRE TROCADERO VICTOR HUGO (Paris); CDS MEDICO-DENTAIRE CARDINET (Paris); CDS MEDICO-DENTAIRE DE GARE DE L'EST (Paris); CDS MEDICO-DENTAIRE DENTAL-IN JAVEL (Paris); CDS MEDICO-DENTAIRE MONGE (Paris); CDS MEDICO-DENTAIRE MONTPARNASSE (Paris); CDS MEDICO-DENTAIRE MS GAMBETTA (Paris); CDS MEDICO-DENTAIRE NATION (Paris); CDS MEDICO-DENTAIRE NATIONALE (Paris); CDS MEDICO-DENTAIRE ORTHADENT MAIRIE DE VOLTAIRE (Paris); CDS MEDICO-DENTAIRE PARIS BATIGNOLLES (Paris); CDS MEDICO-DENTAIRE PEREIRE (Paris); CDS MEDICO-DENTAIREJAURES STALINGRAD (Paris); CDS MEDIKSANTE (Paris); CDS MEDIKSANTE PARIS 2 (Paris); CDS MÉDICAL ET DENTAIRE PARIS VOLTAIRE (Paris); CDS NEW SMILE COURCELLES (Paris); CDS NOVADEV (Paris); CDS OFFICE SANTE (Paris); CDS OPHTALMOLOGIE BEAUGRENELLE OPHTALYS (Paris); CDS OPHTALMOLOGIE ET DE  MEDECINE ELYSEE ARTOIS (Paris); CDS OPHTALMOLOGIE REPUBLIQUE (Paris); CDS OPHTALMOLOGIQUE (Paris); CDS OPHTALMOLOGIQUE ACCES VISION (Paris); CDS OPHTALMOLOGIQUE ET DENTAIRE (Paris); CDS OPHTALMOLOGIQUE HELLO SANTE (Paris); CDS OPHTALMOLOGIQUE JOUFFROY D ABBANS (Paris); CDS OPHTALMOLOGIQUE PARIS 19 (Paris); CDS OPHTALMOLOGIQUE PARIS BARBES (Paris); CDS OPHTALYA CTRE OPHTALMO FLANDRE CRIMEE (Paris); CDS OPOD (Paris); CDS OPTHALMOLOGIQUE COURS DE VINCENNES (Paris); CDS OPTIMODON (Paris); CDS ORTHODONTIE PARIS VICTOR HUGO (Paris); CDS PARIS 18 SAINT OUEN (Paris); CDS PARIS 20 (Paris); CDS PARIS PARMENTIER (Paris); CDS PARIS TELEGRAPHE (Paris); CDS PARISIEN MEDICAL ET OPHTLMOLOGIE (Paris); CDS POLE SANTE PANTHEON (Paris); CDS POLYVALENT DU MOULINET (Paris); CDS REPUBLIQUE (Paris); CDS RICHERAND (Paris); CDS SANTE ET OPHTALMOLOGIE BARBES (Paris); CDS SCIENCES PO (Paris); CDS SERVICE DE SANTE ETUDIANTE (Paris); CDS SMILIGN (Paris); CDS SMO MONTPARNASSE CENTRE MED ORL DE MONTPARNASSE (Paris); CDS SOS OPHTALMO PYR (Paris); CDS STUDIO SMILE RENNES (Paris); CDS TOM (Paris); CDS VICTOR MASSE (Paris); CDS YVONNE POUZIN (Paris); CENTRE DE SANTE  REAUMUR DE LA CRAM (Paris); CENTRE DE SANTE 76 REAUMUR (Paris); CENTRE DE SANTE ADMD MYRHA (Paris); CENTRE DE SANTE ALICE GROSPERRIN (Paris); CENTRE DE SANTE AURIOL CSA (Paris); CENTRE DE SANTE CENTRE D ORTHODONTIE DE PARIS (Paris); CENTRE DE SANTE COLLIARD FSEF PARIS 5E (Paris); CENTRE DE SANTE DE BELLEVILLE (Paris); CENTRE DE SANTE DE L'INSTITUT ALFRED FOURNIER (Paris); CENTRE DE SANTE DE LA C.R.A.M.I.F. (Paris); CENTRE DE SANTE DENTAIRE DAUMESNIL (Paris); CENTRE DE SANTE DENTAIRE DE BELLEVILLE (Paris); CENTRE DE SANTE DENTAIRE DUGOMMIER (Paris); CENTRE DE SANTE DENTAIRE FLANDRE (Paris); CENTRE DE SANTE DENTAIRE GEORGES EASTMAN (Paris); CENTRE DE SANTE DENTAIRE MUTUALISTE PARIS 13 (Paris); CENTRE DE SANTE DENTAIRE PARIS GARE DU NORD (Paris); CENTRE DE SANTE DES ORTEAUX - APDAS (Paris); CENTRE DE SANTE DOREE (Paris); CENTRE DE SANTE DU  BTP ROBERT POMMIER (Paris); CENTRE DE SANTE DU SQUARE DE LA MUTUALITE (Paris); CENTRE DE SANTE EDMONS DE ROTHSCHILD (Paris); CENTRE DE SANTE ELLASANTE (Paris); CENTRE DE SANTE FALGUIERE (Paris); CENTRE DE SANTE FERNAND LAMAZE (Paris); CENTRE DE SANTE HAUSSMANN (Paris); CENTRE DE SANTE INSTITUT ALFRED FOURNIER CHEMIN VERT (Paris); CENTRE DE SANTE ITALIE (Paris); CENTRE DE SANTE MARCADET (Paris); CENTRE DE SANTE MED. ET DENT - POLYCLINIQUE DE LA FOURCHE (Paris); CENTRE DE SANTE MEDICAL ARTHUR VERNES (Paris); CENTRE DE SANTE MEDICAL DE L AMSAF (Paris); CENTRE DE SANTE MEDICAL DE L INSTITUT PASTEUR (Paris); CENTRE DE SANTE MEDICAL DE LA MGEN (Paris); CENTRE DE SANTE MEDICAL ET DENTAIRE  HOPITAL SAINT JACQUES (Paris); CENTRE DE SANTE MEDICAL ET DENTAIRE ADMS DES BUTTES-CHAUMONT (Paris); CENTRE DE SANTE MEDICAL ET DENTAIRE CLAVEL (Paris); CENTRE DE SANTE MEDICAL ET DENTAIRE DE L INSEP (Paris); CENTRE DE SANTE MEDICAL ET DENTAIRE EUROPE (Paris); CENTRE DE SANTE MEDICAL ET DENTAIRE JACK SENET (Paris); CENTRE DE SANTE MEDICAL ET DENTAIRE TISSERAND DASES (Paris); CENTRE DE SANTE MEDICAL PRIMO LEVI (Paris); CENTRE DE SANTE MEDICO DENTAIRE AUSTRLITZ (Paris); CENTRE DE SANTE MEDICO DENTAIRE BARBES (Paris); CENTRE DE SANTE MEDICO SOCIAL PREVENTION DEPISTAGE TUMEURS (Paris); CENTRE DE SANTE MEDICO-DENTAIRE COLONEL FABIEN (Paris); CENTRE DE SANTE MÉDICAL MANIN (Paris); CENTRE DE SANTE PARCOURS D EXIL (Paris); CENTRE DE SANTE POLYVALENT DE LA PLAINE MONCEAU (Paris); CENTRE DE SANTE PORTE D ITALIE (Paris); CENTRE DE SANTE RICHARD LENOIR CSRL (Paris); CENTRE DE SANTE SABOURAUD DE L'ASSOCIATION (Paris); CENTRE DE SANTE SAINT ANTOINE (Paris); CENTRE DE SANTE SAINT MARTIN (CSM) (Paris); CENTRE DE SANTÉ DENTAIRE MARCADET (Paris); CENTRE DE SOINS INFIRMIERS DES SOEURS FRANCISCAINES (Paris); CENTRE DE SOINS INFIRMIERS ESPOIR ET SANTE (Paris); CENTRE DENTAIRE DE LA PORTE MONTMARTRE (Paris); CENTRE DENTAIRE PARIS - HOTEL DE VILLE (Paris); CENTRE DENTAIRE PARIS 13 (Paris); CENTRE DENTAIRE PARIS ETOILE (Paris); CENTRE MEDICAL ET DENTAIRE BROCA (Paris); CENTRE MEDICO DENTAIRE DE LA PLACE DES FETES (Paris); CENTRE MEDICO DENTAIRE PARIS RICHARD LENOIR (Paris); CENTRE MÉDICAL OPHTALMOLOGIQUE DENTAIRE DE PLACE DE CLICHY (Paris); CENTRE SANTE ELIO HABIB (Paris); CLINIQUE DENTAIRE DE LA CAISSE PRIMAIRE ASSUR MALADIE PARIS (Paris); CTRE SOINS PREV MEDICAL  DENTAIRE MUTUELLE  PERSSONNEL RATP (Paris); DS DENTAIRE DENTASMILE DAVOUTC (Paris).</li>
+<li><strong>Communautés professionnelles territoriales de santé (CPTS)</strong> (16). CPTS PARIS 10 (Paris); CPTS PARIS 11 (Paris); CPTS PARIS 12 (Paris); CPTS PARIS 14 (Paris); CPTS PARIS 15 (Paris); CPTS PARIS 17 (Paris); CPTS PARIS 18 (Paris); CPTS PARIS 19 (Paris); CPTS PARIS 20 (Paris); CPTS PARIS 6 ET 7 (Paris); CPTS PARIS 8 (Paris); CPTS PARIS CENTRE (Paris); CPTS PARIS NEUF (Paris); CPTS Paris 13 (Paris); Communauté Professionnelle Territoriale de Santé Paris 5 (Paris); UO CPTS 16 (Paris).</li>
+</ul>
+</details>
+<h2 id="temps-de-trajet-par-la-route">Temps de trajet par la route</h2>
+<figure class="graphique" data-donnees="../donnees/2026-10-16/temps_acces.csv" data-donnees-nom="temps_acces.csv"><figcaption class="small muted"><strong>Figure 2.</strong> <span class="leg">Habitants à plus de 20 minutes par la route</span>.</figcaption><div class="fig-corps"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 204" role="img" aria-label="Habitants à plus de 20 minutes par la route" font-family="Work Sans, system-ui, sans-serif"><title>Habitants à plus de 20 minutes par la route</title><text x="0" y="16" font-size="14" font-weight="600" fill="var(--ink, #1F2430)">Sur 100 habitants, 0 vivent à plus de 20 minutes d&#x27;un service d&#x27;urgences</text><circle cx="12" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M4,55 Q12,42 20,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="36" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M28,55 Q36,42 44,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="60" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M52,55 Q60,42 68,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="84" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M76,55 Q84,42 92,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="108" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M100,55 Q108,42 116,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="132" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M124,55 Q132,42 140,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="156" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M148,55 Q156,42 164,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="180" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M172,55 Q180,42 188,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="204" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M196,55 Q204,42 212,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="228" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M220,55 Q228,42 236,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="252" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M244,55 Q252,42 260,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="276" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M268,55 Q276,42 284,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="300" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M292,55 Q300,42 308,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="324" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M316,55 Q324,42 332,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="348" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M340,55 Q348,42 356,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="372" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M364,55 Q372,42 380,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="396" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M388,55 Q396,42 404,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="420" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M412,55 Q420,42 428,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="444" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M436,55 Q444,42 452,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="468" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M460,55 Q468,42 476,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="12" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M4,87 Q12,74 20,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="36" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M28,87 Q36,74 44,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="60" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M52,87 Q60,74 68,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="84" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M76,87 Q84,74 92,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="108" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M100,87 Q108,74 116,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="132" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M124,87 Q132,74 140,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="156" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M148,87 Q156,74 164,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="180" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M172,87 Q180,74 188,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="204" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M196,87 Q204,74 212,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="228" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M220,87 Q228,74 236,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="252" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M244,87 Q252,74 260,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="276" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M268,87 Q276,74 284,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="300" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M292,87 Q300,74 308,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="324" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M316,87 Q324,74 332,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="348" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M340,87 Q348,74 356,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="372" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M364,87 Q372,74 380,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="396" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M388,87 Q396,74 404,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="420" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M412,87 Q420,74 428,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="444" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M436,87 Q444,74 452,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="468" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M460,87 Q468,74 476,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="12" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M4,119 Q12,106 20,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="36" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M28,119 Q36,106 44,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="60" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M52,119 Q60,106 68,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="84" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M76,119 Q84,106 92,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="108" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M100,119 Q108,106 116,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="132" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M124,119 Q132,106 140,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="156" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M148,119 Q156,106 164,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="180" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M172,119 Q180,106 188,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="204" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M196,119 Q204,106 212,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="228" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M220,119 Q228,106 236,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="252" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M244,119 Q252,106 260,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="276" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M268,119 Q276,106 284,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="300" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M292,119 Q300,106 308,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="324" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M316,119 Q324,106 332,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="348" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M340,119 Q348,106 356,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="372" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M364,119 Q372,106 380,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="396" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M388,119 Q396,106 404,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="420" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M412,119 Q420,106 428,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="444" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M436,119 Q444,106 452,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="468" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M460,119 Q468,106 476,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="12" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M4,151 Q12,138 20,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="36" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M28,151 Q36,138 44,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="60" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M52,151 Q60,138 68,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="84" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M76,151 Q84,138 92,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="108" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M100,151 Q108,138 116,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="132" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M124,151 Q132,138 140,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="156" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M148,151 Q156,138 164,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="180" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M172,151 Q180,138 188,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="204" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M196,151 Q204,138 212,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="228" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M220,151 Q228,138 236,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="252" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M244,151 Q252,138 260,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="276" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M268,151 Q276,138 284,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="300" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M292,151 Q300,138 308,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="324" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M316,151 Q324,138 332,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="348" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M340,151 Q348,138 356,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="372" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M364,151 Q372,138 380,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="396" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M388,151 Q396,138 404,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="420" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M412,151 Q420,138 428,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="444" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M436,151 Q444,138 452,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="468" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M460,151 Q468,138 476,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="12" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M4,183 Q12,170 20,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="36" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M28,183 Q36,170 44,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="60" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M52,183 Q60,170 68,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="84" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M76,183 Q84,170 92,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="108" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M100,183 Q108,170 116,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="132" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M124,183 Q132,170 140,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="156" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M148,183 Q156,170 164,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="180" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M172,183 Q180,170 188,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="204" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M196,183 Q204,170 212,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="228" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M220,183 Q228,170 236,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="252" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M244,183 Q252,170 260,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="276" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M268,183 Q276,170 284,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="300" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M292,183 Q300,170 308,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="324" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M316,183 Q324,170 332,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="348" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M340,183 Q348,170 356,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="372" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M364,183 Q372,170 380,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="396" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M388,183 Q396,170 404,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="420" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M412,183 Q420,170 428,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="444" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M436,183 Q444,170 452,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="468" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M460,183 Q468,170 476,183 Z" fill="var(--line, #D9DCE3)"/></svg></div></figure>
+
+<table>
+<thead>
+<tr>
+<th>Équipement ou professionnel le plus proche</th>
+<th>Temps médian (min)</th>
+<th>France, temps médian</th>
+<th>Habitants à plus de 20 min</th>
+<th>Région, à plus de 20 min</th>
+<th>France, à plus de 20 min</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Médecin généraliste libéral</td>
+<td>2</td>
+<td>2</td>
+<td>0 %</td>
+<td>moins de 0,1 %</td>
+<td>0,2 %</td>
+</tr>
+<tr>
+<td>Pédiatre libéral</td>
+<td>2</td>
+<td>8</td>
+<td>0 %</td>
+<td>1,4 %</td>
+<td>21,7 %</td>
+</tr>
+<tr>
+<td>Orthophoniste libéral</td>
+<td>2</td>
+<td>3</td>
+<td>0 %</td>
+<td>moins de 0,1 %</td>
+<td>1,2 %</td>
+</tr>
+<tr>
+<td>Infirmier libéral</td>
+<td>2</td>
+<td>2</td>
+<td>0 %</td>
+<td>moins de 0,1 %</td>
+<td>0,2 %</td>
+</tr>
+<tr>
+<td>Psychomotricien libéral</td>
+<td>2</td>
+<td>5</td>
+<td>0 %</td>
+<td>moins de 0,1 %</td>
+<td>7,7 %</td>
+</tr>
+<tr>
+<td>Service d'urgences</td>
+<td>4</td>
+<td>10</td>
+<td>0 %</td>
+<td>1,4 %</td>
+<td>20,3 %</td>
+</tr>
+</tbody>
+</table>
+<p class="comment-lire"><strong>Comment lire.</strong> Durée d'un trajet en voiture, aux heures creuses, du domicile à l'équipement le plus proche, même s'il se trouve dans un autre département. Le temps médian partage les habitants en deux moitiés. Les professionnels sont ceux qui exercent en libéral, les salariés comptent à travers les structures (hôpitaux, services d'urgences). Le plus proche n'est pas toujours disponible (nouveaux patients, délais, dépassements d'honoraires). Ce tableau mesure une proximité, pas un accès effectif.</p>
+<p>Le tableau suivant compte tous les professionnels, salariés compris. Il mesure la distance à vol d'oiseau jusqu'à la commune la plus proche où au moins l'un d'eux exerce.</p>
+<table>
+<thead>
+<tr>
+<th>Profession</th>
+<th>Habitants à plus de 10 km</th>
+<th>France</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Médecin généraliste</td>
+<td>0 %</td>
+<td>0,2 %</td>
+</tr>
+<tr>
+<td>Pédiatre</td>
+<td>0 %</td>
+<td>22,8 %</td>
+</tr>
+<tr>
+<td>Orthophoniste</td>
+<td>0 %</td>
+<td>2,3 %</td>
+</tr>
+</tbody>
+</table>
+<details>
+<summary>Pour aller plus loin</summary>
+<p>Source, INSEE, données sur la localisation et l'accès de la population aux équipements, millésime 2025, distancier Metric-OSRM (© les contributeurs d'OpenStreetMap et du projet OSRM), Licence Ouverte. Durées pondérées par la population des carreaux de 200 m. Valeurs par intercommunalité dans temps_acces.csv.</p>
+</details>
+<h2 id="acces-financier-et-medecin-traitant">Accès financier et médecin traitant</h2>
+<table>
+<thead>
+<tr>
+<th>Profession</th>
+<th>Libéraux</th>
+<th>Pouvant pratiquer des dépassements</th>
+<th>Région</th>
+<th>Milieu des départements</th>
+<th>France</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pédiatres</td>
+<td>221</td>
+<td>82,8 %</td>
+<td>74,8 %</td>
+<td>47,2 %</td>
+<td>57,3 %</td>
+</tr>
+<tr>
+<td>Gynécologues</td>
+<td>537</td>
+<td>94,0 %</td>
+<td>89,1 %</td>
+<td>73,8 %</td>
+<td>79,1 %</td>
+</tr>
+<tr>
+<td>Ophtalmologues</td>
+<td>372</td>
+<td>91,1 %</td>
+<td>82,3 %</td>
+<td>71,0 %</td>
+<td>73,9 %</td>
+</tr>
+<tr>
+<td>Médecins généralistes</td>
+<td>1 816</td>
+<td>24,0 %</td>
+<td>12,5 %</td>
+<td>1,8 %</td>
+<td>4,0 %</td>
+</tr>
+</tbody>
+</table>
+<p class="comment-lire"><strong>Comment lire.</strong> Part des libéraux en secteur 2 (avec ou sans Optam) ou non conventionnés, qui peuvent facturer au-delà du tarif de la Sécurité sociale. C'est un obstacle financier possible, pas la mesure des dépassements réels. Elle n'est pas calculée quand le territoire compte moins de 5 libéraux de la profession. Source, Assurance Maladie (Cnam), licence ODbL.</p>
+<p>4,5 % des patients en affection longue durée n'ont pas déclaré de médecin traitant, contre 4,3 % en France (milieu des départements, 4,0 %).</p>
+<h2 id="maladies-chroniques-en-affection-de-longue-duree">Maladies chroniques en affection de longue durée</h2>
+<table>
+<thead>
+<tr>
+<th>Affection</th>
+<th>N° d'ALD</th>
+<th>Personnes</th>
+<th>Pour 100 000, à âge égal</th>
+<th>Milieu des départements</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Diabète</td>
+<td>8</td>
+<td>82 890</td>
+<td>3 611</td>
+<td>4 942</td>
+</tr>
+<tr>
+<td>Cancers (tumeurs malignes)</td>
+<td>30</td>
+<td>77 500</td>
+<td>3 368</td>
+<td>3 631</td>
+</tr>
+<tr>
+<td>Maladies cardiaques graves</td>
+<td>5</td>
+<td>32 500</td>
+<td>1 416</td>
+<td>2 265</td>
+</tr>
+<tr>
+<td>Maladie coronaire</td>
+<td>13</td>
+<td>36 560</td>
+<td>1 621</td>
+<td>2 306</td>
+</tr>
+<tr>
+<td>Accident vasculaire cérébral invalidant</td>
+<td>1</td>
+<td>14 080</td>
+<td>610</td>
+<td>746</td>
+</tr>
+<tr>
+<td>Insuffisance respiratoire chronique grave</td>
+<td>14</td>
+<td>11 970</td>
+<td>529</td>
+<td>475</td>
+</tr>
+<tr>
+<td>Maladie de Parkinson</td>
+<td>16</td>
+<td>4 680</td>
+<td>208</td>
+<td>232</td>
+</tr>
+</tbody>
+</table>
+<p class="comment-lire"><strong>Comment lire.</strong> Personnes du régime général dont l'affection est reconnue en affection de longue durée, effectifs arrondis à la dizaine. Le taux est calculé à âge égal pour comparer les départements.</p>
+<p class="a-savoir"><strong>À savoir.</strong> Une affection de longue durée est reconnue à la demande du médecin, après accord du service médical de l'Assurance Maladie. Les chiffres comptent les personnes dont la maladie a été reconnue, pas toutes les personnes malades, et dépendent donc aussi du recours aux soins. Ils ne couvrent que le régime général. L'hypertension artérielle sévère n'ouvre plus de nouvelle ALD depuis juin 2011. Sources, <a href="https://www.data.gouv.fr/datasets/beneficiaires-du-dispositif-des-affections-de-longue-duree-ald">Assurance Maladie, bénéficiaires du dispositif des ALD (data.gouv)</a>, <a href="https://www.ameli.fr/assure/droits-demarches/maladie-accident-hospitalisation/affection-longue-duree-ald/demande-prise-en-charge-en-ald">ameli.fr, demande de prise en charge en ALD</a>, <a href="https://www.legifrance.gouv.fr/loda/id/JORFTEXT000024249276/">Décret n° 2011-726 du 24 juin 2011 (Légifrance)</a>.</p>
+<h2 id="handicap">Handicap</h2>
+<table>
+<thead>
+<tr>
+<th>Indicateur</th>
+<th>Unité</th>
+<th>Ce territoire</th>
+<th>Région</th>
+<th>Milieu des départements</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bénéficiaires d'une prestation de compensation du handicap, moins de 60 ans</td>
+<td>pour 1 000 habitants</td>
+<td>3,9</td>
+<td>4,7</td>
+<td>7,3</td>
+</tr>
+<tr>
+<td>Places en établissement pour enfants en situation de handicap</td>
+<td>pour 1 000 moins de 20 ans</td>
+<td>7,1</td>
+<td>5,9</td>
+<td>8,6</td>
+</tr>
+<tr>
+<td>Places en SESSAD</td>
+<td>pour 1 000 moins de 20 ans</td>
+<td>3,8</td>
+<td>3,1</td>
+<td>3,6</td>
+</tr>
+<tr>
+<td>Élèves en situation de handicap</td>
+<td>pour 1 000 élèves</td>
+<td>47,0</td>
+<td>non publié pour les régions</td>
+<td>48,0</td>
+</tr>
+</tbody>
+</table>
+<p class="comment-lire"><strong>Comment lire.</strong> Prestations versées aux personnes en situation de handicap et offre médico-sociale pour les enfants, à lire à côté de l'offre en orthophonie, psychomotricité et pédiatrie. Source, DREES, indicateurs sociaux départementaux, Licence Ouverte.</p>
+<h2 id="liberal-ou-salarie-et-part-des-femmes">Libéral ou salarié, et part des femmes</h2>
+<table>
+<thead>
+<tr>
+<th>Profession</th>
+<th>Part exerçant en libéral</th>
+<th>Ensemble des départements</th>
+<th>Part de femmes</th>
+<th>Ensemble des départements</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Médecin généraliste</td>
+<td>49,2 %</td>
+<td>63,1 %</td>
+<td>54,4 %</td>
+<td>52,5 %</td>
+</tr>
+<tr>
+<td>Infirmier</td>
+<td>6,5 %</td>
+<td>20,4 %</td>
+<td>85,4 %</td>
+<td>86,8 %</td>
+</tr>
+<tr>
+<td>Masseur-kinésithérapeute</td>
+<td>83,4 %</td>
+<td>86,1 %</td>
+<td>51,2 %</td>
+<td>52,4 %</td>
+</tr>
+<tr>
+<td>Orthophoniste</td>
+<td>70,0 %</td>
+<td>81,1 %</td>
+<td>97,6 %</td>
+<td>97,2 %</td>
+</tr>
+<tr>
+<td>Psychomotricien</td>
+<td>27,8 %</td>
+<td>40,0 %</td>
+<td>91,0 %</td>
+<td>91,4 %</td>
+</tr>
+<tr>
+<td>Pharmacien</td>
+<td>29,2 %</td>
+<td>40,4 %</td>
+<td>64,5 %</td>
+<td>67,6 %</td>
+</tr>
+</tbody>
+</table>
+<p class="comment-lire"><strong>Comment lire.</strong> Une même personne peut exercer en libéral et comme salariée, elle compte alors dans les deux. La part de femmes repose sur la civilité déclarée au répertoire. Elle n'est pas donnée quand moins de dix personnes exercent.</p>
+<h2 id="ecart-a-l-effectif-attendu-compte-tenu-du-profil-des-territo">Écart à l'effectif attendu compte tenu du profil des territoires</h2>
+<p><strong>Médecins généralistes</strong>, intercommunalités où l'effectif observé est en dessous de l'attendu</p>
+<table>
+<thead>
+<tr>
+<th>Intercommunalité</th>
+<th>Habitants</th>
+<th>Observés</th>
+<th>Attendus d'après le profil</th>
+<th>Rapport</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Métropole du Grand Paris</td>
+<td>7 142 540</td>
+<td>10 354</td>
+<td>10 705,7</td>
+<td>0,97</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Pédiatres</strong>, intercommunalités où l'effectif observé est en dessous de l'attendu</p>
+<table>
+<thead>
+<tr>
+<th>Intercommunalité</th>
+<th>Habitants</th>
+<th>Observés</th>
+<th>Attendus d'après le profil</th>
+<th>Rapport</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Métropole du Grand Paris</td>
+<td>7 142 540</td>
+<td>1 951</td>
+<td>1 987,8</td>
+<td>0,98</td>
+</tr>
+</tbody>
+</table>
+<p class="comment-lire"><strong>Comment lire.</strong> L'effectif attendu est celui d'intercommunalités de profil comparable (âge, revenus, pauvreté, densité de population...) dans toute la France. Par exemple, la première intercommunalité du tableau compte 10 354 médecins généralistes là où l'on en attendrait environ 10 706. Ce n'est pas une mesure du besoin de soins, et les territoires de comparaison peuvent eux-mêmes être mal dotés. Seules les intercommunalités où l'on attendrait au moins deux professionnels figurent ici. Une intercommunalité qui s'étend sur plusieurs départements est rattachée à celui où vit la plus grande partie de sa population. Sur de petits effectifs, la liste peut changer d'une année à l'autre.</p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li><a href="https://github.com/etalab/decoupage-administratif">Référentiel Etalab</a>, Etalab, d'après le Code officiel géographique et les populations légales de l'INSEE, Licence Ouverte 2.0, données du 9 mars 2026.</li>
+<li><a href="https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps">RPPS activité</a>, Agence du numérique en santé (ANS), Licence Ouverte 2.0, données du 14 octobre 2026.</li>
+<li><a href="https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps">RPPS diplômes</a>, Agence du numérique en santé (ANS), Licence Ouverte 2.0, données du 14 octobre 2026.</li>
+<li><a href="https://www.data.gouv.fr/datasets/finess-structures-1">FINESS (Finess+)</a>, Agence du numérique en santé (ANS), Licence Ouverte 2.0, données du 1er octobre 2026.</li>
+<li><a href="https://www.insee.fr/fr/statistiques/5359146">INSEE dossier complet</a>, INSEE, Licence Ouverte 2.0, données du 3 septembre 2026.</li>
+<li><a href="https://data.ameli.fr/explore/dataset/effectifs/">Assurance Maladie, pathologies</a>, Caisse nationale de l'Assurance Maladie (Cnam), ODbL 1.0 (partage à l'identique), données du 6 juillet 2026.</li>
+<li><a href="https://odisse.santepubliquefrance.fr/explore/dataset/suicides-deces-departement/">Santé publique France, décès par suicide</a>, Santé publique France, Licence Ouverte 2.0, données du 9 janvier 2026.</li>
+<li><a href="https://odisse.santepubliquefrance.fr/explore/dataset/gestes-auto-infliges-patients-hospitalises-departement/">Santé publique France, personnes hospitalisées pour geste auto-infligé</a>, Santé publique France, Licence Ouverte 2.0, données du 9 septembre 2026.</li>
+<li><a href="https://odisse.santepubliquefrance.fr/explore/dataset/gestes-auto-infliges-passages-aux-urgences-departement/">Santé publique France, passages aux urgences pour geste auto-infligé</a>, Santé publique France, Licence Ouverte 2.0, données du 9 décembre 2025.</li>
+<li><a href="https://odisse.santepubliquefrance.fr/explore/dataset/sante-mentale-episodes-depressifs-caracterises-dans-les-12-derniers-mois_reg/">Santé publique France, adultes déclarant un épisode dépressif dans l'année</a>, Santé publique France, Licence Ouverte 2.0, données du 9 décembre 2024.</li>
+<li><a href="https://odisse.santepubliquefrance.fr/explore/dataset/conduites-suicidaires-indicateurs-du-barometre-de-sante-publique-france-2024-detail-region/">Santé publique France, adultes déclarant des pensées suicidaires dans l'année</a>, Santé publique France, Licence Ouverte 2.0, données du 11 décembre 2025.</li>
+<li><a href="https://odisse.santepubliquefrance.fr/explore/dataset/conduites-suicidaires-indicateurs-du-barometre-de-sante-publique-france-2024-detail-region/">Santé publique France, adultes déclarant une tentative de suicide au cours de la vie</a>, Santé publique France, Licence Ouverte 2.0, données du 11 décembre 2025.</li>
+<li><a href="https://data.ameli.fr/explore/dataset/demographie-secteurs-conventionnels/">Assurance Maladie, secteurs conventionnels</a>, Caisse nationale de l'Assurance Maladie (Cnam), ODbL 1.0 (partage à l'identique), données du 12 octobre 2026.</li>
+<li><a href="https://data.ameli.fr/explore/dataset/patients-longueduree-annuelle/">Assurance Maladie, affection longue durée sans médecin traitant</a>, Caisse nationale de l'Assurance Maladie (Cnam), ODbL 1.0 (partage à l'identique), données du 28 janvier 2025.</li>
+<li><a href="https://data.drees.solidarites-sante.gouv.fr/explore/dataset/596_enfance-et-jeunesse-en-danger/">DREES, protection de l'enfance</a>, DREES, Licence Ouverte 2.0, données du 6 octobre 2026.</li>
+<li><a href="https://data.drees.solidarites-sante.gouv.fr/explore/dataset/627_personnes-en-situation-de-handicap/">DREES, personnes en situation de handicap</a>, DREES, Licence Ouverte 2.0, données du 6 octobre 2026.</li>
+<li><a href="https://data.drees.solidarites-sante.gouv.fr/explore/dataset/708_bases-statistiques-sae/">DREES, SAE psychiatrie</a>, DREES, Licence Ouverte 2.0, données du 17 décembre 2025.</li>
+<li><a href="https://www.data.gouv.fr/datasets/beneficiaires-du-dispositif-des-affections-de-longue-duree-ald">Assurance Maladie, affections de longue durée</a>, Caisse nationale de l'Assurance Maladie (Cnam), Licence Ouverte 2.0, données du 12 décembre 2025.</li>
+<li><a href="https://data.caf.fr/explore/dataset/s_ben_epci_f/">CAF, allocataires par prestation</a>, Caisse nationale des allocations familiales (CNAF), Licence Ouverte 2.0, données du 11 février 2026.</li>
+<li><a href="https://www.data.gouv.fr/datasets/donnees-sur-la-localisation-et-lacces-de-la-population-aux-equipements">INSEE, temps d'accès par la route</a>, INSEE, Licence Ouverte 2.0 (distancier fondé sur OpenStreetMap, © ses contributeurs), données du 19 août 2026.</li>
+<li><a href="https://data.drees.solidarites-sante.gouv.fr/explore/dataset/530_l-accessibilite-potentielle-localisee-apl/">DREES, accessibilité potentielle localisée</a>, DREES, Licence Ouverte 2.0, données du 21 juillet 2026.</li>
+<li><a href="https://www.data.gouv.fr/datasets/admin-express-admin-express-cog-admin-express-cog-carto-admin-express-cog-carto-pe-admin-express-cog-carto-plus-pe">Contours des communes (IGN)</a>, IGN, ADMIN EXPRESS COG CARTO PE, Licence Ouverte 2.0, données du 9 octobre 2026.</li>
+<li><a href="https://www.data.gouv.fr/datasets/offres-de-sante-sanitaire-medico-social-et-de-ville-en-france-metropolitaine-et-drom-1">ANS, offres de santé (ROR)</a>, Agence du numérique en santé (ANS), Répertoire opérationnel des ressources, Licence Ouverte 2.0, données du 13 octobre 2026.</li>
+<li><a href="https://www.data.gouv.fr/datasets/certification-des-etablissements-de-sante-pour-la-qualite-des-soins-referentiel-deploye-2021-2025">HAS, certification des établissements de santé, sites rattachés</a>, Haute Autorité de santé (HAS), Licence Ouverte 2.0, données du 14 octobre 2026.</li>
+<li><a href="https://www.data.gouv.fr/datasets/base-sirene-des-entreprises-et-de-leurs-etablissements-siren-siret">INSEE, répertoire Sirene, établissements des gestionnaires de FINESS</a>, Institut national de la statistique et des études économiques (INSEE), Licence Ouverte 2.0, données du 1er octobre 2026.</li>
+<li><a href="https://data.drees.solidarites-sante.gouv.fr/explore/dataset/la-demographie-des-professionnels-de-sante-depuis-2012/information/">DREES, démographie des professionnels de santé</a>, DREES, Licence Ouverte 2.0, données du 2 juillet 2026.</li>
+<li><a href="https://catalogue-donnees.insee.fr/fr/catalogue/recherche/DS_ESTIMATION_POPULATION">INSEE, estimations de population</a>, INSEE, Licence Ouverte 2.0, données du 5 août 2026.</li>
+</ul>
+<p>Ce document contient des informations issues de bases de l'Assurance Maladie (Cnam, data.ameli.fr, cartographie des pathologies, secteurs conventionnels, patients sans médecin traitant), mises à disposition sous <a href="https://opendatacommons.org/licenses/odbl/1-0/">licence ODbL 1.0</a>. Les bases qui en dérivent sont publiées sous la même licence, dans les fichiers suffixés _odbl.</p>
+<p>La méthode complète, les précautions de lecture et le glossaire se trouvent dans le rapport national et sur la page « Méthode, données et limites ».</p></article>
+</div>
+<script>
+// les volets « Pour aller plus loin » sont ouverts à l'impression, puis refermés
+var ouverts = [];
+window.addEventListener("beforeprint", function () {
+  ouverts = [];
+  document.querySelectorAll("details").forEach(function (d) { if (!d.open) { d.open = true; ouverts.push(d); } });
+});
+window.addEventListener("afterprint", function () { ouverts.forEach(function (d) { d.open = false; }); });
+</script>
+
+<footer>
+  Données du 16 octobre 2026. Sources, répertoire RPPS, FINESS, Répertoire opérationnel des ressources, INSEE (dont Sirene), Assurance Maladie, CAF, Santé publique France, DREES, HAS, IGN (voir <a href="../methode.html">Méthode, données et limites</a>).
+  Résultats sous Licence Ouverte 2.0, en citant la source et la date de la version, sauf les indicateurs tirés des bases de l&#39;Assurance Maladie (Cnam, data.ameli.fr, cartographie des pathologies, secteurs conventionnels, patients sans médecin traitant) et ce qui en dérive, diffusés sous licence ODbL 1.0 (partage à l&#39;identique). Les fichiers suffixés _odbl et les données intégrées à l&#39;atlas, qui contiennent ces indicateurs, sont sous ODbL. Les rapports et les cartes qui les affichent contiennent des informations issues de cette base sous ODbL.
+  <p class="pied-liens"><a href="../donnees-sources.html">Données sources</a> <a href="../journal.html">Journal des mises à jour</a> <a href="../a-venir.html">À venir</a> <a href="../contribuer.html">Proposer une base de données</a> <a href="../a-propos.html">À propos</a></p>
+</footer>
+</main>
+<script>
+// tableaux plus larges que la colonne de texte, fondu à droite et phrase d'indication tant qu'il reste des colonnes
+(function(){function maj(t){var d=t.scrollWidth>t.clientWidth+2;t.classList.toggle("deborde-d",d&&t.scrollLeft+t.clientWidth<t.scrollWidth-2);
+var n=t.nextElementSibling;if(!(n&&n.classList.contains("indice-defil"))){if(!d)return;n=document.createElement("p");n.className="indice-defil";n.textContent="Faites défiler le tableau vers la droite pour voir les autres colonnes.";t.after(n)}n.hidden=!d}
+// figures, choix de la profession (rapports, 9 octobre 2026)
+document.querySelectorAll("figure.graphique").forEach(function(fig){
+  var leg=fig.querySelector(".leg");
+  fig.querySelectorAll(".choix-variante button").forEach(function(b,i,tous){b.addEventListener("click",function(){
+    var vs=fig.querySelectorAll(".variante");vs.forEach(function(v,j){v.hidden=j!==i});
+    tous.forEach(function(x,j){x.setAttribute("aria-pressed",String(j===i))});
+    var t=vs[i].querySelector("title");if(leg&&t)leg.textContent=t.textContent})})});
+var ts=document.querySelectorAll(".corps table");ts.forEach(function(t){maj(t);t.addEventListener("scroll",function(){maj(t)},{passive:true})});
+addEventListener("resize",function(){ts.forEach(maj)})})();
+</script>
+<script>
+// Graphiques interactifs, communs aux rapports et à l'atlas (demande de Lucas du 9 octobre 2026).
+// Infobulle au survol de chaque point ou zone qui porte un titre, clic pour la garder, zoom à la molette et par
+// boutons, déplacement à la souris quand le graphique est zoomé. La page n'est pas bloquée, une molette qui
+// arrive pendant le défilement de la page continue de faire défiler la page.
+// Réglage, window.FIGURES = {zoom: "sélecteur des svg zoomables", bulle: "sélecteur des svg à infobulles"}.
+(function(){
+  var R=window.FIGURES||{zoom:"figure.zoomable svg",bulle:"figure.graphique svg"};
+  var bulle=document.createElement("div");bulle.className="bulle-fig";bulle.setAttribute("role","status");
+  document.addEventListener("DOMContentLoaded",function(){document.body.appendChild(bulle)});
+  if(document.body)document.body.appendChild(bulle);
+  var epingle=null,dernierDefil=0;
+  addEventListener("scroll",function(){dernierDefil=Date.now();if(!epingle)cacher()},{passive:true});
+  function svgDe(el,sel){var s=el&&el.closest&&el.closest("svg");while(s&&s.ownerSVGElement)s=s.ownerSVGElement;return s&&s.matches(sel)?s:null}
+  // texte de l'élément survolé, pris dans son titre (déplacé dans data-info pour éviter la bulle du navigateur)
+  function info(el,s){
+    for(var e=el;e&&e!==s;e=e.parentNode){
+      if(e.dataset&&e.dataset.info)return [e,e.dataset.info];
+      var t=e.querySelector&&e.querySelector(":scope > title");
+      if(t&&e!==s){e.dataset.info=t.textContent;t.remove();return [e,e.dataset.info]}}
+    return null}
+  function montrer(x,y,txt){bulle.textContent=txt;bulle.style.opacity=1;var w=bulle.offsetWidth,h=bulle.offsetHeight;
+    bulle.style.left=Math.max(8,Math.min(x+14,innerWidth-w-8))+"px";bulle.style.top=Math.max(8,y-h-12<8?y+16:y-h-12)+"px"}
+  function cacher(){bulle.style.opacity=0}
+  document.addEventListener("pointermove",function(ev){
+    if(epingle)return;var s=svgDe(ev.target,R.bulle);if(!s){cacher();return}
+    var i=info(ev.target,s);if(i)montrer(ev.clientX,ev.clientY,i[1]);else cacher()});
+  document.addEventListener("click",function(ev){
+    var s=svgDe(ev.target,R.bulle);
+    if(epingle){epingle.removeAttribute("data-choisi");epingle=null}
+    if(!s){cacher();return}
+    var i=info(ev.target,s);if(!i){cacher();return}
+    epingle=i[0];epingle.setAttribute("data-choisi","");montrer(ev.clientX,ev.clientY,i[1])});
+  document.addEventListener("keydown",function(ev){if(ev.key==="Escape"&&epingle){epingle.removeAttribute("data-choisi");epingle=null;cacher()}});
+
+  // zoom, le cadrage d'origine est repris chaque fois que la page redessine le graphique
+  function cadre(s){var v=s.getAttribute("viewBox");if(!v)return null;if(s.dataset.vbz!==v)s.dataset.vb0=v;return v.split(/[ ,]+/).map(Number)}
+  function zoomer(s,k,cx,cy){var b=cadre(s);if(!b)return;var o=s.dataset.vb0.split(/[ ,]+/).map(Number);
+    var w=Math.min(o[2],b[2]*k),h=Math.min(o[3],b[3]*k);if(w<o[2]/12)return;
+    if(cx==null){cx=b[0]+b[2]/2;cy=b[1]+b[3]/2}
+    var x=cx-(cx-b[0])*w/b[2],y=cy-(cy-b[1])*h/b[3];
+    x=Math.max(o[0],Math.min(x,o[0]+o[2]-w));y=Math.max(o[1],Math.min(y,o[1]+o[3]-h));
+    var v=[x,y,w,h].map(function(n){return +n.toFixed(2)}).join(" ");s.setAttribute("viewBox",v);s.dataset.vbz=v;boutons(s)}
+  function entier(s){return !s.dataset.vb0||s.getAttribute("viewBox")===s.dataset.vb0}
+  function boutons(s){
+    var hote=s.closest(".fig-corps")||s.closest("figure");
+    if(!hote){
+      // hors d'une figure (atlas), les boutons vont sur une ligne à eux juste au-dessus du graphique, sans recouvrir le
+      // titre du panneau ni le bouton Citer
+      hote=s.parentNode;
+      if(hote&&!hote.classList.contains("fig-zoom")){var enveloppe=document.createElement("div");enveloppe.className="fig-zoom";
+        hote.insertBefore(enveloppe,s);enveloppe.appendChild(s);hote=enveloppe}
+    }
+    if(!hote||hote.querySelector(":scope > .zoom-boutons"))return;
+    var bz=document.createElement("div");bz.className="zoom-boutons";
+    bz.innerHTML='<button type="button" aria-label="Zoomer">+</button><button type="button" aria-label="Dézoomer">−</button><button type="button" aria-label="Revenir à la vue entière">⟲</button>';
+    if(getComputedStyle(hote).position==="static")hote.style.position="relative";
+    hote.insertBefore(bz,hote.firstChild);
+    var cible=function(){var v=hote.querySelector(".variante:not([hidden]) svg");return v||s};
+    var b=bz.querySelectorAll("button");
+    b[0].onclick=function(){zoomer(cible(),.6)};b[1].onclick=function(){zoomer(cible(),1/.6)};
+    b[2].onclick=function(){var c=cible();cadre(c);if(c.dataset.vb0){c.setAttribute("viewBox",c.dataset.vb0);c.dataset.vbz=c.dataset.vb0}}}
+  document.querySelectorAll(R.zoom).forEach(boutons);
+  document.addEventListener("pointerover",function(ev){var s=svgDe(ev.target,R.zoom);if(s)boutons(s)});
+  document.addEventListener("wheel",function(ev){
+    var s=svgDe(ev.target,R.zoom);if(!s)return;
+    if(Date.now()-dernierDefil<450)return;                       // la page défile, on la laisse défiler
+    if(ev.deltaY>0&&entier(s))return;                           // vue entière, molette vers le bas, la page défile
+    ev.preventDefault();var p=s.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;
+    var q=p.matrixTransform(s.getScreenCTM().inverse());zoomer(s,ev.deltaY<0?.8:1.25,q.x,q.y)},{passive:false});
+  var dep=null;
+  document.addEventListener("pointerdown",function(ev){var s=svgDe(ev.target,R.zoom);if(!s||entier(s))return;
+    var b=cadre(s);dep={x:ev.clientX,y:ev.clientY,b:b,s:s,k:b[2]/s.getBoundingClientRect().width,bouge:false}});
+  addEventListener("pointermove",function(ev){if(!dep)return;var o=dep.s.dataset.vb0.split(/[ ,]+/).map(Number),b=dep.b;
+    if(Math.abs(ev.clientX-dep.x)+Math.abs(ev.clientY-dep.y)>3)dep.bouge=true;if(!dep.bouge)return;
+    var x=Math.max(o[0],Math.min(b[0]-(ev.clientX-dep.x)*dep.k,o[0]+o[2]-b[2])),y=Math.max(o[1],Math.min(b[1]-(ev.clientY-dep.y)*dep.k,o[1]+o[3]-b[3]));
+    var v=[x,y,b[2],b[3]].map(function(n){return +n.toFixed(2)}).join(" ");dep.s.setAttribute("viewBox",v);dep.s.dataset.vbz=v});
+  addEventListener("pointerup",function(){dep=null});
+
+  // figures des rapports, même modèle que l'atlas (10 octobre 2026). Sous le titre « Figure N. légende », une ligne
+  // « Citer et exporter » ouvre la citation du rapport suivie du numéro et de la légende, l'image (copie, PNG, SVG, avec
+  // la citation dessous) et les données de la figure. La citation du rapport est donnée par la page (data-citation).
+  function citerFigures(){
+    var porte=document.querySelector("[data-citation]");if(!porte)return;var base=porte.dataset.citation;
+    document.querySelectorAll("figure.graphique").forEach(function(f){
+      if(f.dataset.cite)return;f.dataset.cite="1";
+      var cap=f.querySelector("figcaption");
+      var ligne=document.createElement("div");ligne.className="outils-figure";
+      var bc=document.createElement("button");bc.type="button";bc.className="citer-fig";bc.textContent="Citer et exporter";bc.setAttribute("aria-expanded","false");ligne.appendChild(bc);
+      if(cap)cap.after(ligne);else f.insertBefore(ligne,f.firstChild);
+      var boite=document.createElement("div");boite.className="citation-fig";boite.hidden=true;ligne.after(boite);
+      bc.onclick=function(){var ouvert=boite.hidden;bc.setAttribute("aria-expanded",String(ouvert));boite.hidden=!ouvert;if(!ouvert)return;
+        // la légende suit la profession choisie, la citation est donc refaite à chaque ouverture
+        var num=cap&&cap.querySelector("strong"),leg=cap&&cap.querySelector(".leg");
+        var ref=(num?num.textContent.replace(/\.$/,""):"Figure")+(leg?", "+leg.textContent.trim():"");
+        var texte=base.replace(/\s*$/,"")+(/[.]$/.test(base.trim())?" ":". ")+ref+".";
+        var nom=(ref.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,80)||"figure").toLowerCase();
+        boite.innerHTML='<p></p><div class="citation-actions"><button type="button" data-a="cit">Copier la citation</button></div>'
+          +'<ul class="exports"><li><span class="nom"><span class="genre">Image</span> de la figure</span><span class="citation-actions"><button type="button" data-a="img">Copier l’image</button><button type="button" data-a="png">PNG</button><button type="button" data-a="svg">SVG</button></span></li>'
+          +(f.dataset.donnees?'<li><span class="nom"><span class="genre">Données</span> de la figure, '+f.dataset.donneesNom+'</span><span class="citation-actions"><a class="bouton" download href="'+f.dataset.donnees+'">CSV</a></span></li>':'')
+          +'</ul><p class="small muted">Chaque fichier porte la citation du rapport, merci de la joindre à toute reprise.</p>';
+        boite.querySelector("p").textContent=texte;
+        boite.querySelectorAll("button").forEach(function(b){b.onclick=function(){var a=b.dataset.a;
+          if(a==="cit"){navigator.clipboard.writeText(texte).then(function(){b.textContent="Citation copiée"},function(){b.textContent="Copie impossible ici"});return}
+          var src=f.querySelector(".variante:not([hidden]) svg")||f.querySelector("svg");if(!src)return;
+          var svg=imageCitee(src,texte);
+          if(a==="svg"){enregistrer(new Blob([svg],{type:"image/svg+xml"}),nom+".svg");b.textContent="Enregistré";return}
+          var img=new Image(),url=URL.createObjectURL(new Blob([svg],{type:"image/svg+xml"}));
+          img.onload=function(){var c=document.createElement("canvas");c.width=img.width;c.height=img.height;c.getContext("2d").drawImage(img,0,0);URL.revokeObjectURL(url);
+            c.toBlob(function(png){if(!png)return;
+              if(a==="png"){enregistrer(png,nom+".png");b.textContent="Enregistré";return}
+              navigator.clipboard.write([new ClipboardItem({"image/png":png})]).then(function(){b.textContent="Image copiée"},function(){b.textContent="Copie impossible ici, utilisez PNG"})})};img.src=url}})}})}
+  function imageCitee(src,texte){
+    var ns="http://www.w3.org/2000/svg",c=src.cloneNode(true),vb=(src.dataset.vb0||src.getAttribute("viewBox")||"0 0 600 400").split(/[ ,]+/).map(Number);
+    var fs=Math.max(10,vb[2]/70),par=Math.max(40,Math.floor((vb[2]-16)/(fs*.52))),lignes=[];
+    texte.split(" ").forEach(function(m){var l=lignes.length?lignes[lignes.length-1]:null;if(l!=null&&(l+" "+m).length<=par)lignes[lignes.length-1]=l+" "+m;else lignes.push(m)});
+    var hc=fs*1.4*lignes.length+fs;c.setAttribute("xmlns",ns);c.setAttribute("viewBox",[vb[0],vb[1],vb[2],vb[3]+hc].join(" "));
+    c.setAttribute("width",vb[2]*2);c.setAttribute("height",(vb[3]+hc)*2);
+    var fond=document.createElementNS(ns,"rect");fond.setAttribute("x",vb[0]);fond.setAttribute("y",vb[1]);fond.setAttribute("width",vb[2]);fond.setAttribute("height",vb[3]+hc);fond.setAttribute("fill","#FFFFFF");c.insertBefore(fond,c.firstChild);
+    lignes.forEach(function(l,i){var t=document.createElementNS(ns,"text");t.setAttribute("x",vb[0]+8);t.setAttribute("y",vb[1]+vb[3]+fs*1.4*(i+1));t.setAttribute("font-size",fs);t.setAttribute("fill","#555555");t.setAttribute("font-family","Work Sans, Segoe UI, sans-serif");t.textContent=l;c.appendChild(t)});
+    return new XMLSerializer().serializeToString(c)}
+  function enregistrer(blob,nom){var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=nom;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},1000)}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",citerFigures);else citerFigures();
+})();
+</script>
+</body>
+</html>

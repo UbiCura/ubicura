@@ -1,0 +1,4 @@
+﻿prof;intercommunalites;voisines;parametres_effectifs;aicc_gwr;aicc_ols;r2_gwr;coef_global_niveau_de_vie;coef_local_q1;coef_local_mediane;coef_local_q3;part_positif_net;part_negatif_net;seuil_t_ajuste;p_variation_niveau_de_vie;p_variation_densite_pop
+psychologue;1235;178;50,6187;3223,39;3348,35;0,270329;-0,0841151;-0,223073;-0,115496;0,0350963;0;0,0615385;2,97769;0,02;0,02
+psychiatre;1235;233;38,2695;3251,55;3298,65;0,237217;-0,0797616;-0,169024;-0,0770009;-0,0402052;0;0,0939271;2,89019;0,02;0,02
+medecin_generaliste;1235;109;83,0629;3243,85;3446,17;0,300565;-0,124158;-0,328117;-0,146285;-0,0138877;0;0,0267206;3,12772;0,02;0,02

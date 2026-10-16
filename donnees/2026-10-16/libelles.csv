@@ -1,0 +1,68 @@
+source;code;libelle_origine;libelle_affichage;statut;remarque
+FINESS catégorie;500;Etablissement d'hébergement pour personnes âgées dépendantes;EHPAD (établissement d'hébergement pour personnes âgées en perte d'autonomie);validé;Le D du sigle officiel signifie « dépendantes », le sigle est gardé et seule la forme développée change
+FINESS catégorie;292;Centre Hospitalier Spécialisé lutte Maladies Mentales;CHS, EPSM (établissement spécialisé en psychiatrie);validé;
+FINESS catégorie;161;Maison de Santé pour Maladies Mentales;Clinique psychiatrique (maison de santé spécialisée en psychiatrie);validé;Il s'agit le plus souvent de cliniques psychiatriques privées
+FINESS catégorie;430;Centre Postcure Malades Mentaux;Centre de postcure psychiatrique;validé;
+FINESS catégorie;444;Centre Crise Accueil Permanent;Centre de crise et d'accueil permanent en psychiatrie;validé;
+FINESS catégorie;415;Service Médico-Psychologique Régional (S.M.P.R.);SMPR (service médico-psychologique régional, soins psychiatriques en prison);validé;
+FINESS catégorie;156;Centre Médico-Psychologique (C.M.P.);CMP (centre médico-psychologique);validé;
+FINESS catégorie;425;Centre d'Accueil Thérapeutique à temps partiel (C.A.T.T.P.);CATTP (centre d'accueil thérapeutique à temps partiel);validé;
+FINESS catégorie;189;Centre Médico-Psycho-Pédagogique (C.M.P.P.);CMPP (centre médico-psycho-pédagogique);validé;
+FINESS catégorie;221;Bureau d'Aide Psychologique Universitaire (B.A.P.U.);BAPU (bureau d'aide psychologique universitaire);validé;
+FINESS catégorie;366;Atelier Thérapeutique;Atelier thérapeutique;validé;Typographie seulement
+FINESS catégorie;412;Appartement Thérapeutique;Appartement thérapeutique;validé;Typographie seulement
+FINESS catégorie;183;Institut Médico-Educatif (I.M.E.);IME (institut médico-éducatif);validé;
+FINESS catégorie;182;Service d'Éducation Spéciale et de Soins à Domicile;SESSAD (service d'éducation spéciale et de soins à domicile);validé;
+FINESS catégorie;186;Institut Thérapeutique Éducatif et Pédagogique (I.T.E.P.);ITEP (institut thérapeutique, éducatif et pédagogique);validé;
+FINESS catégorie;190;Centre Action Médico-Sociale Précoce (C.A.M.S.P.);CAMSP (centre d'action médico-sociale précoce);validé;
+FINESS catégorie;255;Maison d'Accueil Spécialisée (M.A.S.);MAS (maison d'accueil spécialisée);validé;
+FINESS catégorie;354;Service de Soins Infirmiers A Domicile (S.S.I.A.D);SSIAD (service de soins infirmiers à domicile);validé;
+FINESS catégorie;246;Etablissement et Service d'Aide par le Travail (E.S.A.T.);ESAT (établissement et service d'aide par le travail);validé;
+FINESS catégorie;446;Service d'Accompagnement à la Vie Sociale (S.A.V.S.);SAVS (service d'accompagnement à la vie sociale);validé;
+FINESS catégorie;192;Institut d'éducation motrice;IEM (institut d'éducation motrice);validé;
+FINESS catégorie;448;Etab.Acc.Médicalisé en tout ou partie personnes handicapées;EAM (établissement d'accueil médicalisé pour personnes en situation de handicap);validé;
+FINESS catégorie;449;Etab.Accueil Non Médicalisé pour personnes handicapées;EANM (établissement d'accueil non médicalisé pour personnes en situation de handicap);validé;
+FINESS catégorie;445;Service d'accompagnement médico-social adultes handicapés;SAMSAH (service d'accompagnement médico-social pour adultes en situation de handicap);validé;
+FINESS catégorie;188;Etablissement pour Enfants ou Adolescents Polyhandicapés;EEAP (établissement pour enfants et adolescents en situation de polyhandicap);validé;
+FINESS catégorie;437;Foyer d'Accueil Médicalisé pour Adultes Handicapés (F.A.M.);FAM (foyer d'accueil médicalisé pour adultes en situation de handicap);validé;
+FINESS catégorie;382;Foyer de Vie pour Adultes Handicapés;Foyer de vie pour adultes en situation de handicap;validé;
+FINESS catégorie;252;Foyer Hébergement Adultes Handicapés;Foyer d'hébergement pour adultes en situation de handicap;validé;
+FINESS catégorie;253;Foyer d'Accueil Polyvalent pour Adultes Handicapés;Foyer d'accueil polyvalent pour adultes en situation de handicap;validé;
+FINESS catégorie;395;Etablissement d'Accueil Temporaire pour Adultes Handicapés;Accueil temporaire pour adultes en situation de handicap;validé;
+FINESS catégorie;390;Etablissement d'Accueil Temporaire d'Enfants Handicapés;Accueil temporaire pour enfants en situation de handicap;validé;
+FINESS catégorie;396;Foyer Hébergement Enfants et Adolescents Handicapés;Foyer d'hébergement pour enfants et adolescents en situation de handicap;validé;
+FINESS catégorie;370;Etablissement Expérimental pour personnes handicapées;Établissement expérimental pour personnes en situation de handicap;validé;
+FINESS catégorie;379;Etablissement Expérimental pour Adultes Handicapés;Établissement expérimental pour adultes en situation de handicap;validé;
+FINESS catégorie;377;Etablissement Expérimental pour Enfance Handicapée;Établissement expérimental pour enfants en situation de handicap;validé;
+FINESS catégorie;195;Institut pour Déficients Auditifs;Institut pour enfants sourds ou malentendants;validé;Beaucoup de personnes sourdes revendiquent le mot « sourd », alors que « déficient auditif » est un terme médical
+FINESS catégorie;194;Institut pour Déficients Visuels;Institut pour enfants aveugles ou malvoyants;validé;
+FINESS catégorie;196;Institut d'Education Sensorielle Sourd/Aveugle;Institut d'éducation sensorielle pour enfants sourds, aveugles ou sourds-aveugles;validé;Le libellé officiel ne précise pas s'il s'agit d'un double handicap
+FINESS catégorie;609;Maisons Départementales des Personnes Handicapées;MDPH (maison départementale des personnes handicapées);validé;Nom officiel d'une institution, gardé comme un nom propre
+FINESS catégorie;378;Etablissement Expérimental Enfance Protégée;Établissement expérimental de protection de l'enfance;validé;
+FINESS catégorie;501;EHPA percevant des crédits d'assurance maladie;EHPA (établissement d'hébergement pour personnes âgées) financé en partie par l'Assurance Maladie;validé;
+FINESS catégorie;502;EHPA ne percevant pas des crédits d'assurance maladie;EHPA (établissement d'hébergement pour personnes âgées) sans financement de l'Assurance Maladie;validé;
+FINESS catégorie;381;Etablissement Expérimental pour Personnes Agées;Établissement expérimental pour personnes âgées;validé;Typographie seulement
+FINESS catégorie;380;Etablissement Expérimental Autres Adultes;Établissement expérimental pour adultes;validé;Typographie seulement
+FINESS catégorie;402;Jardin d'Enfants Spécialisé;Jardin d'enfants spécialisé;validé;Typographie seulement
+FINESS agrégat;1103;Centres Hospitaliers Spécialisés Lutte Maladies Mentales;Établissements spécialisés en psychiatrie (CHS, EPSM);validé;
+FINESS agrégat;1111;Autres Etablissements de Lutte contre les Maladies Mentales;Autres structures de psychiatrie (CMP, CATTP, cliniques, SMPR...);validé;
+FINESS agrégat;4101;Etab.Educ.Spéciale pour Déficients Mentaux et Handicapés;Éducation spécialisée pour enfants avec une déficience intellectuelle ou d'autres handicaps (IME, EEAP);validé;
+FINESS agrégat;4102;Etab.Educ Spéciale pour Enfants Trouble Conduite et Comport;Éducation spécialisée pour enfants ayant des difficultés psychologiques avec troubles du comportement (ITEP);validé;Reprend la définition légale des ITEP
+FINESS agrégat;4103;Etablissements d'Education Spéciale pour Handicapés Moteurs;Éducation spécialisée pour enfants avec un handicap moteur (IEM);validé;
+FINESS agrégat;4104;Etab.Education Spéciale pour Déficients Sensoriels;Éducation spécialisée pour enfants avec un handicap sensoriel (instituts sensoriels);validé;
+FINESS agrégat;4105;Etablissements et Services Hébergement Enfants Handicapés;Hébergement pour enfants en situation de handicap;validé;
+FINESS agrégat;4106;Services à Domicile ou Ambulatoires pour Handicapés;Services à domicile ou ambulatoires pour personnes en situation de handicap (SESSAD, CAMSP, CMPP, SAMSAH...);validé;
+FINESS agrégat;4107;Etab. Expérimentaux en Faveur de l'Enfance Handicapée;Établissements expérimentaux pour enfants en situation de handicap;validé;
+FINESS agrégat;4301;Etab. et Services d'Hébergement pour Adultes Handicapés;Hébergement pour adultes en situation de handicap (MAS, FAM, foyers de vie...);validé;
+FINESS agrégat;4302;Etab.et Services de Travail Protégé pour Adultes Handicapés;Travail protégé pour adultes en situation de handicap (ESAT);validé;
+FINESS agrégat;4303;Etab.et Services de Réinsertion Prof pour Adultes Handicapés;Réinsertion professionnelle des adultes en situation de handicap;validé;
+FINESS agrégat;4304;Etab.Expérimentaux en Faveur des Adultes Handicapés;Établissements expérimentaux pour adultes en situation de handicap;validé;
+FINESS agrégat;4305;Services de Maintien à Domicile pour Handicapés;Maintien à domicile des personnes en situation de handicap (SAVS, SAMSAH...);validé;
+RPPS secteur;;Etab. pour Handicapés;Établissement pour personnes en situation de handicap;validé;
+RPPS secteur;;Etab. Personnes Agées;Établissement pour personnes âgées (EHPAD, EHPA...);validé;
+RPPS secteur;;Etab. Privé Non PSPH;Établissement privé à but lucratif (clinique privée);validé;PSPH signifie « participant au service public hospitalier ». « Non PSPH » désigne surtout les cliniques à but lucratif, l'équivalence n'est pas parfaite
+RPPS secteur;;Etab. Privé PSPH;Établissement privé à but non lucratif (ESPIC, ex-PSPH);validé;Les anciens PSPH sont devenus des ESPIC en 2009
+RPPS secteur;;Etab. Hébergt Réadaptation;Établissement d'hébergement et de réadaptation;validé;Typographie seulement
+RPPS secteur;;Etab. Protection Enfance;Établissement de protection de l'enfance;validé;Typographie seulement
+Assurance Maladie pathologie;;Déficience mentale;Déficience intellectuelle;validé;Source pas encore chargée, à confirmer sur le fichier réel
+Assurance Maladie pathologie;;Maladies psychiatriques;Troubles psychiques;validé;Source pas encore chargée, à confirmer sur le fichier réel

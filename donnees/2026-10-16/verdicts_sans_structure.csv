@@ -1,0 +1,13 @@
+﻿cle;structure;verdict
+630786754|||cmp marie beatrice ror;CMP Marie-Béatrice (ROR);pas_un_cmp
+630786754|060780996|Marie|cmp marie beatrice;CMP Marie-Béatrice;pas_un_cmp
+630786754|630016210|Clermont-Ferrand|cmp janet frame;CMP Janet Frame;pas_un_cmp
+710781329|710014929|Sevrey|cmp pour adultes de sevrey;CMP pour adultes de Sevrey;pas_un_cmp
+260003264|260013693|Crest|antenne du cmp crest;Antenne du CMP Crest;doublon
+260003264|260023049|Crest|antenne du cmp crest;Antenne du CMP Crest;doublon
+260003264|260021845|Nyons|antenne du cmp nyons;Antenne du CMP NYONS;doublon
+750712184|750802258|Paris|cmp pour enfants rue rene binet;CMP pour enfants rue René-Binet;existe
+750712184|750033938|Paris|cmp boulevard ney;CMP boulevard Ney;existe
+130789274|130806706|Arles|cmp cattp secteur 13g26 ch arles;CMP CATTP SECTEUR 13G26 CH ARLES;doublon
+670013366|670014281|Saverne|cmp pour personnes agees de saverne vill;CMP pour personnes âgées de Saverne, villa Dollinger;pas_un_cmp
+330781295|330058611|Bègles|cmp de begles avenue du marechal leclerc;CMP de Bègles, avenue du Maréchal-Leclerc;pas_un_cmp
