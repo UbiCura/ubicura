@@ -12,21 +12,23 @@
 <script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||"dark")}catch(e){document.documentElement.setAttribute("data-theme","dark")}</script>
 <style>/*POLICES*/</style>
 <style>
+:root{--mesure:none}  /* les textes d'un encadré prennent tous sa largeur (demande de Lucas du 22 octobre 2026) */
+.panel p:not(.indice-defil){max-width:var(--mesure)}
 :root{
-  --bg:#F4F5F7;--panel:#FFFFFF;--ink:#1F2430;--muted:#5F6675;--line:#D9DCE3;--nodata:#E3E4E8;
-  --accent:#B07D0A;--focus:#3E2563;
-  --r0:#EEE8F3;--r1:#D5C6E3;--r2:#B39BCB;--r3:#8C6DAE;--r4:#64458C;--r5:#3E2563;
-  --d0:#7A4E00;--d1:#B88A2E;--d2:#E6D3A6;--d3:#EFEDF2;--d4:#C6B3DB;--d5:#8C6DAE;--d6:#3E2563;
+  --bg:#F4F5F7;--panel:#FFFFFF;--ink:#1F2430;--muted:#5F6675;--line:#D9DCE3;--nodata:#E9E8EC;
+  --accent:#9A6B00;--focus:#3E2563;
+  --r0:#EEE8F3;--r1:#BCA6D5;--r2:#9C7FBF;--r3:#7E5CA6;--r4:#5A3A85;--r5:#2F1B4D;
+  --d0:#6B4300;--d1:#A87418;--d2:#D9B260;--d3:#DEDCE4;--d4:#AE93CB;--d5:#8C6DAE;--d6:#3E2563;
   --serif:"Newsreader",Georgia,"Times New Roman",serif;
   --sans:"Work Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
-}
+  --contour:#9AA0AC}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#15171C;--panel:#1D2027;--ink:#E8E9EE;--muted:#A0A5B2;--line:#343844;--nodata:#2A2D35;--accent:#E0B04A;--focus:#D4C3EA;
+  --bg:#15171C;--panel:#1D2027;--contour:#15171C;--ink:#E8E9EE;--muted:#A0A5B2;--line:#343844;--nodata:#2A2D35;--accent:#E0B04A;--focus:#D4C3EA;
   --r0:#2A2533;--r1:#43355A;--r2:#5E4A82;--r3:#7E66A8;--r4:#A58CCB;--r5:#D4C3EA;
   --d0:#E8B34A;--d1:#A97F2C;--d2:#5A4A2B;--d3:#2B2A30;--d4:#4A3C66;--d5:#7E66A8;--d6:#D4C3EA;}}
 :root[data-theme="dark"]{
-  --bg:#15171C;--panel:#1D2027;--ink:#E8E9EE;--muted:#A0A5B2;--line:#343844;--nodata:#2A2D35;--accent:#E0B04A;--focus:#D4C3EA;
+  --bg:#15171C;--panel:#1D2027;--contour:#15171C;--ink:#E8E9EE;--muted:#A0A5B2;--line:#343844;--nodata:#2A2D35;--accent:#E0B04A;--focus:#D4C3EA;
   --r0:#2A2533;--r1:#43355A;--r2:#5E4A82;--r3:#7E66A8;--r4:#A58CCB;--r5:#D4C3EA;
   --d0:#E8B34A;--d1:#A97F2C;--d2:#5A4A2B;--d3:#2B2A30;--d4:#4A3C66;--d5:#7E66A8;--d6:#D4C3EA;}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
@@ -39,8 +41,8 @@ header.top{display:flex;justify-content:space-between;align-items:flex-end;gap:2
 h1{font-family:var(--serif);font-weight:400;font-size:clamp(2rem,4.4vw,3.2rem);line-height:1.02;margin:0;letter-spacing:-.01em}
 .lede{color:var(--muted);max-width:none;margin:10px 0 0}
 header.top>div{flex:1 1 100%}
-.demo{margin-top:16px;padding:10px 14px;border-left:3px solid var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent);font-size:.9rem;max-width:80ch}
-.btn{display:inline-block;background:var(--ink);color:var(--bg);border:0;border-radius:4px;padding:8px 14px;cursor:pointer;font-weight:500;font-size:.9rem}
+.demo{margin-top:16px;padding:10px 14px;border-left:3px solid var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent);font-size:.875rem;max-width:var(--mesure)}
+.btn{display:inline-block;background:var(--ink);color:var(--bg);border:0;border-radius:4px;padding:8px 14px;cursor:pointer;font-weight:500;font-size:.875rem}
 .btn.ghost{background:none;color:var(--ink);border:1px solid var(--line);text-decoration:none}
 nav.tabs{display:flex;gap:2px;margin:26px 0 0;border-bottom:1px solid var(--line);overflow-x:auto}
 .collant{position:sticky;top:var(--haut-nav,0px);z-index:8;background:var(--bg);box-shadow:0 6px 8px -8px rgb(0 0 0 / .5)}
@@ -52,18 +54,18 @@ nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(-
 .bar{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;padding:14px 0}
 select,input[type=search]{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:6px 8px}
 .seg{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden}
-.seg button{background:none;border:0;padding:5px 11px;font-size:.86rem;cursor:pointer;color:var(--muted)}
+.seg button{background:none;border:0;padding:5px 11px;font-size:.875rem;cursor:pointer;color:var(--muted)}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 .seg button+button{border-left:1px solid var(--line)}
 .seg button:disabled{opacity:.35;cursor:not-allowed}
 .panel .bar select{flex:1 1 240px;min-width:0;max-width:100%;text-overflow:ellipsis}
 .tabdonnees{max-height:420px;overflow:auto;border:1px solid var(--line);border-radius:4px}
 .tabdonnees thead th{position:sticky;top:0;background:var(--panel);z-index:1}
-.tabdonnees th button{font-size:.78rem}
+.tabdonnees th button{font-size:.75rem}
 details.donnees summary{color:var(--ink);font-weight:500}
-.citation{font-size:.84rem;background:color-mix(in srgb,var(--r1) 30%,transparent);border-radius:4px;padding:8px 12px;margin:8px 0}
+.citation{font-size:.875rem;background:color-mix(in srgb,var(--r1) 30%,transparent);border-radius:4px;padding:8px 12px;margin:8px 0}
 .citation p{margin:0 0 6px}
-button.citer{background:none;border:1px solid var(--line);border-radius:999px;padding:1px 10px;font-family:var(--sans);font-size:.72rem;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap}
+button.citer{background:none;border:1px solid var(--line);border-radius:999px;padding:1px 10px;font-family:var(--sans);font-size:.75rem;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap}
 button.citer[aria-expanded="true"]{color:var(--ink);border-color:var(--ink)}
 svg text.signature{font-size:10px;opacity:.75}
 @media (max-width:600px){.bar select{max-width:100%;min-width:0;flex:1 1 100%}.seg{flex-wrap:wrap;max-width:100%}.seg button+button{border-left:0}.seg button{border-right:1px solid var(--line)}}
@@ -76,7 +78,7 @@ svg text.signature{font-size:10px;opacity:.75}
 .pad{padding:16px 18px}
 .mapbox{position:relative;overflow:hidden}
 svg{display:block;width:100%;height:auto}
-svg.map path.u{stroke:var(--bg);stroke-width:.35;vector-effect:non-scaling-stroke;cursor:pointer}
+svg.map path.u{stroke:var(--contour);stroke-width:.35;vector-effect:non-scaling-stroke;cursor:pointer}
 svg.map path.u.sel{stroke:var(--accent);stroke-width:2.6;filter:drop-shadow(0 0 3px color-mix(in srgb,var(--accent) 70%,transparent))}
 svg.map path.survol{fill:none;stroke:var(--ink);stroke-width:1.6;vector-effect:non-scaling-stroke;pointer-events:none}
 svg.map.zoome path.dep{opacity:.7;stroke-width:.9}
@@ -88,7 +90,7 @@ svg.map text.tc{font-size:18px;font-weight:500;pointer-events:none;font-variant-
 svg.map text.om{font-size:16px}
 .vuebar{position:absolute;top:10px;right:10px;z-index:2}
 .zoombar{position:absolute;top:48px;right:10px;z-index:2;display:flex;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:var(--panel)}
-.zoombar button{background:none;border:0;padding:4px 10px;cursor:pointer;color:var(--ink);font-size:.86rem;min-width:32px}
+.zoombar button{background:none;border:0;padding:4px 10px;cursor:pointer;color:var(--ink);font-size:.875rem;min-width:32px}
 .zoombar button+button{border-left:1px solid var(--line)}
 .zoombar button:hover{background:color-mix(in srgb,var(--ink) 8%,transparent)}
 #tmapbox .zoombar{top:10px}
@@ -102,10 +104,10 @@ svg text{fill:var(--muted);font-family:var(--sans);font-size:11px}
 #mapOutils .outils-encadre{margin:0}
 .citation ul.exports{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:6px}
 .citation ul.exports li{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding-top:6px}
-.citation ul.exports .nom{flex:1 1 240px;font-size:.84rem}
+.citation ul.exports .nom{flex:1 1 240px;font-size:.875rem}
 .citation ul.exports .genre{color:var(--muted);margin-right:4px}
 .citation ul.exports .acts{display:flex;flex-wrap:wrap;gap:6px}
-.legende-ev{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:13px;color:var(--muted);margin:4px 0 8px}
+.legende-ev{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.875rem;color:var(--muted);margin:4px 0 8px}
 .legende-ev span{display:inline-flex;align-items:center;gap:6px}
 .legende-ev i{display:inline-block;width:22px;height:10px;border-radius:2px}
 #cbTable{min-width:640px}
@@ -114,12 +116,15 @@ svg text{fill:var(--muted);font-family:var(--sans);font-size:11px}
 #cbTable .cb-titre th{text-align:left;font-weight:600;padding-top:14px;border-bottom:1px solid var(--line);white-space:normal}
 #cbTable .num{text-align:right}
 .cb-grille{display:grid;grid-template-columns:minmax(0,640px) minmax(0,1fr);gap:32px;align-items:start}
-@media (max-width:1100px){.cb-grille{grid-template-columns:minmax(0,1fr)}}
+/* la figure suit le défilement de la liste des croisements, sous l'en-tête collant, sans vide (demande de Lucas du
+   22 octobre 2026) ; sur un écran étroit, la figure passe au-dessus de la liste et ne colle plus */
+.cb-nuage{position:sticky;top:calc(var(--haut-collant,0px) + 12px)}
+@media (max-width:1100px){.cb-grille{grid-template-columns:minmax(0,1fr)}.cb-nuage{position:static}}
 .cb-vue h3{font-family:var(--serif);font-size:18px;font-weight:600;margin:8px 0 6px}
-.cb-q{font-size:12.5px;color:var(--muted);margin:14px 0 4px;padding-bottom:3px;border-bottom:1px solid var(--line)}
-.cb-axe{display:grid;grid-template-columns:minmax(0,1fr) 132px 44px;gap:10px;font-size:11.5px;color:var(--muted);padding:0 6px}
+.cb-q{font-size:.875rem;color:var(--muted);margin:14px 0 4px;padding-bottom:3px;border-bottom:1px solid var(--line)}
+.cb-axe{display:grid;grid-template-columns:minmax(0,1fr) 132px 44px;gap:10px;font-size:.75rem;color:var(--muted);padding:0 6px}
 .cb-axe span{display:flex;justify-content:space-between}
-.cb-ligne{display:grid;grid-template-columns:minmax(0,1fr) 132px 44px;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;border-radius:6px;padding:5px 6px;color:var(--ink);font:inherit;font-size:13px;line-height:1.35;cursor:pointer}
+.cb-ligne{display:grid;grid-template-columns:minmax(0,1fr) 132px 44px;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;border-radius:6px;padding:5px 6px;color:var(--ink);font:inherit;font-size:.875rem;line-height:1.35;cursor:pointer}
 .cb-ligne:hover{background:color-mix(in srgb,var(--accent) 10%,transparent)}
 .cb-ligne.on{background:color-mix(in srgb,var(--accent) 18%,transparent);box-shadow:inset 3px 0 0 var(--accent)}
 .cb-ligne:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
@@ -130,29 +135,29 @@ table td,table th{hyphens:manual;-webkit-hyphens:manual;overflow-wrap:normal;wor
 /* texte courant justifié (consigne de Lucas du 9 octobre 2026), avec césures, jamais dans les tableaux ni les infobulles */
 p,li,dd{text-align:justify;hyphens:auto;-webkit-hyphens:auto;hyphenate-limit-chars:7 3 3}
 td p,th p,td li,.tip p,.tip li,.legend p,nav li{text-align:left;hyphens:manual}
-.legende-signaux{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--muted);margin:6px 0}
-.bulle-fig{position:fixed;pointer-events:none;white-space:pre-line;background:var(--ink);color:var(--bg);font-size:.8rem;padding:6px 9px;border-radius:4px;max-width:min(420px,calc(100vw - 16px));opacity:0;z-index:50;transition:opacity .1s}
+.legende-signaux{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.875rem;color:var(--muted);margin:6px 0}
+.bulle-fig{position:fixed;pointer-events:none;white-space:pre-line;background:var(--ink);color:var(--bg);font-size:.875rem;padding:6px 9px;border-radius:4px;max-width:min(420px,calc(100vw - 16px));opacity:0;z-index:50;transition:opacity .1s}
 .zoom-boutons{position:absolute;top:6px;right:6px;display:flex;gap:4px;z-index:2}
 .fig-zoom > .zoom-boutons{position:static;justify-content:flex-end;margin:0 0 4px}
 .fig-zoom{max-width:640px}
-.zoom-boutons button{font:inherit;font-size:.85rem;width:28px;height:28px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:5px;cursor:pointer}
+.zoom-boutons button{font:inherit;font-size:.875rem;width:28px;height:28px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:5px;cursor:pointer}
 svg [data-choisi]{stroke:var(--ink);stroke-width:2}
-.tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--bg);font-size:.8rem;padding:8px 10px;border-radius:4px;max-width:min(470px,calc(100vw - 16px));opacity:0;z-index:40}
-.tip table{font-size:.76rem;width:auto;margin-top:4px}.tip th,.tip td{border:0;padding:1px 0 1px 8px;color:inherit;background:none!important;position:static}
+.tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--bg);font-size:.875rem;padding:8px 10px;border-radius:4px;max-width:min(470px,calc(100vw - 16px));opacity:0;z-index:40}
+.tip table{font-size:.75rem;width:auto;margin-top:4px}.tip th,.tip td{border:0;padding:1px 0 1px 8px;color:inherit;background:none!important;position:static}
 .tip th{font-weight:500;opacity:.75;white-space:normal;vertical-align:bottom}
 .tip table{max-width:100%}.tip td:first-child,.tip th:first-child{padding-left:0;text-align:left}.tip tr.on td{font-weight:600}
 .tip .tl{opacity:.85;margin-top:4px}
-.asavoir{border-left:3px solid var(--accent);background:color-mix(in srgb,var(--accent) 8%,transparent);padding:7px 11px;font-size:.82rem;margin:10px 0 0;border-radius:0 4px 4px 0}
+.asavoir{max-width:var(--mesure);box-sizing:border-box;border-left:3px solid var(--accent);background:color-mix(in srgb,var(--accent) 8%,transparent);padding:7px 11px;font-size:.875rem;margin:10px 0 0;border-radius:0 4px 4px 0}
 .asavoir a{color:inherit}
 .note a,.phrase a{color:var(--ink);text-decoration:underline;text-underline-offset:2px}
-.legend{display:flex;align-items:center;gap:10px;padding:8px 16px 14px;font-size:.78rem;color:var(--muted);flex-wrap:wrap}
+.legend{display:flex;align-items:center;gap:10px;padding:8px 16px 14px;font-size:.75rem;color:var(--muted);flex-wrap:wrap}
 .legend .sw{display:flex}.legend .sw span{width:38px;height:12px}.legend .sw span:first-child{border-radius:3px 0 0 3px}.legend .sw span:last-child{border-radius:0 3px 3px 0}
 .legend .ticks{display:flex;font-variant-numeric:tabular-nums}.legend .ticks span{width:38px;transform:translateX(-50%);text-align:center}.legend .ticks span:first-child{transform:none}
 h2{font-family:var(--serif);font-weight:600;font-size:1.25rem;margin:0 0 4px;line-height:1.2}
-h3{font-size:.85rem;font-weight:600;margin:16px 0 6px;color:var(--muted)}
+h3{font-size:.875rem;font-weight:600;margin:16px 0 6px;color:var(--muted)}
 .big{font-family:var(--serif);font-size:2.5rem;line-height:1;margin:8px 0 2px;font-variant-numeric:tabular-nums}
-.muted{color:var(--muted)}.small{font-size:.84rem}
-dl.f{display:grid;grid-template-columns:1fr auto;gap:3px 12px;margin:10px 0 0;font-size:.88rem}
+.muted{color:var(--muted)}.small{font-size:.875rem}
+dl.f{display:grid;grid-template-columns:1fr auto;gap:3px 12px;margin:10px 0 0;font-size:.875rem}
 dl.f dt{color:var(--muted)}dl.f dd{margin:0;text-align:right;font-variant-numeric:tabular-nums}
 .side{display:flex;flex-direction:column;gap:18px}
 /* à côté de la carte, la colonne prend la hauteur de la carte et défile à l'intérieur */
@@ -174,32 +179,32 @@ dl.f dt{color:var(--muted)}dl.f dd{margin:0;text-align:right;font-variant-numeri
 .selhead{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
 .selhead h2{font-size:1.6rem;justify-content:flex-start}
 .selhead .actions{display:flex;gap:8px;align-items:center}
-.selzone>.phrase{max-width:80ch}
+.selzone>.phrase{max-width:var(--mesure)}
 .selcols{display:grid;grid-template-columns:1fr 1fr;gap:8px 40px;margin-top:6px;align-items:start}
 @media (max-width:760px){.selcols{grid-template-columns:1fr}}
 .selcols .bloc{margin-top:10px}
 .selcols .prow{grid-template-columns:minmax(110px,42%) 1fr 44px}
-details.groupe>summary{cursor:pointer;font-size:.72rem;color:var(--muted);font-weight:600;margin:10px 0 2px}
-.brief .phrase{font-size:.95rem}
-.lien{background:none;border:0;padding:0;color:var(--ink);text-decoration:underline;text-underline-offset:3px;cursor:pointer;font-size:.88rem}
-.prow{display:grid;grid-template-columns:150px 1fr 44px;align-items:center;gap:8px;font-size:.8rem;padding:1px 0;cursor:pointer;border-radius:3px}
+details.groupe>summary{cursor:pointer;font-size:.75rem;color:var(--muted);font-weight:600;margin:10px 0 2px}
+.brief .phrase{font-size:1rem}
+.lien{background:none;border:0;padding:0;color:var(--ink);text-decoration:underline;text-underline-offset:3px;cursor:pointer;font-size:.875rem}
+.prow{display:grid;grid-template-columns:150px 1fr 44px;align-items:center;gap:8px;font-size:.875rem;padding:1px 0;cursor:pointer;border-radius:3px}
 .prow:hover,.prow.on{background:color-mix(in srgb,var(--accent) 12%,transparent)}
 .prow .lbl{line-height:1.25;padding:2px 0}
 .prow .v{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
-.gh{font-size:.72rem;color:var(--muted);margin:10px 0 2px;font-weight:600}
-.hbars div.r{display:grid;grid-template-columns:1fr auto;font-size:.82rem;margin-bottom:6px}
+.gh{font-size:.75rem;color:var(--muted);margin:10px 0 2px;font-weight:600}
+.hbars div.r{display:grid;grid-template-columns:1fr auto;font-size:.875rem;margin-bottom:6px}
 .hbars .t{grid-column:1/-1;height:6px;background:var(--nodata);border-radius:1px}
 .hbars .t span{display:block;height:100%;background:var(--r4)}
 .scroll{overflow-x:auto}
 thead th{white-space:normal;vertical-align:bottom;min-width:64px}
 /* un tableau plus large que son cadre s'estompe à droite tant qu'il reste des colonnes (la première colonne reste fixe à gauche) */
 .deborde-d{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 36px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 36px),transparent)}
-.indice-defil{font-size:.74rem;color:var(--muted);margin:4px 0 0;text-align:right}
-table{border-collapse:collapse;width:100%;font-size:.85rem}
+.indice-defil{font-size:.75rem;color:var(--muted);margin:4px 0 0;text-align:right}
+table{border-collapse:collapse;width:100%;font-size:.875rem}
 th,td{padding:6px 9px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 th:first-child,td:first-child{text-align:left;position:sticky;left:0;background:var(--panel)}
 td:first-child{white-space:normal;min-width:150px;max-width:280px}
-th button{background:none;border:0;padding:0;cursor:pointer;font-weight:600;color:var(--muted);font-size:.8rem}
+th button{background:none;border:0;padding:0;cursor:pointer;font-weight:600;color:var(--muted);font-size:.875rem}
 th button.on{color:var(--ink)}
 tbody tr{cursor:pointer}
 tbody tr:hover td{filter:brightness(.97)}
@@ -208,21 +213,21 @@ tbody tr:hover td{filter:brightness(.97)}
 .hmbox{max-height:620px;overflow:auto;overscroll-behavior:contain;border:1px solid var(--line);border-radius:4px}
 .hm{border-collapse:separate;border-spacing:0}
 .hm td{cursor:pointer;font-size:.75rem;min-width:46px;text-align:center;border-bottom:1px solid var(--bg)}
-.hm thead th{position:sticky;top:0;z-index:2;background:var(--panel);font-size:.7rem;font-weight:500;color:var(--muted);text-align:center;white-space:normal;min-width:54px;vertical-align:bottom;padding:6px 4px;hyphens:auto}
+.hm thead th{position:sticky;top:0;z-index:2;background:var(--panel);font-size:.75rem;font-weight:500;color:var(--muted);text-align:center;white-space:normal;min-width:54px;vertical-align:bottom;padding:6px 4px;hyphens:auto}
 .hm thead th:first-child{z-index:3;left:0;text-align:left}
-.hm td.ind{text-align:left;font-size:.8rem;white-space:normal;min-width:150px;max-width:230px;cursor:default;position:sticky;left:0;background:var(--panel);z-index:1}
-.hm tr.gr td{cursor:pointer;background:var(--bg);font-weight:600;font-size:.78rem;color:var(--ink);text-align:left;position:sticky;left:0}
+.hm td.ind{text-align:left;font-size:.875rem;white-space:normal;min-width:150px;max-width:230px;cursor:default;position:sticky;left:0;background:var(--panel);z-index:1}
+.hm tr.gr td{cursor:pointer;background:var(--bg);font-weight:600;font-size:.75rem;color:var(--ink);text-align:left;position:sticky;left:0}
 .hm tr.gr td span{color:var(--muted);font-weight:400}
-.bvlegende{display:flex;gap:18px;align-items:center;flex-wrap:wrap;font-size:.8rem;color:var(--muted);margin:8px 0}
+.bvlegende{display:flex;gap:18px;align-items:center;flex-wrap:wrap;font-size:.875rem;color:var(--muted);margin:8px 0}
 .bvlegende .grille{display:grid;grid-template-columns:repeat(3,16px);grid-template-rows:repeat(3,16px)}
 .bvlegende .grille i{display:block}
 .bvlegende .legende-signaux,.legend .legende-signaux{flex-basis:100%;margin:0}
-.legend .legende-lieux{flex-basis:100%;font-size:12.5px;color:var(--muted);display:flex;align-items:center;gap:6px}
-.lieuxbar{padding:4px 16px 2px;font-size:13.5px;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.legend .legende-lieux{flex-basis:100%;font-size:.875rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.lieuxbar{padding:4px 16px 2px;font-size:.875rem;display:flex;flex-wrap:wrap;align-items:center;gap:8px}
 .lieuxbar select{max-width:100%}
 .lieuinfo{border-left:3px solid var(--accent);margin:4px 16px 8px;padding:2px 0}
 button.lien{background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit}
-.liste-lieux{color:var(--muted);font-size:12.5px;margin:0 0 6px}
+.liste-lieux{color:var(--muted);font-size:.875rem;margin:0 0 6px}
 .legend .legende-lieux .lx-leg,.lx-legende .lx-leg{display:inline-flex;align-items:center;gap:4px;color:var(--ink)}
 .lx-legende{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;color:var(--muted);margin:8px 0 10px}
 /* point creux, anneau seul, le territoire se voit au centre, un liseré de la couleur du fond le détache des aplats clairs */
@@ -230,7 +235,7 @@ svg.map circle.lieu.creux{filter:drop-shadow(0 0 .35px var(--panel)) drop-shadow
 .sym-conf{flex:none;vertical-align:-1px;width:12px!important;height:12px!important;max-width:none;display:inline-block}
 .lieuxzone h2{scroll-margin-top:200px}
 .lieuxzone h2:focus{outline:none}
-.lieuxzone .phrase{max-width:80ch}
+.lieuxzone .phrase{max-width:var(--mesure)}
 .lx-corps{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:8px 28px;align-items:start}
 .lx-droite{position:sticky;top:200px;display:flex;flex-direction:column;gap:6px}
 .lx-droite select{max-width:100%}
@@ -243,19 +248,19 @@ svg.map circle.lieu.creux{filter:drop-shadow(0 0 .35px var(--panel)) drop-shadow
 #adTable th,#adTable td{white-space:normal;text-align:left}
 #adTable td:first-child{white-space:nowrap}
 #adTable th:nth-child(2),#adTable td:nth-child(2){text-align:right;white-space:nowrap}
-.lx-table thead th{text-align:right;color:var(--muted);font-weight:600;font-size:.8rem;white-space:nowrap}
+.lx-table thead th{text-align:right;color:var(--muted);font-weight:600;font-size:.875rem;white-space:nowrap}
 .lx-table thead th:first-child{text-align:left;position:static;background:none}
 .lx-table thead th .sym-conf{color:var(--ink)}
 .lx-table tbody tr{cursor:default}
 .lx-table tbody tr:hover td{filter:none}
 .lx-table td:first-child{min-width:170px;max-width:none}
 .lx-table td:first-child{position:static;background:none}
-button.lien.lx-ouvrir{font-size:.8rem;margin-top:2px;display:inline-block;white-space:nowrap;color:var(--ink);text-decoration-color:var(--accent);text-underline-offset:3px}
-.lx-table tr.lx-groupe th{text-align:left;font-size:.78rem;color:var(--muted);font-weight:600;padding-top:14px;position:static;background:none}
-.lx-table td.lx-nonetabli{text-align:center;font-size:.8rem}
-.lx-table tr.lx-note td,.lx-table tr.lx-liste td{position:static;text-align:left;font-size:.8rem;color:var(--muted);padding-top:0}
+button.lien.lx-ouvrir{font-size:.875rem;margin-top:2px;display:inline-block;white-space:nowrap;color:var(--ink);text-decoration-color:var(--accent);text-underline-offset:3px}
+.lx-table tr.lx-groupe th{text-align:left;font-size:.75rem;color:var(--muted);font-weight:600;padding-top:14px;position:static;background:none}
+.lx-table td.lx-nonetabli{text-align:center;font-size:.875rem}
+.lx-table tr.lx-note td,.lx-table tr.lx-liste td{position:static;text-align:left;font-size:.875rem;color:var(--muted);padding-top:0}
 .lx-liste ul{list-style:none;margin:4px 0 6px;padding:0;columns:2 20em;column-gap:28px}
-@media (max-width:560px){.lx-table th,.lx-table td{padding:6px 5px}.lx-table td:first-child{min-width:0}.lx-table thead th{font-size:.7rem;min-width:0;padding:6px 4px;white-space:normal}}
+@media (max-width:560px){.lx-table th,.lx-table td{padding:6px 5px}.lx-table td:first-child{min-width:0}.lx-table thead th{font-size:.75rem;min-width:0;padding:6px 4px;white-space:normal}}
 .lx-liste li{break-inside:avoid;margin:0 0 5px;line-height:1.35;color:var(--muted)}
 .lx-item{background:none;border:0;padding:0;font:inherit;color:var(--ink);cursor:pointer;text-align:left;display:block;width:100%;line-height:1.35}
 .lx-item .sym-conf{margin-right:5px}
@@ -265,7 +270,7 @@ button.lien.lx-ouvrir{font-size:.8rem;margin-top:2px;display:inline-block;white-
 .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .sig-leg{display:inline-flex!important;align-items:center;gap:5px;flex:0 1 auto;min-width:0;width:auto!important}
 .sig-leg svg{flex:none;width:13px!important;height:13px!important;max-width:none}
-.cherche label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:4px}
+.cherche label{display:block;font-size:.875rem;color:var(--muted);margin-bottom:4px}
 .cherche input{width:100%;box-sizing:border-box;background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:6px 8px}
 .cherche input:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
 .hmbar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:0 0 8px}
@@ -273,29 +278,29 @@ button.lien.lx-ouvrir{font-size:.8rem;margin-top:2px;display:inline-block;white-
 #alTable th{vertical-align:bottom}
 #alTable thead tr:last-child th{white-space:normal;min-width:7.5em;max-width:12em;hyphens:none;overflow-wrap:normal}
 #alTable th.groupe-col{text-align:center;font-weight:600;border-bottom:1px solid var(--line)}
-.hmliens li{font-size:.85rem;line-height:1.35}
+.hmliens li{font-size:.875rem;line-height:1.35}
 .hmliens button{background:none;border:0;padding:0;color:var(--accent);font:inherit;font-weight:600;cursor:pointer;text-align:left;text-decoration:underline;text-underline-offset:2px}
 .hmliens span{color:var(--muted)}
 #hmCadres>.panel{margin-top:24px}
-.acpbar{display:grid;grid-template-columns:minmax(120px,190px) 1fr 1fr;gap:4px 10px;align-items:center;font-size:.8rem}
-.acpbar .h{color:var(--muted);font-size:.72rem}
+.acpbar{display:grid;grid-template-columns:minmax(120px,190px) 1fr 1fr;gap:4px 10px;align-items:center;font-size:.875rem}
+.acpbar .h{color:var(--muted);font-size:.75rem}
 .acpbar svg{height:12px;width:100%}
 .tylegende{list-style:none;padding:0;margin:12px 0 0;display:grid;gap:8px}
-.tylegende li{display:grid;grid-template-columns:14px 1fr auto;gap:10px;align-items:baseline;font-size:.88rem}
+.tylegende li{display:grid;grid-template-columns:14px 1fr auto;gap:10px;align-items:baseline;font-size:.875rem}
 .tylegende i{width:12px;height:12px;border-radius:2px;display:inline-block}
-.tylegende span.n{color:var(--muted);font-size:.8rem;white-space:nowrap}
+.tylegende span.n{color:var(--muted);font-size:.875rem;white-space:nowrap}
 .two{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px}
 .parcours{display:grid;grid-template-columns:minmax(0,640px) minmax(0,1fr);gap:28px;align-items:start}
 .parcours svg{width:100%;height:auto;display:block}
 .parcours .phrase{margin-top:0}
 @media (max-width:960px){.parcours{grid-template-columns:1fr}}
 @media (max-width:960px){.two{grid-template-columns:1fr}}
-.note{font-size:.82rem;color:var(--muted);max-width:75ch}
+.note{font-size:.875rem;color:var(--muted);max-width:var(--mesure)}
 .hidden{display:none!important}
 ul.src{padding-left:1.1em;margin:8px 0}ul.src li{margin-bottom:6px}
 .famrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:22px}
-.famrow .lbl{font-size:.85rem;color:var(--muted)}
-.seg.fam button{padding:7px 16px;font-size:.92rem}
+.famrow .lbl{font-size:.875rem;color:var(--muted)}
+.seg.fam button{padding:7px 16px;font-size:1rem}
 .panel h2{display:flex;justify-content:flex-start;align-items:baseline;gap:8px;flex-wrap:wrap}
 #mapOutils .outils{display:flex;gap:8px;align-items:center}
 .legende-barres svg{width:46px;height:10px;vertical-align:-1px;margin-right:6px}
@@ -308,16 +313,16 @@ button.repli[aria-expanded="false"] .chevron{transform:rotate(-90deg)}
 button.repli:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
 .panel.replie{padding-bottom:12px}.panel.replie h2{margin-bottom:0}
 @media (prefers-reduced-motion:reduce){button.repli .chevron{transition:none}}
-button.how{background:none;border:1px solid var(--line);border-radius:999px;padding:1px 10px;font-family:var(--sans);font-size:.72rem;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap}
+button.how{background:none;border:1px solid var(--line);border-radius:999px;padding:1px 10px;font-family:var(--sans);font-size:.75rem;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap}
 button.how[aria-expanded="true"]{color:var(--ink);border-color:var(--ink)}
-.howtxt{font-size:.84rem;background:color-mix(in srgb,var(--r1) 30%,transparent);border-radius:4px;padding:8px 12px;margin:8px 0}
+.howtxt{max-width:var(--mesure);box-sizing:border-box;font-size:.875rem;background:color-mix(in srgb,var(--r1) 30%,transparent);border-radius:4px;padding:8px 12px;margin:8px 0}
 .howtxt p{margin:0 0 6px}.howtxt p:last-child{margin:0}
-.phrase{font-family:var(--serif);font-size:1.02rem;line-height:1.45;margin:10px 0 4px}
-details.plus{font-size:.8rem;color:var(--muted);margin-top:6px}details.plus summary{cursor:pointer}
+.phrase{font-family:var(--serif);font-size:1rem;line-height:1.45;margin:10px 0 4px;max-width:var(--mesure)}
+details.plus{font-size:.875rem;color:var(--muted);margin-top:6px}details.plus summary{cursor:pointer}
 .bloc{margin-top:14px;padding-top:10px;border-top:1px solid var(--line)}
 .bloc>.bt{font-family:var(--serif);font-weight:600;font-size:1rem;margin:0 0 4px}
-dl.gl dt{font-weight:600;margin-top:12px}dl.gl dd{margin:2px 0 0;max-width:75ch}
-.tag{display:inline-block;font-size:.7rem;color:var(--muted);border:1px solid var(--line);border-radius:3px;padding:0 5px;margin-left:6px;font-weight:400}
+dl.gl dt{font-weight:600;margin-top:12px}dl.gl dd{margin:2px 0 0;max-width:var(--mesure)}
+.tag{display:inline-block;font-size:.75rem;color:var(--muted);border:1px solid var(--line);border-radius:3px;padding:0 5px;margin-left:6px;font-weight:400}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -676,12 +681,63 @@ function signer(){
     const sv=d3.select(el),vb=el.viewBox.baseVal;sv.selectAll("text.signature").remove();
     sv.append("text").attr("class","signature").attr("x",vb.x+vb.width-6).attr("y",vb.y+vb.height-4).attr("text-anchor","end")
       .text((D.citation?.projet||"Ubi Cura")+", données du "+dateDonnees()+(D.citation?.doi?", doi:"+D.citation.doi:""))}}
-// export d'un graphique, couleurs et styles figés, fond du panneau, signature et citation en pied d'image
+// échelle typographique commune des figures (harmonisation, 22 octobre 2026), les mêmes tailles que dans les rapports
+// (graphiques.TYPO), telles qu'on les voit à l'écran quelle que soit la largeur de la figure. Chaque texte garde sa
+// taille d'origine (data-fs0), qui dit son rôle, titre, texte ou petit, et reçoit la taille qui donne ce rôle à
+// l'écran. Recalculé quand une figure est redessinée ou change de largeur. Un texte marqué data-typo-libre (le « ! »
+// des signaux, posé dans son cercle) garde sa taille.
+const TYPO={titre:14,texte:12.5,petit:11.5};
+const roleTexte=fs=>fs>=12.75?"titre":fs>=10.75?"texte":"petit";
+function normaliserTextes(svg){
+  const vb=svg.viewBox&&svg.viewBox.baseVal,w=svg.getBoundingClientRect().width;
+  if(!vb||!vb.width||w<40)return;
+  const k=vb.width/Math.max(w,vb.width*.9);
+  svg.querySelectorAll("text").forEach(t=>{
+    if(t.hasAttribute("data-typo-libre"))return;
+    if(!t.dataset.fs0){const f=parseFloat(getComputedStyle(t).fontSize);if(!f)return;t.dataset.fs0=f}
+    t.style.fontSize=(TYPO[roleTexte(+t.dataset.fs0)]*k).toFixed(2)+"px"});
+  const b=svg.getBoundingClientRect(),ticks=[...svg.querySelectorAll(".tick text")];
+  ticks.forEach(t=>{t.style.visibility="";const r=t.getBoundingClientRect();if(!r.width)return;
+    if(r.right>b.right+.5)t.setAttribute("text-anchor","end");else if(r.left<b.left-.5)t.setAttribute("text-anchor","start")});
+  // une graduation qui toucherait un autre texte est masquée, jamais un libellé
+  const touche=(a,c)=>Math.min(a.right,c.right)-Math.max(a.left,c.left)>1&&Math.min(a.bottom,c.bottom)-Math.max(a.top,c.top)>2;
+  const fixes=[...svg.querySelectorAll("text")].filter(t=>!t.closest(".tick")&&t.textContent.trim()).map(t=>t.getBoundingClientRect()).filter(r=>r.width);
+  const gardes=[];
+  ticks.forEach(t=>{const r=t.getBoundingClientRect();if(!r.width||!t.textContent.trim())return;
+    if(fixes.some(c=>touche(r,c))||gardes.some(c=>touche(r,c)))t.style.visibility="hidden";else gardes.push(r)})}
+const TYPO_VUS=new WeakSet(),TYPO_A_FAIRE=new Set();let typoPrevu=0;
+// minuteur plutôt que requestAnimationFrame, qui ne part pas tant que l'onglet est en arrière-plan
+function typoPlanifier(){if(typoPrevu)return;typoPrevu=setTimeout(()=>{typoPrevu=0;TYPO_A_FAIRE.forEach(normaliserTextes);TYPO_A_FAIRE.clear()},30)}
+const TYPO_RO=new ResizeObserver(es=>{es.forEach(e=>TYPO_A_FAIRE.add(e.target));typoPlanifier()});
+new MutationObserver(ms=>{ms.forEach(m=>{let s=m.target.closest?m.target.closest("svg"):null;while(s&&s.ownerSVGElement)s=s.ownerSVGElement;
+  if(!s)return;if(!TYPO_VUS.has(s)){TYPO_VUS.add(s);TYPO_RO.observe(s)}TYPO_A_FAIRE.add(s)});typoPlanifier()})
+  .observe(document.body,{childList:true,subtree:true});
+// export d'un graphique (harmonisation, lot 5, 22 octobre 2026), toujours sur fond blanc avec les couleurs du fond clair
+// quel que soit le fond affiché (décision de Lucas), toujours en vue entière même si la carte est zoomée, à une taille
+// commune (dessin rapporté à 800 pixels, image à 1 600), texte à l'échelle typographique commune, légende puis citation
+// à la largeur de la figure. Les couleurs du fond clair sont lues en basculant le thème le temps d'un calcul, sans dessin.
+const VARS_COULEUR=["--bg","--panel","--ink","--muted","--line","--nodata","--accent","--focus","--contour","--r0","--r1","--r2","--r3","--r4","--r5","--d0","--d1","--d2","--d3","--d4","--d5","--d6"];
+const LARGEUR_EXPORT=800;
+function enRgb(c){const e=document.createElement("span");e.style.color=c;document.body.appendChild(e);const v=getComputedStyle(e).color;e.remove();return v}
+function couleursClaires(){const r=document.documentElement,t=r.getAttribute("data-theme"),cur=VARS_COULEUR.map(v=>enRgb(css(v)));
+  r.setAttribute("data-theme","light");const cl=VARS_COULEUR.map(v=>enRgb(css(v)));if(t)r.setAttribute("data-theme",t);else r.removeAttribute("data-theme");
+  // une même couleur peut servir à deux variables (fond et contour en fond sombre), un trait prend d'abord le contour
+  const m=new Map(),mt=new Map(),ordreTrait=["--contour","--line",...VARS_COULEUR];cur.forEach((c,i)=>{if(!m.has(c))m.set(c,cl[i])});
+  ordreTrait.forEach(v=>{const i=VARS_COULEUR.indexOf(v);if(!mt.has(cur[i]))mt.set(cur[i],cl[i])});
+  return {vers:(c,trait)=>{if(!c||c==="none")return c;const k=enRgb(c);return (trait?mt:m).get(k)||c},clair:Object.fromEntries(VARS_COULEUR.map((v,i)=>[v,cl[i]]))}}
 const STYLES_EXPORT=["fill","fill-opacity","stroke","stroke-width","stroke-opacity","stroke-dasharray","opacity","font-family","font-size","font-weight","text-anchor","dominant-baseline","display"];
 function svgExport(id,citation){
   const src=document.getElementById(id),clone=src.cloneNode(true),a=[src,...src.querySelectorAll("*")],b=[clone,...clone.querySelectorAll("*")];
-  a.forEach((el,i)=>{const cs=getComputedStyle(el);STYLES_EXPORT.forEach(pr=>{const v=cs.getPropertyValue(pr);if(v)b[i].style.setProperty(pr,v)});b[i].removeAttribute("class")});
-  const vb=src.viewBox.baseVal,ns="http://www.w3.org/2000/svg",fs=Math.max(10,vb.width/75);
+  const {vers,clair}=couleursClaires();
+  a.forEach((el,i)=>{const cs=getComputedStyle(el);STYLES_EXPORT.forEach(pr=>{let v=cs.getPropertyValue(pr);if(v&&(pr==="fill"||pr==="stroke"))v=vers(v,pr==="stroke");if(v)b[i].style.setProperty(pr,v)});b[i].removeAttribute("class")});
+  const vb=src.viewBox.baseVal,ns="http://www.w3.org/2000/svg",ech=vb.width/LARGEUR_EXPORT,fs=TYPO.petit*ech;
+  // texte à l'échelle commune, comme si la figure faisait 800 pixels de large
+  clone.querySelectorAll("text[data-fs0]").forEach(t=>t.style.setProperty("font-size",(TYPO[roleTexte(+t.dataset.fs0)]*ech).toFixed(2)+"px"));
+  // vue entière, le zoom de la carte est retiré, les symboles qu'il réduisait retrouvent leur taille
+  const zg=clone.querySelector("g[clip-path] > g[transform]");
+  if(zg){const k=+((zg.getAttribute("transform").match(/scale\(([\d.]+)/)||[0,1])[1]);zg.removeAttribute("transform");
+    zg.querySelectorAll("g.fragile,[data-x]").forEach(f=>{if(f.dataset.x!=null)f.setAttribute("transform","translate("+f.dataset.x+","+f.dataset.y+")")});
+    zg.querySelectorAll("circle").forEach(c=>{const r=+c.getAttribute("r");if(r&&k>1){c.setAttribute("r",r*k);const sw=parseFloat(c.style.strokeWidth);if(sw)c.style.strokeWidth=sw*k}})}
   // légende des cartes, recopiée depuis la légende affichée sous la carte (HTML)
   const leg=[],lg=id==="map"?document.getElementById("legend"):id==="tmap"?document.getElementById("tyLegende"):null;
   if(id==="lxCarte")leg.push({cle:css("--ink"),t:"Point plein, structure confirmée par une source indépendante de FINESS et du ROR"},{t:"Point creux, structure inscrite dans FINESS ou le ROR seulement, à vérifier"});
@@ -692,22 +748,22 @@ function svgExport(id,citation){
     else if(el.children.length&&el.firstElementChild.style.background)leg.push({cle:el.firstElementChild.style.background,t:el.textContent.trim()});
     else if(el.textContent.trim())leg.push({t:el.textContent.trim()})});
   const g=document.createElementNS(ns,"g"),larg=vb.width-16;let x=0,y=0;
-  const texte=(t,tx,ty,anc)=>{const e=document.createElementNS(ns,"text");e.setAttribute("x",tx);e.setAttribute("y",ty);e.setAttribute("fill",css("--muted"));e.setAttribute("font-size",fs);e.setAttribute("font-family","Work Sans, Segoe UI, sans-serif");if(anc)e.setAttribute("text-anchor",anc);e.textContent=t;g.appendChild(e)};
-  const rect=(rx,ry,w,h,c)=>{const e=document.createElementNS(ns,"rect");e.setAttribute("x",rx);e.setAttribute("y",ry);e.setAttribute("width",w);e.setAttribute("height",h);e.setAttribute("fill",c);g.appendChild(e)};
+  const texte=(t,tx,ty,anc)=>{const e=document.createElementNS(ns,"text");e.setAttribute("x",tx);e.setAttribute("y",ty);e.setAttribute("fill",clair["--muted"]);e.setAttribute("font-size",fs);e.setAttribute("font-family","Work Sans, Segoe UI, sans-serif");if(anc)e.setAttribute("text-anchor",anc);e.textContent=t;g.appendChild(e)};
+  const rect=(rx,ry,w,h,c)=>{const e=document.createElementNS(ns,"rect");e.setAttribute("x",rx);e.setAttribute("y",ry);e.setAttribute("width",w);e.setAttribute("height",h);e.setAttribute("fill",vers(c));g.appendChild(e)};
   const place=w=>{if(x>0&&x+w>larg){x=0;y+=fs*2.6}};
   leg.forEach(it=>{
     if(it.rampe){const cw=fs*3.2,w=cw*it.rampe.length;place(w);it.rampe.forEach((c,i)=>rect(x+i*cw,y,cw,fs*.9,c));it.ticks.forEach((t,i)=>{if(t)texte(t,x+i*cw,y+fs*2.1,"middle")});x+=w+fs*1.5}
     else if(it.cle){const w=fs*1.6+it.t.length*fs*.55;place(w);rect(x,y,fs*.9,fs*.9,it.cle);texte(it.t,x+fs*1.3,y+fs*.85);x+=w+fs}
     else{const w=it.t.length*fs*.55;place(w);texte(it.t,x,y+fs*.85);x+=w+fs}});
   // citation coupée en lignes selon la largeur du graphique
-  const fc=Math.max(9,vb.width/90),parLigne=Math.max(40,Math.floor((vb.width-16)/(fc*.5))),lignes=[];
+  const fc=TYPO.petit*ech,parLigne=Math.max(40,Math.floor((vb.width-16)/(fc*.55))),lignes=[];
   citation.split(" ").forEach(m=>{const l=lignes.length?lignes[lignes.length-1]:null;if(l!=null&&(l+" "+m).length<=parLigne)lignes[lignes.length-1]=l+" "+m;else lignes.push(m)});
   const hl=leg.length?y+fs*3.4:0,hc=14+fc*1.35*lignes.length+hl;
   g.setAttribute("transform","translate("+(vb.x+8)+","+(vb.y+vb.height+fs*.6)+")");if(leg.length)clone.appendChild(g);
   clone.setAttribute("xmlns",ns);clone.setAttribute("viewBox",[vb.x,vb.y,vb.width,vb.height+hc].join(" "));
-  clone.setAttribute("width",vb.width*2);clone.setAttribute("height",(vb.height+hc)*2);
-  const fond=document.createElementNS(ns,"rect");fond.setAttribute("x",vb.x);fond.setAttribute("y",vb.y);fond.setAttribute("width",vb.width);fond.setAttribute("height",vb.height+hc);fond.setAttribute("fill",css("--panel"));clone.insertBefore(fond,clone.firstChild);
-  lignes.forEach((l,i)=>{const txt=document.createElementNS(ns,"text");txt.setAttribute("x",vb.x+8);txt.setAttribute("y",vb.y+vb.height+hl+fc*1.35*(i+1));txt.setAttribute("fill",css("--muted"));txt.setAttribute("font-family","Work Sans, Segoe UI, sans-serif");txt.setAttribute("font-size",fc);txt.textContent=l;clone.appendChild(txt)});
+  clone.setAttribute("width",LARGEUR_EXPORT*2);clone.setAttribute("height",Math.round((vb.height+hc)/ech*2));
+  const fond=document.createElementNS(ns,"rect");fond.setAttribute("x",vb.x);fond.setAttribute("y",vb.y);fond.setAttribute("width",vb.width);fond.setAttribute("height",vb.height+hc);fond.setAttribute("fill","#FFFFFF");clone.insertBefore(fond,clone.firstChild);
+  lignes.forEach((l,i)=>{const txt=document.createElementNS(ns,"text");txt.setAttribute("x",vb.x+8);txt.setAttribute("y",vb.y+vb.height+hl+fc*1.35*(i+1));txt.setAttribute("fill",clair["--muted"]);txt.setAttribute("font-family","Work Sans, Segoe UI, sans-serif");txt.setAttribute("font-size",fc);txt.textContent=l;clone.appendChild(txt)});
   return new XMLSerializer().serializeToString(clone)}
 function pngExport(id,citation){return new Promise((ok,ko)=>{const img=new Image(),url=URL.createObjectURL(new Blob([svgExport(id,citation)],{type:"image/svg+xml"}));
   img.onload=()=>{const c=document.createElement("canvas");c.width=img.width;c.height=img.height;c.getContext("2d").drawImage(img,0,0);URL.revokeObjectURL(url);c.toBlob(b=>b?ok(b):ko(new Error("png")),"image/png")};
@@ -1289,7 +1345,7 @@ function symboleFragile(g,x,y,k,r){r=r||5;const s=g.append("g").attr("class","fr
   s.on("mousemove",bulleSig).on("mouseleave",hideTip).on("click",ev=>{ev.stopPropagation();bulleSig(ev)})
    .on("keydown",ev=>{if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();const b=ev.currentTarget.getBoundingClientRect();bulleSig({clientX:b.x+b.width/2,clientY:b.y,pageX:b.x+b.width/2+scrollX,pageY:b.y+scrollY})}});
   s.append("circle").attr("r",r).attr("fill",css("--d1")).attr("stroke",css("--panel")).attr("stroke-width",1).attr("vector-effect","non-scaling-stroke");
-  s.append("text").attr("text-anchor","middle").attr("y",r*.55).attr("font-size",r*1.5).attr("font-weight",700).attr("fill",css("--panel")).text("!");return s}
+  s.append("text").attr("data-typo-libre","").attr("text-anchor","middle").attr("y",r*.55).attr("font-size",r*1.5).attr("font-weight",700).attr("fill",css("--panel")).text("!");return s}
 // pose les symboles sur une carte, renvoie les signaux présents (pour la légende et les limites)
 // contour ocre des territoires concernés et un seul symbole au centre du groupe, la couleur des territoires ne change pas
 function signauxCarte(Mx,lv,suicide){Mx.svg.selectAll("g.fragile,path.fragile-contour").remove();const vus=new Set(),k0=d3.zoomTransform(Mx.svg.node()).k;
@@ -1325,15 +1381,20 @@ function addictologie(){const A=D.addicto,P=document.getElementById("adPanel");i
     manques=A.ind.map(i=>Object.keys(A.regions).filter(c=>!(c in i.v))),commun=manques[0].filter(c=>manques.every(m=>m.includes(c))),
     notes=(commun.length?["Aucune mesure publiée pour "+nomsR(commun)+"."]:[]).concat(A.ind.map((i,j)=>[i,manques[j].filter(c=>!commun.includes(c))])
       .filter(([,m])=>m.length).map(([i,m])=>"« "+i.lib+" », pas de mesure publiée pour "+nomsR(m)+"."));
-  const W=900,g0=180,haut=58,pas=21,bas=haut+pas*codes.length+34,h=bas+14*notes.length,larg=(W-g0-12)/A.ind.length;svg.attr("viewBox","0 0 "+W+" "+h);
+  // titres et unités coupés selon la place de chaque colonne à leur taille d'écran (normaliserTextes), la hauteur de
+  // l'en-tête suit le plus long
+  const W=900,pas=21,ecran=svg.node().getBoundingClientRect().width||W,k=W/Math.max(ecran,W*.9);
+  const g0=Math.max(150,largeurLignes(svg,codes.map(c=>A.regions[c]))*k+14),larg=(W-g0-12)/A.ind.length;
+  const fT=TYPO.texte*k,fP=TYPO.petit*k,ent=A.ind.map(i=>({t:coupeLib(i.lib,Math.floor((larg-20)/(fT*.58))),u:coupeLib(i.unite+", "+i.annee,Math.floor((larg-20)/(fP*.56)))}));
+  const haut=d3.max(ent,e=>e.t.length*fT*1.3+e.u.length*fP*1.3)+14,bas=haut+pas*codes.length+34,h=bas+14*notes.length;svg.attr("viewBox","0 0 "+W+" "+h);
   codes.forEach((c,k)=>{const y=haut+pas*k+pas/2;
     if(k%2===0)svg.append("rect").attr("x",g0).attr("y",y-pas/2).attr("width",W-g0-12).attr("height",pas).attr("fill",css("--line")).attr("opacity",.25);
     svg.append("text").attr("x",g0-8).attr("y",y+4).attr("text-anchor","end").attr("font-size",11).attr("fill",css("--ink")).text(A.regions[c])});
   A.ind.forEach((ind,j)=>{const x0=g0+j*larg+10,x1=x0+larg-24,vals=Object.values(ind.v);
     const vmax=d3.max(vals,x=>Math.max(x[0],x[2]??x[0]))*1.05,X=d3.scaleLinear().domain([0,vmax]).nice(4).range([x0,x1]);
-    const titre=ind.lib.length>38?[ind.lib.slice(0,ind.lib.lastIndexOf(" ",38)),ind.lib.slice(ind.lib.lastIndexOf(" ",38)+1)]:[ind.lib];
-    titre.forEach((t,l)=>svg.append("text").attr("x",(x0+x1)/2).attr("y",14+14*l).attr("text-anchor","middle").attr("font-size",11).attr("font-weight",600).attr("fill",css("--ink")).text(t));
-    svg.append("text").attr("x",(x0+x1)/2).attr("y",46).attr("text-anchor","middle").attr("font-size",10).attr("fill",css("--muted")).text(ind.unite+", "+ind.annee);
+    const e=ent[j];
+    e.t.forEach((t,l)=>svg.append("text").attr("x",(x0+x1)/2).attr("y",fT*1.1+fT*1.3*l).attr("text-anchor","middle").attr("font-size",11).attr("font-weight",600).attr("fill",css("--ink")).text(t));
+    e.u.forEach((t,l)=>svg.append("text").attr("x",(x0+x1)/2).attr("y",fT*1.1+fT*1.3*e.t.length+fP*1.3*l).attr("text-anchor","middle").attr("font-size",10).attr("fill",css("--muted")).text(t));
     X.ticks(4).forEach(v=>{svg.append("line").attr("x1",X(v)).attr("x2",X(v)).attr("y1",haut).attr("y2",bas-34).attr("stroke",css("--line"));
       svg.append("text").attr("x",X(v)).attr("y",bas-18).attr("text-anchor","middle").attr("font-size",10).attr("fill",css("--muted")).text(f1.format(v))});
     const med=d3.median(vals,x=>x[0]);svg.append("line").attr("x1",X(med)).attr("x2",X(med)).attr("y1",haut).attr("y2",bas-34).attr("stroke",css("--muted")).attr("stroke-dasharray","3 3");
@@ -1342,6 +1403,9 @@ function addictologie(){const A=D.addicto,P=document.getElementById("adPanel");i
       svg.append("circle").attr("cx",X(r[0])).attr("cy",y).attr("r",4).attr("fill",css("--r5")).append("title").text(A.regions[c]+", "+f1.format(r[0])+(r[1]!=null?" (de "+f1.format(r[1])+" à "+f1.format(r[2])+")":""))})});
   ["Point, valeur de la région. Trait, fourchette (intervalle de confiance à 95 %). Pointillé, médiane des régions."].concat(notes)
     .forEach((t,k)=>svg.append("text").attr("x",12).attr("y",bas-3+14*k).attr("font-size",10).attr("fill",css("--muted")).text(t))}
+// redessin quand la largeur de la figure change (encadré déplié, fenêtre redimensionnée), les titres en dépendent
+const AD_RO=new ResizeObserver(es=>{const w=Math.round(es[0].contentRect.width);if(w&&w!==AD_RO.w){AD_RO.w=w;addictologie()}});
+{const e=document.getElementById("adPlot");if(e)AD_RO.observe(e)}
 function croisementsBases(){addictologie();
   const T=(D.croisements_bases||[]).filter(r=>S.fam==="*"||r.famille===S.fam);
   const sel=document.getElementById("cbSel"),ph=document.getElementById("cbPhrase"),svg=d3.select("#cbPlot");svg.selectAll("*").remove();
@@ -1661,8 +1725,8 @@ function indicateursEntreEux(){
   const ref=S.indRef,rows=T.filter(r=>r.a===ref||r.b===ref).map(r=>({v:r.a===ref?r.b:r.a,rho:r.rho,lo:r.lo,hi:r.hi,net:r.lo>0||r.hi<0})).sort((a,b)=>b.rho-a.rho);
   const svg=d3.select("#indPlot");svg.selectAll("*").remove();
   rows.forEach(r=>r.lignes=coupeLib(lab(r.v),40));
-  const larg=largeurLignes(svg,rows.flatMap(r=>r.lignes)),hr=r=>Math.max(18,r.lignes.length*13+6);let cum=0;rows.forEach(r=>{r.y0=cum;r.hr=hr(r);cum+=r.hr});
-  const m={l:Math.max(larg+16,140),r:16,t:8,b:28},w=Math.max(560,m.l+330),h=m.t+m.b+cum;svg.attr("viewBox","0 0 "+w+" "+h);delete document.getElementById("indPlot").dataset.vbSigne;
+  const larg=largeurLignes(svg,rows.flatMap(r=>r.lignes)),hr=r=>Math.max(20,r.lignes.length*15+6);let cum=0;rows.forEach(r=>{r.y0=cum;r.hr=hr(r);cum+=r.hr});
+  const ml=margeLibelles(svg,larg,560,330),m={l:ml.l,r:16,t:8,b:28},w=ml.w,h=m.t+m.b+cum;svg.attr("viewBox","0 0 "+w+" "+h);delete document.getElementById("indPlot").dataset.vbSigne;
   const x=d3.scaleLinear().domain([-1,1]).range([m.l,w-m.r]);
   grilleX(svg,x,m,h,5);
   svg.append("g").attr("transform","translate(0,"+(h-m.b)+")").call(d3.axisBottom(x).ticks(5).tickFormat(f1.format)).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
@@ -1697,20 +1761,23 @@ function parcoursAtlas(){
   const svg=d3.select("#pcPlot");svg.selectAll("*").remove();const p=S.prof,v=(D.parcours||{})[p],ph=document.getElementById("pcPhrase");
   if(!v){ph.textContent="Pas de décompte par étape pour cette sélection (qualification ou périmètre élargi), seulement pour les professions du répertoire.";svg.attr("viewBox","0 0 640 20");delete document.getElementById("pcPlot").dataset.vbSigne;return}
   // barres fines, libellé au-dessus et valeur à droite, comme « Où ils exercent » ; dessin à 640 de large, jamais agrandi
-  const et=ETAPES.filter(e=>v[e[0]]),tot=v[et[0][0]],w=640,bh=7,pas=50,h=et.length*pas+4;
+  const et=ETAPES.filter(e=>v[e[0]]),tot=v[et[0][0]],w=640,bh=7;
+  // détail de chaque étape, coupé à la largeur du dessin (petit texte, environ 11,5 × 0,56 unités par caractère)
+  let pr=null;const det=et.map(([i,_t,raison])=>{const n=v[i],d=pr!=null&&pr>n?coupeLib("− "+fmt.format(pr-n)+" "+raison+(i===6?detailNonRattaches(v[5],v[4]):""),Math.floor(w/(TYPO.petit*.56))):[];pr=n;return d});
+  const ys=[];let cum=0;det.forEach(d=>{ys.push(cum);cum+=36+16*Math.max(1,d.length)});const h=cum+4;
   svg.attr("viewBox","0 0 "+w+" "+h);delete document.getElementById("pcPlot").dataset.vbSigne;
   const x=d3.scaleLinear().domain([0,tot]).range([0,w]);let prec=null;
-  et.forEach(([i,titre,raison],k)=>{const y=k*pas,n=v[i],der=i===6;
-    svg.append("text").attr("x",0).attr("y",y+13).attr("fill",css("--ink")).attr("font-size",13).attr("font-weight",der?600:400).text(titre);
-    svg.append("text").attr("x",w).attr("y",y+13).attr("text-anchor","end").attr("fill",css("--ink")).attr("font-size",13)
+  et.forEach(([i,titre,raison],k)=>{const y=ys[k],n=v[i],der=i===6;
+    svg.append("text").attr("x",0).attr("y",y+13).attr("fill",css("--ink")).attr("font-size",12).attr("font-weight",der?600:400).text(titre);
+    svg.append("text").attr("x",w).attr("y",y+13).attr("text-anchor","end").attr("fill",css("--ink")).attr("font-size",12)
       .attr("font-weight",der?600:400).text(fmt.format(n));
     svg.append("rect").attr("x",0).attr("y",y+19).attr("width",w).attr("height",bh).attr("rx",1.5).attr("fill",css("--nodata"));
     svg.append("rect").attr("x",0).attr("y",y+19).attr("width",Math.max(1,x(n))).attr("height",bh).attr("rx",1.5)
       .attr("fill",css(der?"--r4":"--r3")).append("title").text(titre+", "+fmt.format(n));
     if(prec!=null&&prec>n){svg.append("rect").attr("x",x(n)).attr("y",y+19).attr("width",x(prec)-x(n)).attr("height",bh)
         .attr("fill","none").attr("stroke",css("--d1")).attr("stroke-width",1).attr("stroke-dasharray","3 2");
-      svg.append("text").attr("x",0).attr("y",y+42).attr("fill",css("--muted")).attr("font-size",11.5)
-        .text("− "+fmt.format(prec-n)+" "+raison+(der?detailNonRattaches(v[5],v[4]):""))}
+      const t=svg.append("text").attr("x",0).attr("y",y+42).attr("fill",css("--muted")).attr("font-size",10);
+      det[k].forEach((l,j)=>t.append("tspan").attr("x",0).attr("dy",j?16:0).text(l))}
     prec=n});
   const pl=pluriel(profLab(p));
   ph.textContent=(v[0]?"Sur "+fmt.format(v[0])+" "+pl+" inscrits au répertoire, "+fmt.format(v[1])+" déclarent une activité":"Sur "+fmt.format(v[1])+" "+pl+" qui déclarent une activité")
@@ -1794,8 +1861,13 @@ document.getElementById("cherche").addEventListener("change",e=>{const v=e.targe
   const u=L.units.find(u=>(u.nm+(u.p&&S.level!=="reg"?" ("+u.p+")":""))===v)||L.units.find(u=>u.nm.toLowerCase()===v.toLowerCase());
   if(!u)return;S.sel={lv:S.level,c:u.c};render();const el=document.getElementById("selCard");if(!el.classList.contains("hidden"))el.scrollIntoView({block:"start"})});
 function coupeLib(t,max){const l=[];let c="";for(const mot of String(t).split(" ")){if(c&&(c+" "+mot).length>max){l.push(c);c=mot}else c=c?c+" "+mot:mot}if(c)l.push(c);return l}
-function largeurLignes(svg,lignes){const t=svg.append("text").attr("x",0).attr("y",-100);let w=0;for(const l of lignes){t.text(l);w=Math.max(w,t.node().getComputedTextLength()||l.length*6.6)}t.remove();return w}
-function libelleMulti(sel,x,yc,lignes,dl=13){const t=sel.append("text").attr("x",x).attr("y",yc+4-(lignes.length-1)*dl/2).attr("text-anchor","end");lignes.forEach((l,i)=>t.append("tspan").attr("x",x).attr("dy",i?dl:0).text(l));return t}
+// marge gauche pour des libellés de largeur larg (mesurée à leur taille d'écran) dans une figure d'au moins wMin unités dont
+// le tracé prend corps unités : le texte est converti selon le rapport entre le dessin et l'écran (normaliserTextes),
+// la marge l'est donc aussi
+function margeLibelles(svg,larg,wMin,corps){const ecran=svg.node().getBoundingClientRect().width||wMin;let l=Math.max(larg+16,140),w=Math.max(wMin,l+corps);
+  for(let i=0;i<3;i++){const k=w/Math.max(ecran,w*.9);l=Math.max(larg*k+16,140);w=Math.max(wMin,l+corps)}return {l,w}}
+function largeurLignes(svg,lignes){const t=svg.append("text").attr("x",0).attr("y",-100);t.style("font-size",TYPO[roleTexte(parseFloat(getComputedStyle(t.node()).fontSize)||11)]+"px");let w=0;for(const l of lignes){t.text(l);w=Math.max(w,t.node().getComputedTextLength()||l.length*6.6)}t.remove();return w}
+function libelleMulti(sel,x,yc,lignes,dl=15){const t=sel.append("text").attr("x",x).attr("y",yc+4-(lignes.length-1)*dl/2).attr("text-anchor","end");lignes.forEach((l,i)=>t.append("tspan").attr("x",x).attr("dy",i?dl:0).text(l));return t}
 function grilleX(svg,x,m,h,n){svg.append("g").attr("class","grille").attr("transform","translate(0,"+(h-m.b)+")").call(d3.axisBottom(x).ticks(n).tickSize(-(h-m.t-m.b)).tickFormat("")).call(g=>{g.select(".domain").remove();g.selectAll("line").attr("stroke",css("--line")).attr("stroke-opacity",.45)})}
 const NOMS_RES={suicides:"le taux de décès par suicide",hospit_gestes_auto_infliges:"le taux d’hospitalisation pour geste auto-infligé",ald_23:"la part de personnes en ALD psychiatrique"};
 function regressions(){
@@ -1806,8 +1878,8 @@ function regressions(){
   const g=T.filter(r=>r.res===S.regRes&&r.champ==="hexagone"),sans=new Map(T.filter(r=>r.res===S.regRes&&r.champ!=="hexagone").map(r=>[r.var,r]));
   const svg=d3.select("#regPlot");svg.selectAll("*").remove();
   g.forEach(r=>r.lignes=coupeLib(lab(r.var),36));
-  const larg=largeurLignes(svg,g.flatMap(r=>r.lignes)),bh=Math.max(34,d3.max(g,r=>r.lignes.length)*13+10);
-  const m={l:Math.max(larg+16,140),r:16,t:8,b:28},w=Math.max(520,m.l+300),h=m.t+m.b+g.length*bh;svg.attr("viewBox","0 0 "+w+" "+h);delete document.getElementById("regPlot").dataset.vbSigne;
+  const larg=largeurLignes(svg,g.flatMap(r=>r.lignes)),bh=Math.max(36,d3.max(g,r=>r.lignes.length)*15+10);
+  const ml=margeLibelles(svg,larg,520,300),m={l:ml.l,r:16,t:8,b:28},w=ml.w,h=m.t+m.b+g.length*bh;svg.attr("viewBox","0 0 "+w+" "+h);delete document.getElementById("regPlot").dataset.vbSigne;
   const lim=Math.max(.8,d3.max(g,r=>Math.max(Math.abs(r.lo),Math.abs(r.hi)))*1.1),x=d3.scaleLinear().domain([-lim,lim]).range([m.l,w-m.r]);
   grilleX(svg,x,m,h,6);
   svg.append("g").attr("transform","translate(0,"+(h-m.b)+")").call(d3.axisBottom(x).ticks(6).tickFormat(f1.format)).call(gg=>gg.selectAll("line,path").attr("stroke",css("--line")));
@@ -1901,16 +1973,16 @@ function effetVille(){
   // libellés longs sur plusieurs lignes, marge gauche calculée d'après la ligne la plus longue, rien n'est coupé
   const coupe=(t,max)=>{const l=[];let c="";for(const mot of t.split(" ")){if(c&&(c+" "+mot).length>max){l.push(c);c=mot}else c=c?c+" "+mot:mot}if(c)l.push(c);return l};
   rows.forEach(r=>r.lignes=coupe(r.lab,46));
-  const mesure=svg.append("text").attr("x",0).attr("y",-100);
-  const larg=d3.max(rows.flatMap(r=>r.lignes),t=>{mesure.text(t);return mesure.node().getComputedTextLength()})||200;mesure.remove();
-  const bh=13,haut=r=>Math.max(2*bh+8,r.lignes.length*13+10);let cum=0;rows.forEach(r=>{r.y0=cum;cum+=haut(r)});
-  const m={l:Math.max(larg+18,160),r:20,t:10,b:30},w=Math.max(900,m.l+520),h=m.t+m.b+cum;svg.attr("viewBox","0 0 "+w+" "+h);
+  // marge mesurée à la taille d'écran des libellés et convertie comme eux (margeLibelles)
+  const larg=largeurLignes(svg,rows.flatMap(r=>r.lignes))||200;
+  const bh=13,haut=r=>Math.max(2*bh+8,r.lignes.length*15+10);let cum=0;rows.forEach(r=>{r.y0=cum;cum+=haut(r)});
+  const ml=margeLibelles(svg,larg,900,520),m={l:Math.max(ml.l,160),r:20,t:10,b:30},w=Math.max(ml.w,m.l+520),h=m.t+m.b+cum;svg.attr("viewBox","0 0 "+w+" "+h);
   const x=d3.scaleLinear().domain([-.8,.8]).range([m.l,w-m.r]).clamp(true);
   svg.append("g").attr("transform","translate(0,"+(h-m.b)+")").call(d3.axisBottom(x).ticks(8).tickFormat(f1.format)).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
   svg.append("line").attr("x1",x(0)).attr("x2",x(0)).attr("y1",m.t).attr("y2",h-m.b).attr("stroke",css("--muted"));
   [-.3,.3].forEach(v=>svg.append("line").attr("x1",x(v)).attr("x2",x(v)).attr("y1",m.t).attr("y2",h-m.b).attr("stroke",css("--line")).attr("stroke-dasharray","3 3"));
-  rows.forEach(r=>{const y0=m.t+r.y0,n=r.lignes.length,t=svg.append("text").attr("x",m.l-8).attr("y",y0+bh+4-(n-1)*6.5).attr("text-anchor","end");
-    r.lignes.forEach((l,i)=>t.append("tspan").attr("x",m.l-8).attr("dy",i?13:0).text(l));
+  rows.forEach(r=>{const y0=m.t+r.y0,n=r.lignes.length,t=svg.append("text").attr("x",m.l-8).attr("y",y0+bh+4-(n-1)*7.5).attr("text-anchor","end");
+    r.lignes.forEach((l,i)=>t.append("tspan").attr("x",m.l-8).attr("dy",i?15:0).text(l));
     [[r.rho,css("--r2")],[r.rp,css("--r5")]].forEach(([v,c],j)=>{if(v==null)return;svg.append("rect").attr("x",Math.min(x(0),x(v))).attr("width",Math.abs(x(v)-x(0))).attr("y",y0+j*bh).attr("height",bh-2).attr("fill",c).append("title").text((j?"À densité de population égale ":"Tous territoires ")+f2.format(v))})});
   const avant=tous.filter(r=>Math.abs(r.rho)>=.3),apres=tous.filter(r=>r.rp!=null&&Math.abs(r.rp)>=.3);
   const plus=tous.filter(r=>r.rp!=null).sort((a,b)=>(Math.abs(b.rho)-Math.abs(b.rp))-(Math.abs(a.rho)-Math.abs(a.rp)))[0];
@@ -2026,9 +2098,12 @@ function inegLieux(){
   document.getElementById("ilNote").textContent=c?"Indice de concentration des habitants-kilomètres selon le niveau de vie "+f2.format(c.indice_concentration)+", fourchette plausible à 95 % de "+borneIC(c.ic95_bas)+" à "+borneIC(c.ic95_haut)+" (tirages des intercommunalités). Il vaut 0 quand l’éloignement suit la population, il est négatif quand il pèse surtout sur les territoires modestes. Les intercommunalités sans niveau de vie publié (Guadeloupe, Martinique, Guyane, Mayotte) sont écartées. Une intercommunalité très peuplée peut remplir presque seule une tranche, d’où des ruptures dans l’escalier.":"";
   // selon le type de territoire
   const cl=(LX.classes||[]).filter(r=>r.type===ty.id),s2=d3.select("#ilClasses");s2.selectAll("*").remove();
-  const m2={l:190,r:50,t:10,b:30},h2=300,y2=d3.scaleBand().domain(cl.map(r=>r.classe)).range([m2.t,h2-m2.b]).padding(.3),x2=d3.scaleLinear().domain([0,d3.max(cl,r=>r.distance_mediane_km)*1.1||1]).nice().range([m2.l,w-m2.r]);
+  cl.forEach(r=>r.lignes=coupeLib(r.classe,26));
+  const k2=w/Math.max(s2.node().getBoundingClientRect().width||w,w*.9);
+  const m2={l:Math.max(120,largeurLignes(s2,cl.flatMap(r=>r.lignes))*k2+16),r:60,t:10,b:44},h2=320,y2=d3.scaleBand().domain(cl.map(r=>r.classe)).range([m2.t,h2-m2.b]).padding(.3),x2=d3.scaleLinear().domain([0,d3.max(cl,r=>r.distance_mediane_km)*1.1||1]).nice().range([m2.l,w-m2.r]);
+  s2.attr("viewBox","0 0 "+w+" "+h2);delete document.getElementById("ilClasses").dataset.vbSigne;
   s2.append("g").attr("transform","translate(0,"+(h2-m2.b)+")").call(d3.axisBottom(x2).ticks(5).tickFormat(f1.format)).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
-  s2.selectAll("text.c").data(cl).join("text").attr("class","c").attr("x",m2.l-8).attr("y",d=>y2(d.classe)+y2.bandwidth()/2+4).attr("text-anchor","end").attr("font-size",11).text(d=>d.classe);
+  cl.forEach(d=>libelleMulti(s2,m2.l-8,y2(d.classe)+y2.bandwidth()/2,d.lignes).attr("class","c").attr("font-size",11));
   s2.selectAll("rect").data(cl).join("rect").attr("x",m2.l).attr("y",d=>y2(d.classe)).attr("height",y2.bandwidth()).attr("width",d=>x2(d.distance_mediane_km)-m2.l).attr("rx",2)
     .attr("fill",d=>css(fr!=null&&d.distance_mediane_km>fr?"--d1":"--r3"))
     .append("title").text(d=>d.classe+", "+fmt.format(d.population)+" habitants, distance médiane "+f1.format(d.distance_mediane_km)+" km, "+f1.format(d.part_plus_20_km*100)+" % à plus de 20 km");
@@ -2244,7 +2319,8 @@ document.getElementById("q").addEventListener("input",table);
 document.getElementById("evTout").addEventListener("click",()=>{S.evTout=!S.evTout;effetVille();signer()});
 document.getElementById("scFiltre").addEventListener("input",()=>scatter());
 addEventListener("scroll",hideTip,{passive:true});
-const hautNav=()=>{const n=document.querySelector("nav.site");document.documentElement.style.setProperty("--haut-nav",(n?n.offsetHeight:0)+"px")};hautNav();addEventListener("resize",hautNav);
+const hautNav=()=>{const n=document.querySelector("nav.site"),c=document.querySelector(".collant"),h=n?n.offsetHeight:0;
+  document.documentElement.style.setProperty("--haut-nav",h+"px");document.documentElement.style.setProperty("--haut-collant",(h+(c?c.offsetHeight:0))+"px")};hautNav();addEventListener("resize",hautNav);
 document.addEventListener("click",e=>{const b=e.target.closest(".zoombar button");if(!b)return;zoomer(b.parentNode.dataset.carte==="tmap"?TM:M,b.dataset.z)});
 document.querySelector("#tbl thead").addEventListener("click",e=>{const b=e.target.closest("button[data-s]");if(!b)return;if(S.sort===b.dataset.s)S.asc=!S.asc;else{S.sort=b.dataset.s;S.asc=b.dataset.s==="nm"}table()});
 document.querySelector("#tbl tbody").addEventListener("click",e=>{const tr=e.target.closest("tr[data-c]");if(!tr)return;S.sel={lv:S.level,c:tr.dataset.c};S.tab="carte";document.querySelectorAll("#tabs button").forEach(x=>x.setAttribute("aria-selected",String(x.dataset.t==="carte")));render();window.scrollTo({top:0,behavior:"smooth"})});

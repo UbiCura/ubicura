@@ -18,7 +18,7 @@
 </head>
 <body>
 {% include "nav.html" %}
-<main class="{{ classe_main|default('') }}">
+<main class="{{ classe_main|default('') }}" data-citation-page="{{ citation_auteur }} ({{ annee_version }}). {{ titre }}. {{ nom_projet }}, version du {{ date_longue }}" data-adresse="{{ adresse_site }}">
 {% block contenu %}{% endblock %}
 <footer>
   Données du {{ date_longue }}. Sources, répertoire RPPS, FINESS, Répertoire opérationnel des ressources, INSEE (dont Sirene), Assurance Maladie, CAF, Santé publique France, DREES, HAS, IGN (voir <a href="{{ racine }}methode.html">Méthode, données et limites</a>).

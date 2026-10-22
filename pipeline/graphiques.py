@@ -16,9 +16,53 @@ from .lecture import nombre
 from .util import log
 
 ENCRE, DISCRET, LIGNE = "var(--ink, #1F2430)", "var(--muted, #5F6675)", "var(--line, #D9DCE3)"
-VIOLET = ["var(--r5, #3E2563)", "var(--r4, #64458C)", "var(--r3, #8C6DAE)", "var(--r2, #B39BCB)"]
-OCRE, OCRE_PALE, VIOLET_PALE = "var(--accent, #B07D0A)", "var(--d1, #B88A2E)", "var(--r1, #D5C6E3)"
+VIOLET = ["var(--r5, #2F1B4D)", "var(--r4, #5A3A85)", "var(--r3, #7E5CA6)", "var(--r2, #9C7FBF)"]
+OCRE, OCRE_PALE, VIOLET_PALE = "var(--accent, #9A6B00)", "var(--d1, #A87418)", "var(--r1, #BCA6D5)"
 PRINCIPALE = {"sm": "psychologue", "sante": "medecin_generaliste"}
+# Échelle typographique commune des figures (harmonisation, 22 octobre 2026). Trois tailles, telles qu'on les voit à
+# l'écran dans la colonne des rapports (LARGEUR_ECRAN pixels), titre, texte (étiquettes, légendes, valeurs) et petit
+# (graduations, unités, notes), jamais moins de 11,5 pixels. Une figure dont le viewBox est plus étroit ou plus large que
+# la colonne reçoit des tailles converties, pour que le texte ait la même taille à l'écran dans toutes les figures.
+LARGEUR_ECRAN = 774
+TYPO = {"titre": 14, "texte": 12.5, "petit": 11.5}
+CHASSE = .56   # largeur moyenne d'un caractère de Work Sans, en fraction de la taille
+
+
+def taille_role(role, largeur: float) -> float:
+    """Taille en unités du viewBox d'une figure de cette largeur, pour un rôle de TYPO (un nombre est gardé tel quel)."""
+    return round(TYPO[role] * largeur / LARGEUR_ECRAN, 1) if isinstance(role, str) else role
+
+
+def largeur_texte(t, fs: float) -> float:
+    return len(str(t)) * fs * CHASSE
+
+
+def legende(el, x, y, items, largeur, fs, x0=None) -> float:
+    """Légende en ligne, qui passe à la ligne avant le bord droit de la figure au lieu d'y couper ou d'y chevaucher un
+    texte. items, (marque, couleur, texte), marque parmi point, carre, aire, trait ou « trait:5 3 » (tirets). y est la
+    ligne de base du premier rang, la fonction renvoie celle du rang suivant."""
+    x0 = x if x0 is None else x0
+    pas = fs * 1.6
+    for marque, c, t in items:
+        w = fs * 1.7 + largeur_texte(t, fs) + fs * 1.4
+        if x > x0 and x + w > largeur:
+            x, y = x0, y + pas
+        cy = y - fs * .35
+        if marque == "point":
+            el.append(f'<circle cx="{x + fs * .45:.1f}" cy="{cy:.1f}" r="{fs * .38:.1f}" fill="{c}"/>')
+        elif marque.startswith("trait"):
+            tirets = marque.split(":", 1)[1] if ":" in marque else None
+            el.append(f'<line x1="{x:.1f}" y1="{cy:.1f}" x2="{x + fs * 1.3:.1f}" y2="{cy:.1f}" stroke="{c}" '
+                      f'stroke-width="1.5"' + (f' stroke-dasharray="{tirets}"' if tirets else "") + "/>")
+        else:
+            el.append(f'<rect x="{x:.1f}" y="{cy - fs * .4:.1f}" width="{fs * 1.1:.1f}" height="{fs * .8:.1f}" '
+                      f'fill="{c}"' + (' opacity=".3"' if marque == "aire" else f' stroke="{LIGNE}" stroke-width=".5"')
+                      + "/>")
+        el.append(f'<text x="{x + fs * 1.7:.1f}" y="{y:.1f}" font-size="{fs}" fill="{DISCRET}">{escape(str(t))}</text>')
+        x += w
+    return y + pas
+
+
 LORENZ = {"sm": ["psychologue", "psychiatre", "psychotherapeute", "pedopsychiatre"],
           "sante": ["medecin_generaliste", "infirmier", "masseur_kinesitherapeute", "pediatre"]}
 
@@ -52,8 +96,13 @@ class Figure:
         self.ajout(f'<line x1="{x1:.1f}" y1="{y1:.1f}" x2="{x2:.1f}" y2="{y2:.1f}" stroke="{c}" stroke-width="{w}"'
                    + (f' stroke-dasharray="{tirets}"' if tirets else "") + "/>")
 
-    def texte(self, x, y, t, ancre="start", c=DISCRET, taille=11, gras=False):
-        self.ajout(f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{ancre}" fill="{c}" font-size="{taille}"'
+    def fs(self, role) -> float:
+        return taille_role(role, self.w)
+
+    def texte(self, x, y, t, ancre="start", c=DISCRET, taille=None, gras=False):
+        """taille, un rôle de TYPO, par défaut « texte » pour l'encre principale et « petit » pour l'encre discrète."""
+        fs = self.fs(taille or ("texte" if c == ENCRE else "petit"))
+        self.ajout(f'<text x="{x:.1f}" y="{y:.1f}" text-anchor="{ancre}" fill="{c}" font-size="{fs}"'
                    + (' font-weight="600"' if gras else "") + f">{escape(str(t))}</text>")
 
     def chemin(self, pts, c, w=1.5, remplir=None, tirets=None):
@@ -128,7 +177,7 @@ def lorenz(R, lab, cle):
         if p in gini:
             f.texte(f.w - f.d + 48, y + 14, f"indice de Gini {nombre(gini[p], 2)}")
     f.chemin([(0, 0), (1, 1)], DISCRET, 1, tirets="3 3")
-    f.texte(f.X(.42), f.Y(.47), "répartition égale", c=DISCRET, taille=10)
+    f.texte(f.X(.42), f.Y(.47), "répartition égale", c=DISCRET)
     return f.svg("Courbes de Lorenz, répartition des professionnels entre intercommunalités")
 
 
@@ -155,11 +204,9 @@ def effet_ville(R, lab, ctxlab, cle, p=None):
             if pd.notna(v):
                 x0, x1 = sorted([f.X(0), f.X(max(min(v, .8), -.8))])
                 f.ajout(f'<rect x="{x0:.1f}" y="{y0 + j * bh:.1f}" width="{x1 - x0:.1f}" height="{bh - 2}" fill="{c}"/>')
-    f.texte(8, 14, lab.get(p, p), c=ENCRE, gras=True)
-    f.ajout(f'<rect x="8" y="22" width="12" height="8" fill="{DISCRET}"/>')
-    f.texte(24, 30, "tous territoires")
-    f.ajout(f'<rect x="130" y="22" width="12" height="8" fill="{VIOLET[2]}"/>')
-    f.texte(146, 30, "à densité de population égale")
+    f.texte(8, 14, lab.get(p, p), c=ENCRE, taille="titre", gras=True)
+    legende(f.el, 8, 32, [("carre", DISCRET, "tous territoires"), ("carre", VIOLET[2], "à densité de population égale")],
+            f.w, f.fs("petit"))
     return f.svg(f"Liens entre la densité de {lab.get(p, p).lower()} et le profil des habitants, avant et après "
                  f"retrait de l'effet ville")
 
@@ -175,7 +222,7 @@ def escalier(R, lab, cle, densite_nationale, p=None):
     if t.empty:
         return None
     vmax = max(t["densite"].max(), densite_nationale) * 1.15
-    f = Figure()
+    f = Figure(marges=(48, 84, 16, 46))
     f.echelles(.5, 10.5, 0, vmax)
     pas = pas_rond(vmax / 4)
     f.axes(range(1, 11), np.arange(0, vmax, pas), lambda v: str(v), lambda v: nombre(v, 1 if pas < 1 else 0),
@@ -186,9 +233,10 @@ def escalier(R, lab, cle, densite_nationale, p=None):
         c = OCRE_PALE if r["densite"] < densite_nationale else VIOLET[2]
         f.ajout(f'<rect x="{x:.1f}" y="{f.Y(r["densite"]):.1f}" width="{largeur:.1f}" '
                 f'height="{f.Y(0) - f.Y(r["densite"]):.1f}" fill="{c}" rx="2"/>')
-        f.texte(x + largeur / 2, f.Y(r["densite"]) - 5, nombre(r["densite"], 1), "middle", ENCRE, 10)
+        f.texte(x + largeur / 2, f.Y(r["densite"]) - 5, nombre(r["densite"], 1), "middle", ENCRE, "petit")
     f.ligne(f.g, f.Y(densite_nationale), f.w - f.d, f.Y(densite_nationale), OCRE, 1.5, "5 3")
-    f.texte(f.w - f.d, f.Y(densite_nationale) - 5, f"Moyenne {nombre(densite_nationale, 1)}", "end", OCRE)
+    f.texte(f.w - f.d + 6, f.Y(densite_nationale) - 3, "Moyenne", "start", OCRE)
+    f.texte(f.w - f.d + 6, f.Y(densite_nationale) + f.fs("petit") + 1, nombre(densite_nationale, 1), "start", OCRE)
     return f.svg(f"Densité de {lab.get(p, p).lower()}s selon le niveau de vie des territoires")
 
 
@@ -209,7 +257,7 @@ def eloignement(L, tid):
     fr = float(fr.iloc[0])
     lib = {x[0]: x[1] for x in config.LIEUX_TYPES}.get(tid, tid)
     vmax = max(t["distance_mediane_km"].max(), fr) * 1.15
-    f = Figure()
+    f = Figure(marges=(48, 84, 16, 46))
     f.echelles(.5, 10.5, 0, vmax)
     pas = pas_rond(vmax / 4)
     f.axes(range(1, 11), np.arange(0, vmax, pas), lambda v: str(v), lambda v: nombre(v, 1 if pas < 1 else 0),
@@ -222,9 +270,10 @@ def eloignement(L, tid):
         f.ajout(f'<rect x="{x:.1f}" y="{f.Y(r["distance_mediane_km"]):.1f}" width="{largeur:.1f}" '
                 f'height="{f.Y(0) - f.Y(r["distance_mediane_km"]):.1f}" fill="{c}" rx="2"/>')
         f.texte(x + largeur / 2, f.Y(r["distance_mediane_km"]) - 5, nombre(r["distance_mediane_km"], 1), "middle",
-                ENCRE, 10)
+                ENCRE, "petit")
     f.ligne(f.g, f.Y(fr), f.w - f.d, f.Y(fr), OCRE, 1.5, "5 3")
-    f.texte(f.w - f.d, f.Y(fr) - 5, f"France {nombre(fr, 1)} km", "end", OCRE)
+    f.texte(f.w - f.d + 6, f.Y(fr) - 3, "France", "start", OCRE)
+    f.texte(f.w - f.d + 6, f.Y(fr) + f.fs("petit") + 1, f"{nombre(fr, 1)} km", "start", OCRE)
     return f.svg(f"Distance des habitants à la structure la plus proche ({lib if lib[1:2].isupper() else lib[0].lower() + lib[1:]}) selon le niveau de vie "
                  f"des territoires")
 
@@ -255,7 +304,7 @@ def entonnoir(R, lab, cle, p=None):
         f.chemin(list(zip(g["population"], g[k])), DISCRET, 1, tirets="3 3")
     taux = t["effectif"].sum() / t["population"].sum() * 1e4
     f.ligne(f.g, f.Y(taux), f.w - f.d, f.Y(taux), OCRE, 1.5)
-    couleurs = {-2: "var(--d0, #7A4E00)", -1: OCRE_PALE, 0: DISCRET, 1: VIOLET[2], 2: VIOLET[0]}
+    couleurs = {-2: "var(--d0, #6B4300)", -1: OCRE_PALE, 0: DISCRET, 1: VIOLET[2], 2: VIOLET[0]}
     from .cartes import MAYOTTE, SIGNAL_MAYOTTE, nom, symbole_fragile
     for (_, r), v in zip(t.iterrows(), dens):
         cx, c = f.X(r["population"]), couleurs[int(r["statut"])]
@@ -273,17 +322,10 @@ def entonnoir(R, lab, cle, p=None):
                     f'fill-opacity="{.35 if int(r["statut"]) == 0 else .9}">{info}</circle>')
     leg = [(-2, "nettement en dessous"), (-1, "en dessous"), (0, "dans la norme"), (1, "au-dessus"),
            (2, "nettement au-dessus")]
-    x = f.g
-    for k, l in leg:
-        f.ajout(f'<circle cx="{x + 4}" cy="12" r="4" fill="{couleurs[k]}"/>')
-        f.texte(x + 12, 16, l, c=ENCRE, taille=10.5)
-        x += 22 + 6.2 * len(l)
-    f.ajout(f'<rect x="{f.g}" y="24" width="14" height="9" fill="{VIOLET_PALE}" opacity=".3"/>')
-    f.texte(f.g + 20, 32, "limites à 95 %", taille=10.5)
-    f.ligne(f.g + 120, 28, f.g + 142, 28, DISCRET, 1, "3 3")
-    f.texte(f.g + 148, 32, "limites à 99,8 %", taille=10.5)
-    f.ligne(f.g + 250, 28, f.g + 272, 28, OCRE, 1.5)
-    f.texte(f.g + 278, 32, "moyenne des intercommunalités", taille=10.5)
+    fs = f.fs("petit")
+    y = legende(f.el, f.g, 14, [("point", couleurs[k], l) for k, l in leg], f.w, fs)
+    legende(f.el, f.g, y, [("aire", VIOLET_PALE, "limites à 95 %"), ("trait:3 3", DISCRET, "limites à 99,8 %"),
+                           ("trait", OCRE, "moyenne des intercommunalités")], f.w, fs)
     return f.svg(f"Diagramme en entonnoir, {lab.get(p, p).lower()}s par intercommunalité")
 
 
@@ -308,7 +350,7 @@ def quadrants(R, lab, ctxlab, p="psychiatre"):
     if var == "suicides":
         from .cartes import symbole_fragile as _sf, SIGNAL_SUICIDE
         f.ajout(_sf(f.g + 10, f.hh + 8, SIGNAL_SUICIDE, 5))
-        f.texte(f.g + 20, f.hh + 12, SIGNAL_SUICIDE, taille=10.5)
+        f.texte(f.g + 20, f.hh + 12, SIGNAL_SUICIDE)
     from .cartes import nom, signaux, symbole_fragile
     sig = signaux(t["code"], suicide=var == "suicides")
     for _, r in t.iterrows():
@@ -316,7 +358,7 @@ def quadrants(R, lab, ctxlab, p="psychiatre"):
             f.ajout(symbole_fragile(f.X(r["valeur"]), f.Y(min(r["densite"], f.y1)),
                                     f'{nom(r["code"])}, {sig[r["code"]]}', 5))
             continue
-        c = "var(--d0, #7A4E00)" if r["quadrant"] == "besoin+offre-" else VIOLET[2]
+        c = "var(--d0, #6B4300)" if r["quadrant"] == "besoin+offre-" else VIOLET[2]
         f.ajout(f'<circle cx="{f.X(r["valeur"]):.1f}" cy="{f.Y(min(r["densite"], f.y1)):.1f}" r="3.2" fill="{c}" '
                 f'fill-opacity=".8"><title>{escape(nom(r["code"]))}, {nombre(r["valeur"], 1)} et '
                 f'{nombre(r["densite"], 2)} pour 10 000 habitants</title></circle>')
@@ -336,7 +378,7 @@ def porte(R, lab, cle, p=None):
     classes = [c[2] for c in CLASSES_DENSITE if c[2] in t.index]
     groupes = [g for _m, g in config.SECTEURS_GROUPES if g in t.columns] + \
               ([config.SECTEUR_AUTRE] if config.SECTEUR_AUTRE in t.columns else [])
-    couleurs = [VIOLET[0], VIOLET[1], VIOLET[2], OCRE, "var(--d2, #E6D3A6)", "var(--nodata, #E3E4E8)"]
+    couleurs = [VIOLET[0], VIOLET[2], VIOLET_PALE, OCRE, "var(--d2, #D9B260)", "var(--nodata, #E9E8EC)"]
     bh, h = 30, 70 + len(classes) * 44
     f = Figure(h=h, marges=(250, 20, 56, 20))
     f.echelles(0, 1, 0, 1)
@@ -352,13 +394,10 @@ def porte(R, lab, cle, p=None):
                 if v >= .08:
                     # texte foncé sur les segments pâles ou neutres, clair sur les segments colorés
                     f.texte(f.X(x0) + 4, y + bh / 2 + 4, f"{nombre(v * 100)} %",
-                            c=ENCRE if j % len(couleurs) >= 4 else "var(--bg, #fff)", taille=10)
+                            c=ENCRE if j % len(couleurs) in (2, 4, 5) else "var(--bg, #fff)", taille="petit")
             x0 += v
-    for j, g in enumerate(groupes):   # légende
-        ligne, col = divmod(j, 3)
-        xx, yy = 8 + col * 210, 12 + ligne * 18
-        f.ajout(f'<rect x="{xx}" y="{yy - 8}" width="10" height="10" fill="{couleurs[j % len(couleurs)]}"/>')
-        f.texte(xx + 14, yy + 1, g.split(" (")[0], taille=10)
+    legende(f.el, 8, 14, [("carre", couleurs[j % len(couleurs)], g.split(" (")[0]) for j, g in enumerate(groupes)],
+            f.w, f.fs("petit"))
     return f.svg(f"Secteurs d'exercice des {lab.get(p, p).lower()}s selon la densité de population")
 
 
@@ -389,7 +428,8 @@ def regions_intervalles(spf, ref, ids):
     regs = sorted(set(t.loc[t["indicateur"].isin(ids), "code"]) & set(noms.index), key=lambda c: sans_accent(noms[c]))
     gauche, pas = 178, 21
     largeur = (640 - gauche - 12) / len(ids)
-    n_car = max(14, int(largeur / 6.4))
+    fs_t, fs_p = taille_role("texte", 640), taille_role("petit", 640)
+    n_car = max(14, int((largeur - 16) / (fs_t * CHASSE)))
 
     def couper(texte):
         lignes, cur = [], ""
@@ -402,14 +442,13 @@ def regions_intervalles(spf, ref, ids):
         return lignes + ([cur] if cur else [])
     entetes = {i: (couper(defs.get(i, {}).get("libelle", i)),
                    couper(f"{defs.get(i, {}).get('unite', '')}, {defs.get(i, {}).get('annee', '')}")) for i in ids}
-    n_lignes = max(len(a) + len(b) for a, b in entetes.values())
-    haut = 14 * n_lignes + 14
+    haut = max(fs_t * 1.3 * len(a) + fs_p * 1.3 * len(b) for a, b in entetes.values()) + 16
     notes = notes_regions_manquantes(
         {defs.get(i, {}).get("libelle", i): set(t.loc[t["indicateur"] == i, "code"]) for i in ids},
         {c: noms[c] for c in noms.index}, sans_accent)
-    h = haut + pas * len(regs) + 30 + 13 * len(notes)
-    f = Figure(640, h, (gauche, 12, haut, 30 + 13 * len(notes)))
-    bas = h - 13 * len(notes)
+    h = haut + pas * len(regs) + 30 + fs_p * 1.4 * len(notes)
+    f = Figure(640, h, (gauche, 12, haut, 30 + fs_p * 1.4 * len(notes)))
+    bas = h - fs_p * 1.4 * len(notes)
     for k, c in enumerate(regs):
         y = haut + pas * k + pas / 2
         f.texte(gauche - 8, y + 4, noms[c], "end", ENCRE)
@@ -426,12 +465,12 @@ def regions_intervalles(spf, ref, ids):
         X = lambda v, a=x0, b=x1, m=vmax: a + v / m * (b - a)  # noqa: E731
         titre, unite = entetes[i]
         for l, ligne in enumerate(titre):
-            f.texte((x0 + x1) / 2, 14 + 14 * l, ligne, "middle", ENCRE, 11, True)
+            f.texte((x0 + x1) / 2, fs_t * 1.1 + fs_t * 1.3 * l, ligne, "middle", ENCRE, "texte", True)
         for l, ligne in enumerate(unite):
-            f.texte((x0 + x1) / 2, 14 + 14 * (len(titre) + l), ligne, "middle", DISCRET, 10)
+            f.texte((x0 + x1) / 2, fs_t * 1.1 + fs_t * 1.3 * len(titre) + fs_p * 1.3 * l, ligne, "middle", DISCRET)
         for v in graduations(vmax)[0]:
             f.ligne(X(v), haut, X(v), bas - 30, LIGNE, 1)
-            f.texte(X(v), bas - 14, nombre(v, 0), "middle", DISCRET, 10)
+            f.texte(X(v), bas - 14, nombre(v, 0), "middle", DISCRET)
         med = x["valeur"].median()
         f.ligne(X(med), haut, X(med), bas - 30, DISCRET, 1, "3 3")
         for k, c in enumerate(regs):
@@ -444,9 +483,9 @@ def regions_intervalles(spf, ref, ids):
             f.ajout(f'<circle cx="{X(r["valeur"]):.1f}" cy="{y:.1f}" r="4" fill="{VIOLET[0]}"><title>'
                     f'{escape(noms[c])}, {nombre(r["valeur"], 1)}</title></circle>')
     f.texte(12, bas - 2, "Point, valeur de la région. Trait, fourchette (intervalle de confiance à 95 %). "
-            "Pointillé, médiane des régions.", "start", DISCRET, 10)
+            "Pointillé, médiane des régions.", "start", DISCRET)
     for k, n in enumerate(notes):
-        f.texte(12, bas + 11 + 13 * k, n, "start", DISCRET, 10)
+        f.texte(12, bas - 2 + fs_p * 1.4 * (k + 1), n, "start", DISCRET)
     return f.svg("Consommations d'alcool et de tabac et décès attribuables au tabac, par région, avec leur fourchette")
 
 
@@ -456,7 +495,7 @@ def distances(R, lab, cle):
     if not isinstance(tc, pd.DataFrame) or tc.empty:
         return None
     profs = [p for p in LORENZ[cle] if p in set(tc["prof"])][:4]
-    f = Figure(marges=(48, 170, 24, 46))
+    f = Figure(marges=(48, 190, 24, 46))
     xmax = 40
     f.echelles(0, xmax, 0, 1)
     f.axes([0, 5, 10, 20, 30, 40], [0, .25, .5, .75, 1], lambda v: f"{int(v)} km", _pct,
@@ -472,8 +511,8 @@ def distances(R, lab, cle):
         ys = np.interp(xs, d, cum, left=cum[0] if len(cum) else 0)
         f.chemin(list(zip(xs, ys)), VIOLET[k], 2.8 if k == 0 else 1.8, tirets=TRAITS[k])
         y = f.hh + 16 + 24 * k
-        f.ligne(f.w - f.d + 12, y - 4, f.w - f.d + 40, y - 4, VIOLET[k], 2.8 if k == 0 else 1.8, TRAITS[k])
-        f.texte(f.w - f.d + 48, y, lab.get(p, p), c=ENCRE, gras=k == 0)
+        f.ligne(f.w - f.d + 10, y - 4, f.w - f.d + 34, y - 4, VIOLET[k], 2.8 if k == 0 else 1.8, TRAITS[k])
+        f.texte(f.w - f.d + 40, y, lab.get(p, p), c=ENCRE, gras=k == 0)
     return f.svg("Part des habitants selon la distance au professionnel le plus proche")
 
 
@@ -566,25 +605,36 @@ def parcours(agg, lab, prof):
     vals = {"inscrits": ins, **{c: int(r[c]) for c in ("avec_activite", "avec_lieu", "dans_densites")}}
     etapes = [e for e in ETAPES_PARCOURS if vals.get(e[0])]
     total = vals[etapes[0][0]]
+    import textwrap
+    fs_p = taille_role("petit", 640)
+    details, prec = [], None
+    for col, _titre, raison in etapes:
+        v = vals[col]
+        d = ""
+        if prec is not None and prec > v:
+            d = f"− {nombre(prec - v)} {raison}"
+            if col == "dans_densites":
+                d += detail_non_rattaches(int(r["a_distance_seulement"]), int(r["sans_soins_seulement"]))
+        details.append(textwrap.wrap(d, int(632 / (fs_p * CHASSE))) if d else [])
+        prec = v
+    hauteurs = [36 + fs_p * 1.4 * max(1, len(d)) for d in details]
     # barres fines, libellé au-dessus et valeur à droite, comme dans l'atlas (9 octobre 2026)
-    f = Figure(w=640, h=12 + len(etapes) * 52, marges=(0, 0, 6, 6))
+    f = Figure(w=640, h=12 + sum(hauteurs), marges=(0, 0, 6, 6))
     f.echelles(0, total, 0, 1)
     prec = None
     for k, (col, titre, raison) in enumerate(etapes):
-        y, v = f.hh + k * 52, vals[col]
+        y, v = f.hh + sum(hauteurs[:k]), vals[col]
         der = col == "dans_densites"
-        f.texte(0, y + 13, titre, c=ENCRE, taille=12.5, gras=der)
-        f.texte(f.w, y + 13, nombre(v), "end", ENCRE, 12.5, gras=der)
-        f.ajout(f'<rect x="0" y="{y + 19}" width="{f.w}" height="7" rx="1.5" fill="var(--nodata, #E3E4E8)"/>')
+        f.texte(0, y + 13, titre, c=ENCRE, gras=der)
+        f.texte(f.w, y + 13, nombre(v), "end", ENCRE, gras=der)
+        f.ajout(f'<rect x="0" y="{y + 19}" width="{f.w}" height="7" rx="1.5" fill="var(--nodata, #E9E8EC)"/>')
         f.ajout(f'<rect x="0" y="{y + 19}" width="{max(f.X(v), 1):.1f}" height="7" rx="1.5" '
                 f'fill="{VIOLET[1] if der else VIOLET[2]}"><title>{escape(titre)}, {nombre(v)}</title></rect>')
         if prec is not None and prec > v:
             f.ajout(f'<rect x="{f.X(v):.1f}" y="{y + 19}" width="{f.X(prec) - f.X(v):.1f}" height="7" '
                     f'fill="none" stroke="{OCRE_PALE}" stroke-dasharray="3 2"/>')
-            detail = f"− {nombre(prec - v)} {raison}"
-            if der:
-                detail += detail_non_rattaches(int(r["a_distance_seulement"]), int(r["sans_soins_seulement"]))
-            f.texte(0, y + 42, detail, taille=11)
+            for j, ligne in enumerate(details[k]):
+                f.texte(0, y + 42 + fs_p * 1.4 * j, ligne)
         prec = v
     return f.svg(f"Du répertoire aux densités, {pluriel_simple(lab.get(prof, prof)).lower()}")
 
@@ -603,19 +653,19 @@ def classes_bivariees(dens: pd.Series, ind: pd.Series) -> pd.Series:
 
 def _legende_bivariee(nom_offre, nom_ind):
     def f(el, x, y, largeur):
-        c = 18
+        c, fs = 18, taille_role("petit", largeur)
+        y0 = y + fs + 6
+        el.append(f'<text x="{x}" y="{y + fs:.1f}" font-size="{fs}" fill="{DISCRET}">{escape(nom_ind)} ↑</text>')
         for o in range(3):
             for b in range(3):
-                el.append(f'<rect x="{x + 60 + o * c}" y="{y + (2 - b) * c}" width="{c}" height="{c}" '
+                el.append(f'<rect x="{x + o * c}" y="{y0 + (2 - b) * c:.1f}" width="{c}" height="{c}" '
                           f'fill="{config.BIVARIEE[o * 3 + b]}"/>')
-        el.append(f'<text x="{x + 60 + 1.5 * c}" y="{y + 3 * c + 14}" text-anchor="middle" font-size="11" '
-                  f'fill="{DISCRET}">{escape(nom_offre)} →</text>')
-        el.append(f'<text x="{x + 52}" y="{y + 1.5 * c + 4}" text-anchor="end" font-size="11" '
-                  f'fill="{DISCRET}">{escape(nom_ind)} ↑</text>')
-        el.append(f'<rect x="{x + 150}" y="{y + 2}" width="12" height="12" fill="{config.BIVARIEE[2]}"/>')
-        el.append(f'<text x="{x + 168}" y="{y + 12}" font-size="11" fill="{DISCRET}">indicateur dans le tiers le plus '
-                  f'haut, offre dans le tiers le plus bas</text>')
-        return y + 3 * c + 22
+        el.append(f'<text x="{x}" y="{y0 + 3 * c + fs + 4:.1f}" font-size="{fs}" fill="{DISCRET}">'
+                  f'{escape(nom_offre)} →</text>')
+        el.append(f'<rect x="{x + 3 * c + 24}" y="{y0 + 2:.1f}" width="12" height="12" fill="{config.BIVARIEE[2]}"/>')
+        el.append(f'<text x="{x + 3 * c + 42}" y="{y0 + 12:.1f}" font-size="{fs}" fill="{DISCRET}">indicateur dans le '
+                  f'tiers le plus haut, offre dans le tiers le plus bas</text>')
+        return y0 + 3 * c + fs + 14
     return f
 
 
@@ -637,11 +687,11 @@ def bivariee(ref, ctx, agg, lab, ctxlab, prof="psychiatre", var="suicides"):
                                suicide=var == "suicides")
 
 
-GWR_COULEURS = [("negatif_fort", "var(--d0, #7A4E00)", "lien négatif net, fort"),
-                ("negatif", "var(--d1, #B88A2E)", "lien négatif net"),
-                ("non_net", "var(--d3, #EFEDF2)", "pas de lien net"),
-                ("positif", "var(--r3, #8C6DAE)", "lien positif net"),
-                ("positif_fort", "var(--r5, #3E2563)", "lien positif net, fort")]
+GWR_COULEURS = [("negatif_fort", "var(--d0, #6B4300)", "lien négatif net, fort"),
+                ("negatif", "var(--d1, #A87418)", "lien négatif net"),
+                ("non_net", "var(--d3, #DEDCE4)", "pas de lien net"),
+                ("positif", "var(--r3, #7E5CA6)", "lien positif net"),
+                ("positif_fort", "var(--r5, #2F1B4D)", "lien positif net, fort")]
 
 
 def classe_gwr(coef, net):
@@ -666,11 +716,8 @@ def gwr_carte(ref, R, lab, prof="psychologue"):
     geoms = {c: f["atlas_epci"][c] for c in couleurs if c in f["atlas_epci"]}
 
     def leg(el, x, y, largeur):
-        for i, (_k, c, t) in enumerate(GWR_COULEURS):
-            xx, yy = x + (i % 3) * (largeur / 3), y + (i // 3) * 20
-            el.append(f'<rect x="{xx:.0f}" y="{yy}" width="14" height="12" fill="{c}" stroke="{LIGNE}"/>')
-            el.append(f'<text x="{xx + 20:.0f}" y="{yy + 10}" font-size="11" fill="{DISCRET}">{escape(t)}</text>')
-        return y + 40
+        fs = taille_role("petit", largeur)
+        return legende(el, x, y + fs, [("carre", c, t) for _k, c, t in GWR_COULEURS], largeur, fs, x) + 4
     return cartes.carte_france(geoms, {}, f"Lien local entre niveau de vie et densité de {pluriel_simple(lab.get(prof, prof)).lower()}, "
                                           "à densité de population égale", couleurs=couleurs, legende_fn=leg)
 

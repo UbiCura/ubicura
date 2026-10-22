@@ -117,7 +117,93 @@ def md_html(texte: str, graphiques: Path | None, imprimer=False, donnees: dict |
     corps = corps.replace("<p><strong>Comment lire.</strong>", '<p class="comment-lire"><strong>Comment lire.</strong>')
     corps = corps.replace("<p><strong>À savoir.</strong>", '<p class="a-savoir"><strong>À savoir.</strong>')
     corps = tableaux_larges(corps)
+    if imprimer:
+        corps = tableaux_etroits(coupures_fichiers(annexe_technique(a_savoir_une_fois(corps))))
     return titre, corps, md.toc
+
+
+# ---------------------------------------------------------------- PDF des rapports (harmonisation, lot 5, 22 octobre 2026)
+# Décisions de Lucas du 22 octobre 2026, les volets « Pour aller plus loin » réunis dans une annexe technique à la fin
+# du PDF avec un renvoi à leur place, texte justifié sans trous, un même « À savoir » imprimé une seule fois.
+
+def _sans_balises(t: str) -> str:
+    return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", "", t)).strip()
+
+
+def annexe_technique(corps: str) -> str:
+    """Volets « Pour aller plus loin » déplacés dans une annexe numérotée (A1, A2...), un renvoi à leur place, avec le
+    titre de la section où ils se trouvaient."""
+    entrees = []
+
+    def deplace(m):
+        avant = corps[:m.start()]
+        titres = re.findall(r"<h[2-5][^>]*>(.*?)</h[2-5]>", avant, flags=re.S)
+        section = _sans_balises(titres[-1]) if titres else ""
+        contenu = re.sub(r"<summary>.*?</summary>", "", m.group(1), count=1, flags=re.S).strip()
+        n = len(entrees) + 1
+        entrees.append(f'<section class="annexe-entree"><h4 id="annexe-a{n}">A{n}. {section}</h4>{contenu}</section>')
+        return f'<p class="renvoi-annexe">Pour aller plus loin, annexe technique A{n}.</p>'
+    corps2 = re.sub(r"<details[^>]*>(.*?)</details>", deplace, corps, flags=re.S)
+    if not entrees:
+        return corps
+    return (corps2 + '<h2 class="annexe" id="annexe-technique">Annexe technique</h2><p>Les détails de méthode, les '
+            "contrôles de solidité et les listes complètes de chaque analyse, dans l'ordre du rapport. Chaque section y "
+            "renvoie par son numéro.</p>" + "".join(entrees))
+
+
+def a_savoir_une_fois(corps: str) -> str:
+    """Les encadrés « À savoir » mettent bout à bout les limites de config.LIMITES. À l'impression, une limite déjà
+    donnée plus haut est retirée et remplacée par un renvoi à la section de sa première mention, un encadré qui
+    n'apporte plus rien de nouveau devient ce seul renvoi."""
+    from html import escape as _esc
+    textes = [l["texte"] for l in config.LIMITES.values() if isinstance(l, dict) and l.get("texte")]
+    vus = {}
+
+    def un(m):
+        box = m.group(0)
+        titres = re.findall(r"<h[2-5][^>]*>(.*?)</h[2-5]>", corps[:m.start()], flags=re.S)
+        section = _sans_balises(titres[-1]) if titres else ""
+        renvois = []
+        for tx in textes:
+            forme = next((f for f in (tx, _esc(tx, quote=False)) if f in box), None)
+            if forme is None:
+                continue
+            if tx in vus:
+                box = box.replace(forme + " ", "", 1) if forme + " " in box else box.replace(forme, "", 1)
+                if vus[tx] not in renvois:
+                    renvois.append(vus[tx])
+            else:
+                vus[tx] = section
+        if not renvois:
+            return box
+        noms = [f"« {r} »" for r in renvois]
+        ou = (f"dans la section {noms[0]}" if len(noms) == 1
+              else f"dans les sections {', '.join(noms[:-1])} et {noms[-1]}")
+        reste = re.sub(r"\s*Sources?, .*$", "", _sans_balises(box), flags=re.S).replace("À savoir.", "").strip()
+        if not reste:
+            return f'<p class="a-savoir renvoi"><strong>À savoir.</strong> Même précaution que {ou}.</p>'
+        return box.replace("<strong>À savoir.</strong>", f"<strong>À savoir.</strong> Voir aussi la précaution donnée {ou}.", 1)
+    return re.sub(r'<p class="a-savoir">.*?</p>', un, corps, flags=re.S)
+
+
+def coupures_fichiers(corps: str) -> str:
+    """Points de coupure après les tirets bas des noms de fichiers du texte (jamais dans les balises), pour qu'un nom
+    long passe à la ligne au lieu de creuser des blancs dans une ligne justifiée."""
+    morceaux = re.split(r"(<[^>]+>)", corps)
+    for i in range(0, len(morceaux), 2):
+        morceaux[i] = re.sub(r"\b[\w-]+(?:_[\w-]+)+(?:\.(?:csv|md|json|zip))?",
+                             lambda m: m.group(0).replace("_", "_<wbr>"), morceaux[i])
+    return "".join(morceaux)
+
+
+def tableaux_etroits(corps: str) -> str:
+    """Tableau de trois colonnes ou moins, à sa largeur naturelle à l'impression au lieu d'être étiré."""
+    def classe(m):
+        entete = re.search(r"<tr>.*?</tr>", m.group(0), re.S)
+        n = len(re.findall(r"<t[hd][ >]", entete.group(0))) if entete else 0
+        return re.sub(r"<table( class=\"([^\"]*)\")?>", lambda t: f'<table class="{(t.group(2) or "") + " etroite"}">'.replace('" ', '"'),
+                      m.group(0), count=1) if n and n <= 3 else m.group(0)
+    return re.sub(r"<table[^>]*>.*?</table>", classe, corps, flags=re.S)
 
 
 CESURES = re.compile(r"(Psycho|psycho|Pédo|pédo|Kinési|kinési|Ortho|ortho|Gynéco|gynéco|Ophtalmo)(?=\w)")
@@ -214,6 +300,56 @@ def tableaux_larges(corps: str) -> str:
 def _ancre(texte, sep):
     from .util import norm
     return norm(texte).replace(" ", sep)[:60]
+
+
+# Une seule mise en page pour les pages de texte (harmonisation, 22 octobre 2026). Le titre et le chapeau prennent la
+# largeur du cadre, puis viennent le sommaire à gauche, tiré des intertitres, et la colonne de texte, au même endroit que
+# dans les rapports et la page méthode. Une page sans au moins deux intertitres garde la colonne au même endroit, avec
+# une marge vide à gauche plutôt qu'un texte qui changerait de place d'une page à l'autre.
+EN_COLONNE = {"page.html", "rapports.html", "donnees_sources.html", "journal.html", "publications.html",
+              "territoires.html"}
+
+
+def en_colonne(page: str) -> str:
+    m = re.search(r'<div class="(?:corps )?etroit">', page)
+    if not m:
+        return page
+    prof, fin = 1, None
+    for t in re.finditer(r"<div\b|</div>", page[m.end():]):
+        prof += 1 if t.group() == "<div" else -1
+        if prof == 0:
+            fin = m.end() + t.start()
+            break
+    if fin is None:
+        return page
+    dedans = page[m.end():fin]
+    h = re.match(r'\s*(<h1\b.*?</h1>)\s*(<p class="chapeau[^"]*">.*?</p>)?', dedans, re.S)
+    tete = (h.group(1) + "\n" + (h.group(2) or "")) if h else ""
+    reste = dedans[h.end():] if h else dedans
+    lignes = []
+
+    def ancre(mm):
+        attrs, texte = mm.group(1), mm.group(2)
+        brut = re.sub(r"<[^>]+>", "", texte).strip()
+        idm = re.search(r'id="([^"]+)"', attrs)
+        ident = idm.group(1) if idm else _ancre(brut, "-")
+        lignes.append((ident, brut))
+        return f'<h2{attrs}>{texte}</h2>' if idm else f'<h2{attrs} id="{ident}">{texte}</h2>'
+    reste = re.sub(r"<h2([^>]*)>(.*?)</h2>", ancre, reste, flags=re.S)
+    # un tableau trop large pour un téléphone défile dans son cadre au lieu d'élargir la page
+    reste = re.sub(r'(?<!<div class="defile">)(<table\b.*?</table>)', r'<div class="defile">\1</div>', reste, flags=re.S)
+    if len(lignes) >= 2:
+        aside = ('<aside class="sommaire" aria-label="Sommaire de la page"><ul>'
+                 + "".join(f'<li><a href="#{i}">{t}</a></li>' for i, t in lignes) + "</ul></aside>")
+    else:
+        aside = '<aside class="sommaire" aria-hidden="true"></aside>'
+    return (page[:m.start()] + tete + f'\n<div class="rapport colonne">{aside}<div class="corps">{reste}</div></div>'
+            + page[fin + len("</div>"):])
+
+
+def rendre(env, nom: str, *args, **kw) -> str:
+    html = env.get_template(nom).render(*args, **kw)
+    return en_colonne(html) if nom in EN_COLONNE else html
 
 
 def en_bref(texte: str) -> list[str]:
@@ -468,6 +604,9 @@ def _environnement() -> Environment:
 def _commun(dernier: Path, site_data: dict) -> dict:
     return {"date_longue": date_longue(dernier.name), "licences": site_data["meta"].get("licences", ""),
             "description": "Offre de soins et de santé mentale en France, par territoire, à partir des données publiques.",
+            # citation de la page, reprise par « Citer et exporter » des tableaux et figures des pages sans citation propre
+            "citation_auteur": config.CITATION_AUTEUR, "annee_version": dernier.name[:4],
+            "adresse_site": config.ADRESSE_SITE.rstrip("/"),
             # empreinte de la feuille de style, pour que les navigateurs chargent la nouvelle version après une mise à jour
             "version_css": hashlib.sha1((GABARITS / "style.css").read_bytes()).hexdigest()[:10]}
 
@@ -628,7 +767,7 @@ def construire(pdf=True) -> Path:
             v["pdf_sm" if cle == "sante-mentale" else "pdf_sante"] = cible_pdf.exists()
         versions.append(v)
     ctx = dict(commun, racine="", page="rapports", titre="Rapports nationaux")
-    (SITE / "rapports.html").write_text(env.get_template("rapports.html").render(
+    (SITE / "rapports.html").write_text(rendre(env, "rapports.html",
         ctx, versions=versions,
         citation_donnees=citation_donnees(dernier.name),
         citation_sm=citation("sante-mentale", "Rapport santé mentale", date_longue(dernier.name), dernier.name)["texte"],
@@ -665,7 +804,7 @@ def construire(pdf=True) -> Path:
                          "taille": f"{cible.stat().st_size / 1e6:.1f} Mo".replace(".", ",")})
     _, corps, _ = md_html((dernier / "dictionnaire_des_colonnes.md").read_text(encoding="utf-8"), None)
     ctx = dict(commun, racine="../../", page="methode", titre="Dictionnaire des colonnes")
-    (ddir / "dictionnaire.html").write_text(env.get_template("page.html").render(
+    (ddir / "dictionnaire.html").write_text(rendre(env, "page.html",
         ctx, corps="<h1>Dictionnaire des colonnes</h1>" + corps), encoding="utf-8")
 
     # méthode
@@ -703,7 +842,7 @@ def construire(pdf=True) -> Path:
             texte = texte.replace("{" + cle + "}", val)
         _t, corps, _s = md_html(texte, None)
         ctx = dict(commun, racine="", page="apropos", titre="À propos")
-        (SITE / "a-propos.html").write_text(env.get_template("page.html").render(
+        (SITE / "a-propos.html").write_text(rendre(env, "page.html",
             ctx, corps="<h1>À propos</h1>" + corps), encoding="utf-8")
         pages.append(SITE / "a-propos.html")
 
@@ -714,23 +853,23 @@ def construire(pdf=True) -> Path:
         if src.exists():
             _t, corps, _s = md_html(src.read_text(encoding="utf-8"), None)
             ctx = dict(commun, racine="", page=sortie[:-5], titre=titre)
-            (SITE / sortie).write_text(env.get_template("page.html").render(
+            (SITE / sortie).write_text(rendre(env, "page.html",
                 ctx, corps=f"<h1>{titre}</h1>" + corps), encoding="utf-8")
             pages.append(SITE / sortie)
 
     # données sources, une fiche par jeu
     ctx = dict(commun, racine="", page="sources", titre="Données sources")
-    (SITE / "donnees-sources.html").write_text(env.get_template("donnees_sources.html").render(
+    (SITE / "donnees-sources.html").write_text(rendre(env, "donnees_sources.html",
         ctx, fiches=donnees_sources(dernier, site_data)), encoding="utf-8")
     pages.append(SITE / "donnees-sources.html")
 
     # journal des mises à jour (jeux de données modifiés, effectifs nationaux, nouveautés du site)
     ctx = dict(commun, racine="", page="journal", titre="Journal des mises à jour")
-    (SITE / "journal.html").write_text(env.get_template("journal.html").render(ctx, **journal_page()), encoding="utf-8")
+    (SITE / "journal.html").write_text(rendre(env, "journal.html", ctx, **journal_page()), encoding="utf-8")
     pages.append(SITE / "journal.html")
 
     ctx = dict(commun, racine="", page="publications", titre="Publications")
-    (SITE / "publications.html").write_text(env.get_template("publications.html").render(ctx), encoding="utf-8")
+    (SITE / "publications.html").write_text(rendre(env, "publications.html", ctx), encoding="utf-8")
 
     # atlas, avec la navigation du site
     sys.path.insert(0, str(config.RACINE / "atlas"))
@@ -806,7 +945,7 @@ def _territoires(env, commun, dernier) -> list[Path]:
     from .util import norm
     regions.sort(key=lambda r: norm(r["nom"]))
     ctx = dict(commun, racine="../", page="territoires", titre="Rapports par territoire")
-    (dossier / "index.html").write_text(env.get_template("territoires.html").render(
+    (dossier / "index.html").write_text(rendre(env, "territoires.html",
         ctx, regions=regions,
         exemple_citation=citation_territoire("Offre de soins en santé mentale, Eure", date_longue(dernier.name),
                                              "dep-27-sante-mentale.html")["texte"]),

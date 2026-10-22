@@ -9,7 +9,7 @@ import math
 from html import escape
 
 from . import config
-from .graphiques import DISCRET, ENCRE, LIGNE, OCRE, VIOLET, VIOLET_PALE
+from .graphiques import CHASSE, DISCRET, ENCRE, LIGNE, OCRE, VIOLET, VIOLET_PALE, taille_role
 from .lecture import nombre
 from .util import JOURNAL, log
 
@@ -18,7 +18,7 @@ CACHE_COMMUNES = config.INTER / "fonds_communes.json"
 # noms des territoires par code (départements, intercommunalités, morceaux, communes), pour les info-bulles
 NOMS: dict = {}
 # signaux « donnée fragile ici » (9 octobre 2026), symbole ocre marqué « ! », la couleur du territoire ne change pas
-FRAGILE = "var(--d1, #B88A2E)"
+FRAGILE = "var(--d1, #A87418)"
 SIGNAL_MAYOTTE = "Mayotte, données incomplètes, densités surestimées d'environ un quart (population de 2017)"
 SIGNAL_SUICIDE = "Île-de-France, décès par suicide nettement sous-déclarés"
 MAYOTTE: set = {"976"}   # jamais « 06 », qui est aussi le code des Alpes-Maritimes
@@ -48,20 +48,21 @@ def lignes_signal(lab, largeur=560, x=8) -> list[str]:
     """Libellé coupé en lignes qui tiennent dans la figure, quelle que soit la police (6,2 px par signe à 11 px)."""
     import math
     import textwrap
-    maxi = max(20, int((largeur - x - 30) / 6.2))
+    maxi = max(20, int((largeur - x - 30) / (taille_role("petit", largeur) * CHASSE)))
     n = math.ceil(len(lab) / maxi)
     # lignes de longueur voisine, pour ne jamais laisser un mot seul sur la dernière ligne
     return textwrap.wrap(lab, min(maxi, math.ceil(len(lab) / n) + 8))
 
 
 def legende_signaux(el, x, y, libelles, largeur=560) -> float:
+    fs = taille_role("petit", largeur)
     for lab in sorted(set(libelles)):
         el.append(symbole_fragile(x + 7, y + 6, lab))
         lignes = lignes_signal(lab, largeur, x)
-        el.append(f'<text x="{x + 20}" y="{y + 10}" font-size="11" fill="{DISCRET}">'
-                  + "".join(f'<tspan x="{x + 20}" dy="{0 if i == 0 else 14}">{escape(t)}</tspan>' for i, t in enumerate(lignes))
-                  + '</text>')
-        y += 20 + 14 * (len(lignes) - 1)
+        el.append(f'<text x="{x + 20}" y="{y + 10}" font-size="{fs}" fill="{DISCRET}">'
+                  + "".join(f'<tspan x="{x + 20}" dy="{0 if i == 0 else round(fs * 1.35, 1)}">{escape(t)}</tspan>'
+                            for i, t in enumerate(lignes)) + '</text>')
+        y += 20 + fs * 1.35 * (len(lignes) - 1)
     return y
 
 
@@ -87,11 +88,11 @@ FOND_ATLAS = config.INTER / "fond_atlas.topojson.json"
 # de la plus faible à la plus forte. Palette divergente,
 # ocre en dessous de la moyenne, violet au-dessus, et un gris neutre pour les territoires proches de la moyenne,
 # pour que la couleur soit réservée aux vrais écarts (révision du 4 octobre 2026).
-CLASSES = [(None, "var(--d0, #7A4E00)", "aucun professionnel"),
-           (.5, "var(--d1, #B88A2E)", "moins de la moitié de cette moyenne"),
-           (.8, "var(--d2, #E6D3A6)", "de la moitié à 0,8 fois cette moyenne"),
-           (1.25, "var(--d3, #E9E7EC)", "proche de cette moyenne (0,8 à 1,25 fois)"),
-           (2, "var(--d4, #C6B3DB)", "de 1,25 à 2 fois cette moyenne"),
+CLASSES = [(None, "var(--d0, #6B4300)", "aucun professionnel"),
+           (.5, "var(--d1, #A87418)", "moins de la moitié de cette moyenne"),
+           (.8, "var(--d2, #D9B260)", "de la moitié à 0,8 fois cette moyenne"),
+           (1.25, "var(--d3, #DEDCE4)", "proche de cette moyenne (0,8 à 1,25 fois)"),
+           (2, "var(--d4, #AE93CB)", "de 1,25 à 2 fois cette moyenne"),
            (math.inf, "var(--d6, #3E2563)", "plus de 2 fois cette moyenne")]
 
 
@@ -327,6 +328,7 @@ def carte(geoms: dict, rapports: dict, etiquettes: dict, titre: str, largeur=560
     k = math.cos(math.radians((y0 + y1) / 2))
     lw, lh = (x1 - x0) * k or 1e-6, (y1 - y0) or 1e-6
     marques = [c for c in (marques or []) if c in geoms]
+    fs_t, fs_p = taille_role("texte", largeur), taille_role("petit", largeur)
     entete = ([f"{moyenne[0].upper() + moyenne[1:]}, {nombre(reference, 1)} pour 10 000 habitants"] if reference and moyenne
               else []) + ([note_etiquettes] if note_etiquettes and etiquettes else [])
     marge, leg = 8, (22 * (len(CLASSES) + len(entete) + (1 if marques else 0)) + 12) if legende else 0
@@ -338,12 +340,12 @@ def carte(geoms: dict, rapports: dict, etiquettes: dict, titre: str, largeur=560
         c = CLASSES[classe(rapports.get(code))][1]
         d = _trace_relatif(_anneaux(g), P)
         info = info_territoire(code, rapports.get(code), reference)
-        el.append(f'<path d="{d}" fill="{c}" fill-rule="evenodd" stroke="var(--bg, #FFFFFF)" stroke-width=".8">'
+        el.append(f'<path d="{d}" fill="{c}" fill-rule="evenodd" stroke="var(--contour, #9AA0AC)" stroke-width=".6">'
                   f'<title>{escape(info)}</title></path>')
     for code, t in etiquettes.items():
         if code in geoms:
             px, py = P(*geoms[code].representative_point().coords[0])
-            el.append(f'<text x="{px:.1f}" y="{py + 4:.1f}" text-anchor="middle" font-size="11" font-weight="600" '
+            el.append(f'<text x="{px:.1f}" y="{py + 4:.1f}" text-anchor="middle" font-size="{fs_p}" font-weight="600" '
                       f'fill="{ENCRE}" stroke="var(--bg, #FFFFFF)" stroke-width="3" paint-order="stroke">{escape(str(t))}</text>')
     # signal d'une limite des données posé sur le territoire, sans changer sa couleur (demande de Lucas du 9 octobre)
     fragiles = signaux(geoms)
@@ -358,20 +360,20 @@ def carte(geoms: dict, rapports: dict, etiquettes: dict, titre: str, largeur=560
     if legende:
         for j, txt in enumerate(entete):
             gras = ' font-weight="600"' if j == 0 and reference and moyenne else ""
-            el.append(f'<text x="{marge}" y="{h + 19 + 22 * j:.1f}" font-size="12" fill="{ENCRE if gras else DISCRET}"'
+            el.append(f'<text x="{marge}" y="{h + 19 + 22 * j:.1f}" font-size="{fs_t}" fill="{ENCRE if gras else DISCRET}"'
                       f'{gras}>{escape(txt)}</text>')
     h0 = h + 22 * len(entete) if legende else h
     for i, ((_b, c, _l), lab) in enumerate(zip(CLASSES, libelles_classes(reference)) if legende else []):
         y = h0 + 8 + 22 * i
         el.append(f'<rect x="{marge}" y="{y:.1f}" width="16" height="14" fill="{c}" stroke="{LIGNE}"/>')
-        el.append(f'<text x="{marge + 24}" y="{y + 11:.1f}" font-size="12" fill="{DISCRET}">{escape(lab)}</text>')
+        el.append(f'<text x="{marge + 24}" y="{y + 11:.1f}" font-size="{fs_t}" fill="{DISCRET}">{escape(lab)}</text>')
     if legende and fragiles:
         legende_signaux(el, marge, h0 + 8 + 22 * (len(CLASSES) + (1 if marques else 0)), fragiles.values(), largeur)
     if legende and marques:
         y = h0 + 8 + 22 * len(CLASSES)
         el.append(f'<circle cx="{marge + 8}" cy="{y + 7:.1f}" r="4.5" fill="var(--bg, #FFFFFF)" stroke="{ENCRE}" '
                   f'stroke-width="1.6"/>')
-        el.append(f'<text x="{marge + 24}" y="{y + 11:.1f}" font-size="12" fill="{DISCRET}">{escape(legende_marque)}</text>')
+        el.append(f'<text x="{marge + 24}" y="{y + 11:.1f}" font-size="{fs_t}" fill="{DISCRET}">{escape(legende_marque)}</text>')
     H = h + leg
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {largeur} {H:.0f}" role="img" '
             f'aria-label="{escape(titre)}" font-family="Work Sans, system-ui, sans-serif">'
@@ -387,6 +389,7 @@ def reglette(lignes: list[dict], titre: str, largeur=640) -> str:
         return ""
     import numpy as np
     g, d, hl = 190, 70, 34
+    fs_t, fs_p = taille_role("texte", largeur), taille_role("petit", largeur)
     H = 30 + hl * len(lignes) + 26
     el = []
     for i, l in enumerate(lignes):
@@ -397,22 +400,22 @@ def reglette(lignes: list[dict], titre: str, largeur=640) -> str:
         X = lambda x: g + ((math.log10(max(x, v.min())) - lo) / ((hi - lo) or 1)) * (largeur - g - d)  # noqa: E731
         y = 30 + hl * i + 12
         q1, me, q3 = np.percentile(v, [25, 50, 75])
-        el.append(f'<text x="{g - 10}" y="{y + 4}" text-anchor="end" font-size="12" fill="{ENCRE}">{escape(l["libelle"])}</text>')
+        el.append(f'<text x="{g - 10}" y="{y + 4}" text-anchor="end" font-size="{fs_t}" fill="{ENCRE}">{escape(l["libelle"])}</text>')
         el.append(f'<line x1="{g}" y1="{y}" x2="{largeur - d}" y2="{y}" stroke="{LIGNE}" stroke-width="2"/>')
         el.append(f'<rect x="{X(q1):.1f}" y="{y - 5}" width="{max(X(q3) - X(q1), 1):.1f}" height="10" fill="{VIOLET_PALE}"/>')
         el.append(f'<line x1="{X(me):.1f}" y1="{y - 8}" x2="{X(me):.1f}" y2="{y + 8}" stroke="{DISCRET}" stroke-width="2"/>')
         c = OCRE if l["valeur"] < me else VIOLET[0]
         el.append(f'<circle cx="{X(l["valeur"]):.1f}" cy="{y}" r="6" fill="{c}" stroke="var(--bg, #FFFFFF)" stroke-width="1.5"/>')
-        el.append(f'<text x="{largeur - d + 8}" y="{y + 4}" font-size="12" fill="{ENCRE}">{nombre(l["valeur"], 1 if l["valeur"] >= 1 else 2)}</text>')
-    el.append(f'<text x="{g}" y="18" font-size="11" fill="{DISCRET}">la moins dotée</text>')
-    el.append(f'<text x="{largeur - d}" y="18" text-anchor="end" font-size="11" fill="{DISCRET}">la mieux dotée</text>')
+        el.append(f'<text x="{largeur - d + 8}" y="{y + 4}" font-size="{fs_t}" fill="{ENCRE}">{nombre(l["valeur"], 1 if l["valeur"] >= 1 else 2)}</text>')
+    el.append(f'<text x="{g}" y="18" font-size="{fs_p}" fill="{DISCRET}">la moins dotée</text>')
+    el.append(f'<text x="{largeur - d}" y="18" text-anchor="end" font-size="{fs_p}" fill="{DISCRET}">la mieux dotée</text>')
     y = 30 + hl * len(lignes) + 8
     el.append(f'<rect x="{g}" y="{y}" width="14" height="8" fill="{VIOLET_PALE}"/>'
-              f'<text x="{g + 20}" y="{y + 8}" font-size="11" fill="{DISCRET}">moitié centrale des territoires</text>'
+              f'<text x="{g + 20}" y="{y + 8}" font-size="{fs_p}" fill="{DISCRET}">moitié centrale des territoires</text>'
               f'<line x1="{g + 214}" y1="{y - 2}" x2="{g + 214}" y2="{y + 10}" stroke="{DISCRET}" stroke-width="2"/>'
-              f'<text x="{g + 222}" y="{y + 8}" font-size="11" fill="{DISCRET}">milieu</text>'
+              f'<text x="{g + 222}" y="{y + 8}" font-size="{fs_p}" fill="{DISCRET}">milieu</text>'
               f'<circle cx="{g + 284}" cy="{y + 4}" r="5" fill="{OCRE}"/><circle cx="{g + 296}" cy="{y + 4}" r="5" fill="{VIOLET[0]}"/>'
-              f'<text x="{g + 306}" y="{y + 8}" font-size="11" fill="{DISCRET}">ce territoire</text>')
+              f'<text x="{g + 306}" y="{y + 8}" font-size="{fs_p}" fill="{DISCRET}">ce territoire</text>')
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {largeur} {H}" role="img" '
             f'aria-label="{escape(titre)}" font-family="Work Sans, system-ui, sans-serif">'
             f"<title>{escape(titre)}</title>" + "".join(el) + "</svg>")
@@ -422,11 +425,11 @@ def reglette(lignes: list[dict], titre: str, largeur=640) -> str:
 def _legende(el, x, y, largeur):
     """Légende des classes, sur une ou deux lignes selon la largeur."""
     colonnes = 2 if largeur < 700 else 3
-    pas = largeur / colonnes
+    pas, fs = largeur / colonnes, taille_role("petit", largeur + 16)
     for i, (_b, c, lab) in enumerate(CLASSES):
         xx, yy = x + (i % colonnes) * pas, y + (i // colonnes) * 20
         el.append(f'<rect x="{xx:.0f}" y="{yy}" width="14" height="12" fill="{c}" stroke="{LIGNE}"/>')
-        el.append(f'<text x="{xx + 20:.0f}" y="{yy + 10}" font-size="11" fill="{DISCRET}">{escape(lab)}</text>')
+        el.append(f'<text x="{xx + 20:.0f}" y="{yy + 10}" font-size="{fs}" fill="{DISCRET}">{escape(lab)}</text>')
     return y + 20 * ((len(CLASSES) + colonnes - 1) // colonnes)
 
 
@@ -440,7 +443,7 @@ OUTRE_MER = ["971", "972", "973", "974", "976"]
 
 
 def carte_france(geoms: dict, rapports: dict, titre: str, largeur=560, legende=True, couleurs=None,
-                 legende_fn=None, suicide=False) -> str:
+                 legende_fn=None, suicide=False, reduction=1.0) -> str:
     """Carte classique des départements, Hexagone et Corse, avec l'outre-mer en médaillons sous la carte."""
     metro = {k: g for k, g in geoms.items() if k not in OUTRE_MER and g is not None}
     if not metro:
@@ -455,12 +458,12 @@ def carte_france(geoms: dict, rapports: dict, titre: str, largeur=560, legende=T
         k = math.cos(math.radians((by0 + by1) / 2))
         s = min(w / ((bx1 - bx0) * k or 1e-6), h / ((by1 - by0) or 1e-6))
         for code, g in gs.items():
-            c = (couleurs.get(code) or "var(--nodata, #E3E4E8)") if couleurs is not None else CLASSES[classe(rapports.get(code))][1]
+            c = (couleurs.get(code) or "var(--nodata, #E9E8EC)") if couleurs is not None else CLASSES[classe(rapports.get(code))][1]
             d = _trace_relatif(_anneaux(g), lambda x, y: (x0 + (x - bx0) * k * s, y0 + (by1 - y) * s))
             r_ = rapports.get(code) if rapports else None
             info = nom(code) + (f", indice {nombre(r_ * 100)} (moyenne = 100)" if r_ is not None and
                                 isinstance(r_, (int, float)) and math.isfinite(r_) else "")
-            el.append(f'<path data-code="{escape(code)}" d="{d}" fill="{c}" fill-rule="evenodd" stroke="var(--bg, #FFFFFF)" '
+            el.append(f'<path data-code="{escape(code)}" d="{d}" fill="{c}" fill-rule="evenodd" stroke="var(--contour, #9AA0AC)" '
                       f'stroke-width=".6"><title>{escape(info)}</title></path>')
             if code in sig:
                 proj = (x0, y0, bx0, by1, k, s)
@@ -471,7 +474,8 @@ def carte_france(geoms: dict, rapports: dict, titre: str, largeur=560, legende=T
     for i, code in enumerate(OUTRE_MER):
         if geoms.get(code) is not None:
             dessine({code: geoms[code]}, 8 + i * w + 6, y, w - 12, 70)
-            el.append(f'<text x="{8 + i * w + w / 2:.0f}" y="{y + 84}" text-anchor="middle" font-size="10" '
+            el.append(f'<text x="{8 + i * w + w / 2:.0f}" y="{y + 84}" text-anchor="middle" '
+                      f'font-size="{taille_role("petit", largeur) * reduction:.1f}" '
                       f'fill="{DISCRET}">{code}</text>')
     om = any(geoms.get(c) is not None for c in OUTRE_MER)
     debut = y + 96 if om else largeur - 4   # sans médaillons d'outre-mer, la légende suit l'Hexagone
@@ -505,7 +509,8 @@ def petits_multiples(geoms: dict, series: list, titre: str, colonnes=2, largeur=
         if col == 0 and i:
             y += hmax + 34
             hmax = 0.0
-        svg = carte_france(geoms, rap, nom, largeur=560, legende=False)
+        # la carte est réduite à w - 12 dans une figure de largeur unités, son texte est agrandi d'autant
+        svg = carte_france(geoms, rap, nom, largeur=560, legende=False, reduction=largeur / (w - 12))
         if not svg:
             continue
         vb = _re.search(r'viewBox="0 0 ([\d.]+) ([\d.]+)"', svg)
@@ -514,7 +519,8 @@ def petits_multiples(geoms: dict, series: list, titre: str, colonnes=2, largeur=
         h = lh * ech
         hmax = max(hmax, h)
         x0 = col * w
-        el.append(f'<text x="{x0 + 6:.0f}" y="{y + 16:.0f}" font-size="14" font-weight="600" fill="{ENCRE}">'
+        el.append(f'<text x="{x0 + 6:.0f}" y="{y + 16:.0f}" font-size="{taille_role("texte", largeur)}" '
+                  f'font-weight="600" fill="{ENCRE}">'
                   f'{escape(nom)}</text>')
         interieur = _re.sub(r"^<svg[^>]*>", "", svg).rsplit("</svg>", 1)[0]
         interieur = _re.sub(r"<title>.*?</title>", "", interieur, count=1)
@@ -528,10 +534,10 @@ def petits_multiples(geoms: dict, series: list, titre: str, colonnes=2, largeur=
 
 
 # temps de trajet par commune (audit 4.6), du plus court au plus long, gris neutre puis ocre de plus en plus foncé
-CLASSES_TEMPS = [(10, "var(--d3, #E9E7EC)", "moins de 10 minutes"),
-                 (20, "var(--d2, #E6D3A6)", "de 10 à 20 minutes"),
-                 (30, "var(--d1, #B88A2E)", "de 20 à 30 minutes"),
-                 (math.inf, "var(--d0, #7A4E00)", "30 minutes et plus")]
+CLASSES_TEMPS = [(10, "var(--d3, #DEDCE4)", "moins de 10 minutes"),
+                 (20, "var(--d2, #D9B260)", "de 10 à 20 minutes"),
+                 (30, "var(--d1, #A87418)", "de 20 à 30 minutes"),
+                 (math.inf, "var(--d0, #6B4300)", "30 minutes et plus")]
 
 
 def _trace_relatif(anneaux, P) -> str:
@@ -552,10 +558,10 @@ def _trace_relatif(anneaux, P) -> str:
     return "".join(morceaux)
 
 
-CLASSES_DISTANCE = [(5, "var(--d3, #E9E7EC)", "moins de 5 km"),
-                    (10, "var(--d2, #E6D3A6)", "de 5 à 10 km"),
-                    (20, "var(--d1, #B88A2E)", "de 10 à 20 km"),
-                    (math.inf, "var(--d0, #7A4E00)", "20 km et plus")]
+CLASSES_DISTANCE = [(5, "var(--d3, #DEDCE4)", "moins de 5 km"),
+                    (10, "var(--d2, #D9B260)", "de 5 à 10 km"),
+                    (20, "var(--d1, #A87418)", "de 10 à 20 km"),
+                    (math.inf, "var(--d0, #6B4300)", "20 km et plus")]
 
 
 def carte_temps(geoms: dict, minutes: dict, titre: str, largeur=560, hauteur_max=520, classes=None,
@@ -575,10 +581,10 @@ def carte_temps(geoms: dict, minutes: dict, titre: str, largeur=560, hauteur_max
     s = min((largeur - 2 * marge) / lw, (hauteur_max - 2 * marge) / lh)
     h = lh * s + 2 * marge
     P = lambda x, y: (marge + (x - x0) * k * s, marge + (y1 - y) * s)  # noqa: E731
-    el = ['<g fill-rule="evenodd" stroke="var(--bg, #FFFFFF)" stroke-width=".4">']
+    el = ['<g fill-rule="evenodd" stroke="var(--contour, #9AA0AC)" stroke-width=".3">']
     for code, g in geoms.items():
         m = minutes.get(code)
-        c = ("var(--nodata, #E3E4E8)" if m is None or not math.isfinite(m) else
+        c = ("var(--nodata, #E9E8EC)" if m is None or not math.isfinite(m) else
              next(col for borne, col, _l in classes if m < borne))
         d = _trace_relatif(_anneaux(g), P)
         if d:
@@ -589,7 +595,8 @@ def carte_temps(geoms: dict, minutes: dict, titre: str, largeur=560, hauteur_max
     for i, (_b, c, lab) in enumerate(classes):
         xx, yy = marge + (i % 2) * (largeur / 2), h + 8 + 20 * (i // 2)
         el.append(f'<rect x="{xx:.0f}" y="{yy:.0f}" width="14" height="12" fill="{c}" stroke="{LIGNE}"/>')
-        el.append(f'<text x="{xx + 20:.0f}" y="{yy + 10:.0f}" font-size="11" fill="{DISCRET}">{escape(lab)}</text>')
+        el.append(f'<text x="{xx + 20:.0f}" y="{yy + 10:.0f}" font-size="{taille_role("petit", largeur)}" '
+                  f'fill="{DISCRET}">{escape(lab)}</text>')
     return _svg(largeur, h + 8 + 20 * 2 + 4, titre, el)
 
 
@@ -636,11 +643,12 @@ def carte_tuiles(pos: dict, rapports: dict, titre: str, largeur=560, legende=Tru
                   f'height="{cote - 2:.1f}" rx="3" fill="{c}"><title>{escape(nom(code))}</title></rect>')
         sombre = classe(rapports.get(code)) in (0, len(CLASSES) - 1)
         el.append(f'<text x="{px + (cote - 2) / 2:.1f}" y="{py + (cote - 2) / 2 + 4:.1f}" text-anchor="middle" '
-                  f'font-size="{max(8, min(11, cote / 3.2)):.0f}" fill="{"var(--bg, #fff)" if sombre else ENCRE}">'
+                  f'font-size="{min(taille_role("petit", largeur), cote / 3.2):.1f}" font-weight="600" fill="{"var(--bg, #fff)" if sombre else ENCRE}">'
                   f'{escape(code)}</text>')
         if code in sig:
             el.append(symbole_fragile(px + cote - 7, py + 5, nom(code) + ", " + sig[code], 4.5))
-    el.append(f'<text x="8" y="{8 + (lignes - 1) * cote - 6:.0f}" font-size="10" fill="{DISCRET}">Outre-mer</text>')
+    el.append(f'<text x="8" y="{8 + (lignes - 1) * cote - 6:.0f}" font-size="{taille_role("petit", largeur)}" '
+              f'fill="{DISCRET}">Outre-mer</text>')
     fin = _legende(el, 8, 8 + lignes * cote + 6, largeur - 16) if legende else 8 + lignes * cote
     if legende and sig:
         fin = legende_signaux(el, 8, fin + 4, sig.values(), largeur)
@@ -657,6 +665,7 @@ def halteres(lignes: list[dict], titre: str, largeur=640) -> str:
     if not lignes:
         return ""
     g, d, h = 200, 60, 34
+    fs_t, fs_p = taille_role("texte", largeur), taille_role("petit", largeur)
     lo, hi = math.log(.25), math.log(4)
     X = lambda v: g + (min(max(math.log(max(v, 1e-6)), lo), hi) - lo) / (hi - lo) * (largeur - g - d)  # noqa: E731
     el = []
@@ -664,11 +673,11 @@ def halteres(lignes: list[dict], titre: str, largeur=640) -> str:
     for v, lab in [(.25, "4 fois moins"), (.5, "2 fois moins"), (1, "Moyenne"), (2, "2 fois plus"), (4, "4 fois plus")]:
         el.append(f'<line x1="{X(v):.1f}" y1="26" x2="{X(v):.1f}" y2="{H - 24}" stroke="{LIGNE}" '
                   f'stroke-width="{2 if v == 1 else 1}"/>')
-        el.append(f'<text x="{X(v):.1f}" y="18" text-anchor="middle" font-size="10" fill="{DISCRET}">{lab}</text>')
+        el.append(f'<text x="{X(v):.1f}" y="18" text-anchor="middle" font-size="{fs_p}" fill="{DISCRET}">{lab}</text>')
     for i, l in enumerate(lignes):
         y = 34 + h * i + 10
         ind = l["valeur"] / l["reference"]
-        el.append(f'<text x="{g - 10}" y="{y + 4}" text-anchor="end" font-size="12" fill="{ENCRE}">{escape(l["libelle"])}</text>')
+        el.append(f'<text x="{g - 10}" y="{y + 4}" text-anchor="end" font-size="{fs_t}" fill="{ENCRE}">{escape(l["libelle"])}</text>')
         if l.get("q1") and l.get("q3"):
             a, b = X(l["q1"] / l["reference"]), X(l["q3"] / l["reference"])
             el.append(f'<rect x="{a:.1f}" y="{y - 5}" width="{max(b - a, 1):.1f}" height="10" fill="{VIOLET_PALE}" rx="2"/>')
@@ -683,14 +692,14 @@ def halteres(lignes: list[dict], titre: str, largeur=640) -> str:
         el.append(f'<line x1="{X(1):.1f}" y1="{y}" x2="{X(ind):.1f}" y2="{y}" stroke="{c}" stroke-width="3"/>')
         el.append(f'<circle cx="{X(1):.1f}" cy="{y}" r="4" fill="var(--bg, #fff)" stroke="{DISCRET}" stroke-width="1.5"/>')
         el.append(f'<circle cx="{X(ind):.1f}" cy="{y}" r="6" fill="{c}"/>')
-        el.append(f'<text x="{largeur - d + 6}" y="{y + 4}" font-size="11" fill="{ENCRE}">{nombre(ind * 100)}</text>')
+        el.append(f'<text x="{largeur - d + 6}" y="{y + 4}" font-size="{fs_p}" fill="{ENCRE}">{nombre(ind * 100)}</text>')
     y = H - 10
     el.append(f'<circle cx="{g + 6}" cy="{y - 4}" r="5" fill="{OCRE}"/><circle cx="{g + 18}" cy="{y - 4}" r="5" fill="{VIOLET[0]}"/>'
-              f'<text x="{g + 28}" y="{y}" font-size="11" fill="{DISCRET}">ce territoire (indice, moyenne = 100)</text>'
+              f'<text x="{g + 28}" y="{y}" font-size="{fs_p}" fill="{DISCRET}">ce territoire (indice, moyenne = 100)</text>'
               f'<circle cx="{g + 228}" cy="{y - 4}" r="2.4" fill="{DISCRET}" fill-opacity=".6"/>'
-              f'<text x="{g + 236}" y="{y}" font-size="11" fill="{DISCRET}">les autres</text>'
+              f'<text x="{g + 236}" y="{y}" font-size="{fs_p}" fill="{DISCRET}">les autres</text>'
               f'<rect x="{g + 300}" y="{y - 9}" width="14" height="9" fill="{VIOLET_PALE}"/>'
-              f'<text x="{g + 320}" y="{y}" font-size="11" fill="{DISCRET}">moitié centrale</text>')
+              f'<text x="{g + 320}" y="{y}" font-size="{fs_p}" fill="{DISCRET}">moitié centrale</text>')
     return _svg(largeur, H, titre, el)
 
 
@@ -700,7 +709,8 @@ def unites(part: float, titre: str, phrase: str, largeur=520) -> str:
         return ""
     k = int(round(part * 100))
     pas, r = 24, 8
-    el = [f'<text x="0" y="16" font-size="14" font-weight="600" fill="{ENCRE}">{escape(phrase)}</text>']
+    el = [f'<text x="0" y="16" font-size="{taille_role("titre", largeur)}" font-weight="600" fill="{ENCRE}">'
+          f'{escape(phrase)}</text>']
     for i in range(100):
         x, y = 12 + (i % 20) * pas, 40 + (i // 20) * (pas + 8)
         c = OCRE if i < k else LIGNE

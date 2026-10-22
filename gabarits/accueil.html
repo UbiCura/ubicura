@@ -20,18 +20,18 @@
 </div>
 {% endif %}
 
-<div class="cartes">
+<div class="cartes quatre">
   <a class="carte" href="atlas.html"><strong>Atlas</strong><span>Cartes, fiches de territoire, croisements avec le profil des habitants, pour la santé mentale et pour toute l'offre de soins.</span></a>
   <a class="carte" href="{{ lien_sm }}"><strong>Rapport santé mentale</strong><span>Psychologues, psychiatres, besoins et recours aux soins, écarts entre territoires.</span></a>
   <a class="carte" href="{{ lien_sante }}"><strong>Rapport santé</strong><span>Médecins généralistes, infirmiers, rééducation, pharmacies et autres professions.</span></a>
   <a class="carte" href="methode.html"><strong>Méthode, données et limites</strong><span>Sources, contrôles, définitions, fichiers à télécharger.</span></a>
 </div>
 
-<div class="etroit">
-<h2>En bref, santé mentale</h2>
-<ul>{% for p in bref_sm %}<li>{{ p }}</li>{% endfor %}</ul>
-<h2>En bref, santé</h2>
-<ul>{% for p in bref_sante %}<li>{{ p }}</li>{% endfor %}</ul>
-<p class="small muted">Ces constats décrivent des territoires et ne disent rien d'une cause. Les rapports donnent les précautions de lecture.</p>
+<div class="bref">
+<section><h2>En bref, santé mentale</h2>
+<ul>{% for p in bref_sm %}<li>{{ p }}</li>{% endfor %}</ul></section>
+<section><h2>En bref, santé</h2>
+<ul>{% for p in bref_sante %}<li>{{ p }}</li>{% endfor %}</ul></section>
 </div>
+<p class="small muted">Ces constats décrivent des territoires et ne disent rien d'une cause. Les rapports donnent les précautions de lecture.</p>
 {% endblock %}

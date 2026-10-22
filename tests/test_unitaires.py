@@ -245,8 +245,25 @@ def test_site_markdown():
     titre, corps, toc = site.md_html(md, None)
     assert titre == "Titre" and "<table>" in corps and "<details" in corps and " open" not in corps
     assert "GRAPHIQUE" not in corps and "Partie" in toc
-    assert " open" in site.md_html(md, None, imprimer=True)[1]
+    # à l'impression, le volet part dans l'annexe technique, un renvoi reste à sa place (décision du 22 octobre 2026)
+    imp = site.md_html(md, None, imprimer=True)[1]
+    assert "<details" not in imp and "annexe technique A1" in imp and 'id="annexe-a1">A1. Partie' in imp
     assert site.en_bref("### En bref\n\n- Un.\n- Deux.\n\nSuite") == ["Un.", "Deux."]
+
+
+def test_pdf_a_savoir_coupures():
+    """PDF, une limite de config.LIMITES déjà donnée devient un renvoi à sa section, les noms de fichiers reçoivent des
+    points de coupure hors des balises, un tableau de trois colonnes ou moins est marqué étroit."""
+    from pipeline import config, site
+    t = config.LIMITES["suicides"]["texte"]
+    corps = (f'<h3>Un</h3><p class="a-savoir"><strong>À savoir.</strong> {t} Source, x.</p>'
+             f'<h3>Deux</h3><p class="a-savoir"><strong>À savoir.</strong> {t} Source, x.</p>')
+    sortie = site.a_savoir_une_fois(corps)
+    assert sortie.count(t) == 1 and "Même précaution que dans la section « Un »" in sortie
+    assert site.coupures_fichiers('<a href="a_b.csv">voir lieux_soins.csv</a>') == \
+        '<a href="a_b.csv">voir lieux_<wbr>soins.csv</a>'
+    assert 'class="etroite"' in site.tableaux_etroits("<table><tr><th>a</th><th>b</th></tr></table>")
+    assert "etroite" not in site.tableaux_etroits("<table><tr><th>a</th><th>b</th><th>c</th><th>d</th></tr></table>")
 
 
 def test_pas_rond():
@@ -1654,6 +1671,20 @@ def test_addicto_odisse():
     for i in config.ADDICTO_ODISSE:
         assert i in od and od[i]["niveau"] == "reg" and od[i].get("ic_bas") and od[i].get("groupe") == "Addictions"
     assert "addictions" in config.LIMITES
+
+
+def test_typo_commune():
+    """Les figures des rapports et de l'atlas suivent la même échelle typographique (harmonisation du 22 octobre 2026),
+    jamais moins de 11,5 pixels à l'écran, et une taille convertie selon la largeur de la figure."""
+    import re
+    from pipeline import config, graphiques
+    atlas = (config.RACINE / "atlas" / "atlas_template.html").read_text(encoding="utf-8")
+    m = re.search(r"const TYPO=\{titre:([\d.]+),texte:([\d.]+),petit:([\d.]+)\}", atlas)
+    assert m and tuple(map(float, m.groups())) == (graphiques.TYPO["titre"], graphiques.TYPO["texte"],
+                                                     graphiques.TYPO["petit"])
+    assert min(graphiques.TYPO.values()) >= 11.5
+    assert graphiques.taille_role("texte", graphiques.LARGEUR_ECRAN) == graphiques.TYPO["texte"]
+    assert graphiques.taille_role("petit", 2 * graphiques.LARGEUR_ECRAN) == 2 * graphiques.TYPO["petit"]
 
 
 def test_odisse_codes_et_decimales():

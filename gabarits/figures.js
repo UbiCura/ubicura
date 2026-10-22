@@ -111,13 +111,65 @@
               navigator.clipboard.write([new ClipboardItem({"image/png":png})]).then(function(){b.textContent="Image copiée"},function(){b.textContent="Copie impossible ici, utilisez PNG"})})};img.src=url}})}})}
   function imageCitee(src,texte){
     var ns="http://www.w3.org/2000/svg",c=src.cloneNode(true),vb=(src.dataset.vb0||src.getAttribute("viewBox")||"0 0 600 400").split(/[ ,]+/).map(Number);
-    var fs=Math.max(10,vb[2]/70),par=Math.max(40,Math.floor((vb[2]-16)/(fs*.52))),lignes=[];
+    // taille commune des exports (harmonisation, 22 octobre 2026), dessin rapporté à 800 pixels, image à 1 600, citation
+    // au petit corps de l'échelle typographique (11,5 pixels à cette largeur), couleurs du fond clair (valeurs de repli
+    // des variables, seules lues dans un fichier SVG isolé)
+    var fs=11.5*vb[2]/800,par=Math.max(40,Math.floor((vb[2]-16)/(fs*.55))),lignes=[];
     texte.split(" ").forEach(function(m){var l=lignes.length?lignes[lignes.length-1]:null;if(l!=null&&(l+" "+m).length<=par)lignes[lignes.length-1]=l+" "+m;else lignes.push(m)});
     var hc=fs*1.4*lignes.length+fs;c.setAttribute("xmlns",ns);c.setAttribute("viewBox",[vb[0],vb[1],vb[2],vb[3]+hc].join(" "));
-    c.setAttribute("width",vb[2]*2);c.setAttribute("height",(vb[3]+hc)*2);
+    c.setAttribute("width",1600);c.setAttribute("height",Math.round((vb[3]+hc)*1600/vb[2]));
     var fond=document.createElementNS(ns,"rect");fond.setAttribute("x",vb[0]);fond.setAttribute("y",vb[1]);fond.setAttribute("width",vb[2]);fond.setAttribute("height",vb[3]+hc);fond.setAttribute("fill","#FFFFFF");c.insertBefore(fond,c.firstChild);
-    lignes.forEach(function(l,i){var t=document.createElementNS(ns,"text");t.setAttribute("x",vb[0]+8);t.setAttribute("y",vb[1]+vb[3]+fs*1.4*(i+1));t.setAttribute("font-size",fs);t.setAttribute("fill","#555555");t.setAttribute("font-family","Work Sans, Segoe UI, sans-serif");t.textContent=l;c.appendChild(t)});
+    lignes.forEach(function(l,i){var t=document.createElementNS(ns,"text");t.setAttribute("x",vb[0]+8);t.setAttribute("y",vb[1]+vb[3]+fs*1.4*(i+1));t.setAttribute("font-size",fs);t.setAttribute("fill","#5F6675");t.setAttribute("font-family","Work Sans, Segoe UI, sans-serif");t.textContent=l;c.appendChild(t)});
     return new XMLSerializer().serializeToString(c)}
   function enregistrer(blob,nom){var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=nom;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},1000)}
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",citerFigures);else citerFigures();
+
+  // tableaux des rapports et des pages, citables et exportables comme les figures (version 2, point 1, 22 octobre 2026).
+  // La citation est celle du rapport (data-citation) ou de la page (data-citation-page et son adresse), suivie du titre
+  // du tableau, tiré de sa légende ou de l'intertitre qui le précède (décision de Lucas, titre sans numéro). Le CSV
+  // reprend les lignes affichées, au format des fichiers du site (point-virgule, virgule décimale, nombres sans
+  // séparateur de milliers), avec la citation en dernière ligne.
+  function titreTableau(t){
+    if(t.caption&&t.caption.textContent.trim())return t.caption.textContent.trim();
+    for(var e=t.closest(".defile")||t;e&&e.tagName!=="MAIN";e=e.parentElement){
+      for(var p=e.previousElementSibling;p;p=p.previousElementSibling){
+        if(/^H[2-5]$/.test(p.tagName))return p.textContent.replace(/\s+/g," ").trim();
+        var h=p.querySelectorAll&&p.querySelectorAll("h2,h3,h4,h5");if(h&&h.length)return h[h.length-1].textContent.replace(/\s+/g," ").trim()}
+      if(e.tagName==="DETAILS"){var s=e.querySelector("summary");if(s)return s.textContent.trim()}}
+    return "Tableau"}
+  function celluleCsv(c){
+    // une adresse raccourcie à l'écran est écrite en entier dans le fichier
+    if(c.querySelectorAll){var lien=[].filter.call(c.querySelectorAll("a[href^='http']"),function(a){return /…$/.test(a.textContent.trim())});
+      if(lien.length){c=c.cloneNode(true);[].forEach.call(c.querySelectorAll("a[href^='http']"),function(a){if(/…$/.test(a.textContent.trim()))a.textContent=a.href})}}
+    var v=c.textContent.replace(/[\s  ]+/g," ").trim();
+    if(/^[−-]?\d{1,3}( \d{3})+(,\d+)?$/.test(v))v=v.replace(/ /g,"");
+    v=v.replace(/^−(?=\d)/,"-");
+    return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+  function tableauCsv(t){
+    return "﻿"+[].filter.call(t.querySelectorAll("tr"),function(tr){return !tr.hidden&&tr.style.display!=="none"})
+      .map(function(tr){return [].map.call(tr.children,celluleCsv).join(";")}).join("\r\n")}
+  function citerTableaux(){
+    var main=document.querySelector("main");if(!main)return;
+    var porte=document.querySelector("[data-citation]"),base;
+    if(porte)base=porte.dataset.citation.replace(/\s*$/,"");
+    else{base=(main.dataset.citationPage||"").replace(/\s*$/,"");if(!base)return;
+      var adr=main.dataset.adresse;base+=(adr?", "+adr+location.pathname.replace(/\/index\.html$/,"/"):"")+"."}
+    main.querySelectorAll("table").forEach(function(t){
+      if(t.dataset.cite||t.closest(".citation-fig,.sommaire,details.versions,nav,figure"))return;t.dataset.cite="1";
+      var bloc=t.closest(".defile")||t;
+      var ligne=document.createElement("div");ligne.className="outils-figure outils-tableau";
+      var bc=document.createElement("button");bc.type="button";bc.className="citer-fig";bc.textContent="Citer et exporter";bc.setAttribute("aria-expanded","false");ligne.appendChild(bc);
+      bloc.before(ligne);
+      var boite=document.createElement("div");boite.className="citation-fig";boite.hidden=true;ligne.after(boite);
+      bc.onclick=function(){var ouvert=boite.hidden;bc.setAttribute("aria-expanded",String(ouvert));boite.hidden=!ouvert;if(!ouvert)return;
+        var titre=titreTableau(t),texte=base+(/[.]$/.test(base)?" ":". ")+"Tableau, « "+titre+" ».";
+        var nom=(titre.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,80)||"tableau").toLowerCase();
+        boite.innerHTML='<p></p><div class="citation-actions"><button type="button" data-a="cit">Copier la citation</button></div>'
+          +'<ul class="exports"><li><span class="nom"><span class="genre">Données</span> du tableau, telles qu’affichées</span><span class="citation-actions"><button type="button" data-a="csv">CSV</button></span></li></ul>'
+          +'<p class="small muted">Le fichier porte la citation de la page, merci de la joindre à toute reprise.</p>';
+        boite.querySelector("p").textContent=texte;
+        boite.querySelectorAll("button").forEach(function(b){b.onclick=function(){
+          if(b.dataset.a==="cit"){navigator.clipboard.writeText(texte).then(function(){b.textContent="Citation copiée"},function(){b.textContent="Copie impossible ici"});return}
+          enregistrer(new Blob([tableauCsv(t)+"\r\n\r\n"+celluleCsv({textContent:texte})],{type:"text/csv;charset=utf-8"}),nom+".csv");b.textContent="Enregistré"}})}})}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",citerTableaux);else citerTableaux();
 })();
