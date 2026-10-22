@@ -1065,42 +1065,66 @@ def _lieux(C: Contexte, famille):
         g = x[x["type"] == tid]
         if g.empty:
             continue
-        p = g["provenance"].value_counts()
         complet = bool(couv.at[tid, "complet"]) if tid in couv.index else False
-        # un type que FINESS ne distingue pas (unités hospitalières) n'a pas de provenance à comparer
-        sans_finess = tid not in lieux_mod._categories_propres()
-        lignes.append({"groupe": groupe, "libelle": lib, "n": len(g),
-                       "deux": None if sans_finess else int(p.get("les_deux", 0)),
-                       "finess": None if sans_finess else int(p.get("finess", 0)),
-                       "ror": None if sans_finess else int(p.get("ror", 0)),
-                       "sources": None if sans_finess else int(p.get("sources", 0)),
+        # trois classes de confirmation montrées au lecteur (décision de Lucas du 21 octobre 2026), la provenance
+        # (FINESS, ROR, les deux) et le détail par source restent dans la page méthode et lieux_soins.csv
+        from . import confirmation as conf_mod
+        etabli = "confirmation" in g and g["confirmation"].notna().any()
+        k = conf_mod.compter_classes(g["confirmation"]) if etabli else {}
+        lignes.append({"groupe": groupe, "libelle": lib, "n": len(g), "complet": complet,
+                       "part": couv.at[tid, "part_departements"] if tid in couv.index else None,
+                       "conf": k.get("confirmee") if etabli else None,
+                       "rec": (k.get("recoupee") if tid in conf_mod.TYPES_RECOUPES else "sans objet") if etabli else None,
+                       "abv": k.get("a_verifier") if etabli else None,
                        "dist": dfr.at[tid, "distance_mediane_km"] if complet and tid in dfr.index else None,
-                       "p30": dfr.at[tid, "part_plus_30_km"] if complet and tid in dfr.index else None,
-                       "precision": "aucune" if complet else f"recensé dans {pct(couv.at[tid, 'part_departements'])} des départements, "
-                                                       f"non comparé entre territoires"})
+                       "p30": dfr.at[tid, "part_plus_30_km"] if complet and tid in dfr.index else None})
     t = pd.DataFrame(lignes)
     n = lambda tid: int((x["type"] == tid).sum())  # noqa: E731
     if famille == SM:
         tete = (f"FINESS et le Répertoire opérationnel des ressources (ROR), réunis sans double compte, recensent "
                 f"{nombre(n('lieu_cmp'))} centres médico-psychologiques (CMP) distincts. "
                 + lieux_mod.phrase_publics_cmp(lieux_mod.repartition_cmp(L["lieux"], "fr").iloc[0])
-                + f" On compte aussi {nombre(n('lieu_cmpp'))} CMPP et {nombre(n('lieu_camsp'))} CAMSP.")
+                + _phrase_cmpp_camsp(x))
     else:
         tete = (f"FINESS et le Répertoire opérationnel des ressources (ROR), réunis sans double compte, recensent "
                 f"{nombre(n('lieu_urgences'))} services d'urgences, {nombre(n('lieu_maternite'))} maternités et "
                 f"{nombre(n('lieu_ehpad'))} EHPAD, parmi {nombre(len(x))} structures de santé de tous types.")
     f1 = lambda v: nombre(v, 1)  # noqa: E731
     L_ = ["### Structures de soins, FINESS et ROR réunis", "", tete, ""]
+    if t["conf"].notna().any():
+        L_ += ["Pour les types confrontés à des listes indépendantes de FINESS et du ROR, chaque structure est classée "
+               "selon ce qui la confirme. Confirmée, elle est nommée par une autre source (son établissement, la Haute "
+               "Autorité de santé, le répertoire Sirene, son site principal ou une vérification à la main). Recoupée par "
+               "la statistique des hôpitaux, c'est le nombre de CATTP de son hôpital, ou les places d'hôpital de jour de "
+               "son site, qui concorde avec la statistique annuelle des établissements de santé (SAE), que chaque hôpital "
+               "remplit pour la DREES, pas l'adresse. Ce recoupement n'existe que pour les CATTP et les hôpitaux de jour "
+               "(« sans objet » pour les autres types). À vérifier, elle n'est inscrite "
+               "que dans FINESS ou le ROR, ce qui ne veut pas dire qu'elle est fermée. Les trois colonnes refont le "
+               "nombre de structures, et restent vides pour les types dont le niveau n'est pas établi. Le détail par "
+               "source et la provenance de chaque inscription sont dans la page "
+               "« Méthode, données et limites » et dans lieux_soins.csv.", ""]
     for g in t["groupe"].drop_duplicates():
-        tg = t[t["groupe"] == g]
-        L_ += [f"#### {g}", "",
-               _tableau(tg, ["libelle", "n", "deux", "finess", "ror", "sources", "dist", "p30", "precision"],
-                        ["Type de structure", "Structures", "Dans les deux bases", "FINESS seul", "ROR seul",
-                         "Sources de l'établissement seules", "Distance médiane des habitants (km)",
-                         "Habitants à plus de 30 km", "Précision"],
-                        {"n": nombre, "deux": nombre, "finess": nombre, "ror": nombre, "sources": nombre, "dist": f1,
-                         "p30": pct},
-                        vide="sans objet"), ""]
+        tg = t[(t["groupe"] == g) & t["complet"]]
+        inc = t[(t["groupe"] == g) & ~t["complet"]]
+        L_ += [f"#### {g}", ""]
+        if len(tg):
+            avec = tg["conf"].notna().any()
+            cols = ["libelle", "n"] + (["conf", "rec", "abv"] if avec else []) + ["dist", "p30"]
+            tetes = (["Type de structure", "Structures"] + (["Confirmées", "Recoupées par la statistique des hôpitaux", "À vérifier"] if avec
+                                                            else []) + ["Distance médiane des habitants (km)",
+                                                                        "Habitants à plus de 30 km"])
+            L_ += [_tableau(tg, cols, tetes, {"n": nombre, "conf": nombre, "abv": nombre, "dist": f1,
+                                              "rec": lambda v: v if isinstance(v, str) else nombre(v),
+                                              "p30": pct}, vide=""), ""]
+        if len(inc):
+            L_ += [("Recensés dans une partie des départements seulement, donc listés sans être comparés entre "
+                    "territoires, " if len(tg) else "Recensés dans une partie des départements seulement, ")
+                   + ", ".join(f"{minuscule(r.libelle)} ({nombre(r.n)}, {pct(r.part)} des départements)"
+                               for r in inc.itertuples()) + ".", ""]
+    if famille == SM:
+        tx = tableau_exercice(L.get("exercice"), "fr", "FR", C.lab)
+        if tx:
+            L_ += ["#### Où exercent les professionnels de ces structures", ""] + tx
     refs = L.get("references")
     if famille == SANTE and isinstance(refs, pd.DataFrame) and len(refs):
         r = refs.assign(libelle=refs["type"].map({tp[0]: tp[1] for tp in config.LIEUX_TYPES}))
@@ -1260,19 +1284,77 @@ def _sans_cmp(L, noms) -> str:
         "comptées à part, d'où une part d'habitants éloignés qui n'y signifie pas l'absence de soins.")
 
 
+EXERCICE_COURTS = {"lieu_cmp": "CMP", "lieu_cattp": "CATTP", "lieu_cmpp": "CMPP", "lieu_camsp": "CAMSP",
+                    "lieu_csapa": "CSAPA", "lieu_caarud": "CAARUD", "ensemble": "Au moins une de ces structures"}
+
+
+def tableau_exercice(E, niveau: str, code: str, lab: dict) -> list:
+    """Personnes de chaque profession qui déclarent exercer dans une structure de santé mentale à numéro FINESS propre
+    (lieux.exercice_structures), une colonne par type, pour la France ou un territoire. Rien si le territoire n'en a pas."""
+    if not isinstance(E, pd.DataFrame) or E.empty:
+        return []
+    e = E[(E["niveau"] == niveau) & (E["code"] == code)]
+    if e.empty:
+        return []
+    t = e.pivot_table(index="prof", columns="type", values="personnes", aggfunc="sum", fill_value=0)
+    types = [k for k in config.LIEUX_EXERCICE_TYPES if k in t.columns] + ["ensemble"]
+    profs = [p for p in config.LIEUX_EXERCICE_PROFESSIONS if p in t.index and t.loc[p, "ensemble"] > 0]
+    if not profs:
+        return []
+    t = t.reindex(index=profs, columns=types, fill_value=0).reset_index()
+    t["libelle"] = t["prof"].map(lambda p: lab.get(p, p))
+    return ["Professionnels qui déclarent exercer dans une structure de santé mentale enregistrée sous son propre numéro "
+            "FINESS, en personnes distinctes. Une personne qui exerce dans deux types de structures compte dans chacun, "
+            "et une seule fois dans la dernière colonne. Beaucoup de soignants des CMP et des CATTP déclarent leur "
+            "hôpital de rattachement plutôt que la structure, ces nombres sont donc des minimums. Les hôpitaux de jour "
+            "et l'hospitalisation, qui partagent le numéro FINESS de leur hôpital, ne sont pas comptés ici.", "",
+            _tableau(t, ["libelle"] + types, ["Profession"] + [EXERCICE_COURTS[k] for k in types],
+                     {k: nombre for k in types}), "", "Détail par territoire dans exercice_structures.csv.", ""]
+
+
+def _phrase_cmpp_camsp(x) -> str:
+    """CMPP et CAMSP comptés en sites d'accueil, avec les structures principales (décision de Lucas du 16 octobre
+    2026, une antenne n'est pas une structure de plus)."""
+    from . import lieux as lieux_mod
+    parts = []
+    for tid, sigle in (("lieu_cmpp", "CMPP"), ("lieu_camsp", "CAMSP")):
+        g = x[x["type"] == tid]
+        if g.empty:
+            continue
+        s = f"{nombre(len(g))} sites de {sigle}"
+        if "role_structure" in g and g["role_structure"].notna().any():
+            s += f", dont {nombre(int((g['role_structure'] == 'structure').sum()))} structures principales"
+        parts.append(s)
+    out = (" On compte aussi " + " et ".join(parts) + ", les autres étant des antennes ou des sites "
+           "rattachés.") if parts else ""
+    c = lieux_mod.comptes_csapa(x)
+    if c:
+        n_ofdt, an, _src, _url = config.OFDT_CSAPA
+        out += (f" En addictologie, {nombre(c['lieux'])} lieux de CSAPA correspondent à {nombre(c['etablissements'])} "
+                f"établissements de FINESS, et à {nombre(c['principaux'])} en retirant ceux que leur nom désigne comme "
+                f"antenne, permanence ou consultation jeunes consommateurs, à rapprocher des {nombre(n_ofdt)} CSAPA du "
+                f"[bilan RECAP {an} de l'OFDT]({_url}), dont le mode de compte n'est pas publié.")
+    hop = x[x["type"] == "lieu_addicto_hosp"]
+    if "role_structure" in hop and (hop["role_structure"] == "equipe").any():
+        out += (f" Parmi les {nombre(len(hop))} unités d'addictologie à l'hôpital, "
+                f"{nombre(int((hop['role_structure'] == 'equipe').sum()))} sont des équipes de liaison, sans lieu "
+                f"propre, qui n'entrent pas dans les distances.")
+    return out
+
+
 def _phrase_confirmation(L):
     """Confirmation des CMP par la certification HAS, Sirene et les vérifications (pour aller plus loin)."""
     x = L.get("lieux")
     if not isinstance(x, pd.DataFrame) or "confirmation" not in x:
         return []
-    from . import confirmation as conf_mod
-    n = x.loc[x["type"] == "lieu_cmp", "confirmation"].value_counts()
-    t = int(n.sum())
-    if not t:
+    if not x.loc[x["type"] == "lieu_cmp", "confirmation"].notna().any():
         return []
-    return ["Confirmation des CMP par des listes indépendantes de FINESS et du ROR, sur " + nombre(t) + " CMP, "
-            + ", ".join(f"{conf_mod.NIVEAUX[k]} {nombre(int(n.get(k, 0)))}" for k in conf_mod.NIVEAUX)
-            + ". Détail dans lieux_soins.csv (colonne confirmation) et sirene_sans_correspondant.csv."]
+    out = ["Les classes de confirmation du tableau des structures réunissent plusieurs sources. Le détail par source "
+           "(établissement, autre source publique, Haute Autorité de santé, Sirene, site principal, vérification à la "
+           "main) est donné dans la page « Méthode, données et limites » et dans la colonne confirmation de "
+           "lieux_soins.csv. Les établissements Sirene sans structure correspondante sont dans "
+           "sirene_sans_correspondant.csv."]
+    return out
 
 
 def _phrase_relecture(L):
@@ -1306,9 +1388,9 @@ def _phrase_sae(L, famille):
 def _eloignement(C, L, famille):
     """Inégalités de distance aux structures de soins, selon le niveau de vie (escalier et indice de concentration) et selon
     le type de territoire (classes de densité), phrases descriptives, figure, tableau et lecture."""
-    from .graphiques import ELOIGNEMENT
+    from .lieux_profil import types_eloignement
     es, dfr = L.get("escalier"), (L.get("distances") or {}).get("fr")
-    tid = ELOIGNEMENT["sm" if famille == SM else "sante"][0]
+    tid = types_eloignement()["sm" if famille == SM else "sante"][0]
     if not isinstance(es, pd.DataFrame) or not isinstance(dfr, pd.DataFrame):
         return []
     t = es[es["type"] == tid].set_index("decile")
@@ -1817,9 +1899,11 @@ THEMES_CROISEMENTS = {
          "secteur2_revenu": "Dans les territoires aisés, l'offre de psychiatres est-elle plus chère ?",
          "enfance": "L'offre en psychiatrie de l'enfant suit-elle la protection de l'enfance ?",
          "trajet_suicide": "Les départements éloignés des CMP ont-ils plus de suicides, au-delà de la ruralité ?",
-         "lieux_psy": "Les CMP sont-ils plus nombreux là où les psychiatres libéraux manquent ?",
+         "lieux_psy": "Les CMP, CATTP et hôpitaux de jour sont-ils plus nombreux là où les psychiatres manquent ?",
          "lieux_enfants": "Les structures de soins pour enfants suivent-elles l'offre de psychiatres pour l'enfant ?",
-         "lieux_social": "Les habitants des départements modestes sont-ils plus loin des CMP ?"},
+         "lieux_social": "Les habitants des départements modestes sont-ils plus loin des CMP et des CSAPA ?",
+         "lieux_addicto": "Les structures d'addictologie sont-elles plus nombreuses là où plus de personnes sont "
+                          "prises en charge pour une addiction ?"},
     SANTE: {"reeducation": "L'offre libérale de rééducation suit-elle l'offre médico-sociale pour les enfants ?",
             "medecin_traitant": "Les patients sans médecin traitant sont-ils plus nombreux là où les généralistes "
                                 "libéraux manquent, ou là où la population est âgée ?",
@@ -1839,12 +1923,17 @@ COMMENT_CROISEMENTS = {
                    "psychomotricité est plus dense là où l'offre médico-sociale l'est aussi. Orthophonistes et "
                    "psychomotriciens soignent aussi des adultes et des personnes âgées, ce croisement ne décrit donc "
                    "qu'une partie de leur activité.",
-    "lieux_psy": "Les CMP sont comptés pour 100 000 habitants, FINESS et ROR réunis. Une corrélation négative "
-                 "indiquerait que les CMP sont plus nombreux là où les psychiatres libéraux manquent, sans dire que "
-                 "l'un compense l'autre, un CMP n'étant pas une capacité.",
+    "lieux_psy": "Les CMP, CATTP et hôpitaux de jour sont comptés pour 100 000 habitants, FINESS et ROR réunis. Une "
+                 "corrélation négative indiquerait qu'ils sont plus nombreux là où les psychiatres manquent, sans dire "
+                 "que l'un compense l'autre, une structure n'étant pas une capacité.",
+    "lieux_addicto": "Les personnes prises en charge pour une addiction (Assurance Maladie) mesurent le recours aux "
+                     "soins, pas le besoin, et dépendent en partie de l'offre elle-même. Les CSAPA et les CAARUD sont "
+                     "comptés pour 100 000 habitants, lieux d'accueil compris. Les addictologues sont les médecins "
+                     "qualifiés en addictologie déclarés au RPPS.",
     "lieux_enfants": "Les CMP pour enfants, les CMPP et les CAMSP sont comptés pour 100 000 habitants, FINESS et ROR "
                      "réunis, à côté des psychiatres qualifiés pour l'enfant et l'adolescent.",
-    "lieux_social": "La distance est celle qui sépare la moitié des habitants du CMP le plus proche, à vol d'oiseau. "
+    "lieux_social": "La distance est celle qui sépare la moitié des habitants du CMP ou du CSAPA le plus proche, à vol "
+                    "d'oiseau. "
                     "À densité de population égale, la comparaison porte sur des départements aussi ruraux l'un que "
                     "l'autre.",
     "lieux_urgences": "La distance aux urgences est celle qui sépare la moitié des habitants du service le plus proche, "

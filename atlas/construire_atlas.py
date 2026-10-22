@@ -74,6 +74,10 @@ def construire(src: Path, dest: Path, nav: str = "") -> Path:
                        **{k: {"risque": L["risque"], "texte": L["texte"], "sources": L["sources"],
                               "territoires": L.get("territoires", {})} for k, L in config.LIMITES.items()}}
     data["limites_alias"] = config.LIMITES_ALIAS
+    # glossaire relu de même dans pipeline/lecture.py, pour qu'une définition ajoutée paraisse dans « Comment lire »
+    if isinstance(data.get("meta"), dict):
+        from pipeline.lecture import GLOSSAIRE
+        data["meta"]["glossaire"] = [{"id": g[0], "terme": g[1], "definition": g[2], "famille": g[3]} for g in GLOSSAIRE]
     # rapports par territoire publiés à côté de l'atlas, pour y renvoyer depuis la fiche d'un territoire
     # l'atlas autonome (atlas/atlas.html) renvoie aux rapports publiés dans site/territoires
     dossier = Path(dest).parent / "territoires"

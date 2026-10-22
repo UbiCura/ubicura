@@ -17,7 +17,7 @@ import numpy as np
 
 from pipeline import analyses, build, concordance, config, evolution, export, lieux, mises_a_jour, site
 from pipeline.sources import (acces_route, ameli, ameli_acces, ameli_ald, apl, caf, drees_demographie, drees_isd, sae, complements,
-                              has_certification, sirene, finess, insee, insee_estimations, odisse, optionnels,
+                              has_certification, has_essms, sirene, finess, insee, insee_estimations, odisse, optionnels,
                               referentiel, ror, rpps)
 from pipeline.util import JOURNAL, detecter_separateur, premiere_ligne
 
@@ -89,7 +89,7 @@ def main(argv=None):
     offres = optionnels.offres_france_travail(ref, hl)
     # lieux de soins, FINESS et ROR réunis sans double compte (version 2, 12 octobre 2026)
     lieux_res = lieux.calculer(ror.charger(hl, rf), fin, act, ref, voisins, hl,
-                               has_certification.charger(hl, rf), sirene.charger(hl, rf))
+                               has_certification.charger(hl, rf), sirene.charger(hl, rf), has_essms.charger(hl, rf))
     # lieux pour 100 000 habitants et distances, ajoutés aux indicateurs de contexte pour être croisés
     src_lieux = lieux.indicateurs(lieux_res, ref, ctx) if contexte else None
     if src_lieux:
@@ -107,6 +107,10 @@ def main(argv=None):
                                            voisins, hop, np.random.default_rng(config.GRAINE))
         lieux_res["concordance_sae"] = lieux.concordance_sae(lieux_res, hop, ref)
         lieux_res["concordance_etablissements"] = lieux.concordance_etablissements(lieux_res, hop, fin)
+        from pipeline import confirmation
+        lieux_res["lieux"] = confirmation.confirmer_par_sae(lieux_res["lieux"], lieux_res["concordance_etablissements"],
+                                                            hop)
+        lieux_res["concordance_cattp"] = lieux.concordance_cattp(lieux_res, hop, ref)
 
     act, professions = build.perimetre_elargi(act, fin, professions)
     agg = build.agreger(act, ref, fin, lieux_res)

@@ -214,9 +214,12 @@ def _lieux_csv(agg, noms, lab, out: Path):
         "verification": x.get("statut_verification", pd.Series(index=x.index, dtype=object)).map(sv.STATUTS),
         "source_verification": x.get("source_verification"), "adresse_source_verification": x.get("adresse_source"),
         "date_verification": x.get("date_verification"),
+        "classe_confirmation": x.get("confirmation", pd.Series(index=x.index, dtype=object)).map(conf_mod.classe)
+        .map(conf_mod.CLASSES),
         "confirmation": x.get("confirmation", pd.Series(index=x.index, dtype=object)).map(conf_mod.NIVEAUX),
         "site_certification_has": x.get("confirmee_has"), "siret_sirene": x.get("siret_sirene"),
         "enseigne_sirene": x.get("enseigne_sirene"), "adresse_sirene": x.get("adresse_sirene"),
+        "role": x.get("role_structure", pd.Series(index=x.index, dtype=object)).map(lieux_mod.ROLES),
         "verdict": x.get("verdict"), "examen": x.get("examen"), "lieu": x["lieu"]})
     pros = L["pros"].add_prefix("declares_")
     t = t.merge(pros, left_on="lieu", right_index=True, how="left")
@@ -315,11 +318,22 @@ def _lieux_csv(agg, noms, lab, out: Path):
         cols = ["niveau", "code", "nom", "cmp", "adultes", "enfants", "les_deux", "non_precise", "unites_ror", "sae_cmp",
                 "sae_adultes", "sae_enfants", "ecart_relatif"]
         _csv(cs.assign(nom=nom)[[c for c in cols if c in cs or c == "nom"]], out / "concordance_cmp_sae.csv")
+    ex = L.get("exercice")
+    if isinstance(ex, pd.DataFrame) and len(ex):
+        from .rapport import EXERCICE_COURTS
+        nom = [noms[n].set_index("code")["nom"].get(c, "") if n in noms else "France" for n, c in zip(ex["niveau"], ex["code"])]
+        _csv(ex.assign(nom=nom, libelle_type=ex["type"].map(EXERCICE_COURTS))[
+            ["niveau", "code", "nom", "type", "libelle_type", "prof", "personnes"]], out / "exercice_structures.csv")
     ce = L.get("concordance_etablissements")
     if isinstance(ce, pd.DataFrame) and len(ce):
         _csv(ce[["ej", "nom", "dep_siege", "sae_cmp", "sae_adultes", "sae_enfants", "ici_cmp", "ici_adultes", "ici_enfants",
-                 "unites_ror", "sae_cattp", "ici_cattp", "ecart", "statut"]].sort_values(["statut", "ecart"]),
-             out / "concordance_cmp_etablissements.csv")
+                 "unites_ror", "sae_cattp", "ici_cattp", "ecart", "statut", "statut_cattp"]]
+             .sort_values(["statut", "ecart"]), out / "concordance_cmp_etablissements.csv")
+    cc = L.get("concordance_cattp")
+    if isinstance(cc, pd.DataFrame) and len(cc):
+        nom = [noms[n].set_index("code")["nom"].get(c, "") if n in noms else "France" for n, c in zip(cc["niveau"], cc["code"])]
+        _csv(cc.assign(nom=nom)[["niveau", "code", "nom", "cattp", "sae_cattp", "sae_cattp_adultes", "sae_cattp_enfants",
+                                 "ecart_relatif", "concordance"]], out / "concordance_cattp_sae.csv")
     rl = L.get("relecture")
     if isinstance(rl, pd.DataFrame) and len(rl):
         _csv(rl, out / "relecture_structures.csv")
@@ -383,8 +397,15 @@ def _lieux_points(agg, ref):
     pros = L["pros"]
     psy = [c for c in ("psychiatre", "pedopsychiatre", "psychologue", "infirmier", "orthophoniste", "psychomotricien")
            if c in pros]
+    # niveau de confirmation (confirmation.NIVEAUX), public des CMP et signaux (antenne, CATTP au même lieu qu'un CMP),
+    # pour l'encadré des structures d'un territoire et les points creux de la carte (16 octobre 2026)
+    from . import confirmation as conf_mod
+    niveaux = list(conf_mod.NIVEAUX)
+    conf = x["confirmation"] if "confirmation" in x else pd.Series(None, index=x.index, dtype=object)
+    publics, antennes = _publics_cmp(L["lieux"])
+    meme_lieu = _cattp_meme_lieu_cmp(L["lieux"])
     pts = []
-    for r in x.itertuples():
+    for r, cf in zip(x.itertuples(), conf):
         # professionnels déclarés sur place, 0 quand le lieu a un numéro FINESS mais personne de ces professions,
         # rien quand le lieu n'a pas de numéro FINESS propre (inconnu)
         dec = pros.loc[r.lieu, psy].astype(int).tolist() if r.lieu in pros.index else None
@@ -395,7 +416,11 @@ def _lieux_points(agg, ref):
         pts.append([ordre[r.type], int(round(r.lat * 1e4)), int(round(r.lon * 1e4)), inom[r.nom_affiche or ""],
                     r.commune, prov.index(r.provenance), prec.index(r.precision) if r.precision in prec else len(prec) - 1,
                     dec, r.epci if isinstance(r.epci, str) else "", r.dep if isinstance(r.dep, str) else "",
-                    r.reg if isinstance(r.reg, str) else ""])
+                    r.reg if isinstance(r.reg, str) else "",
+                    niveaux.index(cf) if cf in niveaux else None,
+                    publics.get(r.lieu, "") if r.type == "lieu_cmp" else "",
+                    (1 if r.type == "lieu_cmp" and r.lieu in antennes else 0)
+                    + (2 if r.type == "lieu_cattp" and r.Index in meme_lieu else 0)])
     return {"types": [{"id": tp[0], "lib": tp[1], "famille": tp[2], "groupe": tp[3],
                        "complet": bool(couv.at[tp[0], "complet"]) if tp[0] in couv.index else False,
                        "part": _r(couv.at[tp[0], "part_departements"]) if tp[0] in couv.index else None}
@@ -407,7 +432,14 @@ def _lieux_points(agg, ref):
             "fr": {r.type: [_r(r.distance_mediane_km, 1), _r(r.part_plus_20_km, 4), _r(r.part_plus_30_km, 4)]
                    for r in ((L.get("distances") or {}).get("fr", pd.DataFrame(columns=["type"]))).itertuples()},
             "communes": ref.communes[ref.communes["code"].isin(set(x["commune"]))].set_index("code")["nom"].to_dict(),
-            "champs": ["type", "lat", "lon", "nom", "commune", "provenance", "precision", "declares", "epci", "dep", "reg"],
+            "champs": ["type", "lat", "lon", "nom", "commune", "provenance", "precision", "declares", "epci", "dep", "reg",
+                       "confirmation", "public", "signaux"],
+            # niveaux de confirmation, libellé court, et types pour lesquels le niveau est établi
+            "confirmations": [{"id": k, "lib": conf_mod.NIVEAUX_COURTS.get(k, conf_mod.NIVEAUX[k]),
+                               "confirme": k != "bases", "classe": conf_mod.classe(k)} for k in niveaux],
+            "classes": [{"id": k, "lib": v} for k, v in conf_mod.CLASSES.items()],
+            "types_recoupes": sorted(conf_mod.TYPES_RECOUPES),
+            "types_confirmes": sorted(set(x.loc[conf.notna(), "type"])),
             # inégalités de distance (12 octobre 2026), escalier selon le niveau de vie, classes de densité, indice de
             # concentration avec sa fourchette, lieux décrits dans les groupes de la typologie
             "escalier": _enregistrements(L.get("escalier"), ["type", "decile", "niveau_de_vie_min", "niveau_de_vie_max",
@@ -420,6 +452,42 @@ def _lieux_points(agg, ref):
             "typologie": _enregistrements(getattr(agg, "typologie_lieux", None),
                                           ["famille", "classe", "type", "lieux_pour_100000", "indice_vs_national",
                                            "distance_mediane_km"])}
+
+
+def _publics_cmp(x: pd.DataFrame) -> tuple[dict, set]:
+    """Public de chaque CMP, « a » adultes, « e » enfants et adolescents, « d » les deux, « n » non précisé, selon les
+    types enfants où il figure (même règle que lieux.repartition_cmp), et CMP qui sont des antennes ou permanences."""
+    from . import lieux as lieux_mod
+    c = x[x["type"] == "lieu_cmp"]
+    ad = set(x.loc[x["type"] == "lieu_cmp_adultes", "lieu"])
+    en = set(x.loc[x["type"] == "lieu_cmp_enfants", "lieu"])
+    pub = {k: ("d" if k in ad and k in en else "a" if k in ad else "e" if k in en else "n") for k in c["lieu"]}
+    noms = (c["nom"] if "nom" in c else pd.Series("", index=c.index)).fillna(
+        c["nom_finess"] if "nom_finess" in c else "").fillna("")
+    ant = set(c.loc[noms.map(lieux_mod._simple).str.contains(lieux_mod._ANTENNE), "lieu"])
+    return pub, ant
+
+
+def _cattp_meme_lieu_cmp(x: pd.DataFrame) -> set:
+    """Index des CATTP à l'adresse d'un CMP (même adresse normalisée, même commune, même gestionnaire quand les deux en
+    ont un). Ils restent comptés à part, un CATTP étant le lieu d'activité déclaré, et sont signalés (décision de Lucas
+    du 16 octobre 2026). Un CATTP annoncé par le nom d'un CMP compte aussi comme tel."""
+    from .util import norm
+    if "adresse" not in x:
+        return set()
+    cle = x["adresse"].map(lambda a: norm(a) if isinstance(a, str) and a.strip() else "") + "|" + x["commune"].astype(str)
+    ej = x["ej"].fillna("") if "ej" in x else pd.Series("", index=x.index)
+    cmp_ = (x["type"] == "lieu_cmp") & ~cle.str.startswith("|")
+    par_cle = {}
+    for k, e in zip(cle[cmp_], ej[cmp_]):
+        par_cle.setdefault(k, set()).add(e)
+    out = set()
+    for i in x.index[(x["type"] == "lieu_cattp")]:
+        k, e = cle[i], ej[i]
+        if x.at[i, "provenance"] == "nom_cmp" or (not k.startswith("|") and k in par_cle
+                                                  and (not e or "" in par_cle[k] or e in par_cle[k])):
+            out.add(i)
+    return out
 
 
 def _verifications_site():
@@ -501,6 +569,19 @@ def _parcours_site(agg, professions):
     cols = ["inscrits", "avec_activite", "sans_lieu", "avec_lieu", "sans_soins_seulement", "a_distance_seulement",
             "dans_densites"]
     return {r["prof"]: [None if c not in r or pd.isna(r[c]) else int(r[c]) for c in cols] for _i, r in t.iterrows()}
+
+
+def _exercice_atlas(L, top) -> dict:
+    """Professionnels déclarés dans les structures de santé mentale à numéro FINESS propre, pour l'encadré « Où ils
+    exercent » de l'atlas (France et départements, mêmes clés que les secteurs)."""
+    ex = (L or {}).get("exercice")
+    if not isinstance(ex, pd.DataFrame) or ex.empty:
+        return {}
+    from .rapport import EXERCICE_COURTS
+    e = ex[ex["niveau"].isin(["fr", "dep"]) & (ex["type"] != "ensemble")]
+    e = e.assign(code=e["code"].where(e["niveau"] != "fr", "FR"), n=e["personnes"],
+                 type_lib=e["type"].map(EXERCICE_COURTS))
+    return top(e, "type_lib")
 
 
 def _site(agg, ref, professions, insee, R, serie, jour):
@@ -678,6 +759,7 @@ def _site(agg, ref, professions, insee, R, serie, jour):
                    "n": {p: [int(nat.at[p, m]) if (p in nat.index and m in nat.columns) else 0 for m in ["lib", "sal", "all"]]
                          for p in professions["id"]}},
         "secteurs": top(agg.secteurs[agg.secteurs["niveau"].isin(["FR", "dep"])], "secteur"),
+        "exercice": _exercice_atlas(getattr(agg, "lieux", None), top),
         "categories": top(agg.categories, "categorie"),
         "structures": struct,
         "correlations": corr,

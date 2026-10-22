@@ -1211,36 +1211,8 @@ def _verification_cmp(L, T):
     v = verifications_lieux.phrases_md(verifications_lieux.charger(), T.get("deps") or [code] if niv == "reg" else [code])
     if v:
         out += ["**Vérifié sur d'autres sources.** " + " ".join(v), ""]
-    # confirmation de chaque CMP par des listes officielles (certification HAS, Sirene) ou par une vérification
-    xl = L["lieux"]
-    if "confirmation" in xl:
-        xc = xl[(xl[niv] == code) & (xl["type"] == "lieu_cmp")]
-        nc_ = xc["confirmation"].value_counts()
-        if len(xc):
-            v_ = int(nc_.get("etablissement", 0) + nc_.get("source_publique", 0))
-            o_ = int(nc_.get("has_sirene", 0) + nc_.get("has", 0) + nc_.get("sirene", 0))
-            e_ = int(nc_.get("examinee", 0))
-            b_ = int(nc_.get("bases", 0))
-            out += [f"**Confirmation des CMP.** Sur les {nombre(len(xc))} CMP du territoire, {nombre(v_)} "
-                    f"{'est vérifié' if v_ == 1 else 'sont vérifiés'} sur les sources de leur établissement, "
-                    f"{nombre(o_)} {'est confirmé' if o_ == 1 else 'sont confirmés'} par la liste des sites de "
-                    f"certification de la HAS ou par le répertoire Sirene, "
-                    + (f"{nombre(e_)} {'a été examiné' if e_ == 1 else 'ont été examinés'} à la main et "
-                       f"{'maintenu' if e_ == 1 else 'maintenus'}, " if e_ else "")
-                    + f"et {nombre(b_)} "
-                    f"{'reste' if b_ == 1 else 'restent'} à vérifier (inscrits dans FINESS ou le ROR seulement). "
-                    f"Le niveau de chaque CMP est dans la colonne confirmation de lieux_soins.csv.", ""]
-    # structures reprises une à une sur les sources des établissements (liste vérifiée)
-    if "verifiee" in xl:
-        xv = xl[(xl[niv] == code) & (xl["type"] == "lieu_cmp")]
-        nv = int(xv["verifiee"].sum())
-        if nv:
-            st = xv.loc[xv["verifiee"], "statut_verification"].value_counts()
-            out += [f"**Liste vérifiée.** {nombre(nv)} des {nombre(len(xv))} CMP du territoire viennent de la liste "
-                    f"reprise une à une sur les sources de leur établissement, dont {nombre(int(st.get('etablissement', 0)))} "
-                    f"confirmés par l'établissement, {nombre(int(st.get('source_publique', 0)))} par une autre source "
-                    f"publique et {nombre(int(st.get('bases', 0)))} seulement inscrits dans FINESS ou le ROR. Les autres "
-                    f"viennent de la réunion de FINESS et du ROR. Détail dans la page méthode et dans lieux_soins.csv.", ""]
+    # confirmation des CMP, montrée en trois classes dans le tableau des structures de soins (décision de Lucas du
+    # 21 octobre 2026, les paragraphes « Confirmation des CMP » et « Liste vérifiée » répétaient les mêmes chiffres)
     if isinstance(cs, pd.DataFrame):
         r = cs[(cs["niveau"] == niv) & (cs["code"] == code)]
         if len(r) and isinstance(r.iloc[0].get("concordance"), str):
@@ -1261,18 +1233,18 @@ def _verification_cmp(L, T):
     if e.empty:
         return out
     e = e.sort_values(["statut", "nom"])
-    e = e.assign(sae=e["sae_adultes"].map(nombre) + " et " + e["sae_enfants"].map(nombre),
-                 ici=e["ici_adultes"].map(nombre) + " et " + e["ici_enfants"].map(nombre))
     ecarts = int(e["statut"].isin(["moins ici qu'à la SAE", "plus ici qu'à la SAE"]).sum())
-    out += ["<details>", f"<summary>Vérification établissement par établissement ({nombre(len(e))} établissements, "
-                         f"{nombre(ecarts)} en écart)</summary>", "",
-            _tableau(e, ["nom", "sae", "ici", "unites_ror", "statut"],
-                     ["Établissement gestionnaire", "CMP déclarés à la SAE (adultes et enfants)",
-                      "CMP recensés ici (adultes et enfants)", "Unités de CMP au ROR", "Constat"],
-                     {"unites_ror": nombre}), "",
-            "Les CMP d'un établissement sont ceux que FINESS ou le ROR rattachent à son entité juridique, où qu'ils soient. "
-            "Un écart signale une différence entre les sources, à vérifier, pas une erreur de l'établissement. Détail "
-            "pour toute la France dans concordance_cmp_etablissements.csv.", "", "</details>", ""]
+    out += ["<details>", f"<summary>CMP de chaque établissement, recensés ici et déclarés à la SAE "
+                         f"({nombre(len(e))} établissements, {nombre(ecarts)} en écart)</summary>", "",
+            "Pour chaque établissement gestionnaire, le nombre de CMP recensés ici (FINESS et ROR réunis, où qu'ils "
+            "soient) est rapproché du nombre qu'il déclare à la statistique annuelle des établissements de santé (SAE). "
+            "Les deux concordent quand l'écart ne dépasse pas 20 % ou un CMP. Un écart signale une différence entre les "
+            "sources, à vérifier, pas une erreur de l'établissement.", "",
+            _tableau(e, ["nom", "ici_cmp", "sae_cmp", "statut"],
+                     ["Établissement gestionnaire", "CMP recensés ici", "CMP déclarés à la SAE", "Constat"],
+                     {"ici_cmp": nombre, "sae_cmp": nombre}), "",
+            "Détail pour toute la France, avec la répartition entre adultes et enfants, dans "
+            "concordance_cmp_etablissements.csv.", "", "</details>", ""]
     return out
 
 
@@ -1296,8 +1268,17 @@ def _lieux(B, T, famille):
     for tid, lib, fam, groupe, _r in config.LIEUX_TYPES:
         if fam != famille or tid not in couv.index or not couv.at[tid, "complet"]:
             continue
-        n = int((x["type"] == tid).sum())
+        g = x[x["type"] == tid]
+        n = len(g)
+        # trois classes de confirmation (décision de Lucas du 21 octobre 2026), pour les types où le niveau est établi
+        from . import confirmation as conf_mod
+        cf = g["confirmation"] if "confirmation" in g else pd.Series(dtype=object)
+        etabli = "confirmation" in x and L["lieux"].loc[L["lieux"]["type"] == tid, "confirmation"].notna().any()
+        k = conf_mod.compter_classes(cf) if etabli else {}
         lignes.append({"libelle": lib, "n": n, "p100k": n / pop * 1e5 if pop else None,
+                       "conf": k.get("confirmee") if etabli else None,
+                       "rec": (k.get("recoupee") if tid in conf_mod.TYPES_RECOUPES else "sans objet") if etabli else None,
+                       "abv": k.get("a_verifier") if etabli else None,
                        "dist": d_ici.at[tid, "distance_mediane_km"] if tid in d_ici.index else None,
                        "dist_fr": d_fr.at[tid, "distance_mediane_km"] if tid in d_fr.index else None,
                        "p30": d_ici.at[tid, "part_plus_30_km"] if tid in d_ici.index else None})
@@ -1310,10 +1291,27 @@ def _lieux(B, T, famille):
            f"FINESS et le Répertoire opérationnel des ressources (ROR), réunis sans double compte, recensent dans {lieu} "
            f"les structures suivantes. La distance est celle qui sépare la moitié des habitants de la structure la plus proche, à vol "
            f"d'oiseau depuis le centre de leur commune, y compris quand cette structure se trouve hors du territoire.", "",
-           _tableau(t, ["libelle", "n", "p100k", "dist", "dist_fr", "p30"],
-                    ["Type de structure", "Structures", "Pour 100 000 hab.", "Distance médiane (km)", "France, distance médiane",
-                     "Habitants à plus de 30 km"],
-                    {"n": nombre, "p100k": f1, "dist": f1, "dist_fr": f1, "p30": pct}, vide="non calculé"), ""]
+           _tableau(t, ["libelle", "n", "conf", "rec", "abv", "p100k", "dist", "dist_fr", "p30"],
+                    ["Type de structure", "Structures", "Confirmées", "Recoupées par la statistique des hôpitaux", "À vérifier",
+                     "Pour 100 000 hab.", "Distance médiane (km)", "France, distance médiane", "Habitants à plus de 30 km"],
+                    {"n": nombre, "conf": nombre, "rec": lambda v: v if isinstance(v, str) else nombre(v), "abv": nombre, "p100k": f1, "dist": f1, "dist_fr": f1,
+                     "p30": pct}, vide=""), ""]
+    if t["conf"].notna().any():
+        out += ["Confirmées, recoupées et à vérifier refont le nombre de structures. Une structure confirmée est nommée "
+                "par une source indépendante de FINESS et du ROR (son établissement, la Haute Autorité de santé, le "
+                "répertoire Sirene, son site principal ou une vérification à la main). Recoupée par la statistique des "
+                "hôpitaux (statistique annuelle des établissements de santé, SAE, remplie par chaque hôpital pour la "
+                "DREES), seulement pour les CATTP et les hôpitaux de jour, c'est le "
+                "nombre de CATTP de son hôpital, ou les places d'hôpital de jour de son site, qui concorde avec la "
+                "statistique annuelle des établissements de santé, pas l'adresse. À vérifier, elle n'est inscrite que "
+                "dans FINESS ou le ROR, ce qui ne veut pas dire qu'elle est fermée. Les cases vides désignent les types "
+                "dont le niveau de confirmation n'est pas établi. Le détail par source est dans lieux_soins.csv et la "
+                "page « Méthode, données et limites ».", ""]
+    if famille == SM:
+        from .rapport import tableau_exercice
+        tx = tableau_exercice(L.get("exercice"), niv, code, B.lab)
+        if tx:
+            out += ["### Où exercent les professionnels de ces structures", ""] + tx
     if famille == SM:
         from . import lieux as lieux_mod
         rc = lieux_mod.repartition_cmp(L["lieux"][L["lieux"][niv] == code], niv)

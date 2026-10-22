@@ -223,6 +223,42 @@ tbody tr:hover td{filter:brightness(.97)}
 .lieuinfo{border-left:3px solid var(--accent);margin:4px 16px 8px;padding:2px 0}
 button.lien{background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit}
 .liste-lieux{color:var(--muted);font-size:12.5px;margin:0 0 6px}
+.legend .legende-lieux .lx-leg,.lx-legende .lx-leg{display:inline-flex;align-items:center;gap:4px;color:var(--ink)}
+.lx-legende{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;color:var(--muted);margin:8px 0 10px}
+/* point creux, anneau seul, le territoire se voit au centre, un liseré de la couleur du fond le détache des aplats clairs */
+svg.map circle.lieu.creux{filter:drop-shadow(0 0 .35px var(--panel)) drop-shadow(0 0 .35px var(--panel))}
+.sym-conf{flex:none;vertical-align:-1px;width:12px!important;height:12px!important;max-width:none;display:inline-block}
+.lieuxzone h2{scroll-margin-top:200px}
+.lieuxzone h2:focus{outline:none}
+.lieuxzone .phrase{max-width:80ch}
+.lx-corps{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:8px 28px;align-items:start}
+.lx-droite{position:sticky;top:200px;display:flex;flex-direction:column;gap:6px}
+.lx-droite select{max-width:100%}
+.lx-droite svg{border-radius:4px}
+.lx-droite .lx-legende{margin:2px 0 0}
+.lx-droite .lieuinfo{margin:2px 0 0;padding:2px 0 2px 10px}
+@media (max-width:900px){.lx-corps{grid-template-columns:minmax(0,1fr)}.lx-droite{position:static;order:-1}}
+.lx-table th,.lx-table td{white-space:normal}
+.lx-table thead th{text-align:right;color:var(--muted);font-weight:600;font-size:.8rem;white-space:nowrap}
+.lx-table thead th:first-child{text-align:left;position:static;background:none}
+.lx-table thead th .sym-conf{color:var(--ink)}
+.lx-table tbody tr{cursor:default}
+.lx-table tbody tr:hover td{filter:none}
+.lx-table td:first-child{min-width:170px;max-width:none}
+.lx-table td:first-child{position:static;background:none}
+button.lien.lx-ouvrir{font-size:.8rem;margin-top:2px;display:inline-block;white-space:nowrap;color:var(--ink);text-decoration-color:var(--accent);text-underline-offset:3px}
+.lx-table tr.lx-groupe th{text-align:left;font-size:.78rem;color:var(--muted);font-weight:600;padding-top:14px;position:static;background:none}
+.lx-table td.lx-nonetabli{text-align:center;font-size:.8rem}
+.lx-table tr.lx-note td,.lx-table tr.lx-liste td{position:static;text-align:left;font-size:.8rem;color:var(--muted);padding-top:0}
+.lx-liste ul{list-style:none;margin:4px 0 6px;padding:0;columns:2 20em;column-gap:28px}
+@media (max-width:560px){.lx-table th,.lx-table td{padding:6px 5px}.lx-table td:first-child{min-width:0}.lx-table thead th{font-size:.7rem;min-width:0;padding:6px 4px;white-space:normal}}
+.lx-liste li{break-inside:avoid;margin:0 0 5px;line-height:1.35;color:var(--muted)}
+.lx-item{background:none;border:0;padding:0;font:inherit;color:var(--ink);cursor:pointer;text-align:left;display:block;width:100%;line-height:1.35}
+.lx-item .sym-conf{margin-right:5px}
+.lx-item span.nom{text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.lx-item:hover span.nom{text-decoration-color:var(--accent)}
+.lx-item:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .sig-leg{display:inline-flex!important;align-items:center;gap:5px;flex:0 1 auto;min-width:0;width:auto!important}
 .sig-leg svg{flex:none;width:13px!important;height:13px!important;max-width:none}
 .cherche label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:4px}
@@ -339,9 +375,10 @@ dl.gl dt{font-weight:600;margin-top:12px}dl.gl dd{margin:2px 0 0;max-width:75ch}
       <div class="panel pad defile" id="natCard" tabindex="0" aria-label="Chiffres de la France entière"></div>
     </div></div>
     <div class="panel pad selzone hidden" id="selCard" aria-live="polite"></div>
+    <div class="panel pad selzone lieuxzone hidden" id="lieuxCard" role="region" aria-label="Structures de soins de ce territoire"></div>
   </div>
   <div class="two" style="margin-top:24px;align-items:start">
-    <div class="panel pad" data-repli="exercice"><h2>Où ils exercent <button class="how" data-how="modes,rpps">Comment lire</button></h2><div class="howtxt hidden"></div><p class="note" id="secNote"></p><div class="hbars" id="secBars"></div></div>
+    <div class="panel pad" data-repli="exercice"><h2>Où ils exercent <button class="how" data-how="modes,rpps">Comment lire</button></h2><div class="howtxt hidden"></div><p class="note" id="secNote"></p><div class="hbars" id="secBars"></div><div id="exBloc" hidden><h3>Dans les structures de santé mentale</h3><p class="note" id="exNote"></p><div class="hbars" id="exBars"></div></div></div>
     <div class="panel pad" data-repli="etablissements"><h2>Dans quels établissements <button class="how" data-how="elargi,libelles">Comment lire</button></h2><div class="howtxt hidden"></div><p class="note" id="catNote"></p><div class="hbars" id="catBars"></div><h3>Structures qui en réunissent le plus</h3><ol class="small" id="structs" style="padding-left:1.3em;margin:0"></ol></div>
   </div>
   <div class="panel pad" data-repli="parcours" style="margin-top:24px"><h2>Du répertoire aux densités</h2>
@@ -605,6 +642,8 @@ const GRAPHES=[...document.querySelectorAll('svg[role="img"][id]')].map(x=>x.id)
 function titreGraphe(id){
   if(id==="map"){const mb=document.querySelector('#metricSeg [aria-pressed="true"]');return "Carte, "+pluriel(profLab(S.prof))+", "+(mb?mb.textContent.toLowerCase():"")+", par "+({reg:"région",dep:"département",epci:"intercommunalité"}[S.level])}
   if(id==="scatter"){const cx=IDX.ctx.find(c=>c.id===S.xvar),cy=S.yvar?IDX.ctx.find(c=>c.id===S.yvar):null;return "Nuage de points, "+(cy?minuscule(cy.label):pluriel(profLab(S.prof)))+" et "+(cx?minuscule(cx.label):"")+", par "+(S.level==="dep"?"département":"intercommunalité")}
+  if(id==="lxCarte"){const u=S.sel&&D.niveaux[S.sel.lv].units[IDX[S.sel.lv].get(S.sel.c)],o=document.getElementById("lxType")?.selectedOptions[0];
+    return "Plan des structures de soins, "+(o?minLib(o.textContent.replace(/\s*\(\d[\d\s\u202f]*\)$/,"")):"")+(u?", "+u.nm:"")+", FINESS et ROR réunis"}
   if(id==="tmap")return "Carte des groupes de territoires, "+({sm:"santé mentale",sante:"santé",tout:"toute l’offre"}[famCle()]||"")+", par intercommunalité";
   if(id==="regPlot"){const r=document.getElementById("regRes");return "Régression multiple, "+(r&&r.selectedOptions[0]?minuscule(r.selectedOptions[0].textContent):"")+", par département"}
   // titre du panneau, puis la profession quand la figure en dépend, puis le choix fait dans le menu du panneau
@@ -634,6 +673,7 @@ function svgExport(id,citation){
   const vb=src.viewBox.baseVal,ns="http://www.w3.org/2000/svg",fs=Math.max(10,vb.width/75);
   // légende des cartes, recopiée depuis la légende affichée sous la carte (HTML)
   const leg=[],lg=id==="map"?document.getElementById("legend"):id==="tmap"?document.getElementById("tyLegende"):null;
+  if(id==="lxCarte")leg.push({cle:css("--ink"),t:"Point plein, structure confirmée par une source indépendante de FINESS et du ROR"},{t:"Point creux, structure inscrite dans FINESS ou le ROR seulement, à vérifier"});
   if(id==="regPlot")leg.push({cle:css("--r4"),t:"Lien positif"},{cle:css("--d1"),t:"Lien négatif"},{t:"Point et trait, départements de l’Hexagone avec leur fourchette plausible à 95 %, couleur pâle si la fourchette englobe zéro."},{cle:css("--muted"),t:"Losange gris, sans l’Île-de-France"});
   if(lg&&id==="tmap")lg.querySelectorAll("li").forEach(li=>leg.push({cle:getComputedStyle(li.querySelector("i")).backgroundColor,t:li.querySelector("span").textContent}));
   else if(lg)[...lg.children].forEach(el=>{
@@ -849,7 +889,7 @@ function mapInit(svgId){
     .filter(ev=>!Mx.tuiles&&(ev.type==="wheel"||(!ev.button&&ev.type!=="dblclick")))
     .on("zoom",ev=>{zoomable.attr("transform",ev.transform);svg.classed("zoome",ev.transform.k>1);hideTip();
       zoomable.selectAll("g.fragile").attr("transform",function(){return "translate("+this.dataset.x+","+this.dataset.y+") scale("+1/ev.transform.k+")"});
-      zoomable.selectAll("circle.lieu").attr("r",d=>(d===LIEU_CHOISI?5:2.4)/ev.transform.k).attr("stroke-width",.6/ev.transform.k);
+      zoomable.selectAll("circle.lieu").attr("r",d=>rayonLieu(d)/ev.transform.k).attr("stroke-width",d=>traitLieu(d)/ev.transform.k);
       visibiliteLieux(Mx)});
   svg.call(Mx.zoom).on("dblclick.zoom",null);
   return Mx;
@@ -964,6 +1004,15 @@ function drawMap(){
 // couleurs. Un clic repère le lieu et affiche sa fiche sous la carte, sans zoom (règle du 5 octobre 2026).
 const LX=D.lieux||null;
 let LIEU_CHOISI=null;
+// niveau de confirmation de chaque structure (pipeline/confirmation.py), point creux pour une structure inscrite dans
+// FINESS ou le ROR que rien d'autre ne confirme encore, point plein sinon (décision de Lucas du 15 octobre 2026)
+const CONF=LX?.confirmations||[],CONF_BASES=CONF.findIndex(c=>c.id==="bases");
+// trois classes montrées au lecteur (décision de Lucas du 21 octobre 2026), confirmée (point plein), recoupée par la SAE
+// (point à demi rempli, le nombre ou l'activité du site est confirmé, pas l'adresse), à vérifier (point creux)
+const classeDe=d=>d[11]!=null?(CONF[d[11]]?.classe||null):null;
+const creux=d=>classeDe(d)==="a_verifier",recoupe=d=>classeDe(d)==="recoupee",confirme=d=>classeDe(d)==="confirmee";
+const typeConfirme=id=>(LX?.types_confirmes||[]).includes(id);
+const rayonLieu=d=>d===LIEU_CHOISI?5:creux(d)?2.7:2.4,traitLieu=d=>creux(d)?1.2:.6;
 // libellé en minuscule sauf les sigles (« CMP pour adultes » reste tel quel)
 const minLib=s=>/^[A-ZÉ]{2}/.test(s)?s:s.charAt(0).toLowerCase()+s.slice(1);
 const lieuDep=c=>c&&c.startsWith("97")?c.slice(0,3):(c||"").slice(0,2);
@@ -980,10 +1029,12 @@ function dessinerLieux(Mx){Mx.zoomable.selectAll("g.lieux").remove();Mx.svg.sele
   const k=LX.types.findIndex(t=>t.id===S.lieux),t=LX.types[k],pts=LX.pts.filter(p=>p[0]===k);
   const z=d3.zoomTransform(Mx.svg.node()).k;
   const dessin=(g,data)=>g.selectAll("circle").data(data).join("circle").attr("class","lieu")
-    .attr("cx",d=>projLieu(d)[0]).attr("cy",d=>projLieu(d)[1]).attr("r",d=>(d===LIEU_CHOISI?5:2.4)/(g.node().parentNode===Mx.zoomable.node()?z:1))
-    .attr("fill",d=>d===LIEU_CHOISI?css("--accent"):css("--ink")).attr("fill-opacity",.85).attr("stroke",css("--panel")).attr("stroke-width",.8)
-    .attr("tabindex",0).attr("role","button").attr("aria-label",d=>LX.noms[d[3]]+", "+(LX.communes[d[4]]||""))
-    .on("mousemove",(ev,d)=>showTip(ev,'<div class="tt">'+esc(LX.noms[d[3]])+'</div><div class="tl">'+esc(t.lib)+", "+esc(LX.communes[d[4]]||d[4])+'</div>'))
+    .attr("cx",d=>projLieu(d)[0]).attr("cy",d=>projLieu(d)[1]).attr("r",d=>rayonLieu(d)/(g.node().parentNode===Mx.zoomable.node()?z:1))
+    .attr("class",d=>"lieu"+(creux(d)?" creux":"")).attr("pointer-events","all")
+    .attr("fill",d=>d===LIEU_CHOISI?css("--accent"):creux(d)?"none":css("--ink")).attr("fill-opacity",d=>recoupe(d)&&d!==LIEU_CHOISI?.4:.85)
+    .attr("stroke",d=>creux(d)?(d===LIEU_CHOISI?css("--accent"):css("--ink")):css("--panel")).attr("stroke-width",d=>traitLieu(d)/(g.node().parentNode===Mx.zoomable.node()?z:1))
+    .attr("tabindex",0).attr("role","button").attr("aria-label",d=>LX.noms[d[3]]+", "+(LX.communes[d[4]]||"")+(d[11]!=null?", "+CONF[d[11]].lib:""))
+    .on("mousemove",(ev,d)=>showTip(ev,'<div class="tt">'+esc(LX.noms[d[3]])+'</div><div class="tl">'+esc(t.lib)+", "+esc(LX.communes[d[4]]||d[4])+'</div>'+(d[11]!=null?'<div class="tl">'+symboleConf(d)+' '+esc(CONF[d[11]].lib)+'</div>':'')))
     .on("mouseleave",hideTip)
     .on("click",(ev,d)=>{ev.stopPropagation();LIEU_CHOISI=LIEU_CHOISI===d?null:d;ficheLieu();drawMap()})
     .on("keydown",(ev,d)=>{if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();LIEU_CHOISI=LIEU_CHOISI===d?null:d;ficheLieu();drawMap()}});
@@ -993,19 +1044,32 @@ function dessinerLieux(Mx){Mx.zoomable.selectAll("g.lieux").remove();Mx.svg.sele
   if(LIEU_CHOISI&&LIEU_CHOISI[0]!==k)LIEU_CHOISI=null;
   visibiliteLieux(Mx);
   ficheLieu();
-  return '<div class="legende-lieux"><svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="4" fill="'+css("--ink")+'"/></svg> '
-    +fmt.format(pts.length)+' structures, '+esc(minLib(t.lib))+', recensés par FINESS et le ROR, réunis sans double compte'+(t.complet?"":", recensement incomplet")
-    +'. Les points s’affichent en zoomant sur la carte ou pour le territoire choisi'+(t.complet&&D.niveaux[S.level].lieux_dist?.[S.lieux]?", la mesure « Distance aux structures » en donne la vue d’ensemble":"")+'.</div>'}
-// à l'échelle de la France les points chargent trop la carte, ils ne paraissent qu'en zoomant (au moins 2 fois) ou
-// dans le territoire choisi d'un clic (remarque de Lucas du 12 octobre 2026)
-function visibiliteLieux(Mx){if(!Mx)return;const k=d3.zoomTransform(Mx.svg.node()).k,lv=S.sel?.lv,code=S.sel?.c;
-  const champ={epci:8,dep:9,reg:10}[lv];
-  const dedans=d=>champ!=null&&d[champ]===code;
-  Mx.zoomable.selectAll("circle.lieu").style("display",d=>k>=2||dedans(d)||d===LIEU_CHOISI?null:"none");
-  Mx.svg.selectAll("g.lieuxdom circle.lieu").style("display",d=>dedans(d)||d===LIEU_CHOISI?null:"none")}
+  // légende, nombre de structures confirmées et à vérifier (France entière, ou territoire choisi)
+  const champ={epci:8,dep:9,reg:10}[S.sel?.lv],ici=S.sel&&S.sel.lv===S.level&&champ!=null?pts.filter(d=>d[champ]===S.sel.c):null;
+  const vus=ici||pts,nc=vus.filter(confirme).length,nr=vus.filter(recoupe).length,nb=vus.filter(creux).length;
+  const conf=typeConfirme(t.id)?legendeClasses(nc,nr,nb)+'<span>'+(ici?"dans le territoire choisi":"en France")+', voir « Comment lire »</span>':"";
+  return '<div class="legende-lieux">'+(conf?conf+'</div><div class="legende-lieux">':'<svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="4" fill="'+css("--ink")+'"/></svg> ')
+    +fmt.format(pts.length)+' structures, '+esc(minLib(t.lib))+', recensées par FINESS et le ROR, réunies sans double compte'+(t.complet?"":", recensement incomplet")
+    +'. Les points s’affichent en zoomant sur la carte (deux fois au moins), le plan du territoire choisi est dans l’encadré « Structures de soins de ce territoire »'+(t.complet&&D.niveaux[S.level].lieux_dist?.[S.lieux]?", la mesure « Distance aux structures » en donne la vue d’ensemble":"")+'.</div>'}
+// symbole du niveau de confirmation, plein ou creux comme sur la carte
+function symboleConf(d,k){const c=d?classeDe(d):(k===true?"a_verifier":k===false?"confirmee":k);
+  const f=c==="a_verifier"?'fill="none" stroke="currentColor" stroke-width="1.6"':c==="recoupee"?'fill="currentColor" fill-opacity=".4" stroke="currentColor" stroke-width="1.2"':'fill="currentColor"';
+  return '<svg class="sym-conf" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4" '+f+'/></svg>'}
+// légende des trois classes avec leur nombre (la classe recoupée n'apparaît que si elle compte des structures)
+function legendeClasses(nc,nr,nb){return '<span class="lx-leg">'+symboleConf(null,"confirmee")+' '+fmt.format(nc)+' confirmée'+(nc>1?"s":"")+'</span>'
+  +(nr?'<span class="lx-leg">'+symboleConf(null,"recoupee")+' '+fmt.format(nr)+' recoupée'+(nr>1?"s":"")+' par la statistique des hôpitaux</span>':'')
+  +'<span class="lx-leg">'+symboleConf(null,"a_verifier")+' '+fmt.format(nb)+' à vérifier</span>'}
+// à l'échelle de la France les points chargent trop la carte, ils ne paraissent qu'en zoomant (au moins 2 fois)
+// (remarques de Lucas du 12 et du 16 octobre 2026). Le territoire choisi a son propre plan dans l'encadré « Structures
+// de soins de ce territoire », sans que la grande carte change de cadrage.
+function visibiliteLieux(Mx){if(!Mx)return;const k=d3.zoomTransform(Mx.svg.node()).k;
+  Mx.zoomable.selectAll("circle.lieu").style("display",d=>k>=2||d===LIEU_CHOISI?null:"none");
+  Mx.svg.selectAll("g.lieuxdom circle.lieu").style("display",d=>d===LIEU_CHOISI?null:"none")}
 function ficheLieu(){const el=document.getElementById("lieuInfo");const d=LIEU_CHOISI;
   if(!d){el.hidden=true;el.innerHTML="";return}
-  const t=LX.types[d[0]],dec=d[7];
+  el.innerHTML='<p style="margin:6px 16px">'+texteLieu(d)+' <button type="button" class="lien" id="lieuFermer">Fermer</button></p>';el.hidden=false;
+  document.getElementById("lieuFermer").onclick=()=>{LIEU_CHOISI=null;ficheLieu();drawMap()}}
+function texteLieu(d){const t=LX.types[d[0]],dec=d[7];
   let h='<strong>'+esc(LX.noms[d[3]])+'</strong>, '+esc(minLib(t.lib))+', '+esc(LX.communes[d[4]]||d[4])+'. ';
   const pv=LX.provenances[d[5]];
   h+=(pv.includes("ne distingue")?"Décrit par le ROR seulement, FINESS ne distinguant pas ce type de structure":pv.includes("seul")?(pv.startsWith("ROR")?"Recensé comme tel par le ROR seulement, FINESS l’enregistrant sous une autre catégorie ou pas du tout":"Recensé par FINESS seulement"):"Recensé par FINESS et le ROR")+'. Emplacement, '+esc(LX.precisions[d[6]])+'.';
@@ -1013,36 +1077,181 @@ function ficheLieu(){const el=document.getElementById("lieuInfo");const d=LIEU_C
   else if(dec){const parts=LX.professions.map((p,k)=>dec[k]?fmt.format(dec[k])+" "+(dec[k]>1?pluriel(profLab(p)):profLab(p).toLowerCase()):null).filter(Boolean);
     h+=' '+(parts.length?"Déclarés sur place au répertoire, "+parts.join(", ")+".":"Aucun de ces professionnels n’y est déclaré au répertoire, ce qui n’exclut pas des consultations de professionnels déclarés à leur établissement de rattachement.")}
   else h+=' Sans numéro FINESS propre, les professionnels déclarés sur place ne sont pas connus.';
-  el.innerHTML='<p style="margin:6px 16px">'+h+' <button type="button" class="lien" id="lieuFermer">Fermer</button></p>';el.hidden=false;
-  document.getElementById("lieuFermer").onclick=()=>{LIEU_CHOISI=null;ficheLieu();drawMap()}}
+  if(d[11]!=null)h+=' Niveau de confirmation, '+esc(CONF[d[11]].lib)+'.';
+  if(d[13]&2)h+=' Ce CATTP est au même lieu qu’un CMP, il est compté à part comme lieu d’activité déclaré.';
+  if(d[13]&1)h+=' C’est une antenne ou une permanence.';
+  return h}
 document.getElementById("lieuxType").addEventListener("change",e=>{S.lieux=e.target.value;LIEU_CHOISI=null;if(!S.lieux&&S.metric==="lieux")S.metric="dens";render()});
 const PSY_CMP=["psychiatre","pedopsychiatre"];
 // lieux pour enfants d'un territoire (FINESS et ROR réunis), pour préciser « aucun pédopsychiatre déclaré »
-// volet replié de la fiche, nombre de lieux de chaque type dans le territoire et liste des structures montrés sur la carte
-function voletLieux(lv,i,code){if(!LX)return "";const L=D.niveaux[lv].lieux||{};
-  const types=LX.types.filter(t=>t.complet&&L[t.id]&&(S.fam==="*"||t.famille===S.fam));if(!types.length)return "";
-  const champ={epci:8,dep:9,reg:10}[lv],ici=LX.pts.filter(p=>p[champ]===code);
-  let h='<details class="plus" style="margin-top:14px"><summary>Structures de soins dans ce territoire, FINESS et ROR réunis</summary>';
-  for(const g of [...new Set(types.map(t=>t.groupe))]){h+='<div class="gh">'+esc(g)+'</div><dl class="f">';
-    for(const t of types.filter(x=>x.groupe===g)){const k=LX.types.indexOf(t),liste=ici.filter(p=>p[0]===k);
-      h+='<dt>'+esc(t.lib)+'</dt><dd>'+fmt.format(L[t.id][i]||0)+'</dd>';
-      // CMP par public, adultes, enfants, les deux, public non précisé (FINESS seul sans âges), pour que le total se retrouve
-      const cp=D.niveaux[lv].cmp_public;
-      if(t.id==="lieu_cmp"&&cp&&(L[t.id][i]||0)>0){const v=k=>cp[k][i]||0;
-        h+='<dd class="note" style="grid-column:1/-1;margin:0">dont '+fmt.format(v("adultes"))+' pour adultes et '+fmt.format(v("enfants"))+' pour enfants et adolescents'
-          +(v("les_deux")?', '+fmt.format(v("les_deux"))+' accueillant les deux':'')
-          +(v("non_precise")?', '+fmt.format(v("non_precise"))+' au public non précisé (connu'+(v("non_precise")>1?"s":"")+' de FINESS seul)':'')
-          +(v("antennes")?'. '+(v("antennes")>1?fmt.format(v("antennes"))+' sont des antennes ou des permanences':'L’un d’eux est une antenne ou une permanence')+' (en mairie, en CCAS ou en maison de santé, par exemple)':'')+'</dd>'}
-      // concordance avec la SAE (CMP déclarés par les établissements dont le siège est dans le territoire)
-      const cs=D.niveaux[lv].cmp_sae?.[i];
-      if(t.id==="lieu_cmp"&&cs)h+='<dd class="note" style="grid-column:1/-1;margin:0">'+esc(cs[1].charAt(0).toUpperCase()+cs[1].slice(1))+' ('+fmt.format(cs[0])+' CMP déclarés à la SAE par les établissements dont le siège est ici), voir la page méthode</dd>';
-      if(liste.length)h+='<dd class="liste-lieux" style="grid-column:1/-1">'+liste.map(p=>esc(LX.noms[p[3]])+" ("+esc(LX.communes[p[4]]||p[4])+")").sort((a,b)=>a.localeCompare(b,"fr")).join(", ")+'</dd>'}
-    h+='</dl>'}
+// ---------- encadré « Structures de soins de ce territoire » (16 octobre 2026, remplace le volet replié de la fiche).
+// Nombre par type et par groupe, niveau de confirmation de chaque structure, liste par type ouverte d'un bouton, un clic
+// sur une structure la repère sur la carte sans zoom. Les CMP pour adultes et pour enfants sont des CMP comptés aussi
+// dans le total des CMP, un CMP accueillant les deux publics figure dans les deux lignes et y est signalé.
+const LX_GROUPES=[["Santé mentale, adultes",["lieu_cmp_adultes","lieu_hdj_psy_adultes","lieu_hc_psy_adultes"]],
+  ["Santé mentale, enfants et adolescents",["lieu_cmp_enfants","lieu_hdj_psy_enfants","lieu_hc_psy_enfants","lieu_cmpp","lieu_camsp"]],
+  ["Santé mentale, tous âges",["cmp_non_precise","lieu_cattp"]],
+  ["Addictologie",["lieu_csapa","lieu_caarud","lieu_addicto_hosp"]]];
+const LX_OUVERTS=new Set();  // listes ouvertes, gardées d'un territoire à l'autre
+const PUBLIC_CMP={a:"pour adultes",e:"pour enfants et adolescents",d:"pour adultes et pour enfants",n:"au public non précisé"};
+function lignesStructures(lv,code){
+  const champ={epci:8,dep:9,reg:10}[lv],L=D.niveaux[lv].lieux||{},ici=LX.pts.filter(p=>p[champ]===code);
+  const kOf=id=>LX.types.findIndex(t=>t.id===id),cmpK=kOf("lieu_cmp");
+  // public de chaque CMP, retrouvé pour les points des types enfants par le nom et l'emplacement
+  const cle=p=>p[3]+","+p[1]+","+p[2],pub=new Map(ici.filter(p=>p[0]===cmpK).map(p=>[cle(p),p[12]]));
+  const visibles=LX.types.filter(t=>t.complet&&L[t.id]&&(S.fam==="*"||t.famille===S.fam));
+  const ligne=(id,lib,pts,tid)=>({id,lib,pts,tid:tid||id,conf:typeConfirme(tid||id)});
+  const groupes=[],pris=new Set(["lieu_cmp"]);
+  for(const [g,ids] of LX_GROUPES){const lignes=[];
+    for(const id of ids){
+      if(id==="cmp_non_precise"){if(!visibles.some(t=>t.id==="lieu_cmp"))continue;const pts=ici.filter(p=>p[0]===cmpK&&p[12]==="n");
+        if(pts.length)lignes.push(ligne(id,"CMP au public non précisé",pts,"lieu_cmp"));continue}
+      const t=visibles.find(x=>x.id===id);if(!t)continue;pris.add(id);const k=kOf(id);
+      lignes.push(ligne(id,t.lib,ici.filter(p=>p[0]===k).map(p=>{if(id.startsWith("lieu_cmp_"))p._pub=pub.get(cle(p));return p})))}
+    if(lignes.length)groupes.push([g,lignes])}
+  // les autres types, dans l'ordre des données, sous leur groupe
+  for(const g of [...new Set(visibles.filter(t=>!pris.has(t.id)).map(t=>t.groupe))]){
+    const lignes=visibles.filter(t=>!pris.has(t.id)&&t.groupe===g).map(t=>{const k=kOf(t.id);return ligne(t.id,t.lib,ici.filter(p=>p[0]===k))});
+    groupes.push([g,lignes])}
+  return {groupes,ici,cmpK}}
+function precisionLieu(p,id){const tags=[];
+  if(id.startsWith("lieu_cmp_")&&p._pub==="d")tags.push(id==="lieu_cmp_adultes"?"accueille aussi les enfants":"accueille aussi les adultes");
+  if(p[13]&1)tags.push("antenne ou permanence");
+  if(p[13]&2)tags.push("au même lieu qu’un CMP");
+  return tags}
+function structuresTerritoire(){const el=document.getElementById("lieuxCard");
+  const vider=()=>{el.classList.add("hidden");el.innerHTML="";delete EXPORT_CSV.structures};
+  if(!LX||!S.sel||S.sel.lv!==S.level)return vider();
+  const lv=S.sel.lv,i=IDX[lv].get(S.sel.c),u=D.niveaux[lv].units[i],code=S.sel.c;
+  const {groupes,ici,cmpK}=lignesStructures(lv,code);
+  if(!groupes.length)return vider();
+  el.classList.remove("hidden");
+  const N=n=>fmt.format(n);
+  // structures distinctes au niveau de confirmation établi, chaque CMP une fois (pas les lignes adultes et enfants)
+  const toutes=groupes.flatMap(([,ls])=>ls);
+  const autres=toutes.filter(l=>l.conf&&l.tid!=="lieu_cmp"&&!l.id.startsWith("lieu_cmp_")).flatMap(l=>l.pts);
+  const cmpTous=toutes.some(l=>l.tid==="lieu_cmp"||l.id.startsWith("lieu_cmp_"))?ici.filter(p=>p[0]===cmpK):[];
+  const base=[...autres,...(typeConfirme("lieu_cmp")?cmpTous:[])],nc=base.filter(confirme).length,nr=base.filter(recoupe).length,nb=base.filter(creux).length;
+  let h='<h2 tabindex="-1">Structures de soins de ce territoire <button class="how" data-how="lieux,confirmation">Comment lire</button></h2><div class="howtxt hidden"></div>';
+  h+='<div data-export="structures">';
+  h+='<p class="phrase">FINESS et le Répertoire opérationnel des ressources (ROR), réunis sans double compte, recensent ici les structures suivantes.'
+    +(base.length?' Sur les '+N(base.length)+' dont le niveau de confirmation est établi, '+N(nc)+' '+(nc>1?"sont confirmées":"est confirmée")+' par une source indépendante des deux bases, '+(nr?N(nr)+' '+(nr>1?"sont recoupées":"est recoupée")+' par la statistique annuelle des établissements de santé (SAE, le nombre ou l’activité du site, pas l’adresse), ':'')+'et '+N(nb)+' '+(nb>1?"restent":"reste")+' à vérifier.':'')+'</p>';
+  h+='<div class="lx-legende small">'+(base.length?'<span class="lx-leg">'+symboleConf(null,"confirmee")+' confirmée</span>'+(nr?'<span class="lx-leg">'+symboleConf(null,"recoupee")+' recoupée par la statistique des hôpitaux (SAE, le nombre ou l’activité du site, pas l’adresse)</span>':'')+'<span class="lx-leg">'+symboleConf(null,"a_verifier")+' à vérifier, inscrite dans FINESS ou le ROR seulement</span>':'')+'<span>Un clic sur une structure la repère sur le plan du territoire.</span></div>';
+  const lignesPlan=groupes.flatMap(([,ls])=>ls).filter(l=>l.pts.length);
+  if(!lignesPlan.some(l=>l.id===LX_TYPE_LOCAL))LX_TYPE_LOCAL=(lignesPlan.find(l=>l.id==="lieu_cmp_adultes")||lignesPlan[0]||{}).id;
+  if(LX_CHOISI_LOCAL&&!ici.includes(LX_CHOISI_LOCAL))LX_CHOISI_LOCAL=null;
+  h+='<div class="lx-corps"><div class="lx-gauche"><div class="scroll"><table class="lx-table"><thead><tr><th scope="col">Type de structure</th><th scope="col">Structures</th><th scope="col">'+symboleConf(null,"confirmee")+' Confirmées</th><th scope="col">'+symboleConf(null,"recoupee")+' Recoupées</th><th scope="col">'+symboleConf(null,"a_verifier")+' À vérifier</th></tr></thead><tbody>';
+  const cp=D.niveaux[lv].cmp_public,cs=D.niveaux[lv].cmp_sae?.[i];
+  for(const [g,ls] of groupes){h+='<tr class="lx-groupe"><th colspan="5" scope="colgroup">'+esc(g)+'</th></tr>';
+    for(const l of ls){const n=l.pts.length,c=l.pts.filter(confirme).length,r=l.pts.filter(recoupe).length,b=l.pts.filter(creux).length,ouv=LX_OUVERTS.has(l.id);
+      h+='<tr><td>'+esc(l.lib)+(n?'<br><button type="button" class="lien lx-ouvrir" data-l="'+l.id+'" aria-expanded="'+ouv+'" aria-controls="lx-'+l.id+'">'+(ouv?"Masquer la liste":"Voir la liste")+'</button>':'')+'</td>'
+        +'<td>'+N(n)+'</td>'+(l.conf?'<td>'+N(c)+'</td><td>'+((LX.types_recoupes||[]).includes(l.id)?N(r):'<span class="muted">sans objet</span>')+'</td><td>'+N(b)+'</td>':'<td colspan="3" class="muted lx-nonetabli">niveau non établi</td>')+'</tr>';
+      const notes=[];
+      if(l.id==="lieu_cattp"){const m=l.pts.filter(p=>p[13]&2).length;
+        if(m)notes.push(N(m)+(m>1?" sont au même lieu qu’un CMP, comptés à part comme lieux d’activité déclarés":" est au même lieu qu’un CMP, compté à part comme lieu d’activité déclaré"));
+        const s=l.pts.filter(p=>p[11]!=null&&CONF[p[11]].id==="sae").length;
+        if(s)notes.push(N(s)+" "+(s>1?"sont recoupés":"est recoupé")+" par la statistique des hôpitaux, leur établissement y déclarant autant de CATTP, ce qui confirme le nombre et non l’adresse")}
+      if(l.id==="lieu_cmp_adultes"||l.id==="lieu_cmp_enfants"){const d=l.pts.filter(p=>p._pub==="d").length;
+        if(d)notes.push(N(d)+" accueille"+(d>1?"nt":"")+" aussi "+(l.id==="lieu_cmp_adultes"?"les enfants":"les adultes")+", compté"+(d>1?"s":"")+" dans les deux lignes")}
+      if(notes.length)h+='<tr class="lx-note"><td colspan="4">'+esc(notes.join(", "))+'.</td></tr>';
+      if(n)h+='<tr class="lx-liste"'+(ouv?'':' hidden')+' id="lx-'+l.id+'"><td colspan="4"><ul>'+l.pts.slice().sort((a,b)=>(LX.communes[a[4]]||"").localeCompare(LX.communes[b[4]]||"","fr")||LX.noms[a[3]].localeCompare(LX.noms[b[3]],"fr"))
+        .map(p=>{const tags=precisionLieu(p,l.id);return '<li><button type="button" class="lx-item" data-j="'+LX.pts.indexOf(p)+'" data-l="'+l.id+'">'+(p[11]!=null?symboleConf(p):'')+'<span class="nom">'+esc(LX.noms[p[3]])+'</span><span class="muted">, '+esc(LX.communes[p[4]]||p[4])+(p[11]!=null?', '+esc(CONF[p[11]].lib):'')+(tags.length?', '+esc(tags.join(", ")):'')+'</span></button></li>'}).join("")+'</ul></td></tr>'}}
+  h+='</tbody></table></div></div>'+(lignesPlan.length?carteTerritoireHtml(lignesPlan):'')+'</div>';
+  // CMP en tout, par public, et concordance avec la SAE
+  if(cmpTous.length&&cp){const v=k=>cp[k][i]||0;
+    h+='<p class="note">'+N(cmpTous.length)+' CMP en tout, dont '+N(v("adultes"))+' pour adultes et '+N(v("enfants"))+' pour enfants et adolescents'
+      +(v("les_deux")?', '+N(v("les_deux"))+' accueillant les deux':'')+(v("non_precise")?', '+N(v("non_precise"))+' au public non précisé (connu'+(v("non_precise")>1?"s":"")+' de FINESS seul)':'')
+      +(v("antennes")?'. '+(v("antennes")>1?N(v("antennes"))+' sont des antennes ou des permanences':'L’un d’eux est une antenne ou une permanence')+' (en mairie, en CCAS ou en maison de santé, par exemple)':'')+'.'
+      +(cs?' '+esc(cs[1].charAt(0).toUpperCase()+cs[1].slice(1))+' ('+N(cs[0])+' CMP déclarés à la SAE par les établissements dont le siège est ici).':'')+'</p>'}
+  h+='<p class="note">Une structure confirmée figure sur une liste qui ne vient ni de FINESS ni du ROR (sources de son établissement, autre source publique, certification ou évaluation de la HAS, répertoire Sirene). Le point creux marque une structure que rien d’autre ne confirme encore, ce qui ne veut pas dire qu’elle est fermée. Une structure n’est pas une capacité. Les types recensés de façon incomplète (équipes mobiles, centres de crise...) restent sur la carte et ne sont pas comptés ici.</p>';
+  h+='</div>';
   // constats vérifiés sur d'autres sources (sites des établissements, ARS, listes ouvertes), pour le département
-  const depV=lv==="dep"?code:lv==="epci"?(LX.pts.find(p=>p[8]===code)||[])[9]:null;
+  const depV=lv==="dep"?code:lv==="epci"?u.p:null;
   const ver=(D.verifications_lieux||[]).filter(v=>v.code===depV);
   if(ver.length)h+='<div class="note" style="margin-top:8px"><strong>Vérifié sur d’autres sources.</strong> '+ver.map(v=>esc(v.constat)+' Source, <a href="'+esc(v.adresse)+'" target="_blank" rel="noopener">'+esc(v.source)+'</a>, consultée le '+esc(v.date.split("-").reverse().join("/"))+(v.a_refaire?", vérification à refaire":"")+'.').join(" ")+'</div>';
-  return h+limiteHtml(["lieux"])+'</details>'}
+  h+=limiteHtml(["lieux"]);
+  el.innerHTML=h;
+  // liste affichée, exportée par « Citer et exporter »
+  EXPORT_CSV.structures=()=>{const lignes=[["Groupe","Type de structure","Nom","Commune","Code commune","Public des CMP","Niveau de confirmation","Précisions","Provenance"]];
+    for(const [g,ls] of groupes)for(const l of ls)for(const p of l.pts)lignes.push([g,l.lib,LX.noms[p[3]],LX.communes[p[4]]||"",p[4],
+      l.tid==="lieu_cmp"||l.id.startsWith("lieu_cmp_")?(PUBLIC_CMP[p._pub||p[12]]||""):"",p[11]!=null?CONF[p[11]].lib:"niveau non établi pour ce type",
+      precisionLieu(p,l.id).join(", "),LX.provenances[p[5]]]);
+    return {titre:"Structures de soins, "+u.nm+", FINESS et ROR réunis sans double compte",nom:nomFichier("structures_de_soins_"+u.nm,"structures"),texte:lignes.map(l=>l.map(qCsv).join(";")).join("\r\n")}};
+  el.querySelectorAll(".lx-ouvrir").forEach(b=>b.onclick=()=>{const id=b.dataset.l,tr=document.getElementById("lx-"+id),ouv=tr.hidden;
+    tr.hidden=!ouv;b.setAttribute("aria-expanded",String(ouv));b.textContent=ouv?"Masquer la liste":"Voir la liste";if(ouv)LX_OUVERTS.add(id);else LX_OUVERTS.delete(id)});
+  const plan=()=>dessinerCarteTerritoire(lv,code,lignesPlan);
+  plan();
+  const st=document.getElementById("lxType");if(st)st.onchange=()=>{LX_TYPE_LOCAL=st.value;LX_CHOISI_LOCAL=null;plan()};
+  el.querySelectorAll(".lx-item").forEach(b=>b.onclick=()=>{const p=LX.pts[+b.dataset.j];LX_TYPE_LOCAL=b.dataset.l;
+    LX_CHOISI_LOCAL=LX_CHOISI_LOCAL===p?null:p;if(st)st.value=LX_TYPE_LOCAL;plan();
+    // plan hors de l'écran (petits écrans), on le fait venir sans changer son cadrage
+    const r=document.getElementById("lxCarte").getBoundingClientRect(),haut=document.querySelector(".collant")?.getBoundingClientRect().bottom||0;
+    if(r.top<haut||r.bottom>innerHeight)scrollTo({top:scrollY+r.top-haut-60,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})})}
+// ---------- carte du territoire choisi, dans l'encadré des structures (décision de Lucas du 16 octobre 2026). Sur la
+// grande carte les points ne paraissent qu'en zoomant, ici le plan est cadré sur le territoire, avec ses limites
+// internes (intercommunalités d'un département, départements d'une région), et montre les structures d'un type, point
+// plein confirmée, point creux à vérifier. Un clic dans la liste repère la structure sur ce plan, la grande carte ne bouge
+// pas. Les points ne sont pas dans l'ordre de tabulation, la liste en est l'équivalent au clavier.
+let LX_TYPE_LOCAL="lieu_cmp_adultes",LX_CHOISI_LOCAL=null;
+const LX_MAILLES={};
+// contours de tous les territoires d'un niveau (le fond ne partage pas les arcs entre voisins, d'où le maillage complet)
+// filtre, territoires retenus (par leurs propriétés), pour ne tracer que les limites utiles au plan
+function mailleLx(niv,filtre,cle){const k=niv+"|"+(cle||"");if(!(k in LX_MAILLES)){const o=topo.objects[niv];
+  LX_MAILLES[k]=o?topojson.mesh(topo,filtre?{type:"GeometryCollection",geometries:o.geometries.filter(g=>filtre(g.properties||{}))}:o):null}
+  return LX_MAILLES[k]}
+function formeTerritoire(lv,code){const f=(geom[lv]||[]).find(x=>x.properties[lv]===code);return f||null}
+function carteTerritoireHtml(lignes){
+  const opts=lignes.map(l=>'<option value="'+l.id+'"'+(l.id===LX_TYPE_LOCAL?" selected":"")+'>'+esc(l.lib)+' ('+fmt.format(l.pts.length)+')</option>').join("");
+  return '<div class="lx-droite"><label class="small muted" for="lxType">Structures montrées sur le plan</label><select id="lxType">'+opts+'</select>'
+    +'<svg id="lxCarte" viewBox="0 0 400 340" role="img" aria-label="Plan du territoire et de ses structures de soins"></svg>'
+    +'<div class="lx-legende small" id="lxLegende"></div><div class="lieuinfo small" id="lxFiche" hidden aria-live="polite"></div></div>'}
+function dessinerCarteTerritoire(lv,code,lignes){
+  const svg=d3.select("#lxCarte");if(svg.empty())return;svg.selectAll("*").remove();
+  const l=lignes.find(x=>x.id===LX_TYPE_LOCAL)||lignes[0];if(!l)return;
+  const f=formeTerritoire(lv,code);if(!f){svg.append("text").attr("x",200).attr("y",170).attr("text-anchor","middle").attr("fill",css("--muted")).text("Contour du territoire indisponible");return}
+  const dep=depOfFeat(lv,f),dom=DOMS.includes(dep);
+  const proj=(dom?d3.geoMercator():d3.geoConicConformal().parallels([44,49]).rotate([-3,0])).fitExtent([[14,14],[386,326]],f),path=d3.geoPath(proj);
+  const u=D.niveaux[lv].units[IDX[lv].get(code)];
+  svg.attr("aria-label","Plan de "+u.nm+", "+minLib(l.lib)+", "+fmt.format(l.pts.length)+" structures, point plein confirmée, point creux à vérifier");
+  svg.append("rect").attr("width",400).attr("height",340).attr("fill",css("--nodata"));
+  // territoires voisins en fond, limites des départements (et des intercommunalités pour une intercommunalité)
+  const memeDep=pr=>IDX.epciDep.get(pr.epci)===dep;
+  if(lv==="epci"&&mailleLx("epci",memeDep,"dep"+dep))svg.append("path").datum(mailleLx("epci",memeDep,"dep"+dep)).attr("d",path).attr("fill","none").attr("stroke",css("--muted")).attr("stroke-width",.6).attr("stroke-opacity",.45);
+  svg.append("path").datum(f).attr("d",path).attr("fill",css("--r1"));
+  const clip="lxClip";svg.append("clipPath").attr("id",clip).append("path").datum(f).attr("d",path);
+  const depsReg=lv==="reg"?new Set(D.niveaux.dep.units.filter(x=>x.p===u.nm).map(x=>x.c)):null;
+  const interne=lv==="dep"?mailleLx("epci",memeDep,"dep"+dep):lv==="reg"?mailleLx("dep",pr=>depsReg.has(pr.dep),"reg"+code):null;
+  if(interne)svg.append("path").datum(interne).attr("d",path).attr("clip-path","url(#"+clip+")").attr("fill","none").attr("stroke",css("--muted")).attr("stroke-width",.7).attr("stroke-opacity",.7);
+  // départements voisins seulement (emprise du territoire élargie de moitié)
+  const [[x0,y0],[x1,y1]]=d3.geoBounds(f),mx=(x1-x0)/2+.2,my=(y1-y0)/2+.2;
+  const voisins=new Set(geom.dep.filter(g=>{const [[a,b],[c,e]]=d3.geoBounds(g);return c>=x0-mx&&a<=x1+mx&&e>=y0-my&&b<=y1+my}).map(g=>g.properties.dep));
+  const mdep=mailleLx("dep",pr=>voisins.has(pr.dep),"autour"+lv+code);
+  if(mdep)svg.append("path").datum(mdep).attr("d",path).attr("fill","none").attr("stroke",css("--muted")).attr("stroke-width",.8).attr("stroke-opacity",.6);
+  svg.append("path").datum(f).attr("d",path).attr("fill","none").attr("stroke",css("--ink")).attr("stroke-width",1.4);
+  // points, le choisi par-dessus
+  const pts=l.pts.map(p=>({p,xy:proj([p[2]/1e4,p[1]/1e4])})).filter(d=>d.xy&&isFinite(d.xy[0]));
+  pts.sort((a,b)=>(a.p===LX_CHOISI_LOCAL)-(b.p===LX_CHOISI_LOCAL));
+  svg.append("g").attr("aria-hidden","true").selectAll("circle").data(pts).join("circle")
+    .attr("cx",d=>d.xy[0]).attr("cy",d=>d.xy[1]).attr("r",d=>d.p===LX_CHOISI_LOCAL?6.5:creux(d.p)?4.2:4)
+    .attr("fill",d=>d.p===LX_CHOISI_LOCAL?(creux(d.p)?"none":css("--accent")):creux(d.p)?"none":css("--ink"))
+    .attr("stroke",d=>d.p===LX_CHOISI_LOCAL?css("--accent"):creux(d.p)?css("--ink"):css("--panel"))
+    .attr("stroke-width",d=>creux(d.p)?(d.p===LX_CHOISI_LOCAL?2.4:1.6):1).attr("pointer-events","all").style("cursor","pointer")
+    .on("mousemove",(ev,d)=>showTip(ev,'<div class="tt">'+esc(LX.noms[d.p[3]])+'</div><div class="tl">'+esc(LX.communes[d.p[4]]||d.p[4])+'</div>'+(d.p[11]!=null?'<div class="tl">'+symboleConf(d.p)+' '+esc(CONF[d.p[11]].lib)+'</div>':'')))
+    .on("mouseleave",hideTip)
+    .on("click",(ev,d)=>{LX_CHOISI_LOCAL=LX_CHOISI_LOCAL===d.p?null:d.p;dessinerCarteTerritoire(lv,code,lignes)});
+  // légende en couleur, nombres du type montré, emplacements approchés signalés
+  const nc=l.pts.filter(confirme).length,nr=l.pts.filter(recoupe).length,nb=l.pts.filter(creux).length,kc=LX.precisions.findIndex(x=>/centre de la commune/.test(x));
+  const approx=kc>=0?l.pts.filter(p=>p[6]===kc).length:0,horsCadre=l.pts.length-pts.length;
+  // structures au même emplacement (même immeuble, ou centre de la même commune), un seul point visible pour plusieurs
+  const nEmpl=d3.rollup(l.pts,v=>v.length,p=>p[1]+","+p[2]),superposes=d3.sum([...nEmpl.values()].filter(v=>v>1));
+  document.getElementById("lxLegende").innerHTML=(l.conf?legendeClasses(nc,nr,nb):'<span>Niveau de confirmation non établi pour ce type.</span>')
+    +(approx?'<span>'+fmt.format(approx)+(approx>1?' placées au centre de leur commune':' placée au centre de sa commune')+', adresse exacte inconnue.</span>':'')
+    +(superposes?'<span>'+fmt.format(superposes)+' partagent leur emplacement avec une autre, un seul point les montre.</span>':'')
+    +(horsCadre?'<span>'+fmt.format(horsCadre)+' sans emplacement connu.</span>':'');
+  const fi=document.getElementById("lxFiche");
+  if(LX_CHOISI_LOCAL&&l.pts.includes(LX_CHOISI_LOCAL)){fi.innerHTML='<p style="margin:4px 0">'+texteLieu(LX_CHOISI_LOCAL)+'</p>';fi.hidden=false}else{fi.hidden=true;fi.innerHTML=""}}
+function versStructures(){const c=document.getElementById("lieuxCard");if(c.classList.contains("hidden"))return;
+  c.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});c.querySelector("h2")?.focus({preventScroll:true})}
 function lieuxEnfants(lv,i){const L=D.niveaux[lv].lieux||{},n=k=>L[k]?.[i]||0;
   const parts=[[n("lieu_cmp_enfants"),"CMP pour enfants et adolescents","CMP pour enfants et adolescents"],[n("lieu_cmpp"),"CMPP","CMPP"],
     [n("lieu_camsp"),"CAMSP","CAMSP"],[n("lieu_hdj_psy_enfants"),"hôpital de jour pour enfants","hôpitaux de jour pour enfants"]].filter(x=>x[0]>0);
@@ -1245,7 +1454,7 @@ function selCard(){
   // santé mentale et profil de la population à gauche, santé à droite (ou profil à droite si une seule famille)
   const g1=[blocs[SM],S.fam==="*"?blocs.pop:"",S.fam===SANTE?blocs[SANTE]:""].join(""),g2=S.fam==="*"?(blocs[SANTE]||""):(blocs.pop||"");
   h+='<div class="selcols"><div>'+g1+'</div><div>'+g2+'</div></div>';
-  h+=voletLieux(lv,i,S.sel.c);
+  if(LX&&D.niveaux[lv].lieux)h+='<p class="small" style="margin:14px 0 0"><button type="button" class="lien" id="selVersLieux">Structures de soins de ce territoire, niveau de confirmation et liste</button></p>';
   // limites propres à ce territoire (par exemple les suicides en Île-de-France)
   const codes=[S.sel.c,lv==="epci"?u.p:null],lims=Object.keys(D.limites||{}).filter(k=>codes.some(c=>c&&D.limites[k].territoires?.[c]));
   if(fragile(lv,S.sel.c))lims.unshift(fragile(lv,S.sel.c));
@@ -1263,6 +1472,7 @@ function selCard(){
   document.getElementById("selReplier").onclick=()=>{S.selReplie=!S.selReplie;const b=document.getElementById("selReplier");
     document.getElementById("selCorps").hidden=S.selReplie;b.setAttribute("aria-expanded",String(!S.selReplie));b.lastChild.textContent=" "+(S.selReplie?"Afficher le détail":"Masquer le détail")};
   el.querySelectorAll(".prow").forEach(r=>r.onclick=()=>{S.prof=r.dataset.p;document.getElementById("prof").value=S.prof;render()});
+  const vl=document.getElementById("selVersLieux");if(vl)vl.onclick=versStructures;
 }
 function hbars(id,rows,total){
   const max=d3.max(rows,r=>r[1])||1;
@@ -1274,8 +1484,17 @@ function lowerPanels(){
   const sec=(D.secteurs?.v?.[p]?.[key]||[]).map(([i,n])=>[D.secteurs.lib[i],n]);const tot=d3.sum(sec,r=>r[1]);
   document.getElementById("secNote").textContent=profLab(p)+", "+where+". Secteur attribué par le RPPS à la structure d’exercice, une personne peut relever de plusieurs secteurs.";
   hbars("secBars",sec,tot);
+  // structures de santé mentale à numéro FINESS propre (21 octobre 2026), même territoire que les secteurs
+  const ex=(D.exercice?.v?.[p]?.[key]||[]).map(([i,n])=>[D.exercice.lib[i],n]);
+  document.getElementById("exBloc").hidden=!ex.length;
+  if(ex.length){document.getElementById("exNote").textContent=pluriel(profLab(p))+" qui déclarent exercer dans une structure de santé mentale enregistrée sous son propre numéro FINESS, "+where+", en personnes distinctes. Beaucoup déclarent leur hôpital de rattachement plutôt que la structure, ces nombres sont des minimums. Hôpitaux de jour et hospitalisation non comptés, ils partagent le numéro de leur hôpital.";
+    hbars("exBars",ex,0)}
   const cat=(D.categories?.v?.[p]?.[key]||[]).map(([i,n])=>[D.categories.lib[i],n]);
-  document.getElementById("catNote").textContent="Catégorie FINESS des établissements d’exercice, "+where+".";
+  const base=(D.site_dossier&&D.site_dossier!==".")?D.site_dossier+"/":"",choisi=S.sel&&S.sel.lv===S.level&&LX&&D.niveaux[S.level].lieux;
+  document.getElementById("catNote").innerHTML=esc("Catégorie FINESS des établissements d’exercice, "+where+". Les professionnels sont classés selon la catégorie sous laquelle FINESS inscrit le lieu d’exercice qu’ils déclarent au répertoire. Un établissement inscrit sous une catégorie, CMP par exemple, peut être d’un autre type d’après son nom (hôpital de jour, CATTP, équipe mobile). Les structures de soins, elles, sont rangées dans le type que désigne leur nom, ")
+    +'<a href="'+esc(base)+'methode.html#lieux">voir la page méthode</a>.'
+    +(choisi?'<br><button type="button" class="lien" id="catVersLieux">Voir les structures de soins de ce territoire ('+esc(D.niveaux[S.level].units[IDX[S.level].get(S.sel.c)].nm)+')</button>':'');
+  const cv=document.getElementById("catVersLieux");if(cv)cv.onclick=versStructures;
   hbars("catBars",cat,d3.sum(cat,r=>r[1]));
   const st=D.structures?.[p]?.[key]||[];
   document.getElementById("structs").innerHTML=st.map(([rs,c,n])=>'<li>'+esc(rs)+' <span class="muted">'+esc(c)+', '+fmt.format(n)+'</span></li>').join("")||'<li class="muted">Disponible pour les principales professions salariées.</li>';
@@ -1951,7 +2170,7 @@ function render(){
   if(S.level==="reg"&&(!D.niveaux.reg||!["carte","tableau"].includes(S.tab))){S.level="dep";S.sel=null}
   syncBar();
   document.querySelectorAll("section[data-p]").forEach(s=>s.classList.toggle("hidden",s.dataset.p!==S.tab));
-  if(S.tab==="carte"){lieuxOptions();drawMap();natCard();selCard();lowerPanels();parcoursAtlas();listeCherche()}
+  if(S.tab==="carte"){lieuxOptions();drawMap();natCard();selCard();structuresTerritoire();lowerPanels();parcoursAtlas();listeCherche()}
   if(S.tab==="tableau")table();
   if(S.tab==="croisements"){scatter();heatmap();effetVille();indicateursEntreEux();croisementsBases();offreBesoin();gwrCarte()}
   if(S.tab==="inegalites"){inegalites();escalier();funnel();inegLieux();accesLieux()}

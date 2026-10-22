@@ -521,11 +521,32 @@ SIRENE_PAGE = "https://www.data.gouv.fr/datasets/" + SIRENE_JEU
 SIRENE_TYPES_VOIE = {"AV": "avenue", "BD": "boulevard", "PL": "place", "CHE": "chemin", "RTE": "route", "ALL": "allée",
                      "IMP": "impasse", "QUA": "quai", "CRS": "cours", "R": "rue", "SQ": "square", "PROM": "promenade",
                      "LD": "lieu-dit", "RES": "résidence", "CITE": "cité", "FG": "faubourg", "PASS": "passage"}
-# enseigne Sirene qui désigne chaque type de structure, pour confirmer une structure des bases (CMP d'abord, les autres
-# types de santé mentale ensuite)
+# Types de structures confirmés par des listes indépendantes de FINESS et du ROR (pipeline/confirmation.py), avec le
+# motif du nom qui désigne le type, cherché dans l'enseigne Sirene et dans le nom des sites de certification HAS. CMP
+# d'abord (13 octobre 2026), puis CATTP, hôpitaux de jour, CMPP, CAMSP et addictologie (accord de Lucas du
+# 16 octobre 2026). Un hôpital de jour d'une autre discipline ne confirme pas un hôpital de jour en psychiatrie.
+_HDJ_AUTRE = (r"GERIAT|G[EÉ]RONTO|P[EÉ]DIATR|ONCOLOG|CANCER|DIAB[EÈ]T|N[EÉ]PHRO|CHIRUR|M[EÉ]DECINE|R[EÉ][EÉ]DUC|"
+              r"R[EÉ]ADAPT|\bSSR\b|\bSMR\b|ALLERG|DIALY|DOULEUR|ADDICT|NUTRI|RHUMAT|DERMAT|H[EÉ]MATO|CARDIO|NEURO|"
+              r"PNEUMO|GASTRO|ENDOCRIN|INFECTI|MATERNIT|OBST[EÉ]T|AMBULATOIRE")
+_HDJ = r"^(?!.*(?:" + _HDJ_AUTRE + r")).*(?:H[OÔ]PITAL DE JOUR|\bH\.?\s?D\.?\s?J\b)"
 SIRENE_ENSEIGNES = {
     "lieu_cmp": r"\bC\s?\.?\s?M\s?\.?\s?P\b(?!\s?\.?\s?P)|M[EÉ]DICO.?PSYCHOLOG|\bCMPEA\b|\bCMPI\b|\bCMPPA\b",
+    "lieu_cattp": r"\bC\.?\s?A\.?\s?T\.?\s?T\.?\s?P\b|ACCUEIL TH[EÉ]RAPEUTIQUE",
+    "lieu_hdj_psy_adultes": _HDJ,
+    "lieu_hdj_psy_enfants": _HDJ,
+    "lieu_cmpp": r"\bC\.?\s?M\.?\s?P\.?\s?P\b(?!\s?\.?\s?A)|PSYCHO.?P[EÉ]DAGOG",
+    "lieu_camsp": r"\bC\.?\s?A\.?\s?M\.?\s?S\.?\s?P\b|ACTION M[EÉ]DICO.?SOCIALE PR[EÉ]COCE",
+    "lieu_csapa": r"\bC\.?\s?S\.?\s?A\.?\s?P\.?\s?A\b|\bC\.?\s?J\.?\s?C\b|JEUNES CONSOMMATEURS",
+    "lieu_caarud": r"\bC\.?\s?A\.?\s?A\.?\s?R\.?\s?U\.?\s?D\b|R[EÉ]DUCTION DES RISQUES",
 }
+# Nom d'un établissement Sirene ou d'un site HAS qui désigne un public d'enfants ou d'adolescents
+NOM_PUBLIC_ENFANTS = r"ENFAN|INFANT|\bADO|P[EÉ]DO|JEUN|JUV[EÉ]N|\bIJ\b|PETITE ENFANCE"
+NOM_PUBLIC_ADULTES = r"ADULT"
+# HAS, résultats d'évaluation des établissements et services sociaux et médico-sociaux (jeu data.gouv vérifié par
+# l'API le 16 octobre 2026, Licence Ouverte 2.0, mis à jour en continu), fichier de l'échelle de qualité (parquet)
+HAS_ESSMS_JEU = "resultats-devaluation-des-etablissements-et-services-sociaux-et-medico-sociaux-essms"
+HAS_ESSMS_MOTIF = "open_data_echelle_qualite"
+HAS_ESSMS_PAGE = "https://www.data.gouv.fr/datasets/" + HAS_ESSMS_JEU
 
 SOURCES_INFO = [
     (r"^RPPS", "Agence du numérique en santé (ANS)", "Licence Ouverte 2.0",
@@ -554,6 +575,7 @@ SOURCES_INFO = [
      "Licence Ouverte 2.0", "https://github.com/etalab/decoupage-administratif"),
     (r"^Contours", "IGN, ADMIN EXPRESS COG CARTO PE", "Licence Ouverte 2.0", CONTOURS_PAGE_PRODUCTEUR),
     (r"^HAS, certification", "Haute Autorité de santé (HAS)", "Licence Ouverte 2.0", HAS_PAGE),
+    (r"^HAS, évaluation", "Haute Autorité de santé (HAS)", "Licence Ouverte 2.0", HAS_ESSMS_PAGE),
     (r"^INSEE, répertoire Sirene", "Institut national de la statistique et des études économiques (INSEE)",
      "Licence Ouverte 2.0", SIRENE_PAGE),
     (r"^ANS, offres de santé", "Agence du numérique en santé (ANS), Répertoire opérationnel des ressources",
@@ -962,6 +984,39 @@ RETYPAGE_CMP_FINESS = [
      "lieu_consult_psy"),
 ]
 RETYPAGE_CATTP = r"cattp|cattg|accueil therapeutique"
+# CATTP qui n'en sont pas pour le compte (décisions de Lucas du 16 octobre 2026). Les ateliers thérapeutiques, que la SAE
+# et les chambres régionales des comptes comptent à part des CATTP, vont avec la réhabilitation psychosociale (catégorie
+# FINESS 366 ou nom d'atelier, sauf quand le nom dit aussi CATTP). Les CATTP en milieu pénitentiaire sont écartés du
+# compte des territoires et rangés comme les CMP en milieu pénitentiaire.
+FINESS_ATELIER_THERAPEUTIQUE = "366"
+# Types dont les antennes se lisent dans la relation de budget de FINESS (décision de Lucas du 16 octobre 2026, note
+# docs/note_sources_cmpp_camsp_2026-10-16.md). Structure principale, antenne (établissement non porteuse d'un
+# établissement de même catégorie), site supplémentaire (lieu du ROR seul au numéro d'une autre structure du type).
+# « Où ils exercent » dans les structures de santé mentale (demande de Lucas du 21 octobre 2026). Seules les structures
+# enregistrées sous leur propre numéro FINESS sont retenues, une déclaration au RPPS y désigne bien la structure, alors
+# que les unités hospitalières du ROR partagent le numéro de leur hôpital.
+LIEUX_EXERCICE_TYPES = ["lieu_cmp", "lieu_cattp", "lieu_cmpp", "lieu_camsp", "lieu_csapa", "lieu_caarud"]
+LIEUX_EXERCICE_PROFESSIONS = ["psychiatre", "pedopsychiatre", "q_psychiatrie_enfant", "psychologue", "infirmier",
+                              "psychomotricien", "orthophoniste", "ergotherapeute", "medecin_generaliste"]
+LIEUX_ANTENNES_FINESS = ["lieu_cmpp", "lieu_camsp", "lieu_csapa", "lieu_caarud"]
+NOM_ATELIER_THERAPEUTIQUE = r"atelier|ergotherap|art ?therap|groupe animation|theatre"
+NOM_PENITENTIAIRE = (r"usmp|smpr|medico.?psychologique regional|\bucsa\b|carceral|detention|maison (?:centrale|d.?arret)|"
+                     r"peniten[ct]")
+# Rôles lus dans le nom pour l'addictologie (décision de Lucas du 16 octobre 2026, note
+# docs/note_sources_addictologie_2026-10-16.md), dans cet ordre. Un lieu en milieu pénitentiaire et une équipe de
+# liaison (ELSA, sans lieu propre) restent listés et comptés avec leur rôle, mais n'entrent pas dans les distances.
+ROLES_ADDICTOLOGIE = {
+    "lieu_csapa": [("penitentiaire", NOM_PENITENTIAIRE), ("cjc", r"\bcjc\b|jeunes? consommateurs?"),
+                   ("antenne", r"antenne|permanence|consultations? avancees?|annexe|\bsite de\b"),
+                   ("hebergement", r"appartement|communaute therap|residentiel|hebergement|post.?cure")],
+    "lieu_caarud": [("penitentiaire", NOM_PENITENTIAIRE), ("antenne", r"antenne|permanence|annexe|\bsite de\b")],
+    "lieu_addicto_hosp": [("equipe", r"\belsa\b|liaison")],
+}
+ROLES_SANS_DISTANCE = {"penitentiaire", "equipe"}
+# Repère national des CSAPA (OFDT, bilan RECAP 2024, édition 2026, 497 CSAPA dans le champ de l'enquête, adresse vérifiée
+# le 16 octobre 2026)
+OFDT_CSAPA = (497, "2024", "OFDT, bilan RECAP 2024 (édition 2026)",
+              "https://www.ofdt.fr/sites/ofdt/files/2026-08/bilan-recap-2024-ed-2026.pdf")
 # Établissements de FINESS dont le nom dit CMP mais enregistrés dans une autre catégorie (centre hospitalier spécialisé,
 # centre hospitalier, CHR, CATTP...), environ 490 en France (constat du 13 octobre 2026, « HJ - CMP Loudun » du CH
 # Laborit, CMP adultes de l'Allier). Ils sont comptés comme CMP, sauf les services médico-psychologiques régionaux en
@@ -1105,47 +1160,89 @@ LIEUX_TYPES = [
 # Un type n'est présenté par territoire (cartes, croisements, comparaisons) que s'il est recensé dans au moins cette
 # part des départements. En dessous, il reste dans la liste des lieux avec la mention d'un recensement incomplet.
 LIEUX_COUVERTURE_MIN = 0.9
-# Chiffres publiés auxquels les lieux sont confrontés (concordance, page méthode). Type, chiffre, date, ce qui est
-# compté, source. Vérifiés le 12 octobre 2026.
+# Chiffre publié auquel un type est confronté (clé « reference » du registre). Vérifié le 12 octobre 2026.
 DREES_PANORAMA_ES_2025 = ("DREES, Les établissements de santé en 2023, édition 2025",
                           "https://drees.solidarites-sante.gouv.fr/publications-communique-de-presse-documents-de-reference/"
                           "panoramas-de-la-drees/250522_Panorama_etablissements-de-sante2025")
-LIEUX_REFERENCES = [
-    ("lieu_maternite", 457, "fin 2023", "maternités", DREES_PANORAMA_ES_2025),
-    ("lieu_urgences", 685, "2023", "structures des urgences générales ou pédiatriques", DREES_PANORAMA_ES_2025),
-]
-# Types de lieux qui deviennent des indicateurs de contexte (lieux pour 100 000 habitants et distance médiane des
-# habitants), donc croisables avec les professions et les autres indicateurs dans l'atlas et les rapports. Seuls des
-# types recensés presque partout (LIEUX_COUVERTURE_MIN) sont gardés à l'exécution.
-LIEUX_INDICATEURS = ["lieu_cmp_adultes", "lieu_cmp_enfants", "lieu_cattp", "lieu_hdj_psy_adultes", "lieu_hdj_psy_enfants",
-                     "lieu_hc_psy_adultes", "lieu_cmpp", "lieu_camsp", "lieu_csapa", "lieu_urgences", "lieu_maternite",
-                     "lieu_ehpad", "lieu_ime", "lieu_sessad", "lieu_msp", "lieu_centre_sante"]
 GROUPE_LIEUX = "Structures de soins (FINESS et ROR)"
 # Public de chaque type de structure, pour la rapporter aux habitants concernés plutôt qu'à toute la population (accord
 # de Lucas du 15 octobre 2026, même règle que PUBLICS_CIBLES pour les professions). Le recensement publie les moins de
 # 15 ans, pas les moins de 18 ans.
-LIEUX_PUBLICS = {"lieu_cmp_enfants": (["part_0_14"], "moins de 15 ans"),
-                 "lieu_hdj_psy_enfants": (["part_0_14"], "moins de 15 ans"),
-                 "lieu_cmpp": (["part_0_14"], "moins de 15 ans"), "lieu_camsp": (["part_0_14"], "moins de 15 ans"),
-                 "lieu_ime": (["part_0_14"], "moins de 15 ans"), "lieu_sessad": (["part_0_14"], "moins de 15 ans"),
-                 "lieu_ehpad": (["part_80p"], "80 ans et plus")}
-# Analyses complémentaires des structures (pipeline/structures_analyses.py, 15 octobre 2026). Types recalculés avec les
-# seules structures confirmées, champs du double éloignement (professions, structures, libellé), seuil en km, et types
-# dont on cherche les zones d'éloignement contiguës.
-LIEUX_SENSIBILITE = ["lieu_cmp_adultes", "lieu_cmp_enfants"]
+_MOINS_15 = (["part_0_14"], "moins de 15 ans")
+_80_PLUS = (["part_80p"], "80 ans et plus")
+_SOURCES_CMP = ["etablissement", "source_publique", "has", "sirene"]
+_SOURCES_MEDICO_SOCIAL = _SOURCES_CMP + ["has_essms", "principal"]   # CMPP, CAMSP, CSAPA, CAARUD, évalués par la HAS
 DOUBLE_ELOIGNEMENT_KM = 20
-DOUBLE_ELOIGNEMENT = {
-    "adultes": (["psychiatre"], ["lieu_cmp_adultes"],
+# Registre des types de structures de soins activés (16 octobre 2026, lu par pipeline/lieux_profil.py). LIEUX_TYPES dit
+# ce qu'est un type, ce registre dit ce qu'on en fait. Un type ajouté ici est testé sans écrire de test
+# (tests/test_unitaires.py, test_lieux_profil_*) et paraît dans le tableau d'avancement (docs/avancement_structures.md).
+#   public          adultes, enfants, tous ou grand_age
+#   denominateur    (colonnes de contexte, libellé) du public auquel le type est rapporté, absent pour la population
+#   confirmation    sources de confirmation indépendantes de FINESS et du ROR, vide si aucune (confirmation.py)
+#   reference       chiffre auquel le type est confronté, genre « sae » (champ de concordance_cmp_sae.csv) ou
+#                   « publiee » (valeur, date, objet, source), avec l'écart relatif toléré
+#   analyses        voir pipeline/lieux_profil.py, l'ordre du registre fixe l'ordre des colonnes et des figures
+#   limite          clé de LIMITES rappelée avec le type
+#   a_venir         mot qui annonce le type dans contenus/a_venir.md
+LIEUX_PROFIL = {
+    "lieu_cmp": {"public": "tous", "confirmation": _SOURCES_CMP, "limite": "lieux", "analyses": [],
+                 "reference": {"genre": "sae", "champ": "sae_cmp", "ecart_max": .2}},
+    "lieu_cmp_adultes": {
+        "public": "adultes", "confirmation": _SOURCES_CMP, "limite": "lieux",
+        "reference": {"genre": "sae", "champ": "sae_adultes", "ecart_max": .2},
+        "analyses": ["indicateur", "sensibilite", "zones", "double_eloignement:adultes", "charge", "typologie:sm",
+                     "typologie:tout", "eloignement:sm"]},
+    "lieu_cmp_enfants": {
+        "public": "enfants", "denominateur": _MOINS_15, "confirmation": _SOURCES_CMP, "limite": "lieux",
+        "reference": {"genre": "sae", "champ": "sae_enfants", "ecart_max": .2},
+        "analyses": ["indicateur", "sensibilite", "zones", "double_eloignement:enfants", "charge", "typologie:sm",
+                     "typologie:tout", "eloignement:sm"]},
+    "lieu_cattp": {"public": "tous", "confirmation": _SOURCES_CMP + ["sae"], "limite": "lieux", "a_venir": "CATTP",
+                   "analyses": ["indicateur", "sensibilite", "zones", "typologie:sm"]},
+    "lieu_hdj_psy_adultes": {"public": "adultes", "confirmation": _SOURCES_CMP, "limite": "lieux",
+                             "a_venir": "hôpitaux de jour",
+                             "analyses": ["indicateur", "sensibilite", "zones", "typologie:sm"]},
+    "lieu_hdj_psy_enfants": {"public": "enfants", "denominateur": _MOINS_15, "confirmation": _SOURCES_CMP,
+                             "limite": "lieux", "a_venir": "hôpitaux de jour",
+                             "analyses": ["indicateur", "sensibilite", "typologie:sm"]},
+    "lieu_hc_psy_adultes": {"public": "adultes", "limite": "lieux", "analyses": ["indicateur"]},
+    "lieu_cmpp": {"public": "enfants", "denominateur": _MOINS_15, "confirmation": _SOURCES_MEDICO_SOCIAL,
+                  "limite": "lieux", "a_venir": "CMPP",
+                  "analyses": ["indicateur", "sensibilite", "zones", "typologie:sm", "double_eloignement:enfants",
+                               "eloignement:sm"]},
+    "lieu_camsp": {"public": "enfants", "denominateur": _MOINS_15, "confirmation": _SOURCES_MEDICO_SOCIAL,
+                   "limite": "lieux", "a_venir": "CAMSP",
+                   "analyses": ["indicateur", "sensibilite", "typologie:sm", "double_eloignement:enfants"]},
+    "lieu_csapa": {"public": "tous", "confirmation": _SOURCES_MEDICO_SOCIAL, "limite": "lieux",
+                   "a_venir": "addictologie", "analyses": ["indicateur", "sensibilite", "zones", "typologie:sm"]},
+    "lieu_caarud": {"public": "tous", "confirmation": _SOURCES_MEDICO_SOCIAL, "limite": "lieux",
+                    "a_venir": "addictologie", "analyses": ["indicateur"]},
+    "lieu_urgences": {
+        "public": "tous", "limite": "lieux",
+        "reference": {"genre": "publiee", "valeur": 685, "date": "2023", "ecart_max": .1,
+                      "objet": "structures des urgences générales ou pédiatriques", "source": DREES_PANORAMA_ES_2025},
+        "analyses": ["indicateur", "zones", "typologie:sante", "typologie:tout", "eloignement:sante"]},
+    "lieu_maternite": {
+        "public": "tous", "limite": "lieux",
+        "reference": {"genre": "publiee", "valeur": 457, "date": "fin 2023", "ecart_max": .1, "objet": "maternités",
+                      "source": DREES_PANORAMA_ES_2025},
+        "analyses": ["indicateur", "typologie:sante", "typologie:tout", "eloignement:sante"]},
+    "lieu_ehpad": {"public": "grand_age", "denominateur": _80_PLUS, "limite": "lieux",
+                   "analyses": ["indicateur", "typologie:sante", "eloignement:sante"]},
+    "lieu_ime": {"public": "enfants", "denominateur": _MOINS_15, "limite": "lieux", "analyses": ["indicateur"]},
+    "lieu_sessad": {"public": "enfants", "denominateur": _MOINS_15, "limite": "lieux", "analyses": ["indicateur"]},
+    "lieu_msp": {"public": "tous", "limite": "lieux", "analyses": ["indicateur", "typologie:sante", "typologie:tout"]},
+    "lieu_centre_sante": {"public": "tous", "limite": "lieux", "analyses": ["indicateur", "typologie:sante"]},
+}
+# Champs du double éloignement (pipeline/structures_analyses.py), professions et libellé. Les structures de chaque champ
+# sont celles du registre qui portent « double_eloignement:<champ> ».
+DOUBLE_ELOIGNEMENT_CHAMPS = {
+    "adultes": (["psychiatre"],
                 "Sans psychiatre déclaré dans l'intercommunalité et à plus de 20 km d'un CMP pour adultes"),
-    "enfants": (["q_psychiatrie_enfant"], ["lieu_cmp_enfants", "lieu_cmpp", "lieu_camsp"],
+    "enfants": (["q_psychiatrie_enfant"],
                 "Sans psychiatre qualifié pour l'enfant dans l'intercommunalité et à plus de 20 km d'un CMP pour "
                 "enfants, d'un CMPP ou d'un CAMSP"),
 }
-LIEUX_ZONES = ["lieu_cmp_adultes", "lieu_cmp_enfants", "lieu_urgences"]
-# lieux décrits dans le profil des groupes de la typologie, à titre descriptif (décision de Lucas du 12 octobre 2026)
-LIEUX_TYPOLOGIE = {"sm": ["lieu_cmp_adultes", "lieu_cmp_enfants", "lieu_cattp", "lieu_hdj_psy_adultes", "lieu_cmpp"],
-                   "sante": ["lieu_urgences", "lieu_maternite", "lieu_ehpad", "lieu_msp", "lieu_centre_sante"],
-                   "tout": ["lieu_cmp_adultes", "lieu_cmp_enfants", "lieu_urgences", "lieu_maternite", "lieu_msp"]}
 GROUPE_DISTANCES = "Distance aux structures de soins"
 SOURCE_LIEUX = "ANS, offres de santé (ROR) et FINESS, réunis sans double compte"
 # groupes de lieux montrés point par point dans l'atlas (carte et fiche d'un territoire), les autres restent dans les
@@ -1224,7 +1321,11 @@ LIMITES = {
                   "corrigées par des règles appliquées à toute la France, décrites et chiffrées dans la page méthode. "
                   "Certaines structures manquent aux deux bases, par exemple deux CMP de Martinique cités par l'ARS en "
                   "2018, ou des CMP listés sur le site de leur hôpital (voir les vérifications sur d'autres sources). Une structure n'est pas une capacité, une antenne peut n'ouvrir "
-                  "que quelques demi-journées. Les professionnels déclarés sur place viennent du RPPS, beaucoup "
+                  "que quelques demi-journées. Un CATTP est compté comme FINESS et la statistique annuelle des "
+                  "établissements de santé le comptent, un lieu où l'hôpital déclare cette activité, souvent tenue "
+                  "dans un CMP ou un centre de jour qui porte un autre nom. Quand un CMP annonce un CATTP dans son nom ou son "
+                  "enseigne (« CMP-CATTP ») et que son gestionnaire n'en a pas d'autre dans la commune, un CATTP est "
+                  "compté au même lieu. Les professionnels déclarés sur place viennent du RPPS, beaucoup "
                   "déclarent leur hôpital de rattachement plutôt que le lieu où ils consultent. Les distances sont "
                   "mesurées à vol d'oiseau depuis le centre de chaque commune, l'emplacement d'une structure sans coordonnées "
                   "connues étant le centre de sa commune. Un type recensé dans moins de 90 % des départements est "
@@ -1233,15 +1334,24 @@ LIMITES = {
                     ("IGN, service de géocodage de la Géoplateforme", GEOCODAGE_PAGE)]},
     "confirmation": {
         "risque": "confirmation incomplète",
-        "texte": ("Chaque CMP est confronté à deux listes indépendantes de FINESS et du ROR, les sites que son "
-                  "établissement déclare à sa certification par la HAS, et les établissements de son gestionnaire "
-                  "inscrits au répertoire Sirene sous une enseigne de CMP. La liste de la HAS reprend les numéros "
-                  "FINESS déclarés par l'établissement à la date de sa certification, parfois ancienne de plusieurs "
-                  "années, sans adresse ni activité réelle. Les hôpitaux ferment rarement leurs anciens établissements "
-                  "dans Sirene, un établissement encore actif dans Sirene peut avoir cessé son activité. Un CMP "
-                  "confirmé par l'une ou l'autre existe dans les listes officielles de son établissement, un CMP "
-                  "confirmé par aucune reste à vérifier sur les sources de l'établissement."),
+        "texte": ("Chaque CMP, CATTP, hôpital de jour en psychiatrie, CMPP, CAMSP, CSAPA et CAARUD est confronté à "
+                  "des listes indépendantes de FINESS et du ROR, les sites que son établissement déclare à sa "
+                  "certification par la HAS, les évaluations des établissements médico-sociaux publiées par la HAS, "
+                  "et les établissements de son gestionnaire inscrits au répertoire Sirene sous une enseigne de son "
+                  "type. La liste de la certification reprend les numéros FINESS déclarés par l'établissement à la "
+                  "date de sa certification, parfois ancienne de plusieurs années, sans adresse ni activité réelle. "
+                  "Les évaluations des établissements médico-sociaux ont commencé en 2023 et chaque structure est "
+                  "évaluée une fois tous les cinq ans, une structure pas encore évaluée n'est donc pas douteuse pour "
+                  "autant. Les hôpitaux ferment rarement leurs anciens établissements dans Sirene, un établissement "
+                  "encore actif dans Sirene peut avoir cessé son activité. Une structure confirmée par l'une de ces "
+                  "listes existe dans les listes officielles de son établissement, une structure confirmée par aucune "
+                  "reste à vérifier sur les sources de l'établissement. Les rapports et l'atlas réunissent ces "
+                  "sources en trois classes, confirmée (nommée par une source indépendante des deux bases), "
+                  "recoupée par la statistique des hôpitaux (SAE, nombre de CATTP de l'hôpital ou places d'hôpital de jour du site, "
+                  "l'adresse n'étant pas confirmée) et à vérifier (inscrite dans FINESS ou le ROR seulement)."),
         "sources": [("HAS, certification des établissements de santé, données ouvertes", HAS_PAGE),
+                    ("HAS, résultats d'évaluation des établissements et services sociaux et médico-sociaux",
+                     HAS_ESSMS_PAGE),
                     ("INSEE, base Sirene des entreprises et de leurs établissements", SIRENE_PAGE)]},
     "prof:orthophoniste": {
         "risque": "tous les âges",
@@ -1356,15 +1466,27 @@ CROISEMENTS = [
     ("ctx:part_80p", "ald_sans_medecin_traitant", "medecin_traitant", ""),
     # lieux de soins, FINESS et ROR réunis (version 2, 12 octobre 2026)
     ("dens_lib:psychiatre", "lieux_lieu_cmp_adultes", "lieux_psy",
-     "Les CMP sont-ils plus nombreux là où les psychiatres libéraux manquent ?"),
+     "Les CMP, CATTP et hôpitaux de jour sont-ils plus nombreux là où les psychiatres manquent ?"),
     ("dens:psychiatre", "lieux_lieu_cmp_adultes", "lieux_psy", ""),
+    ("dens:psychiatre", "lieux_lieu_cattp", "lieux_psy", ""),
+    ("dens:psychiatre", "lieux_lieu_hdj_psy_adultes", "lieux_psy", ""),
     ("dens:q_psychiatrie_enfant", "lieux_lieu_cmp_enfants", "lieux_enfants",
      "Les structures de soins pour enfants suivent-elles l'offre de psychiatres pour l'enfant ?"),
     ("dens:q_psychiatrie_enfant", "lieux_lieu_cmpp", "lieux_enfants", ""),
     ("dens:q_psychiatrie_enfant", "lieux_lieu_camsp", "lieux_enfants", ""),
+    ("dens:q_psychiatrie_enfant", "lieux_lieu_hdj_psy_enfants", "lieux_enfants", ""),
+    ("ctx:ase_mesures", "lieux_lieu_cmp_enfants", "enfance", ""),
+    ("ctx:ase_mesures", "lieux_lieu_cmpp", "enfance", ""),
     ("ctx:taux_pauvrete", "dist_lieu_cmp_adultes", "lieux_social",
-     "Les habitants des départements modestes sont-ils plus loin des CMP ?"),
+     "Les habitants des départements modestes sont-ils plus loin des CMP et des CSAPA ?"),
     ("ctx:taux_pauvrete", "dist_lieu_cmp_enfants", "lieux_social", ""),
+    ("ctx:taux_pauvrete", "dist_lieu_csapa", "lieux_social", ""),
+    # addictologie (21 octobre 2026, demande de Lucas de tirer des nouvelles structures tout ce qu'elles permettent)
+    ("pec_addictions", "lieux_lieu_csapa", "lieux_addicto",
+     "Les structures d'addictologie sont-elles plus nombreuses là où plus de personnes sont prises en charge pour une "
+     "addiction ?"),
+    ("dens:q_addictologie", "lieux_lieu_csapa", "lieux_addicto", ""),
+    ("pec_addictions", "lieux_lieu_caarud", "lieux_addicto", ""),
     ("dist_lieu_urgences", "urgences_gestes_auto_infliges", "lieux_urgences",
      "Les départements éloignés des urgences comptent-ils plus ou moins de passages pour geste auto-infligé ?"),
     ("dist_lieu_maternite", "ctx:part_0_14", "lieux_maternite",
@@ -1446,11 +1568,14 @@ SOURCES_SUIVIES = [
      "Suicides, gestes auto-infligés, indicateurs du Baromètre de Santé publique France."),
     (r"^caf_", "Allocataires de l'AAH, de l'AEEH et du RSA", "CAF", r"^CAF",
      "Allocations liées au handicap et au revenu de solidarité active, par intercommunalité et département."),
-    (r"^has/", "Certification des établissements de santé, sites rattachés", "Haute Autorité de santé",
+    (r"^has/(?!has_essms)", "Certification des établissements de santé, sites rattachés", "Haute Autorité de santé",
      r"^HAS, certification", "Confirmation des structures inscrites dans FINESS par les sites que chaque établissement "
      "déclare à sa certification."),
+    (r"^has/has_essms", "Évaluation des établissements et services sociaux et médico-sociaux", "Haute Autorité de santé",
+     r"^HAS, évaluation", "Confirmation des CMPP, CAMSP, CSAPA et CAARUD évalués sous la catégorie de leur type."),
     (r"^sirene/", "Répertoire Sirene des établissements", "INSEE", r"^INSEE, répertoire Sirene",
-     "Confirmation des CMP par l'enseigne des établissements de leur gestionnaire, et leur adresse."),
+     "Confirmation des CMP et des autres structures de santé mentale par l'enseigne des établissements de leur "
+     "gestionnaire, et leur adresse."),
     (r"^ror/", "Offres de santé, Répertoire opérationnel des ressources (ROR)", "Agence du numérique en santé",
      r"^ANS, offres de santé",
      "Structures de soins (CMP, CATTP, hôpitaux de jour, CMPP, CAMSP, urgences, maternités, établissements médico-sociaux...), "

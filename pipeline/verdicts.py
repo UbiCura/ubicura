@@ -209,5 +209,6 @@ def _retype(ligne: pd.DataFrame, r, labels: dict) -> pd.DataFrame:
     n["type"], n["libelle_type"], n["famille"], n["groupe"] = t[0], t[1], t[2], t[3]
     n["verdict"], n["examen"] = "pas_un_cmp", r.commentaire
     if "confirmation" in n:
-        n["confirmation"] = np.nan
+        # examinée à la main avec sa source, niveau gardé pour un type confronté aux listes indépendantes
+        n["confirmation"] = "examinee" if t[0] in config.SIRENE_ENSEIGNES else np.nan
     return n

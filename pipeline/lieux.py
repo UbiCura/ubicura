@@ -24,13 +24,14 @@ import re
 import numpy as np
 import pandas as pd
 
-from . import config
+from . import config, lieux_profil
 from .lecture import nombre
 from .util import JOURNAL, entier_fr, log, norm
 
 PROVENANCES = {"les_deux": "FINESS et ROR", "finess": "FINESS seul", "ror": "ROR seul",
                "ror_type": "ROR, type que FINESS ne distingue pas",
-               "sources": "Absente des deux bases, d'après les sources de l'établissement"}
+               "sources": "Absente des deux bases, d'après les sources de l'établissement",
+               "nom_cmp": "Annoncé par le nom d'un CMP (CMP-CATTP), au même lieu"}
 PRECISIONS = {"finess": "coordonnées FINESS", "ror": "coordonnées du ROR", "adresse": "adresse géocodée au numéro",
               "rue": "adresse géocodée à la rue", "lieu_dit": "adresse géocodée au lieu-dit",
               "commune": "centre de la commune",
@@ -831,6 +832,39 @@ def professionnels(lieux: pd.DataFrame, act: pd.DataFrame) -> pd.DataFrame:
     return t.reindex(columns=[p for p in PROFESSIONS if p in t.columns])
 
 
+def exercice_structures(lieux: pd.DataFrame, act: pd.DataFrame) -> pd.DataFrame | None:
+    """Personnes distinctes de chaque profession qui déclarent au RPPS une activité dans une structure de santé mentale
+    enregistrée sous son propre numéro FINESS (config.LIEUX_EXERCICE_TYPES), par type, en France, par région et par
+    département (lieu de la structure). Une personne qui exerce dans deux types compte dans chacun, une fois dans
+    « ensemble ». Le lieu déclaré est souvent l'hôpital de rattachement, les structures sont donc sous-comptées."""
+    if act is None or lieux is None or lieux.empty:
+        return None
+    a = act[act["finess"].fillna("") != ""][["id", "prof", "finess", "com"]].copy()
+    a["prof"], a["com"] = a["prof"].astype(str), a["com"].astype(str)
+    a = a[a["prof"].isin(config.LIEUX_EXERCICE_PROFESSIONS)]
+    propres = _categories_propres()
+    x = lieux[lieux["type"].isin(config.LIEUX_EXERCICE_TYPES)].copy()
+    cat = x["categorie_finess"].fillna("").astype(str) if "categorie_finess" in x else pd.Series("", index=x.index)
+    x = x[[c in propres.get(t, set()) for t, c in zip(x["type"], cat)]]
+    l = pd.DataFrame({"type": x["type"], "finess": x["finess"], "commune": x["commune"], "dep": x["dep"],
+                      "reg": x["reg"]}).dropna(subset=["finess"]).drop_duplicates(["type", "finess", "commune"])
+    j = a.merge(l, left_on=["finess", "com"], right_on=["finess", "commune"])
+    if j.empty:
+        return None
+    j["fr"] = "FR"
+    out = []
+    for niv in ("fr", "reg", "dep"):
+        g = j.groupby([niv, "type", "prof"])["id"].nunique().rename("personnes").reset_index()
+        e = j.groupby([niv, "prof"])["id"].nunique().rename("personnes").reset_index().assign(type="ensemble")
+        out.append(pd.concat([g, e]).rename(columns={niv: "code"}).assign(niveau=niv))
+    t = pd.concat(out, ignore_index=True)[["niveau", "code", "type", "prof", "personnes"]]
+    fr = t[(t["niveau"] == "fr") & (t["type"] == "ensemble")].set_index("prof")["personnes"]
+    JOURNAL.controle("Professionnels déclarés dans une structure de santé mentale à numéro FINESS propre (France)",
+                     ", ".join(f"{p} {int(fr.get(p, 0))}" for p in ("psychiatre", "psychologue", "infirmier")
+                               if p in fr.index))
+    return t
+
+
 def distances(lieux: pd.DataFrame, ref, centres: dict) -> pd.DataFrame:
     """Distance à vol d'oiseau du centre de chaque commune à la structure la plus proche de chaque type, en km."""
     from scipy.spatial import cKDTree
@@ -872,6 +906,200 @@ def resumer_distances(dist: pd.DataFrame, ref, niveaux=("epci", "dep", "reg")) -
 # Relecture des bases, chaque correction apportée à FINESS et au ROR avec le nombre de structures concernées, montrée
 # sur la page méthode et dans le rapport national (demande de Lucas du 13 octobre 2026, « bien préciser la relecture »)
 RELEVE: list[dict] = []
+
+
+def retyper_cattp(lieux: pd.DataFrame) -> tuple[pd.DataFrame, int, int]:
+    """Ateliers thérapeutiques rangés avec la réhabilitation psychosociale et CATTP en milieu pénitentiaire rangés
+    comme les CMP en milieu pénitentiaire (décisions de Lucas du 16 octobre 2026, voir config). Renvoie les structures
+    et les deux nombres."""
+    x = lieux.copy()
+    m = x["type"] == "lieu_cattp"
+    if not m.any():
+        return x, 0, 0
+    nom = pd.Series("", index=x.index)
+    for c in ("nom_affiche", "nom", "noms_unites"):
+        if c in x:
+            nom = nom + " " + x[c].fillna("").astype(str)
+    nom = nom.map(_simple)
+    dit_cattp = nom.str.contains(config.RETYPAGE_CATTP, regex=True)
+    cat = x["categorie_finess"].fillna("").astype(str) if "categorie_finess" in x else pd.Series("", index=x.index)
+    prison = m & nom.str.contains(config.NOM_PENITENTIAIRE, regex=True)
+    atelier = m & ~prison & ~dit_cattp & ((cat == config.FINESS_ATELIER_THERAPEUTIQUE)
+                                          | nom.str.contains(config.NOM_ATELIER_THERAPEUTIQUE, regex=True))
+    types = {t[0]: t for t in config.LIEUX_TYPES}
+    for mm, tid in ((atelier, "lieu_rehab_psy"), (prison, "lieu_consult_psy")):
+        t = types[tid]
+        x.loc[mm, ["type", "libelle_type", "famille", "groupe"]] = [t[0], t[1], t[2], t[3]]
+        if "confirmation" in x:
+            x.loc[mm, "confirmation"] = None
+    JOURNAL.controle("CATTP rangés dans un autre type",
+                     f"{int(atelier.sum())} ateliers thérapeutiques avec la réhabilitation psychosociale, "
+                     f"{int(prison.sum())} CATTP en milieu pénitentiaire écartés du compte des territoires")
+    return x, int(atelier.sum()), int(prison.sum())
+
+
+ROLES = {"structure": "structure principale", "antenne": "antenne", "site": "site supplémentaire",
+         "cjc": "consultation jeunes consommateurs", "hebergement": "hébergement",
+         "penitentiaire": "milieu pénitentiaire", "equipe": "équipe sans lieu propre (liaison)"}
+
+
+def roles_addictologie(lieux: pd.DataFrame) -> pd.DataFrame:
+    """Rôle lu dans le nom pour les structures d'addictologie (config.ROLES_ADDICTOLOGIE), après la relation de budget
+    de FINESS. Un nom qui ne dit rien garde le rôle de la relation (ou « structure »)."""
+    x = lieux.copy()
+    if "role_structure" not in x:
+        x["role_structure"] = None
+    nom = pd.Series("", index=x.index)
+    for c in ("nom_affiche", "nom", "noms_unites"):
+        if c in x:
+            nom = nom + " " + x[c].fillna("").astype(str)
+    nom = nom.map(_simple)
+    for tid, regles in config.ROLES_ADDICTOLOGIE.items():
+        m = x["type"] == tid
+        if not m.any():
+            continue
+        x.loc[m & x["role_structure"].isna(), "role_structure"] = "structure"
+        pris = pd.Series(False, index=x.index)
+        for role, motif in regles:
+            r = m & ~pris & nom.str.contains(motif, regex=True)
+            x.loc[r, "role_structure"] = role
+            pris |= r
+        v = x.loc[m, "role_structure"].value_counts()
+        lib = {t[0]: t[1] for t in config.LIEUX_TYPES}[tid]
+        JOURNAL.controle(f"Rôles lus dans le nom, {lib}", ", ".join(f"{ROLES.get(k, k)} {int(n)}" for k, n in v.items()))
+    return x
+
+
+def comptes_csapa(lieux: pd.DataFrame) -> dict:
+    """Trois comptes des CSAPA jamais additionnés (décision de Lucas du 16 octobre 2026). Lieux (chaque site d'accueil),
+    établissements FINESS de catégorie CSAPA, et établissements dont aucune ligne n'est désignée par son nom comme site
+    annexe ou consultation jeunes consommateurs."""
+    g = lieux[lieux["type"] == "lieu_csapa"]
+    if g.empty:
+        return {}
+    cats = _categories_propres().get("lieu_csapa", set())
+    num = g["finess"].fillna(g["finess_rapproche"]) if "finess_rapproche" in g else g["finess"]
+    cat = g["categorie_finess"].fillna("") if "categorie_finess" in g else pd.Series("", index=g.index)
+    etab = num[cat.isin(cats) & num.notna()]
+    # un établissement est principal dès qu'une de ses lignes n'est désignée par son nom ni comme antenne ni comme CJC
+    # (règle de la note, la relation de budget de FINESS ne sert pas à ce compte)
+    nom = pd.Series("", index=g.index)
+    for c in ("nom_affiche", "nom", "noms_unites"):
+        if c in g:
+            nom = nom + " " + g[c].fillna("").astype(str)
+    nom = nom.map(_simple)
+    motifs = "|".join(m for r, m in config.ROLES_ADDICTOLOGIE["lieu_csapa"] if r in ("antenne", "cjc"))
+    annexe = nom.str.contains(motifs, regex=True)
+    principaux = set(etab[~annexe.reindex(etab.index)])
+    return {"lieux": len(g), "etablissements": int(etab.nunique()), "principaux": len(principaux)}
+
+
+def roles_antennes(lieux: pd.DataFrame, fin: pd.DataFrame | None) -> tuple[pd.DataFrame, dict]:
+    """Rôle de chaque CMPP et CAMSP (config.LIEUX_ANTENNES_FINESS), structure principale, antenne ou site
+    supplémentaire, et confirmation héritée du site principal (niveau « principal ») pour une antenne ou un site que
+    rien ne confirme directement, quand son principal est confirmé (décision de Lucas du 16 octobre 2026). Le site
+    d'accueil (chaque ligne) reste l'unité des distances et de la carte."""
+    x = lieux.copy()
+    x["role_structure"] = None
+    if fin is None or "finess_porteuse" not in fin:
+        return x, {}
+    f = fin.drop_duplicates("nofinesset").set_index("nofinesset")
+    port, cat = f["finess_porteuse"].dropna(), f["categetab"]
+    num = x["finess"].fillna(x["finess_rapproche"]) if "finess_rapproche" in x else x["finess"]
+    rendu = {}
+    for tid in config.LIEUX_ANTENNES_FINESS:
+        m = x["type"] == tid
+        if not m.any():
+            continue
+        cats = _categories_propres().get(tid, set())
+        g = x[m]
+        nb = num[m]
+        partage = nb.duplicated(keep=False) & nb.notna()
+        site = partage & (g["provenance"] == "ror")
+        antenne = ~site & nb.map(lambda n: isinstance(n, str) and n in port.index and cat.get(port[n]) in cats)
+        role = pd.Series("structure", index=g.index)
+        role[antenne] = "antenne"
+        role[site] = "site"
+        x.loc[g.index, "role_structure"] = role
+        # principal de chaque ligne, numéro du porteur pour une antenne, de la ligne non ROR au même numéro pour un site
+        conf_num = {}
+        for i in g.index[role == "structure"]:
+            conf_num.setdefault(nb[i], []).append(x.at[i, "confirmation"])
+        for i in g.index[role == "antenne"]:
+            conf_num.setdefault(nb[i], []).append(x.at[i, "confirmation"])
+        ok = {"etablissement", "source_publique", "has_sirene", "has", "sirene", "examinee"}
+        herite = 0
+        if "confirmation" in x:
+            for i in g.index[role != "structure"]:
+                if x.at[i, "confirmation"] != "bases":
+                    continue
+                princ = port.get(nb[i]) if role[i] == "antenne" else nb[i]
+                if role[i] == "site" and princ in port.index and cat.get(port[princ]) in cats:
+                    princ = port[princ] if any(c in ok for c in conf_num.get(port[princ], [])) else princ
+                if any(c in ok for c in conf_num.get(princ, [])):
+                    x.at[i, "confirmation"] = "principal"
+                    herite += 1
+        v = role.value_counts()
+        rendu[tid] = {"structure": int(v.get("structure", 0)), "antenne": int(v.get("antenne", 0)),
+                      "site": int(v.get("site", 0)), "herite": herite}
+        lib = {t[0]: t[1] for t in config.LIEUX_TYPES}[tid]
+        JOURNAL.controle(f"Structures principales, antennes et sites, {lib}",
+                         f"{len(g)} sites d'accueil, {rendu[tid]['structure']} structures principales, "
+                         f"{rendu[tid]['antenne']} antennes, {rendu[tid]['site']} sites supplémentaires, {herite} "
+                         f"confirmés par leur site principal")
+    return x, rendu
+
+
+def cattp_des_cmp(lieux: pd.DataFrame) -> tuple[pd.DataFrame, int]:
+    """CATTP tenus dans un CMP (décision de Lucas du 16 octobre 2026, un CATTP est le lieu où l'hôpital déclare cette
+    activité). Quand le nom d'un CMP, une unité du ROR qu'il réunit ou l'enseigne Sirene de son établissement annonce un
+    CATTP (« CMP-CATTP enfants ») et que son gestionnaire n'a aucun CATTP dans la même commune, un CATTP est compté au
+    même lieu. Son niveau de confirmation suit la source qui l'annonce (Sirene, liste vérifiée de l'établissement, ou
+    les bases seulement). Un gestionnaire qui a déjà un CATTP dans la commune n'en reçoit pas, le CATTP annoncé est
+    alors sans doute celui-là, décrit à une autre adresse (constat sur Ville-Évrard et la Savoie, 16 octobre 2026)."""
+    motif = config.SIRENE_ENSEIGNES["lieu_cattp"] + r"|\bCATTG\b"
+    x = lieux
+    c = x[x["type"] == "lieu_cmp"]
+    if c.empty:
+        return x, 0
+    col = lambda n: c[n].fillna("").astype(str) if n in c else pd.Series("", index=c.index)  # noqa: E731
+    par_nom = (col("nom_affiche") + " " + col("nom") + " " + col("noms_unites")).str.contains(motif, case=False, regex=True)
+    par_sirene = col("enseigne_sirene").str.contains(motif, case=False, regex=True)
+    ca = x[x["type"] == "lieu_cattp"]
+    deja = set(zip(ca["ej"].fillna(""), ca["commune"]))
+    sans_ej = set(ca.loc[ca["ej"].isna(), "commune"])
+    libre = [(e or "", k) not in deja and not (not e and k in sans_ej)
+             for e, k in zip(c["ej"].where(c["ej"].notna(), None), c["commune"])]
+    m = (par_nom | par_sirene) & pd.Series(libre, index=c.index)
+    if not m.any():
+        return x, 0
+    n = c[m].copy()
+    t = next(t for t in config.LIEUX_TYPES if t[0] == "lieu_cattp")
+    n["type"], n["libelle_type"], n["famille"], n["groupe"] = t[0], t[1], t[2], t[3]
+    n["lieu"] = n["lieu"] + "|cattp"
+    n["provenance"] = "nom_cmp"
+    st = n["statut_verification"] if "statut_verification" in n else pd.Series(None, index=n.index)
+    nom_verif = col("nom_affiche")[m].str.contains(motif, case=False, regex=True)
+    niv = pd.Series("bases", index=n.index, dtype=object)
+    niv[par_sirene[m]] = "sirene"
+    v = st.isin(["etablissement", "source_publique"]) & nom_verif
+    niv[v] = st[v]
+    n["confirmation"] = niv
+    for k in ("verdict", "examen", "verifiee"):
+        if k in n:
+            n[k] = None if k != "verifiee" else False
+    if "siret_sirene" in n:
+        for k in ("siret_sirene", "enseigne_sirene", "adresse_sirene"):
+            n[k] = n[k].where(par_sirene[m], None)
+    if "confirmee_has" in n:
+        n["confirmee_has"] = False
+    out = pd.concat([x, n], ignore_index=True)
+    JOURNAL.controle("CATTP annoncés par le nom d'un CMP, comptés au même lieu",
+                     f"{int(m.sum())} CATTP ({int((par_sirene & m).sum())} par l'enseigne Sirene, "
+                     f"{int((par_nom & ~par_sirene & m).sum())} par le nom seulement), "
+                     f"{int((par_nom | par_sirene).sum() - m.sum())} CMP qui en annoncent un sans ajout, leur gestionnaire "
+                     f"ayant déjà un CATTP dans la commune")
+    return out, int(m.sum())
 
 
 def _releve(base: str, constat: str, nombre_: int, traitement: str):
@@ -1136,6 +1364,42 @@ def concordance_sae(L: dict, sae: dict | None, ref) -> pd.DataFrame | None:
     return out
 
 
+def concordance_cattp(L: dict, sae: dict | None, ref) -> pd.DataFrame | None:
+    """CATTP recensés ici (FINESS et ROR réunis) confrontés aux CATTP que les établissements déclarent à la SAE,
+    psychiatrie générale et infanto-juvénile, par département, région et France (16 octobre 2026). Même lecture que
+    pour les CMP, la SAE range les CATTP d'un établissement dans le département de son siège."""
+    if not L or not sae or not isinstance(sae.get("cattp_disciplines"), pd.DataFrame):
+        return None
+    s = sae["cattp_disciplines"].rename(columns={"GEN": "sae_cattp_adultes", "INF": "sae_cattp_enfants"})
+    for c in ("sae_cattp_adultes", "sae_cattp_enfants"):
+        if c not in s:
+            s[c] = 0
+    s = s[["sae_cattp_adultes", "sae_cattp_enfants"]]
+    x = L["lieux"]
+    x = x[x["type"] == "lieu_cattp"]
+    dep_reg = ref.deps.set_index("code")["reg"]
+    lignes = []
+    for niv in ("dep", "reg", "fr"):
+        ici = x.groupby(niv).size() if niv != "fr" else pd.Series({"FR": len(x)})
+        ss = s if niv == "dep" else s.groupby(s.index.map(dep_reg)).sum() if niv == "reg" else s.sum().to_frame("FR").T
+        t = ss.join(ici.rename("cattp"), how="outer").fillna(0)
+        t.index.name = "code"
+        t["sae_cattp"] = t["sae_cattp_adultes"] + t["sae_cattp_enfants"]
+        t["ecart_relatif"] = np.where(t["sae_cattp"] > 0,
+                                      (t["cattp"] - t["sae_cattp"]) / t["sae_cattp"].where(t["sae_cattp"] > 0), np.nan)
+        lignes.append(t.reset_index().assign(niveau=niv))
+    out = pd.concat(lignes, ignore_index=True)
+    fr = out[out["niveau"] == "fr"].iloc[0]
+    for niv, lab in (("dep", "départements"), ("reg", "régions")):
+        y = out[(out["niveau"] == niv) & out["ecart_relatif"].notna()]
+        JOURNAL.controle(f"CATTP recensés ici et CATTP déclarés à la SAE, {lab}",
+                         f"{int((y['ecart_relatif'].abs() <= .2).sum())} {lab} sur {len(y)} à 20 % près, "
+                         f"France {int(fr['cattp'])} ici, {int(fr['sae_cattp'])} à la SAE "
+                         f"({int(fr['sae_cattp_adultes'])} adultes, {int(fr['sae_cattp_enfants'])} enfants)")
+    out["concordance"] = out["ecart_relatif"].map(niveau_concordance)
+    return out
+
+
 CONCORDANCE = [(.2, "les sources concordent"), (.4, "écart modéré entre les sources"),
                (float("inf"), "écart important entre les sources")]
 
@@ -1186,6 +1450,13 @@ def concordance_etablissements(L: dict, sae: dict | None, fin: pd.DataFrame | No
     t["statut"] = np.where(t["sae_cmp"] == 0, "absent de la SAE",
                            np.where(t["ecart"].abs() <= tol, "concorde",
                                     np.where(t["ecart"] < 0, "moins ici qu'à la SAE", "plus ici qu'à la SAE")))
+    # CATTP, même règle, seulement pour les hôpitaux qui en déclarent à la SAE ou en ont ici
+    tol_c = (t["sae_cattp"] * .2).clip(lower=1)
+    ec = t["ici_cattp"] - t["sae_cattp"]
+    t["statut_cattp"] = np.where((t["sae_cattp"] == 0) & (t["ici_cattp"] == 0), None,
+                                 np.where(t["sae_cattp"] == 0, "aucun CATTP déclaré à la SAE",
+                                          np.where(ec.abs() <= tol_c, "concorde",
+                                                   np.where(ec < 0, "moins ici qu'à la SAE", "plus ici qu'à la SAE"))))
     nom_fin = x.drop_duplicates("ej").set_index("ej")["nom_finess"] if "nom_finess" in x else pd.Series(dtype=str)
     t["nom"] = t["nom_sae"].fillna(nom_fin.reindex(t.index))
     t.index.name = "ej"
@@ -1194,6 +1465,11 @@ def concordance_etablissements(L: dict, sae: dict | None, fin: pd.DataFrame | No
     JOURNAL.controle("CMP confrontés à la SAE hôpital par hôpital",
                      f"{int(v.get('concorde', 0))} hôpitaux concordants, {int(v.get(moins, 0))} avec moins de CMP ici, "
                      f"{int(v.get(plus, 0))} avec plus, {int(v.get('absent de la SAE', 0))} absents de la SAE")
+    vc = t["statut_cattp"].value_counts()
+    JOURNAL.controle("CATTP confrontés à la SAE hôpital par hôpital",
+                     f"{int(vc.get('concorde', 0))} hôpitaux concordants, {int(vc.get(moins, 0))} avec moins de CATTP "
+                     f"ici, {int(vc.get(plus, 0))} avec plus, {int(vc.get('aucun CATTP déclaré à la SAE', 0))} sans aucun CATTP "
+                     f"déclaré à la SAE")
     return t.reset_index()
 
 
@@ -1225,7 +1501,7 @@ def escalier_distances(L: dict, ref, revenu_epci: pd.Series | None) -> pd.DataFr
     from .analyses import deciles_population
     dist = L["distances_communes"]
     ok = set(L["couverture"].loc[L["couverture"]["complet"], "type"])
-    types = [t for t in config.LIEUX_INDICATEURS if t in ok and t in dist.columns]
+    types = [t for t in lieux_profil.types_avec("indicateur") if t in ok and t in dist.columns]
     com = ref.communes.set_index("code").reindex(dist.index)
     pop = com["pop"].astype(float).fillna(0)
     par_epci = pop.groupby(com["epci"]).sum()
@@ -1250,9 +1526,9 @@ def escalier_distances(L: dict, ref, revenu_epci: pd.Series | None) -> pd.DataFr
 
 
 def _types_comparables(L: dict) -> list:
-    """Types recensés presque partout, ceux qu'on compare entre territoires (config.LIEUX_INDICATEURS)."""
+    """Types recensés presque partout, ceux qu'on compare entre territoires (registre, analyse « indicateur »)."""
     ok = set(L["couverture"].loc[L["couverture"]["complet"], "type"])
-    return [t for t in config.LIEUX_INDICATEURS if t in ok and t in L["distances_communes"].columns]
+    return [t for t in lieux_profil.types_avec("indicateur") if t in ok and t in L["distances_communes"].columns]
 
 
 def _par_epci(L: dict, ref, types):
@@ -1352,7 +1628,7 @@ def typologie_lieux(affect: pd.DataFrame | None, L: dict, ref) -> pd.DataFrame |
     n_e = L["comptes"]["epci"].pivot_table(index="code", columns="type", values="n", aggfunc="sum").fillna(0)
     lignes = []
     for fam, g in affect.groupby("famille"):
-        voulus = [t for t in config.LIEUX_TYPOLOGIE.get(fam, []) if t in types]
+        voulus = [t for t in lieux_profil.types_avec("typologie", fam) if t in types]
         cl = g.set_index("code")["classe"]
         cl_c = com["epci"].map(cl)
         pop_e = pop_c.groupby(com["epci"]).sum().reindex(cl.index).fillna(0)
@@ -1377,12 +1653,12 @@ def typologie_lieux(affect: pd.DataFrame | None, L: dict, ref) -> pd.DataFrame |
 def indicateurs(L: dict, ref, ctx: dict | None = None) -> dict | None:
     from .lecture import minuscule
     """Structures pour 100 000 habitants et distance médiane des habitants à la structure la plus proche, par intercommunalité,
-    département et région, pour les types de config.LIEUX_INDICATEURS recensés presque partout. Même forme que les
+    département et région, pour les types du registre (analyse « indicateur ») recensés presque partout. Même forme que les
     autres sources de contexte (« contexte » par niveau et « defs »)."""
     if not L:
         return None
     ok = set(L["couverture"].loc[L["couverture"]["complet"], "type"])
-    types = [t for t in config.LIEUX_INDICATEURS if t in ok]
+    types = [t for t in lieux_profil.types_avec("indicateur") if t in ok]
     lab = {t[0]: t for t in config.LIEUX_TYPES}
     pops = {"epci": ref.epci.set_index("code")["pop"], "dep": ref.deps.set_index("code")["pop"],
             "reg": ref.regs.set_index("code")["pop"]}
@@ -1391,10 +1667,10 @@ def indicateurs(L: dict, ref, ctx: dict | None = None) -> dict | None:
         c = L["comptes"][niv].pivot_table(index="code", columns="type", values="n", fill_value=0)
         c = c.reindex(index=pop.index, columns=types).fillna(0)
         t = (c.div(pop.astype(float).where(pop > 0), axis=0) * 1e5)
-        # structures d'un public particulier rapportées à ce public (config.LIEUX_PUBLICS, 15 octobre 2026)
+        # structures d'un public particulier rapportées à ce public (dénominateur du registre, 15 octobre 2026)
         cn = (ctx or {}).get(niv)
         for tp in types:
-            parts = config.LIEUX_PUBLICS.get(tp, ([], ""))[0]
+            parts = lieux_profil.denominateur(tp)[0]
             if parts and isinstance(cn, pd.DataFrame) and all(p_ in cn for p_ in parts):
                 pp = pop.astype(float) * cn[parts].sum(axis=1).reindex(pop.index) / 100
                 t[tp] = c[tp] / pp.where(pp > 0) * 1e5
@@ -1408,7 +1684,7 @@ def indicateurs(L: dict, ref, ctx: dict | None = None) -> dict | None:
     for tp in types:
         lib = lab[tp][1]
         court = _court(lib, tp)
-        public = config.LIEUX_PUBLICS.get(tp, ([], ""))[1] if ctx else ""
+        public = lieux_profil.denominateur(tp)[1] if ctx else ""
         defs.append({"id": f"lieux_{tp}", "libelle": f"{court}, pour 100 000 {public or 'habitants'}",
                      "unite": f"pour 100 000 {public}" if public else "pour 100 000 hab.",
                      "explication": f"Nombre de structures du type « {lib} » recensées par FINESS et le Répertoire "
@@ -1430,7 +1706,7 @@ def indicateurs(L: dict, ref, ctx: dict | None = None) -> dict | None:
 
 
 def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref, voisins, hors_ligne=False,
-             has: dict | None = None, sirene: dict | None = None) -> dict | None:
+             has: dict | None = None, sirene: dict | None = None, essms: dict | None = None) -> dict | None:
     """Structures de soins réunies, comptes par territoire, distances, concordance des deux bases et contrôles."""
     if not ror or fin is None:
         return None
@@ -1550,17 +1826,34 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
     # source de l'établissement ne les cite pas, en attendant une vérification à la main (décision de Lucas du
     # 14 octobre 2026)
     from . import confirmation
-    pre, _ = confirmation.confirmer(lieux, has, sirene)
+    pre, _ = confirmation.confirmer(lieux, has, sirene, essms)
     garder = set(pre.index[pre["confirmation"].isin(["has", "sirene", "has_sirene"])])
     avant_liste = pre.copy()
     lieux, verif = sv.appliquer(lieux, ref, (voisins or {}).get("centres"), hors_ligne, garder=garder)
     # confirmation par la certification HAS et par Sirene (listes indépendantes de FINESS et du ROR)
-    lieux, sirene_seul = confirmation.confirmer(lieux, has, sirene)
+    lieux, sirene_seul = confirmation.confirmer(lieux, has, sirene, essms)
     # verdicts de la vérification à la main (décisions de Lucas du 15 octobre 2026, pipeline/verdicts.py)
     from . import verdicts as verdicts_mod
     lieux, rendu_verdicts = verdicts_mod.appliquer(lieux, avant_liste, ref, (voisins or {}).get("centres"), hors_ligne)
     verif["non_retenues"] = list(verif["non_retenues"]) + rendu_verdicts["retirees"]
     verif["verdicts"] = rendu_verdicts
+    # ateliers thérapeutiques et CATTP en milieu pénitentiaire rangés dans leur type (16 octobre 2026)
+    lieux, n_atelier, n_prison = retyper_cattp(lieux)
+    if n_atelier or n_prison:
+        _releve("FINESS et ROR", "CATTP qui sont des ateliers thérapeutiques (catégorie FINESS ou nom), ou tenus en "
+                "milieu pénitentiaire", n_atelier + n_prison,
+                f"Ateliers rangés avec la réhabilitation psychosociale ({n_atelier}), CATTP en milieu pénitentiaire "
+                f"rangés avec les consultations hors CMP ({n_prison}), comme les CMP en milieu pénitentiaire")
+    # CATTP tenus dans un CMP qui l'annonce dans son nom (16 octobre 2026)
+    lieux, n_cattp_cmp = cattp_des_cmp(lieux)
+    # structures principales, antennes et sites des CMPP, CAMSP, CSAPA et CAARUD, puis rôles lus dans le nom pour
+    # l'addictologie (16 octobre 2026)
+    lieux, roles_ms = roles_antennes(lieux, fin)
+    lieux = roles_addictologie(lieux)
+    if n_cattp_cmp:
+        _releve("FINESS, ROR et Sirene", "CMP dont le nom, une unité du ROR ou l'enseigne Sirene annonce aussi un CATTP "
+                "(« CMP-CATTP »), sans autre CATTP de leur gestionnaire dans la commune", n_cattp_cmp,
+                "Un CATTP compté au même lieu que le CMP")
     if verif["non_retenues"] or verif["ajoutees"]:
         _releve("Sources des établissements", "Structures reprises une à une sur les sources des établissements "
                 "vérifiés", int(lieux["verifiee"].sum()),
@@ -1575,6 +1868,7 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
     JOURNAL.controle("Lieux déclarés deux fois à la même adresse, réunis",
                      f"{n_fus} structures réunies à une autre du même type, du même établissement, à la même adresse")
     pros = professionnels(lieux, act)
+    exercice = exercice_structures(lieux, act)
     # comptes par territoire et couverture
     comptes = {}
     lieux["com"] = lieux["commune"]
@@ -1586,7 +1880,9 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
     couv["complet"] = couv["part_departements"] >= config.LIEUX_COUVERTURE_MIN
     conc = (lieux.groupby(["dep", "type", "provenance"]).size().unstack(fill_value=0)
             .reindex(columns=list(PROVENANCES), fill_value=0).reset_index())
-    dist = distances(lieux, ref, centres) if centres else None
+    # un lieu en milieu pénitentiaire et une équipe sans lieu propre restent listés, sans entrer dans les distances
+    sans_dist = lieux["role_structure"].isin(config.ROLES_SANS_DISTANCE) if "role_structure" in lieux else False
+    dist = distances(lieux[~sans_dist], ref, centres) if centres else None
     resume = resumer_distances(dist, ref) if dist is not None else None
     # contrôles
     prov = lieux["provenance"].value_counts()
@@ -1631,9 +1927,9 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
             perdus.append(f"{labels[tid][1]} {len(attendus - trouves)}")
     JOURNAL.controle("Structures de soins, établissements de FINESS perdus à la réunion (attendu, aucun)",
                      "aucun" if not perdus else ", ".join(perdus))
-    # confrontation aux chiffres publiés (config.LIEUX_REFERENCES) et aux lits de la SAE
+    # confrontation aux chiffres publiés (références du registre) et aux lits de la SAE
     refs = []
-    for tid, n_pub, date_pub, quoi, (titre, url) in config.LIEUX_REFERENCES:
+    for tid, n_pub, date_pub, quoi, (titre, url) in lieux_profil.references():
         n = int((lieux["type"] == tid).sum())
         refs.append({"type": tid, "lieux": n, "reference": n_pub, "date_reference": date_pub, "objet": quoi,
                      "ecart": n / n_pub - 1, "source": titre, "adresse": url})
@@ -1643,4 +1939,4 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
     return {"lieux": lieux, "pros": pros, "comptes": comptes, "couverture": couv, "concordance": conc,
             "references": references,
             "distances_communes": dist, "distances": resume, "stats": stats, "unites_cmp_ror": unites_cmp, "relecture": pd.DataFrame(RELEVE), "verification": verif, "sirene_seul": sirene_seul,
-            "unites_cmp_ror_ej": unites_cmp_ej}
+            "unites_cmp_ror_ej": unites_cmp_ej, "exercice": exercice}

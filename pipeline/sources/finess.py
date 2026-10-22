@@ -19,7 +19,7 @@ from ..util import (JOURNAL, choisir_ressource, date_version, lire_meta, log, re
 SORTIE = ["nofinesset", "rs", "categetab", "libcategetab", "categagretab", "libcategagretab", "com", "actif"]
 # colonnes ajoutées le 12 octobre 2026 pour réunir FINESS et le ROR sans double compte (pipeline/lieux.py), entité
 # juridique gestionnaire, adresse et coordonnées (Finess+ seulement, géocodées par la Base Adresse Nationale)
-LIEU = ["nofinessej", "adresse", "lat", "lon", "score_ban"]
+LIEU = ["nofinessej", "adresse", "lat", "lon", "score_ban", "finess_porteuse"]
 # codes de département du flux historique pour l'outre-mer
 DOM_HISTO = {"9A": "971", "9B": "972", "9C": "973", "9D": "974", "9F": "976"}
 
@@ -92,9 +92,17 @@ def _nouveau(hors_ligne, rafraichir, libelles: pd.DataFrame | None):
     with gzip.open(dest, "rt", encoding="utf-8") as f:
         d = json.load(f)
     lignes = []
+    # relations de budget entre établissements (roleEge, rôle « B »), l'établissement non porteuse est une antenne de
+    # l'établissement porteuse (schéma de Finess+, constat du 16 octobre 2026 sur les CMPP et les CAMSP)
+    num_de, relations = {}, []
     for pm in d.get("pmej", []):
         for e in pm.get("ege", []) or []:
             info = e.get("informationsGeneralesEGE") or {}
+            if info.get("egeId"):
+                num_de[str(info["egeId"])] = info.get("numFinessEge") or ""
+            for r in e.get("roleEge") or []:
+                if r.get("roleRelationEge") == "B" and r.get("idEgeNonPorteuse") and r.get("idEgePorteuse"):
+                    relations.append((str(r["idEgeNonPorteuse"]), str(r["idEgePorteuse"])))
             adr = next((a for a in (e.get("adresse") or []) if a.get("cogCommune")), {}) or {}
             geo = adr.get("coordonneesGeographique") or {}
             ej = (pm.get("informationsGeneralesPMEJ") or {}).get("numFinessPm") or ""
@@ -104,6 +112,11 @@ def _nouveau(hors_ligne, rafraichir, libelles: pd.DataFrame | None):
                            *_degres(geo), geo.get("scoreBAN")))
     df = pd.DataFrame(lignes, columns=["nofinesset", "rs", "categetab", "etat", "com", "nofinessej", "adresse",
                                        "lat", "lon", "score_ban"])
+    porteuse = {num_de.get(a, "").strip().zfill(9): num_de.get(b, "").strip().zfill(9) for a, b in relations
+                if num_de.get(a) and num_de.get(b) and a != b}
+    df["finess_porteuse"] = df["nofinesset"].str.strip().str.zfill(9).map(porteuse)
+    JOURNAL.controle("Finess+, établissements rattachés à un établissement porteur (relation de budget)",
+                     f"{int(df['finess_porteuse'].notna().sum())} établissements, {len(set(porteuse.values()))} porteurs")
     for c in ("lat", "lon", "score_ban"):
         df[c] = pd.to_numeric(df[c], errors="coerce")
     df["actif"] = df["etat"] == "A"

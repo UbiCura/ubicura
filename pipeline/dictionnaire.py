@@ -39,9 +39,17 @@ FICHIERS = [
                                                          "le niveau de vie des intercommunalités, avec sa fourchette."),
     (r"^concordance_cmp_sae\.csv$", lambda m: "CMP recensés par FINESS et le ROR confrontés aux CMP que les "
                                                "établissements déclarent à la SAE de la DREES, par département et région."),
+    (r"^exercice_structures\.csv$", lambda m: "Professionnels qui déclarent exercer dans une structure de santé "
+                                                "mentale enregistrée sous son propre numéro FINESS (CMP, CATTP, CMPP, "
+                                                "CAMSP, CSAPA, CAARUD), par type, en France, par région et par "
+                                                "département, en personnes distinctes."),
+    (r"^concordance_cattp_sae\.csv$", lambda m: "CATTP recensés par FINESS et le ROR confrontés aux CATTP que les "
+                                                 "établissements déclarent à la SAE de la DREES, par département et "
+                                                 "région."),
     (r"^sirene_sans_correspondant\.csv$", lambda m: "Établissements actifs du répertoire Sirene, sous une enseigne "
-                                                     "de CMP, sans structure correspondante dans FINESS ou le ROR, à "
-                                                     "vérifier."),
+                                                     "de CMP ou d'une autre structure de santé mentale (CATTP, hôpital "
+                                                     "de jour, CMPP, CAMSP, CSAPA, CAARUD), sans structure "
+                                                     "correspondante dans FINESS ou le ROR, à vérifier."),
     (r"^verdicts_sans_structure\.csv$", lambda m: "Verdicts de la vérification à la main qui ne retrouvent plus leur structure "
      "(clé changée par une mise à jour des bases ou structure déjà réunie à une autre), à revoir."),
     (r"^etablissements_verifies\.csv$", lambda m: "Établissements dont les structures ont été reprises une à une sur "
@@ -262,12 +270,27 @@ COLONNES = [
                                      "région du siège de l'établissement."),
     (r"^unites_ror$", "Unités déclarées comme CMP dans le ROR, avant leur réunion en lieux (plusieurs unités d'un même "
                       "CMP, ou des CMP déclarés à l'adresse de leur hôpital, ne font qu'une structure)."),
-    (r"^ecart_relatif$", "Écart relatif entre les CMP recensés ici et ceux déclarés à la SAE."),
+    (r"^ecart_relatif$", "Écart relatif entre les structures recensées ici (CMP ou CATTP selon le fichier) et celles "
+                         "déclarées à la SAE."),
+    (r"^classe_confirmation$", "Classe de confirmation montrée au lecteur, confirmée (nommée par une source "
+                               "indépendante de FINESS et du ROR), recoupée par la statistique des hôpitaux (SAE, nombre de CATTP de "
+                               "l'établissement ou places d'hôpital de jour du site, l'adresse n'est pas confirmée) ou à "
+                               "vérifier (inscrite dans FINESS ou le ROR seulement). Vide quand le niveau n'est pas établi "
+                               "pour ce type. Détail par source dans la colonne confirmation."),
     (r"^confirmation$", "Niveau de confirmation de la structure (vérifiée sur les sources de l'établissement, sur une "
-                        "autre source publique, confirmée par la certification HAS ou par Sirene, examinée à la main et maintenue, ou à "
-                        "vérifier)."),
+                        "autre source publique, confirmée par la HAS (certification de l'hôpital ou évaluation de la "
+                        "structure médico-sociale) ou par Sirene, concordante avec la SAE (nombre de CATTP de son établissement, "
+                        "places d'hôpital de jour de son site), examinée à la main et maintenue, ou à vérifier). Vide pour les types qui ne sont pas "
+                        "encore confrontés à ces listes."),
+    (r"^role$", "Pour les CMPP, CAMSP, CSAPA et CAARUD, structure principale, antenne (établissement rattaché à un "
+                "principal par la relation de budget de FINESS, ou désigné comme antenne par son nom) ou site "
+                "supplémentaire (lieu du ROR au numéro d'une autre structure). En addictologie aussi consultation jeunes "
+                "consommateurs, hébergement, milieu pénitentiaire, ou équipe de liaison sans lieu propre. Chaque ligne "
+                "est un site d'accueil, compté pour les distances et la carte, sauf le milieu pénitentiaire et les "
+                "équipes de liaison."),
     (r"^site_certification_has$", "Vrai quand un numéro FINESS de la structure est un site de la dernière "
-                                  "certification HAS de son établissement."),
+                                  "certification HAS de son établissement dont le nom désigne son type, ou une "
+                                  "structure médico-sociale évaluée par la HAS sous la catégorie de son type."),
     (r"^siret_sirene$", "Numéro SIRET de l'établissement Sirene correspondant."),
     (r"^enseigne_sirene$", "Enseigne de cet établissement dans Sirene."),
     (r"^adresse_sirene$", "Adresse de cet établissement dans Sirene."),
@@ -295,7 +318,15 @@ COLONNES = [
     (r"^dep_siege$", "Département du siège de l'établissement d'après la SAE."),
     (r"^ici_(cmp|adultes|enfants|cattp)$", "CMP (tous, pour adultes, pour enfants) ou CATTP recensés ici et rattachés à "
                                           "l'établissement."),
-    (r"^sae_cattp$", "CATTP déclarés par l'établissement à la SAE."),
+    (r"^sae_cattp$", "CATTP déclarés à la SAE, par l'établissement ou dans le territoire (département ou région du "
+                     "siège de l'établissement)."),
+    (r"^sae_cattp_(adultes|enfants)$", "CATTP déclarés à la SAE en psychiatrie générale (adultes) ou "
+                                       "infanto-juvénile (enfants et adolescents)."),
+    (r"^personnes$", "Personnes distinctes."),
+    (r"^cattp$", "CATTP recensés ici (FINESS et ROR réunis)."),
+    (r"^statut_cattp$", "Pour les CATTP, concorde (écart d'au plus 20 % ou d'un CATTP), moins ici, plus ici, ou "
+                        "aucun CATTP déclaré à la SAE (l'hôpital y figure sans CATTP, ou n'y figure pas). Vide quand l'hôpital "
+                        "n'a de CATTP ni ici ni à la SAE."),
     (r"^ecart$", "CMP recensés ici moins CMP déclarés à la SAE."),
     (r"^statut$", "Concorde (écart d'au plus 20 % ou d'un CMP), moins ici, plus ici, ou établissement absent de la SAE."),
     (r"^concordance$", "Niveau de concordance des sources, d'après l'écart avec la SAE (20 % et 40 %)."),

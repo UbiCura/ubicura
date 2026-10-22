@@ -644,12 +644,9 @@ def test_structures_analyses():
     agg = SimpleNamespace(effectifs={"epci": pd.DataFrame({"code": ["E1", "E2"], "mode": ["all", "all"],
                                                            "prof": ["psychiatre", "psychiatre"], "n": [0, 3]})})
     L = {"distances_communes": pd.DataFrame({"lieu_cmp_adultes": [25., 5., 30.]}, index=["c1", "c2", "c3"])}
-    garde = dict(config.DOUBLE_ELOIGNEMENT)
-    try:
-        config.DOUBLE_ELOIGNEMENT = {"adultes": (["psychiatre"], ["lieu_cmp_adultes"], "test")}
-        d = sa.double_eloignement(agg, L, ref)
-    finally:
-        config.DOUBLE_ELOIGNEMENT = garde
+    # le champ « adultes » du registre porte les psychiatres et le CMP pour adultes, le champ des enfants est ignoré
+    # faute de ses professionnels et de ses structures dans ce cas construit
+    d = sa.double_eloignement(agg, L, ref)
     fr = d[d["niveau"] == "fr"].iloc[0]
     # c1 (100 habitants) sans psychiatre et à 25 km, c2 sans psychiatre mais proche, c3 loin mais avec psychiatres
     assert abs(fr["part_double_eloignement"] - .1) < 1e-9 and abs(fr["part_sans_professionnel"] - .4) < 1e-9
@@ -825,6 +822,69 @@ def test_confirmation():
     assert list(sans["siret"]) == ["2"]
 
 
+def test_confirmation_autres_types():
+    """Un CMPP évalué par la HAS sous la catégorie des CMPP est confirmé, pas un CMPP évalué sous une autre catégorie.
+    Un hôpital de jour pour adultes n'est confirmé ni par un établissement Sirene pour enfants, ni par un hôpital de
+    jour d'une autre discipline. Un hôpital de jour pour enfants l'est par l'enseigne pour enfants."""
+    import pandas as pd
+    from pipeline.confirmation import confirmer
+    L = pd.DataFrame({"type": ["lieu_cmpp", "lieu_cmpp", "lieu_hdj_psy_adultes", "lieu_hdj_psy_adultes",
+                               "lieu_hdj_psy_enfants"],
+                      "lieu": ["p1", "p2", "h1", "h2", "h3"], "nom": ["CMPP A", "CMPP B", "HDJ Rivage", "HDJ Mistral",
+                                                                    "HDJ Petits Pas"],
+                      "ej": ["A", "A", "E", "E", "E"], "finess": ["111", "222", "333", "333", "333"],
+                      "commune": ["01001", "01001", "01002", "01003", "01002"], "adresse": ["r"] * 5,
+                      "statut_verification": [None] * 5})
+    ess = {"evaluations": pd.DataFrame({"finess": ["111", "222"], "categorie": ["189", "190"],
+                                        "date": pd.to_datetime(["2024-01-01"] * 2)})}
+    sir = {"siren": {"E": "S1"}, "etablissements": pd.DataFrame({
+        "siren": ["S1"] * 3, "siret": ["1", "2", "3"], "etatAdministratifEtablissement": ["A"] * 3,
+        "enseigne": ["HDJ PEDOPSYCHIATRIE LES PETITS PAS", "HOPITAL DE JOUR GERIATRIQUE", "HDJ MISTRAL"],
+        "adresse": ["r"] * 3, "codeCommuneEtablissement": ["01002", "01002", "01003"],
+        "dateCreationEtablissement": ["2000"] * 3})}
+    x, sans = confirmer(L, None, sir, ess)
+    c = x.set_index("lieu")["confirmation"]
+    assert c["p1"] == "has" and c["p2"] == "bases"
+    assert c["h1"] == "bases" and c["h2"] == "sirene" and c["h3"] == "sirene"
+    assert x.set_index("lieu").at["h3", "siret_sirene"] == "1"
+
+
+def test_confirmation_par_sae():
+    """Un CATTP non confirmé d'un hôpital au nombre concordant avec la SAE prend le niveau « sae », pas celui d'un
+    hôpital en écart, et un CATTP déjà confirmé par la HAS garde son niveau."""
+    import pandas as pd
+    from pipeline.confirmation import confirmer_par_sae
+    L = pd.DataFrame({"type": ["lieu_cattp"] * 3 + ["lieu_cmp"], "ej": ["A", "A", "B", "A"],
+                      "confirmation": ["bases", "has", "bases", "bases"]})
+    e = pd.DataFrame({"ej": ["A", "B"], "statut_cattp": ["concorde", "moins ici qu'à la SAE"]})
+    x = confirmer_par_sae(L, e)
+    assert x["confirmation"].tolist() == ["sae", "has", "bases", "bases"]
+    # hôpitaux de jour, places déclarées à la SAE pour le site, dans la discipline du public
+    H = pd.DataFrame({"type": ["lieu_hdj_psy_adultes", "lieu_hdj_psy_enfants", "lieu_hdj_psy_enfants"],
+                      "ej": ["A"] * 3, "finess": ["111", "111", "222"], "confirmation": ["bases"] * 3})
+    h = confirmer_par_sae(H, None, {"hdj_sites": {"GEN": {"111"}, "INF": {"222"}}})
+    assert h["confirmation"].tolist() == ["sae", "bases", "sae"]
+
+
+def test_cattp_des_cmp():
+    """Un CMP qui annonce un CATTP dans son nom ou son enseigne Sirene reçoit un CATTP au même lieu, sauf si son
+    gestionnaire a déjà un CATTP dans la commune. Le niveau de confirmation suit la source qui l'annonce."""
+    import pandas as pd
+    from pipeline.lieux import cattp_des_cmp
+    L = pd.DataFrame({"type": ["lieu_cmp", "lieu_cmp", "lieu_cmp", "lieu_cattp", "lieu_cmp"],
+                      "lieu": ["a", "b", "c", "d", "e"],
+                      "nom_affiche": ["CMP-CATTP Les Lilas", "CMP Nord", "CMP CATTP Sud", "CATTP Sud", "CMP Est"],
+                      "nom": [None] * 5, "enseigne_sirene": [None, "CMP CATTP NORD", None, None, None],
+                      "ej": ["A", "A", "B", "B", "C"], "commune": ["1", "2", "3", "3", "4"],
+                      "statut_verification": [None] * 5, "confirmation": ["has", "sirene", "bases", "bases", "bases"],
+                      "provenance": ["les_deux"] * 5})
+    x, n = cattp_des_cmp(L)
+    ajout = x[x["provenance"] == "nom_cmp"].set_index("lieu")
+    assert n == 2 and set(ajout.index) == {"a|cattp", "b|cattp"}
+    assert ajout.at["a|cattp", "confirmation"] == "bases" and ajout.at["b|cattp", "confirmation"] == "sirene"
+    assert (ajout["type"] == "lieu_cattp").all()
+
+
 def test_fusion_meme_adresse():
     """Un même lieu déclaré deux fois à la même adresse est réuni, deux lieux distincts de la même avenue restent deux."""
     import pandas as pd
@@ -901,6 +961,29 @@ def test_concordance_etablissements():
     assert t.at["C", "statut"] == "absent de la SAE" and t.at["D", "statut"] == "moins ici qu'à la SAE"
     assert t.at["B", "ecart"] == -9
     assert niveau_concordance(.1) == "les sources concordent" and niveau_concordance(-.5).startswith("écart important")
+
+
+def test_concordance_cattp():
+    """CATTP confrontés à la SAE par département, région et France, et hôpital par hôpital (statut_cattp vide pour un
+    hôpital sans CATTP ni ici ni à la SAE)."""
+    import pandas as pd
+    from pipeline.lieux import concordance_cattp, concordance_etablissements
+
+    class Ref:
+        deps = pd.DataFrame({"code": ["01", "02"], "reg": ["84", "84"]})
+    L = {"lieux": pd.DataFrame({"type": ["lieu_cattp"] * 4 + ["lieu_cmp"], "dep": ["01", "01", "01", "02", "02"],
+                                "reg": ["84"] * 5, "fr": ["FR"] * 5, "ej": ["A", "A", "A", "B", "B"],
+                                "nom_finess": ["x"] * 5})}
+    sae = {"cattp_disciplines": pd.DataFrame({"GEN": [2, 5], "INF": [1, 0]}, index=pd.Index(["01", "02"], name="dep"))}
+    t = concordance_cattp(L, sae, Ref()).set_index(["niveau", "code"])
+    assert t.loc[("dep", "01"), "cattp"] == 3 and t.loc[("dep", "01"), "sae_cattp"] == 3
+    assert t.loc[("dep", "02"), "ecart_relatif"] == -0.8 and t.loc[("reg", "84"), "sae_cattp"] == 8
+    assert t.loc[("fr", "FR"), "cattp"] == 4 and t.loc[("dep", "01"), "concordance"] == "les sources concordent"
+    s = pd.DataFrame({"sae_adultes": [1, 1, 1], "sae_enfants": [0, 0, 0], "sae_cattp": [3, 6, 0],
+                      "nom_sae": ["A", "B", "C"], "dep_siege": ["01", "02", "02"]}, index=pd.Index(["A", "B", "C"], name="ej"))
+    e = concordance_etablissements(L, {"etablissements": s}).set_index("ej")
+    assert e.at["A", "statut_cattp"] == "concorde" and e.at["B", "statut_cattp"] == "moins ici qu'à la SAE"
+    assert pd.isna(e.at["C", "statut_cattp"])
 
 
 def test_cmp_publics_et_retypage():
@@ -1297,11 +1380,282 @@ def test_exclus_cmp_noms():
         assert not ex.search(_simple(nom)), nom
 
 
+# --------------------------------------------------------------------------- registre des structures de soins
+# Les tests suivants parcourent config.LIEUX_PROFIL sur les vrais résultats (dernier dossier resultats/ produit par
+# run.py --hors-ligne). Un type ajouté au registre est testé sans écrire de test (16 octobre 2026).
+class Ignore(Exception):
+    """Test qui ne peut pas tourner faute de résultats, dit à voix haute à la fin."""
+
+
+def _dernier_resultats():
+    """Dossier de résultats le plus récent qui contient la liste des structures de soins."""
+    import re
+    from pipeline import config
+    ds = [d for d in config.RESULTATS.glob("*") if d.is_dir() and re.match(r"\d{4}-\d{2}-\d{2}", d.name)
+          and (d / "lieux_soins.csv").exists()]
+    if not ds:
+        raise Ignore("aucun dossier resultats/AAAA-MM-JJ, lancer run.py --hors-ligne")
+    return max(ds, key=lambda d: d.stat().st_mtime)
+
+
+def _csv(dossier, nom, **kw):
+    import pandas as pd
+    f = dossier / nom
+    if not f.exists():
+        return None
+    return pd.read_csv(f, sep=";", decimal=",", encoding="utf-8-sig", low_memory=False, **kw)
+
+
+def test_lieux_profil_forme():
+    """Le registre est bien formé (types connus, clés, analyses, champs de double éloignement) et ses analyses sont
+    cohérentes : une sensibilité suppose une confirmation, une charge suppose une référence de la SAE, un public
+    d'enfants ou de grand âge a son dénominateur."""
+    from pipeline import config, lieux_profil as lp
+    assert config.LIEUX_PROFIL
+    lp.valider()
+    for tid, p in config.LIEUX_PROFIL.items():
+        tags = {lp.decouper(t)[0] for t in p["analyses"]}
+        assert "sensibilite" not in tags or p.get("confirmation"), f"{tid} : sensibilité sans confirmation"
+        assert "charge" not in tags or (p.get("reference") or {}).get("genre") == "sae", f"{tid} : charge sans SAE"
+        assert p["public"] not in ("enfants", "grand_age") or p.get("denominateur"), f"{tid} : public sans dénominateur"
+    for cle, (profs, types, lib) in lp.champs_double_eloignement().items():
+        assert profs and types and lib, cle
+
+
+def test_lieux_profil_croisements():
+    """Chaque structure citée par un croisement de config.CROISEMENTS est un indicateur du registre."""
+    from pipeline import config, lieux_profil as lp
+    indic = set(lp.types_avec("indicateur"))
+    cites = set()
+    for xa, yb, _theme, _q in config.CROISEMENTS:
+        for v in (xa, yb):
+            for pre in ("lieux_", "dist_"):
+                if v.startswith(pre + "lieu_"):
+                    cites.add(v[len(pre):])
+    assert cites <= indic, f"croisements sur des structures hors du registre : {sorted(cites - indic)}"
+
+
+def test_lieux_profil_donnees():
+    """Pour chaque type du registre, sur les résultats réels : compte non vide, couverture, niveau de confirmation,
+    concordance avec la référence, indicateurs sans doublon ni libellé brut, colonnes p et q_bh des analyses
+    statistiques et lignes de chaque analyse déclarée. Toutes les erreurs sont listées avec le nom du type."""
+    import json
+    import sys
+    from pipeline import config, confirmation, lieux_profil as lp
+    d = _dernier_resultats()
+    ls, cou = _csv(d, "lieux_soins.csv", dtype={"dep": str}), _csv(d, "lieux_couverture.csv")
+    cdep = _csv(d, "contexte_dep.csv", dtype={"code": str})
+    sd = json.loads((d / "site_data.json").read_text(encoding="utf-8"))
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "outils"))
+    from comparer_versions import IDENTIFIANT
+    err = []
+    # indicateurs de contexte du site, identifiants uniques
+    ids = [x["id"] for x in sd["contexte"]]
+    err += [f"indicateur en double, {i}" for i in sorted({i for i in ids if ids.count(i) > 1})]
+    ctx = {x["id"]: x for x in sd["contexte"]}
+    niveaux_ok = set(confirmation.NIVEAUX.values())
+    cles_sirene = set(config.SIRENE_ENSEIGNES) | {t[0] for t in config.LIEUX_TYPES
+                                                    if t[4].get("parent") in config.SIRENE_ENSEIGNES}
+    fichiers = {"sensibilite": "sensibilite_confirmation.csv", "zones": "zones_eloignement.csv",
+                "double_eloignement": "double_eloignement.csv", "charge": "charge_cmp_sae.csv",
+                "typologie": "typologie_lieux.csv", "escalier": "escalier_distance_lieux.csv"}
+    for tid, p in config.LIEUX_PROFIL.items():
+        g = ls[ls["type"] == tid]
+        tags = [lp.decouper(t) for t in p["analyses"]]
+        noms = {n for n, _ in tags}
+        if g.empty:
+            err.append(f"{tid} : aucune structure")
+            continue
+        # couverture
+        c = cou[cou["type"] == tid]
+        if (noms & lp.ANALYSES_TERRITORIALES) and (c.empty or float(c["part_departements"].iloc[0]) < config.LIEUX_COUVERTURE_MIN):
+            err.append(f"{tid} : recensé dans moins de {config.LIEUX_COUVERTURE_MIN:.0%} des départements")
+        # confirmation
+        if p.get("confirmation"):
+            if g["confirmation"].isna().any():
+                err.append(f"{tid} : {int(g['confirmation'].isna().sum())} structures sans niveau de confirmation")
+            if not set(g["confirmation"].dropna()) <= niveaux_ok:
+                err.append(f"{tid} : niveau de confirmation inconnu {sorted(set(g['confirmation'].dropna()) - niveaux_ok)}")
+            if tid not in cles_sirene:
+                err.append(f"{tid} : confirmation déclarée mais absente de config.SIRENE_ENSEIGNES")
+        elif tid in cles_sirene:
+            err.append(f"{tid} : confirmé par config.SIRENE_ENSEIGNES, sources à déclarer dans le registre")
+        # référence
+        r = p.get("reference")
+        if r and r["genre"] == "publiee":
+            e = len(g) / r["valeur"] - 1
+            if abs(e) > r["ecart_max"]:
+                err.append(f"{tid} : {len(g)} structures contre {r['valeur']} publiées ({e:+.1%}, tolérance {r['ecart_max']:.0%})")
+            ref = _csv(d, "lieux_references.csv")
+            ligne = None if ref is None else ref[ref["type"] == tid]
+            if ligne is None or ligne.empty or int(ligne["lieux"].iloc[0]) != len(g) or int(ligne["reference"].iloc[0]) != r["valeur"]:
+                err.append(f"{tid} : ligne de lieux_references.csv absente ou différente")
+        elif r:
+            conc = _csv(d, "concordance_cmp_sae.csv")
+            fr = conc[conc["niveau"] == "fr"].iloc[0]
+            ici = fr[r["champ"].replace("sae_", "")]
+            e = ici / fr[r["champ"]] - 1
+            if int(ici) != len(g) or abs(e) > r["ecart_max"]:
+                err.append(f"{tid} : {int(ici)} contre {int(fr[r['champ']])} à la SAE ({e:+.1%}, tolérance {r['ecart_max']:.0%}), "
+                           f"{len(g)} dans la liste")
+        # indicateurs
+        if "indicateur" in noms:
+            for i in (f"lieux_{tid}", f"dist_{tid}"):
+                if cdep is None or i not in cdep or cdep[i].notna().sum() == 0:
+                    err.append(f"{tid} : colonne {i} absente ou vide de contexte_dep.csv")
+                if i not in ctx:
+                    err.append(f"{tid} : indicateur {i} absent du site")
+                elif IDENTIFIANT.search(ctx[i]["label"]) or not ctx[i].get("niveaux"):
+                    err.append(f"{tid} : indicateur {i} au libellé brut ou sans donnée ({ctx[i]['label'][:50]})")
+            es, co = _csv(d, "escalier_distance_lieux.csv"), _csv(d, "concentration_distance_lieux.csv")
+            if es is None or int((es["type"] == tid).sum()) != 10:
+                err.append(f"{tid} : l'escalier de distance n'a pas ses dix dixièmes de population")
+            if co is None or co[co["type"] == tid].empty:
+                err.append(f"{tid} : indice de concentration de la distance absent")
+            cols, _lib = lp.denominateur(tid)
+            err += [f"{tid} : dénominateur {c_} absent de contexte_dep.csv" for c_ in cols if cdep is None or c_ not in cdep]
+        # analyses
+        for nom, param in tags:
+            if nom == "eloignement":
+                premier = lp.types_avec("eloignement", param)[0] == tid
+                svg = d / "graphiques" / (f"eloignement_{param}" if premier else f"eloignement_{param}__{tid}") 
+                if not svg.with_suffix(".svg").exists():
+                    err.append(f"{tid} : figure {svg.name}.svg absente")
+            f = fichiers.get(nom)
+            if not f:
+                continue
+            t = _csv(d, f)
+            if t is None:
+                err.append(f"{tid} : fichier {f} absent")
+                continue
+            if nom == "double_eloignement":
+                n = int(((t["champ"] == param) & (t["niveau"] == "fr")).sum())
+            elif nom == "charge":
+                n = int(((t["niveau"] == "fr") & (t["public"] == p["public"])).sum())
+            elif nom == "typologie":
+                n = int(((t["type"] == tid) & (t["famille"] == param)).sum())
+            else:
+                n = int((t["type_structure" if nom == "zones" else "type"] == tid).sum())
+            if n == 0:
+                err.append(f"{tid} : aucune ligne pour {nom}{':' + param if param else ''} dans {f}")
+            if nom in lp.ANALYSES_STATISTIQUES:
+                if not {"p", "q_bh"} <= set(t.columns):
+                    err.append(f"{f} : colonnes p et q_bh attendues")
+                else:
+                    s = t[t["type_structure"] == tid].dropna(subset=["p", "q_bh"])
+                    if ((s["p"] < 0) | (s["p"] > 1) | (s["q_bh"] < s["p"] - 1e-9) | (s["q_bh"] > 1 + 1e-9)).any():
+                        err.append(f"{tid} : p ou q_bh hors de leurs bornes dans {f}")
+    assert not err, "\n".join(err)
+
+
+def test_publics_et_cattp_meme_lieu():
+    """Public de chaque CMP montré dans l'atlas, mêmes comptes que lieux.repartition_cmp, et CATTP à l'adresse d'un CMP
+    (même adresse et même commune), sur les structures en cache."""
+    import pandas as pd
+    from pipeline import config, export, lieux
+    p = config.RACINE / "donnees" / "intermediaire" / "structures_avant_verification.parquet"
+    if not p.exists():
+        return
+    x = pd.read_parquet(p)
+    pub, ant = export._publics_cmp(x)
+    r = lieux.repartition_cmp(x, "fr").iloc[0]
+    v = pd.Series(pub).value_counts()
+    assert len(pub) == r["cmp"] and v.get("d", 0) == r["les_deux"] and v.get("n", 0) == r["non_precise"]
+    assert v.get("a", 0) + v.get("d", 0) == r["adultes"] and v.get("e", 0) + v.get("d", 0) == r["enfants"]
+    assert len(ant) == r["antennes"]
+    m = export._cattp_meme_lieu_cmp(x)
+    ca = x[x["type"] == "lieu_cattp"]
+    assert 0 < len(m) < len(ca) and m <= set(ca.index)
+    cle = lambda i: norm(x.at[i, "adresse"]) + "|" + str(x.at[i, "commune"])  # noqa: E731
+    adr_cmp = {cle(i) for i in x.index[(x["type"] == "lieu_cmp") & x["adresse"].fillna("").str.strip().ne("")]}
+    assert all(cle(i) in adr_cmp for i in m)
+    assert not any(not str(x.at[i, "adresse"] or "").strip() for i in m)
+
+
+
+def test_retyper_cattp():
+    """Un atelier thérapeutique (catégorie FINESS 366 ou nom) va avec la réhabilitation psychosociale, sauf si son nom
+    dit aussi CATTP. Un CATTP en milieu pénitentiaire va avec les consultations hors CMP."""
+    import pandas as pd
+    from pipeline.lieux import retyper_cattp
+    L = pd.DataFrame({"type": ["lieu_cattp"] * 4 + ["lieu_cmp"],
+                      "nom_affiche": ["Atelier théâtre", "CATTP adulte Atelier thérapeutique Quimper", "CATTP Maison d'arrêt",
+                                      "Les Tilleuls", "Atelier"],
+                      "categorie_finess": [None, None, None, "366", None], "confirmation": ["bases"] * 5})
+    x, na, npn = retyper_cattp(L)
+    assert x["type"].tolist() == ["lieu_rehab_psy", "lieu_cattp", "lieu_consult_psy", "lieu_rehab_psy", "lieu_cmp"]
+    assert (na, npn) == (2, 1)
+
+
+def test_roles_antennes():
+    """CMPP principal, antenne (non porteuse d'un CMPP dans FINESS) et site supplémentaire (ROR seul au numéro d'une
+    autre ligne). L'antenne et le site non confirmés héritent de leur principal confirmé, pas d'un principal non confirmé."""
+    import pandas as pd
+    from pipeline.lieux import roles_antennes
+    fin = pd.DataFrame({"nofinesset": ["P", "A", "Q", "B"], "categetab": ["189"] * 4,
+                        "finess_porteuse": [None, "P", None, "Q"]})
+    L = pd.DataFrame({"type": ["lieu_cmpp"] * 5, "finess": ["P", "A", "P", "Q", "B"], "finess_rapproche": [None] * 5,
+                      "provenance": ["les_deux", "finess", "ror", "les_deux", "finess"],
+                      "confirmation": ["has", "bases", "bases", "bases", "bases"]})
+    x, r = roles_antennes(L, fin)
+    assert x["role_structure"].tolist() == ["structure", "antenne", "site", "structure", "antenne"]
+    assert x["confirmation"].tolist() == ["has", "principal", "principal", "bases", "bases"]
+    assert r["lieu_cmpp"]["herite"] == 2
+
+
+def test_roles_addictologie():
+    """Rôles lus dans le nom (CJC, antenne, hébergement, milieu pénitentiaire, équipe de liaison), et trois comptes des
+    CSAPA, lieux, établissements FINESS de catégorie CSAPA, établissements sans ligne d'antenne ni de CJC."""
+    import pandas as pd
+    from pipeline.lieux import comptes_csapa, roles_addictologie
+    L = pd.DataFrame({"type": ["lieu_csapa"] * 5 + ["lieu_addicto_hosp"],
+                      "nom_affiche": ["CSAPA Le Fil", "CJC du Fil", "Antenne CSAPA Nord", "Appartements thérapeutiques",
+                                      "CSAPA maison d'arrêt", "ELSA CH Nord"],
+                      "finess": ["1", "1", "2", "3", "4", None], "finess_rapproche": [None] * 6,
+                      "categorie_finess": ["197", "197", "197", "197", "197", None]})
+    x = roles_addictologie(L)
+    assert x["role_structure"].tolist() == ["structure", "cjc", "antenne", "hebergement", "penitentiaire", "equipe"]
+    c = comptes_csapa(x)
+    assert c == {"lieux": 5, "etablissements": 4, "principaux": 3}
+
+
+def test_classes_confirmation():
+    """Trois classes montrées au lecteur, qui refont le nombre de structures au niveau établi."""
+    import pandas as pd
+    from pipeline.confirmation import NIVEAUX, classe, compter_classes
+    assert {classe(k) for k in NIVEAUX} == {"confirmee", "recoupee", "a_verifier"}
+    assert classe("bases") == "a_verifier" and classe("sae") == "recoupee" and classe("principal") == "confirmee"
+    assert classe(None) is None
+    c = compter_classes(pd.Series(["has", "sae", "bases", "etablissement", None]))
+    assert c == {"confirmee": 2, "recoupee": 1, "a_verifier": 1}
+
+
+def test_exercice_structures():
+    """Personnes distinctes déclarées dans une structure à numéro FINESS propre, par type et au total, sans compter une
+    unité hospitalière qui partage le numéro de son hôpital."""
+    import pandas as pd
+    from pipeline.lieux import exercice_structures
+    L = pd.DataFrame({"type": ["lieu_cmp", "lieu_cattp", "lieu_cmp"], "finess": ["1", "2", "9"],
+                      "commune": ["A", "A", "B"], "dep": ["01"] * 3, "reg": ["84"] * 3,
+                      "categorie_finess": ["156", "425", "106"]})
+    act = pd.DataFrame({"id": ["p1", "p1", "p2", "p3"], "prof": ["psychiatre", "psychiatre", "psychologue", "psychiatre"],
+                        "finess": ["1", "2", "1", "9"], "com": ["A", "A", "A", "B"]})
+    t = exercice_structures(L, act)
+    fr = t[t["niveau"] == "fr"].set_index(["type", "prof"])["personnes"]
+    assert fr[("lieu_cmp", "psychiatre")] == 1 and fr[("lieu_cattp", "psychiatre")] == 1
+    assert fr[("ensemble", "psychiatre")] == 1 and fr[("ensemble", "psychologue")] == 1
+
 if __name__ == "__main__":
     n = 0
+    ignores = []
     for nom, f in list(globals().items()):
         if nom.startswith("test_"):
-            f()
+            try:
+                f()
+            except Ignore as e:
+                ignores.append(nom)
+                print("ignoré", nom, "-", e)
+                continue
             n += 1
             print("ok", nom)
-    print(f"{n} tests réussis")
+    print(f"{n} tests réussis" + (f", {len(ignores)} ignorés faute de résultats : {', '.join(ignores)}" if ignores else ""))

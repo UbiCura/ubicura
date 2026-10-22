@@ -4,7 +4,7 @@ Les principaux ajouts prévus, sans date ferme. Chacun ne sera intégré que si 
 
 **L'offre mois après mois.** L'évolution des effectifs par territoire, suivie à chaque nouvelle version du répertoire des professionnels de santé, sans aucune donnée personnelle.
 
-**Toutes les structures de soins psychiques.** CATTP, hôpitaux de jour, CMPP, CAMSP et structures d'addictologie, vérifiés comme les CMP et comptés avec leur niveau de confirmation.
+**Structures confirmées auprès des établissements.** Les structures de soins encore à vérifier soumises à l'établissement qui les gère, avec la liste de ses secteurs.
 
 **Temps de trajet vers les structures de soins.** Par la route, et non plus à vol d'oiseau.
 
@@ -15,8 +15,6 @@ Les principaux ajouts prévus, sans date ferme. Chacun ne sera intégré que si 
 **Repères d'épidémiologie.** Anxiété, bien-être et santé mentale du grand âge, par région ou département, avec leur marge d'incertitude.
 
 ## Analyses et site
-
-**Structures de chaque territoire.** Pour chaque département, une carte et une liste des structures de soins.
 
 **Pages par intercommunalité.** Une page complète pour chaque intercommunalité, sur le modèle des départements.
 

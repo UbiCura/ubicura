@@ -5,23 +5,23 @@ pour servir aussi aux structures vérifiées plus tard.
    départements, inégalités selon le niveau de vie) sont recalculés avec les seules structures confirmées par une
    source indépendante de FINESS et du ROR, et l'on dit si la conclusion change.
 2. Double éloignement. Part des habitants qui vivent dans une intercommunalité sans professionnel déclaré et à plus de
-   config.DOUBLE_ELOIGNEMENT_KM d'une structure du même champ (config.DOUBLE_ELOIGNEMENT).
+   config.DOUBLE_ELOIGNEMENT_KM d'une structure du même champ (config.DOUBLE_ELOIGNEMENT_CHAMPS).
 3. Charge par CMP d'après la SAE. File active ambulatoire et psychiatres salariés en temps plein rapportés aux CMP que
    les établissements déclarent, par département et discipline, une seule source pour le numérateur et le dénominateur.
 4. Zones d'éloignement contiguës. Moran local des distances médianes par intercommunalité, correction de
-   Benjamini-Hochberg (config.LIEUX_ZONES).
+   Benjamini-Hochberg (types du registre portant « zones »).
 """
 from __future__ import annotations
 
 import numpy as np
 import pandas as pd
 
-from . import config
+from . import config, lieux_profil
 from .util import JOURNAL, log
 
 # niveaux de confirmation indépendants de FINESS et du ROR (pipeline/confirmation.py). « examinee » (vérification à la
 # main sans source officielle) n'en fait pas partie, par prudence.
-CONFIRMES = {"etablissement", "source_publique", "has_sirene", "has", "sirene"}
+CONFIRMES = {"etablissement", "source_publique", "has_sirene", "has", "sirene", "principal"}
 
 
 def _confirmees(lieux: pd.DataFrame) -> pd.DataFrame:
@@ -43,13 +43,13 @@ def _mediane(x, w):
 
 def sensibilite(L: dict, ref, centres: dict | None, ctx_epci: pd.DataFrame | None, rng) -> pd.DataFrame | None:
     """Résultats clés avec toutes les structures et avec les seules structures confirmées (types de
-    config.LIEUX_SENSIBILITE). Une ligne par mesure, avec la conclusion de chaque version."""
+    registre, analyse « sensibilite »). Une ligne par mesure, avec la conclusion de chaque version."""
     if not L or not centres:
         return None
     from scipy import stats
     from . import lieux as lieux_mod
     x = L["lieux"]
-    types = [t for t in config.LIEUX_SENSIBILITE if t in set(x["type"])]
+    types = [t for t in lieux_profil.types_avec("sensibilite") if t in set(x["type"])]
     if not types or "confirmation" not in x:
         return None
     sous = _confirmees(x)
@@ -113,7 +113,7 @@ def sensibilite(L: dict, ref, centres: dict | None, ctx_epci: pd.DataFrame | Non
 
 
 def double_eloignement(agg, L: dict, ref) -> pd.DataFrame | None:
-    """Pour chaque champ de config.DOUBLE_ELOIGNEMENT (professions, structures), part des habitants dont
+    """Pour chaque champ du double éloignement (lieux_profil.champs_double_eloignement), part des habitants dont
     l'intercommunalité ne compte aucun de ces professionnels déclarés et dont la commune est à plus de
     config.DOUBLE_ELOIGNEMENT_KM de la plus proche de ces structures. France, régions et départements."""
     if not L or agg is None:
@@ -124,7 +124,7 @@ def double_eloignement(agg, L: dict, ref) -> pd.DataFrame | None:
     com = ref.communes.set_index("code").reindex(dist.index)
     pop = com["pop"].astype(float).fillna(0)
     lignes = []
-    for cle_, (profs, types, lib) in config.DOUBLE_ELOIGNEMENT.items():
+    for cle_, (profs, types, lib) in lieux_profil.champs_double_eloignement().items():
         profs = [p for p in profs if p in n]
         types = [t for t in types if t in dist]
         if not profs or not types:
@@ -184,12 +184,12 @@ def charge_cmp(sae: dict | None, ref) -> pd.DataFrame | None:
 
 def zones_eloignement(ctx_epci: pd.DataFrame | None, voisins: dict | None, rng=None) -> pd.DataFrame | None:
     """Zones où l'éloignement se concentre. Moran global et local des distances médianes des habitants à la structure
-    la plus proche, par intercommunalité (types de config.LIEUX_ZONES), Benjamini-Hochberg par type."""
+    la plus proche, par intercommunalité (types du registre portant « zones »), Benjamini-Hochberg par type."""
     if ctx_epci is None or not voisins or "epci" not in voisins:
         return None
     from .analyses import benjamini_hochberg, moran, moran_local
     out = []
-    for t in config.LIEUX_ZONES:
+    for t in lieux_profil.types_avec("zones"):
         col = f"dist_{t}"
         if col not in ctx_epci:
             continue
@@ -198,8 +198,8 @@ def zones_eloignement(ctx_epci: pd.DataFrame | None, voisins: dict | None, rng=N
         if r.empty:
             continue
         I, p = moran(v, voisins["epci"], rng=rng)
-        r["q"] = benjamini_hochberg(r["p"])
-        r["zone"] = np.where(r["q"] < .05, r["type"].map({"HH": "eloignement_groupe", "LL": "proximite_groupee",
+        r["q_bh"] = benjamini_hochberg(r["p"])
+        r["zone"] = np.where(r["q_bh"] < .05, r["type"].map({"HH": "eloignement_groupe", "LL": "proximite_groupee",
                                                            "HL": "eloigne_isole", "LH": "proche_isole"}),
                              "non_significatif")
         r.insert(0, "type_structure", t)
@@ -221,6 +221,11 @@ def appliquer_tout(L: dict, ref, centres, ctx: dict | None, voisins, sae, rng) -
     """Calcule et range dans L les analyses qui ne dépendent pas des effectifs (sensibilité, charge, zones)."""
     if not L:
         return
+    lieux_profil.valider()
+    JOURNAL.controle("Registre des structures de soins (config.LIEUX_PROFIL)",
+                     f"{len(config.LIEUX_PROFIL)} types activés, "
+                     + ", ".join(f"{a} {len(lieux_profil.types_avec(a))}" for a in
+                                 ("indicateur", "sensibilite", "zones", "double_eloignement", "typologie", "eloignement")))
     ctx_epci = (ctx or {}).get("epci")
     for cle_, f in (("sensibilite", lambda: sensibilite(L, ref, centres, ctx_epci, rng)),
                     ("charge_cmp", lambda: charge_cmp(sae, ref)),

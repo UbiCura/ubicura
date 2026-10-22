@@ -132,13 +132,15 @@ def charger(ref, ctx_dep=None, hors_ligne=False, rafraichir=False):
     q = p[p["DIS"].isin(["GEN", "INF"])].copy()
     q["NB_CMP_SEUL"] = pd.to_numeric(q["NB_CMP_SEUL"], errors="coerce")
     cmp_dis = q.groupby(["dep", "DIS"])["NB_CMP_SEUL"].sum().unstack(fill_value=0)
+    # CATTP déclarés de la même façon, pour confronter les CATTP recensés ici (16 octobre 2026)
+    q["NB_CATTP"] = pd.to_numeric(q["NB_CATTP"], errors="coerce")
+    cattp_dis = q.groupby(["dep", "DIS"])["NB_CATTP"].sum().unstack(fill_value=0)
     # file active ambulatoire et psychiatres salariés par discipline et département, pour la charge par CMP
     # (pipeline/structures_analyses.py, 15 octobre 2026)
     for col in ("FIL_AMB", "ETPSAL_PKT"):
         q[col] = pd.to_numeric(q[col], errors="coerce")
     charge = q.groupby(["dep", "DIS"])[["FIL_AMB", "NB_CMP_SEUL", "ETPSAL_PKT"]].sum(min_count=1).reset_index()
     # par entité juridique (hôpital), pour confronter les CMP et CATTP établissement par établissement (13 octobre 2026)
-    q["NB_CATTP"] = pd.to_numeric(q["NB_CATTP"], errors="coerce")
     # par établissement géographique (FI), avec son entité juridique de l'année de la SAE, ramenée ensuite à l'entité
     # actuelle de FINESS (fusions d'hôpitaux depuis la collecte)
     ej = q.groupby(["FI", "DIS"])["NB_CMP_SEUL"].sum().unstack(fill_value=0).rename(
@@ -152,6 +154,11 @@ def charger(ref, ctx_dep=None, hors_ligne=False, rafraichir=False):
     ej["nom_sae"] = une["RS"].reindex(ej.index)
     ej["dep_siege"] = une["dep"].reindex(ej.index)
     ej.index.name = "fi"
+    # sites (établissements géographiques) qui déclarent des places d'hôpital de jour, par discipline, pour confirmer
+    # les hôpitaux de jour du ROR (16 octobre 2026)
+    q["CAP_HDJ"] = pd.to_numeric(q["CAP_HDJ"], errors="coerce")
+    hdj_sites = {d: set(q.loc[(q["DIS"] == d) & (q["CAP_HDJ"] > 0), "FI"].astype(str).str.strip().str.zfill(9))
+                 for d in ("GEN", "INF")}
     return {"contexte": {niv: pd.DataFrame(v) for niv, v in ctx.items()}, "defs": defs,
-            "table": pd.concat(lignes, ignore_index=True), "annee": meta.get("annee"), "cmp_disciplines": cmp_dis, "charge_disciplines": charge,
-            "etablissements": ej}
+            "table": pd.concat(lignes, ignore_index=True), "annee": meta.get("annee"), "cmp_disciplines": cmp_dis, "cattp_disciplines": cattp_dis, "charge_disciplines": charge,
+            "etablissements": ej, "hdj_sites": hdj_sites}

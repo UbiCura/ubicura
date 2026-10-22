@@ -245,6 +245,22 @@ if "site_certification_has" in ls and (B / "has" / "has_2021_2025_sites.csv").ex
                                   | set(str(r.get("finess_absorbes") or "").split(","))) & _eg), axis=1)
     note("CMP confirmés par un site de la certification HAS", float(_c["site_certification_has"].astype(str).eq("True").sum()),
          float(_n.sum()), 0)
+    # CMPP et CSAPA confirmés par la HAS, recalculés depuis les évaluations des établissements médico-sociaux (catégorie
+    # FINESS du type) et les sites de certification dont le nom désigne le type (16 octobre 2026)
+    if (B / "has" / "has_essms_evaluations.parquet").exists():
+        _ev = pd.read_parquet(B / "has" / "has_essms_evaluations.parquet",
+                              columns=["finess_geo", "essms_categ_finess_code"]).astype(str)
+        _ev["finess_geo"] = _ev["finess_geo"].str.zfill(9)
+        for _t, _cat, _motif, _lib in (("lieu_cmpp", "189", r"\bC\.?\s?M\.?\s?P\.?\s?P\b(?!\s?\.?\s?A)|PSYCHO.?P[EÉ]DAGOG", "CMPP"),
+                                        ("lieu_csapa", "197", r"\bC\.?\s?S\.?\s?A\.?\s?P\.?\s?A\b|\bC\.?\s?J\.?\s?C\b|"
+                                                              r"JEUNES CONSOMMATEURS", "CSAPA")):
+            _ok = set(_ev.loc[_ev["essms_categ_finess_code"] == _cat, "finess_geo"]) | set(
+                _g.loc[_g["RS_eg"].fillna("").str.contains(_motif, case=False, regex=True), "FINESS_EG"])
+            _x = ls[ls["type"] == _t]
+            _m = _x.apply(lambda r: bool(({str(r.get("finess")), str(r.get("finess_rapproche"))}
+                                          | set(str(r.get("finess_absorbes") or "").split(","))) & _ok), axis=1)
+            note(f"{_lib} confirmés par la HAS (évaluation ou certification)",
+                 float(_x["site_certification_has"].astype(str).eq("True").sum()), float(_m.sum()), 0)
 
 print("\n".join(lignes))
 print(f"\nRésultats contrôlés, {R}")

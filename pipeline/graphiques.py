@@ -11,7 +11,7 @@ from html import escape
 import numpy as np
 import pandas as pd
 
-from . import config
+from . import config, lieux_profil
 from .lecture import nombre
 from .util import log
 
@@ -192,9 +192,7 @@ def escalier(R, lab, cle, densite_nationale, p=None):
     return f.svg(f"Densité de {lab.get(p, p).lower()}s selon le niveau de vie des territoires")
 
 
-# lieux montrés par l'escalier de la distance, le premier est commenté par le rapport
-ELOIGNEMENT = {"sm": ["lieu_cmp_adultes", "lieu_cmp_enfants", "lieu_cmpp"],
-               "sante": ["lieu_urgences", "lieu_maternite", "lieu_ehpad"]}
+# lieux montrés par l'escalier de la distance (registre, analyse « eloignement »), le premier est commenté par le rapport
 
 
 def eloignement(L, tid):
@@ -633,7 +631,7 @@ def ecrire(out, agg, ref, professions, contexte, R):
         figures[f"distance_{cle}"] = distances(R, lab, cle)
         variantes(f"parcours_{cle}", lambda q: parcours(agg, lab, q), pr, PRINCIPALE[cle])
     L = getattr(agg, "lieux", None)
-    for cle, types in ELOIGNEMENT.items():
+    for cle, types in lieux_profil.types_eloignement().items():
         for tid in types:
             svg = eloignement(L, tid)
             if not svg:

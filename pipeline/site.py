@@ -124,22 +124,35 @@ CESURES = re.compile(r"(Psycho|psycho|Pédo|pédo|Kinési|kinési|Ortho|ortho|Gy
 
 
 def _confirmation(dossier, lire, nb):
-    """Niveaux de confirmation des CMP (page méthode)."""
+    """Niveaux de confirmation des structures, une colonne par type confronté aux listes indépendantes (page
+    méthode). Les CMP pour adultes et pour enfants suivent leur CMP « tous publics », ils ne sont pas répétés."""
     f = dossier / "lieux_soins.csv"
     if not f.exists():
         return None
     import pandas as pd
+    from . import config
     x = pd.read_csv(f, sep=";", dtype=str, usecols=lambda c: c in ("type", "confirmation"))
     if "confirmation" not in x:
         return None
     from .confirmation import NIVEAUX
-    n = x.loc[x["type"] == "lieu_cmp", "confirmation"].value_counts()
-    rows = [{"niveau": lib[0].upper() + lib[1:], "n": nb(int(n.get(lib, 0)))} for lib in NIVEAUX.values()]
+    court = {"lieu_hdj_psy_adultes": "Hôpitaux de jour, adultes", "lieu_hdj_psy_enfants": "Hôpitaux de jour, enfants"}
+    lib = {t[0]: court.get(t[0], t[1].split(",")[0]) for t in config.LIEUX_TYPES}
+    types = [t for t in config.SIRENE_ENSEIGNES if x.loc[x["type"] == t, "confirmation"].notna().any()]
+    if not types:
+        return None
+    n = {t: x.loc[x["type"] == t, "confirmation"].value_counts() for t in types}
+    rows = [{"niveau": niv[0].upper() + niv[1:], "n": [nb(int(n[t].get(niv, 0))) for t in types]}
+            for niv in NIVEAUX.values() if any(n[t].get(niv, 0) for t in types)]
+    rows.append({"niveau": "Total", "n": [nb(int(n[t].sum())) for t in types]})
     fs = dossier / "sirene_sans_correspondant.csv"
-    ns = sum(1 for _ in lire(fs)) if fs.exists() else 0
-    resume = (f"Sirene compte en outre {nb(ns)} établissements actifs sous une enseigne de CMP sans structure "
-              f"correspondante, listés dans sirene_sans_correspondant.csv et vérifiés établissement par établissement.")
-    return {"niveaux": rows, "resume": resume}
+    ns = nc = 0
+    for r in (lire(fs) if fs.exists() else []):
+        ns += 1
+        nc += r.get("type") == "lieu_cmp"
+    resume = (f"Sirene compte en outre {nb(ns)} établissements actifs sous une enseigne de l'un de ces types sans "
+              f"structure correspondante, dont {nb(nc)} sous une enseigne de CMP, vérifiés établissement par "
+              f"établissement. Les autres restent à vérifier. Tous sont listés dans sirene_sans_correspondant.csv.")
+    return {"types": [lib.get(t, t) for t in types], "niveaux": rows, "resume": resume}
 
 
 def _liste_verifiee(dossier, lire, nb):
@@ -930,7 +943,9 @@ def _lieux_methode(dossier):
                            # trois colonnes refassent le total
                            "ror": "sans objet" if seul_ror else nb(p.get("ROR seul", 0)
                                                                    + p.get("ROR, type que FINESS ne distingue pas", 0)),
-                           "sources": "sans objet" if seul_ror else nb(p.get("Absente des deux bases, d'après les sources de l'établissement", 0)),
+                           "sources": "sans objet" if seul_ror else nb(
+                               p.get("Absente des deux bases, d'après les sources de l'établissement", 0)
+                               + p.get("Annoncé par le nom d'un CMP (CMP-CATTP), au même lieu", 0)),
                            "part": pc(r["part_departements"]),
                            "compare": "oui" if r["complet"] in ("True", "true", "1") else "non, listé seulement"})
     refs = [{"libelle": r.get("objet", ""), "nous": nb(r["lieux"]), "pub": nb(r["reference"]),

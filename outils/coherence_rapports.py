@@ -142,22 +142,21 @@ def controler(version: Path) -> list[str]:
         md = _section(nat.read_text(encoding="utf-8"), "#### Structures de soins")
         fin_ = md.find("\n#### ", 10)
         md = md[:fin_] if fin_ > 0 else md
-        for lib, n, d, fi, ro, so in re.findall(r"^\| ([^|]+?) \| " + NOMBRE + r" \| " + NOMBRE + r" \| " + NOMBRE
-                                                + r" \| " + NOMBRE + r" \| " + NOMBRE + r" \|", md, flags=re.M):
+        # tableau des structures, nombre et trois classes de confirmation (21 octobre 2026)
+        for lib, n, c, r_, a in re.findall(r"^\| ([^|]+?) \| " + NOMBRE + r" \| " + NOMBRE + r" \| (sans objet|"
+                                           + NOMBRE[1:-1] + r") \| " + NOMBRE + r" \|", md, flags=re.M):
             tid = lib_type.get(lib)
             if tid is None:
                 continue
             g = lieux[lieux["type"] == tid]
-            p = g["provenance"].value_counts()
-            src = [k for k in p.index if k.startswith("Absente des deux bases")]
-            vu = [len(g), int(p.get("FINESS et ROR", 0)), int(p.get("FINESS seul", 0)),
-                  int(p.get("ROR seul", 0)) + int(p.get("ROR, type que FINESS ne distingue pas", 0)),
-                  int(p[src].sum()) if src else 0]
-            lu = [entier(v) for v in (n, d, fi, ro, so)]
+            cl = g["classe_confirmation"].value_counts() if "classe_confirmation" in g else pd.Series(dtype=int)
+            from pipeline.confirmation import CLASSES
+            vu = [len(g)] + [int(cl.get(CLASSES[k], 0)) for k in ("confirmee", "recoupee", "a_verifier")]
+            lu = [0 if v == "sans objet" else entier(v) for v in (n, c, r_, a)]
             if lu != vu:
                 pb.append(f"rapport_sante_mentale.md, {lib} {lu} dans le texte, {vu} dans lieux_soins.csv")
-            if lu[1] + lu[2] + lu[3] + lu[4] != lu[0]:
-                pb.append(f"rapport_sante_mentale.md, {lib}, les provenances ne refont pas le total")
+            if lu[1] + lu[2] + lu[3] != lu[0]:
+                pb.append(f"rapport_sante_mentale.md, {lib}, les classes de confirmation ne refont pas le total")
         # phrase de tête, CMP par public de la France
         mh = re.search(r"recensent " + NOMBRE + r" centres médico-psychologiques \(CMP\) distincts\. " + NOMBRE
                        + r" accueillent des adultes et " + NOMBRE + r" des enfants", nat.read_text(encoding="utf-8"))

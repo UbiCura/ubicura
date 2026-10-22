@@ -148,6 +148,12 @@ def _has_certification():
             yield h.DOSSIER / f"{cle}_{suffixe}.csv", (r or {}).get("maj", ""), {}
 
 
+def _has_essms():
+    from .sources import has_essms as h
+    r = h.ressource()
+    yield h.DEST, (r or {}).get("maj", ""), {}
+
+
 def _sirene():
     from .sources import sirene as s
     r = [x for x in ressources_datagouv(config.SIRENE_JEU)
@@ -156,7 +162,7 @@ def _sirene():
 
 
 VERIFICATIONS = [_rpps, _finess, _insee, _insee_estimations, _acces_route, _referentiel, _contours, _apl,
-                 _drees_demographie, _drees_isd, _sae, _ameli, _ald, _odisse, _caf, _ror, _has_certification, _sirene]
+                 _drees_demographie, _drees_isd, _sae, _ameli, _ald, _odisse, _caf, _ror, _has_certification, _has_essms, _sirene]
 
 
 def comparer(dest: Path, distante: str, attendu: dict) -> tuple[str, str]:
