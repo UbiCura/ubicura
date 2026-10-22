@@ -1710,6 +1710,18 @@ def test_addicto_odisse():
     assert "addictions" in config.LIMITES
 
 
+def test_css_libelle_valeur_ecart():
+    """Une ligne qui met un libellé et sa valeur face à face (grille « 1fr auto » ou flex « space-between ») a toujours
+    un écart, sinon un libellé qui passe à la ligne vient toucher le nombre (remarque de Lucas du 22 octobre 2026)."""
+    import re
+    from pipeline import config
+    for f in (config.RACINE / "gabarits" / "style.css", config.RACINE / "atlas" / "atlas_template.html"):
+        css = f.read_text(encoding="utf-8")
+        for regle in re.findall(r"[^{}]*\{[^{}]*\}", css):
+            if re.search(r"grid-template-columns:[^;}]*auto|justify-content:space-between", regle):
+                assert re.search(r"(^|[;{])\s*(column-)?gap:", regle), (f.name, regle.strip()[:120])
+
+
 def test_typo_commune():
     """Les figures des rapports et de l'atlas suivent la même échelle typographique (harmonisation du 22 octobre 2026),
     jamais moins de 11,5 pixels à l'écran, et une taille convertie selon la largeur de la figure."""

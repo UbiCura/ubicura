@@ -213,10 +213,10 @@ table.simple tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--ink)
 .apercu-evol{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 18px}
 .apercu-evol h2{margin:0 0 8px;padding:0;border:0;font-size:1.25rem}
 .evol{color:var(--r4);margin:14px 0}
-.evol-t{display:flex;justify-content:space-between;color:var(--ink);font-size:1rem}
+.evol-t{display:flex;justify-content:space-between;gap:12px;color:var(--ink);font-size:1rem}
 .evol-t span{font-variant-numeric:tabular-nums;color:var(--muted)}
 .evol svg{width:100%;height:46px;display:block}
-.evol-b{display:flex;justify-content:space-between;font-size:.75rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.evol-b{display:flex;justify-content:space-between;gap:12px;font-size:.75rem;color:var(--muted);font-variant-numeric:tabular-nums}
 /* rapports, encadrés « Comment lire », figures numérotées, page de titre du PDF (8 octobre 2026) */
 .comment-lire{background:color-mix(in srgb,var(--r1) 30%,transparent);border-left:3px solid var(--r3);border-radius:0 4px 4px 0;padding:8px 12px;font-size:1rem}
 figure.graphique figcaption strong{color:var(--ink)}

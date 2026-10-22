@@ -138,7 +138,7 @@ svg text{fill:var(--muted);font-family:var(--sans);font-size:11px}
 .cb-vue h3{font-family:var(--serif);font-size:18px;font-weight:600;margin:8px 0 6px}
 .cb-q{font-size:.875rem;color:var(--muted);margin:14px 0 4px;padding-bottom:3px;border-bottom:1px solid var(--line)}
 .cb-axe{display:grid;grid-template-columns:minmax(0,1fr) 132px 44px;gap:10px;font-size:.75rem;color:var(--muted);padding:0 6px}
-.cb-axe span{display:flex;justify-content:space-between}
+.cb-axe span{display:flex;justify-content:space-between;gap:8px}
 .cb-ligne{display:grid;grid-template-columns:minmax(0,1fr) 132px 44px;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;border-radius:6px;padding:5px 6px;color:var(--ink);font:inherit;font-size:.875rem;line-height:1.35;cursor:pointer}
 .cb-ligne:hover{background:color-mix(in srgb,var(--accent) 10%,transparent)}
 .cb-ligne.on{background:color-mix(in srgb,var(--accent) 18%,transparent);box-shadow:inset 3px 0 0 var(--accent)}
@@ -207,7 +207,8 @@ details.groupe>summary{cursor:pointer;font-size:.75rem;color:var(--muted);font-w
 .prow .lbl{line-height:1.25;padding:2px 0}
 .prow .v{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
 .gh{font-size:.75rem;color:var(--muted);margin:10px 0 2px;font-weight:600}
-.hbars div.r{display:grid;grid-template-columns:1fr auto;font-size:.875rem;margin-bottom:6px}
+.hbars div.r{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:16px;align-items:start;font-size:.875rem;margin-bottom:6px}
+.hbars div.r>span:nth-child(2){white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}
 .hbars .t{grid-column:1/-1;height:6px;background:var(--nodata);border-radius:1px}
 .hbars .t span{display:block;height:100%;background:var(--r4)}
 .scroll{overflow-x:auto}
