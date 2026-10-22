@@ -41,9 +41,11 @@ def _telecharger(ind, hors_ligne, rafraichir):
     return dest
 
 
-def charger(hors_ligne=False, rafraichir=False):
-    """Renvoie {"contexte": {niveau: DataFrame}, "defs": [...], "table": DataFrame} ou None."""
+def charger(hors_ligne=False, rafraichir=False, ref=None):
+    """Renvoie {"contexte": {niveau: DataFrame}, "defs": [...], "table": DataFrame} ou None. Avec le référentiel, seuls
+    les codes de vrais territoires sont gardés (certains jeux ajoutent des lignes d'ensemble, codes 10 et 99)."""
     ctx, defs, lignes = {}, [], []
+    connus = {"dep": set(ref.deps["code"]), "reg": set(ref.regs["code"])} if ref is not None else {}
     for ind in config.ODISSE:
         try:
             chemin = _telecharger(ind, hors_ligne, rafraichir)
@@ -55,16 +57,18 @@ def charger(hors_ligne=False, rafraichir=False):
             d = df[df["_annee"] == annee].copy()
             d["_code"] = _code(d[ind["code"]], ind["niveau"])
             d = d.drop_duplicates("_code")
+            if ind["niveau"] in connus:
+                d = d[d["_code"].isin(connus[ind["niveau"]])]
             ctx.setdefault(ind["niveau"], {})[ind["id"]] = d.set_index("_code")["_v"]
             t = pd.DataFrame({"niveau": ind["niveau"], "code": d["_code"], "indicateur": ind["id"], "annee": annee,
                               "valeur": d["_v"]})
             for k in ("ic_bas", "ic_haut"):
-                t[k] = pd.to_numeric(d[ind[k]].str.replace(",", "."), errors="coerce") if ind.get(k) else None
+                t[k] = pd.to_numeric(d[ind[k]].str.replace(",", "."), errors="coerce") if ind.get(k) else float("nan")
             lignes.append(t)
             meta = lire_meta(chemin)
             defs.append({"id": ind["id"], "libelle": ind["libelle"], "unite": ind["unite"],
                          "explication": ind["explication"] + f" Année {annee}.", "source": ind["source"],
-                         "famille": config.SANTE_MENTALE, "licence": "Licence Ouverte 2.0",
+                         "famille": config.SANTE_MENTALE, "licence": "Licence Ouverte 2.0", "groupe": ind.get("groupe"),
                          "niveau_origine": ind["niveau"], "annee": annee})
             JOURNAL.note(f"Santé publique France, {ind['libelle'].lower()}", "ok",
                          f"année {annee}, {len(d)} territoires ({'départements' if ind['niveau'] == 'dep' else 'régions'})",

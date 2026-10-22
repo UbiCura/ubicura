@@ -60,6 +60,7 @@ def _historique(hors_ligne, rafraichir):
     df["actif"] = True   # le flux historique ne contient que les établissements ouverts
     df["adresse"] = (df["numvoie"].str.strip() + " " + df["typvoie"].str.strip() + " " + df["voie"].str.strip()).str.strip()
     df["lat"] = df["lon"] = df["score_ban"] = float("nan")
+    df["finess_porteuse"] = None   # le flux historique ne décrit pas les relations de budget entre établissements
     return df[SORTIE + LIEU].copy(), dest
 
 

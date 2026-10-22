@@ -362,6 +362,94 @@ def porte(R, lab, cle, p=None):
     return f.svg(f"Secteurs d'exercice des {lab.get(p, p).lower()}s selon la densité de population")
 
 
+def notes_regions_manquantes(presentes: dict, noms: dict, cle=str) -> list:
+    """Phrases qui disent quelles régions n'ont pas de mesure publiée, d'abord pour toutes les mesures, puis mesure
+    par mesure. presentes associe le libellé d'une mesure aux codes qui en ont une."""
+    manques = {lib: {c for c in noms if c not in codes} for lib, codes in presentes.items()}
+    commun = set.intersection(*manques.values()) if manques else set()
+    trier = lambda cs: ", ".join(sorted((noms[c] for c in cs), key=cle))  # noqa: E731
+    out = [f"Aucune mesure publiée pour {trier(commun)}."] if commun else []
+    out += [f"« {lib} », pas de mesure publiée pour {trier(m - commun)}." for lib, m in manques.items() if m - commun]
+    return out
+
+
+def regions_intervalles(spf, ref, ids):
+    """Valeur de chaque région et sa fourchette (intervalle de confiance), un panneau par indicateur d'Odissé, régions
+    rangées par ordre alphabétique et non par valeur (pas de palmarès). Médiane des régions en trait discret."""
+    if not spf or not isinstance(spf.get("table"), pd.DataFrame):
+        return None
+    t = spf["table"]
+    defs = {d["id"]: d for d in spf.get("defs", [])}
+    ids = [i for i in ids if (t["indicateur"] == i).any()]
+    if not ids:
+        return None
+    noms = ref.regs.set_index("code")["nom"]
+    import unicodedata
+    sans_accent = lambda s: unicodedata.normalize("NFKD", s).encode("ascii", "ignore").decode()  # noqa: E731
+    regs = sorted(set(t.loc[t["indicateur"].isin(ids), "code"]) & set(noms.index), key=lambda c: sans_accent(noms[c]))
+    gauche, pas = 178, 21
+    largeur = (640 - gauche - 12) / len(ids)
+    n_car = max(14, int(largeur / 6.4))
+
+    def couper(texte):
+        lignes, cur = [], ""
+        for m in str(texte).split():
+            if cur and len(cur) + 1 + len(m) > n_car:
+                lignes.append(cur)
+                cur = m
+            else:
+                cur = (cur + " " + m).strip()
+        return lignes + ([cur] if cur else [])
+    entetes = {i: (couper(defs.get(i, {}).get("libelle", i)),
+                   couper(f"{defs.get(i, {}).get('unite', '')}, {defs.get(i, {}).get('annee', '')}")) for i in ids}
+    n_lignes = max(len(a) + len(b) for a, b in entetes.values())
+    haut = 14 * n_lignes + 14
+    notes = notes_regions_manquantes(
+        {defs.get(i, {}).get("libelle", i): set(t.loc[t["indicateur"] == i, "code"]) for i in ids},
+        {c: noms[c] for c in noms.index}, sans_accent)
+    h = haut + pas * len(regs) + 30 + 13 * len(notes)
+    f = Figure(640, h, (gauche, 12, haut, 30 + 13 * len(notes)))
+    bas = h - 13 * len(notes)
+    for k, c in enumerate(regs):
+        y = haut + pas * k + pas / 2
+        f.texte(gauche - 8, y + 4, noms[c], "end", ENCRE)
+        if k % 2 == 0:
+            f.ajout(f'<rect x="{gauche}" y="{y - pas / 2:.1f}" width="{640 - gauche - 12}" height="{pas}" '
+                    f'fill="var(--panel, #F4F2F8)" opacity=".5"/>')
+    for j, i in enumerate(ids):
+        x = t[(t["indicateur"] == i) & t["code"].isin(regs)].set_index("code")
+        x0 = gauche + j * largeur + 10
+        x1 = x0 + largeur - 24
+        vmax = float(np.nanmax(x[["valeur", "ic_haut"]].to_numpy(dtype=float))) * 1.05
+        ticks, pas_t = graduations(vmax)
+        vmax = math.ceil(vmax / pas_t) * pas_t
+        X = lambda v, a=x0, b=x1, m=vmax: a + v / m * (b - a)  # noqa: E731
+        titre, unite = entetes[i]
+        for l, ligne in enumerate(titre):
+            f.texte((x0 + x1) / 2, 14 + 14 * l, ligne, "middle", ENCRE, 11, True)
+        for l, ligne in enumerate(unite):
+            f.texte((x0 + x1) / 2, 14 + 14 * (len(titre) + l), ligne, "middle", DISCRET, 10)
+        for v in graduations(vmax)[0]:
+            f.ligne(X(v), haut, X(v), bas - 30, LIGNE, 1)
+            f.texte(X(v), bas - 14, nombre(v, 0), "middle", DISCRET, 10)
+        med = x["valeur"].median()
+        f.ligne(X(med), haut, X(med), bas - 30, DISCRET, 1, "3 3")
+        for k, c in enumerate(regs):
+            if c not in x.index:
+                continue
+            y = haut + pas * k + pas / 2
+            r = x.loc[c]
+            if pd.notna(r["ic_bas"]) and pd.notna(r["ic_haut"]):
+                f.ligne(X(r["ic_bas"]), y, X(r["ic_haut"]), y, VIOLET[2], 2)
+            f.ajout(f'<circle cx="{X(r["valeur"]):.1f}" cy="{y:.1f}" r="4" fill="{VIOLET[0]}"><title>'
+                    f'{escape(noms[c])}, {nombre(r["valeur"], 1)}</title></circle>')
+    f.texte(12, bas - 2, "Point, valeur de la région. Trait, fourchette (intervalle de confiance à 95 %). "
+            "Pointillé, médiane des régions.", "start", DISCRET, 10)
+    for k, n in enumerate(notes):
+        f.texte(12, bas + 11 + 13 * k, n, "start", DISCRET, 10)
+    return f.svg("Consommations d'alcool et de tabac et décès attribuables au tabac, par région, avec leur fourchette")
+
+
 def distances(R, lab, cle):
     """Part de la population à moins de x km du professionnel le plus proche, courbes cumulées."""
     tc = R.get("accessibilite_communes")
@@ -630,6 +718,11 @@ def ecrire(out, agg, ref, professions, contexte, R):
         variantes(f"porte_{cle}", lambda q, c=cle: porte(R, lab, c, q), pr, PRINCIPALE[cle])
         figures[f"distance_{cle}"] = distances(R, lab, cle)
         variantes(f"parcours_{cle}", lambda q: parcours(agg, lab, q), pr, PRINCIPALE[cle])
+    # addictologie, consommations régionales (22 octobre 2026)
+    try:
+        figures["addicto_regions"] = regions_intervalles((contexte or {}).get("odisse"), ref, config.ADDICTO_ODISSE)
+    except Exception as e:  # noqa: BLE001
+        log.warning("figure addicto_regions impossible (%s)", e)
     L = getattr(agg, "lieux", None)
     for cle, types in lieux_profil.types_eloignement().items():
         for tid in types:

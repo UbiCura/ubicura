@@ -571,6 +571,32 @@ def _parcours_site(agg, professions):
     return {r["prof"]: [None if c not in r or pd.isna(r[c]) else int(r[c]) for c in cols] for _i, r in t.iterrows()}
 
 
+def _addicto_atlas(agg, ref, insee) -> dict:
+    """Encadré « Addictologie » de l'atlas (22 octobre 2026), consommations régionales avec fourchette et offre,
+    mêmes calculs que la partie du rapport santé mentale."""
+    from .rapport import offre_addicto
+    spf = (insee or {}).get("odisse") or {}
+    t = spf.get("table")
+    out = {"offre": [], "ind": [], "regions": ref.regs.set_index("code")["nom"].to_dict()}
+    L = getattr(agg, "lieux", None) or {}
+    nat = agg.national[agg.national["mode"] == "all"].set_index("prof")["n"] if hasattr(agg, "national") else {}
+    out["offre"] = offre_addicto(L.get("lieux"), nat.get("q_addictologie") if len(nat) else None)
+    if isinstance(t, pd.DataFrame):
+        defs = {d["id"]: d for d in spf.get("defs", [])}
+        for i in config.ADDICTO_ODISSE:
+            x = t[t["indicateur"] == i]
+            if x.empty:
+                continue
+            d = defs.get(i, {})
+            ph = next((o.get("phrase") for o in config.ODISSE if o["id"] == i), None)
+            out["ind"].append({"id": i, "lib": d.get("libelle", i), "unite": d.get("unite", ""), "annee": d.get("annee"),
+                               "phrase": ph,
+                               "v": {c: [round(float(v), 2), None if pd.isna(lo) else round(float(lo), 2),
+                                         None if pd.isna(hi) else round(float(hi), 2)]
+                                     for c, v, lo, hi in zip(x["code"], x["valeur"], x["ic_bas"], x["ic_haut"])}})
+    return out
+
+
 def _exercice_atlas(L, top) -> dict:
     """Professionnels déclarés dans les structures de santé mentale à numéro FINESS propre, pour l'encadré « Où ils
     exercent » de l'atlas (France et départements, mêmes clés que les secteurs)."""
@@ -760,6 +786,7 @@ def _site(agg, ref, professions, insee, R, serie, jour):
                          for p in professions["id"]}},
         "secteurs": top(agg.secteurs[agg.secteurs["niveau"].isin(["FR", "dep"])], "secteur"),
         "exercice": _exercice_atlas(getattr(agg, "lieux", None), top),
+        "addicto": _addicto_atlas(agg, ref, insee),
         "categories": top(agg.categories, "categorie"),
         "structures": struct,
         "correlations": corr,

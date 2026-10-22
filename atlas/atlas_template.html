@@ -239,6 +239,10 @@ svg.map circle.lieu.creux{filter:drop-shadow(0 0 .35px var(--panel)) drop-shadow
 .lx-droite .lieuinfo{margin:2px 0 0;padding:2px 0 2px 10px}
 @media (max-width:900px){.lx-corps{grid-template-columns:minmax(0,1fr)}.lx-droite{position:static;order:-1}}
 .lx-table th,.lx-table td{white-space:normal}
+.ad-grille{display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
+#adTable th,#adTable td{white-space:normal;text-align:left}
+#adTable td:first-child{white-space:nowrap}
+#adTable th:nth-child(2),#adTable td:nth-child(2){text-align:right;white-space:nowrap}
 .lx-table thead th{text-align:right;color:var(--muted);font-weight:600;font-size:.8rem;white-space:nowrap}
 .lx-table thead th:first-child{text-align:left;position:static;background:none}
 .lx-table thead th .sym-conf{color:var(--ink)}
@@ -450,6 +454,13 @@ dl.gl dt{font-weight:600;margin-top:12px}dl.gl dd{margin:2px 0 0;max-width:75ch}
       </div>
     </div>
     <details class="plus"><summary>Tous les croisements entre bases, en tableau</summary><div class="scroll"><table id="cbTable"></table></div></details></div>
+  <div class="panel pad" style="margin-top:24px" id="adPanel" data-repli="addicto"><h2>Addictologie <button class="how" data-how="addictions">Comment lire</button></h2><div class="howtxt hidden"></div>
+    <p class="note">L’offre en addictologie, le recours aux soins et les consommations d’alcool et de tabac au même endroit. Les consommations ne sont publiées que par région, elles ne sont pas rapportées aux départements.</p>
+    <p class="phrase" id="adPhrase"></p>
+    <div class="ad-grille"><div class="ad-fig"><svg id="adPlot" role="img" aria-label="Consommations d’alcool et de tabac et décès attribuables au tabac, par région, avec leur fourchette" viewBox="0 0 900 600"></svg></div>
+      <div class="ad-offre"><h3>L’offre en France</h3><div class="scroll"><table id="adTable" class="simple"></table></div>
+        <p class="small">Les trois comptes des CSAPA ne s’additionnent pas, ils décrivent la même offre à trois niveaux. Le croisement entre les CSAPA, les personnes prises en charge pour une addiction et les médecins addictologues est dans « Croisements entre bases » ci-dessus.</p></div></div>
+    <div id="adLimite"></div></div>
   <div class="two" style="margin-top:24px">
     <div class="panel pad"><h2>Offre et indicateur sur une même carte <button class="how" data-how="ecologique">Comment lire</button></h2><div class="howtxt hidden"></div>
       <p class="note">Par département, hors Mayotte, pour la profession choisie en haut de la page. Chaque département est classé en tiers pour l’offre et pour l’indicateur.</p>
@@ -1298,7 +1309,40 @@ function phraseCroisement(r){
   const brut=net?"le lien est "+forceLien(r.rho)+" (rho = "+f2.format(r.rho)+")":"aucun lien net n’apparaît (rho = "+f2.format(r.rho)+", fourchette de "+f2.format(r.lo)+" à "+f2.format(r.hi)+")";
   const dens=r.rp==null?"":net&&netp?", et "+forceLien(r.rp)+" à densité de population égale (rho = "+f2.format(r.rp)+")":net?", mais il disparaît à densité de population égale (rho = "+f2.format(r.rp)+")":netp?", mais un lien "+forceLien(r.rp)+" apparaît à densité de population égale (rho = "+f2.format(r.rp)+")":", ni à densité de population égale (rho = "+f2.format(r.rp)+")";
   return "Entre « "+minuscule(r.x)+" » et « "+minuscule(r.y)+" », "+brut+dens+"."}
-function croisementsBases(){
+// encadré « Addictologie » (22 octobre 2026), même calcul que la partie du rapport santé mentale, régions rangées par
+// ordre alphabétique et non par valeur (pas de palmarès)
+function addictologie(){const A=D.addicto,P=document.getElementById("adPanel");if(!P)return;
+  const vis=!!(A&&(A.ind.length||A.offre.length))&&S.fam!=="Santé";P.hidden=!vis;if(!vis)return;
+  const f1=new Intl.NumberFormat("fr-FR",{maximumFractionDigits:1});
+  document.getElementById("adTable").innerHTML='<thead><tr><th scope="col">Offre</th><th scope="col">Nombre</th><th scope="col">Précision</th></tr></thead><tbody>'
+    +A.offre.map(r=>'<tr><td>'+esc(r.objet)+'</td><td>'+fmt.format(r.n)+'</td><td class="small muted">'+esc(r.note||"")+'</td></tr>').join("")+'</tbody>';
+  document.getElementById("adPhrase").textContent=A.ind.length?"Selon les régions, "+A.ind.filter(i=>i.phrase).map(i=>{const v=Object.values(i.v).map(x=>x[0]);
+    return i.phrase.replace("{min}",f1.format(d3.min(v))).replace("{max}",f1.format(d3.max(v))).replace("{annee}",i.annee)}).join(", ")+".":"";
+  document.getElementById("adLimite").innerHTML=limiteHtml(["addictions"]);
+  const svg=d3.select("#adPlot");svg.selectAll("*").remove();if(!A.ind.length)return;
+  const codes=[...new Set(A.ind.flatMap(i=>Object.keys(i.v)))].filter(c=>A.regions[c]).sort((a,b)=>A.regions[a].localeCompare(A.regions[b],"fr"));
+  const nomsR=cs=>cs.map(c=>A.regions[c]).sort((a,b)=>a.localeCompare(b,"fr")).join(", "),
+    manques=A.ind.map(i=>Object.keys(A.regions).filter(c=>!(c in i.v))),commun=manques[0].filter(c=>manques.every(m=>m.includes(c))),
+    notes=(commun.length?["Aucune mesure publiée pour "+nomsR(commun)+"."]:[]).concat(A.ind.map((i,j)=>[i,manques[j].filter(c=>!commun.includes(c))])
+      .filter(([,m])=>m.length).map(([i,m])=>"« "+i.lib+" », pas de mesure publiée pour "+nomsR(m)+"."));
+  const W=900,g0=180,haut=58,pas=21,bas=haut+pas*codes.length+34,h=bas+14*notes.length,larg=(W-g0-12)/A.ind.length;svg.attr("viewBox","0 0 "+W+" "+h);
+  codes.forEach((c,k)=>{const y=haut+pas*k+pas/2;
+    if(k%2===0)svg.append("rect").attr("x",g0).attr("y",y-pas/2).attr("width",W-g0-12).attr("height",pas).attr("fill",css("--line")).attr("opacity",.25);
+    svg.append("text").attr("x",g0-8).attr("y",y+4).attr("text-anchor","end").attr("font-size",11).attr("fill",css("--ink")).text(A.regions[c])});
+  A.ind.forEach((ind,j)=>{const x0=g0+j*larg+10,x1=x0+larg-24,vals=Object.values(ind.v);
+    const vmax=d3.max(vals,x=>Math.max(x[0],x[2]??x[0]))*1.05,X=d3.scaleLinear().domain([0,vmax]).nice(4).range([x0,x1]);
+    const titre=ind.lib.length>38?[ind.lib.slice(0,ind.lib.lastIndexOf(" ",38)),ind.lib.slice(ind.lib.lastIndexOf(" ",38)+1)]:[ind.lib];
+    titre.forEach((t,l)=>svg.append("text").attr("x",(x0+x1)/2).attr("y",14+14*l).attr("text-anchor","middle").attr("font-size",11).attr("font-weight",600).attr("fill",css("--ink")).text(t));
+    svg.append("text").attr("x",(x0+x1)/2).attr("y",46).attr("text-anchor","middle").attr("font-size",10).attr("fill",css("--muted")).text(ind.unite+", "+ind.annee);
+    X.ticks(4).forEach(v=>{svg.append("line").attr("x1",X(v)).attr("x2",X(v)).attr("y1",haut).attr("y2",bas-34).attr("stroke",css("--line"));
+      svg.append("text").attr("x",X(v)).attr("y",bas-18).attr("text-anchor","middle").attr("font-size",10).attr("fill",css("--muted")).text(f1.format(v))});
+    const med=d3.median(vals,x=>x[0]);svg.append("line").attr("x1",X(med)).attr("x2",X(med)).attr("y1",haut).attr("y2",bas-34).attr("stroke",css("--muted")).attr("stroke-dasharray","3 3");
+    codes.forEach((c,k)=>{const r=ind.v[c];if(!r)return;const y=haut+pas*k+pas/2;
+      if(r[1]!=null&&r[2]!=null)svg.append("line").attr("x1",X(r[1])).attr("x2",X(r[2])).attr("y1",y).attr("y2",y).attr("stroke",css("--r3")).attr("stroke-width",2);
+      svg.append("circle").attr("cx",X(r[0])).attr("cy",y).attr("r",4).attr("fill",css("--r5")).append("title").text(A.regions[c]+", "+f1.format(r[0])+(r[1]!=null?" (de "+f1.format(r[1])+" à "+f1.format(r[2])+")":""))})});
+  ["Point, valeur de la région. Trait, fourchette (intervalle de confiance à 95 %). Pointillé, médiane des régions."].concat(notes)
+    .forEach((t,k)=>svg.append("text").attr("x",12).attr("y",bas-3+14*k).attr("font-size",10).attr("fill",css("--muted")).text(t))}
+function croisementsBases(){addictologie();
   const T=(D.croisements_bases||[]).filter(r=>S.fam==="*"||r.famille===S.fam);
   const sel=document.getElementById("cbSel"),ph=document.getElementById("cbPhrase"),svg=d3.select("#cbPlot");svg.selectAll("*").remove();
   if(!T.length){ph.textContent="Pas de croisement entre bases pour cette famille dans ce fichier de données.";sel.innerHTML="";document.getElementById("cbTable").innerHTML="";return}

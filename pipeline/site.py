@@ -39,7 +39,7 @@ RAPPORTS = {"sante-mentale": ("rapport_sante_mentale.md", "Rapport santé mental
 
 # ---------------------------------------------------------------- Markdown vers HTML
 # données de chaque figure, par début de nom de figure (fichier CSV de la version, lien sous la figure)
-DONNEES_FIGURES = [("lorenz_", "lorenz.csv"), ("effet_ville_", "correlations_contexte.csv"),
+DONNEES_FIGURES = [("addicto_regions", "sante_mentale_sante_publique_france.csv"), ("lorenz_", "lorenz.csv"), ("effet_ville_", "correlations_contexte.csv"),
                    ("escalier_", "escalier_social.csv"), ("entonnoir_", "entonnoir.csv"), ("porte_", "porte_offre.csv"),
                    ("distance_", "accessibilite_communes.csv"), ("parcours_", "parcours_activites.csv"),
                    ("quadrants_", "quadrants.csv"), ("bivariee_", "contexte_dep.csv"), ("gwr_", "gwr_coefficients.csv"),

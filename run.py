@@ -68,7 +68,7 @@ def main(argv=None):
     # bases complémentaires (descripteurs versionnés dans complements/) et Assurance Maladie
     ctx, indicateurs = complements.charger(ref, ins["contexte"] if ins else None, hl, rf)
     am = ameli.charger(ref, hl, rf)
-    spf = odisse.charger(hl, rf)
+    spf = odisse.charger(hl, rf, ref)
     acc = ameli_acces.charger(ref, hl, rf)
     isd = drees_isd.charger(hl, rf)
     hop = sae.charger(ref, ctx.get("dep"), hl, rf)

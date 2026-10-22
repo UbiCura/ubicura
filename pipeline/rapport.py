@@ -508,6 +508,62 @@ def _recours(C: Contexte, insee, ctxlab):
     return L
 
 
+def offre_addicto(x, n_add) -> list:
+    """Lignes du tableau de l'offre en addictologie (rapport et atlas, même calcul)."""
+    if not isinstance(x, pd.DataFrame) or x.empty:
+        return []
+    from . import lieux as lieux_mod
+    c = lieux_mod.comptes_csapa(x)
+    n = lambda tid: int((x["type"] == tid).sum())  # noqa: E731
+    hop = x[x["type"] == "lieu_addicto_hosp"]
+    eq = int((hop["role_structure"] == "equipe").sum()) if "role_structure" in hop else 0
+    lignes = [{"objet": "CSAPA, lieux d'accueil", "n": c.get("lieux"), "note": "antennes et lieux d'hébergement compris"},
+              {"objet": "CSAPA, établissements de FINESS", "n": c.get("etablissements"), "note": "numéros FINESS distincts"},
+              {"objet": "CSAPA principaux", "n": c.get("principaux"),
+               "note": f"sans les antennes, permanences et consultations jeunes consommateurs désignées par leur nom, à "
+                       f"rapprocher des {nombre(config.OFDT_CSAPA[0])} CSAPA du bilan de l'OFDT pour {config.OFDT_CSAPA[1]}"},
+              {"objet": "CAARUD, réduction des risques", "n": n("lieu_caarud"), "note": ""},
+              {"objet": "Unités d'addictologie à l'hôpital", "n": len(hop),
+               "note": f"dont {nombre(eq)} équipes de liaison sans lieu propre"},
+              {"objet": "Médecins qualifiés en addictologie", "n": None if n_add is None else int(n_add),
+               "note": "personnes, répertoire RPPS"}]
+    return [r for r in lignes if r["n"] is not None]
+
+
+def _addictologie(C: Contexte, insee, ctxlab):
+    """Partie « Addictologie » du rapport santé mentale (accord de Lucas du 22 octobre 2026), offre, recours et
+    consommations au même endroit, puis le croisement d'addictologie. Une seule place pour chaque contenu, les lignes
+    CSAPA et CAARUD du tableau général des structures y renvoient."""
+    L = getattr(C.agg, "lieux", None) or {}
+    out = []
+    lignes = offre_addicto(L.get("lieux"), C.nat.get("q_addictologie"))
+    if lignes:
+        t = pd.DataFrame(lignes)
+        out += ["### L'offre en addictologie", "",
+                "L'offre en addictologie réunit des structures médico-sociales (CSAPA, CAARUD), des unités hospitalières "
+                "et des médecins qualifiés. Les trois comptes des CSAPA ne s'additionnent pas, ils décrivent la même "
+                "offre à trois niveaux. Leur confirmation et leur distance sont dans le tableau général des structures.",
+                "", _tableau(t, ["objet", "n", "note"], ["Offre", "Nombre", "Précision"], {"n": nombre}), ""]
+    spf = (insee or {}).get("odisse")
+    if spf and isinstance(spf.get("table"), pd.DataFrame):
+        tt = spf["table"]
+        defs = {d["id"]: d for d in spf.get("defs", [])}
+        od = {i["id"]: i for i in config.ODISSE}
+        phrases = []
+        for i in config.ADDICTO_ODISSE:
+            v = tt.loc[tt["indicateur"] == i, "valeur"]
+            if len(v) and od.get(i, {}).get("phrase"):
+                phrases.append(od[i]["phrase"].format(min=nombre(v.min(), 1), max=nombre(v.max(), 1),
+                                                      annee=defs.get(i, {}).get("annee", "")))
+        if phrases:
+            out += ["### Consommations d'alcool et de tabac, par région", "",
+                    "Selon les régions, " + ", ".join(phrases) + ". Ces mesures ne sont publiées que par région, elles "
+                    "ne sont pas rapportées aux départements.", "", "<!--GRAPHIQUE addicto_regions-->", "",
+                    limites.phrase_md(["addictions"]), ""]
+    out += _croisements(C, ctxlab, SM, "###", THEMES_ADDICTO)
+    return out
+
+
 def _besoins_spf(C: Contexte, insee):
     """Indicateurs de Santé publique France, moins dépendants de l'offre que les patients pris en charge."""
     spf = (insee or {}).get("odisse")
@@ -518,6 +574,8 @@ def _besoins_spf(C: Contexte, insee):
     defs = {d["id"]: d for d in spf["defs"]}
     lignes = []
     for ind in config.ODISSE:
+        if ind["id"] in config.ADDICTO_ODISSE:
+            continue   # présentés dans la partie « Addictologie »
         x = t[t["indicateur"] == ind["id"]]
         niv = ind["niveau"]
         x = x[x["code"].isin(noms[niv].index)].set_index("code")
@@ -1116,6 +1174,9 @@ def _lieux(C: Contexte, famille):
             L_ += [_tableau(tg, cols, tetes, {"n": nombre, "conf": nombre, "abv": nombre, "dist": f1,
                                               "rec": lambda v: v if isinstance(v, str) else nombre(v),
                                               "p30": pct}, vide=""), ""]
+        if g == config.G_ADD and famille == SM:
+            L_ += ["Les trois comptes des CSAPA, le recours aux soins et les consommations d'alcool et de tabac sont "
+                   "réunis dans la partie « Addictologie ».", ""]
         if len(inc):
             L_ += [("Recensés dans une partie des départements seulement, donc listés sans être comparés entre "
                     "territoires, " if len(tg) else "Recensés dans une partie des départements seulement, ")
@@ -1901,9 +1962,7 @@ THEMES_CROISEMENTS = {
          "trajet_suicide": "Les départements éloignés des CMP ont-ils plus de suicides, au-delà de la ruralité ?",
          "lieux_psy": "Les CMP, CATTP et hôpitaux de jour sont-ils plus nombreux là où les psychiatres manquent ?",
          "lieux_enfants": "Les structures de soins pour enfants suivent-elles l'offre de psychiatres pour l'enfant ?",
-         "lieux_social": "Les habitants des départements modestes sont-ils plus loin des CMP et des CSAPA ?",
-         "lieux_addicto": "Les structures d'addictologie sont-elles plus nombreuses là où plus de personnes sont "
-                          "prises en charge pour une addiction ?"},
+         "lieux_social": "Les habitants des départements modestes sont-ils plus loin des CMP et des CSAPA ?"},
     SANTE: {"reeducation": "L'offre libérale de rééducation suit-elle l'offre médico-sociale pour les enfants ?",
             "medecin_traitant": "Les patients sans médecin traitant sont-ils plus nombreux là où les généralistes "
                                 "libéraux manquent, ou là où la population est âgée ?",
@@ -1947,12 +2006,17 @@ COMMENT_CROISEMENTS = {
 }
 
 
-def _croisements(C: Contexte, ctxlab, famille=SM, niveau="####"):
-    """Croisements entre bases (départements), corrélation brute et à densité de population égale."""
+THEMES_ADDICTO = {"lieux_addicto": "Les structures d'addictologie sont-elles plus nombreuses là où plus de personnes "
+                                     "sont prises en charge pour une addiction ?"}
+
+
+def _croisements(C: Contexte, ctxlab, famille=SM, niveau="####", themes=None):
+    """Croisements entre bases (départements), corrélation brute et à densité de population égale. `themes` limite aux
+    thèmes donnés (la partie « Addictologie » montre le sien, la partie générale les autres)."""
     cr = C.R.get("croisements")
     if not isinstance(cr, pd.DataFrame) or cr.empty:
         return []
-    themes = THEMES_CROISEMENTS[famille]
+    themes = themes or THEMES_CROISEMENTS[famille]
     cr = cr[cr["theme"].isin(themes)]
     if cr.empty:
         return []
@@ -2578,6 +2642,8 @@ def ecrire(out, agg, ref, professions, insee, R, jour):
                  + _recours(C, insee, ctxlab) + rapport_bases.ald(C, SM) + _besoins_spf(C, insee) + _enfance_handicap(C, SM)
                  + rapport_bases.allocations(C, SM) + _quadrants(C, ctxlab) + rapport_bases.offre_besoin_carte(C, insee, ctxlab)
                  + _loi_inverse(C, ctxlab) + rapport_bases.indicateurs_entre_eux(C, ctxlab) + _croisements(C, ctxlab, SM)
+                 + _groupe("Addictologie", "L'offre de soins en addictologie, le recours aux soins et les consommations, "
+                           "réunis au même endroit.", _addictologie(C, insee, ctxlab))
                  + _typologie(C, "sm"))
     partie_sante = (["## Santé", "", "### En bref", ""]
                     + [f"- {p}" for p in _en_bref_sante(C, ctxlab)] + [""]

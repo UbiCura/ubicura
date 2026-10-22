@@ -324,6 +324,35 @@ ODISSE = [
      "unite": "% des adultes", "source": ODISSE_SOURCE + ", Baromètre de Santé publique France",
      "explication": "Part des adultes interrogés qui déclarent avoir fait une tentative de suicide au cours de leur "
                     "vie. Disponible seulement par région."},
+    # addictions (jeux Odissé vérifiés par l'API le 22 octobre 2026, Licence Ouverte 2.0, régions seulement, note
+    # docs/note_statistiques_addictologie_2026-10-22.md, accord de Lucas du 22 octobre 2026)
+    {"dataset": "alcool-indicateurs-du-barometre-de-sante-publique-france-2024-detail-region",
+     "niveau": "reg", "code": "nouvelles_regions",
+     "where": ('indicateur="Dépassement des repères de consommation d\'alcool" and sexe="Tous" and classe_d_age="Tous" '
+               'and diplome="Tous" and pcs="Tous" and situation_financiere_percue="Tous" '
+               'and depassement_des_reperes_de_consommation_d_alcool="Tous"'),
+     "valeur": "estimation", "ic_bas": "ic_inf", "ic_haut": "ic_sup", "groupe": "Addictions",
+     "id": "alcool_depassement_reperes", "libelle": "Adultes qui dépassent les repères de consommation d'alcool",
+     "phrase": "de {min} à {max} % des adultes dépassent les repères de consommation d'alcool ({annee})",
+     "unite": "% des adultes", "source": ODISSE_SOURCE + ", Baromètre de Santé publique France",
+     "explication": "Part des adultes de 18 à 79 ans qui déclarent boire plus que les repères de consommation à "
+                    "moindre risque (au plus dix verres par semaine, deux par jour, et pas tous les jours). Mesure "
+                    "déclarée, disponible seulement par région."},
+    {"dataset": "tabac-consommation-quotidienne_reg", "niveau": "reg", "code": "reg",
+     "where": 'sexe="Hommes et Femmes"', "valeur": "tab_quo_v", "ic_bas": "tab_quo_icb", "ic_haut": "tab_quo_ich",
+     "groupe": "Addictions", "id": "tabac_quotidien", "libelle": "Adultes qui fument chaque jour",
+     "phrase": "de {min} à {max} % des adultes fument chaque jour ({annee})",
+     "unite": "% des adultes", "source": ODISSE_SOURCE + ", Baromètre de Santé publique France",
+     "explication": "Part des adultes de 18 à 75 ans qui déclarent fumer tous les jours. Mesure déclarée, disponible "
+                    "seulement par région."},
+    {"dataset": "tabac-deces-attribuables-au-tabac_reg", "niveau": "reg", "code": "reg",
+     "where": 'sexe="Hommes et Femmes"', "valeur": "taux_std", "ic_bas": "taux_std_inf", "ic_haut": "taux_std_sup",
+     "groupe": "Addictions", "id": "deces_attribuables_tabac", "libelle": "Décès attribuables au tabac",
+     "phrase": "et l'on estime de {min} à {max} décès dus au tabac pour 100 000 habitants, à structure d'âge égale ({annee})",
+     "unite": "pour 100 000 hab., standardisé sur l'âge", "source": ODISSE_SOURCE + ", d'après le CépiDc (Inserm)",
+     "explication": "Nombre estimé de décès dus au tabac, rapporté à la population à structure d'âge égale. C'est une "
+                    "estimation, tirée de la mortalité par cause et de la part de fumeurs, avec sa fourchette. "
+                    "Disponible seulement par région."},
 ]
 
 # ---------------------------------------------------------------- INSEE, temps d'accès par la route
@@ -1234,6 +1263,8 @@ LIEUX_PROFIL = {
     "lieu_msp": {"public": "tous", "limite": "lieux", "analyses": ["indicateur", "typologie:sante", "typologie:tout"]},
     "lieu_centre_sante": {"public": "tous", "limite": "lieux", "analyses": ["indicateur", "typologie:sante"]},
 }
+# indicateurs d'Odissé réunis dans la partie « Addictologie » du rapport santé mentale et de l'atlas (22 octobre 2026)
+ADDICTO_ODISSE = ["alcool_depassement_reperes", "tabac_quotidien", "deces_attribuables_tabac"]
 # Champs du double éloignement (pipeline/structures_analyses.py), professions et libellé. Les structures de chaque champ
 # sont celles du registre qui portent « double_eloignement:<champ> ».
 DOUBLE_ELOIGNEMENT_CHAMPS = {
@@ -1353,6 +1384,21 @@ LIMITES = {
                     ("HAS, résultats d'évaluation des établissements et services sociaux et médico-sociaux",
                      HAS_ESSMS_PAGE),
                     ("INSEE, base Sirene des entreprises et de leurs établissements", SIRENE_PAGE)]},
+    "addictions": {
+        "risque": "mesure déclarée ou estimée",
+        "texte": ("Les consommations d'alcool et de tabac viennent du Baromètre de Santé publique France, une enquête "
+                  "où les personnes déclarent elles-mêmes ce qu'elles consomment, ce qui sous-estime en général les "
+                  "consommations. Elles ne sont publiées que par région, avec une fourchette souvent large dans les "
+                  "petites régions et en outre-mer. Les décès attribuables au tabac sont une estimation. Les personnes "
+                  "prises en charge pour une addiction (Assurance Maladie) mesurent le recours aux soins, qui dépend "
+                  "aussi de l'offre, et non le besoin."),
+        "sources": [("Santé publique France, Baromètre de Santé publique France 2024, alcool",
+                     "https://odisse.santepubliquefrance.fr/explore/dataset/"
+                     "alcool-indicateurs-du-barometre-de-sante-publique-france-2024-detail-region/"),
+                    ("Santé publique France, consommation quotidienne de tabac par région",
+                     "https://odisse.santepubliquefrance.fr/explore/dataset/tabac-consommation-quotidienne_reg/"),
+                    ("Santé publique France, décès attribuables au tabac par région",
+                     "https://odisse.santepubliquefrance.fr/explore/dataset/tabac-deces-attribuables-au-tabac_reg/")]},
     "prof:orthophoniste": {
         "risque": "tous les âges",
         "texte": ("Les orthophonistes soignent des patients de tous les âges, pas seulement des enfants. Le code de la "

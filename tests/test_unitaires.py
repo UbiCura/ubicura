@@ -522,7 +522,7 @@ def test_coherence_config():
     for x in config.AMELI_SECTEURS_PROFESSIONS:
         assert len(x) == 4 and x[3] in (config.SANTE_MENTALE, config.SANTE) and ":" not in x[1], x
     themes = {t for t in (x[2] for x in config.CROISEMENTS)}
-    connus = {t for d in rapport.THEMES_CROISEMENTS.values() for t in d}
+    connus = {t for d in rapport.THEMES_CROISEMENTS.values() for t in d} | set(rapport.THEMES_ADDICTO)
     assert themes <= connus, themes - connus
     for xa, yb, theme, q in config.CROISEMENTS:
         assert isinstance(q, str) and xa != yb, (xa, yb)
@@ -1644,6 +1644,33 @@ def test_exercice_structures():
     fr = t[t["niveau"] == "fr"].set_index(["type", "prof"])["personnes"]
     assert fr[("lieu_cmp", "psychiatre")] == 1 and fr[("lieu_cattp", "psychiatre")] == 1
     assert fr[("ensemble", "psychiatre")] == 1 and fr[("ensemble", "psychologue")] == 1
+
+
+def test_addicto_odisse():
+    """Les indicateurs de la partie « Addictologie » sont déclarés dans Odissé, régionaux, avec leur intervalle et le
+    groupe Addictions, et la limite qui les accompagne existe."""
+    from pipeline import config
+    od = {i["id"]: i for i in config.ODISSE}
+    for i in config.ADDICTO_ODISSE:
+        assert i in od and od[i]["niveau"] == "reg" and od[i].get("ic_bas") and od[i].get("groupe") == "Addictions"
+    assert "addictions" in config.LIMITES
+
+
+def test_odisse_codes_et_decimales():
+    """Le tableau publié des indicateurs de Santé publique France ne garde que de vrais territoires (pas les lignes
+    d'ensemble, codes 10 et 99) et écrit ses fourchettes avec la virgule décimale comme les autres colonnes."""
+    import re
+    from pipeline.sources import referentiel
+    d = _dernier_resultats()
+    f = d / "sante_mentale_sante_publique_france.csv"
+    if not f.exists():
+        raise Ignore("pas de tableau Santé publique France")
+    assert not re.search(r"\d\.\d", f.read_text(encoding="utf-8-sig")), "point décimal dans le CSV publié"
+    t = _csv(d, "sante_mentale_sante_publique_france.csv", dtype={"code": str})
+    ref = referentiel.charger(True, False)
+    for niv, codes in (("reg", set(ref.regs["code"])), ("dep", set(ref.deps["code"]))):
+        hors = set(t.loc[t["niveau"] == niv, "code"]) - codes
+        assert not hors, (niv, hors)
 
 if __name__ == "__main__":
     n = 0
