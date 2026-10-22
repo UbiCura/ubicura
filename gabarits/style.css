@@ -186,7 +186,7 @@ main h1,main h2,main h3{overflow-wrap:break-word}
 .pied-liens{display:flex;flex-wrap:wrap;gap:6px 18px;margin:10px 0 0}
 /* page des rapports nationaux et bloc de citation */
 .rapport-carte{display:flex;flex-direction:column;gap:8px}
-.rapport-carte .version{font-size:.875rem;color:var(--muted)}
+.rapport-carte .version{font-size:.875rem;color:var(--muted);margin-top:auto}
 .rapport-carte .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
 a.bouton{display:inline-block;background:var(--ink);color:var(--bg);text-decoration:none;border-radius:4px;padding:7px 14px;font-size:.875rem;font-weight:500}
 a.bouton.secondaire{background:none;color:var(--ink);border:1px solid var(--line)}

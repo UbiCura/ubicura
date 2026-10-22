@@ -304,10 +304,10 @@ def _ancre(texte, sep):
 
 # Une seule mise en page pour les pages de texte (harmonisation, 22 octobre 2026). Le titre et le chapeau prennent la
 # largeur du cadre, puis viennent le sommaire à gauche, tiré des intertitres, et la colonne de texte, au même endroit que
-# dans les rapports et la page méthode. Une page sans au moins deux intertitres garde la colonne au même endroit, avec
-# une marge vide à gauche plutôt qu'un texte qui changerait de place d'une page à l'autre.
-EN_COLONNE = {"page.html", "rapports.html", "donnees_sources.html", "journal.html", "publications.html",
-              "territoires.html"}
+# dans les rapports et la page méthode. Une page sans au moins deux intertitres n'a ni sommaire ni marge vide, son
+# contenu s'aligne sur le titre. Mise en page choisie page par page (demande de Lucas du 22 octobre 2026), la page des
+# rapports nationaux, faite de cartes, et la page des publications, courte, gardent la leur.
+EN_COLONNE = {"page.html", "donnees_sources.html", "journal.html", "territoires.html"}
 
 
 def en_colonne(page: str) -> str:
@@ -338,11 +338,11 @@ def en_colonne(page: str) -> str:
     reste = re.sub(r"<h2([^>]*)>(.*?)</h2>", ancre, reste, flags=re.S)
     # un tableau trop large pour un téléphone défile dans son cadre au lieu d'élargir la page
     reste = re.sub(r'(?<!<div class="defile">)(<table\b.*?</table>)', r'<div class="defile">\1</div>', reste, flags=re.S)
-    if len(lignes) >= 2:
-        aside = ('<aside class="sommaire" aria-label="Sommaire de la page"><ul>'
-                 + "".join(f'<li><a href="#{i}">{t}</a></li>' for i, t in lignes) + "</ul></aside>")
-    else:
-        aside = '<aside class="sommaire" aria-hidden="true"></aside>'
+    if len(lignes) < 2:
+        # sans sommaire, pas de colonne vide à gauche, le contenu s'aligne sur le titre (remarque de Lucas du 22 octobre)
+        return page[:m.start()] + tete + f'\n<div class="corps etroit">{reste}</div>' + page[fin + len("</div>"):]
+    aside = ('<aside class="sommaire" aria-label="Sommaire de la page"><ul>'
+             + "".join(f'<li><a href="#{i}">{t}</a></li>' for i, t in lignes) + "</ul></aside>")
     return (page[:m.start()] + tete + f'\n<div class="rapport colonne">{aside}<div class="corps">{reste}</div></div>'
             + page[fin + len("</div>"):])
 
