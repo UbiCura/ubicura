@@ -200,7 +200,7 @@ def controler(version: Path) -> list[str]:
             if n_ecarts > 5:
                 pb.append(f"atlas, {n_ecarts} écarts en tout entre les points et lieux_soins_dep.csv")
     # page méthode du site, tableau des structures par provenance, les trois colonnes refont le total
-    meth = RACINE / "site" / "methode.html"
+    meth = RACINE / "site" / "methode-structures.html"
     if meth.exists():
         h = meth.read_text(encoding="utf-8")
         for cells in re.findall(r"<tr>((?:<td>[^<]*</td>){8})</tr>", h):

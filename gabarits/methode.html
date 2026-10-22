@@ -1,27 +1,17 @@
 {% extends "base.html" %}
 {% block contenu %}
-<h1>Méthode, données et limites</h1>
-<p class="chapeau">Comment les chiffres sont produits, d'où ils viennent, ce qu'ils ne disent pas, comment les vérifier et les réutiliser.</p>
+<h1>{{ titre_page }}</h1>
+<p class="chapeau">{{ chapeau_page }}</p>
 <div class="rapport">
-<aside class="sommaire" aria-label="Sommaire de la page">
+<aside class="sommaire" aria-label="Sommaire de la méthode">
 <ul>
-<li><a href="#methode">Comment les chiffres sont établis</a></li>
-{% if limites %}<li><a href="#limites">Limites connues des données</a></li>{% endif %}
-<li><a href="#sources">Sources</a></li>
-<li><a href="#origine">D'où vient chaque chiffre</a></li>
-{% if concordance %}<li><a href="#concordance">Concordance des effectifs avec les chiffres officiels</a></li>{% endif %}
-{% if lieux %}<li><a href="#lieux">Structures de soins, FINESS et ROR réunis</a></li>{% endif %}
-{% if inscrits %}<li><a href="#inscrits">Inscrits sans activité déclarée</a></li>{% endif %}
-<li><a href="#indicateurs">Indicateurs du profil des territoires</a></li>
-<li><a href="#controles">Contrôles</a></li>
-{% if logiciels %}<li><a href="#logiciels">Logiciels et reproductibilité</a></li>{% endif %}
-<li><a href="#libelles">Noms des établissements</a></li>
-<li><a href="#licences">Licences et conditions de réutilisation</a></li>
-<li><a href="#telecharger">Données à télécharger</a></li>
-</ul>
+{% for cle, fichier, titre_v, ancres in pages_methode %}<li><a href="{{ racine }}{{ fichier }}"{% if cle == vue %} aria-current="page" class="actif"{% endif %}>{{ titre_v }}</a>
+{% if cle == vue and ancres|length > 1 %}<ul>{% for id, t in ancres %}<li><a href="#{{ id }}">{{ t }}</a></li>{% endfor %}</ul>{% endif %}</li>
+{% endfor %}</ul>
 </aside>
 <div class="methode">
 
+{% if vue == 'entree' %}
 <h2 id="methode">Comment les chiffres sont établis</h2>
 <p>Les chiffres proviennent des bases publiques listées plus bas. Les professionnels sont comptés par territoire, puis ces effectifs sont rapprochés du profil des habitants. Un professionnel est compté une fois par territoire où il déclare exercer, et une seule fois pour la France entière. Les analyses portent sur des territoires (communes, intercommunalités, départements, régions), jamais sur des personnes. Les résultats ne contiennent que des comptages, aucun nom ni identifiant de professionnel.</p>
 <p>Les données couvrent tous les professionnels inscrits au répertoire, pas un échantillon. Les tests statistiques sont donc indicatifs, et chaque résultat est accompagné d'une mesure de sa force et de son incertitude. Les liens entre territoires ne disent rien d'une cause.</p>
@@ -74,6 +64,8 @@
 </tbody></table></div>
 
 
+{% endif %}
+{% if vue == 'controles' %}
 {% if concordance %}
 <h2 id="concordance">Concordance des effectifs avec les chiffres officiels</h2>
 <p>Les effectifs calculés ici sont rapprochés, profession par profession, des séries publiées par la DREES sur <a href="https://data.drees.solidarites-sante.gouv.fr/explore/dataset/la-demographie-des-professionnels-de-sante-depuis-2012/information/">la démographie des professionnels de santé</a>. Les deux comptages ne portent pas toujours sur le même champ ni sur la même date. Chaque écart est expliqué dans la dernière colonne. Pour les professions que la DREES compte aussi à partir du RPPS, la colonne « écart à la tendance » compare notre effectif à celui de la DREES prolongé jusqu'à la date de notre extraction, à croissance constante. La colonne « classement des départements » vaut 1 quand les deux sources classent les départements exactement dans le même ordre.</p>
@@ -85,6 +77,8 @@
 <p>Le détail, avec les départements, est dans les fichiers concordance_effectifs.csv et concordance_effectifs_dep.csv.</p>
 {% endif %}
 
+{% endif %}
+{% if vue == 'structures' %}
 {% if lieux %}
 <h2 id="lieux">Structures de soins, FINESS et ROR réunis</h2>
 <p><strong>Ce qui est compté.</strong> Une structure de soins est un établissement ou un service recensé par FINESS (le fichier national des établissements sanitaires et sociaux) ou par l'extraction « Offres de santé » du Répertoire opérationnel des ressources (ROR) de l'Agence du numérique en santé, à une adresse donnée. Deux structures distinctes à la même adresse, par exemple un foyer de vie et un foyer d'hébergement de la même association, comptent pour deux. Une même structure décrite par les deux bases, ou inscrite deux fois, ne compte qu'une fois. Une structure n'est pas une capacité, une antenne ouverte une demi-journée par semaine compte autant qu'un centre ouvert tous les jours. Les antennes et permanences de CMP tenues en mairie, en CCAS ou en maison de santé sont comptées parmi les CMP quand le ROR les décrit comme tels, et leur nombre est donné à part pour chaque territoire (colonne antennes de cmp_par_public.csv).</p>
@@ -134,7 +128,7 @@
 <h3 id="lieux-sae-etablissements">Les CMP confrontés à la SAE, établissement par établissement</h3>
 <p>La confrontation est aussi faite pour chaque établissement gestionnaire (hôpital ou association, identifié par son entité juridique dans FINESS), ce qui désigne précisément où vérifier. Les CMP d'un établissement sont ceux que FINESS ou le ROR rattachent à son entité juridique, où qu'ils soient. L'écart est toléré jusqu'à 20 % ou un CMP. Bilan, {{ lieux.etab_resume }}. Un écart signale une différence entre les sources, souvent des CMP déclarés à l'adresse de l'hôpital ou plusieurs équipes comptées à part à la SAE, pas une erreur de l'établissement. Les établissements en écart sont vérifiés un à un sur leurs propres publications, et les règles de réunion corrigées quand c'est nécessaire.</p>
 <details><summary>Établissements où les sources divergent ({{ lieux.etab|length }})</summary>
-<div class="defile"><table class="simple">
+<div class="defile"><table class="simple filtrable">
 <thead><tr><th>Établissement gestionnaire</th><th>Département du siège</th><th>CMP déclarés à la SAE (adultes et enfants)</th><th>CMP recensés ici (adultes et enfants)</th><th>Unités de CMP au ROR</th><th>Constat</th></tr></thead>
 <tbody>
 {% for r in lieux.etab %}<tr><td>{{ r.nom }}</td><td>{{ r.dep }}</td><td>{{ r.sae }}</td><td>{{ r.ici }}</td><td>{{ r.ror }}</td><td>{{ r.statut }}</td></tr>
@@ -154,23 +148,29 @@
 {% if lieux.liste_verifiee %}
 <h3 id="lieux-liste-verifiee">Liste vérifiée, établissement par établissement</h3>
 <p>FINESS et le ROR réunis par les règles ci-dessus contiennent des erreurs que seules les sources des établissements permettent de corriger, par exemple des CMP déclarés à l'adresse de l'hôpital, un hôpital de jour décrit comme un CMP, ou une structure fermée encore inscrite. Pour chaque établissement de la liste ci-dessous, ses structures ont été reprises une à une sur des sources fiables, son site, la liste des sites de sa certification par la HAS, les documents de l'agence régionale de santé ou des collectivités, les données ouvertes publiques. Cette liste remplace alors, pour cet établissement, la réunion des deux bases. Chaque structure porte un statut, confirmée par l'établissement, confirmée par une autre source publique, ou seulement inscrite dans FINESS ou le ROR sans confirmation par les sources de l'établissement. Les inscriptions des bases qui ne correspondent à aucune structure vérifiée sont écartées et listées dans structures_non_retenues.csv. À chaque mise à jour, un établissement dont les inscriptions dans FINESS ou le ROR ont changé, ou dont la vérification a plus d'un an, est signalé à revérifier. {{ lieux.liste_verifiee.resume }}</p>
-<div class="defile"><table class="simple">
+<details><summary>Établissements vérifiés ({{ lieux.liste_verifiee.etablissements|length }})</summary>
+<div class="defile"><table class="simple filtrable">
 <thead><tr><th>Établissement</th><th>Département</th><th>Types vérifiés</th><th>Confirmées par l'établissement</th><th>Confirmées par une autre source</th><th>Bases seules</th><th>Inscriptions non retenues</th><th>Sources</th><th>Date</th></tr></thead>
 <tbody>
 {% for e in lieux.liste_verifiee.etablissements %}<tr><td>{{ e.etablissement }}</td><td>{{ e.departement }}</td><td>{{ e.types }}</td><td>{{ e.etab }}</td><td>{{ e.publique }}</td><td>{{ e.bases }}</td><td>{{ e.non_retenues }}</td><td>{{ e.sources }}</td><td>{{ e.date }}{% if e.a_reverifier %}, à revérifier{% endif %}</td></tr>
 {% endfor %}</tbody></table></div>
+</details>
 {% endif %}
 <h3 id="lieux-verifications">Vérifications sur d'autres sources</h3>
 <p>Les territoires et les établissements où les sources divergent sont vérifiés un à un sur leurs propres publications (site de l'établissement, documents des agences régionales de santé, listes ouvertes des collectivités). Pour les établissements de la liste vérifiée ci-dessus, leurs structures sont reprises une à une et remplacent la réunion des deux bases. Les autres constats ne modifient pas les chiffres. Ils servent à corriger les règles de réunion pour toute la France quand une erreur de règle apparaît, et à écrire, là où la donnée est montrée, ce qui a été constaté, avec sa source et sa date. Une vérification de plus de douze mois est signalée comme à refaire.</p>
-<div class="defile"><table class="simple">
+<details><summary>Vérifications sur d'autres sources ({{ lieux.verifs|length }})</summary>
+<div class="defile"><table class="simple filtrable">
 <thead><tr><th>Département</th><th>Ce qui a été vérifié</th><th>Constat</th><th>Source</th><th>Date</th></tr></thead>
 <tbody>
 {% for v in lieux.verifs %}<tr><td>{{ v.code }}</td><td>{{ v.etablissement }}</td><td>{{ v.constat }}</td><td><a href="{{ v.adresse }}">{{ v.source }}</a></td><td>{{ v.date }}{% if v.a_refaire %}, à refaire{% endif %}</td></tr>
 {% endfor %}</tbody></table></div>
+</details>
 {% endif %}
 <p>« Sans objet » signale un type que FINESS ne distingue pas (unités hospitalières, équipes mobiles...), décrit seulement par le ROR. Le détail est dans les fichiers lieux_soins.csv (une structure par ligne, avec son emplacement, sa provenance et les professionnels déclarés sur place), lieux_soins_dep.csv, distances_lieux_dep.csv, concordance_finess_ror.csv et lieux_references.csv.</p>
 {% endif %}
 
+{% endif %}
+{% if vue == 'entree' %}
 {% if inscrits %}
 <h2 id="inscrits">Inscrits sans activité déclarée</h2>
 <p>Le RPPS compte aussi des personnes inscrites qui ne déclarent aucune activité. Pour elles, le fichier ne donne ni lieu, ni mode d'exercice, ni âge, ni date. On ne peut donc pas dire qu'elles n'exercent pas. Il peut s'agir de personnes retraitées, en congé, ayant changé de métier, ou exerçant sans avoir déclaré leur activité. Les effectifs publiés sur ce site sont ceux de la colonne « avec une activité déclarée ». Les étudiants sont exclus.</p>
@@ -181,8 +181,10 @@
 {% endfor %}</tbody></table></div>
 {% endif %}
 
+{% endif %}
+{% if vue == 'indicateurs' %}
 <h2 id="indicateurs">Indicateurs du profil des territoires</h2>
-<table class="simple">
+<table class="simple filtrable">
 <thead><tr><th>Indicateur</th><th>Unité</th><th>Explication</th><th>Disponible pour</th><th>Source</th><th>Licence</th></tr></thead>
 <tbody>
 {% for c in indicateurs %}
@@ -190,12 +192,16 @@
 {% endfor %}
 </tbody></table>
 
+{% endif %}
+{% if vue == 'controles' %}
 <h2 id="controles">Contrôles</h2>
 <p>Chaque version fait l'objet de contrôles de cohérence (appariement des bases, part des activités localisées, millésimes). Leurs résultats sont repris ici.</p>
-<table class="simple"><tbody>
+<table class="simple filtrable"><tbody>
 {% for nom, res in controles %}<tr><td>{{ nom }}</td><td>{{ res }}</td></tr>{% endfor %}
 </tbody></table>
 
+{% endif %}
+{% if vue == 'entree' %}
 {% if logiciels %}
 <h2 id="logiciels">Logiciels et reproductibilité</h2>
 <p>Les calculs sont réalisés en Python {{ logiciels.python }}. Les tirages aléatoires (rééchantillonnage pour les intervalles de confiance, permutations) utilisent une graine fixe, {{ logiciels.graine }}, pour que les résultats soient identiques d'une exécution à l'autre sur les mêmes données. Chaque source est consignée avec la date annoncée par son producteur et la date de téléchargement. Le code sera publié avec la première version citable du jeu de données.</p>
@@ -216,12 +222,20 @@
 <p>Ce site est une réutilisation indépendante. Il n'est ni produit ni validé par les organismes producteurs des données.</p>
 <p>Logiciels et polices intégrés au site, <a href="https://d3js.org">d3</a> et <a href="https://github.com/topojson/topojson-client">topojson-client</a> (licence ISC, © Mike Bostock), polices Newsreader et Work Sans (SIL Open Font License).</p>
 
+{% endif %}
+{% if vue == 'fichiers' %}
 <h2 id="telecharger">Données à télécharger</h2>
 <p><a href="{{ archive.lien }}">Télécharger toutes les données de la version</a> (archive zip, {{ archive.taille }}).</p>
 <p>Fichiers CSV de la version du {{ date_longue }}, séparateur point-virgule et virgule décimale, pour s'ouvrir directement dans un tableur. Les plus gros sont compressés en zip. Le <a href="{{ lien_dictionnaire }}">dictionnaire des colonnes</a> décrit chaque fichier et chaque colonne.</p>
-<table class="simple"><thead><tr><th>Fichier</th><th>Contenu</th><th>Taille</th></tr></thead><tbody>
+<table class="simple filtrable"><thead><tr><th>Fichier</th><th>Contenu</th><th>Taille</th></tr></thead><tbody>
 {% for f in fichiers %}<tr><td><a href="{{ f.lien }}">{{ f.nom }}</a></td><td>{{ f.description }}</td><td>{{ f.taille }}</td></tr>{% endfor %}
 </tbody></table>
+{% endif %}
 </div>
 </div>
+{% if vue == 'entree' %}<script>
+(function(){var m={lieux:"methode-structures.html",concordance:"methode-controles.html",controles:"methode-controles.html",
+indicateurs:"methode-indicateurs.html",telecharger:"methode-fichiers.html"},h=location.hash.slice(1);
+if(m[h])location.replace(m[h]+"#"+h)})();
+</script>{% endif %}
 {% endblock %}

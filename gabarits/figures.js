@@ -172,4 +172,34 @@
           if(b.dataset.a==="cit"){navigator.clipboard.writeText(texte).then(function(){b.textContent="Citation copiée"},function(){b.textContent="Copie impossible ici"});return}
           enregistrer(new Blob([tableauCsv(t)+"\r\n\r\n"+celluleCsv({textContent:texte})],{type:"text/csv;charset=utf-8"}),nom+".csv");b.textContent="Enregistré"}})}})}
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",citerTableaux);else citerTableaux();
+
+  // « Comment lire » des rapports (audit du 22 octobre 2026, lot 2), un bouton sur la ligne d'outils de la figure ou du
+  // tableau commenté, à côté de « Citer et exporter », comme dans l'atlas. Le paragraphe garde sa place et s'ouvre au
+  // clic ; s'il ne suit pas une figure ou un tableau, il reste affiché. À l'impression il est toujours visible.
+  function lireReplie(){
+    document.querySelectorAll(".corps p.comment-lire").forEach(function(p){
+      if(p.dataset.lire)return;p.dataset.lire="1";var ligne=null,e=p.previousElementSibling;
+      for(var k=0;e&&k<5&&!ligne;k++,e=e.previousElementSibling){
+        if(e.matches("figure.graphique"))ligne=e.querySelector(".outils-figure");
+        else if(e.matches(".defile,table")){for(var o=e.previousElementSibling,j=0;o&&j<3;o=o.previousElementSibling,j++)if(o.classList.contains("outils-tableau")){ligne=o;break}}
+        else if(e.matches("h2,h3,h4,h5,.comment-lire"))break}
+      if(!ligne)return;
+      var b=document.createElement("button");b.type="button";b.className="citer-fig lire-fig";b.textContent="Comment lire";b.setAttribute("aria-expanded","false");
+      ligne.insertBefore(b,ligne.firstChild);p.classList.add("repli");
+      b.onclick=function(){var o=p.classList.contains("repli");p.classList.toggle("repli",!o);b.setAttribute("aria-expanded",String(o))}})}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",lireReplie);else lireReplie();
+
+  // longs tableaux de consultation (pages de la méthode), un champ filtre les lignes à mesure qu'on tape
+  function filtres(){
+    document.querySelectorAll("table.filtrable").forEach(function(t){
+      if(t.dataset.filtre)return;t.dataset.filtre="1";var bloc=t.closest(".defile")||t;
+      var l=document.createElement("label");l.className="filtre-tableau";l.innerHTML='<span>Filtrer le tableau</span><input type="search" autocomplete="off">';
+      var ligne=bloc.previousElementSibling&&bloc.previousElementSibling.classList.contains("citation-fig")?bloc.previousElementSibling:bloc;ligne.before(l);
+      var n=document.createElement("span");n.className="small muted";l.appendChild(n);
+      var champ=l.querySelector("input"),lignes=[].slice.call(t.tBodies[0]?t.tBodies[0].rows:[]);
+      var norm=function(x){return x.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()};
+      champ.addEventListener("input",function(){var q=norm(champ.value.trim()),k=0;
+        lignes.forEach(function(r){var ok=!q||norm(r.textContent).indexOf(q)>=0;r.hidden=!ok;if(ok)k++});
+        n.textContent=q?k+" ligne"+(k>1?"s":"")+" sur "+lignes.length:""})})}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",filtres);else filtres();
 })();

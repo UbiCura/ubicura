@@ -251,6 +251,43 @@ def test_site_markdown():
     assert site.en_bref("### En bref\n\n- Un.\n- Deux.\n\nSuite") == ["Un.", "Deux."]
 
 
+def test_chiffres_cles():
+    """Chiffres clés en tête de partie (audit du 22 octobre 2026), deux à quatre tuiles, et chaque valeur d'une tuile
+    figure aussi dans le texte du rapport, une tuile ne montre jamais un chiffre qui n'est pas ailleurs."""
+    import re
+    from pipeline import rapport
+    assert rapport._cles(("1", "a")) == [] and rapport._cles(None, ("1", "a"), ("2", "b"))
+    assert rapport._cles(*[(str(i), "x") for i in range(6)])[0].count('class="v"') == 4
+    d = _dernier_resultats()
+    for nom in ("rapport_sante_mentale.md", "rapport_sante.md"):
+        f = d / nom
+        if not f.exists():
+            raise Ignore(nom)
+        texte = f.read_text(encoding="utf-8")
+        tuiles = re.findall(r'<div class="cles">.*?</div></div></div>', texte)
+        assert tuiles, nom
+        reste = re.sub(r'<div class="cles">.*', "", texte)
+        for v in re.findall(r'<div class="v">([^<]+)</div>', " ".join(tuiles)):
+            nu = v.replace("× ", "").replace("+", "").replace("−", "")
+            assert nu in reste, (nom, v)
+
+
+def test_methode_en_pages():
+    """La méthode en cinq pages (audit du 22 octobre 2026), chaque section hors de la vue d'ensemble a sa redirection
+    depuis l'ancienne adresse methode.html#section, pour que les liens déjà diffusés restent bons."""
+    import re
+    from pipeline import config
+    g = (config.RACINE / "gabarits" / "methode.html").read_text(encoding="utf-8")
+    vues = re.findall(r"\{% if vue == '(\w+)' %\}", g)
+    assert set(vues) >= {"entree", "structures", "indicateurs", "controles", "fichiers"}
+    redir = dict(re.findall(r'(\w+):"(methode-\w+\.html)"', g))
+    morceaux = re.split(r"\{% if vue == '(\w+)' %\}", g)
+    for vue, corps in zip(morceaux[1::2], morceaux[2::2]):
+        for ident in re.findall(r'<h2 id="(\w+)"', corps):
+            if vue != "entree":
+                assert redir.get(ident) == f"methode-{vue}.html", (ident, vue)
+
+
 def test_pdf_a_savoir_coupures():
     """PDF, une limite de config.LIMITES déjà donnée devient un renvoi à sa section, les noms de fichiers reçoivent des
     points de coupure hors des balises, un tableau de trois colonnes ou moins est marqué étroit."""

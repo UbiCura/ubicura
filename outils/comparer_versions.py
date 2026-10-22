@@ -36,7 +36,8 @@ LIEUX = (.15, .40)             # variation du nombre de lieux de soins d'un type
 PRINCIPALES = ["psychologue", "psychiatre", "pedopsychiatre", "psychotherapeute", "medecin_generaliste", "infirmier",
                "masseur_kinesitherapeute", "orthophoniste", "psychomotricien", "pharmacien", "chirurgien_dentiste",
                "sage_femme", "pediatre"]
-PAGES = ["index.html", "atlas.html", "methode.html", "rapports.html", "donnees-sources.html", "journal.html",
+PAGES = ["index.html", "atlas.html", "methode.html", "methode-structures.html", "methode-indicateurs.html",
+         "methode-controles.html", "methode-fichiers.html", "rapports.html", "donnees-sources.html", "journal.html",
          "territoires/index.html"]
 
 

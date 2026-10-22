@@ -787,7 +787,7 @@ def _site(agg, ref, professions, insee, R, serie, jour):
         "secteurs": top(agg.secteurs[agg.secteurs["niveau"].isin(["FR", "dep"])], "secteur"),
         "exercice": _exercice_atlas(getattr(agg, "lieux", None), top),
         "addicto": _addicto_atlas(agg, ref, insee),
-        "categories": top(agg.categories, "categorie"),
+        "categories": top(agg.categories, "categorie", k=500),
         "structures": struct,
         "correlations": corr,
         "inegalites": ineg,

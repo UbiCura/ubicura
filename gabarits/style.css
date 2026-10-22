@@ -54,6 +54,23 @@ h4{font-size:1rem;font-weight:600;margin:24px 0 6px;color:var(--muted)}
 p,li{max-width:none}
 .citer-haut{border-left:3px solid var(--focus);background:var(--panel);padding:10px 14px;margin:0 0 24px;border-radius:0 6px 6px 0}
 .citer-haut p{margin:.3em 0}
+details.citer-haut{padding:6px 14px}
+details.citer-haut>summary{cursor:pointer;color:var(--ink);font-size:.875rem}
+/* hiérarchie des rapports (audit du 22 octobre 2026, lot 2), la phrase qui ouvre une analyse est mise en avant comme
+   dans l'atlas, « Comment lire » s'ouvre depuis la ligne d'outils de la figure ou du tableau qu'il commente */
+.corps h4+p{font-family:var(--serif);font-size:1.125rem;line-height:1.45;color:var(--ink)}
+.corps p.comment-lire.repli{display:none}
+button.lire-fig[aria-expanded="true"]{color:var(--ink);border-color:var(--ink)}
+/* chiffres clés en tête de partie (audit, lot 2), quatre par ligne, deux sur téléphone */
+.cles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0 24px}
+.cles>div{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:12px 14px}
+.cles .v{font-family:var(--serif);font-size:1.6rem;color:var(--ink);line-height:1.1;font-variant-numeric:lining-nums}
+.cles .l{font-size:.75rem;color:var(--muted);margin-top:6px;line-height:1.35;text-align:left;hyphens:manual}
+@media (max-width:600px){.cles{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* filtre des longs tableaux de la méthode (audit, lot 3) */
+.filtre-tableau{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:10px 0 4px;font-size:.875rem;color:var(--muted)}
+.filtre-tableau input{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:4px 8px;min-width:min(260px,100%)}
+@media print{.filtre-tableau{display:none}}
 main:has(> .etroit) > footer{max-width:50rem}
 main:has(> .rapport) > footer{margin-left:260px;max-width:50rem}
 @media (max-width:900px){main:has(> .rapport) > footer{margin-left:0}}
@@ -61,7 +78,7 @@ main:has(> .rapport) > footer{margin-left:260px;max-width:50rem}
 
 /* rapport */
 .rapport{display:grid;grid-template-columns:220px minmax(0,1fr);gap:40px;align-items:start}
-@media (max-width:900px){.rapport{grid-template-columns:minmax(0,1fr)}.sommaire{position:static!important;max-height:16em;border:1px solid var(--line);border-radius:6px;padding:8px 12px}.sommaire[aria-hidden="true"]{display:none}}
+@media (max-width:900px){.rapport{grid-template-columns:minmax(0,1fr)}.sommaire[aria-hidden="true"]{display:none}}
 .sommaire{position:sticky;top:70px;font-size:.875rem;max-height:calc(100vh - 90px);overflow:auto}
 .sommaire ul{list-style:none;padding:0;margin:0}.sommaire ul ul{padding-left:12px}
 .sommaire a{color:var(--muted);text-decoration:none;display:block;padding:2px 0}
@@ -130,6 +147,7 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:16px;color:v
   h1+*,h2+*,h3+*,h4+*,h5+*{break-before:avoid;page-break-before:avoid}
   p,li,dd{orphans:3;widows:3}
   .comment-lire,.a-savoir,blockquote,.citer-haut,figcaption{break-inside:avoid}
+  .corps p.comment-lire.repli{display:block}.outils-figure .lire-fig{display:none}
   /* un paragraphe qui annonce une figure reste avec elle, et avec son titre (12 octobre 2026) */
   p:has(+ figure.graphique){break-after:avoid;page-break-after:avoid}
   /* une figure tient avec son titre et sa phrase d'annonce sur une même page */
@@ -275,3 +293,29 @@ table td,table th{hyphens:manual;-webkit-hyphens:manual;overflow-wrap:normal;wor
 .corps details.journal-mois{background:none;border:none;border-top:1px solid var(--line);border-radius:0;padding:6px 0;margin:8px 0;font-size:1rem}
 .corps details.journal-mois>summary{font-family:var(--serif);font-size:1.25rem;font-weight:600;color:var(--ink);padding:6px 0}
 .journal-entree h3{margin-top:18px}
+
+/* ---------------------------------------------------------------- téléphone (audit du 22 octobre 2026, lot 1)
+   menu replié derrière « Menu », sommaire replié derrière « Sommaire », texte aligné à gauche en colonne étroite (la
+   justification y creuse des blancs), première colonne des tableaux fixe quand ils défilent */
+nav.site .menu{display:none}
+nav.site .liens{display:contents}
+.sommaire .bouton-sommaire{display:none}
+@media (max-width:760px){
+nav.site .in{padding:8px 16px}
+nav.site .menu{display:inline-block;background:none;border:1px solid var(--line);border-radius:999px;color:var(--ink);font:inherit;font-size:.875rem;padding:3px 14px;cursor:pointer}
+nav.site .liens{display:none;flex-basis:100%;flex-direction:column;align-items:flex-start;gap:6px;padding:8px 0 6px}
+nav.site.ouvert .liens{display:flex}
+nav.site .sous-menu{position:static;box-shadow:none;border:0;padding:0 0 0 14px;min-width:0;background:none}
+.defile table td:first-child,.defile table th:first-child{position:sticky;left:0;background:var(--bg);z-index:1}
+}
+@media (max-width:900px){
+.sommaire{position:static!important;max-height:none;overflow:visible;border:1px solid var(--line);border-radius:6px;padding:4px 12px;margin-bottom:12px}
+.sommaire>ul,.sommaire>.toc{display:none}
+.sommaire.ouvert>ul,.sommaire.ouvert>.toc{display:block;max-height:60vh;overflow:auto;padding-bottom:8px}
+.sommaire .bouton-sommaire{display:block;width:100%;text-align:left;background:none;border:0;color:var(--ink);font:inherit;font-weight:600;padding:6px 0;cursor:pointer}
+.sommaire .bouton-sommaire::after{content:" ▾";color:var(--muted)}
+.sommaire.ouvert .bouton-sommaire::after{content:" ▴"}
+}
+@media (max-width:600px){
+.corps p,.corps li,.chapeau,.bref li,.comment-lire,.a-savoir{text-align:left!important}
+}

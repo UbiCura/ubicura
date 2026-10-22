@@ -1,6 +1,8 @@
 <nav class="site" aria-label="Navigation du site">
   <div class="in">
     <a class="marque" href="{{ racine }}index.html" title="{{ sous_titre }}">{{ nom_projet }}</a>
+    <button class="menu" id="bouton-menu" type="button" aria-expanded="false" aria-controls="liens-site">Menu</button>
+    <div class="liens" id="liens-site">
     <a class="l{% if page == 'atlas' %} on{% endif %}" href="{{ racine }}atlas.html">Atlas</a>
     <a class="l{% if page == 'rapports' %} on{% endif %}" href="{{ racine }}rapports.html">Rapports nationaux</a>
     <a class="l{% if page == 'territoires' %} on{% endif %}" href="{{ racine }}territoires/index.html">Rapports par territoire</a>
@@ -16,6 +18,7 @@
       </div>
     </div>
     <button class="theme" id="bascule-theme" type="button" aria-pressed="false">Fond clair</button>
+    </div>
   </div>
 </nav>
 <script>
@@ -28,6 +31,15 @@ m.addEventListener("keydown",function(e){var l=[].slice.call(m.querySelectorAll(
   if(e.key==="ArrowDown"){e.preventDefault();l[(i+1)%l.length].focus()}else if(e.key==="ArrowUp"){e.preventDefault();l[(i-1+l.length)%l.length].focus()}});
 document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!m.hidden){ouvrir(false);b.focus()}});
 document.addEventListener("click",function(e){if(!m.hidden&&!b.parentNode.contains(e.target))ouvrir(false)})})();
+// téléphone, liens du site repliés derrière « Menu » (audit du 22 octobre 2026) ; sommaire d'une page replié derrière
+// « Sommaire », ouvert au clic, refermé quand on choisit une section
+(function(){var b=document.getElementById("bouton-menu"),n=b&&b.closest("nav.site");if(!b)return;
+b.addEventListener("click",function(){var o=!n.classList.contains("ouvert");n.classList.toggle("ouvert",o);b.setAttribute("aria-expanded",String(o))})})();
+document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll("aside.sommaire").forEach(function(a){
+  if(!a.querySelector("ul"))return;var t=document.createElement("button");t.type="button";t.className="bouton-sommaire";
+  t.setAttribute("aria-expanded","false");t.textContent="Sommaire";a.insertBefore(t,a.firstChild);
+  t.addEventListener("click",function(){var o=!a.classList.contains("ouvert");a.classList.toggle("ouvert",o);t.setAttribute("aria-expanded",String(o))});
+  a.addEventListener("click",function(e){if(e.target.closest("a")){a.classList.remove("ouvert");t.setAttribute("aria-expanded","false")}})})});
 (function(){var b=document.getElementById("bascule-theme"),r=document.documentElement;
 function maj(){var c=r.getAttribute("data-theme")==="light";b.textContent=c?"Fond sombre":"Fond clair";b.setAttribute("aria-pressed",String(c))}
 maj();b.addEventListener("click",function(){var t=r.getAttribute("data-theme")==="light"?"dark":"light";r.setAttribute("data-theme",t);

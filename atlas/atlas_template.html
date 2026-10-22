@@ -26,11 +26,11 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#15171C;--panel:#1D2027;--contour:#15171C;--ink:#E8E9EE;--muted:#A0A5B2;--line:#343844;--nodata:#2A2D35;--accent:#E0B04A;--focus:#D4C3EA;
   --r0:#2A2533;--r1:#43355A;--r2:#5E4A82;--r3:#7E66A8;--r4:#A58CCB;--r5:#D4C3EA;
-  --d0:#E8B34A;--d1:#A97F2C;--d2:#5A4A2B;--d3:#2B2A30;--d4:#4A3C66;--d5:#7E66A8;--d6:#D4C3EA;}}
+  --d0:#E8B34A;--d1:#A97F2C;--d2:#6E5A36;--d3:#3A404A;--d4:#4A3C66;--d5:#7E66A8;--d6:#D4C3EA;}}
 :root[data-theme="dark"]{
   --bg:#15171C;--panel:#1D2027;--contour:#15171C;--ink:#E8E9EE;--muted:#A0A5B2;--line:#343844;--nodata:#2A2D35;--accent:#E0B04A;--focus:#D4C3EA;
   --r0:#2A2533;--r1:#43355A;--r2:#5E4A82;--r3:#7E66A8;--r4:#A58CCB;--r5:#D4C3EA;
-  --d0:#E8B34A;--d1:#A97F2C;--d2:#5A4A2B;--d3:#2B2A30;--d4:#4A3C66;--d5:#7E66A8;--d6:#D4C3EA;}
+  --d0:#E8B34A;--d1:#A97F2C;--d2:#6E5A36;--d3:#3A404A;--d4:#4A3C66;--d5:#7E66A8;--d6:#D4C3EA;}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *,*::before,*::after{box-sizing:inherit}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5}
@@ -68,7 +68,22 @@ details.donnees summary{color:var(--ink);font-weight:500}
 button.citer{background:none;border:1px solid var(--line);border-radius:999px;padding:1px 10px;font-family:var(--sans);font-size:.75rem;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap}
 button.citer[aria-expanded="true"]{color:var(--ink);border-color:var(--ink)}
 svg text.signature{font-size:10px;opacity:.75}
-@media (max-width:600px){.bar select{max-width:100%;min-width:0;flex:1 1 100%}.seg{flex-wrap:wrap;max-width:100%}.seg button+button{border-left:0}.seg button{border-right:1px solid var(--line)}}
+@media (max-width:600px){.bar select{max-width:100%;min-width:0;flex:1 1 100%}}
+/* téléphone (audit du 22 octobre 2026, lot 1), l'en-tête ne colle plus et ne masque plus la carte, les réglages se
+   replient derrière un bouton qui rappelle les choix en cours, un groupe de boutons défile sur une ligne au lieu de se
+   casser avec des cases vides, texte aligné à gauche */
+.bar .reglages{display:none}
+@media (max-width:760px){
+.collant{position:static;box-shadow:none}
+.seg{display:flex;flex-wrap:nowrap;overflow-x:auto;max-width:100%;scrollbar-width:none}
+.seg::-webkit-scrollbar{display:none}
+.seg button{flex:none;white-space:nowrap}
+.bar .reglages{display:flex;flex:1 1 100%;justify-content:space-between;gap:8px;align-items:center;background:none;border:1px solid var(--line);border-radius:4px;color:var(--ink);padding:7px 10px;font:inherit;font-size:.875rem;cursor:pointer;text-align:left}
+.bar .reglages .resume{color:var(--muted);font-size:.75rem}
+.bar .reglages>span:first-child{white-space:nowrap}
+.bar:not(.ouvert) .seg{display:none}
+.phrase,.note,.lede,.howtxt,.howtxt p,.asavoir{text-align:left}
+}
 .grid{display:grid;grid-template-columns:minmax(0,1fr) clamp(280px,32vw,360px);gap:24px;align-items:start}
 @media (max-width:760px){.grid{grid-template-columns:1fr}}
 /* la fiche du territoire choisi occupe toute la largeur sous la carte et la colonne, sur un écran étroit juste sous la carte */
@@ -312,6 +327,8 @@ button.repli .chevron{display:inline-block;font-size:.8em;color:var(--muted);tra
 button.repli[aria-expanded="false"] .chevron{transform:rotate(-90deg)}
 button.repli:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
 .panel.replie{padding-bottom:12px}.panel.replie h2{margin-bottom:0}
+.resume-repli{margin:6px 0 0;color:var(--muted);font-size:.875rem;line-height:1.45;max-width:var(--mesure);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+#catAutres{margin-top:6px}
 @media (prefers-reduced-motion:reduce){button.repli .chevron{transition:none}}
 button.how{background:none;border:1px solid var(--line);border-radius:999px;padding:1px 10px;font-family:var(--sans);font-size:.75rem;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap}
 button.how[aria-expanded="true"]{color:var(--ink);border-color:var(--ink)}
@@ -356,6 +373,7 @@ dl.gl dt{font-weight:600;margin-top:12px}dl.gl dd{margin:2px 0 0;max-width:var(-
 
 <div class="bar" id="bar">
   <select id="prof" aria-label="Profession"></select>
+  <button class="reglages" type="button" aria-expanded="false" aria-controls="bar"><span>Réglages <span aria-hidden="true">▾</span></span><span class="resume" id="reglagesResume"></span></button>
   <div class="seg" data-k="level"><button data-v="reg">Régions</button><button data-v="dep">Départements</button><button data-v="epci">Intercommunalités</button></div>
   <div class="seg" data-k="mode"><button data-v="all">Tous modes</button><button data-v="lib">Libéral</button><button data-v="sal">Salarié</button></div>
   <div class="seg" data-k="metric" id="metricSeg"><button data-v="dens">Pour 10 000 hab.</button><button data-v="n">Effectif</button><button data-v="ecart">Écart à l’attendu</button><button data-v="acces">Accessibilité</button><button data-v="trajet">Temps de trajet</button><button data-v="lieux" title="Distance médiane des habitants au structure de soins choisi sous la carte">Distance aux structures</button><button data-v="evol">Évolution</button><button data-v="zones">Zones</button></div>
@@ -1599,11 +1617,16 @@ function lowerPanels(){
     hbars("exBars",ex,0)}
   const cat=(D.categories?.v?.[p]?.[key]||[]).map(([i,n])=>[D.categories.lib[i],n]);
   const base=(D.site_dossier&&D.site_dossier!==".")?D.site_dossier+"/":"",choisi=S.sel&&S.sel.lv===S.level&&LX&&D.niveaux[S.level].lieux;
-  document.getElementById("catNote").innerHTML=esc("Catégorie FINESS des établissements d’exercice, "+where+". Les professionnels sont classés selon la catégorie sous laquelle FINESS inscrit le lieu d’exercice qu’ils déclarent au répertoire. Un établissement inscrit sous une catégorie, CMP par exemple, peut être d’un autre type d’après son nom (hôpital de jour, CATTP, équipe mobile). Les structures de soins, elles, sont rangées dans le type que désigne leur nom, ")
-    +'<a href="'+esc(base)+'methode.html#lieux">voir la page méthode</a>.'
+  document.getElementById("catNote").innerHTML=esc("Catégorie FINESS des établissements d’exercice, "+where+". Les professionnels sont classés selon la catégorie sous laquelle FINESS inscrit le lieu d’exercice qu’ils déclarent au répertoire. Le personnel des structures qui dépendent d’un hôpital (CMP, CATTP, hôpitaux de jour) déclare en général l’hôpital lui-même, il est alors compté sous « Centre hospitalier » ou « CHS, EPSM » et non sous la structure ; l’encadré « Où ils exercent » recompte les professionnels par structure de santé mentale. Un établissement inscrit sous une catégorie, CMP par exemple, peut être d’un autre type d’après son nom (hôpital de jour, CATTP, équipe mobile). Les structures de soins, elles, sont rangées dans le type que désigne leur nom, ")
+    +'<a href="'+esc(base)+'methode-structures.html#lieux">voir la page méthode</a>.'
     +(choisi?'<br><button type="button" class="lien" id="catVersLieux">Voir les structures de soins de ce territoire ('+esc(D.niveaux[S.level].units[IDX[S.level].get(S.sel.c)].nm)+')</button>':'');
   const cv=document.getElementById("catVersLieux");if(cv)cv.onclick=versStructures;
-  hbars("catBars",cat,d3.sum(cat,r=>r[1]));
+  // les dix premières catégories, puis toutes les autres derrière un bouton, pour chaque profession
+  const totCat=d3.sum(cat,r=>r[1]);hbars("catBars",cat.slice(0,10),totCat);
+  let ca=document.getElementById("catAutres");if(!ca){ca=document.createElement("div");ca.id="catAutres";document.getElementById("catBars").after(ca)}
+  const reste=cat.slice(10);ca.innerHTML=reste.length?'<button type="button" class="lien" aria-expanded="false">Autres catégories ('+reste.length+')</button><div class="hbars" id="catBarsReste" hidden></div>':"";
+  if(reste.length){hbars("catBarsReste",reste,totCat);const bt=ca.querySelector("button"),zone=ca.querySelector("#catBarsReste");
+    bt.onclick=()=>{const o=zone.hidden;zone.hidden=!o;bt.setAttribute("aria-expanded",String(o));bt.textContent=(o?"Masquer les autres catégories":"Autres catégories ("+reste.length+")")}}
   const st=D.structures?.[p]?.[key]||[];
   document.getElementById("structs").innerHTML=st.map(([rs,c,n])=>'<li>'+esc(rs)+' <span class="muted">'+esc(c)+', '+fmt.format(n)+'</span></li>').join("")||'<li class="muted">Disponible pour les principales professions salariées.</li>';
 }
@@ -2319,6 +2342,11 @@ document.getElementById("q").addEventListener("input",table);
 document.getElementById("evTout").addEventListener("click",()=>{S.evTout=!S.evTout;effetVille();signer()});
 document.getElementById("scFiltre").addEventListener("input",()=>scatter());
 addEventListener("scroll",hideTip,{passive:true});
+// téléphone, bouton « Réglages » et rappel des choix en cours (niveau, mode, mesure)
+{const bar=document.getElementById("bar"),bt=bar&&bar.querySelector(".reglages"),res=document.getElementById("reglagesResume");
+  if(bt){bt.addEventListener("click",()=>{const o=!bar.classList.contains("ouvert");bar.classList.toggle("ouvert",o);bt.setAttribute("aria-expanded",String(o))});
+    const maj=()=>{res.textContent=[...bar.querySelectorAll('.seg button[aria-pressed="true"]')].map(b=>b.textContent.trim()).join(" · ")};
+    new MutationObserver(maj).observe(bar,{subtree:true,attributes:true,attributeFilter:["aria-pressed"]});maj()}}
 const hautNav=()=>{const n=document.querySelector("nav.site"),c=document.querySelector(".collant"),h=n?n.offsetHeight:0;
   document.documentElement.style.setProperty("--haut-nav",h+"px");document.documentElement.style.setProperty("--haut-collant",(h+(c?c.offsetHeight:0))+"px")};hautNav();addEventListener("resize",hautNav);
 document.addEventListener("click",e=>{const b=e.target.closest(".zoombar button");if(!b)return;zoomer(b.parentNode.dataset.carte==="tmap"?TM:M,b.dataset.z)});
@@ -2335,7 +2363,11 @@ document.querySelectorAll("[data-repli]").forEach(p=>{const h=p.querySelector("h
   const b=document.createElement("button");b.type="button";b.className="repli";b.innerHTML='<span class="chevron" aria-hidden="true">▾</span>';
   b.appendChild(document.createTextNode(h.firstChild.textContent.trim()));h.replaceChild(b,h.firstChild);h.insertBefore(document.createTextNode(" "),b.nextSibling);
   let ouvert=innerWidth>760;try{const v=localStorage.getItem(cle);if(v!==null)ouvert=v==="1"}catch(e){}
-  const maj=()=>{b.setAttribute("aria-expanded",String(ouvert));corps.hidden=!ouvert;p.classList.toggle("replie",!ouvert)};maj();
+  // encadré replié, sa phrase de lecture (résultat principal) reste visible sous le titre (audit du 22 octobre 2026)
+  const res=document.createElement("p");res.className="resume-repli";h.after(res);
+  const majRes=()=>{const ph=[...corps.querySelectorAll("p.phrase,p.note")].find(x=>x.textContent.trim());res.textContent=ph?ph.textContent.trim():"";res.hidden=ouvert||!res.textContent};
+  let tRes=0;new MutationObserver(()=>{clearTimeout(tRes);tRes=setTimeout(majRes,60)}).observe(corps,{subtree:true,childList:true,characterData:true});
+  const maj=()=>{b.setAttribute("aria-expanded",String(ouvert));corps.hidden=!ouvert;p.classList.toggle("replie",!ouvert);majRes()};maj();
   b.addEventListener("click",()=>{ouvert=!ouvert;try{localStorage.setItem(cle,ouvert?"1":"0")}catch(e){}maj()})});
 prep();render();
 })();

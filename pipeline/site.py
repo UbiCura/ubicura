@@ -816,13 +816,44 @@ def construire(pdf=True) -> Path:
     lieux_m = _lieux_methode(dernier)
     ctx = dict(commun, racine="", page="methode", titre="Méthode, données et limites", limites=limites.tableau(),
                logiciels=logiciels())
-    (SITE / "methode.html").write_text(env.get_template("methode.html").render(
-        ctx, sources=journal["sources"], controles=journal["controles"], indicateurs=site_data["contexte"],
-        libelles=table_lib, fichiers=fichiers, concordance=concordance, inscrits=inscrits, lieux=lieux_m, archive={"lien": f"donnees/{dernier.name}/{tout.name}",
-                                                        "taille": f"{tout.stat().st_size / 1e6:.0f} Mo"}, lien_dictionnaire=f"donnees/{dernier.name}/dictionnaire.html",
-        lien_libelles=f"donnees/{dernier.name}/libelles.csv"),
-        encoding="utf-8")
-    pages.append(SITE / "methode.html")
+    # la méthode en cinq pages (audit du 22 octobre 2026, lot 3), une vue d'ensemble courte et une page par grand
+    # ensemble de consultation, sommaire commun
+    contenu = dict(sources=journal["sources"], controles=journal["controles"], indicateurs=site_data["contexte"],
+                   libelles=table_lib, fichiers=fichiers, concordance=concordance, inscrits=inscrits, lieux=lieux_m,
+                   archive={"lien": f"donnees/{dernier.name}/{tout.name}", "taille": f"{tout.stat().st_size / 1e6:.0f} Mo"},
+                   lien_dictionnaire=f"donnees/{dernier.name}/dictionnaire.html",
+                   lien_libelles=f"donnees/{dernier.name}/libelles.csv")
+    lim, logi = ctx.get("limites"), ctx.get("logiciels")
+    pages_methode = [
+        ("entree", "methode.html", "Vue d'ensemble", [("methode", "Comment les chiffres sont établis")]
+         + ([("limites", "Limites connues des données")] if lim else []) + [("sources", "Sources"),
+            ("origine", "D'où vient chaque chiffre")] + ([("inscrits", "Inscrits sans activité déclarée")] if inscrits else [])
+         + ([("logiciels", "Logiciels et reproductibilité")] if logi else [])
+         + [("libelles", "Noms des établissements"), ("licences", "Licences et conditions de réutilisation")]),
+        ("structures", "methode-structures.html", "Structures de soins", [("lieux", "Structures de soins, FINESS et ROR réunis")]),
+        ("indicateurs", "methode-indicateurs.html", "Indicateurs du profil des territoires",
+         [("indicateurs", "Indicateurs du profil des territoires")]),
+        ("controles", "methode-controles.html", "Contrôles et concordance",
+         ([("concordance", "Concordance des effectifs avec les chiffres officiels")] if concordance else [])
+         + [("controles", "Contrôles")]),
+        ("fichiers", "methode-fichiers.html", "Fichiers à télécharger", [("telecharger", "Données à télécharger")]),
+    ]
+    chapeaux = {"entree": "Comment les chiffres sont produits, d'où ils viennent, ce qu'ils ne disent pas, comment les "
+                          "vérifier et les réutiliser. Les structures de soins, les indicateurs, les contrôles et les "
+                          "fichiers ont chacun leur page.",
+                "structures": "Comment les structures de soins de FINESS et du Répertoire opérationnel des ressources "
+                              "sont réunies, relues, confirmées et confrontées à la statistique des hôpitaux.",
+                "indicateurs": "Chaque indicateur du profil des territoires, son unité, ce qu'il mesure, les niveaux où il "
+                               "est disponible et sa source.",
+                "controles": "Les effectifs confrontés aux chiffres officiels de la DREES, et les contrôles de cohérence "
+                             "de la version.",
+                "fichiers": "Toutes les données de la version, en fichiers CSV, avec le dictionnaire des colonnes."}
+    for cle, fichier, titre_v, _a in pages_methode:
+        titre_page = "Méthode, données et limites" if cle == "entree" else titre_v
+        (SITE / fichier).write_text(env.get_template("methode.html").render(
+            dict(ctx, titre=titre_page), vue=cle, pages_methode=pages_methode, titre_page=titre_page,
+            chapeau_page=chapeaux[cle], **contenu), encoding="utf-8")
+        pages.append(SITE / fichier)
 
     # accueil
     tm = {k: (dernier / f).read_text(encoding="utf-8") for k, (f, _t) in RAPPORTS.items()}
@@ -957,7 +988,16 @@ def _territoires(env, commun, dernier) -> list[Path]:
 def _css_nav() -> str:
     """Styles de la barre de navigation, repris de style.css pour l'atlas (qui a ses propres styles)."""
     css = (GABARITS / "style.css").read_text(encoding="utf-8")
-    return "\n".join(l for l in css.split("\n") if l.startswith("nav.site"))
+    lignes, simples, mobiles, tel = css.split("\n"), [], [], False
+    for l in lignes:
+        # au téléphone, les règles du menu sont dans le bloc @media (max-width:760px) de la fin du fichier
+        if l.strip() == "@media (max-width:760px){":
+            tel = True
+        elif l.strip() == "}":
+            tel = False
+        elif l.startswith("nav.site"):
+            (mobiles if tel else simples).append(l)
+    return "\n".join(simples) + ("\n@media (max-width:760px){" + "\n".join(mobiles) + "}" if mobiles else "")
 
 
 def _apercu_carte(dossier: Path) -> str:

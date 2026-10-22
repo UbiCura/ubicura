@@ -58,14 +58,105 @@ def _plus_loin(lignes):
     return ["<details>", "<summary>Pour aller plus loin</summary>", ""] + corps + ["", "</details>", ""]
 
 
-def _groupe(titre, intro, *sections, abaisser=True):
-    """Grande partie d'un rapport. Les sections gardent leur ordre, leurs titres descendent d'un niveau."""
+def _groupe(titre, intro, *sections, abaisser=True, cles=None):
+    """Grande partie d'un rapport. Les sections gardent leur ordre, leurs titres descendent d'un niveau. cles, les
+    chiffres clés affichés sous l'introduction (_cles)."""
     L = []
     for s in sections:
         L += [("#" + l if abaisser and l.startswith("###") else l) for l in s]
     if not L:
         return []
-    return [f"### {titre}", ""] + ([intro, ""] if intro else []) + L
+    return [f"### {titre}", ""] + ([intro, ""] if intro else []) + (cles or []) + L
+
+
+# ---------------------------------------------------------------- chiffres clés en tête de partie
+# Audit du 22 octobre 2026, lot 2, décision de Lucas. Trois ou quatre chiffres repris des analyses de la partie, mêmes
+# calculs que le texte, chacun avec son unité, aucun nom de territoire ni classement.
+
+def _cles(*items):
+    items = [i for i in items if i and i[0]][:4]
+    if len(items) < 2:
+        return []
+    from html import escape
+    return ['<div class="cles">' + "".join(f'<div><div class="v">{escape(v, quote=False)}</div><div class="l">{escape(l, quote=False)}</div></div>'
+                                          for v, l in items) + "</div>", ""]
+
+
+def _cle_effectif(C, p):
+    if not C.present(p):
+        return None
+    return nombre(C.nat[p]), f"{pluriel(C.lab[p]).lower()}, {un_pour(C.densite(p))}"
+
+
+def _cle_structures(C, tid, libelle):
+    x = (getattr(C.agg, "lieux", None) or {}).get("lieux")
+    if not isinstance(x, pd.DataFrame):
+        return None
+    n = int((x["type"] == tid).sum())
+    return (nombre(n), libelle) if n else None
+
+
+def _cle_evolution(C, prof):
+    ev = C.R.get("evolution_offre_resume")
+    if not isinstance(ev, pd.DataFrame) or ev.empty or prof not in set(ev["prof"]):
+        return None
+    fr = ev[(ev["niveau"] == "FR") & (ev["prof"] == prof)].iloc[0]
+    v = float(fr["evolution_densite"])
+    return ((("+" if v > 0 else "") + pct(v).replace("-", "−")),
+            f"{fr['libelle'].split(',')[0].lower()} pour 10 000 habitants, de {int(fr['annee_debut'])} à {int(fr['annee_fin'])}")
+
+
+def _cle_gini(C, p):
+    g = C.ineg["gini"].get(p, np.nan) if hasattr(C, "ineg") else np.nan
+    return (nombre(g, 2), f"indice de Gini des {pluriel(C.lab[p]).lower()} entre intercommunalités") if np.isfinite(g) else None
+
+
+def _cle_sans(C, p):
+    if p not in C.n_epci:
+        return None
+    v = C.sans(p)
+    return (pct(v), f"des habitants sans {C.lab[p].lower()} dans leur intercommunalité") if np.isfinite(v) else None
+
+
+def _cle_gradient(C, p):
+    cd = C.R.get("classes_densite")
+    if not isinstance(cd, pd.DataFrame) or not len(cd):
+        return None
+    t = cd[(cd["niveau"] == "epci") & (cd["prof"] == p)].set_index("classe")["densite_agregee"]
+    a, b = CLASSES_DENSITE[-1][2], CLASSES_DENSITE[0][2]
+    if a not in t or b not in t or not t[b]:
+        return None
+    return (f"× {nombre(t[a] / t[b], 1)}", f"{pluriel(C.lab[p]).lower()} par habitant, intercommunalités denses "
+                                           f"comparées aux très peu denses")
+
+
+def _cle_acces(C, equipement, quoi):
+    ta = C.R.get("temps_acces")
+    if not isinstance(ta, pd.DataFrame) or ta.empty:
+        return None
+    fr = ta[(ta["niveau"] == "FR") & (ta["equipement"] == equipement)]
+    if fr.empty:
+        return None
+    return pct(float(fr["part_population_a_plus_de_20_min"].iloc[0])), f"des habitants à plus de 20 minutes par la route {quoi}"
+
+
+def _cle_retrait(C, p):
+    ea = C.R.get("ecarts_attendu")
+    if not isinstance(ea, pd.DataFrame) or not len(ea):
+        return None
+    e = ea[(ea["prof"] == p) & (ea["effectif_attendu"] >= 5) & (ea["rapport"] < .5)]
+    if not len(e):
+        return None
+    return (nombre(len(e)), f"intercommunalités sous la moitié des {pluriel(C.lab[p]).lower()} attendus d'après leur "
+                            f"profil, {pct(e['pop'].sum() / C.pop_epci.sum())} des habitants")
+
+
+def _cles_addicto(C):
+    from . import lieux as _lm  # noqa: F401
+    lignes = offre_addicto((getattr(C.agg, "lieux", None) or {}).get("lieux"), C.nat.get("q_addictologie"))
+    garder = {"CSAPA principaux": "CSAPA principaux", "CAARUD, réduction des risques": "CAARUD, réduction des risques",
+              "Médecins qualifiés en addictologie": "médecins qualifiés en addictologie"}
+    return _cles(*[(nombre(r["n"]), garder[r["objet"]]) for r in lignes if r["objet"] in garder])
 
 
 def minuscule_pluriel(lib):
@@ -1178,10 +1269,10 @@ def _lieux(C: Contexte, famille):
             L_ += ["Les trois comptes des CSAPA, le recours aux soins et les consommations d'alcool et de tabac sont "
                    "réunis dans la partie « Addictologie ».", ""]
         if len(inc):
-            L_ += [("Recensés dans une partie des départements seulement, donc listés sans être comparés entre "
-                    "territoires, " if len(tg) else "Recensés dans une partie des départements seulement, ")
-                   + ", ".join(f"{minuscule(r.libelle)} ({nombre(r.n)}, {pct(r.part)} des départements)"
-                               for r in inc.itertuples()) + ".", ""]
+            L_ += [("Recensés dans une partie des départements seulement, ces types sont listés sans être comparés "
+                    "entre territoires." if len(tg) else "Recensés dans une partie des départements seulement."), "",
+                   _tableau(inc, ["libelle", "n", "part"], ["Type de structure", "Structures", "Part des départements"],
+                            {"n": nombre, "part": pct}), ""]
     if famille == SM:
         tx = tableau_exercice(L.get("exercice"), "fr", "FR", C.lab)
         if tx:
@@ -1292,8 +1383,9 @@ def _complements_cmp(C, L):
         from .lecture import minuscule
         diff = sb[~sb["conclusion_identique"]]
         n_conf = sb[sb["mesure"].str.startswith("Nombre")]
-        txt = ", ".join(f"{nombre(int(r.confirmees))} {minuscule(r.libelle_type.split(',')[0])} sur {nombre(int(r.toutes))}"
-                        for r in n_conf.itertuples())
+        tab_conf = _tableau(n_conf.assign(t=n_conf["libelle_type"].str.split(",").str[0]), ["t", "toutes", "confirmees"],
+                            ["Type de structure", "Toutes les structures", "Seulement les confirmées"],
+                            {"toutes": lambda v: nombre(int(v)), "confirmees": lambda v: nombre(int(v))})
 
         def ecart(r):
             quoi = minuscule(r.libelle_type.split(",")[0])
@@ -1306,13 +1398,14 @@ def _complements_cmp(C, L):
                         f"{nombre(r.confirmees, 2)} entre les deux versions)")
             return f"{r.mesure.split(',')[0].lower()} ({quoi})"
         if diff.empty:
-            L_ += [f"Ces résultats tiennent avec les seules structures confirmées par une source indépendante de FINESS "
-                   f"et du ROR ({txt}), les conclusions ne changent pas.", ""]
+            L_ += ["Ces résultats tiennent avec les seules structures confirmées par une source indépendante de FINESS "
+                   "et du ROR, les conclusions ne changent pas.", "", tab_conf, ""]
         else:
-            L_ += [f"Avec les seules structures confirmées par une source indépendante de FINESS et du ROR ({txt}), "
-                   f"{nombre(len(sb) - len(diff))} résultats sur {nombre(len(sb))} gardent la même conclusion. "
-                   f"{'Change' if len(diff) == 1 else 'Changent'} " + ", et ".join(ecart(r) for r in diff.itertuples())
-                   + ". Ces résultats sont à lire avec prudence.", ""]
+            L_ += [f"Avec les seules structures confirmées par une source indépendante de FINESS et du ROR, "
+                   f"{nombre(len(sb) - len(diff))} résultats sur {nombre(len(sb))} gardent la même conclusion.", "",
+                   tab_conf, "",
+                   f"{'Le résultat qui change, à lire avec prudence' if len(diff) == 1 else 'Les résultats qui changent, à lire avec prudence'}.",
+                   ""] + [f"- {ecart(r)[0].upper()}{ecart(r)[1:]}." for r in diff.itertuples()] + [""]
         loin.append("Sensibilité, chaque résultat est recalculé sans les structures inscrites seulement dans FINESS ou le ROR "
                     "et sans celles examinées à la main sans source officielle. Détail dans sensibilite_confirmation.csv.")
     L_ += _comment_lire(
@@ -1424,9 +1517,10 @@ def _phrase_relecture(L):
     r = L.get("relecture")
     if not isinstance(r, pd.DataFrame) or r.empty:
         return []
-    corps = " ".join(f"{x['base']}. {x['constat']}, {nombre(x['nombre'])}. {x['traitement']}." for _, x in r.iterrows())
     return ["Relecture des deux bases, chaque correction est appliquée par une règle, la même pour toute la France. "
-            + corps + " Détail dans relecture_structures.csv."]
+            "Détail dans relecture_structures.csv.", "",
+            _tableau(r, ["base", "constat", "nombre", "traitement"], ["Base", "Ce qui est relevé", "Structures", "Traitement"],
+                     {"nombre": nombre})]
 
 
 def _phrase_sae(L, famille):
@@ -2634,26 +2728,39 @@ def ecrire(out, agg, ref, professions, insee, R, jour):
                  + [f"- {p}" for p in _en_bref_sm(C, ctxlab)] + [""]
                  + _groupe("L'offre de soins en santé mentale", intro_offre, _panorama(C, SM), rapport_bases.evolution(C, SM),
                            _hopital(C), _lieux(C, SM), _public_cible(C, SM), _modes(C, SM), _porte(C, SM),
-                           _exercice(C, SM))
+                           _exercice(C, SM),
+                           cles=_cles(_cle_effectif(C, "psychologue"), _cle_effectif(C, "psychiatre"),
+                                      _cle_structures(C, "lieu_cmp", "centres médico-psychologiques (CMP)"),
+                                      _cle_evolution(C, "psychiatre")))
                  + _groupe("La répartition de l'offre sur le territoire", intro_repart, _gradient(C, SM), _entonnoir(C, SM),
-                           _zones(C, SM), _acces(C, SM), _financier(C, SM))
+                           _zones(C, SM), _acces(C, SM), _financier(C, SM),
+                           cles=_cles(_cle_gini(C, "psychiatre"), _cle_sans(C, "psychiatre"), _cle_gradient(C, "psychologue"),
+                                      _cle_acces(C, "psychiatre_liberal", "d'un psychiatre libéral")))
                  + _groupe("L'offre et le profil des habitants", intro_profil, _correlations(C, SM, ctxlab),
-                           _vulnerabilite(C, ctxlab), _revenu(C, SM), rapport_bases.gwr_section(C), _retrait(C, SM))
+                           _vulnerabilite(C, ctxlab), _revenu(C, SM), rapport_bases.gwr_section(C), _retrait(C, SM),
+                           cles=_cles(_cle_retrait(C, "psychologue"), _cle_retrait(C, "psychiatre")))
                  + _recours(C, insee, ctxlab) + rapport_bases.ald(C, SM) + _besoins_spf(C, insee) + _enfance_handicap(C, SM)
                  + rapport_bases.allocations(C, SM) + _quadrants(C, ctxlab) + rapport_bases.offre_besoin_carte(C, insee, ctxlab)
                  + _loi_inverse(C, ctxlab) + rapport_bases.indicateurs_entre_eux(C, ctxlab) + _croisements(C, ctxlab, SM)
                  + _groupe("Addictologie", "L'offre de soins en addictologie, le recours aux soins et les consommations, "
-                           "réunis au même endroit.", _addictologie(C, insee, ctxlab))
+                           "réunis au même endroit.", _addictologie(C, insee, ctxlab), cles=_cles_addicto(C))
                  + _typologie(C, "sm"))
     partie_sante = (["## Santé", "", "### En bref", ""]
                     + [f"- {p}" for p in _en_bref_sante(C, ctxlab)] + [""]
                     + _groupe("L'offre de soins générale", intro_offre, _panorama(C, SANTE), rapport_bases.evolution(C, SANTE),
                               _lieux(C, SANTE), _public_cible(C, SANTE), _modes(C, SANTE), _porte(C, SANTE),
-                              _exercice(C, SANTE))
+                              _exercice(C, SANTE),
+                              cles=_cles(_cle_effectif(C, "medecin_generaliste"), _cle_effectif(C, "pharmacien"),
+                                         _cle_effectif(C, "masseur_kinesitherapeute"),
+                                         _cle_evolution(C, "medecin_generaliste")))
                     + _groupe("La répartition de l'offre sur le territoire", intro_repart, _gradient(C, SANTE),
-                              _entonnoir(C, SANTE), _zones(C, SANTE), _acces(C, SANTE), _financier(C, SANTE))
+                              _entonnoir(C, SANTE), _zones(C, SANTE), _acces(C, SANTE), _financier(C, SANTE),
+                              cles=_cles(_cle_gini(C, "medecin_generaliste"), _cle_sans(C, "pediatre"),
+                                         _cle_gradient(C, "medecin_generaliste"),
+                                         _cle_acces(C, "urgences", "d'un service d'urgences")))
                     + _groupe("L'offre et le profil des habitants", intro_profil, _correlations(C, SANTE, ctxlab),
-                              _revenu(C, SANTE), _retrait(C, SANTE))
+                              _revenu(C, SANTE), _retrait(C, SANTE),
+                              cles=_cles(_cle_retrait(C, "medecin_generaliste"), _cle_retrait(C, "masseur_kinesitherapeute")))
                     + _groupe("Maladies chroniques et handicap", "Ces indicateurs décrivent des personnes reconnues "
                               "malades ou en situation de handicap. Ils dépendent aussi du recours aux soins et ne "
                               "mesurent pas à eux seuls un besoin.", rapport_bases.ald(C, SANTE), _enfance_handicap(C, SANTE),
