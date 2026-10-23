@@ -1603,7 +1603,7 @@ def _eloignement(C, L, famille):
         "Pour la figure, les intercommunalités sont classées de la plus modeste à la plus aisée selon le niveau de vie "
         "médian de leurs habitants, puis réparties en dix groupes qui réunissent chacun environ un dixième de la "
         "population. Chaque barre donne la distance à vol d'oiseau en deçà de laquelle vit la moitié des habitants du "
-        "groupe, depuis le centre de leur commune jusqu'à la structure la plus proche. Les barres ocre dépassent la distance "
+        "groupe, depuis le centre de leur commune jusqu'à la structure la plus proche. Les barres cuivre dépassent la distance "
         "médiane de la France entière, tracée en pointillés. Les dixièmes modestes réunissent à la fois des villes et des "
         "campagnes, la distance suit donc surtout le caractère urbain ou rural des territoires, que le tableau montre à "
         "part. Ni la figure ni le tableau ne disent pourquoi. " + _grande_epci(C),

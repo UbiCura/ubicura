@@ -608,7 +608,18 @@ def _commun(dernier: Path, site_data: dict) -> dict:
             "citation_auteur": config.CITATION_AUTEUR, "annee_version": dernier.name[:4],
             "adresse_site": config.ADRESSE_SITE.rstrip("/"),
             # empreinte de la feuille de style, pour que les navigateurs chargent la nouvelle version après une mise à jour
-            "version_css": hashlib.sha1((GABARITS / "style.css").read_bytes()).hexdigest()[:10]}
+            "version_css": hashlib.sha1((GABARITS / "style.css").read_bytes()).hexdigest()[:10],
+            "compteur": _compteur()}
+
+
+def _compteur() -> str:
+    """Script de mesure d'audience sans cookie (config.GOATCOUNTER), vide tant qu'aucun compte n'est indiqué. Le
+    navigateur qui demande à ne pas être suivi n'est pas compté (option no_onload de GoatCounter)."""
+    if not config.GOATCOUNTER:
+        return ""
+    return ('<script>window.goatcounter={no_onload:navigator.doNotTrack==="1"||window.doNotTrack==="1"}</script>'
+            f'<script data-goatcounter="https://{config.GOATCOUNTER}.goatcounter.com/count" async '
+            f'src="{config.GOATCOUNTER_SCRIPT}" crossorigin="anonymous" integrity="{config.GOATCOUNTER_INTEGRITE}"></script>')
 
 
 def imprimer_rapport(env: Environment, ctx: dict, d: Path, cle: str, cible_pdf: Path, exe: str) -> bool:
@@ -725,6 +736,8 @@ def construire(pdf=True) -> Path:
     shutil.copy(GABARITS / "style.css", SITE / "style.css")
     # polices hébergées sur le site (licence OFL, texte joint), aucune requête vers un service tiers
     shutil.copytree(GABARITS / "polices", SITE / "polices", dirs_exist_ok=True)
+    # césure française du texte justifié (module hyphen, licence ISC, texte joint), servie par le site lui-même
+    shutil.copytree(GABARITS / "cesure", SITE / "cesure", dirs_exist_ok=True)
     env = _environnement()
     site_data = json.loads((dernier / "site_data.json").read_text(encoding="utf-8"))
     # limites calculées à l'exécution (spécialités surtout salariées), reprises pour la page méthode
@@ -858,9 +871,13 @@ def construire(pdf=True) -> Path:
     # accueil
     tm = {k: (dernier / f).read_text(encoding="utf-8") for k, (f, _t) in RAPPORTS.items()}
     ctx = dict(commun, racine="", page="accueil", titre="Accueil")
+    terr = _territoires_recherche(dernier)
     (SITE / "index.html").write_text(env.get_template("accueil.html").render(
         ctx, tuiles=_tuiles(site_data), bref_sm=en_bref(tm["sante-mentale"]), bref_sante=en_bref(tm["sante"]),
-        apercu=_apercu_carte(dernier), evolutions=_evolutions(dernier),
+        territoires_liste=terr, territoires_json=json.dumps(terr, ensure_ascii=False).replace("</", "<\\/"),
+        apercu=_apercu_carte(dernier), apercu_titre=_titre_svg(_apercu_carte(dernier)), apercu_classes=_classes_courtes(),
+        evolutions=_evolutions(dernier), fenetres=(fen := _fenetres(site_data, dernier)),
+        fenetres_json=json.dumps(fen, ensure_ascii=False).replace("</", "<\\/"),
         lien_sm=f"rapports/{dernier.name}/sante-mentale.html", lien_sante=f"rapports/{dernier.name}/sante.html"),
         encoding="utf-8")
     pages.append(SITE / "index.html")
@@ -906,7 +923,7 @@ def construire(pdf=True) -> Path:
     sys.path.insert(0, str(config.RACINE / "atlas"))
     import construire_atlas  # noqa: E402
     nav = ("<style>" + _css_nav() + "</style>"
-           + env.get_template("nav.html").render(racine="", page="atlas"))
+           + env.get_template("nav.html").render(racine="", page="atlas") + _compteur())
     construire_atlas.construire(dernier / "site_data.json", SITE / "atlas.html", nav)
 
     # contrôle du langage sur les pages (le texte visible, sans les balises)
@@ -985,6 +1002,24 @@ def _territoires(env, commun, dernier) -> list[Path]:
     return pages
 
 
+def _territoires_recherche(dernier) -> list[dict]:
+    """Régions et départements qui ont un rapport, pour la recherche de l'accueil (libellé affiché, nom, code, début
+    du nom de fichier et rapports disponibles). Le libellé dit le niveau, une région et un département pouvant porter
+    le même code."""
+    idx = dernier / "territoires" / "index.json"
+    if not idx.exists():
+        return []
+    from .util import norm
+    sortie = []
+    for t in json.loads(idx.read_text(encoding="utf-8")):
+        if not t.get("fichiers"):
+            continue
+        niveau = "région" if t["niveau"] == "reg" else f"département {t['code']}"
+        sortie.append({"libelle": f"{t['nom']}, {niveau}", "nom": t["nom"], "code": t["code"], "niveau": t["niveau"],
+                       "base": f"{t['niveau']}-{t['code']}", "fichiers": sorted(t["fichiers"])})
+    return sorted(sortie, key=lambda t: (norm(t["nom"]), t["niveau"] != "reg"))
+
+
 def _css_nav() -> str:
     """Styles de la barre de navigation, repris de style.css pour l'atlas (qui a ses propres styles)."""
     css = (GABARITS / "style.css").read_text(encoding="utf-8")
@@ -1004,6 +1039,35 @@ def _apercu_carte(dossier: Path) -> str:
     """Carte des psychiatres par département du rapport santé mentale, reprise telle quelle sur l'accueil."""
     f = dossier / "graphiques" / "carte_dep_sm.svg"
     return f.read_text(encoding="utf-8") if f.exists() else ""
+
+
+def _classes_courtes() -> list[dict]:
+    """Classes de la carte de l'accueil (cartes.CLASSES) en libellés courts, pour une légende posée sous le titre de la
+    carte, lue avant la figure (critique du 23 octobre 2026, la couleur était vue avant d'être expliquée)."""
+    import math
+    from .cartes import CLASSES
+    from .lecture import nombre
+    court = lambda v: nombre(v, 2).rstrip("0").rstrip(",")  # noqa: E731, 0,5 et 2 plutôt que 0,50 et 2,00
+    sortie, bas = [], None
+    for borne, couleur, _lib in CLASSES:
+        if borne is None:
+            lib = "aucun"
+        elif bas is None:
+            lib = f"moins de {court(borne)}"
+        elif borne == math.inf:
+            lib = f"plus de {court(bas)}"
+        else:
+            lib = f"{court(bas)} à {court(borne)}"
+        if borne is not None:
+            bas = borne
+        sortie.append({"couleur": couleur, "libelle": lib})
+    return sortie
+
+
+def _titre_svg(svg: str) -> str:
+    """Titre d'une figure SVG (son élément title), montré en légende au-dessus d'elle."""
+    m = re.search(r"<title>(.*?)</title>", svg or "", re.S)
+    return m.group(1).strip() if m else ""
 
 
 def _evolutions(dossier: Path) -> list[dict]:
@@ -1032,16 +1096,58 @@ def _tuiles(sd) -> list[dict]:
     pop = sd["france"]["pop"]
     n = {p: v[2] for p, v in sd["france"]["n"].items()}
     lab = {p["id"]: p["libelle"] for p in sd["professions"]}
-    from .lecture import nombre, un_pour
+    from .lecture import nombre, pluriel, un_pour
     t = []
     for p in ["psychologue", "psychiatre", "medecin_generaliste"]:
         if n.get(p):
-            t.append({"valeur": nombre(n[p]), "libelle": f"{lab[p].lower()}s en exercice, {un_pour(n[p] / pop * 1e4)}"})
+            t.append({"valeur": nombre(n[p]), "libelle": f"{pluriel(lab[p]).lower()} en exercice, {un_pour(n[p] / pop * 1e4)}"})
     z = next((r for r in sd.get("inegalites", []) if r["niv"] == "epci" and r["mode"] == "all" and r["prof"] == "psychiatre"), None)
     if z:
         t.append({"valeur": f"{nombre(z['zero'] * 100, 1)} %",
                   "libelle": "des habitants vivent dans une intercommunalité sans psychiatre"})
     return t
+
+
+def _fenetres(sd, dossier: Path) -> dict:
+    """Données des fenêtres de l'accueil (essai du 23 octobre 2026, d'après reactbits.dev, demande de Lucas).
+    « Professions » : pour chaque profession, l'effectif national et, par département, la classe et l'indice de la
+    carte du rapport (densité rapportée à la moyenne des départements, comme analyses.moyenne_territoires : somme des
+    effectifs sur somme des populations, puis cartes.classe), pour recolorer la carte de l'accueil sans autre calcul.
+    « Version et contrôles » : la date de l'extraction RPPS, les comparaisons aux séries de la DREES, le millésime de
+    population et la dernière version archivée, tirés des fichiers de la version."""
+    from .cartes import CLASSES, classe
+    from .lecture import pluriel, un_pour
+    lab = {p["id"]: p["libelle"] for p in sd["professions"]}
+    fam = {p["id"]: p["famille"] for p in sd["professions"]}
+    dep = sd["niveaux"]["dep"]
+    pops = [float(u.get("pop") or 0) for u in dep["units"]]
+    profs = []
+    for p in ["psychiatre", "pedopsychiatre", "psychologue", "medecin_generaliste", "infirmier", "masseur_kinesitherapeute"]:
+        n = (dep["n"].get(p) or {}).get("all")
+        nfr = (sd["france"]["n"].get(p) or [None, None, None])[2]
+        if not n or not nfr:
+            continue
+        moy = sum(n) / sum(pops) * 1e4
+        cl = {u["c"]: [classe(k / po * 1e4 / moy), round(k / po * 1e4 / moy * 100)]
+              for u, k, po in zip(dep["units"], n, pops) if po > 0}
+        profs.append({"id": p, "nom": pluriel(lab[p]), "famille": fam[p], "effectif": nombre(nfr),
+                      "densite": un_pour(nfr / sd["france"]["pop"] * 1e4), "classes": cl})
+    controles = []
+    f = dossier / "concordance_effectifs.csv"
+    if f.exists():
+        with open(f, encoding="utf-8-sig") as fh:
+            lignes = list(csv.DictReader(fh, delimiter=";"))
+        if lignes:
+            controles.append(f"Répertoire RPPS, extraction du {date_longue(lignes[0]['date_rpps'])}")
+            ecarts = sorted(abs(float(r["ecart_a_l_attendu"].replace(",", "."))) for r in lignes if r.get("ecart_a_l_attendu"))
+            if ecarts:
+                controles.append(f"{len(lignes)} effectifs comparés aux séries de la DREES, écart médian de "
+                                 f"{nombre(ecarts[len(ecarts) // 2] * 100, 1)} %")
+    mil = (sd.get("meta") or {}).get("millesimes_insee", {}).get("pop")
+    if mil:
+        controles.append(f"Population de l'INSEE, millésime {mil}, {nombre(sd['france']['pop'])} habitants")
+    controles.append(f"Dernière version archivée le {date_longue(config.VERSION_ZENODO)}, DOI {config.DOI_DONNEES}")
+    return {"profs": profs, "couleurs": [c for _b, c, _l in CLASSES], "controles": controles}
 
 
 def _inscrits(dossier):

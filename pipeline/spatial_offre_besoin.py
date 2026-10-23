@@ -196,9 +196,27 @@ def centres_epci(ref, voisins) -> pd.DataFrame | None:
     return pd.DataFrame({"cx": g["wx"] / g["w"], "cy": g["wy"] / g["w"]})
 
 
+def professions_gwr(n_epci: pd.DataFrame, seuil: float | None = None) -> list[str]:
+    """Professions retenues pour la régression géographiquement pondérée : celles présentes dans au moins une
+    intercommunalité sur deux (config.GWR_PRESENCE_MIN). Pour une profession plus rare, la densité est nulle dans la
+    plupart des intercommunalités et le lien local n'a pas de sens (demande de Lucas du 23 octobre 2026, ouvrir le
+    calcul au-delà des trois professions d'origine). Psychologues, psychiatres et généralistes d'abord, puis l'ordre
+    de config.PROFESSIONS."""
+    seuil = config.GWR_PRESENCE_MIN if seuil is None else seuil
+    ordre = ["psychologue", "psychiatre", "medecin_generaliste"] + [p[1] for p in config.PROFESSIONS]
+    vus, sortie = set(), []
+    for prof in ordre:
+        if prof in vus or prof not in n_epci.columns:
+            continue
+        vus.add(prof)
+        if (n_epci[prof] > 0).mean() >= seuil:
+            sortie.append(prof)
+    return sortie
+
+
 def gwr_niveau_de_vie(agg, ref, ctx, voisins, rng):
-    """Lien local entre le niveau de vie et la densité des professions principales de santé mentale et des
-    généralistes, à densité de population égale, par intercommunalité de l'Hexagone."""
+    """Lien local entre le niveau de vie et la densité de chaque profession présente dans au moins une
+    intercommunalité sur deux (professions_gwr), à densité de population égale, par intercommunalité de l'Hexagone."""
     if ctx is None or "epci" not in ctx:
         return None, None
     cen = centres_epci(ref, voisins)
@@ -207,7 +225,10 @@ def gwr_niveau_de_vie(agg, ref, ctx, voisins, rng):
         return None, None
     n, dens, pop = tables(agg, ref, "epci", "all")
     coef, resume = [], []
-    for prof in [p for p in ["psychologue", "psychiatre", "medecin_generaliste"] if p in dens]:
+    retenues = professions_gwr(n)
+    JOURNAL.controle("Régression géographiquement pondérée, professions retenues (présentes dans au moins "
+                     f"{config.GWR_PRESENCE_MIN:.0%} des intercommunalités)".replace("%", " %"), f"{len(retenues)}, {', '.join(retenues)}")
+    for prof in [p for p in retenues if p in dens]:
         d = pd.DataFrame({"y": np.log1p(dens[prof]), "revenu": c["revenu_median"].reindex(dens.index),
                           "densite": np.log(c["densite_pop"].reindex(dens.index))}).join(cen, how="inner").dropna()
         if len(d) < 100:

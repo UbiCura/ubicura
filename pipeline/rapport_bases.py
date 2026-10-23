@@ -568,8 +568,8 @@ def offre_besoin_carte(C, insee, ctxlab, prof="psychiatre", var="suicides"):
                            ["Département", cap_(ctxlab.get(var, var)), f"{cap_(nom_p)} pour 10 000 habitants"],
                            {"ind": lambda v: nombre(v, 1), "dens": lambda v: nombre(v, 2)}), ""]
     L += _comment_lire(
-        "Chaque département reçoit une couleur selon deux tiers à la fois. En allant vers le violet, l'offre est plus "
-        "dense. En allant vers l'or, l'indicateur est plus élevé. L'or pur signale un indicateur dans le tiers le plus "
+        "Chaque département reçoit une couleur selon deux tiers à la fois. En allant vers le bleu, l'offre est plus "
+        "dense. En allant vers le rouge, l'indicateur est plus élevé. Le rouge pur signale un indicateur dans le tiers le plus "
         "haut et une offre dans le tiers le plus bas. Les tiers comparent les départements entre eux et ne disent "
         "pas ce qui serait un bon niveau. Un indicateur de santé mentale mesure un besoin ou un recours, jamais les deux "
         "à la fois. Un rond ocre marqué « ! » signale une donnée fragile, les départements d'Île-de-France pour le "
@@ -620,5 +620,6 @@ def gwr_section(C, prof="psychologue"):
         f"locaux de {nombre(x['coef_local_q1'], 2)} à {nombre(x['coef_local_q3'], 2)} pour la moitié centrale. Tests "
         f"locaux au seuil ajusté de da Silva et Fotheringham (2016), |t| > {nombre(x['seuil_t_ajuste'], 2)}. Test de "
         f"variation spatiale par 49 permutations des positions, p = {nombre(x['p_variation_niveau_de_vie'], 2)}. "
-        "Psychologues, psychiatres et généralistes dans gwr_resume.csv et gwr_coefficients.csv."])
+        "Toutes les professions présentes dans au moins une intercommunalité sur deux dans gwr_resume.csv et "
+        "gwr_coefficients.csv, et dans l'atlas."])
     return L

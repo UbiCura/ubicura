@@ -1,31 +1,71 @@
 {% extends "base.html" %}
 {% block contenu %}
-<h1 class="cache">{{ nom_projet }}, {{ sous_titre[0]|lower }}{{ sous_titre[1:] }}</h1>
-<p class="chapeau pleine">Où exercent les professionnels de santé, comment leur présence varie d'un territoire à l'autre, et ce qui l'accompagne dans le profil des habitants. La santé mentale est présentée à part, puis l'offre de soins générale. Toutes les données viennent de bases publiques, et chaque version est datée.</p>
+{# accueil, la vue nationale d'abord (carte, chiffres, évolution), puis l'accès aux données, chantier d'organisation du 22 octobre 2026 #}
+<h1 class="accueil-titre">L'offre de soins en France, territoire par territoire</h1>
+<p class="chapeau">Où exercent les professionnels de santé, comment leur présence varie d'un territoire à l'autre, et ce qui l'accompagne dans le profil des habitants. Les données viennent de bases publiques, chaque version est datée et archivée.</p>
 
-<div class="tuiles">
-{% for t in tuiles %}
-  <div class="tuile"><div class="v">{{ t.valeur }}</div><div class="l">{{ t.libelle }}</div></div>
-{% endfor %}
+{# fenêtres de l'accueil (essai du 23 octobre 2026, d'après reactbits.dev, demande de Lucas) : la carte, le choix de
+   la profession qui la recolore, et la version avec ses contrôles, chacune dans une fenêtre à barre de titre #}
+<div class="scene">
+  {% if apercu %}<section class="fenetre fen-carte" aria-label="Carte">
+    <p class="fen-barre" aria-hidden="true">Atlas, par département</p>
+    <figure class="une-carte fen-corps">
+    <figcaption id="uneTitre">{{ apercu_titre }}</figcaption>
+    {% if apercu_classes %}<p class="une-legende"><span class="une-unite">Fois la moyenne</span>{% for c in apercu_classes %}<span><i style="background:{{ c.couleur }}"></i>{{ c.libelle }}</span>{% endfor %}</p>{% endif %}
+    <a href="atlas.html" aria-label="Ouvrir l'atlas">{{ apercu|safe }}</a>
+    <p class="small"><a href="atlas.html">Toutes les professions et les structures de soins dans l'atlas</a></p>
+  </figure></section>{% endif %}
+  {% if fenetres and fenetres.profs %}<div class="fen-pile">
+    <section class="fenetre fen-profs" aria-labelledby="fenProfs">
+      <p class="fen-barre" id="fenProfs">Professions</p>
+      <div class="fen-corps">{% for fam in ["Santé mentale", "Santé"] %}<p class="fen-groupe">{{ fam }}</p><ul>
+        {% for p in fenetres.profs if p.famille == fam %}<li><button type="button" data-prof="{{ p.id }}" aria-pressed="{{ 'true' if p.id == 'psychiatre' else 'false' }}"><span class="fen-nom">{{ p.nom[:1]|upper }}{{ p.nom[1:] }}</span><span class="fen-val">{{ p.effectif }}, {{ p.densite }}</span></button></li>
+        {% endfor %}</ul>{% endfor %}</div>
+    </section>
+    <section class="fenetre fen-controles" aria-labelledby="fenControles">
+      <p class="fen-barre" id="fenControles">Version et contrôles</p>
+      <div class="fen-corps"><ul>{% for c in fenetres.controles %}<li><span class="coche" aria-hidden="true">✓</span>{{ c }}</li>
+        {% endfor %}</ul><p class="small"><a href="methode-controles.html">Tous les contrôles de la version</a></p></div>
+    </section>
+  </div>{% endif %}
 </div>
 
-{% if apercu or evolutions %}
-<div class="apercu">
-  {% if apercu %}<a class="apercu-carte" href="atlas.html" aria-label="Ouvrir l'atlas">{{ apercu|safe }}<span>Ouvrir l'atlas, toutes les professions par région, département et intercommunalité</span></a>{% endif %}
-  {% if evolutions %}<div class="apercu-evol"><h2>Évolution depuis 2016</h2>
-  {% for e in evolutions %}<div class="evol"><div class="evol-t"><strong>{{ e.libelle }}</strong><span>{{ e.evolution }}</span></div>
-    <svg viewBox="-4 -2 208 44" role="img" aria-label="{{ e.libelle }} pour 10 000 habitants en France, de {{ e.v_debut }} en {{ e.debut }} à {{ e.v_fin }} en {{ e.fin }}"><polyline points="{{ e.points }}" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/></svg>
-    <div class="evol-b"><span>{{ e.debut }}, {{ e.v_debut }}</span><span>{{ e.fin }}, {{ e.v_fin }}</span></div></div>{% endfor %}
-  <p class="small muted">Pour 10 000 habitants en France, d'après les séries de la DREES. Le détail par département est dans les rapports et l'atlas.</p></div>{% endif %}
+<div class="une une-bas">
+  <div class="une-chiffres">
+    <dl class="chiffres">
+    {% for t in tuiles %}<div><dt>{{ t.valeur }}</dt><dd>{{ t.libelle }}</dd></div>
+    {% endfor %}</dl>
+  </div>
+  <div class="une-chiffres une-evol">
+    {% if evolutions %}<h2 class="une-sous">Depuis 2016, en France</h2>
+    {% for e in evolutions %}<div class="evol"><div class="evol-t"><span>{{ e.libelle }}</span><strong>{{ e.evolution }}</strong></div>
+      <svg viewBox="-4 -2 208 44" preserveAspectRatio="none" role="img" aria-label="{{ e.libelle }} pour 10 000 habitants en France, de {{ e.v_debut }} en {{ e.debut }} à {{ e.v_fin }} en {{ e.fin }}"><polyline points="{{ e.points }}" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>
+      <div class="evol-b"><span>{{ e.debut }}, {{ e.v_debut }}</span><span>{{ e.fin }}, {{ e.v_fin }}</span></div></div>
+    {% endfor %}<p class="small muted">Pour 10 000 habitants, d'après les séries de la DREES.</p>{% endif %}
+  </div>
 </div>
-{% endif %}
 
-<div class="cartes quatre">
-  <a class="carte" href="atlas.html"><strong>Atlas</strong><span>Cartes, fiches de territoire, croisements avec le profil des habitants, pour la santé mentale et pour toute l'offre de soins.</span></a>
-  <a class="carte" href="{{ lien_sm }}"><strong>Rapport santé mentale</strong><span>Psychologues, psychiatres, besoins et recours aux soins, écarts entre territoires.</span></a>
-  <a class="carte" href="{{ lien_sante }}"><strong>Rapport santé</strong><span>Médecins généralistes, infirmiers, rééducation, pharmacies et autres professions.</span></a>
-  <a class="carte" href="methode.html"><strong>Méthode, données et limites</strong><span>Sources, contrôles, définitions, fichiers à télécharger.</span></a>
-</div>
+<section class="acces" aria-labelledby="acces-titre">
+{% if territoires_liste %}<form class="cherche-terr" id="chercheTerr">
+  <h2 id="acces-titre"><label for="terr">Le rapport d'un territoire</label></h2>
+  <div class="ligne"><div class="terr-champ"><input id="terr" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="terrListe" placeholder="Par exemple Bretagne, Nord ou 59">
+    <div class="terr-liste" id="terrListe" role="listbox" hidden></div></div>
+    <button type="submit" value="sante-mentale">Santé mentale</button><button type="submit" value="sante">Santé</button></div>
+  <p class="terr-vide" id="terrVide" hidden role="alert">Écrivez d'abord le nom d'une région ou d'un département, ou son numéro, puis choisissez Santé mentale ou Santé.</p>
+  <p class="small muted">Chaque chiffre y est comparé à la moyenne des territoires du même niveau. Les communes et les intercommunalités sont dans l'<a href="atlas.html">atlas</a>. <span id="terrIntrouvable" hidden>Ce territoire n'a pas été trouvé, la <a href="territoires/index.html">liste des territoires</a> les donne tous.</span></p>
+</form>
+{% else %}<h2 id="acces-titre" class="cache">Aller aux données</h2>{% endif %}
+<ul class="entrees">
+  <li><h3><a href="atlas.html">Atlas</a></h3>
+    <p>Toutes les professions et les structures de soins sur la carte, par région, département et intercommunalité, croisées avec le profil des habitants.</p></li>
+  <li><h3><a href="rapports.html">Rapports nationaux</a></h3>
+    <p>Les constats de la dernière version, avec leurs figures et leurs précautions de lecture, en <a href="{{ lien_sm }}">santé mentale</a> et en <a href="{{ lien_sante }}">santé</a>.</p></li>
+  <li><h3><a href="territoires/index.html">Rapports par territoire</a></h3>
+    <p>Un rapport par région et par département, avec les structures de soins du territoire.</p></li>
+  <li><h3><a href="methode.html">Données et méthode</a></h3>
+    <p>Sources, contrôles et limites, <a href="methode-fichiers.html">fichiers CSV</a> avec leur dictionnaire, version archivée avec son DOI.</p></li>
+</ul>
+</section>
 
 <div class="bref">
 <section><h2>En bref, santé mentale</h2>
@@ -34,4 +74,70 @@
 <ul>{% for p in bref_sante %}<li>{{ p }}</li>{% endfor %}</ul></section>
 </div>
 <p class="small muted">Ces constats décrivent des territoires et ne disent rien d'une cause. Les rapports donnent les précautions de lecture.</p>
+{% if territoires_liste %}<script>
+(function(){
+  // recherche d'un territoire, ouvre son rapport en santé mentale ou en santé
+  const T={{ territoires_json|safe }},f=document.getElementById("chercheTerr"),i=document.getElementById("terr"),err=document.getElementById("terrIntrouvable"),vide=document.getElementById("terrVide");
+  const norm=s=>s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
+  f.addEventListener("submit",e=>{e.preventDefault();const v=norm(i.value),theme=(e.submitter&&e.submitter.value)||"sante-mentale";
+    const t=T.find(x=>norm(x.libelle)===v)||T.find(x=>x.niveau==="dep"&&norm(x.code)===v)||T.find(x=>norm(x.nom)===v)||(v.length>2?T.find(x=>norm(x.nom).startsWith(v)):null);
+    // champ vide, le bouton ne reste pas muet (remarque de Lucas du 23 octobre 2026, « Santé » semblait inclicable)
+    if(!v){vide.hidden=false;err.hidden=true;i.focus();return}
+    vide.hidden=true;
+    if(!t||!t.fichiers.includes(theme)){err.hidden=false;return}
+    location.href="territoires/"+t.base+"-"+theme+".html"});
+  // suggestions sous le champ, dans le style des listes du site (remarque de Lucas du 23 octobre 2026, la liste du
+  // navigateur s'ouvrait à gauche et ne ressemblait pas au reste) ; flèches, Entrée et Échap au clavier
+  const L=document.getElementById("terrListe"),esc=x=>String(x).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);let items=[],k=-1;
+  const fermer=()=>{L.hidden=true;i.setAttribute("aria-expanded","false");k=-1};
+  const choisir=t=>{i.value=t.libelle;fermer();vide.hidden=true;err.hidden=true;i.focus()};
+  const montrer=()=>{const v=norm(i.value);if(!v){fermer();return}
+    items=T.filter(x=>norm(x.libelle).includes(v)||norm(x.code)===v)
+      .sort((a,b)=>(norm(a.nom).startsWith(v)?0:1)-(norm(b.nom).startsWith(v)?0:1)||(a.niveau===b.niveau?0:a.niveau==="reg"?-1:1)||a.libelle.localeCompare(b.libelle,"fr")).slice(0,10);
+    if(!items.length){fermer();return}
+    k=-1;L.innerHTML=items.map((x,n)=>'<button type="button" role="option" id="terrOpt'+n+'" aria-selected="false" data-k="'+n+'">'+esc(x.libelle)+'</button>').join("");
+    L.hidden=false;i.setAttribute("aria-expanded","true")};
+  i.addEventListener("input",montrer);
+  L.addEventListener("pointerdown",e=>{const b=e.target.closest("[data-k]");if(!b)return;e.preventDefault();choisir(items[+b.dataset.k])});
+  i.addEventListener("keydown",e=>{if(L.hidden)return;
+    if(e.key==="ArrowDown"||e.key==="ArrowUp"){e.preventDefault();k=(k+(e.key==="ArrowDown"?1:-1)+items.length)%items.length;
+      L.querySelectorAll("button").forEach((b,n)=>b.setAttribute("aria-selected",String(n===k)));i.setAttribute("aria-activedescendant","terrOpt"+k)}
+    else if(e.key==="Enter"&&k>=0){e.preventDefault();choisir(items[k])}
+    else if(e.key==="Escape")fermer()});
+  document.addEventListener("pointerdown",e=>{if(!e.target.closest(".terr-champ"))fermer()},true);
+})();
+</script>{% endif %}
+<script>
+(function(){
+  // le moment animé de l'accueil (refonte du 23 octobre 2026), les chiffres clés montent jusqu'à leur valeur ; le
+  // contenu est visible sans script
+  if(!Element.prototype.animate)return;
+  // le compteur des chiffres est un mouvement, réservé aux lecteurs qui n'ont pas demandé moins de mouvement ; la
+  // carte apparaît par le fondu commun des figures (figures.js)
+  const calme=!window.matchMedia||matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if(calme)return;
+  const fmt=(v,dec)=>v.toLocaleString("fr-FR",{minimumFractionDigits:dec,maximumFractionDigits:dec});
+  document.querySelectorAll(".chiffres dt").forEach(dt=>{const t=dt.textContent.trim(),m=t.match(/^([\d\s  ]+(?:,\d+)?)(.*)$/);if(!m)return;
+    const dec=(m[1].split(",")[1]||"").length,cible=parseFloat(m[1].replace(/[\s  ]/g,"").replace(",",".")),suite=m[2];
+    dt.setAttribute("aria-label",t);const t0=performance.now(),d=800;
+    const pas=now=>{const k=Math.min(1,(now-t0)/d),e=1-Math.pow(1-k,4);dt.textContent=fmt(cible*e,dec)+suite;if(k<1)requestAnimationFrame(pas);else dt.textContent=t};
+    requestAnimationFrame(pas)});
+})();
+</script>
+{% if fenetres and fenetres.profs %}<script>
+(function(){
+  // fenêtre « Professions » : un choix recolore la carte en fondu (classes et indices calculés comme la carte du
+  // rapport, pipeline/site.py _fenetres), met à jour son titre et l'infobulle de chaque département
+  const F={{ fenetres_json|safe }},carte=document.querySelector(".fen-carte svg"),titre=document.getElementById("uneTitre");
+  if(!carte)return;
+  const suite=" pour 10 000 habitants, par département, comparés à la moyenne des départements";
+  document.querySelectorAll(".fen-profs button[data-prof]").forEach(b=>b.addEventListener("click",()=>{
+    const p=F.profs.find(x=>x.id===b.dataset.prof);if(!p)return;
+    document.querySelectorAll(".fen-profs button[data-prof]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));
+    carte.querySelectorAll("path[data-code]").forEach(el=>{const v=p.classes[el.dataset.code];if(!v)return;
+      el.style.fill=F.couleurs[v[0]];const t=el.querySelector("title");if(t)t.textContent=t.textContent.replace(/indice \d+/,"indice "+v[1])});
+    const nom=p.nom.charAt(0).toUpperCase()+p.nom.slice(1);titre.textContent=nom+suite;carte.setAttribute("aria-label",nom+suite);
+    const t=carte.querySelector(":scope > title");if(t)t.textContent=nom+suite}));
+})();
+</script>{% endif %}
 {% endblock %}

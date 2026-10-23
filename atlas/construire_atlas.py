@@ -72,7 +72,8 @@ def construire(src: Path, dest: Path, nav: str = "") -> Path:
     # (les limites calculées à l'exécution, comme celles des spécialités surtout salariées, sont gardées)
     data["limites"] = {**(data.get("limites") or {}),
                        **{k: {"risque": L["risque"], "texte": L["texte"], "sources": L["sources"],
-                              "territoires": L.get("territoires", {})} for k, L in config.LIMITES.items()}}
+                              "territoires": L.get("territoires", {}),
+                              "court": config.LIMITES_COURT.get(k, "")} for k, L in config.LIMITES.items()}}
     data["limites_alias"] = config.LIMITES_ALIAS
     # glossaire relu de même dans pipeline/lecture.py, pour qu'une définition ajoutée paraisse dans « Comment lire »
     if isinstance(data.get("meta"), dict):
@@ -91,6 +92,10 @@ def construire(src: Path, dest: Path, nav: str = "") -> Path:
     remplacements = {
         "/*D3*/": ISC.format("2010-2023") + (ICI / "vendor" / "d3.min.js").read_text(encoding="utf-8"),
         "/*TOPO*/": ISC.format("2012-2019") + (ICI / "vendor" / "topojson-client.min.js").read_text(encoding="utf-8"),
+        # césure française du texte justifié, module hyphen (licence ISC) et règles du français, puis le réglage du site
+        "/*CESURE*/": "\n".join((d / f).read_text(encoding="utf-8") for d, f in
+                                ((ICI / "vendor", "hyphen.js"), (ICI / "vendor", "hyphen-fr.js"),
+                                 (ICI.parent / "gabarits" / "cesure", "cesure.js"))),
         "/*TOPOLOGY*/": "window.TOPO=" + _fond().read_text(encoding="utf-8") + ";",
         "/*DONNEES*/": "window.DONNEES=" + json.dumps(data, ensure_ascii=False, separators=(",", ":")) + ";",
         "/*POLICES*/": _polices(),
@@ -100,7 +105,7 @@ def construire(src: Path, dest: Path, nav: str = "") -> Path:
     html = html.replace("<!--NAV-->", nav, 1)
     # graphiques interactifs, même module que les rapports du site (gabarits/figures.js)
     fig = (ICI.parent / "gabarits" / "figures.js").read_text(encoding="utf-8")
-    reglage = ('window.FIGURES={zoom:"#scatter,#cbPlot,#funnel,#acpPlan,#lorenz,#escalier",'
+    reglage = ('window.FIGURES={zoom:"#cbPlot,#funnel,#acpPlan,#lorenz,#escalier",'
                'bulle:"#scatter,#cbPlot,#indPlot,#regPlot,#lorenz,#escalier,#funnel,#acpPlan,#effetVille"};')
     html = html.replace("</body>", "<script>" + reglage + fig + "</script>\n</body>", 1)
     dest.parent.mkdir(parents=True, exist_ok=True)

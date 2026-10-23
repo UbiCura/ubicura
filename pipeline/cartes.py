@@ -9,7 +9,7 @@ import math
 from html import escape
 
 from . import config
-from .graphiques import CHASSE, DISCRET, ENCRE, LIGNE, OCRE, VIOLET, VIOLET_PALE, taille_role
+from .graphiques import CHASSE, CUIVRE, DISCRET, ENCRE, LIGNE, OCRE, VIOLET, VIOLET_PALE, taille_role
 from .lecture import nombre
 from .util import JOURNAL, log
 
@@ -18,7 +18,7 @@ CACHE_COMMUNES = config.INTER / "fonds_communes.json"
 # noms des territoires par code (départements, intercommunalités, morceaux, communes), pour les info-bulles
 NOMS: dict = {}
 # signaux « donnée fragile ici » (9 octobre 2026), symbole ocre marqué « ! », la couleur du territoire ne change pas
-FRAGILE = "var(--d1, #A87418)"
+FRAGILE = "var(--signal, #8A5A0E)"
 SIGNAL_MAYOTTE = "Mayotte, données incomplètes, densités surestimées d'environ un quart (population de 2017)"
 SIGNAL_SUICIDE = "Île-de-France, décès par suicide nettement sous-déclarés"
 MAYOTTE: set = {"976"}   # jamais « 06 », qui est aussi le code des Alpes-Maritimes
@@ -86,14 +86,14 @@ FOND_ATLAS = config.INTER / "fond_atlas.topojson.json"
 
 # classes de densité rapportée à la moyenne des territoires du même niveau (décision de Lucas du 5 octobre 2026),
 # de la plus faible à la plus forte. Palette divergente,
-# ocre en dessous de la moyenne, violet au-dessus, et un gris neutre pour les territoires proches de la moyenne,
+# cuivre en dessous de la moyenne, bleu au-dessus, et un gris neutre pour les territoires proches de la moyenne,
 # pour que la couleur soit réservée aux vrais écarts (révision du 4 octobre 2026).
-CLASSES = [(None, "var(--d0, #6B4300)", "aucun professionnel"),
-           (.5, "var(--d1, #A87418)", "moins de la moitié de cette moyenne"),
-           (.8, "var(--d2, #D9B260)", "de la moitié à 0,8 fois cette moyenne"),
-           (1.25, "var(--d3, #DEDCE4)", "proche de cette moyenne (0,8 à 1,25 fois)"),
-           (2, "var(--d4, #AE93CB)", "de 1,25 à 2 fois cette moyenne"),
-           (math.inf, "var(--d6, #3E2563)", "plus de 2 fois cette moyenne")]
+CLASSES = [(None, "var(--d0, #83451E)", "aucun professionnel"),
+           (.5, "var(--d1, #BC6B3B)", "moins de la moitié de cette moyenne"),
+           (.8, "var(--d2, #E8A17A)", "de la moitié à 0,8 fois cette moyenne"),
+           (1.25, "var(--d3, #DFE1E5)", "proche de cette moyenne (0,8 à 1,25 fois)"),
+           (2, "var(--d4, #78A1D6)", "de 1,25 à 2 fois cette moyenne"),
+           (math.inf, "var(--d6, #1D4D87)", "plus de 2 fois cette moyenne")]
 
 
 def _simplifier(d: dict, tol: float) -> dict:
@@ -404,7 +404,7 @@ def reglette(lignes: list[dict], titre: str, largeur=640) -> str:
         el.append(f'<line x1="{g}" y1="{y}" x2="{largeur - d}" y2="{y}" stroke="{LIGNE}" stroke-width="2"/>')
         el.append(f'<rect x="{X(q1):.1f}" y="{y - 5}" width="{max(X(q3) - X(q1), 1):.1f}" height="10" fill="{VIOLET_PALE}"/>')
         el.append(f'<line x1="{X(me):.1f}" y1="{y - 8}" x2="{X(me):.1f}" y2="{y + 8}" stroke="{DISCRET}" stroke-width="2"/>')
-        c = OCRE if l["valeur"] < me else VIOLET[0]
+        c = CUIVRE if l["valeur"] < me else VIOLET[0]
         el.append(f'<circle cx="{X(l["valeur"]):.1f}" cy="{y}" r="6" fill="{c}" stroke="var(--bg, #FFFFFF)" stroke-width="1.5"/>')
         el.append(f'<text x="{largeur - d + 8}" y="{y + 4}" font-size="{fs_t}" fill="{ENCRE}">{nombre(l["valeur"], 1 if l["valeur"] >= 1 else 2)}</text>')
     el.append(f'<text x="{g}" y="18" font-size="{fs_p}" fill="{DISCRET}">la moins dotée</text>')
@@ -414,7 +414,7 @@ def reglette(lignes: list[dict], titre: str, largeur=640) -> str:
               f'<text x="{g + 20}" y="{y + 8}" font-size="{fs_p}" fill="{DISCRET}">moitié centrale des territoires</text>'
               f'<line x1="{g + 214}" y1="{y - 2}" x2="{g + 214}" y2="{y + 10}" stroke="{DISCRET}" stroke-width="2"/>'
               f'<text x="{g + 222}" y="{y + 8}" font-size="{fs_p}" fill="{DISCRET}">milieu</text>'
-              f'<circle cx="{g + 284}" cy="{y + 4}" r="5" fill="{OCRE}"/><circle cx="{g + 296}" cy="{y + 4}" r="5" fill="{VIOLET[0]}"/>'
+              f'<circle cx="{g + 284}" cy="{y + 4}" r="5" fill="{CUIVRE}"/><circle cx="{g + 296}" cy="{y + 4}" r="5" fill="{VIOLET[0]}"/>'
               f'<text x="{g + 306}" y="{y + 8}" font-size="{fs_p}" fill="{DISCRET}">ce territoire</text>')
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {largeur} {H}" role="img" '
             f'aria-label="{escape(titre)}" font-family="Work Sans, system-ui, sans-serif">'
@@ -533,11 +533,11 @@ def petits_multiples(geoms: dict, series: list, titre: str, colonnes=2, largeur=
     return _svg(largeur, fin + 6, titre, el)
 
 
-# temps de trajet par commune (audit 4.6), du plus court au plus long, gris neutre puis ocre de plus en plus foncé
-CLASSES_TEMPS = [(10, "var(--d3, #DEDCE4)", "moins de 10 minutes"),
-                 (20, "var(--d2, #D9B260)", "de 10 à 20 minutes"),
-                 (30, "var(--d1, #A87418)", "de 20 à 30 minutes"),
-                 (math.inf, "var(--d0, #6B4300)", "30 minutes et plus")]
+# temps de trajet par commune (audit 4.6), du plus court au plus long, gris neutre puis cuivre de plus en plus foncé
+CLASSES_TEMPS = [(10, "var(--d3, #DFE1E5)", "moins de 10 minutes"),
+                 (20, "var(--d2, #E8A17A)", "de 10 à 20 minutes"),
+                 (30, "var(--d1, #BC6B3B)", "de 20 à 30 minutes"),
+                 (math.inf, "var(--d0, #83451E)", "30 minutes et plus")]
 
 
 def _trace_relatif(anneaux, P) -> str:
@@ -558,10 +558,10 @@ def _trace_relatif(anneaux, P) -> str:
     return "".join(morceaux)
 
 
-CLASSES_DISTANCE = [(5, "var(--d3, #DEDCE4)", "moins de 5 km"),
-                    (10, "var(--d2, #D9B260)", "de 5 à 10 km"),
-                    (20, "var(--d1, #A87418)", "de 10 à 20 km"),
-                    (math.inf, "var(--d0, #6B4300)", "20 km et plus")]
+CLASSES_DISTANCE = [(5, "var(--d3, #DFE1E5)", "moins de 5 km"),
+                    (10, "var(--d2, #E8A17A)", "de 5 à 10 km"),
+                    (20, "var(--d1, #BC6B3B)", "de 10 à 20 km"),
+                    (math.inf, "var(--d0, #83451E)", "20 km et plus")]
 
 
 def carte_temps(geoms: dict, minutes: dict, titre: str, largeur=560, hauteur_max=520, classes=None,
@@ -688,13 +688,13 @@ def halteres(lignes: list[dict], titre: str, largeur=640) -> str:
                 f'<circle cx="{X(v / l["reference"]):.0f}" cy="{y + ((k * 7) % 5 - 2) * 2.4:.0f}" r="2">'
                 f'<title>{escape(nom(c))}, {nombre(v, 1)}</title></circle>'
                 for k, (c, v) in enumerate(tous)) + "</g>")
-        c = OCRE if ind < 1 else VIOLET[0]
+        c = CUIVRE if ind < 1 else VIOLET[0]
         el.append(f'<line x1="{X(1):.1f}" y1="{y}" x2="{X(ind):.1f}" y2="{y}" stroke="{c}" stroke-width="3"/>')
         el.append(f'<circle cx="{X(1):.1f}" cy="{y}" r="4" fill="var(--bg, #fff)" stroke="{DISCRET}" stroke-width="1.5"/>')
         el.append(f'<circle cx="{X(ind):.1f}" cy="{y}" r="6" fill="{c}"/>')
         el.append(f'<text x="{largeur - d + 6}" y="{y + 4}" font-size="{fs_p}" fill="{ENCRE}">{nombre(ind * 100)}</text>')
     y = H - 10
-    el.append(f'<circle cx="{g + 6}" cy="{y - 4}" r="5" fill="{OCRE}"/><circle cx="{g + 18}" cy="{y - 4}" r="5" fill="{VIOLET[0]}"/>'
+    el.append(f'<circle cx="{g + 6}" cy="{y - 4}" r="5" fill="{CUIVRE}"/><circle cx="{g + 18}" cy="{y - 4}" r="5" fill="{VIOLET[0]}"/>'
               f'<text x="{g + 28}" y="{y}" font-size="{fs_p}" fill="{DISCRET}">ce territoire (indice, moyenne = 100)</text>'
               f'<circle cx="{g + 228}" cy="{y - 4}" r="2.4" fill="{DISCRET}" fill-opacity=".6"/>'
               f'<text x="{g + 236}" y="{y}" font-size="{fs_p}" fill="{DISCRET}">les autres</text>'

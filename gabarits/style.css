@@ -1,19 +1,19 @@
 :root{
   --bg:#F4F5F7;--panel:#FFFFFF;--ink:#1F2430;--muted:#5F6675;--line:#D9DCE3;--nodata:#E9E8EC;
-  --accent:#9A6B00;--focus:#3E2563;
-  --r0:#EEE8F3;--r1:#BCA6D5;--r2:#9C7FBF;--r3:#7E5CA6;--r4:#5A3A85;--r5:#2F1B4D;
-  --d0:#6B4300;--d1:#A87418;--d2:#D9B260;--d3:#DEDCE4;--d4:#AE93CB;--d5:#8C6DAE;--d6:#3E2563;
+  --accent:#9A6B00;--signal:#8A5A0E;--focus:#1D4D87;
+  --r0:#9CB5DA;--r1:#7AA1D3;--r2:#5182C1;--r3:#3167A9;--r4:#1D4D87;--r5:#0F3562;
+  --d0:#83451E;--d1:#BC6B3B;--d2:#E8A17A;--d3:#DFE1E5;--d4:#78A1D6;--d5:#4A77B0;--d6:#1D4D87;
   --serif:"Newsreader",Georgia,"Times New Roman",serif;
   --sans:"Work Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   --contour:#9AA0AC}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#15171C;--panel:#1D2027;--contour:#15171C;--ink:#E8E9EE;--muted:#A0A5B2;--line:#343844;--nodata:#2A2D35;--accent:#E0B04A;--focus:#D4C3EA;
-  --r0:#2A2533;--r1:#43355A;--r2:#5E4A82;--r3:#7E66A8;--r4:#A58CCB;--r5:#D4C3EA;
-  --d0:#E8B34A;--d1:#A97F2C;--d2:#6E5A36;--d3:#3A404A;--d4:#4A3C66;--d5:#7E66A8;--d6:#D4C3EA;}}
+  --bg:#15171C;--panel:#1D2027;--contour:#15171C;--ink:#E8E9EE;--muted:#A0A5B2;--line:#343844;--nodata:#2A2D35;--accent:#E0B04A;--signal:#F2B65A;--focus:#9DC7FE;
+  --r0:#3D5A7F;--r1:#4C73A5;--r2:#5D8ECE;--r3:#77ABEC;--r4:#9DC7FE;--r5:#CCE4FF;
+  --d0:#FFBC8F;--d1:#E58B55;--d2:#AE653A;--d3:#3A3D42;--d4:#507CB5;--d5:#739FD6;--d6:#97C1F7;}}
 :root[data-theme="dark"]{
-  --bg:#15171C;--panel:#1D2027;--contour:#15171C;--ink:#E8E9EE;--muted:#A0A5B2;--line:#343844;--nodata:#2A2D35;--accent:#E0B04A;--focus:#D4C3EA;
-  --r0:#2A2533;--r1:#43355A;--r2:#5E4A82;--r3:#7E66A8;--r4:#A58CCB;--r5:#D4C3EA;
-  --d0:#E8B34A;--d1:#A97F2C;--d2:#6E5A36;--d3:#3A404A;--d4:#4A3C66;--d5:#7E66A8;--d6:#D4C3EA;}
+  --bg:#15171C;--panel:#1D2027;--contour:#15171C;--ink:#E8E9EE;--muted:#A0A5B2;--line:#343844;--nodata:#2A2D35;--accent:#E0B04A;--signal:#F2B65A;--focus:#9DC7FE;
+  --r0:#3D5A7F;--r1:#4C73A5;--r2:#5D8ECE;--r3:#77ABEC;--r4:#9DC7FE;--r5:#CCE4FF;
+  --d0:#FFBC8F;--d1:#E58B55;--d2:#AE653A;--d3:#3A3D42;--d4:#507CB5;--d5:#739FD6;--d6:#97C1F7;}
 *,*::before,*::after{box-sizing:border-box}
 html{scroll-padding-top:70px;scrollbar-gutter:stable}  /* même alignement des pages courtes et longues */
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.6}
@@ -128,9 +128,9 @@ footer{border-top:1px solid var(--line);margin-top:48px;padding-top:16px;color:v
 
 /* impression (PDF) */
 @media print{
-  :root,:root[data-theme]{--bg:#fff;--panel:#fff;--ink:#1F2430;--muted:#4A5060;--line:#D9DCE3;--accent:#9A6B00;
-    --r1:#BCA6D5;--r2:#9C7FBF;--r3:#7E5CA6;--r4:#5A3A85;--r5:#2F1B4D;--d0:#6B4300;--d1:#A87418;
-    --d2:#D9B260;--d3:#DEDCE4;--d4:#AE93CB;--d5:#8C6DAE;--d6:#3E2563;--contour:#9AA0AC}
+  :root,:root[data-theme]{--bg:#fff;--panel:#fff;--ink:#1F2430;--muted:#4A5060;--line:#D9DCE3;--accent:#9A6B00;--signal:#8A5A0E;
+    --r0:#9CB5DA;--r1:#7AA1D3;--r2:#5182C1;--r3:#3167A9;--r4:#1D4D87;--r5:#0F3562;
+    --d0:#83451E;--d1:#BC6B3B;--d2:#E8A17A;--d3:#DFE1E5;--d4:#78A1D6;--d5:#4A77B0;--d6:#1D4D87;--contour:#9AA0AC}
   nav.site,.sommaire,.pas-imprime{display:none!important}
   body{font-size:10.5pt}
   main{padding:0;max-width:none}
@@ -196,7 +196,7 @@ details.versions{margin:20px 0}details.versions summary{cursor:pointer;color:var
 .citer h2{margin-top:0;padding-top:0;border-top:0;font-size:1.25rem}
 /* chiffres alignés, relief discret, lignes alternées (8 octobre 2026) */
 table,dd,.tuile .v{font-variant-numeric:tabular-nums}
-.tuile,.carte,.encart,.citer{box-shadow:inset 0 1px 0 color-mix(in srgb,var(--ink) 6%,transparent),0 1px 2px rgb(0 0 0 / .12)}
+/* surfaces plates, sans ombre au repos (critique du 23 octobre 2026) */
 table.simple tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--ink) 3%,transparent)}
 /* accueil, aperçu de la carte et évolution (8 octobre 2026) */
 /* accueil, les deux « En bref » côte à côte sur la largeur des blocs (décision de Lucas du 22 octobre 2026) */
@@ -212,6 +212,52 @@ table.simple tbody tr:nth-child(even) td{background:color-mix(in srgb,var(--ink)
 .apercu-carte:hover{border-color:var(--r4)}
 .apercu-evol{background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:14px 18px}
 .apercu-evol h2{margin:0 0 8px;padding:0;border:0;font-size:1.25rem}
+.apercu-evol p{text-align:left}
+/* accueil (chantier d'organisation, 22 octobre 2026). La carte nationale est l'élément principal, les chiffres et
+   l'évolution l'accompagnent sans cadre, puis la recherche d'un territoire et les quatre entrées en liste, sans cartes
+   empilées. Mêmes polices, même rampe violette que le reste du site. */
+.accueil-titre{margin:4px 0 12px;max-width:none}
+main .chapeau{max-width:44rem;margin-bottom:28px;text-align:left;color:var(--ink)}
+.une{display:grid;grid-template-columns:minmax(0,520px) minmax(260px,1fr);gap:28px 48px;align-items:start;margin:0 0 8px}
+.une-carte{margin:0}
+.une-carte figcaption{font-family:var(--serif);font-size:1.25rem;line-height:1.3;color:var(--ink);margin:0 0 8px;max-width:34rem}
+.une-legende{display:flex;flex-wrap:wrap;gap:4px 14px;margin:0 0 12px;font-size:.8125rem;color:var(--muted);text-align:left;font-variant-numeric:tabular-nums}
+.une-legende span{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.une-legende i{display:inline-block;width:12px;height:12px;border-radius:2px;outline:1px solid color-mix(in srgb,var(--ink) 18%,transparent);outline-offset:-1px}
+.une-legende .une-unite{color:var(--ink)}
+.une-carte a[aria-label]{display:block;color:inherit}
+.une-carte svg{width:100%;height:auto;max-height:none;display:block}
+.une-carte p{margin:8px 0 0;text-align:left}
+.chiffres{margin:0;display:grid;gap:0}
+.chiffres>div{display:grid;grid-template-columns:7.2rem minmax(0,1fr);column-gap:16px;align-items:baseline;padding:12px 0;border-top:1px solid var(--line)}
+.chiffres>div:first-child{border-top:0;padding-top:2px}
+.chiffres dt{font-family:var(--serif);font-size:2rem;line-height:1.05;font-variant-numeric:tabular-nums;white-space:nowrap}
+.chiffres dd{margin:0;color:var(--muted);font-size:.875rem;line-height:1.4;text-align:left}
+.une-sous{font-size:1.125rem;margin:22px 0 4px;padding:14px 0 0;border-top:1px solid var(--line)}
+.une-chiffres .evol{margin:10px 0 12px}
+.une-chiffres .evol-t{font-size:.9375rem}
+.une-chiffres .evol-t strong{font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink)}
+.une-chiffres .evol svg{height:34px;margin:4px 0 3px}
+.une-chiffres p{text-align:left}
+@media (max-width:900px){.une{grid-template-columns:minmax(0,1fr)}.une-carte{max-width:600px}}
+.acces{margin:40px 0 12px}
+.cherche-terr{margin:0 0 28px}
+.cherche-terr h2{margin-top:0}
+.cherche-terr label{cursor:pointer}
+.cherche-terr .ligne{display:flex;flex-wrap:wrap;gap:8px;max-width:760px}
+.cherche-terr input{flex:1 1 300px;min-width:0;font:inherit;padding:10px 14px;border:1px solid var(--line);border-radius:6px;background:var(--panel);color:var(--ink)}
+.cherche-terr input:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
+.cherche-terr button{font:inherit;font-weight:600;padding:10px 18px;border-radius:6px;border:1px solid var(--r4);background:var(--r4);color:var(--panel);cursor:pointer}
+.cherche-terr button+button{background:none;color:var(--ink);border-color:var(--line)}
+.cherche-terr button:hover{border-color:var(--ink)}
+.cherche-terr p{margin:10px 0 0;text-align:left;max-width:760px}
+.entrees{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 48px}
+.entrees li{padding:16px 0 18px;border-top:1px solid var(--line);margin:0}
+.entrees h3{margin:0 0 4px;font-size:1.25rem}
+.entrees h3 a{color:var(--ink);text-decoration:none}
+.entrees h3 a:hover{text-decoration:underline;text-underline-offset:3px}
+.entrees p{margin:0;color:var(--ink);font-size:.9375rem;line-height:1.5;text-align:left}
+@media (max-width:640px){.entrees{grid-template-columns:minmax(0,1fr)}.chiffres>div{grid-template-columns:6.4rem minmax(0,1fr)}}
 .evol{color:var(--r4);margin:14px 0}
 .evol-t{display:flex;justify-content:space-between;gap:12px;color:var(--ink);font-size:1rem}
 .evol-t span{font-variant-numeric:tabular-nums;color:var(--muted)}
@@ -266,15 +312,15 @@ figure.graphique svg [data-info]{cursor:pointer}
 @media print{
   .couverture{display:flex;flex-direction:column;justify-content:center;min-height:240mm;break-after:page;page-break-after:always}
   .couverture h1{font-size:30pt;margin:6mm 0}
-  .couv-projet{font-family:var(--serif);font-size:14pt;color:#64458C;margin:0}
+  .couv-projet{font-family:var(--serif);font-size:14pt;color:#1D4D87;margin:0}
   .couv-version,.couv-auteur{font-size:12pt;margin:1mm 0}
-  .couv-citer{margin-top:14mm;padding:4mm 5mm;border-left:2pt solid #64458C;font-size:10pt}
+  .couv-citer{margin-top:14mm;padding:4mm 5mm;border-left:2pt solid #1D4D87;font-size:10pt}
   .couv-sources{margin-top:8mm;font-size:9pt;color:#555}
   .couverture + h1{display:none}
-  .comment-lire{background:#F3EFF8;border-left-color:#8C6DAE}
+  .comment-lire{background:#EEF3F9;border-left-color:#4A77B0}
   .a-savoir{background:#FAF3E6;border-left-color:#B88A2E}
   .corps{max-width:none}
-  .corps h2{border-top-color:#8C6DAE}.corps h4{border-left-color:#8C6DAE}
+  .corps h2{border-top-color:#4A77B0}.corps h4{border-left-color:#4A77B0}
 }
 
 /* page « Données sources », une fiche par jeu */
@@ -317,5 +363,201 @@ nav.site .sous-menu{position:static;box-shadow:none;border:0;padding:0 0 0 14px;
 .sommaire.ouvert .bouton-sommaire::after{content:" ▴"}
 }
 @media (max-width:600px){
-.corps p,.corps li,.chapeau,.bref li,.comment-lire,.a-savoir{text-align:left!important}
+/* sur téléphone, une ligne trop courte pour être justifiée sans grands blancs (remarque de Lucas du 22 octobre 2026) */
+main p,main li,main dd,main blockquote,footer p,.corps p,.corps li,.chapeau,.bref li,.comment-lire,.a-savoir{text-align:left!important;text-wrap:pretty}
+}
+
+/* =====================================================================================================================
+   Direction « l'atlas de nuit » (refonte du 23 octobre 2026, audit avec Impeccable et Taste Skill, validée par Lucas sur
+   prototype). Une couche posée sur les styles existants, à l'écran seulement (les PDF gardent leur mise en page) :
+   un fond et une seule surface, la « table », sous les figures ; aucune boîte autour du texte ; Newsreader pour les
+   titres, Work Sans pour le reste, chiffres à chasse fixe ; la couleur sur les données, les chiffres significatifs et
+   le signal « ! » seulement ; palette d'écart à la moyenne revue et validée (bras ambre et violet, contrôle ordinal).
+   ===================================================================================================================== */
+@media screen{
+:root{
+  --bg:#F4F4F1;--panel:#FFFFFF;--table:#FFFFFF;--ink:#1C2028;--muted:#5D6371;--faint:#8A909C;--line:#E2E3E6;--nodata:#ECECEF;
+  --accent:#8A5A0E;--signal:#8A5A0E;--focus:#1C2028;--chiffre:#1D4D87;--chiffre-bas:#83451E;
+  /* palette « encre bleue et cuivre » (choix de Lucas du 23 octobre 2026) : densités en six paliers d'un bleu d'encre,
+     écart à la moyenne en cuivre dessous, gris au milieu, bleu dessus ; chaque bras validé (contrôle ordinal du skill
+     dataviz, palier le plus faible à 2:1 de la surface) ; le signal des limites reste ocre, distinct des données */
+  --r0:#9CB5DA;--r1:#7AA1D3;--r2:#5182C1;--r3:#3167A9;--r4:#1D4D87;--r5:#0F3562;
+  --d0:#83451E;--d1:#BC6B3B;--d2:#E8A17A;--d3:#DFE1E5;--d4:#78A1D6;--d5:#4A77B0;--d6:#1D4D87;--contour:#FFFFFF}
+:root[data-theme="dark"]{
+  --bg:#121419;--panel:#191C22;--table:#191C22;--ink:#E8E9EE;--muted:#A2A7B3;--faint:#747A87;--line:#262A32;--nodata:#22252C;
+  --accent:#F2B65A;--signal:#F2B65A;--focus:#E8E9EE;--chiffre:#9DC7FE;--chiffre-bas:#FFBC8F;
+  --r0:#3D5A7F;--r1:#4C73A5;--r2:#5D8ECE;--r3:#77ABEC;--r4:#9DC7FE;--r5:#CCE4FF;
+  --d0:#FFBC8F;--d1:#E58B55;--d2:#AE653A;--d3:#3A3D42;--d4:#507CB5;--d5:#739FD6;--d6:#97C1F7;--contour:#121419;color-scheme:dark}
+body{font-variant-numeric:tabular-nums lining-nums;-webkit-font-smoothing:antialiased}
+::selection{background:color-mix(in srgb,var(--ink) 22%,transparent)}
+:focus-visible{outline-color:var(--focus);outline-offset:3px}
+a{color:var(--ink);text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--ink) 30%,transparent);text-decoration-thickness:1px;text-underline-offset:4px}
+a:hover{color:var(--ink);text-decoration-color:currentColor}
+/* tête de site, sans bandeau ni filet */
+nav.site{background:color-mix(in srgb,var(--bg) 94%,transparent);backdrop-filter:blur(8px);border-bottom:0}
+nav.site .marque{font-size:1.25rem}
+nav.site a.l{font-size:.9375rem}
+nav.site a.l:hover,nav.site a.l.on{border-bottom-color:var(--ink)}
+/* titres, Newsreader au poids normal, séparés par l'espace et non par des filets */
+h1{font-weight:400}
+h2,.corps h2{font-weight:400;border-top:0;padding-top:0;margin-top:64px}
+h3,.corps h3{font-weight:400;border-bottom:0;padding-bottom:0}
+.corps h4{font-weight:400;border-left:0;padding-left:0}
+.corps h4+p{font-family:var(--sans)}
+.chapeau,main .chapeau{color:var(--ink)}
+/* plus de boîtes autour du texte : chiffres clés, cartes, volets, encarts, citations */
+.cles>div,.tuile,.carte,.rapport-carte,.encart,.corps details,.citer-haut,details.citer-haut,.fiche-source{background:none;border:0;box-shadow:none;border-radius:0;padding-left:0;padding-right:0}
+.cles{gap:22px 32px}
+.cles .v,.tuile .v{font-family:var(--sans);font-weight:300;letter-spacing:-.02em;color:var(--chiffre)}
+.cles .l,.tuile .l{font-size:.8125rem}
+.corps details{padding-top:4px;padding-bottom:4px}
+.corps details>summary,details.citer-haut>summary,details.versions>summary{color:var(--muted);text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--muted) 40%,transparent);text-underline-offset:4px;font-weight:400}
+.corps details>summary:hover{color:var(--ink)}
+.corps blockquote{border-left:0;background:none;padding:0;color:var(--muted)}
+/* « Comment lire » et « À savoir » sans cadre ni barre de couleur ; le signal ocre devant « À savoir » */
+.comment-lire{background:none;border:0;border-radius:0;padding:0}
+.a-savoir{background:none;border:0;border-radius:0;padding:0 0 0 24px;position:relative}
+.a-savoir::before{content:"";position:absolute;left:0;top:.32em;width:14px;height:14px;background:var(--signal);
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath fill-rule='evenodd' d='M7 0a7 7 0 1 1 0 14A7 7 0 0 1 7 0zm-.8 3v5.2h1.6V3zm.8 6.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2z'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath fill-rule='evenodd' d='M7 0a7 7 0 1 1 0 14A7 7 0 0 1 7 0zm-.8 3v5.2h1.6V3zm.8 6.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2z'/%3E%3C/svg%3E") center/contain no-repeat}
+/* la table, seule surface du site, sous les figures */
+figure.graphique{background:var(--table);border:0;border-radius:4px;padding:20px}
+/* choix entre variantes d'une figure, des mots ; le choisi souligné */
+.choix-variante{display:flex;gap:4px 18px;background:none;padding:0;flex-wrap:wrap}
+.choix-variante button{display:inline-flex;align-items:center;gap:7px;border:0;border-radius:0;background:none;padding:4px 0;color:var(--muted)}
+.choix-variante button::before{content:"";flex:none;width:9px;height:9px;border-radius:50%;box-shadow:inset 0 0 0 1.5px currentColor}
+.choix-variante button:hover{color:var(--ink)}
+.choix-variante button[aria-pressed="true"]{background:none;color:var(--ink);font-weight:600}
+.choix-variante button[aria-pressed="true"]::before{background:var(--ink)}
+.outils-figure{gap:6px 20px}
+.bouton-lien,.bouton-lien:hover{color:var(--muted);text-decoration-color:color-mix(in srgb,var(--muted) 40%,transparent);text-underline-offset:4px}
+.bouton-lien:hover{color:var(--ink)}
+table.simple tbody tr:nth-child(even) td{background:none}
+.corps th,table.simple th{font-weight:500}
+footer{border-top:0;color:var(--faint)}
+/* accueil */
+.chiffres>div{border-top:0;padding:0 0 22px}
+.chiffres dt{font-family:var(--sans);font-weight:300;font-size:2.5rem;letter-spacing:-.02em;color:var(--chiffre)}
+.chiffres>div{grid-template-columns:minmax(0,1fr);row-gap:6px}
+.une-carte{background:var(--table);border-radius:4px;padding:24px 24px 18px}
+.une-carte figcaption{font-family:var(--sans);font-size:.9375rem;font-weight:500}
+.une-sous{font-family:var(--sans);font-size:.9375rem;font-weight:500;border-top:0;padding-top:0}
+.une-chiffres .evol-t strong{color:var(--chiffre);font-weight:500}
+.entrees li{border-top:0;padding:0 0 26px}
+.entrees h3{font-size:1.5rem}
+.bref li::marker{color:var(--faint)}
+.cherche-terr input{background:none;border:0;border-bottom:1px solid var(--muted);border-radius:0;padding:8px 0}
+.cherche-terr input:focus{outline:none;border-bottom-color:var(--ink)}
+.cherche-terr button{background:none;border:0;border-bottom:2px solid var(--ink);border-radius:0;color:var(--ink);padding:6px 0}
+.cherche-terr button+button{color:var(--muted);border-bottom-color:transparent}
+.cherche-terr button:hover{color:var(--ink)}
+.cherche-terr .ligne{gap:12px 24px;align-items:baseline}
+/* outils des figures et des tableaux en liens de texte, plus de pastilles ; encadré de citation sans boîte */
+button.citer-fig,button.lire-fig{border:0;border-radius:0;padding:2px 0;font-size:.8125rem;color:var(--muted);text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--muted) 40%,transparent);text-underline-offset:4px;background:none}
+button.citer-fig:hover,button.lire-fig:hover,button.citer-fig[aria-expanded="true"],button.lire-fig[aria-expanded="true"]{color:var(--ink);text-decoration-color:currentColor}
+.citer,.citer-haut{border:0;border-left:0;background:none;padding:0;border-radius:0}
+/* figures qui apparaissent en douceur quand on arrive dessus (posé par figures.js, le contenu reste visible sans script) */
+html.revele figure.graphique,html.revele .une-carte{transition:opacity .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1)}
+html.revele figure.graphique:not(.vu),html.revele .une-carte:not(.vu){opacity:0}
+@media (prefers-reduced-motion:no-preference){html.revele figure.graphique:not(.vu),html.revele .une-carte:not(.vu){transform:translateY(10px)}}
+}
+
+/* Fenêtres de l'accueil (essai du 23 octobre 2026, d'après reactbits.dev, demande de Lucas) : un champ d'encre bleue
+   porte trois fenêtres à barre de titre, la carte, le choix de la profession et la version avec ses contrôles ; la
+   fenêtre est la seule forme encadrée du site, réservée à cette scène. Écran seulement, les PDF n'ont pas d'accueil. */
+@media screen{
+:root{--champ:#DCE4EE;--fen:#E9ECF0;--fen-corps:#FFFFFF;--fen-bord:rgb(16 24 40 / .09);--fen-ombre:0 22px 46px -18px rgb(16 32 60 / .35)}
+:root[data-theme="dark"]{--champ:#18263B;--fen:#1A1D24;--fen-corps:#121419;--fen-bord:rgb(255 255 255 / .07);--fen-ombre:0 24px 56px -16px rgb(0 0 0 / .6)}
+.scene{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(300px,1fr);gap:28px;align-items:start;padding:36px;margin:8px 0 44px;border-radius:18px;background:var(--champ)}
+.fenetre{background:var(--fen);border:1px solid var(--fen-bord);border-radius:14px;box-shadow:var(--fen-ombre),inset 0 1px 0 rgb(255 255 255 / .05);min-width:0}
+.fen-barre{margin:0;padding:9px 16px 8px;text-align:center;font-size:.8125rem;line-height:1.3;color:var(--muted)}
+.fen-corps{margin:0 6px 6px;background:var(--fen-corps);border:1px solid var(--fen-bord);border-radius:10px;padding:18px 20px}
+.fen-carte .une-carte{padding:18px 20px 14px;border-radius:10px;background:var(--fen-corps)}
+.fen-carte .une-carte>a[aria-label]{max-width:500px;margin:0 auto}
+.fen-carte svg path[data-code]{transition:fill .38s cubic-bezier(.22,1,.36,1)}
+.fen-pile{display:grid;align-content:start;align-self:center}
+.fen-controles{position:relative;z-index:1;margin:-14px 0 0 32px}
+.fen-groupe{margin:6px 0 4px 12px;font-size:.75rem;color:var(--faint);text-align:left}
+.fen-groupe:first-child{margin-top:0}
+.fen-profs ul,.fen-controles ul{list-style:none;margin:0;padding:0}
+.fen-profs .fen-corps{padding:10px 8px 18px}
+.fen-profs button{display:flex;justify-content:space-between;align-items:baseline;gap:12px;width:100%;padding:8px 12px;border:0;border-radius:8px;background:none;font:inherit;font-size:.9375rem;color:var(--muted);text-align:left;cursor:pointer;transition:background-color .15s,color .15s}
+.fen-profs button:hover{color:var(--ink)}
+.fen-profs button[aria-pressed="true"]{background:color-mix(in srgb,var(--ink) 8%,transparent);color:var(--ink)}
+.fen-profs button[aria-pressed="true"] .fen-nom{font-weight:500}
+.fen-profs .fen-val{font-size:.75rem;color:var(--faint);white-space:nowrap;font-variant-numeric:tabular-nums}
+.fen-profs button[aria-pressed="true"] .fen-val{color:var(--muted)}
+.fen-controles li{display:flex;gap:10px;align-items:baseline;padding:3px 0;font-size:.875rem;line-height:1.45;text-align:left}
+.fen-controles .coche{color:var(--chiffre);flex:none}
+.fen-controles p.small{margin:10px 0 0}
+.une-bas{grid-template-columns:minmax(0,1.2fr) minmax(260px,1fr);gap:28px 64px}
+.une-bas .chiffres{grid-template-columns:repeat(2,minmax(0,1fr));column-gap:32px}
+.une-bas .une-evol .une-sous{margin-top:0}
+@media (max-width:900px){.scene{grid-template-columns:minmax(0,1fr);padding:16px;gap:18px}.fen-controles{margin:0}.une-bas{grid-template-columns:minmax(0,1fr)}}
+}
+
+/* En-tête qui se resserre quand on descend (essai du 23 octobre 2026, d'après reactbits.dev, demande de Lucas) : en haut
+   de page la barre est posée sur le fond, sur toute la largeur ; dès qu'on descend elle se resserre à la largeur du
+   contenu et devient une barre flottante opaque, sans flou, ombre douce. La hauteur ne change pas, pour que la barre
+   des réglages de l'atlas reste collée dessous. Les lignes commencent par nav.site, reprises telles quelles par l'atlas. */
+@media screen{
+:root{--ombre-nav:rgb(16 24 40 / .22)}
+:root[data-theme="dark"]{--ombre-nav:rgb(0 0 0 / .55)}
+nav.site{background:transparent;backdrop-filter:none;border-bottom:0;padding:8px 12px 0}
+nav.site .in{max-width:100%;border:1px solid transparent;border-radius:14px;transition:max-width .5s cubic-bezier(.22,1,.36,1),background-color .4s,border-color .4s,box-shadow .4s}
+nav.site.defile .in{max-width:var(--largeur-contenu,1100px);background:var(--panel);border-color:color-mix(in srgb,var(--ink) 9%,transparent);box-shadow:0 14px 34px -14px var(--ombre-nav,rgb(0 0 0 / .5))}
+}
+
+/* Figures en fenêtres (demande de Lucas du 23 octobre 2026, « testons sur l'ensemble ») : le cadre de la fenêtre, sa
+   barre de titre (légende, puis « Comment lire » et « Citer et exporter ») et l'intérieur plus calme qui porte la
+   figure. Écran seulement ; les PDF et les exports gardent la figure sur fond blanc. */
+@media screen{
+:root{--ombre-fig:rgb(16 24 40 / .16)}
+:root[data-theme="dark"]{--ombre-fig:rgb(0 0 0 / .5)}
+figure.graphique{background:var(--fen-corps);border:6px solid var(--fen);border-top:0;border-radius:14px;padding:0 18px 16px;box-shadow:0 0 0 1px var(--fen-bord),0 20px 44px -28px var(--ombre-fig)}
+figure.graphique>figcaption{margin:0 -18px;padding:11px 18px 2px;background:var(--fen);border-radius:8px 8px 0 0/14px 14px 0 0}
+figure.graphique>.outils-figure{margin:0 -18px 14px;padding:2px 18px 10px;background:var(--fen);border-bottom:1px solid var(--fen-bord)}
+/* fond en dégradé d'encre derrière les fenêtres de l'accueil (d'après reactbits.dev, demande de Lucas), sans motif */
+.scene{background:radial-gradient(110% 85% at 12% 0%,var(--champ-1) 0%,transparent 58%),radial-gradient(90% 80% at 100% 100%,var(--champ-2) 0%,transparent 62%),var(--champ)}
+:root{--champ-1:#C3D4EA;--champ-2:#D2DDEA}
+:root[data-theme="dark"]{--champ:#131E30;--champ-1:#25426B;--champ-2:#1B3352}
+}
+/* fenêtre sans légende : la ligne « Comment lire, Citer et exporter » devient la barre de titre, avec la même marge
+   haute que les autres (remarque de Lucas du 23 octobre 2026, boutons collés au bord sur certaines pages) */
+@media screen{
+figure.graphique>.outils-figure:first-child{padding-top:11px;border-radius:8px 8px 0 0/14px 14px 0 0}
+figure.graphique:not(:has(>figcaption,>.outils-figure)){border-top-width:6px;padding-top:14px}
+}
+
+/* pages de rapports (remarque de Lucas du 23 octobre 2026, centrage étrange et texte non justifié) : la colonne de
+   lecture étroite est centrée dans la page, le titre et le chapeau d'une page à sommaire s'alignent sur le corps, le
+   chapeau est justifié (avec la césure française) ; sur téléphone, le texte reste aligné à gauche */
+@media screen{
+/* une seule largeur de contenu (harmonisation du 22 octobre 2026) : la page des rapports nationaux prend la largeur commune,
+   chapeau compris, au lieu d'une colonne étroite qui paraissait décalée (remarque de Lucas du 23 octobre 2026) */
+.etroit,main:has(> .etroit) > footer{max-width:none}
+.etroit .chapeau{max-width:none}
+main .chapeau{text-align:justify;hyphens:auto}
+@media (min-width:901px){main:has(> .rapport) > :not(.rapport){margin-left:260px;max-width:800px}}
+}
+
+/* chapeau à la largeur des blocs (registre, point 16, l'accueil s'aligne sur la largeur des blocs ; remarque de Lucas
+   du 23 octobre 2026), sauf sur les pages à sommaire où il suit le corps ; lueur d'encre en haut de chaque page, sur le
+   modèle du champ de l'accueil (remarque de Lucas, étendre le dégradé à l'ensemble), à l'écran seulement */
+@media screen{
+main .chapeau{max-width:none}
+:root{--lueur:rgb(150 180 220 / .38)}
+:root[data-theme="dark"]{--lueur:rgb(37 66 107 / .42)}
+body{background:radial-gradient(1200px 560px at 18% -160px,var(--lueur),transparent 72%) no-repeat fixed,var(--bg)}
+nav.site{background:radial-gradient(1200px 560px at 18% -160px,var(--lueur),transparent 72%) no-repeat fixed,var(--bg)}
+}
+@media screen{.terr-vide{margin:8px 0 0;font-size:.875rem;color:var(--chiffre-bas,var(--accent));text-align:left}.terr-vide[hidden]{display:none}}
+/* suggestions de territoires, dans le style des listes du site (remarque de Lucas du 23 octobre 2026) */
+@media screen{
+.cherche-terr .terr-champ{position:relative;flex:1 1 300px;min-width:0;display:flex}
+.cherche-terr .terr-champ input{flex:1 1 auto;width:100%}
+.terr-liste{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:30;background:var(--panel);border:1px solid var(--fen-bord,var(--line));border-radius:10px;box-shadow:0 14px 36px -10px var(--ombre-nav,rgb(0 0 0 / .45));padding:6px 0;max-height:min(60vh,420px);overflow:auto}
+.terr-liste[hidden]{display:none!important}
+.cherche-terr .terr-liste button{display:block;width:100%;text-align:left;font-weight:400;font-size:.9375rem;padding:7px 14px;border:0;border-radius:0;background:none;color:var(--ink);cursor:pointer}
+.cherche-terr .terr-liste button:hover,.cherche-terr .terr-liste button[aria-selected="true"]{background:color-mix(in srgb,var(--ink) 8%,transparent)}
 }

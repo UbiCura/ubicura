@@ -188,9 +188,10 @@ AMELI_REGIONS_EXCLUES = ["06"]        # Mayotte comme région
 # des besoins). Mayotte, faute de recensement exhaustif la population de référence y est incertaine, et les données
 # de l'Assurance Maladie et de la CAF y sont absentes ou partielles. Règle écrite dans les rapports et l'atlas.
 DEPARTEMENTS_EXCLUS_CROISEMENTS = ["976"]
-# Carte bivariée offre et besoin (audit 4.2), palette violet et or de Joshua Stevens, 3 tiers de l'offre (violet)
-# sur 3 tiers de l'indicateur (or). Indice offre x 3 + indicateur, du plus bas au plus haut.
-BIVARIEE = ["#e8e8e8", "#e4d9ac", "#c8b35a", "#cbb8d7", "#c8ada0", "#af8e53", "#9972af", "#976b82", "#804d36"]
+# Carte bivariée offre et besoin (audit 4.2), palette bleu et rouge de Joshua Stevens (depuis le 23 octobre 2026, avec
+# la palette encre bleue et cuivre du site), 3 tiers de l'offre (bleu) sur 3 tiers de l'indicateur (rouge). Indice
+# offre x 3 + indicateur, du plus bas au plus haut.
+BIVARIEE = ["#e8e8e8", "#e4acac", "#c85a5a", "#b0d5df", "#ad9ea5", "#985356", "#64acbe", "#627f8c", "#574249"]
 
 # ---------------------------------------------------------------- Assurance Maladie, accès financier et médecin traitant
 GROUPE_ACCES = "Accès financier et médecin traitant"
@@ -798,6 +799,9 @@ PUBLICS_CIBLES = {
 
 # Professions croisées avec les indicateurs de besoin en santé mentale (quadrants offre et besoin)
 PROFESSIONS_QUADRANTS = ["psychiatre", "psychologue", "q_psychiatrie_enfant", "medecin_generaliste"]
+# régression géographiquement pondérée du lien avec le niveau de vie : professions présentes dans au moins une
+# intercommunalité sur deux (décision de Lucas du 23 octobre 2026, au-delà des trois professions d'origine)
+GWR_PRESENCE_MIN = 0.5
 
 # Paires de professions testées pour la substitution ou le cumul (point 8 du chantier 4)
 PAIRES_SUBSTITUTION = [("medecin_generaliste", "psychologue"), ("medecin_generaliste", "psychiatre"),
@@ -1469,6 +1473,25 @@ LIMITES["evolution"] = {
               "dans chaque territoire où elle exerce. Les populations des trois dernières années sont provisoires."),
     "sources": [("DREES, la démographie des professionnels de santé", DREES_DEMOGRAPHIE_PAGE),
                 ("INSEE, estimations localisées de population", INSEE_ESTIMATIONS_PAGE)]}
+# Phrase courte de chaque limite, montrée seule sous la figure de l'atlas, le texte entier s'ouvrant au clic (chantier
+# d'organisation de l'atlas, 22 octobre 2026). Sans phrase courte, la première phrase du texte sert. Chaque phrase
+# résume le texte de la limite sans rien y ajouter.
+LIMITES_COURT = {
+    "mayotte": ("À Mayotte, les densités sont surestimées d'environ un quart (population de 2017) et Mayotte est écartée "
+                "des croisements entre départements."),
+    "prof:psychiatre": "Un territoire sans psychiatre déclaré peut accueillir des consultations de psychiatrie, dans les CMP.",
+    "prof:psychologue": ("Les psychologues sont inscrits au RPPS depuis la reprise d'ADELI, leur nombre est un peu en "
+                         "dessous des séries de la DREES."),
+    "lieux": "Ni FINESS ni le ROR ne sont complets, certaines structures manquent aux deux bases ou y sont mal classées.",
+    "confirmation": ("Une structure à vérifier n'est pas douteuse pour autant, les listes qui servent à confirmer sont "
+                     "incomplètes ou anciennes."),
+    "route": ("Temps en voiture vers le libéral le plus proche, sans les délais de rendez-vous, les tarifs ni les "
+              "transports en commun."),
+    "ald": "Les ALD comptent les personnes dont la maladie a été reconnue, pas toutes les personnes malades.",
+    "caf": "Les allocations versées par la MSA ne sont pas comptées, ce qui sous-estime ces chiffres surtout en zone rurale.",
+    "evolution": ("Les séries de la DREES comptent chaque professionnel une seule fois, dans le département de son "
+                  "activité principale."),
+}
 LIMITES_ALIAS = {"sae_": "sae", "ald_": "ald", "caf_": "caf", "evol:": "evolution", "lieu_": "lieux", "lieux:": "lieux"}
 
 LOI_INVERSE_BESOINS = ["suicides", "hospit_gestes_auto_infliges", "pec_troubles_psy"]
@@ -1556,6 +1579,16 @@ CONTACT = "contact@ubicura.fr"      # adresse de contact du site, chez OVHcloud 
 CITATION_AUTEUR = "Pithon L."
 # DOI généraux (versions 1 publiées le 9 octobre 2026, rapport santé mentale 10.5281/zenodo.23265074, rapport santé 10.5281/zenodo.23265209). DOI réservés sur Zenodo le 9 octobre 2026 (première version, à publier avant la mise en ligne, tutoriel 05). Après la
 # première publication, les remplacer par les DOI généraux, qui renvoient toujours à la dernière version.
+# Mesure d'audience sans cookie, pour le seul porteur du projet (demande de Lucas du 23 octobre 2026). GoatCounter,
+# logiciel libre (EUPL 1.2), service hébergé dans l'Union européenne (Hetzner, Finlande et Allemagne), aucun cookie,
+# aucune adresse IP conservée, totaux par page seulement. Pages vérifiées le 23 octobre 2026,
+# https://www.goatcounter.com/help/start, https://www.goatcounter.com/help/privacy, https://www.goatcounter.com/help/countjs-versions
+# (count.v5.js du 9 juin 2025, empreinte ci-dessous, ce fichier versionné ne change jamais). Code du compte créé par Lucas
+# (tutoriel 08) ; vide, aucun script n'est ajouté aux pages.
+GOATCOUNTER = "ubicura"   # compte créé par Lucas le 23 octobre 2026, tableau de bord https://ubicura.goatcounter.com
+GOATCOUNTER_SCRIPT = "https://gc.zgo.at/count.v5.js"
+GOATCOUNTER_INTEGRITE = "sha384-atnOLvQb9t+jTSipvd75X2yginT4PjVbqDdlJAmxMm+wYElFmeR6EmLP5bYeoRVQ"
+
 DOI_DONNEES = "10.5281/zenodo.23264933"   # DOI général des données (première version publiée le 9 octobre 2026, 10.5281/zenodo.23264934)
 DOI_RAPPORTS = {"sante-mentale": "10.5281/zenodo.23265073", "sante": "10.5281/zenodo.23265208"}
 # dernière version archivée sur Zenodo (date du dossier de résultats). Une version plus récente du site est citée par son

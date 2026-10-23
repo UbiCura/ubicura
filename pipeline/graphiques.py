@@ -16,8 +16,11 @@ from .lecture import nombre
 from .util import log
 
 ENCRE, DISCRET, LIGNE = "var(--ink, #1F2430)", "var(--muted, #5F6675)", "var(--line, #D9DCE3)"
-VIOLET = ["var(--r5, #2F1B4D)", "var(--r4, #5A3A85)", "var(--r3, #7E5CA6)", "var(--r2, #9C7FBF)"]
-OCRE, OCRE_PALE, VIOLET_PALE = "var(--accent, #9A6B00)", "var(--d1, #A87418)", "var(--r1, #BCA6D5)"
+# rampe des données (bleu d'encre depuis le 23 octobre 2026, le nom VIOLET est gardé pour ne pas toucher aux appels),
+# OCRE pour les repères (moyenne, France), CUIVRE pour un territoire sous la moyenne
+VIOLET = ["var(--r5, #0F3562)", "var(--r4, #1D4D87)", "var(--r3, #3167A9)", "var(--r2, #5182C1)"]
+OCRE, OCRE_PALE, VIOLET_PALE = "var(--accent, #9A6B00)", "var(--d1, #BC6B3B)", "var(--r1, #7AA1D3)"
+CUIVRE = "var(--d0, #83451E)"
 PRINCIPALE = {"sm": "psychologue", "sante": "medecin_generaliste"}
 # Échelle typographique commune des figures (harmonisation, 22 octobre 2026). Trois tailles, telles qu'on les voit à
 # l'écran dans la colonne des rapports (LARGEUR_ECRAN pixels), titre, texte (étiquettes, légendes, valeurs) et petit
@@ -116,12 +119,14 @@ class Figure:
             self.ligne(self.g, y, self.w - self.d, y)
             self.texte(self.g - 6, y + 4, fy(v), "end")
         for v in xt:
-            self.texte(self.X(v), self.h - self.b + 16, fx(v), "middle")
+            # graduation à l'origine calée à droite de l'axe, pour ne pas toucher celle de l'axe vertical
+            self.texte(self.X(v), self.h - self.b + 16, fx(v), "start" if abs(self.X(v) - self.g) < 1 and yt else "middle")
         self.ligne(self.g, self.h - self.b, self.w - self.d, self.h - self.b, DISCRET)
         if titre_x:
             self.texte(self.w - self.d, self.h - 6, titre_x, "end")
         if titre_y:
-            self.texte(self.g, self.hh - 4 if self.hh > 14 else 11, titre_y)
+            # marge haute agrandie (ligne de signal au-dessus), le titre s'éloigne des points posés en haut du cadre
+            self.texte(self.g, self.hh - 12 if self.hh >= 40 else self.hh - 4 if self.hh > 14 else 11, titre_y)
 
     def svg(self, titre):
         return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {self.w} {self.h}" role="img" '
@@ -304,7 +309,7 @@ def entonnoir(R, lab, cle, p=None):
         f.chemin(list(zip(g["population"], g[k])), DISCRET, 1, tirets="3 3")
     taux = t["effectif"].sum() / t["population"].sum() * 1e4
     f.ligne(f.g, f.Y(taux), f.w - f.d, f.Y(taux), OCRE, 1.5)
-    couleurs = {-2: "var(--d0, #6B4300)", -1: OCRE_PALE, 0: DISCRET, 1: VIOLET[2], 2: VIOLET[0]}
+    couleurs = {-2: "var(--d0, #83451E)", -1: OCRE_PALE, 0: DISCRET, 1: VIOLET[2], 2: VIOLET[0]}
     from .cartes import MAYOTTE, SIGNAL_MAYOTTE, nom, symbole_fragile
     for (_, r), v in zip(t.iterrows(), dens):
         cx, c = f.X(r["population"]), couleurs[int(r["statut"])]
@@ -339,7 +344,8 @@ def quadrants(R, lab, ctxlab, p="psychiatre"):
         return None
     xt, _px = graduations(t["valeur"].max() * 1.05, 5)
     yt, py = graduations(t["densite"].quantile(.98) * 1.1)
-    f = Figure(marges=(48, 16, 24, 46))
+    # marge du haut agrandie pour la ligne du signal, posée au-dessus du titre de l'axe et non dans le nuage
+    f = Figure(marges=(48, 16, 44 if var == "suicides" else 24, 46))
     f.echelles(0, xt[-1] + _px * .3, 0, yt[-1] + py * .4)
     f.axes(xt, yt, lambda v: nombre(v, 0), lambda v: nombre(v, 1),
            ctxlab.get(var, var), f"{pluriel_simple(lab.get(p, p))} pour 10 000 habitants")
@@ -349,8 +355,8 @@ def quadrants(R, lab, ctxlab, p="psychiatre"):
     f.texte(f.w - f.d - 4, f.h - f.b - 6, "indicateur élevé, offre faible", "end", OCRE)
     if var == "suicides":
         from .cartes import symbole_fragile as _sf, SIGNAL_SUICIDE
-        f.ajout(_sf(f.g + 10, f.hh + 8, SIGNAL_SUICIDE, 5))
-        f.texte(f.g + 20, f.hh + 12, SIGNAL_SUICIDE)
+        f.ajout(_sf(f.g + 6, 12, SIGNAL_SUICIDE, 5))
+        f.texte(f.g + 16, 16, SIGNAL_SUICIDE)
     from .cartes import nom, signaux, symbole_fragile
     sig = signaux(t["code"], suicide=var == "suicides")
     for _, r in t.iterrows():
@@ -358,7 +364,7 @@ def quadrants(R, lab, ctxlab, p="psychiatre"):
             f.ajout(symbole_fragile(f.X(r["valeur"]), f.Y(min(r["densite"], f.y1)),
                                     f'{nom(r["code"])}, {sig[r["code"]]}', 5))
             continue
-        c = "var(--d0, #6B4300)" if r["quadrant"] == "besoin+offre-" else VIOLET[2]
+        c = "var(--d0, #83451E)" if r["quadrant"] == "besoin+offre-" else VIOLET[2]
         f.ajout(f'<circle cx="{f.X(r["valeur"]):.1f}" cy="{f.Y(min(r["densite"], f.y1)):.1f}" r="3.2" fill="{c}" '
                 f'fill-opacity=".8"><title>{escape(nom(r["code"]))}, {nombre(r["valeur"], 1)} et '
                 f'{nombre(r["densite"], 2)} pour 10 000 habitants</title></circle>')
@@ -378,7 +384,7 @@ def porte(R, lab, cle, p=None):
     classes = [c[2] for c in CLASSES_DENSITE if c[2] in t.index]
     groupes = [g for _m, g in config.SECTEURS_GROUPES if g in t.columns] + \
               ([config.SECTEUR_AUTRE] if config.SECTEUR_AUTRE in t.columns else [])
-    couleurs = [VIOLET[0], VIOLET[2], VIOLET_PALE, OCRE, "var(--d2, #D9B260)", "var(--nodata, #E9E8EC)"]
+    couleurs = [VIOLET[0], VIOLET[2], VIOLET_PALE, OCRE, "var(--d2, #E8A17A)", "var(--nodata, #E9E8EC)"]
     bh, h = 30, 70 + len(classes) * 44
     f = Figure(h=h, marges=(250, 20, 56, 20))
     f.echelles(0, 1, 0, 1)
@@ -470,7 +476,7 @@ def regions_intervalles(spf, ref, ids):
             f.texte((x0 + x1) / 2, fs_t * 1.1 + fs_t * 1.3 * len(titre) + fs_p * 1.3 * l, ligne, "middle", DISCRET)
         for v in graduations(vmax)[0]:
             f.ligne(X(v), haut, X(v), bas - 30, LIGNE, 1)
-            f.texte(X(v), bas - 14, nombre(v, 0), "middle", DISCRET)
+            f.texte(X(v), bas - 17, nombre(v, 0), "middle", DISCRET)
         med = x["valeur"].median()
         f.ligne(X(med), haut, X(med), bas - 30, DISCRET, 1, "3 3")
         for k, c in enumerate(regs):
@@ -687,11 +693,11 @@ def bivariee(ref, ctx, agg, lab, ctxlab, prof="psychiatre", var="suicides"):
                                suicide=var == "suicides")
 
 
-GWR_COULEURS = [("negatif_fort", "var(--d0, #6B4300)", "lien négatif net, fort"),
-                ("negatif", "var(--d1, #A87418)", "lien négatif net"),
-                ("non_net", "var(--d3, #DEDCE4)", "pas de lien net"),
-                ("positif", "var(--r3, #7E5CA6)", "lien positif net"),
-                ("positif_fort", "var(--r5, #2F1B4D)", "lien positif net, fort")]
+GWR_COULEURS = [("negatif_fort", "var(--d0, #83451E)", "lien négatif net, fort"),
+                ("negatif", "var(--d1, #BC6B3B)", "lien négatif net"),
+                ("non_net", "var(--d3, #DFE1E5)", "pas de lien net"),
+                ("positif", "var(--r3, #3167A9)", "lien positif net"),
+                ("positif_fort", "var(--r5, #0F3562)", "lien positif net, fort")]
 
 
 def classe_gwr(coef, net):

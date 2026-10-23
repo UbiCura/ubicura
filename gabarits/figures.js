@@ -61,7 +61,10 @@
     b[2].onclick=function(){var c=cible();cadre(c);if(c.dataset.vb0){c.setAttribute("viewBox",c.dataset.vb0);c.dataset.vbz=c.dataset.vb0}}}
   document.querySelectorAll(R.zoom).forEach(boutons);
   document.addEventListener("pointerover",function(ev){var s=svgDe(ev.target,R.zoom);if(s)boutons(s)});
+  // la molette seule fait toujours défiler la page ; le zoom à la molette demande Ctrl (ou ⌘), sinon le curseur restait
+  // pris dans la figure (remarque de Lucas du 23 octobre 2026) ; les boutons + et − restent le moyen ordinaire
   document.addEventListener("wheel",function(ev){
+    if(!(ev.ctrlKey||ev.metaKey))return;
     var s=svgDe(ev.target,R.zoom);if(!s)return;
     if(Date.now()-dernierDefil<450)return;                       // la page défile, on la laisse défiler
     if(ev.deltaY>0&&entier(s))return;                           // vue entière, molette vers le bas, la page défile
@@ -203,3 +206,17 @@
         n.textContent=q?k+" ligne"+(k>1?"s":"")+" sur "+lignes.length:""})})}
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",filtres);else filtres();
 })();
+
+// Figures qui apparaissent en douceur quand on arrive dessus (refonte du 23 octobre 2026). La classe posée sur la racine
+// n'existe qu'avec le script, si bien qu'une figure reste visible quand il ne tourne pas ; impression exclue.
+(function(){
+  if(!("IntersectionObserver" in window)||matchMedia("print").matches)return;
+  const cibles=document.querySelectorAll("figure.graphique,.une-carte");if(!cibles.length)return;
+  document.documentElement.classList.add("revele");
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("vu");io.unobserve(e.target)}}),{rootMargin:"0px 0px -8% 0px"});
+  cibles.forEach(c=>io.observe(c));
+  addEventListener("beforeprint",()=>cibles.forEach(c=>c.classList.add("vu")));
+})();
+// en-tête qui se resserre en barre flottante dès qu'on descend (essai du 23 octobre 2026, d'après reactbits.dev)
+(function(){var n=document.querySelector("nav.site");if(!n)return;
+  var f=function(){n.classList.toggle("defile",(window.scrollY||0)>12)};f();addEventListener("scroll",f,{passive:true})})();

@@ -559,6 +559,23 @@ def test_gwr():
     assert 20 <= r["k"] <= 400 and r["enp"] > 3 and r["seuil_t"] > 1.96
 
 
+def test_professions_gwr():
+    # sur les effectifs réels par intercommunalité de la dernière exécution : chaque profession retenue est présente dans
+    # au moins une intercommunalité sur deux, les professions rares sont écartées, les trois d'origine viennent d'abord
+    import json
+    import pandas as pd
+    from pipeline import config
+    from pipeline.spatial_offre_besoin import professions_gwr
+    f = sorted(p for p in config.RESULTATS.glob("20*") if (p / "site_data.json").exists())[-1] / "site_data.json"
+    n = json.loads(f.read_text(encoding="utf-8"))["niveaux"]["epci"]["n"]
+    df = pd.DataFrame({p: v["all"] for p, v in n.items() if isinstance(v, dict) and v.get("all")})
+    r = professions_gwr(df)
+    assert r[:3] == ["psychologue", "psychiatre", "medecin_generaliste"]
+    assert "pedopsychiatre" not in r and "pediatre" not in r and "infirmier" in r
+    assert all((df[p] > 0).mean() >= config.GWR_PRESENCE_MIN for p in r)
+    assert all(not p.startswith(("ens_", "q_")) for p in r)
+
+
 def test_lieux_libelles():
     """Libellés des types de lieux conformes au langage respectueux, identifiants uniques, catégories en texte."""
     from pipeline import config, libelles

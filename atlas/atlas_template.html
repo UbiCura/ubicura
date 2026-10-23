@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Atlas de l’offre de soins</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%233E2563%22/%3E%3Crect%20x%3D%227%22%20y%3D%2217%22%20width%3D%224.5%22%20height%3D%228%22%20rx%3D%221%22%20fill%3D%22%23B39BCB%22/%3E%3Crect%20x%3D%2213.75%22%20y%3D%2212%22%20width%3D%224.5%22%20height%3D%2213%22%20rx%3D%221%22%20fill%3D%22%23D4C3EA%22/%3E%3Crect%20x%3D%2220.5%22%20y%3D%227%22%20width%3D%224.5%22%20height%3D%2218%22%20rx%3D%221%22%20fill%3D%22%23FFFFFF%22/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%231D4D87%22/%3E%3Crect%20x%3D%227%22%20y%3D%2217%22%20width%3D%224.5%22%20height%3D%228%22%20rx%3D%221%22%20fill%3D%22%23B39BCB%22/%3E%3Crect%20x%3D%2213.75%22%20y%3D%2212%22%20width%3D%224.5%22%20height%3D%2213%22%20rx%3D%221%22%20fill%3D%22%23D4C3EA%22/%3E%3Crect%20x%3D%2220.5%22%20y%3D%227%22%20width%3D%224.5%22%20height%3D%2218%22%20rx%3D%221%22%20fill%3D%22%23FFFFFF%22/%3E%3C/svg%3E">
 <meta name="description" content="Carte et données de l’offre de soins en France, santé mentale et santé, par région, département et intercommunalité.">
 <meta property="og:title" content="Atlas de l’offre de soins">
 <meta property="og:locale" content="fr_FR">
@@ -16,21 +16,21 @@
 .panel p:not(.indice-defil){max-width:var(--mesure)}
 :root{
   --bg:#F4F5F7;--panel:#FFFFFF;--ink:#1F2430;--muted:#5F6675;--line:#D9DCE3;--nodata:#E9E8EC;
-  --accent:#9A6B00;--focus:#3E2563;
-  --r0:#EEE8F3;--r1:#BCA6D5;--r2:#9C7FBF;--r3:#7E5CA6;--r4:#5A3A85;--r5:#2F1B4D;
-  --d0:#6B4300;--d1:#A87418;--d2:#D9B260;--d3:#DEDCE4;--d4:#AE93CB;--d5:#8C6DAE;--d6:#3E2563;
+  --accent:#9A6B00;--signal:#8A5A0E;--focus:#1D4D87;
+  --r0:#9CB5DA;--r1:#7AA1D3;--r2:#5182C1;--r3:#3167A9;--r4:#1D4D87;--r5:#0F3562;
+  --d0:#83451E;--d1:#BC6B3B;--d2:#E8A17A;--d3:#DFE1E5;--d4:#78A1D6;--d5:#4A77B0;--d6:#1D4D87;
   --serif:"Newsreader",Georgia,"Times New Roman",serif;
   --sans:"Work Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
   box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
   --contour:#9AA0AC}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#15171C;--panel:#1D2027;--contour:#15171C;--ink:#E8E9EE;--muted:#A0A5B2;--line:#343844;--nodata:#2A2D35;--accent:#E0B04A;--focus:#D4C3EA;
-  --r0:#2A2533;--r1:#43355A;--r2:#5E4A82;--r3:#7E66A8;--r4:#A58CCB;--r5:#D4C3EA;
-  --d0:#E8B34A;--d1:#A97F2C;--d2:#6E5A36;--d3:#3A404A;--d4:#4A3C66;--d5:#7E66A8;--d6:#D4C3EA;}}
+  --bg:#15171C;--panel:#1D2027;--contour:#15171C;--ink:#E8E9EE;--muted:#A0A5B2;--line:#343844;--nodata:#2A2D35;--accent:#E0B04A;--signal:#F2B65A;--focus:#9DC7FE;
+  --r0:#3D5A7F;--r1:#4C73A5;--r2:#5D8ECE;--r3:#77ABEC;--r4:#9DC7FE;--r5:#CCE4FF;
+  --d0:#FFBC8F;--d1:#E58B55;--d2:#AE653A;--d3:#3A3D42;--d4:#507CB5;--d5:#739FD6;--d6:#97C1F7;}}
 :root[data-theme="dark"]{
-  --bg:#15171C;--panel:#1D2027;--contour:#15171C;--ink:#E8E9EE;--muted:#A0A5B2;--line:#343844;--nodata:#2A2D35;--accent:#E0B04A;--focus:#D4C3EA;
-  --r0:#2A2533;--r1:#43355A;--r2:#5E4A82;--r3:#7E66A8;--r4:#A58CCB;--r5:#D4C3EA;
-  --d0:#E8B34A;--d1:#A97F2C;--d2:#6E5A36;--d3:#3A404A;--d4:#4A3C66;--d5:#7E66A8;--d6:#D4C3EA;}
+  --bg:#15171C;--panel:#1D2027;--contour:#15171C;--ink:#E8E9EE;--muted:#A0A5B2;--line:#343844;--nodata:#2A2D35;--accent:#E0B04A;--signal:#F2B65A;--focus:#9DC7FE;
+  --r0:#3D5A7F;--r1:#4C73A5;--r2:#5D8ECE;--r3:#77ABEC;--r4:#9DC7FE;--r5:#CCE4FF;
+  --d0:#FFBC8F;--d1:#E58B55;--d2:#AE653A;--d3:#3A3D42;--d4:#507CB5;--d5:#739FD6;--d6:#97C1F7;}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *,*::before,*::after{box-sizing:inherit}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5}
@@ -38,13 +38,13 @@ button,select,input{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 .wrap{max-width:1260px;margin:0 auto;padding:24px 20px 64px}
 header.top{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
-h1{font-family:var(--serif);font-weight:400;font-size:clamp(2rem,4.4vw,3.2rem);line-height:1.02;margin:0;letter-spacing:-.01em}
-.lede{color:var(--muted);max-width:none;margin:10px 0 0}
+h1{font-family:var(--serif);font-weight:500;font-size:clamp(1.625rem,2.4vw,2rem);line-height:1.1;margin:0;letter-spacing:-.01em}
+.lede{color:var(--ink);max-width:none;margin:6px 0 0;font-size:.9375rem}
 header.top>div{flex:1 1 100%}
 .demo{margin-top:16px;padding:10px 14px;border-left:3px solid var(--accent);background:color-mix(in srgb,var(--accent) 10%,transparent);font-size:.875rem;max-width:var(--mesure)}
 .btn{display:inline-block;background:var(--ink);color:var(--bg);border:0;border-radius:4px;padding:8px 14px;cursor:pointer;font-weight:500;font-size:.875rem}
 .btn.ghost{background:none;color:var(--ink);border:1px solid var(--line);text-decoration:none}
-nav.tabs{display:flex;gap:2px;margin:26px 0 0;border-bottom:1px solid var(--line);overflow-x:auto}
+nav.tabs{display:flex;gap:2px;margin:16px 0 0;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
 .collant{position:sticky;top:var(--haut-nav,0px);z-index:8;background:var(--bg);box-shadow:0 6px 8px -8px rgb(0 0 0 / .5)}
 .collant nav.tabs{margin-top:10px}
 .collant .bar{padding:8px 0;gap:8px 12px}
@@ -53,9 +53,9 @@ nav.tabs button{background:none;border:0;border-bottom:2px solid transparent;pad
 nav.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
 .bar{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;padding:14px 0}
 select,input[type=search]{background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:6px 8px}
-.seg{display:inline-flex;border:1px solid var(--line);border-radius:4px;overflow:hidden}
-.seg button{background:none;border:0;padding:5px 11px;font-size:.875rem;cursor:pointer;color:var(--muted)}
-.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.seg{display:inline-flex;max-width:100%;border:1px solid var(--line);border-radius:4px;overflow-x:auto;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.seg button{flex:none;white-space:nowrap;background:none;border:0;padding:5px 11px;font-size:.875rem;cursor:pointer;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:color-mix(in srgb,var(--ink) 12%,transparent);color:var(--ink);font-weight:600;box-shadow:inset 0 -2px 0 var(--ink)}
 .seg button+button{border-left:1px solid var(--line)}
 .seg button:disabled{opacity:.35;cursor:not-allowed}
 .panel .bar select{flex:1 1 240px;min-width:0;max-width:100%;text-overflow:ellipsis}
@@ -65,8 +65,8 @@ select,input[type=search]{background:var(--panel);border:1px solid var(--line);b
 details.donnees summary{color:var(--ink);font-weight:500}
 .citation{font-size:.875rem;background:color-mix(in srgb,var(--r1) 30%,transparent);border-radius:4px;padding:8px 12px;margin:8px 0}
 .citation p{margin:0 0 6px}
-button.citer{background:none;border:1px solid var(--line);border-radius:999px;padding:1px 10px;font-family:var(--sans);font-size:.75rem;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap}
-button.citer[aria-expanded="true"]{color:var(--ink);border-color:var(--ink)}
+button.citer{background:none;border:0;padding:2px 0;font-family:var(--sans);font-size:.8125rem;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap;text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--muted) 45%,transparent);text-underline-offset:3px}
+button.citer[aria-expanded="true"],button.citer:hover{color:var(--ink);text-decoration-color:currentColor}
 svg text.signature{font-size:10px;opacity:.75}
 @media (max-width:600px){.bar select{max-width:100%;min-width:0;flex:1 1 100%}}
 /* téléphone (audit du 22 octobre 2026, lot 1), l'en-tête ne colle plus et ne masque plus la carte, les réglages se
@@ -89,7 +89,7 @@ svg text.signature{font-size:10px;opacity:.75}
 /* la fiche du territoire choisi occupe toute la largeur sous la carte et la colonne, sur un écran étroit juste sous la carte */
 .grid.carte>.selzone{grid-column:1/-1;margin-top:0}
 @media (max-width:760px){.grid.carte>.mapbox{order:1}.grid.carte>.selzone{order:2}.grid.carte>.side{order:3}.grid.carte .brief.choisi{display:none}}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px;box-shadow:inset 0 1px 0 color-mix(in srgb,var(--ink) 6%,transparent),0 1px 2px rgb(0 0 0 / .12)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:6px}
 .pad{padding:16px 18px}
 .mapbox{position:relative;overflow:hidden}
 svg{display:block;width:100%;height:auto}
@@ -115,7 +115,7 @@ svg text{fill:var(--muted);font-family:var(--sans);font-size:11px}
 /* graphiques, taille de dessin respectée (pas d'agrandissement au-delà de 1,15 fois), même interaction que les rapports */
 .two>*,.grid>*{min-width:0}
 .bar select{max-width:100%;min-width:0}
-.outils-encadre{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:-2px 0 10px}
+.outils-encadre{display:flex;flex-wrap:wrap;gap:4px 18px;align-items:center;margin:-2px 0 10px}
 #mapOutils .outils-encadre{margin:0}
 .citation ul.exports{list-style:none;padding:0;margin:10px 0 0;display:grid;gap:6px}
 .citation ul.exports li{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;justify-content:space-between;border-top:1px solid var(--line);padding-top:6px}
@@ -130,26 +130,49 @@ svg text{fill:var(--muted);font-family:var(--sans);font-size:11px}
 #cbTable td:first-child{min-width:280px}
 #cbTable .cb-titre th{text-align:left;font-weight:600;padding-top:14px;border-bottom:1px solid var(--line);white-space:normal}
 #cbTable .num{text-align:right}
-.cb-grille{display:grid;grid-template-columns:minmax(0,640px) minmax(0,1fr);gap:32px;align-items:start}
-/* la figure suit le défilement de la liste des croisements, sous l'en-tête collant, sans vide (demande de Lucas du
-   22 octobre 2026) ; sur un écran étroit, la figure passe au-dessus de la liste et ne colle plus */
-.cb-nuage{position:sticky;top:calc(var(--haut-collant,0px) + 12px)}
-@media (max-width:1100px){.cb-grille{grid-template-columns:minmax(0,1fr)}.cb-nuage{position:static}}
+/* questions préparées, sous le nuage de « Croiser deux indicateurs » : une ligne par croisement, un clic le charge */
+.suggestions{margin-top:22px}
+/* rangées de réglages d'une marge à l'autre (remarque de Lucas du 23 octobre 2026, « que ça termine bien à la marge
+   droite ») : la première rangée répartie entre la profession à gauche et le mode d'exercice à droite, la rangée des
+   mesures étirée sur toute la largeur, ses choix également espacés */
+body .collant .bar.plein{justify-content:space-between;column-gap:40px}
+body .collant .bar>.groupe-reg.plein{flex:1 1 100%}
+body .collant .bar>.groupe-reg.plein>.seg{display:flex;flex:1 1 auto;justify-content:space-between;column-gap:20px}
+/* « À savoir » justifié, « Lire la suite » à la fin de la phrase au lieu d'une colonne qui rétrécissait le texte
+   (remarque de Lucas du 23 octobre 2026, « j'aime bien les choses justifiées et cohérentes ») */
+body .asavoir,body details.asavoir>summary{text-align:justify;hyphens:auto;-webkit-hyphens:auto}
+body details.asavoir>summary{padding-right:0}
+body details.asavoir>summary::after{position:static;display:inline;margin-left:.6em;white-space:nowrap}
+.sc-hote{position:relative}
+/* tableaux des corrélations à leur hauteur naturelle, sans défilement interne (remarque de Lucas du 23 octobre 2026),
+   la ligne des professions collée sous la barre de rappel pendant la lecture ; défilement horizontal seulement si
+   le tableau est plus large que la fenêtre */
+#hmCadres .hmbox{max-height:none;overflow:visible}
+#hmCadres .hmbox.defile-x{overflow-x:auto}
+#hmCadres .hmbox:not(.defile-x) .hm thead th{top:calc(var(--haut-nav,64px) + 58px)}
+#hmCadres td.ouvrable{cursor:pointer}
+#hmCadres td.ouvrable:hover,#hmCadres td.ouvrable:focus-visible{outline:2px solid var(--ink);outline-offset:-2px}
+.seg[hidden],#scPhrase[hidden]{display:none}
+.suggestions h3{font-family:var(--serif);font-size:1.125rem;font-weight:500;margin:0 0 4px}
 .cb-vue h3{font-family:var(--serif);font-size:18px;font-weight:600;margin:8px 0 6px}
 .cb-q{font-size:.875rem;color:var(--muted);margin:14px 0 4px;padding-bottom:3px;border-bottom:1px solid var(--line)}
 .cb-axe{display:grid;grid-template-columns:minmax(0,1fr) 132px 44px;gap:10px;font-size:.75rem;color:var(--muted);padding:0 6px}
 .cb-axe span{display:flex;justify-content:space-between;gap:8px}
 .cb-ligne{display:grid;grid-template-columns:minmax(0,1fr) 132px 44px;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;border-radius:6px;padding:5px 6px;color:var(--ink);font:inherit;font-size:.875rem;line-height:1.35;cursor:pointer}
 .cb-ligne:hover{background:color-mix(in srgb,var(--accent) 10%,transparent)}
-.cb-ligne.on{background:color-mix(in srgb,var(--accent) 18%,transparent);box-shadow:inset 3px 0 0 var(--accent)}
+.cb-ligne.on{background:color-mix(in srgb,var(--ink) 10%,transparent);box-shadow:inset 2px 0 0 var(--ink)}
 .cb-ligne:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
 .cb-ligne svg{width:132px;height:16px;display:block}
 .cb-ligne .rho{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
-#scatter,#cbPlot,#indPlot,#regPlot,#lorenz,#escalier,#funnel,#acpPlan{max-width:640px;display:block}
+#scatter,#cbPlot,#indPlot,#regPlot,#lorenz,#escalier,#funnel,#acpPlan{display:block}
 table td,table th{hyphens:manual;-webkit-hyphens:manual;overflow-wrap:normal;word-break:normal}
 /* texte courant justifié (consigne de Lucas du 9 octobre 2026), avec césures, jamais dans les tableaux ni les infobulles */
 p,li,dd{text-align:justify;hyphens:auto;-webkit-hyphens:auto;hyphenate-limit-chars:7 3 3}
 td p,th p,td li,.tip p,.tip li,.legend p,nav li{text-align:left;hyphens:manual}
+/* justifié seulement sur une ligne assez longue. Le navigateur ne coupe pas toujours les mots français (césure absente
+   de certains navigateurs sous Windows), et une colonne étroite justifiée laisse alors de grands blancs entre les mots.
+   Un encadré de moins de 520 pixels passe en fer à gauche (remarque de Lucas du 22 octobre 2026) */
+[data-etroit] p,[data-etroit] li,[data-etroit] dd,p[data-etroit],li[data-etroit],dd[data-etroit]{text-align:left;text-wrap:pretty}
 .legende-signaux{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.875rem;color:var(--muted);margin:6px 0}
 .bulle-fig{position:fixed;pointer-events:none;white-space:pre-line;background:var(--ink);color:var(--bg);font-size:.875rem;padding:6px 9px;border-radius:4px;max-width:min(420px,calc(100vw - 16px));opacity:0;z-index:50;transition:opacity .1s}
 .zoom-boutons{position:absolute;top:6px;right:6px;display:flex;gap:4px;z-index:2}
@@ -164,6 +187,45 @@ svg [data-choisi]{stroke:var(--ink);stroke-width:2}
 .tip .tl{opacity:.85;margin-top:4px}
 .asavoir{max-width:var(--mesure);box-sizing:border-box;border-left:3px solid var(--accent);background:color-mix(in srgb,var(--accent) 8%,transparent);padding:7px 11px;font-size:.875rem;margin:10px 0 0;border-radius:0 4px 4px 0}
 .asavoir a{color:inherit}
+details.asavoir{padding:5px 11px}
+details.asavoir+details.asavoir{margin-top:4px}
+details.asavoir>summary{cursor:pointer;list-style:none;padding-right:86px;position:relative}
+details.asavoir>summary::-webkit-details-marker{display:none}
+details.asavoir>summary::after{content:"Lire la suite";position:absolute;right:0;top:0;font-size:.75rem;color:var(--muted);text-decoration:underline}
+details.asavoir[open]>summary::after{content:"Replier"}
+details.asavoir>p{margin:6px 0 2px;max-width:none}
+.asavoir-terr{font-weight:600}
+/* deux panneaux côte à côte finissent au même niveau ; quand leurs contenus diffèrent trop, ils passent l'un sous
+   l'autre plutôt que de laisser un vide (règle de Taste Skill pour les écrans de travail) */
+.two.empile{grid-template-columns:minmax(0,1fr)}
+/* une figure seule sur toute la largeur s'élargit, pour ne pas laisser la moitié droite vide */
+.two.empile #scatter,.two.empile #indPlot,.two.empile #regPlot,.two.empile #lorenz,.two.empile #escalier,.two.empile #funnel,.two.empile #acpPlan{max-width:880px}
+/* mouvements légers, en réponse aux gestes seulement : l'onglet choisi apparaît en fondu, la carte change de teinte en
+   douceur */
+/* un fondu d'opacité, sans déplacement, reste actif pour tous ; le léger glissement est réservé aux lecteurs qui
+   n'ont pas demandé moins de mouvement */
+section[data-p]:not(.hidden){animation:onglet-fondu .22s cubic-bezier(.22,1,.36,1)}
+@keyframes onglet-fondu{from{opacity:0}to{opacity:1}}
+#map path,#bvmap path,#gwrmap path{transition:fill .35s cubic-bezier(.22,1,.36,1)}
+details.asavoir>p,.note-reste:not([hidden]){animation:onglet-fondu .18s ease-out}
+@media (prefers-reduced-motion:no-preference){
+  section[data-p]:not(.hidden){animation-name:onglet-apparait}
+  @keyframes onglet-apparait{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}}
+.note-suite{background:none;border:0;padding:0;font:inherit;color:var(--r4);text-decoration:underline;text-underline-offset:2px;cursor:pointer;white-space:nowrap}
+/* sommaire des résultats en tête d'un onglet (chantier d'organisation, 22 octobre 2026). Une liste calme, sans numéro
+   (les analyses ne forment pas une suite), le titre puis ce que l'analyse permet, un filet entre les entrées */
+.sommaire-onglet{margin:4px 0 30px}
+.sommaire-onglet ol{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(360px,100%),1fr));gap:0 40px}
+.sommaire-onglet li{border-top:1px solid var(--line);padding:10px 0 12px}
+.sommaire-onglet li>a{display:block;text-decoration:none;color:var(--ink)}
+.sommaire-onglet li>a:hover .som-titre,.sommaire-onglet li>a:focus-visible .som-titre{text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px}
+/* titre dans la police des titres d'encadrés, le lecteur le retrouve plus bas */
+.sommaire-onglet .som-titre{display:block;font-family:var(--serif);font-weight:600;font-size:1.0625rem;line-height:1.3;color:var(--ink)}
+.sommaire-onglet .som-phrase{display:block;font-size:.8125rem;line-height:1.5;color:var(--muted);margin-top:3px;text-align:left}
+.sommaire-onglet .som-sous{display:block;margin-top:4px;font-size:.8125rem;line-height:1.5;color:var(--muted)}
+.sommaire-onglet .som-sous a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.sommaire-onglet .som-sous a:hover{text-decoration-color:currentColor}
+.sommaire-onglet .som-sous a:not(:last-child)::after{content:", ";color:var(--muted)}
 .note a,.phrase a{color:var(--ink);text-decoration:underline;text-underline-offset:2px}
 .legend{display:flex;align-items:center;gap:10px;padding:8px 16px 14px;font-size:.75rem;color:var(--muted);flex-wrap:wrap}
 .legend .sw{display:flex}.legend .sw span{width:38px;height:12px}.legend .sw span:first-child{border-radius:3px 0 0 3px}.legend .sw span:last-child{border-radius:0 3px 3px 0}
@@ -180,7 +242,7 @@ dl.f dt{color:var(--muted)}dl.f dd{margin:0;text-align:right;font-variant-numeri
   .grid.carte{align-items:stretch}
   .grid.carte>.side{position:relative;min-height:420px}
   .grid.carte>.side>.dedans{position:absolute;inset:0;display:flex;flex-direction:column;gap:18px}
-  .grid.carte .defile{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+  .grid.carte .defile{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:auto;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
   .grid.carte .brief{flex:none}
 }
 .dedans{display:flex;flex-direction:column;gap:18px}
@@ -188,7 +250,7 @@ dl.f dt{color:var(--muted)}dl.f dd{margin:0;text-align:right;font-variant-numeri
 @media (min-width:961px){
   .two.typo{align-items:stretch}
   .two.typo>.droite{position:relative;min-height:360px}
-  .two.typo>.droite>.dedans{position:absolute;inset:0;display:block;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+  .two.typo>.droite>.dedans{position:absolute;inset:0;display:block;overflow-y:auto;overscroll-behavior:auto;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
 }
 .selzone{margin-top:24px;scroll-margin-top:200px}
 .selhead{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
@@ -203,7 +265,7 @@ details.groupe>summary{cursor:pointer;font-size:.75rem;color:var(--muted);font-w
 .brief .phrase{font-size:1rem}
 .lien{background:none;border:0;padding:0;color:var(--ink);text-decoration:underline;text-underline-offset:3px;cursor:pointer;font-size:.875rem}
 .prow{display:grid;grid-template-columns:150px 1fr 44px;align-items:center;gap:8px;font-size:.875rem;padding:1px 0;cursor:pointer;border-radius:3px}
-.prow:hover,.prow.on{background:color-mix(in srgb,var(--accent) 12%,transparent)}
+.prow:hover,.prow.on{background:color-mix(in srgb,var(--ink) 8%,transparent)}
 .prow .lbl{line-height:1.25;padding:2px 0}
 .prow .v{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
 .gh{font-size:.75rem;color:var(--muted);margin:10px 0 2px;font-weight:600}
@@ -226,7 +288,7 @@ tbody tr{cursor:pointer}
 tbody tr:hover td{filter:brightness(.97)}
 #ttab tr.ty-sous th{text-align:left;font-weight:600;padding-top:12px;white-space:normal}
 #gtab tbody tr:nth-child(even) td,#scTable tbody tr:nth-child(even) td,#ttab tr:nth-child(even) td:first-child{background:color-mix(in srgb,var(--ink) 3%,var(--panel))}
-.hmbox{max-height:620px;overflow:auto;overscroll-behavior:contain;border:1px solid var(--line);border-radius:4px}
+.hmbox{max-height:620px;overflow:auto;overscroll-behavior:auto;border:1px solid var(--line);border-radius:4px}
 .hm{border-collapse:separate;border-spacing:0}
 .hm td{cursor:pointer;font-size:.75rem;min-width:46px;text-align:center;border-bottom:1px solid var(--bg)}
 .hm thead th{position:sticky;top:0;z-index:2;background:var(--panel);font-size:.75rem;font-weight:500;color:var(--muted);text-align:center;white-space:normal;min-width:54px;vertical-align:bottom;padding:6px 4px;hyphens:auto}
@@ -295,7 +357,7 @@ button.lien.lx-ouvrir{font-size:.875rem;margin-top:2px;display:inline-block;whit
 #alTable thead tr:last-child th{white-space:normal;min-width:7.5em;max-width:12em;hyphens:none;overflow-wrap:normal}
 #alTable th.groupe-col{text-align:center;font-weight:600;border-bottom:1px solid var(--line)}
 .hmliens li{font-size:.875rem;line-height:1.35}
-.hmliens button{background:none;border:0;padding:0;color:var(--accent);font:inherit;font-weight:600;cursor:pointer;text-align:left;text-decoration:underline;text-underline-offset:2px}
+.hmliens button{background:none;border:0;padding:0;color:var(--ink);font:inherit;font-weight:600;cursor:pointer;text-align:left;text-decoration:underline;text-underline-offset:2px}
 .hmliens span{color:var(--muted)}
 #hmCadres>.panel{margin-top:24px}
 .acpbar{display:grid;grid-template-columns:minmax(120px,190px) 1fr 1fr;gap:4px 10px;align-items:center;font-size:.875rem}
@@ -314,9 +376,12 @@ button.lien.lx-ouvrir{font-size:.875rem;margin-top:2px;display:inline-block;whit
 .note{font-size:.875rem;color:var(--muted);max-width:var(--mesure)}
 .hidden{display:none!important}
 ul.src{padding-left:1.1em;margin:8px 0}ul.src li{margin-bottom:6px}
-.famrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:22px}
+.famrow{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px}
 .famrow .lbl{font-size:.875rem;color:var(--muted)}
 .seg.fam button{padding:7px 16px;font-size:1rem}
+/* réglages de la barre au même dessin que le choix de famille, la liste des professions à la même hauteur */
+.collant .bar .seg button{padding:6px 13px;font-size:.9375rem}
+.collant .bar #prof{padding:6px 10px;font-size:.9375rem;min-height:36px;border-radius:4px}
 .panel h2{display:flex;justify-content:flex-start;align-items:baseline;gap:8px;flex-wrap:wrap}
 #mapOutils .outils{display:flex;gap:8px;align-items:center}
 .legende-barres svg{width:46px;height:10px;vertical-align:-1px;margin-right:6px}
@@ -328,11 +393,12 @@ button.repli .chevron{display:inline-block;font-size:.8em;color:var(--muted);tra
 button.repli[aria-expanded="false"] .chevron{transform:rotate(-90deg)}
 button.repli:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:2px}
 .panel.replie{padding-bottom:12px}.panel.replie h2{margin-bottom:0}
+.resume-repli[hidden]{display:none}
 .resume-repli{margin:6px 0 0;color:var(--muted);font-size:.875rem;line-height:1.45;max-width:var(--mesure);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 #catAutres{margin-top:6px}
 @media (prefers-reduced-motion:reduce){button.repli .chevron{transition:none}}
-button.how{background:none;border:1px solid var(--line);border-radius:999px;padding:1px 10px;font-family:var(--sans);font-size:.75rem;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap}
-button.how[aria-expanded="true"]{color:var(--ink);border-color:var(--ink)}
+button.how{background:none;border:0;padding:2px 0;font-family:var(--sans);font-size:.8125rem;font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap;text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--muted) 45%,transparent);text-underline-offset:3px}
+button.how[aria-expanded="true"],button.how:hover{color:var(--ink);text-decoration-color:currentColor}
 .howtxt{max-width:var(--mesure);box-sizing:border-box;font-size:.875rem;background:color-mix(in srgb,var(--r1) 30%,transparent);border-radius:4px;padding:8px 12px;margin:8px 0}
 .howtxt p{margin:0 0 6px}.howtxt p:last-child{margin:0}
 .phrase{font-family:var(--serif);font-size:1rem;line-height:1.45;margin:10px 0 4px;max-width:var(--mesure)}
@@ -342,6 +408,191 @@ details.plus{font-size:.875rem;color:var(--muted);margin-top:6px}details.plus su
 dl.gl dt{font-weight:600;margin-top:12px}dl.gl dd{margin:2px 0 0;max-width:var(--mesure)}
 .tag{display:inline-block;font-size:.75rem;color:var(--muted);border:1px solid var(--line);border-radius:3px;padding:0 5px;margin-left:6px;font-weight:400}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* =====================================================================================================================
+   Direction « l'atlas de nuit » (refonte du 23 octobre 2026, audit avec Impeccable et Taste Skill, validée par Lucas sur
+   prototype). Même couche que le site : un fond, la « table » sous les figures seulement, aucune boîte autour du texte
+   ni des réglages, Newsreader pour les titres, Work Sans pour le reste, chiffres à chasse fixe, couleur sur les données,
+   les chiffres significatifs et le signal « ! » ; palette d'écart à la moyenne revue et validée. Écran seulement.
+   ===================================================================================================================== */
+@media screen{
+:root{
+  --bg:#F4F4F1;--panel:#FFFFFF;--table:#FFFFFF;--ink:#1C2028;--muted:#5D6371;--faint:#8A909C;--line:#E2E3E6;--nodata:#ECECEF;
+  --accent:#8A5A0E;--signal:#8A5A0E;--focus:#1C2028;--chiffre:#1D4D87;--largeur-contenu:1260px;--ombre-nav:rgb(16 24 40 / .22);--fen:#E9ECF0;--fen-corps:#FFFFFF;--fen-bord:rgb(16 24 40 / .09);--ombre-fig:rgb(16 24 40 / .16);
+  /* palette « encre bleue et cuivre » (choix de Lucas du 23 octobre 2026) : densités en six paliers d'un bleu d'encre,
+     écart à la moyenne en cuivre dessous, gris au milieu, bleu dessus ; chaque bras validé (contrôle ordinal du skill
+     dataviz, palier le plus faible à 2:1 de la surface) ; le signal des limites reste ocre, distinct des données */
+  --r0:#9CB5DA;--r1:#7AA1D3;--r2:#5182C1;--r3:#3167A9;--r4:#1D4D87;--r5:#0F3562;
+  --d0:#83451E;--d1:#BC6B3B;--d2:#E8A17A;--d3:#DFE1E5;--d4:#78A1D6;--d5:#4A77B0;--d6:#1D4D87;--contour:#FFFFFF}
+:root[data-theme="dark"]{
+  --bg:#121419;--panel:#191C22;--table:#191C22;--ink:#E8E9EE;--muted:#A2A7B3;--faint:#747A87;--line:#262A32;--nodata:#22252C;
+  --accent:#F2B65A;--signal:#F2B65A;--focus:#E8E9EE;--chiffre:#9DC7FE;--ombre-nav:rgb(0 0 0 / .55);--fen:#1A1D24;--fen-corps:#121419;--fen-bord:rgb(255 255 255 / .07);--ombre-fig:rgb(0 0 0 / .5);
+  --r0:#3D5A7F;--r1:#4C73A5;--r2:#5D8ECE;--r3:#77ABEC;--r4:#9DC7FE;--r5:#CCE4FF;
+  --d0:#FFBC8F;--d1:#E58B55;--d2:#AE653A;--d3:#3A3D42;--d4:#507CB5;--d5:#739FD6;--d6:#97C1F7;--contour:#121419;color-scheme:dark}
+body{font-size:16px;line-height:1.6;font-variant-numeric:tabular-nums lining-nums;-webkit-font-smoothing:antialiased}
+:root{--lueur:rgb(150 180 220 / .38)}
+:root[data-theme="dark"]{--lueur:rgb(37 66 107 / .42)}
+/* lueur d'encre en haut de la page, comme le reste du site */
+body{background:radial-gradient(1200px 560px at 18% -160px,var(--lueur),transparent 72%) no-repeat fixed,var(--bg)}
+::selection{background:color-mix(in srgb,var(--ink) 22%,transparent)}
+a{color:var(--ink);text-decoration-color:color-mix(in srgb,var(--ink) 30%,transparent);text-underline-offset:4px}
+/* en-tête et onglets */
+h1{font-weight:400}
+.collant{box-shadow:0 1px 0 var(--line);background:var(--bg);backdrop-filter:none}
+/* barre opaque (le texte transparaissait dessous) et compacte quand on descend : onglets repliés, réglages gardés */
+.collant{position:relative;top:auto}
+.rappel-reglages{position:fixed;z-index:9;top:calc(var(--haut-nav,64px) + 6px);left:50%;width:min(var(--largeur-contenu,1260px) - 40px,calc(100vw - 32px));transform:translate(-50%,-6px);opacity:0;pointer-events:none;
+  display:flex;align-items:center;gap:6px 22px;flex-wrap:wrap;padding:6px 8px 6px 18px;background:var(--panel);border:1px solid var(--fen-bord);border-radius:12px;box-shadow:0 14px 34px -14px var(--ombre-nav,rgb(0 0 0 / .5));
+  transition:opacity .22s ease-out,transform .22s ease-out}
+.rappel-reglages.vu{opacity:1;transform:translate(-50%,0);pointer-events:auto}
+.rappel-reglages .prof-choix>button{font-size:.9375rem;padding:3px 0}
+.rappel-reglages .rr-texte{flex:1;min-width:0;font-size:.8125rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rappel-reglages .rr-ouvrir{font:inherit;font-size:.8125rem;color:var(--ink);background:color-mix(in srgb,var(--ink) 8%,transparent);border:0;border-radius:8px;padding:6px 12px;cursor:pointer}
+.rappel-reglages .rr-ouvrir:hover,.rappel-reglages .rr-ouvrir[aria-expanded="true"]{background:color-mix(in srgb,var(--ink) 14%,transparent)}
+.collant.flotte{position:fixed;z-index:10;top:calc(var(--haut-nav,64px) + 58px);left:50%;transform:translateX(-50%);width:min(var(--largeur-contenu,1260px) - 40px,calc(100vw - 32px));
+  max-height:calc(100vh - var(--haut-nav,64px) - 72px);overflow:auto;padding:0 20px 4px;background:var(--fen-corps);border:6px solid var(--fen);border-radius:14px;box-shadow:0 0 0 1px var(--fen-bord),0 24px 60px -20px var(--ombre-nav,rgb(0 0 0 / .5))}
+@media (prefers-reduced-motion:no-preference){.collant.flotte{animation:onglet-fondu .18s ease-out}}
+/* encadrés en fenêtres (demande de Lucas du 23 octobre 2026) : cadre, barre de titre (titre, « Comment lire », « Citer
+   et exporter »), intérieur calme ; seulement les encadrés de premier niveau, jamais un encadré dans un encadré */
+:is(section[data-p]>.panel,section[data-p]>.two>.panel,section[data-p]>#hmCadres>.panel){background:var(--fen-corps);border:6px solid var(--fen);border-top:0;border-radius:14px;padding:0 20px 18px;box-shadow:0 0 0 1px var(--fen-bord),0 22px 46px -30px var(--ombre-fig)}
+:is(section[data-p]>.panel,section[data-p]>.two>.panel,section[data-p]>#hmCadres>.panel)>h2:first-child{margin:0 -20px;padding:12px 20px 2px;background:var(--fen);border-radius:8px 8px 0 0/14px 14px 0 0;font-size:1.25rem}
+:is(section[data-p]>.panel,section[data-p]>.two>.panel,section[data-p]>#hmCadres>.panel)>h2:first-child+.outils-encadre{margin:0 -20px 16px;padding:4px 20px 10px;background:var(--fen);border-bottom:1px solid var(--fen-bord)}
+:is(section[data-p]>.panel,section[data-p]>.two>.panel,section[data-p]>#hmCadres>.panel) :is(.mapbox,svg[role="img"]:not(.mini):not(.lieuxmini)){background:transparent}
+section[data-p]>.panel,section[data-p]>.two,section[data-p]>#hmCadres>.panel{margin-top:40px}
+/* fenêtre sans titre en tête : marge haute ordinaire, le cadre fait le tour */
+:is(section[data-p]>.panel,section[data-p]>.two>.panel,section[data-p]>#hmCadres>.panel):not(:has(>h2:first-child)){border-top-width:6px;padding-top:16px}
+/* la carte principale en fenêtre : son titre, « Comment lire » et « Citer et exporter » dans la barre du haut
+   (remarque de Lucas du 23 octobre 2026, l'export de la carte, placé tout en bas, restait introuvable) */
+.grid.carte>.mapbox{display:flex;flex-direction:column;background:var(--fen-corps);border:6px solid var(--fen);border-top:0;border-radius:14px;box-shadow:0 0 0 1px var(--fen-bord),0 22px 46px -30px var(--ombre-fig)}
+.grid.carte>.mapbox>#mapOutils{order:-1;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 18px;margin:-12px -12px 12px;padding:11px 16px 10px!important;background:var(--fen);border-bottom:1px solid var(--fen-bord);border-radius:8px 8px 0 0/14px 14px 0 0}
+#mapOutils .map-titre{flex:1 1 20rem;font-family:var(--serif);font-size:1.125rem;line-height:1.3;color:var(--ink)}
+#mapOutils>.howtxt,#mapOutils>.citation{flex:1 1 100%}
+.grid.carte>.mapbox>.vuebar{top:68px}.grid.carte>.mapbox>.zoombar{top:106px}
+/* la colonne du profil défile sans retenir la molette : arrivée en bas, la page reprend (remarque de Lucas, défilement bloqué) */
+.grid.carte .defile{overscroll-behavior:auto}
+/* figures larges, aux libellés longs (effet ville, corrélations) : toute la largeur de la fenêtre, la lecture dessous
+   (remarque de Lucas du 23 octobre 2026, la figure devenait trop petite) */
+section[data-p] .panel:has(> :is(#effetVille,#hmPlot)){display:block}
+/* encadrés repliables (Addictologie, et sur la page Carte « Où ils exercent », « Dans quels établissements », « Du
+   répertoire aux densités ») : la ligne « Comment lire, Citer et exporter » est dans le bloc replié ; elle rejoint la
+   barre de titre comme ailleurs, et le chevron passe après le titre (remarque de Lucas du 23 octobre 2026) */
+:is(section[data-p]>.panel,section[data-p]>.two>.panel)>h2:first-child~div:not([class])>.outils-encadre:first-child{margin:0 -20px 16px;padding:4px 20px 10px;background:var(--fen);border-bottom:1px solid var(--fen-bord)}
+.panel>h2>button.repli{display:inline-flex;flex-direction:row-reverse;align-items:baseline;gap:10px;font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:left}
+.panel>h2>button.repli .chevron{font-size:.75em;color:var(--muted)}
+nav.tabs{scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+nav.tabs button{padding:12px 0;margin-right:24px}
+/* choix, des mots ; le choisi à l'encre et souligné, sans boîte */
+/* choix « un seul parmi plusieurs » marqués comme des boutons radio, la convention que tout lecteur connaît : un petit
+   cercle devant chaque option, plein pour l'option choisie, qui passe aussi à l'encre et en légère graisse ; ni boîte ni
+   rail (remarques de Lucas du 23 octobre 2026, pastilles refusées ; avis d'Impeccable, un signe de forme et non une
+   nuance, et de Taste Skill, le choix marqué par la luminosité sur fond sombre) */
+.seg{display:inline-flex;flex-wrap:wrap;gap:4px 18px;background:none;border:0;border-radius:0;padding:0;overflow:visible;max-width:100%}
+.seg button,.collant .bar .seg button,.seg.fam button{flex:none;display:inline-flex;align-items:center;gap:7px;background:none;border:0;border-radius:0;padding:5px 0;color:var(--muted);font-size:.9375rem;box-shadow:none}
+.seg.fam button{font-size:1rem}
+.seg button::before{content:"";flex:none;width:9px;height:9px;border-radius:50%;box-shadow:inset 0 0 0 1.5px currentColor;transition:background-color .18s ease,box-shadow .18s ease}
+.seg button+button{border-left:0}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:none;color:var(--ink);font-weight:600;box-shadow:none}
+.seg button[aria-pressed="true"]::before{background:var(--ink);box-shadow:inset 0 0 0 1.5px var(--ink)}
+.seg button:disabled{color:var(--faint);opacity:.55}
+.groupe-reg{display:inline-flex;align-items:baseline;gap:10px;max-width:100%}
+.groupe-reg[hidden]{display:none}
+.lbl-reg{font-size:.8125rem;color:var(--muted);white-space:nowrap}
+.raisons-mesure{flex:1 1 100%;margin:-6px 0 0;font-size:.8125rem;color:var(--muted);text-align:left}
+.raisons-mesure[hidden]{display:none}
+.collant .bar{gap:10px 40px;padding:14px 0 18px;align-items:center}
+/* profession, un nom souligné qui ouvre une liste rangée par groupe ; la liste du navigateur reste derrière, masquée */
+.collant .bar #prof{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+#gwProf,select.natif{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.prof-choix.dans-encadre>button{font-size:.9375rem;font-weight:400;border-bottom-width:1px;padding:6px 0}
+.prof-choix.dans-encadre .prof-liste{left:0}
+.prof-choix[hidden]{display:none}
+.choix-encadre{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;padding:6px 0}.choix-encadre p.note{margin:0;flex:1 1 100%}.choix-encadre p.note[hidden]{display:none}
+.prof-choix{position:relative}
+.prof-choix>button{font:inherit;font-size:1.0625rem;font-weight:500;color:var(--ink);background:none;border:0;border-bottom:2px solid var(--ink);padding:5px 0;cursor:pointer;display:inline-flex;gap:10px;align-items:center}
+/* la flèche garde sa taille (une règle générale étire les svg à toute la largeur) et le nom ne se coupe jamais, pour un
+   bouton de même allure quelle que soit la famille */
+.prof-choix>button{white-space:nowrap;max-width:100%}
+.prof-choix>button span{overflow:hidden;text-overflow:ellipsis}
+.prof-choix>button svg{display:inline-block;flex:none;width:11px;height:7px;transition:transform .2s ease}
+.prof-choix>button[aria-expanded="true"] svg{transform:rotate(180deg)}
+.prof-liste{position:absolute;top:calc(100% + 10px);left:-14px;z-index:30;background:var(--table);border-radius:4px;box-shadow:0 14px 36px rgb(0 0 0 / .34);padding:8px 0;min-width:340px;max-height:min(70vh,560px);overflow:auto}
+.prof-liste[hidden]{display:none!important}  /* une liste fermée reste cachée, même en deux volets (display:grid) */
+.prof-liste p{font-size:.8125rem;color:var(--faint);margin:0;padding:10px 16px 2px;text-align:left;hyphens:manual}
+.prof-liste button{text-align:left!important}
+/* liste longue, une recherche en tête et les groupes en colonnes */
+.prof-liste.large{width:min(820px,calc(100vw - 48px));max-height:min(72vh,620px);padding:0 0 10px}
+.prof-liste .filtre-liste{position:sticky;top:0;z-index:1;display:block;width:100%;background:var(--table);border:0;border-bottom:1px solid var(--line);padding:12px 16px;font-size:.9375rem}
+.prof-liste.large .colonnes{columns:3 220px;column-gap:8px;padding-top:4px}
+.prof-liste .grp{break-inside:avoid}
+.prof-liste .grp[hidden],.prof-liste button[hidden]{display:none}
+.prof-liste.deux{width:min(760px,calc(100vw - 48px));max-height:none;padding:0;overflow:hidden;display:grid;grid-template-columns:250px minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);height:min(70vh,560px)}
+.prof-liste.deux .filtre-liste{grid-column:1/-1}
+.prof-liste.deux .volet-themes{overflow:auto;padding:6px 0;border-right:1px solid var(--line)}
+.prof-liste.deux .volet-choix{overflow:auto;padding:6px 0}
+.prof-liste.deux .seuls{padding-bottom:6px;margin-bottom:6px;border-bottom:1px solid var(--line)}
+.prof-liste.deux .theme{display:flex;justify-content:space-between;align-items:baseline;gap:10px;color:var(--muted)}
+.prof-liste.deux .theme .nb{font-size:.75rem;color:var(--faint);font-variant-numeric:tabular-nums}
+.prof-liste.deux .theme[aria-pressed="true"]{color:var(--ink);background:color-mix(in srgb,var(--ink) 8%,transparent)}
+.prof-liste.deux.cherche .theme{pointer-events:none}
+.prof-liste.deux.cherche .theme.vide{opacity:.35}
+.prof-liste.deux .volet-choix .grp>p{padding-top:6px}
+.prof-liste.deux:not(.cherche) .volet-choix .grp>p{display:none}
+@media (max-width:640px){.prof-liste.deux{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto minmax(0,1fr)}.prof-liste.deux .volet-themes{max-height:30vh;border-right:0;border-bottom:1px solid var(--line)}}
+#lieuxBar{display:none!important}
+.prof-liste button{display:block;width:100%;text-align:left;font:inherit;font-size:.9375rem;color:var(--ink);background:none;border:0;padding:6px 16px;cursor:pointer}
+.prof-liste button:hover,.prof-liste button:focus-visible{background:color-mix(in srgb,var(--ink) 7%,transparent);outline:none}
+.prof-liste button[aria-current="true"]{font-weight:600}
+@media (prefers-reduced-motion:no-preference){.prof-liste:not([hidden]){animation:onglet-fondu .16s ease-out}}
+/* encadrés sans boîte : l'espace et le titre les séparent ; la table sous la carte et les figures */
+.panel{background:none;border:0;border-radius:0;box-shadow:none}
+.panel.pad,.pad{padding:0 0 8px}
+.two{gap:48px 56px}
+section[data-p]>.panel,section[data-p]>.two,section[data-p]>#hmCadres>.panel{margin-top:64px}
+.panel h2{font-weight:400;font-size:1.5rem}
+.mapbox,.panel svg[role="img"]:not(.mini):not(.lieuxmini){background:var(--table);border-radius:4px}
+.mapbox{padding:12px}
+.side .panel,.side .pad{padding:0}
+#natCard .grand,#natCard .big,.big,.chiffre-cle{color:var(--chiffre)}
+/* « À savoir », le signal ocre et une phrase, sans fond ni barre de couleur */
+.asavoir,details.asavoir{background:none;border-left:0;border-radius:0;padding:4px 0 4px 24px;position:relative}
+.asavoir::before{content:"";position:absolute;left:0;top:.55em;width:14px;height:14px;background:var(--signal);
+  -webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath fill-rule='evenodd' d='M7 0a7 7 0 1 1 0 14A7 7 0 0 1 7 0zm-.8 3v5.2h1.6V3zm.8 6.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2z'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath fill-rule='evenodd' d='M7 0a7 7 0 1 1 0 14A7 7 0 0 1 7 0zm-.8 3v5.2h1.6V3zm.8 6.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2z'/%3E%3C/svg%3E") center/contain no-repeat}
+.asavoir strong:first-child{font-weight:600}
+/* sommaire des onglets, des tableaux sans bandes, des listes déroulantes discrètes */
+/* marge de lecture (choix de Lucas du 23 octobre 2026, Impeccable « où suis-je, où aller ensuite », Taste « la liste des
+   sections est l'index ») : questions en gris, analyses en titres seuls, l'analyse en cours en encre avec un trait à
+   gauche ; sur un écran large la marge reste à gauche pendant la lecture, sur un écran plus étroit elle se pose en tête */
+.sommaire-onglet{margin:0 0 28px;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(220px,100%),1fr));gap:4px 36px}
+.sommaire-onglet .som-groupe{margin:0 0 14px}
+.sommaire-onglet .som-question{margin:0 0 4px;font-size:.8125rem;line-height:1.4;color:var(--muted);text-align:left}
+.sommaire-onglet ul{list-style:none;margin:0;padding:0}
+.sommaire-onglet li{border:0;padding:0}
+.sommaire-onglet li a{display:block;padding:3px 0 3px 12px;border-left:2px solid var(--line);color:var(--muted);text-decoration:none;font-size:.875rem;line-height:1.35;text-align:left;transition:color .15s,border-color .15s}
+.sommaire-onglet li a:hover{color:var(--ink)}
+.sommaire-onglet li a[aria-current]{color:var(--ink);border-left-color:var(--ink);font-weight:500}
+@media (min-width:1180px){
+  section.a-marge:not(.hidden){display:grid;grid-template-columns:184px minmax(0,1fr);column-gap:44px;align-items:start}
+  section.a-marge>*{grid-column:2;min-width:0}
+  section.a-marge>.sommaire-onglet{grid-column:1;grid-row:1/span 200;display:block;position:sticky;top:var(--haut-marge,120px);max-height:calc(100vh - var(--haut-marge,120px) - 16px);overflow:auto;margin:0;scrollbar-width:none}
+  section.a-marge>.sommaire-onglet .som-groupe{margin-bottom:20px}}
+select{background-color:transparent;border:0;border-bottom:1px solid color-mix(in srgb,var(--ink) 35%,transparent);border-radius:0;padding:6px 22px 6px 0}
+input[type=search]{background:transparent;border:0;border-bottom:1px solid color-mix(in srgb,var(--ink) 35%,transparent);border-radius:0;padding:8px 0}
+input[type=search]:focus{outline:none;border-bottom-color:var(--ink)}
+.hmliens button{color:var(--ink)}
+/* figure en haut, lecture dessous, sur la même largeur (remarque de Lucas du 23 octobre 2026 : le texte posé à droite
+   prenait plus de place que la figure et faisait un encadré bizarre) ; les fenêtres seules gardent une largeur de
+   lecture, la figure prend toute la largeur de la fenêtre, une carte reste à une hauteur raisonnable */
+/* la page Carte garde la largeur de sa carte pour les encadrés du dessous, sans décalage (remarque de Lucas du 23 octobre 2026) */
+section[data-p]:not([data-p="carte"])>.panel:not(.scroll),section[data-p]>#hmCadres>.panel,section[data-p]:not([data-p="carte"])>.two.empile>.panel{max-width:900px;margin-left:auto;margin-right:auto;width:100%}
+#scatter,#cbPlot,#indPlot,#regPlot,#lorenz,#escalier,#funnel,#acpPlan,#effetVille{max-width:none;width:100%}
+.panel .mapbox:has(> :is(#bvmap,#gwrmap)){max-width:640px;margin:0 auto}
+/* figures qui apparaissent en douceur quand on arrive dessus */
+html.revele .panel svg[role="img"]{transition:opacity .6s cubic-bezier(.22,1,.36,1)}
+html.revele .panel svg[role="img"]:not(.vu){opacity:0}
+}
 </style>
 </head>
 <body>
@@ -353,7 +604,7 @@ dl.gl dt{font-weight:600;margin-top:12px}dl.gl dd{margin:2px 0 0;max-width:var(-
     <p class="lede">Où exercent les professionnels de santé en France, comment leur présence varie d’un territoire à l’autre, et ce qui l’accompagne dans le profil des populations.</p>
   </div>
 </header>
-<p class="note" id="maj" style="margin-top:10px"></p>
+<p class="note" id="maj" style="margin-top:2px"></p>
 
 <div class="famrow">
   <span class="lbl" id="famLbl">Afficher</span>
@@ -391,7 +642,7 @@ dl.gl dt{font-weight:600;margin-top:12px}dl.gl dd{margin:2px 0 0;max-width:var(-
       <div class="legend" id="legend"></div>
       <div class="lieuxbar" id="lieuxBar" hidden><label for="lieuxType">Structures de soins sur la carte</label> <select id="lieuxType"><option value="">Aucun</option></select></div>
       <div class="lieuinfo small" id="lieuInfo" hidden aria-live="polite"></div>
-      <div id="mapOutils" style="padding:0 16px 8px"><span class="outils outils-encadre" data-elements="map"><button class="how" data-how="densite,attendu,accessibilite,zones,epci">Comment lire</button></span><div class="howtxt hidden"></div></div>
+      <div id="mapOutils" style="padding:0 16px 8px"><span class="map-titre" id="mapTitre"></span><span class="outils outils-encadre" data-elements="map"><button class="how" data-how="densite,attendu,accessibilite,zones,epci">Comment lire</button></span><div class="howtxt hidden"></div></div>
       <div id="mapLimite" style="padding:0 16px 14px"></div>
       <div class="tip" id="tip"></div>
     </div>
@@ -421,7 +672,7 @@ dl.gl dt{font-weight:600;margin-top:12px}dl.gl dd{margin:2px 0 0;max-width:var(-
     <select id="grp" aria-label="Groupe de professions"></select>
     <input type="search" id="q" placeholder="Filtrer les territoires" aria-label="Filtrer les territoires">
   </div>
-  <p class="note" style="margin:0 0 10px">Densité pour 10 000 habitants. La couleur compare chaque case à la moyenne des territoires du même niveau, ocre en dessous, violet au-dessus.</p><div class="outils-encadre" data-elements="tbl"><button class="how" data-how="densite,indice100,familles">Comment lire</button></div><div class="howtxt hidden"></div>
+  <p class="note" style="margin:0 0 10px">Densité pour 10 000 habitants. La couleur compare chaque case à la moyenne des territoires du même niveau, cuivre en dessous, bleu au-dessus.</p><div class="outils-encadre" data-elements="tbl"><button class="how" data-how="densite,indice100,familles">Comment lire</button></div><div class="howtxt hidden"></div>
   <div class="panel scroll"><table id="tbl"><thead></thead><tbody></tbody></table></div>
 </section>
 
@@ -429,17 +680,20 @@ dl.gl dt{font-weight:600;margin-top:12px}dl.gl dd{margin:2px 0 0;max-width:var(-
 <section data-p="croisements" class="hidden">
   <div class="two">
     <div class="panel pad">
-      <h2>Nuage de points <button class="how" data-how="correlation,force,effet_ville,ecologique">Comment lire</button></h2><div class="howtxt hidden"></div>
+      <h2>Croiser deux indicateurs <button class="how" data-how="correlation,force,effet_ville,ecologique">Comment lire</button></h2><div class="howtxt hidden"></div>
       <div class="bar" style="padding:8px 0"><select id="xvar" aria-label="Indicateur en abscisse"></select>
         <select id="yvar" aria-label="Axe vertical"></select>
         <div class="seg" data-k="ylog"><button data-v="1">Échelle log</button><button data-v="0">Linéaire</button></div></div>
       <svg id="scatter" role="img" aria-label="Nuage de points des territoires" viewBox="0 0 560 420"></svg>
       <p class="phrase" id="scPhrase"></p>
+      <p class="note" id="scPrepare"></p>
       <div id="scLimite"></div>
       <p class="note" id="xvarNote"></p>
       <details class="plus donnees" id="scDonnees"><summary>Voir les données par territoire</summary>
         <div class="hmbar" style="margin-top:8px"><input type="search" id="scFiltre" placeholder="Filtrer les territoires" aria-label="Filtrer les territoires"></div>
         <div class="scroll tabdonnees"><table id="scTable" data-export="scTable"></table></div></details>
+      <div class="suggestions" id="scSuggestions"></div>
+      <details class="plus"><summary>Toutes les questions préparées, en tableau</summary><div class="scroll"><table id="cbTable"></table></div></details>
       <details class="plus"><summary>Pour aller plus loin</summary><p id="scNote"></p></details>
     </div>
     <div class="panel pad">
@@ -462,22 +716,6 @@ dl.gl dt{font-weight:600;margin-top:12px}dl.gl dd{margin:2px 0 0;max-width:var(-
       <p class="note">Point plein, tous les départements de l’Hexagone. Losange, sans l’Île-de-France. Le trait donne la fourchette plausible.</p>
       <div id="regLimite"></div></div>
   </div>
-  <div class="panel pad" style="margin-top:24px"><h2>Croisements entre bases, par département <button class="how" data-how="correlation,force,effet_ville,ecologique">Comment lire</button></h2><div class="howtxt hidden"></div>
-    <p class="note">Questions posées en croisant des bases différentes (temps de trajet, hôpital, dépassements d’honoraires, protection de l’enfance, handicap, médecin traitant). Hors Mayotte. Choisissez un croisement, chaque point est un département.</p>
-    <div class="cb-grille">
-      <div class="cb-nuage">
-        <div class="bar" style="padding:6px 0"><select id="cbSel" aria-label="Croisement entre bases"></select></div>
-        <p class="phrase" id="cbPhrase"></p>
-        <svg id="cbPlot" role="img" aria-label="Croisement entre bases, un point par département" viewBox="0 0 560 360"></svg>
-        <div id="cbLimite"></div>
-      </div>
-      <div class="cb-vue">
-        <h3>Tous les croisements, d’un coup d’œil</h3>
-        <p class="note">Chaque ligne est un croisement. Le point donne la force du lien entre les départements, à gauche quand l’une augmente pendant que l’autre baisse, à droite quand elles augmentent ensemble, au centre aucun lien. Point plein, lien net. Point creux, lien incertain, sa fourchette plausible (le trait) comprend zéro. Cliquez sur une ligne pour l’afficher dans le nuage.</p>
-        <div id="cbListe" role="list"></div>
-      </div>
-    </div>
-    <details class="plus"><summary>Tous les croisements entre bases, en tableau</summary><div class="scroll"><table id="cbTable"></table></div></details></div>
   <div class="panel pad" style="margin-top:24px" id="adPanel" data-repli="addicto"><h2>Addictologie <button class="how" data-how="addictions">Comment lire</button></h2><div class="howtxt hidden"></div>
     <p class="note">L’offre en addictologie, le recours aux soins et les consommations d’alcool et de tabac au même endroit. Les consommations ne sont publiées que par région, elles ne sont pas rapportées aux départements.</p>
     <p class="phrase" id="adPhrase"></p>
@@ -497,7 +735,7 @@ dl.gl dt{font-weight:600;margin-top:12px}dl.gl dd{margin:2px 0 0;max-width:var(-
       <details class="plus"><summary>Pour aller plus loin</summary><p id="bvNote"></p></details></div>
     <div class="panel pad"><h2>Le lien avec le niveau de vie, d’une région à l’autre <button class="how" data-how="ecologique">Comment lire</button></h2><div class="howtxt hidden"></div>
       <p class="note">Par intercommunalité de l’Hexagone, à densité de population égale. Chaque territoire reçoit le lien mesuré avec ses voisines les plus proches.</p>
-      <div class="bar" style="padding:6px 0"><select id="gwProf" aria-label="Profession"></select></div>
+      <div class="bar choix-encadre"><p class="note" id="gwDispo" hidden></p><select id="gwProf" aria-label="Profession"></select></div>
       <p class="phrase" id="gwPhrase"></p>
       <div class="mapbox"><svg class="map" id="gwrmap" viewBox="0 0 960 800" role="img" aria-label="Carte du lien local avec le niveau de vie"></svg></div>
       <div class="legend" id="gwLegende"></div>
@@ -537,7 +775,7 @@ dl.gl dt{font-weight:600;margin-top:12px}dl.gl dd{margin:2px 0 0;max-width:var(-
     <div class="panel pad"><h2>Distance aux structures de soins selon le niveau de vie <button class="how" data-how="escalier,concentration,acces_lieux">Comment lire</button></h2><div class="howtxt hidden"></div>
       <div class="bar" style="padding:6px 0"><select id="ilType" aria-label="Structure de soins"></select></div>
       <p class="phrase" id="ilPhrase"></p><svg id="ilEscalier" viewBox="0 0 520 360" role="img" aria-label="Distance aux structures de soins selon le niveau de vie des territoires"></svg>
-      <p class="note">Intercommunalités de toute la France classées de la plus modeste à la plus aisée, puis regroupées en dix tranches de population égale. Distance à vol d’oiseau depuis le centre de chaque commune, médiane des habitants de la tranche. Barre ocre, plus loin que la médiane de la France entière (pointillés).</p>
+      <p class="note">Intercommunalités de toute la France classées de la plus modeste à la plus aisée, puis regroupées en dix tranches de population égale. Distance à vol d’oiseau depuis le centre de chaque commune, médiane des habitants de la tranche. Barre cuivre, plus loin que la médiane de la France entière (pointillés).</p>
       <details class="plus"><summary>Pour aller plus loin</summary><p id="ilNote"></p></details></div>
     <div class="panel pad"><h2>Distance aux structures de soins selon le type de territoire <button class="how" data-how="acces_lieux,effet_ville">Comment lire</button></h2><div class="howtxt hidden"></div>
       <p class="phrase" id="icPhrase"></p><svg id="ilClasses" viewBox="0 0 520 300" role="img" aria-label="Distance aux structures de soins selon la densité de population des intercommunalités"></svg>
@@ -598,6 +836,7 @@ dl.gl dt{font-weight:600;margin-top:12px}dl.gl dd{margin:2px 0 0;max-width:var(-
 
 <script>/*D3*/</script>
 <script>/*TOPO*/</script>
+<script>/*CESURE*/</script>
 <script>/*TOPOLOGY*/</script>
 <script>/*DONNEES*/</script>
 <script>
@@ -653,11 +892,96 @@ function nomClasse(ind){const ks=Object.keys(ind);if(!ks.length)return"";const n
 
 // ---------- limites connues des données, avec leurs sources (config.LIMITES)
 function cleLimite(id){const L=D.limites||{};if(L[id])return id;for(const [debut,k] of Object.entries(D.limites_alias||{}))if(id.startsWith(debut))return k;return null}
+// Chaque limite tient en une ligne sous la figure (sa phrase courte, ou la première phrase de son texte), la précision
+// propre au territoire reste visible, le texte entier et ses sources s'ouvrent au clic (chantier d'organisation de
+// l'atlas, 22 octobre 2026). Rien n'est retiré, seul l'étagement change.
+function limiteCourte(L){if(L.court)return L.court;const m=L.texte.match(/^(.+?[.])(\s|$)/);return m?m[1]:L.texte}
 function limiteHtml(ids,codes){const vues=new Set();let h="";
-  for(const id of ids){const k=cleLimite(id);if(!k||vues.has(k))continue;vues.add(k);const L=D.limites[k];let t=L.texte;
-    for(const c of (codes||[]))if(c&&L.territoires?.[c]){t+=" "+L.territoires[c];break}
-    h+='<p class="asavoir"><strong>À savoir.</strong> '+esc(t)+' Source, '+L.sources.map(([ti,u])=>'<a href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(ti)+'</a>').join(", ")+'.</p>'}
+  for(const id of ids){const k=cleLimite(id);if(!k||vues.has(k))continue;vues.add(k);const L=D.limites[k];let terr="";
+    for(const c of (codes||[]))if(c&&L.territoires?.[c]){terr=L.territoires[c];break}
+    h+='<details class="asavoir"><summary><strong>À savoir.</strong> '+esc(limiteCourte(L))+(terr?' <span class="asavoir-terr">'+esc(terr)+'</span>':'')+'</summary>'+
+       '<p>'+esc(L.texte)+' Source, '+L.sources.map(([ti,u])=>'<a href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(ti)+'</a>').join(", ")+'.</p></details>'}
   return h}
+
+// ---------- sommaire en tête d'un onglet, une ligne par encadré avec son titre et ce qu'il permet (RESUMES),
+// tenu à jour à chaque nouveau choix. Un clic mène à l'encadré, qui reste entier (chantier d'organisation, 22 octobre 2026)
+function titreEncadre(p){const h=p.querySelector(":scope > h2");if(!h)return"";const c=h.cloneNode(true);
+  c.querySelectorAll("button.how,button.citer,.chevron,.outils-encadre,details").forEach(x=>x.remove());return c.textContent.replace(/\s+/g," ").trim()}
+// ce que permet chaque analyse, sans en citer un résultat particulier, chaque encadré étant un outil à régler
+// (remarque de Lucas du 22 octobre 2026, la phrase de résultat n'était qu'un exemple parmi les croisements possibles)
+const RESUMES={
+  "Croiser deux indicateurs":"Croiser, territoire par territoire, la densité d’une profession avec un indicateur du profil des habitants, au niveau choisi.",
+  "Corrélations par groupe d’indicateurs":"Voir d’un coup d’œil quels indicateurs vont avec la présence de chaque profession, groupe par groupe.",
+  "Besoins, recours et conditions de vie, croisés entre eux":"Comparer entre eux, par département, les indicateurs de besoin, de recours aux soins et de conditions de vie.",
+  "À autres indicateurs égaux":"Mesurer ce qui reste du lien entre deux indicateurs quand les autres sont tenus égaux (régression multiple).",
+  "Addictologie":"L’offre en addictologie, le recours aux soins et les consommations d’alcool et de tabac, réunis au même endroit.",
+  "Offre et indicateur sur une même carte":"Situer sur la carte les départements où l’offre et un indicateur sont ensemble hauts, bas ou opposés.",
+  "Le lien avec le niveau de vie, d’une région à l’autre":"Voir comment le lien entre le niveau de vie et la densité d’une profession change d’une région à l’autre.",
+  "L’effet ville retiré":"Séparer les liens qui tiennent à la taille des villes de ceux qui demeurent à densité de population égale.",
+  "Courbes de Lorenz":"Mesurer la concentration de l’offre, la part des professionnels dont disposent les habitants les moins bien dotés.",
+  "Professions classées par concentration":"Comparer les professions entre elles selon que leur offre est répartie ou concentrée.",
+  "Selon le niveau de vie":"Suivre la densité d’une profession des territoires les plus modestes aux plus aisés.",
+  "Écarts qui dépassent le hasard":"Repérer les territoires dont l’écart à la moyenne dépasse ce que le hasard expliquerait, compte tenu de leur taille.",
+  "Distance aux structures de soins selon le niveau de vie":"Suivre la distance à la structure la plus proche selon le niveau de vie des habitants.",
+  "Distance aux structures de soins selon le type de territoire":"Suivre la distance à la structure la plus proche des villes denses aux territoires très peu denses.",
+  "Accès aux structures de soins":"Connaître, pour chaque type de structure, à quelle distance les habitants vivent de la plus proche.",
+  "Profils d’offre des intercommunalités":"Regrouper les intercommunalités qui ont une offre de même composition, et les voir sur la carte.",
+  "Profil de chaque groupe":"Lire la composition de l’offre de chaque groupe, profession par profession.",
+  "Ce qui distingue les intercommunalités":"Voir les principales lignes de différence entre intercommunalités et la place de chacune.",
+  "Poids de chaque profession dans les axes":"Lire ce que chaque profession apporte à ces lignes de différence."};
+// la page d'un onglet rangée une fois par question, pour que chaque question réunisse des analyses voisines ; un bloc
+// suit la question de son premier encadré, les cadres des corrélations suivent le bloc qui les précède
+function rangerOnglet(onglet,sec){if(sec.dataset.range||!QUESTIONS[onglet])return;sec.dataset.range="1";
+  const grp=QUESTIONS[onglet],grpDe=t=>{const k=grp.findIndex(([q,ts])=>ts.includes(t));return k<0?grp.length:k};
+  const blocs=[...sec.children].filter(c=>!c.classList.contains("sommaire-onglet"));let prec=0;
+  const cles=blocs.map(b=>{const p=b.matches(".panel")?b:b.querySelector(".panel");const k=b.id==="hmCadres"||!p?prec:grpDe(titreEncadre(p));prec=k;return k});
+  blocs.map((b,i)=>[b,cles[i],i]).sort((a,b)=>a[1]-b[1]||a[2]-b[2]).forEach(([b])=>sec.appendChild(b))}
+function sommaireOnglet(onglet){
+  const sec=document.querySelector('section[data-p="'+onglet+'"]');if(!sec)return;rangerOnglet(onglet,sec);
+  let som=sec.querySelector(":scope > .sommaire-onglet");
+  if(!som){som=document.createElement("nav");som.className="sommaire-onglet";som.setAttribute("aria-label","Analyses de cet onglet");sec.prepend(som);
+    som.addEventListener("click",e=>{const a=e.target.closest("a[data-cible]");if(!a)return;e.preventDefault();const p=document.getElementById(a.dataset.cible);if(!p)return;
+      if(p.classList.contains("replie"))p.querySelector("button.repli")?.click();
+      const haut=(document.querySelector("nav.site")?.offsetHeight||0)+(document.getElementById("rappelReglages")?.offsetHeight||0)+24;window.scrollTo({top:p.getBoundingClientRect().top+scrollY-haut,behavior:"smooth"});const h=p.querySelector("h2 button, h2");h?.focus?.({preventScroll:true})})}
+  const pans=[...sec.querySelectorAll(".panel")].filter(p=>!p.parentElement.closest(".panel")&&!p.closest("[hidden]")&&titreEncadre(p));
+  const items=[];
+  pans.forEach((p,i)=>{if(!p.id)p.id="enc-"+onglet+"-"+i;
+    // les cadres d'un même groupe (corrélations par groupe d'indicateurs) deviennent des liens de l'entrée qui les précède
+    if(p.parentElement.id==="hmCadres"&&items.length){items[items.length-1].sous.push(p);return}
+    items.push({p,sous:[]})});
+  // marge de lecture (choix de Lucas du 23 octobre 2026) : les analyses rangées par question, titres seuls, la phrase
+  // de RESUMES en infobulle ; la marge reste visible pendant la lecture et marque l'analyse en cours
+  const lien=p=>{const t=titreEncadre(p),r=RESUMES[t];return '<li><a href="#'+p.id+'" data-cible="'+p.id+'"'+(r?' title="'+esc(r)+'"':'')+'>'+esc(t)+'</a></li>'};
+  // la marge suit l'ordre de la page (demande de Lucas du 23 octobre 2026) : les questions dans l'ordre où leur
+  // première analyse paraît, les analyses dans l'ordre de la page ; la page a été rangée par question (rangerOnglet)
+  const grp=QUESTIONS[onglet]||[],grpDe=p=>{const k=grp.findIndex(([q,ts])=>ts.includes(titreEncadre(p)));return k<0?grp.length:k},groupes=[];
+  items.forEach(({p})=>{const k=grpDe(p);let g=groupes.find(x=>x.k===k);if(!g){g={k,ps:[]};groupes.push(g)}g.ps.push(p)});
+  let h=groupes.map(g=>'<div class="som-groupe">'+(grp.length?'<p class="som-question">'+esc(g.k<grp.length?grp[g.k][0]:"Autres analyses")+'</p>':'')+'<ul>'+g.ps.map(lien).join("")+'</ul></div>').join("");
+  som.innerHTML=h;sec.classList.add("a-marge");suivreMarge()}
+// questions de chaque onglet, dans l'ordre de lecture ; un encadré absent de la liste va sous « Autres analyses »
+const QUESTIONS={
+  croisements:[["La densité et le profil des habitants",["Croiser deux indicateurs","Corrélations par groupe d’indicateurs","L’effet ville retiré"]],
+    ["Cartes croisées, par territoire",["Offre et indicateur sur une même carte","Le lien avec le niveau de vie, d’une région à l’autre"]],
+    ["Les indicateurs entre eux",["Besoins, recours et conditions de vie, croisés entre eux","À autres indicateurs égaux"]],
+    ["Offre, recours et consommations",["Addictologie"]]],
+  inegalites:[["Concentration de l’offre",["Courbes de Lorenz","Professions classées par concentration"]],
+    ["Densité selon le niveau de vie et écarts nets",["Selon le niveau de vie","Écarts qui dépassent le hasard"]],
+    ["Distance aux structures de soins",["Accès aux structures de soins","Distance aux structures de soins selon le niveau de vie","Distance aux structures de soins selon le type de territoire"]]],
+  typologie:[["Groupes d’intercommunalités",["Profils d’offre des intercommunalités","Profil de chaque groupe"]],
+    ["Analyse en composantes principales",["Ce qui distingue les intercommunalités","Poids de chaque profession dans les axes"]]]};
+// l'analyse en cours est celle dont le haut a passé la barre des réglages ; la marge se place sous cette barre
+let MARGE_ECOUTE=false;
+function suivreMarge(){
+  const maj=()=>{const sec=document.querySelector("section.a-marge:not(.hidden)");if(!sec)return;
+    const haut=hautFixe();sec.style.setProperty("--haut-marge",Math.max(0,haut)+16+"px");
+    // l'analyse en cours est la plus basse de la page dont le haut a passé la barre, quel que soit son rang dans la
+    // marge (rangée par question, pas dans l'ordre de la page)
+    const liens=[...sec.querySelectorAll(".sommaire-onglet a[data-cible]")],pos=liens.map(a=>{const p=document.getElementById(a.dataset.cible);return p&&p.offsetParent?p.getBoundingClientRect().top:Infinity});
+    const fin=innerHeight+scrollY>=document.documentElement.scrollHeight-4;let cur=null,best=-Infinity,premier=null,haut0=Infinity;
+    pos.forEach((t,k)=>{if(t<haut0){haut0=t;premier=liens[k]}if((fin||t<=haut+80)&&t>best&&t!==Infinity){best=t;cur=liens[k]}});cur=cur||premier;
+    liens.forEach(a=>{if(a===cur)a.setAttribute("aria-current","location");else a.removeAttribute("aria-current")})};
+  maj();if(MARGE_ECOUTE)return;MARGE_ECOUTE=true;let f=0;
+  const planifier=()=>{if(!f)f=requestAnimationFrame(()=>{f=0;maj()})};addEventListener("scroll",planifier,{passive:true});addEventListener("resize",planifier)}
 
 // ---------- grille très légère, la même sur tous les graphiques
 function grille(svg,y,m,w,n){svg.append("g").attr("class","grille").attr("transform","translate("+m.l+",0)")
@@ -735,7 +1059,7 @@ new MutationObserver(ms=>{ms.forEach(m=>{let s=m.target.closest?m.target.closest
 // quel que soit le fond affiché (décision de Lucas), toujours en vue entière même si la carte est zoomée, à une taille
 // commune (dessin rapporté à 800 pixels, image à 1 600), texte à l'échelle typographique commune, légende puis citation
 // à la largeur de la figure. Les couleurs du fond clair sont lues en basculant le thème le temps d'un calcul, sans dessin.
-const VARS_COULEUR=["--bg","--panel","--ink","--muted","--line","--nodata","--accent","--focus","--contour","--r0","--r1","--r2","--r3","--r4","--r5","--d0","--d1","--d2","--d3","--d4","--d5","--d6"];
+const VARS_COULEUR=["--bg","--panel","--ink","--muted","--line","--nodata","--accent","--signal","--focus","--contour","--r0","--r1","--r2","--r3","--r4","--r5","--d0","--d1","--d2","--d3","--d4","--d5","--d6"];
 const LARGEUR_EXPORT=800;
 function enRgb(c){const e=document.createElement("span");e.style.color=c;document.body.appendChild(e);const v=getComputedStyle(e).color;e.remove();return v}
 function couleursClaires(){const r=document.documentElement,t=r.getAttribute("data-theme"),cur=VARS_COULEUR.map(v=>enRgb(css(v)));
@@ -884,6 +1208,12 @@ function prep(){
   for(const lv of ["reg","dep","epci"]){const L=D.niveaux[lv];if(L)IDX[lv]=new Map(L.units.map((u,i)=>[u.c,i]))}
   IDX.prof=new Map(D.professions.map(p=>[p.id,p]));
   IDX.ctx=D.contexte.map((c,i)=>({...c,i}));
+  // temps médian par la route de chaque équipement (INSEE), ajouté aux indicateurs du nuage, par territoire
+  (D.route||[]).forEach(e=>{const i=IDX.ctx.length;let vu=false;
+    for(const lv of ["reg","dep","epci"]){const L=D.niveaux[lv],r=L&&L.route&&L.route[e.id];if(!L)continue;
+      L.units.forEach((u,k)=>{if(!u.x)u.x=[];const v=r&&r[k]?r[k][1]:null;u.x[i]=v;if(v!=null)vu=true})}
+    if(vu)IDX.ctx.push({id:"route:"+e.id,label:"Temps médian par la route, "+e.lib.charAt(0).toLowerCase()+e.lib.slice(1),unite:"minutes",
+      groupe:"Temps de trajet par la route",famille:e.fam||null,source:"",explication:"Durée en voiture, aux heures creuses, jusqu’à l’équipement le plus proche, médiane des habitants du territoire (INSEE).",i})});
   IDX.epciDep=new Map(D.niveaux.epci.units.map(u=>[u.c,u.p]));
   IDX.depName=new Map(D.niveaux.dep.units.map(u=>[u.c,u.nm]));
   GL=new Map((D.meta.glossaire||[]).map(g=>[g.id,g]));
@@ -972,7 +1302,7 @@ function mapInit(svgId){
   Mx.survol=zoomable.append("path").attr("class","survol").style("display","none");Mx.survolDom=fixe.append("path").attr("class","survol").style("display","none");
   // zoom seulement à la demande (molette, boutons), jamais déclenché tout seul, un clic ne le change pas
   Mx.zoom=d3.zoom().scaleExtent([1,6]).translateExtent([[0,0],[W,H]]).clickDistance(4)
-    .filter(ev=>!Mx.tuiles&&(ev.type==="wheel"||(!ev.button&&ev.type!=="dblclick")))
+    .filter(ev=>!Mx.tuiles&&(ev.type==="wheel"?(ev.ctrlKey||ev.metaKey):(!ev.button&&ev.type!=="dblclick")))
     .on("zoom",ev=>{zoomable.attr("transform",ev.transform);svg.classed("zoome",ev.transform.k>1);hideTip();
       zoomable.selectAll("g.fragile").attr("transform",function(){return "translate("+this.dataset.x+","+this.dataset.y+") scale("+1/ev.transform.k+")"});
       zoomable.selectAll("circle.lieu").attr("r",d=>rayonLieu(d)/ev.transform.k).attr("stroke-width",d=>traitLieu(d)/ev.transform.k);
@@ -1012,10 +1342,10 @@ function drawMap(){
     const sc=d3.scaleThreshold().domain(dom).range(dv);color=v=>v==null?css("--nodata"):sc(v);
     legend='<span>Effectif observé rapporté à l’attendu</span><div><div class="sw">'+dv.map(c=>'<span style="background:'+c+'"></span>').join("")+'</div><div class="ticks"><span></span>'+dom.map(b=>'<span>'+f1.format(b)+'</span>').join("")+'</div></div>';
   }else if(S.metric==="evol"){
-    // ocre pour une baisse, violet pour une hausse, gris autour de zéro
+    // cuivre pour une baisse, bleu pour une hausse, gris autour de zéro
     const dv=DIV(),dom=[-.2,-.1,-.03,.03,.1,.2],e=evolInfo(p);
     const sc=d3.scaleThreshold().domain(dom).range(dv);color=v=>v==null?css("--nodata"):sc(v);
-    legend='<span>Évolution de la densité de '+e.debut+' à '+e.fin+' (France '+signe(e.fr[2])+')</span><div><div class="sw">'+dv.map(c=>'<span style="background:'+c+'"></span>').join("")+'</div><div class="ticks"><span></span>'+dom.map(b=>'<span>'+(b>0?"+":"")+Math.round(b*100)+'</span>').join("")+'</div></div><span>En %, ocre en baisse, violet en hausse.</span>';
+    legend='<span>Évolution de la densité de '+e.debut+' à '+e.fin+' (France '+signe(e.fr[2])+')</span><div><div class="sw">'+dv.map(c=>'<span style="background:'+c+'"></span>').join("")+'</div><div class="ticks"><span></span>'+dom.map(b=>'<span>'+(b>0?"+":"")+Math.round(b*100)+'</span>').join("")+'</div></div><span>En %, cuivre en baisse, bleu en hausse.</span>';
   }else if(S.metric==="lieux"){
     // distance médiane des habitants à la structure la plus proche du type choisi, couleur forte pour une structure proche
     const pos=vals.filter(v=>v!=null).sort(d3.ascending),r=RAMP().slice().reverse(),t=LX.types.find(x=>x.id===S.lieux);
@@ -1106,7 +1436,7 @@ function lieuxOptions(){const sel=document.getElementById("lieuxType"),bar=docum
   if(!LX){bar.hidden=true;return}bar.hidden=false;
   const types=LX.types.map((t,k)=>({...t,k})).filter(t=>LX.pts.some(p=>p[0]===t.k)&&(S.fam==="*"||t.famille===S.fam));
   const grp=[...new Set(types.map(t=>t.groupe))];
-  sel.innerHTML='<option value="">Aucun</option>'+grp.map(g=>'<optgroup label="'+esc(g)+'">'+types.filter(t=>t.groupe===g)
+  sel.innerHTML='<option value="">Aucune</option>'+grp.map(g=>'<optgroup label="'+esc(g)+'">'+types.filter(t=>t.groupe===g)
     .map(t=>'<option value="'+t.id+'"'+(S.lieux===t.id?" selected":"")+'>'+esc(t.lib)+(t.complet?"":" (recensement incomplet)")+'</option>').join("")+'</optgroup>').join("");
   if(S.lieux&&!types.some(t=>t.id===S.lieux))S.lieux="";sel.value=S.lieux||""}
 function projLieu(pt){const d=lieuDep(pt[4]),ll=[pt[2]/1e4,pt[1]/1e4];return DOMS.includes(d)?(P[d]?P[d].projection()(ll):null):metro(ll)}
@@ -1363,21 +1693,21 @@ function symboleFragile(g,x,y,k,r){r=r||5;const s=g.append("g").attr("class","fr
   const bulleSig=ev=>{const L=(D.limites||{})[k];showTip(ev,'<strong>'+esc(SIG[k])+'</strong>'+(L?'<div class="tl">'+esc(L.texte)+'</div><div class="tl">Source, '+esc(L.sources.map(x=>x[0]).join(", "))+'.</div>':""))};
   s.on("mousemove",bulleSig).on("mouseleave",hideTip).on("click",ev=>{ev.stopPropagation();bulleSig(ev)})
    .on("keydown",ev=>{if(ev.key==="Enter"||ev.key===" "){ev.preventDefault();const b=ev.currentTarget.getBoundingClientRect();bulleSig({clientX:b.x+b.width/2,clientY:b.y,pageX:b.x+b.width/2+scrollX,pageY:b.y+scrollY})}});
-  s.append("circle").attr("r",r).attr("fill",css("--d1")).attr("stroke",css("--panel")).attr("stroke-width",1).attr("vector-effect","non-scaling-stroke");
+  s.append("circle").attr("r",r).attr("fill",css("--signal")).attr("stroke",css("--panel")).attr("stroke-width",1).attr("vector-effect","non-scaling-stroke");
   s.append("text").attr("data-typo-libre","").attr("text-anchor","middle").attr("y",r*.55).attr("font-size",r*1.5).attr("font-weight",700).attr("fill",css("--panel")).text("!");return s}
 // pose les symboles sur une carte, renvoie les signaux présents (pour la légende et les limites)
 // contour ocre des territoires concernés et un seul symbole au centre du groupe, la couleur des territoires ne change pas
 function signauxCarte(Mx,lv,suicide){Mx.svg.selectAll("g.fragile,path.fragile-contour").remove();const vus=new Set(),k0=d3.zoomTransform(Mx.svg.node()).k;
   [Mx.g,Mx.gdom].forEach(g=>{const cadres={};
     g.selectAll("path.u").each(function(f){if(!f)return;const k=fragile(lv,keyOf(lv,f),suicide);if(!k)return;
-      g.append("path").attr("class","fragile-contour").attr("d",this.getAttribute("d")).attr("fill","none").attr("stroke",css("--d1"))
+      g.append("path").attr("class","fragile-contour").attr("d",this.getAttribute("d")).attr("fill","none").attr("stroke",css("--signal"))
         .attr("stroke-width",1.6).attr("vector-effect","non-scaling-stroke").style("pointer-events","none");
       const b=this.getBBox(),c=cadres[k];cadres[k]=c?[Math.min(c[0],b.x),Math.min(c[1],b.y),Math.max(c[2],b.x+b.width),Math.max(c[3],b.y+b.height)]:[b.x,b.y,b.x+b.width,b.y+b.height]});
     for(const [k,[x0,y0,x1,y1]] of Object.entries(cadres)){vus.add(k);const x=(x0+x1)/2,y=(y0+y1)/2,s=symboleFragile(g,x,y,k,5.5);
       if(g===Mx.g&&k0>1)s.attr("transform","translate("+x+","+y+") scale("+1/k0+")")}});
   return [...vus]}
-function legendeSignaux(ks){return ks.map(k=>'<span class="sig-leg"><svg width="13" height="13" aria-hidden="true"><circle cx="6.5" cy="6.5" r="6" fill="'+css("--d1")+'"/><text x="6.5" y="10" text-anchor="middle" font-size="9" font-weight="700" fill="'+css("--panel")+'">!</text></svg>'+esc(SIG[k])+'</span>').join("")}
-function ligneSignal(lv,c,suicide){const k=fragile(lv,c,suicide);return k?'<div class="tl" style="color:'+css("--d1")+'"><strong>!</strong> '+esc(SIG[k])+'</div>':""}
+function legendeSignaux(ks){return ks.map(k=>'<span class="sig-leg"><svg width="13" height="13" aria-hidden="true"><circle cx="6.5" cy="6.5" r="6" fill="'+css("--signal")+'"/><text x="6.5" y="10" text-anchor="middle" font-size="9" font-weight="700" fill="'+css("--panel")+'">!</text></svg>'+esc(SIG[k])+'</span>').join("")}
+function ligneSignal(lv,c,suicide){const k=fragile(lv,c,suicide);return k?'<div class="tl" style="color:'+css("--signal")+'"><strong>!</strong> '+esc(SIG[k])+'</div>':""}
 // croisements entre bases par département (config.CROISEMENTS), mêmes règles de lecture que les rapports
 function phraseCroisement(r){
   const net=r.lo>0||r.hi<0,netp=r.rp!=null&&(r.lop>0||r.hip<0);
@@ -1425,39 +1755,36 @@ function addictologie(){const A=D.addicto,P=document.getElementById("adPanel");i
 // redessin quand la largeur de la figure change (encadré déplié, fenêtre redimensionnée), les titres en dépendent
 const AD_RO=new ResizeObserver(es=>{const w=Math.round(es[0].contentRect.width);if(w&&w!==AD_RO.w){AD_RO.w=w;addictologie()}});
 {const e=document.getElementById("adPlot");if(e)AD_RO.observe(e)}
+// questions préparées entre bases (config.CROISEMENTS), chargées d'un clic dans « Croiser deux indicateurs » (demande
+// de Lucas du 23 octobre 2026 : la fenêtre à part enfermait la lecture dans ces questions, l'outil permet d'en croiser
+// d'autres) ; la question en cours est soulignée et sa phrase reprend fourchette et lien à densité égale
+let CB_T=[];
+const cleCb=k=>String(k||"").replace(/^ctx:/,"");
+function croisementCourant(){if(S.level!=="dep")return null;
+  const x=S.xvar,y=S.yvar?S.yvar:(S.mode==="lib"?"dens_lib:":S.mode==="all"?"dens:":"?:")+S.prof;
+  return CB_T.find(r=>{const a=cleCb(r.xk),b=cleCb(r.yk);return (a===x&&b===y)||(a===y&&b===x)})||null}
+function appliquerCroisement(r){let a=cleCb(r.xk),b=cleCb(r.yk);const dens=k=>/^dens(_lib)?:/.test(k);if(dens(a))[a,b]=[b,a];
+  if(!IDX.ctx.find(c=>c.id===a))return;
+  S.level="dep";S.xvar=a;
+  if(dens(b)){S.yvar="";S.prof=b.split(":")[1];S.mode=b.startsWith("dens_lib:")?"lib":"all"}else S.yvar=b;
+  ["xvar","yvar","prof"].forEach(id=>{const e=document.getElementById(id);if(e)e.value=id==="xvar"?S.xvar:id==="yvar"?(S.yvar||""):S.prof});
+  render();signer();
+  requestAnimationFrame(()=>{const p=document.getElementById("scatter").closest(".panel");
+    window.scrollTo({top:p.getBoundingClientRect().top+scrollY-hautFixe()-16,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})})}
 function croisementsBases(){addictologie();
-  const T=(D.croisements_bases||[]).filter(r=>S.fam==="*"||r.famille===S.fam);
-  const sel=document.getElementById("cbSel"),ph=document.getElementById("cbPhrase"),svg=d3.select("#cbPlot");svg.selectAll("*").remove();
-  if(!T.length){ph.textContent="Pas de croisement entre bases pour cette famille dans ce fichier de données.";sel.innerHTML="";document.getElementById("cbTable").innerHTML="";return}
-  const qs=[...new Set(T.map(r=>r.theme))];
-  sel.innerHTML=qs.map(t=>{const g=T.filter(r=>r.theme===t),q=(g.find(r=>r.question)||{}).question||"";
-    return '<optgroup label="'+esc(q)+'">'+g.map(r=>'<option value="'+T.indexOf(r)+'">'+esc(r.x+" et "+minuscule(r.y))+'</option>').join("")+'</optgroup>'}).join("");
-  if(S.cb==null||S.cb>=T.length)S.cb=0;sel.value=String(S.cb);
-  const r=T[S.cb];ph.textContent=phraseCroisement(r)+" Ce lien décrit des départements et ne dit rien d’une cause.";
-  const pts=r.pts.filter(d=>d[1]!=null&&d[2]!=null),m={l:52,r:14,t:16,b:44},w=560,h=360;
-  const xs=d3.scaleLinear().domain(d3.extent(pts,d=>d[1])).nice().range([m.l,w-m.r]),ys=d3.scaleLinear().domain(d3.extent(pts,d=>d[2])).nice().range([h-m.b,m.t]);
-  const nbCb=v=>(+v).toLocaleString("fr-FR",{maximumSignificantDigits:3});
-  svg.append("g").attr("transform","translate(0,"+(h-m.b)+")").call(d3.axisBottom(xs).ticks(6).tickFormat(nbCb)).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
-  grille(svg,ys,m,w,5);
-  svg.append("g").attr("transform","translate("+m.l+",0)").call(d3.axisLeft(ys).ticks(5).tickFormat(nbCb)).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
-  svg.append("text").attr("x",w-m.r).attr("y",h-6).attr("text-anchor","end").text(coupeLib(r.x,70)[0]);
-  svg.append("text").attr("x",m.l).attr("y",10).text(coupeLib(r.y,70)[0]);
-  const nomDep=c=>{const i=IDX.dep.get(c);return i==null?c:D.niveaux.dep.units[i].nm};
-  svg.append("g").selectAll("circle").data(pts).join("circle").attr("cx",d=>xs(d[1])).attr("cy",d=>ys(d[2])).attr("r",4)
-    .attr("fill",d=>S.sel&&S.sel.lv==="dep"&&S.sel.c===d[0]?css("--accent"):css("--r4")).attr("fill-opacity",.75).attr("stroke",css("--panel")).attr("stroke-width",.6)
-    .append("title").text(d=>nomDep(d[0])+"\n"+r.x+", "+f1.format(d[1])+"\n"+r.y+", "+f1.format(d[2]));
-  const suiCb=r.theme==="trajet_suicide"||/suicide/i.test(r.x+" "+r.y),gCb=svg.append("g");
-  pts.filter(d=>fragile("dep",d[0],suiCb)).forEach(d=>symboleFragile(gCb,xs(d[1]),ys(d[2]),fragile("dep",d[0],suiCb),5));
-  const ch=S.sel&&S.sel.lv==="dep"&&pts.find(d=>d[0]===S.sel.c);
-  if(ch)svg.append("text").attr("x",xs(ch[1])+8).attr("y",ys(ch[2])-8).attr("font-weight",600).attr("fill",css("--ink")).text(nomDep(ch[0]));
+  const T=(D.croisements_bases||[]).filter(r=>S.fam==="*"||r.famille===S.fam),boite=document.getElementById("scSuggestions");CB_T=T;
+  if(!boite)return;
+  if(!T.length){boite.innerHTML="";document.getElementById("cbTable").innerHTML="";return}
+  const qs=[...new Set(T.map(r=>r.theme))],cur=croisementCourant();
   {const X=v=>66+v*60,mini=x=>{const net=x.lo>0||x.hi<0,c=net?css("--r4"):css("--muted");
       return '<svg viewBox="0 0 132 16" aria-hidden="true"><line x1="6" x2="126" y1="8" y2="8" stroke="'+css("--line")+'"/><line x1="66" x2="66" y1="2" y2="14" stroke="'+css("--muted")+'" stroke-width="1"/>'
         +'<line x1="'+X(Math.max(-1,x.lo))+'" x2="'+X(Math.min(1,x.hi))+'" y1="8" y2="8" stroke="'+c+'" stroke-width="2" stroke-linecap="round"/>'
         +'<circle cx="'+X(x.rho)+'" cy="8" r="4.5" fill="'+(net?c:css("--panel"))+'" stroke="'+c+'" stroke-width="1.6"/></svg>'};
-    document.getElementById("cbListe").innerHTML='<div class="cb-axe"><span></span><span><span>−1</span><span>0</span><span>+1</span></span><span style="text-align:right">rho</span></div>'
+    boite.innerHTML='<h3>Questions préparées</h3><p class="note">Un clic charge la question dans le nuage, par département. Pour ces questions, chaque lien porte sa fourchette plausible, sa valeur à densité de population égale et la correction pour tests multiples. Un croisement choisi librement donne un coefficient descriptif quand il n’a pas été calculé à l’avance.</p>'
+      +'<div class="cb-axe"><span></span><span><span>−1</span><span>0</span><span>+1</span></span><span style="text-align:right">rho</span></div>'
       +qs.map(t=>{const g=T.filter(x=>x.theme===t),q=(g.find(x=>x.question)||{}).question||"";
         return '<div class="cb-q">'+esc(q)+'</div>'+g.map(x=>{const k=T.indexOf(x);
-          return '<button type="button" role="listitem" class="cb-ligne'+(k===S.cb?' on':'')+'" data-cb="'+k+'" aria-label="'+esc(phraseCroisement(x))+'"><span>'+esc(x.x+" et "+minuscule(x.y))+'</span>'+mini(x)+'<span class="rho">'+f2.format(x.rho)+'</span></button>'}).join("")}).join("")}
+          return '<button type="button" class="cb-ligne'+(x===cur?' on':'')+'" data-cb="'+k+'" aria-label="'+esc(phraseCroisement(x))+'"><span>'+esc(x.x+" et "+minuscule(x.y))+'</span>'+mini(x)+'<span class="rho">'+f2.format(x.rho)+'</span></button>'}).join("")}).join("")}
   // une ligne de titre par question, puis un croisement par ligne, le lien écrit en mots avec sa valeur
   const motLien=(v,lo,hi)=>lo!=null&&lo<=0&&hi>=0?"incertain":forceLien(v);
   document.getElementById("cbTable").innerHTML='<thead><tr><th>Croisement</th><th>Lien entre départements</th><th>Fourchette plausible</th><th>À densité de population égale</th><th class="num">Départements</th></tr></thead><tbody>'
@@ -1465,8 +1792,6 @@ function croisementsBases(){addictologie();
       return '<tr class="cb-titre"><th colspan="5">'+esc(q)+'</th></tr>'+g.map(x=>'<tr><td>'+esc(x.x)+'<br><span class="muted">et '+esc(minuscule(x.y))+'</span></td>'
         +'<td>'+motLien(x.rho,x.lo,x.hi)+' ('+f2.format(x.rho)+')</td><td>de '+f2.format(x.lo)+' à '+f2.format(x.hi)+'</td>'
         +'<td>'+(x.rp==null?"non calculé":motLien(x.rp,x.lop,x.hip)+' ('+f2.format(x.rp)+')')+'</td><td class="num">'+x.n+'</td></tr>').join("")}).join("")+'</tbody>';
-  const sigCb=[...new Set(pts.map(d=>fragile("dep",d[0],suiCb)).filter(Boolean))];
-  document.getElementById("cbLimite").innerHTML=(sigCb.length?'<p class="legende-signaux">'+legendeSignaux(sigCb)+'</p>':"")+limiteHtml([...(r.theme==="trajet_suicide"?["suicides","route"]:suiCb?["suicides"]:[]),...sigCb],[]);
 }
 
 // infobulle de la carte, le territoire et toutes les professions principales de la famille affichée
@@ -1555,7 +1880,7 @@ function selCard(){
     h+='<p class="phrase">'+esc(ph)+'</p>';court=ph;
   }
   h+='<p class="small muted legende-barres" style="margin:14px 0 0"><svg viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><rect x="22" y="2" width="28" height="6" fill="'+css("--d1")+'"/><line x1="50" x2="50" y1="0" y2="10" stroke="'+css("--muted")+'" stroke-width="1"/><rect x="50" y="2" width="20" height="6" fill="'+css("--d5")+'"/></svg>'
-    +'Chaque barre compare la densité du territoire à la moyenne '+MOYLAB[lv]+', marquée par le trait vertical, '+modeLab[S.mode]+'. Vers la gauche en ocre, la densité est plus faible, vers la droite en violet, plus forte, jusqu’à quatre fois moins ou quatre fois plus au bord. Le nombre est l’indice, 100 pour la moyenne, 50 pour deux fois moins, 200 pour deux fois plus. Survolez une ligne pour l’effectif et la densité, cliquez pour la cartographier.</p>';
+    +'Chaque barre compare la densité du territoire à la moyenne '+MOYLAB[lv]+', marquée par le trait vertical, '+modeLab[S.mode]+'. Vers la gauche en cuivre, la densité est plus faible, vers la droite en bleu, plus forte, jusqu’à quatre fois moins ou quatre fois plus au bord. Le nombre est l’indice, 100 pour la moyenne, 50 pour deux fois moins, 200 pour deux fois plus. Survolez une ligne pour l’effectif et la densité, cliquez pour la cartographier.</p>';
   const dv=DIV();
   const ligne=p=>{const ind=unitD(lv,p.id,i)/refD(lv,p.id)*100,l=Math.max(-2,Math.min(2,Math.log2(Math.max(ind,1)/100)));
       const w=Math.abs(l)/2*50,left=l<0?50-w:50,c=l<0?dv[1]:dv[5];
@@ -1674,7 +1999,11 @@ function tableNuage(lv,cx,p,pts,cy){
 }
 function scatter(){
   const lv=S.level,L=D.niveaux[lv],p=S.prof,cx=IDX.ctx.find(c=>c.id===S.xvar),cy=S.yvar?IDX.ctx.find(c=>c.id===S.yvar):null;
-  const svg=d3.select("#scatter");svg.selectAll("*").remove();
+  const svg=d3.select("#scatter");
+  // positions d'avant, pour que les points glissent vers leur nouvelle place quand on change d'indicateur, de profession
+  // ou d'échelle (comme dans le prototype validé par Lucas le 23 octobre 2026), au même niveau seulement
+  const avant=new Map();if(SC_NIVEAU===S.level)svg.selectAll("g.points circle").each(function(d){if(d&&d.u)avant.set(d.u.c,[+this.getAttribute("cx"),+this.getAttribute("cy")])});
+  SC_NIVEAU=S.level;svg.selectAll("*").remove();
   document.querySelector('.seg[data-k="ylog"]').hidden=!!cy;
   if(!cx||!L.units[0].x){svg.append("text").attr("x",20).attr("y",40).text("Indicateurs de contexte absents du fichier.");return}
   if(!ctxDispo(lv,cx)){svg.append("text").attr("x",20).attr("y",40).text("Cet indicateur n’existe qu’au niveau des départements. Choisissez « Départements » en haut de la page.");document.getElementById("scPhrase").textContent="";document.getElementById("scLimite").innerHTML="";document.getElementById("xvarNote").textContent=cx.explication||"";document.getElementById("scNote").textContent="";return}
@@ -1688,37 +2017,66 @@ function scatter(){
   const logSerre=(a,b)=>d3.scaleLog().domain([(a||.01)/1.15,(b||1)*1.15]);
   const ys=(yl?logSerre(d3.min(ypos),d3.max(ypos)):cy?(cy.id==="densite_pop"?d3.scaleLog().domain(d3.extent(pts.filter(d=>d.y>0),d=>d.y)).nice():d3.scaleLinear().domain(d3.extent(pts,d=>d.y)).nice()):d3.scaleLinear().domain([0,d3.max(pts,d=>d.y)||1]).nice()).range([h-m.b,m.t]);
   const rs=d3.scaleSqrt().domain([0,d3.max(pts,d=>d.u.pop)]).range([1.5,lv==="dep"?14:9]);
-  svg.append("g").attr("transform","translate(0,"+(h-m.b)+")").call(d3.axisBottom(xs).tickValues(graduations(xs,6,46)).tickFormat(nbAxe)).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
-  grille(svg,ys,m,w,6);
-  svg.append("g").attr("transform","translate("+m.l+",0)").call(d3.axisLeft(ys).tickValues(graduations(ys,6,24)).tickFormat(nbAxe)).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
+  const gx=svg.append("g").attr("transform","translate(0,"+(h-m.b)+")").call(d3.axisBottom(xs).tickValues(graduations(xs,6,46)).tickFormat(nbAxe)).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
+  const gG=svg.append("g");grille(gG,ys,m,w,6);
+  const gy=svg.append("g").attr("transform","translate("+m.l+",0)").call(d3.axisLeft(ys).tickValues(graduations(ys,6,24)).tickFormat(nbAxe)).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
+  svg.append("clipPath").attr("id","scClip").append("rect").attr("x",m.l).attr("y",m.t-6).attr("width",w-m.l-m.r).attr("height",h-m.t-m.b+6);
   svg.append("text").attr("x",w-m.r).attr("y",h-6).attr("text-anchor","end").text(cx.label+(cx.unite?" ("+cx.unite+")":""));
   const ylab=cy?cy.label+(cy.unite?" ("+cy.unite+")":""):profLab(p)+", pour 10 000 hab."+(yl?" (log)":"");
   svg.append("text").attr("x",m.l).attr("y",12).text(ylab);
   const box=document.getElementById("scatter");
-  svg.append("g").selectAll("circle").data(pts.filter(d=>!yl||d.y>0)).join("circle")
-    .attr("cx",d=>xs(Math.max(d.x,xs.domain()[0])) ).attr("cy",d=>ys(d.y)).attr("r",d=>rs(d.u.pop))
-    .attr("fill",d=>S.sel&&S.sel.c===d.u.c?css("--accent"):css("--r4")).attr("fill-opacity",.55).attr("stroke",css("--panel")).attr("stroke-width",.4)
-    .append("title").text(d=>d.u.nm+"\n"+cx.label+" "+f1.format(d.x)+"\n"+(cy?cy.label:profLab(p))+" "+f1.format(d.y));
+  const ptsC=svg.append("g").attr("class","points").attr("clip-path","url(#scClip)").selectAll("circle").data(pts.filter(d=>!yl||d.y>0)).join("circle")
+    .attr("cx",d=>(avant.get(d.u.c)||[xs(Math.max(d.x,xs.domain()[0]))])[0]).attr("cy",d=>(avant.get(d.u.c)||[0,ys(d.y)])[1]).attr("r",d=>rs(d.u.pop))
+    .attr("fill",d=>S.sel&&S.sel.c===d.u.c?css("--accent"):css("--r4")).attr("fill-opacity",.55).attr("stroke",css("--panel")).attr("stroke-width",.4);
+  ptsC.append("title").text(d=>d.u.nm+"\n"+cx.label+" "+f1.format(d.x)+"\n"+(cy?cy.label:profLab(p))+" "+f1.format(d.y));
+  // le glissement part après le dessin des autres figures de l'onglet, sinon le temps de ce dessin mange l'animation
+  // (changement de profession, toutes les figures sont refaites d'un bloc)
+  if(avant.size)requestAnimationFrame(()=>ptsC.transition().duration(480).ease(d3.easeCubicOut).attr("cx",d=>xs(Math.max(d.x,xs.domain()[0]))).attr("cy",d=>ys(d.y)));
   // signaux « donnée fragile », posés sur le point sans en changer la couleur
-  const suiSc=[cx.id,cy&&cy.id].includes("suicides"),gSc=svg.append("g");
+  const suiSc=[cx.id,cy&&cy.id].includes("suicides"),gSc=svg.append("g").attr("clip-path","url(#scClip)");
   pts.filter(d=>(!yl||d.y>0)&&fragile(lv,d.u.c,suiSc)).forEach(d=>symboleFragile(gSc,xs(Math.max(d.x,xs.domain()[0])),ys(d.y),fragile(lv,d.u.c,suiSc),4.5));
   const sigSc=[...new Set(pts.map(d=>fragile(lv,d.u.c,suiSc)).filter(Boolean))],legSc=sigSc.length?'<p class="legende-signaux">'+legendeSignaux(sigSc)+'</p>'+limiteHtml(sigSc):"";
   // le territoire choisi sur la carte est nommé dans le nuage
   const choisi=S.sel&&pts.find(d=>d.u.c===S.sel.c&&(!yl||d.y>0));
+  let etiq=null;
   if(choisi){const cx0=xs(Math.max(choisi.x,xs.domain()[0])),cy0=ys(choisi.y),adroite=cx0<w-160;
-    svg.append("text").attr("x",cx0+(adroite?9:-9)).attr("y",cy0-8).attr("text-anchor",adroite?"start":"end").attr("font-weight",600).attr("fill",css("--ink")).text(choisi.u.nm)}
+    etiq=svg.append("text").attr("x",cx0+(adroite?9:-9)).attr("y",cy0-8).attr("text-anchor",adroite?"start":"end").attr("font-weight",600).attr("fill",css("--ink")).text(choisi.u.nm)}
   // quadrants offre et besoin, pour un indicateur de santé mentale au niveau départemental
-  let quad="",quadListe="";
+  let quad="",quadListe="",medX=null,medY=null;
   if(lv==="dep"&&cx.famille&&!cy){
     // Mayotte écartée des croisements entre départements, comme dans les rapports
     const pq=pts.filter(d=>!(D.meta.exclus_croisements||["976"]).includes(d.u.c));
-    const mx=d3.median(pq,d=>d.x),my=d3.median(pq,d=>d.y);
-    svg.append("line").attr("x1",xs(mx)).attr("x2",xs(mx)).attr("y1",m.t).attr("y2",h-m.b).attr("stroke",css("--accent")).attr("stroke-dasharray","4 3");
-    svg.append("line").attr("x1",m.l).attr("x2",w-m.r).attr("y1",ys(Math.max(my,yl?ys.domain()[0]:0))).attr("y2",ys(Math.max(my,yl?ys.domain()[0]:0))).attr("stroke",css("--accent")).attr("stroke-dasharray","4 3");
+    const mx=d3.median(pq,d=>d.x),my=d3.median(pq,d=>d.y);medX=mx;medY=Math.max(my,yl?ys.domain()[0]:0);
+    svg.append("line").attr("class","med-x").attr("x1",xs(mx)).attr("x2",xs(mx)).attr("y1",m.t).attr("y2",h-m.b).attr("stroke",css("--accent")).attr("stroke-dasharray","4 3");
+    svg.append("line").attr("class","med-y").attr("x1",m.l).attr("x2",w-m.r).attr("y1",ys(Math.max(my,yl?ys.domain()[0]:0))).attr("y2",ys(Math.max(my,yl?ys.domain()[0]:0))).attr("stroke",css("--accent")).attr("stroke-dasharray","4 3");
     const crit=pq.filter(d=>d.x>mx&&d.y<=my);
     quad=" Lignes pointillées, médianes des départements, en bas à droite un indicateur élevé et une offre faible. "+crit.length+" départements ont un indicateur au-dessus de la médiane et une densité "+deMot(pluriel(profLab(p)))+" au-dessous. Cette position par rapport aux médianes ne mesure pas une insuffisance au sens d’une norme.";
     quadListe='<details class="plus"><summary>Liste de ces '+crit.length+' départements, par ordre alphabétique</summary><div class="scroll"><table><tr><th>Département</th><th>'+esc(cx.label)+'</th><th>'+esc(profLab(p))+', pour 10 000 hab.</th></tr>'+crit.slice().sort((a,b)=>a.u.nm.localeCompare(b.u.nm,"fr")).map(d=>'<tr><td>'+esc(d.u.nm)+'</td><td>'+f1.format(d.x)+'</td><td>'+f2.format(d.y)+'</td></tr>').join("")+'</table></div></details>';
   }
+  // zoom du nuage (remarque de Lucas du 23 octobre 2026, l'échelle se dérèglait) : les axes et la grille se
+  // recalculent au lieu d'agrandir l'image ; boutons + et −, Ctrl et molette, glisser pour se déplacer une fois zoomé
+  {const fx=d=>Math.max(d.x,xs.domain()[0]),dedans=v=>v>=m.l-1&&v<=w-m.r+1;
+    const zoomer=t=>{const X=t.rescaleX(xs),Y=t.rescaleY(ys),trait=g=>g.selectAll("line,path").attr("stroke",css("--line"));
+      gx.call(d3.axisBottom(X).tickValues(graduations(X,6,46)).tickFormat(nbAxe)).call(trait);
+      gy.call(d3.axisLeft(Y).tickValues(graduations(Y,6,24)).tickFormat(nbAxe)).call(trait);
+      gG.selectAll("*").remove();grille(gG,Y,m,w,6);
+      ptsC.interrupt().attr("cx",d=>X(fx(d))).attr("cy",d=>Y(d.y));
+      gSc.selectAll("*").remove();pts.filter(d=>(!yl||d.y>0)&&fragile(lv,d.u.c,suiSc)).forEach(d=>symboleFragile(gSc,X(fx(d)),Y(d.y),fragile(lv,d.u.c,suiSc),4.5));
+      if(etiq&&choisi){const a=X(fx(choisi)),b=Y(choisi.y);etiq.attr("x",a+(a<w-160?9:-9)).attr("y",b-8).attr("text-anchor",a<w-160?"start":"end").style("display",dedans(a)&&b>=m.t&&b<=h-m.b?null:"none")}
+      if(medX!=null){const a=X(medX),b=Y(medY);svg.select("line.med-x").attr("x1",a).attr("x2",a).style("display",dedans(a)?null:"none");svg.select("line.med-y").attr("y1",b).attr("y2",b).style("display",b>=m.t&&b<=h-m.b?null:"none")}};
+    const zm=d3.zoom().scaleExtent([1,12]).extent([[m.l,m.t],[w-m.r,h-m.b]]).translateExtent([[m.l,m.t],[w-m.r,h-m.b]])
+      .filter(ev=>ev.type==="wheel"?(ev.ctrlKey||ev.metaKey):(!ev.button&&ev.type!=="dblclick")).on("zoom",ev=>zoomer(ev.transform));
+    svg.property("__zoom",d3.zoomIdentity).call(zm).on("dblclick.zoom",null);
+    // les boutons de zoom vont dans un cadre autour de la figure, jamais en tête de la fenêtre (le titre doit rester
+    // le premier élément pour former la barre de titre, remarque de Lucas du 23 octobre 2026)
+    let hote=box.parentElement;if(!hote.classList.contains("sc-hote")){const w=document.createElement("div");w.className="sc-hote";box.before(w);w.appendChild(box);hote=w;
+      const vieux=w.parentElement.querySelector(":scope > .sc-zoom");if(vieux)vieux.remove()}
+    let zb=hote.querySelector(":scope > .sc-zoom");
+    if(!zb){zb=document.createElement("div");zb.className="zoombar sc-zoom";zb.setAttribute("role","group");zb.setAttribute("aria-label","Zoom du nuage");
+      zb.innerHTML='<button type="button" data-z="in" aria-label="Zoomer">+</button><button type="button" data-z="out" aria-label="Dézoomer">−</button><button type="button" data-z="reset" aria-label="Revenir à la vue entière">⟲</button>';
+      if(getComputedStyle(hote).position==="static")hote.style.position="relative";hote.prepend(zb)}
+    zb.onclick=e=>{const b=e.target.closest("button");if(!b)return;e.stopPropagation();const t=svg.transition().duration(250);
+      if(b.dataset.z==="reset")t.call(zm.transform,d3.zoomIdentity);else t.call(zm.scaleBy,b.dataset.z==="in"?1.6:1/1.6)}}
   const s=spearman(pts.map(d=>d.x),pts.map(d=>d.y));
   const pre=(D.correlations||[]).find(r=>r.niv===lv&&r.mode===S.mode&&r.prof===p&&r.var===cx.id);
   const zeros=pts.filter(d=>d.y===0).length;
@@ -1737,6 +2095,8 @@ function scatter(){
   document.getElementById("scLimite").innerHTML=limiteHtml([cx.id,"prof:"+p])+legSc+quadListe;}
   document.getElementById("xvarNote").innerHTML=(S.niveauAuto&&lv==="dep"?"<strong>Nuage affiché par département</strong>, seul niveau où cet indicateur est publié. ":"")+esc(cx.explication?cx.label+". "+cx.explication+" ":"")+(cx.source?"Source, "+lienFiche(cx)+". ":"")+esc("Chaque point est un territoire, sa taille est proportionnelle à la population."+(yl&&zeros?" "+fmt.format(zeros)+" territoires sans professionnel ne figurent pas en échelle logarithmique.":""));
   tableNuage(lv,cx,p,pts,cy);signer();
+  {const cr=croisementCourant();document.getElementById("scPhrase").hidden=!!cr;document.getElementById("scPrepare").textContent=cr?"Question préparée, « "+cr.question.replace(/\s*\?$/," ?")+" » "+phraseCroisement(cr):"";
+    document.querySelectorAll("#scSuggestions [data-cb]").forEach(b=>b.classList.toggle("on",CB_T[+b.dataset.cb]===cr))}
   document.getElementById("scNote").textContent="Corrélation de rang de Spearman rho = "+f2.format(s.rho)+" sur "+fmt.format(s.n)+" territoires"+(pre&&pre.lo!=null?", intervalle de confiance à 95 % par bootstrap de "+f2.format(pre.lo)+" à "+f2.format(pre.hi):"")+(pre&&pre.q!=null?", q de Benjamini-Hochberg "+(pre.q<.001?"inférieure à 0,001":"égale à "+f2.format(pre.q)):"")+". Le lien peut tenir pour une large part à l’effet ville, qu’une corrélation à densité de population égale permettra de corriger.";
 }
 // ---------- indicateurs entre eux (départements), liens d'un indicateur avec les autres, et régressions multiples
@@ -1810,7 +2170,7 @@ function parcoursAtlas(){
     +(v[4]?" "+fmt.format(v[4])+" n’exercent qu’à des activités sans soins à la population.":"");
 }
 // offre et indicateur sur une même carte (audit 4.2) et Moran local bivarié (2.5), par département
-let BV=null,GW=null;
+let BV=null,GW=null,GW_SUIVI=null,SC_NIVEAU=null;
 const ZONES_BV={HL:["Indicateur élevé, offre faible alentour","--d1"],HH:["Indicateur élevé, offre élevée alentour","--r5"],
   LL:["Indicateur bas, offre faible alentour","--d3"],LH:["Indicateur bas, offre élevée alentour","--r2"]};
 function tiersDe(v){const s=v.filter(x=>x!=null&&isFinite(x)).sort(d3.ascending),a=d3.quantile(s,1/3),b=d3.quantile(s,2/3);return x=>x==null||!isFinite(x)?null:x>b?2:x>a?1:0}
@@ -1839,7 +2199,7 @@ function offreBesoin(){
     ph=!nz?"Aucun département ne forme, au-delà du hasard, une zone où cet indicateur et l’offre des départements voisins s’écartent ensemble de la moyenne.":
       (hl?"Au-delà du hasard, "+hl+" département"+(hl>1?"s ont":" a")+" un indicateur élevé entouré de départements où l’offre est faible. ":"Aucun département n’a, au-delà du hasard, un indicateur élevé entouré d’une offre faible. ")+nz+" zone"+(nz>1?"s":"")+" en tout se distingue"+(nz>1?"nt":"")+" du hasard.";
     document.getElementById("bvLegende").innerHTML=Object.entries(ZONES_BV).map(([k,[t,c]])=>'<span><i style="display:inline-block;width:12px;height:12px;background:'+css(c)+';margin-right:6px"></i>'+t+'</span>').join("")+'<span><i style="display:inline-block;width:12px;height:12px;background:'+css("--nodata")+';margin-right:6px"></i>Pas de zone nette</span>'}
-  else{ph=n(2)+" départements ont à la fois un indicateur « "+minuscule(cx.label)+" » dans le tiers le plus haut et une densité de "+pl+" dans le tiers le plus bas (en or). "+n(6)+" sont dans la situation inverse (en violet).";
+  else{ph=n(2)+" départements ont à la fois un indicateur « "+minuscule(cx.label)+" » dans le tiers le plus haut et une densité de "+pl+" dans le tiers le plus bas (en rouge). "+n(6)+" sont dans la situation inverse (en bleu).";
     document.getElementById("bvLegende").innerHTML='<div class="grille" aria-hidden="true">'+[2,1,0].map(b=>[0,1,2].map(o=>'<i style="background:'+OB.palette[o*3+b]+'"></i>').join("")).join("")+'</div><span>Vers la droite, plus de '+esc(pl)+'. Vers le haut, « '+esc(minuscule(cx.label))+' » plus élevé.</span>'}
   document.getElementById("bvPhrase").textContent=ph+" Ces cartes décrivent des départements et ne disent rien d’une cause.";
   const sigBv=signauxCarte(BV,"dep",S.bvVar==="suicides");
@@ -1852,7 +2212,13 @@ function gwrCarte(){
   const G=D.gwr,sel=document.getElementById("gwProf"),L=D.niveaux.epci;
   if(!G){document.getElementById("gwPhrase").textContent="Données absentes de ce fichier.";return}
   if(!sel.options.length){sel.innerHTML=Object.keys(G).map(p=>'<option value="'+p+'">'+esc(cap(pluriel(profLab(p))))+'</option>').join("");sel.onchange=e=>{S.gwProf=e.target.value;gwrCarte();signer()}}
+  // la carte suit la profession choisie en haut de la page quand le calcul existe pour elle, et garde sinon le choix
+  // fait dans l'encadré (remarque de Lucas du 23 octobre 2026, la carte ne changeait pas avec la profession)
+  if(G[S.prof]&&S.prof!==GW_SUIVI)S.gwProf=S.prof;GW_SUIVI=S.prof;
   if(!G[S.gwProf])S.gwProf=Object.keys(G)[0];sel.value=S.gwProf;
+  const liste=Object.keys(G).map(p=>pluriel(profLab(p))),dispo=document.getElementById("gwDispo");
+  dispo.textContent=G[S.prof]?"":"Ce calcul est fait pour les professions présentes dans au moins une intercommunalité sur deux, pas pour les "+pluriel(profLab(S.prof))+", trop rares pour un lien local. Profession montrée ici :";
+  dispo.hidden=!!G[S.prof];choixListe(sel,"gwProf",sel).hidden=!!G[S.prof];
   const g=G[S.gwProf],r=g.resume,dv=DIV(),cls=v=>v==null?null:!v[1]?2:v[0]>0?(v[0]>=.3?4:3):(v[0]<=-.3?0:1);
   const cols=[dv[0],dv[1],css("--d3"),dv[dv.length-2],dv[dv.length-1]],labs=["négatif net, fort","négatif net","pas de lien net","positif net","positif net, fort"];
   if(!GW)GW=mapInit("gwrmap");const ix=IDX.epci;
@@ -1968,17 +2334,26 @@ function heatmap(){
       +'<p class="note" style="margin:0 0 8px">'+cg.length+' indicateur'+(cg.length>1?"s":"")+', '+nivLab+', '+(S.mode==="all"?"tous modes d’exercice":S.mode==="lib"?"exercice libéral":"exercice salarié")+'.'
       +(fort?' Lien le plus net du groupe, '+esc(fort.p.toLowerCase())+' et '+esc(minLib(fort.c))+' ('+f2.format(fort.rho)+').':' Aucun lien net dans ce groupe.')+'</p>'
       +(toutes.length>profs.length||S.hmTout?'<div class="hmbar"><button class="btn ghost hmtout" type="button">'+(S.hmTout?"Professions principales seulement":"Afficher toutes les professions de la famille ("+toutes.length+")")+'</button></div>':'')
-      +'<div class="hmbox"><table class="hm" id="'+id+'">'+h+'</table></div>';
+      +'<div class="hmbox"><table class="hm" id="'+id+'" style="table-layout:fixed;min-width:'+(210+profs.length*80)+'px"><colgroup><col style="width:210px"></colgroup>'+h+'</table></div>';
     cadres.appendChild(pan);
     liens.push('<li><button type="button" data-cadre="cadre-'+id+'">'+esc(g)+'</button> <span>'+cg.length+' indicateur'+(cg.length>1?"s":"")+'</span></li>');
-    const b=pan.querySelector(".hmbox");b.addEventListener("scroll",()=>majDefil(b),{passive:true});const tb=b.querySelector("table");tb.dataset.observe=1;DEFIL.observe(tb);
+    const b=pan.querySelector(".hmbox");b.addEventListener("scroll",()=>majDefil(b),{passive:true});
+    // défilement horizontal seulement si le tableau dépasse la fenêtre, sinon aucun défilement interne
+    requestAnimationFrame(()=>b.classList.toggle("defile-x",b.scrollWidth>b.clientWidth+1));const tb=b.querySelector("table");tb.dataset.observe=1;DEFIL.observe(tb);
   });
   document.getElementById("hmLiens").innerHTML=liens.join("");
   document.querySelectorAll("#hmLiens button").forEach(b=>b.onclick=()=>document.getElementById(b.dataset.cadre).scrollIntoView({behavior:"smooth",block:"start"}));
   cadres.querySelectorAll("button.hmtout").forEach(b=>b.onclick=()=>{const y=b.closest(".panel").getBoundingClientRect().top;const id=b.closest(".panel").id;S.hmTout=!S.hmTout;heatmap();normaliserEncadres();signer();
     // le cadre cliqué reste sous les yeux après le changement
     const n=document.getElementById(id);if(n)window.scrollBy(0,n.getBoundingClientRect().top-y)});
-  cadres.querySelectorAll("td[data-p]").forEach(td=>td.onclick=()=>{S.prof=td.dataset.p;S.xvar=td.dataset.x;document.getElementById("prof").value=S.prof;document.getElementById("xvar").value=S.xvar;scatter();document.getElementById("scatter").scrollIntoView({behavior:"smooth",block:"center"})});
+  // une case ouvre son croisement dans « Croiser deux indicateurs » (profession, indicateur, niveau gardé) ; la case
+  // se signale au survol et au clavier (remarque de Lucas du 23 octobre 2026, partir de ce qui ressort)
+  const ouvrirCase=td=>{S.prof=td.dataset.p;S.xvar=td.dataset.x;S.yvar="";["prof","xvar","yvar"].forEach(id=>{const e=document.getElementById(id);if(e)e.value=id==="yvar"?"":S[id]});
+    render();signer();requestAnimationFrame(()=>{const p=document.getElementById("scatter").closest(".panel");
+      window.scrollTo({top:p.getBoundingClientRect().top+scrollY-hautFixe()-16,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})})};
+  cadres.querySelectorAll("td[data-p]").forEach(td=>{if(!td.textContent)return;td.tabIndex=0;td.classList.add("ouvrable");
+    td.title=(td.title?td.title+". ":"")+"Cliquer pour voir ce croisement dans le nuage";
+    td.onclick=()=>ouvrirCase(td);td.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();ouvrirCase(td)}}});
 }
 
 // ---------- effet ville (corrélation brute et à densité de population égale)
@@ -2111,7 +2486,7 @@ function inegLieux(){
     .attr("fill",d=>css(fr!=null&&d.distance_mediane_km>fr?"--d1":"--r3"))
     .append("title").text(d=>"Tranche "+d.decile+", niveau de vie de "+fmt.format(d.niveau_de_vie_min)+" à "+fmt.format(d.niveau_de_vie_max)+" €, distance médiane "+f1.format(d.distance_mediane_km)+" km, "+f1.format(d.part_plus_20_km*100)+" % des habitants à plus de 20 km");
   svg.selectAll("text.v").data(es).join("text").attr("class","v").attr("x",d=>x(d.decile)+x.bandwidth()/2).attr("y",d=>y(d.distance_mediane_km)-4).attr("text-anchor","middle").attr("font-size",10).attr("fill",css("--ink")).text(d=>f1.format(d.distance_mediane_km));
-  if(fr!=null){svg.append("line").attr("x1",m.l).attr("x2",w-m.r).attr("y1",y(fr)).attr("y2",y(fr)).attr("stroke",css("--d1")).attr("stroke-dasharray","5 3");
+  if(fr!=null){svg.append("line").attr("x1",m.l).attr("x2",w-m.r).attr("y1",y(fr)).attr("y2",y(fr)).attr("stroke",css("--accent")).attr("stroke-dasharray","5 3");
     svg.append("text").attr("x",w-m.r).attr("y",y(fr)-4).attr("text-anchor","end").text("France "+f1.format(fr)+" km")}
   svg.append("text").attr("x",m.l).attr("y",h-6).text("Plus modestes");svg.append("text").attr("x",w-m.r).attr("y",h-6).attr("text-anchor","end").text("Plus aisés");
   svg.append("text").attr("x",m.l).attr("y",10).text("Distance médiane, en km");
@@ -2288,11 +2663,16 @@ function syncBar(){
   const evb=document.querySelector('#metricSeg [data-v="evol"]');evb.disabled=!(D.niveaux[S.level].evolution?.[S.prof])||S.mode!=="all";
   evb.title=evb.disabled?"Disponible pour les régions et les départements, pour les professions suivies par la DREES depuis 2016":"";
   if(evb.disabled&&S.metric==="evol")S.metric="dens";
-  const lb=document.querySelector('#metricSeg [data-v="lieux"]');lb.disabled=!(S.lieux&&D.niveaux[S.level].lieux_dist?.[S.lieux]);
+  // distance aux structures, cliquable dès qu'un type a des distances à ce niveau ; sans type choisi sous la carte, le
+  // premier type disponible de la liste est retenu (remarque de Lucas du 23 octobre 2026, la mesure semblait inactive)
+  const ld=D.niveaux[S.level].lieux_dist||{},lb=document.querySelector('#metricSeg [data-v="lieux"]');lb.disabled=!Object.keys(ld).length;
+  if(S.metric==="lieux"&&!(S.lieux&&ld[S.lieux])){const v=[...document.querySelectorAll("#lieuxType option")].map(o=>o.value).find(x=>x&&ld[x]);
+    if(v){S.lieux=v;document.getElementById("lieuxType").value=v}else S.metric="dens"}
   if(lb.disabled&&S.metric==="lieux")S.metric="dens";
   const tb=document.querySelector('#metricSeg [data-v="trajet"]');tb.disabled=!(routeEq(S.prof)&&D.niveaux[S.level].route);
   if(tb.disabled&&S.metric==="trajet")S.metric="dens";
   document.querySelectorAll('.seg[data-k="metric"] button').forEach(b=>b.setAttribute("aria-pressed",String(S.metric===b.dataset.v)));
+  raisonsMesures();
   document.getElementById("prof").value=S.prof;
   document.getElementById("grp").value=S.grp;
   document.getElementById("xvar").value=S.xvar;
@@ -2308,16 +2688,131 @@ function syncBar(){
   document.querySelectorAll('.seg[data-k="vue"] button').forEach(b=>b.setAttribute("aria-pressed",String(S.vue===b.dataset.v)));
   const rb=document.querySelector('.seg[data-k="level"] [data-v="reg"]');rb.disabled=!D.niveaux.reg||!["carte","tableau"].includes(S.tab);
 }
+// encadrés étroits repérés à chaque rendu (les cadres créés en cours de route compris), voir [data-etroit] (attribut, car certains encadrés réécrivent leur classe)
+const ETROIT_RO=new ResizeObserver(es=>es.forEach(e=>{const w=e.contentRect.width;if(w)e.target.toggleAttribute("data-etroit",w<300)}));  // largeur du contenu, sans les marges intérieures
+// note de méthode longue posée avant une figure, réduite à sa première phrase, la suite s'ouvre au clic (chantier
+// d'organisation, 22 octobre 2026). Seules les notes en texte simple sont repliées, une note réécrite au rendu suivant
+// l'est de nouveau.
+function replierNotes(){document.querySelectorAll(".panel p.note").forEach(p=>{
+  if(p.children.length||p.closest(".howtxt"))return;const t=p.textContent.trim();if(t.length<260)return;
+  const m=t.match(/^(.+?[.!?])\s+(?=[A-ZÀ-Ý«])/);if(!m||t.length-m[1].length<80)return;
+  p.innerHTML=esc(m[1])+'<span class="note-reste" hidden> '+esc(t.slice(m[1].length).trim())+'</span> <button type="button" class="note-suite" aria-expanded="false">Lire la suite</button>';
+  const b=p.querySelector(".note-suite"),r=p.querySelector(".note-reste");
+  b.onclick=()=>{r.hidden=!r.hidden;b.textContent=r.hidden?"Lire la suite":"Replier";b.setAttribute("aria-expanded",String(!r.hidden))}})}
+// la typologie garde sa mise en page propre (liste défilante à hauteur de la carte)
+function equilibrerPanneaux(){document.querySelectorAll(".two:not(.typo)").forEach(t=>{if(!t.offsetParent)return;
+  t.classList.remove("empile");t.style.alignItems="start";
+  const h=[...t.children].filter(c=>c.offsetParent).map(c=>c.getBoundingClientRect().height);t.style.alignItems="";
+  if(h.length===2&&Math.min(...h)>0&&Math.max(...h)/Math.min(...h)>1.15)t.classList.add("empile")})}
+
+// profession choisie dans une liste rangée par groupe, sous son nom souligné (refonte du 23 octobre 2026). La liste du
+// navigateur reste la source de l'état : un choix y écrit la valeur et déclenche son événement « change ».
+// une mesure grisée dit pourquoi, sur une ligne sous la barre, au lieu d'une infobulle que personne ne voit (Impeccable,
+// un état indisponible s'explique là où on le voit)
+const RAISONS_MESURE={ecart:"par intercommunalité, tous modes d’exercice",zones:"par intercommunalité, tous modes d’exercice",
+  evol:"pour les professions suivies par la DREES depuis 2016, par région ou département, tous modes d’exercice",
+  trajet:"pour les professions dont le temps de trajet par la route est publié",lieux:"aucune distance calculée à ce niveau"};
+function raisonsMesures(){const seg=document.getElementById("metricSeg");if(!seg)return;
+  let r=document.getElementById("raisonsMesure");if(!r){r=document.createElement("p");r.id="raisonsMesure";r.className="raisons-mesure";(seg.closest(".groupe-reg")||seg).after(r)}
+  const par=new Map();seg.querySelectorAll("button:disabled").forEach(b=>{const t=RAISONS_MESURE[b.dataset.v];if(!t)return;par.set(t,(par.get(t)||[]).concat(b.textContent.trim()))});
+  const ph=[...par].map(([t,ls])=>(ls.length>1?ls.slice(0,-1).join(", ")+" et "+ls.at(-1).toLowerCase():ls[0])+", "+t+".");
+  r.textContent=ph.length?"Non disponible pour ce choix. "+ph.join(" "):"";r.hidden=!ph.length||seg.classList.contains("hidden")}
+function intitulesReglages(){const lib={level:"Niveau",mode:"Exercice",metric:"Mesure"};
+  // l'intitulé et son groupe sont réunis dans un même bloc, pour ne jamais être séparés par un retour à la ligne
+  document.querySelectorAll('#bar .seg[data-k]').forEach(g=>{const t=lib[g.dataset.k];if(!t||g.parentElement.classList.contains("groupe-reg"))return;
+    const w=document.createElement("span");w.className="groupe-reg";const sp=document.createElement("span");sp.className="lbl-reg";sp.textContent=t;sp.id="lbl-"+g.dataset.k;
+    g.setAttribute("aria-labelledby",sp.id);g.before(w);w.append(sp,g)});
+  document.querySelectorAll("#bar .groupe-reg").forEach(w=>{const g=w.querySelector(".seg");w.hidden=!g||g.classList.contains("hidden")})}
+// liste de choix soignée, reprise d'une liste du navigateur qui reste la source de l'état (un choix y écrit la valeur
+// et déclenche son « change »). Au-delà de quinze options, une recherche en tête et les groupes répartis en colonnes,
+// pour ne jamais présenter un mur d'options (remarque de Lucas du 23 octobre 2026, liste des professions de la santé)
+function choixListe(sel,cle,apres){if(!sel)return null;
+  let box=document.querySelector('.prof-choix[data-pour="'+cle+'"]');
+  if(!box){box=document.createElement("div");box.className="prof-choix";box.dataset.pour=cle;
+    box.innerHTML='<button type="button" aria-expanded="false" aria-haspopup="true"><span></span><svg width="11" height="7" viewBox="0 0 11 7" aria-hidden="true"><path d="M1 1l4.5 4.5L10 1" fill="none" stroke="currentColor" stroke-width="1.5"/></svg></button><div class="prof-liste" hidden></div>';
+    apres.after(box);const b=box.querySelector("button"),l=box.querySelector(".prof-liste");
+    const fermer=()=>{l.hidden=true;b.setAttribute("aria-expanded","false")};
+    const option=o=>'<button type="button" data-v="'+esc(o.value)+'" aria-current="'+(o.value===sel.value)+'">'+esc(o.textContent)+'</button>';
+    b.onclick=()=>{const o=l.hidden;
+      // une seule liste ouverte à la fois (remarque de Lucas du 23 octobre 2026, deux listes ouvertes se superposaient)
+      if(o)document.querySelectorAll(".prof-liste:not([hidden])").forEach(x=>{if(x!==l){x.hidden=true;x.parentElement.querySelector(":scope > button")?.setAttribute("aria-expanded","false")}});
+      if(o){const n=sel.querySelectorAll("option").length,grand=n>15,og=[...sel.children].filter(g=>g.tagName==="OPTGROUP"),deux=grand&&og.length>=4;
+        l.classList.toggle("large",grand&&!deux);l.classList.toggle("deux",deux);
+        if(deux){menuDeux(sel,l,og,option)}else{
+        const groupes=[...sel.children].map(g=>g.tagName==="OPTGROUP"?'<div class="grp"><p>'+esc(g.label)+'</p>'+[...g.children].map(option).join("")+'</div>':'<div class="grp">'+option(g)+'</div>').join("");
+        l.innerHTML=(grand?'<input type="search" class="filtre-liste" placeholder="Rechercher" aria-label="Rechercher dans la liste">':'')+'<div class="colonnes">'+groupes+'</div>';
+        const f=l.querySelector(".filtre-liste");
+        if(f)f.addEventListener("input",()=>{const q=f.value.normalize("NFD").replace(/\p{M}/gu,"").toLowerCase().trim();
+          l.querySelectorAll(".grp").forEach(g=>{let k=0;g.querySelectorAll("button").forEach(x=>{const ok=!q||x.textContent.normalize("NFD").replace(/\p{M}/gu,"").toLowerCase().includes(q);x.hidden=!ok;if(ok)k++});g.hidden=!k})})}}
+      l.hidden=!o;b.setAttribute("aria-expanded",String(o));
+      if(o)(l.querySelector(".filtre-liste")||l.querySelector('[aria-current="true"]')||l.querySelector("button"))?.focus()};
+    l.onclick=e=>{const t=e.target.closest(".theme");if(t){montrerTheme(l,t.dataset.g);return}
+      const x=e.target.closest("[data-v]");if(!x)return;sel.value=x.dataset.v;b.querySelector("span").textContent=sel.selectedOptions[0]?.textContent||"";sel.dispatchEvent(new Event("change"));fermer();b.focus()};
+    document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!l.hidden){fermer();b.focus()}});
+    // fermeture au clic hors de la liste, en phase de capture pour qu'aucun autre élément ne l'arrête
+    document.addEventListener("pointerdown",e=>{if(!l.hidden&&!e.target.closest('.prof-choix[data-pour="'+cle+'"]'))fermer()},true)}
+  box.querySelector("button span").textContent=sel.selectedOptions[0]?.textContent||"";
+  return box}
+// menu en deux temps (remarque de Lucas du 23 octobre 2026, cent dix-sept indicateurs dans une seule liste étaient
+// difficiles à parcourir ; Impeccable, peu de choix à la fois, le reste à la demande) : une douzaine de thèmes avec
+// leur nombre d'indicateurs, les indicateurs du thème montré, une recherche qui parcourt tous les thèmes
+const sansAccent=t=>t.normalize("NFD").replace(/\p{M}/gu,"").toLowerCase();
+function montrerTheme(l,g){l.querySelectorAll(".theme").forEach(t=>t.setAttribute("aria-pressed",String(t.dataset.g===String(g))));
+  l.querySelectorAll(".volet-choix .grp").forEach(x=>{x.hidden=x.dataset.g!==String(g);x.querySelectorAll("button").forEach(b=>b.hidden=false)});
+  const f=l.querySelector(".filtre-liste");if(f)f.value="";l.classList.remove("cherche")}
+function menuDeux(sel,l,og,option){
+  const nett=t=>t.replace(/^Axe vertical, /,""),seuls=[...sel.children].filter(g=>g.tagName==="OPTION");
+  const cur=sel.selectedOptions[0],actif=Math.max(0,og.indexOf(cur&&cur.parentElement));
+  l.innerHTML='<input type="search" class="filtre-liste" placeholder="Rechercher un indicateur" aria-label="Rechercher dans tous les thèmes">'
+    +'<div class="volet-themes">'+(seuls.length?'<div class="seuls">'+seuls.map(option).join("")+'</div>':'')
+    +og.map((g,i)=>'<button type="button" class="theme" data-g="'+i+'" aria-pressed="'+(i===actif)+'"><span>'+esc(nett(g.label))+'</span><span class="nb">'+g.children.length+'</span></button>').join("")+'</div>'
+    +'<div class="volet-choix">'+og.map((g,i)=>'<div class="grp" data-g="'+i+'"'+(i===actif?'':' hidden')+'><p>'+esc(nett(g.label))+'</p>'+[...g.children].map(option).join("")+'</div>').join("")+'</div>';
+  // survoler un thème le montre, comme un menu ; le clic fait de même au clavier et au toucher
+  l.querySelectorAll(".theme").forEach(t=>t.addEventListener("mouseenter",()=>{if(!l.classList.contains("cherche"))montrerTheme(l,t.dataset.g)}));
+  const f=l.querySelector(".filtre-liste");
+  f.addEventListener("input",()=>{const q=sansAccent(f.value.trim());
+    if(!q){const a=l.querySelector('.theme[aria-pressed="true"]');montrerTheme(l,a?a.dataset.g:0);return}
+    l.classList.add("cherche");
+    l.querySelectorAll(".volet-choix .grp").forEach(g=>{let k=0;g.querySelectorAll("button").forEach(x=>{const ok=sansAccent(x.textContent).includes(q);x.hidden=!ok;if(ok)k++});g.hidden=!k});
+    l.querySelectorAll(".theme").forEach(t=>{const g=l.querySelector('.volet-choix .grp[data-g="'+t.dataset.g+'"]');t.classList.toggle("vide",!g||g.hidden)})})}
+function choixProfession(){intitulesReglages();const sel=document.getElementById("prof");choixListe(sel,"prof",sel);choixStructures();listesEncadres();rappelReglages()}
+// les listes des encadrés prennent la même forme que le choix de la profession, au lieu de la liste blanche du système
+// (remarque de Lucas du 23 octobre 2026) ; la liste du navigateur reste cachée et garde l'état, si bien qu'un choix
+// redessine la figure par le même chemin, points qui glissent compris
+function listesEncadres(){document.querySelectorAll("section[data-p] select:not(#lieuxType)").forEach(sel=>{if(!sel.id||!sel.options.length)return;
+  if(!sel.classList.contains("natif")){sel.classList.add("natif");sel.tabIndex=-1}
+  const b=choixListe(sel,sel.id,sel);b.classList.add("dans-encadre");b.querySelector("button").setAttribute("aria-label",(sel.getAttribute("aria-label")||"Choix")+", "+(sel.selectedOptions[0]?.textContent||""))})}
+// structures de soins, choisies dans la barre à côté des mesures et non plus sous la carte : elles servent aux points de
+// la carte et à la mesure « Distance aux structures »
+function choixStructures(){const sel=document.getElementById("lieuxType"),bar=document.getElementById("lieuxBar"),seg=document.getElementById("metricSeg");if(!sel||!seg)return;
+  let g=document.getElementById("groupeStructures");
+  if(!g){g=document.createElement("span");g.className="groupe-reg";g.id="groupeStructures";g.innerHTML='<span class="lbl-reg">Structures</span><span class="ancre"></span>';
+    (seg.closest(".groupe-reg")||seg).after(g)}
+  choixListe(sel,"lieux",g.querySelector(".ancre"));
+  g.hidden=!bar||bar.hidden||seg.classList.contains("hidden");
+  const r=document.getElementById("raisonsMesure");if(r&&g.nextElementSibling!==r)g.after(r)}
+// figures qui apparaissent en douceur quand on arrive dessus ; la classe n'existe qu'avec le script
+const REVELE=("IntersectionObserver" in window)?new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("vu");REVELE.unobserve(e.target)}}),{rootMargin:"0px 0px -6% 0px"}):null;
+if(REVELE)document.documentElement.classList.add("revele");
+function revelerFigures(){if(!REVELE)return;document.querySelectorAll('.panel svg[role="img"]:not(.vu)').forEach(x=>REVELE.observe(x))}
+// césure du texte justifié de l'onglet affiché, refaite après chaque rendu (le texte réécrit perd ses césures)
+let CESURE_T=0;function cesureOnglet(){clearTimeout(CESURE_T);CESURE_T=setTimeout(()=>{if(window.cesure)window.cesure(document.querySelector('section[data-p]:not(.hidden)'))},120)}
+function observerEtroits(){replierNotes();equilibrerPanneaux();choixProfession();revelerFigures();cesureOnglet();const ps=[...document.querySelectorAll(".panel")];ps.forEach(x=>ETROIT_RO.observe(x));
+  // mesures d'abord, écritures ensuite, pour un seul calcul de mise en page
+  const m=ps.map(x=>x.clientWidth);ps.forEach((x,i)=>{if(m[i])x.toggleAttribute("data-etroit",m[i]<340)});
+  // paragraphe très étroit (moins de 22 cadratins par ligne) ; au-delà, la césure française permet le justifié
+  const es=[...document.querySelectorAll("p,li,dd")].filter(e=>e.offsetParent),w=es.map(e=>e.clientWidth/parseFloat(getComputedStyle(e).fontSize));
+  es.forEach((e,i)=>{if(w[i])e.toggleAttribute("data-etroit",w[i]<22)})}
 function render(){
-  hideTip();
+  hideTip();setTimeout(observerEtroits,0);setTimeout(observerEtroits,450);
   if(S.level==="reg"&&(!D.niveaux.reg||!["carte","tableau"].includes(S.tab))){S.level="dep";S.sel=null}
   syncBar();
   document.querySelectorAll("section[data-p]").forEach(s=>s.classList.toggle("hidden",s.dataset.p!==S.tab));
   if(S.tab==="carte"){lieuxOptions();drawMap();natCard();selCard();structuresTerritoire();lowerPanels();parcoursAtlas();listeCherche()}
   if(S.tab==="tableau")table();
-  if(S.tab==="croisements"){scatter();heatmap();effetVille();indicateursEntreEux();croisementsBases();offreBesoin();gwrCarte()}
-  if(S.tab==="inegalites"){inegalites();escalier();funnel();inegLieux();accesLieux()}
-  if(S.tab==="typologie")typologie();
+  if(S.tab==="croisements"){scatter();heatmap();effetVille();indicateursEntreEux();croisementsBases();offreBesoin();gwrCarte();sommaireOnglet("croisements");setTimeout(()=>sommaireOnglet("croisements"),400)}
+  if(S.tab==="inegalites"){inegalites();escalier();funnel();inegLieux();accesLieux();sommaireOnglet("inegalites");setTimeout(()=>sommaireOnglet("inegalites"),400)}
+  if(S.tab==="typologie"){typologie();sommaireOnglet("typologie");setTimeout(()=>sommaireOnglet("typologie"),400)}
   if(S.tab==="sources")sources();
   if(S.tab==="comprendre")comprendre();
   normaliserEncadres();signer();
@@ -2334,8 +2829,7 @@ function niveauPourNuage(){
   signer()}
 document.getElementById("xvar").addEventListener("change",e=>{S.xvar=e.target.value;niveauPourNuage()});
 document.getElementById("yvar").addEventListener("change",e=>{S.yvar=e.target.value;niveauPourNuage()});
-document.getElementById("cbSel").addEventListener("change",e=>{S.cb=+e.target.value;croisementsBases();signer()});
-document.getElementById("cbListe").addEventListener("click",e=>{const b=e.target.closest("[data-cb]");if(!b)return;S.cb=+b.dataset.cb;croisementsBases();signer()});
+document.getElementById("scSuggestions")?.addEventListener("click",e=>{const b=e.target.closest("[data-cb]");if(b&&CB_T[+b.dataset.cb])appliquerCroisement(CB_T[+b.dataset.cb])});
 document.getElementById("indRef").addEventListener("change",e=>{S.indRef=e.target.value;indicateursEntreEux();signer()});
 document.getElementById("regRes").addEventListener("change",e=>{S.regRes=e.target.value;regressions();signer()});
 document.getElementById("q").addEventListener("input",table);
@@ -2350,6 +2844,48 @@ addEventListener("scroll",hideTip,{passive:true});
     new MutationObserver(maj).observe(bar,{subtree:true,attributes:true,attributeFilter:["aria-pressed"]});maj()}}
 const hautNav=()=>{const n=document.querySelector("nav.site"),c=document.querySelector(".collant"),h=n?n.offsetHeight:0;
   document.documentElement.style.setProperty("--haut-nav",h+"px");document.documentElement.style.setProperty("--haut-collant",(h+(c?c.offsetHeight:0))+"px")};hautNav();addEventListener("resize",hautNav);
+// barre de rappel des réglages (remarque de Lucas du 23 octobre 2026 : utile que les réglages suivent la lecture, mais
+// la barre entière prenait de la place, et la replier en cours de défilement faisait sauter la page). Les réglages
+// restent en tête de page ; une fois dépassés, une fine barre flottante apparaît sous l'en-tête, par un fondu, sans rien
+// déplacer dans la page : la profession (même liste), le rappel des autres choix et « Réglages », qui ouvre tous les
+// réglages dans une fenêtre posée au-dessus de la lecture
+function hautFixe(){const n=document.querySelector("nav.site"),r=document.getElementById("rappelReglages");
+  return (n?n.getBoundingClientRect().bottom:0)+(r&&r.classList.contains("vu")?r.offsetHeight+8:0)}
+{const c=document.querySelector(".collant");
+  if(c){const r=document.createElement("div");r.id="rappelReglages";r.className="rappel-reglages";r.setAttribute("aria-label","Rappel des réglages");
+    r.innerHTML='<span class="rr-prof"></span><span class="rr-texte"></span><button type="button" class="rr-ouvrir" aria-expanded="false">Réglages</button>';
+    const place=document.createElement("div");place.className="place-collant";place.hidden=true;c.before(place);document.body.appendChild(r);
+    const btn=r.querySelector(".rr-ouvrir");
+    const fermer=()=>{if(!c.classList.contains("flotte"))return;c.classList.remove("flotte");place.hidden=true;btn.setAttribute("aria-expanded","false")};
+    const ouvrir=()=>{place.style.height=c.offsetHeight+"px";place.hidden=false;c.classList.add("flotte");btn.setAttribute("aria-expanded","true")};
+    btn.onclick=e=>{e.stopPropagation();c.classList.contains("flotte")?fermer():ouvrir()};
+    document.addEventListener("keydown",e=>{if(e.key==="Escape"&&c.classList.contains("flotte")){fermer();btn.focus()}});
+    document.addEventListener("click",e=>{if(c.classList.contains("flotte")&&!e.target.closest(".collant,.rappel-reglages,.prof-liste"))fermer()});
+    // un onglet choisi depuis la fenêtre des réglages la referme et mène au haut de cet onglet
+    document.getElementById("tabs")?.addEventListener("click",e=>{if(!e.target.closest("button")||!c.classList.contains("flotte"))return;
+      setTimeout(()=>{fermer();window.scrollTo({top:c.getBoundingClientRect().top+scrollY-(document.querySelector("nav.site")?.offsetHeight||0),behavior:"instant"})},0)});
+    let f=0;const maj=()=>{f=0;const n=document.querySelector("nav.site"),bas=n?n.getBoundingClientRect().bottom:0,ref=c.classList.contains("flotte")?place:c;
+      const passe=ref.getBoundingClientRect().bottom<bas;r.classList.toggle("vu",passe);if(!passe)fermer()};
+    addEventListener("scroll",()=>{if(!f)f=requestAnimationFrame(maj)},{passive:true});addEventListener("resize",maj);maj()}}
+// texte du rappel, refait à chaque rendu
+// une rangée n'est étirée jusqu'à la marge droite que si elle tient sur une ligne, sinon elle reste serrée à gauche
+function ajusterRangees(){const bar=document.getElementById("bar");if(!bar)return;
+  bar.classList.remove("plein");bar.querySelectorAll(".groupe-reg.plein").forEach(g=>g.classList.remove("plein"));
+  const tete=[...bar.children].filter(c=>c.offsetParent&&!c.matches(".raisons-mesure,select,.reglages")&&getComputedStyle(c).position!=="absolute")
+    .filter(c=>!c.querySelector("#metricSeg")&&c.id!=="groupeStructures");
+  const hauts=tete.map(c=>Math.round(c.getBoundingClientRect().top));if(tete.length>1&&Math.max(...hauts)-Math.min(...hauts)<6)bar.classList.add("plein");
+  const m=bar.querySelector(".groupe-reg:has(#metricSeg)");
+  if(m&&m.offsetParent){const bs=[...m.querySelectorAll("#metricSeg button")].filter(b=>b.offsetParent).map(b=>Math.round(b.getBoundingClientRect().top));
+    if(bs.length&&Math.max(...bs)-Math.min(...bs)<6){m.classList.add("plein");
+      const apres=[...m.querySelectorAll("#metricSeg button")].filter(b=>b.offsetParent).map(b=>Math.round(b.getBoundingClientRect().top));
+      if(Math.max(...apres)-Math.min(...apres)>=6)m.classList.remove("plein")}}}
+addEventListener("resize",()=>requestAnimationFrame(ajusterRangees));
+function rappelReglages(){ajusterRangees();const mt=document.getElementById("mapTitre"),mp=document.getElementById("map");if(mt&&mp)mt.textContent=titreElement(mp);
+  const r=document.getElementById("rappelReglages");if(!r)return;
+  const sel=document.getElementById("prof");if(sel)choixListe(sel,"prof-rappel",r.querySelector(".rr-prof"));
+  const onglet=document.querySelector('#tabs [aria-selected="true"]')?.textContent.trim()||"";
+  const choix=[...document.querySelectorAll('.collant .seg:not([data-k="vue"]):not(.hidden) button[aria-pressed="true"]')].filter(b=>b.offsetParent!==null||document.querySelector(".collant.flotte")).map(b=>b.textContent.trim());
+  r.querySelector(".rr-texte").textContent=[onglet,...choix].filter(Boolean).join(" · ")}
 document.addEventListener("click",e=>{const b=e.target.closest(".zoombar button");if(!b)return;zoomer(b.parentNode.dataset.carte==="tmap"?TM:M,b.dataset.z)});
 document.querySelector("#tbl thead").addEventListener("click",e=>{const b=e.target.closest("button[data-s]");if(!b)return;if(S.sort===b.dataset.s)S.asc=!S.asc;else{S.sort=b.dataset.s;S.asc=b.dataset.s==="nm"}table()});
 document.querySelector("#tbl tbody").addEventListener("click",e=>{const tr=e.target.closest("tr[data-c]");if(!tr)return;S.sel={lv:S.level,c:tr.dataset.c};S.tab="carte";document.querySelectorAll("#tabs button").forEach(x=>x.setAttribute("aria-selected",String(x.dataset.t==="carte")));render();window.scrollTo({top:0,behavior:"smooth"})});

@@ -798,7 +798,8 @@ def _site(agg, ref, professions, insee, R, serie, jour):
         "entonnoir": _entonnoir_site(R),
         # limites connues des données avec leurs sources (5 octobre 2026), affichées là où la donnée est montrée
         "limites": {k: {"risque": L["risque"], "texte": L["texte"], "sources": L["sources"],
-                        "territoires": L.get("territoires", {}), "nom": limites_mod.NOMS.get(k, k)}
+                        "territoires": L.get("territoires", {}), "nom": limites_mod.NOMS.get(k, k),
+                        "court": config.LIMITES_COURT.get(k, "")}
                     for k, L in config.LIMITES.items()},
         "limites_alias": config.LIMITES_ALIAS,
         "sensibilite": _sensibilite_site(R),
@@ -847,6 +848,7 @@ def _croisements_bases_site(R, professions, insee):
     for r in cr.itertuples():
         fam, q = questions.get(r.theme, ("", ""))
         out.append({"theme": r.theme, "famille": fam, "question": q, "x": nom(r.mesure), "y": nom(r.variable),
+                    "xk": r.mesure, "yk": r.variable,
                     "rho": _r(r.rho, 3), "lo": _r(r.ic95_bas, 3), "hi": _r(r.ic95_haut, 3),
                     "rp": _r(getattr(r, "rho_partiel_densite", None), 3),
                     "lop": _r(getattr(r, "ic95_bas_partiel", None), 3), "hip": _r(getattr(r, "ic95_haut_partiel", None), 3),
