@@ -1,0 +1,1879 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Offre de soins en santé, Hauts-de-Seine, 23 octobre 2026 · Ubi Cura</title>
+<meta name="description" content="Offre de soins et de santé mentale en France, par territoire, à partir des données publiques.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%231D4D87%22/%3E%3Crect%20x%3D%227%22%20y%3D%2217%22%20width%3D%224.5%22%20height%3D%228%22%20rx%3D%221%22%20fill%3D%22%23B39BCB%22/%3E%3Crect%20x%3D%2213.75%22%20y%3D%2212%22%20width%3D%224.5%22%20height%3D%2213%22%20rx%3D%221%22%20fill%3D%22%23D4C3EA%22/%3E%3Crect%20x%3D%2220.5%22%20y%3D%227%22%20width%3D%224.5%22%20height%3D%2218%22%20rx%3D%221%22%20fill%3D%22%23FFFFFF%22/%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="Ubi Cura">
+<meta property="og:title" content="Offre de soins en santé, Hauts-de-Seine, 23 octobre 2026">
+<meta property="og:description" content="Offre de soins et de santé mentale en France, par territoire, à partir des données publiques.">
+<meta name="theme-color" content="#15171C">
+<link rel="stylesheet" href="../polices/polices.css">
+<link rel="stylesheet" href="../style.css?v=2b21456a4b">
+<script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||"dark")}catch(e){document.documentElement.setAttribute("data-theme","dark")}</script>
+</head>
+<body>
+<nav class="site" aria-label="Navigation du site">
+  <div class="in">
+    <a class="marque" href="../index.html" title="Offre de soins et santé mentale en France, territoire par territoire">Ubi Cura</a>
+    <button class="menu" id="bouton-menu" type="button" aria-expanded="false" aria-controls="liens-site">Menu</button>
+    <div class="liens" id="liens-site">
+    <a class="l" href="../atlas.html">Atlas</a>
+    <a class="l" href="../rapports.html">Rapports nationaux</a>
+    <a class="l on" href="../territoires/index.html">Rapports par territoire</a>
+    <a class="l" href="../methode.html">Méthode, données et limites</a>
+    
+    <div class="projet">
+      <button class="l" id="bouton-projet" type="button" aria-expanded="false" aria-controls="menu-projet">Le projet <span class="fleche" aria-hidden="true">▾</span></button>
+      <div class="sous-menu" id="menu-projet" hidden>
+        <a href="../a-propos.html">À propos</a>
+        <a href="../publications.html">Publications</a>
+        <a href="../journal.html">Journal des mises à jour</a>
+        <a href="../a-venir.html">À venir</a>
+        <a href="../contribuer.html">Proposer une base de données</a>
+        
+      </div>
+    </div>
+    <button class="theme" id="bascule-theme" type="button" aria-pressed="false">Fond clair</button>
+    </div>
+  </div>
+</nav>
+<script>
+// menu « Le projet », ouvert au clic ou au clavier, fermé par Échap ou par un clic ailleurs
+(function(){var b=document.getElementById("bouton-projet"),m=document.getElementById("menu-projet");if(!b||!m)return;
+function ouvrir(o,focus){m.hidden=!o;b.setAttribute("aria-expanded",String(o));if(o&&focus){var a=m.querySelector("a");if(a)a.focus()}}
+b.addEventListener("click",function(){ouvrir(m.hidden,false)});
+b.addEventListener("keydown",function(e){if(e.key==="ArrowDown"){e.preventDefault();ouvrir(true,true)}});
+m.addEventListener("keydown",function(e){var l=[].slice.call(m.querySelectorAll("a")),i=l.indexOf(document.activeElement);
+  if(e.key==="ArrowDown"){e.preventDefault();l[(i+1)%l.length].focus()}else if(e.key==="ArrowUp"){e.preventDefault();l[(i-1+l.length)%l.length].focus()}});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!m.hidden){ouvrir(false);b.focus()}});
+document.addEventListener("click",function(e){if(!m.hidden&&!b.parentNode.contains(e.target))ouvrir(false)})})();
+// téléphone, liens du site repliés derrière « Menu » (audit du 22 octobre 2026) ; sommaire d'une page replié derrière
+// « Sommaire », ouvert au clic, refermé quand on choisit une section
+(function(){var b=document.getElementById("bouton-menu"),n=b&&b.closest("nav.site");if(!b)return;
+b.addEventListener("click",function(){var o=!n.classList.contains("ouvert");n.classList.toggle("ouvert",o);b.setAttribute("aria-expanded",String(o))})})();
+document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll("aside.sommaire").forEach(function(a){
+  if(!a.querySelector("ul"))return;var t=document.createElement("button");t.type="button";t.className="bouton-sommaire";
+  t.setAttribute("aria-expanded","false");t.textContent="Sommaire";a.insertBefore(t,a.firstChild);
+  t.addEventListener("click",function(){var o=!a.classList.contains("ouvert");a.classList.toggle("ouvert",o);t.setAttribute("aria-expanded",String(o))});
+  a.addEventListener("click",function(e){if(e.target.closest("a")){a.classList.remove("ouvert");t.setAttribute("aria-expanded","false")}})})});
+(function(){var b=document.getElementById("bascule-theme"),r=document.documentElement;
+function maj(){var c=r.getAttribute("data-theme")==="light";b.textContent=c?"Fond sombre":"Fond clair";b.setAttribute("aria-pressed",String(c))}
+maj();b.addEventListener("click",function(){var t=r.getAttribute("data-theme")==="light"?"dark":"light";r.setAttribute("data-theme",t);
+try{localStorage.setItem("theme",t)}catch(e){}maj();window.dispatchEvent(new Event("theme"))})})();
+</script>
+<main class="territoire" data-citation-page="Pithon L. (2026). Offre de soins en santé, Hauts-de-Seine, 23 octobre 2026. Ubi Cura, version du 23 octobre 2026" data-adresse="https://ubicura.fr">
+
+<h1>Offre de soins en santé, Hauts-de-Seine, 23 octobre 2026</h1>
+<p class="chapeau">Version du 23 octobre 2026.
+<button type="button" class="pas-imprime bouton-lien" onclick="window.print()">Enregistrer en PDF</button>.
+<a class="pas-imprime" href="dep-92-sante-mentale.html">Lire le rapport santé mentale</a>.
+<a class="pas-imprime" href="reg-11-sante.html">Rapport de la région</a>.
+<a class="pas-imprime" href="../rapports/2026-10-23/sante.html">Rapport national</a>.
+<a class="pas-imprime" href="index.html">Tous les territoires</a>.</p>
+
+<div class="rapport">
+  <aside class="sommaire" aria-label="Sommaire"><div class="toc">
+<ul>
+<li><a href="#en-bref">En bref</a></li>
+<li><a href="#les-professions-de-sante">Les professions de santé</a></li>
+<li><a href="#evolution-depuis-2016">Évolution depuis 2016</a></li>
+<li><a href="#repartition-a-l-interieur-du-departement">Répartition à l'intérieur du département</a></li>
+<li><a href="#structures-de-soins-finess-et-ror-reunis">Structures de soins, FINESS et ROR réunis</a></li>
+<li><a href="#temps-de-trajet-par-la-route">Temps de trajet par la route</a></li>
+<li><a href="#acces-financier-et-medecin-traitant">Accès financier et médecin traitant</a></li>
+<li><a href="#maladies-chroniques-en-affection-de-longue-duree">Maladies chroniques en affection de longue durée</a></li>
+<li><a href="#handicap">Handicap</a></li>
+<li><a href="#liberal-ou-salarie-et-part-des-femmes">Libéral ou salarié, et part des femmes</a></li>
+<li><a href="#sources">Sources</a></li>
+</ul>
+</div>
+</aside>
+  <article class="corps" data-citation="Pithon L. (2026). Offre de soins en santé, Hauts-de-Seine. Version du 23 octobre 2026. Ubi Cura, https://ubicura.fr/territoires/dep-92-sante.html"><details class="citer-haut"><summary><strong>Comment citer ce rapport</strong></summary>
+<p>Pithon L. (2026). Offre de soins en santé, Hauts-de-Seine. Version du 23 octobre 2026. Ubi Cura, <a href="https://ubicura.fr/territoires/dep-92-sante.html">https://ubicura.fr/territoires/dep-92-sante.html</a></p>
+<p class="small">Les données de ce rapport sont archivées avec un identifiant permanent, <a href="https://doi.org/10.5281/zenodo.23264933">doi:10.5281/zenodo.23264933</a>. Voir aussi <a href="../a-propos.html#comment-citer">Comment citer</a>.</p>
+</details><p>Ce rapport décrit l'offre de soins en santé dans le département Hauts-de-Seine (92), à partir des répertoires publics des professionnels de santé et d'autres données publiques. Il compare le territoire à sa région, à la moyenne des départements et à des départements de profil semblable. Il décrit sans classer. Les détails techniques sont repliés sous « Pour aller plus loin ».</p>
+<h2 id="en-bref">En bref</h2>
+<ul>
+<li>2 335 médecins généralistes exercent dans le département, soit 14,1 pour 10 000 habitants (un pour 710 habitants), contre 11,8 dans la région et 13,6 en moyenne dans les départements.</li>
+<li>D'après les séries de la DREES, la densité de médecins généralistes a baissé de 16,7 % de 2016 à 2026, contre une baisse de 4,4 % en France.</li>
+<li>Pour 10 000 habitants, le département compte 64,9 infirmiers (74,2 en moyenne dans les départements, dans le quart le moins doté) et 15,1 masseurs-kinésithérapeutes (15,3 en moyenne, au-dessus du milieu).</li>
+<li>Chaque habitant vit dans une intercommunalité qui compte au moins un pédiatre (20,6 % des habitants n'en ont aucun dans leur intercommunalité en France).</li>
+<li>Par la route, la moitié des habitants vit à moins de 2 minutes d'un médecin généraliste libéral. Aucun habitant ne vit à plus de 20 minutes d'un service d'urgences, contre 20,3 % en France.</li>
+</ul>
+<h2 id="les-professions-de-sante">Les professions de santé</h2>
+<table>
+<thead>
+<tr>
+<th>Profession</th>
+<th>Effectif</th>
+<th>Pour 10 000 habitants</th>
+<th>Région</th>
+<th>Départements semblables (milieu)</th>
+<th>Moyenne des départements</th>
+<th>Position parmi les départements</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Médecin généraliste</td>
+<td>2 335</td>
+<td>14,1</td>
+<td>11,8</td>
+<td>13,0</td>
+<td>13,6</td>
+<td>au-dessus du milieu</td>
+</tr>
+<tr>
+<td>Infirmier</td>
+<td>10 734</td>
+<td>64,9</td>
+<td>60,1</td>
+<td>61,3</td>
+<td>74,2</td>
+<td>quart le moins doté</td>
+</tr>
+<tr>
+<td>Masseur-kinésithérapeute</td>
+<td>2 506</td>
+<td>15,1</td>
+<td>12,1</td>
+<td>11,8</td>
+<td>15,3</td>
+<td>au-dessus du milieu</td>
+</tr>
+<tr>
+<td>Orthophoniste</td>
+<td>744</td>
+<td>4,5</td>
+<td>3,6</td>
+<td>4,0</td>
+<td>4,5</td>
+<td>au-dessus du milieu</td>
+</tr>
+<tr>
+<td>Psychomotricien</td>
+<td>702</td>
+<td>4,2</td>
+<td>3,5</td>
+<td>4,3</td>
+<td>2,8</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Pharmacien</td>
+<td>1 718</td>
+<td>10,4</td>
+<td>9,2</td>
+<td>9,1</td>
+<td>9,8</td>
+<td>au-dessus du milieu</td>
+</tr>
+<tr>
+<td>Chirurgien-dentiste</td>
+<td>2 018</td>
+<td>12,2</td>
+<td>8,7</td>
+<td>8,5</td>
+<td>7,7</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Sage-femme</td>
+<td>770</td>
+<td>4,7</td>
+<td>3,6</td>
+<td>3,6</td>
+<td>4,0</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Pédiatre</td>
+<td>400</td>
+<td>2,4</td>
+<td>2,0</td>
+<td>1,4</td>
+<td>1,4</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Gériatre</td>
+<td>129</td>
+<td>0,78</td>
+<td>0,74</td>
+<td>0,96</td>
+<td>0,50</td>
+<td>quart le mieux doté</td>
+</tr>
+</tbody>
+</table>
+<figure class="graphique zoomable" data-donnees="../donnees/2026-10-23/effectifs_dep_all.csv" data-donnees-nom="effectifs_dep_all.csv"><figcaption class="small muted"><strong>Figure 1.</strong> <span class="leg">Écart à la moyenne des départements, densité pour 10 000 habitants en indice (moyenne = 100)</span>.</figcaption><div class="fig-corps"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 262" role="img" aria-label="Écart à la moyenne des départements, densité pour 10 000 habitants en indice (moyenne = 100)" font-family="Work Sans, system-ui, sans-serif"><title>Écart à la moyenne des départements, densité pour 10 000 habitants en indice (moyenne = 100)</title><line x1="200.0" y1="26" x2="200.0" y2="238" stroke="var(--line, #D9DCE3)" stroke-width="1"/><text x="200.0" y="18" text-anchor="middle" font-size="9.5" fill="var(--muted, #5F6675)">4 fois moins</text><line x1="295.0" y1="26" x2="295.0" y2="238" stroke="var(--line, #D9DCE3)" stroke-width="1"/><text x="295.0" y="18" text-anchor="middle" font-size="9.5" fill="var(--muted, #5F6675)">2 fois moins</text><line x1="390.0" y1="26" x2="390.0" y2="238" stroke="var(--line, #D9DCE3)" stroke-width="2"/><text x="390.0" y="18" text-anchor="middle" font-size="9.5" fill="var(--muted, #5F6675)">Moyenne</text><line x1="485.0" y1="26" x2="485.0" y2="238" stroke="var(--line, #D9DCE3)" stroke-width="1"/><text x="485.0" y="18" text-anchor="middle" font-size="9.5" fill="var(--muted, #5F6675)">2 fois plus</text><line x1="580.0" y1="26" x2="580.0" y2="238" stroke="var(--line, #D9DCE3)" stroke-width="1"/><text x="580.0" y="18" text-anchor="middle" font-size="9.5" fill="var(--muted, #5F6675)">4 fois plus</text><text x="190" y="48" text-anchor="end" font-size="10.3" fill="var(--ink, #1F2430)">Médecin généraliste</text><rect x="369.9" y="39" width="31.4" height="10" fill="var(--r1, #7AA1D3)" rx="2"/><g fill="var(--muted, #5F6675)" fill-opacity=".45"><circle cx="268" cy="39" r="2"><title>Mayotte, 5,6</title></circle><circle cx="327" cy="44" r="2"><title>Eure, 8,6</title></circle><circle cx="327" cy="49" r="2"><title>Eure-et-Loir, 8,6</title></circle><circle cx="335" cy="42" r="2"><title>Seine-et-Marne, 9,1</title></circle><circle cx="335" cy="46" r="2"><title>Loiret, 9,1</title></circle><circle cx="337" cy="39" r="2"><title>Ain, 9,2</title></circle><circle cx="337" cy="44" r="2"><title>Guyane, 9,3</title></circle><circle cx="338" cy="49" r="2"><title>Essonne, 9,3</title></circle><circle cx="341" cy="42" r="2"><title>Oise, 9,5</title></circle><circle cx="341" cy="46" r="2"><title>Val-d&#x27;Oise, 9,5</title></circle><circle cx="344" cy="39" r="2"><title>Yvelines, 9,7</title></circle><circle cx="345" cy="44" r="2"><title>Cher, 9,8</title></circle><circle cx="345" cy="49" r="2"><title>Mayenne, 9,8</title></circle><circle cx="349" cy="42" r="2"><title>Sarthe, 10,1</title></circle><circle cx="350" cy="46" r="2"><title>Aube, 10,1</title></circle><circle cx="350" cy="39" r="2"><title>Aisne, 10,2</title></circle><circle cx="351" cy="44" r="2"><title>Seine-Saint-Denis, 10,2</title></circle><circle cx="355" cy="49" r="2"><title>Yonne, 10,5</title></circle><circle cx="362" cy="42" r="2"><title>Ardennes, 11,1</title></circle><circle cx="365" cy="46" r="2"><title>Tarn-et-Garonne, 11,3</title></circle><circle cx="365" cy="39" r="2"><title>Moselle, 11,3</title></circle><circle cx="365" cy="44" r="2"><title>Loir-et-Cher, 11,4</title></circle><circle cx="367" cy="49" r="2"><title>Indre, 11,5</title></circle><circle cx="368" cy="42" r="2"><title>Lot-et-Garonne, 11,6</title></circle><circle cx="369" cy="46" r="2"><title>Deux-Sèvres, 11,6</title></circle><circle cx="370" cy="39" r="2"><title>Charente, 11,7</title></circle><circle cx="370" cy="44" r="2"><title>Haute-Marne, 11,8</title></circle><circle cx="371" cy="49" r="2"><title>Dordogne, 11,8</title></circle><circle cx="371" cy="42" r="2"><title>Vendée, 11,8</title></circle><circle cx="372" cy="46" r="2"><title>Saône-et-Loire, 11,9</title></circle><circle cx="372" cy="39" r="2"><title>Haut-Rhin, 11,9</title></circle><circle cx="374" cy="44" r="2"><title>Meuse, 12,1</title></circle><circle cx="375" cy="49" r="2"><title>Pas-de-Calais, 12,2</title></circle><circle cx="375" cy="42" r="2"><title>Haute-Saône, 12,2</title></circle><circle cx="376" cy="46" r="2"><title>Allier, 12,2</title></circle><circle cx="376" cy="39" r="2"><title>Manche, 12,3</title></circle><circle cx="377" cy="44" r="2"><title>Orne, 12,3</title></circle><circle cx="377" cy="49" r="2"><title>Gard, 12,4</title></circle><circle cx="379" cy="42" r="2"><title>Ardèche, 12,5</title></circle><circle cx="382" cy="46" r="2"><title>Nièvre, 12,8</title></circle><circle cx="382" cy="39" r="2"><title>Seine-Maritime, 12,8</title></circle><circle cx="383" cy="44" r="2"><title>Côtes-d&#x27;Armor, 12,9</title></circle><circle cx="384" cy="49" r="2"><title>Val-de-Marne, 13,0</title></circle><circle cx="385" cy="42" r="2"><title>Aveyron, 13,1</title></circle><circle cx="385" cy="46" r="2"><title>Vaucluse, 13,1</title></circle><circle cx="386" cy="39" r="2"><title>Gers, 13,2</title></circle><circle cx="386" cy="44" r="2"><title>Tarn, 13,2</title></circle><circle cx="387" cy="49" r="2"><title>Territoire de Belfort, 13,3</title></circle><circle cx="389" cy="42" r="2"><title>Martinique, 13,4</title></circle><circle cx="389" cy="46" r="2"><title>Corrèze, 13,5</title></circle><circle cx="390" cy="39" r="2"><title>Marne, 13,6</title></circle><circle cx="391" cy="44" r="2"><title>Isère, 13,7</title></circle><circle cx="392" cy="49" r="2"><title>Vosges, 13,8</title></circle><circle cx="392" cy="42" r="2"><title>Vienne, 13,8</title></circle><circle cx="393" cy="46" r="2"><title>Drôme, 13,8</title></circle><circle cx="393" cy="39" r="2"><title>Loire-Atlantique, 13,9</title></circle><circle cx="393" cy="44" r="2"><title>Nord, 13,9</title></circle><circle cx="393" cy="49" r="2"><title>Doubs, 13,9</title></circle><circle cx="395" cy="42" r="2"><title>Haute-Savoie, 14,1</title></circle><circle cx="396" cy="46" r="2"><title>Aude, 14,2</title></circle><circle cx="396" cy="39" r="2"><title>Jura, 14,2</title></circle><circle cx="396" cy="44" r="2"><title>Haute-Garonne, 14,2</title></circle><circle cx="397" cy="49" r="2"><title>Lot, 14,3</title></circle><circle cx="398" cy="42" r="2"><title>Somme, 14,4</title></circle><circle cx="398" cy="46" r="2"><title>Lozère, 14,4</title></circle><circle cx="398" cy="39" r="2"><title>Maine-et-Loire, 14,4</title></circle><circle cx="399" cy="44" r="2"><title>Var, 14,5</title></circle><circle cx="399" cy="49" r="2"><title>Guadeloupe, 14,5</title></circle><circle cx="399" cy="42" r="2"><title>Ille-et-Vilaine, 14,5</title></circle><circle cx="400" cy="46" r="2"><title>Haute-Corse, 14,6</title></circle><circle cx="401" cy="39" r="2"><title>Hérault, 14,7</title></circle><circle cx="401" cy="44" r="2"><title>Pyrénées-Orientales, 14,7</title></circle><circle cx="401" cy="49" r="2"><title>Haute-Loire, 14,7</title></circle><circle cx="401" cy="42" r="2"><title>Loire, 14,7</title></circle><circle cx="401" cy="46" r="2"><title>Puy-de-Dôme, 14,8</title></circle><circle cx="401" cy="39" r="2"><title>Indre-et-Loire, 14,8</title></circle><circle cx="403" cy="44" r="2"><title>Côte-d&#x27;Or, 15,0</title></circle><circle cx="403" cy="49" r="2"><title>Meurthe-et-Moselle, 15,0</title></circle><circle cx="404" cy="42" r="2"><title>Corse-du-Sud, 15,0</title></circle><circle cx="404" cy="46" r="2"><title>La Réunion, 15,1</title></circle><circle cx="405" cy="39" r="2"><title>Rhône, 15,2</title></circle><circle cx="405" cy="44" r="2"><title>Bas-Rhin, 15,2</title></circle><circle cx="408" cy="49" r="2"><title>Alpes-Maritimes, 15,4</title></circle><circle cx="408" cy="42" r="2"><title>Cantal, 15,5</title></circle><circle cx="409" cy="46" r="2"><title>Haute-Vienne, 15,6</title></circle><circle cx="409" cy="39" r="2"><title>Calvados, 15,6</title></circle><circle cx="409" cy="44" r="2"><title>Gironde, 15,6</title></circle><circle cx="413" cy="49" r="2"><title>Alpes-de-Haute-Provence, 16,1</title></circle><circle cx="414" cy="42" r="2"><title>Morbihan, 16,2</title></circle><circle cx="415" cy="46" r="2"><title>Charente-Maritime, 16,3</title></circle><circle cx="417" cy="39" r="2"><title>Bouches-du-Rhône, 16,5</title></circle><circle cx="418" cy="44" r="2"><title>Landes, 16,6</title></circle><circle cx="419" cy="49" r="2"><title>Finistère, 16,8</title></circle><circle cx="426" cy="42" r="2"><title>Ariège, 17,7</title></circle><circle cx="430" cy="46" r="2"><title>Hautes-Pyrénées, 18,2</title></circle><circle cx="436" cy="39" r="2"><title>Pyrénées-Atlantiques, 19,0</title></circle><circle cx="440" cy="44" r="2"><title>Savoie, 19,6</title></circle><circle cx="456" cy="49" r="2"><title>Creuse, 22,1</title></circle><circle cx="464" cy="42" r="2"><title>Paris, 23,3</title></circle><circle cx="481" cy="46" r="2"><title>Hautes-Alpes, 26,4</title></circle></g><line x1="390.0" y1="44" x2="395.1" y2="44" stroke="var(--r5, #0F3562)" stroke-width="3"/><circle cx="390.0" cy="44" r="4" fill="var(--bg, #fff)" stroke="var(--muted, #5F6675)" stroke-width="1.5"/><circle cx="395.1" cy="44" r="6" fill="var(--r5, #0F3562)"/><text x="586" y="48" font-size="9.5" fill="var(--ink, #1F2430)">104</text><text x="190" y="82" text-anchor="end" font-size="10.3" fill="var(--ink, #1F2430)">Infirmier</text><rect x="377.6" y="73" width="33.9" height="10" fill="var(--r1, #7AA1D3)" rx="2"/><g fill="var(--muted, #5F6675)" fill-opacity=".45"><circle cx="262" cy="73" r="2"><title>Mayotte, 29,2</title></circle><circle cx="301" cy="78" r="2"><title>Seine-Saint-Denis, 38,6</title></circle><circle cx="321" cy="83" r="2"><title>Seine-et-Marne, 45,0</title></circle><circle cx="323" cy="76" r="2"><title>Guyane, 45,5</title></circle><circle cx="324" cy="80" r="2"><title>Essonne, 45,7</title></circle><circle cx="328" cy="73" r="2"><title>Val-d&#x27;Oise, 47,1</title></circle><circle cx="329" cy="78" r="2"><title>Yvelines, 47,4</title></circle><circle cx="333" cy="83" r="2"><title>Eure, 49,0</title></circle><circle cx="337" cy="76" r="2"><title>Ain, 50,5</title></circle><circle cx="342" cy="80" r="2"><title>Oise, 52,3</title></circle><circle cx="348" cy="73" r="2"><title>Vendée, 54,6</title></circle><circle cx="353" cy="78" r="2"><title>Mayenne, 56,8</title></circle><circle cx="361" cy="83" r="2"><title>Loire-Atlantique, 60,1</title></circle><circle cx="364" cy="76" r="2"><title>Haute-Savoie, 61,3</title></circle><circle cx="366" cy="80" r="2"><title>Eure-et-Loir, 62,4</title></circle><circle cx="369" cy="73" r="2"><title>Sarthe, 63,6</title></circle><circle cx="370" cy="78" r="2"><title>Loir-et-Cher, 64,2</title></circle><circle cx="371" cy="83" r="2"><title>Cher, 64,7</title></circle><circle cx="373" cy="76" r="2"><title>Jura, 65,7</title></circle><circle cx="374" cy="80" r="2"><title>Indre-et-Loire, 65,8</title></circle><circle cx="375" cy="73" r="2"><title>Aube, 66,7</title></circle><circle cx="376" cy="78" r="2"><title>Charente-Maritime, 66,8</title></circle><circle cx="376" cy="83" r="2"><title>Gers, 67,0</title></circle><circle cx="376" cy="76" r="2"><title>Indre, 67,2</title></circle><circle cx="378" cy="80" r="2"><title>Charente, 67,8</title></circle><circle cx="378" cy="73" r="2"><title>Val-de-Marne, 68,0</title></circle><circle cx="378" cy="78" r="2"><title>Ille-et-Vilaine, 68,0</title></circle><circle cx="378" cy="83" r="2"><title>Pas-de-Calais, 68,2</title></circle><circle cx="379" cy="76" r="2"><title>Loiret, 68,6</title></circle><circle cx="379" cy="80" r="2"><title>Morbihan, 68,6</title></circle><circle cx="380" cy="73" r="2"><title>Meuse, 69,0</title></circle><circle cx="380" cy="78" r="2"><title>Haute-Saône, 69,0</title></circle><circle cx="380" cy="83" r="2"><title>Côtes-d&#x27;Armor, 69,2</title></circle><circle cx="382" cy="76" r="2"><title>Manche, 69,8</title></circle><circle cx="384" cy="80" r="2"><title>Tarn-et-Garonne, 70,9</title></circle><circle cx="384" cy="73" r="2"><title>Isère, 71,1</title></circle><circle cx="384" cy="78" r="2"><title>Moselle, 71,1</title></circle><circle cx="385" cy="83" r="2"><title>Vaucluse, 71,5</title></circle><circle cx="385" cy="76" r="2"><title>Doubs, 71,8</title></circle><circle cx="386" cy="80" r="2"><title>Maine-et-Loire, 72,0</title></circle><circle cx="387" cy="73" r="2"><title>Vosges, 72,4</title></circle><circle cx="389" cy="78" r="2"><title>La Réunion, 73,4</title></circle><circle cx="390" cy="83" r="2"><title>Savoie, 74,2</title></circle><circle cx="391" cy="76" r="2"><title>Dordogne, 74,9</title></circle><circle cx="392" cy="80" r="2"><title>Yonne, 75,1</title></circle><circle cx="392" cy="73" r="2"><title>Landes, 75,2</title></circle><circle cx="392" cy="78" r="2"><title>Bas-Rhin, 75,2</title></circle><circle cx="392" cy="83" r="2"><title>Haute-Marne, 75,4</title></circle><circle cx="393" cy="76" r="2"><title>Lot-et-Garonne, 75,7</title></circle><circle cx="393" cy="80" r="2"><title>Aisne, 76,1</title></circle><circle cx="394" cy="73" r="2"><title>Haute-Garonne, 76,6</title></circle><circle cx="395" cy="78" r="2"><title>Haut-Rhin, 77,3</title></circle><circle cx="397" cy="83" r="2"><title>Ardennes, 77,9</title></circle><circle cx="397" cy="76" r="2"><title>Nièvre, 78,1</title></circle><circle cx="398" cy="80" r="2"><title>Orne, 78,8</title></circle><circle cx="399" cy="73" r="2"><title>Nord, 79,1</title></circle><circle cx="399" cy="78" r="2"><title>Ardèche, 79,1</title></circle><circle cx="399" cy="83" r="2"><title>Saône-et-Loire, 79,1</title></circle><circle cx="399" cy="76" r="2"><title>Alpes-de-Haute-Provence, 79,3</title></circle><circle cx="399" cy="80" r="2"><title>Aude, 79,3</title></circle><circle cx="401" cy="73" r="2"><title>Alpes-Maritimes, 80,7</title></circle><circle cx="402" cy="78" r="2"><title>Drôme, 81,0</title></circle><circle cx="403" cy="83" r="2"><title>Corse-du-Sud, 81,7</title></circle><circle cx="403" cy="76" r="2"><title>Puy-de-Dôme, 81,9</title></circle><circle cx="404" cy="80" r="2"><title>Gard, 81,9</title></circle><circle cx="404" cy="73" r="2"><title>Var, 82,1</title></circle><circle cx="404" cy="78" r="2"><title>Gironde, 82,2</title></circle><circle cx="405" cy="83" r="2"><title>Rhône, 82,9</title></circle><circle cx="406" cy="76" r="2"><title>Tarn, 83,3</title></circle><circle cx="406" cy="80" r="2"><title>Pyrénées-Atlantiques, 83,6</title></circle><circle cx="408" cy="73" r="2"><title>Somme, 84,5</title></circle><circle cx="409" cy="78" r="2"><title>Meurthe-et-Moselle, 85,1</title></circle><circle cx="409" cy="83" r="2"><title>Finistère, 85,1</title></circle><circle cx="411" cy="76" r="2"><title>Haute-Corse, 86,8</title></circle><circle cx="412" cy="80" r="2"><title>Marne, 86,8</title></circle><circle cx="412" cy="73" r="2"><title>Martinique, 87,0</title></circle><circle cx="413" cy="78" r="2"><title>Seine-Maritime, 87,9</title></circle><circle cx="414" cy="83" r="2"><title>Vienne, 88,5</title></circle><circle cx="414" cy="76" r="2"><title>Pyrénées-Orientales, 88,7</title></circle><circle cx="414" cy="80" r="2"><title>Lot, 88,7</title></circle><circle cx="415" cy="73" r="2"><title>Haute-Loire, 88,9</title></circle><circle cx="415" cy="78" r="2"><title>Allier, 89,4</title></circle><circle cx="416" cy="83" r="2"><title>Hautes-Pyrénées, 89,7</title></circle><circle cx="416" cy="76" r="2"><title>Hérault, 89,8</title></circle><circle cx="416" cy="80" r="2"><title>Guadeloupe, 90,0</title></circle><circle cx="416" cy="73" r="2"><title>Calvados, 90,0</title></circle><circle cx="419" cy="78" r="2"><title>Ariège, 91,8</title></circle><circle cx="421" cy="83" r="2"><title>Côte-d&#x27;Or, 92,9</title></circle><circle cx="422" cy="76" r="2"><title>Cantal, 93,7</title></circle><circle cx="424" cy="80" r="2"><title>Hautes-Alpes, 94,8</title></circle><circle cx="424" cy="73" r="2"><title>Territoire de Belfort, 95,3</title></circle><circle cx="426" cy="78" r="2"><title>Bouches-du-Rhône, 96,2</title></circle><circle cx="428" cy="83" r="2"><title>Creuse, 97,6</title></circle><circle cx="430" cy="76" r="2"><title>Aveyron, 99,6</title></circle><circle cx="432" cy="80" r="2"><title>Loire, 100,6</title></circle><circle cx="436" cy="73" r="2"><title>Deux-Sèvres, 104,2</title></circle><circle cx="440" cy="78" r="2"><title>Corrèze, 107,0</title></circle><circle cx="447" cy="83" r="2"><title>Paris, 112,1</title></circle><circle cx="463" cy="76" r="2"><title>Lozère, 126,0</title></circle><circle cx="463" cy="80" r="2"><title>Haute-Vienne, 126,4</title></circle></g><line x1="390.0" y1="78" x2="371.5" y2="78" stroke="var(--d0, #83451E)" stroke-width="3"/><circle cx="390.0" cy="78" r="4" fill="var(--bg, #fff)" stroke="var(--muted, #5F6675)" stroke-width="1.5"/><circle cx="371.5" cy="78" r="6" fill="var(--d0, #83451E)"/><text x="586" y="82" font-size="9.5" fill="var(--ink, #1F2430)">87</text><text x="190" y="116" text-anchor="end" font-size="10.3" fill="var(--ink, #1F2430)">Masseur-kinésithérapeute</text><rect x="338.3" y="107" width="71.7" height="10" fill="var(--r1, #7AA1D3)" rx="2"/><g fill="var(--muted, #5F6675)" fill-opacity=".45"><circle cx="200" cy="107" r="2"><title>Mayotte, 3,1</title></circle><circle cx="249" cy="112" r="2"><title>Guyane, 5,4</title></circle><circle cx="278" cy="117" r="2"><title>Eure-et-Loir, 6,8</title></circle><circle cx="286" cy="110" r="2"><title>Oise, 7,2</title></circle><circle cx="288" cy="114" r="2"><title>Aisne, 7,2</title></circle><circle cx="291" cy="107" r="2"><title>Seine-Saint-Denis, 7,4</title></circle><circle cx="294" cy="112" r="2"><title>Haute-Marne, 7,6</title></circle><circle cx="298" cy="117" r="2"><title>Deux-Sèvres, 7,8</title></circle><circle cx="300" cy="110" r="2"><title>Cher, 7,9</title></circle><circle cx="302" cy="114" r="2"><title>Meuse, 8,0</title></circle><circle cx="305" cy="107" r="2"><title>Mayenne, 8,2</title></circle><circle cx="308" cy="112" r="2"><title>Eure, 8,4</title></circle><circle cx="314" cy="117" r="2"><title>Indre, 8,8</title></circle><circle cx="315" cy="110" r="2"><title>Yonne, 8,8</title></circle><circle cx="316" cy="114" r="2"><title>Essonne, 8,9</title></circle><circle cx="317" cy="107" r="2"><title>Sarthe, 9,0</title></circle><circle cx="318" cy="112" r="2"><title>Territoire de Belfort, 9,1</title></circle><circle cx="319" cy="117" r="2"><title>Seine-et-Marne, 9,1</title></circle><circle cx="321" cy="110" r="2"><title>Loir-et-Cher, 9,3</title></circle><circle cx="322" cy="114" r="2"><title>Val-d&#x27;Oise, 9,3</title></circle><circle cx="325" cy="107" r="2"><title>Charente, 9,5</title></circle><circle cx="329" cy="112" r="2"><title>Nièvre, 9,8</title></circle><circle cx="332" cy="117" r="2"><title>Orne, 10,0</title></circle><circle cx="333" cy="110" r="2"><title>Ain, 10,1</title></circle><circle cx="338" cy="114" r="2"><title>Haute-Saône, 10,4</title></circle><circle cx="338" cy="107" r="2"><title>Aube, 10,5</title></circle><circle cx="341" cy="112" r="2"><title>Dordogne, 10,7</title></circle><circle cx="342" cy="117" r="2"><title>Manche, 10,8</title></circle><circle cx="343" cy="110" r="2"><title>Vienne, 10,8</title></circle><circle cx="344" cy="114" r="2"><title>Vosges, 10,9</title></circle><circle cx="344" cy="107" r="2"><title>Seine-Maritime, 10,9</title></circle><circle cx="344" cy="112" r="2"><title>Saône-et-Loire, 10,9</title></circle><circle cx="346" cy="117" r="2"><title>Creuse, 11,1</title></circle><circle cx="347" cy="110" r="2"><title>Loiret, 11,1</title></circle><circle cx="347" cy="114" r="2"><title>Côtes-d&#x27;Armor, 11,2</title></circle><circle cx="348" cy="107" r="2"><title>Yvelines, 11,2</title></circle><circle cx="349" cy="112" r="2"><title>Somme, 11,3</title></circle><circle cx="353" cy="117" r="2"><title>Cantal, 11,7</title></circle><circle cx="353" cy="110" r="2"><title>Moselle, 11,7</title></circle><circle cx="354" cy="114" r="2"><title>Val-de-Marne, 11,8</title></circle><circle cx="358" cy="107" r="2"><title>Jura, 12,1</title></circle><circle cx="359" cy="112" r="2"><title>Lot-et-Garonne, 12,2</title></circle><circle cx="359" cy="117" r="2"><title>Maine-et-Loire, 12,2</title></circle><circle cx="360" cy="110" r="2"><title>Marne, 12,2</title></circle><circle cx="361" cy="114" r="2"><title>Vendée, 12,3</title></circle><circle cx="363" cy="107" r="2"><title>Indre-et-Loire, 12,5</title></circle><circle cx="363" cy="112" r="2"><title>Ardennes, 12,6</title></circle><circle cx="365" cy="117" r="2"><title>Calvados, 12,7</title></circle><circle cx="367" cy="110" r="2"><title>Haut-Rhin, 12,9</title></circle><circle cx="369" cy="114" r="2"><title>Doubs, 13,1</title></circle><circle cx="370" cy="107" r="2"><title>Haute-Loire, 13,2</title></circle><circle cx="374" cy="112" r="2"><title>Meurthe-et-Moselle, 13,6</title></circle><circle cx="376" cy="117" r="2"><title>Corrèze, 13,8</title></circle><circle cx="377" cy="110" r="2"><title>Allier, 13,9</title></circle><circle cx="377" cy="114" r="2"><title>Pas-de-Calais, 13,9</title></circle><circle cx="380" cy="107" r="2"><title>Loire, 14,2</title></circle><circle cx="380" cy="112" r="2"><title>Ardèche, 14,2</title></circle><circle cx="380" cy="117" r="2"><title>Lot, 14,2</title></circle><circle cx="382" cy="110" r="2"><title>Loire-Atlantique, 14,4</title></circle><circle cx="391" cy="114" r="2"><title>Tarn-et-Garonne, 15,4</title></circle><circle cx="392" cy="107" r="2"><title>Drôme, 15,5</title></circle><circle cx="395" cy="112" r="2"><title>Vaucluse, 15,9</title></circle><circle cx="396" cy="117" r="2"><title>Gers, 16,0</title></circle><circle cx="397" cy="110" r="2"><title>Ille-et-Vilaine, 16,1</title></circle><circle cx="398" cy="114" r="2"><title>Finistère, 16,2</title></circle><circle cx="398" cy="107" r="2"><title>Tarn, 16,2</title></circle><circle cx="400" cy="112" r="2"><title>Haute-Vienne, 16,4</title></circle><circle cx="400" cy="117" r="2"><title>Lozère, 16,5</title></circle><circle cx="401" cy="110" r="2"><title>Puy-de-Dôme, 16,5</title></circle><circle cx="402" cy="114" r="2"><title>Morbihan, 16,6</title></circle><circle cx="404" cy="107" r="2"><title>Aveyron, 16,9</title></circle><circle cx="404" cy="112" r="2"><title>Nord, 16,9</title></circle><circle cx="408" cy="117" r="2"><title>Charente-Maritime, 17,4</title></circle><circle cx="410" cy="110" r="2"><title>Aude, 17,6</title></circle><circle cx="410" cy="114" r="2"><title>Rhône, 17,7</title></circle><circle cx="410" cy="107" r="2"><title>Côte-d&#x27;Or, 17,7</title></circle><circle cx="411" cy="112" r="2"><title>Gard, 17,8</title></circle><circle cx="416" cy="117" r="2"><title>Isère, 18,5</title></circle><circle cx="418" cy="110" r="2"><title>Gironde, 18,8</title></circle><circle cx="424" cy="114" r="2"><title>Alpes-de-Haute-Provence, 19,5</title></circle><circle cx="424" cy="107" r="2"><title>Haute-Savoie, 19,6</title></circle><circle cx="429" cy="112" r="2"><title>Ariège, 20,3</title></circle><circle cx="431" cy="117" r="2"><title>Haute-Garonne, 20,6</title></circle><circle cx="436" cy="110" r="2"><title>Bas-Rhin, 21,4</title></circle><circle cx="437" cy="114" r="2"><title>Bouches-du-Rhône, 21,6</title></circle><circle cx="437" cy="107" r="2"><title>Alpes-Maritimes, 21,6</title></circle><circle cx="440" cy="112" r="2"><title>Haute-Corse, 22,0</title></circle><circle cx="444" cy="117" r="2"><title>Var, 22,7</title></circle><circle cx="445" cy="110" r="2"><title>La Réunion, 22,8</title></circle><circle cx="449" cy="114" r="2"><title>Corse-du-Sud, 23,4</title></circle><circle cx="449" cy="107" r="2"><title>Paris, 23,4</title></circle><circle cx="450" cy="112" r="2"><title>Hautes-Pyrénées, 23,7</title></circle><circle cx="453" cy="117" r="2"><title>Guadeloupe, 24,2</title></circle><circle cx="457" cy="110" r="2"><title>Savoie, 24,9</title></circle><circle cx="460" cy="114" r="2"><title>Martinique, 25,4</title></circle><circle cx="461" cy="107" r="2"><title>Landes, 25,6</title></circle><circle cx="461" cy="112" r="2"><title>Hérault, 25,6</title></circle><circle cx="478" cy="117" r="2"><title>Pyrénées-Atlantiques, 29,1</title></circle><circle cx="480" cy="110" r="2"><title>Pyrénées-Orientales, 29,3</title></circle><circle cx="494" cy="114" r="2"><title>Hautes-Alpes, 32,6</title></circle></g><line x1="390.0" y1="112" x2="388.9" y2="112" stroke="var(--d0, #83451E)" stroke-width="3"/><circle cx="390.0" cy="112" r="4" fill="var(--bg, #fff)" stroke="var(--muted, #5F6675)" stroke-width="1.5"/><circle cx="388.9" cy="112" r="6" fill="var(--d0, #83451E)"/><text x="586" y="116" font-size="9.5" fill="var(--ink, #1F2430)">99</text><text x="190" y="150" text-anchor="end" font-size="10.3" fill="var(--ink, #1F2430)">Orthophoniste</text><rect x="330.3" y="141" width="69.1" height="10" fill="var(--r1, #7AA1D3)" rx="2"/><g fill="var(--muted, #5F6675)" fill-opacity=".45"><circle cx="200" cy="141" r="2"><title>Mayotte, 0,2</title></circle><circle cx="212" cy="146" r="2"><title>Guyane, 1,2</title></circle><circle cx="258" cy="151" r="2"><title>Indre, 1,7</title></circle><circle cx="266" cy="144" r="2"><title>Deux-Sèvres, 1,8</title></circle><circle cx="275" cy="148" r="2"><title>Cher, 1,9</title></circle><circle cx="276" cy="141" r="2"><title>Allier, 2,0</title></circle><circle cx="285" cy="146" r="2"><title>Cantal, 2,1</title></circle><circle cx="287" cy="151" r="2"><title>Seine-Saint-Denis, 2,1</title></circle><circle cx="288" cy="144" r="2"><title>Aisne, 2,1</title></circle><circle cx="291" cy="148" r="2"><title>Eure-et-Loir, 2,2</title></circle><circle cx="298" cy="141" r="2"><title>Yonne, 2,3</title></circle><circle cx="299" cy="146" r="2"><title>Eure, 2,3</title></circle><circle cx="300" cy="151" r="2"><title>Haute-Saône, 2,3</title></circle><circle cx="300" cy="144" r="2"><title>Orne, 2,3</title></circle><circle cx="305" cy="148" r="2"><title>Seine-et-Marne, 2,4</title></circle><circle cx="306" cy="141" r="2"><title>Nièvre, 2,4</title></circle><circle cx="307" cy="146" r="2"><title>Haute-Marne, 2,4</title></circle><circle cx="308" cy="151" r="2"><title>Oise, 2,5</title></circle><circle cx="311" cy="144" r="2"><title>Creuse, 2,5</title></circle><circle cx="319" cy="148" r="2"><title>Saône-et-Loire, 2,7</title></circle><circle cx="320" cy="141" r="2"><title>Val-d&#x27;Oise, 2,7</title></circle><circle cx="321" cy="146" r="2"><title>Aube, 2,7</title></circle><circle cx="324" cy="151" r="2"><title>Lot-et-Garonne, 2,8</title></circle><circle cx="325" cy="144" r="2"><title>Sarthe, 2,8</title></circle><circle cx="330" cy="148" r="2"><title>Mayenne, 2,9</title></circle><circle cx="330" cy="141" r="2"><title>Dordogne, 2,9</title></circle><circle cx="332" cy="146" r="2"><title>Vosges, 2,9</title></circle><circle cx="333" cy="151" r="2"><title>Charente, 2,9</title></circle><circle cx="333" cy="144" r="2"><title>Loiret, 3,0</title></circle><circle cx="333" cy="148" r="2"><title>Essonne, 3,0</title></circle><circle cx="337" cy="141" r="2"><title>Loir-et-Cher, 3,0</title></circle><circle cx="340" cy="146" r="2"><title>Jura, 3,1</title></circle><circle cx="340" cy="151" r="2"><title>Marne, 3,1</title></circle><circle cx="341" cy="144" r="2"><title>Territoire de Belfort, 3,1</title></circle><circle cx="345" cy="148" r="2"><title>Haut-Rhin, 3,2</title></circle><circle cx="345" cy="141" r="2"><title>Vienne, 3,2</title></circle><circle cx="347" cy="146" r="2"><title>Haute-Vienne, 3,3</title></circle><circle cx="350" cy="151" r="2"><title>Aude, 3,3</title></circle><circle cx="355" cy="144" r="2"><title>Gers, 3,5</title></circle><circle cx="356" cy="148" r="2"><title>Manche, 3,5</title></circle><circle cx="356" cy="141" r="2"><title>Haute-Loire, 3,5</title></circle><circle cx="357" cy="146" r="2"><title>Corrèze, 3,5</title></circle><circle cx="357" cy="151" r="2"><title>Lozère, 3,5</title></circle><circle cx="358" cy="144" r="2"><title>Meuse, 3,5</title></circle><circle cx="359" cy="148" r="2"><title>Val-de-Marne, 3,6</title></circle><circle cx="361" cy="141" r="2"><title>Vendée, 3,6</title></circle><circle cx="364" cy="146" r="2"><title>Loire, 3,7</title></circle><circle cx="367" cy="151" r="2"><title>Lot, 3,8</title></circle><circle cx="369" cy="144" r="2"><title>Moselle, 3,8</title></circle><circle cx="369" cy="148" r="2"><title>Ain, 3,9</title></circle><circle cx="370" cy="141" r="2"><title>Seine-Maritime, 3,9</title></circle><circle cx="374" cy="146" r="2"><title>Yvelines, 4,0</title></circle><circle cx="374" cy="151" r="2"><title>Landes, 4,0</title></circle><circle cx="375" cy="144" r="2"><title>Tarn-et-Garonne, 4,0</title></circle><circle cx="378" cy="148" r="2"><title>Guadeloupe, 4,1</title></circle><circle cx="379" cy="141" r="2"><title>Charente-Maritime, 4,1</title></circle><circle cx="379" cy="146" r="2"><title>Vaucluse, 4,1</title></circle><circle cx="379" cy="151" r="2"><title>Doubs, 4,1</title></circle><circle cx="380" cy="144" r="2"><title>Var, 4,2</title></circle><circle cx="381" cy="148" r="2"><title>Somme, 4,2</title></circle><circle cx="382" cy="141" r="2"><title>Martinique, 4,2</title></circle><circle cx="382" cy="146" r="2"><title>Ardèche, 4,2</title></circle><circle cx="382" cy="151" r="2"><title>Puy-de-Dôme, 4,2</title></circle><circle cx="383" cy="144" r="2"><title>Aveyron, 4,3</title></circle><circle cx="384" cy="148" r="2"><title>Haute-Savoie, 4,3</title></circle><circle cx="387" cy="141" r="2"><title>Pyrénées-Orientales, 4,4</title></circle><circle cx="388" cy="146" r="2"><title>Hautes-Pyrénées, 4,4</title></circle><circle cx="389" cy="151" r="2"><title>Côte-d&#x27;Or, 4,4</title></circle><circle cx="392" cy="144" r="2"><title>Ariège, 4,6</title></circle><circle cx="393" cy="148" r="2"><title>Alpes-de-Haute-Provence, 4,6</title></circle><circle cx="393" cy="141" r="2"><title>Haute-Corse, 4,6</title></circle><circle cx="395" cy="146" r="2"><title>Côtes-d&#x27;Armor, 4,7</title></circle><circle cx="396" cy="151" r="2"><title>Gard, 4,7</title></circle><circle cx="399" cy="144" r="2"><title>Pas-de-Calais, 4,8</title></circle><circle cx="399" cy="148" r="2"><title>Maine-et-Loire, 4,8</title></circle><circle cx="400" cy="141" r="2"><title>Corse-du-Sud, 4,8</title></circle><circle cx="401" cy="146" r="2"><title>Tarn, 4,9</title></circle><circle cx="405" cy="151" r="2"><title>Isère, 5,0</title></circle><circle cx="406" cy="144" r="2"><title>Calvados, 5,0</title></circle><circle cx="408" cy="148" r="2"><title>Finistère, 5,1</title></circle><circle cx="408" cy="141" r="2"><title>Drôme, 5,1</title></circle><circle cx="409" cy="146" r="2"><title>Ardennes, 5,2</title></circle><circle cx="410" cy="151" r="2"><title>Bas-Rhin, 5,2</title></circle><circle cx="414" cy="144" r="2"><title>Meurthe-et-Moselle, 5,3</title></circle><circle cx="415" cy="148" r="2"><title>Gironde, 5,4</title></circle><circle cx="417" cy="141" r="2"><title>Savoie, 5,4</title></circle><circle cx="417" cy="146" r="2"><title>Alpes-Maritimes, 5,5</title></circle><circle cx="426" cy="151" r="2"><title>Pyrénées-Atlantiques, 5,8</title></circle><circle cx="426" cy="144" r="2"><title>Morbihan, 5,8</title></circle><circle cx="428" cy="148" r="2"><title>Ille-et-Vilaine, 5,9</title></circle><circle cx="430" cy="141" r="2"><title>Loire-Atlantique, 6,0</title></circle><circle cx="435" cy="146" r="2"><title>Bouches-du-Rhône, 6,2</title></circle><circle cx="442" cy="151" r="2"><title>Paris, 6,6</title></circle><circle cx="449" cy="144" r="2"><title>Nord, 6,9</title></circle><circle cx="450" cy="148" r="2"><title>Haute-Garonne, 6,9</title></circle><circle cx="450" cy="141" r="2"><title>La Réunion, 7,0</title></circle><circle cx="451" cy="146" r="2"><title>Hautes-Alpes, 7,0</title></circle><circle cx="453" cy="151" r="2"><title>Hérault, 7,1</title></circle><circle cx="456" cy="144" r="2"><title>Indre-et-Loire, 7,3</title></circle><circle cx="457" cy="148" r="2"><title>Rhône, 7,3</title></circle></g><line x1="390.0" y1="146" x2="390.5" y2="146" stroke="var(--r5, #0F3562)" stroke-width="3"/><circle cx="390.0" cy="146" r="4" fill="var(--bg, #fff)" stroke="var(--muted, #5F6675)" stroke-width="1.5"/><circle cx="390.5" cy="146" r="6" fill="var(--r5, #0F3562)"/><text x="586" y="150" font-size="9.5" fill="var(--ink, #1F2430)">100</text><text x="190" y="184" text-anchor="end" font-size="10.3" fill="var(--ink, #1F2430)">Psychomotricien</text><rect x="347.6" y="175" width="54.9" height="10" fill="var(--r1, #7AA1D3)" rx="2"/><g fill="var(--muted, #5F6675)" fill-opacity=".45"><circle cx="200" cy="175" r="2"><title>Mayotte, 0,3</title></circle><circle cx="245" cy="180" r="2"><title>Moselle, 1,0</title></circle><circle cx="254" cy="185" r="2"><title>Meurthe-et-Moselle, 1,0</title></circle><circle cx="268" cy="178" r="2"><title>Vosges, 1,1</title></circle><circle cx="286" cy="182" r="2"><title>Bas-Rhin, 1,3</title></circle><circle cx="289" cy="175" r="2"><title>Aisne, 1,3</title></circle><circle cx="294" cy="180" r="2"><title>Meuse, 1,4</title></circle><circle cx="304" cy="185" r="2"><title>Guyane, 1,5</title></circle><circle cx="311" cy="178" r="2"><title>Indre, 1,6</title></circle><circle cx="312" cy="182" r="2"><title>Sarthe, 1,6</title></circle><circle cx="324" cy="175" r="2"><title>Corse-du-Sud, 1,7</title></circle><circle cx="326" cy="180" r="2"><title>Somme, 1,8</title></circle><circle cx="327" cy="185" r="2"><title>Ardennes, 1,8</title></circle><circle cx="327" cy="178" r="2"><title>Pyrénées-Orientales, 1,8</title></circle><circle cx="331" cy="182" r="2"><title>Côte-d&#x27;Or, 1,8</title></circle><circle cx="332" cy="175" r="2"><title>Martinique, 1,8</title></circle><circle cx="333" cy="180" r="2"><title>Puy-de-Dôme, 1,9</title></circle><circle cx="335" cy="185" r="2"><title>Alpes-Maritimes, 1,9</title></circle><circle cx="340" cy="178" r="2"><title>Eure, 1,9</title></circle><circle cx="340" cy="182" r="2"><title>Cantal, 1,9</title></circle><circle cx="341" cy="175" r="2"><title>Yonne, 2,0</title></circle><circle cx="342" cy="180" r="2"><title>Deux-Sèvres, 2,0</title></circle><circle cx="342" cy="185" r="2"><title>Haute-Saône, 2,0</title></circle><circle cx="342" cy="178" r="2"><title>Haute-Corse, 2,0</title></circle><circle cx="343" cy="182" r="2"><title>Creuse, 2,0</title></circle><circle cx="348" cy="175" r="2"><title>Saône-et-Loire, 2,1</title></circle><circle cx="348" cy="180" r="2"><title>Aube, 2,1</title></circle><circle cx="348" cy="185" r="2"><title>Haut-Rhin, 2,1</title></circle><circle cx="349" cy="178" r="2"><title>Manche, 2,1</title></circle><circle cx="349" cy="182" r="2"><title>Cher, 2,1</title></circle><circle cx="350" cy="175" r="2"><title>Guadeloupe, 2,1</title></circle><circle cx="353" cy="180" r="2"><title>Marne, 2,1</title></circle><circle cx="353" cy="185" r="2"><title>Pas-de-Calais, 2,1</title></circle><circle cx="353" cy="178" r="2"><title>Haute-Marne, 2,1</title></circle><circle cx="353" cy="182" r="2"><title>Gard, 2,1</title></circle><circle cx="354" cy="175" r="2"><title>Ille-et-Vilaine, 2,2</title></circle><circle cx="355" cy="180" r="2"><title>Loir-et-Cher, 2,2</title></circle><circle cx="356" cy="185" r="2"><title>Vendée, 2,2</title></circle><circle cx="357" cy="178" r="2"><title>Finistère, 2,2</title></circle><circle cx="358" cy="182" r="2"><title>Lot, 2,2</title></circle><circle cx="358" cy="175" r="2"><title>Orne, 2,2</title></circle><circle cx="359" cy="180" r="2"><title>Mayenne, 2,2</title></circle><circle cx="359" cy="185" r="2"><title>Vienne, 2,2</title></circle><circle cx="360" cy="178" r="2"><title>Seine-Maritime, 2,2</title></circle><circle cx="362" cy="182" r="2"><title>Corrèze, 2,3</title></circle><circle cx="362" cy="175" r="2"><title>Doubs, 2,3</title></circle><circle cx="363" cy="180" r="2"><title>Maine-et-Loire, 2,3</title></circle><circle cx="364" cy="185" r="2"><title>Côtes-d&#x27;Armor, 2,3</title></circle><circle cx="365" cy="178" r="2"><title>Calvados, 2,3</title></circle><circle cx="366" cy="182" r="2"><title>Allier, 2,3</title></circle><circle cx="366" cy="175" r="2"><title>Eure-et-Loir, 2,4</title></circle><circle cx="367" cy="180" r="2"><title>Ardèche, 2,4</title></circle><circle cx="367" cy="185" r="2"><title>Charente-Maritime, 2,4</title></circle><circle cx="368" cy="178" r="2"><title>Haute-Vienne, 2,4</title></circle><circle cx="369" cy="182" r="2"><title>Oise, 2,4</title></circle><circle cx="372" cy="175" r="2"><title>Loire-Atlantique, 2,5</title></circle><circle cx="373" cy="180" r="2"><title>Loiret, 2,5</title></circle><circle cx="373" cy="185" r="2"><title>Aude, 2,5</title></circle><circle cx="374" cy="178" r="2"><title>Hérault, 2,5</title></circle><circle cx="374" cy="182" r="2"><title>Territoire de Belfort, 2,5</title></circle><circle cx="375" cy="175" r="2"><title>Indre-et-Loire, 2,5</title></circle><circle cx="376" cy="180" r="2"><title>Jura, 2,5</title></circle><circle cx="379" cy="185" r="2"><title>Haute-Loire, 2,6</title></circle><circle cx="379" cy="178" r="2"><title>Loire, 2,6</title></circle><circle cx="384" cy="182" r="2"><title>Vaucluse, 2,7</title></circle><circle cx="385" cy="175" r="2"><title>Lot-et-Garonne, 2,7</title></circle><circle cx="390" cy="180" r="2"><title>Seine-Saint-Denis, 2,8</title></circle><circle cx="394" cy="185" r="2"><title>Lozère, 2,9</title></circle><circle cx="396" cy="178" r="2"><title>Charente, 2,9</title></circle><circle cx="396" cy="182" r="2"><title>Morbihan, 2,9</title></circle><circle cx="396" cy="175" r="2"><title>Nièvre, 2,9</title></circle><circle cx="400" cy="180" r="2"><title>Haute-Savoie, 3,0</title></circle><circle cx="401" cy="185" r="2"><title>Var, 3,0</title></circle><circle cx="402" cy="178" r="2"><title>Isère, 3,0</title></circle><circle cx="402" cy="182" r="2"><title>Drôme, 3,1</title></circle><circle cx="403" cy="175" r="2"><title>Dordogne, 3,1</title></circle><circle cx="404" cy="180" r="2"><title>Ain, 3,1</title></circle><circle cx="406" cy="185" r="2"><title>Nord, 3,2</title></circle><circle cx="408" cy="178" r="2"><title>Aveyron, 3,2</title></circle><circle cx="410" cy="182" r="2"><title>Landes, 3,2</title></circle><circle cx="412" cy="175" r="2"><title>La Réunion, 3,3</title></circle><circle cx="413" cy="180" r="2"><title>Gironde, 3,3</title></circle><circle cx="414" cy="185" r="2"><title>Seine-et-Marne, 3,3</title></circle><circle cx="416" cy="178" r="2"><title>Savoie, 3,4</title></circle><circle cx="419" cy="182" r="2"><title>Val-d&#x27;Oise, 3,4</title></circle><circle cx="419" cy="175" r="2"><title>Bouches-du-Rhône, 3,5</title></circle><circle cx="424" cy="180" r="2"><title>Essonne, 3,6</title></circle><circle cx="429" cy="185" r="2"><title>Tarn, 3,7</title></circle><circle cx="433" cy="178" r="2"><title>Rhône, 3,8</title></circle><circle cx="436" cy="182" r="2"><title>Alpes-de-Haute-Provence, 3,9</title></circle><circle cx="438" cy="175" r="2"><title>Hautes-Pyrénées, 4,0</title></circle><circle cx="442" cy="180" r="2"><title>Tarn-et-Garonne, 4,1</title></circle><circle cx="443" cy="185" r="2"><title>Ariège, 4,1</title></circle><circle cx="446" cy="178" r="2"><title>Pyrénées-Atlantiques, 4,2</title></circle><circle cx="448" cy="182" r="2"><title>Val-de-Marne, 4,3</title></circle><circle cx="449" cy="175" r="2"><title>Gers, 4,3</title></circle><circle cx="449" cy="180" r="2"><title>Paris, 4,3</title></circle><circle cx="457" cy="185" r="2"><title>Yvelines, 4,5</title></circle><circle cx="458" cy="178" r="2"><title>Haute-Garonne, 4,6</title></circle><circle cx="476" cy="182" r="2"><title>Hautes-Alpes, 5,2</title></circle></g><line x1="390.0" y1="180" x2="447.1" y2="180" stroke="var(--r5, #0F3562)" stroke-width="3"/><circle cx="390.0" cy="180" r="4" fill="var(--bg, #fff)" stroke="var(--muted, #5F6675)" stroke-width="1.5"/><circle cx="447.1" cy="180" r="6" fill="var(--r5, #0F3562)"/><text x="586" y="184" font-size="9.5" fill="var(--ink, #1F2430)">152</text><text x="190" y="218" text-anchor="end" font-size="10.3" fill="var(--ink, #1F2430)">Pharmacien</text><rect x="371.4" y="209" width="27.7" height="10" fill="var(--r1, #7AA1D3)" rx="2"/><g fill="var(--muted, #5F6675)" fill-opacity=".45"><circle cx="251" cy="209" r="2"><title>Mayotte, 3,5</title></circle><circle cx="285" cy="214" r="2"><title>Guyane, 4,6</title></circle><circle cx="333" cy="219" r="2"><title>Seine-Saint-Denis, 6,5</title></circle><circle cx="334" cy="212" r="2"><title>Val-d&#x27;Oise, 6,5</title></circle><circle cx="335" cy="216" r="2"><title>Eure-et-Loir, 6,6</title></circle><circle cx="335" cy="209" r="2"><title>Seine-et-Marne, 6,6</title></circle><circle cx="345" cy="214" r="2"><title>Eure, 7,1</title></circle><circle cx="346" cy="219" r="2"><title>Essonne, 7,1</title></circle><circle cx="349" cy="212" r="2"><title>Cher, 7,3</title></circle><circle cx="349" cy="216" r="2"><title>Loiret, 7,3</title></circle><circle cx="350" cy="209" r="2"><title>Ain, 7,3</title></circle><circle cx="351" cy="214" r="2"><title>Sarthe, 7,4</title></circle><circle cx="351" cy="219" r="2"><title>Yonne, 7,4</title></circle><circle cx="351" cy="212" r="2"><title>Mayenne, 7,4</title></circle><circle cx="354" cy="216" r="2"><title>Meuse, 7,5</title></circle><circle cx="358" cy="209" r="2"><title>Loir-et-Cher, 7,8</title></circle><circle cx="358" cy="214" r="2"><title>Yvelines, 7,8</title></circle><circle cx="360" cy="219" r="2"><title>Oise, 7,9</title></circle><circle cx="363" cy="212" r="2"><title>Tarn-et-Garonne, 8,1</title></circle><circle cx="364" cy="216" r="2"><title>Haute-Marne, 8,1</title></circle><circle cx="367" cy="209" r="2"><title>Lot-et-Garonne, 8,3</title></circle><circle cx="367" cy="214" r="2"><title>Aube, 8,3</title></circle><circle cx="368" cy="219" r="2"><title>Indre, 8,4</title></circle><circle cx="370" cy="212" r="2"><title>Dordogne, 8,5</title></circle><circle cx="371" cy="216" r="2"><title>Côtes-d&#x27;Armor, 8,6</title></circle><circle cx="371" cy="209" r="2"><title>Vosges, 8,6</title></circle><circle cx="372" cy="214" r="2"><title>Deux-Sèvres, 8,6</title></circle><circle cx="372" cy="219" r="2"><title>Lot, 8,6</title></circle><circle cx="373" cy="212" r="2"><title>Orne, 8,6</title></circle><circle cx="373" cy="216" r="2"><title>Ardèche, 8,7</title></circle><circle cx="374" cy="209" r="2"><title>Vendée, 8,7</title></circle><circle cx="374" cy="214" r="2"><title>Loire, 8,8</title></circle><circle cx="375" cy="219" r="2"><title>Charente, 8,8</title></circle><circle cx="376" cy="212" r="2"><title>Aisne, 8,9</title></circle><circle cx="377" cy="216" r="2"><title>Martinique, 8,9</title></circle><circle cx="377" cy="209" r="2"><title>Finistère, 9,0</title></circle><circle cx="378" cy="214" r="2"><title>Moselle, 9,0</title></circle><circle cx="378" cy="219" r="2"><title>Ariège, 9,0</title></circle><circle cx="378" cy="212" r="2"><title>La Réunion, 9,0</title></circle><circle cx="379" cy="216" r="2"><title>Manche, 9,0</title></circle><circle cx="380" cy="209" r="2"><title>Val-de-Marne, 9,1</title></circle><circle cx="381" cy="214" r="2"><title>Jura, 9,2</title></circle><circle cx="381" cy="219" r="2"><title>Gers, 9,2</title></circle><circle cx="381" cy="212" r="2"><title>Tarn, 9,2</title></circle><circle cx="382" cy="216" r="2"><title>Nièvre, 9,2</title></circle><circle cx="383" cy="209" r="2"><title>Haut-Rhin, 9,3</title></circle><circle cx="383" cy="214" r="2"><title>Loire-Atlantique, 9,3</title></circle><circle cx="384" cy="219" r="2"><title>Maine-et-Loire, 9,4</title></circle><circle cx="384" cy="212" r="2"><title>Guadeloupe, 9,4</title></circle><circle cx="385" cy="216" r="2"><title>Morbihan, 9,5</title></circle><circle cx="385" cy="209" r="2"><title>Hautes-Pyrénées, 9,5</title></circle><circle cx="385" cy="214" r="2"><title>Saône-et-Loire, 9,5</title></circle><circle cx="387" cy="219" r="2"><title>Seine-Maritime, 9,6</title></circle><circle cx="389" cy="212" r="2"><title>Allier, 9,7</title></circle><circle cx="389" cy="216" r="2"><title>Ille-et-Vilaine, 9,8</title></circle><circle cx="390" cy="209" r="2"><title>Haute-Saône, 9,8</title></circle><circle cx="390" cy="214" r="2"><title>Pyrénées-Orientales, 9,8</title></circle><circle cx="391" cy="219" r="2"><title>Pas-de-Calais, 9,8</title></circle><circle cx="391" cy="212" r="2"><title>Territoire de Belfort, 9,9</title></circle><circle cx="391" cy="216" r="2"><title>Haute-Savoie, 9,9</title></circle><circle cx="392" cy="209" r="2"><title>Isère, 10,0</title></circle><circle cx="393" cy="214" r="2"><title>Vaucluse, 10,0</title></circle><circle cx="393" cy="219" r="2"><title>Alpes-de-Haute-Provence, 10,1</title></circle><circle cx="395" cy="212" r="2"><title>Haute-Loire, 10,1</title></circle><circle cx="395" cy="216" r="2"><title>Landes, 10,1</title></circle><circle cx="395" cy="209" r="2"><title>Ardennes, 10,2</title></circle><circle cx="395" cy="214" r="2"><title>Drôme, 10,2</title></circle><circle cx="395" cy="219" r="2"><title>Charente-Maritime, 10,2</title></circle><circle cx="395" cy="212" r="2"><title>Corrèze, 10,2</title></circle><circle cx="396" cy="216" r="2"><title>Var, 10,3</title></circle><circle cx="397" cy="209" r="2"><title>Vienne, 10,3</title></circle><circle cx="398" cy="214" r="2"><title>Bas-Rhin, 10,4</title></circle><circle cx="399" cy="219" r="2"><title>Lozère, 10,5</title></circle><circle cx="399" cy="212" r="2"><title>Gard, 10,5</title></circle><circle cx="399" cy="216" r="2"><title>Aude, 10,5</title></circle><circle cx="400" cy="209" r="2"><title>Haute-Garonne, 10,5</title></circle><circle cx="400" cy="214" r="2"><title>Nord, 10,5</title></circle><circle cx="401" cy="219" r="2"><title>Creuse, 10,6</title></circle><circle cx="402" cy="212" r="2"><title>Aveyron, 10,7</title></circle><circle cx="402" cy="216" r="2"><title>Indre-et-Loire, 10,7</title></circle><circle cx="403" cy="209" r="2"><title>Gironde, 10,8</title></circle><circle cx="404" cy="214" r="2"><title>Marne, 10,9</title></circle><circle cx="406" cy="219" r="2"><title>Haute-Corse, 11,1</title></circle><circle cx="408" cy="212" r="2"><title>Alpes-Maritimes, 11,2</title></circle><circle cx="409" cy="216" r="2"><title>Cantal, 11,2</title></circle><circle cx="409" cy="209" r="2"><title>Pyrénées-Atlantiques, 11,3</title></circle><circle cx="409" cy="214" r="2"><title>Calvados, 11,3</title></circle><circle cx="410" cy="219" r="2"><title>Somme, 11,3</title></circle><circle cx="411" cy="212" r="2"><title>Savoie, 11,4</title></circle><circle cx="412" cy="216" r="2"><title>Doubs, 11,5</title></circle><circle cx="413" cy="209" r="2"><title>Puy-de-Dôme, 11,6</title></circle><circle cx="413" cy="214" r="2"><title>Meurthe-et-Moselle, 11,6</title></circle><circle cx="414" cy="219" r="2"><title>Côte-d&#x27;Or, 11,7</title></circle><circle cx="419" cy="212" r="2"><title>Rhône, 12,2</title></circle><circle cx="422" cy="216" r="2"><title>Corse-du-Sud, 12,4</title></circle><circle cx="424" cy="209" r="2"><title>Hérault, 12,5</title></circle><circle cx="428" cy="214" r="2"><title>Haute-Vienne, 13,0</title></circle><circle cx="430" cy="219" r="2"><title>Bouches-du-Rhône, 13,1</title></circle><circle cx="433" cy="212" r="2"><title>Hautes-Alpes, 13,4</title></circle><circle cx="464" cy="216" r="2"><title>Paris, 16,8</title></circle></g><line x1="390.0" y1="214" x2="397.7" y2="214" stroke="var(--r5, #0F3562)" stroke-width="3"/><circle cx="390.0" cy="214" r="4" fill="var(--bg, #fff)" stroke="var(--muted, #5F6675)" stroke-width="1.5"/><circle cx="397.7" cy="214" r="6" fill="var(--r5, #0F3562)"/><text x="586" y="218" font-size="9.5" fill="var(--ink, #1F2430)">106</text><circle cx="206" cy="248" r="5" fill="var(--d0, #83451E)"/><circle cx="218" cy="248" r="5" fill="var(--r5, #0F3562)"/><text x="228" y="252" font-size="9.5" fill="var(--muted, #5F6675)">ce territoire (indice, moyenne = 100)</text><circle cx="428" cy="248" r="2.4" fill="var(--muted, #5F6675)" fill-opacity=".6"/><text x="436" y="252" font-size="9.5" fill="var(--muted, #5F6675)">les autres</text><rect x="500" y="243" width="14" height="9" fill="var(--r1, #7AA1D3)"/><text x="520" y="252" font-size="9.5" fill="var(--muted, #5F6675)">moitié centrale</text></svg></div></figure>
+
+<p class="comment-lire"><strong>Comment lire.</strong> L'effectif compte chaque personne une seule fois, même si elle exerce dans plusieurs communes du territoire. La densité rapporte cet effectif à la population, pour 10 000 habitants. Les colonnes suivantes donnent la même densité pour la région, pour le milieu de cinq départements dont la population ressemble à celle du département, et en moyenne pour les départements. La moyenne des départements rapporte l'ensemble des professionnels des départements à la population de la France, comptés comme ici, avec les seules activités de soins qui ont un lieu d'exercice. Elle diffère un peu du chiffre de la France entière du rapport national, qui compte aussi les remplacements, la téléconsultation et les activités sans soins à la population. La dernière colonne situe le territoire sans le classer. Les territoires comparés sont partagés en quatre groupes de même taille, du quart le moins doté au quart le mieux doté. La figure compare chaque densité à la moyenne (indice 100). Le gros point est le territoire de ce rapport, à gauche pour une densité plus faible, à droite pour une densité plus forte. Les petits points gris sont les autres territoires comparés, et la bande claire réunit leur moitié centrale. La téléconsultation (des soins à distance) et les activités sans soins à la population (contrôle médical, industrie, recherche, administration...) ne sont pas comptées, car elles sont déclarées au siège d'une société ou d'un organisme, et non là où vivent les patients. Elles sont décrites plus bas quand elles sont notables.</p>
+<details>
+<summary>Pour aller plus loin</summary>
+<p>Départements de profil semblable, retenus parce que leur population ressemble à celle du département (densité de population, âge, niveau de vie, pauvreté, chômage), sans tenir compte de l'offre de soins, Yvelines (78), Paris (75), Haute-Savoie (74), Val-de-Marne (94) et Essonne (91). Ils servent de point de repère et non de norme.</p>
+<p>Fourchettes à 95 % des densités, qui tiennent compte des petits effectifs (loi de Poisson, intervalle exact), Médecin généraliste, de 13,54 à 14,70; Infirmier, de 63,65 à 66,11; Masseur-kinésithérapeute, de 14,56 à 15,75; Orthophoniste, de 4,18 à 4,83; Psychomotricien, de 3,93 à 4,57; Pharmacien, de 9,90 à 10,89; Chirurgien-dentiste, de 11,67 à 12,74; Sage-femme, de 4,33 à 4,99; Pédiatre, de 2,19 à 2,67; Gériatre, de 0,65 à 0,93. Quand la fourchette est large, une ou deux arrivées ou départs suffisent à changer nettement la densité.</p>
+<p>Parmi les professionnels comptés, certains exercent pour un public particulier (médecine du travail, santé scolaire, services de l'État, pompiers, hôpitaux militaires...), 254 médecins généralistes sur 2 335 et 1 264 infirmiers sur 10 734. Ils restent dans le tableau. Détail dans activites_particulieres_dep.csv et activites_particulieres_reg.csv.</p>
+</details>
+<details>
+<summary>Les spécialités médicales, détail par spécialité</summary>
+<table>
+<thead>
+<tr>
+<th>Spécialité</th>
+<th>Effectif</th>
+<th>Pour 10 000 habitants</th>
+<th>Moyenne des départements</th>
+<th>Position</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Spécialités médicales</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Pédiatre</td>
+<td>400</td>
+<td>2,42</td>
+<td>1,39</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Cardiologue</td>
+<td>368</td>
+<td>2,22</td>
+<td>1,28</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Gastro-entérologue</td>
+<td>219</td>
+<td>1,32</td>
+<td>0,63</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Dermatologue</td>
+<td>161</td>
+<td>0,97</td>
+<td>0,55</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Gériatre</td>
+<td>129</td>
+<td>0,78</td>
+<td>0,50</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Neurologue</td>
+<td>93</td>
+<td>0,56</td>
+<td>0,52</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Pneumologue</td>
+<td>154</td>
+<td>0,93</td>
+<td>0,52</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Médecin interniste</td>
+<td>114</td>
+<td>0,69</td>
+<td>0,41</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Médecin urgentiste</td>
+<td>65</td>
+<td>0,39</td>
+<td>0,42</td>
+<td>au-dessus du milieu</td>
+</tr>
+<tr>
+<td>Médecin de médecine physique et de réadaptation</td>
+<td>86</td>
+<td>0,52</td>
+<td>0,39</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Rhumatologue</td>
+<td>109</td>
+<td>0,66</td>
+<td>0,40</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Endocrinologue</td>
+<td>91</td>
+<td>0,55</td>
+<td>0,36</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Néphrologue</td>
+<td>57</td>
+<td>0,34</td>
+<td>0,34</td>
+<td>au-dessus du milieu</td>
+</tr>
+<tr>
+<td>Oncologue médical</td>
+<td>74</td>
+<td>0,45</td>
+<td>0,27</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Médecin vasculaire</td>
+<td>61</td>
+<td>0,37</td>
+<td>0,25</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Médecin réanimateur</td>
+<td>36</td>
+<td>0,22</td>
+<td>0,17</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Hématologue</td>
+<td>34</td>
+<td>0,21</td>
+<td>0,17</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Infectiologue</td>
+<td>13</td>
+<td>0,08</td>
+<td>0,07</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Allergologue</td>
+<td>17</td>
+<td>0,10</td>
+<td>0,07</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td><strong>Spécialités chirurgicales</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Gynécologue</td>
+<td>446</td>
+<td>2,70</td>
+<td>1,23</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Ophtalmologue</td>
+<td>285</td>
+<td>1,72</td>
+<td>1,06</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Chirurgien orthopédiste</td>
+<td>176</td>
+<td>1,06</td>
+<td>0,74</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Oto-rhino-laryngologiste (ORL)</td>
+<td>142</td>
+<td>0,86</td>
+<td>0,47</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Chirurgien général</td>
+<td>118</td>
+<td>0,71</td>
+<td>0,32</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Urologue</td>
+<td>70</td>
+<td>0,42</td>
+<td>0,33</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Chirurgien viscéral et digestif</td>
+<td>45</td>
+<td>0,27</td>
+<td>0,26</td>
+<td>au-dessus du milieu</td>
+</tr>
+<tr>
+<td>Chirurgien plasticien</td>
+<td>100</td>
+<td>0,60</td>
+<td>0,22</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Chirurgien maxillo-facial et stomatologue</td>
+<td>54</td>
+<td>0,33</td>
+<td>0,18</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Chirurgien vasculaire</td>
+<td>28</td>
+<td>0,17</td>
+<td>0,13</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Neurochirurgien</td>
+<td>34</td>
+<td>0,21</td>
+<td>0,12</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Chirurgien thoracique et cardiovasculaire</td>
+<td>41</td>
+<td>0,25</td>
+<td>0,10</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Chirurgien pédiatrique</td>
+<td>14</td>
+<td>0,08</td>
+<td>0,07</td>
+<td>au-dessus du milieu</td>
+</tr>
+<tr>
+<td><strong>Spécialités médico-techniques</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Anesthésiste-réanimateur</td>
+<td>411</td>
+<td>2,48</td>
+<td>1,82</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Radiologue</td>
+<td>573</td>
+<td>3,46</td>
+<td>1,78</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Biologiste médical</td>
+<td>99</td>
+<td>0,60</td>
+<td>0,44</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Anatomopathologiste</td>
+<td>60</td>
+<td>0,36</td>
+<td>0,48</td>
+<td>au-dessus du milieu</td>
+</tr>
+<tr>
+<td>Radiothérapeute</td>
+<td>55</td>
+<td>0,33</td>
+<td>0,20</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Médecin nucléaire</td>
+<td>30</td>
+<td>0,18</td>
+<td>0,17</td>
+<td>au-dessus du milieu</td>
+</tr>
+<tr>
+<td><strong>Prévention et santé publique</strong></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>Médecin du travail</td>
+<td>344</td>
+<td>2,08</td>
+<td>0,62</td>
+<td>quart le mieux doté</td>
+</tr>
+<tr>
+<td>Médecin de santé publique</td>
+<td>39</td>
+<td>0,24</td>
+<td>0,18</td>
+<td>quart le mieux doté</td>
+</tr>
+</tbody>
+</table>
+<p class="comment-lire"><strong>Comment lire.</strong> Chaque médecin est compté dans la spécialité de son inscription à l'Ordre. Les petits effectifs varient beaucoup d'une année à l'autre, une ou deux arrivées suffisent à changer la position du territoire. Les spécialités surtout exercées à l'hôpital se trouvent là où sont les établissements, les habitants consultent souvent dans un territoire voisin.</p>
+<p class="a-savoir"><strong>À savoir.</strong> Pour certaines spécialités, moins d'un tiers des médecins exercent en libéral (gériatre 7 %, médecin interniste 11 %, médecin urgentiste 9 %, médecin de médecine physique et de réadaptation 18 %, néphrologue 31 %, oncologue médical 20 %, médecin réanimateur 9 %, hématologue 11 %, infectiologue 6 %). La plupart sont salariés, le plus souvent à l'hôpital, si bien que leur densité par territoire montre surtout où se trouvent les établissements, pas l'accès des habitants, qui consultent souvent dans un territoire voisin. Source, <a href="https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps">Annuaire santé, extractions en libre accès du RPPS (data.gouv)</a>. Les médecins du travail suivent les salariés de leur entreprise ou de leur service de santé au travail. Ils ne soignent pas la population du territoire où ils sont déclarés. Les médecins de santé publique exercent surtout dans des administrations, des agences ou des services d'épidémiologie et de prévention, rarement en soins à la population. Source, <a href="https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps">Annuaire santé, extractions en libre accès du RPPS (data.gouv)</a>.</p>
+</details>
+<p>209 médecins généralistes déclarent aussi dans le département une activité sans soins à la population (contrôle médical, administration, recherche, industrie...). Ces activités ne sont pas comptées dans le tableau, une même personne pouvant y figurer au titre d'une activité de soins.</p>
+<h2 id="evolution-depuis-2016">Évolution depuis 2016</h2>
+<table>
+<thead>
+<tr>
+<th>Profession</th>
+<th>Période</th>
+<th>Densité au début (DREES)</th>
+<th>Densité à la fin (DREES)</th>
+<th>Évolution ici</th>
+<th>Évolution de la région</th>
+<th>Évolution en France</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Médecins généralistes</td>
+<td>2016 à 2026</td>
+<td>16,17</td>
+<td>13,47</td>
+<td>-16,7 %</td>
+<td>-14,6 %</td>
+<td>-4,4 %</td>
+</tr>
+<tr>
+<td>Pédiatres</td>
+<td>2016 à 2026</td>
+<td>2,18</td>
+<td>2,32</td>
+<td>+6,1 %</td>
+<td>+10,3 %</td>
+<td>+15,3 %</td>
+</tr>
+<tr>
+<td>Gynécologues</td>
+<td>2016 à 2026</td>
+<td>1,91</td>
+<td>2,02</td>
+<td>+5,6 %</td>
+<td>-0,9 %</td>
+<td>-1,4 %</td>
+</tr>
+<tr>
+<td>Ophtalmologues</td>
+<td>2016 à 2026</td>
+<td>1,22</td>
+<td>1,16</td>
+<td>-4,8 %</td>
+<td>-4,5 %</td>
+<td>+0,2 %</td>
+</tr>
+<tr>
+<td>Sages-femmes</td>
+<td>2016 à 2026</td>
+<td>3,56</td>
+<td>4,01</td>
+<td>+12,8 %</td>
+<td>+11,4 %</td>
+<td>+14,3 %</td>
+</tr>
+<tr>
+<td>Chirurgiens-dentistes</td>
+<td>2016 à 2026</td>
+<td>7,91</td>
+<td>9,64</td>
+<td>+21,8 %</td>
+<td>+17,9 %</td>
+<td>+12,9 %</td>
+</tr>
+<tr>
+<td>Masseurs-kinésithérapeutes</td>
+<td>2017 à 2026</td>
+<td>11,99</td>
+<td>14,55</td>
+<td>+21,4 %</td>
+<td>+17,5 %</td>
+<td>+27,5 %</td>
+</tr>
+<tr>
+<td>Pharmaciens</td>
+<td>2016 à 2026</td>
+<td>14,66</td>
+<td>16,00</td>
+<td>+9,2 %</td>
+<td>-5,0 %</td>
+<td>-2,5 %</td>
+</tr>
+</tbody>
+</table>
+<p class="comment-lire"><strong>Comment lire.</strong> Professionnels pour 10 000 habitants au 1er janvier, d'après les séries de la DREES. Ces densités peuvent différer de celles du début du rapport, qui comptent une personne dans chaque département où elle exerce. Une densité peut baisser alors que le nombre de professionnels augmente, si la population augmente plus vite. Les infirmiers, les orthophonistes, les psychomotriciens et les autres professions du répertoire ADELI ne figurent pas ici, leur série change de source en 2024.</p>
+<p class="a-savoir"><strong>À savoir.</strong> L'évolution vient des séries de la DREES, qui comptent chaque professionnel une seule fois, dans le département de son activité principale, alors que les autres chiffres de ce site comptent une personne dans chaque territoire où elle exerce. Les populations des trois dernières années sont provisoires. Sources, <a href="https://data.drees.solidarites-sante.gouv.fr/explore/dataset/la-demographie-des-professionnels-de-sante-depuis-2012/information/">DREES, la démographie des professionnels de santé</a>, <a href="https://catalogue-donnees.insee.fr/fr/catalogue/recherche/DS_ESTIMATION_POPULATION">INSEE, estimations localisées de population</a>.</p>
+<h2 id="repartition-a-l-interieur-du-departement">Répartition à l'intérieur du département</h2>
+<p>Le territoire compte 36 communes. 4,3 % des habitants vivent dans une commune sans pédiatre.</p>
+<table>
+<thead>
+<tr>
+<th>Commune</th>
+<th>Habitants</th>
+<th>Médecins généralistes</th>
+<th>Pour 10 000 hab.</th>
+<th>Pédiatres</th>
+<th>Pour 10 000 hab.</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Boulogne-Billancourt</td>
+<td>119 019</td>
+<td>221</td>
+<td>18,6</td>
+<td>61</td>
+<td>5,1</td>
+</tr>
+<tr>
+<td>Nanterre</td>
+<td>97 783</td>
+<td>143</td>
+<td>14,6</td>
+<td>10</td>
+<td>1,0</td>
+</tr>
+<tr>
+<td>Asnières-sur-Seine</td>
+<td>93 941</td>
+<td>84</td>
+<td>8,9</td>
+<td>8</td>
+<td>0,9</td>
+</tr>
+<tr>
+<td>Colombes</td>
+<td>91 053</td>
+<td>87</td>
+<td>9,6</td>
+<td>47</td>
+<td>5,2</td>
+</tr>
+<tr>
+<td>Courbevoie</td>
+<td>82 902</td>
+<td>104</td>
+<td>12,5</td>
+<td>11</td>
+<td>1,3</td>
+</tr>
+<tr>
+<td>Rueil-Malmaison</td>
+<td>82 874</td>
+<td>100</td>
+<td>12,1</td>
+<td>5</td>
+<td>0,6</td>
+</tr>
+<tr>
+<td>Levallois-Perret</td>
+<td>68 092</td>
+<td>134</td>
+<td>19,7</td>
+<td>15</td>
+<td>2,2</td>
+</tr>
+<tr>
+<td>Issy-les-Moulineaux</td>
+<td>67 669</td>
+<td>106</td>
+<td>15,7</td>
+<td>5</td>
+<td>0,7</td>
+</tr>
+<tr>
+<td>Clichy</td>
+<td>64 410</td>
+<td>112</td>
+<td>17,4</td>
+<td>9</td>
+<td>1,4</td>
+</tr>
+<tr>
+<td>Antony</td>
+<td>64 263</td>
+<td>111</td>
+<td>17,3</td>
+<td>23</td>
+<td>3,6</td>
+</tr>
+<tr>
+<td>Neuilly-sur-Seine</td>
+<td>59 538</td>
+<td>139</td>
+<td>23,3</td>
+<td>50</td>
+<td>8,4</td>
+</tr>
+<tr>
+<td>Clamart</td>
+<td>58 576</td>
+<td>174</td>
+<td>29,7</td>
+<td>59</td>
+<td>10,1</td>
+</tr>
+<tr>
+<td>Gennevilliers</td>
+<td>50 979</td>
+<td>63</td>
+<td>12,4</td>
+<td>8</td>
+<td>1,6</td>
+</tr>
+<tr>
+<td>Suresnes</td>
+<td>48 956</td>
+<td>161</td>
+<td>32,9</td>
+<td>14</td>
+<td>2,9</td>
+</tr>
+<tr>
+<td>Meudon</td>
+<td>46 334</td>
+<td>44</td>
+<td>9,5</td>
+<td>3</td>
+<td>0,6</td>
+</tr>
+<tr>
+<td>Montrouge</td>
+<td>46 324</td>
+<td>67</td>
+<td>14,5</td>
+<td>6</td>
+<td>1,3</td>
+</tr>
+<tr>
+<td>Bagneux</td>
+<td>44 572</td>
+<td>43</td>
+<td>9,6</td>
+<td>0</td>
+<td>0,0</td>
+</tr>
+<tr>
+<td>Puteaux</td>
+<td>44 002</td>
+<td>91</td>
+<td>20,7</td>
+<td>11</td>
+<td>2,5</td>
+</tr>
+<tr>
+<td>Châtillon</td>
+<td>36 705</td>
+<td>42</td>
+<td>11,4</td>
+<td>4</td>
+<td>1,1</td>
+</tr>
+<tr>
+<td>Châtenay-Malabry</td>
+<td>35 825</td>
+<td>27</td>
+<td>7,5</td>
+<td>1</td>
+<td>0,3</td>
+</tr>
+<tr>
+<td>Malakoff</td>
+<td>30 557</td>
+<td>40</td>
+<td>13,1</td>
+<td>3</td>
+<td>1,0</td>
+</tr>
+<tr>
+<td>La Garenne-Colombes</td>
+<td>30 197</td>
+<td>29</td>
+<td>9,6</td>
+<td>2</td>
+<td>0,7</td>
+</tr>
+<tr>
+<td>Saint-Cloud</td>
+<td>29 855</td>
+<td>66</td>
+<td>22,1</td>
+<td>16</td>
+<td>5,4</td>
+</tr>
+<tr>
+<td>Bois-Colombes</td>
+<td>28 909</td>
+<td>23</td>
+<td>8,0</td>
+<td>4</td>
+<td>1,4</td>
+</tr>
+<tr>
+<td>Le Plessis-Robinson</td>
+<td>28 848</td>
+<td>41</td>
+<td>14,2</td>
+<td>13</td>
+<td>4,5</td>
+</tr>
+<tr>
+<td>Vanves</td>
+<td>28 622</td>
+<td>22</td>
+<td>7,7</td>
+<td>3</td>
+<td>1,0</td>
+</tr>
+<tr>
+<td>Villeneuve-la-Garenne</td>
+<td>26 021</td>
+<td>34</td>
+<td>13,1</td>
+<td>0</td>
+<td>0,0</td>
+</tr>
+<tr>
+<td>Fontenay-aux-Roses</td>
+<td>24 070</td>
+<td>23</td>
+<td>9,6</td>
+<td>4</td>
+<td>1,7</td>
+</tr>
+<tr>
+<td>Sèvres</td>
+<td>22 303</td>
+<td>21</td>
+<td>9,4</td>
+<td>1</td>
+<td>0,4</td>
+</tr>
+<tr>
+<td>Bourg-la-Reine</td>
+<td>21 019</td>
+<td>21</td>
+<td>10,0</td>
+<td>7</td>
+<td>3,3</td>
+</tr>
+<tr>
+<td>Sceaux</td>
+<td>20 884</td>
+<td>23</td>
+<td>11,0</td>
+<td>4</td>
+<td>1,9</td>
+</tr>
+<tr>
+<td>Chaville</td>
+<td>20 594</td>
+<td>23</td>
+<td>11,2</td>
+<td>2</td>
+<td>1,0</td>
+</tr>
+<tr>
+<td>Garches</td>
+<td>17 743</td>
+<td>107</td>
+<td>60,3</td>
+<td>20</td>
+<td>11,3</td>
+</tr>
+<tr>
+<td>Ville-d'Avray</td>
+<td>11 089</td>
+<td>6</td>
+<td>5,4</td>
+<td>3</td>
+<td>2,7</td>
+</tr>
+<tr>
+<td>Vaucresson</td>
+<td>8 432</td>
+<td>11</td>
+<td>13,0</td>
+<td>1</td>
+<td>1,2</td>
+</tr>
+<tr>
+<td>Marnes-la-Coquette</td>
+<td>1 752</td>
+<td>1</td>
+<td>5,7</td>
+<td>1</td>
+<td>5,7</td>
+</tr>
+</tbody>
+</table>
+<p class="comment-lire"><strong>Comment lire.</strong> Un professionnel qui exerce dans plusieurs communes compte dans chacune d'elles. Absence ne veut pas dire absence d'accès, le professionnel le plus proche peut exercer juste à côté. Ce tableau décrit une répartition et ne classe pas les territoires. Dans les petits territoires, une ou deux arrivées ou départs suffisent à changer fortement la densité d'une année à l'autre.</p>
+<details>
+<summary>Pour aller plus loin</summary>
+<p>Le département compte trop peu d'intercommunalités pour qu'elles décrivent sa répartition interne, le tableau est donc donné par commune.</p>
+</details>
+<h2 id="structures-de-soins-finess-et-ror-reunis">Structures de soins, FINESS et ROR réunis</h2>
+<p>FINESS et le Répertoire opérationnel des ressources (ROR), réunis sans double compte, recensent dans le département les structures suivantes. La distance est celle qui sépare la moitié des habitants de la structure la plus proche, à vol d'oiseau depuis le centre de leur commune, y compris quand cette structure se trouve hors du territoire.</p>
+<table>
+<thead>
+<tr>
+<th>Type de structure</th>
+<th>Structures</th>
+<th>Confirmées</th>
+<th>Recoupées par la statistique des hôpitaux</th>
+<th>À vérifier</th>
+<th>Pour 100 000 hab.</th>
+<th>Distance médiane (km)</th>
+<th>France, distance médiane</th>
+<th>Habitants à plus de 30 km</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Services d'urgences</td>
+<td>14</td>
+<td></td>
+<td></td>
+<td></td>
+<td>0,8</td>
+<td>1,3</td>
+<td>5,1</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Maternités</td>
+<td>12</td>
+<td></td>
+<td></td>
+<td></td>
+<td>0,7</td>
+<td>1,6</td>
+<td>5,9</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>PMI, protection maternelle et infantile</td>
+<td>59</td>
+<td></td>
+<td></td>
+<td></td>
+<td>3,6</td>
+<td>0,6</td>
+<td>7,5</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Dialyse</td>
+<td>11</td>
+<td></td>
+<td></td>
+<td></td>
+<td>0,7</td>
+<td>1,7</td>
+<td>5,0</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Soins médicaux et de réadaptation</td>
+<td>23</td>
+<td></td>
+<td></td>
+<td></td>
+<td>1,4</td>
+<td>1,0</td>
+<td>3,4</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Hospitalisation à domicile</td>
+<td>1</td>
+<td></td>
+<td></td>
+<td></td>
+<td>0,1</td>
+<td>5,6</td>
+<td>8,9</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Soins infirmiers à domicile (SSIAD)</td>
+<td>33</td>
+<td></td>
+<td></td>
+<td></td>
+<td>2,0</td>
+<td>0,8</td>
+<td>3,3</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>EHPAD</td>
+<td>119</td>
+<td></td>
+<td></td>
+<td></td>
+<td>7,2</td>
+<td>0,4</td>
+<td>1,2</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Résidences autonomie</td>
+<td>45</td>
+<td></td>
+<td></td>
+<td></td>
+<td>2,7</td>
+<td>0,8</td>
+<td>2,6</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Soins de longue durée (USLD)</td>
+<td>6</td>
+<td></td>
+<td></td>
+<td></td>
+<td>0,4</td>
+<td>2,3</td>
+<td>6,2</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Équipes spécialisées Alzheimer, accueil de jour et répit</td>
+<td>13</td>
+<td></td>
+<td></td>
+<td></td>
+<td>0,8</td>
+<td>1,7</td>
+<td>5,3</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Instituts médico-éducatifs (IME)</td>
+<td>31</td>
+<td></td>
+<td></td>
+<td></td>
+<td>1,9</td>
+<td>1,0</td>
+<td>3,5</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Instituts thérapeutiques, éducatifs et pédagogiques (ITEP)</td>
+<td>1</td>
+<td></td>
+<td></td>
+<td></td>
+<td>0,1</td>
+<td>5,0</td>
+<td>7,2</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Services d'éducation spéciale et de soins à domicile (SESSAD)</td>
+<td>28</td>
+<td></td>
+<td></td>
+<td></td>
+<td>1,7</td>
+<td>1,0</td>
+<td>3,2</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Établissements pour enfants en situation de polyhandicap, de handicap moteur ou sensoriel</td>
+<td>13</td>
+<td></td>
+<td></td>
+<td></td>
+<td>0,8</td>
+<td>1,6</td>
+<td>7,7</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Maisons d'accueil spécialisées et foyers d'accueil médicalisés</td>
+<td>32</td>
+<td></td>
+<td></td>
+<td></td>
+<td>1,9</td>
+<td>1,2</td>
+<td>3,8</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Foyers de vie et d'hébergement pour adultes en situation de handicap</td>
+<td>60</td>
+<td></td>
+<td></td>
+<td></td>
+<td>3,6</td>
+<td>0,7</td>
+<td>2,7</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Établissements et services d'accompagnement par le travail (ESAT)</td>
+<td>31</td>
+<td></td>
+<td></td>
+<td></td>
+<td>1,9</td>
+<td>1,5</td>
+<td>3,6</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Services d'accompagnement à domicile pour adultes en situation de handicap</td>
+<td>27</td>
+<td></td>
+<td></td>
+<td></td>
+<td>1,6</td>
+<td>1,2</td>
+<td>3,8</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Soins pour personnes en situation de précarité (PASS, LHSS, LAM, ACT)</td>
+<td>19</td>
+<td></td>
+<td></td>
+<td></td>
+<td>1,1</td>
+<td>1,8</td>
+<td>6,3</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Dépistage, vaccination et lutte antituberculeuse</td>
+<td>6</td>
+<td></td>
+<td></td>
+<td></td>
+<td>0,4</td>
+<td>2,5</td>
+<td>7,6</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Maisons de santé pluriprofessionnelles</td>
+<td>26</td>
+<td></td>
+<td></td>
+<td></td>
+<td>1,6</td>
+<td>1,3</td>
+<td>2,5</td>
+<td>0 %</td>
+</tr>
+<tr>
+<td>Centres de santé</td>
+<td>163</td>
+<td></td>
+<td></td>
+<td></td>
+<td>9,9</td>
+<td>0,3</td>
+<td>2,7</td>
+<td>0 %</td>
+</tr>
+</tbody>
+</table>
+<p class="comment-lire"><strong>Comment lire.</strong> Une structure n'est pas une capacité, et les structures ne s'ajoutent pas aux professionnels. Les professionnels déclarés dans chaque structure figurent dans lieux_soins.csv.</p>
+<p class="a-savoir"><strong>À savoir.</strong> Les structures de soins réunissent FINESS et le Répertoire opérationnel des ressources (ROR), rapprochés par le numéro FINESS d'établissement, l'entité juridique gestionnaire et la commune, puis par le nom, pour qu'une même structure ne compte qu'une fois. Ni l'une ni l'autre base n'est complète. FINESS enregistre souvent un CMP sous le numéro de son hôpital, et le ROR est rempli par les établissements eux-mêmes, avec une complétude inégale selon les régions et des catégories parfois approximatives (équipes mobiles rangées parmi les CMP, unités sans catégorie). Ces erreurs de classement sont corrigées par des règles appliquées à toute la France, décrites et chiffrées dans la page méthode. Certaines structures manquent aux deux bases, par exemple deux CMP de Martinique cités par l'ARS en 2018, ou des CMP listés sur le site de leur hôpital (voir les vérifications sur d'autres sources). Une structure n'est pas une capacité, une antenne peut n'ouvrir que quelques demi-journées. Un CATTP est compté comme FINESS et la statistique annuelle des établissements de santé le comptent, un lieu où l'hôpital déclare cette activité, souvent tenue dans un CMP ou un centre de jour qui porte un autre nom. Quand un CMP annonce un CATTP dans son nom ou son enseigne (« CMP-CATTP ») et que son gestionnaire n'en a pas d'autre dans la commune, un CATTP est compté au même lieu. Les professionnels déclarés sur place viennent du RPPS, beaucoup déclarent leur hôpital de rattachement plutôt que le lieu où ils consultent. Les distances sont mesurées à vol d'oiseau depuis le centre de chaque commune, l'emplacement d'une structure sans coordonnées connues étant le centre de sa commune. Un type recensé dans moins de 90 % des départements est listé, mais pas comparé entre territoires. Sources, <a href="https://www.data.gouv.fr/datasets/offres-de-sante-sanitaire-medico-social-et-de-ville-en-france-metropolitaine-et-drom-1">Agence du numérique en santé, offres de santé du Répertoire opérationnel des ressources (data.gouv)</a>, <a href="https://www.data.gouv.fr/datasets/finess-structures-1">FINESS, établissements sanitaires et médico-sociaux (Finess+, data.gouv)</a>, <a href="https://www.martinique.ars.sante.fr/media/9531/download">ARS Martinique, offre de soins en psychiatrie (document de 2018)</a>, <a href="https://geoservices.ign.fr/documentation/services/services-geoplateforme/geocodage">IGN, service de géocodage de la Géoplateforme</a>.</p>
+<p>Commune par commune, la carte donne la distance à vol d'oiseau entre le centre de la commune et le service d'urgences le plus proche, y compris hors du département. Aucune des 36 communes n'est à 20 km ou plus.</p>
+<figure class="graphique zoomable" data-donnees="../donnees/2026-10-23/distances_lieux_communes.csv.zip" data-donnees-nom="distances_lieux_communes.csv.zip"><figcaption class="small muted"><strong>Figure 2.</strong> <span class="leg">Distance à vol d&#x27;oiseau du centre de chaque commune jusqu&#x27;au service d&#x27;urgences le plus proche</span>.</figcaption><div class="fig-corps"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 572" role="img" aria-label="Distance à vol d&#x27;oiseau du centre de chaque commune jusqu&#x27;au service d&#x27;urgences le plus proche" font-family="Work Sans, system-ui, sans-serif"><title>Distance à vol d&#x27;oiseau du centre de chaque commune jusqu&#x27;au service d&#x27;urgences le plus proche</title><g fill-rule="evenodd" stroke="var(--contour, #9AA0AC)" stroke-width=".3"><path d="M201,487l16,-16 -14,-21 4,-7 18,-2 -1,-13 25,-6 8,-7 11,3 -6,9 -10,26 18,15 -10,13 0,29 -16,2 -2,-26 -34,17 -7,-16z" fill="var(--d3, #DFE1E5)"><title>Antony, 0,7 km</title></path><path d="M188,110l22,-29 -11,-18 -1,-16 17,9 3,17 15,22 32,-18 7,5 -4,6 -9,4 -21,9 -18,15 -5,3 -15,-14 -12,5z" fill="var(--d3, #DFE1E5)"><title>Asnières-sur-Seine, 2,0 km</title></path><path d="M227,361l21,-29 -5,-6 24,3 11,4 -4,15 -7,31 -14,7 -9,-1 -11,-24 -6,0z" fill="var(--d3, #DFE1E5)"><title>Bagneux, 4,0 km</title></path><path d="M175,93l15,-13 9,-17 11,18 -22,29 -12,0 -1,-17z" fill="var(--d3, #DFE1E5)"><title>Bois-Colombes, 2,5 km</title></path><path d="M125,272l0,-42 43,18 3,24 12,3 -21,21 -19,7 -5,-3 -13,-28z" fill="var(--d3, #DFE1E5)"><title>Boulogne-Billancourt, 1,3 km</title></path><path d="M253,386l14,-7 10,14 -9,25 -11,-3 3,-11 -11,-1 4,-17z" fill="var(--d3, #DFE1E5)"><title>Bourg-la-Reine, 2,9 km</title></path><path d="M138,429l-6,-19 13,-4 2,7 27,0 26,-9 8,-13 -2,14 13,6 5,17 1,13 -18,2 -4,7 -13,-13 -31,4 -12,-13 -9,1z" fill="var(--d3, #DFE1E5)"><title>Châtenay-Malabry, 2,3 km</title></path><path d="M197,365l8,-17 -7,-1 11,-20 30,-1 4,0 5,6 -21,29 -30,4z" fill="var(--d3, #DFE1E5)"><title>Châtillon, 2,5 km</title></path><path d="M63,358l1,-18 -10,-20 3,-2 20,-5 9,-9 -1,14 12,13 1,21 -5,3 -30,3z" fill="var(--d3, #DFE1E5)"><title>Chaville, 3,5 km</title></path><path d="M129,394l12,-7 0,-25 11,-17 19,-18 -4,-13 14,7 17,-2 8,0 3,8 -11,20 7,1 -8,17 -1,8 -27,13 -24,20 -13,4 -3,-4 0,-12z" fill="var(--d3, #DFE1E5)"><title>Clamart, 0,8 km</title></path><path d="M220,116l18,-15 21,-9 11,22 -2,9 -24,14 -24,-21z" fill="var(--d3, #DFE1E5)"><title>Clichy, 0,6 km</title></path><path d="M133,111l-13,-34 16,-16 24,-20 16,-2 22,8 1,16 -9,17 -15,13 -42,18z" fill="var(--d3, #DFE1E5)"><title>Colombes, 0,7 km</title></path><path d="M140,134l-4,-11 23,-3 17,-10 12,0 12,-5 15,14 -20,9 -25,26 -30,-20z" fill="var(--d3, #DFE1E5)"><title>Courbevoie, 1,1 km</title></path><path d="M212,390l-16,-17 1,-8 30,-4 6,0 11,24 -32,5z" fill="var(--d3, #DFE1E5)"><title>Fontenay-aux-Roses, 2,3 km</title></path><path d="M39,266l1,-10 18,-5 5,-17 23,-7 11,7 -11,10 1,13 -17,9 -31,0z" fill="var(--d3, #DFE1E5)"><title>Garches, 1,1 km</title></path><path d="M175,93l1,17 -17,10 -23,3 -3,-12 42,-18z" fill="var(--d3, #DFE1E5)"><title>La Garenne-Colombes, 1,8 km</title></path><path d="M198,47l-22,-8 -16,2 32,-23 33,-10 31,7 -4,18 20,17 -6,12 15,10 -9,10 -7,-5 -32,18 -15,-22 -3,-17 -17,-9z" fill="var(--d3, #DFE1E5)"><title>Gennevilliers, 2,6 km</title></path><path d="M167,314l-24,-11 19,-7 21,-21 7,-2 0,15 17,-10 16,9 -14,7 3,12 -14,13 -17,2 -14,-7z" fill="var(--d3, #DFE1E5)"><title>Issy-les-Moulineaux, 1,1 km</title></path><path d="M215,157l-20,-29 20,-9 5,-3 24,21 -29,20z" fill="var(--d3, #DFE1E5)"><title>Levallois-Perret, 0,8 km</title></path><path d="M239,326l-30,1 -3,-8 21,-9 14,-15 19,6 -21,25z" fill="var(--d3, #DFE1E5)"><title>Malakoff, 1,9 km</title></path><path d="M15,309l1,-6 1,-19 6,-18 16,0 31,0 -10,16 -10,14 -31,7 -4,6z" fill="var(--d3, #DFE1E5)"><title>Marnes-la-Coquette, 1,6 km</title></path><path d="M93,355l5,-3 -1,-21 23,-14 -5,-6 12,-11 11,0 5,3 24,11 4,13 -19,18 -11,17 0,25 -12,7 -6,-10 -17,-5 -2,-13 -11,-11z" fill="var(--d3, #DFE1E5)"><title>Meudon, 2,1 km</title></path><path d="M243,326l-4,0 21,-25 26,12 -4,7 -15,9 -24,-3z" fill="var(--d3, #DFE1E5)"><title>Montrouge, 3,0 km</title></path><path d="M43,134l8,-8 39,-21 30,-28 13,34 3,12 4,11 -16,29 -23,20 -23,-23 -35,-26z" fill="var(--d3, #DFE1E5)"><title>Nanterre, 2,3 km</title></path><path d="M170,154l25,-26 20,29 -10,17 -28,-5 -5,14 -15,-5 13,-24z" fill="var(--d3, #DFE1E5)"><title>Neuilly-sur-Seine, 0,7 km</title></path><path d="M145,406l24,-20 27,-13 16,17 -4,1 -8,13 -26,9 -27,0 -2,-7z" fill="var(--d3, #DFE1E5)"><title>Le Plessis-Robinson, 1,0 km</title></path><path d="M124,163l16,-29 30,20 -13,24 -21,16 8,-10 -1,-13 -19,-8z" fill="var(--d3, #DFE1E5)"><title>Puteaux, 1,9 km</title></path><path d="M63,234l-34,9 -14,-19 5,-19 5,-12 -10,-3 12,-22 16,-34 35,26 23,23 6,11 -13,20 -8,13 -23,7z" fill="var(--d3, #DFE1E5)"><title>Rueil-Malmaison, 3,0 km</title></path><path d="M70,266l17,-9 -1,-13 11,-10 -11,-7 8,-13 33,3 -2,13 0,42 -8,20 -29,-8 -28,-2 10,-16z" fill="var(--d3, #DFE1E5)"><title>Saint-Cloud, 0,5 km</title></path><path d="M257,415l-8,7 -25,6 -5,-17 -13,-6 2,-14 4,-1 32,-5 9,1 -4,17 11,1 -3,11z" fill="var(--d3, #DFE1E5)"><title>Sceaux, 2,2 km</title></path><path d="M57,318l30,-18 1,-16 29,8 8,-20 13,28 -11,0 -12,11 5,6 -23,14 -12,-13 1,-14 -9,9 -20,5z" fill="var(--d3, #DFE1E5)"><title>Sèvres, 2,5 km</title></path><path d="M101,183l23,-20 19,8 1,13 -8,10 -9,23 -33,-3 13,-20 -6,-11z" fill="var(--d3, #DFE1E5)"><title>Suresnes, 0,3 km</title></path><path d="M206,319l-8,0 14,-13 -3,-12 14,-7 18,8 -14,15 -21,9z" fill="var(--d3, #DFE1E5)"><title>Vanves, 1,0 km</title></path><path d="M29,243l34,-9 -5,17 -18,5 -1,10 -16,0 -6,18 -1,19 -4,-16 -4,-19 9,-27 12,2z" fill="var(--d3, #DFE1E5)"><title>Vaucresson, 1,9 km</title></path><path d="M15,309l4,-6 31,-7 10,-14 28,2 -1,16 -30,18 -3,2 -11,-5 -12,8 -16,-14z" fill="var(--d3, #DFE1E5)"><title>Ville-d&#x27;Avray, 1,9 km</title></path><path d="M256,15l-4,18 20,17 -6,12 15,10 13,-24 -2,-17 -9,-8 -27,-8z" fill="var(--d3, #DFE1E5)"><title>Villeneuve-la-Garenne, 3,3 km</title></path></g><rect x="8" y="528" width="14" height="12" fill="var(--d3, #DFE1E5)" stroke="var(--line, #D9DCE3)"/><text x="28" y="538" font-size="8.3" fill="var(--muted, #5F6675)">moins de 5 km</text><rect x="288" y="528" width="14" height="12" fill="var(--d2, #E8A17A)" stroke="var(--line, #D9DCE3)"/><text x="308" y="538" font-size="8.3" fill="var(--muted, #5F6675)">de 5 à 10 km</text><rect x="8" y="548" width="14" height="12" fill="var(--d1, #BC6B3B)" stroke="var(--line, #D9DCE3)"/><text x="28" y="558" font-size="8.3" fill="var(--muted, #5F6675)">de 10 à 20 km</text><rect x="288" y="548" width="14" height="12" fill="var(--d0, #83451E)" stroke="var(--line, #D9DCE3)"/><text x="308" y="558" font-size="8.3" fill="var(--muted, #5F6675)">20 km et plus</text></svg></div></figure>
+
+<details>
+<summary>Liste des structures</summary>
+<ul>
+<li><strong>Services d'urgences</strong> (14). Accueil Urgences médico-chirurgicales (Saint-Cloud); Accueil permanent CS (328) (Issy-les-Moulineaux); Accueil urgences adultes (Clichy); CH RIVES DE SEINE SITE NEUILLY S/SEINE (Neuilly-sur-Seine); CLINIQUE DE MEUDON LA FORET (Meudon); Centre médico-judiciaire (Garches); GHU APHP NUP SITE LOUIS MOURIER (Colombes); HOPITAL FOCH (Suresnes); HOPITAL PRIVE D ANTONY (Antony); SAU PEDIATRIQUE (Boulogne-Billancourt); URGENCES PEDIATRIQUE (Clamart); Urgences médecine (Nanterre); Urgences médicales adultes (Levallois-Perret); Urgences médicales et chirurgicales (Clamart).</li>
+<li><strong>SMUR, interventions d'urgence</strong> (3). GHU APHP NUP SITE BEAUJON (Clichy); GHU APHP UPS SITE RAYMOND POINCARE (Garches); SMUR PEDIATRIQUE (Clamart).</li>
+<li><strong>Soins non programmés</strong> (10). CH DES QUATRE VILLES SITE ST CLOUD (Saint-Cloud); CH RIVES DE SEINE SITE NEUILLY S/SEINE (Neuilly-sur-Seine); GHU APHP NUP SITE BEAUJON (Clichy); HC UHCD PEDIATRIQUE (Clamart); HOPITAL PRIVE D ANTONY (Antony); Hospitalisation de Courte Durée (Meudon); Hospitalisation de courte durée (Clamart); MCO ZHTCD PEDIAT HC (Unité d'Hospitalisation de Courte Durée) (Boulogne-Billancourt); Unité d'hospitalisation de très courte durée (UHTCD) (Nanterre); ZSTCD (Colombes).</li>
+<li><strong>Maternités</strong> (12). CH DE NANTERRE (Nanterre); Consultation gynéco-obstétrique (Saint-Cloud); Consultation maternité-obstétrique (Levallois-Perret); Consultations obstétricales (Rueil-Malmaison); Echographie obstétrique (La Garenne-Colombes); Echographies obstétricales (Neuilly-sur-Seine); Grossesses Pathologiques (Colombes); HOPITAL AMERICAIN (Neuilly-sur-Seine); HOPITAL FOCH (Suresnes); HOPITAL PRIVE D ANTONY (Antony); URGENCES OBSTETRIQUE (Clamart); Urgences Obstétrique (Clichy).</li>
+<li><strong>Néonatalogie</strong> (8). CH DES QUATRE VILLES SITE ST CLOUD (Saint-Cloud); GHU APHP NUP SITE BEAUJON (Clichy); HC NEONAT U KANG (Clamart); HOPITAL FOCH (Suresnes); Hospitalisation de néonatalogie (Levallois-Perret); Néonatologie avec Soins Intensifs (Neuilly-sur-Seine); Pédiatrie néonatologie (Antony); Soins Intensifs Néonatologie (Colombes).</li>
+<li><strong>PMI, protection maternelle et infantile</strong> (59). CENTRE DE PMI DEPARTEMENTAL (Levallois-Perret); CENTRE DE PMI TENINE (Nanterre); CENTRE DE PROTECTION MATERNELLE ET INFANTILE (Asnières-sur-Seine); CENTRE DE PROTECTION MATERNELLE ET INFANTILE (Malakoff); CENTRE DE PROTECTION MATERNELLE ET INFANTILE (Suresnes); CENTRE DEPARTEMENTAL DE PROTECTION INFANTILE (Bagneux); CENTRE DEPARTEMENTAL DE PROTECTION INFANTILE (Colombes); CENTRE DEPARTEMENTAL DE PROTECTION INFANTILE (Courbevoie); CENTRE DEPARTEMENTAL DE PROTECTION INFANTILE (Courbevoie); CENTRE DEPARTEMENTAL DE PROTECTION INFANTILE (Issy-les-Moulineaux); CENTRE DEPARTEMENTAL DE PROTECTION MATERNELLE ET INFANTILE (Antony); CENTRE DEPARTEMENTAL DE PROTECTION MATERNELLE ET INFANTILE (Clamart); CENTRE DEPARTEMENTAL DE PROTECTION MATERNELLE ET INFANTILE (Courbevoie); CENTRE DEPARTEMENTAL DE PROTECTION MATERNELLE ET INFANTILE (Garches); CENTRE DEPARTEMENTAL DE PROTECTION MATERNELLE ET INFANTILE (Malakoff); CENTRE DEPARTEMENTAL DE PROTECTION MATERNELLE ET INFANTILE (Meudon); CENTRE DEPARTEMENTAL DE PROTECTION MATERNELLE ET INFANTILE (Montrouge); CENTRE DEPARTEMENTAL DE PROTECTION MATERNELLE ET INFANTILE (Nanterre); CENTRE DEPARTEMENTAL DE PROTECTION MATERNELLE ET INFANTILE (Nanterre); CENTRE DEPARTEMENTAL DE PROTECTION MATERNELLE ET INFANTILE (Nanterre); CENTRE DEPARTEMENTAL DE PROTECTION MATERNELLE ET INFANTILE (Sèvres); CENTRE DEPARTEMENTAL DE PROTECTION MATERNELLE ET INFANTILE (Villeneuve-la-Garenne); CENTRE MEDICO SOCIAL MUNICIPAL CAMILLE RONCE (Gennevilliers); CENTRE MUNICIPAL DE PROTECTION INFANTILE (Rueil-Malmaison); CENTRE MUNICIPAL DE PROTECTION MATERNELLE ET INFANTILE (Nanterre); CENTRE MUNICIPAL DE PROTECTION MATERNELLE ET INFANTILE (Rueil-Malmaison); CENTRE MUNICIPAL DE PROTECTION MATERNELLE INFANTILE (Meudon); CPMI  PAVE BLANC (Clamart); CPMI ANTONY CROIX DE BERNY (Antony); CPMI CRF (Rueil-Malmaison); CPMI D ASNIERES SUR SEINE (Asnières-sur-Seine); CPMI DE CHATILLON (Châtillon); CPMI DE CLAMART (Clamart); CPMI DE PUTEAUX (Puteaux); CPMI DE ST CLOUD (Saint-Cloud); CPMI DEPARTEMENTAL BOURG LA REINE (Bourg-la-Reine); CPMI DEPARTEMENTAL DE BAGNEUX (Bagneux); CPMI DEPARTEMENTAL DE BOULOGNE (Boulogne-Billancourt); CPMI DEPARTEMENTAL DE NANTERRE (Nanterre); CPMI DES GROS GRES (Colombes); CPMI DU CH COURBEVOIE NEUILLY (Courbevoie); CPMI ET CPEF DE GENNEVILLIERS (Gennevilliers); CPMI ET CPEF DE NANTERRE (Nanterre); CPMI ET CPEF LE PLESSIS (Le Plessis-Robinson); CPMI ET CPEF MARC CHAGALL (Clichy); CPMI ISSY (Issy-les-Moulineaux); CPMI PALLOY (Clichy); CPMI POTAMIA (Gennevilliers); CPMI ROCHEFOUCAULD (Boulogne-Billancourt); CPMI ROUSSEAU (Colombes); CPMI VILLENEUVE LA GARENNE (Villeneuve-la-Garenne); CSS NEUILLY SUR SEINE (Neuilly-sur-Seine); CTRE DE PMI (APHP BEAUJON) (Clichy); CTRE DE PMI (APHP MOURRIER) (Colombes); CTRE DE PMI (C.H. ST CLOUD) (Saint-Cloud); CTRE DE PMI (FOCH) (Suresnes); CTRE PMI &amp; CPEF (C.H. SEVRES) (Sèvres); PMI ARNOLD NETTER (Suresnes); SERVICE DEPARTEMENTAL DE PMI CENTRE PRINCIPAL (Nanterre).</li>
+<li><strong>Centres de santé sexuelle</strong> (16). CENTRE DE SANTE SEXUELLE ASNIERES SUR SEINE (Asnières-sur-Seine); CENTRE DE SANTE SEXUELLE BOURG LA REINE (Bourg-la-Reine); CENTRE DE SANTE SEXUELLE CHATENAY MALABRY (Châtenay-Malabry); CENTRE DE SANTE SEXUELLE CHATILLON (Châtillon); CENTRE DE SANTE SEXUELLE D' ISSY LES MOULINEAUX (Issy-les-Moulineaux); CENTRE DE SANTE SEXUELLE DE BAGNEUX (Bagneux); CENTRE DE SANTE SEXUELLE DE NANTERRE (Nanterre); CENTRE DE SANTE SEXUELLE JEUNES DE COLOMBES (Colombes); CENTRE DE SANTE SEXUELLE JULES GUESDE (Malakoff); CENTRE DE SANTE SEXUELLE MALAKOFF (Malakoff); CENTRE DE SANTE SEXUELLE MONTROUGE (Montrouge); CENTRE DE SANTE SEXUELLE RUEIL MALMAISON (Rueil-Malmaison); CENTRE DE SANTE SEXUELLE SURESNES (Suresnes); CSS DE NANTERRE (Nanterre); CSS FONTENAY AUX ROSES (Fontenay-aux-Roses); CSS LEVALLOIS PERRET (Levallois-Perret).</li>
+<li><strong>Pédiatrie à l'hôpital</strong> (5). HDJ MCO RECH CLINIQ (Garches); HDJ UAPED (Clamart); MCO MED DES ADOS HDJ (Boulogne-Billancourt); Pédiatrie (Neuilly-sur-Seine); Pédiatrie HTP sans chimiothérapie (Colombes).</li>
+<li><strong>Médecine polyvalente à l'hôpital</strong> (18). CLINIQUE DU PLATEAU (Clamart); GHU APHP NUP SITE BEAUJON (Clichy); HC MEDECINE AIGUE POLYVALENTE (Clamart); HDJ Médecine (Issy-les-Moulineaux); HOPITAL FOCH (Suresnes); HOPITAL FRANCO BRITANNIQUE - FCJ (Levallois-Perret); HOPITAL GOUIN A CLICHY (Clichy); HOPITAL PRIVE D ANTONY (Antony); Hospitalisation en Médecine interne (Sèvres); Hospitalisation médecine adulte (Rueil-Malmaison); Hôpital de Jour de Médecine Interne (Saint-Cloud); Hôpital de jour de médecine interne (Nanterre); MEDECINE INTERNE HC (Boulogne-Billancourt); Medecine Interne HC (Colombes); Médecine interne hospitalisation (Clamart); Médecine polyvalente et cancérologique (Meudon); UCA (Médecine) (Neuilly-sur-Seine); Unité de soins polyvalentes (Neuilly-sur-Seine).</li>
+<li><strong>Gériatrie à l'hôpital</strong> (11). CH DEPARTEMENTAL DE STELL (Rueil-Malmaison); G1 Médecine Gériatrique (112) (Issy-les-Moulineaux); HC UGA (Clamart); Hospitalisation unité de gériatrie aiguë (Sèvres); Hôpital de jour de gériatrie aigue (Nanterre); Médecine Gériatrique 3ème étage (Courbevoie); Médecine gériatrique aigue (Colombes); UPOG (Unité Péri-Opératoire Gériatrique) (Boulogne-Billancourt); Unité de Gériatrie Aigue (Levallois-Perret); Unité de Gériatrie Aigue (UGA) (Clichy); Unité de gériatrie aigue (Suresnes).</li>
+<li><strong>Cardiologie à l'hôpital</strong> (13). CH DE NANTERRE (Nanterre); CLINIQUE CHIRURGICALE DU VAL D OR (Saint-Cloud); CMC AMBROISE PARE HARTMANN SITE 48 TER (Neuilly-sur-Seine); Cardiologie USIC (Clamart); HDJ CARDIOLOGIE (Boulogne-Billancourt); HDJ CARDIOLOGIE (Clamart); HDJ MCO Cardiaque (126) (Issy-les-Moulineaux); HOPITAL PRIVE D ANTONY (Antony); Hopital de Semaine - Cardiologie (Levallois-Perret); Hospitalisation Cardiologie Interventionnelle (Le Plessis-Robinson); Unité de Pathologies Cardio-Vasculaires (Neuilly-sur-Seine); Unité de soins intensifs cardiologie (Suresnes); Unités de soins polyvalentes (Neuilly-sur-Seine).</li>
+<li><strong>Neurologie à l'hôpital</strong> (5). EF SOMMEIL HC (Garches); HDS SOMNOLOGIE (Clamart); Hopital de jour neurologie (Suresnes); Neurologie HC (Clamart); Service d'hospitalisation ambulatoire (Neuilly-sur-Seine).</li>
+<li><strong>Cancérologie et radiothérapie</strong> (14). CLINIQUE DE MEUDON LA FORET (Meudon); HDJ CHIMIOTHERAPIE (Clamart); Hospitalisation chirurgie cancérologique (Antony); Hospitalisation complète médecine oncologique (Colombes); Hôpital de jour Oncologie hépatique et innovation thérapeutique (Clichy); MCO CHIMIO PED HJ (Boulogne-Billancourt); Médecine cancérologie (Clamart); Médecine oncologique (Boulogne-Billancourt); Médecine oncologique (La Garenne-Colombes); ONCOLOGIE MEDICALE (Neuilly-sur-Seine); Oncologie Médicale Hospitalisation Conventionnelle (Levallois-Perret); Oncologie hospitalisation complète (Suresnes); Plateau Technique de Radiothérapie - CLINAC (Saint-Cloud); Unité de soins polyvalentes (Neuilly-sur-Seine).</li>
+<li><strong>Réanimation et soins intensifs</strong> (8). CLINIQUE CHIRURGICALE DU VAL D OR (Saint-Cloud); CMC AMBROISE PARE HARTMANN SITE 48 TER (Neuilly-sur-Seine); HOPITAL FRANCO BRITANNIQUE - FCJ (Levallois-Perret); HOPITAL MARIE LANNELONGUE (Le Plessis-Robinson); Hématologie soins intensifs (Clamart); Soins intensifs gastro assistance nutritive et MICI (Clichy); USI RESPIRATOIRES (Garches); Unité de soins intensifs neurochirurgicale (Suresnes).</li>
+<li><strong>Chirurgie à l'hôpital</strong> (27). Ambulatoire chirurgie du rachis (Neuilly-sur-Seine); Ambulatoire chirurgie viscérale et digestive (Courbevoie); CHIRURGIE CARDIAQUE ET THORACIQUE (Neuilly-sur-Seine); CLINIQUE CHIRURGICALE DU VAL D OR (Saint-Cloud); CLINIQUE MARCEL SEMBAT CCBB (Boulogne-Billancourt); Centre de l'épaule (Antony); Chirurgie Vasculaire (La Garenne-Colombes); Chirurgie gynécologique (Levallois-Perret); Chirurgie plastique et reconstructrice (Levallois-Perret); Chirurgie robot-assistée en chirurgie digestive et gynécologique (Meudon); Chirurgie urologique (Rueil-Malmaison); GHU APHP NUP SITE LOUIS MOURIER (Colombes); HDJ GYNECOLOGIE (Clamart); HJ DIAG DIGESTIF (Boulogne-Billancourt); Hospitalisation Chirurgie ThoracoVasculaire (Le Plessis-Robinson); Hospitalisation Chirurgie Vasculaire (Neuilly-sur-Seine); Hospitalisation Chirurgie à Orientation Gynécologique (Chirurgie D) (Saint-Cloud); Hospitalisation Gynécologie Chirurgicale (Clichy); Hospitalisation chirurgie intime (Boulogne-Billancourt); Hospitalisation chirurgie urologique (Saint-Cloud); IVG Médicamenteuse (Nanterre); NEURO ORTHOPEDIE (Garches); ORL hospitalisation (Suresnes); Phlébologie (Boulogne-Billancourt); UCA (Chirurgie Gynécologique) (Neuilly-sur-Seine); Unité de soins polyvalentes (Neuilly-sur-Seine); ambulatoire chirurgie vasculaire (Clamart).</li>
+<li><strong>Dialyse</strong> (11). CENTRE D AUTODIALYSE DE BOIS COLOMBES (Bois-Colombes); CENTRE DE DIALYSE DE BAGNEUX - AMI (Bagneux); CENTRE MÉDIPÔLE NANTERRE (Nanterre); CENTRE NEPHROLINK 92 (Gennevilliers); Centre lourd de néphrologie (Antony); HOPITAL FOCH (Suresnes); Lits Dialyse en centre lourd (Neuilly-sur-Seine); POLE AUTONOMIE-DIALYSE A DOMICILE PADD (Montrouge); UAD NEPHROCARE ILE DE FRANCE SURESNES (Suresnes); UNITE D AUTODIALYSE DE NANTERRE (Nanterre); UNITE DE DIALYSE AURA CHATILLON SUR SEINE (Châtillon).</li>
+<li><strong>Soins palliatifs</strong> (13). CH DE NANTERRE (Nanterre); CH RIVES DE SEINE SITE DE PUTEAUX (Puteaux); CLINIQUE DE MEUDON LA FORET (Meudon); CLINIQUE DU PLATEAU (Clamart); EM SOINS PALLATIFS (Clamart); EMASP (Colombes); Equipe Mobile d'Accompagnement des Soins Palliatifs (EMASP) (Clichy); Equipe mobile soin palliatif (Saint-Cloud); HOPITAL PRIVE LA MONTAGNE LAMBERT (La Garenne-Colombes); Hospitalisation soins palliatifs (Antony); Hôpital de Jour Soins Palliatifs (Rueil-Malmaison); SOINS PALLIATIFS HEPATO (HC) (Boulogne-Billancourt); UMSP - Unité Mobile de Soins Palliatifs (Suresnes).</li>
+<li><strong>Structures douleur chronique</strong> (3). CS EM DOULEUR (Clamart); GHU APHP NUP SITE BEAUJON (Clichy); Unité de coordination douleur (Suresnes).</li>
+<li><strong>Soins médicaux et de réadaptation</strong> (23). CLINIQUE DU PLATEAU (Clamart); CLINIQUE VILLA MARIE LOUISE (La Garenne-Colombes); EVC-EPR (Rueil-Malmaison); G2 Soins de suite (253) (Issy-les-Moulineaux); HDJ - SSR (Fontenay-aux-Roses); HDJ SSR (Issy-les-Moulineaux); HOPITAL DE JOUR SMR NEUROLOGIE (Villeneuve-la-Garenne); HOPITAL INSTRUCTION DES ARMEES PERCY (Clamart); Hospitalisation de jour (HDJ) SSR COVID long (Châtenay-Malabry); Hôpital de Jour - Rééducation - Neurologie (Gennevilliers); Hôpital de jour Neurologie (Asnières-sur-Seine); SMR Polyvalent Enfants - HDJ - 0 à 6 ans (Neuilly-sur-Seine); SMR REED NEURO HJ (Garches); SSR - affections respiratoires - HDJ (Suresnes); SSR Gériatriques 2ème étage (Courbevoie); SSR HC polyvalent associé en cancérologie 0 à 6 ans (Antony); SSR HDJ Gériatrique (Courbevoie); SSR LES ABONDANCES (Boulogne-Billancourt); SSR SDME (Rueil-Malmaison); SSR affections cardiovasculaires - HDJ (Châtillon); SSR associé en cancérologie (Nanterre); SSR polyvalent et gériatrique (Sèvres); SSR polyvalent, rééducation, réadaptation (Issy-les-Moulineaux).</li>
+<li><strong>Hospitalisation à domicile</strong> (1). HAD SANTE SERVICE (Levallois-Perret).</li>
+<li><strong>Soins infirmiers à domicile (SSIAD)</strong> (33). CCAS/CIAS MONTROUGE (Montrouge); DOMUSVI DOMICILE CLAMART (Clamart); GROUPEMENT DE COOPERATION SOCIALE ET COOPERATION MEDICO-SOCIALE CHAVILLE-VIROFLAY (GCSMS) (Chaville); SERVICE DE SOINS A DOMICILE (Bagneux); SERVICE DE SOINS A DOMICILE (Sceaux); SERVICE DE SOINS INFIRMIERS A DOMICILE (Saint-Cloud); SSIAD 92 DE LA FONDATION LA CROIX SAINT SIMON - (Boulogne-Billancourt); SSIAD ANSIAD (Neuilly-sur-Seine); SSIAD ASSOCIATION SOINS A DOMICILE (ASAD) BOURG LA REINE (Bourg-la-Reine); SSIAD CESNAF (Nanterre); SSIAD COLOMBES USSIDF (Colombes); SSIAD CRF CLICHY (Clichy); SSIAD CRF ISSY-LES-MOULINEAUX (Issy-les-Moulineaux); SSIAD CRF PLESSIS-ROBINSON (Le Plessis-Robinson); SSIAD CRF VILLENEUVE-LA-GARENNE (Villeneuve-la-Garenne); SSIAD CRF de Puteaux (Puteaux); SSIAD CROIX ROUGE FRANCAISE ANTONY (Antony); SSIAD DOMUSVI BOIS COLOMBES (Bois-Colombes); SSIAD FONDATION AULAGNIER (Asnières-sur-Seine); SSIAD GENNEVILLIERS (Gennevilliers); SSIAD LES ABONDANCES (Boulogne-Billancourt); SSIAD MALAKOFF (Malakoff); SSIAD MEUDON (Meudon); SSIAD ODILON LANNELONGUE (Vanves); SSIAD Renforcé SAPA (Courbevoie); SSIAD SAINTE ANNE D'AURAY (Châtillon); SSIAD SESID (Rueil-Malmaison); SSIAD SHERPAS (La Garenne-Colombes); SSIAD SURESNES (Suresnes); SSIAD les Marronniers (Levallois-Perret); SSIAD-ESA (Antony); Soins Infirmiers à domicile SSIAD 92 Fondation Santé Service (Villeneuve-la-Garenne); UNION SOINS ET SERVICES ILE DE FRANCE (Vanves).</li>
+<li><strong>EHPAD</strong> (119). ACCUEIL DE JOUR LA CHARTRAINE (Antony); Accueil de jour LES PIVOINES (Neuilly-sur-Seine); Accueil de jour Raymond Arnaud (Saint-Cloud); Accueil de jour SAINTE ANNE D'AUVRAY (Châtillon); Appartement (Bagneux); CAJ L ABRIER (Fontenay-aux-Roses); CAJ LES CAMELIAS (Asnières-sur-Seine); CAJ LES LILAS (Asnières-sur-Seine); CAJ ODILON LANNELONGUE (Vanves); Cosima Bourg-la-Reine (Bourg-la-Reine); Cosima Villemomble (Saint-Cloud); EHPAD DE L UNION BELGE (Courbevoie); EHPAD DOLCEA VILLA MEDICIS (Sèvres); EHPAD EMILIE DE RODAT (Rueil-Malmaison); EHPAD FERRARI (Clamart); EHPAD FONDATION LAMBRECHTS (Châtillon); EHPAD JULIA STELL (Rueil-Malmaison); EHPAD KORIAN BEL AIR (Clamart); EHPAD KORIAN CASTEL VOLTAIRE (Châtillon); EHPAD KORIAN FLORIAN CARNOT (Antony); EHPAD KORIAN HAUTS DE JARDY (Vaucresson); EHPAD KORIAN L IMPERIAL (Colombes); EHPAD KORIAN LES ACACIAS (Colombes); EHPAD KORIAN LES SARMENTS (Suresnes); EHPAD KORIAN LES TYBILLES (Meudon); EHPAD KORIAN SAINT CHARLES (Sceaux); EHPAD KORIAN VILLA IMPERATRICE (Rueil-Malmaison); EHPAD LA JONCHERE (Rueil-Malmaison); EHPAD LA MAISON DES CYTISES (Gennevilliers); EHPAD LA ROSERAIE (Colombes); EHPAD LA VILLA  D EPIDAURE (Garches); EHPAD LASSERRE (Issy-les-Moulineaux); EHPAD LE CLOS DES MEUNIERS (Bagneux); EHPAD LES 4 SAISONS (Le Plessis-Robinson); EHPAD LES ABONDANCES (Boulogne-Billancourt); EHPAD LES CHENETS (Courbevoie); EHPAD LES VALLEES (Colombes); EHPAD LES VIGNES DE SURESNES (Suresnes); EHPAD MAISON DE RETRAITE DU CHI JEAN ROSTAND (Sèvres); EHPAD MAISON DE RETRAITE PROTESTANTE (Nanterre); EHPAD MAISON DE RETRAITE SOYER (Neuilly-sur-Seine); EHPAD MAISON RETRAITE LEOPOLD BELLAN (Bois-Colombes); EHPAD MOLIERE (Bourg-la-Reine); EHPAD MR DE LA FONDATION ROGUET (Clichy); EHPAD ORPEA LA GARENNE (La Garenne-Colombes); EHPAD RESID LES TERRASSES DE MEUDON (Meudon); EHPAD RESIDENCE ALPHONSE DAUDET (Clamart); EHPAD RESIDENCE ARCADE (Fontenay-aux-Roses); EHPAD RESIDENCE AZUR (Colombes); EHPAD RESIDENCE CHAMPFLEURY (Sèvres); EHPAD RESIDENCE DE L EMPEREUR (Garches); EHPAD RESIDENCE DE LONGCHAMP ST CLOUD (Saint-Cloud); EHPAD RESIDENCE DU CAP (Bois-Colombes); EHPAD RESIDENCE DU PARC DE MEUDON (Meudon); EHPAD RESIDENCE ESTEREL (Colombes); EHPAD RESIDENCE GER HOME (Courbevoie); EHPAD RESIDENCE HIPPOCRATE (Châtenay-Malabry); EHPAD RESIDENCE ISIS (Garches); EHPAD RESIDENCE LA BRUYERE (Rueil-Malmaison); EHPAD RESIDENCE LA CHAMADE (Nanterre); EHPAD RESIDENCE LA CHESNAYE (Suresnes); EHPAD RESIDENCE LA FAIENCERIE (Sceaux); EHPAD RESIDENCE LA TOUR D AUVERGNE (Colombes); EHPAD RESIDENCE LA TOURNELLE (La Garenne-Colombes); EHPAD RESIDENCE LA VILLA DES SOURCES (Ville-d'Avray); EHPAD RESIDENCE LANNELONGUE (Vanves); EHPAD RESIDENCE LARMEROUX (Vanves); EHPAD RESIDENCE LE JARDIN DE LEVALLOIS (Levallois-Perret); EHPAD RESIDENCE LE PARC (Fontenay-aux-Roses); EHPAD RESIDENCE LE SEQUOIA (Châtenay-Malabry); EHPAD RESIDENCE LES ADRETS (Clichy); EHPAD RESIDENCE LES BORDS DE SEINE (Neuilly-sur-Seine); EHPAD RESIDENCE LES MARINES (Asnières-sur-Seine); EHPAD RESIDENCE LES NEUF MUSES (Issy-les-Moulineaux); EHPAD RESIDENCE LES VIGNES (Nanterre); EHPAD RESIDENCE MADELEINE VERDIER (Montrouge); EHPAD RESIDENCE MARCELLE DEVAUD (Colombes); EHPAD RESIDENCE ORPEA LE CORBUSIER (Boulogne-Billancourt); EHPAD RESIDENCE ORPEA SURESNES (Suresnes); EHPAD RESIDENCE PORT VAN GOGH (Asnières-sur-Seine); EHPAD RESIDENCE RABELAIS (Asnières-sur-Seine); EHPAD RESIDENCE RENAUDIN (Sceaux); EHPAD RESIDENCE REPOTEL (Gennevilliers); EHPAD RESIDENCE SAINT BENOIT (Boulogne-Billancourt); EHPAD RESIDENCE SAINTE AGNES (Boulogne-Billancourt); EHPAD RESIDENCE SAINTE LUCIE (Issy-les-Moulineaux); EHPAD RESIDENCE SANTE GALIGNANI (Neuilly-sur-Seine); EHPAD RESIDENCE ST JOSEPH (Clamart); EHPAD RESIDENCE TIERS TEMPS (Suresnes); EHPAD RESIDENCE VILLA MEDICIS (Vanves); EHPAD RESIDENCE VOLTAIRE (Puteaux); EHPAD SOLEMNES (Courbevoie); EHPAD STE EMILIE (Clamart); EHPAD STE GENEVIEVE (Nanterre); EHPAD SUISSE REPOTEL (Issy-les-Moulineaux); EHPAD VILLA BEAU SOLEIL CHAVILLE (Chaville); EHPAD VILLA BEAUSOLEIL (Montrouge); EHPAD VILLA BORGHESE (Courbevoie); EHPAD VILLA CAROLINE (Gennevilliers); EHPAD VILLA CONCORDE (Asnières-sur-Seine); EHPAD VILLA GARLANDE (Bagneux); EHPAD VILLA MEDICIS (Asnières-sur-Seine); EPHAD MAISON SOINS ET REPOS (Vanves); EPHAD RESIDENCE DU ROUVRAY (Boulogne-Billancourt); Etablissement d'Hébergement (EHPAD) du CASH DE NANTERRE (Nanterre); L'OLIVIER (Meudon); LA MAISON DES POETES (Malakoff); LE GRAND CHENE (Châtenay-Malabry); La Méridienne (Villeneuve-la-Garenne); La Pagerie (Rueil-Malmaison); Lieu de vie sécurisé personnes Alzheimer (Châtillon); Résidence Fontaine (Asnières-sur-Seine); Sainte Marthe (Bois-Colombes); UHR FONDATION AULAGNIER (Asnières-sur-Seine); Unité Alzheimer sécurisée (Rueil-Malmaison); Unité centre d'accueil de jour pour personnes âgées MAISON DAELIA Boulogne-Billancourt (Boulogne-Billancourt); Unité d'hébergement renforcée (Levallois-Perret); Unité de soins adaptés (Courbevoie); Unité protégée 4UP (Clamart).</li>
+<li><strong>Résidences autonomie</strong> (45). COMMUNAL LES SAPINS BLEUS (Ville-d'Avray); DAMIEN  DU C C A S DE PARIS (Boulogne-Billancourt); RESIDENCE   LORRAINE   POUR PERSONNES AGEES (Levallois-Perret); RESIDENCE AUTONOMIE  MARTIGNON (Rueil-Malmaison); RESIDENCE AUTONOMIE ALBERT CARON (Suresnes); RESIDENCE AUTONOMIE ANDRE CHENIER (Bois-Colombes); RESIDENCE AUTONOMIE AZUR (Clichy); RESIDENCE AUTONOMIE C C A S NANTERRE (Nanterre); RESIDENCE AUTONOMIE CAMILLE CARTIER (Gennevilliers); RESIDENCE AUTONOMIE COMMUNAL CONCORDE (Asnières-sur-Seine); RESIDENCE AUTONOMIE COMMUNAL CONCORDE (Asnières-sur-Seine); RESIDENCE AUTONOMIE DE LA VALLEE (Bourg-la-Reine); RESIDENCE AUTONOMIE DU CHATEAU (Asnières-sur-Seine); RESIDENCE AUTONOMIE GREFFULHE (Levallois-Perret); RESIDENCE AUTONOMIE LA VANNE (Montrouge); RESIDENCE AUTONOMIE LE HAMEAU (Meudon); RESIDENCE AUTONOMIE LE PARC (Issy-les-Moulineaux); RESIDENCE AUTONOMIE LE PARC (Nanterre); RESIDENCE AUTONOMIE LES HEURES CLAIRES (Saint-Cloud); RESIDENCE AUTONOMIE LES JOURS HEUREUX (Saint-Cloud); RESIDENCE AUTONOMIE LES NYMPHEAS (Villeneuve-la-Garenne); RESIDENCE AUTONOMIE LES PINS (Boulogne-Billancourt); RESIDENCE AUTONOMIE LES TARATRES (Rueil-Malmaison); RESIDENCE AUTONOMIE LES TILLEULS MARCEL CHAPPEY (Garches); RESIDENCE AUTONOMIE MARIE NODIER (Fontenay-aux-Roses); RESIDENCE AUTONOMIE MARTHE ANDREE LUCAS (Neuilly-sur-Seine); RESIDENCE AUTONOMIE MORAMBERT (Clamart); RESIDENCE AUTONOMIE PAULETTE SPIESS (Le Plessis-Robinson); RESIDENCE AUTONOMIE RENAITRE (Antony); RESIDENCE AUTONOMIE SOLEIL BOULOGNE (Boulogne-Billancourt); RESIDENCE AUTONOMIE THEOPHILE GAUTIER (Montrouge); RESIDENCE AUTONOMIE VERDI (Châtenay-Malabry); RESIDENCE AUTONOMIE YVONNE FEUILLARD (Colombes); RESIDENCE CHARLOTTE MONFORT (Châtillon); RESIDENCE COMMUNAL DE NEUILLY (Neuilly-sur-Seine); RESIDENCE DES CHAMPS PHILIPPE (La Garenne-Colombes); RESIDENCE DES IMBERGERES (Sceaux); RESIDENCE DU CLOS LA PAUME (Bagneux); RESIDENCE HENRI SELLIER (Le Plessis-Robinson); RESIDENCE JOLIOT CURIE (Malakoff); RESIDENCE LAFOREST (Malakoff); RESIDENCE LE TITIEN (Châtenay-Malabry); RESIDENCE LOCARNO (Suresnes); RESIDENCE PASTEUR (Nanterre); Résidence Autonomie Richard Wallace (Puteaux).</li>
+<li><strong>Soins de longue durée (USLD)</strong> (6). GHU APHP NORD UNIVERSITE PARIS CITE SITE USLD L MOURIER (Colombes); UNITE DE SOINS DE LONGUE DUREE (Clichy); UNITE DE SOINS DE LONGUE DUREE CELTON GHU APHP CUP (Issy-les-Moulineaux); UNITE DE SOINS DE LONGUE DUREE CENTRE HOSPITALIER (Saint-Cloud); UNITE DE SOINS DE LONGUE DUREE LES ABONDANCES (Boulogne-Billancourt); UNITE SOINS LONGUE DUREE CENTRE HOSPITALIER RIVES DE SEINE (Puteaux).</li>
+<li><strong>Équipes spécialisées Alzheimer, accueil de jour et répit</strong> (13). ACCUEIL DE JOUR LA BUISSONNIERE (Courbevoie); CAJ ALZHEIMER L OASIS (Levallois-Perret); CAJ LES CAMELIAS (Asnières-sur-Seine); CAJ LES LILAS (Asnières-sur-Seine); CAJ ODILON LANNELONGUE (Vanves); CENTRE D'ACCUEIL DE JOUR MAISON DAELIA (Boulogne-Billancourt); DOMUSVI DOMICILE CLAMART (Clamart); ESA ANSIAD (Neuilly-sur-Seine); ESA SAPA (Courbevoie); FAM PERCE NEIGE (Colombes); Pôle d’Activités et de Soins Adaptés (PASA) (La Garenne-Colombes); SSIAD DOMUSVI BOIS COLOMBES (Bois-Colombes); SSIAD SESID (Rueil-Malmaison).</li>
+<li><strong>Instituts médico-éducatifs (IME)</strong> (31). Centre TEDYBEAR 92 (Saint-Cloud); EMP EUROPE (Levallois-Perret); EMPRO LES RESONANCES (Saint-Cloud); EMPro de Bourg la Reine (Bourg-la-Reine); EXTERNAT MEDICO PEDAGOGIQUE PIERRE HUET (Colombes); Empro Hoffer Le Moulin Vert (Colombes); IME AGIR ET VIVRE L AUTISME SURESNES (Suresnes); IME AU FIL DE L AUTRE (Nanterre); IME JEUNE APPEDIA (Châtenay-Malabry); IME L ALTERNANCE (Bourg-la-Reine); IME L MALECOT EXTERNAT (Saint-Cloud); IME LA VILLA D AVRAY (Ville-d'Avray); IME LES PEUPLIERS (Sèvres); IME semi internat SOLFEGE (Boulogne-Billancourt); Institut Médico-Educatif Centre Etienne Marcel (Nanterre); SIPFP SURESNES (Suresnes); UNITE EMP ACCUEIL DE JOUR (Clichy); UNITE IME ACCUEIL DE JOUR ESPOR CHATILLONNAIS (Châtillon); UNITE IME ACCUEIL DE JOUR IMPRO BALZAC (Nanterre); UNITE IME ACCUEIL DE JOUR STEJE (Saint-Cloud); UNITE IME CPPS PARC HELLER (Antony); UNITE IME EXTERNALISE SISS APPEDIA (Châtenay-Malabry); UNITE IME HEBERGEMENT LE CEDRE (Châtillon); UNITE IME HORS LES MURS (Boulogne-Billancourt); UNITE IME IMPRO LE PHARE (Neuilly-sur-Seine); UNITE IME LE FIL DE SOI Accueil de jour (Clamart); UNITE IME LEONCE MALECOT INTERNAT (Saint-Cloud); Unité Externat Médico-Pédagogique (Saint-Cloud); Unité IME HORS LES MURS LES ALIZES (Fontenay-aux-Roses); Unité enseignement élémentaire autisme (Colombes); imp accueil de jour (Montrouge).</li>
+<li><strong>Instituts thérapeutiques, éducatifs et pédagogiques (ITEP)</strong> (1). UNITE ITEP JACQUES PREVERT (Châtenay-Malabry).</li>
+<li><strong>Services d'éducation spéciale et de soins à domicile (SESSAD)</strong> (28). DAR (dispositif auto régulation) (Colombes); Equipe mobile - EEAP Claire GIRARD (Marnes-la-Coquette); IME CENTRE ETIENNE MARCEL (Nanterre); SAAAS SIAM 92 APAJH (Suresnes); SAFEP SSEFIS GUSTAVE BAGUER (Asnières-sur-Seine); SESSAD DU CESAP LES CERISIERS (Nanterre); SESSAD DU VAL D'OR GENNEVILLIERS ACCUEIL DE JOUR (Gennevilliers); SESSAD Frida Khalo (Villeneuve-la-Garenne); SESSAD LA BOUSSOLE (Boulogne-Billancourt); SESSAD Le Jardin des Papillons polyhandicap/trouble moteur (Boulogne-Billancourt); SESSAD Les Avelines (Nanterre); SESSAD MICHEL ARTHUIS (Neuilly-sur-Seine); SESSAD PREMIERES CLASSES (Suresnes); SESSAD PRO TRAJECTOIRES FORMATION (Suresnes); SESSAD SUD (Montrouge); SESSAD SUD 92 (Châtenay-Malabry); SESSAD TRAJECTOIRES JEUNESSE (Suresnes); SESSD APF DE BAGNEUX (Bagneux); SSEFIS (Bourg-la-Reine); UEMA BAGNEUX NIKKI de ST PHALLE (Bagneux); UNITE HORS LES MURS (SESSAD) (Sèvres); UNITE SESSAD ACCUEIL DE JOUR LE CEDRE INSERTION (Châtillon); UNITE SESSAD DE CLAMART (Clamart); UNITE SESSAD JACQUES PREVERT (Châtenay-Malabry); UNITE SESSAD PRO ACCUEIL DE JOUR (Clichy); UNITE SESSAD VAL D'OR CENTRE ACCUEIL DE JOUR (Saint-Cloud); Unité SESSAD EREA TOULOUSE LAUTREC PEP92 - Centre de Soins et de Rééducation (Vaucresson); Unité SESSAD La Dauphinelle (Colombes).</li>
+<li><strong>Établissements pour enfants en situation de polyhandicap, de handicap moteur ou sensoriel</strong> (13). DAI Hébergement Verneuil sur Avre (Garches); DAM92 (Antony); EEAP Claire GIRARD (Marnes-la-Coquette); EEAP QUELQUE CHOSE EN PLUS Semi-internat (Vaucresson); EMP PIERRE HUET (Colombes); EMPRO  LES RESONANCES semi-internat (Saint-Cloud); IME SP LA TISSANDERIE Accueil de jour (Clamart); INSTITUT DEPARTEMENTAL GUSTAVE BAGUER (Asnières-sur-Seine); UNITE GEN SEMI-INTERNAT (Bourg-la-Reine); UNITE IME EXTERNAT CESAP Les Cerisiers (Rueil-Malmaison); UNITE SECTION ACCUEIL DE JOUR (Clichy); Unite IEM internat Michel Arthuis (Neuilly-sur-Seine); Unité IME SP La Maillerie Accueil de nuit (Clamart).</li>
+<li><strong>Maisons d'accueil spécialisées et foyers d'accueil médicalisés</strong> (32). ADEP MAS (Rueil-Malmaison); EAM LA GENTILHOMMIERE (Marnes-la-Coquette); EAM LE CEDRE BLEU (Chaville); EAM NOTRE DAME (Bourg-la-Reine); EAM Pierre Dupont Accueil de jour (Suresnes); FAM ESTIENNE D ORVES (Fontenay-aux-Roses); FAM ET FOYER DE VIE SIMON DE CYRENE (Vanves); FAM LA CHARTRAINE ANTONY ACCUEIL TEMPORAIRE (Antony); FAM LE TEMPS DES AMIS (Châtillon); FAM LES ROSEAUX (Clichy); FAM MAISON EN PLUS (Vaucresson); FAM VILLEBOIS MAREUIL (Gennevilliers); FAM de jour CICL ADEP (Rueil-Malmaison); FAM de jour Marcel Dupré (Meudon); MAIA AUTISME (Suresnes); MAS ARPEGE (Clichy); MAS BOUGAINVILLE HEBERGEMENT TEMPORAIRE (Garches); MAS DE L ASSOCIATION PERCE NEIGE (Bois-Colombes); MAS LA FONTAINE (Châtillon); MAS LA SOURCE (Châtenay-Malabry); MAS PAP TSA (Saint-Cloud); MAS PERCE NEIGE BOULOGNE (Boulogne-Billancourt); MAS PRINCESSE MATHILDE (Neuilly-sur-Seine); MAS SILENCE DE JUSTE SITE 92 (Rueil-Malmaison); MAS UHR PRADER WILLI (Vaucresson); UNITE FAM HEBERGEMENT MAISON PERCE NEIGE (Courbevoie); UNITE FAM HEBERGEMENT PERCE NEIGE (Colombes); UNITE FAM JACQUES DESCAMPS (Bagneux); UNITE FAM LA FONTAINE DES VOEUX HEBERGEMENT EHS (Bagneux); UNITE HEBERGEMENT TEMPORAIRE FAM ALTERNAT (Antony); UNITE MAS HEBERGEMENT Unité Serge-Korsakoff (Villeneuve-la-Garenne); UO1 - 35 PLACES (Boulogne-Billancourt).</li>
+<li><strong>Foyers de vie et d'hébergement pour adultes en situation de handicap</strong> (60). CAJ BEHIN GOUNOD (Colombes); CAJ DE SCEAUX (Sceaux); CAJ DE SEVRES (Sèvres); CAJ EGALITE (Châtillon); CAJ Evelyne Conte (Villeneuve-la-Garenne); CAJ Jean Barberi (Asnières-sur-Seine); CAJ LE PUITS SANS VIN (Chaville); CAJ LES ROBINSONS pour personnes vieillissantes ou handicap spécifique (Le Plessis-Robinson); CAJ MICHELLE DARTY MALAKOFF (Malakoff); CAJ RESIDENCE DE L AVENIR (Fontenay-aux-Roses); CAJ de Montrouge (Montrouge); Centre d'accueil de jour Neuilly sur Seine (Neuilly-sur-Seine); EANM LES BORDS DE SEINE (Meudon); FAM ET FOYER DE VIE SIMON DE CYRENE (Vanves); FAM LE TEMPS DES AMIS (Châtillon); FOYER APAJH RESIDENCE LES PRINTEMPS (Antony); FOYER D HEBERGEMENT HOVIA COLOMBES (Colombes); FOYER D HEBERGEMENT LES ROBINSONS (Le Plessis-Robinson); FOYER D'HEBERGEMENT ACCUEIL DE NUIT EHS (Bagneux); FOYER D'HEBERGEMENT ELISABETH ET PAULETTE FAVERIS (Nanterre); FOYER D'HEBERGEMENT LA MAISON HEUREUSE (Châtenay-Malabry); FOYER D'HEBERGMENT DARTY (Malakoff); FOYER DE VIE BEHIN GOUNOD (Colombes); FOYER DE VIE DARTY MALAKOFF (Malakoff); FOYER DE VIE ET CAJ  LES LIERRES (La Garenne-Colombes); FOYER DE VIE JEAN JAURES (Gennevilliers); FOYER DE VIE LA RESIDENCE DES AMIS (Châtenay-Malabry); FOYER DE VIE MICHELLE DARTY (Issy-les-Moulineaux); FOYER DE VIE PERCE NEIGE (Sèvres); FOYER ERIC (Boulogne-Billancourt); FOYER HEBERGEMENT JEAN BARBERI (Asnières-sur-Seine); FOYER HEBERGEMENT L'HORIZON (Rueil-Malmaison); FOYER HEBERGEMENT RESIDENCE DE L AVENIR-2 (Fontenay-aux-Roses); Foyer de Fleury (Meudon); Foyer de vie Jean Barberi (Asnières-sur-Seine); Foyer de vie Jeany (Montrouge); Foyer de vie Le Point du Jour (Boulogne-Billancourt); Foyer de vie Michelle Darty (Boulogne-Billancourt); Foyer de vie Notre Dame (Bourg-la-Reine); Passerelle vers le travail (ESAT) (Gennevilliers); Section foyer de vie (Marnes-la-Coquette); UNITE CAJ ACCUEIL DE JOUR (Asnières-sur-Seine); UNITE CAJ ACCUEIL DE JOUR APEI CAJ DES VOIES DU BOIS (Colombes); UNITE CAJ CENTRE MADELEINE VINET (Boulogne-Billancourt); UNITE CAJ PASSERELLE VOLTAIRE (Rueil-Malmaison); UNITE Centre d'Accueil de Jour de Vanves (Vanves); UNITE FOYER D'HEBERGEMENT RESIDENCE DES BOIS (Colombes); UNITE FOYER DE VIE CONVERGENCE ACCUEIL TEMPORAIRE (Colombes); UNITE FOYER DE VIE LA VILLA DU PARC (Saint-Cloud); UNITE FOYER DE VIE PAUL VERNON (Meudon); UO foyer (Neuilly-sur-Seine); Unité CAJ Elisabeth et Paulette Faveris (Nanterre); Unité CITL JEAN CLAUDE RICHARD (Boulogne-Billancourt); Unité résidence universitaire adaptée (Nanterre); foyer appartements (Neuilly-sur-Seine); foyer appartements (Suresnes); foyer hébergement le Phare (Neuilly-sur-Seine); site lierres (Chaville); unite Foyer evelyne conte (Villeneuve-la-Garenne); unité CAJ Michelle Darty 92 (Issy-les-Moulineaux).</li>
+<li><strong>Établissements et services d'accompagnement par le travail (ESAT)</strong> (31). ESAT ANAIS DE GENNEVILLIERS (Gennevilliers); ESAT ANNEXE LA CROISEE DES CHEMINS (Gennevilliers); ESAT ANTONY (Antony); ESAT HORS LES MURS TRAJECTOIRES EMPLOI (Meudon); ESAT HOVIA GENNEVILLIERS (Gennevilliers); ESAT L ATELIER DU CHATEAU (Rueil-Malmaison); ESAT LES ATELIERS CITE JARDINS (Suresnes); ESAT LES ATELIERS DE GARLANDE (Bagneux); ESAT LES ATELIERS DE LA GARENNE (Nanterre); ESAT LES ATELIERS DE LA GENTILHOMMIERE (Marnes-la-Coquette); ESAT LES ATELIERS DU PHARE (Nanterre); ESAT LES BOULEAUX (Gennevilliers); ESAT LEVALLOIS (La Garenne-Colombes); ESAT VIVRE (Châtenay-Malabry); ESAT YVONNE WENDLING (Issy-les-Moulineaux); ESAT le CASTEL ATELIERS (Gennevilliers); ESAT les Fourneaux de Marthe et Matthieu (Colombes); Services d'Accompagnement par le travail pour adultes en situation de handicap (Puteaux); UNITE ESAT ACCUEIL DE JOUR APEI ESAT DES VOIES DU BOIS (Colombes); UNITE ESAT ACTIVITES DE JOUR (Gennevilliers); UNITE ESAT ALEMBERT (Meudon); UNITE ESAT COPERNIC (Le Plessis-Robinson); UNITE ESAT DE CHATILLON (Châtillon); UNITE ESAT HORS LES MURS (Châtillon); UNITE ESAT JEAN CAURANT ACCUEIL DE JOUR EHS (Bagneux); UNITE ESAT L'ATELIER (Châtenay-Malabry); UNITE ESAT LES ROBINSONS (Le Plessis-Robinson); UNITE ESAT SUZANNE LAWSON (Meudon); Unité ESAT Georges Dagneaux (Meudon); unite AIDE PAR LE TRAVAIL  Camille Hermange EU (Nanterre); unite aide par le travail Evelyne Conte (Villeneuve-la-Garenne).</li>
+<li><strong>Services d'accompagnement à domicile pour adultes en situation de handicap</strong> (27). SAMSAH (Suresnes); SAMSAH 92 UGECAM-IDF (Garches); SAMSAH ALTITUDE SITE CLAMART (Clamart); SAMSAH ALTITUDE SITE LA GARENNE COLOMBE (La Garenne-Colombes); SAMSAH APF GALLIENI (Nanterre); SAMSAH Cités Caritas 92 (Rueil-Malmaison); SAMSAH Cités Caritas GENNEVILLIERS (Gennevilliers); SAMSAH HOVIA COLOMBES (Colombes); SAMSAH de Suresnes (Suresnes); SAMSAH socle antenne Sud 92 (Nanterre); SAVS APEI DE LA BOUCLE DE LA SEINE (Bois-Colombes); SAVS APF DE NANTERRE (Nanterre); SAVS DE CLAMART VILLE (Clamart); SAVS DE NANTERRE (Nanterre); SAVS DE SCEAUX (Sceaux); SAVS DE SURESNES (Suresnes); SAVS DE VANVES (Vanves); SAVS EHS bureau principal (Bagneux); SAVS JOSEPH LAHUEC (Châtenay-Malabry); SAVS LA CROISEE (Le Plessis-Robinson); SAVS LA MAISON AUX LIERRES (Chaville); SAVS ROGER LASSERRE (Vanves); SAVS Site Levallois (Levallois-Perret); SAVS Site Vanves (Vanves); SAVS du Vieux Lavoir (Rueil-Malmaison); SISPPH DELTA INSERTION (Châtillon); unite SAVS EVELYNE CONTE (Villeneuve-la-Garenne).</li>
+<li><strong>Soins pour personnes en situation de précarité (PASS, LHSS, LAM, ACT)</strong> (19). ACT ALTAIR VESTA (Nanterre); ACT ARAPEJ 92 (Châtenay-Malabry); ACT INITIATIVES (Bourg-la-Reine); ACT LE TRAIT D UNION (Villeneuve-la-Garenne); ACT RELAIS ENFANTS PARENTS (Montrouge); Appartement de Coordination Thérapeutique (ACT) un chez soi d'abord (Nanterre); Consultation PASS Précarité (Clamart); Consultation PASS généraliste (Nanterre); EMSP ADDICTO AGATA (Gennevilliers); EMSP ALTAIR ESTA (Nanterre); EMSP CROIX ROUGE FRANCAISE OUEST (Nanterre); Equipes Spécialisées de Soins Infirmiers Précarité (ESSIP) (Nanterre); GHU APHP CUP SITE CELTON (Issy-les-Moulineaux); GHU APHP UPS SITE AMBROISE PARE (Boulogne-Billancourt); GHU APHP UPS SITE RAYMOND POINCARE (Garches); LAM HOTEL SOCIAL 93 (Colombes); LHSS AURORE 92 (Issy-les-Moulineaux); LHSS NANTERRE (Nanterre); Lits d’accueil médicalisés (LAM) Hébergement (accueil jour et nuit) (Nanterre).</li>
+<li><strong>Dépistage, vaccination et lutte antituberculeuse</strong> (6). CENTRE VACCINATION LOUIS PASTEUR BAGNEUX (Bagneux); CH DE NANTERRE (Nanterre); DISPENSAIRE DEPARTEMENTAL D HYGIENE SOCIALE (Vanves); GHU APHP NUP SITE LOUIS MOURIER (Colombes); GHU APHP UPS SITE AMBROISE PARE (Boulogne-Billancourt); GHU APHP UPS SITE ANTOINE BECLERE (Clamart).</li>
+<li><strong>Maisons de santé pluriprofessionnelles</strong> (26). MAISON DE SANTE PLURI-PROFESSIONNELS DES CHENES (Suresnes); MAISON DE SANTE PLURI-PROFESSIONNELS MEUDON LA FORET (Meudon); MAISON SANTE PLURIPROFESSIONNELLE AVERROES (Villeneuve-la-Garenne); MSP ASNIERES BORDS DE SEINE (Asnières-sur-Seine); MSP COEUR DE VILLE (Châtillon); MSP DE CHAVILLE (Chaville); MSP DE SAINT CLOUD (Saint-Cloud); MSP DES 4 CHEMINS DE COLOMBES (Colombes); MSP DES CHENEVREUX (Nanterre); MSP DES SEVINES (Gennevilliers); MSP DES VERTS COTEAUX DE CHATENEY MALABRY (Châtenay-Malabry); MSP DU POLE VANVEEN (Vanves); MSP ESPOIRS D'ASNIERES (Asnières-sur-Seine); MSP GENNEVILLIERS VILLENEUVE LA GARENNE (Gennevilliers); MSP LA CASA MEDICALE (Puteaux); MSP LA COLOMBE (Colombes); MSP LA FONTAINE (Antony); MSP MAISON DE SANTE MARCHERON (Vanves); MSP MEDITIM BOULOGNE BILLANCOURT OUEST (Boulogne-Billancourt); MSP MIKERA (Levallois-Perret); MSP ORCHIDEE (Villeneuve-la-Garenne); MSP PATRICK NOCHY (Gennevilliers); MSP POLE DE SANTE BIRET (Châtillon); MSP REPUBLIQUE (Bois-Colombes); MSP SISLEY (Villeneuve-la-Garenne); MSPU VICTOR HUGO (LES AGNETTES) (Gennevilliers).</li>
+<li><strong>Centres de santé</strong> (163). ASSOCIATION MARIE-THERESE - CENTRE DE SANTE DE MALAKOFF (Malakoff); CDS 38.2 ASNIERES (Asnières-sur-Seine); CDS ACCES VISION NEUILLY (Neuilly-sur-Seine); CDS ACCESS RADIOLOGIE (Asnières-sur-Seine); CDS ACCESS RADIOLOGIE (Clichy); CDS AD DENT ISSY (Issy-les-Moulineaux); CDS APAS BTP DE BOULOGNE (Boulogne-Billancourt); CDS AQODI PARIS JAURES (Issy-les-Moulineaux); CDS ASNIERES SUR SEINE (Asnières-sur-Seine); CDS ATRIUM DEFENSE (La Garenne-Colombes); CDS BOULOGNE BILLANCOURT (Boulogne-Billancourt); CDS CENTRE D OPHTALMOLOGIE ET MEDICAL DU LUTH (Gennevilliers); CDS CENTRE DE SANTE DE LEVALLOIS (Levallois-Perret); CDS CENTRE DE SOINS DENTAIRES VAUBAN (Châtillon); CDS CENTRE DENTAIRE COLOMBES (Colombes); CDS CENTRE DENTAIRE DE BAGNEUX (Bagneux); CDS CENTRE DENTAIRE DE FRANCE (Meudon); CDS CENTRE MEDICAL MONTROUGE (Montrouge); CDS CENTRE MEDICAL PARIS LEVALLOIS (Levallois-Perret); CDS CENTRE MEDICAL RAMSAY SANTE RUEIL MALMAISON (Rueil-Malmaison); CDS CENTRE MEDICO DENTAIRE LEVALLOIS (Levallois-Perret); CDS CENTRE MEDICO DENTAIRE SMILEST (Issy-les-Moulineaux); CDS CENTRE MEDIPOLE NANTERRE (Nanterre); CDS CLICHY BATIGNOLLES (Clichy); CDS COMSANTE (Asnières-sur-Seine); CDS CSI MEDIKSANTE LA DEFENSE (Puteaux); CDS CTAR 92 (Fontenay-aux-Roses); CDS D'ASNIERES BOIS COLOMBES (Bois-Colombes); CDS D'ORTHODONTIE SMILE ART (Rueil-Malmaison); CDS DE CLICHY (Clichy); CDS DE L'EUROPE (Colombes); CDS DE VISION ET D OPHTALMOLOGIE (Châtillon); CDS DENTAIRE (Gennevilliers); CDS DENTAIRE ALAVIA (Levallois-Perret); CDS DENTAIRE ASNIERES (Asnières-sur-Seine); CDS DENTAIRE ASNIERES GENNEVILLIERS EVERSMILE (Asnières-sur-Seine); CDS DENTAIRE BLR (Bourg-la-Reine); CDS DENTAIRE BOIS COLOMBES (Bois-Colombes); CDS DENTAIRE CLAMART (Clamart); CDS DENTAIRE CLAMART MAIRIE (Clamart); CDS DENTAIRE COLOMBES GARE (Colombes); CDS DENTAIRE COLOMBES VALMY (Colombes); CDS DENTAIRE COURBEVOIE (Courbevoie); CDS DENTAIRE COURBEVOIE LA DEFENSE (Courbevoie); CDS DENTAIRE D'ANTONY (Antony); CDS DENTAIRE DE BAGNEUX (Bagneux); CDS DENTAIRE DE BOIS-COLOMBES (Bois-Colombes); CDS DENTAIRE DE FRANCE (Rueil-Malmaison); CDS DENTAIRE DE L ESPACE CLICHY (Clichy); CDS DENTAIRE DENTAL NUMERIC (Asnières-sur-Seine); CDS DENTAIRE DENTAPTE ANTONY (Antony); CDS DENTAIRE DENTICLINIC (Boulogne-Billancourt); CDS DENTAIRE DENTOLIB LEVALLOIS (Levallois-Perret); CDS DENTAIRE DES BLAGIS (Sceaux); CDS DENTAIRE DU PANORAMA (Clamart); CDS DENTAIRE ECO LA VALLEE CHATENAY MALABRY (Châtenay-Malabry); CDS DENTAIRE ET D OPHTALMOGIE VOLTAIRE (Asnières-sur-Seine); CDS DENTAIRE ET OPHTALMOLOGIE POLE MEDICAL DENTISPHERE (Courbevoie); CDS DENTAIRE ET ORTHODONTIQUE JEAN JAURES (Suresnes); CDS DENTAIRE FONTENAY (Fontenay-aux-Roses); CDS DENTAIRE LES SABLONS (Neuilly-sur-Seine); CDS DENTAIRE MUNICIPAL NANTERRE (Nanterre); CDS DENTAIRE NANTERRE PREFECTURE (Nanterre); CDS DENTAIRE ODONTALIA (Montrouge); CDS DENTIMAD SEVRES (Sèvres); CDS DES CHAMPS PHILIPPE (La Garenne-Colombes); CDS EMERGENCE (Châtenay-Malabry); CDS ESPACE DENTAIRE MALAKOFF (Malakoff); CDS ESPACE SANTE RUEIL (Rueil-Malmaison); CDS ET D OPHTALMOLOGIE MEDECVISION (Châtillon); CDS FOCH PARIS LA DEFENSE (Courbevoie); CDS G SMILE (Issy-les-Moulineaux); CDS HOPSOIN VERDIER (Montrouge); CDS INSTITUT DENTAIRE SOURIRE SURESNES (Suresnes); CDS INWE CARE SAINT CLOUD (Saint-Cloud); CDS MEDICAL DE BAGNEUX (Bagneux); CDS MEDICAL ET D OPHTALMOLOGIE LOUISE MICHEL (Levallois-Perret); CDS MEDICAL ET D OPHTALMOLOGIE NEUILLY CHARLES DE GAULLE (Neuilly-sur-Seine); CDS MEDICAL ET DENTAIRE ASNIERES MAIRIE (Asnières-sur-Seine); CDS MEDICAL ET DENTAIRE NEUILLY (Neuilly-sur-Seine); CDS MEDICAL ET DENTAIRE PUTEAUX (Puteaux); CDS MEDICAL ET DENTAIRE STALINGRAD (Colombes); CDS MEDICO DENTAIRE CALMEL (Gennevilliers); CDS MEDICO DENTAIRE COURBEVOIE CHARRAS (Courbevoie); CDS MEDICO DENTAIRE DE BAGNEUX (Bagneux); CDS MEDICO DENTAIRE DE VILLENEUVE (Villeneuve-la-Garenne); CDS MEDICO DENTAIRE DENTOTOP BAGNEUX (Bagneux); CDS MEDICO DENTAIRE DENTOTOP CHAVILLE (Chaville); CDS MEDICO DENTAIRE ET OPHTALMOLOGIQUE D ASNIERES (Asnières-sur-Seine); CDS MEDICO DENTAIRE GENNEVILLIERS (Gennevilliers); CDS MEDICO DENTAIRE LA GARENNE COLOMBES (La Garenne-Colombes); CDS MEDICO DENTAIRE MALAKOFF STALINGRAD (Malakoff); CDS MEDICO DENTAIRE NANTERRE CSMDN (Nanterre); CDS MEDICO OPHTALMOLOGIQUE ISSY (Issy-les-Moulineaux); CDS MEDICO-DENTAIRE CARNOT (Levallois-Perret); CDS MEDICO-DENTAIRE CHATENAY MALABRY (Châtenay-Malabry); CDS MEDICO-DENTAIRE COLOMBES (Colombes); CDS MEDICO-DENTAIRE GENNEVILLIERS (Gennevilliers); CDS MEDICO-DENTAIRE ISSY (Issy-les-Moulineaux); CDS MEDIPLUS SANTE (Colombes); CDS MUNICIPAL AUVERGNE CLAMART (Clamart); CDS MUNICIPAL CHAGALL GOUIN (Clichy); CDS MUNICIPAL FONTENAY AUX ROSES (Fontenay-aux-Roses); CDS MUNICIPAL JACQUELINE AKOUN CORNET (Malakoff); CDS MUNICIPAL JEAN JAURES CLAMART (Clamart); CDS MÉDECINDIRECT (Courbevoie); CDS NEOVITA (Châtenay-Malabry); CDS OPHTALMO DENTAIRE DE RUEIL (Rueil-Malmaison); CDS OPHTALMO LA GARENNE COLOMBES (La Garenne-Colombes); CDS OPHTALMOLOGIE DE SURESNES (Suresnes); CDS OPHTALMOLOGIE NANTERRE LA BOULE (Nanterre); CDS OPHTALMOLOGIQUE DE CHAVILLE (Chaville); CDS OPHTALMOLOGIQUE DE COLOMBES (Colombes); CDS OPHTALMOLOGIQUE ET DENTAIRE RUEIL (Rueil-Malmaison); CDS OPHTALMOLOGIQUE OPHTA PLUS (Asnières-sur-Seine); CDS ORTHOPEDIE DENTOFACIALE ORTHO CLINIC (Puteaux); CDS POLE DENTAIRE DU LAC PANORAMA (Clamart); CDS POLE OPHTALMOLOGIQUE D'ANTONY (Antony); CDS POLEMED PLUS (Villeneuve-la-Garenne); CDS REFAEL (Suresnes); CDS ROULE PERETTI (Neuilly-sur-Seine); CDS SMILEFORLIFE (Meudon); CDS SORRISO DENTAL STUDIO (Garches); CDS SOS OPHTALMO MEUDON (Meudon); CDS UN MONDE MEILLEUR DENTAL VISION (Nanterre); CDS UNIVERSITE PARIS OUEST (Nanterre); CDS VANVES MEDICAL SANTE (Vanves); CDS VANVES SANTE (Vanves); CDS VISIONEO GARCHES SANTE (Garches); CENTRE DE SANTE DE L ORNERA (Châtillon); CENTRE DE SANTE DE LA DEFENSE (Courbevoie); CENTRE DE SANTE DENTAIRE AADT (Montrouge); CENTRE DE SANTE DENTAIRE COURBEVOIE (Courbevoie); CENTRE DE SANTE DENTAIRE DE LA BOULE (Nanterre); CENTRE DE SANTE DENTAIRE DENTEGO BOULOGNE (Boulogne-Billancourt); CENTRE DE SANTE DENTAIRE RNUR BOULOGNE (Boulogne-Billancourt); CENTRE DE SANTE DU ROND POINT DE L EUROPE (La Garenne-Colombes); CENTRE DE SANTE HOPITAL GOUIN ANNEXE (Clichy); CENTRE DE SANTE MEDICAL JOFFRE (Bourg-la-Reine); CENTRE DE SANTE MEDICAL SAN FERNANDO (Neuilly-sur-Seine); CENTRE DE SANTE MEDICO DENTAIRE DE BOULOGNE (Boulogne-Billancourt); CENTRE DE SANTE MEDICO DENTAIRE EMDHS (Suresnes); CENTRE DE SANTE MEDICO SPORTIF JOLIOT CURIE (Nanterre); CENTRE DE SANTE MEDICO-SOCIAL MUNICIPAL  MAURICE TENINE (Malakoff); CENTRE DE SANTE MUNICIPAL BAGNEUX (Bagneux); CENTRE DE SANTE MUNICIPAL DANIEL TIMSIT (Gennevilliers); CENTRE DE SANTE MUNICIPAL DE LA VILLE DE GENNEVILLIERS (Gennevilliers); CENTRE DE SANTE MUNICIPAL DE MONTROUGE (Montrouge); CENTRE DE SANTE MUNICIPAL DU PARC (Nanterre); CENTRE DE SANTE MUNICIPAL ET DE PREVENTION JULIETTE TENINE (Nanterre); CENTRE DE SANTE MUNICIPAL FRANCOISE DOLTO PUTEAUX (Puteaux); CENTRE DE SANTE MUNICIPAL J SALOMON (Le Plessis-Robinson); CENTRE DE SANTE MUNICIPAL RAYMOND BURGOS (Suresnes); CENTRE DE SANTE POLE MEDICAL ET PARAMEDICAL DU CREPS IDF (Châtenay-Malabry); CENTRE DE SANTÉ MEDICO-DENTAIRE DE DE MONTROUGE (Montrouge); CENTRE DENTAIRE GENNEVILLIERS (Gennevilliers); CENTRE MEDICAL PLURIDISCIPLINAIRE ASNIERES SUR SEINE (Asnières-sur-Seine); CENTRE MEDICO DENTAIRE DU NORD OUEST PARISIEN CMDNOP (Clichy); CENTRE MUNICIPAL DE SANTE ESPACE SANTE SIMONE VEIL (Issy-les-Moulineaux); CENTRE MUNICIPAL DE SANTE PIERRE ROUQUES (Châtillon); CENTRE MÉDICO-DENTAIRE VICTOR HUGO (Clichy); CMS LES EPINETTES ISSY LES MOULINEAUX (Issy-les-Moulineaux); CSI MEDIKSANTE NANTERRE (Nanterre).</li>
+<li><strong>Communautés professionnelles territoriales de santé (CPTS)</strong> (12). CPTS BAGNEUX (Bagneux); CPTS Boulogne-Billancourt (Boulogne-Billancourt); CPTS DE LEVALLOIS-PERRET (Levallois-Perret); CPTS DE NANTERRE (Nanterre); CPTS DE RUEIL MALMAISON (Rueil-Malmaison); CPTS DES HAUTS DE BIEVRE (Châtenay-Malabry); CPTS Issy-les-Moulineaux (Issy-les-Moulineaux); CPTS MEUDON (Meudon); CPTS de Courbevoie (Courbevoie); CPTS de Gennevilliers et Villeneuve-la-Garenne (Villeneuve-la-Garenne); CPTS de Neuilly-sur-Seine (Neuilly-sur-Seine); cpts suresnes (Suresnes).</li>
+</ul>
+</details>
+<h2 id="temps-de-trajet-par-la-route">Temps de trajet par la route</h2>
+<figure class="graphique" data-donnees="../donnees/2026-10-23/temps_acces.csv" data-donnees-nom="temps_acces.csv"><figcaption class="small muted"><strong>Figure 3.</strong> <span class="leg">Habitants à plus de 20 minutes par la route</span>.</figcaption><div class="fig-corps"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 204" role="img" aria-label="Habitants à plus de 20 minutes par la route" font-family="Work Sans, system-ui, sans-serif"><title>Habitants à plus de 20 minutes par la route</title><text x="0" y="16" font-size="9.4" font-weight="600" fill="var(--ink, #1F2430)">Sur 100 habitants, 0 vivent à plus de 20 minutes d&#x27;un service d&#x27;urgences</text><circle cx="12" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M4,55 Q12,42 20,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="36" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M28,55 Q36,42 44,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="60" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M52,55 Q60,42 68,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="84" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M76,55 Q84,42 92,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="108" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M100,55 Q108,42 116,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="132" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M124,55 Q132,42 140,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="156" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M148,55 Q156,42 164,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="180" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M172,55 Q180,42 188,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="204" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M196,55 Q204,42 212,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="228" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M220,55 Q228,42 236,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="252" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M244,55 Q252,42 260,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="276" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M268,55 Q276,42 284,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="300" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M292,55 Q300,42 308,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="324" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M316,55 Q324,42 332,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="348" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M340,55 Q348,42 356,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="372" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M364,55 Q372,42 380,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="396" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M388,55 Q396,42 404,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="420" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M412,55 Q420,42 428,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="444" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M436,55 Q444,42 452,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="468" cy="40" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M460,55 Q468,42 476,55 Z" fill="var(--line, #D9DCE3)"/><circle cx="12" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M4,87 Q12,74 20,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="36" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M28,87 Q36,74 44,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="60" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M52,87 Q60,74 68,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="84" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M76,87 Q84,74 92,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="108" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M100,87 Q108,74 116,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="132" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M124,87 Q132,74 140,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="156" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M148,87 Q156,74 164,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="180" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M172,87 Q180,74 188,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="204" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M196,87 Q204,74 212,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="228" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M220,87 Q228,74 236,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="252" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M244,87 Q252,74 260,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="276" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M268,87 Q276,74 284,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="300" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M292,87 Q300,74 308,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="324" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M316,87 Q324,74 332,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="348" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M340,87 Q348,74 356,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="372" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M364,87 Q372,74 380,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="396" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M388,87 Q396,74 404,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="420" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M412,87 Q420,74 428,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="444" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M436,87 Q444,74 452,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="468" cy="72" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M460,87 Q468,74 476,87 Z" fill="var(--line, #D9DCE3)"/><circle cx="12" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M4,119 Q12,106 20,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="36" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M28,119 Q36,106 44,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="60" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M52,119 Q60,106 68,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="84" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M76,119 Q84,106 92,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="108" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M100,119 Q108,106 116,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="132" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M124,119 Q132,106 140,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="156" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M148,119 Q156,106 164,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="180" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M172,119 Q180,106 188,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="204" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M196,119 Q204,106 212,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="228" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M220,119 Q228,106 236,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="252" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M244,119 Q252,106 260,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="276" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M268,119 Q276,106 284,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="300" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M292,119 Q300,106 308,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="324" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M316,119 Q324,106 332,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="348" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M340,119 Q348,106 356,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="372" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M364,119 Q372,106 380,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="396" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M388,119 Q396,106 404,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="420" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M412,119 Q420,106 428,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="444" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M436,119 Q444,106 452,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="468" cy="104" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M460,119 Q468,106 476,119 Z" fill="var(--line, #D9DCE3)"/><circle cx="12" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M4,151 Q12,138 20,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="36" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M28,151 Q36,138 44,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="60" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M52,151 Q60,138 68,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="84" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M76,151 Q84,138 92,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="108" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M100,151 Q108,138 116,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="132" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M124,151 Q132,138 140,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="156" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M148,151 Q156,138 164,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="180" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M172,151 Q180,138 188,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="204" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M196,151 Q204,138 212,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="228" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M220,151 Q228,138 236,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="252" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M244,151 Q252,138 260,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="276" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M268,151 Q276,138 284,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="300" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M292,151 Q300,138 308,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="324" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M316,151 Q324,138 332,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="348" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M340,151 Q348,138 356,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="372" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M364,151 Q372,138 380,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="396" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M388,151 Q396,138 404,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="420" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M412,151 Q420,138 428,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="444" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M436,151 Q444,138 452,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="468" cy="136" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M460,151 Q468,138 476,151 Z" fill="var(--line, #D9DCE3)"/><circle cx="12" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M4,183 Q12,170 20,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="36" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M28,183 Q36,170 44,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="60" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M52,183 Q60,170 68,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="84" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M76,183 Q84,170 92,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="108" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M100,183 Q108,170 116,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="132" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M124,183 Q132,170 140,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="156" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M148,183 Q156,170 164,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="180" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M172,183 Q180,170 188,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="204" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M196,183 Q204,170 212,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="228" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M220,183 Q228,170 236,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="252" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M244,183 Q252,170 260,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="276" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M268,183 Q276,170 284,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="300" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M292,183 Q300,170 308,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="324" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M316,183 Q324,170 332,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="348" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M340,183 Q348,170 356,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="372" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M364,183 Q372,170 380,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="396" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M388,183 Q396,170 404,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="420" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M412,183 Q420,170 428,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="444" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M436,183 Q444,170 452,183 Z" fill="var(--line, #D9DCE3)"/><circle cx="468" cy="168" r="4.4" fill="var(--line, #D9DCE3)"/><path d="M460,183 Q468,170 476,183 Z" fill="var(--line, #D9DCE3)"/></svg></div></figure>
+
+<table>
+<thead>
+<tr>
+<th>Équipement ou professionnel le plus proche</th>
+<th>Temps médian (min)</th>
+<th>France, temps médian</th>
+<th>Habitants à plus de 20 min</th>
+<th>Région, à plus de 20 min</th>
+<th>France, à plus de 20 min</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Médecin généraliste libéral</td>
+<td>2</td>
+<td>2</td>
+<td>0 %</td>
+<td>moins de 0,1 %</td>
+<td>0,2 %</td>
+</tr>
+<tr>
+<td>Pédiatre libéral</td>
+<td>2</td>
+<td>8</td>
+<td>0 %</td>
+<td>1,4 %</td>
+<td>21,7 %</td>
+</tr>
+<tr>
+<td>Orthophoniste libéral</td>
+<td>2</td>
+<td>3</td>
+<td>0 %</td>
+<td>moins de 0,1 %</td>
+<td>1,2 %</td>
+</tr>
+<tr>
+<td>Infirmier libéral</td>
+<td>2</td>
+<td>2</td>
+<td>0 %</td>
+<td>moins de 0,1 %</td>
+<td>0,2 %</td>
+</tr>
+<tr>
+<td>Psychomotricien libéral</td>
+<td>2</td>
+<td>5</td>
+<td>0 %</td>
+<td>moins de 0,1 %</td>
+<td>7,7 %</td>
+</tr>
+<tr>
+<td>Service d'urgences</td>
+<td>5</td>
+<td>10</td>
+<td>0 %</td>
+<td>1,4 %</td>
+<td>20,3 %</td>
+</tr>
+</tbody>
+</table>
+<p class="comment-lire"><strong>Comment lire.</strong> Durée d'un trajet en voiture, aux heures creuses, du domicile à l'équipement le plus proche, même s'il se trouve dans un autre département. Le temps médian partage les habitants en deux moitiés. Les professionnels sont ceux qui exercent en libéral, les salariés comptent à travers les structures (hôpitaux, services d'urgences). Le plus proche n'est pas toujours disponible (nouveaux patients, délais, dépassements d'honoraires). Ce tableau mesure une proximité, pas un accès effectif.</p>
+<p>Commune par commune, la carte donne le temps de trajet médian des habitants jusqu'au service d'urgences le plus proche. Aucune des 36 communes n'est à 30 minutes ou plus.</p>
+<figure class="graphique zoomable" data-donnees="../donnees/2026-10-23/temps_acces_communes.csv.zip" data-donnees-nom="temps_acces_communes.csv.zip"><figcaption class="small muted"><strong>Figure 4.</strong> <span class="leg">Temps de trajet médian des habitants de chaque commune jusqu&#x27;au service d&#x27;urgences le plus proche</span>.</figcaption><div class="fig-corps"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 572" role="img" aria-label="Temps de trajet médian des habitants de chaque commune jusqu&#x27;au service d&#x27;urgences le plus proche" font-family="Work Sans, system-ui, sans-serif"><title>Temps de trajet médian des habitants de chaque commune jusqu&#x27;au service d&#x27;urgences le plus proche</title><g fill-rule="evenodd" stroke="var(--contour, #9AA0AC)" stroke-width=".3"><path d="M201,487l16,-16 -14,-21 4,-7 18,-2 -1,-13 25,-6 8,-7 11,3 -6,9 -10,26 18,15 -10,13 0,29 -16,2 -2,-26 -34,17 -7,-16z" fill="var(--d3, #DFE1E5)"><title>Antony, 4 min</title></path><path d="M188,110l22,-29 -11,-18 -1,-16 17,9 3,17 15,22 32,-18 7,5 -4,6 -9,4 -21,9 -18,15 -5,3 -15,-14 -12,5z" fill="var(--d3, #DFE1E5)"><title>Asnières-sur-Seine, 5 min</title></path><path d="M227,361l21,-29 -5,-6 24,3 11,4 -4,15 -7,31 -14,7 -9,-1 -11,-24 -6,0z" fill="var(--d3, #DFE1E5)"><title>Bagneux, 8 min</title></path><path d="M175,93l15,-13 9,-17 11,18 -22,29 -12,0 -1,-17z" fill="var(--d3, #DFE1E5)"><title>Bois-Colombes, 7 min</title></path><path d="M125,272l0,-42 43,18 3,24 12,3 -21,21 -19,7 -5,-3 -13,-28z" fill="var(--d3, #DFE1E5)"><title>Boulogne-Billancourt, 5 min</title></path><path d="M253,386l14,-7 10,14 -9,25 -11,-3 3,-11 -11,-1 4,-17z" fill="var(--d3, #DFE1E5)"><title>Bourg-la-Reine, 7 min</title></path><path d="M138,429l-6,-19 13,-4 2,7 27,0 26,-9 8,-13 -2,14 13,6 5,17 1,13 -18,2 -4,7 -13,-13 -31,4 -12,-13 -9,1z" fill="var(--d3, #DFE1E5)"><title>Châtenay-Malabry, 6 min</title></path><path d="M197,365l8,-17 -7,-1 11,-20 30,-1 4,0 5,6 -21,29 -30,4z" fill="var(--d3, #DFE1E5)"><title>Châtillon, 6 min</title></path><path d="M63,358l1,-18 -10,-20 3,-2 20,-5 9,-9 -1,14 12,13 1,21 -5,3 -30,3z" fill="var(--d3, #DFE1E5)"><title>Chaville, 9 min</title></path><path d="M129,394l12,-7 0,-25 11,-17 19,-18 -4,-13 14,7 17,-2 8,0 3,8 -11,20 7,1 -8,17 -1,8 -27,13 -24,20 -13,4 -3,-4 0,-12z" fill="var(--d3, #DFE1E5)"><title>Clamart, 3 min</title></path><path d="M220,116l18,-15 21,-9 11,22 -2,9 -24,14 -24,-21z" fill="var(--d3, #DFE1E5)"><title>Clichy, 3 min</title></path><path d="M133,111l-13,-34 16,-16 24,-20 16,-2 22,8 1,16 -9,17 -15,13 -42,18z" fill="var(--d3, #DFE1E5)"><title>Colombes, 4 min</title></path><path d="M140,134l-4,-11 23,-3 17,-10 12,0 12,-5 15,14 -20,9 -25,26 -30,-20z" fill="var(--d3, #DFE1E5)"><title>Courbevoie, 5 min</title></path><path d="M212,390l-16,-17 1,-8 30,-4 6,0 11,24 -32,5z" fill="var(--d3, #DFE1E5)"><title>Fontenay-aux-Roses, 8 min</title></path><path d="M39,266l1,-10 18,-5 5,-17 23,-7 11,7 -11,10 1,13 -17,9 -31,0z" fill="var(--d3, #DFE1E5)"><title>Garches, 3 min</title></path><path d="M175,93l1,17 -17,10 -23,3 -3,-12 42,-18z" fill="var(--d3, #DFE1E5)"><title>La Garenne-Colombes, 5 min</title></path><path d="M198,47l-22,-8 -16,2 32,-23 33,-10 31,7 -4,18 20,17 -6,12 15,10 -9,10 -7,-5 -32,18 -15,-22 -3,-17 -17,-9z" fill="var(--d3, #DFE1E5)"><title>Gennevilliers, 6 min</title></path><path d="M167,314l-24,-11 19,-7 21,-21 7,-2 0,15 17,-10 16,9 -14,7 3,12 -14,13 -17,2 -14,-7z" fill="var(--d3, #DFE1E5)"><title>Issy-les-Moulineaux, 4 min</title></path><path d="M215,157l-20,-29 20,-9 5,-3 24,21 -29,20z" fill="var(--d3, #DFE1E5)"><title>Levallois-Perret, 3 min</title></path><path d="M239,326l-30,1 -3,-8 21,-9 14,-15 19,6 -21,25z" fill="var(--d3, #DFE1E5)"><title>Malakoff, 5 min</title></path><path d="M15,309l1,-6 1,-19 6,-18 16,0 31,0 -10,16 -10,14 -31,7 -4,6z" fill="var(--d3, #DFE1E5)"><title>Marnes-la-Coquette, 2 min</title></path><path d="M93,355l5,-3 -1,-21 23,-14 -5,-6 12,-11 11,0 5,3 24,11 4,13 -19,18 -11,17 0,25 -12,7 -6,-10 -17,-5 -2,-13 -11,-11z" fill="var(--d3, #DFE1E5)"><title>Meudon, 5 min</title></path><path d="M243,326l-4,0 21,-25 26,12 -4,7 -15,9 -24,-3z" fill="var(--d3, #DFE1E5)"><title>Montrouge, 6 min</title></path><path d="M43,134l8,-8 39,-21 30,-28 13,34 3,12 4,11 -16,29 -23,20 -23,-23 -35,-26z" fill="var(--d3, #DFE1E5)"><title>Nanterre, 5 min</title></path><path d="M170,154l25,-26 20,29 -10,17 -28,-5 -5,14 -15,-5 13,-24z" fill="var(--d3, #DFE1E5)"><title>Neuilly-sur-Seine, 3 min</title></path><path d="M145,406l24,-20 27,-13 16,17 -4,1 -8,13 -26,9 -27,0 -2,-7z" fill="var(--d3, #DFE1E5)"><title>Le Plessis-Robinson, 4 min</title></path><path d="M124,163l16,-29 30,20 -13,24 -21,16 8,-10 -1,-13 -19,-8z" fill="var(--d3, #DFE1E5)"><title>Puteaux, 4 min</title></path><path d="M63,234l-34,9 -14,-19 5,-19 5,-12 -10,-3 12,-22 16,-34 35,26 23,23 6,11 -13,20 -8,13 -23,7z" fill="var(--d3, #DFE1E5)"><title>Rueil-Malmaison, 7 min</title></path><path d="M70,266l17,-9 -1,-13 11,-10 -11,-7 8,-13 33,3 -2,13 0,42 -8,20 -29,-8 -28,-2 10,-16z" fill="var(--d3, #DFE1E5)"><title>Saint-Cloud, 3 min</title></path><path d="M257,415l-8,7 -25,6 -5,-17 -13,-6 2,-14 4,-1 32,-5 9,1 -4,17 11,1 -3,11z" fill="var(--d3, #DFE1E5)"><title>Sceaux, 7 min</title></path><path d="M57,318l30,-18 1,-16 29,8 8,-20 13,28 -11,0 -12,11 5,6 -23,14 -12,-13 1,-14 -9,9 -20,5z" fill="var(--d3, #DFE1E5)"><title>Sèvres, 9 min</title></path><path d="M101,183l23,-20 19,8 1,13 -8,10 -9,23 -33,-3 13,-20 -6,-11z" fill="var(--d3, #DFE1E5)"><title>Suresnes, 3 min</title></path><path d="M206,319l-8,0 14,-13 -3,-12 14,-7 18,8 -14,15 -21,9z" fill="var(--d3, #DFE1E5)"><title>Vanves, 5 min</title></path><path d="M29,243l34,-9 -5,17 -18,5 -1,10 -16,0 -6,18 -1,19 -4,-16 -4,-19 9,-27 12,2z" fill="var(--d3, #DFE1E5)"><title>Vaucresson, 3 min</title></path><path d="M15,309l4,-6 31,-7 10,-14 28,2 -1,16 -30,18 -3,2 -11,-5 -12,8 -16,-14z" fill="var(--d3, #DFE1E5)"><title>Ville-d&#x27;Avray, 5 min</title></path><path d="M256,15l-4,18 20,17 -6,12 15,10 13,-24 -2,-17 -9,-8 -27,-8z" fill="var(--d3, #DFE1E5)"><title>Villeneuve-la-Garenne, 8 min</title></path></g><rect x="8" y="528" width="14" height="12" fill="var(--d3, #DFE1E5)" stroke="var(--line, #D9DCE3)"/><text x="28" y="538" font-size="8.3" fill="var(--muted, #5F6675)">moins de 10 minutes</text><rect x="288" y="528" width="14" height="12" fill="var(--d2, #E8A17A)" stroke="var(--line, #D9DCE3)"/><text x="308" y="538" font-size="8.3" fill="var(--muted, #5F6675)">de 10 à 20 minutes</text><rect x="8" y="548" width="14" height="12" fill="var(--d1, #BC6B3B)" stroke="var(--line, #D9DCE3)"/><text x="28" y="558" font-size="8.3" fill="var(--muted, #5F6675)">de 20 à 30 minutes</text><rect x="288" y="548" width="14" height="12" fill="var(--d0, #83451E)" stroke="var(--line, #D9DCE3)"/><text x="308" y="558" font-size="8.3" fill="var(--muted, #5F6675)">30 minutes et plus</text></svg></div></figure>
+
+<p>Le tableau suivant compte tous les professionnels, salariés compris. Il mesure la distance à vol d'oiseau jusqu'à la commune la plus proche où au moins l'un d'eux exerce.</p>
+<table>
+<thead>
+<tr>
+<th>Profession</th>
+<th>Habitants à plus de 10 km</th>
+<th>France</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Médecin généraliste</td>
+<td>0 %</td>
+<td>0,2 %</td>
+</tr>
+<tr>
+<td>Pédiatre</td>
+<td>0 %</td>
+<td>22,8 %</td>
+</tr>
+<tr>
+<td>Orthophoniste</td>
+<td>0 %</td>
+<td>2,3 %</td>
+</tr>
+</tbody>
+</table>
+<details>
+<summary>Pour aller plus loin</summary>
+<p>Source, INSEE, données sur la localisation et l'accès de la population aux équipements, millésime 2025, distancier Metric-OSRM (© les contributeurs d'OpenStreetMap et du projet OSRM), Licence Ouverte. Durées pondérées par la population des carreaux de 200 m. Valeurs par intercommunalité dans temps_acces.csv.</p>
+</details>
+<h2 id="acces-financier-et-medecin-traitant">Accès financier et médecin traitant</h2>
+<table>
+<thead>
+<tr>
+<th>Profession</th>
+<th>Libéraux</th>
+<th>Pouvant pratiquer des dépassements</th>
+<th>Région</th>
+<th>Milieu des départements</th>
+<th>France</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pédiatres</td>
+<td>156</td>
+<td>78,2 %</td>
+<td>74,8 %</td>
+<td>47,2 %</td>
+<td>57,3 %</td>
+</tr>
+<tr>
+<td>Gynécologues</td>
+<td>172</td>
+<td>89,5 %</td>
+<td>89,1 %</td>
+<td>73,8 %</td>
+<td>79,1 %</td>
+</tr>
+<tr>
+<td>Ophtalmologues</td>
+<td>111</td>
+<td>81,1 %</td>
+<td>82,3 %</td>
+<td>71,0 %</td>
+<td>73,9 %</td>
+</tr>
+<tr>
+<td>Médecins généralistes</td>
+<td>959</td>
+<td>14,3 %</td>
+<td>12,5 %</td>
+<td>1,8 %</td>
+<td>4,0 %</td>
+</tr>
+</tbody>
+</table>
+<p class="comment-lire"><strong>Comment lire.</strong> Part des libéraux en secteur 2 (avec ou sans Optam) ou non conventionnés, qui peuvent facturer au-delà du tarif de la Sécurité sociale. C'est un obstacle financier possible, pas la mesure des dépassements réels. Elle n'est pas calculée quand le territoire compte moins de 5 libéraux de la profession. Source, Assurance Maladie (Cnam), licence ODbL.</p>
+<p>5,8 % des patients en affection longue durée n'ont pas déclaré de médecin traitant, contre 4,3 % en France (milieu des départements, 4,0 %).</p>
+<h2 id="maladies-chroniques-en-affection-de-longue-duree">Maladies chroniques en affection de longue durée</h2>
+<table>
+<thead>
+<tr>
+<th>Affection</th>
+<th>N° d'ALD</th>
+<th>Personnes</th>
+<th>Pour 100 000, à âge égal</th>
+<th>Milieu des départements</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Diabète</td>
+<td>8</td>
+<td>64 890</td>
+<td>4 380</td>
+<td>4 942</td>
+</tr>
+<tr>
+<td>Cancers (tumeurs malignes)</td>
+<td>30</td>
+<td>50 510</td>
+<td>3 381</td>
+<td>3 631</td>
+</tr>
+<tr>
+<td>Maladies cardiaques graves</td>
+<td>5</td>
+<td>23 940</td>
+<td>1 614</td>
+<td>2 265</td>
+</tr>
+<tr>
+<td>Maladie coronaire</td>
+<td>13</td>
+<td>25 290</td>
+<td>1 755</td>
+<td>2 306</td>
+</tr>
+<tr>
+<td>Accident vasculaire cérébral invalidant</td>
+<td>1</td>
+<td>9 270</td>
+<td>621</td>
+<td>746</td>
+</tr>
+<tr>
+<td>Insuffisance respiratoire chronique grave</td>
+<td>14</td>
+<td>9 030</td>
+<td>588</td>
+<td>475</td>
+</tr>
+<tr>
+<td>Maladie de Parkinson</td>
+<td>16</td>
+<td>2 970</td>
+<td>209</td>
+<td>232</td>
+</tr>
+</tbody>
+</table>
+<p class="comment-lire"><strong>Comment lire.</strong> Personnes du régime général dont l'affection est reconnue en affection de longue durée, effectifs arrondis à la dizaine. Le taux est calculé à âge égal pour comparer les départements.</p>
+<p class="a-savoir"><strong>À savoir.</strong> Une affection de longue durée est reconnue à la demande du médecin, après accord du service médical de l'Assurance Maladie. Les chiffres comptent les personnes dont la maladie a été reconnue, pas toutes les personnes malades, et dépendent donc aussi du recours aux soins. Ils ne couvrent que le régime général. L'hypertension artérielle sévère n'ouvre plus de nouvelle ALD depuis juin 2011. Sources, <a href="https://www.data.gouv.fr/datasets/beneficiaires-du-dispositif-des-affections-de-longue-duree-ald">Assurance Maladie, bénéficiaires du dispositif des ALD (data.gouv)</a>, <a href="https://www.ameli.fr/assure/droits-demarches/maladie-accident-hospitalisation/affection-longue-duree-ald/demande-prise-en-charge-en-ald">ameli.fr, demande de prise en charge en ALD</a>, <a href="https://www.legifrance.gouv.fr/loda/id/JORFTEXT000024249276/">Décret n° 2011-726 du 24 juin 2011 (Légifrance)</a>.</p>
+<h2 id="handicap">Handicap</h2>
+<table>
+<thead>
+<tr>
+<th>Indicateur</th>
+<th>Unité</th>
+<th>Ce territoire</th>
+<th>Région</th>
+<th>Milieu des départements</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Bénéficiaires d'une prestation de compensation du handicap, moins de 60 ans</td>
+<td>pour 1 000 habitants</td>
+<td>3,5</td>
+<td>4,7</td>
+<td>7,3</td>
+</tr>
+<tr>
+<td>Places en établissement pour enfants en situation de handicap</td>
+<td>pour 1 000 moins de 20 ans</td>
+<td>5,9</td>
+<td>5,9</td>
+<td>8,6</td>
+</tr>
+<tr>
+<td>Places en SESSAD</td>
+<td>pour 1 000 moins de 20 ans</td>
+<td>3,7</td>
+<td>3,1</td>
+<td>3,6</td>
+</tr>
+<tr>
+<td>Élèves en situation de handicap</td>
+<td>pour 1 000 élèves</td>
+<td>31,0</td>
+<td>non publié pour les régions</td>
+<td>48,0</td>
+</tr>
+</tbody>
+</table>
+<p class="comment-lire"><strong>Comment lire.</strong> Prestations versées aux personnes en situation de handicap et offre médico-sociale pour les enfants, à lire à côté de l'offre en orthophonie, psychomotricité et pédiatrie. Source, DREES, indicateurs sociaux départementaux, Licence Ouverte.</p>
+<h2 id="liberal-ou-salarie-et-part-des-femmes">Libéral ou salarié, et part des femmes</h2>
+<table>
+<thead>
+<tr>
+<th>Profession</th>
+<th>Part exerçant en libéral</th>
+<th>Ensemble des départements</th>
+<th>Part de femmes</th>
+<th>Ensemble des départements</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Médecin généraliste</td>
+<td>50,3 %</td>
+<td>63,1 %</td>
+<td>58,5 %</td>
+<td>52,5 %</td>
+</tr>
+<tr>
+<td>Infirmier</td>
+<td>8,0 %</td>
+<td>20,4 %</td>
+<td>87,1 %</td>
+<td>86,8 %</td>
+</tr>
+<tr>
+<td>Masseur-kinésithérapeute</td>
+<td>84,0 %</td>
+<td>86,1 %</td>
+<td>51,2 %</td>
+<td>52,4 %</td>
+</tr>
+<tr>
+<td>Orthophoniste</td>
+<td>74,9 %</td>
+<td>81,1 %</td>
+<td>98,5 %</td>
+<td>97,2 %</td>
+</tr>
+<tr>
+<td>Psychomotricien</td>
+<td>36,5 %</td>
+<td>40,0 %</td>
+<td>89,6 %</td>
+<td>91,4 %</td>
+</tr>
+<tr>
+<td>Pharmacien</td>
+<td>34,7 %</td>
+<td>40,4 %</td>
+<td>68,7 %</td>
+<td>67,6 %</td>
+</tr>
+</tbody>
+</table>
+<p class="comment-lire"><strong>Comment lire.</strong> Une même personne peut exercer en libéral et comme salariée, elle compte alors dans les deux. La part de femmes repose sur la civilité déclarée au répertoire. Elle n'est pas donnée quand moins de dix personnes exercent.</p>
+<h2 id="sources">Sources</h2>
+<ul>
+<li><a href="https://github.com/etalab/decoupage-administratif">Référentiel Etalab</a>, Etalab, d'après le Code officiel géographique et les populations légales de l'INSEE, Licence Ouverte 2.0, données du 9 mars 2026.</li>
+<li><a href="https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps">RPPS activité</a>, Agence du numérique en santé (ANS), Licence Ouverte 2.0, données du 14 octobre 2026.</li>
+<li><a href="https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps">RPPS diplômes</a>, Agence du numérique en santé (ANS), Licence Ouverte 2.0, données du 14 octobre 2026.</li>
+<li><a href="https://www.data.gouv.fr/datasets/finess-structures-1">FINESS (Finess+)</a>, Agence du numérique en santé (ANS), Licence Ouverte 2.0, données du 1er octobre 2026.</li>
+<li><a href="https://www.insee.fr/fr/statistiques/5359146">INSEE dossier complet</a>, INSEE, Licence Ouverte 2.0, données du 3 septembre 2026.</li>
+<li><a href="https://data.ameli.fr/explore/dataset/effectifs/">Assurance Maladie, pathologies</a>, Caisse nationale de l'Assurance Maladie (Cnam), ODbL 1.0 (partage à l'identique), données du 6 juillet 2026.</li>
+<li><a href="https://odisse.santepubliquefrance.fr/explore/dataset/suicides-deces-departement/">Santé publique France, décès par suicide</a>, Santé publique France, Licence Ouverte 2.0, données du 9 janvier 2026.</li>
+<li><a href="https://odisse.santepubliquefrance.fr/explore/dataset/gestes-auto-infliges-patients-hospitalises-departement/">Santé publique France, personnes hospitalisées pour geste auto-infligé</a>, Santé publique France, Licence Ouverte 2.0, données du 9 septembre 2026.</li>
+<li><a href="https://odisse.santepubliquefrance.fr/explore/dataset/gestes-auto-infliges-passages-aux-urgences-departement/">Santé publique France, passages aux urgences pour geste auto-infligé</a>, Santé publique France, Licence Ouverte 2.0, données du 9 décembre 2025.</li>
+<li><a href="https://odisse.santepubliquefrance.fr/explore/dataset/sante-mentale-episodes-depressifs-caracterises-dans-les-12-derniers-mois_reg/">Santé publique France, adultes déclarant un épisode dépressif dans l'année</a>, Santé publique France, Licence Ouverte 2.0, données du 9 décembre 2024.</li>
+<li><a href="https://odisse.santepubliquefrance.fr/explore/dataset/conduites-suicidaires-indicateurs-du-barometre-de-sante-publique-france-2024-detail-region/">Santé publique France, adultes déclarant des pensées suicidaires dans l'année</a>, Santé publique France, Licence Ouverte 2.0, données du 11 décembre 2025.</li>
+<li><a href="https://odisse.santepubliquefrance.fr/explore/dataset/conduites-suicidaires-indicateurs-du-barometre-de-sante-publique-france-2024-detail-region/">Santé publique France, adultes déclarant une tentative de suicide au cours de la vie</a>, Santé publique France, Licence Ouverte 2.0, données du 11 décembre 2025.</li>
+<li><a href="https://odisse.santepubliquefrance.fr/explore/dataset/alcool-indicateurs-du-barometre-de-sante-publique-france-2024-detail-region/">Santé publique France, adultes qui dépassent les repères de consommation d'alcool</a>, Santé publique France, Licence Ouverte 2.0, données du 11 décembre 2025.</li>
+<li><a href="https://odisse.santepubliquefrance.fr/explore/dataset/tabac-consommation-quotidienne_reg/">Santé publique France, adultes qui fument chaque jour</a>, Santé publique France, Licence Ouverte 2.0, données du 23 janvier 2025.</li>
+<li><a href="https://odisse.santepubliquefrance.fr/explore/dataset/tabac-deces-attribuables-au-tabac_reg/">Santé publique France, décès attribuables au tabac</a>, Santé publique France, Licence Ouverte 2.0, données du 26 juin 2026.</li>
+<li><a href="https://data.ameli.fr/explore/dataset/demographie-secteurs-conventionnels/">Assurance Maladie, secteurs conventionnels</a>, Caisse nationale de l'Assurance Maladie (Cnam), ODbL 1.0 (partage à l'identique), données du 12 octobre 2026.</li>
+<li><a href="https://data.ameli.fr/explore/dataset/patients-longueduree-annuelle/">Assurance Maladie, affection longue durée sans médecin traitant</a>, Caisse nationale de l'Assurance Maladie (Cnam), ODbL 1.0 (partage à l'identique), données du 28 janvier 2025.</li>
+<li><a href="https://data.drees.solidarites-sante.gouv.fr/explore/dataset/596_enfance-et-jeunesse-en-danger/">DREES, protection de l'enfance</a>, DREES, Licence Ouverte 2.0, données du 6 octobre 2026.</li>
+<li><a href="https://data.drees.solidarites-sante.gouv.fr/explore/dataset/627_personnes-en-situation-de-handicap/">DREES, personnes en situation de handicap</a>, DREES, Licence Ouverte 2.0, données du 6 octobre 2026.</li>
+<li><a href="https://data.drees.solidarites-sante.gouv.fr/explore/dataset/708_bases-statistiques-sae/">DREES, SAE psychiatrie</a>, DREES, Licence Ouverte 2.0, données du 17 décembre 2025.</li>
+<li><a href="https://www.data.gouv.fr/datasets/beneficiaires-du-dispositif-des-affections-de-longue-duree-ald">Assurance Maladie, affections de longue durée</a>, Caisse nationale de l'Assurance Maladie (Cnam), Licence Ouverte 2.0, données du 12 décembre 2025.</li>
+<li><a href="https://data.caf.fr/explore/dataset/s_ben_epci_f/">CAF, allocataires par prestation</a>, Caisse nationale des allocations familiales (CNAF), Licence Ouverte 2.0, données du 11 février 2026.</li>
+<li><a href="https://www.data.gouv.fr/datasets/donnees-sur-la-localisation-et-lacces-de-la-population-aux-equipements">INSEE, temps d'accès par la route</a>, INSEE, Licence Ouverte 2.0 (distancier fondé sur OpenStreetMap, © ses contributeurs), données du 19 août 2026.</li>
+<li><a href="https://data.drees.solidarites-sante.gouv.fr/explore/dataset/530_l-accessibilite-potentielle-localisee-apl/">DREES, accessibilité potentielle localisée</a>, DREES, Licence Ouverte 2.0, données du 21 juillet 2026.</li>
+<li><a href="https://www.data.gouv.fr/datasets/admin-express-admin-express-cog-admin-express-cog-carto-admin-express-cog-carto-pe-admin-express-cog-carto-plus-pe">Contours des communes (IGN)</a>, IGN, ADMIN EXPRESS COG CARTO PE, Licence Ouverte 2.0, données du 9 octobre 2026.</li>
+<li><a href="https://www.data.gouv.fr/datasets/offres-de-sante-sanitaire-medico-social-et-de-ville-en-france-metropolitaine-et-drom-1">ANS, offres de santé (ROR)</a>, Agence du numérique en santé (ANS), Répertoire opérationnel des ressources, Licence Ouverte 2.0, données du 13 octobre 2026.</li>
+<li><a href="https://www.data.gouv.fr/datasets/certification-des-etablissements-de-sante-pour-la-qualite-des-soins-referentiel-deploye-2021-2025">HAS, certification des établissements de santé, sites rattachés</a>, Haute Autorité de santé (HAS), Licence Ouverte 2.0, données du 14 octobre 2026.</li>
+<li><a href="https://www.data.gouv.fr/datasets/base-sirene-des-entreprises-et-de-leurs-etablissements-siren-siret">INSEE, répertoire Sirene, établissements des gestionnaires de FINESS</a>, Institut national de la statistique et des études économiques (INSEE), Licence Ouverte 2.0, données du 1er octobre 2026.</li>
+<li><a href="https://www.data.gouv.fr/datasets/resultats-devaluation-des-etablissements-et-services-sociaux-et-medico-sociaux-essms">HAS, évaluation des établissements et services médico-sociaux</a>, Haute Autorité de santé (HAS), Licence Ouverte 2.0, données du 16 octobre 2026.</li>
+<li><a href="https://data.drees.solidarites-sante.gouv.fr/explore/dataset/la-demographie-des-professionnels-de-sante-depuis-2012/information/">DREES, démographie des professionnels de santé</a>, DREES, Licence Ouverte 2.0, données du 2 juillet 2026.</li>
+<li><a href="https://catalogue-donnees.insee.fr/fr/catalogue/recherche/DS_ESTIMATION_POPULATION">INSEE, estimations de population</a>, INSEE, Licence Ouverte 2.0, données du 5 août 2026.</li>
+</ul>
+<p>Ce document contient des informations issues de bases de l'Assurance Maladie (Cnam, data.ameli.fr, cartographie des pathologies, secteurs conventionnels, patients sans médecin traitant), mises à disposition sous <a href="https://opendatacommons.org/licenses/odbl/1-0/">licence ODbL 1.0</a>. Les bases qui en dérivent sont publiées sous la même licence, dans les fichiers suffixés _odbl.</p>
+<p>La méthode complète, les précautions de lecture et le glossaire se trouvent dans le rapport national et sur la page « Méthode, données et limites ».</p></article>
+</div>
+<script>
+// les volets « Pour aller plus loin » sont ouverts à l'impression, puis refermés
+var ouverts = [];
+window.addEventListener("beforeprint", function () {
+  ouverts = [];
+  document.querySelectorAll("details").forEach(function (d) { if (!d.open) { d.open = true; ouverts.push(d); } });
+});
+window.addEventListener("afterprint", function () { ouverts.forEach(function (d) { d.open = false; }); });
+</script>
+
+<footer>
+  Données du 23 octobre 2026. Sources, répertoire RPPS, FINESS, Répertoire opérationnel des ressources, INSEE (dont Sirene), Assurance Maladie, CAF, Santé publique France, DREES, HAS, IGN (voir <a href="../methode.html">Méthode, données et limites</a>).
+  Résultats sous Licence Ouverte 2.0, en citant la source et la date de la version, sauf les indicateurs tirés des bases de l&#39;Assurance Maladie (Cnam, data.ameli.fr, cartographie des pathologies, secteurs conventionnels, patients sans médecin traitant) et ce qui en dérive, diffusés sous licence ODbL 1.0 (partage à l&#39;identique). Les fichiers suffixés _odbl et les données intégrées à l&#39;atlas, qui contiennent ces indicateurs, sont sous ODbL. Les rapports et les cartes qui les affichent contiennent des informations issues de cette base sous ODbL.
+  <p class="pied-liens"><a href="../donnees-sources.html">Données sources</a> <a href="../journal.html">Journal des mises à jour</a> <a href="../a-venir.html">À venir</a> <a href="../contribuer.html">Proposer une base de données</a> <a href="../a-propos.html">À propos</a></p>
+</footer>
+</main>
+<script>
+// tableaux plus larges que la colonne de texte, fondu à droite et phrase d'indication tant qu'il reste des colonnes
+(function(){function maj(t){var d=t.scrollWidth>t.clientWidth+2;t.classList.toggle("deborde-d",d&&t.scrollLeft+t.clientWidth<t.scrollWidth-2);
+var n=t.nextElementSibling;if(!(n&&n.classList.contains("indice-defil"))){if(!d)return;n=document.createElement("p");n.className="indice-defil";n.textContent="Faites défiler le tableau vers la droite pour voir les autres colonnes.";t.after(n)}n.hidden=!d}
+// figures, choix de la profession (rapports, 9 octobre 2026)
+document.querySelectorAll("figure.graphique").forEach(function(fig){
+  var leg=fig.querySelector(".leg");
+  fig.querySelectorAll(".choix-variante button").forEach(function(b,i,tous){b.addEventListener("click",function(){
+    var vs=fig.querySelectorAll(".variante");vs.forEach(function(v,j){v.hidden=j!==i});
+    tous.forEach(function(x,j){x.setAttribute("aria-pressed",String(j===i))});
+    var t=vs[i].querySelector("title");if(leg&&t)leg.textContent=t.textContent})})});
+var ts=document.querySelectorAll(".corps table");ts.forEach(function(t){maj(t);t.addEventListener("scroll",function(){maj(t)},{passive:true})});
+addEventListener("resize",function(){ts.forEach(maj)})})();
+</script>
+<script>
+// Graphiques interactifs, communs aux rapports et à l'atlas (demande de Lucas du 9 octobre 2026).
+// Infobulle au survol de chaque point ou zone qui porte un titre, clic pour la garder, zoom à la molette et par
+// boutons, déplacement à la souris quand le graphique est zoomé. La page n'est pas bloquée, une molette qui
+// arrive pendant le défilement de la page continue de faire défiler la page.
+// Réglage, window.FIGURES = {zoom: "sélecteur des svg zoomables", bulle: "sélecteur des svg à infobulles"}.
+(function(){
+  var R=window.FIGURES||{zoom:"figure.zoomable svg",bulle:"figure.graphique svg"};
+  var bulle=document.createElement("div");bulle.className="bulle-fig";bulle.setAttribute("role","status");
+  document.addEventListener("DOMContentLoaded",function(){document.body.appendChild(bulle)});
+  if(document.body)document.body.appendChild(bulle);
+  var epingle=null,dernierDefil=0;
+  addEventListener("scroll",function(){dernierDefil=Date.now();if(!epingle)cacher()},{passive:true});
+  function svgDe(el,sel){var s=el&&el.closest&&el.closest("svg");while(s&&s.ownerSVGElement)s=s.ownerSVGElement;return s&&s.matches(sel)?s:null}
+  // texte de l'élément survolé, pris dans son titre (déplacé dans data-info pour éviter la bulle du navigateur)
+  function info(el,s){
+    for(var e=el;e&&e!==s;e=e.parentNode){
+      if(e.dataset&&e.dataset.info)return [e,e.dataset.info];
+      var t=e.querySelector&&e.querySelector(":scope > title");
+      if(t&&e!==s){e.dataset.info=t.textContent;t.remove();return [e,e.dataset.info]}}
+    return null}
+  function montrer(x,y,txt){bulle.textContent=txt;bulle.style.opacity=1;var w=bulle.offsetWidth,h=bulle.offsetHeight;
+    bulle.style.left=Math.max(8,Math.min(x+14,innerWidth-w-8))+"px";bulle.style.top=Math.max(8,y-h-12<8?y+16:y-h-12)+"px"}
+  function cacher(){bulle.style.opacity=0}
+  document.addEventListener("pointermove",function(ev){
+    if(epingle)return;var s=svgDe(ev.target,R.bulle);if(!s){cacher();return}
+    var i=info(ev.target,s);if(i)montrer(ev.clientX,ev.clientY,i[1]);else cacher()});
+  document.addEventListener("click",function(ev){
+    var s=svgDe(ev.target,R.bulle);
+    if(epingle){epingle.removeAttribute("data-choisi");epingle=null}
+    if(!s){cacher();return}
+    var i=info(ev.target,s);if(!i){cacher();return}
+    epingle=i[0];epingle.setAttribute("data-choisi","");montrer(ev.clientX,ev.clientY,i[1])});
+  document.addEventListener("keydown",function(ev){if(ev.key==="Escape"&&epingle){epingle.removeAttribute("data-choisi");epingle=null;cacher()}});
+
+  // zoom, le cadrage d'origine est repris chaque fois que la page redessine le graphique
+  function cadre(s){var v=s.getAttribute("viewBox");if(!v)return null;if(s.dataset.vbz!==v)s.dataset.vb0=v;return v.split(/[ ,]+/).map(Number)}
+  function zoomer(s,k,cx,cy){var b=cadre(s);if(!b)return;var o=s.dataset.vb0.split(/[ ,]+/).map(Number);
+    var w=Math.min(o[2],b[2]*k),h=Math.min(o[3],b[3]*k);if(w<o[2]/12)return;
+    if(cx==null){cx=b[0]+b[2]/2;cy=b[1]+b[3]/2}
+    var x=cx-(cx-b[0])*w/b[2],y=cy-(cy-b[1])*h/b[3];
+    x=Math.max(o[0],Math.min(x,o[0]+o[2]-w));y=Math.max(o[1],Math.min(y,o[1]+o[3]-h));
+    var v=[x,y,w,h].map(function(n){return +n.toFixed(2)}).join(" ");s.setAttribute("viewBox",v);s.dataset.vbz=v;boutons(s)}
+  function entier(s){return !s.dataset.vb0||s.getAttribute("viewBox")===s.dataset.vb0}
+  function boutons(s){
+    var hote=s.closest(".fig-corps")||s.closest("figure");
+    if(!hote){
+      // hors d'une figure (atlas), les boutons vont sur une ligne à eux juste au-dessus du graphique, sans recouvrir le
+      // titre du panneau ni le bouton Citer
+      hote=s.parentNode;
+      if(hote&&!hote.classList.contains("fig-zoom")){var enveloppe=document.createElement("div");enveloppe.className="fig-zoom";
+        hote.insertBefore(enveloppe,s);enveloppe.appendChild(s);hote=enveloppe}
+    }
+    if(!hote||hote.querySelector(":scope > .zoom-boutons"))return;
+    var bz=document.createElement("div");bz.className="zoom-boutons";
+    bz.innerHTML='<button type="button" aria-label="Zoomer">+</button><button type="button" aria-label="Dézoomer">−</button><button type="button" aria-label="Revenir à la vue entière">⟲</button>';
+    if(getComputedStyle(hote).position==="static")hote.style.position="relative";
+    hote.insertBefore(bz,hote.firstChild);
+    var cible=function(){var v=hote.querySelector(".variante:not([hidden]) svg");return v||s};
+    var b=bz.querySelectorAll("button");
+    b[0].onclick=function(){zoomer(cible(),.6)};b[1].onclick=function(){zoomer(cible(),1/.6)};
+    b[2].onclick=function(){var c=cible();cadre(c);if(c.dataset.vb0){c.setAttribute("viewBox",c.dataset.vb0);c.dataset.vbz=c.dataset.vb0}}}
+  document.querySelectorAll(R.zoom).forEach(boutons);
+  document.addEventListener("pointerover",function(ev){var s=svgDe(ev.target,R.zoom);if(s)boutons(s)});
+  // la molette seule fait toujours défiler la page ; le zoom à la molette demande Ctrl (ou ⌘), sinon le curseur restait
+  // pris dans la figure (remarque de Lucas du 23 octobre 2026) ; les boutons + et − restent le moyen ordinaire
+  document.addEventListener("wheel",function(ev){
+    if(!(ev.ctrlKey||ev.metaKey))return;
+    var s=svgDe(ev.target,R.zoom);if(!s)return;
+    if(Date.now()-dernierDefil<450)return;                       // la page défile, on la laisse défiler
+    if(ev.deltaY>0&&entier(s))return;                           // vue entière, molette vers le bas, la page défile
+    ev.preventDefault();var p=s.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;
+    var q=p.matrixTransform(s.getScreenCTM().inverse());zoomer(s,ev.deltaY<0?.8:1.25,q.x,q.y)},{passive:false});
+  var dep=null;
+  document.addEventListener("pointerdown",function(ev){var s=svgDe(ev.target,R.zoom);if(!s||entier(s))return;
+    var b=cadre(s);dep={x:ev.clientX,y:ev.clientY,b:b,s:s,k:b[2]/s.getBoundingClientRect().width,bouge:false}});
+  addEventListener("pointermove",function(ev){if(!dep)return;var o=dep.s.dataset.vb0.split(/[ ,]+/).map(Number),b=dep.b;
+    if(Math.abs(ev.clientX-dep.x)+Math.abs(ev.clientY-dep.y)>3)dep.bouge=true;if(!dep.bouge)return;
+    var x=Math.max(o[0],Math.min(b[0]-(ev.clientX-dep.x)*dep.k,o[0]+o[2]-b[2])),y=Math.max(o[1],Math.min(b[1]-(ev.clientY-dep.y)*dep.k,o[1]+o[3]-b[3]));
+    var v=[x,y,b[2],b[3]].map(function(n){return +n.toFixed(2)}).join(" ");dep.s.setAttribute("viewBox",v);dep.s.dataset.vbz=v});
+  addEventListener("pointerup",function(){dep=null});
+
+  // figures des rapports, même modèle que l'atlas (10 octobre 2026). Sous le titre « Figure N. légende », une ligne
+  // « Citer et exporter » ouvre la citation du rapport suivie du numéro et de la légende, l'image (copie, PNG, SVG, avec
+  // la citation dessous) et les données de la figure. La citation du rapport est donnée par la page (data-citation).
+  function citerFigures(){
+    var porte=document.querySelector("[data-citation]");if(!porte)return;var base=porte.dataset.citation;
+    document.querySelectorAll("figure.graphique").forEach(function(f){
+      if(f.dataset.cite)return;f.dataset.cite="1";
+      var cap=f.querySelector("figcaption");
+      var ligne=document.createElement("div");ligne.className="outils-figure";
+      var bc=document.createElement("button");bc.type="button";bc.className="citer-fig";bc.textContent="Citer et exporter";bc.setAttribute("aria-expanded","false");ligne.appendChild(bc);
+      if(cap)cap.after(ligne);else f.insertBefore(ligne,f.firstChild);
+      var boite=document.createElement("div");boite.className="citation-fig";boite.hidden=true;ligne.after(boite);
+      bc.onclick=function(){var ouvert=boite.hidden;bc.setAttribute("aria-expanded",String(ouvert));boite.hidden=!ouvert;if(!ouvert)return;
+        // la légende suit la profession choisie, la citation est donc refaite à chaque ouverture
+        var num=cap&&cap.querySelector("strong"),leg=cap&&cap.querySelector(".leg");
+        var ref=(num?num.textContent.replace(/\.$/,""):"Figure")+(leg?", "+leg.textContent.trim():"");
+        var texte=base.replace(/\s*$/,"")+(/[.]$/.test(base.trim())?" ":". ")+ref+".";
+        var nom=(ref.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,80)||"figure").toLowerCase();
+        boite.innerHTML='<p></p><div class="citation-actions"><button type="button" data-a="cit">Copier la citation</button></div>'
+          +'<ul class="exports"><li><span class="nom"><span class="genre">Image</span> de la figure</span><span class="citation-actions"><button type="button" data-a="img">Copier l’image</button><button type="button" data-a="png">PNG</button><button type="button" data-a="svg">SVG</button></span></li>'
+          +(f.dataset.donnees?'<li><span class="nom"><span class="genre">Données</span> de la figure, '+f.dataset.donneesNom+'</span><span class="citation-actions"><a class="bouton" download href="'+f.dataset.donnees+'">CSV</a></span></li>':'')
+          +'</ul><p class="small muted">Chaque fichier porte la citation du rapport, merci de la joindre à toute reprise.</p>';
+        boite.querySelector("p").textContent=texte;
+        boite.querySelectorAll("button").forEach(function(b){b.onclick=function(){var a=b.dataset.a;
+          if(a==="cit"){navigator.clipboard.writeText(texte).then(function(){b.textContent="Citation copiée"},function(){b.textContent="Copie impossible ici"});return}
+          var src=f.querySelector(".variante:not([hidden]) svg")||f.querySelector("svg");if(!src)return;
+          var svg=imageCitee(src,texte);
+          if(a==="svg"){enregistrer(new Blob([svg],{type:"image/svg+xml"}),nom+".svg");b.textContent="Enregistré";return}
+          var img=new Image(),url=URL.createObjectURL(new Blob([svg],{type:"image/svg+xml"}));
+          img.onload=function(){var c=document.createElement("canvas");c.width=img.width;c.height=img.height;c.getContext("2d").drawImage(img,0,0);URL.revokeObjectURL(url);
+            c.toBlob(function(png){if(!png)return;
+              if(a==="png"){enregistrer(png,nom+".png");b.textContent="Enregistré";return}
+              navigator.clipboard.write([new ClipboardItem({"image/png":png})]).then(function(){b.textContent="Image copiée"},function(){b.textContent="Copie impossible ici, utilisez PNG"})})};img.src=url}})}})}
+  function imageCitee(src,texte){
+    var ns="http://www.w3.org/2000/svg",c=src.cloneNode(true),vb=(src.dataset.vb0||src.getAttribute("viewBox")||"0 0 600 400").split(/[ ,]+/).map(Number);
+    // taille commune des exports (harmonisation, 22 octobre 2026), dessin rapporté à 800 pixels, image à 1 600, citation
+    // au petit corps de l'échelle typographique (11,5 pixels à cette largeur), couleurs du fond clair (valeurs de repli
+    // des variables, seules lues dans un fichier SVG isolé)
+    var fs=11.5*vb[2]/800,par=Math.max(40,Math.floor((vb[2]-16)/(fs*.55))),lignes=[];
+    texte.split(" ").forEach(function(m){var l=lignes.length?lignes[lignes.length-1]:null;if(l!=null&&(l+" "+m).length<=par)lignes[lignes.length-1]=l+" "+m;else lignes.push(m)});
+    var hc=fs*1.4*lignes.length+fs;c.setAttribute("xmlns",ns);c.setAttribute("viewBox",[vb[0],vb[1],vb[2],vb[3]+hc].join(" "));
+    c.setAttribute("width",1600);c.setAttribute("height",Math.round((vb[3]+hc)*1600/vb[2]));
+    var fond=document.createElementNS(ns,"rect");fond.setAttribute("x",vb[0]);fond.setAttribute("y",vb[1]);fond.setAttribute("width",vb[2]);fond.setAttribute("height",vb[3]+hc);fond.setAttribute("fill","#FFFFFF");c.insertBefore(fond,c.firstChild);
+    lignes.forEach(function(l,i){var t=document.createElementNS(ns,"text");t.setAttribute("x",vb[0]+8);t.setAttribute("y",vb[1]+vb[3]+fs*1.4*(i+1));t.setAttribute("font-size",fs);t.setAttribute("fill","#5F6675");t.setAttribute("font-family","Work Sans, Segoe UI, sans-serif");t.textContent=l;c.appendChild(t)});
+    return new XMLSerializer().serializeToString(c)}
+  function enregistrer(blob,nom){var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=nom;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},1000)}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",citerFigures);else citerFigures();
+
+  // tableaux des rapports et des pages, citables et exportables comme les figures (version 2, point 1, 22 octobre 2026).
+  // La citation est celle du rapport (data-citation) ou de la page (data-citation-page et son adresse), suivie du titre
+  // du tableau, tiré de sa légende ou de l'intertitre qui le précède (décision de Lucas, titre sans numéro). Le CSV
+  // reprend les lignes affichées, au format des fichiers du site (point-virgule, virgule décimale, nombres sans
+  // séparateur de milliers), avec la citation en dernière ligne.
+  function titreTableau(t){
+    if(t.caption&&t.caption.textContent.trim())return t.caption.textContent.trim();
+    for(var e=t.closest(".defile")||t;e&&e.tagName!=="MAIN";e=e.parentElement){
+      for(var p=e.previousElementSibling;p;p=p.previousElementSibling){
+        if(/^H[2-5]$/.test(p.tagName))return p.textContent.replace(/\s+/g," ").trim();
+        var h=p.querySelectorAll&&p.querySelectorAll("h2,h3,h4,h5");if(h&&h.length)return h[h.length-1].textContent.replace(/\s+/g," ").trim()}
+      if(e.tagName==="DETAILS"){var s=e.querySelector("summary");if(s)return s.textContent.trim()}}
+    return "Tableau"}
+  function celluleCsv(c){
+    // une adresse raccourcie à l'écran est écrite en entier dans le fichier
+    if(c.querySelectorAll){var lien=[].filter.call(c.querySelectorAll("a[href^='http']"),function(a){return /…$/.test(a.textContent.trim())});
+      if(lien.length){c=c.cloneNode(true);[].forEach.call(c.querySelectorAll("a[href^='http']"),function(a){if(/…$/.test(a.textContent.trim()))a.textContent=a.href})}}
+    var v=c.textContent.replace(/[\s  ]+/g," ").trim();
+    if(/^[−-]?\d{1,3}( \d{3})+(,\d+)?$/.test(v))v=v.replace(/ /g,"");
+    v=v.replace(/^−(?=\d)/,"-");
+    return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+  function tableauCsv(t){
+    return "﻿"+[].filter.call(t.querySelectorAll("tr"),function(tr){return !tr.hidden&&tr.style.display!=="none"})
+      .map(function(tr){return [].map.call(tr.children,celluleCsv).join(";")}).join("\r\n")}
+  function citerTableaux(){
+    var main=document.querySelector("main");if(!main)return;
+    var porte=document.querySelector("[data-citation]"),base;
+    if(porte)base=porte.dataset.citation.replace(/\s*$/,"");
+    else{base=(main.dataset.citationPage||"").replace(/\s*$/,"");if(!base)return;
+      var adr=main.dataset.adresse;base+=(adr?", "+adr+location.pathname.replace(/\/index\.html$/,"/"):"")+"."}
+    main.querySelectorAll("table").forEach(function(t){
+      if(t.dataset.cite||t.closest(".citation-fig,.sommaire,details.versions,nav,figure"))return;t.dataset.cite="1";
+      var bloc=t.closest(".defile")||t;
+      var ligne=document.createElement("div");ligne.className="outils-figure outils-tableau";
+      var bc=document.createElement("button");bc.type="button";bc.className="citer-fig";bc.textContent="Citer et exporter";bc.setAttribute("aria-expanded","false");ligne.appendChild(bc);
+      bloc.before(ligne);
+      var boite=document.createElement("div");boite.className="citation-fig";boite.hidden=true;ligne.after(boite);
+      bc.onclick=function(){var ouvert=boite.hidden;bc.setAttribute("aria-expanded",String(ouvert));boite.hidden=!ouvert;if(!ouvert)return;
+        var titre=titreTableau(t),texte=base+(/[.]$/.test(base)?" ":". ")+"Tableau, « "+titre+" ».";
+        var nom=(titre.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,80)||"tableau").toLowerCase();
+        boite.innerHTML='<p></p><div class="citation-actions"><button type="button" data-a="cit">Copier la citation</button></div>'
+          +'<ul class="exports"><li><span class="nom"><span class="genre">Données</span> du tableau, telles qu’affichées</span><span class="citation-actions"><button type="button" data-a="csv">CSV</button></span></li></ul>'
+          +'<p class="small muted">Le fichier porte la citation de la page, merci de la joindre à toute reprise.</p>';
+        boite.querySelector("p").textContent=texte;
+        boite.querySelectorAll("button").forEach(function(b){b.onclick=function(){
+          if(b.dataset.a==="cit"){navigator.clipboard.writeText(texte).then(function(){b.textContent="Citation copiée"},function(){b.textContent="Copie impossible ici"});return}
+          enregistrer(new Blob([tableauCsv(t)+"\r\n\r\n"+celluleCsv({textContent:texte})],{type:"text/csv;charset=utf-8"}),nom+".csv");b.textContent="Enregistré"}})}})}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",citerTableaux);else citerTableaux();
+
+  // « Comment lire » des rapports (audit du 22 octobre 2026, lot 2), un bouton sur la ligne d'outils de la figure ou du
+  // tableau commenté, à côté de « Citer et exporter », comme dans l'atlas. Le paragraphe garde sa place et s'ouvre au
+  // clic ; s'il ne suit pas une figure ou un tableau, il reste affiché. À l'impression il est toujours visible.
+  function lireReplie(){
+    document.querySelectorAll(".corps p.comment-lire").forEach(function(p){
+      if(p.dataset.lire)return;p.dataset.lire="1";var ligne=null,e=p.previousElementSibling;
+      for(var k=0;e&&k<5&&!ligne;k++,e=e.previousElementSibling){
+        if(e.matches("figure.graphique"))ligne=e.querySelector(".outils-figure");
+        else if(e.matches(".defile,table")){for(var o=e.previousElementSibling,j=0;o&&j<3;o=o.previousElementSibling,j++)if(o.classList.contains("outils-tableau")){ligne=o;break}}
+        else if(e.matches("h2,h3,h4,h5,.comment-lire"))break}
+      if(!ligne)return;
+      var b=document.createElement("button");b.type="button";b.className="citer-fig lire-fig";b.textContent="Comment lire";b.setAttribute("aria-expanded","false");
+      ligne.insertBefore(b,ligne.firstChild);p.classList.add("repli");
+      b.onclick=function(){var o=p.classList.contains("repli");p.classList.toggle("repli",!o);b.setAttribute("aria-expanded",String(o))}})}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",lireReplie);else lireReplie();
+
+  // longs tableaux de consultation (pages de la méthode), un champ filtre les lignes à mesure qu'on tape
+  function filtres(){
+    document.querySelectorAll("table.filtrable").forEach(function(t){
+      if(t.dataset.filtre)return;t.dataset.filtre="1";var bloc=t.closest(".defile")||t;
+      var l=document.createElement("label");l.className="filtre-tableau";l.innerHTML='<span>Filtrer le tableau</span><input type="search" autocomplete="off">';
+      var ligne=bloc.previousElementSibling&&bloc.previousElementSibling.classList.contains("citation-fig")?bloc.previousElementSibling:bloc;ligne.before(l);
+      var n=document.createElement("span");n.className="small muted";l.appendChild(n);
+      var champ=l.querySelector("input"),lignes=[].slice.call(t.tBodies[0]?t.tBodies[0].rows:[]);
+      var norm=function(x){return x.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()};
+      champ.addEventListener("input",function(){var q=norm(champ.value.trim()),k=0;
+        lignes.forEach(function(r){var ok=!q||norm(r.textContent).indexOf(q)>=0;r.hidden=!ok;if(ok)k++});
+        n.textContent=q?k+" ligne"+(k>1?"s":"")+" sur "+lignes.length:""})})}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",filtres);else filtres();
+})();
+
+// Figures qui apparaissent en douceur quand on arrive dessus (refonte du 23 octobre 2026). La classe posée sur la racine
+// n'existe qu'avec le script, si bien qu'une figure reste visible quand il ne tourne pas ; impression exclue.
+(function(){
+  if(!("IntersectionObserver" in window)||matchMedia("print").matches)return;
+  const cibles=document.querySelectorAll("figure.graphique,.une-carte");if(!cibles.length)return;
+  document.documentElement.classList.add("revele");
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("vu");io.unobserve(e.target)}}),{rootMargin:"0px 0px -8% 0px"});
+  cibles.forEach(c=>io.observe(c));
+  addEventListener("beforeprint",()=>cibles.forEach(c=>c.classList.add("vu")));
+})();
+// en-tête qui se resserre en barre flottante dès qu'on descend (essai du 23 octobre 2026, d'après reactbits.dev)
+(function(){var n=document.querySelector("nav.site");if(!n)return;
+  var f=function(){n.classList.toggle("defile",(window.scrollY||0)>12)};f();addEventListener("scroll",f,{passive:true})})();
+</script>
+<script src="../cesure/hyphen.js" defer></script>
+<script src="../cesure/hyphen-fr.js" defer></script>
+<script src="../cesure/cesure.js" defer></script>
+<script>window.goatcounter={no_onload:navigator.doNotTrack==="1"||window.doNotTrack==="1"}</script><script data-goatcounter="https://ubicura.goatcounter.com/count" async src="https://gc.zgo.at/count.v5.js" crossorigin="anonymous" integrity="sha384-atnOLvQb9t+jTSipvd75X2yginT4PjVbqDdlJAmxMm+wYElFmeR6EmLP5bYeoRVQ"></script>
+</body>
+</html>

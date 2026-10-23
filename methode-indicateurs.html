@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Indicateurs du profil des territoires · Ubi Cura</title>
+<meta name="description" content="Offre de soins et de santé mentale en France, par territoire, à partir des données publiques.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%231D4D87%22/%3E%3Crect%20x%3D%227%22%20y%3D%2217%22%20width%3D%224.5%22%20height%3D%228%22%20rx%3D%221%22%20fill%3D%22%23B39BCB%22/%3E%3Crect%20x%3D%2213.75%22%20y%3D%2212%22%20width%3D%224.5%22%20height%3D%2213%22%20rx%3D%221%22%20fill%3D%22%23D4C3EA%22/%3E%3Crect%20x%3D%2220.5%22%20y%3D%227%22%20width%3D%224.5%22%20height%3D%2218%22%20rx%3D%221%22%20fill%3D%22%23FFFFFF%22/%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="Ubi Cura">
+<meta property="og:title" content="Indicateurs du profil des territoires">
+<meta property="og:description" content="Offre de soins et de santé mentale en France, par territoire, à partir des données publiques.">
+<meta name="theme-color" content="#15171C">
+<link rel="stylesheet" href="polices/polices.css">
+<link rel="stylesheet" href="style.css?v=2b21456a4b">
+<script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||"dark")}catch(e){document.documentElement.setAttribute("data-theme","dark")}</script>
+</head>
+<body>
+<nav class="site" aria-label="Navigation du site">
+  <div class="in">
+    <a class="marque" href="index.html" title="Offre de soins et santé mentale en France, territoire par territoire">Ubi Cura</a>
+    <button class="menu" id="bouton-menu" type="button" aria-expanded="false" aria-controls="liens-site">Menu</button>
+    <div class="liens" id="liens-site">
+    <a class="l" href="atlas.html">Atlas</a>
+    <a class="l" href="rapports.html">Rapports nationaux</a>
+    <a class="l" href="territoires/index.html">Rapports par territoire</a>
+    <a class="l on" href="methode.html">Méthode, données et limites</a>
+    
+    <div class="projet">
+      <button class="l" id="bouton-projet" type="button" aria-expanded="false" aria-controls="menu-projet">Le projet <span class="fleche" aria-hidden="true">▾</span></button>
+      <div class="sous-menu" id="menu-projet" hidden>
+        <a href="a-propos.html">À propos</a>
+        <a href="publications.html">Publications</a>
+        <a href="journal.html">Journal des mises à jour</a>
+        <a href="a-venir.html">À venir</a>
+        <a href="contribuer.html">Proposer une base de données</a>
+        
+      </div>
+    </div>
+    <button class="theme" id="bascule-theme" type="button" aria-pressed="false">Fond clair</button>
+    </div>
+  </div>
+</nav>
+<script>
+// menu « Le projet », ouvert au clic ou au clavier, fermé par Échap ou par un clic ailleurs
+(function(){var b=document.getElementById("bouton-projet"),m=document.getElementById("menu-projet");if(!b||!m)return;
+function ouvrir(o,focus){m.hidden=!o;b.setAttribute("aria-expanded",String(o));if(o&&focus){var a=m.querySelector("a");if(a)a.focus()}}
+b.addEventListener("click",function(){ouvrir(m.hidden,false)});
+b.addEventListener("keydown",function(e){if(e.key==="ArrowDown"){e.preventDefault();ouvrir(true,true)}});
+m.addEventListener("keydown",function(e){var l=[].slice.call(m.querySelectorAll("a")),i=l.indexOf(document.activeElement);
+  if(e.key==="ArrowDown"){e.preventDefault();l[(i+1)%l.length].focus()}else if(e.key==="ArrowUp"){e.preventDefault();l[(i-1+l.length)%l.length].focus()}});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!m.hidden){ouvrir(false);b.focus()}});
+document.addEventListener("click",function(e){if(!m.hidden&&!b.parentNode.contains(e.target))ouvrir(false)})})();
+// téléphone, liens du site repliés derrière « Menu » (audit du 22 octobre 2026) ; sommaire d'une page replié derrière
+// « Sommaire », ouvert au clic, refermé quand on choisit une section
+(function(){var b=document.getElementById("bouton-menu"),n=b&&b.closest("nav.site");if(!b)return;
+b.addEventListener("click",function(){var o=!n.classList.contains("ouvert");n.classList.toggle("ouvert",o);b.setAttribute("aria-expanded",String(o))})})();
+document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll("aside.sommaire").forEach(function(a){
+  if(!a.querySelector("ul"))return;var t=document.createElement("button");t.type="button";t.className="bouton-sommaire";
+  t.setAttribute("aria-expanded","false");t.textContent="Sommaire";a.insertBefore(t,a.firstChild);
+  t.addEventListener("click",function(){var o=!a.classList.contains("ouvert");a.classList.toggle("ouvert",o);t.setAttribute("aria-expanded",String(o))});
+  a.addEventListener("click",function(e){if(e.target.closest("a")){a.classList.remove("ouvert");t.setAttribute("aria-expanded","false")}})})});
+(function(){var b=document.getElementById("bascule-theme"),r=document.documentElement;
+function maj(){var c=r.getAttribute("data-theme")==="light";b.textContent=c?"Fond sombre":"Fond clair";b.setAttribute("aria-pressed",String(c))}
+maj();b.addEventListener("click",function(){var t=r.getAttribute("data-theme")==="light"?"dark":"light";r.setAttribute("data-theme",t);
+try{localStorage.setItem("theme",t)}catch(e){}maj();window.dispatchEvent(new Event("theme"))})})();
+</script>
+<main class="" data-citation-page="Pithon L. (2026). Indicateurs du profil des territoires. Ubi Cura, version du 23 octobre 2026" data-adresse="https://ubicura.fr">
+
+<h1>Indicateurs du profil des territoires</h1>
+<p class="chapeau">Chaque indicateur du profil des territoires, son unité, ce qu&#39;il mesure, les niveaux où il est disponible et sa source.</p>
+<div class="rapport">
+<aside class="sommaire" aria-label="Sommaire de la méthode">
+<ul>
+<li><a href="methode.html">Vue d&#39;ensemble</a>
+</li>
+<li><a href="methode-structures.html">Structures de soins</a>
+</li>
+<li><a href="methode-indicateurs.html" aria-current="page" class="actif">Indicateurs du profil des territoires</a>
+</li>
+<li><a href="methode-controles.html">Contrôles et concordance</a>
+</li>
+<li><a href="methode-fichiers.html">Fichiers à télécharger</a>
+</li>
+</ul>
+</aside>
+<div class="methode">
+
+
+
+
+
+
+<h2 id="indicateurs">Indicateurs du profil des territoires</h2>
+<table class="simple filtrable">
+<thead><tr><th>Indicateur</th><th>Unité</th><th>Explication</th><th>Disponible pour</th><th>Source</th><th>Licence</th></tr></thead>
+<tbody>
+
+<tr><td>Densité de population</td><td>hab./km²</td><td>Nombre d&#39;habitants par kilomètre carré. Elle distingue les territoires ruraux des territoires urbains.</td><td>communes, intercommunalités, départements, régions</td><td><a href="donnees-sources.html#dossier_complet_recensement_et_revenus">INSEE, dossier complet (recensement de la population, Filosofi)</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Part des moins de 15 ans</td><td>%</td><td>Part des habitants de moins de 15 ans, recensement de la population.</td><td>communes, intercommunalités, départements, régions</td><td><a href="donnees-sources.html#dossier_complet_recensement_et_revenus">INSEE, dossier complet (recensement de la population, Filosofi)</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Part des 15-24 ans</td><td>%</td><td>Part des habitants de 15 à 24 ans, recensement de la population.</td><td>communes, intercommunalités, départements, régions</td><td><a href="donnees-sources.html#dossier_complet_recensement_et_revenus">INSEE, dossier complet (recensement de la population, Filosofi)</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Part des 65-79 ans</td><td>%</td><td>Part des habitants de 65 à 79 ans, recensement de la population.</td><td>communes, intercommunalités, départements, régions</td><td><a href="donnees-sources.html#dossier_complet_recensement_et_revenus">INSEE, dossier complet (recensement de la population, Filosofi)</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Part des 80 ans et plus</td><td>%</td><td>Part des habitants de 80 ans ou plus, recensement de la population.</td><td>communes, intercommunalités, départements, régions</td><td><a href="donnees-sources.html#dossier_complet_recensement_et_revenus">INSEE, dossier complet (recensement de la population, Filosofi)</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Niveau de vie médian</td><td>€</td><td>Niveau de vie qui partage les habitants en deux moitiés égales. Il tient compte de la taille du ménage (revenu disponible par unité de consommation, source Filosofi).</td><td>communes, intercommunalités, départements, régions</td><td><a href="donnees-sources.html#dossier_complet_recensement_et_revenus">INSEE, dossier complet (recensement de la population, Filosofi)</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Taux de pauvreté</td><td>%</td><td>Part des habitants dont le niveau de vie est inférieur à 60 % du niveau de vie médian national.</td><td>communes, intercommunalités, départements, régions</td><td><a href="donnees-sources.html#dossier_complet_recensement_et_revenus">INSEE, dossier complet (recensement de la population, Filosofi)</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Taux de chômage des 15-64 ans</td><td>%</td><td>Part des chômeurs parmi les actifs de 15 à 64 ans, au sens du recensement (déclaration des personnes, différente du chômage au sens du BIT).</td><td>communes, intercommunalités, départements, régions</td><td><a href="donnees-sources.html#dossier_complet_recensement_et_revenus">INSEE, dossier complet (recensement de la population, Filosofi)</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Part des cadres parmi les 15 ans et plus</td><td>%</td><td>Part des cadres et professions intellectuelles supérieures parmi les 15 ans ou plus, retraités compris dans le dénominateur.</td><td>communes, intercommunalités, départements, régions</td><td><a href="donnees-sources.html#dossier_complet_recensement_et_revenus">INSEE, dossier complet (recensement de la population, Filosofi)</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Part des ouvriers parmi les 15 ans et plus</td><td>%</td><td>Part des ouvriers parmi les 15 ans ou plus, retraités compris dans le dénominateur.</td><td>communes, intercommunalités, départements, régions</td><td><a href="donnees-sources.html#dossier_complet_recensement_et_revenus">INSEE, dossier complet (recensement de la population, Filosofi)</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Part des familles monoparentales</td><td>%</td><td>Part des familles composées d&#39;un seul parent avec au moins un enfant.</td><td>communes, intercommunalités, départements, régions</td><td><a href="donnees-sources.html#dossier_complet_recensement_et_revenus">INSEE, dossier complet (recensement de la population, Filosofi)</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Part des 15 ans et plus vivant seuls</td><td>%</td><td>Part des personnes de 15 ans ou plus qui vivent seules dans leur logement.</td><td>communes, intercommunalités, départements, régions</td><td><a href="donnees-sources.html#dossier_complet_recensement_et_revenus">INSEE, dossier complet (recensement de la population, Filosofi)</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Taux d&#39;emploi des 15-64 ans</td><td>%</td><td>Part des personnes de 15 à 64 ans qui ont un emploi.</td><td>communes, intercommunalités, départements, régions</td><td><a href="donnees-sources.html#dossier_complet_recensement_et_revenus">INSEE, dossier complet (recensement de la population, Filosofi)</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Salaire net mensuel moyen</td><td>€</td><td>Salaire net mensuel moyen des salariés qui habitent le territoire, en équivalent temps plein.</td><td>communes, intercommunalités, départements, régions</td><td><a href="donnees-sources.html#dossier_complet_recensement_et_revenus">INSEE, dossier complet (recensement de la population, Filosofi)</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Part des personnes sans diplôme</td><td>%</td><td>Part des personnes de 15 ans ou plus sorties de l&#39;école sans diplôme ou avec le seul certificat d&#39;études.</td><td>communes, intercommunalités, départements, régions</td><td><a href="donnees-sources.html#dossier_complet_recensement_et_revenus">INSEE, dossier complet (recensement de la population, Filosofi)</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Part des emplois à durée limitée</td><td>%</td><td>Part des personnes en emploi qui ont un contrat à durée limitée (CDD, intérim, emplois aidés, apprentissage, stage), selon le recensement de l&#39;INSEE.</td><td>communes, intercommunalités, départements, régions</td><td><a href="donnees-sources.html#dossier_complet_recensement_et_revenus">INSEE, dossier complet (recensement de la population, Filosofi)</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Part des logements suroccupés</td><td>%</td><td>Part des résidences principales qui comptent moins de pièces que le nombre jugé nécessaire pour le ménage.</td><td>communes, intercommunalités, départements, régions</td><td><a href="donnees-sources.html#dossier_complet_recensement_et_revenus">INSEE, dossier complet (recensement de la population, Filosofi)</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Part des 80 ans et plus vivant seuls</td><td>%</td><td>Part des personnes de 80 ans ou plus qui vivent seules, un repère de l&#39;isolement des plus âgés.</td><td>communes, intercommunalités, départements, régions</td><td><a href="donnees-sources.html#dossier_complet_recensement_et_revenus">INSEE, dossier complet (recensement de la population, Filosofi)</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Part des ménages locataires d&#39;un logement social</td><td>%</td><td>Part des résidences principales louées dans le parc social (HLM).</td><td>communes, intercommunalités, départements, régions</td><td><a href="donnees-sources.html#dossier_complet_recensement_et_revenus">INSEE, dossier complet (recensement de la population, Filosofi)</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Part des minima sociaux dans le revenu disponible</td><td>%</td><td>Part des minima sociaux (RSA, minimum vieillesse, AAH...) dans le revenu disponible des habitants.</td><td>départements, régions</td><td><a href="donnees-sources.html#dossier_complet_recensement_et_revenus">INSEE, dossier complet (recensement de la population, Filosofi)</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Personnes prises en charge pour troubles psychiques</td><td>% standardisé sur l&#39;âge</td><td>Part des habitants pris en charge par l&#39;Assurance Maladie pour un trouble psychique repéré (hospitalisation, affection de longue durée ou traitement caractéristique), tous troubles confondus. Prévalence standardisée sur la structure d&#39;âge de la France, pour comparer des départements plus ou moins âgés. Mesure le recours aux soins, pas le besoin.</td><td>départements, régions</td><td><a href="donnees-sources.html#cartographie_des_pathologies">Assurance Maladie, cartographie des pathologies (data.ameli.fr, licence ODbL)</a></td><td>ODbL</td></tr>
+
+<tr><td>Personnes prises en charge pour troubles psychotiques</td><td>% standardisé sur l&#39;âge</td><td>Dont troubles psychotiques (schizophrénie et troubles apparentés). Prévalence standardisée sur la structure d&#39;âge de la France, pour comparer des départements plus ou moins âgés. Mesure le recours aux soins, pas le besoin.</td><td>départements, régions</td><td><a href="donnees-sources.html#cartographie_des_pathologies">Assurance Maladie, cartographie des pathologies (data.ameli.fr, licence ODbL)</a></td><td>ODbL</td></tr>
+
+<tr><td>Personnes prises en charge pour troubles névrotiques et de l&#39;humeur</td><td>% standardisé sur l&#39;âge</td><td>Dont troubles de l&#39;humeur (dépression, troubles bipolaires) et troubles anxieux. Prévalence standardisée sur la structure d&#39;âge de la France, pour comparer des départements plus ou moins âgés. Mesure le recours aux soins, pas le besoin.</td><td>départements, régions</td><td><a href="donnees-sources.html#cartographie_des_pathologies">Assurance Maladie, cartographie des pathologies (data.ameli.fr, licence ODbL)</a></td><td>ODbL</td></tr>
+
+<tr><td>Personnes prises en charge pour déficience intellectuelle</td><td>% standardisé sur l&#39;âge</td><td>Dont déficience intellectuelle. Prévalence standardisée sur la structure d&#39;âge de la France, pour comparer des départements plus ou moins âgés. Mesure le recours aux soins, pas le besoin.</td><td>départements, régions</td><td><a href="donnees-sources.html#cartographie_des_pathologies">Assurance Maladie, cartographie des pathologies (data.ameli.fr, licence ODbL)</a></td><td>ODbL</td></tr>
+
+<tr><td>Personnes prises en charge pour troubles addictifs</td><td>% standardisé sur l&#39;âge</td><td>Dont troubles liés à l&#39;alcool, au tabac, au cannabis ou à d&#39;autres substances. Prévalence standardisée sur la structure d&#39;âge de la France, pour comparer des départements plus ou moins âgés. Mesure le recours aux soins, pas le besoin.</td><td>départements, régions</td><td><a href="donnees-sources.html#cartographie_des_pathologies">Assurance Maladie, cartographie des pathologies (data.ameli.fr, licence ODbL)</a></td><td>ODbL</td></tr>
+
+<tr><td>Personnes prises en charge pour troubles débutant dans l&#39;enfance</td><td>% standardisé sur l&#39;âge</td><td>Dont troubles psychiques apparus dans l&#39;enfance (troubles du neurodéveloppement notamment). Prévalence standardisée sur la structure d&#39;âge de la France, pour comparer des départements plus ou moins âgés. Mesure le recours aux soins, pas le besoin.</td><td>départements, régions</td><td><a href="donnees-sources.html#cartographie_des_pathologies">Assurance Maladie, cartographie des pathologies (data.ameli.fr, licence ODbL)</a></td><td>ODbL</td></tr>
+
+<tr><td>Personnes prises en charge pour d&#39;autres troubles psychiques</td><td>% standardisé sur l&#39;âge</td><td>Dont autres troubles psychiques repérés. Prévalence standardisée sur la structure d&#39;âge de la France, pour comparer des départements plus ou moins âgés. Mesure le recours aux soins, pas le besoin.</td><td>départements, régions</td><td><a href="donnees-sources.html#cartographie_des_pathologies">Assurance Maladie, cartographie des pathologies (data.ameli.fr, licence ODbL)</a></td><td>ODbL</td></tr>
+
+<tr><td>Personnes sous traitement psychotrope sans trouble psychique repéré</td><td>% standardisé sur l&#39;âge</td><td>Part des habitants qui reçoivent régulièrement des médicaments psychotropes sans qu&#39;un trouble psychique soit repéré par ailleurs. Prévalence standardisée sur la structure d&#39;âge de la France, pour comparer des départements plus ou moins âgés. Mesure le recours aux soins, pas le besoin.</td><td>départements, régions</td><td><a href="donnees-sources.html#cartographie_des_pathologies">Assurance Maladie, cartographie des pathologies (data.ameli.fr, licence ODbL)</a></td><td>ODbL</td></tr>
+
+<tr><td>Personnes sous antidépresseurs ou thymorégulateurs, sans trouble repéré</td><td>% standardisé sur l&#39;âge</td><td>Dont antidépresseurs ou thymorégulateurs. Prévalence standardisée sur la structure d&#39;âge de la France, pour comparer des départements plus ou moins âgés. Mesure le recours aux soins, pas le besoin.</td><td>départements, régions</td><td><a href="donnees-sources.html#cartographie_des_pathologies">Assurance Maladie, cartographie des pathologies (data.ameli.fr, licence ODbL)</a></td><td>ODbL</td></tr>
+
+<tr><td>Personnes sous anxiolytiques, sans trouble repéré</td><td>% standardisé sur l&#39;âge</td><td>Dont anxiolytiques. Prévalence standardisée sur la structure d&#39;âge de la France, pour comparer des départements plus ou moins âgés. Mesure le recours aux soins, pas le besoin.</td><td>départements, régions</td><td><a href="donnees-sources.html#cartographie_des_pathologies">Assurance Maladie, cartographie des pathologies (data.ameli.fr, licence ODbL)</a></td><td>ODbL</td></tr>
+
+<tr><td>Personnes sous hypnotiques, sans trouble repéré</td><td>% standardisé sur l&#39;âge</td><td>Dont hypnotiques. Prévalence standardisée sur la structure d&#39;âge de la France, pour comparer des départements plus ou moins âgés. Mesure le recours aux soins, pas le besoin.</td><td>départements, régions</td><td><a href="donnees-sources.html#cartographie_des_pathologies">Assurance Maladie, cartographie des pathologies (data.ameli.fr, licence ODbL)</a></td><td>ODbL</td></tr>
+
+<tr><td>Personnes sous neuroleptiques, sans trouble repéré</td><td>% standardisé sur l&#39;âge</td><td>Dont neuroleptiques. Prévalence standardisée sur la structure d&#39;âge de la France, pour comparer des départements plus ou moins âgés. Mesure le recours aux soins, pas le besoin.</td><td>départements, régions</td><td><a href="donnees-sources.html#cartographie_des_pathologies">Assurance Maladie, cartographie des pathologies (data.ameli.fr, licence ODbL)</a></td><td>ODbL</td></tr>
+
+<tr><td>Décès par suicide</td><td>pour 100 000 hab., standardisé sur l&#39;âge</td><td>Nombre de décès par suicide rapporté à la population, à structure d&#39;âge égale. Les décès d&#39;intention indéterminée ne sont pas comptés, le chiffre est donc probablement sous-estimé. C&#39;est l&#39;indicateur qui dépend le moins de l&#39;offre de soins. Année 2023.</td><td>départements</td><td><a href="donnees-sources.html#indicateurs_de_sante_mentale_portail_odi">Santé publique France, portail Odissé, d&#39;après le CépiDc (Inserm)</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Personnes hospitalisées pour geste auto-infligé</td><td>pour 100 000 hab., standardisé sur l&#39;âge</td><td>Personnes hospitalisées au moins une fois dans l&#39;année pour une tentative de suicide ou une automutilation, en hôpital général. Les hospitalisations en établissement psychiatrique ne sont pas comptées. Année 2024.</td><td>départements</td><td><a href="donnees-sources.html#indicateurs_de_sante_mentale_portail_odi">Santé publique France, portail Odissé, d&#39;après le PMSI-MCO</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Passages aux urgences pour geste auto-infligé</td><td>pour 100 000 passages aux urgences</td><td>Part des passages aux urgences motivés par une tentative de suicide, une automutilation ou une intoxication médicamenteuse volontaire, parmi l&#39;ensemble des passages. Ce n&#39;est pas un taux rapporté à la population, il dépend aussi de l&#39;usage des urgences dans le département. Année 2024.</td><td>départements</td><td><a href="donnees-sources.html#indicateurs_de_sante_mentale_portail_odi">Santé publique France, portail Odissé, d&#39;après le réseau OSCOUR</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Adultes déclarant un épisode dépressif dans l&#39;année</td><td>% des adultes</td><td>Part des adultes interrogés dont les réponses correspondent à un épisode dépressif caractérisé au cours des 12 derniers mois. Mesure déclarée par les personnes elles-mêmes, indépendante du recours aux soins. Disponible seulement par région. Année 2021.</td><td>régions</td><td><a href="donnees-sources.html#indicateurs_de_sante_mentale_portail_odi">Santé publique France, portail Odissé, Baromètre de Santé publique France</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Adultes déclarant des pensées suicidaires dans l&#39;année</td><td>% des adultes</td><td>Part des adultes interrogés qui déclarent avoir pensé au suicide au cours des 12 derniers mois. Disponible seulement par région. Année 2024.</td><td>régions</td><td><a href="donnees-sources.html#indicateurs_de_sante_mentale_portail_odi">Santé publique France, portail Odissé, Baromètre de Santé publique France</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Adultes déclarant une tentative de suicide au cours de la vie</td><td>% des adultes</td><td>Part des adultes interrogés qui déclarent avoir fait une tentative de suicide au cours de leur vie. Disponible seulement par région. Année 2024.</td><td>régions</td><td><a href="donnees-sources.html#indicateurs_de_sante_mentale_portail_odi">Santé publique France, portail Odissé, Baromètre de Santé publique France</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Adultes qui dépassent les repères de consommation d&#39;alcool</td><td>% des adultes</td><td>Part des adultes de 18 à 79 ans qui déclarent boire plus que les repères de consommation à moindre risque (au plus dix verres par semaine, deux par jour, et pas tous les jours). Mesure déclarée, disponible seulement par région. Année 2024.</td><td>régions</td><td><a href="donnees-sources.html#indicateurs_de_sante_mentale_portail_odi">Santé publique France, portail Odissé, Baromètre de Santé publique France</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Adultes qui fument chaque jour</td><td>% des adultes</td><td>Part des adultes de 18 à 75 ans qui déclarent fumer tous les jours. Mesure déclarée, disponible seulement par région. Année 2021.</td><td>régions</td><td><a href="donnees-sources.html#indicateurs_de_sante_mentale_portail_odi">Santé publique France, portail Odissé, Baromètre de Santé publique France</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Décès attribuables au tabac</td><td>pour 100 000 hab., standardisé sur l&#39;âge</td><td>Nombre estimé de décès dus au tabac, rapporté à la population à structure d&#39;âge égale. C&#39;est une estimation, tirée de la mortalité par cause et de la part de fumeurs, avec sa fourchette. Disponible seulement par région. Année 2023.</td><td>régions</td><td><a href="donnees-sources.html#indicateurs_de_sante_mentale_portail_odi">Santé publique France, portail Odissé, d&#39;après le CépiDc (Inserm)</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Psychiatres libéraux pouvant pratiquer des dépassements d&#39;honoraires</td><td>%</td><td>Part des psychiatres libéraux conventionnés en secteur 2 (avec ou sans Optam) ou non conventionnés, qui peuvent facturer au-delà du tarif de la Sécurité sociale. Mesure un obstacle financier possible, pas les dépassements réellement pratiqués. Non calculée quand le département compte moins de 5 libéraux.</td><td>départements, régions</td><td><a href="donnees-sources.html#demographie_des_liberaux_par_secteur_con">Assurance Maladie, effectifs de libéraux par secteur conventionnel (data.ameli.fr, licence ODbL)</a></td><td>ODbL</td></tr>
+
+<tr><td>Pédiatres libéraux pouvant pratiquer des dépassements d&#39;honoraires</td><td>%</td><td>Part des pédiatres libéraux conventionnés en secteur 2 (avec ou sans Optam) ou non conventionnés, qui peuvent facturer au-delà du tarif de la Sécurité sociale. Mesure un obstacle financier possible, pas les dépassements réellement pratiqués. Non calculée quand le département compte moins de 5 libéraux.</td><td>départements, régions</td><td><a href="donnees-sources.html#demographie_des_liberaux_par_secteur_con">Assurance Maladie, effectifs de libéraux par secteur conventionnel (data.ameli.fr, licence ODbL)</a></td><td>ODbL</td></tr>
+
+<tr><td>Médecins généralistes libéraux pouvant pratiquer des dépassements d&#39;honoraires</td><td>%</td><td>Part des médecins généralistes libéraux conventionnés en secteur 2 (avec ou sans Optam) ou non conventionnés, qui peuvent facturer au-delà du tarif de la Sécurité sociale. Mesure un obstacle financier possible, pas les dépassements réellement pratiqués. Non calculée quand le département compte moins de 5 libéraux.</td><td>départements, régions</td><td><a href="donnees-sources.html#demographie_des_liberaux_par_secteur_con">Assurance Maladie, effectifs de libéraux par secteur conventionnel (data.ameli.fr, licence ODbL)</a></td><td>ODbL</td></tr>
+
+<tr><td>Gynécologues libéraux pouvant pratiquer des dépassements d&#39;honoraires</td><td>%</td><td>Part des gynécologues libéraux conventionnés en secteur 2 (avec ou sans Optam) ou non conventionnés, qui peuvent facturer au-delà du tarif de la Sécurité sociale. Mesure un obstacle financier possible, pas les dépassements réellement pratiqués. Non calculée quand le département compte moins de 5 libéraux.</td><td>départements, régions</td><td><a href="donnees-sources.html#demographie_des_liberaux_par_secteur_con">Assurance Maladie, effectifs de libéraux par secteur conventionnel (data.ameli.fr, licence ODbL)</a></td><td>ODbL</td></tr>
+
+<tr><td>Ophtalmologues libéraux pouvant pratiquer des dépassements d&#39;honoraires</td><td>%</td><td>Part des ophtalmologues libéraux conventionnés en secteur 2 (avec ou sans Optam) ou non conventionnés, qui peuvent facturer au-delà du tarif de la Sécurité sociale. Mesure un obstacle financier possible, pas les dépassements réellement pratiqués. Non calculée quand le département compte moins de 5 libéraux.</td><td>départements, régions</td><td><a href="donnees-sources.html#demographie_des_liberaux_par_secteur_con">Assurance Maladie, effectifs de libéraux par secteur conventionnel (data.ameli.fr, licence ODbL)</a></td><td>ODbL</td></tr>
+
+<tr><td>Patients en affection longue durée sans médecin traitant</td><td>%</td><td>Part des patients en affection longue durée (maladie chronique grave) qui n&#39;ont pas déclaré de médecin traitant. Repère d&#39;accès au médecin traitant, au-delà de la densité de généralistes.</td><td>départements, régions</td><td><a href="donnees-sources.html#patients_en_affection_longue_duree_sans">Assurance Maladie, patients en affection longue durée sans médecin traitant (data.ameli.fr, licence ODbL)</a></td><td>ODbL</td></tr>
+
+<tr><td>Mesures d&#39;aide sociale à l&#39;enfance</td><td>% des 0-20 ans</td><td>Enfants et jeunes de 0 à 20 ans qui font l&#39;objet d&#39;une mesure de l&#39;aide sociale à l&#39;enfance (placement ou action éducative). Repère de situations de vulnérabilité, à rapprocher de l&#39;offre en psychiatrie de l&#39;enfant. Année 2024.</td><td>départements, régions</td><td><a href="donnees-sources.html#indicateurs_sociaux_departementaux">DREES, indicateurs sociaux départementaux, protection de l&#39;enfance</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Enfants accueillis à l&#39;aide sociale à l&#39;enfance</td><td>% des 0-20 ans</td><td>Enfants et jeunes de 0 à 20 ans confiés à l&#39;aide sociale à l&#39;enfance et accueillis hors de leur famille. Année 2024.</td><td>départements, régions</td><td><a href="donnees-sources.html#indicateurs_sociaux_departementaux">DREES, indicateurs sociaux départementaux, protection de l&#39;enfance</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Bénéficiaires d&#39;une prestation de compensation du handicap, moins de 60 ans</td><td>pour 1 000 habitants</td><td>Personnes de moins de 60 ans qui reçoivent la prestation de compensation du handicap ou l&#39;allocation compensatrice pour tierce personne. Année 2024.</td><td>départements, régions</td><td><a href="donnees-sources.html#indicateurs_sociaux_departementaux">DREES, indicateurs sociaux départementaux, personnes en situation de handicap</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Places en établissement pour enfants en situation de handicap</td><td>pour 1 000 moins de 20 ans</td><td>Places en établissement médico-social pour enfants et adolescents en situation de handicap (IME, ITEP...). Année 2025.</td><td>départements, régions</td><td><a href="donnees-sources.html#indicateurs_sociaux_departementaux">DREES, indicateurs sociaux départementaux, personnes en situation de handicap</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Places en SESSAD</td><td>pour 1 000 moins de 20 ans</td><td>Places en service d&#39;éducation spéciale et de soins à domicile (SESSAD), qui accompagne l&#39;enfant dans son milieu de vie. Année 2025.</td><td>départements, régions</td><td><a href="donnees-sources.html#indicateurs_sociaux_departementaux">DREES, indicateurs sociaux départementaux, personnes en situation de handicap</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Élèves en situation de handicap</td><td>pour 1 000 élèves</td><td>Élèves en situation de handicap scolarisés en milieu ordinaire ou en établissement, pour 1 000 élèves. Année 2024.</td><td>départements</td><td><a href="donnees-sources.html#indicateurs_sociaux_departementaux">DREES, indicateurs sociaux départementaux, personnes en situation de handicap</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Lits d&#39;hospitalisation à temps plein en psychiatrie</td><td>pour 100 000 habitants</td><td>Lits installés au 31 décembre dans les établissements autorisés en psychiatrie, adultes et enfants. Année 2024.</td><td>départements, régions</td><td><a href="donnees-sources.html#statistique_annuelle_des_etablissements">DREES, Statistique annuelle des établissements de santé (SAE), bordereau psychiatrie</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Places d&#39;hospitalisation de jour ou de nuit en psychiatrie</td><td>pour 100 000 habitants</td><td>Places installées au 31 décembre en hôpital de jour ou de nuit. Année 2024.</td><td>départements, régions</td><td><a href="donnees-sources.html#statistique_annuelle_des_etablissements">DREES, Statistique annuelle des établissements de santé (SAE), bordereau psychiatrie</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Centres médico-psychologiques (CMP)</td><td>pour 100 000 habitants</td><td>Nombre de CMP déclarés par les établissements, adultes et enfants. Année 2024.</td><td>départements, régions</td><td><a href="donnees-sources.html#statistique_annuelle_des_etablissements">DREES, Statistique annuelle des établissements de santé (SAE), bordereau psychiatrie</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Psychiatres salariés en psychiatrie hospitalière, en temps plein</td><td>ETP pour 100 000 habitants</td><td>Équivalents temps plein annuels moyens des psychiatres salariés (hors internes) qui concourent à l&#39;activité de psychiatrie de l&#39;établissement. Année 2024.</td><td>départements, régions</td><td><a href="donnees-sources.html#statistique_annuelle_des_etablissements">DREES, Statistique annuelle des établissements de santé (SAE), bordereau psychiatrie</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Psychologues en psychiatrie hospitalière, en temps plein</td><td>ETP pour 100 000 habitants</td><td>Équivalents temps plein annuels moyens des psychologues qui concourent à l&#39;activité de psychiatrie de l&#39;établissement. Année 2024.</td><td>départements, régions</td><td><a href="donnees-sources.html#statistique_annuelle_des_etablissements">DREES, Statistique annuelle des établissements de santé (SAE), bordereau psychiatrie</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Patients suivis en psychiatrie hospitalière (file active)</td><td>pour 1 000 habitants</td><td>Patients vus au moins une fois dans l&#39;année par les services de psychiatrie, comptés une fois par établissement. Un patient suivi par deux établissements compte deux fois. Année 2024.</td><td>départements, régions</td><td><a href="donnees-sources.html#statistique_annuelle_des_etablissements">DREES, Statistique annuelle des établissements de santé (SAE), bordereau psychiatrie</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Lits et places en psychiatrie de l&#39;enfant et de l&#39;adolescent</td><td>pour 100 000 moins de 15 ans</td><td>Lits et places installés en psychiatrie infanto-juvénile, rapportés aux moins de 15 ans (le recensement ne publie pas les moins de 18 ans). Année 2024.</td><td>départements, régions</td><td><a href="donnees-sources.html#statistique_annuelle_des_etablissements">DREES, Statistique annuelle des établissements de santé (SAE), bordereau psychiatrie</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Affections psychiatriques de longue durée (ALD 23)</td><td>pour 100 000 (standardisé)</td><td>Personnes en affection de longue durée n° 23 (Affections psychiatriques de longue durée) pour 100 000 personnes protégées du régime général, taux standardisé sur l&#39;âge pour comparer des départements jeunes et âgés. Année 2024.</td><td>départements</td><td><a href="donnees-sources.html#affections_de_longue_duree_par_departeme">Assurance Maladie, affections de longue durée</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Maladie d&#39;Alzheimer et autres démences (ALD 15)</td><td>pour 100 000 (standardisé)</td><td>Personnes en affection de longue durée n° 15 (Maladie d&#39;Alzheimer et autres démences) pour 100 000 personnes protégées du régime général, taux standardisé sur l&#39;âge pour comparer des départements jeunes et âgés. Année 2024.</td><td>départements</td><td><a href="donnees-sources.html#affections_de_longue_duree_par_departeme">Assurance Maladie, affections de longue durée</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Diabète (ALD 8)</td><td>pour 100 000 (standardisé)</td><td>Personnes en affection de longue durée n° 8 (Diabète de type 1 et diabète de type 2) pour 100 000 personnes protégées du régime général, taux standardisé sur l&#39;âge pour comparer des départements jeunes et âgés. Année 2024.</td><td>départements</td><td><a href="donnees-sources.html#affections_de_longue_duree_par_departeme">Assurance Maladie, affections de longue durée</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Cancers (tumeurs malignes) (ALD 30)</td><td>pour 100 000 (standardisé)</td><td>Personnes en affection de longue durée n° 30 (Tumeur maligne, affection maligne du tissu lymphatique ou hématopoïétique) pour 100 000 personnes protégées du régime général, taux standardisé sur l&#39;âge pour comparer des départements jeunes et âgés. Année 2024.</td><td>départements</td><td><a href="donnees-sources.html#affections_de_longue_duree_par_departeme">Assurance Maladie, affections de longue durée</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Maladies cardiaques graves (ALD 5)</td><td>pour 100 000 (standardisé)</td><td>Personnes en affection de longue durée n° 5 (Insuffisance cardiaque grave, troubles du rythme graves, cardiopathies valvulaires graves, cardiopathies congénitales graves) pour 100 000 personnes protégées du régime général, taux standardisé sur l&#39;âge pour comparer des départements jeunes et âgés. Année 2024.</td><td>départements</td><td><a href="donnees-sources.html#affections_de_longue_duree_par_departeme">Assurance Maladie, affections de longue durée</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Maladie coronaire (ALD 13)</td><td>pour 100 000 (standardisé)</td><td>Personnes en affection de longue durée n° 13 (Maladie coronaire) pour 100 000 personnes protégées du régime général, taux standardisé sur l&#39;âge pour comparer des départements jeunes et âgés. Année 2024.</td><td>départements</td><td><a href="donnees-sources.html#affections_de_longue_duree_par_departeme">Assurance Maladie, affections de longue durée</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Accident vasculaire cérébral invalidant (ALD 1)</td><td>pour 100 000 (standardisé)</td><td>Personnes en affection de longue durée n° 1 (Accident vasculaire cérébral invalidant) pour 100 000 personnes protégées du régime général, taux standardisé sur l&#39;âge pour comparer des départements jeunes et âgés. Année 2024.</td><td>départements</td><td><a href="donnees-sources.html#affections_de_longue_duree_par_departeme">Assurance Maladie, affections de longue durée</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Insuffisance respiratoire chronique grave (ALD 14)</td><td>pour 100 000 (standardisé)</td><td>Personnes en affection de longue durée n° 14 (Insuffisance respiratoire chronique grave) pour 100 000 personnes protégées du régime général, taux standardisé sur l&#39;âge pour comparer des départements jeunes et âgés. Année 2024.</td><td>départements</td><td><a href="donnees-sources.html#affections_de_longue_duree_par_departeme">Assurance Maladie, affections de longue durée</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Maladie de Parkinson (ALD 16)</td><td>pour 100 000 (standardisé)</td><td>Personnes en affection de longue durée n° 16 (Maladie de Parkinson) pour 100 000 personnes protégées du régime général, taux standardisé sur l&#39;âge pour comparer des départements jeunes et âgés. Année 2024.</td><td>départements</td><td><a href="donnees-sources.html#affections_de_longue_duree_par_departeme">Assurance Maladie, affections de longue durée</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Bénéficiaires de l&#39;AAH</td><td>pour 1 000 habitants</td><td>Personnes qui perçoivent l&#39;AAH, l&#39;allocation versée par la CAF aux adultes en situation de handicap, en décembre, rapportées à la population. Repère de la place du handicap reconnu chez les adultes. Décembre 2024.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#allocataires_de_l_aah_de_l_aeeh_et_du_rs">CAF, allocataires par prestation</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Bénéficiaires de l&#39;AEEH</td><td>pour 1 000 habitants</td><td>Bénéficiaires de l&#39;AEEH, l&#39;allocation versée par la CAF aux parents d&#39;un enfant de moins de 20 ans en situation de handicap, rapportés à la population. Décembre 2024.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#allocataires_de_l_aah_de_l_aeeh_et_du_rs">CAF, allocataires par prestation</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Population couverte par le RSA</td><td>%</td><td>Allocataires du revenu de solidarité active (RSA) versé par la CAF, avec leur conjoint et leurs enfants à charge, rapportés à la population. Décembre 2024.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#allocataires_de_l_aah_de_l_aeeh_et_du_rs">CAF, allocataires par prestation</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>CMP pour adultes, pour 100 000 habitants</td><td>pour 100 000 hab.</td><td>Nombre de structures du type « CMP pour adultes » recensées par FINESS et le Répertoire opérationnel des ressources, réunis sans double compte, rapporté à la population. Une structure n&#39;est pas une capacité, une antenne peut n&#39;ouvrir que quelques demi-journées.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Distance à la structure la plus proche, CMP pour adultes</td><td>km</td><td>Distance à vol d&#39;oiseau entre le centre de la commune des habitants et la structure la plus proche du type « CMP pour adultes », médiane des habitants du territoire. Ce n&#39;est pas un temps de trajet.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>CMP pour enfants et adolescents, pour 100 000 moins de 15 ans</td><td>pour 100 000 moins de 15 ans</td><td>Nombre de structures du type « CMP pour enfants et adolescents » recensées par FINESS et le Répertoire opérationnel des ressources, réunis sans double compte, rapporté aux moins de 15 ans (le recensement ne publie pas les moins de 18 ans). Une structure n&#39;est pas une capacité, une antenne peut n&#39;ouvrir que quelques demi-journées.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Distance à la structure la plus proche, CMP pour enfants et adolescents</td><td>km</td><td>Distance à vol d&#39;oiseau entre le centre de la commune des habitants et la structure la plus proche du type « CMP pour enfants et adolescents », médiane des habitants du territoire. Ce n&#39;est pas un temps de trajet.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>CATTP, pour 100 000 habitants</td><td>pour 100 000 hab.</td><td>Nombre de structures du type « CATTP, accueil thérapeutique à temps partiel » recensées par FINESS et le Répertoire opérationnel des ressources, réunis sans double compte, rapporté à la population. Une structure n&#39;est pas une capacité, une antenne peut n&#39;ouvrir que quelques demi-journées.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Distance à la structure la plus proche, CATTP</td><td>km</td><td>Distance à vol d&#39;oiseau entre le centre de la commune des habitants et la structure la plus proche du type « CATTP, accueil thérapeutique à temps partiel », médiane des habitants du territoire. Ce n&#39;est pas un temps de trajet.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Hôpitaux de jour en psychiatrie (adultes), pour 100 000 habitants</td><td>pour 100 000 hab.</td><td>Nombre de structures du type « Hôpitaux de jour en psychiatrie, adultes » recensées par FINESS et le Répertoire opérationnel des ressources, réunis sans double compte, rapporté à la population. Une structure n&#39;est pas une capacité, une antenne peut n&#39;ouvrir que quelques demi-journées.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Distance à la structure la plus proche, hôpitaux de jour en psychiatrie (adultes)</td><td>km</td><td>Distance à vol d&#39;oiseau entre le centre de la commune des habitants et la structure la plus proche du type « Hôpitaux de jour en psychiatrie, adultes », médiane des habitants du territoire. Ce n&#39;est pas un temps de trajet.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Hôpitaux de jour en psychiatrie (enfants et adolescents), pour 100 000 moins de 15 ans</td><td>pour 100 000 moins de 15 ans</td><td>Nombre de structures du type « Hôpitaux de jour en psychiatrie, enfants et adolescents » recensées par FINESS et le Répertoire opérationnel des ressources, réunis sans double compte, rapporté aux moins de 15 ans (le recensement ne publie pas les moins de 18 ans). Une structure n&#39;est pas une capacité, une antenne peut n&#39;ouvrir que quelques demi-journées.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Distance à la structure la plus proche, hôpitaux de jour en psychiatrie (enfants et adolescents)</td><td>km</td><td>Distance à vol d&#39;oiseau entre le centre de la commune des habitants et la structure la plus proche du type « Hôpitaux de jour en psychiatrie, enfants et adolescents », médiane des habitants du territoire. Ce n&#39;est pas un temps de trajet.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Hospitalisation complète en psychiatrie, pour 100 000 habitants</td><td>pour 100 000 hab.</td><td>Nombre de structures du type « Hospitalisation complète en psychiatrie, adultes » recensées par FINESS et le Répertoire opérationnel des ressources, réunis sans double compte, rapporté à la population. Une structure n&#39;est pas une capacité, une antenne peut n&#39;ouvrir que quelques demi-journées.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Distance à la structure la plus proche, hospitalisation complète en psychiatrie</td><td>km</td><td>Distance à vol d&#39;oiseau entre le centre de la commune des habitants et la structure la plus proche du type « Hospitalisation complète en psychiatrie, adultes », médiane des habitants du territoire. Ce n&#39;est pas un temps de trajet.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>CMPP, pour 100 000 moins de 15 ans</td><td>pour 100 000 moins de 15 ans</td><td>Nombre de structures du type « CMPP, centres médico-psycho-pédagogiques » recensées par FINESS et le Répertoire opérationnel des ressources, réunis sans double compte, rapporté aux moins de 15 ans (le recensement ne publie pas les moins de 18 ans). Une structure n&#39;est pas une capacité, une antenne peut n&#39;ouvrir que quelques demi-journées.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Distance à la structure la plus proche, CMPP</td><td>km</td><td>Distance à vol d&#39;oiseau entre le centre de la commune des habitants et la structure la plus proche du type « CMPP, centres médico-psycho-pédagogiques », médiane des habitants du territoire. Ce n&#39;est pas un temps de trajet.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>CAMSP, pour 100 000 moins de 15 ans</td><td>pour 100 000 moins de 15 ans</td><td>Nombre de structures du type « CAMSP, centres d&#39;action médico-sociale précoce » recensées par FINESS et le Répertoire opérationnel des ressources, réunis sans double compte, rapporté aux moins de 15 ans (le recensement ne publie pas les moins de 18 ans). Une structure n&#39;est pas une capacité, une antenne peut n&#39;ouvrir que quelques demi-journées.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Distance à la structure la plus proche, CAMSP</td><td>km</td><td>Distance à vol d&#39;oiseau entre le centre de la commune des habitants et la structure la plus proche du type « CAMSP, centres d&#39;action médico-sociale précoce », médiane des habitants du territoire. Ce n&#39;est pas un temps de trajet.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>CSAPA, pour 100 000 habitants</td><td>pour 100 000 hab.</td><td>Nombre de structures du type « CSAPA, soins et prévention en addictologie » recensées par FINESS et le Répertoire opérationnel des ressources, réunis sans double compte, rapporté à la population. Une structure n&#39;est pas une capacité, une antenne peut n&#39;ouvrir que quelques demi-journées.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Distance à la structure la plus proche, CSAPA</td><td>km</td><td>Distance à vol d&#39;oiseau entre le centre de la commune des habitants et la structure la plus proche du type « CSAPA, soins et prévention en addictologie », médiane des habitants du territoire. Ce n&#39;est pas un temps de trajet.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>CAARUD, pour 100 000 habitants</td><td>pour 100 000 hab.</td><td>Nombre de structures du type « CAARUD, réduction des risques » recensées par FINESS et le Répertoire opérationnel des ressources, réunis sans double compte, rapporté à la population. Une structure n&#39;est pas une capacité, une antenne peut n&#39;ouvrir que quelques demi-journées.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Distance à la structure la plus proche, CAARUD</td><td>km</td><td>Distance à vol d&#39;oiseau entre le centre de la commune des habitants et la structure la plus proche du type « CAARUD, réduction des risques », médiane des habitants du territoire. Ce n&#39;est pas un temps de trajet.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Services d&#39;urgences, pour 100 000 habitants</td><td>pour 100 000 hab.</td><td>Nombre de structures du type « Services d&#39;urgences » recensées par FINESS et le Répertoire opérationnel des ressources, réunis sans double compte, rapporté à la population. Une structure n&#39;est pas une capacité, une antenne peut n&#39;ouvrir que quelques demi-journées.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Distance à la structure la plus proche, services d&#39;urgences</td><td>km</td><td>Distance à vol d&#39;oiseau entre le centre de la commune des habitants et la structure la plus proche du type « Services d&#39;urgences », médiane des habitants du territoire. Ce n&#39;est pas un temps de trajet.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Maternités, pour 100 000 habitants</td><td>pour 100 000 hab.</td><td>Nombre de structures du type « Maternités » recensées par FINESS et le Répertoire opérationnel des ressources, réunis sans double compte, rapporté à la population. Une structure n&#39;est pas une capacité, une antenne peut n&#39;ouvrir que quelques demi-journées.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Distance à la structure la plus proche, maternités</td><td>km</td><td>Distance à vol d&#39;oiseau entre le centre de la commune des habitants et la structure la plus proche du type « Maternités », médiane des habitants du territoire. Ce n&#39;est pas un temps de trajet.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>EHPAD, pour 100 000 80 ans et plus</td><td>pour 100 000 80 ans et plus</td><td>Nombre de structures du type « EHPAD » recensées par FINESS et le Répertoire opérationnel des ressources, réunis sans double compte, rapporté aux personnes de 80 ans et plus. Une structure n&#39;est pas une capacité, une antenne peut n&#39;ouvrir que quelques demi-journées.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Distance à la structure la plus proche, EHPAD</td><td>km</td><td>Distance à vol d&#39;oiseau entre le centre de la commune des habitants et la structure la plus proche du type « EHPAD », médiane des habitants du territoire. Ce n&#39;est pas un temps de trajet.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Instituts médico-éducatifs (IME), pour 100 000 moins de 15 ans</td><td>pour 100 000 moins de 15 ans</td><td>Nombre de structures du type « Instituts médico-éducatifs (IME) » recensées par FINESS et le Répertoire opérationnel des ressources, réunis sans double compte, rapporté aux moins de 15 ans (le recensement ne publie pas les moins de 18 ans). Une structure n&#39;est pas une capacité, une antenne peut n&#39;ouvrir que quelques demi-journées.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Distance à la structure la plus proche, instituts médico-éducatifs (IME)</td><td>km</td><td>Distance à vol d&#39;oiseau entre le centre de la commune des habitants et la structure la plus proche du type « Instituts médico-éducatifs (IME) », médiane des habitants du territoire. Ce n&#39;est pas un temps de trajet.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Services d&#39;éducation spéciale et de soins à domicile (SESSAD), pour 100 000 moins de 15 ans</td><td>pour 100 000 moins de 15 ans</td><td>Nombre de structures du type « Services d&#39;éducation spéciale et de soins à domicile (SESSAD) » recensées par FINESS et le Répertoire opérationnel des ressources, réunis sans double compte, rapporté aux moins de 15 ans (le recensement ne publie pas les moins de 18 ans). Une structure n&#39;est pas une capacité, une antenne peut n&#39;ouvrir que quelques demi-journées.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Distance à la structure la plus proche, services d&#39;éducation spéciale et de soins à domicile (SESSAD)</td><td>km</td><td>Distance à vol d&#39;oiseau entre le centre de la commune des habitants et la structure la plus proche du type « Services d&#39;éducation spéciale et de soins à domicile (SESSAD) », médiane des habitants du territoire. Ce n&#39;est pas un temps de trajet.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Maisons de santé pluriprofessionnelles, pour 100 000 habitants</td><td>pour 100 000 hab.</td><td>Nombre de structures du type « Maisons de santé pluriprofessionnelles » recensées par FINESS et le Répertoire opérationnel des ressources, réunis sans double compte, rapporté à la population. Une structure n&#39;est pas une capacité, une antenne peut n&#39;ouvrir que quelques demi-journées.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Distance à la structure la plus proche, maisons de santé pluriprofessionnelles</td><td>km</td><td>Distance à vol d&#39;oiseau entre le centre de la commune des habitants et la structure la plus proche du type « Maisons de santé pluriprofessionnelles », médiane des habitants du territoire. Ce n&#39;est pas un temps de trajet.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Centres de santé, pour 100 000 habitants</td><td>pour 100 000 hab.</td><td>Nombre de structures du type « Centres de santé » recensées par FINESS et le Répertoire opérationnel des ressources, réunis sans double compte, rapporté à la population. Une structure n&#39;est pas une capacité, une antenne peut n&#39;ouvrir que quelques demi-journées.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+<tr><td>Distance à la structure la plus proche, centres de santé</td><td>km</td><td>Distance à vol d&#39;oiseau entre le centre de la commune des habitants et la structure la plus proche du type « Centres de santé », médiane des habitants du territoire. Ce n&#39;est pas un temps de trajet.</td><td>intercommunalités, départements, régions</td><td><a href="donnees-sources.html#offres_de_sante_repertoire_operationnel">ANS, offres de santé (ROR) et FINESS, réunis sans double compte</a></td><td>Licence Ouverte 2.0</td></tr>
+
+</tbody></table>
+
+
+
+
+
+</div>
+</div>
+
+
+<footer>
+  Données du 23 octobre 2026. Sources, répertoire RPPS, FINESS, Répertoire opérationnel des ressources, INSEE (dont Sirene), Assurance Maladie, CAF, Santé publique France, DREES, HAS, IGN (voir <a href="methode.html">Méthode, données et limites</a>).
+  Résultats sous Licence Ouverte 2.0, en citant la source et la date de la version, sauf les indicateurs tirés des bases de l&#39;Assurance Maladie (Cnam, data.ameli.fr, cartographie des pathologies, secteurs conventionnels, patients sans médecin traitant) et ce qui en dérive, diffusés sous licence ODbL 1.0 (partage à l&#39;identique). Les fichiers suffixés _odbl et les données intégrées à l&#39;atlas, qui contiennent ces indicateurs, sont sous ODbL. Les rapports et les cartes qui les affichent contiennent des informations issues de cette base sous ODbL.
+  <p class="pied-liens"><a href="donnees-sources.html">Données sources</a> <a href="journal.html">Journal des mises à jour</a> <a href="a-venir.html">À venir</a> <a href="contribuer.html">Proposer une base de données</a> <a href="a-propos.html">À propos</a></p>
+</footer>
+</main>
+<script>
+// tableaux plus larges que la colonne de texte, fondu à droite et phrase d'indication tant qu'il reste des colonnes
+(function(){function maj(t){var d=t.scrollWidth>t.clientWidth+2;t.classList.toggle("deborde-d",d&&t.scrollLeft+t.clientWidth<t.scrollWidth-2);
+var n=t.nextElementSibling;if(!(n&&n.classList.contains("indice-defil"))){if(!d)return;n=document.createElement("p");n.className="indice-defil";n.textContent="Faites défiler le tableau vers la droite pour voir les autres colonnes.";t.after(n)}n.hidden=!d}
+// figures, choix de la profession (rapports, 9 octobre 2026)
+document.querySelectorAll("figure.graphique").forEach(function(fig){
+  var leg=fig.querySelector(".leg");
+  fig.querySelectorAll(".choix-variante button").forEach(function(b,i,tous){b.addEventListener("click",function(){
+    var vs=fig.querySelectorAll(".variante");vs.forEach(function(v,j){v.hidden=j!==i});
+    tous.forEach(function(x,j){x.setAttribute("aria-pressed",String(j===i))});
+    var t=vs[i].querySelector("title");if(leg&&t)leg.textContent=t.textContent})})});
+var ts=document.querySelectorAll(".corps table");ts.forEach(function(t){maj(t);t.addEventListener("scroll",function(){maj(t)},{passive:true})});
+addEventListener("resize",function(){ts.forEach(maj)})})();
+</script>
+<script>
+// Graphiques interactifs, communs aux rapports et à l'atlas (demande de Lucas du 9 octobre 2026).
+// Infobulle au survol de chaque point ou zone qui porte un titre, clic pour la garder, zoom à la molette et par
+// boutons, déplacement à la souris quand le graphique est zoomé. La page n'est pas bloquée, une molette qui
+// arrive pendant le défilement de la page continue de faire défiler la page.
+// Réglage, window.FIGURES = {zoom: "sélecteur des svg zoomables", bulle: "sélecteur des svg à infobulles"}.
+(function(){
+  var R=window.FIGURES||{zoom:"figure.zoomable svg",bulle:"figure.graphique svg"};
+  var bulle=document.createElement("div");bulle.className="bulle-fig";bulle.setAttribute("role","status");
+  document.addEventListener("DOMContentLoaded",function(){document.body.appendChild(bulle)});
+  if(document.body)document.body.appendChild(bulle);
+  var epingle=null,dernierDefil=0;
+  addEventListener("scroll",function(){dernierDefil=Date.now();if(!epingle)cacher()},{passive:true});
+  function svgDe(el,sel){var s=el&&el.closest&&el.closest("svg");while(s&&s.ownerSVGElement)s=s.ownerSVGElement;return s&&s.matches(sel)?s:null}
+  // texte de l'élément survolé, pris dans son titre (déplacé dans data-info pour éviter la bulle du navigateur)
+  function info(el,s){
+    for(var e=el;e&&e!==s;e=e.parentNode){
+      if(e.dataset&&e.dataset.info)return [e,e.dataset.info];
+      var t=e.querySelector&&e.querySelector(":scope > title");
+      if(t&&e!==s){e.dataset.info=t.textContent;t.remove();return [e,e.dataset.info]}}
+    return null}
+  function montrer(x,y,txt){bulle.textContent=txt;bulle.style.opacity=1;var w=bulle.offsetWidth,h=bulle.offsetHeight;
+    bulle.style.left=Math.max(8,Math.min(x+14,innerWidth-w-8))+"px";bulle.style.top=Math.max(8,y-h-12<8?y+16:y-h-12)+"px"}
+  function cacher(){bulle.style.opacity=0}
+  document.addEventListener("pointermove",function(ev){
+    if(epingle)return;var s=svgDe(ev.target,R.bulle);if(!s){cacher();return}
+    var i=info(ev.target,s);if(i)montrer(ev.clientX,ev.clientY,i[1]);else cacher()});
+  document.addEventListener("click",function(ev){
+    var s=svgDe(ev.target,R.bulle);
+    if(epingle){epingle.removeAttribute("data-choisi");epingle=null}
+    if(!s){cacher();return}
+    var i=info(ev.target,s);if(!i){cacher();return}
+    epingle=i[0];epingle.setAttribute("data-choisi","");montrer(ev.clientX,ev.clientY,i[1])});
+  document.addEventListener("keydown",function(ev){if(ev.key==="Escape"&&epingle){epingle.removeAttribute("data-choisi");epingle=null;cacher()}});
+
+  // zoom, le cadrage d'origine est repris chaque fois que la page redessine le graphique
+  function cadre(s){var v=s.getAttribute("viewBox");if(!v)return null;if(s.dataset.vbz!==v)s.dataset.vb0=v;return v.split(/[ ,]+/).map(Number)}
+  function zoomer(s,k,cx,cy){var b=cadre(s);if(!b)return;var o=s.dataset.vb0.split(/[ ,]+/).map(Number);
+    var w=Math.min(o[2],b[2]*k),h=Math.min(o[3],b[3]*k);if(w<o[2]/12)return;
+    if(cx==null){cx=b[0]+b[2]/2;cy=b[1]+b[3]/2}
+    var x=cx-(cx-b[0])*w/b[2],y=cy-(cy-b[1])*h/b[3];
+    x=Math.max(o[0],Math.min(x,o[0]+o[2]-w));y=Math.max(o[1],Math.min(y,o[1]+o[3]-h));
+    var v=[x,y,w,h].map(function(n){return +n.toFixed(2)}).join(" ");s.setAttribute("viewBox",v);s.dataset.vbz=v;boutons(s)}
+  function entier(s){return !s.dataset.vb0||s.getAttribute("viewBox")===s.dataset.vb0}
+  function boutons(s){
+    var hote=s.closest(".fig-corps")||s.closest("figure");
+    if(!hote){
+      // hors d'une figure (atlas), les boutons vont sur une ligne à eux juste au-dessus du graphique, sans recouvrir le
+      // titre du panneau ni le bouton Citer
+      hote=s.parentNode;
+      if(hote&&!hote.classList.contains("fig-zoom")){var enveloppe=document.createElement("div");enveloppe.className="fig-zoom";
+        hote.insertBefore(enveloppe,s);enveloppe.appendChild(s);hote=enveloppe}
+    }
+    if(!hote||hote.querySelector(":scope > .zoom-boutons"))return;
+    var bz=document.createElement("div");bz.className="zoom-boutons";
+    bz.innerHTML='<button type="button" aria-label="Zoomer">+</button><button type="button" aria-label="Dézoomer">−</button><button type="button" aria-label="Revenir à la vue entière">⟲</button>';
+    if(getComputedStyle(hote).position==="static")hote.style.position="relative";
+    hote.insertBefore(bz,hote.firstChild);
+    var cible=function(){var v=hote.querySelector(".variante:not([hidden]) svg");return v||s};
+    var b=bz.querySelectorAll("button");
+    b[0].onclick=function(){zoomer(cible(),.6)};b[1].onclick=function(){zoomer(cible(),1/.6)};
+    b[2].onclick=function(){var c=cible();cadre(c);if(c.dataset.vb0){c.setAttribute("viewBox",c.dataset.vb0);c.dataset.vbz=c.dataset.vb0}}}
+  document.querySelectorAll(R.zoom).forEach(boutons);
+  document.addEventListener("pointerover",function(ev){var s=svgDe(ev.target,R.zoom);if(s)boutons(s)});
+  // la molette seule fait toujours défiler la page ; le zoom à la molette demande Ctrl (ou ⌘), sinon le curseur restait
+  // pris dans la figure (remarque de Lucas du 23 octobre 2026) ; les boutons + et − restent le moyen ordinaire
+  document.addEventListener("wheel",function(ev){
+    if(!(ev.ctrlKey||ev.metaKey))return;
+    var s=svgDe(ev.target,R.zoom);if(!s)return;
+    if(Date.now()-dernierDefil<450)return;                       // la page défile, on la laisse défiler
+    if(ev.deltaY>0&&entier(s))return;                           // vue entière, molette vers le bas, la page défile
+    ev.preventDefault();var p=s.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;
+    var q=p.matrixTransform(s.getScreenCTM().inverse());zoomer(s,ev.deltaY<0?.8:1.25,q.x,q.y)},{passive:false});
+  var dep=null;
+  document.addEventListener("pointerdown",function(ev){var s=svgDe(ev.target,R.zoom);if(!s||entier(s))return;
+    var b=cadre(s);dep={x:ev.clientX,y:ev.clientY,b:b,s:s,k:b[2]/s.getBoundingClientRect().width,bouge:false}});
+  addEventListener("pointermove",function(ev){if(!dep)return;var o=dep.s.dataset.vb0.split(/[ ,]+/).map(Number),b=dep.b;
+    if(Math.abs(ev.clientX-dep.x)+Math.abs(ev.clientY-dep.y)>3)dep.bouge=true;if(!dep.bouge)return;
+    var x=Math.max(o[0],Math.min(b[0]-(ev.clientX-dep.x)*dep.k,o[0]+o[2]-b[2])),y=Math.max(o[1],Math.min(b[1]-(ev.clientY-dep.y)*dep.k,o[1]+o[3]-b[3]));
+    var v=[x,y,b[2],b[3]].map(function(n){return +n.toFixed(2)}).join(" ");dep.s.setAttribute("viewBox",v);dep.s.dataset.vbz=v});
+  addEventListener("pointerup",function(){dep=null});
+
+  // figures des rapports, même modèle que l'atlas (10 octobre 2026). Sous le titre « Figure N. légende », une ligne
+  // « Citer et exporter » ouvre la citation du rapport suivie du numéro et de la légende, l'image (copie, PNG, SVG, avec
+  // la citation dessous) et les données de la figure. La citation du rapport est donnée par la page (data-citation).
+  function citerFigures(){
+    var porte=document.querySelector("[data-citation]");if(!porte)return;var base=porte.dataset.citation;
+    document.querySelectorAll("figure.graphique").forEach(function(f){
+      if(f.dataset.cite)return;f.dataset.cite="1";
+      var cap=f.querySelector("figcaption");
+      var ligne=document.createElement("div");ligne.className="outils-figure";
+      var bc=document.createElement("button");bc.type="button";bc.className="citer-fig";bc.textContent="Citer et exporter";bc.setAttribute("aria-expanded","false");ligne.appendChild(bc);
+      if(cap)cap.after(ligne);else f.insertBefore(ligne,f.firstChild);
+      var boite=document.createElement("div");boite.className="citation-fig";boite.hidden=true;ligne.after(boite);
+      bc.onclick=function(){var ouvert=boite.hidden;bc.setAttribute("aria-expanded",String(ouvert));boite.hidden=!ouvert;if(!ouvert)return;
+        // la légende suit la profession choisie, la citation est donc refaite à chaque ouverture
+        var num=cap&&cap.querySelector("strong"),leg=cap&&cap.querySelector(".leg");
+        var ref=(num?num.textContent.replace(/\.$/,""):"Figure")+(leg?", "+leg.textContent.trim():"");
+        var texte=base.replace(/\s*$/,"")+(/[.]$/.test(base.trim())?" ":". ")+ref+".";
+        var nom=(ref.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,80)||"figure").toLowerCase();
+        boite.innerHTML='<p></p><div class="citation-actions"><button type="button" data-a="cit">Copier la citation</button></div>'
+          +'<ul class="exports"><li><span class="nom"><span class="genre">Image</span> de la figure</span><span class="citation-actions"><button type="button" data-a="img">Copier l’image</button><button type="button" data-a="png">PNG</button><button type="button" data-a="svg">SVG</button></span></li>'
+          +(f.dataset.donnees?'<li><span class="nom"><span class="genre">Données</span> de la figure, '+f.dataset.donneesNom+'</span><span class="citation-actions"><a class="bouton" download href="'+f.dataset.donnees+'">CSV</a></span></li>':'')
+          +'</ul><p class="small muted">Chaque fichier porte la citation du rapport, merci de la joindre à toute reprise.</p>';
+        boite.querySelector("p").textContent=texte;
+        boite.querySelectorAll("button").forEach(function(b){b.onclick=function(){var a=b.dataset.a;
+          if(a==="cit"){navigator.clipboard.writeText(texte).then(function(){b.textContent="Citation copiée"},function(){b.textContent="Copie impossible ici"});return}
+          var src=f.querySelector(".variante:not([hidden]) svg")||f.querySelector("svg");if(!src)return;
+          var svg=imageCitee(src,texte);
+          if(a==="svg"){enregistrer(new Blob([svg],{type:"image/svg+xml"}),nom+".svg");b.textContent="Enregistré";return}
+          var img=new Image(),url=URL.createObjectURL(new Blob([svg],{type:"image/svg+xml"}));
+          img.onload=function(){var c=document.createElement("canvas");c.width=img.width;c.height=img.height;c.getContext("2d").drawImage(img,0,0);URL.revokeObjectURL(url);
+            c.toBlob(function(png){if(!png)return;
+              if(a==="png"){enregistrer(png,nom+".png");b.textContent="Enregistré";return}
+              navigator.clipboard.write([new ClipboardItem({"image/png":png})]).then(function(){b.textContent="Image copiée"},function(){b.textContent="Copie impossible ici, utilisez PNG"})})};img.src=url}})}})}
+  function imageCitee(src,texte){
+    var ns="http://www.w3.org/2000/svg",c=src.cloneNode(true),vb=(src.dataset.vb0||src.getAttribute("viewBox")||"0 0 600 400").split(/[ ,]+/).map(Number);
+    // taille commune des exports (harmonisation, 22 octobre 2026), dessin rapporté à 800 pixels, image à 1 600, citation
+    // au petit corps de l'échelle typographique (11,5 pixels à cette largeur), couleurs du fond clair (valeurs de repli
+    // des variables, seules lues dans un fichier SVG isolé)
+    var fs=11.5*vb[2]/800,par=Math.max(40,Math.floor((vb[2]-16)/(fs*.55))),lignes=[];
+    texte.split(" ").forEach(function(m){var l=lignes.length?lignes[lignes.length-1]:null;if(l!=null&&(l+" "+m).length<=par)lignes[lignes.length-1]=l+" "+m;else lignes.push(m)});
+    var hc=fs*1.4*lignes.length+fs;c.setAttribute("xmlns",ns);c.setAttribute("viewBox",[vb[0],vb[1],vb[2],vb[3]+hc].join(" "));
+    c.setAttribute("width",1600);c.setAttribute("height",Math.round((vb[3]+hc)*1600/vb[2]));
+    var fond=document.createElementNS(ns,"rect");fond.setAttribute("x",vb[0]);fond.setAttribute("y",vb[1]);fond.setAttribute("width",vb[2]);fond.setAttribute("height",vb[3]+hc);fond.setAttribute("fill","#FFFFFF");c.insertBefore(fond,c.firstChild);
+    lignes.forEach(function(l,i){var t=document.createElementNS(ns,"text");t.setAttribute("x",vb[0]+8);t.setAttribute("y",vb[1]+vb[3]+fs*1.4*(i+1));t.setAttribute("font-size",fs);t.setAttribute("fill","#5F6675");t.setAttribute("font-family","Work Sans, Segoe UI, sans-serif");t.textContent=l;c.appendChild(t)});
+    return new XMLSerializer().serializeToString(c)}
+  function enregistrer(blob,nom){var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=nom;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},1000)}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",citerFigures);else citerFigures();
+
+  // tableaux des rapports et des pages, citables et exportables comme les figures (version 2, point 1, 22 octobre 2026).
+  // La citation est celle du rapport (data-citation) ou de la page (data-citation-page et son adresse), suivie du titre
+  // du tableau, tiré de sa légende ou de l'intertitre qui le précède (décision de Lucas, titre sans numéro). Le CSV
+  // reprend les lignes affichées, au format des fichiers du site (point-virgule, virgule décimale, nombres sans
+  // séparateur de milliers), avec la citation en dernière ligne.
+  function titreTableau(t){
+    if(t.caption&&t.caption.textContent.trim())return t.caption.textContent.trim();
+    for(var e=t.closest(".defile")||t;e&&e.tagName!=="MAIN";e=e.parentElement){
+      for(var p=e.previousElementSibling;p;p=p.previousElementSibling){
+        if(/^H[2-5]$/.test(p.tagName))return p.textContent.replace(/\s+/g," ").trim();
+        var h=p.querySelectorAll&&p.querySelectorAll("h2,h3,h4,h5");if(h&&h.length)return h[h.length-1].textContent.replace(/\s+/g," ").trim()}
+      if(e.tagName==="DETAILS"){var s=e.querySelector("summary");if(s)return s.textContent.trim()}}
+    return "Tableau"}
+  function celluleCsv(c){
+    // une adresse raccourcie à l'écran est écrite en entier dans le fichier
+    if(c.querySelectorAll){var lien=[].filter.call(c.querySelectorAll("a[href^='http']"),function(a){return /…$/.test(a.textContent.trim())});
+      if(lien.length){c=c.cloneNode(true);[].forEach.call(c.querySelectorAll("a[href^='http']"),function(a){if(/…$/.test(a.textContent.trim()))a.textContent=a.href})}}
+    var v=c.textContent.replace(/[\s  ]+/g," ").trim();
+    if(/^[−-]?\d{1,3}( \d{3})+(,\d+)?$/.test(v))v=v.replace(/ /g,"");
+    v=v.replace(/^−(?=\d)/,"-");
+    return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+  function tableauCsv(t){
+    return "﻿"+[].filter.call(t.querySelectorAll("tr"),function(tr){return !tr.hidden&&tr.style.display!=="none"})
+      .map(function(tr){return [].map.call(tr.children,celluleCsv).join(";")}).join("\r\n")}
+  function citerTableaux(){
+    var main=document.querySelector("main");if(!main)return;
+    var porte=document.querySelector("[data-citation]"),base;
+    if(porte)base=porte.dataset.citation.replace(/\s*$/,"");
+    else{base=(main.dataset.citationPage||"").replace(/\s*$/,"");if(!base)return;
+      var adr=main.dataset.adresse;base+=(adr?", "+adr+location.pathname.replace(/\/index\.html$/,"/"):"")+"."}
+    main.querySelectorAll("table").forEach(function(t){
+      if(t.dataset.cite||t.closest(".citation-fig,.sommaire,details.versions,nav,figure"))return;t.dataset.cite="1";
+      var bloc=t.closest(".defile")||t;
+      var ligne=document.createElement("div");ligne.className="outils-figure outils-tableau";
+      var bc=document.createElement("button");bc.type="button";bc.className="citer-fig";bc.textContent="Citer et exporter";bc.setAttribute("aria-expanded","false");ligne.appendChild(bc);
+      bloc.before(ligne);
+      var boite=document.createElement("div");boite.className="citation-fig";boite.hidden=true;ligne.after(boite);
+      bc.onclick=function(){var ouvert=boite.hidden;bc.setAttribute("aria-expanded",String(ouvert));boite.hidden=!ouvert;if(!ouvert)return;
+        var titre=titreTableau(t),texte=base+(/[.]$/.test(base)?" ":". ")+"Tableau, « "+titre+" ».";
+        var nom=(titre.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,80)||"tableau").toLowerCase();
+        boite.innerHTML='<p></p><div class="citation-actions"><button type="button" data-a="cit">Copier la citation</button></div>'
+          +'<ul class="exports"><li><span class="nom"><span class="genre">Données</span> du tableau, telles qu’affichées</span><span class="citation-actions"><button type="button" data-a="csv">CSV</button></span></li></ul>'
+          +'<p class="small muted">Le fichier porte la citation de la page, merci de la joindre à toute reprise.</p>';
+        boite.querySelector("p").textContent=texte;
+        boite.querySelectorAll("button").forEach(function(b){b.onclick=function(){
+          if(b.dataset.a==="cit"){navigator.clipboard.writeText(texte).then(function(){b.textContent="Citation copiée"},function(){b.textContent="Copie impossible ici"});return}
+          enregistrer(new Blob([tableauCsv(t)+"\r\n\r\n"+celluleCsv({textContent:texte})],{type:"text/csv;charset=utf-8"}),nom+".csv");b.textContent="Enregistré"}})}})}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",citerTableaux);else citerTableaux();
+
+  // « Comment lire » des rapports (audit du 22 octobre 2026, lot 2), un bouton sur la ligne d'outils de la figure ou du
+  // tableau commenté, à côté de « Citer et exporter », comme dans l'atlas. Le paragraphe garde sa place et s'ouvre au
+  // clic ; s'il ne suit pas une figure ou un tableau, il reste affiché. À l'impression il est toujours visible.
+  function lireReplie(){
+    document.querySelectorAll(".corps p.comment-lire").forEach(function(p){
+      if(p.dataset.lire)return;p.dataset.lire="1";var ligne=null,e=p.previousElementSibling;
+      for(var k=0;e&&k<5&&!ligne;k++,e=e.previousElementSibling){
+        if(e.matches("figure.graphique"))ligne=e.querySelector(".outils-figure");
+        else if(e.matches(".defile,table")){for(var o=e.previousElementSibling,j=0;o&&j<3;o=o.previousElementSibling,j++)if(o.classList.contains("outils-tableau")){ligne=o;break}}
+        else if(e.matches("h2,h3,h4,h5,.comment-lire"))break}
+      if(!ligne)return;
+      var b=document.createElement("button");b.type="button";b.className="citer-fig lire-fig";b.textContent="Comment lire";b.setAttribute("aria-expanded","false");
+      ligne.insertBefore(b,ligne.firstChild);p.classList.add("repli");
+      b.onclick=function(){var o=p.classList.contains("repli");p.classList.toggle("repli",!o);b.setAttribute("aria-expanded",String(o))}})}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",lireReplie);else lireReplie();
+
+  // longs tableaux de consultation (pages de la méthode), un champ filtre les lignes à mesure qu'on tape
+  function filtres(){
+    document.querySelectorAll("table.filtrable").forEach(function(t){
+      if(t.dataset.filtre)return;t.dataset.filtre="1";var bloc=t.closest(".defile")||t;
+      var l=document.createElement("label");l.className="filtre-tableau";l.innerHTML='<span>Filtrer le tableau</span><input type="search" autocomplete="off">';
+      var ligne=bloc.previousElementSibling&&bloc.previousElementSibling.classList.contains("citation-fig")?bloc.previousElementSibling:bloc;ligne.before(l);
+      var n=document.createElement("span");n.className="small muted";l.appendChild(n);
+      var champ=l.querySelector("input"),lignes=[].slice.call(t.tBodies[0]?t.tBodies[0].rows:[]);
+      var norm=function(x){return x.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()};
+      champ.addEventListener("input",function(){var q=norm(champ.value.trim()),k=0;
+        lignes.forEach(function(r){var ok=!q||norm(r.textContent).indexOf(q)>=0;r.hidden=!ok;if(ok)k++});
+        n.textContent=q?k+" ligne"+(k>1?"s":"")+" sur "+lignes.length:""})})}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",filtres);else filtres();
+})();
+
+// Figures qui apparaissent en douceur quand on arrive dessus (refonte du 23 octobre 2026). La classe posée sur la racine
+// n'existe qu'avec le script, si bien qu'une figure reste visible quand il ne tourne pas ; impression exclue.
+(function(){
+  if(!("IntersectionObserver" in window)||matchMedia("print").matches)return;
+  const cibles=document.querySelectorAll("figure.graphique,.une-carte");if(!cibles.length)return;
+  document.documentElement.classList.add("revele");
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("vu");io.unobserve(e.target)}}),{rootMargin:"0px 0px -8% 0px"});
+  cibles.forEach(c=>io.observe(c));
+  addEventListener("beforeprint",()=>cibles.forEach(c=>c.classList.add("vu")));
+})();
+// en-tête qui se resserre en barre flottante dès qu'on descend (essai du 23 octobre 2026, d'après reactbits.dev)
+(function(){var n=document.querySelector("nav.site");if(!n)return;
+  var f=function(){n.classList.toggle("defile",(window.scrollY||0)>12)};f();addEventListener("scroll",f,{passive:true})})();
+</script>
+<script src="cesure/hyphen.js" defer></script>
+<script src="cesure/hyphen-fr.js" defer></script>
+<script src="cesure/cesure.js" defer></script>
+<script>window.goatcounter={no_onload:navigator.doNotTrack==="1"||window.doNotTrack==="1"}</script><script data-goatcounter="https://ubicura.goatcounter.com/count" async src="https://gc.zgo.at/count.v5.js" crossorigin="anonymous" integrity="sha384-atnOLvQb9t+jTSipvd75X2yginT4PjVbqDdlJAmxMm+wYElFmeR6EmLP5bYeoRVQ"></script>
+</body>
+</html>

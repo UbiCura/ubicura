@@ -1,0 +1,932 @@
+﻿niveau;code;nom;cmp;adultes;enfants;les_deux;non_precise;antennes
+epci;200000172;CC Faucigny - Glières;1;1;0;0;0;0
+epci;200000438;CC du Pays de Pontchâteau St-Gildas-des-Bois;2;1;1;0;0;0
+epci;200000545;CC des Portes de Romilly sur Seine;3;2;1;0;0;0
+epci;200000628;CC Rhône Lez Provence;2;1;1;0;0;0
+epci;200000800;CC Coeur de Sologne;2;1;1;0;0;0
+epci;200000925;CC de la Plaine Dijonnaise;1;0;1;0;0;0
+epci;200000933;CC Sauldre et Sologne;1;1;0;0;0;0
+epci;200005957;CC de la Région de Rambervillers;2;1;1;0;0;1
+epci;200006682;CA Beaune, Côte et Sud - Communauté Beaune-Chagny-Nolay;4;1;3;0;0;0
+epci;200006930;CC du Haut Allier Margeride;2;1;1;0;0;0
+epci;200006971;CC du Perche;2;1;1;0;0;0
+epci;200010650;CA du Grand Dole;4;2;2;0;0;0
+epci;200010700;CA Caux Seine Agglo;6;3;3;0;0;0
+epci;200011773;CA Annemasse-Les Voirons-Agglomération;4;1;3;0;0;0
+epci;200016905;CC du Pays de Lamastre;2;1;1;0;0;0
+epci;200017341;CC Lodévois et Larzac;1;1;0;0;0;0
+epci;200017846;CA Étampois Sud Essonne;3;2;1;0;0;0
+epci;200018083;CC de Desvres-Samer;1;0;1;0;0;0
+epci;200018166;CC Le Grésivaudan;4;2;2;0;0;0
+epci;200018406;CC du Romorantinais et du Monestois;2;1;1;0;0;0
+epci;200018653;CA CAP Excellence;7;4;3;0;0;0
+epci;200023075;CC du Pays de Maîche;1;1;0;0;0;0
+epci;200023240;CC Pays de Nemours;1;1;0;0;0;0
+epci;200023299;CC Coeur de Tarentaise;2;1;1;0;0;0
+epci;200023307;CA du Grand Villeneuvois;3;1;2;0;0;0
+epci;200023414;Métropole Rouen Normandie;21;11;10;0;0;1
+epci;200023620;CC de la Gascogne Toulousaine;2;1;1;0;0;0
+epci;200023737;CA du Grand Cahors;3;2;1;0;0;0
+epci;200023778;CA du Pays de Saint-Gilles-Croix-de-Vie;1;1;0;0;0;0
+epci;200023794;CC de Blaye;1;1;0;0;0;0
+epci;200026573;CC Haut-Jura Saint-Claude;2;1;1;0;0;0
+epci;200027027;CC Arc Sud Bretagne;3;2;1;0;0;0
+epci;200027076;CC Arnon Boischaut Cher;1;1;0;0;0;0
+epci;200027100;CC Méditerranée Porte des Maures;5;4;2;1;0;2
+epci;200027183;CU Perpignan Méditerranée Métropole;9;5;4;0;0;0
+epci;200027217;CC Sarlat-Périgord Noir;1;1;0;0;0;0
+epci;200029734;CC des 4B Sud Charente;2;1;1;0;0;0
+epci;200030195;Métropole Nice Côte d'Azur;25;11;13;0;1;3
+epci;200030385;CA de Blois ''Agglopolys'';3;1;2;0;0;0
+epci;200030435;CC d'Aire-sur-l'Adour;1;1;0;0;0;0
+epci;200030633;CA du Caudrésis et du Catésis;4;2;2;0;0;0
+epci;200030674;CA Val de Garonne Agglomération;4;2;2;0;0;0
+epci;200033025;CA de Bar-le-Duc - Sud Meuse;6;3;3;0;0;0
+epci;200033116;CC Cluses-Arve et Montagnes;2;1;1;0;0;0
+epci;200033173;CC de la Haute Vallée de Chevreuse;1;1;0;0;0;0
+epci;200033181;CA Chartres Métropole;3;2;1;0;0;0
+epci;200033298;CC des Coëvrons;2;1;1;0;0;0
+epci;200033579;CU d'Arras;4;1;2;0;1;0
+epci;200033827;CC de Fium'Orbu Castellu;2;1;1;0;0;0
+epci;200034023;CC Tarn-Agout;4;0;2;0;2;0
+epci;200034031;CC des Monts d'Alban et du Villefranchois;1;1;0;0;0;0
+epci;200034049;CC Centre Tarn;1;1;0;0;0;0
+epci;200034064;CC du Cordais et du Causse (4 C);1;1;0;0;0;0
+epci;200034130;CC Gally Mauldre;1;0;1;0;0;0
+epci;200034197;CC de Montaigne Montravel et Gurson;1;0;1;0;0;0
+epci;200034379;CC Pays d'Uzès;2;1;1;0;0;0
+epci;200034411;CC du Piémont Cévenol;1;1;0;0;0;0
+epci;200034692;CA du Gard Rhodanien;2;1;1;0;0;0
+epci;200034700;CA Durance-Lubéron-Verdon Agglomération;7;5;2;0;0;4
+epci;200034718;CC de Vitry, Champagne et Der;2;1;1;0;0;0
+epci;200034825;CA du Grand Guéret;3;1;2;0;0;0
+epci;200034833;CC des Bastides Dordogne-Périgord;2;0;2;0;0;0
+epci;200034882;CC Pays du Mont-Blanc;2;1;1;0;0;0
+epci;200034957;CC du Frontonnais;1;0;1;0;0;0
+epci;200035087;CA Terre de Provence;2;1;1;0;0;0
+epci;200035111;CC des Sources de l'Orne;1;1;0;0;0;0
+epci;200035129;CC de Cèze Cévennes;2;1;1;0;0;0
+epci;200035202;CC Charlieu-Belmont;1;0;1;0;0;0
+epci;200035319;CA Estérel Côte d'Azur Agglomération;4;3;1;0;0;2
+epci;200035442;CC du Sud Artois;2;1;1;0;0;0
+epci;200035541;CC des Landes d'Armagnac;2;2;0;0;0;0
+epci;200035715;CA Carcassonne Agglo;3;2;1;0;0;0
+epci;200035731;CA Roannais Agglomération;4;3;1;0;0;1
+epci;200035772;CC du Pays du Saintois;1;0;1;0;0;1
+epci;200035814;CA Flers Agglo;4;2;2;0;0;0
+epci;200035855;CC Castelnaudary Lauragais Audois;2;1;1;0;0;0
+epci;200035863;CC Région Lézignanaise, Corbières et Minervois;2;1;1;0;0;0
+epci;200035970;CC Vexin Centre;1;0;0;0;1;0
+epci;200036069;CC du Pays de Mortagne-au-Perche;2;1;1;0;0;0
+epci;200036077;CC du Golfe de Saint-Tropez;2;1;1;0;0;0
+epci;200036135;CC Coeur de France;2;1;1;0;0;0
+epci;200036150;CC des Hauts du Val de Saône;2;1;1;0;0;0
+epci;200036465;CC de Thann-Cernay;2;1;1;0;0;0
+epci;200036473;"CA ""Saintes - Grandes Rives - L'Agglo""";4;1;3;0;0;0
+epci;200036549;CC Val de Gray;1;1;0;0;0;0
+epci;200037059;CC de la Haute Somme (Combles - Péronne - Roisel);2;1;1;0;0;0
+epci;200037133;CC du Provinois;1;1;0;0;0;0
+epci;200039022;CA Vitré Communauté;3;1;2;0;0;0
+epci;200039204;CC de Lacq-Orthez;2;2;1;1;0;0
+epci;200039642;CC Le Tonnerrois en Bourgogne;2;1;1;0;0;0
+epci;200039758;CC Avallon, Vézelay, Morvan;2;1;1;0;0;0
+epci;200039857;CA du Pays de Grasse;2;1;1;0;0;0
+epci;200039865;Metz Métropole;7;4;3;0;0;0
+epci;200039915;CA Cannes Pays de Lérins;5;3;2;0;0;0
+epci;200039931;CC Alpes d'Azur;2;2;0;0;0;1
+epci;200039949;CC Rives de Moselle;1;0;1;0;0;0
+epci;200040095;CC Isle Vern Salembre en Périgord;3;1;2;0;0;0
+epci;200040111;CC Coeur de Chartreuse;2;1;1;0;0;0
+epci;200040137;CC des Lacs de Champagne;3;2;1;0;0;0
+epci;200040244;CA du Bocage Bressuirais;2;1;1;0;0;0
+epci;200040277;CA Agglo du Pays de Dreux;2;1;1;0;0;0
+epci;200040350;CC Bugey Sud;2;1;1;0;0;0
+epci;200040384;CC Isle Double Landais;2;1;1;0;0;0
+epci;200040392;CA Le Grand Périgueux;3;1;2;0;0;0
+epci;200040400;CC du Périgord Ribéracois;2;1;1;0;0;0
+epci;200040442;CA Luberon Monts de Vaucluse;2;1;1;0;0;0
+epci;200040459;CA Montélimar Agglomération;2;1;1;0;0;0
+epci;200040491;CC Porte de Dromardèche;2;1;1;0;0;0
+epci;200040509;CC du Crestois et de Pays de Saillans Coeur de Drôme;2;1;1;0;0;0
+epci;200040558;CC Écueillé-Valençay;2;1;1;0;0;0
+epci;200040566;CA de l'Ouest Rhodanien;5;3;2;0;0;0
+epci;200040574;CC Beaujolais Pierres Dorées;2;1;1;0;0;0
+epci;200040590;CA Villefranche Beaujolais Saône;5;2;3;0;0;0
+epci;200040624;CC Pays d'Apt-Luberon;2;1;1;0;0;0
+epci;200040657;CC de la Matheysine;2;1;1;0;0;0
+epci;200040681;CC Enclave des Papes - Pays de Grignan;2;1;1;0;0;0
+epci;200040715;Grenoble-Alpes-Métropole;24;10;14;0;0;0
+epci;200040764;CC du Sud Corse;2;1;1;0;0;0
+epci;200040905;CC Carmausin-Ségala;2;1;1;0;0;0
+epci;200040947;CA Coeur de Flandre;5;2;3;0;0;0
+epci;200040954;CC des Hauts de Flandre;3;2;1;0;0;1
+epci;200041010;CC Coeur de Savoie;4;2;2;0;0;0
+epci;200041051;CC Vallée de la Dordogne et Forêt Bessède;1;1;0;0;0;0
+epci;200041150;CC Terrassonnais Haut Périgord Noir;1;1;0;0;0;0
+epci;200041168;CC de la Vallée de l'Homme;4;2;2;0;0;0
+epci;200041317;CA du Niortais;2;1;1;0;0;0
+epci;200041333;CC de Parthenay-Gâtine;1;1;0;0;0;0
+epci;200041366;CC Rhône Crussol;1;0;1;0;0;1
+epci;200041465;CC Val Eyrieux;2;1;1;0;0;0
+epci;200041499;CC Aunis Atlantique;1;1;0;0;0;0
+epci;200041507;CA La Riviéra du Levant;3;2;1;0;0;0
+epci;200041515;CC du Bassin de Pont-à-Mousson;2;1;1;0;0;0
+epci;200041523;CC de la Haute Saintonge;7;5;1;0;1;0
+epci;200041572;CC Dronne et Belle;1;1;0;0;0;0
+epci;200041614;CC Aunis Sud;2;2;0;0;0;0
+epci;200041630;CA Ardenne Métropole;7;5;2;0;0;0
+epci;200041689;CC Vals de Saintonge Communauté;2;1;1;0;0;0
+epci;200041762;CA Rochefort Océan;3;1;2;0;0;0
+epci;200041788;CA du Pays Nord Martinique;6;3;3;0;0;0
+epci;200041960;CC Pévèle-Carembault;5;3;2;0;0;1
+epci;200041994;CC Haut Val de Sèvre;1;1;0;0;0;0
+epci;200042000;CC Bruyères-Vallons des Vosges;1;1;0;0;0;1
+epci;200042174;CA Lorient Agglomération;11;5;6;0;0;1
+epci;200042182;CC du Mont des Avaloirs;1;1;0;0;0;0
+epci;200042190;CA de la Porte du Hainaut;5;4;1;0;0;0
+epci;200042497;CC Dombes Saône Vallée;1;0;1;0;0;0
+epci;200042604;CC de Granville, Terre et Mer;2;1;1;0;0;0
+epci;200042646;CC Grand Orb Communauté de Communes en Languedoc;2;1;1;0;0;0
+epci;200042703;CC de l'Argonne Champenoise;1;1;0;0;0;0
+epci;200042729;CC de la Baie du Cotentin;3;2;1;0;0;0
+epci;200042901;CC Drôme Sud Provence;1;0;1;0;0;0
+epci;200042935;CA Haut-Bugey Agglomération;2;1;1;0;0;0
+epci;200043016;CC Val de Charente;3;1;2;0;0;0
+epci;200043065;CC du Val d'Amboise;2;1;1;0;0;0
+epci;200043081;CC Chinon, Vienne et Loire;1;1;0;0;0;0
+epci;200043123;CC Auray Quiberon Terre Atlantique;2;1;1;0;0;0
+epci;200043156;CC du Pays Rethélois;1;1;0;0;0;0
+epci;200043172;CA du Bassin de Brive;2;0;2;0;0;0
+epci;200043321;CC du Pays de Mormal;1;0;0;0;1;0
+epci;200043354;CC de Villedieu Intercom;2;1;1;0;0;2
+epci;200043396;CA Maubeuge Val de Sambre;7;4;1;0;2;0
+epci;200043404;CC du Sud Avesnois;2;1;1;0;0;0
+epci;200043495;CA du Pays de Laon;2;1;1;0;0;0
+epci;200043602;CC des Albères, de la Côte Vermeille et de l'Illibéris;3;2;1;0;0;1
+epci;200043693;CC Terre Lorraine du Longuyonnais;1;1;0;0;0;0
+epci;200043776;CC Pyrénées audoises;1;1;0;0;0;1
+epci;200043974;CC du Sud Gironde;3;1;2;0;0;0
+epci;200043982;CC du Bazadais;2;1;1;0;0;0
+epci;200043990;CC Vallons de Haute-Bretagne Communauté;2;1;1;0;0;0
+epci;200044014;CC Creuse Grand Sud;2;1;1;0;0;0
+epci;200044030;CC des 7 Vallées;1;1;0;0;0;0
+epci;200044048;CC Osartis Marquion;1;0;1;0;0;0
+epci;200044253;CC du Bassin de Joinville en Champagne;2;1;1;0;0;0
+epci;200044394;CC du Réolais en Sud Gironde;2;1;1;0;0;0
+epci;200044618;CA Douaisis Agglo;5;3;2;0;0;0
+epci;200044691;CA du Nord Grande Terre;3;2;1;0;0;0
+epci;200046977;Métropole de Lyon;62;28;30;0;4;0
+epci;200048551;CC du Pays de Craon;3;3;0;0;0;0
+epci;200049187;CA du Grand Verdun;2;1;1;0;0;0
+epci;200049211;CC Conflent-Canigó;2;1;1;0;0;0
+epci;200050532;CC de Petite-Terre;2;1;1;0;0;0
+epci;200054781;Métropole du Grand Paris;238;120;116;0;2;4
+epci;200054807;Métropole d'Aix-Marseille-Provence;66;37;29;0;0;2
+epci;200055481;CC Beauce Val de Loire;1;1;0;0;0;1
+epci;200055655;CA Roissy Pays de France;12;6;6;0;0;0
+epci;200055887;CC Mayenne Communauté;2;1;1;0;0;0
+epci;200056232;CA Communauté Paris-Saclay;12;5;5;0;2;0
+epci;200056380;CA Plaine Vallée;3;1;1;0;1;0
+epci;200057859;CA Coeur d'Essonne Agglomération;7;4;3;0;0;0
+epci;200057958;CA Paris - Vallée de la Marne;7;4;2;0;1;0
+epci;200058477;CA Val d'Yerres Val de Seine;8;7;1;0;0;0
+epci;200058485;CA Val Parisis;7;4;3;0;0;0
+epci;200058519;CA Saint Germain Boucles de Seine;11;6;4;0;1;0
+epci;200058782;CA de Saint Quentin en Yvelines;7;5;1;0;1;0
+epci;200059228;CA Grand Paris Sud Seine Essonne Sénart;14;7;7;0;0;1
+epci;200059392;CC Bièvre Isère;2;1;1;0;0;0
+epci;200059400;CC Porte Océane du Limousin;1;1;0;0;0;0
+epci;200059871;CC du Centre-Ouest;1;1;0;0;0;0
+epci;200059889;CU Grand Paris Seine et Oise;16;10;4;0;2;0
+epci;200060010;CA Mauges Communauté;3;1;2;0;0;0
+epci;200060457;CA de Dembeni / Mamoudzou;2;1;1;0;0;0
+epci;200060465;CA du Grand Nord de Mayotte;2;1;1;0;0;0
+epci;200065563;CC Normandie-Cabourg-Pays d'Auge;2;1;1;0;0;0
+epci;200065597;CU Caen la Mer;12;9;3;0;0;0
+epci;200065647;CA Pays de Montbéliard Agglomération;2;2;0;0;0;0
+epci;200065787;CC de Pont-Audemer / Val de Risle;2;1;1;0;0;0
+epci;200065886;CA Loire Forez Agglomération (LFA);2;1;1;0;0;0
+epci;200065894;CC de Forez-Est;3;2;1;0;0;0
+epci;200065928;CA Lannion-Trégor Communauté;3;1;1;0;1;0
+epci;200066009;CA Mulhouse Alsace Agglomération;5;4;1;0;0;0
+epci;200066041;CC Sundgau;1;1;0;0;0;0
+epci;200066124;CA Gaillac-Graulhet;6;3;2;0;1;0
+epci;200066157;CC de Commercy - Void - Vaucouleurs;2;1;1;0;0;0
+epci;200066231;CC des Portes d'Ariège Pyrénées;2;1;1;0;0;0
+epci;200066280;CC du Pithiverais;2;1;1;0;0;0
+epci;200066322;CC Terres des Confluences;4;2;2;0;0;0
+epci;200066348;CC du Minervois au Caroux;2;1;1;0;0;0
+epci;200066355;CA Sète Agglopôle Méditerranée;6;3;3;0;0;0
+epci;200066371;CC Causses et Vallée de la Dordogne;5;2;3;0;0;0
+epci;200066389;CA Saint-Lô Agglo;3;2;1;0;0;0
+epci;200066405;CC Roumois Seine;1;1;0;0;0;0
+epci;200066413;CC Intercom Bernay Terres de Normandie;2;1;1;0;0;0
+epci;200066462;CC Interco Normandie Sud Eure;2;1;1;0;0;0
+epci;200066553;CC du Haut-Languedoc;2;1;1;0;0;0
+epci;200066587;CC des Monts du Lyonnais;1;0;1;0;0;0
+epci;200066660;CC de Saint-Flour;2;1;1;0;0;0
+epci;200066678;CC de la Châtaigneraie Cantalienne;2;1;1;0;0;0
+epci;200066728;CC Vallées de l'Orne et de l'Odon;3;3;0;0;0;0
+epci;200066744;CC Haute-Corrèze Communauté;4;4;0;0;0;0
+epci;200066777;CC Ploërmel Communauté;2;1;1;0;0;0
+epci;200066785;CC de l'Oust à Brocéliande;1;1;0;0;0;0
+epci;200066793;CA du Grand Annecy;6;3;3;0;0;0
+epci;200066801;CC Isigny-Omaha Intercom;1;1;0;0;0;0
+epci;200066819;CC du Volvestre;2;1;1;0;0;0
+epci;200066827;CC du Pays de Honfleur-Beuzeville;1;1;0;0;0;0
+epci;200066835;CC de Sézanne-Sud Ouest Marnais;2;1;1;0;0;0
+epci;200066868;CC Presqu'île de Crozon-Aulne maritime;3;1;1;0;1;1
+epci;200066876;CA de Châlons-en-Champagne;4;2;2;0;0;0
+epci;200066918;CA Alès Agglomération;5;3;2;0;0;0
+epci;200066926;CA Grand Auch Coeur de Gascogne;2;1;1;0;0;0
+epci;200066975;CC Senlis Sud Oise;2;1;1;0;0;0
+epci;200067023;CC Coutances Mer et Bocage;4;3;1;0;0;0
+epci;200067031;CC Côte Ouest Centre Manche;2;2;0;0;0;0
+epci;200067049;CC Spelunca-Liamone;1;1;0;0;0;0
+epci;200067064;CC Decazeville Communauté;1;1;0;0;0;0
+epci;200067072;CC Haut-Léon Communauté;3;1;1;0;1;1
+epci;200067106;CA du Pays Basque;12;10;3;1;0;0
+epci;200067114;CA de l'Auxerrois;3;1;2;0;0;0
+epci;200067130;CC de Puisaye-Forterre;3;1;2;0;0;0
+epci;200067155;CC Saint Affricain, Roquefort, Sept Vallons;2;1;1;0;0;0
+epci;200067189;CC Creuse Sud Ouest;1;1;0;0;0;0
+epci;200067197;CC Monts d'Arrée Communauté;1;1;0;0;0;0
+epci;200067205;CA du Cotentin;8;5;3;0;0;0
+epci;200067213;CU du Grand Reims;9;6;3;0;0;0
+epci;200067239;CC des Luys en Béarn;1;1;1;1;0;0
+epci;200067247;CC Pleyben-Châteaulin-Porzay;2;0;1;0;1;1
+epci;200067254;CA Pau Béarn Pyrénées;7;3;4;0;0;0
+epci;200067262;CC du Haut Béarn;1;0;1;0;0;0
+epci;200067296;CC du Nord Est Béarn;2;1;1;0;0;0
+epci;200067304;CC Serein et Armance;2;1;1;0;0;0
+epci;200067346;CA Pornic Agglo Pays de Retz;2;1;1;0;0;0
+epci;200067361;CC Grand-Figeac;4;3;1;0;0;0
+epci;200067429;CC Haut Nivernais - Val d'Yonne;3;3;0;0;0;0
+epci;200067437;CA Provence-Alpes-Agglomération;6;3;3;0;0;1
+epci;200067445;CC Buëch-Dévoluy;1;1;0;0;0;0
+epci;200067460;CC Loudéac Communauté - Bretagne Centre;2;1;1;0;0;0
+epci;200067478;CC Comtal Lot et Truyère;1;1;0;0;0;0
+epci;200067502;CA Saint-Avold Synergie;4;2;2;0;0;0
+epci;200067544;CC Creuse Confluence;2;2;0;0;0;0
+epci;200067551;CA Thonon Agglomération;2;1;1;0;0;0
+epci;200067635;CA Clisson Sèvre et Maine Agglo;2;1;1;0;0;0
+epci;200067643;CC Meurthe Mortagne Moselle;1;1;0;0;0;1
+epci;200067650;CC Houve - Pays Boulageois;1;1;0;0;0;0
+epci;200067684;CA Epernay, Coteaux et Plaine de Champagne;4;3;1;0;0;0
+epci;200067692;CC Tannay-Brinon-Corbigny;2;2;0;0;0;0
+epci;200067700;CC Sud Nivernais;2;2;0;0;0;0
+epci;200067742;CC Serre-Ponçon;2;1;1;0;0;1
+epci;200067767;CC du Royans-Vercors;2;2;0;0;0;2
+epci;200067791;CA L'Agglo Foix-Varilhes;1;1;0;0;0;0
+epci;200067817;CC Saône-Beaujolais;2;1;1;0;0;0
+epci;200067825;CA Gap-Tallard-Durance;5;2;3;0;0;1
+epci;200067841;CC de l'Alsace Bossue;1;1;0;0;0;0
+epci;200067866;CC Sèvre et Loire;1;0;1;0;0;0
+epci;200067874;CA de Haguenau;4;2;2;0;0;0
+epci;200067916;CC Coeur de Loire;2;2;0;0;0;0
+epci;200067924;CC du Canton d'Erstein;2;1;1;0;0;0
+epci;200067932;CA Golfe du Morbihan - Vannes Agglomération;7;4;3;0;0;0
+epci;200067940;CC Couserans-Pyrénées;2;1;1;0;0;0
+epci;200067965;CA de la Région de Compiègne et de la Basse Automne;3;1;2;0;0;0
+epci;200067973;CC Thelloise;1;1;0;0;0;0
+epci;200067981;CA Guingamp-Paimpol Agglomération de l'Armor à l'Argoat;6;4;2;0;0;0
+epci;200067999;CA du Beauvaisis;3;1;2;0;0;0
+epci;200068005;CC de l'Oise Picarde;2;1;1;0;0;0
+epci;200068047;CA Creil Sud Oise;3;2;1;0;0;0
+epci;200068070;CC Loue-Lison;1;1;0;0;0;0
+epci;200068088;CC Les Bertranges;1;1;0;0;0;0
+epci;200068104;CA de la Provence Verte;6;4;3;1;0;1
+epci;200068112;CC du Pays de Saverne;3;2;1;0;0;0
+epci;200068120;CA Quimper Bretagne Occidentale;5;4;1;0;0;0
+epci;200068146;CC Sarrebourg Moselle Sud;4;3;1;0;0;0
+epci;200068229;CC des Baronnies en Drôme Provençale;3;2;1;0;0;1
+epci;200068369;CC de Mirecourt Dompaire;2;1;1;0;0;1
+epci;200068377;CC de la Porte des Vosges Méridionales;3;2;1;0;0;0
+epci;200068450;CC Terres d'Argentan Interco;2;1;1;0;0;0
+epci;200068468;CC des Pays de L'Aigle;2;1;1;0;0;0
+epci;200068484;CC des Causses à l'Aubrac;1;1;0;0;0;0
+epci;200068500;CA de Cambrai;2;1;1;0;0;0
+epci;200068542;CC Les Balcons du Dauphiné;2;0;2;0;0;0
+epci;200068559;CC de l'Ouest Vosgien;2;1;1;0;0;1
+epci;200068567;CC Les Vals du Dauphiné;3;1;2;0;0;0
+epci;200068625;"CC Alpes-Provence-Verdon ""Sources de lumière""";6;4;2;0;0;6
+epci;200068641;CA Le Muretain Agglo;1;1;0;0;0;0
+epci;200068658;CA de Chaumont;1;1;0;0;0;0
+epci;200068666;CA du Grand Saint-Dizier Der et Vallées;5;2;3;0;0;0
+epci;200068674;CA Grand Lac;4;2;2;0;0;0
+epci;200068682;CC Terre d'Eau;2;1;1;0;0;1
+epci;200068757;CA d'Epinal;8;5;3;0;0;4
+epci;200068765;CC du Sisteronais-Buëch;4;3;1;0;0;1
+epci;200068773;CC des Vosges côté Sud Ouest;1;1;0;0;0;1
+epci;200068781;CA Valence Romans Agglo;6;2;4;0;0;0
+epci;200068799;CC Intercom de la Vire au Noireau;2;0;2;0;0;0
+epci;200068807;CC du Bassin Auterivain Haut-Garonnais;1;0;1;0;0;0
+epci;200068831;CC Pays Ségali Communauté;1;1;0;0;0;0
+epci;200068872;CC Éguzon - Argenton - Vallée de la Creuse;2;1;1;0;0;0
+epci;200068914;CC La Rochefoucauld Porte du Périgord;2;2;0;0;0;0
+epci;200068930;CC Fumel Vallée du Lot;2;1;1;0;0;0
+epci;200068948;CC Albret Communauté;2;1;1;0;0;0
+epci;200068989;CA Dinan Agglomération;5;2;3;0;0;0
+epci;200068997;CA Arlysère;3;1;2;0;0;0
+epci;200069003;CC du Barséquanais en Champagne;2;1;1;0;0;0
+epci;200069029;CA des Deux Baies en Montreuillois;3;1;2;0;0;0
+epci;200069037;CA du Pays de Saint-Omer;5;3;2;0;0;0
+epci;200069052;CA Grand Belfort;2;1;1;0;0;0
+epci;200069094;CC Isle et Crempse en Périgord;2;1;1;0;0;0
+epci;200069110;CA du Grand Chambéry;8;2;6;0;0;0
+epci;200069151;CC Gorges Causses Cévennes;2;1;1;0;0;0
+epci;200069185;CC des Terres d'Apcher-Margeride-Aubrac;3;2;1;0;0;0
+epci;200069193;CC de la Dombes;2;1;1;0;0;0
+epci;200069227;CC Pays Fort Sancerrois Val de Loire;3;1;2;0;0;0
+epci;200069250;CA Troyes Champagne Métropole;7;3;4;0;0;0
+epci;200069300;CA Tarbes-Lourdes-Pyrénées;4;2;2;0;0;0
+epci;200069383;CC Ouest Aveyron Communauté;1;1;0;0;0;0
+epci;200069391;CA Lamballe Terre et Mer;2;1;1;0;0;0
+epci;200069409;CA Saint-Brieuc Armor Agglomération;4;3;1;0;0;0
+epci;200069425;CA Mont-Saint-Michel-Normandie;9;5;4;0;0;3
+epci;200069433;CC de Vezouze en Piémont;1;0;1;0;0;1
+epci;200069441;CC du Pays de Bitche;2;1;1;0;0;0
+epci;200069458;CC des Vallées d'Auge et du Merlerault;2;1;1;0;0;1
+epci;200069524;CC Pré-Bocage Intercom;2;1;1;0;0;0
+epci;200069532;CA Lisieux Normandie;7;5;2;0;0;0
+epci;200069581;CC Convergence Garonne;2;1;1;0;0;0
+epci;200069623;CC Champagnole Nozeroy Jura;1;1;0;0;0;0
+epci;200069649;CC Chalosse Tursan;2;2;0;0;0;0
+epci;200069656;CC Coeur Haute Lande;4;3;1;0;0;0
+epci;200069672;CC du Ternois;1;1;0;0;0;0
+epci;200069698;CC Mâconnais - Tournugeois;2;1;1;0;0;1
+epci;200069722;CC Interrégionale Aumale - Blangy-sur-Bresle;1;1;0;0;0;0
+epci;200069730;CC des Quatre Rivières en Bray;1;1;1;1;0;0
+epci;200069755;CC Mellois en Poitou;3;3;0;0;0;0
+epci;200069763;CC du Haut Poitou;3;3;0;0;0;0
+epci;200069821;CA Fécamp Caux Littoral Agglomération;5;1;4;0;0;0
+epci;200069839;CC de la Côte d'Albâtre;3;1;2;0;0;0
+epci;200069854;CU du Grand Poitiers;7;7;0;0;0;0
+epci;200069961;CC du Grand Châteaudun;2;1;1;0;0;0
+epci;200069995;CC Médoc Coeur de Presqu'île;4;1;3;0;0;0
+epci;200070035;CC du Civraisien en Poitou;2;1;1;0;0;0
+epci;200070043;CC Vienne et Gartempe;1;1;0;0;0;0
+epci;200070068;CC Bray-Eawy;3;1;2;0;0;0
+epci;200070092;CA du Libournais;4;2;2;0;0;0
+epci;200070100;CC du Val de Sully;1;1;0;0;0;0
+epci;200070183;CC des Terres du Val de Loire;2;1;1;0;0;0
+epci;200070233;CA Terres de Montaigu;2;1;1;0;0;0
+epci;200070282;CC Lavalette Tude Dronne;2;2;0;0;0;0
+epci;200070308;CA Mâconnais Beaujolais Agglomération;4;2;2;0;0;0
+epci;200070324;CC du Territoire de Lunéville à Baccarat;2;1;1;0;0;0
+epci;200070340;CC Haute Maurienne Vanoise;3;1;2;0;0;0
+epci;200070373;CC Loir-Lucé-Bercé;2;1;1;0;0;0
+epci;200070407;CA Agglo Pays d'Issoire;1;1;0;0;0;0
+epci;200070431;CC Saint-Marcellin Vercors Isère Communauté;4;3;1;0;0;1
+epci;200070449;CC Inter-Caux-Vexin;3;1;2;0;0;2
+epci;200070464;CC Coeur de Maurienne Arvan;2;1;1;0;0;0
+epci;200070514;CA du Grand Cognac;5;3;2;0;0;0
+epci;200070530;CC du Grand Autunois Morvan;2;1;1;0;0;0
+epci;200070563;CC Terres Touloises;2;1;1;0;0;0
+epci;200070647;CA Bergeracoise;2;1;1;0;0;0
+epci;200070662;CC Bretagne Porte de Loire Communauté;2;1;1;0;0;0
+epci;200070670;CC du Pays de Dol et de la Baie du Mont Saint-Michel;2;1;1;0;0;0
+epci;200070746;CA Sarreguemines Confluences;2;1;1;0;0;0
+epci;200070753;CA Riom Limagne et Volcans;2;1;1;0;0;0
+epci;200070761;CC Ambert Livradois Forez;1;1;0;0;0;0
+epci;200070787;CC du Plateau de Lannemezan;2;1;1;0;0;0
+epci;200070811;CC Pyrénées Vallées des Gaves;2;2;0;0;0;2
+epci;200070845;CC Orne Lorraine Confluences;3;2;1;0;0;0
+epci;200070852;CC Usses et Rhône;2;2;0;0;0;0
+epci;200070902;CC Auxonne Pontailler Val de Saône;1;1;0;0;0;0
+epci;200070944;CC du Vimeu;3;2;1;0;0;0
+epci;200070951;CC du Territoire Nord Picardie;1;1;1;1;0;1
+epci;200070977;CC du Grand Roye;2;1;1;0;0;0
+epci;200070985;CC de l'Est de la Somme;1;1;0;0;0;0
+epci;200070993;CA de la Baie de Somme;2;1;1;0;0;0
+epci;200071066;CA de Saint-Dié-des-Vosges;2;1;1;0;0;0
+epci;200071082;CA Montluçon Communauté;4;2;2;0;0;0
+epci;200071116;CA ECLA  (Espace Communautaire Lons Agglomération);1;1;0;0;0;0
+epci;200071140;CA Moulins Communauté;4;3;1;0;0;0
+epci;200071165;CA Les Sables d'Olonne Agglomération;2;1;1;0;0;0
+epci;200071181;CC Somme Sud-Ouest;2;1;1;0;0;2
+epci;200071223;CC Nièvre et Somme;1;0;1;0;0;1
+epci;200071298;CC des Terres du Lauragais;2;1;1;0;0;0
+epci;200071363;CA Vichy Communauté;7;4;3;0;0;0
+epci;200071371;CC Bresse et Saône;1;0;1;0;0;0
+epci;200071389;CC Saint-Pourçain Sioule Limagne;4;2;2;0;0;0
+epci;200071413;CA Privas Centre Ardèche;3;1;2;0;0;0
+epci;200071454;CA Evreux Portes de Normandie;3;2;1;0;0;0
+epci;200071470;CC Entr'Allier Besbre et Loire;4;3;1;0;0;0
+epci;200071496;CC du Bocage Bourbonnais;1;1;0;0;0;0
+epci;200071504;CC des Collines du Perche Normand;2;1;1;0;0;0
+epci;200071512;CC Commentry Montmarault Néris Communauté;4;2;2;0;0;0
+epci;200071520;CC Domfront Tinchebray Interco;2;1;1;0;0;0
+epci;200071546;CC Sud Retz Atlantique;1;1;0;0;0;0
+epci;200071553;CC Loire Layon Aubance;3;2;1;0;0;0
+epci;200071579;CC Bresse Louhannaise Intercom';2;1;1;0;0;0
+epci;200071587;CC Loches Sud Touraine;3;1;2;0;0;0
+epci;200071595;CC Arbois, Poligny, Salins, Coeur du Jura;6;1;5;0;0;0
+epci;200071629;CC Challans-Gois Communauté;2;1;1;0;0;0
+epci;200071678;CA Cholet Agglomération;3;2;1;0;0;0
+epci;200071751;CA du Bassin de Bourg-en-Bresse;5;4;1;0;0;0
+epci;200071785;CA Chauny Tergnier La Fère;3;2;1;0;0;0
+epci;200071819;CC du Périgord Nontronnais;2;1;1;0;0;0
+epci;200071827;CA du Grand Angoulême;6;3;3;0;0;0
+epci;200071843;CC du Vexin Normand;2;1;1;0;0;0
+epci;200071876;CA Saumur Val de Loire;4;2;2;0;0;0
+epci;200071884;CC Le Grand Charolais;4;2;2;0;0;0
+epci;200071892;CA du Saint-Quentinois;2;1;1;0;0;0
+epci;200071926;CC du Limouxin;2;1;1;0;0;0
+epci;200071934;CC du Pays de Fontenay-Vendée;2;1;1;0;0;0
+epci;200071942;CC Haut Limousin en Marche;1;1;0;0;0;0
+epci;200071967;CC Pays d'Evian Vallée d'Abondance;2;1;1;0;0;0
+epci;200071983;CC Thiérache Sambre et Oise;1;0;1;0;0;0
+epci;200071991;CC Retz en Valois;1;1;0;0;0;0
+epci;200072015;CA Annonay Rhône Agglo;2;1;1;0;0;0
+epci;200072031;CA de la Région de Château-Thierry;2;1;1;0;0;0
+epci;200072049;CC de Charente Limousine;5;4;1;0;0;0
+epci;200072064;CC Val-de-Cher-Controis;3;1;2;0;0;0
+epci;200072072;CA Territoires Vendômois;3;1;2;0;0;0
+epci;200072080;CC du Pays de Saint-Eloy;2;1;1;0;0;0
+epci;200072106;CC Adour Madiran;1;1;0;0;0;1
+epci;200072130;CA du Pays de Meaux;6;1;5;0;0;0
+epci;200072304;CC Vallée de l'Ubaye - Serre-Ponçon;1;1;0;0;0;1
+epci;200072312;CA Seine Normandie Agglomération;2;1;1;0;0;0
+epci;200072346;CA du Pays de Fontainebleau;3;2;1;0;0;0
+epci;200072452;CA Fougères Agglomération;2;1;1;0;0;0
+epci;200072460;CA de Béthune-Bruay, Artois-Lys Romane;11;5;6;0;0;0
+epci;200072544;CC des Deux Morin;1;1;0;0;0;0
+epci;200072635;CC Pyrénées Haut Garonnaises;1;1;0;0;0;1
+epci;200072643;CC Coeur et Coteaux du Comminges;2;1;0;0;1;0
+epci;200072668;CC Touraine Val de Vienne;1;1;0;0;0;0
+epci;200072676;CC Maine Saosnois;3;2;1;0;0;0
+epci;200072692;CC des Vallées de la Braye et de l'Anille;1;1;0;0;0;0
+epci;200072700;CC Haute Sarthe Alpes Mancelles;2;1;1;0;0;0
+epci;200072718;CC de la Champagne Conlinoise et du Pays de Sillé;2;1;1;0;0;0
+epci;200072726;CC Châteaubriant-Derval;4;2;2;0;0;0
+epci;200072734;CC Estuaire et Sillon;2;1;1;0;0;1
+epci;200072874;CC Val Briard;2;1;1;0;0;0
+epci;200072882;CC de Vie et Boulogne;1;0;1;0;0;0
+epci;200072999;CC du Grand Langres;2;1;1;0;0;0
+epci;200073096;CA Arche Agglo;2;1;1;0;0;0
+epci;200073104;CC de l'Ile-Rousse - Balagne;2;1;1;0;0;0
+epci;200073245;CC du Bassin d'Aubenas;2;1;1;0;0;0
+epci;200073260;CC Sud Vendée Littoral;3;2;1;0;0;0
+epci;200073344;CA Rambouillet Territoires;3;2;1;0;0;0
+epci;200073419;CA du Puy-en-Velay;3;2;1;0;0;0
+epci;200073427;CC Marches du Velay-Rochebaron;2;1;1;0;0;0
+epci;200077014;CA Vienne Condrieu;5;2;3;0;0;0
+epci;200083392;CA Laval Agglomération;3;2;1;0;0;0
+epci;200084952;CU Le Havre Seine Métropole;16;10;6;0;0;0
+epci;200085728;CC Brioude Sud Auvergne;2;1;1;0;0;0
+epci;200085751;CC Entre Bièvre et Rhône;3;2;1;0;0;0
+epci;200089456;CA Seine-Eure;2;1;1;0;0;0
+epci;200090504;CA Coulommiers Pays de Brie;4;3;1;0;0;0
+epci;200090561;CC Vierzon-Sologne-Berry;2;1;1;0;0;0
+epci;200090751;CA Grand Calais Terres et Mers;3;1;1;0;1;0
+epci;200093201;Métropole Européenne de Lille;35;20;15;0;0;0
+epci;200096642;CC Gérardmer Hautes Vosges;2;1;1;0;0;2
+epci;200096675;CC Baud Communauté;1;1;0;0;0;0
+epci;200096683;CC Centre Morbihan Communauté;2;1;1;0;0;0
+epci;200096956;CA Agglomération d'Agen;3;1;2;0;0;0
+epci;240100610;CC de la Côtière à Montluel;1;1;0;0;0;0
+epci;240100750;CA du Pays de Gex;2;1;1;0;0;0
+epci;240100800;CC de Miribel et du Plateau;1;0;1;0;0;0
+epci;240100883;CC de la Plaine de l'Ain;2;1;1;0;0;0
+epci;240100891;CC Terre Valserhône (CCTV);2;1;1;0;0;0
+epci;240200477;CA GrandSoissons Agglomération;2;1;1;0;0;0
+epci;240200493;CC du Pays du Vermandois;2;1;1;0;0;0
+epci;240200501;CC du Val de l'Aisne;2;1;1;0;0;0
+epci;240200600;CC des Trois Rivières;2;1;1;0;0;0
+epci;240300491;CC du Pays de Lapalisse;2;1;1;0;0;0
+epci;240300558;CC du Pays de Tronçais;4;4;0;0;0;0
+epci;240400440;CC Pays Forcalquier et Montagne de Lure;2;1;1;0;0;1
+epci;240500439;CC du Briançonnais;2;1;1;0;0;0
+epci;240600551;CA de la Riviera Française;3;2;1;0;0;0
+epci;240600585;CA de Sophia Antipolis;6;2;3;0;1;0
+epci;240700617;CC Val de Ligne;1;1;0;0;0;0
+epci;240700864;CC du Rhône aux Gorges de l'Ardèche;2;1;1;0;0;0
+epci;240800821;CC Ardenne, Rives de Meuse;5;4;1;0;0;0
+epci;240800920;CC de l'Argonne Ardennaise;1;1;0;0;0;0
+epci;240900464;CC du Pays d'Olmes;2;1;1;0;0;0
+epci;241000405;CC de la Région de Bar sur Aube;1;1;0;0;0;0
+epci;241100593;CA Le Grand Narbonne;5;3;2;0;0;0
+epci;241200187;CA Rodez Agglomération;4;1;3;0;0;0
+epci;241200542;CC du Réquistanais;1;1;0;0;0;0
+epci;241200567;CC de Millau Grands Causses;4;1;2;0;1;0
+epci;241300375;CC Vallée des Baux-Alpilles (CC VBA);1;1;0;0;0;0
+epci;241300417;CA d'Arles-Crau-Camargue-Montagnette;10;5;6;1;0;1
+epci;241400514;CC du Pays de Falaise;1;0;1;0;0;0
+epci;241400555;CC de Bayeux Intercom;2;1;1;0;0;0
+epci;241400860;CC Coeur de Nacre;1;0;0;0;1;0
+epci;241500230;CA du Bassin d'Aurillac;2;1;1;0;0;0
+epci;241500271;CC du Pays de Mauriac;2;1;1;0;0;0
+epci;241700434;CA de La Rochelle;2;2;0;0;0;0
+epci;241700459;CC de l'Ile de Ré;1;1;0;0;0;0
+epci;241700624;CC de l'Ile d'Oléron;2;0;2;0;0;0
+epci;241700632;CC de Gémozac et de la Saintonge Viticole;1;1;0;0;0;0
+epci;241700640;CA Royan Atlantique;7;5;1;0;1;0
+epci;241700699;CC du Bassin de Marennes;2;0;2;0;0;0
+epci;241800374;CC la Septaine;1;1;0;0;0;0
+epci;241800432;CC les Trois Provinces;2;1;1;0;0;1
+epci;241800457;CC FerCher;1;1;0;0;0;0
+epci;241800507;CA Bourges Plus;5;2;3;0;0;0
+epci;241900133;CC de Ventadour - Egletons - Monédières;2;1;1;0;0;0
+epci;241927201;CA Tulle Agglo;2;1;1;0;0;0
+epci;242000354;CA de Bastia;4;2;2;0;0;0
+epci;242010056;CA du Pays Ajaccien;6;2;3;0;1;0
+epci;242010130;CC du Sartenais Valinco Taravo;3;2;1;0;0;0
+epci;242020071;CC du Centre Corse;2;1;1;0;0;0
+epci;242100154;CC des Vallées de la Tille et de l'Ignon;1;0;0;0;1;0
+epci;242100410;Dijon Métropole;11;5;5;0;1;0
+epci;242101434;CC du Pays Châtillonnais;1;0;0;0;1;0
+epci;242101442;CC de Saulieu-Morvan;1;0;0;0;1;0
+epci;242101491;CC du Montbardois;1;0;0;0;1;0
+epci;242101509;CC Rives de Saône;1;1;0;0;0;0
+epci;242200715;CC du Kreiz-Breizh (CCKB);2;1;1;0;0;0
+epci;242300135;CC du Pays Sostranien;2;1;1;0;0;0
+epci;242400752;CC Périgord-Limousin;1;1;0;0;0;0
+epci;242400935;CC du Pays de Saint Aulaye;2;2;0;0;0;0
+epci;242401024;CC Isle-Loue-Auvézère en Périgord;1;1;0;0;0;0
+epci;242500338;CC du Grand Pontarlier;2;1;1;0;0;0
+epci;242500361;CU Grand Besançon Métropole;4;2;2;0;0;0
+epci;242504116;CC du Val de Morteau;2;1;1;0;0;0
+epci;242504181;CC des Portes du Haut-Doubs;1;1;0;0;0;0
+epci;242504447;CC du Doubs Baumois;3;2;1;0;0;0
+epci;242600492;CC Dieulefit-Bourdeaux;3;1;2;0;0;1
+epci;242600534;CC du Diois;2;1;1;0;0;2
+epci;242700276;CC du Pays de Conches;1;1;0;0;0;0
+epci;242700607;CC du Pays du Neubourg;1;1;0;0;0;0
+epci;242852465;CC du Bonnevalais;1;1;0;0;0;0
+epci;242900074;CC du Pays d'Iroise;1;1;0;0;0;0
+epci;242900314;Brest Métropole;6;3;3;0;0;2
+epci;242900553;CC du Pays des Abers;1;1;0;0;0;0
+epci;242900629;CC Cap Sizun - Pointe du Raz;2;1;1;0;0;1
+epci;242900645;CC Douarnenez Communauté;3;1;1;0;1;0
+epci;242900694;CA Quimperlé Communauté;4;2;2;0;0;0
+epci;242900702;CC du Pays Bigouden Sud;1;1;0;0;0;0
+epci;242900744;CC Poher Communauté;2;1;1;0;0;0
+epci;242900751;CC du Pays de Landivisiau;1;1;0;0;0;0
+epci;242900769;CA Concarneau Cornouaille Agglomération;2;1;1;0;0;0
+epci;242900793;CC Communauté Lesneven Côte des Légendes;2;1;1;0;0;0
+epci;242900801;CA du Pays de Landerneau-Daoulas;1;1;0;0;0;0
+epci;242900835;CA Morlaix Communauté;5;3;1;0;1;1
+epci;243000270;CC du Pays Viganais;3;1;2;0;0;0
+epci;243000296;CC du Pays de Sommières;1;1;0;0;0;0
+epci;243000585;CC Beaucaire Terre d'Argence;2;1;1;0;0;0
+epci;243000593;CC de Petite Camargue;2;1;1;0;0;0
+epci;243000643;CA de Nîmes Métropole;9;2;7;0;0;0
+epci;243000684;CC du Pont du Gard;1;1;0;0;0;0
+epci;243100518;Toulouse Métropole;25;11;14;0;0;0
+epci;243100567;CC Aux sources du Canal du Midi;1;0;1;0;0;0
+epci;243100633;CA du Sicoval;1;0;1;0;0;0
+epci;243100773;CC Val'Aïgo;1;1;0;0;0;0
+epci;243100781;CC Le Grand Ouest Toulousain;1;0;1;0;0;0
+epci;243200391;CC de la Lomagne Gersoise;2;1;1;0;0;0
+epci;243200409;CC du Bas Armagnac;2;1;1;0;0;0
+epci;243200417;CC de la Tenarèze;1;1;0;0;0;0
+epci;243200425;CC Coeur d'Astarac en Gascogne;2;1;1;0;0;0
+epci;243200599;CC du Saves;1;1;0;0;0;0
+epci;243200607;CC Artagnan de Fezensac;1;1;0;0;0;0
+epci;243300316;Bordeaux Métropole;34;16;18;0;0;0
+epci;243301165;CC Jalle-Eau-Bourde;2;1;1;0;0;0
+epci;243301215;CC du Créonnais;2;1;1;0;0;0
+epci;243301223;CC du Grand Cubzaguais;2;1;1;0;0;0
+epci;243301371;CC du Pays Foyen;2;1;1;0;0;0
+epci;243301389;CC Médullienne;2;1;1;0;0;0
+epci;243301405;CC du Val de l'Eyre;1;0;1;0;0;0
+epci;243301454;CC Castillon/Pujols;1;1;0;0;0;0
+epci;243301504;CA du Bassin d'Arcachon Nord (COBAN);3;1;2;0;0;0
+epci;243400017;Montpellier Méditerranée Métropole;5;5;0;0;0;0
+epci;243400355;CC du Clermontais;1;1;0;0;0;0
+epci;243400520;CA Lunel Agglo;2;1;1;0;0;0
+epci;243400694;CC Vallée de l'Hérault;1;0;1;0;0;0
+epci;243400736;CC des Cévennes Gangeoises et Suménoises;1;1;0;0;0;0
+epci;243400769;CA de Béziers-Méditerranée;3;2;1;0;0;0
+epci;243400819;CA Hérault-Méditerranée;4;2;2;0;0;0
+epci;243500139;Rennes Métropole;11;6;5;0;0;0
+epci;243500550;CC Montfort Communauté;2;1;1;0;0;0
+epci;243500618;CC Brocéliande Communauté;1;0;1;0;0;0
+epci;243500634;CC Roche aux Fées Communauté;2;1;1;0;0;0
+epci;243500667;CC Val d'Ille-Aubigné;3;2;1;0;0;0
+epci;243500725;CC Côte d'Emeraude;2;1;1;0;0;0
+epci;243500733;CC Bretagne Romantique;2;1;1;0;0;0
+epci;243500741;CA Redon Agglomération;1;0;1;0;0;0
+epci;243500782;CA du Pays de Saint Malo Agglomération;2;1;1;0;0;0
+epci;243600236;CC du Pays d'Issoudun;2;1;1;0;0;0
+epci;243600301;CC Val de l'Indre - Brenne;2;1;1;0;0;0
+epci;243600319;CC Brenne - Val de Creuse;2;1;1;0;0;0
+epci;243600327;CA Châteauroux Métropole;3;2;1;0;0;0
+epci;243600350;CC de la Châtre et Sainte-Sévère;2;1;1;0;0;0
+epci;243700499;CC du Castelrenaudais;1;1;0;0;0;0
+epci;243700754;Tours Métropole Val de Loire;9;3;6;0;0;0
+epci;243700820;CC Autour de Chenonceaux Bléré-Val de Cher;1;0;1;0;0;0
+epci;243800604;CA Porte de l'Isère (CAPI);4;2;2;0;0;0
+epci;243800745;CC de l'Oisans;2;1;1;0;0;0
+epci;243800935;CC Lyon-Saint-Exupéry en Dauphiné;2;1;1;0;0;0
+epci;243800984;CA du Pays Voironnais;5;2;3;0;0;0
+epci;243801024;CC du Massif du Vercors;2;1;1;0;0;0
+epci;243900479;CC Haut-Jura Arcade Communauté;2;1;1;0;0;0
+epci;244000543;CC de Mimizan;1;1;0;0;0;0
+epci;244000675;CA du Grand Dax;2;1;1;0;0;0
+epci;244000691;CC du Pays Morcenais;2;1;1;0;0;0
+epci;244000774;CC du Pays de Villeneuve en Armagnac Landais;1;1;0;0;0;0
+epci;244000808;CA Mont de Marsan Agglomération;3;2;1;0;0;0
+epci;244000857;CC Côte Landes Nature;2;2;0;0;0;0
+epci;244000865;CC Maremne Adour Côte Sud;2;1;1;0;0;0
+epci;244000873;CC des Grands Lacs;5;4;1;0;0;0
+epci;244100806;CC de la Sologne des Rivières;1;0;1;0;0;0
+epci;244200630;CC du Pays Entre Loire et Rhône;1;1;0;0;0;1
+epci;244200770;Saint-Étienne Métropole;8;4;4;0;0;0
+epci;244200820;CC du Pays d'Urfé;2;0;2;0;0;0
+epci;244400404;Nantes Métropole;20;7;13;0;0;0
+epci;244400438;CC Grand Lieu Communauté;2;1;1;0;0;0
+epci;244400453;CC du Pays de Blain;3;2;1;0;0;0
+epci;244400503;CC d'Erdre et Gesvres;3;3;0;0;0;0
+epci;244400552;CC du Pays d'Ancenis;3;1;2;0;0;1
+epci;244400610;CA de la Presqu'île de Guérande Atlantique (Cap Atlantique);2;1;1;0;0;0
+epci;244400644;CA de la Région Nazairienne et de l'Estuaire (CARENE);3;1;2;0;0;0
+epci;244500203;CA Montargoise et Rives du Loing (AME);2;1;1;0;0;0
+epci;244500211;CC Giennoises;2;1;1;0;0;0
+epci;244500427;CC des Loges;3;2;1;0;0;0
+epci;244500468;Orléans Métropole;12;8;4;0;0;0
+epci;244600433;CC de la Vallée du Lot et du Vignoble;1;1;0;0;0;0
+epci;244600482;CC Quercy - Bouriane;1;1;0;0;0;0
+epci;244700464;CC du Pays de Lauzun;2;1;1;0;0;0
+epci;244701355;CC des Coteaux et Landes de Gascogne;2;1;1;0;0;0
+epci;244800405;CC Coeur de Lozère;5;2;3;0;0;0
+epci;244800470;CC du Gévaudan;2;1;1;0;0;0
+epci;244900015;CU Angers Loire Métropole;13;9;4;0;0;0
+epci;244900809;CC Anjou Bleu Communauté;2;1;1;0;0;0
+epci;244900882;CC Baugeois Vallée;3;2;1;0;0;0
+epci;245100888;CC de la Brie Champenoise;1;1;0;0;0;0
+epci;245300223;CC du Pays de Meslay-Grez;1;1;0;0;0;0
+epci;245300355;CC de l'Ernée;2;1;1;0;0;0
+epci;245300447;CC du Pays de Château-Gontier;2;1;1;0;0;0
+epci;245400171;CC Moselle et Madon;2;1;1;0;0;0
+epci;245400189;CC des Pays du Sel et du Vermois;2;1;1;0;0;0
+epci;245400262;CA Grand Longwy Agglomération;3;2;1;0;0;0
+epci;245400601;CC du Bassin de Pompey;3;1;2;0;0;2
+epci;245400676;Métropole du Grand Nancy;8;2;6;0;0;0
+epci;245500327;CC du Sammiellois;1;1;0;0;0;0
+epci;245501259;CC du Pays de Montmédy;1;1;0;0;0;0
+epci;245600465;CC de Belle Ile en Mer;1;0;1;0;0;1
+epci;245614383;CC Questembert Communauté;2;1;1;0;0;1
+epci;245614417;CC Roi Morvan Communauté;3;1;2;0;0;0
+epci;245614433;CC Pontivy Communauté;3;2;1;0;0;0
+epci;245700133;CC du District Urbain de Faulquemont (DUF);1;1;0;0;0;0
+epci;245700372;CA de Forbach Porte de France;2;1;1;0;0;0
+epci;245700398;CC de Freyming-Merlebach;1;1;0;0;0;0
+epci;245701164;CC du Warndt;1;1;0;0;0;0
+epci;245701206;CC du Saulnois;2;1;1;0;0;0
+epci;245701222;CA du Val de Fensch;3;2;1;0;0;0
+epci;245701271;CC du Pays Orne Moselle;1;1;0;0;0;0
+epci;245701362;CA Portes de France-Thionville;3;2;1;0;0;0
+epci;245701404;CC du Pays Haut Val d'Alzette;1;1;0;0;0;0
+epci;245804406;CA de Nevers;3;1;2;0;0;0
+epci;245900428;CU de Dunkerque;9;5;4;0;0;0
+epci;245900758;CC Flandre Lys;4;3;1;0;0;1
+epci;245901152;CA Coeur d'Ostrevent;4;3;1;0;0;0
+epci;245901160;CA Valenciennes Métropole;9;5;4;0;0;0
+epci;246000376;CC du Clermontois;2;1;1;0;0;0
+epci;246000566;CC du Plateau Picard;1;1;0;0;0;0
+epci;246000582;CC des Sablons;2;1;1;0;0;0
+epci;246000707;CC du Vexin-Thelle;1;1;0;0;0;0
+epci;246000756;CC du Pays Noyonnais;3;1;2;0;0;0
+epci;246000764;CC de l'Aire Cantilienne;3;1;1;0;1;0
+epci;246000848;CC de la Picardie Verte;1;1;0;0;0;0
+epci;246000871;CC du Pays de Valois;2;1;1;0;0;0
+epci;246000921;CC des Pays d'Oise et d'Halatte;1;1;0;0;0;0
+epci;246100663;CU d'Alençon;2;1;1;0;0;0
+epci;246200299;CA d'Hénin-Carvin;5;2;3;0;0;0
+epci;246200364;CA de Lens - Liévin;7;3;3;0;1;0
+epci;246200729;CA du Boulonnais;4;2;2;0;0;0
+epci;246300701;Clermont Auvergne Métropole;7;6;1;0;0;0
+epci;246400337;CC de la Vallée d'Ossau;1;1;1;1;0;0
+epci;246401756;CC Pays de Nay;2;1;1;0;0;0
+epci;246500482;CC de la Haute-Bigorre;2;1;1;0;0;0
+epci;246600373;CC du Vallespir;2;1;1;0;0;0
+epci;246600399;CC Pyrénées Cerdagne;3;2;1;0;0;0
+epci;246600423;CC Agly Fenouillèdes;1;0;1;0;0;1
+epci;246600449;CC des Aspres;2;1;1;0;0;0
+epci;246700306;CC de la Vallée de la Bruche;2;1;1;0;0;0
+epci;246700488;Eurométropole de Strasbourg;11;9;2;0;0;1
+epci;246700926;CC du Pays de Wissembourg;1;1;0;0;0;0
+epci;246700959;CC du Pays de la Zorn;1;1;0;0;0;1
+epci;246700967;CC de Sélestat;2;1;1;0;0;0
+epci;246701064;CC de la Région de Molsheim-Mutzig;2;1;1;0;0;0
+epci;246701080;CC du Pays de Sainte-Odile;2;1;1;0;0;0
+epci;246800445;CC du Centre du Haut-Rhin;1;1;0;0;0;0
+epci;246800494;CC du Pays de Rouffach, Vignobles et Châteaux;4;3;1;0;0;0
+epci;246800569;CC de la Région de Guebwiller;1;1;0;0;0;0
+epci;246800585;CC de la Vallée de Munster;1;1;0;0;0;0
+epci;246800676;CC de la Vallée de la Doller et du Soultzbach;1;1;0;0;0;0
+epci;246800726;CA Colmar Agglomération;1;1;0;0;0;0
+epci;246900625;CC du Pays de l'Arbresle (CCPA);2;1;1;0;0;0
+epci;246900724;CC des Vallons du Lyonnais (CCVL);1;1;0;0;0;0
+epci;246900765;CC du Pays de l'Ozon;1;1;0;0;0;0
+epci;247000011;CA de Vesoul;2;1;1;0;0;0
+epci;247000664;CC du Pays de Lure;2;1;1;0;0;0
+epci;247000706;CC du Pays Riolais;1;1;0;0;0;0
+epci;247000755;CC du Pays de Luxeuil;2;1;1;0;0;0
+epci;247100290;CU Le Creusot Montceau-les-Mines;7;4;3;0;0;0
+epci;247100589;CA Le Grand Chalon;3;1;2;0;0;0
+epci;247100647;CC Bresse Nord Intercom';1;1;1;1;0;1
+epci;247104094;CC Sud Côte Chalonnaise;1;1;0;0;0;1
+epci;247200090;CC du Pays Sabolien;2;1;1;0;0;0
+epci;247200132;CU Le Mans Métropole;8;6;2;0;0;0
+epci;247200348;CC du Pays Fléchois;2;1;1;0;0;0
+epci;247200686;CC du Pays de l'Huisne Sarthoise;2;1;1;0;0;0
+epci;247300254;CC de Haute-Tarentaise;2;1;1;0;0;0
+epci;247300262;CC de Yenne;2;1;1;0;0;0
+epci;247300528;CC Val Guiers;1;1;0;0;0;0
+epci;247300676;CC Porte de Maurienne;2;2;0;0;0;1
+epci;247400112;CC du Pays de Cruseilles;1;1;0;0;0;1
+epci;247400617;CC des Vallées de Thônes;1;1;0;0;0;1
+epci;247400690;CC du Genevois;2;1;1;0;0;0
+epci;247400724;CC du Pays Rochois;2;1;1;0;0;0
+epci;247400740;CC Rumilly Terre de Savoie;2;1;1;0;0;0
+epci;247400773;CC des Sources du Lac d'Annecy;1;1;0;0;0;1
+epci;247600588;CC des Villes Soeurs;2;1;1;0;0;0
+epci;247600620;CC Yvetot Normandie;2;1;1;0;0;0
+epci;247600646;CC Caux - Austreberthe;1;1;0;0;0;0
+epci;247600786;CA de la Région Dieppoise;2;1;1;0;0;0
+epci;247700057;CA Melun Val de Seine;5;2;3;0;0;0
+epci;247700065;CC du Pays de l'Ourcq;3;1;2;0;0;0
+epci;247700107;CC Pays de Montereau;2;1;1;0;0;0
+epci;247700594;CA Marne et Gondoire;3;1;1;0;1;0
+epci;247700644;CC l'Orée de la Brie;2;1;1;0;0;0
+epci;247700701;CC Brie Nangissienne;1;1;0;0;0;0
+epci;247800550;CC du Pays Houdanais (CCPH);1;1;0;0;0;0
+epci;247800584;CA Versailles Grand Parc (CAVGP);12;8;3;0;1;0
+epci;247900798;CC du Thouarsais;2;1;1;0;0;0
+epci;248000499;CC du Val de Somme;2;1;1;0;0;2
+epci;248000531;CA Amiens Métropole;4;2;2;0;0;0
+epci;248000747;CC du Pays du Coquelicot;2;1;1;0;0;0
+epci;248100430;CA de Castres Mazamet;5;2;2;0;1;0
+epci;248100497;CC Val 81;1;1;0;0;0;0
+epci;248100737;CA de l'Albigeois (C2A);5;2;3;0;0;1
+epci;248200016;CC des Deux Rives;1;0;1;0;0;0
+epci;248200057;CC du Quercy Caussadais;1;1;0;0;0;0
+epci;248200065;CC de la Lomagne Tarn-et-Garonnaise;1;0;0;0;1;0
+epci;248200099;CA Grand Montauban;5;3;2;0;0;0
+epci;248300394;CA Sud Sainte Baume;1;1;0;0;0;0
+epci;248300410;CC de la Vallée du Gapeau;3;3;0;0;0;2
+epci;248300493;CA Dracénie Provence Verdon Agglomération;2;1;1;0;0;0
+epci;248300543;Métropole Toulon-Provence-Méditerranée;12;8;4;0;0;2
+epci;248300550;CC Coeur du Var;2;1;1;0;0;0
+epci;248400053;CA Ventoux-Comtat-Venaissin (COVE);2;1;1;0;0;0
+epci;248400236;CC Pays d'Orange en Provence;2;1;1;0;0;0
+epci;248400251;CA du Grand Avignon (COGA);8;6;2;0;0;0
+epci;248400293;CA des Sorgues du Comtat;2;1;1;0;0;0
+epci;248400319;CC du Pays des Sorgues et des Monts de Vaucluse;2;1;1;0;0;0
+epci;248400335;CC Vaison Ventoux;2;1;1;0;0;0
+epci;248500191;CC de l'Ile de Noirmoutier;1;0;1;0;0;0
+epci;248500258;CC Océan Marais de Monts;1;1;0;0;0;0
+epci;248500340;CC Pays de Chantonnay;1;0;1;0;0;0
+epci;248500415;CC du Pays de la Châtaigneraie;2;1;1;0;0;0
+epci;248500589;CA La Roche-sur-Yon - Agglomération;9;5;4;0;0;0
+epci;248500621;CC du Pays des Herbiers;2;1;1;0;0;0
+epci;248600413;CA Grand Châtellerault;1;0;1;0;0;0
+epci;248600447;CC du Pays Loudunais;1;0;0;0;1;0
+epci;248700189;CC du Pays de Saint Yrieix;1;1;0;0;0;0
+epci;248719312;CU Limoges Métropole;5;4;1;0;0;0
+epci;248719361;CC de Noblat;1;1;0;0;0;0
+epci;248900334;CA du Grand Sénonais;3;1;2;0;0;0
+epci;248900938;CC du Jovinien;2;1;1;0;0;0
+epci;249100074;CC du Pays de Limours (CCPL);1;1;0;0;0;0
+epci;249100157;CC des 2 Vallées;1;0;1;0;0;0
+epci;249100546;CC du Val d'Essonne (CCVE);3;2;1;0;0;0
+epci;249100595;CC le Dourdannais en Hurepoix (CCDH);2;1;1;0;0;0
+epci;249500109;CA de Cergy-Pontoise;4;2;2;0;0;0
+epci;249500489;CC du Haut Val d'Oise;3;2;1;0;0;0
+epci;249500513;CC du Vexin-Val de Seine;1;1;0;0;0;0
+epci;249710047;CC de Marie-Galante;2;1;1;0;0;0
+epci;249710062;CA du Nord Basse-Terre;2;2;0;0;0;0
+epci;249710070;CA Grand Sud Caraïbe;5;3;2;0;0;0
+epci;249720053;CA de l'Espace Sud de la Martinique;4;2;2;0;0;0
+epci;249720061;CA du Centre de la Martinique;7;3;4;0;0;0
+epci;249730037;CC de l'Ouest Guyanais;1;1;0;0;0;0
+epci;249730045;CA du Centre Littoral;4;2;2;0;0;0
+epci;249740077;CA CIVIS (Communauté Intercommunale des Villes Solidaires);5;2;3;0;0;1
+epci;249740085;CA du Sud;4;2;2;0;0;0
+epci;249740093;CA Intercommunale de la Réunion Est (CIREST);4;2;2;0;0;0
+epci;249740101;CA Territoire de la Côte Ouest (TCO);6;3;3;0;0;0
+epci;249740119;CA Intercommunale du Nord de la Réunion (CINOR);4;2;2;0;0;0
+epci;C85113;L'Île-d'Yeu;1;0;1;0;0;0
+dep;01;Ain;21;11;10;0;0;0
+dep;02;Aisne;19;10;9;0;0;0
+dep;03;Allier;34;22;12;0;0;0
+dep;04;Alpes-de-Haute-Provence;22;14;8;0;0;12
+dep;05;Hautes-Alpes;13;7;6;0;0;3
+dep;06;Alpes-Maritimes;43;21;20;0;2;4
+dep;07;Ardèche;17;8;9;0;0;1
+dep;08;Ardennes;14;11;3;0;0;0
+dep;09;Ariège;7;4;3;0;0;0
+dep;10;Aube;16;9;7;0;0;0
+dep;11;Aude;15;9;6;0;0;1
+dep;12;Aveyron;17;10;6;0;1;0
+dep;13;Bouches-du-Rhône;77;43;35;1;0;3
+dep;14;Calvados;34;22;11;0;1;0
+dep;15;Cantal;8;4;4;0;0;0
+dep;16;Charente;25;16;9;0;0;0
+dep;17;Charente-Maritime;34;20;12;0;2;0
+dep;18;Cher;18;10;8;0;0;1
+dep;19;Corrèze;10;6;4;0;0;0
+dep;21;Côte-d'Or;22;8;9;0;5;0
+dep;22;Côtes-d'Armor;24;13;10;0;1;0
+dep;23;Creuse;10;6;4;0;0;0
+dep;24;Dordogne;31;17;14;0;0;0
+dep;25;Doubs;16;11;5;0;0;0
+dep;26;Drôme;23;11;12;0;0;6
+dep;27;Eure;18;11;7;0;0;0
+dep;28;Eure-et-Loir;10;6;4;0;0;0
+dep;29;Finistère;45;25;15;0;5;7
+dep;2A;Corse-du-Sud;12;6;5;0;1;0
+dep;2B;Haute-Corse;10;5;5;0;0;0
+dep;30;Gard;30;14;16;0;0;0
+dep;31;Haute-Garonne;39;17;21;0;1;1
+dep;32;Gers;13;8;5;0;0;0
+dep;33;Gironde;67;31;36;0;0;0
+dep;34;Hérault;28;18;10;0;0;0
+dep;35;Ille-et-Vilaine;37;18;19;0;0;0
+dep;36;Indre;15;8;7;0;0;0
+dep;37;Indre-et-Loire;18;8;10;0;0;0
+dep;38;Isère;65;29;36;0;0;1
+dep;39;Jura;16;7;9;0;0;0
+dep;40;Landes;27;21;6;0;0;0
+dep;41;Loir-et-Cher;15;6;9;0;0;1
+dep;42;Loire;21;11;10;0;0;2
+dep;43;Haute-Loire;7;4;3;0;0;0
+dep;44;Loire-Atlantique;50;23;27;0;0;2
+dep;45;Loiret;24;15;9;0;0;0
+dep;46;Lot;13;8;5;0;0;0
+dep;47;Lot-et-Garonne;18;8;10;0;0;0
+dep;48;Lozère;14;7;7;0;0;0
+dep;49;Maine-et-Loire;31;19;12;0;0;0
+dep;50;Manche;33;21;12;0;0;5
+dep;51;Marne;23;15;8;0;0;0
+dep;52;Haute-Marne;10;5;5;0;0;0
+dep;53;Mayenne;16;11;5;0;0;0
+dep;54;Meurthe-et-Moselle;32;15;17;0;0;5
+dep;55;Meuse;12;7;5;0;0;0
+dep;56;Morbihan;38;20;18;0;0;3
+dep;57;Moselle;35;22;13;0;0;0
+dep;58;Nièvre;13;11;2;0;0;0
+dep;59;Nord;99;57;39;0;3;2
+dep;60;Oise;30;16;13;0;1;0
+dep;61;Orne;19;10;9;0;0;1
+dep;62;Pas-de-Calais;49;22;24;0;3;1
+dep;63;Puy-de-Dôme;13;10;3;0;0;0
+dep;64;Pyrénées-Atlantiques;28;19;13;4;0;0
+dep;65;Hautes-Pyrénées;11;7;4;0;0;3
+dep;66;Pyrénées-Orientales;22;12;10;0;0;2
+dep;67;Bas-Rhin;31;21;10;0;0;2
+dep;68;Haut-Rhin;17;14;3;0;0;0
+dep;69;Rhône;82;39;39;0;4;0
+dep;70;Haute-Saône;10;6;4;0;0;0
+dep;71;Saône-et-Loire;26;14;13;1;0;3
+dep;72;Sarthe;24;15;9;0;0;0
+dep;73;Savoie;33;15;18;0;0;1
+dep;74;Haute-Savoie;30;17;13;0;0;3
+dep;75;Paris;61;34;26;0;1;0
+dep;76;Seine-Maritime;66;34;33;1;0;3
+dep;77;Seine-et-Marne;50;26;22;0;2;0
+dep;78;Yvelines;50;32;13;0;5;0
+dep;79;Deux-Sèvres;11;8;3;0;0;0
+dep;80;Somme;22;12;11;1;0;6
+dep;81;Tarn;28;13;11;0;4;1
+dep;82;Tarn-et-Garonne;12;6;5;0;1;0
+dep;83;Var;38;27;13;2;0;10
+dep;84;Vaucluse;28;16;12;0;0;0
+dep;85;Vendée;30;15;15;0;0;0
+dep;86;Vienne;15;12;2;0;1;0
+dep;87;Haute-Vienne;9;8;1;0;0;0
+dep;88;Vosges;25;15;10;0;0;12
+dep;89;Yonne;17;7;10;0;0;0
+dep;90;Territoire de Belfort;2;1;1;0;0;0
+dep;91;Essonne;53;30;21;0;2;2
+dep;92;Hauts-de-Seine;60;29;31;0;0;2
+dep;93;Seine-Saint-Denis;54;26;28;0;0;0
+dep;94;Val-de-Marne;52;26;25;0;1;1
+dep;95;Val-d'Oise;33;16;15;0;2;0
+dep;971;Guadeloupe;22;14;8;0;0;0
+dep;972;Martinique;17;8;9;0;0;0
+dep;973;Guyane;5;3;2;0;0;0
+dep;974;La Réunion;23;11;12;0;0;1
+dep;976;Mayotte;7;4;3;0;0;0
+reg;01;Guadeloupe;22;14;8;0;0;0
+reg;02;Martinique;17;8;9;0;0;0
+reg;03;Guyane;5;3;2;0;0;0
+reg;04;La Réunion;23;11;12;0;0;1
+reg;06;Mayotte;7;4;3;0;0;0
+reg;11;Île-de-France;413;219;181;0;13;5
+reg;24;Centre-Val de Loire;100;53;47;0;0;2
+reg;27;Bourgogne-Franche-Comté;122;65;53;1;5;3
+reg;28;Normandie;170;98;72;1;1;9
+reg;32;Hauts-de-France;219;117;96;1;7;9
+reg;44;Grand Est;215;134;81;0;0;19
+reg;52;Pays de la Loire;151;83;68;0;0;2
+reg;53;Bretagne;144;76;62;0;6;10
+reg;75;Nouvelle-Aquitaine;285;172;114;4;3;0
+reg;76;Occitanie;249;133;109;0;7;8
+reg;84;Auvergne-Rhône-Alpes;354;181;169;0;4;14
+reg;93;Provence-Alpes-Côte d'Azur;221;128;94;3;2;32
+reg;94;Corse;22;11;10;0;1;0
+fr;FR;France;2739;1510;1190;10;49;114

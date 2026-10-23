@@ -1,0 +1,358 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fichiers à télécharger · Ubi Cura</title>
+<meta name="description" content="Offre de soins et de santé mentale en France, par territoire, à partir des données publiques.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%231D4D87%22/%3E%3Crect%20x%3D%227%22%20y%3D%2217%22%20width%3D%224.5%22%20height%3D%228%22%20rx%3D%221%22%20fill%3D%22%23B39BCB%22/%3E%3Crect%20x%3D%2213.75%22%20y%3D%2212%22%20width%3D%224.5%22%20height%3D%2213%22%20rx%3D%221%22%20fill%3D%22%23D4C3EA%22/%3E%3Crect%20x%3D%2220.5%22%20y%3D%227%22%20width%3D%224.5%22%20height%3D%2218%22%20rx%3D%221%22%20fill%3D%22%23FFFFFF%22/%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="Ubi Cura">
+<meta property="og:title" content="Fichiers à télécharger">
+<meta property="og:description" content="Offre de soins et de santé mentale en France, par territoire, à partir des données publiques.">
+<meta name="theme-color" content="#15171C">
+<link rel="stylesheet" href="polices/polices.css">
+<link rel="stylesheet" href="style.css?v=2b21456a4b">
+<script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||"dark")}catch(e){document.documentElement.setAttribute("data-theme","dark")}</script>
+</head>
+<body>
+<nav class="site" aria-label="Navigation du site">
+  <div class="in">
+    <a class="marque" href="index.html" title="Offre de soins et santé mentale en France, territoire par territoire">Ubi Cura</a>
+    <button class="menu" id="bouton-menu" type="button" aria-expanded="false" aria-controls="liens-site">Menu</button>
+    <div class="liens" id="liens-site">
+    <a class="l" href="atlas.html">Atlas</a>
+    <a class="l" href="rapports.html">Rapports nationaux</a>
+    <a class="l" href="territoires/index.html">Rapports par territoire</a>
+    <a class="l on" href="methode.html">Méthode, données et limites</a>
+    
+    <div class="projet">
+      <button class="l" id="bouton-projet" type="button" aria-expanded="false" aria-controls="menu-projet">Le projet <span class="fleche" aria-hidden="true">▾</span></button>
+      <div class="sous-menu" id="menu-projet" hidden>
+        <a href="a-propos.html">À propos</a>
+        <a href="publications.html">Publications</a>
+        <a href="journal.html">Journal des mises à jour</a>
+        <a href="a-venir.html">À venir</a>
+        <a href="contribuer.html">Proposer une base de données</a>
+        
+      </div>
+    </div>
+    <button class="theme" id="bascule-theme" type="button" aria-pressed="false">Fond clair</button>
+    </div>
+  </div>
+</nav>
+<script>
+// menu « Le projet », ouvert au clic ou au clavier, fermé par Échap ou par un clic ailleurs
+(function(){var b=document.getElementById("bouton-projet"),m=document.getElementById("menu-projet");if(!b||!m)return;
+function ouvrir(o,focus){m.hidden=!o;b.setAttribute("aria-expanded",String(o));if(o&&focus){var a=m.querySelector("a");if(a)a.focus()}}
+b.addEventListener("click",function(){ouvrir(m.hidden,false)});
+b.addEventListener("keydown",function(e){if(e.key==="ArrowDown"){e.preventDefault();ouvrir(true,true)}});
+m.addEventListener("keydown",function(e){var l=[].slice.call(m.querySelectorAll("a")),i=l.indexOf(document.activeElement);
+  if(e.key==="ArrowDown"){e.preventDefault();l[(i+1)%l.length].focus()}else if(e.key==="ArrowUp"){e.preventDefault();l[(i-1+l.length)%l.length].focus()}});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!m.hidden){ouvrir(false);b.focus()}});
+document.addEventListener("click",function(e){if(!m.hidden&&!b.parentNode.contains(e.target))ouvrir(false)})})();
+// téléphone, liens du site repliés derrière « Menu » (audit du 22 octobre 2026) ; sommaire d'une page replié derrière
+// « Sommaire », ouvert au clic, refermé quand on choisit une section
+(function(){var b=document.getElementById("bouton-menu"),n=b&&b.closest("nav.site");if(!b)return;
+b.addEventListener("click",function(){var o=!n.classList.contains("ouvert");n.classList.toggle("ouvert",o);b.setAttribute("aria-expanded",String(o))})})();
+document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll("aside.sommaire").forEach(function(a){
+  if(!a.querySelector("ul"))return;var t=document.createElement("button");t.type="button";t.className="bouton-sommaire";
+  t.setAttribute("aria-expanded","false");t.textContent="Sommaire";a.insertBefore(t,a.firstChild);
+  t.addEventListener("click",function(){var o=!a.classList.contains("ouvert");a.classList.toggle("ouvert",o);t.setAttribute("aria-expanded",String(o))});
+  a.addEventListener("click",function(e){if(e.target.closest("a")){a.classList.remove("ouvert");t.setAttribute("aria-expanded","false")}})})});
+(function(){var b=document.getElementById("bascule-theme"),r=document.documentElement;
+function maj(){var c=r.getAttribute("data-theme")==="light";b.textContent=c?"Fond sombre":"Fond clair";b.setAttribute("aria-pressed",String(c))}
+maj();b.addEventListener("click",function(){var t=r.getAttribute("data-theme")==="light"?"dark":"light";r.setAttribute("data-theme",t);
+try{localStorage.setItem("theme",t)}catch(e){}maj();window.dispatchEvent(new Event("theme"))})})();
+</script>
+<main class="" data-citation-page="Pithon L. (2026). Fichiers à télécharger. Ubi Cura, version du 23 octobre 2026" data-adresse="https://ubicura.fr">
+
+<h1>Fichiers à télécharger</h1>
+<p class="chapeau">Toutes les données de la version, en fichiers CSV, avec le dictionnaire des colonnes.</p>
+<div class="rapport">
+<aside class="sommaire" aria-label="Sommaire de la méthode">
+<ul>
+<li><a href="methode.html">Vue d&#39;ensemble</a>
+</li>
+<li><a href="methode-structures.html">Structures de soins</a>
+</li>
+<li><a href="methode-indicateurs.html">Indicateurs du profil des territoires</a>
+</li>
+<li><a href="methode-controles.html">Contrôles et concordance</a>
+</li>
+<li><a href="methode-fichiers.html" aria-current="page" class="actif">Fichiers à télécharger</a>
+</li>
+</ul>
+</aside>
+<div class="methode">
+
+
+
+
+
+
+
+
+
+<h2 id="telecharger">Données à télécharger</h2>
+<p><a href="donnees/2026-10-23/donnees_2026-10-23.zip">Télécharger toutes les données de la version</a> (archive zip, 30 Mo).</p>
+<p>Fichiers CSV de la version du 23 octobre 2026, séparateur point-virgule et virgule décimale, pour s'ouvrir directement dans un tableur. Les plus gros sont compressés en zip. Le <a href="donnees/2026-10-23/dictionnaire.html">dictionnaire des colonnes</a> décrit chaque fichier et chaque colonne.</p>
+<table class="simple filtrable"><thead><tr><th>Fichier</th><th>Contenu</th><th>Taille</th></tr></thead><tbody>
+<tr><td><a href="donnees/2026-10-23/accessibilite.csv">accessibilite.csv</a></td><td>Distance au professionnel le plus proche, résumée par profession (part des habitants à plus de 5, 10, 20 et 30 km).</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/accessibilite_communes.csv.zip">accessibilite_communes.csv (archive zip)</a></td><td>Distance au professionnel le plus proche et accessibilité potentielle à deux étapes, par commune.</td><td>6,7 Mo</td></tr><tr><td><a href="donnees/2026-10-23/accessibilite_epci.csv">accessibilite_epci.csv</a></td><td>Distance moyenne et accessibilité moyenne des habitants, par intercommunalité.</td><td>0,8 Mo</td></tr><tr><td><a href="donnees/2026-10-23/acp_charges.csv">acp_charges.csv</a></td><td>Corrélation de chaque profession avec les premiers axes de l&#39;analyse en composantes principales.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/acp_inertie.csv">acp_inertie.csv</a></td><td>Valeur propre et part des différences entre intercommunalités résumée par chaque axe de l&#39;analyse en composantes principales.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/activites_particulieres.csv">activites_particulieres.csv</a></td><td>Professionnels qui déclarent des activités sans soins à la population (retirées des densités) ou pour un public particulier (gardées), en France.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/activites_particulieres_dep.csv">activites_particulieres_dep.csv</a></td><td>Mêmes activités comptées par territoire (département).</td><td>0,3 Mo</td></tr><tr><td><a href="donnees/2026-10-23/activites_particulieres_epci.csv">activites_particulieres_epci.csv</a></td><td>Mêmes activités comptées par territoire (intercommunalité).</td><td>0,6 Mo</td></tr><tr><td><a href="donnees/2026-10-23/activites_particulieres_reg.csv">activites_particulieres_reg.csv</a></td><td>Mêmes activités comptées par territoire (région).</td><td>0,1 Mo</td></tr><tr><td><a href="donnees/2026-10-23/ald_departements.csv">ald_departements.csv</a></td><td>Personnes en affection de longue durée (ALD) par département, pour les 30 affections de la liste, d&#39;après l&#39;Assurance Maladie (régime général, Licence Ouverte). Effectifs arrondis à la dizaine et taux standardisés sur l&#39;âge. Une ALD mesure une maladie reconnue, pas toutes les personnes malades.</td><td>0,3 Mo</td></tr><tr><td><a href="donnees/2026-10-23/allocataires_caf.csv">allocataires_caf.csv</a></td><td>Bénéficiaires de l&#39;AAH et de l&#39;AEEH, et population couverte par le RSA, d&#39;après la CAF (décembre), par intercommunalité, département et région, avec l&#39;effectif, la population du territoire et la valeur rapportée. Les allocataires du régime agricole (MSA) ne sont pas comptés.</td><td>0,2 Mo</td></tr><tr><td><a href="donnees/2026-10-23/categories_etablissements.csv.zip">categories_etablissements.csv (archive zip)</a></td><td>Effectifs salariés par catégorie d&#39;établissement FINESS, France et départements.</td><td>0,7 Mo</td></tr><tr><td><a href="donnees/2026-10-23/charge_cmp_sae.csv">charge_cmp_sae.csv</a></td><td>File active ambulatoire et psychiatres salariés en temps plein rapportés aux CMP que les établissements déclarent à la statistique annuelle des établissements de santé (SAE), par discipline. Département du siège de l&#39;établissement. La file active ambulatoire compte aussi les patients vus hors CMP (CATTP, consultations, liaison).</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/classes_densite.csv">classes_densite.csv</a></td><td>Densités de professionnels par classe de densité de population.</td><td>0,1 Mo</td></tr><tr><td><a href="donnees/2026-10-23/cmp_par_public.csv">cmp_par_public.csv</a></td><td>Centres médico-psychologiques par public, pour adultes, pour enfants et adolescents, accueillant les deux, au public non précisé, par territoire.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/combinaisons.csv">combinaisons.csv</a></td><td>Combinaisons de présence du médecin généraliste, du psychologue et du psychiatre, par commune et par intercommunalité.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/comparaison_apl.csv">comparaison_apl.csv</a></td><td>Ressemblance entre l&#39;accessibilité calculée ici et l&#39;accessibilité potentielle localisée (APL) de la DREES.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/comparaison_route.csv">comparaison_route.csv</a></td><td>Ressemblance, commune par commune, entre la distance à vol d&#39;oiseau calculée ici et le temps de trajet de l&#39;INSEE.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/composition_sante_mentale.csv">composition_sante_mentale.csv</a></td><td>Psychologues et psychiatres par territoire, et nombre de psychologues pour un psychiatre.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/concentration_distance_lieux.csv">concentration_distance_lieux.csv</a></td><td>Indice de concentration de la distance aux structures de soins selon le niveau de vie des intercommunalités, avec sa fourchette.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/concentration_revenu.csv">concentration_revenu.csv</a></td><td>Indice de concentration des professionnels selon le niveau de vie des territoires, avec intervalle de confiance.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/concordance_besoins.csv">concordance_besoins.csv</a></td><td>Corrélation de rang entre deux indicateurs de besoin ou de recours aux soins en santé mentale, entre départements. Montre si les approches du besoin vont dans le même sens.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/concordance_besoins_odbl.csv">concordance_besoins_odbl.csv</a></td><td>Corrélation de rang entre deux indicateurs de besoin ou de recours aux soins en santé mentale, entre départements. Montre si les approches du besoin vont dans le même sens. Licence ODbL.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/concordance_cattp_sae.csv">concordance_cattp_sae.csv</a></td><td>CATTP recensés par FINESS et le ROR confrontés aux CATTP que les établissements déclarent à la SAE de la DREES, par département et région.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/concordance_cmp_etablissements.csv">concordance_cmp_etablissements.csv</a></td><td>CMP et CATTP confrontés hôpital par hôpital (entité juridique) aux déclarations de la SAE, pour repérer les établissements à vérifier.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/concordance_cmp_sae.csv">concordance_cmp_sae.csv</a></td><td>CMP recensés par FINESS et le ROR confrontés aux CMP que les établissements déclarent à la SAE de la DREES, par département et région.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/concordance_effectifs.csv">concordance_effectifs.csv</a></td><td>Effectifs nationaux rapprochés des séries publiées par la DREES (démographie des professionnels de santé), avec le champ de chaque source et l&#39;explication de l&#39;écart.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/concordance_effectifs_dep.csv">concordance_effectifs_dep.csv</a></td><td>Effectifs par département rapprochés de ceux de la DREES, ressemblance du classement et rapport entre les deux effectifs.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/concordance_finess_ror.csv">concordance_finess_ror.csv</a></td><td>Provenance des structures de soins par département et par type, dans les deux bases, dans FINESS seul ou dans le ROR seul.</td><td>0,4 Mo</td></tr><tr><td><a href="donnees/2026-10-23/contexte_com.csv.zip">contexte_com.csv (archive zip)</a></td><td>Indicateurs de contexte INSEE par commune.</td><td>2,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/contexte_dep.csv">contexte_dep.csv</a></td><td>Indicateurs de contexte INSEE par département.</td><td>0,1 Mo</td></tr><tr><td><a href="donnees/2026-10-23/contexte_dep_odbl.csv">contexte_dep_odbl.csv</a></td><td>Indicateurs de contexte INSEE par département. Licence ODbL.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/contexte_epci.csv">contexte_epci.csv</a></td><td>Indicateurs de contexte INSEE par intercommunalité.</td><td>0,5 Mo</td></tr><tr><td><a href="donnees/2026-10-23/contexte_reg.csv">contexte_reg.csv</a></td><td>Indicateurs de contexte INSEE par région.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/contexte_reg_odbl.csv">contexte_reg_odbl.csv</a></td><td>Indicateurs de contexte INSEE par région. Licence ODbL.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/controle_appariement_finess.csv">controle_appariement_finess.csv</a></td><td>Contrôle de l&#39;appariement entre le RPPS et FINESS.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/correlations_contexte.csv.zip">correlations_contexte.csv (archive zip)</a></td><td>Corrélations entre densité de chaque profession et indicateurs de contexte.</td><td>1,2 Mo</td></tr><tr><td><a href="donnees/2026-10-23/correlations_contexte_odbl.csv">correlations_contexte_odbl.csv</a></td><td>Corrélations entre densité de chaque profession et indicateurs de contexte. Licence ODbL.</td><td>0,5 Mo</td></tr><tr><td><a href="donnees/2026-10-23/correlations_professions_dep.csv">correlations_professions_dep.csv</a></td><td>Matrice des corrélations de rang entre densités de professions, par département.</td><td>0,1 Mo</td></tr><tr><td><a href="donnees/2026-10-23/correlations_professions_epci.csv">correlations_professions_epci.csv</a></td><td>Matrice des corrélations de rang entre densités de professions, par intercommunalité.</td><td>0,1 Mo</td></tr><tr><td><a href="donnees/2026-10-23/croisements.csv">croisements.csv</a></td><td>Croisements départementaux entre une mesure de l&#39;offre et un indicateur du profil ou du besoin, corrélation de rang brute et à densité de population égale, avec intervalles de confiance par bootstrap.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/croisements_indicateurs.csv">croisements_indicateurs.csv</a></td><td>Corrélation de rang entre chaque paire d&#39;indicateurs de santé mentale, de recours aux soins et de vulnérabilité, par département, avec intervalle de confiance, correction de Benjamini-Hochberg et valeur sans l&#39;Île-de-France.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/croisements_indicateurs_odbl.csv">croisements_indicateurs_odbl.csv</a></td><td>Corrélation de rang entre chaque paire d&#39;indicateurs de santé mentale, de recours aux soins et de vulnérabilité, par département, avec intervalle de confiance, correction de Benjamini-Hochberg et valeur sans l&#39;Île-de-France. Licence ODbL.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/croisements_odbl.csv">croisements_odbl.csv</a></td><td>Croisements départementaux entre une mesure de l&#39;offre et un indicateur du profil ou du besoin, corrélation de rang brute et à densité de population égale, avec intervalles de confiance par bootstrap. Licence ODbL.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/decomposition_theil.csv">decomposition_theil.csv</a></td><td>Décomposition de l&#39;indice de Theil entre et dans les départements, et entre et dans les classes de densité.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/diplomes_psychologues.csv">diplomes_psychologues.csv</a></td><td>Diplômes déclarés par les psychologues.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/distances_lieux_classes_densite.csv">distances_lieux_classes_densite.csv</a></td><td>Distance des habitants à la structure de soins la plus proche selon le type de territoire (classes de densité des intercommunalités), avec le test de l&#39;écart entre classes.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/distances_lieux_communes.csv.zip">distances_lieux_communes.csv (archive zip)</a></td><td>Distance à vol d&#39;oiseau du centre de chaque commune à la structure de soins la plus proche de chaque type recensé presque partout.</td><td>2,2 Mo</td></tr><tr><td><a href="donnees/2026-10-23/distances_lieux_dep.csv">distances_lieux_dep.csv</a></td><td>Distance à vol d&#39;oiseau des habitants à la structure de soins la plus proche de chaque type, par département.</td><td>0,6 Mo</td></tr><tr><td><a href="donnees/2026-10-23/distances_lieux_epci.csv.zip">distances_lieux_epci.csv (archive zip)</a></td><td>Distance à vol d&#39;oiseau des habitants à la structure de soins la plus proche de chaque type, par intercommunalité.</td><td>1,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/distances_lieux_france.csv">distances_lieux_france.csv</a></td><td>Distance à vol d&#39;oiseau des habitants à la structure de soins la plus proche de chaque type, France entière.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/distances_lieux_reg.csv">distances_lieux_reg.csv</a></td><td>Distance à vol d&#39;oiseau des habitants à la structure de soins la plus proche de chaque type, par région.</td><td>0,1 Mo</td></tr><tr><td><a href="donnees/2026-10-23/double_eloignement.csv">double_eloignement.csv</a></td><td>Part des habitants qui vivent dans une intercommunalité sans professionnel déclaré du champ et à plus de 20 km à vol d&#39;oiseau d&#39;une structure du même champ, France, régions et départements.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/ecarts_attendu.csv">ecarts_attendu.csv</a></td><td>Effectif observé et attendu par intercommunalité et profession.</td><td>1,4 Mo</td></tr><tr><td><a href="donnees/2026-10-23/effectifs_com_all.csv.zip">effectifs_com_all.csv (archive zip)</a></td><td>Effectifs et densités par commune, tous modes d&#39;exercice. Une ligne par territoire, une paire de colonnes par profession.</td><td>1,3 Mo</td></tr><tr><td><a href="donnees/2026-10-23/effectifs_com_lib.csv.zip">effectifs_com_lib.csv (archive zip)</a></td><td>Effectifs et densités par commune, exercice libéral. Une ligne par territoire, une paire de colonnes par profession.</td><td>1,1 Mo</td></tr><tr><td><a href="donnees/2026-10-23/effectifs_com_sal.csv.zip">effectifs_com_sal.csv (archive zip)</a></td><td>Effectifs et densités par commune, exercice salarié. Une ligne par territoire, une paire de colonnes par profession.</td><td>1,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/effectifs_dep_all.csv">effectifs_dep_all.csv</a></td><td>Effectifs et densités par département, tous modes d&#39;exercice. Une ligne par territoire, une paire de colonnes par profession.</td><td>0,1 Mo</td></tr><tr><td><a href="donnees/2026-10-23/effectifs_dep_lib.csv">effectifs_dep_lib.csv</a></td><td>Effectifs et densités par département, exercice libéral. Une ligne par territoire, une paire de colonnes par profession.</td><td>0,1 Mo</td></tr><tr><td><a href="donnees/2026-10-23/effectifs_dep_sal.csv">effectifs_dep_sal.csv</a></td><td>Effectifs et densités par département, exercice salarié. Une ligne par territoire, une paire de colonnes par profession.</td><td>0,1 Mo</td></tr><tr><td><a href="donnees/2026-10-23/effectifs_epci_all.csv">effectifs_epci_all.csv</a></td><td>Effectifs et densités par intercommunalité, tous modes d&#39;exercice. Une ligne par territoire, une paire de colonnes par profession.</td><td>0,8 Mo</td></tr><tr><td><a href="donnees/2026-10-23/effectifs_epci_lib.csv">effectifs_epci_lib.csv</a></td><td>Effectifs et densités par intercommunalité, exercice libéral. Une ligne par territoire, une paire de colonnes par profession.</td><td>0,6 Mo</td></tr><tr><td><a href="donnees/2026-10-23/effectifs_epci_sal.csv">effectifs_epci_sal.csv</a></td><td>Effectifs et densités par intercommunalité, exercice salarié. Une ligne par territoire, une paire de colonnes par profession.</td><td>0,7 Mo</td></tr><tr><td><a href="donnees/2026-10-23/effectifs_france.csv">effectifs_france.csv</a></td><td>Effectifs nationaux par profession et mode d&#39;exercice, en personnes distinctes, activités sans lieu d&#39;exercice comprises.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/effectifs_reg_all.csv">effectifs_reg_all.csv</a></td><td>Effectifs et densités par région, tous modes d&#39;exercice. Une ligne par territoire, une paire de colonnes par profession.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/effectifs_reg_lib.csv">effectifs_reg_lib.csv</a></td><td>Effectifs et densités par région, exercice libéral. Une ligne par territoire, une paire de colonnes par profession.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/effectifs_reg_sal.csv">effectifs_reg_sal.csv</a></td><td>Effectifs et densités par région, exercice salarié. Une ligne par territoire, une paire de colonnes par profession.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/entonnoir.csv.zip">entonnoir.csv (archive zip)</a></td><td>Position de chaque territoire dans le diagramme en entonnoir.</td><td>1,5 Mo</td></tr><tr><td><a href="donnees/2026-10-23/entonnoir_limites.csv">entonnoir_limites.csv</a></td><td>Limites de l&#39;entonnoir selon la population (pour tracer le graphique).</td><td>0,6 Mo</td></tr><tr><td><a href="donnees/2026-10-23/entonnoir_resume.csv">entonnoir_resume.csv</a></td><td>Part des territoires et des habitants hors des limites de l&#39;entonnoir.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/escalier_distance_lieux.csv">escalier_distance_lieux.csv</a></td><td>Distance des habitants à la structure de soins la plus proche selon le niveau de vie de leur intercommunalité, par dixième de la population.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/escalier_social.csv">escalier_social.csv</a></td><td>Densité de professionnels par dixième de la population, territoires classés par niveau de vie croissant.</td><td>0,1 Mo</td></tr><tr><td><a href="donnees/2026-10-23/etablissements_verifies.csv">etablissements_verifies.csv</a></td><td>Établissements dont les structures ont été reprises une à une sur leurs propres sources (liste vérifiée).</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/evolution_offre.csv">evolution_offre.csv</a></td><td>Effectif et densité de chaque année, par profession, pour la France, les régions et les départements, d&#39;après les séries de démographie de la DREES (un professionnel compté une fois, dans le département de son activité principale) et les estimations de population de l&#39;INSEE au 1er janvier.</td><td>0,8 Mo</td></tr><tr><td><a href="donnees/2026-10-23/evolution_offre_resume.csv">evolution_offre_resume.csv</a></td><td>Évolution de la densité entre la première et la dernière année de la période, par profession et territoire.</td><td>0,1 Mo</td></tr><tr><td><a href="donnees/2026-10-23/exercice_multisites.csv">exercice_multisites.csv</a></td><td>Part des professionnels qui exercent dans plusieurs communes ou intercommunalités.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/exercice_structures.csv">exercice_structures.csv</a></td><td>Professionnels qui déclarent exercer dans une structure de santé mentale enregistrée sous son propre numéro FINESS (CMP, CATTP, CMPP, CAMSP, CSAPA, CAARUD), par type, en France, par région et par département, en personnes distinctes.</td><td>0,2 Mo</td></tr><tr><td><a href="donnees/2026-10-23/feminisation.csv">feminisation.csv</a></td><td>Part de femmes (civilité déclarée) par profession, en France et par département.</td><td>0,9 Mo</td></tr><tr><td><a href="donnees/2026-10-23/gwr_coefficients.csv">gwr_coefficients.csv</a></td><td>Régression géographiquement pondérée, coefficients locaux par intercommunalité de l&#39;Hexagone (psychologues, psychiatres, généralistes).</td><td>1,9 Mo</td></tr><tr><td><a href="donnees/2026-10-23/gwr_resume.csv">gwr_resume.csv</a></td><td>Régression géographiquement pondérée, résumé par profession (voisines, AICc, répartition des coefficients locaux, test de variation spatiale).</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/inegalites.csv">inegalites.csv</a></td><td>Indicateurs d&#39;inégalité de répartition par profession, niveau et mode.</td><td>0,1 Mo</td></tr><tr><td><a href="donnees/2026-10-23/inscrits_sans_activite.csv">inscrits_sans_activite.csv</a></td><td>Personnes inscrites au RPPS (hors étudiants) et personnes ayant au moins une activité déclarée, par profession. Sans activité déclarée ne veut pas dire sans exercice, le fichier ne dit rien de ces inscrits.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/libelles.csv">libelles.csv</a></td><td>Table de correspondance entre libellés officiels et libellés affichés.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/liens_entre_intercommunalites.csv">liens_entre_intercommunalites.csv</a></td><td>Nombre de professionnels exerçant à la fois dans deux intercommunalités (au moins 3).</td><td>0,7 Mo</td></tr><tr><td><a href="donnees/2026-10-23/lieux_couverture.csv">lieux_couverture.csv</a></td><td>Part des départements où chaque type de lieu est recensé. Sous 90 %, le type est listé mais pas comparé entre territoires.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/lieux_references.csv">lieux_references.csv</a></td><td>Nombre de lieux rapproché des chiffres publiés par la DREES.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/lieux_soins.csv.zip">lieux_soins.csv (archive zip)</a></td><td>Structures de soins réunies de FINESS et du Répertoire opérationnel des ressources (ROR), sans double compte. Une ligne par structure et par type, avec son emplacement, sa provenance et les professionnels déclarés sur place au répertoire.</td><td>3,6 Mo</td></tr><tr><td><a href="donnees/2026-10-23/lieux_soins_dep.csv">lieux_soins_dep.csv</a></td><td>Nombre de structures de soins de chaque type par département, et pour 100 000 habitants.</td><td>0,1 Mo</td></tr><tr><td><a href="donnees/2026-10-23/lieux_soins_epci.csv">lieux_soins_epci.csv</a></td><td>Nombre de structures de soins de chaque type par intercommunalité, et pour 100 000 habitants.</td><td>0,5 Mo</td></tr><tr><td><a href="donnees/2026-10-23/lieux_soins_reg.csv">lieux_soins_reg.csv</a></td><td>Nombre de structures de soins de chaque type par région, et pour 100 000 habitants.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/lisa.csv">lisa.csv</a></td><td>Zones de désert et de concentration (indice de Moran local) par intercommunalité.</td><td>1,6 Mo</td></tr><tr><td><a href="donnees/2026-10-23/loi_inverse.csv">loi_inverse.csv</a></td><td>Indice de concentration des professionnels entre départements classés de la valeur la plus faible à la plus forte d&#39;un indicateur de besoin. Négatif, l&#39;offre est plus présente là où l&#39;indicateur est faible.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/loi_inverse_odbl.csv">loi_inverse_odbl.csv</a></td><td>Indice de concentration des professionnels entre départements classés de la valeur la plus faible à la plus forte d&#39;un indicateur de besoin. Négatif, l&#39;offre est plus présente là où l&#39;indicateur est faible. Licence ODbL.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/lorenz.csv">lorenz.csv</a></td><td>Points des courbes de Lorenz (21 points par profession et niveau).</td><td>0,1 Mo</td></tr><tr><td><a href="donnees/2026-10-23/modeles_coefficients.csv">modeles_coefficients.csv</a></td><td>Coefficients des régressions de Poisson (effectif attendu).</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/modeles_qualite.csv">modeles_qualite.csv</a></td><td>Qualité d&#39;ajustement des régressions de Poisson.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/moran_residus.csv">moran_residus.csv</a></td><td>Indice de Moran des écarts à l&#39;attendu des régressions de Poisson.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/offre_besoin_lisa.csv">offre_besoin_lisa.csv</a></td><td>Moran local bivarié par département, indicateur de besoin du département et densité moyenne de ses voisins, pour les principales professions de santé mentale, 999 permutations, correction de Benjamini-Hochberg.</td><td>0,1 Mo</td></tr><tr><td><a href="donnees/2026-10-23/offre_besoin_lisa_odbl.csv">offre_besoin_lisa_odbl.csv</a></td><td>Moran local bivarié par département, indicateur de besoin du département et densité moyenne de ses voisins, pour les principales professions de santé mentale, 999 permutations, correction de Benjamini-Hochberg. Licence ODbL.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/ombre_urbaine.csv">ombre_urbaine.csv</a></td><td>Intercommunalités peu dotées, distinguées selon leur accessibilité (ombre d&#39;un pôle voisin ou désert).</td><td>1,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/outre_mer.csv">outre_mer.csv</a></td><td>Densités des départements d&#39;outre-mer comparées à l&#39;Hexagone.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/parcours_activites.csv">parcours_activites.csv</a></td><td>Du répertoire aux densités. Pour chaque profession, personnes inscrites (quand la profession correspond à un libellé du RPPS), personnes avec une activité déclarée, sans lieu d&#39;exercice, avec un lieu, n&#39;exerçant qu&#39;en téléconsultation ou sans soins à la population, et comptées dans les densités des territoires.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/porte_offre.csv">porte_offre.csv</a></td><td>Répartition des professionnels par grand secteur d&#39;exercice selon la densité de population.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/professions.csv">professions.csv</a></td><td>Liste des professions, qualifications et comptages du périmètre élargi.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/psychiatrie_hopital.csv">psychiatrie_hopital.csv</a></td><td>Psychiatrie à l&#39;hôpital d&#39;après la SAE de la DREES (lits, places, CMP, temps plein de psychiatres et psychologues, file active), par département, région et pour la France.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/public_cible.csv">public_cible.csv</a></td><td>Densité de certaines professions rapportée à leur public (moins de 15 ans, 65 ans et plus), comparée à la densité par habitant.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/public_cible_territoires.csv">public_cible_territoires.csv</a></td><td>Densité rapportée au public concerné, par territoire.</td><td>0,3 Mo</td></tr><tr><td><a href="donnees/2026-10-23/quadrants.csv.zip">quadrants.csv (archive zip)</a></td><td>Position de chaque département selon sa densité de professionnels et un indicateur de besoin, chacun comparé à sa médiane.</td><td>0,3 Mo</td></tr><tr><td><a href="donnees/2026-10-23/quadrants_odbl.csv">quadrants_odbl.csv</a></td><td>Position de chaque département selon sa densité de professionnels et un indicateur de besoin, chacun comparé à sa médiane. Licence ODbL.</td><td>0,7 Mo</td></tr><tr><td><a href="donnees/2026-10-23/regressions_indicateurs.csv">regressions_indicateurs.csv</a></td><td>Régression linéaire multiple de quelques indicateurs de santé mentale sur des indicateurs sociaux, départements de l&#39;Hexagone, avec et sans l&#39;Île-de-France, coefficients standardisés.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/relecture_structures.csv">relecture_structures.csv</a></td><td>Relecture de FINESS et du ROR, chaque correction apportée avec le nombre de structures concernées.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/robustesse_gini.csv">robustesse_gini.csv</a></td><td>Indice de Gini avec intervalle de confiance, et selon l&#39;échelle géographique.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/sante_mentale_assurance_maladie_odbl.csv">sante_mentale_assurance_maladie_odbl.csv</a></td><td>Personnes prises en charge pour troubles psychiques ou sous psychotropes, par département et région (Assurance Maladie, cartographie des pathologies). Mesure le recours aux soins, pas le besoin. Licence ODbL.</td><td>0,2 Mo</td></tr><tr><td><a href="donnees/2026-10-23/sante_mentale_sante_publique_france.csv">sante_mentale_sante_publique_france.csv</a></td><td>Indicateurs de Santé publique France (portail Odissé), décès par suicide, gestes auto-infligés, Baromètre de Santé publique France, par département ou par région selon l&#39;indicateur.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/secteurs.csv.zip">secteurs.csv (archive zip)</a></td><td>Effectifs par secteur d&#39;activité déclaré au RPPS, France et départements.</td><td>0,7 Mo</td></tr><tr><td><a href="donnees/2026-10-23/secteurs_conventionnels_odbl.csv">secteurs_conventionnels_odbl.csv</a></td><td>Libéraux par secteur conventionnel (secteur 1, secteur 2 avec ou sans Optam, non conventionnés), par spécialité, en France, par région et par département (Assurance Maladie). Licence ODbL.</td><td>0,1 Mo</td></tr><tr><td><a href="donnees/2026-10-23/sensibilite_accessibilite.csv">sensibilite_accessibilite.csv</a></td><td>Sensibilité de l&#39;accessibilité à deux étapes à la portée retenue, comparée au calcul de référence à 20 km.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/sensibilite_confirmation.csv">sensibilite_confirmation.csv</a></td><td>Résultats clés sur les structures de soins recalculés avec les seules structures confirmées par une source indépendante de FINESS et du ROR (sources de l&#39;établissement, autre source publique, certification de la HAS, Sirene), pour dire si la conclusion tient sans les structures non confirmées.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/sensibilite_ile_de_france.csv">sensibilite_ile_de_france.csv</a></td><td>Corrélation de rang entre l&#39;offre de santé mentale et les indicateurs de besoin, avec tous les départements et sans ceux d&#39;Île-de-France, où les suicides sont nettement sous-déclarés.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/sirene_sans_correspondant.csv">sirene_sans_correspondant.csv</a></td><td>Établissements actifs du répertoire Sirene, sous une enseigne de CMP ou d&#39;une autre structure de santé mentale (CATTP, hôpital de jour, CMPP, CAMSP, CSAPA, CAARUD), sans structure correspondante dans FINESS ou le ROR, à vérifier.</td><td>0,1 Mo</td></tr><tr><td><a href="donnees/2026-10-23/spatial.csv">spatial.csv</a></td><td>Indices de Moran (ressemblance entre territoires voisins).</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/structures_gardees_a_verifier.csv">structures_gardees_a_verifier.csv</a></td><td>Inscriptions de FINESS ou du ROR absentes de la liste vérifiée de leur établissement mais confirmées par la certification HAS ou Sirene, gardées en attendant une vérification à la main.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/structures_non_retenues.csv">structures_non_retenues.csv</a></td><td>Inscriptions de FINESS ou du ROR qui ne correspondent à aucune structure de la liste vérifiée de leur établissement.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/structures_principales.csv">structures_principales.csv</a></td><td>Principales structures d&#39;exercice salarié par profession, France et départements (raisons sociales d&#39;établissements).</td><td>1,1 Mo</td></tr><tr><td><a href="donnees/2026-10-23/substitution.csv">substitution.csv</a></td><td>Corrélations entre densités de paires de professions, brutes et à densité de population égale.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/temps_acces.csv">temps_acces.csv</a></td><td>Temps de trajet en voiture vers l&#39;équipement ou le professionnel libéral le plus proche (INSEE), par France, région, département et intercommunalité.</td><td>1,7 Mo</td></tr><tr><td><a href="donnees/2026-10-23/temps_acces_communes.csv.zip">temps_acces_communes.csv (archive zip)</a></td><td>Temps de trajet médian en voiture des habitants de chaque commune jusqu&#39;à la structure de psychiatrie ambulatoire (CMP) et au service d&#39;urgences les plus proches, données des cartes des rapports départementaux (INSEE, distancier, Licence Ouverte).</td><td>0,7 Mo</td></tr><tr><td><a href="donnees/2026-10-23/tests_classes_densite.csv">tests_classes_densite.csv</a></td><td>Tests de différence entre classes de densité de population.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/typologie_affectation.csv">typologie_affectation.csv</a></td><td>Groupe de chaque intercommunalité dans les trois typologies (santé mentale, santé, ensemble) et sa position sur les deux premiers axes de l&#39;analyse en composantes principales.</td><td>0,1 Mo</td></tr><tr><td><a href="donnees/2026-10-23/typologie_lieux.csv">typologie_lieux.csv</a></td><td>Structures de soins et distances décrites dans chaque groupe de la typologie, à titre descriptif (ils ne servent pas à former les groupes).</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/typologie_profils.csv">typologie_profils.csv</a></td><td>Profil de chaque groupe de la typologie (indice 100 = France).</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/typologie_qualite.csv">typologie_qualite.csv</a></td><td>Qualité de chaque typologie, nombre de groupes, silhouette et part des différences entre intercommunalités résumée par les groupes et les axes.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/variance_niveaux.csv">variance_niveaux.csv</a></td><td>Part de la variation de densité entre intercommunalités due aux départements.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/verdicts_sans_structure.csv">verdicts_sans_structure.csv</a></td><td>Verdicts de la vérification à la main qui ne retrouvent plus leur structure (clé changée par une mise à jour des bases ou structure déjà réunie à une autre), à revoir.</td><td>0,0 Mo</td></tr><tr><td><a href="donnees/2026-10-23/zones_eloignement.csv">zones_eloignement.csv</a></td><td>Zones où l&#39;éloignement des habitants à une structure de soins se concentre, Moran local des distances médianes par intercommunalité, avec correction de Benjamini-Hochberg.</td><td>1,5 Mo</td></tr>
+</tbody></table>
+
+</div>
+</div>
+
+
+<footer>
+  Données du 23 octobre 2026. Sources, répertoire RPPS, FINESS, Répertoire opérationnel des ressources, INSEE (dont Sirene), Assurance Maladie, CAF, Santé publique France, DREES, HAS, IGN (voir <a href="methode.html">Méthode, données et limites</a>).
+  Résultats sous Licence Ouverte 2.0, en citant la source et la date de la version, sauf les indicateurs tirés des bases de l&#39;Assurance Maladie (Cnam, data.ameli.fr, cartographie des pathologies, secteurs conventionnels, patients sans médecin traitant) et ce qui en dérive, diffusés sous licence ODbL 1.0 (partage à l&#39;identique). Les fichiers suffixés _odbl et les données intégrées à l&#39;atlas, qui contiennent ces indicateurs, sont sous ODbL. Les rapports et les cartes qui les affichent contiennent des informations issues de cette base sous ODbL.
+  <p class="pied-liens"><a href="donnees-sources.html">Données sources</a> <a href="journal.html">Journal des mises à jour</a> <a href="a-venir.html">À venir</a> <a href="contribuer.html">Proposer une base de données</a> <a href="a-propos.html">À propos</a></p>
+</footer>
+</main>
+<script>
+// tableaux plus larges que la colonne de texte, fondu à droite et phrase d'indication tant qu'il reste des colonnes
+(function(){function maj(t){var d=t.scrollWidth>t.clientWidth+2;t.classList.toggle("deborde-d",d&&t.scrollLeft+t.clientWidth<t.scrollWidth-2);
+var n=t.nextElementSibling;if(!(n&&n.classList.contains("indice-defil"))){if(!d)return;n=document.createElement("p");n.className="indice-defil";n.textContent="Faites défiler le tableau vers la droite pour voir les autres colonnes.";t.after(n)}n.hidden=!d}
+// figures, choix de la profession (rapports, 9 octobre 2026)
+document.querySelectorAll("figure.graphique").forEach(function(fig){
+  var leg=fig.querySelector(".leg");
+  fig.querySelectorAll(".choix-variante button").forEach(function(b,i,tous){b.addEventListener("click",function(){
+    var vs=fig.querySelectorAll(".variante");vs.forEach(function(v,j){v.hidden=j!==i});
+    tous.forEach(function(x,j){x.setAttribute("aria-pressed",String(j===i))});
+    var t=vs[i].querySelector("title");if(leg&&t)leg.textContent=t.textContent})})});
+var ts=document.querySelectorAll(".corps table");ts.forEach(function(t){maj(t);t.addEventListener("scroll",function(){maj(t)},{passive:true})});
+addEventListener("resize",function(){ts.forEach(maj)})})();
+</script>
+<script>
+// Graphiques interactifs, communs aux rapports et à l'atlas (demande de Lucas du 9 octobre 2026).
+// Infobulle au survol de chaque point ou zone qui porte un titre, clic pour la garder, zoom à la molette et par
+// boutons, déplacement à la souris quand le graphique est zoomé. La page n'est pas bloquée, une molette qui
+// arrive pendant le défilement de la page continue de faire défiler la page.
+// Réglage, window.FIGURES = {zoom: "sélecteur des svg zoomables", bulle: "sélecteur des svg à infobulles"}.
+(function(){
+  var R=window.FIGURES||{zoom:"figure.zoomable svg",bulle:"figure.graphique svg"};
+  var bulle=document.createElement("div");bulle.className="bulle-fig";bulle.setAttribute("role","status");
+  document.addEventListener("DOMContentLoaded",function(){document.body.appendChild(bulle)});
+  if(document.body)document.body.appendChild(bulle);
+  var epingle=null,dernierDefil=0;
+  addEventListener("scroll",function(){dernierDefil=Date.now();if(!epingle)cacher()},{passive:true});
+  function svgDe(el,sel){var s=el&&el.closest&&el.closest("svg");while(s&&s.ownerSVGElement)s=s.ownerSVGElement;return s&&s.matches(sel)?s:null}
+  // texte de l'élément survolé, pris dans son titre (déplacé dans data-info pour éviter la bulle du navigateur)
+  function info(el,s){
+    for(var e=el;e&&e!==s;e=e.parentNode){
+      if(e.dataset&&e.dataset.info)return [e,e.dataset.info];
+      var t=e.querySelector&&e.querySelector(":scope > title");
+      if(t&&e!==s){e.dataset.info=t.textContent;t.remove();return [e,e.dataset.info]}}
+    return null}
+  function montrer(x,y,txt){bulle.textContent=txt;bulle.style.opacity=1;var w=bulle.offsetWidth,h=bulle.offsetHeight;
+    bulle.style.left=Math.max(8,Math.min(x+14,innerWidth-w-8))+"px";bulle.style.top=Math.max(8,y-h-12<8?y+16:y-h-12)+"px"}
+  function cacher(){bulle.style.opacity=0}
+  document.addEventListener("pointermove",function(ev){
+    if(epingle)return;var s=svgDe(ev.target,R.bulle);if(!s){cacher();return}
+    var i=info(ev.target,s);if(i)montrer(ev.clientX,ev.clientY,i[1]);else cacher()});
+  document.addEventListener("click",function(ev){
+    var s=svgDe(ev.target,R.bulle);
+    if(epingle){epingle.removeAttribute("data-choisi");epingle=null}
+    if(!s){cacher();return}
+    var i=info(ev.target,s);if(!i){cacher();return}
+    epingle=i[0];epingle.setAttribute("data-choisi","");montrer(ev.clientX,ev.clientY,i[1])});
+  document.addEventListener("keydown",function(ev){if(ev.key==="Escape"&&epingle){epingle.removeAttribute("data-choisi");epingle=null;cacher()}});
+
+  // zoom, le cadrage d'origine est repris chaque fois que la page redessine le graphique
+  function cadre(s){var v=s.getAttribute("viewBox");if(!v)return null;if(s.dataset.vbz!==v)s.dataset.vb0=v;return v.split(/[ ,]+/).map(Number)}
+  function zoomer(s,k,cx,cy){var b=cadre(s);if(!b)return;var o=s.dataset.vb0.split(/[ ,]+/).map(Number);
+    var w=Math.min(o[2],b[2]*k),h=Math.min(o[3],b[3]*k);if(w<o[2]/12)return;
+    if(cx==null){cx=b[0]+b[2]/2;cy=b[1]+b[3]/2}
+    var x=cx-(cx-b[0])*w/b[2],y=cy-(cy-b[1])*h/b[3];
+    x=Math.max(o[0],Math.min(x,o[0]+o[2]-w));y=Math.max(o[1],Math.min(y,o[1]+o[3]-h));
+    var v=[x,y,w,h].map(function(n){return +n.toFixed(2)}).join(" ");s.setAttribute("viewBox",v);s.dataset.vbz=v;boutons(s)}
+  function entier(s){return !s.dataset.vb0||s.getAttribute("viewBox")===s.dataset.vb0}
+  function boutons(s){
+    var hote=s.closest(".fig-corps")||s.closest("figure");
+    if(!hote){
+      // hors d'une figure (atlas), les boutons vont sur une ligne à eux juste au-dessus du graphique, sans recouvrir le
+      // titre du panneau ni le bouton Citer
+      hote=s.parentNode;
+      if(hote&&!hote.classList.contains("fig-zoom")){var enveloppe=document.createElement("div");enveloppe.className="fig-zoom";
+        hote.insertBefore(enveloppe,s);enveloppe.appendChild(s);hote=enveloppe}
+    }
+    if(!hote||hote.querySelector(":scope > .zoom-boutons"))return;
+    var bz=document.createElement("div");bz.className="zoom-boutons";
+    bz.innerHTML='<button type="button" aria-label="Zoomer">+</button><button type="button" aria-label="Dézoomer">−</button><button type="button" aria-label="Revenir à la vue entière">⟲</button>';
+    if(getComputedStyle(hote).position==="static")hote.style.position="relative";
+    hote.insertBefore(bz,hote.firstChild);
+    var cible=function(){var v=hote.querySelector(".variante:not([hidden]) svg");return v||s};
+    var b=bz.querySelectorAll("button");
+    b[0].onclick=function(){zoomer(cible(),.6)};b[1].onclick=function(){zoomer(cible(),1/.6)};
+    b[2].onclick=function(){var c=cible();cadre(c);if(c.dataset.vb0){c.setAttribute("viewBox",c.dataset.vb0);c.dataset.vbz=c.dataset.vb0}}}
+  document.querySelectorAll(R.zoom).forEach(boutons);
+  document.addEventListener("pointerover",function(ev){var s=svgDe(ev.target,R.zoom);if(s)boutons(s)});
+  // la molette seule fait toujours défiler la page ; le zoom à la molette demande Ctrl (ou ⌘), sinon le curseur restait
+  // pris dans la figure (remarque de Lucas du 23 octobre 2026) ; les boutons + et − restent le moyen ordinaire
+  document.addEventListener("wheel",function(ev){
+    if(!(ev.ctrlKey||ev.metaKey))return;
+    var s=svgDe(ev.target,R.zoom);if(!s)return;
+    if(Date.now()-dernierDefil<450)return;                       // la page défile, on la laisse défiler
+    if(ev.deltaY>0&&entier(s))return;                           // vue entière, molette vers le bas, la page défile
+    ev.preventDefault();var p=s.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;
+    var q=p.matrixTransform(s.getScreenCTM().inverse());zoomer(s,ev.deltaY<0?.8:1.25,q.x,q.y)},{passive:false});
+  var dep=null;
+  document.addEventListener("pointerdown",function(ev){var s=svgDe(ev.target,R.zoom);if(!s||entier(s))return;
+    var b=cadre(s);dep={x:ev.clientX,y:ev.clientY,b:b,s:s,k:b[2]/s.getBoundingClientRect().width,bouge:false}});
+  addEventListener("pointermove",function(ev){if(!dep)return;var o=dep.s.dataset.vb0.split(/[ ,]+/).map(Number),b=dep.b;
+    if(Math.abs(ev.clientX-dep.x)+Math.abs(ev.clientY-dep.y)>3)dep.bouge=true;if(!dep.bouge)return;
+    var x=Math.max(o[0],Math.min(b[0]-(ev.clientX-dep.x)*dep.k,o[0]+o[2]-b[2])),y=Math.max(o[1],Math.min(b[1]-(ev.clientY-dep.y)*dep.k,o[1]+o[3]-b[3]));
+    var v=[x,y,b[2],b[3]].map(function(n){return +n.toFixed(2)}).join(" ");dep.s.setAttribute("viewBox",v);dep.s.dataset.vbz=v});
+  addEventListener("pointerup",function(){dep=null});
+
+  // figures des rapports, même modèle que l'atlas (10 octobre 2026). Sous le titre « Figure N. légende », une ligne
+  // « Citer et exporter » ouvre la citation du rapport suivie du numéro et de la légende, l'image (copie, PNG, SVG, avec
+  // la citation dessous) et les données de la figure. La citation du rapport est donnée par la page (data-citation).
+  function citerFigures(){
+    var porte=document.querySelector("[data-citation]");if(!porte)return;var base=porte.dataset.citation;
+    document.querySelectorAll("figure.graphique").forEach(function(f){
+      if(f.dataset.cite)return;f.dataset.cite="1";
+      var cap=f.querySelector("figcaption");
+      var ligne=document.createElement("div");ligne.className="outils-figure";
+      var bc=document.createElement("button");bc.type="button";bc.className="citer-fig";bc.textContent="Citer et exporter";bc.setAttribute("aria-expanded","false");ligne.appendChild(bc);
+      if(cap)cap.after(ligne);else f.insertBefore(ligne,f.firstChild);
+      var boite=document.createElement("div");boite.className="citation-fig";boite.hidden=true;ligne.after(boite);
+      bc.onclick=function(){var ouvert=boite.hidden;bc.setAttribute("aria-expanded",String(ouvert));boite.hidden=!ouvert;if(!ouvert)return;
+        // la légende suit la profession choisie, la citation est donc refaite à chaque ouverture
+        var num=cap&&cap.querySelector("strong"),leg=cap&&cap.querySelector(".leg");
+        var ref=(num?num.textContent.replace(/\.$/,""):"Figure")+(leg?", "+leg.textContent.trim():"");
+        var texte=base.replace(/\s*$/,"")+(/[.]$/.test(base.trim())?" ":". ")+ref+".";
+        var nom=(ref.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,80)||"figure").toLowerCase();
+        boite.innerHTML='<p></p><div class="citation-actions"><button type="button" data-a="cit">Copier la citation</button></div>'
+          +'<ul class="exports"><li><span class="nom"><span class="genre">Image</span> de la figure</span><span class="citation-actions"><button type="button" data-a="img">Copier l’image</button><button type="button" data-a="png">PNG</button><button type="button" data-a="svg">SVG</button></span></li>'
+          +(f.dataset.donnees?'<li><span class="nom"><span class="genre">Données</span> de la figure, '+f.dataset.donneesNom+'</span><span class="citation-actions"><a class="bouton" download href="'+f.dataset.donnees+'">CSV</a></span></li>':'')
+          +'</ul><p class="small muted">Chaque fichier porte la citation du rapport, merci de la joindre à toute reprise.</p>';
+        boite.querySelector("p").textContent=texte;
+        boite.querySelectorAll("button").forEach(function(b){b.onclick=function(){var a=b.dataset.a;
+          if(a==="cit"){navigator.clipboard.writeText(texte).then(function(){b.textContent="Citation copiée"},function(){b.textContent="Copie impossible ici"});return}
+          var src=f.querySelector(".variante:not([hidden]) svg")||f.querySelector("svg");if(!src)return;
+          var svg=imageCitee(src,texte);
+          if(a==="svg"){enregistrer(new Blob([svg],{type:"image/svg+xml"}),nom+".svg");b.textContent="Enregistré";return}
+          var img=new Image(),url=URL.createObjectURL(new Blob([svg],{type:"image/svg+xml"}));
+          img.onload=function(){var c=document.createElement("canvas");c.width=img.width;c.height=img.height;c.getContext("2d").drawImage(img,0,0);URL.revokeObjectURL(url);
+            c.toBlob(function(png){if(!png)return;
+              if(a==="png"){enregistrer(png,nom+".png");b.textContent="Enregistré";return}
+              navigator.clipboard.write([new ClipboardItem({"image/png":png})]).then(function(){b.textContent="Image copiée"},function(){b.textContent="Copie impossible ici, utilisez PNG"})})};img.src=url}})}})}
+  function imageCitee(src,texte){
+    var ns="http://www.w3.org/2000/svg",c=src.cloneNode(true),vb=(src.dataset.vb0||src.getAttribute("viewBox")||"0 0 600 400").split(/[ ,]+/).map(Number);
+    // taille commune des exports (harmonisation, 22 octobre 2026), dessin rapporté à 800 pixels, image à 1 600, citation
+    // au petit corps de l'échelle typographique (11,5 pixels à cette largeur), couleurs du fond clair (valeurs de repli
+    // des variables, seules lues dans un fichier SVG isolé)
+    var fs=11.5*vb[2]/800,par=Math.max(40,Math.floor((vb[2]-16)/(fs*.55))),lignes=[];
+    texte.split(" ").forEach(function(m){var l=lignes.length?lignes[lignes.length-1]:null;if(l!=null&&(l+" "+m).length<=par)lignes[lignes.length-1]=l+" "+m;else lignes.push(m)});
+    var hc=fs*1.4*lignes.length+fs;c.setAttribute("xmlns",ns);c.setAttribute("viewBox",[vb[0],vb[1],vb[2],vb[3]+hc].join(" "));
+    c.setAttribute("width",1600);c.setAttribute("height",Math.round((vb[3]+hc)*1600/vb[2]));
+    var fond=document.createElementNS(ns,"rect");fond.setAttribute("x",vb[0]);fond.setAttribute("y",vb[1]);fond.setAttribute("width",vb[2]);fond.setAttribute("height",vb[3]+hc);fond.setAttribute("fill","#FFFFFF");c.insertBefore(fond,c.firstChild);
+    lignes.forEach(function(l,i){var t=document.createElementNS(ns,"text");t.setAttribute("x",vb[0]+8);t.setAttribute("y",vb[1]+vb[3]+fs*1.4*(i+1));t.setAttribute("font-size",fs);t.setAttribute("fill","#5F6675");t.setAttribute("font-family","Work Sans, Segoe UI, sans-serif");t.textContent=l;c.appendChild(t)});
+    return new XMLSerializer().serializeToString(c)}
+  function enregistrer(blob,nom){var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=nom;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},1000)}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",citerFigures);else citerFigures();
+
+  // tableaux des rapports et des pages, citables et exportables comme les figures (version 2, point 1, 22 octobre 2026).
+  // La citation est celle du rapport (data-citation) ou de la page (data-citation-page et son adresse), suivie du titre
+  // du tableau, tiré de sa légende ou de l'intertitre qui le précède (décision de Lucas, titre sans numéro). Le CSV
+  // reprend les lignes affichées, au format des fichiers du site (point-virgule, virgule décimale, nombres sans
+  // séparateur de milliers), avec la citation en dernière ligne.
+  function titreTableau(t){
+    if(t.caption&&t.caption.textContent.trim())return t.caption.textContent.trim();
+    for(var e=t.closest(".defile")||t;e&&e.tagName!=="MAIN";e=e.parentElement){
+      for(var p=e.previousElementSibling;p;p=p.previousElementSibling){
+        if(/^H[2-5]$/.test(p.tagName))return p.textContent.replace(/\s+/g," ").trim();
+        var h=p.querySelectorAll&&p.querySelectorAll("h2,h3,h4,h5");if(h&&h.length)return h[h.length-1].textContent.replace(/\s+/g," ").trim()}
+      if(e.tagName==="DETAILS"){var s=e.querySelector("summary");if(s)return s.textContent.trim()}}
+    return "Tableau"}
+  function celluleCsv(c){
+    // une adresse raccourcie à l'écran est écrite en entier dans le fichier
+    if(c.querySelectorAll){var lien=[].filter.call(c.querySelectorAll("a[href^='http']"),function(a){return /…$/.test(a.textContent.trim())});
+      if(lien.length){c=c.cloneNode(true);[].forEach.call(c.querySelectorAll("a[href^='http']"),function(a){if(/…$/.test(a.textContent.trim()))a.textContent=a.href})}}
+    var v=c.textContent.replace(/[\s  ]+/g," ").trim();
+    if(/^[−-]?\d{1,3}( \d{3})+(,\d+)?$/.test(v))v=v.replace(/ /g,"");
+    v=v.replace(/^−(?=\d)/,"-");
+    return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+  function tableauCsv(t){
+    return "﻿"+[].filter.call(t.querySelectorAll("tr"),function(tr){return !tr.hidden&&tr.style.display!=="none"})
+      .map(function(tr){return [].map.call(tr.children,celluleCsv).join(";")}).join("\r\n")}
+  function citerTableaux(){
+    var main=document.querySelector("main");if(!main)return;
+    var porte=document.querySelector("[data-citation]"),base;
+    if(porte)base=porte.dataset.citation.replace(/\s*$/,"");
+    else{base=(main.dataset.citationPage||"").replace(/\s*$/,"");if(!base)return;
+      var adr=main.dataset.adresse;base+=(adr?", "+adr+location.pathname.replace(/\/index\.html$/,"/"):"")+"."}
+    main.querySelectorAll("table").forEach(function(t){
+      if(t.dataset.cite||t.closest(".citation-fig,.sommaire,details.versions,nav,figure"))return;t.dataset.cite="1";
+      var bloc=t.closest(".defile")||t;
+      var ligne=document.createElement("div");ligne.className="outils-figure outils-tableau";
+      var bc=document.createElement("button");bc.type="button";bc.className="citer-fig";bc.textContent="Citer et exporter";bc.setAttribute("aria-expanded","false");ligne.appendChild(bc);
+      bloc.before(ligne);
+      var boite=document.createElement("div");boite.className="citation-fig";boite.hidden=true;ligne.after(boite);
+      bc.onclick=function(){var ouvert=boite.hidden;bc.setAttribute("aria-expanded",String(ouvert));boite.hidden=!ouvert;if(!ouvert)return;
+        var titre=titreTableau(t),texte=base+(/[.]$/.test(base)?" ":". ")+"Tableau, « "+titre+" ».";
+        var nom=(titre.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,80)||"tableau").toLowerCase();
+        boite.innerHTML='<p></p><div class="citation-actions"><button type="button" data-a="cit">Copier la citation</button></div>'
+          +'<ul class="exports"><li><span class="nom"><span class="genre">Données</span> du tableau, telles qu’affichées</span><span class="citation-actions"><button type="button" data-a="csv">CSV</button></span></li></ul>'
+          +'<p class="small muted">Le fichier porte la citation de la page, merci de la joindre à toute reprise.</p>';
+        boite.querySelector("p").textContent=texte;
+        boite.querySelectorAll("button").forEach(function(b){b.onclick=function(){
+          if(b.dataset.a==="cit"){navigator.clipboard.writeText(texte).then(function(){b.textContent="Citation copiée"},function(){b.textContent="Copie impossible ici"});return}
+          enregistrer(new Blob([tableauCsv(t)+"\r\n\r\n"+celluleCsv({textContent:texte})],{type:"text/csv;charset=utf-8"}),nom+".csv");b.textContent="Enregistré"}})}})}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",citerTableaux);else citerTableaux();
+
+  // « Comment lire » des rapports (audit du 22 octobre 2026, lot 2), un bouton sur la ligne d'outils de la figure ou du
+  // tableau commenté, à côté de « Citer et exporter », comme dans l'atlas. Le paragraphe garde sa place et s'ouvre au
+  // clic ; s'il ne suit pas une figure ou un tableau, il reste affiché. À l'impression il est toujours visible.
+  function lireReplie(){
+    document.querySelectorAll(".corps p.comment-lire").forEach(function(p){
+      if(p.dataset.lire)return;p.dataset.lire="1";var ligne=null,e=p.previousElementSibling;
+      for(var k=0;e&&k<5&&!ligne;k++,e=e.previousElementSibling){
+        if(e.matches("figure.graphique"))ligne=e.querySelector(".outils-figure");
+        else if(e.matches(".defile,table")){for(var o=e.previousElementSibling,j=0;o&&j<3;o=o.previousElementSibling,j++)if(o.classList.contains("outils-tableau")){ligne=o;break}}
+        else if(e.matches("h2,h3,h4,h5,.comment-lire"))break}
+      if(!ligne)return;
+      var b=document.createElement("button");b.type="button";b.className="citer-fig lire-fig";b.textContent="Comment lire";b.setAttribute("aria-expanded","false");
+      ligne.insertBefore(b,ligne.firstChild);p.classList.add("repli");
+      b.onclick=function(){var o=p.classList.contains("repli");p.classList.toggle("repli",!o);b.setAttribute("aria-expanded",String(o))}})}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",lireReplie);else lireReplie();
+
+  // longs tableaux de consultation (pages de la méthode), un champ filtre les lignes à mesure qu'on tape
+  function filtres(){
+    document.querySelectorAll("table.filtrable").forEach(function(t){
+      if(t.dataset.filtre)return;t.dataset.filtre="1";var bloc=t.closest(".defile")||t;
+      var l=document.createElement("label");l.className="filtre-tableau";l.innerHTML='<span>Filtrer le tableau</span><input type="search" autocomplete="off">';
+      var ligne=bloc.previousElementSibling&&bloc.previousElementSibling.classList.contains("citation-fig")?bloc.previousElementSibling:bloc;ligne.before(l);
+      var n=document.createElement("span");n.className="small muted";l.appendChild(n);
+      var champ=l.querySelector("input"),lignes=[].slice.call(t.tBodies[0]?t.tBodies[0].rows:[]);
+      var norm=function(x){return x.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()};
+      champ.addEventListener("input",function(){var q=norm(champ.value.trim()),k=0;
+        lignes.forEach(function(r){var ok=!q||norm(r.textContent).indexOf(q)>=0;r.hidden=!ok;if(ok)k++});
+        n.textContent=q?k+" ligne"+(k>1?"s":"")+" sur "+lignes.length:""})})}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",filtres);else filtres();
+})();
+
+// Figures qui apparaissent en douceur quand on arrive dessus (refonte du 23 octobre 2026). La classe posée sur la racine
+// n'existe qu'avec le script, si bien qu'une figure reste visible quand il ne tourne pas ; impression exclue.
+(function(){
+  if(!("IntersectionObserver" in window)||matchMedia("print").matches)return;
+  const cibles=document.querySelectorAll("figure.graphique,.une-carte");if(!cibles.length)return;
+  document.documentElement.classList.add("revele");
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("vu");io.unobserve(e.target)}}),{rootMargin:"0px 0px -8% 0px"});
+  cibles.forEach(c=>io.observe(c));
+  addEventListener("beforeprint",()=>cibles.forEach(c=>c.classList.add("vu")));
+})();
+// en-tête qui se resserre en barre flottante dès qu'on descend (essai du 23 octobre 2026, d'après reactbits.dev)
+(function(){var n=document.querySelector("nav.site");if(!n)return;
+  var f=function(){n.classList.toggle("defile",(window.scrollY||0)>12)};f();addEventListener("scroll",f,{passive:true})})();
+</script>
+<script src="cesure/hyphen.js" defer></script>
+<script src="cesure/hyphen-fr.js" defer></script>
+<script src="cesure/cesure.js" defer></script>
+<script>window.goatcounter={no_onload:navigator.doNotTrack==="1"||window.doNotTrack==="1"}</script><script data-goatcounter="https://ubicura.goatcounter.com/count" async src="https://gc.zgo.at/count.v5.js" crossorigin="anonymous" integrity="sha384-atnOLvQb9t+jTSipvd75X2yginT4PjVbqDdlJAmxMm+wYElFmeR6EmLP5bYeoRVQ"></script>
+</body>
+</html>

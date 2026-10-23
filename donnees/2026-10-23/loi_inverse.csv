@@ -1,0 +1,9 @@
+﻿prof;variable;departements;indice_concentration;ic95_bas;ic95_haut
+psychiatre;suicides;100;-0,143618;-0,218685;-0,0615345
+psychologue;suicides;100;-0,075799;-0,134436;-0,024469
+q_psychiatrie_enfant;suicides;100;-0,154111;-0,24807;-0,0371912
+medecin_generaliste;suicides;100;0,000385524;-0,0327184;0,0347484
+psychiatre;hospit_gestes_auto_infliges;100;-0,138595;-0,252871;-0,0304133
+psychologue;hospit_gestes_auto_infliges;100;-0,0797404;-0,167528;-0,0107585
+q_psychiatrie_enfant;hospit_gestes_auto_infliges;100;-0,160108;-0,312276;-0,0139977
+medecin_generaliste;hospit_gestes_auto_infliges;100;-0,000665449;-0,0390445;0,0371639

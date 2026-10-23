@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Journal des mises à jour · Ubi Cura</title>
+<meta name="description" content="Offre de soins et de santé mentale en France, par territoire, à partir des données publiques.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%231D4D87%22/%3E%3Crect%20x%3D%227%22%20y%3D%2217%22%20width%3D%224.5%22%20height%3D%228%22%20rx%3D%221%22%20fill%3D%22%23B39BCB%22/%3E%3Crect%20x%3D%2213.75%22%20y%3D%2212%22%20width%3D%224.5%22%20height%3D%2213%22%20rx%3D%221%22%20fill%3D%22%23D4C3EA%22/%3E%3Crect%20x%3D%2220.5%22%20y%3D%227%22%20width%3D%224.5%22%20height%3D%2218%22%20rx%3D%221%22%20fill%3D%22%23FFFFFF%22/%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="Ubi Cura">
+<meta property="og:title" content="Journal des mises à jour">
+<meta property="og:description" content="Offre de soins et de santé mentale en France, par territoire, à partir des données publiques.">
+<meta name="theme-color" content="#15171C">
+<link rel="stylesheet" href="polices/polices.css">
+<link rel="stylesheet" href="style.css?v=2b21456a4b">
+<script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||"dark")}catch(e){document.documentElement.setAttribute("data-theme","dark")}</script>
+</head>
+<body>
+<nav class="site" aria-label="Navigation du site">
+  <div class="in">
+    <a class="marque" href="index.html" title="Offre de soins et santé mentale en France, territoire par territoire">Ubi Cura</a>
+    <button class="menu" id="bouton-menu" type="button" aria-expanded="false" aria-controls="liens-site">Menu</button>
+    <div class="liens" id="liens-site">
+    <a class="l" href="atlas.html">Atlas</a>
+    <a class="l" href="rapports.html">Rapports nationaux</a>
+    <a class="l" href="territoires/index.html">Rapports par territoire</a>
+    <a class="l" href="methode.html">Méthode, données et limites</a>
+    
+    <div class="projet">
+      <button class="l on" id="bouton-projet" type="button" aria-expanded="false" aria-controls="menu-projet">Le projet <span class="fleche" aria-hidden="true">▾</span></button>
+      <div class="sous-menu" id="menu-projet" hidden>
+        <a href="a-propos.html">À propos</a>
+        <a href="publications.html">Publications</a>
+        <a href="journal.html" aria-current="page">Journal des mises à jour</a>
+        <a href="a-venir.html">À venir</a>
+        <a href="contribuer.html">Proposer une base de données</a>
+        
+      </div>
+    </div>
+    <button class="theme" id="bascule-theme" type="button" aria-pressed="false">Fond clair</button>
+    </div>
+  </div>
+</nav>
+<script>
+// menu « Le projet », ouvert au clic ou au clavier, fermé par Échap ou par un clic ailleurs
+(function(){var b=document.getElementById("bouton-projet"),m=document.getElementById("menu-projet");if(!b||!m)return;
+function ouvrir(o,focus){m.hidden=!o;b.setAttribute("aria-expanded",String(o));if(o&&focus){var a=m.querySelector("a");if(a)a.focus()}}
+b.addEventListener("click",function(){ouvrir(m.hidden,false)});
+b.addEventListener("keydown",function(e){if(e.key==="ArrowDown"){e.preventDefault();ouvrir(true,true)}});
+m.addEventListener("keydown",function(e){var l=[].slice.call(m.querySelectorAll("a")),i=l.indexOf(document.activeElement);
+  if(e.key==="ArrowDown"){e.preventDefault();l[(i+1)%l.length].focus()}else if(e.key==="ArrowUp"){e.preventDefault();l[(i-1+l.length)%l.length].focus()}});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!m.hidden){ouvrir(false);b.focus()}});
+document.addEventListener("click",function(e){if(!m.hidden&&!b.parentNode.contains(e.target))ouvrir(false)})})();
+// téléphone, liens du site repliés derrière « Menu » (audit du 22 octobre 2026) ; sommaire d'une page replié derrière
+// « Sommaire », ouvert au clic, refermé quand on choisit une section
+(function(){var b=document.getElementById("bouton-menu"),n=b&&b.closest("nav.site");if(!b)return;
+b.addEventListener("click",function(){var o=!n.classList.contains("ouvert");n.classList.toggle("ouvert",o);b.setAttribute("aria-expanded",String(o))})})();
+document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll("aside.sommaire").forEach(function(a){
+  if(!a.querySelector("ul"))return;var t=document.createElement("button");t.type="button";t.className="bouton-sommaire";
+  t.setAttribute("aria-expanded","false");t.textContent="Sommaire";a.insertBefore(t,a.firstChild);
+  t.addEventListener("click",function(){var o=!a.classList.contains("ouvert");a.classList.toggle("ouvert",o);t.setAttribute("aria-expanded",String(o))});
+  a.addEventListener("click",function(e){if(e.target.closest("a")){a.classList.remove("ouvert");t.setAttribute("aria-expanded","false")}})})});
+(function(){var b=document.getElementById("bascule-theme"),r=document.documentElement;
+function maj(){var c=r.getAttribute("data-theme")==="light";b.textContent=c?"Fond sombre":"Fond clair";b.setAttribute("aria-pressed",String(c))}
+maj();b.addEventListener("click",function(){var t=r.getAttribute("data-theme")==="light"?"dark":"light";r.setAttribute("data-theme",t);
+try{localStorage.setItem("theme",t)}catch(e){}maj();window.dispatchEvent(new Event("theme"))})})();
+</script>
+<main class="" data-citation-page="Pithon L. (2026). Journal des mises à jour. Ubi Cura, version du 23 octobre 2026" data-adresse="https://ubicura.fr">
+
+<h1>Journal des mises à jour</h1>
+<p class="chapeau">Les données sont reprises auprès de chaque producteur à chaque mise à jour. Cette page indique ce qui a changé, jeu par jeu, et les nouveautés du site.</p>
+<div class="rapport colonne"><aside class="sommaire" aria-label="Sommaire de la page"><ul><li><a href="#etat-des-jeux-de-donnees">État des jeux de données</a></li><li><a href="#historique">Historique</a></li></ul></aside><div class="corps">
+
+<h2 id="etat-des-jeux-de-donnees">État des jeux de données</h2>
+<p>La version du producteur est la date de mise à jour qu'il annonce. Chaque changement de version est signalé dans l'historique plus bas.</p>
+<div class="defile"><table class="simple">
+<thead><tr><th>Jeu de données</th><th>Producteur</th><th>Version du producteur</th><th>Récupéré le</th><th>Dernier changement constaté</th></tr></thead>
+<tbody>
+
+<tr><td>Accessibilité potentielle localisée (APL)</td><td>DREES</td><td>21 juillet 2026</td><td>4 octobre 2026</td><td>aucun depuis le 8 octobre 2026</td></tr>
+
+<tr><td>Affections de longue durée par département</td><td>Assurance Maladie</td><td>12 décembre 2025</td><td>7 octobre 2026</td><td>aucun depuis le 8 octobre 2026</td></tr>
+
+<tr><td>Allocataires de l&#39;AAH, de l&#39;AEEH et du RSA</td><td>CAF</td><td>28 septembre 2026</td><td>7 octobre 2026</td><td>aucun depuis le 8 octobre 2026</td></tr>
+
+<tr><td>Cartographie des pathologies</td><td>Assurance Maladie</td><td>6 juillet 2026</td><td>3 octobre 2026</td><td>aucun depuis le 8 octobre 2026</td></tr>
+
+<tr><td>Certification des établissements de santé, sites rattachés</td><td>Haute Autorité de santé</td><td>14 octobre 2026</td><td>15 octobre 2026</td><td>15 octobre 2026</td></tr>
+
+<tr><td>Contours des communes, ADMIN EXPRESS</td><td>IGN</td><td>9 octobre 2026</td><td>15 octobre 2026</td><td>15 octobre 2026</td></tr>
+
+<tr><td>Dossier complet, recensement et revenus</td><td>INSEE</td><td>3 septembre 2026</td><td>3 octobre 2026</td><td>aucun depuis le 8 octobre 2026</td></tr>
+
+<tr><td>Découpage administratif (communes, intercommunalités, départements, régions)</td><td>Etalab</td><td>9 mars 2026</td><td>3 octobre 2026</td><td>aucun depuis le 8 octobre 2026</td></tr>
+
+<tr><td>Démographie des libéraux par secteur conventionnel</td><td>Assurance Maladie</td><td>12 octobre 2026</td><td>15 octobre 2026</td><td>15 octobre 2026</td></tr>
+
+<tr><td>Démographie des professionnels de santé</td><td>DREES</td><td>2 juillet 2026</td><td>5 octobre 2026</td><td>aucun depuis le 8 octobre 2026</td></tr>
+
+<tr><td>Estimations annuelles de population</td><td>INSEE</td><td>5 août 2026</td><td></td><td>aucun depuis le 8 octobre 2026</td></tr>
+
+<tr><td>FINESS, établissements sanitaires et sociaux</td><td>Ministère chargé de la santé</td><td>1er octobre 2026</td><td>3 octobre 2026</td><td>aucun depuis le 8 octobre 2026</td></tr>
+
+<tr><td>Indicateurs de santé mentale, portail Odissé</td><td>Santé publique France</td><td>9 septembre 2026</td><td>22 octobre 2026</td><td>22 octobre 2026</td></tr>
+
+<tr><td>Indicateurs sociaux départementaux</td><td>DREES</td><td>6 octobre 2026</td><td>7 octobre 2026</td><td>aucun depuis le 8 octobre 2026</td></tr>
+
+<tr><td>Offres de santé, Répertoire opérationnel des ressources (ROR)</td><td>Agence du numérique en santé</td><td>13 octobre 2026</td><td>15 octobre 2026</td><td>15 octobre 2026</td></tr>
+
+<tr><td>Patients en affection longue durée sans médecin traitant</td><td>Assurance Maladie</td><td>28 janvier 2025</td><td>4 octobre 2026</td><td>aucun depuis le 8 octobre 2026</td></tr>
+
+<tr><td>Répertoire RPPS des professionnels de santé</td><td>Agence du numérique en santé</td><td>14 octobre 2026</td><td>15 octobre 2026</td><td>15 octobre 2026</td></tr>
+
+<tr><td>Répertoire Sirene des établissements</td><td>INSEE</td><td>1er octobre 2026</td><td>13 octobre 2026</td><td>13 octobre 2026</td></tr>
+
+<tr><td>Statistique annuelle des établissements de santé, psychiatrie</td><td>DREES</td><td>17 décembre 2025</td><td>4 octobre 2026</td><td>aucun depuis le 8 octobre 2026</td></tr>
+
+<tr><td>Temps de trajet par la route vers les équipements</td><td>INSEE</td><td>19 août 2026</td><td>5 octobre 2026</td><td>aucun depuis le 8 octobre 2026</td></tr>
+
+<tr><td>Évaluation des établissements et services sociaux et médico-sociaux</td><td>Haute Autorité de santé</td><td>16 octobre 2026</td><td>16 octobre 2026</td><td>21 octobre 2026</td></tr>
+
+</tbody></table></div>
+
+<h2 id="historique">Historique</h2>
+<p>L'essentiel de chaque mise à jour, nouvelles versions des données, nouveautés et corrections qui touchent des chiffres publiés. Les mois précédents sont repliés.</p>
+
+<details class="journal-mois" open>
+<summary>Octobre 2026</summary>
+
+<section class="journal-entree">
+<h3>23 octobre 2026</h3>
+
+
+
+
+<h4>Nouveautés et corrections</h4>
+<ul><li>Le site et l&#39;atlas changent de présentation (couleurs encre bleue et cuivre, figures en fenêtres, accueil qui permet de changer de profession sur la carte). Dans l&#39;atlas, deux indicateurs se croisent librement, avec les questions préparées en suggestions, et le lien local avec le niveau de vie est calculé pour vingt professions au lieu de trois.</li></ul>
+
+
+</section>
+
+<section class="journal-entree">
+<h3>22 octobre 2026</h3>
+
+
+<h4>Données</h4>
+
+<ul>
+
+<li>Indicateurs de santé mentale, portail Odissé (Santé publique France), nouvelle version du 9 septembre 2026, 3 fichiers sur 9.</li>
+
+</ul>
+
+
+
+
+<h4>Nouveautés et corrections</h4>
+<ul><li>Le rapport santé mentale et l&#39;atlas ont une partie consacrée à l&#39;addictologie (offre, recours aux soins, consommations d&#39;alcool et de tabac par région avec leur fourchette), et les catégories d&#39;établissements de FINESS ont retrouvé leur libellé dans l&#39;encadré « Dans quels établissements », perdu dans la version du 21 octobre.</li><li>Le site est harmonisé, une même largeur de page, chaque tableau citable et téléchargeable en CSV, une même échelle de texte dans les pages, les figures et les cartes, des couleurs lisibles sur fond blanc, des figures exportées sur fond blanc, des PDF plus courts avec les détails techniques en annexe, une version téléphone refaite, des chiffres clés en tête de chaque partie des rapports et une page Méthode découpée en cinq pages.</li></ul>
+
+
+</section>
+
+<section class="journal-entree">
+<h3>21 octobre 2026</h3>
+
+
+<h4>Données</h4>
+
+<ul>
+
+<li>Évaluation des établissements et services sociaux et médico-sociaux (Haute Autorité de santé), ajouté au site, version du 16 octobre 2026.</li>
+
+</ul>
+
+
+
+
+<h4>Nouveautés et corrections</h4>
+<ul><li>Les CATTP, hôpitaux de jour, CMPP, CAMSP et structures d&#39;addictologie sont recensés comme les CMP, chacun avec son niveau de confirmation (confirmée, recoupée par la statistique des hôpitaux ou à vérifier), et entrent dans les croisements, la typologie et les inégalités.</li><li>Chaque territoire a désormais dans l&#39;atlas un encadré de ses structures de soins, avec leur niveau de confirmation et leur plan, et l&#39;atlas montre combien de professionnels déclarent exercer dans ces structures.</li></ul>
+
+
+<p class="small">Sources indisponibles lors de cette mise à jour, FINESS historique (gelé en mai 2026). Le détail est sur la page <a href="methode.html">Méthode, données et limites</a>.</p>
+
+</section>
+
+<section class="journal-entree">
+<h3>16 octobre 2026</h3>
+
+
+
+
+<h4>Nouveautés et corrections</h4>
+<ul><li>La vérification des CMP est close, chacun est compté avec son niveau de confirmation.</li><li>Le rapport santé mentale montre les habitants éloignés à la fois de tout psychiatre et de tout CMP, les patients suivis par CMP et les zones où l&#39;éloignement se regroupe.</li></ul>
+
+
+</section>
+
+<section class="journal-entree">
+<h3>15 octobre 2026</h3>
+
+
+<h4>Données</h4>
+
+<ul>
+
+<li>Démographie des libéraux par secteur conventionnel (Assurance Maladie), nouvelle version du 12 octobre 2026 (précédente du 5 février 2026).</li>
+
+<li>Contours des communes, ADMIN EXPRESS (IGN), nouvelle version du 9 octobre 2026 (précédente du 30 septembre 2026).</li>
+
+<li>Certification des établissements de santé, sites rattachés (Haute Autorité de santé), nouvelle version du 14 octobre 2026 (précédente du 12 octobre 2026), 2 fichiers sur 4.</li>
+
+<li>Offres de santé, Répertoire opérationnel des ressources (ROR) (Agence du numérique en santé), nouvelle version du 13 octobre 2026 (précédente du 12 octobre 2026), 1 fichier sur 18.</li>
+
+<li>Répertoire RPPS des professionnels de santé (Agence du numérique en santé), nouvelle version du 14 octobre 2026 (précédente du 8 octobre 2026), 3 fichiers sur 3.</li>
+
+</ul>
+
+
+
+<h4>Effectifs nationaux</h4>
+<div class="defile"><table class="simple"><thead><tr><th>Profession</th><th>Avant</th><th>Maintenant</th><th>Écart</th></tr></thead><tbody>
+<tr><td>Psychologue</td><td>80 862</td><td>80 954</td><td>+92</td></tr><tr><td>Psychiatre</td><td>15 678</td><td>15 672</td><td>−6</td></tr><tr><td>Pédopsychiatre</td><td>699</td><td>698</td><td>−1</td></tr><tr><td>Médecin généraliste</td><td>103 819</td><td>103 828</td><td>+9</td></tr><tr><td>Infirmier</td><td>550 952</td><td>551 314</td><td>+362</td></tr><tr><td>Masseur-kinésithérapeute</td><td>112 714</td><td>112 737</td><td>+23</td></tr><tr><td>Orthophoniste</td><td>31 371</td><td>31 375</td><td>+4</td></tr><tr><td>Psychomotricien</td><td>18 672</td><td>18 691</td><td>+19</td></tr><tr><td>Sage-femme</td><td>27 015</td><td>27 021</td><td>+6</td></tr><tr><td>Pédiatre</td><td>9 666</td><td>9 676</td><td>+10</td></tr>
+</tbody></table></div>
+
+
+<h4>Nouveautés et corrections</h4>
+<ul><li>La vérification des CMP est close, chacun est compté avec son niveau de confirmation et ceux qu&#39;elle a montrés fermés, en double ou d&#39;un autre type sont retirés ou reclassés.</li><li>Des erreurs de localisation sont corrigées (528 structures, dont 44 CMP, sortaient de la carte, et des CMP étaient comptés dans la commune de leur hôpital), les distances sont recalculées.</li><li>Le rapport santé mentale montre les habitants éloignés à la fois de tout psychiatre et de tout CMP, les patients suivis par CMP et les zones où l&#39;éloignement se regroupe, et les structures pour enfants et pour personnes âgées sont rapportées aux moins de 15 ans et aux 80 ans et plus.</li></ul>
+
+
+</section>
+
+<section class="journal-entree">
+<h3>14 octobre 2026</h3>
+
+
+
+
+<h4>Nouveautés et corrections</h4>
+<ul><li>Les CMP de près de quatre-vingt-dix établissements sont vérifiés un à un sur leurs propres sources, et chaque CMP porte un niveau de confirmation.</li></ul>
+
+
+</section>
+
+<section class="journal-entree">
+<h3>13 octobre 2026</h3>
+
+
+<h4>Données</h4>
+
+<ul>
+
+<li>Certification des établissements de santé, sites rattachés (Haute Autorité de santé), ajouté au site, version du 12 octobre 2026.</li>
+
+<li>Répertoire Sirene des établissements (INSEE), ajouté au site, version du 1er octobre 2026.</li>
+
+</ul>
+
+
+
+
+<h4>Nouveautés et corrections</h4>
+<ul><li>Les CMP sont confrontés à la statistique annuelle des établissements de santé, à la certification de la HAS et au répertoire Sirene, et les unités rangées à tort parmi eux sont comptées dans leur propre type.</li></ul>
+
+
+</section>
+
+<section class="journal-entree">
+<h3>12 octobre 2026</h3>
+
+
+<h4>Données</h4>
+
+<ul>
+
+<li>Offres de santé, Répertoire opérationnel des ressources (ROR) (Agence du numérique en santé), ajouté au site, version du 12 octobre 2026.</li>
+
+</ul>
+
+
+
+
+<h4>Nouveautés et corrections</h4>
+<ul><li>Les médecins spécialistes sont distingués par spécialité, une trentaine.</li><li>Les structures de soins (CMP, CATTP, hôpitaux de jour, CMPP, CAMSP, urgences, maternités, établissements médico-sociaux) sont recensées à partir de FINESS et du Répertoire opérationnel des ressources, avec la distance des habitants à la plus proche.</li></ul>
+
+
+</section>
+
+<section class="journal-entree">
+<h3>10 octobre 2026</h3>
+
+
+
+
+<h4>Nouveautés et corrections</h4>
+<ul><li>Les données et les deux rapports nationaux sont archivés sur Zenodo avec un DOI, et chaque figure ou tableau se cite et s&#39;exporte.</li></ul>
+
+
+</section>
+
+<section class="journal-entree">
+<h3>9 octobre 2026</h3>
+
+
+
+
+<h4>Nouveautés et corrections</h4>
+<ul><li>Les rapports sont réorganisés de l&#39;offre aux besoins, avec de nouveaux croisements (temps de trajet et suicide, handicap de l&#39;enfant, patients sans médecin traitant) et des cartes commune par commune dans les rapports départementaux.</li><li>Le site prend le nom d&#39;Ubi Cura.</li></ul>
+
+
+</section>
+
+<section class="journal-entree">
+<h3>8 octobre 2026</h3>
+
+<p>Première mise à jour consignée dans ce journal, avec 17 jeux de données suivis. Les versions de chaque jeu sont dans le tableau précédent.</p>
+
+
+<h4>Données</h4>
+
+<ul>
+
+<li>Répertoire RPPS des professionnels de santé (Agence du numérique en santé), nouvelle version du 8 octobre 2026 (précédente du 3 octobre 2026), 3 fichiers sur 3.</li>
+
+</ul>
+
+
+
+
+<h4>Nouveautés et corrections</h4>
+<ul><li>Une page « Données sources » présente chaque jeu de données utilisé, et un schéma montre pour chaque profession qui est compté dans les densités et pourquoi.</li></ul>
+
+
+</section>
+
+</details>
+
+</div></div>
+
+<footer>
+  Données du 23 octobre 2026. Sources, répertoire RPPS, FINESS, Répertoire opérationnel des ressources, INSEE (dont Sirene), Assurance Maladie, CAF, Santé publique France, DREES, HAS, IGN (voir <a href="methode.html">Méthode, données et limites</a>).
+  Résultats sous Licence Ouverte 2.0, en citant la source et la date de la version, sauf les indicateurs tirés des bases de l&#39;Assurance Maladie (Cnam, data.ameli.fr, cartographie des pathologies, secteurs conventionnels, patients sans médecin traitant) et ce qui en dérive, diffusés sous licence ODbL 1.0 (partage à l&#39;identique). Les fichiers suffixés _odbl et les données intégrées à l&#39;atlas, qui contiennent ces indicateurs, sont sous ODbL. Les rapports et les cartes qui les affichent contiennent des informations issues de cette base sous ODbL.
+  <p class="pied-liens"><a href="donnees-sources.html">Données sources</a> <a href="journal.html">Journal des mises à jour</a> <a href="a-venir.html">À venir</a> <a href="contribuer.html">Proposer une base de données</a> <a href="a-propos.html">À propos</a></p>
+</footer>
+</main>
+<script>
+// tableaux plus larges que la colonne de texte, fondu à droite et phrase d'indication tant qu'il reste des colonnes
+(function(){function maj(t){var d=t.scrollWidth>t.clientWidth+2;t.classList.toggle("deborde-d",d&&t.scrollLeft+t.clientWidth<t.scrollWidth-2);
+var n=t.nextElementSibling;if(!(n&&n.classList.contains("indice-defil"))){if(!d)return;n=document.createElement("p");n.className="indice-defil";n.textContent="Faites défiler le tableau vers la droite pour voir les autres colonnes.";t.after(n)}n.hidden=!d}
+// figures, choix de la profession (rapports, 9 octobre 2026)
+document.querySelectorAll("figure.graphique").forEach(function(fig){
+  var leg=fig.querySelector(".leg");
+  fig.querySelectorAll(".choix-variante button").forEach(function(b,i,tous){b.addEventListener("click",function(){
+    var vs=fig.querySelectorAll(".variante");vs.forEach(function(v,j){v.hidden=j!==i});
+    tous.forEach(function(x,j){x.setAttribute("aria-pressed",String(j===i))});
+    var t=vs[i].querySelector("title");if(leg&&t)leg.textContent=t.textContent})})});
+var ts=document.querySelectorAll(".corps table");ts.forEach(function(t){maj(t);t.addEventListener("scroll",function(){maj(t)},{passive:true})});
+addEventListener("resize",function(){ts.forEach(maj)})})();
+</script>
+<script>
+// Graphiques interactifs, communs aux rapports et à l'atlas (demande de Lucas du 9 octobre 2026).
+// Infobulle au survol de chaque point ou zone qui porte un titre, clic pour la garder, zoom à la molette et par
+// boutons, déplacement à la souris quand le graphique est zoomé. La page n'est pas bloquée, une molette qui
+// arrive pendant le défilement de la page continue de faire défiler la page.
+// Réglage, window.FIGURES = {zoom: "sélecteur des svg zoomables", bulle: "sélecteur des svg à infobulles"}.
+(function(){
+  var R=window.FIGURES||{zoom:"figure.zoomable svg",bulle:"figure.graphique svg"};
+  var bulle=document.createElement("div");bulle.className="bulle-fig";bulle.setAttribute("role","status");
+  document.addEventListener("DOMContentLoaded",function(){document.body.appendChild(bulle)});
+  if(document.body)document.body.appendChild(bulle);
+  var epingle=null,dernierDefil=0;
+  addEventListener("scroll",function(){dernierDefil=Date.now();if(!epingle)cacher()},{passive:true});
+  function svgDe(el,sel){var s=el&&el.closest&&el.closest("svg");while(s&&s.ownerSVGElement)s=s.ownerSVGElement;return s&&s.matches(sel)?s:null}
+  // texte de l'élément survolé, pris dans son titre (déplacé dans data-info pour éviter la bulle du navigateur)
+  function info(el,s){
+    for(var e=el;e&&e!==s;e=e.parentNode){
+      if(e.dataset&&e.dataset.info)return [e,e.dataset.info];
+      var t=e.querySelector&&e.querySelector(":scope > title");
+      if(t&&e!==s){e.dataset.info=t.textContent;t.remove();return [e,e.dataset.info]}}
+    return null}
+  function montrer(x,y,txt){bulle.textContent=txt;bulle.style.opacity=1;var w=bulle.offsetWidth,h=bulle.offsetHeight;
+    bulle.style.left=Math.max(8,Math.min(x+14,innerWidth-w-8))+"px";bulle.style.top=Math.max(8,y-h-12<8?y+16:y-h-12)+"px"}
+  function cacher(){bulle.style.opacity=0}
+  document.addEventListener("pointermove",function(ev){
+    if(epingle)return;var s=svgDe(ev.target,R.bulle);if(!s){cacher();return}
+    var i=info(ev.target,s);if(i)montrer(ev.clientX,ev.clientY,i[1]);else cacher()});
+  document.addEventListener("click",function(ev){
+    var s=svgDe(ev.target,R.bulle);
+    if(epingle){epingle.removeAttribute("data-choisi");epingle=null}
+    if(!s){cacher();return}
+    var i=info(ev.target,s);if(!i){cacher();return}
+    epingle=i[0];epingle.setAttribute("data-choisi","");montrer(ev.clientX,ev.clientY,i[1])});
+  document.addEventListener("keydown",function(ev){if(ev.key==="Escape"&&epingle){epingle.removeAttribute("data-choisi");epingle=null;cacher()}});
+
+  // zoom, le cadrage d'origine est repris chaque fois que la page redessine le graphique
+  function cadre(s){var v=s.getAttribute("viewBox");if(!v)return null;if(s.dataset.vbz!==v)s.dataset.vb0=v;return v.split(/[ ,]+/).map(Number)}
+  function zoomer(s,k,cx,cy){var b=cadre(s);if(!b)return;var o=s.dataset.vb0.split(/[ ,]+/).map(Number);
+    var w=Math.min(o[2],b[2]*k),h=Math.min(o[3],b[3]*k);if(w<o[2]/12)return;
+    if(cx==null){cx=b[0]+b[2]/2;cy=b[1]+b[3]/2}
+    var x=cx-(cx-b[0])*w/b[2],y=cy-(cy-b[1])*h/b[3];
+    x=Math.max(o[0],Math.min(x,o[0]+o[2]-w));y=Math.max(o[1],Math.min(y,o[1]+o[3]-h));
+    var v=[x,y,w,h].map(function(n){return +n.toFixed(2)}).join(" ");s.setAttribute("viewBox",v);s.dataset.vbz=v;boutons(s)}
+  function entier(s){return !s.dataset.vb0||s.getAttribute("viewBox")===s.dataset.vb0}
+  function boutons(s){
+    var hote=s.closest(".fig-corps")||s.closest("figure");
+    if(!hote){
+      // hors d'une figure (atlas), les boutons vont sur une ligne à eux juste au-dessus du graphique, sans recouvrir le
+      // titre du panneau ni le bouton Citer
+      hote=s.parentNode;
+      if(hote&&!hote.classList.contains("fig-zoom")){var enveloppe=document.createElement("div");enveloppe.className="fig-zoom";
+        hote.insertBefore(enveloppe,s);enveloppe.appendChild(s);hote=enveloppe}
+    }
+    if(!hote||hote.querySelector(":scope > .zoom-boutons"))return;
+    var bz=document.createElement("div");bz.className="zoom-boutons";
+    bz.innerHTML='<button type="button" aria-label="Zoomer">+</button><button type="button" aria-label="Dézoomer">−</button><button type="button" aria-label="Revenir à la vue entière">⟲</button>';
+    if(getComputedStyle(hote).position==="static")hote.style.position="relative";
+    hote.insertBefore(bz,hote.firstChild);
+    var cible=function(){var v=hote.querySelector(".variante:not([hidden]) svg");return v||s};
+    var b=bz.querySelectorAll("button");
+    b[0].onclick=function(){zoomer(cible(),.6)};b[1].onclick=function(){zoomer(cible(),1/.6)};
+    b[2].onclick=function(){var c=cible();cadre(c);if(c.dataset.vb0){c.setAttribute("viewBox",c.dataset.vb0);c.dataset.vbz=c.dataset.vb0}}}
+  document.querySelectorAll(R.zoom).forEach(boutons);
+  document.addEventListener("pointerover",function(ev){var s=svgDe(ev.target,R.zoom);if(s)boutons(s)});
+  // la molette seule fait toujours défiler la page ; le zoom à la molette demande Ctrl (ou ⌘), sinon le curseur restait
+  // pris dans la figure (remarque de Lucas du 23 octobre 2026) ; les boutons + et − restent le moyen ordinaire
+  document.addEventListener("wheel",function(ev){
+    if(!(ev.ctrlKey||ev.metaKey))return;
+    var s=svgDe(ev.target,R.zoom);if(!s)return;
+    if(Date.now()-dernierDefil<450)return;                       // la page défile, on la laisse défiler
+    if(ev.deltaY>0&&entier(s))return;                           // vue entière, molette vers le bas, la page défile
+    ev.preventDefault();var p=s.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;
+    var q=p.matrixTransform(s.getScreenCTM().inverse());zoomer(s,ev.deltaY<0?.8:1.25,q.x,q.y)},{passive:false});
+  var dep=null;
+  document.addEventListener("pointerdown",function(ev){var s=svgDe(ev.target,R.zoom);if(!s||entier(s))return;
+    var b=cadre(s);dep={x:ev.clientX,y:ev.clientY,b:b,s:s,k:b[2]/s.getBoundingClientRect().width,bouge:false}});
+  addEventListener("pointermove",function(ev){if(!dep)return;var o=dep.s.dataset.vb0.split(/[ ,]+/).map(Number),b=dep.b;
+    if(Math.abs(ev.clientX-dep.x)+Math.abs(ev.clientY-dep.y)>3)dep.bouge=true;if(!dep.bouge)return;
+    var x=Math.max(o[0],Math.min(b[0]-(ev.clientX-dep.x)*dep.k,o[0]+o[2]-b[2])),y=Math.max(o[1],Math.min(b[1]-(ev.clientY-dep.y)*dep.k,o[1]+o[3]-b[3]));
+    var v=[x,y,b[2],b[3]].map(function(n){return +n.toFixed(2)}).join(" ");dep.s.setAttribute("viewBox",v);dep.s.dataset.vbz=v});
+  addEventListener("pointerup",function(){dep=null});
+
+  // figures des rapports, même modèle que l'atlas (10 octobre 2026). Sous le titre « Figure N. légende », une ligne
+  // « Citer et exporter » ouvre la citation du rapport suivie du numéro et de la légende, l'image (copie, PNG, SVG, avec
+  // la citation dessous) et les données de la figure. La citation du rapport est donnée par la page (data-citation).
+  function citerFigures(){
+    var porte=document.querySelector("[data-citation]");if(!porte)return;var base=porte.dataset.citation;
+    document.querySelectorAll("figure.graphique").forEach(function(f){
+      if(f.dataset.cite)return;f.dataset.cite="1";
+      var cap=f.querySelector("figcaption");
+      var ligne=document.createElement("div");ligne.className="outils-figure";
+      var bc=document.createElement("button");bc.type="button";bc.className="citer-fig";bc.textContent="Citer et exporter";bc.setAttribute("aria-expanded","false");ligne.appendChild(bc);
+      if(cap)cap.after(ligne);else f.insertBefore(ligne,f.firstChild);
+      var boite=document.createElement("div");boite.className="citation-fig";boite.hidden=true;ligne.after(boite);
+      bc.onclick=function(){var ouvert=boite.hidden;bc.setAttribute("aria-expanded",String(ouvert));boite.hidden=!ouvert;if(!ouvert)return;
+        // la légende suit la profession choisie, la citation est donc refaite à chaque ouverture
+        var num=cap&&cap.querySelector("strong"),leg=cap&&cap.querySelector(".leg");
+        var ref=(num?num.textContent.replace(/\.$/,""):"Figure")+(leg?", "+leg.textContent.trim():"");
+        var texte=base.replace(/\s*$/,"")+(/[.]$/.test(base.trim())?" ":". ")+ref+".";
+        var nom=(ref.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,80)||"figure").toLowerCase();
+        boite.innerHTML='<p></p><div class="citation-actions"><button type="button" data-a="cit">Copier la citation</button></div>'
+          +'<ul class="exports"><li><span class="nom"><span class="genre">Image</span> de la figure</span><span class="citation-actions"><button type="button" data-a="img">Copier l’image</button><button type="button" data-a="png">PNG</button><button type="button" data-a="svg">SVG</button></span></li>'
+          +(f.dataset.donnees?'<li><span class="nom"><span class="genre">Données</span> de la figure, '+f.dataset.donneesNom+'</span><span class="citation-actions"><a class="bouton" download href="'+f.dataset.donnees+'">CSV</a></span></li>':'')
+          +'</ul><p class="small muted">Chaque fichier porte la citation du rapport, merci de la joindre à toute reprise.</p>';
+        boite.querySelector("p").textContent=texte;
+        boite.querySelectorAll("button").forEach(function(b){b.onclick=function(){var a=b.dataset.a;
+          if(a==="cit"){navigator.clipboard.writeText(texte).then(function(){b.textContent="Citation copiée"},function(){b.textContent="Copie impossible ici"});return}
+          var src=f.querySelector(".variante:not([hidden]) svg")||f.querySelector("svg");if(!src)return;
+          var svg=imageCitee(src,texte);
+          if(a==="svg"){enregistrer(new Blob([svg],{type:"image/svg+xml"}),nom+".svg");b.textContent="Enregistré";return}
+          var img=new Image(),url=URL.createObjectURL(new Blob([svg],{type:"image/svg+xml"}));
+          img.onload=function(){var c=document.createElement("canvas");c.width=img.width;c.height=img.height;c.getContext("2d").drawImage(img,0,0);URL.revokeObjectURL(url);
+            c.toBlob(function(png){if(!png)return;
+              if(a==="png"){enregistrer(png,nom+".png");b.textContent="Enregistré";return}
+              navigator.clipboard.write([new ClipboardItem({"image/png":png})]).then(function(){b.textContent="Image copiée"},function(){b.textContent="Copie impossible ici, utilisez PNG"})})};img.src=url}})}})}
+  function imageCitee(src,texte){
+    var ns="http://www.w3.org/2000/svg",c=src.cloneNode(true),vb=(src.dataset.vb0||src.getAttribute("viewBox")||"0 0 600 400").split(/[ ,]+/).map(Number);
+    // taille commune des exports (harmonisation, 22 octobre 2026), dessin rapporté à 800 pixels, image à 1 600, citation
+    // au petit corps de l'échelle typographique (11,5 pixels à cette largeur), couleurs du fond clair (valeurs de repli
+    // des variables, seules lues dans un fichier SVG isolé)
+    var fs=11.5*vb[2]/800,par=Math.max(40,Math.floor((vb[2]-16)/(fs*.55))),lignes=[];
+    texte.split(" ").forEach(function(m){var l=lignes.length?lignes[lignes.length-1]:null;if(l!=null&&(l+" "+m).length<=par)lignes[lignes.length-1]=l+" "+m;else lignes.push(m)});
+    var hc=fs*1.4*lignes.length+fs;c.setAttribute("xmlns",ns);c.setAttribute("viewBox",[vb[0],vb[1],vb[2],vb[3]+hc].join(" "));
+    c.setAttribute("width",1600);c.setAttribute("height",Math.round((vb[3]+hc)*1600/vb[2]));
+    var fond=document.createElementNS(ns,"rect");fond.setAttribute("x",vb[0]);fond.setAttribute("y",vb[1]);fond.setAttribute("width",vb[2]);fond.setAttribute("height",vb[3]+hc);fond.setAttribute("fill","#FFFFFF");c.insertBefore(fond,c.firstChild);
+    lignes.forEach(function(l,i){var t=document.createElementNS(ns,"text");t.setAttribute("x",vb[0]+8);t.setAttribute("y",vb[1]+vb[3]+fs*1.4*(i+1));t.setAttribute("font-size",fs);t.setAttribute("fill","#5F6675");t.setAttribute("font-family","Work Sans, Segoe UI, sans-serif");t.textContent=l;c.appendChild(t)});
+    return new XMLSerializer().serializeToString(c)}
+  function enregistrer(blob,nom){var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=nom;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},1000)}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",citerFigures);else citerFigures();
+
+  // tableaux des rapports et des pages, citables et exportables comme les figures (version 2, point 1, 22 octobre 2026).
+  // La citation est celle du rapport (data-citation) ou de la page (data-citation-page et son adresse), suivie du titre
+  // du tableau, tiré de sa légende ou de l'intertitre qui le précède (décision de Lucas, titre sans numéro). Le CSV
+  // reprend les lignes affichées, au format des fichiers du site (point-virgule, virgule décimale, nombres sans
+  // séparateur de milliers), avec la citation en dernière ligne.
+  function titreTableau(t){
+    if(t.caption&&t.caption.textContent.trim())return t.caption.textContent.trim();
+    for(var e=t.closest(".defile")||t;e&&e.tagName!=="MAIN";e=e.parentElement){
+      for(var p=e.previousElementSibling;p;p=p.previousElementSibling){
+        if(/^H[2-5]$/.test(p.tagName))return p.textContent.replace(/\s+/g," ").trim();
+        var h=p.querySelectorAll&&p.querySelectorAll("h2,h3,h4,h5");if(h&&h.length)return h[h.length-1].textContent.replace(/\s+/g," ").trim()}
+      if(e.tagName==="DETAILS"){var s=e.querySelector("summary");if(s)return s.textContent.trim()}}
+    return "Tableau"}
+  function celluleCsv(c){
+    // une adresse raccourcie à l'écran est écrite en entier dans le fichier
+    if(c.querySelectorAll){var lien=[].filter.call(c.querySelectorAll("a[href^='http']"),function(a){return /…$/.test(a.textContent.trim())});
+      if(lien.length){c=c.cloneNode(true);[].forEach.call(c.querySelectorAll("a[href^='http']"),function(a){if(/…$/.test(a.textContent.trim()))a.textContent=a.href})}}
+    var v=c.textContent.replace(/[\s  ]+/g," ").trim();
+    if(/^[−-]?\d{1,3}( \d{3})+(,\d+)?$/.test(v))v=v.replace(/ /g,"");
+    v=v.replace(/^−(?=\d)/,"-");
+    return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+  function tableauCsv(t){
+    return "﻿"+[].filter.call(t.querySelectorAll("tr"),function(tr){return !tr.hidden&&tr.style.display!=="none"})
+      .map(function(tr){return [].map.call(tr.children,celluleCsv).join(";")}).join("\r\n")}
+  function citerTableaux(){
+    var main=document.querySelector("main");if(!main)return;
+    var porte=document.querySelector("[data-citation]"),base;
+    if(porte)base=porte.dataset.citation.replace(/\s*$/,"");
+    else{base=(main.dataset.citationPage||"").replace(/\s*$/,"");if(!base)return;
+      var adr=main.dataset.adresse;base+=(adr?", "+adr+location.pathname.replace(/\/index\.html$/,"/"):"")+"."}
+    main.querySelectorAll("table").forEach(function(t){
+      if(t.dataset.cite||t.closest(".citation-fig,.sommaire,details.versions,nav,figure"))return;t.dataset.cite="1";
+      var bloc=t.closest(".defile")||t;
+      var ligne=document.createElement("div");ligne.className="outils-figure outils-tableau";
+      var bc=document.createElement("button");bc.type="button";bc.className="citer-fig";bc.textContent="Citer et exporter";bc.setAttribute("aria-expanded","false");ligne.appendChild(bc);
+      bloc.before(ligne);
+      var boite=document.createElement("div");boite.className="citation-fig";boite.hidden=true;ligne.after(boite);
+      bc.onclick=function(){var ouvert=boite.hidden;bc.setAttribute("aria-expanded",String(ouvert));boite.hidden=!ouvert;if(!ouvert)return;
+        var titre=titreTableau(t),texte=base+(/[.]$/.test(base)?" ":". ")+"Tableau, « "+titre+" ».";
+        var nom=(titre.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,80)||"tableau").toLowerCase();
+        boite.innerHTML='<p></p><div class="citation-actions"><button type="button" data-a="cit">Copier la citation</button></div>'
+          +'<ul class="exports"><li><span class="nom"><span class="genre">Données</span> du tableau, telles qu’affichées</span><span class="citation-actions"><button type="button" data-a="csv">CSV</button></span></li></ul>'
+          +'<p class="small muted">Le fichier porte la citation de la page, merci de la joindre à toute reprise.</p>';
+        boite.querySelector("p").textContent=texte;
+        boite.querySelectorAll("button").forEach(function(b){b.onclick=function(){
+          if(b.dataset.a==="cit"){navigator.clipboard.writeText(texte).then(function(){b.textContent="Citation copiée"},function(){b.textContent="Copie impossible ici"});return}
+          enregistrer(new Blob([tableauCsv(t)+"\r\n\r\n"+celluleCsv({textContent:texte})],{type:"text/csv;charset=utf-8"}),nom+".csv");b.textContent="Enregistré"}})}})}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",citerTableaux);else citerTableaux();
+
+  // « Comment lire » des rapports (audit du 22 octobre 2026, lot 2), un bouton sur la ligne d'outils de la figure ou du
+  // tableau commenté, à côté de « Citer et exporter », comme dans l'atlas. Le paragraphe garde sa place et s'ouvre au
+  // clic ; s'il ne suit pas une figure ou un tableau, il reste affiché. À l'impression il est toujours visible.
+  function lireReplie(){
+    document.querySelectorAll(".corps p.comment-lire").forEach(function(p){
+      if(p.dataset.lire)return;p.dataset.lire="1";var ligne=null,e=p.previousElementSibling;
+      for(var k=0;e&&k<5&&!ligne;k++,e=e.previousElementSibling){
+        if(e.matches("figure.graphique"))ligne=e.querySelector(".outils-figure");
+        else if(e.matches(".defile,table")){for(var o=e.previousElementSibling,j=0;o&&j<3;o=o.previousElementSibling,j++)if(o.classList.contains("outils-tableau")){ligne=o;break}}
+        else if(e.matches("h2,h3,h4,h5,.comment-lire"))break}
+      if(!ligne)return;
+      var b=document.createElement("button");b.type="button";b.className="citer-fig lire-fig";b.textContent="Comment lire";b.setAttribute("aria-expanded","false");
+      ligne.insertBefore(b,ligne.firstChild);p.classList.add("repli");
+      b.onclick=function(){var o=p.classList.contains("repli");p.classList.toggle("repli",!o);b.setAttribute("aria-expanded",String(o))}})}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",lireReplie);else lireReplie();
+
+  // longs tableaux de consultation (pages de la méthode), un champ filtre les lignes à mesure qu'on tape
+  function filtres(){
+    document.querySelectorAll("table.filtrable").forEach(function(t){
+      if(t.dataset.filtre)return;t.dataset.filtre="1";var bloc=t.closest(".defile")||t;
+      var l=document.createElement("label");l.className="filtre-tableau";l.innerHTML='<span>Filtrer le tableau</span><input type="search" autocomplete="off">';
+      var ligne=bloc.previousElementSibling&&bloc.previousElementSibling.classList.contains("citation-fig")?bloc.previousElementSibling:bloc;ligne.before(l);
+      var n=document.createElement("span");n.className="small muted";l.appendChild(n);
+      var champ=l.querySelector("input"),lignes=[].slice.call(t.tBodies[0]?t.tBodies[0].rows:[]);
+      var norm=function(x){return x.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()};
+      champ.addEventListener("input",function(){var q=norm(champ.value.trim()),k=0;
+        lignes.forEach(function(r){var ok=!q||norm(r.textContent).indexOf(q)>=0;r.hidden=!ok;if(ok)k++});
+        n.textContent=q?k+" ligne"+(k>1?"s":"")+" sur "+lignes.length:""})})}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",filtres);else filtres();
+})();
+
+// Figures qui apparaissent en douceur quand on arrive dessus (refonte du 23 octobre 2026). La classe posée sur la racine
+// n'existe qu'avec le script, si bien qu'une figure reste visible quand il ne tourne pas ; impression exclue.
+(function(){
+  if(!("IntersectionObserver" in window)||matchMedia("print").matches)return;
+  const cibles=document.querySelectorAll("figure.graphique,.une-carte");if(!cibles.length)return;
+  document.documentElement.classList.add("revele");
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("vu");io.unobserve(e.target)}}),{rootMargin:"0px 0px -8% 0px"});
+  cibles.forEach(c=>io.observe(c));
+  addEventListener("beforeprint",()=>cibles.forEach(c=>c.classList.add("vu")));
+})();
+// en-tête qui se resserre en barre flottante dès qu'on descend (essai du 23 octobre 2026, d'après reactbits.dev)
+(function(){var n=document.querySelector("nav.site");if(!n)return;
+  var f=function(){n.classList.toggle("defile",(window.scrollY||0)>12)};f();addEventListener("scroll",f,{passive:true})})();
+</script>
+<script src="cesure/hyphen.js" defer></script>
+<script src="cesure/hyphen-fr.js" defer></script>
+<script src="cesure/cesure.js" defer></script>
+<script>window.goatcounter={no_onload:navigator.doNotTrack==="1"||window.doNotTrack==="1"}</script><script data-goatcounter="https://ubicura.goatcounter.com/count" async src="https://gc.zgo.at/count.v5.js" crossorigin="anonymous" integrity="sha384-atnOLvQb9t+jTSipvd75X2yginT4PjVbqDdlJAmxMm+wYElFmeR6EmLP5bYeoRVQ"></script>
+</body>
+</html>

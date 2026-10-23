@@ -1,0 +1,1137 @@
+﻿code;prof;categorie;n;nom;libelle;categorie_libelle
+01;assistant_de_service_social;public_particulier;1;Guadeloupe;Assistant de service social;Public particulier
+01;assistant_de_service_social;sans_soins;1;Guadeloupe;Assistant de service social;Sans soins à la population
+01;biologiste;public_particulier;3;Guadeloupe;Biologiste médical;Public particulier
+01;chirurgien_dentiste;sans_soins;1;Guadeloupe;Chirurgien-dentiste;Sans soins à la population
+01;chirurgien_general;public_particulier;1;Guadeloupe;Chirurgien général;Public particulier
+01;ens_medecin_specialiste;public_particulier;23;Guadeloupe;Médecin spécialiste (toutes spécialités);Public particulier
+01;infirmier;public_particulier;95;Guadeloupe;Infirmier;Public particulier
+01;infirmier;sans_soins;15;Guadeloupe;Infirmier;Sans soins à la population
+01;interniste;public_particulier;1;Guadeloupe;Médecin interniste;Public particulier
+01;masseur_kinesitherapeute;public_particulier;1;Guadeloupe;Masseur-kinésithérapeute;Public particulier
+01;medecin_generaliste;public_particulier;23;Guadeloupe;Médecin généraliste;Public particulier
+01;medecin_generaliste;sans_soins;6;Guadeloupe;Médecin généraliste;Sans soins à la population
+01;medecin_sante_publique;public_particulier;1;Guadeloupe;Médecin de santé publique;Public particulier
+01;medecin_sante_publique;sans_soins;1;Guadeloupe;Médecin de santé publique;Sans soins à la population
+01;medecin_travail;public_particulier;14;Guadeloupe;Médecin du travail;Public particulier
+01;medecin_travail;sans_soins;1;Guadeloupe;Médecin du travail;Sans soins à la population
+01;pharmacien;public_particulier;1;Guadeloupe;Pharmacien;Public particulier
+01;pharmacien;sans_soins;11;Guadeloupe;Pharmacien;Sans soins à la population
+01;psychiatre;public_particulier;1;Guadeloupe;Psychiatre;Public particulier
+01;psychologue;public_particulier;5;Guadeloupe;Psychologue;Public particulier
+01;q_addictologie;public_particulier;1;Guadeloupe;Médecin qualifié en addictologie;Public particulier
+01;technicien_labo;public_particulier;25;Guadeloupe;Technicien de laboratoire;Public particulier
+02;anatomopathologiste;sans_soins;1;Martinique;Anatomopathologiste;Sans soins à la population
+02;assistant_de_service_social;public_particulier;8;Martinique;Assistant de service social;Public particulier
+02;audioprothesiste;sans_soins;1;Martinique;Audioprothésiste;Sans soins à la population
+02;biologiste;public_particulier;2;Martinique;Biologiste médical;Public particulier
+02;biologiste;sans_soins;1;Martinique;Biologiste médical;Sans soins à la population
+02;ens_medecin_specialiste;public_particulier;23;Martinique;Médecin spécialiste (toutes spécialités);Public particulier
+02;ens_medecin_specialiste;sans_soins;1;Martinique;Médecin spécialiste (toutes spécialités);Sans soins à la population
+02;gynecologue;sans_soins;1;Martinique;Gynécologue;Sans soins à la population
+02;infirmier;public_particulier;119;Martinique;Infirmier;Public particulier
+02;infirmier;sans_soins;8;Martinique;Infirmier;Sans soins à la population
+02;masseur_kinesitherapeute;public_particulier;4;Martinique;Masseur-kinésithérapeute;Public particulier
+02;medecin_generaliste;public_particulier;6;Martinique;Médecin généraliste;Public particulier
+02;medecin_generaliste;sans_soins;18;Martinique;Médecin généraliste;Sans soins à la population
+02;medecin_sante_publique;sans_soins;3;Martinique;Médecin de santé publique;Sans soins à la population
+02;medecin_travail;public_particulier;14;Martinique;Médecin du travail;Public particulier
+02;pediatre;sans_soins;1;Martinique;Pédiatre;Sans soins à la population
+02;pharmacien;public_particulier;2;Martinique;Pharmacien;Public particulier
+02;pharmacien;sans_soins;18;Martinique;Pharmacien;Sans soins à la population
+02;psychiatre;public_particulier;1;Martinique;Psychiatre;Public particulier
+02;psychologue;public_particulier;12;Martinique;Psychologue;Public particulier
+02;q_addictologie;public_particulier;1;Martinique;Médecin qualifié en addictologie;Public particulier
+02;technicien_labo;public_particulier;20;Martinique;Technicien de laboratoire;Public particulier
+02;technicien_labo;sans_soins;1;Martinique;Technicien de laboratoire;Sans soins à la population
+03;assistant_de_service_social;public_particulier;10;Guyane;Assistant de service social;Public particulier
+03;ens_medecin_specialiste;public_particulier;11;Guyane;Médecin spécialiste (toutes spécialités);Public particulier
+03;infirmier;public_particulier;54;Guyane;Infirmier;Public particulier
+03;infirmier;sans_soins;5;Guyane;Infirmier;Sans soins à la population
+03;medecin_generaliste;public_particulier;1;Guyane;Médecin généraliste;Public particulier
+03;medecin_generaliste;sans_soins;9;Guyane;Médecin généraliste;Sans soins à la population
+03;medecin_sante_publique;sans_soins;5;Guyane;Médecin de santé publique;Sans soins à la population
+03;medecin_travail;public_particulier;5;Guyane;Médecin du travail;Public particulier
+03;pharmacien;public_particulier;1;Guyane;Pharmacien;Public particulier
+03;pharmacien;sans_soins;10;Guyane;Pharmacien;Sans soins à la population
+03;psychiatre;sans_soins;1;Guyane;Psychiatre;Sans soins à la population
+03;psychologue;public_particulier;13;Guyane;Psychologue;Public particulier
+03;psychotherapeute;public_particulier;1;Guyane;Psychothérapeute;Public particulier
+03;technicien_labo;public_particulier;10;Guyane;Technicien de laboratoire;Public particulier
+04;assistant_de_service_social;public_particulier;24;La Réunion;Assistant de service social;Public particulier
+04;assistant_de_service_social;sans_soins;3;La Réunion;Assistant de service social;Sans soins à la population
+04;biologiste;public_particulier;2;La Réunion;Biologiste médical;Public particulier
+04;chirurgien_dentiste;sans_soins;2;La Réunion;Chirurgien-dentiste;Sans soins à la population
+04;chirurgien_pediatrique;public_particulier;1;La Réunion;Chirurgien pédiatrique;Public particulier
+04;dieteticien;public_particulier;1;La Réunion;Diététicien;Public particulier
+04;ens_medecin_specialiste;public_particulier;53;La Réunion;Médecin spécialiste (toutes spécialités);Public particulier
+04;ens_medecin_specialiste;sans_soins;1;La Réunion;Médecin spécialiste (toutes spécialités);Sans soins à la population
+04;ergotherapeute;public_particulier;5;La Réunion;Ergothérapeute;Public particulier
+04;infirmier;public_particulier;548;La Réunion;Infirmier;Public particulier
+04;infirmier;sans_soins;14;La Réunion;Infirmier;Sans soins à la population
+04;manipulateur_erm;public_particulier;1;La Réunion;Manipulateur en électroradiologie;Public particulier
+04;masseur_kinesitherapeute;public_particulier;9;La Réunion;Masseur-kinésithérapeute;Public particulier
+04;medecin_generaliste;public_particulier;18;La Réunion;Médecin généraliste;Public particulier
+04;medecin_generaliste;sans_soins;34;La Réunion;Médecin généraliste;Sans soins à la population
+04;medecin_sante_publique;public_particulier;1;La Réunion;Médecin de santé publique;Public particulier
+04;medecin_sante_publique;sans_soins;6;La Réunion;Médecin de santé publique;Sans soins à la population
+04;medecin_travail;public_particulier;32;La Réunion;Médecin du travail;Public particulier
+04;medecin_travail;sans_soins;8;La Réunion;Médecin du travail;Sans soins à la population
+04;oncologue;public_particulier;1;La Réunion;Oncologue médical;Public particulier
+04;pediatre;sans_soins;1;La Réunion;Pédiatre;Sans soins à la population
+04;pedicure_podologue;public_particulier;1;La Réunion;Pédicure-podologue;Public particulier
+04;pharmacien;public_particulier;10;La Réunion;Pharmacien;Public particulier
+04;pharmacien;sans_soins;21;La Réunion;Pharmacien;Sans soins à la population
+04;psychologue;public_particulier;54;La Réunion;Psychologue;Public particulier
+04;psychologue;sans_soins;1;La Réunion;Psychologue;Sans soins à la population
+04;psychomotricien;sans_soins;2;La Réunion;Psychomotricien;Sans soins à la population
+04;psychotherapeute;public_particulier;1;La Réunion;Psychothérapeute;Public particulier
+04;rhumatologue;public_particulier;1;La Réunion;Rhumatologue;Public particulier
+04;technicien_labo;public_particulier;34;La Réunion;Technicien de laboratoire;Public particulier
+04;urgentiste;sans_soins;1;La Réunion;Médecin urgentiste;Sans soins à la population
+06;ens_medecin_specialiste;public_particulier;2;Mayotte;Médecin spécialiste (toutes spécialités);Public particulier
+06;infirmier;public_particulier;106;Mayotte;Infirmier;Public particulier
+06;infirmier;sans_soins;1;Mayotte;Infirmier;Sans soins à la population
+06;manipulateur_erm;public_particulier;2;Mayotte;Manipulateur en électroradiologie;Public particulier
+06;medecin_generaliste;sans_soins;2;Mayotte;Médecin généraliste;Sans soins à la population
+06;medecin_sante_publique;sans_soins;1;Mayotte;Médecin de santé publique;Sans soins à la population
+06;orthoptiste;sans_soins;1;Mayotte;Orthoptiste;Sans soins à la population
+06;pedicure_podologue;public_particulier;1;Mayotte;Pédicure-podologue;Public particulier
+06;pharmacien;sans_soins;3;Mayotte;Pharmacien;Sans soins à la population
+06;psychologue;public_particulier;7;Mayotte;Psychologue;Public particulier
+06;urgentiste;sans_soins;1;Mayotte;Médecin urgentiste;Sans soins à la population
+11;allergologue;a_distance;1;Île-de-France;Allergologue;Soins à distance (téléconsultation)
+11;allergologue;sans_soins;2;Île-de-France;Allergologue;Sans soins à la population
+11;anatomopathologiste;public_particulier;2;Île-de-France;Anatomopathologiste;Public particulier
+11;anatomopathologiste;sans_soins;4;Île-de-France;Anatomopathologiste;Sans soins à la population
+11;anesthesiste;public_particulier;49;Île-de-France;Anesthésiste-réanimateur;Public particulier
+11;anesthesiste;sans_soins;23;Île-de-France;Anesthésiste-réanimateur;Sans soins à la population
+11;appareilleur;public_particulier;25;Île-de-France;Appareilleur;Public particulier
+11;appareilleur;sans_soins;4;Île-de-France;Appareilleur;Sans soins à la population
+11;assistant_de_service_social;public_particulier;353;Île-de-France;Assistant de service social;Public particulier
+11;assistant_de_service_social;sans_soins;77;Île-de-France;Assistant de service social;Sans soins à la population
+11;assistant_dentaire;public_particulier;21;Île-de-France;Assistant dentaire;Public particulier
+11;assistant_dentaire;sans_soins;1;Île-de-France;Assistant dentaire;Sans soins à la population
+11;biologiste;public_particulier;52;Île-de-France;Biologiste médical;Public particulier
+11;biologiste;sans_soins;35;Île-de-France;Biologiste médical;Sans soins à la population
+11;cardiologue;a_distance;2;Île-de-France;Cardiologue;Soins à distance (téléconsultation)
+11;cardiologue;public_particulier;40;Île-de-France;Cardiologue;Public particulier
+11;cardiologue;sans_soins;13;Île-de-France;Cardiologue;Sans soins à la population
+11;chiropracteur;public_particulier;13;Île-de-France;Chiropracteur;Public particulier
+11;chirurgien_dentiste;public_particulier;120;Île-de-France;Chirurgien-dentiste;Public particulier
+11;chirurgien_dentiste;sans_soins;70;Île-de-France;Chirurgien-dentiste;Sans soins à la population
+11;chirurgien_general;a_distance;3;Île-de-France;Chirurgien général;Soins à distance (téléconsultation)
+11;chirurgien_general;public_particulier;24;Île-de-France;Chirurgien général;Public particulier
+11;chirurgien_general;sans_soins;11;Île-de-France;Chirurgien général;Sans soins à la population
+11;chirurgien_orthopediste;public_particulier;17;Île-de-France;Chirurgien orthopédiste;Public particulier
+11;chirurgien_orthopediste;sans_soins;4;Île-de-France;Chirurgien orthopédiste;Sans soins à la population
+11;chirurgien_pediatrique;sans_soins;2;Île-de-France;Chirurgien pédiatrique;Sans soins à la population
+11;chirurgien_plasticien;sans_soins;1;Île-de-France;Chirurgien plasticien;Sans soins à la population
+11;chirurgien_thoracique;public_particulier;6;Île-de-France;Chirurgien thoracique et cardiovasculaire;Public particulier
+11;chirurgien_thoracique;sans_soins;1;Île-de-France;Chirurgien thoracique et cardiovasculaire;Sans soins à la population
+11;chirurgien_visceral;public_particulier;10;Île-de-France;Chirurgien viscéral et digestif;Public particulier
+11;chirurgien_visceral;sans_soins;6;Île-de-France;Chirurgien viscéral et digestif;Sans soins à la population
+11;dermatologue;a_distance;27;Île-de-France;Dermatologue;Soins à distance (téléconsultation)
+11;dermatologue;public_particulier;11;Île-de-France;Dermatologue;Public particulier
+11;dermatologue;sans_soins;5;Île-de-France;Dermatologue;Sans soins à la population
+11;dieteticien;public_particulier;50;Île-de-France;Diététicien;Public particulier
+11;dieteticien;sans_soins;14;Île-de-France;Diététicien;Sans soins à la population
+11;endocrinologue;a_distance;12;Île-de-France;Endocrinologue;Soins à distance (téléconsultation)
+11;endocrinologue;public_particulier;9;Île-de-France;Endocrinologue;Public particulier
+11;endocrinologue;sans_soins;11;Île-de-France;Endocrinologue;Sans soins à la population
+11;ens_medecin_specialiste;a_distance;712;Île-de-France;Médecin spécialiste (toutes spécialités);Soins à distance (téléconsultation)
+11;ens_medecin_specialiste;public_particulier;1841;Île-de-France;Médecin spécialiste (toutes spécialités);Public particulier
+11;ens_medecin_specialiste;sans_soins;679;Île-de-France;Médecin spécialiste (toutes spécialités);Sans soins à la population
+11;ergotherapeute;public_particulier;24;Île-de-France;Ergothérapeute;Public particulier
+11;ergotherapeute;sans_soins;6;Île-de-France;Ergothérapeute;Sans soins à la population
+11;gastro_enterologue;a_distance;6;Île-de-France;Gastro-entérologue;Soins à distance (téléconsultation)
+11;gastro_enterologue;public_particulier;17;Île-de-France;Gastro-entérologue;Public particulier
+11;gastro_enterologue;sans_soins;10;Île-de-France;Gastro-entérologue;Sans soins à la population
+11;geriatre;a_distance;9;Île-de-France;Gériatre;Soins à distance (téléconsultation)
+11;geriatre;public_particulier;15;Île-de-France;Gériatre;Public particulier
+11;geriatre;sans_soins;15;Île-de-France;Gériatre;Sans soins à la population
+11;gynecologue;a_distance;83;Île-de-France;Gynécologue;Soins à distance (téléconsultation)
+11;gynecologue;public_particulier;13;Île-de-France;Gynécologue;Public particulier
+11;gynecologue;sans_soins;8;Île-de-France;Gynécologue;Sans soins à la population
+11;hematologue;public_particulier;12;Île-de-France;Hématologue;Public particulier
+11;hematologue;sans_soins;9;Île-de-France;Hématologue;Sans soins à la population
+11;infectiologue;a_distance;1;Île-de-France;Infectiologue;Soins à distance (téléconsultation)
+11;infectiologue;public_particulier;1;Île-de-France;Infectiologue;Public particulier
+11;infectiologue;sans_soins;3;Île-de-France;Infectiologue;Sans soins à la population
+11;infirmier;public_particulier;5255;Île-de-France;Infirmier;Public particulier
+11;infirmier;sans_soins;2729;Île-de-France;Infirmier;Sans soins à la population
+11;interniste;a_distance;1;Île-de-France;Médecin interniste;Soins à distance (téléconsultation)
+11;interniste;public_particulier;33;Île-de-France;Médecin interniste;Public particulier
+11;interniste;sans_soins;169;Île-de-France;Médecin interniste;Sans soins à la population
+11;manipulateur_erm;public_particulier;69;Île-de-France;Manipulateur en électroradiologie;Public particulier
+11;manipulateur_erm;sans_soins;19;Île-de-France;Manipulateur en électroradiologie;Sans soins à la population
+11;masseur_kinesitherapeute;public_particulier;345;Île-de-France;Masseur-kinésithérapeute;Public particulier
+11;masseur_kinesitherapeute;sans_soins;167;Île-de-France;Masseur-kinésithérapeute;Sans soins à la population
+11;medecin_autre;a_distance;1;Île-de-France;Médecin, autre spécialité;Soins à distance (téléconsultation)
+11;medecin_autre;public_particulier;4;Île-de-France;Médecin, autre spécialité;Public particulier
+11;medecin_autre;sans_soins;8;Île-de-France;Médecin, autre spécialité;Sans soins à la population
+11;medecin_generaliste;a_distance;4255;Île-de-France;Médecin généraliste;Soins à distance (téléconsultation)
+11;medecin_generaliste;public_particulier;779;Île-de-France;Médecin généraliste;Public particulier
+11;medecin_generaliste;sans_soins;2440;Île-de-France;Médecin généraliste;Sans soins à la population
+11;medecin_mpr;a_distance;1;Île-de-France;Médecin de médecine physique et de réadaptation;Soins à distance (téléconsultation)
+11;medecin_mpr;public_particulier;14;Île-de-France;Médecin de médecine physique et de réadaptation;Public particulier
+11;medecin_mpr;sans_soins;14;Île-de-France;Médecin de médecine physique et de réadaptation;Sans soins à la population
+11;medecin_non_precise;public_particulier;1;Île-de-France;Médecin, spécialité non renseignée;Public particulier
+11;medecin_non_precise;sans_soins;1;Île-de-France;Médecin, spécialité non renseignée;Sans soins à la population
+11;medecin_nucleaire;public_particulier;1;Île-de-France;Médecin nucléaire;Public particulier
+11;medecin_nucleaire;sans_soins;1;Île-de-France;Médecin nucléaire;Sans soins à la population
+11;medecin_sante_publique;a_distance;3;Île-de-France;Médecin de santé publique;Soins à distance (téléconsultation)
+11;medecin_sante_publique;public_particulier;39;Île-de-France;Médecin de santé publique;Public particulier
+11;medecin_sante_publique;sans_soins;176;Île-de-France;Médecin de santé publique;Sans soins à la population
+11;medecin_travail;public_particulier;1019;Île-de-France;Médecin du travail;Public particulier
+11;medecin_travail;sans_soins;216;Île-de-France;Médecin du travail;Sans soins à la population
+11;medecin_vasculaire;a_distance;3;Île-de-France;Médecin vasculaire;Soins à distance (téléconsultation)
+11;medecin_vasculaire;public_particulier;1;Île-de-France;Médecin vasculaire;Public particulier
+11;nephrologue;public_particulier;4;Île-de-France;Néphrologue;Public particulier
+11;nephrologue;sans_soins;10;Île-de-France;Néphrologue;Sans soins à la population
+11;neurochirurgien;public_particulier;6;Île-de-France;Neurochirurgien;Public particulier
+11;neurochirurgien;sans_soins;3;Île-de-France;Neurochirurgien;Sans soins à la population
+11;neurologue;public_particulier;11;Île-de-France;Neurologue;Public particulier
+11;neurologue;sans_soins;16;Île-de-France;Neurologue;Sans soins à la population
+11;oncologue;public_particulier;10;Île-de-France;Oncologue médical;Public particulier
+11;oncologue;sans_soins;6;Île-de-France;Oncologue médical;Sans soins à la population
+11;ophtalmologue;a_distance;48;Île-de-France;Ophtalmologue;Soins à distance (téléconsultation)
+11;ophtalmologue;public_particulier;36;Île-de-France;Ophtalmologue;Public particulier
+11;ophtalmologue;sans_soins;4;Île-de-France;Ophtalmologue;Sans soins à la population
+11;opticien_lunetier;public_particulier;5;Île-de-France;Opticien-lunetier;Public particulier
+11;opticien_lunetier;sans_soins;3;Île-de-France;Opticien-lunetier;Sans soins à la population
+11;orl;a_distance;2;Île-de-France;Oto-rhino-laryngologiste (ORL);Soins à distance (téléconsultation)
+11;orl;public_particulier;4;Île-de-France;Oto-rhino-laryngologiste (ORL);Public particulier
+11;orl;sans_soins;4;Île-de-France;Oto-rhino-laryngologiste (ORL);Sans soins à la population
+11;orthophoniste;public_particulier;11;Île-de-France;Orthophoniste;Public particulier
+11;orthophoniste;sans_soins;6;Île-de-France;Orthophoniste;Sans soins à la population
+11;orthoptiste;a_distance;5;Île-de-France;Orthoptiste;Soins à distance (téléconsultation)
+11;orthoptiste;public_particulier;8;Île-de-France;Orthoptiste;Public particulier
+11;orthoptiste;sans_soins;3;Île-de-France;Orthoptiste;Sans soins à la population
+11;osteopathe;public_particulier;30;Île-de-France;Ostéopathe;Public particulier
+11;osteopathe;sans_soins;1;Île-de-France;Ostéopathe;Sans soins à la population
+11;pediatre;a_distance;78;Île-de-France;Pédiatre;Soins à distance (téléconsultation)
+11;pediatre;public_particulier;17;Île-de-France;Pédiatre;Public particulier
+11;pediatre;sans_soins;34;Île-de-France;Pédiatre;Sans soins à la population
+11;pedicure_podologue;public_particulier;37;Île-de-France;Pédicure-podologue;Public particulier
+11;pedopsychiatre;a_distance;14;Île-de-France;Pédopsychiatre;Soins à distance (téléconsultation)
+11;pedopsychiatre;public_particulier;2;Île-de-France;Pédopsychiatre;Public particulier
+11;pedopsychiatre;sans_soins;3;Île-de-France;Pédopsychiatre;Sans soins à la population
+11;pharmacien;public_particulier;130;Île-de-France;Pharmacien;Public particulier
+11;pharmacien;sans_soins;1965;Île-de-France;Pharmacien;Sans soins à la population
+11;physicien_medical;public_particulier;10;Île-de-France;Physicien médical;Public particulier
+11;physicien_medical;sans_soins;3;Île-de-France;Physicien médical;Sans soins à la population
+11;pneumologue;a_distance;3;Île-de-France;Pneumologue;Soins à distance (téléconsultation)
+11;pneumologue;public_particulier;9;Île-de-France;Pneumologue;Public particulier
+11;pneumologue;sans_soins;11;Île-de-France;Pneumologue;Sans soins à la population
+11;psychiatre;a_distance;271;Île-de-France;Psychiatre;Soins à distance (téléconsultation)
+11;psychiatre;public_particulier;43;Île-de-France;Psychiatre;Public particulier
+11;psychiatre;sans_soins;58;Île-de-France;Psychiatre;Sans soins à la population
+11;psychologue;a_distance;1;Île-de-France;Psychologue;Soins à distance (téléconsultation)
+11;psychologue;public_particulier;891;Île-de-France;Psychologue;Public particulier
+11;psychologue;sans_soins;150;Île-de-France;Psychologue;Sans soins à la population
+11;psychomotricien;public_particulier;33;Île-de-France;Psychomotricien;Public particulier
+11;psychomotricien;sans_soins;10;Île-de-France;Psychomotricien;Sans soins à la population
+11;psychotherapeute;public_particulier;76;Île-de-France;Psychothérapeute;Public particulier
+11;psychotherapeute;sans_soins;15;Île-de-France;Psychothérapeute;Sans soins à la population
+11;q_addictologie;a_distance;38;Île-de-France;Médecin qualifié en addictologie;Soins à distance (téléconsultation)
+11;q_addictologie;public_particulier;16;Île-de-France;Médecin qualifié en addictologie;Public particulier
+11;q_addictologie;sans_soins;17;Île-de-France;Médecin qualifié en addictologie;Sans soins à la population
+11;q_psychiatrie_enfant;a_distance;21;Île-de-France;Psychiatre qualifié pour l'enfant et l'adolescent (toutes voies);Soins à distance (téléconsultation)
+11;q_psychiatrie_enfant;public_particulier;8;Île-de-France;Psychiatre qualifié pour l'enfant et l'adolescent (toutes voies);Public particulier
+11;q_psychiatrie_enfant;sans_soins;10;Île-de-France;Psychiatre qualifié pour l'enfant et l'adolescent (toutes voies);Sans soins à la population
+11;radiologue;public_particulier;21;Île-de-France;Radiologue;Public particulier
+11;radiologue;sans_soins;11;Île-de-France;Radiologue;Sans soins à la population
+11;radiotherapeute;public_particulier;2;Île-de-France;Radiothérapeute;Public particulier
+11;reanimateur;a_distance;1;Île-de-France;Médecin réanimateur;Soins à distance (téléconsultation)
+11;reanimateur;public_particulier;4;Île-de-France;Médecin réanimateur;Public particulier
+11;reanimateur;sans_soins;3;Île-de-France;Médecin réanimateur;Sans soins à la population
+11;rhumatologue;public_particulier;19;Île-de-France;Rhumatologue;Public particulier
+11;rhumatologue;sans_soins;12;Île-de-France;Rhumatologue;Sans soins à la population
+11;sage_femme;a_distance;2;Île-de-France;Sage-femme;Soins à distance (téléconsultation)
+11;sage_femme;public_particulier;17;Île-de-France;Sage-femme;Public particulier
+11;sage_femme;sans_soins;2;Île-de-France;Sage-femme;Sans soins à la population
+11;technicien_labo;public_particulier;686;Île-de-France;Technicien de laboratoire;Public particulier
+11;technicien_labo;sans_soins;72;Île-de-France;Technicien de laboratoire;Sans soins à la population
+11;urgentiste;a_distance;142;Île-de-France;Médecin urgentiste;Soins à distance (téléconsultation)
+11;urgentiste;public_particulier;12;Île-de-France;Médecin urgentiste;Public particulier
+11;urgentiste;sans_soins;4;Île-de-France;Médecin urgentiste;Sans soins à la population
+11;urologue;public_particulier;4;Île-de-France;Urologue;Public particulier
+11;urologue;sans_soins;3;Île-de-France;Urologue;Sans soins à la population
+24;anesthesiste;public_particulier;1;Centre-Val de Loire;Anesthésiste-réanimateur;Public particulier
+24;assistant_de_service_social;public_particulier;191;Centre-Val de Loire;Assistant de service social;Public particulier
+24;assistant_de_service_social;sans_soins;51;Centre-Val de Loire;Assistant de service social;Sans soins à la population
+24;biologiste;public_particulier;3;Centre-Val de Loire;Biologiste médical;Public particulier
+24;biologiste;sans_soins;1;Centre-Val de Loire;Biologiste médical;Sans soins à la population
+24;cardiologue;sans_soins;1;Centre-Val de Loire;Cardiologue;Sans soins à la population
+24;chirurgien_dentiste;public_particulier;3;Centre-Val de Loire;Chirurgien-dentiste;Public particulier
+24;chirurgien_dentiste;sans_soins;7;Centre-Val de Loire;Chirurgien-dentiste;Sans soins à la population
+24;chirurgien_orthopediste;sans_soins;1;Centre-Val de Loire;Chirurgien orthopédiste;Sans soins à la population
+24;dermatologue;sans_soins;1;Centre-Val de Loire;Dermatologue;Sans soins à la population
+24;dieteticien;public_particulier;6;Centre-Val de Loire;Diététicien;Public particulier
+24;dieteticien;sans_soins;2;Centre-Val de Loire;Diététicien;Sans soins à la population
+24;endocrinologue;public_particulier;1;Centre-Val de Loire;Endocrinologue;Public particulier
+24;ens_medecin_specialiste;public_particulier;93;Centre-Val de Loire;Médecin spécialiste (toutes spécialités);Public particulier
+24;ens_medecin_specialiste;sans_soins;9;Centre-Val de Loire;Médecin spécialiste (toutes spécialités);Sans soins à la population
+24;ergotherapeute;public_particulier;9;Centre-Val de Loire;Ergothérapeute;Public particulier
+24;gastro_enterologue;sans_soins;1;Centre-Val de Loire;Gastro-entérologue;Sans soins à la population
+24;geriatre;public_particulier;4;Centre-Val de Loire;Gériatre;Public particulier
+24;gynecologue;public_particulier;2;Centre-Val de Loire;Gynécologue;Public particulier
+24;gynecologue;sans_soins;1;Centre-Val de Loire;Gynécologue;Sans soins à la population
+24;infirmier;public_particulier;786;Centre-Val de Loire;Infirmier;Public particulier
+24;infirmier;sans_soins;123;Centre-Val de Loire;Infirmier;Sans soins à la population
+24;manipulateur_erm;sans_soins;3;Centre-Val de Loire;Manipulateur en électroradiologie;Sans soins à la population
+24;masseur_kinesitherapeute;public_particulier;21;Centre-Val de Loire;Masseur-kinésithérapeute;Public particulier
+24;masseur_kinesitherapeute;sans_soins;16;Centre-Val de Loire;Masseur-kinésithérapeute;Sans soins à la population
+24;medecin_autre;public_particulier;1;Centre-Val de Loire;Médecin, autre spécialité;Public particulier
+24;medecin_generaliste;public_particulier;92;Centre-Val de Loire;Médecin généraliste;Public particulier
+24;medecin_generaliste;sans_soins;76;Centre-Val de Loire;Médecin généraliste;Sans soins à la population
+24;medecin_mpr;sans_soins;1;Centre-Val de Loire;Médecin de médecine physique et de réadaptation;Sans soins à la population
+24;medecin_sante_publique;public_particulier;3;Centre-Val de Loire;Médecin de santé publique;Public particulier
+24;medecin_sante_publique;sans_soins;8;Centre-Val de Loire;Médecin de santé publique;Sans soins à la population
+24;medecin_travail;public_particulier;58;Centre-Val de Loire;Médecin du travail;Public particulier
+24;medecin_travail;sans_soins;5;Centre-Val de Loire;Médecin du travail;Sans soins à la population
+24;opticien_lunetier;public_particulier;2;Centre-Val de Loire;Opticien-lunetier;Public particulier
+24;opticien_lunetier;sans_soins;2;Centre-Val de Loire;Opticien-lunetier;Sans soins à la population
+24;orl;sans_soins;1;Centre-Val de Loire;Oto-rhino-laryngologiste (ORL);Sans soins à la population
+24;orthophoniste;public_particulier;1;Centre-Val de Loire;Orthophoniste;Public particulier
+24;orthoptiste;public_particulier;1;Centre-Val de Loire;Orthoptiste;Public particulier
+24;orthoptiste;sans_soins;1;Centre-Val de Loire;Orthoptiste;Sans soins à la population
+24;osteopathe;public_particulier;1;Centre-Val de Loire;Ostéopathe;Public particulier
+24;pediatre;sans_soins;2;Centre-Val de Loire;Pédiatre;Sans soins à la population
+24;pedicure_podologue;public_particulier;1;Centre-Val de Loire;Pédicure-podologue;Public particulier
+24;pharmacien;public_particulier;27;Centre-Val de Loire;Pharmacien;Public particulier
+24;pharmacien;sans_soins;404;Centre-Val de Loire;Pharmacien;Sans soins à la population
+24;physicien_medical;sans_soins;1;Centre-Val de Loire;Physicien médical;Sans soins à la population
+24;psychiatre;public_particulier;1;Centre-Val de Loire;Psychiatre;Public particulier
+24;psychiatre;sans_soins;3;Centre-Val de Loire;Psychiatre;Sans soins à la population
+24;psychologue;public_particulier;139;Centre-Val de Loire;Psychologue;Public particulier
+24;psychologue;sans_soins;17;Centre-Val de Loire;Psychologue;Sans soins à la population
+24;psychomotricien;sans_soins;2;Centre-Val de Loire;Psychomotricien;Sans soins à la population
+24;psychotherapeute;public_particulier;8;Centre-Val de Loire;Psychothérapeute;Public particulier
+24;psychotherapeute;sans_soins;2;Centre-Val de Loire;Psychothérapeute;Sans soins à la population
+24;rhumatologue;sans_soins;1;Centre-Val de Loire;Rhumatologue;Sans soins à la population
+24;sage_femme;public_particulier;2;Centre-Val de Loire;Sage-femme;Public particulier
+24;technicien_labo;public_particulier;161;Centre-Val de Loire;Technicien de laboratoire;Public particulier
+24;technicien_labo;sans_soins;3;Centre-Val de Loire;Technicien de laboratoire;Sans soins à la population
+24;urgentiste;public_particulier;1;Centre-Val de Loire;Médecin urgentiste;Public particulier
+24;urologue;sans_soins;1;Centre-Val de Loire;Urologue;Sans soins à la population
+27;anesthesiste;public_particulier;2;Bourgogne-Franche-Comté;Anesthésiste-réanimateur;Public particulier
+27;appareilleur;sans_soins;1;Bourgogne-Franche-Comté;Appareilleur;Sans soins à la population
+27;assistant_de_service_social;public_particulier;123;Bourgogne-Franche-Comté;Assistant de service social;Public particulier
+27;assistant_de_service_social;sans_soins;16;Bourgogne-Franche-Comté;Assistant de service social;Sans soins à la population
+27;assistant_dentaire;sans_soins;3;Bourgogne-Franche-Comté;Assistant dentaire;Sans soins à la population
+27;audioprothesiste;sans_soins;1;Bourgogne-Franche-Comté;Audioprothésiste;Sans soins à la population
+27;biologiste;public_particulier;6;Bourgogne-Franche-Comté;Biologiste médical;Public particulier
+27;biologiste;sans_soins;2;Bourgogne-Franche-Comté;Biologiste médical;Sans soins à la population
+27;chirurgien_dentiste;public_particulier;5;Bourgogne-Franche-Comté;Chirurgien-dentiste;Public particulier
+27;chirurgien_dentiste;sans_soins;9;Bourgogne-Franche-Comté;Chirurgien-dentiste;Sans soins à la population
+27;chirurgien_orthopediste;public_particulier;1;Bourgogne-Franche-Comté;Chirurgien orthopédiste;Public particulier
+27;chirurgien_plasticien;public_particulier;1;Bourgogne-Franche-Comté;Chirurgien plasticien;Public particulier
+27;chirurgien_vasculaire;sans_soins;1;Bourgogne-Franche-Comté;Chirurgien vasculaire;Sans soins à la population
+27;dieteticien;public_particulier;6;Bourgogne-Franche-Comté;Diététicien;Public particulier
+27;dieteticien;sans_soins;1;Bourgogne-Franche-Comté;Diététicien;Sans soins à la population
+27;endocrinologue;public_particulier;1;Bourgogne-Franche-Comté;Endocrinologue;Public particulier
+27;ens_medecin_specialiste;public_particulier;115;Bourgogne-Franche-Comté;Médecin spécialiste (toutes spécialités);Public particulier
+27;ens_medecin_specialiste;sans_soins;5;Bourgogne-Franche-Comté;Médecin spécialiste (toutes spécialités);Sans soins à la population
+27;ergotherapeute;public_particulier;7;Bourgogne-Franche-Comté;Ergothérapeute;Public particulier
+27;ergotherapeute;sans_soins;2;Bourgogne-Franche-Comté;Ergothérapeute;Sans soins à la population
+27;gastro_enterologue;public_particulier;1;Bourgogne-Franche-Comté;Gastro-entérologue;Public particulier
+27;gynecologue;public_particulier;3;Bourgogne-Franche-Comté;Gynécologue;Public particulier
+27;hematologue;public_particulier;2;Bourgogne-Franche-Comté;Hématologue;Public particulier
+27;infirmier;public_particulier;936;Bourgogne-Franche-Comté;Infirmier;Public particulier
+27;infirmier;sans_soins;100;Bourgogne-Franche-Comté;Infirmier;Sans soins à la population
+27;manipulateur_erm;public_particulier;7;Bourgogne-Franche-Comté;Manipulateur en électroradiologie;Public particulier
+27;masseur_kinesitherapeute;public_particulier;35;Bourgogne-Franche-Comté;Masseur-kinésithérapeute;Public particulier
+27;masseur_kinesitherapeute;sans_soins;8;Bourgogne-Franche-Comté;Masseur-kinésithérapeute;Sans soins à la population
+27;medecin_generaliste;public_particulier;143;Bourgogne-Franche-Comté;Médecin généraliste;Public particulier
+27;medecin_generaliste;sans_soins;79;Bourgogne-Franche-Comté;Médecin généraliste;Sans soins à la population
+27;medecin_mpr;public_particulier;2;Bourgogne-Franche-Comté;Médecin de médecine physique et de réadaptation;Public particulier
+27;medecin_sante_publique;public_particulier;3;Bourgogne-Franche-Comté;Médecin de santé publique;Public particulier
+27;medecin_sante_publique;sans_soins;9;Bourgogne-Franche-Comté;Médecin de santé publique;Sans soins à la population
+27;medecin_travail;public_particulier;66;Bourgogne-Franche-Comté;Médecin du travail;Public particulier
+27;medecin_travail;sans_soins;8;Bourgogne-Franche-Comté;Médecin du travail;Sans soins à la population
+27;neurologue;public_particulier;1;Bourgogne-Franche-Comté;Neurologue;Public particulier
+27;oncologue;public_particulier;1;Bourgogne-Franche-Comté;Oncologue médical;Public particulier
+27;ophtalmologue;public_particulier;1;Bourgogne-Franche-Comté;Ophtalmologue;Public particulier
+27;opticien_lunetier;public_particulier;3;Bourgogne-Franche-Comté;Opticien-lunetier;Public particulier
+27;opticien_lunetier;sans_soins;6;Bourgogne-Franche-Comté;Opticien-lunetier;Sans soins à la population
+27;orthoptiste;public_particulier;1;Bourgogne-Franche-Comté;Orthoptiste;Public particulier
+27;orthoptiste;sans_soins;1;Bourgogne-Franche-Comté;Orthoptiste;Sans soins à la population
+27;pediatre;public_particulier;2;Bourgogne-Franche-Comté;Pédiatre;Public particulier
+27;pharmacien;public_particulier;27;Bourgogne-Franche-Comté;Pharmacien;Public particulier
+27;pharmacien;sans_soins;152;Bourgogne-Franche-Comté;Pharmacien;Sans soins à la population
+27;physicien_medical;public_particulier;1;Bourgogne-Franche-Comté;Physicien médical;Public particulier
+27;pneumologue;public_particulier;1;Bourgogne-Franche-Comté;Pneumologue;Public particulier
+27;pneumologue;sans_soins;1;Bourgogne-Franche-Comté;Pneumologue;Sans soins à la population
+27;psychiatre;public_particulier;3;Bourgogne-Franche-Comté;Psychiatre;Public particulier
+27;psychologue;public_particulier;161;Bourgogne-Franche-Comté;Psychologue;Public particulier
+27;psychologue;sans_soins;7;Bourgogne-Franche-Comté;Psychologue;Sans soins à la population
+27;psychomotricien;public_particulier;1;Bourgogne-Franche-Comté;Psychomotricien;Public particulier
+27;psychotherapeute;public_particulier;30;Bourgogne-Franche-Comté;Psychothérapeute;Public particulier
+27;psychotherapeute;sans_soins;1;Bourgogne-Franche-Comté;Psychothérapeute;Sans soins à la population
+27;q_addictologie;public_particulier;1;Bourgogne-Franche-Comté;Médecin qualifié en addictologie;Public particulier
+27;radiotherapeute;public_particulier;1;Bourgogne-Franche-Comté;Radiothérapeute;Public particulier
+27;radiotherapeute;sans_soins;1;Bourgogne-Franche-Comté;Radiothérapeute;Sans soins à la population
+27;reanimateur;sans_soins;1;Bourgogne-Franche-Comté;Médecin réanimateur;Sans soins à la population
+27;technicien_labo;public_particulier;259;Bourgogne-Franche-Comté;Technicien de laboratoire;Public particulier
+27;technicien_labo;sans_soins;7;Bourgogne-Franche-Comté;Technicien de laboratoire;Sans soins à la population
+28;anesthesiste;public_particulier;1;Normandie;Anesthésiste-réanimateur;Public particulier
+28;appareilleur;sans_soins;11;Normandie;Appareilleur;Sans soins à la population
+28;assistant_de_service_social;public_particulier;55;Normandie;Assistant de service social;Public particulier
+28;assistant_de_service_social;sans_soins;31;Normandie;Assistant de service social;Sans soins à la population
+28;audioprothesiste;sans_soins;1;Normandie;Audioprothésiste;Sans soins à la population
+28;biologiste;public_particulier;5;Normandie;Biologiste médical;Public particulier
+28;biologiste;sans_soins;3;Normandie;Biologiste médical;Sans soins à la population
+28;cardiologue;public_particulier;1;Normandie;Cardiologue;Public particulier
+28;cardiologue;sans_soins;1;Normandie;Cardiologue;Sans soins à la population
+28;chirurgien_dentiste;public_particulier;6;Normandie;Chirurgien-dentiste;Public particulier
+28;chirurgien_dentiste;sans_soins;8;Normandie;Chirurgien-dentiste;Sans soins à la population
+28;chirurgien_orthopediste;public_particulier;1;Normandie;Chirurgien orthopédiste;Public particulier
+28;dieteticien;public_particulier;9;Normandie;Diététicien;Public particulier
+28;dieteticien;sans_soins;2;Normandie;Diététicien;Sans soins à la population
+28;endocrinologue;public_particulier;1;Normandie;Endocrinologue;Public particulier
+28;ens_medecin_specialiste;public_particulier;162;Normandie;Médecin spécialiste (toutes spécialités);Public particulier
+28;ens_medecin_specialiste;sans_soins;13;Normandie;Médecin spécialiste (toutes spécialités);Sans soins à la population
+28;ergotherapeute;public_particulier;8;Normandie;Ergothérapeute;Public particulier
+28;ergotherapeute;sans_soins;2;Normandie;Ergothérapeute;Sans soins à la population
+28;gastro_enterologue;sans_soins;1;Normandie;Gastro-entérologue;Sans soins à la population
+28;hematologue;sans_soins;1;Normandie;Hématologue;Sans soins à la population
+28;infirmier;public_particulier;955;Normandie;Infirmier;Public particulier
+28;infirmier;sans_soins;106;Normandie;Infirmier;Sans soins à la population
+28;manipulateur_erm;public_particulier;7;Normandie;Manipulateur en électroradiologie;Public particulier
+28;manipulateur_erm;sans_soins;5;Normandie;Manipulateur en électroradiologie;Sans soins à la population
+28;masseur_kinesitherapeute;public_particulier;30;Normandie;Masseur-kinésithérapeute;Public particulier
+28;masseur_kinesitherapeute;sans_soins;1;Normandie;Masseur-kinésithérapeute;Sans soins à la population
+28;medecin_autre;public_particulier;1;Normandie;Médecin, autre spécialité;Public particulier
+28;medecin_generaliste;public_particulier;154;Normandie;Médecin généraliste;Public particulier
+28;medecin_generaliste;sans_soins;108;Normandie;Médecin généraliste;Sans soins à la population
+28;medecin_sante_publique;public_particulier;4;Normandie;Médecin de santé publique;Public particulier
+28;medecin_sante_publique;sans_soins;10;Normandie;Médecin de santé publique;Sans soins à la population
+28;medecin_travail;public_particulier;120;Normandie;Médecin du travail;Public particulier
+28;medecin_travail;sans_soins;5;Normandie;Médecin du travail;Sans soins à la population
+28;opticien_lunetier;sans_soins;3;Normandie;Opticien-lunetier;Sans soins à la population
+28;orl;public_particulier;1;Normandie;Oto-rhino-laryngologiste (ORL);Public particulier
+28;orthoptiste;sans_soins;2;Normandie;Orthoptiste;Sans soins à la population
+28;osteopathe;public_particulier;1;Normandie;Ostéopathe;Public particulier
+28;pediatre;public_particulier;4;Normandie;Pédiatre;Public particulier
+28;pediatre;sans_soins;2;Normandie;Pédiatre;Sans soins à la population
+28;pedicure_podologue;public_particulier;3;Normandie;Pédicure-podologue;Public particulier
+28;pharmacien;public_particulier;30;Normandie;Pharmacien;Public particulier
+28;pharmacien;sans_soins;395;Normandie;Pharmacien;Sans soins à la population
+28;physicien_medical;sans_soins;4;Normandie;Physicien médical;Sans soins à la population
+28;pneumologue;public_particulier;1;Normandie;Pneumologue;Public particulier
+28;psychiatre;public_particulier;2;Normandie;Psychiatre;Public particulier
+28;psychiatre;sans_soins;3;Normandie;Psychiatre;Sans soins à la population
+28;psychologue;public_particulier;168;Normandie;Psychologue;Public particulier
+28;psychologue;sans_soins;9;Normandie;Psychologue;Sans soins à la population
+28;psychomotricien;public_particulier;2;Normandie;Psychomotricien;Public particulier
+28;psychotherapeute;public_particulier;4;Normandie;Psychothérapeute;Public particulier
+28;psychotherapeute;sans_soins;1;Normandie;Psychothérapeute;Sans soins à la population
+28;q_addictologie;public_particulier;1;Normandie;Médecin qualifié en addictologie;Public particulier
+28;radiologue;public_particulier;1;Normandie;Radiologue;Public particulier
+28;radiotherapeute;public_particulier;1;Normandie;Radiothérapeute;Public particulier
+28;reanimateur;public_particulier;1;Normandie;Médecin réanimateur;Public particulier
+28;rhumatologue;public_particulier;1;Normandie;Rhumatologue;Public particulier
+28;rhumatologue;sans_soins;1;Normandie;Rhumatologue;Sans soins à la population
+28;sage_femme;public_particulier;4;Normandie;Sage-femme;Public particulier
+28;technicien_labo;public_particulier;198;Normandie;Technicien de laboratoire;Public particulier
+28;technicien_labo;sans_soins;5;Normandie;Technicien de laboratoire;Sans soins à la population
+28;urgentiste;public_particulier;2;Normandie;Médecin urgentiste;Public particulier
+32;anatomopathologiste;sans_soins;2;Hauts-de-France;Anatomopathologiste;Sans soins à la population
+32;anesthesiste;public_particulier;4;Hauts-de-France;Anesthésiste-réanimateur;Public particulier
+32;anesthesiste;sans_soins;2;Hauts-de-France;Anesthésiste-réanimateur;Sans soins à la population
+32;appareilleur;sans_soins;2;Hauts-de-France;Appareilleur;Sans soins à la population
+32;assistant_de_service_social;public_particulier;102;Hauts-de-France;Assistant de service social;Public particulier
+32;assistant_de_service_social;sans_soins;13;Hauts-de-France;Assistant de service social;Sans soins à la population
+32;audioprothesiste;sans_soins;3;Hauts-de-France;Audioprothésiste;Sans soins à la population
+32;biologiste;public_particulier;8;Hauts-de-France;Biologiste médical;Public particulier
+32;cardiologue;public_particulier;1;Hauts-de-France;Cardiologue;Public particulier
+32;cardiologue;sans_soins;1;Hauts-de-France;Cardiologue;Sans soins à la population
+32;chirurgien_dentiste;public_particulier;18;Hauts-de-France;Chirurgien-dentiste;Public particulier
+32;chirurgien_dentiste;sans_soins;16;Hauts-de-France;Chirurgien-dentiste;Sans soins à la population
+32;chirurgien_general;public_particulier;2;Hauts-de-France;Chirurgien général;Public particulier
+32;chirurgien_orthopediste;public_particulier;1;Hauts-de-France;Chirurgien orthopédiste;Public particulier
+32;chirurgien_plasticien;public_particulier;1;Hauts-de-France;Chirurgien plasticien;Public particulier
+32;chirurgien_visceral;sans_soins;2;Hauts-de-France;Chirurgien viscéral et digestif;Sans soins à la population
+32;dermatologue;public_particulier;1;Hauts-de-France;Dermatologue;Public particulier
+32;dermatologue;sans_soins;1;Hauts-de-France;Dermatologue;Sans soins à la population
+32;dieteticien;public_particulier;18;Hauts-de-France;Diététicien;Public particulier
+32;dieteticien;sans_soins;4;Hauts-de-France;Diététicien;Sans soins à la population
+32;endocrinologue;public_particulier;2;Hauts-de-France;Endocrinologue;Public particulier
+32;ens_medecin_specialiste;public_particulier;269;Hauts-de-France;Médecin spécialiste (toutes spécialités);Public particulier
+32;ens_medecin_specialiste;sans_soins;20;Hauts-de-France;Médecin spécialiste (toutes spécialités);Sans soins à la population
+32;ergotherapeute;public_particulier;8;Hauts-de-France;Ergothérapeute;Public particulier
+32;gastro_enterologue;public_particulier;1;Hauts-de-France;Gastro-entérologue;Public particulier
+32;geriatre;public_particulier;1;Hauts-de-France;Gériatre;Public particulier
+32;gynecologue;public_particulier;1;Hauts-de-France;Gynécologue;Public particulier
+32;hematologue;public_particulier;1;Hauts-de-France;Hématologue;Public particulier
+32;hematologue;sans_soins;1;Hauts-de-France;Hématologue;Sans soins à la population
+32;infirmier;public_particulier;1894;Hauts-de-France;Infirmier;Public particulier
+32;infirmier;sans_soins;195;Hauts-de-France;Infirmier;Sans soins à la population
+32;interniste;sans_soins;1;Hauts-de-France;Médecin interniste;Sans soins à la population
+32;manipulateur_erm;public_particulier;5;Hauts-de-France;Manipulateur en électroradiologie;Public particulier
+32;masseur_kinesitherapeute;public_particulier;60;Hauts-de-France;Masseur-kinésithérapeute;Public particulier
+32;masseur_kinesitherapeute;sans_soins;8;Hauts-de-France;Masseur-kinésithérapeute;Sans soins à la population
+32;medecin_autre;public_particulier;1;Hauts-de-France;Médecin, autre spécialité;Public particulier
+32;medecin_generaliste;public_particulier;183;Hauts-de-France;Médecin généraliste;Public particulier
+32;medecin_generaliste;sans_soins;132;Hauts-de-France;Médecin généraliste;Sans soins à la population
+32;medecin_mpr;public_particulier;1;Hauts-de-France;Médecin de médecine physique et de réadaptation;Public particulier
+32;medecin_nucleaire;public_particulier;1;Hauts-de-France;Médecin nucléaire;Public particulier
+32;medecin_sante_publique;public_particulier;5;Hauts-de-France;Médecin de santé publique;Public particulier
+32;medecin_sante_publique;sans_soins;11;Hauts-de-France;Médecin de santé publique;Sans soins à la population
+32;medecin_travail;public_particulier;195;Hauts-de-France;Médecin du travail;Public particulier
+32;medecin_travail;sans_soins;16;Hauts-de-France;Médecin du travail;Sans soins à la population
+32;neurologue;public_particulier;1;Hauts-de-France;Neurologue;Public particulier
+32;opticien_lunetier;sans_soins;2;Hauts-de-France;Opticien-lunetier;Sans soins à la population
+32;orthophoniste;public_particulier;3;Hauts-de-France;Orthophoniste;Public particulier
+32;orthophoniste;sans_soins;1;Hauts-de-France;Orthophoniste;Sans soins à la population
+32;orthoptiste;public_particulier;1;Hauts-de-France;Orthoptiste;Public particulier
+32;orthoptiste;sans_soins;3;Hauts-de-France;Orthoptiste;Sans soins à la population
+32;osteopathe;public_particulier;4;Hauts-de-France;Ostéopathe;Public particulier
+32;pediatre;public_particulier;6;Hauts-de-France;Pédiatre;Public particulier
+32;pediatre;sans_soins;1;Hauts-de-France;Pédiatre;Sans soins à la population
+32;pedicure_podologue;public_particulier;15;Hauts-de-France;Pédicure-podologue;Public particulier
+32;pharmacien;public_particulier;41;Hauts-de-France;Pharmacien;Public particulier
+32;pharmacien;sans_soins;338;Hauts-de-France;Pharmacien;Sans soins à la population
+32;pneumologue;public_particulier;2;Hauts-de-France;Pneumologue;Public particulier
+32;pneumologue;sans_soins;1;Hauts-de-France;Pneumologue;Sans soins à la population
+32;psychiatre;public_particulier;6;Hauts-de-France;Psychiatre;Public particulier
+32;psychiatre;sans_soins;3;Hauts-de-France;Psychiatre;Sans soins à la population
+32;psychologue;public_particulier;165;Hauts-de-France;Psychologue;Public particulier
+32;psychologue;sans_soins;14;Hauts-de-France;Psychologue;Sans soins à la population
+32;psychomotricien;public_particulier;6;Hauts-de-France;Psychomotricien;Public particulier
+32;psychomotricien;sans_soins;1;Hauts-de-France;Psychomotricien;Sans soins à la population
+32;psychotherapeute;public_particulier;9;Hauts-de-France;Psychothérapeute;Public particulier
+32;q_addictologie;public_particulier;4;Hauts-de-France;Médecin qualifié en addictologie;Public particulier
+32;q_psychiatrie_enfant;public_particulier;2;Hauts-de-France;Psychiatre qualifié pour l'enfant et l'adolescent (toutes voies);Public particulier
+32;rhumatologue;public_particulier;1;Hauts-de-France;Rhumatologue;Public particulier
+32;sage_femme;public_particulier;9;Hauts-de-France;Sage-femme;Public particulier
+32;technicien_labo;public_particulier;298;Hauts-de-France;Technicien de laboratoire;Public particulier
+32;technicien_labo;sans_soins;6;Hauts-de-France;Technicien de laboratoire;Sans soins à la population
+32;urgentiste;public_particulier;2;Hauts-de-France;Médecin urgentiste;Public particulier
+32;urgentiste;sans_soins;2;Hauts-de-France;Médecin urgentiste;Sans soins à la population
+44;anatomopathologiste;public_particulier;2;Grand Est;Anatomopathologiste;Public particulier
+44;anatomopathologiste;sans_soins;2;Grand Est;Anatomopathologiste;Sans soins à la population
+44;anesthesiste;public_particulier;5;Grand Est;Anesthésiste-réanimateur;Public particulier
+44;appareilleur;sans_soins;1;Grand Est;Appareilleur;Sans soins à la population
+44;assistant_de_service_social;public_particulier;112;Grand Est;Assistant de service social;Public particulier
+44;assistant_de_service_social;sans_soins;30;Grand Est;Assistant de service social;Sans soins à la population
+44;assistant_dentaire;public_particulier;2;Grand Est;Assistant dentaire;Public particulier
+44;assistant_dentaire;sans_soins;1;Grand Est;Assistant dentaire;Sans soins à la population
+44;biologiste;public_particulier;10;Grand Est;Biologiste médical;Public particulier
+44;biologiste;sans_soins;4;Grand Est;Biologiste médical;Sans soins à la population
+44;cardiologue;public_particulier;2;Grand Est;Cardiologue;Public particulier
+44;chirurgien_dentiste;public_particulier;106;Grand Est;Chirurgien-dentiste;Public particulier
+44;chirurgien_dentiste;sans_soins;17;Grand Est;Chirurgien-dentiste;Sans soins à la population
+44;chirurgien_general;sans_soins;1;Grand Est;Chirurgien général;Sans soins à la population
+44;chirurgien_orthopediste;public_particulier;1;Grand Est;Chirurgien orthopédiste;Public particulier
+44;chirurgien_pediatrique;public_particulier;1;Grand Est;Chirurgien pédiatrique;Public particulier
+44;chirurgien_plasticien;sans_soins;1;Grand Est;Chirurgien plasticien;Sans soins à la population
+44;chirurgien_visceral;public_particulier;1;Grand Est;Chirurgien viscéral et digestif;Public particulier
+44;chirurgien_visceral;sans_soins;1;Grand Est;Chirurgien viscéral et digestif;Sans soins à la population
+44;dieteticien;public_particulier;17;Grand Est;Diététicien;Public particulier
+44;dieteticien;sans_soins;6;Grand Est;Diététicien;Sans soins à la population
+44;ens_medecin_specialiste;public_particulier;351;Grand Est;Médecin spécialiste (toutes spécialités);Public particulier
+44;ens_medecin_specialiste;sans_soins;26;Grand Est;Médecin spécialiste (toutes spécialités);Sans soins à la population
+44;ergotherapeute;public_particulier;21;Grand Est;Ergothérapeute;Public particulier
+44;ergotherapeute;sans_soins;2;Grand Est;Ergothérapeute;Sans soins à la population
+44;gastro_enterologue;public_particulier;3;Grand Est;Gastro-entérologue;Public particulier
+44;gastro_enterologue;sans_soins;2;Grand Est;Gastro-entérologue;Sans soins à la population
+44;geriatre;public_particulier;5;Grand Est;Gériatre;Public particulier
+44;geriatre;sans_soins;1;Grand Est;Gériatre;Sans soins à la population
+44;gynecologue;public_particulier;1;Grand Est;Gynécologue;Public particulier
+44;gynecologue;sans_soins;1;Grand Est;Gynécologue;Sans soins à la population
+44;hematologue;public_particulier;2;Grand Est;Hématologue;Public particulier
+44;infirmier;public_particulier;1930;Grand Est;Infirmier;Public particulier
+44;infirmier;sans_soins;182;Grand Est;Infirmier;Sans soins à la population
+44;interniste;public_particulier;3;Grand Est;Médecin interniste;Public particulier
+44;manipulateur_erm;public_particulier;24;Grand Est;Manipulateur en électroradiologie;Public particulier
+44;manipulateur_erm;sans_soins;2;Grand Est;Manipulateur en électroradiologie;Sans soins à la population
+44;masseur_kinesitherapeute;public_particulier;102;Grand Est;Masseur-kinésithérapeute;Public particulier
+44;masseur_kinesitherapeute;sans_soins;8;Grand Est;Masseur-kinésithérapeute;Sans soins à la population
+44;medecin_autre;public_particulier;1;Grand Est;Médecin, autre spécialité;Public particulier
+44;medecin_generaliste;public_particulier;225;Grand Est;Médecin généraliste;Public particulier
+44;medecin_generaliste;sans_soins;174;Grand Est;Médecin généraliste;Sans soins à la population
+44;medecin_mpr;public_particulier;6;Grand Est;Médecin de médecine physique et de réadaptation;Public particulier
+44;medecin_mpr;sans_soins;1;Grand Est;Médecin de médecine physique et de réadaptation;Sans soins à la population
+44;medecin_sante_publique;public_particulier;1;Grand Est;Médecin de santé publique;Public particulier
+44;medecin_sante_publique;sans_soins;11;Grand Est;Médecin de santé publique;Sans soins à la population
+44;medecin_travail;public_particulier;256;Grand Est;Médecin du travail;Public particulier
+44;medecin_travail;sans_soins;20;Grand Est;Médecin du travail;Sans soins à la population
+44;medecin_vasculaire;public_particulier;1;Grand Est;Médecin vasculaire;Public particulier
+44;opticien_lunetier;public_particulier;1;Grand Est;Opticien-lunetier;Public particulier
+44;opticien_lunetier;sans_soins;3;Grand Est;Opticien-lunetier;Sans soins à la population
+44;orl;public_particulier;1;Grand Est;Oto-rhino-laryngologiste (ORL);Public particulier
+44;orl;sans_soins;2;Grand Est;Oto-rhino-laryngologiste (ORL);Sans soins à la population
+44;orthophoniste;public_particulier;5;Grand Est;Orthophoniste;Public particulier
+44;orthoptiste;public_particulier;2;Grand Est;Orthoptiste;Public particulier
+44;orthoptiste;sans_soins;1;Grand Est;Orthoptiste;Sans soins à la population
+44;osteopathe;public_particulier;16;Grand Est;Ostéopathe;Public particulier
+44;osteopathe;sans_soins;1;Grand Est;Ostéopathe;Sans soins à la population
+44;pediatre;public_particulier;1;Grand Est;Pédiatre;Public particulier
+44;pediatre;sans_soins;2;Grand Est;Pédiatre;Sans soins à la population
+44;pedicure_podologue;public_particulier;1;Grand Est;Pédicure-podologue;Public particulier
+44;pharmacien;public_particulier;57;Grand Est;Pharmacien;Public particulier
+44;pharmacien;sans_soins;369;Grand Est;Pharmacien;Sans soins à la population
+44;physicien_medical;public_particulier;3;Grand Est;Physicien médical;Public particulier
+44;pneumologue;public_particulier;2;Grand Est;Pneumologue;Public particulier
+44;psychiatre;public_particulier;8;Grand Est;Psychiatre;Public particulier
+44;psychiatre;sans_soins;3;Grand Est;Psychiatre;Sans soins à la population
+44;psychologue;public_particulier;259;Grand Est;Psychologue;Public particulier
+44;psychologue;sans_soins;32;Grand Est;Psychologue;Sans soins à la population
+44;psychomotricien;public_particulier;5;Grand Est;Psychomotricien;Public particulier
+44;psychotherapeute;public_particulier;31;Grand Est;Psychothérapeute;Public particulier
+44;psychotherapeute;sans_soins;2;Grand Est;Psychothérapeute;Sans soins à la population
+44;q_addictologie;public_particulier;2;Grand Est;Médecin qualifié en addictologie;Public particulier
+44;radiologue;public_particulier;2;Grand Est;Radiologue;Public particulier
+44;rhumatologue;public_particulier;2;Grand Est;Rhumatologue;Public particulier
+44;rhumatologue;sans_soins;1;Grand Est;Rhumatologue;Sans soins à la population
+44;sage_femme;public_particulier;16;Grand Est;Sage-femme;Public particulier
+44;technicien_labo;public_particulier;362;Grand Est;Technicien de laboratoire;Public particulier
+44;technicien_labo;sans_soins;16;Grand Est;Technicien de laboratoire;Sans soins à la population
+44;urgentiste;public_particulier;5;Grand Est;Médecin urgentiste;Public particulier
+44;urologue;sans_soins;2;Grand Est;Urologue;Sans soins à la population
+52;anatomopathologiste;public_particulier;2;Pays de la Loire;Anatomopathologiste;Public particulier
+52;anesthesiste;public_particulier;5;Pays de la Loire;Anesthésiste-réanimateur;Public particulier
+52;assistant_de_service_social;public_particulier;84;Pays de la Loire;Assistant de service social;Public particulier
+52;assistant_de_service_social;sans_soins;15;Pays de la Loire;Assistant de service social;Sans soins à la population
+52;assistant_dentaire;sans_soins;2;Pays de la Loire;Assistant dentaire;Sans soins à la population
+52;biologiste;public_particulier;15;Pays de la Loire;Biologiste médical;Public particulier
+52;biologiste;sans_soins;2;Pays de la Loire;Biologiste médical;Sans soins à la population
+52;cardiologue;public_particulier;1;Pays de la Loire;Cardiologue;Public particulier
+52;chirurgien_dentiste;public_particulier;18;Pays de la Loire;Chirurgien-dentiste;Public particulier
+52;chirurgien_dentiste;sans_soins;13;Pays de la Loire;Chirurgien-dentiste;Sans soins à la population
+52;chirurgien_general;sans_soins;1;Pays de la Loire;Chirurgien général;Sans soins à la population
+52;chirurgien_maxillo_facial;public_particulier;2;Pays de la Loire;Chirurgien maxillo-facial et stomatologue;Public particulier
+52;chirurgien_pediatrique;public_particulier;2;Pays de la Loire;Chirurgien pédiatrique;Public particulier
+52;dieteticien;public_particulier;11;Pays de la Loire;Diététicien;Public particulier
+52;dieteticien;sans_soins;5;Pays de la Loire;Diététicien;Sans soins à la population
+52;ens_medecin_specialiste;public_particulier;233;Pays de la Loire;Médecin spécialiste (toutes spécialités);Public particulier
+52;ens_medecin_specialiste;sans_soins;9;Pays de la Loire;Médecin spécialiste (toutes spécialités);Sans soins à la population
+52;ergotherapeute;public_particulier;9;Pays de la Loire;Ergothérapeute;Public particulier
+52;ergotherapeute;sans_soins;1;Pays de la Loire;Ergothérapeute;Sans soins à la population
+52;gastro_enterologue;sans_soins;1;Pays de la Loire;Gastro-entérologue;Sans soins à la population
+52;geriatre;public_particulier;1;Pays de la Loire;Gériatre;Public particulier
+52;gynecologue;public_particulier;1;Pays de la Loire;Gynécologue;Public particulier
+52;gynecologue;sans_soins;1;Pays de la Loire;Gynécologue;Sans soins à la population
+52;infirmier;public_particulier;1130;Pays de la Loire;Infirmier;Public particulier
+52;infirmier;sans_soins;127;Pays de la Loire;Infirmier;Sans soins à la population
+52;interniste;public_particulier;1;Pays de la Loire;Médecin interniste;Public particulier
+52;interniste;sans_soins;1;Pays de la Loire;Médecin interniste;Sans soins à la population
+52;manipulateur_erm;public_particulier;3;Pays de la Loire;Manipulateur en électroradiologie;Public particulier
+52;manipulateur_erm;sans_soins;7;Pays de la Loire;Manipulateur en électroradiologie;Sans soins à la population
+52;masseur_kinesitherapeute;public_particulier;41;Pays de la Loire;Masseur-kinésithérapeute;Public particulier
+52;masseur_kinesitherapeute;sans_soins;3;Pays de la Loire;Masseur-kinésithérapeute;Sans soins à la population
+52;medecin_autre;public_particulier;1;Pays de la Loire;Médecin, autre spécialité;Public particulier
+52;medecin_generaliste;public_particulier;151;Pays de la Loire;Médecin généraliste;Public particulier
+52;medecin_generaliste;sans_soins;202;Pays de la Loire;Médecin généraliste;Sans soins à la population
+52;medecin_mpr;public_particulier;1;Pays de la Loire;Médecin de médecine physique et de réadaptation;Public particulier
+52;medecin_nucleaire;public_particulier;1;Pays de la Loire;Médecin nucléaire;Public particulier
+52;medecin_sante_publique;public_particulier;1;Pays de la Loire;Médecin de santé publique;Public particulier
+52;medecin_sante_publique;sans_soins;13;Pays de la Loire;Médecin de santé publique;Sans soins à la population
+52;medecin_travail;public_particulier;144;Pays de la Loire;Médecin du travail;Public particulier
+52;medecin_travail;sans_soins;24;Pays de la Loire;Médecin du travail;Sans soins à la population
+52;oncologue;public_particulier;1;Pays de la Loire;Oncologue médical;Public particulier
+52;opticien_lunetier;sans_soins;3;Pays de la Loire;Opticien-lunetier;Sans soins à la population
+52;orthophoniste;sans_soins;1;Pays de la Loire;Orthophoniste;Sans soins à la population
+52;orthoptiste;sans_soins;2;Pays de la Loire;Orthoptiste;Sans soins à la population
+52;osteopathe;public_particulier;5;Pays de la Loire;Ostéopathe;Public particulier
+52;pediatre;public_particulier;1;Pays de la Loire;Pédiatre;Public particulier
+52;pediatre;sans_soins;3;Pays de la Loire;Pédiatre;Sans soins à la population
+52;pedicure_podologue;public_particulier;17;Pays de la Loire;Pédicure-podologue;Public particulier
+52;pharmacien;public_particulier;41;Pays de la Loire;Pharmacien;Public particulier
+52;pharmacien;sans_soins;121;Pays de la Loire;Pharmacien;Sans soins à la population
+52;physicien_medical;public_particulier;2;Pays de la Loire;Physicien médical;Public particulier
+52;pneumologue;public_particulier;3;Pays de la Loire;Pneumologue;Public particulier
+52;pneumologue;sans_soins;1;Pays de la Loire;Pneumologue;Sans soins à la population
+52;psychiatre;public_particulier;4;Pays de la Loire;Psychiatre;Public particulier
+52;psychiatre;sans_soins;6;Pays de la Loire;Psychiatre;Sans soins à la population
+52;psychologue;public_particulier;123;Pays de la Loire;Psychologue;Public particulier
+52;psychologue;sans_soins;44;Pays de la Loire;Psychologue;Sans soins à la population
+52;psychomotricien;sans_soins;1;Pays de la Loire;Psychomotricien;Sans soins à la population
+52;psychotherapeute;public_particulier;20;Pays de la Loire;Psychothérapeute;Public particulier
+52;psychotherapeute;sans_soins;4;Pays de la Loire;Psychothérapeute;Sans soins à la population
+52;q_addictologie;public_particulier;2;Pays de la Loire;Médecin qualifié en addictologie;Public particulier
+52;radiologue;public_particulier;1;Pays de la Loire;Radiologue;Public particulier
+52;radiotherapeute;sans_soins;1;Pays de la Loire;Radiothérapeute;Sans soins à la population
+52;rhumatologue;sans_soins;2;Pays de la Loire;Rhumatologue;Sans soins à la population
+52;sage_femme;public_particulier;60;Pays de la Loire;Sage-femme;Public particulier
+52;technicien_labo;public_particulier;348;Pays de la Loire;Technicien de laboratoire;Public particulier
+52;technicien_labo;sans_soins;4;Pays de la Loire;Technicien de laboratoire;Sans soins à la population
+52;urologue;public_particulier;1;Pays de la Loire;Urologue;Public particulier
+53;anatomopathologiste;public_particulier;1;Bretagne;Anatomopathologiste;Public particulier
+53;anatomopathologiste;sans_soins;2;Bretagne;Anatomopathologiste;Sans soins à la population
+53;anesthesiste;public_particulier;12;Bretagne;Anesthésiste-réanimateur;Public particulier
+53;assistant_de_service_social;public_particulier;118;Bretagne;Assistant de service social;Public particulier
+53;assistant_de_service_social;sans_soins;19;Bretagne;Assistant de service social;Sans soins à la population
+53;biologiste;public_particulier;10;Bretagne;Biologiste médical;Public particulier
+53;biologiste;sans_soins;4;Bretagne;Biologiste médical;Sans soins à la population
+53;cardiologue;public_particulier;3;Bretagne;Cardiologue;Public particulier
+53;cardiologue;sans_soins;2;Bretagne;Cardiologue;Sans soins à la population
+53;chirurgien_dentiste;public_particulier;54;Bretagne;Chirurgien-dentiste;Public particulier
+53;chirurgien_dentiste;sans_soins;10;Bretagne;Chirurgien-dentiste;Sans soins à la population
+53;chirurgien_general;public_particulier;2;Bretagne;Chirurgien général;Public particulier
+53;chirurgien_orthopediste;public_particulier;9;Bretagne;Chirurgien orthopédiste;Public particulier
+53;chirurgien_orthopediste;sans_soins;1;Bretagne;Chirurgien orthopédiste;Sans soins à la population
+53;chirurgien_visceral;public_particulier;2;Bretagne;Chirurgien viscéral et digestif;Public particulier
+53;dermatologue;public_particulier;3;Bretagne;Dermatologue;Public particulier
+53;dermatologue;sans_soins;1;Bretagne;Dermatologue;Sans soins à la population
+53;dieteticien;public_particulier;10;Bretagne;Diététicien;Public particulier
+53;dieteticien;sans_soins;2;Bretagne;Diététicien;Sans soins à la population
+53;ens_medecin_specialiste;public_particulier;277;Bretagne;Médecin spécialiste (toutes spécialités);Public particulier
+53;ens_medecin_specialiste;sans_soins;15;Bretagne;Médecin spécialiste (toutes spécialités);Sans soins à la population
+53;ergotherapeute;public_particulier;10;Bretagne;Ergothérapeute;Public particulier
+53;ergotherapeute;sans_soins;2;Bretagne;Ergothérapeute;Sans soins à la population
+53;gastro_enterologue;public_particulier;4;Bretagne;Gastro-entérologue;Public particulier
+53;gastro_enterologue;sans_soins;1;Bretagne;Gastro-entérologue;Sans soins à la population
+53;hematologue;public_particulier;1;Bretagne;Hématologue;Public particulier
+53;infirmier;public_particulier;1519;Bretagne;Infirmier;Public particulier
+53;infirmier;sans_soins;113;Bretagne;Infirmier;Sans soins à la population
+53;interniste;public_particulier;10;Bretagne;Médecin interniste;Public particulier
+53;interniste;sans_soins;2;Bretagne;Médecin interniste;Sans soins à la population
+53;manipulateur_erm;public_particulier;21;Bretagne;Manipulateur en électroradiologie;Public particulier
+53;masseur_kinesitherapeute;public_particulier;69;Bretagne;Masseur-kinésithérapeute;Public particulier
+53;masseur_kinesitherapeute;sans_soins;14;Bretagne;Masseur-kinésithérapeute;Sans soins à la population
+53;medecin_generaliste;a_distance;15;Bretagne;Médecin généraliste;Soins à distance (téléconsultation)
+53;medecin_generaliste;public_particulier;146;Bretagne;Médecin généraliste;Public particulier
+53;medecin_generaliste;sans_soins;163;Bretagne;Médecin généraliste;Sans soins à la population
+53;medecin_mpr;public_particulier;8;Bretagne;Médecin de médecine physique et de réadaptation;Public particulier
+53;medecin_mpr;sans_soins;1;Bretagne;Médecin de médecine physique et de réadaptation;Sans soins à la population
+53;medecin_non_precise;public_particulier;1;Bretagne;Médecin, spécialité non renseignée;Public particulier
+53;medecin_nucleaire;public_particulier;1;Bretagne;Médecin nucléaire;Public particulier
+53;medecin_sante_publique;public_particulier;6;Bretagne;Médecin de santé publique;Public particulier
+53;medecin_sante_publique;sans_soins;13;Bretagne;Médecin de santé publique;Sans soins à la population
+53;medecin_travail;public_particulier;137;Bretagne;Médecin du travail;Public particulier
+53;medecin_travail;sans_soins;18;Bretagne;Médecin du travail;Sans soins à la population
+53;medecin_vasculaire;public_particulier;3;Bretagne;Médecin vasculaire;Public particulier
+53;neurochirurgien;public_particulier;1;Bretagne;Neurochirurgien;Public particulier
+53;neurochirurgien;sans_soins;1;Bretagne;Neurochirurgien;Sans soins à la population
+53;neurologue;public_particulier;1;Bretagne;Neurologue;Public particulier
+53;ophtalmologue;public_particulier;1;Bretagne;Ophtalmologue;Public particulier
+53;opticien_lunetier;sans_soins;1;Bretagne;Opticien-lunetier;Sans soins à la population
+53;orl;public_particulier;3;Bretagne;Oto-rhino-laryngologiste (ORL);Public particulier
+53;orthophoniste;public_particulier;2;Bretagne;Orthophoniste;Public particulier
+53;orthophoniste;sans_soins;2;Bretagne;Orthophoniste;Sans soins à la population
+53;orthoptiste;public_particulier;5;Bretagne;Orthoptiste;Public particulier
+53;orthoptiste;sans_soins;3;Bretagne;Orthoptiste;Sans soins à la population
+53;osteopathe;public_particulier;4;Bretagne;Ostéopathe;Public particulier
+53;pediatre;public_particulier;1;Bretagne;Pédiatre;Public particulier
+53;pediatre;sans_soins;2;Bretagne;Pédiatre;Sans soins à la population
+53;pedicure_podologue;public_particulier;9;Bretagne;Pédicure-podologue;Public particulier
+53;pharmacien;public_particulier;53;Bretagne;Pharmacien;Public particulier
+53;pharmacien;sans_soins;79;Bretagne;Pharmacien;Sans soins à la population
+53;physicien_medical;public_particulier;7;Bretagne;Physicien médical;Public particulier
+53;pneumologue;public_particulier;5;Bretagne;Pneumologue;Public particulier
+53;psychiatre;public_particulier;8;Bretagne;Psychiatre;Public particulier
+53;psychiatre;sans_soins;2;Bretagne;Psychiatre;Sans soins à la population
+53;psychologue;public_particulier;176;Bretagne;Psychologue;Public particulier
+53;psychologue;sans_soins;20;Bretagne;Psychologue;Sans soins à la population
+53;psychomotricien;public_particulier;3;Bretagne;Psychomotricien;Public particulier
+53;psychotherapeute;public_particulier;15;Bretagne;Psychothérapeute;Public particulier
+53;q_addictologie;public_particulier;3;Bretagne;Médecin qualifié en addictologie;Public particulier
+53;q_psychiatrie_enfant;public_particulier;1;Bretagne;Psychiatre qualifié pour l'enfant et l'adolescent (toutes voies);Public particulier
+53;radiologue;public_particulier;4;Bretagne;Radiologue;Public particulier
+53;rhumatologue;public_particulier;3;Bretagne;Rhumatologue;Public particulier
+53;rhumatologue;sans_soins;1;Bretagne;Rhumatologue;Sans soins à la population
+53;sage_femme;public_particulier;4;Bretagne;Sage-femme;Public particulier
+53;technicien_labo;public_particulier;260;Bretagne;Technicien de laboratoire;Public particulier
+53;technicien_labo;sans_soins;7;Bretagne;Technicien de laboratoire;Sans soins à la population
+53;urgentiste;public_particulier;2;Bretagne;Médecin urgentiste;Public particulier
+75;anatomopathologiste;public_particulier;1;Nouvelle-Aquitaine;Anatomopathologiste;Public particulier
+75;anatomopathologiste;sans_soins;1;Nouvelle-Aquitaine;Anatomopathologiste;Sans soins à la population
+75;anesthesiste;public_particulier;6;Nouvelle-Aquitaine;Anesthésiste-réanimateur;Public particulier
+75;anesthesiste;sans_soins;3;Nouvelle-Aquitaine;Anesthésiste-réanimateur;Sans soins à la population
+75;appareilleur;sans_soins;2;Nouvelle-Aquitaine;Appareilleur;Sans soins à la population
+75;assistant_de_service_social;public_particulier;107;Nouvelle-Aquitaine;Assistant de service social;Public particulier
+75;assistant_de_service_social;sans_soins;43;Nouvelle-Aquitaine;Assistant de service social;Sans soins à la population
+75;audioprothesiste;sans_soins;4;Nouvelle-Aquitaine;Audioprothésiste;Sans soins à la population
+75;biologiste;public_particulier;23;Nouvelle-Aquitaine;Biologiste médical;Public particulier
+75;biologiste;sans_soins;8;Nouvelle-Aquitaine;Biologiste médical;Sans soins à la population
+75;cardiologue;public_particulier;2;Nouvelle-Aquitaine;Cardiologue;Public particulier
+75;cardiologue;sans_soins;1;Nouvelle-Aquitaine;Cardiologue;Sans soins à la population
+75;chirurgien_dentiste;public_particulier;74;Nouvelle-Aquitaine;Chirurgien-dentiste;Public particulier
+75;chirurgien_dentiste;sans_soins;10;Nouvelle-Aquitaine;Chirurgien-dentiste;Sans soins à la population
+75;chirurgien_general;public_particulier;3;Nouvelle-Aquitaine;Chirurgien général;Public particulier
+75;chirurgien_maxillo_facial;public_particulier;1;Nouvelle-Aquitaine;Chirurgien maxillo-facial et stomatologue;Public particulier
+75;chirurgien_pediatrique;sans_soins;1;Nouvelle-Aquitaine;Chirurgien pédiatrique;Sans soins à la population
+75;chirurgien_visceral;public_particulier;1;Nouvelle-Aquitaine;Chirurgien viscéral et digestif;Public particulier
+75;dermatologue;public_particulier;2;Nouvelle-Aquitaine;Dermatologue;Public particulier
+75;dermatologue;sans_soins;2;Nouvelle-Aquitaine;Dermatologue;Sans soins à la population
+75;dieteticien;public_particulier;20;Nouvelle-Aquitaine;Diététicien;Public particulier
+75;dieteticien;sans_soins;8;Nouvelle-Aquitaine;Diététicien;Sans soins à la population
+75;endocrinologue;public_particulier;1;Nouvelle-Aquitaine;Endocrinologue;Public particulier
+75;endocrinologue;sans_soins;2;Nouvelle-Aquitaine;Endocrinologue;Sans soins à la population
+75;ens_medecin_specialiste;public_particulier;441;Nouvelle-Aquitaine;Médecin spécialiste (toutes spécialités);Public particulier
+75;ens_medecin_specialiste;sans_soins;43;Nouvelle-Aquitaine;Médecin spécialiste (toutes spécialités);Sans soins à la population
+75;ergotherapeute;public_particulier;4;Nouvelle-Aquitaine;Ergothérapeute;Public particulier
+75;ergotherapeute;sans_soins;4;Nouvelle-Aquitaine;Ergothérapeute;Sans soins à la population
+75;gastro_enterologue;public_particulier;1;Nouvelle-Aquitaine;Gastro-entérologue;Public particulier
+75;geriatre;public_particulier;2;Nouvelle-Aquitaine;Gériatre;Public particulier
+75;geriatre;sans_soins;2;Nouvelle-Aquitaine;Gériatre;Sans soins à la population
+75;gynecologue;sans_soins;3;Nouvelle-Aquitaine;Gynécologue;Sans soins à la population
+75;hematologue;public_particulier;1;Nouvelle-Aquitaine;Hématologue;Public particulier
+75;infectiologue;sans_soins;1;Nouvelle-Aquitaine;Infectiologue;Sans soins à la population
+75;infirmier;public_particulier;1977;Nouvelle-Aquitaine;Infirmier;Public particulier
+75;infirmier;sans_soins;281;Nouvelle-Aquitaine;Infirmier;Sans soins à la population
+75;interniste;public_particulier;3;Nouvelle-Aquitaine;Médecin interniste;Public particulier
+75;interniste;sans_soins;1;Nouvelle-Aquitaine;Médecin interniste;Sans soins à la population
+75;manipulateur_erm;public_particulier;24;Nouvelle-Aquitaine;Manipulateur en électroradiologie;Public particulier
+75;manipulateur_erm;sans_soins;4;Nouvelle-Aquitaine;Manipulateur en électroradiologie;Sans soins à la population
+75;masseur_kinesitherapeute;public_particulier;80;Nouvelle-Aquitaine;Masseur-kinésithérapeute;Public particulier
+75;masseur_kinesitherapeute;sans_soins;21;Nouvelle-Aquitaine;Masseur-kinésithérapeute;Sans soins à la population
+75;medecin_autre;public_particulier;2;Nouvelle-Aquitaine;Médecin, autre spécialité;Public particulier
+75;medecin_generaliste;public_particulier;252;Nouvelle-Aquitaine;Médecin généraliste;Public particulier
+75;medecin_generaliste;sans_soins;298;Nouvelle-Aquitaine;Médecin généraliste;Sans soins à la population
+75;medecin_mpr;public_particulier;1;Nouvelle-Aquitaine;Médecin de médecine physique et de réadaptation;Public particulier
+75;medecin_mpr;sans_soins;3;Nouvelle-Aquitaine;Médecin de médecine physique et de réadaptation;Sans soins à la population
+75;medecin_sante_publique;public_particulier;11;Nouvelle-Aquitaine;Médecin de santé publique;Public particulier
+75;medecin_sante_publique;sans_soins;26;Nouvelle-Aquitaine;Médecin de santé publique;Sans soins à la population
+75;medecin_travail;public_particulier;298;Nouvelle-Aquitaine;Médecin du travail;Public particulier
+75;medecin_travail;sans_soins;31;Nouvelle-Aquitaine;Médecin du travail;Sans soins à la population
+75;medecin_vasculaire;sans_soins;1;Nouvelle-Aquitaine;Médecin vasculaire;Sans soins à la population
+75;nephrologue;public_particulier;1;Nouvelle-Aquitaine;Néphrologue;Public particulier
+75;neurologue;sans_soins;1;Nouvelle-Aquitaine;Neurologue;Sans soins à la population
+75;oncologue;sans_soins;1;Nouvelle-Aquitaine;Oncologue médical;Sans soins à la population
+75;ophtalmologue;sans_soins;1;Nouvelle-Aquitaine;Ophtalmologue;Sans soins à la population
+75;opticien_lunetier;sans_soins;6;Nouvelle-Aquitaine;Opticien-lunetier;Sans soins à la population
+75;orl;public_particulier;2;Nouvelle-Aquitaine;Oto-rhino-laryngologiste (ORL);Public particulier
+75;orthophoniste;public_particulier;2;Nouvelle-Aquitaine;Orthophoniste;Public particulier
+75;orthoptiste;public_particulier;4;Nouvelle-Aquitaine;Orthoptiste;Public particulier
+75;orthoptiste;sans_soins;1;Nouvelle-Aquitaine;Orthoptiste;Sans soins à la population
+75;osteopathe;public_particulier;4;Nouvelle-Aquitaine;Ostéopathe;Public particulier
+75;pediatre;public_particulier;2;Nouvelle-Aquitaine;Pédiatre;Public particulier
+75;pediatre;sans_soins;3;Nouvelle-Aquitaine;Pédiatre;Sans soins à la population
+75;pedicure_podologue;public_particulier;5;Nouvelle-Aquitaine;Pédicure-podologue;Public particulier
+75;pharmacien;public_particulier;95;Nouvelle-Aquitaine;Pharmacien;Public particulier
+75;pharmacien;sans_soins;278;Nouvelle-Aquitaine;Pharmacien;Sans soins à la population
+75;physicien_medical;public_particulier;2;Nouvelle-Aquitaine;Physicien médical;Public particulier
+75;physicien_medical;sans_soins;1;Nouvelle-Aquitaine;Physicien médical;Sans soins à la population
+75;pneumologue;public_particulier;1;Nouvelle-Aquitaine;Pneumologue;Public particulier
+75;pneumologue;sans_soins;1;Nouvelle-Aquitaine;Pneumologue;Sans soins à la population
+75;psychiatre;public_particulier;9;Nouvelle-Aquitaine;Psychiatre;Public particulier
+75;psychiatre;sans_soins;5;Nouvelle-Aquitaine;Psychiatre;Sans soins à la population
+75;psychologue;public_particulier;320;Nouvelle-Aquitaine;Psychologue;Public particulier
+75;psychologue;sans_soins;31;Nouvelle-Aquitaine;Psychologue;Sans soins à la population
+75;psychomotricien;public_particulier;10;Nouvelle-Aquitaine;Psychomotricien;Public particulier
+75;psychomotricien;sans_soins;1;Nouvelle-Aquitaine;Psychomotricien;Sans soins à la population
+75;psychotherapeute;public_particulier;9;Nouvelle-Aquitaine;Psychothérapeute;Public particulier
+75;q_addictologie;public_particulier;4;Nouvelle-Aquitaine;Médecin qualifié en addictologie;Public particulier
+75;q_addictologie;sans_soins;1;Nouvelle-Aquitaine;Médecin qualifié en addictologie;Sans soins à la population
+75;q_psychiatrie_enfant;public_particulier;1;Nouvelle-Aquitaine;Psychiatre qualifié pour l'enfant et l'adolescent (toutes voies);Public particulier
+75;radiologue;public_particulier;7;Nouvelle-Aquitaine;Radiologue;Public particulier
+75;radiologue;sans_soins;1;Nouvelle-Aquitaine;Radiologue;Sans soins à la population
+75;radiotherapeute;public_particulier;1;Nouvelle-Aquitaine;Radiothérapeute;Public particulier
+75;radiotherapeute;sans_soins;1;Nouvelle-Aquitaine;Radiothérapeute;Sans soins à la population
+75;reanimateur;public_particulier;1;Nouvelle-Aquitaine;Médecin réanimateur;Public particulier
+75;reanimateur;sans_soins;2;Nouvelle-Aquitaine;Médecin réanimateur;Sans soins à la population
+75;sage_femme;public_particulier;4;Nouvelle-Aquitaine;Sage-femme;Public particulier
+75;technicien_labo;public_particulier;297;Nouvelle-Aquitaine;Technicien de laboratoire;Public particulier
+75;technicien_labo;sans_soins;15;Nouvelle-Aquitaine;Technicien de laboratoire;Sans soins à la population
+76;anesthesiste;public_particulier;5;Occitanie;Anesthésiste-réanimateur;Public particulier
+76;anesthesiste;sans_soins;1;Occitanie;Anesthésiste-réanimateur;Sans soins à la population
+76;appareilleur;sans_soins;4;Occitanie;Appareilleur;Sans soins à la population
+76;assistant_de_service_social;public_particulier;736;Occitanie;Assistant de service social;Public particulier
+76;assistant_de_service_social;sans_soins;157;Occitanie;Assistant de service social;Sans soins à la population
+76;assistant_dentaire;public_particulier;1;Occitanie;Assistant dentaire;Public particulier
+76;assistant_dentaire;sans_soins;6;Occitanie;Assistant dentaire;Sans soins à la population
+76;audioprothesiste;sans_soins;5;Occitanie;Audioprothésiste;Sans soins à la population
+76;biologiste;public_particulier;9;Occitanie;Biologiste médical;Public particulier
+76;biologiste;sans_soins;2;Occitanie;Biologiste médical;Sans soins à la population
+76;cardiologue;sans_soins;2;Occitanie;Cardiologue;Sans soins à la population
+76;chiropracteur;public_particulier;2;Occitanie;Chiropracteur;Public particulier
+76;chirurgien_dentiste;public_particulier;147;Occitanie;Chirurgien-dentiste;Public particulier
+76;chirurgien_dentiste;sans_soins;15;Occitanie;Chirurgien-dentiste;Sans soins à la population
+76;chirurgien_maxillo_facial;public_particulier;1;Occitanie;Chirurgien maxillo-facial et stomatologue;Public particulier
+76;chirurgien_orthopediste;public_particulier;1;Occitanie;Chirurgien orthopédiste;Public particulier
+76;chirurgien_pediatrique;sans_soins;1;Occitanie;Chirurgien pédiatrique;Sans soins à la population
+76;chirurgien_visceral;public_particulier;2;Occitanie;Chirurgien viscéral et digestif;Public particulier
+76;chirurgien_visceral;sans_soins;2;Occitanie;Chirurgien viscéral et digestif;Sans soins à la population
+76;dermatologue;public_particulier;1;Occitanie;Dermatologue;Public particulier
+76;dermatologue;sans_soins;3;Occitanie;Dermatologue;Sans soins à la population
+76;dieteticien;public_particulier;20;Occitanie;Diététicien;Public particulier
+76;dieteticien;sans_soins;5;Occitanie;Diététicien;Sans soins à la population
+76;endocrinologue;sans_soins;2;Occitanie;Endocrinologue;Sans soins à la population
+76;ens_medecin_specialiste;public_particulier;270;Occitanie;Médecin spécialiste (toutes spécialités);Public particulier
+76;ens_medecin_specialiste;sans_soins;48;Occitanie;Médecin spécialiste (toutes spécialités);Sans soins à la population
+76;ergotherapeute;public_particulier;13;Occitanie;Ergothérapeute;Public particulier
+76;ergotherapeute;sans_soins;4;Occitanie;Ergothérapeute;Sans soins à la population
+76;geriatre;public_particulier;1;Occitanie;Gériatre;Public particulier
+76;gynecologue;public_particulier;3;Occitanie;Gynécologue;Public particulier
+76;gynecologue;sans_soins;1;Occitanie;Gynécologue;Sans soins à la population
+76;infirmier;public_particulier;2064;Occitanie;Infirmier;Public particulier
+76;infirmier;sans_soins;257;Occitanie;Infirmier;Sans soins à la population
+76;interniste;public_particulier;1;Occitanie;Médecin interniste;Public particulier
+76;interniste;sans_soins;2;Occitanie;Médecin interniste;Sans soins à la population
+76;manipulateur_erm;public_particulier;14;Occitanie;Manipulateur en électroradiologie;Public particulier
+76;manipulateur_erm;sans_soins;6;Occitanie;Manipulateur en électroradiologie;Sans soins à la population
+76;masseur_kinesitherapeute;public_particulier;110;Occitanie;Masseur-kinésithérapeute;Public particulier
+76;masseur_kinesitherapeute;sans_soins;87;Occitanie;Masseur-kinésithérapeute;Sans soins à la population
+76;medecin_autre;public_particulier;1;Occitanie;Médecin, autre spécialité;Public particulier
+76;medecin_generaliste;public_particulier;234;Occitanie;Médecin généraliste;Public particulier
+76;medecin_generaliste;sans_soins;206;Occitanie;Médecin généraliste;Sans soins à la population
+76;medecin_mpr;public_particulier;4;Occitanie;Médecin de médecine physique et de réadaptation;Public particulier
+76;medecin_mpr;sans_soins;3;Occitanie;Médecin de médecine physique et de réadaptation;Sans soins à la population
+76;medecin_sante_publique;public_particulier;7;Occitanie;Médecin de santé publique;Public particulier
+76;medecin_sante_publique;sans_soins;12;Occitanie;Médecin de santé publique;Sans soins à la population
+76;medecin_travail;public_particulier;187;Occitanie;Médecin du travail;Public particulier
+76;medecin_travail;sans_soins;27;Occitanie;Médecin du travail;Sans soins à la population
+76;nephrologue;sans_soins;2;Occitanie;Néphrologue;Sans soins à la population
+76;oncologue;sans_soins;2;Occitanie;Oncologue médical;Sans soins à la population
+76;opticien_lunetier;sans_soins;11;Occitanie;Opticien-lunetier;Sans soins à la population
+76;orl;public_particulier;2;Occitanie;Oto-rhino-laryngologiste (ORL);Public particulier
+76;orthophoniste;public_particulier;4;Occitanie;Orthophoniste;Public particulier
+76;orthoptiste;sans_soins;2;Occitanie;Orthoptiste;Sans soins à la population
+76;osteopathe;public_particulier;6;Occitanie;Ostéopathe;Public particulier
+76;osteopathe;sans_soins;1;Occitanie;Ostéopathe;Sans soins à la population
+76;pediatre;public_particulier;2;Occitanie;Pédiatre;Public particulier
+76;pediatre;sans_soins;7;Occitanie;Pédiatre;Sans soins à la population
+76;pedopsychiatre;public_particulier;1;Occitanie;Pédopsychiatre;Public particulier
+76;pedopsychiatre;sans_soins;1;Occitanie;Pédopsychiatre;Sans soins à la population
+76;pharmacien;public_particulier;89;Occitanie;Pharmacien;Public particulier
+76;pharmacien;sans_soins;225;Occitanie;Pharmacien;Sans soins à la population
+76;pneumologue;public_particulier;2;Occitanie;Pneumologue;Public particulier
+76;psychiatre;public_particulier;2;Occitanie;Psychiatre;Public particulier
+76;psychiatre;sans_soins;12;Occitanie;Psychiatre;Sans soins à la population
+76;psychologue;public_particulier;243;Occitanie;Psychologue;Public particulier
+76;psychologue;sans_soins;30;Occitanie;Psychologue;Sans soins à la population
+76;psychomotricien;public_particulier;3;Occitanie;Psychomotricien;Public particulier
+76;psychotherapeute;public_particulier;9;Occitanie;Psychothérapeute;Public particulier
+76;psychotherapeute;sans_soins;2;Occitanie;Psychothérapeute;Sans soins à la population
+76;q_addictologie;public_particulier;3;Occitanie;Médecin qualifié en addictologie;Public particulier
+76;q_addictologie;sans_soins;1;Occitanie;Médecin qualifié en addictologie;Sans soins à la population
+76;q_psychiatrie_enfant;public_particulier;1;Occitanie;Psychiatre qualifié pour l'enfant et l'adolescent (toutes voies);Public particulier
+76;q_psychiatrie_enfant;sans_soins;2;Occitanie;Psychiatre qualifié pour l'enfant et l'adolescent (toutes voies);Sans soins à la population
+76;radiologue;public_particulier;1;Occitanie;Radiologue;Public particulier
+76;radiologue;sans_soins;1;Occitanie;Radiologue;Sans soins à la population
+76;radiotherapeute;sans_soins;1;Occitanie;Radiothérapeute;Sans soins à la population
+76;rhumatologue;public_particulier;1;Occitanie;Rhumatologue;Public particulier
+76;sage_femme;public_particulier;3;Occitanie;Sage-femme;Public particulier
+76;technicien_labo;public_particulier;411;Occitanie;Technicien de laboratoire;Public particulier
+76;technicien_labo;sans_soins;10;Occitanie;Technicien de laboratoire;Sans soins à la population
+76;urgentiste;public_particulier;1;Occitanie;Médecin urgentiste;Public particulier
+84;anatomopathologiste;public_particulier;2;Auvergne-Rhône-Alpes;Anatomopathologiste;Public particulier
+84;anesthesiste;public_particulier;12;Auvergne-Rhône-Alpes;Anesthésiste-réanimateur;Public particulier
+84;anesthesiste;sans_soins;6;Auvergne-Rhône-Alpes;Anesthésiste-réanimateur;Sans soins à la population
+84;appareilleur;public_particulier;1;Auvergne-Rhône-Alpes;Appareilleur;Public particulier
+84;appareilleur;sans_soins;2;Auvergne-Rhône-Alpes;Appareilleur;Sans soins à la population
+84;assistant_de_service_social;public_particulier;254;Auvergne-Rhône-Alpes;Assistant de service social;Public particulier
+84;assistant_de_service_social;sans_soins;57;Auvergne-Rhône-Alpes;Assistant de service social;Sans soins à la population
+84;assistant_dentaire;public_particulier;2;Auvergne-Rhône-Alpes;Assistant dentaire;Public particulier
+84;assistant_dentaire;sans_soins;12;Auvergne-Rhône-Alpes;Assistant dentaire;Sans soins à la population
+84;audioprothesiste;sans_soins;3;Auvergne-Rhône-Alpes;Audioprothésiste;Sans soins à la population
+84;biologiste;public_particulier;15;Auvergne-Rhône-Alpes;Biologiste médical;Public particulier
+84;biologiste;sans_soins;2;Auvergne-Rhône-Alpes;Biologiste médical;Sans soins à la population
+84;cardiologue;public_particulier;3;Auvergne-Rhône-Alpes;Cardiologue;Public particulier
+84;chirurgien_dentiste;public_particulier;93;Auvergne-Rhône-Alpes;Chirurgien-dentiste;Public particulier
+84;chirurgien_dentiste;sans_soins;22;Auvergne-Rhône-Alpes;Chirurgien-dentiste;Sans soins à la population
+84;chirurgien_general;public_particulier;2;Auvergne-Rhône-Alpes;Chirurgien général;Public particulier
+84;chirurgien_maxillo_facial;public_particulier;1;Auvergne-Rhône-Alpes;Chirurgien maxillo-facial et stomatologue;Public particulier
+84;chirurgien_orthopediste;public_particulier;5;Auvergne-Rhône-Alpes;Chirurgien orthopédiste;Public particulier
+84;chirurgien_pediatrique;public_particulier;1;Auvergne-Rhône-Alpes;Chirurgien pédiatrique;Public particulier
+84;chirurgien_plasticien;public_particulier;1;Auvergne-Rhône-Alpes;Chirurgien plasticien;Public particulier
+84;chirurgien_visceral;public_particulier;5;Auvergne-Rhône-Alpes;Chirurgien viscéral et digestif;Public particulier
+84;dermatologue;public_particulier;3;Auvergne-Rhône-Alpes;Dermatologue;Public particulier
+84;dermatologue;sans_soins;1;Auvergne-Rhône-Alpes;Dermatologue;Sans soins à la population
+84;dieteticien;public_particulier;33;Auvergne-Rhône-Alpes;Diététicien;Public particulier
+84;dieteticien;sans_soins;7;Auvergne-Rhône-Alpes;Diététicien;Sans soins à la population
+84;endocrinologue;public_particulier;1;Auvergne-Rhône-Alpes;Endocrinologue;Public particulier
+84;endocrinologue;sans_soins;2;Auvergne-Rhône-Alpes;Endocrinologue;Sans soins à la population
+84;ens_medecin_specialiste;public_particulier;627;Auvergne-Rhône-Alpes;Médecin spécialiste (toutes spécialités);Public particulier
+84;ens_medecin_specialiste;sans_soins;51;Auvergne-Rhône-Alpes;Médecin spécialiste (toutes spécialités);Sans soins à la population
+84;ergotherapeute;public_particulier;19;Auvergne-Rhône-Alpes;Ergothérapeute;Public particulier
+84;gastro_enterologue;public_particulier;2;Auvergne-Rhône-Alpes;Gastro-entérologue;Public particulier
+84;gastro_enterologue;sans_soins;1;Auvergne-Rhône-Alpes;Gastro-entérologue;Sans soins à la population
+84;geriatre;public_particulier;2;Auvergne-Rhône-Alpes;Gériatre;Public particulier
+84;geriatre;sans_soins;1;Auvergne-Rhône-Alpes;Gériatre;Sans soins à la population
+84;gynecologue;public_particulier;2;Auvergne-Rhône-Alpes;Gynécologue;Public particulier
+84;gynecologue;sans_soins;1;Auvergne-Rhône-Alpes;Gynécologue;Sans soins à la population
+84;hematologue;public_particulier;6;Auvergne-Rhône-Alpes;Hématologue;Public particulier
+84;hematologue;sans_soins;3;Auvergne-Rhône-Alpes;Hématologue;Sans soins à la population
+84;infirmier;public_particulier;2823;Auvergne-Rhône-Alpes;Infirmier;Public particulier
+84;infirmier;sans_soins;338;Auvergne-Rhône-Alpes;Infirmier;Sans soins à la population
+84;interniste;public_particulier;3;Auvergne-Rhône-Alpes;Médecin interniste;Public particulier
+84;interniste;sans_soins;1;Auvergne-Rhône-Alpes;Médecin interniste;Sans soins à la population
+84;manipulateur_erm;public_particulier;24;Auvergne-Rhône-Alpes;Manipulateur en électroradiologie;Public particulier
+84;manipulateur_erm;sans_soins;2;Auvergne-Rhône-Alpes;Manipulateur en électroradiologie;Sans soins à la population
+84;masseur_kinesitherapeute;public_particulier;127;Auvergne-Rhône-Alpes;Masseur-kinésithérapeute;Public particulier
+84;masseur_kinesitherapeute;sans_soins;72;Auvergne-Rhône-Alpes;Masseur-kinésithérapeute;Sans soins à la population
+84;medecin_autre;public_particulier;1;Auvergne-Rhône-Alpes;Médecin, autre spécialité;Public particulier
+84;medecin_autre;sans_soins;1;Auvergne-Rhône-Alpes;Médecin, autre spécialité;Sans soins à la population
+84;medecin_generaliste;public_particulier;385;Auvergne-Rhône-Alpes;Médecin généraliste;Public particulier
+84;medecin_generaliste;sans_soins;257;Auvergne-Rhône-Alpes;Médecin généraliste;Sans soins à la population
+84;medecin_mpr;public_particulier;7;Auvergne-Rhône-Alpes;Médecin de médecine physique et de réadaptation;Public particulier
+84;medecin_mpr;sans_soins;2;Auvergne-Rhône-Alpes;Médecin de médecine physique et de réadaptation;Sans soins à la population
+84;medecin_sante_publique;public_particulier;13;Auvergne-Rhône-Alpes;Médecin de santé publique;Public particulier
+84;medecin_sante_publique;sans_soins;32;Auvergne-Rhône-Alpes;Médecin de santé publique;Sans soins à la population
+84;medecin_travail;public_particulier;425;Auvergne-Rhône-Alpes;Médecin du travail;Public particulier
+84;medecin_travail;sans_soins;42;Auvergne-Rhône-Alpes;Médecin du travail;Sans soins à la population
+84;nephrologue;public_particulier;1;Auvergne-Rhône-Alpes;Néphrologue;Public particulier
+84;nephrologue;sans_soins;2;Auvergne-Rhône-Alpes;Néphrologue;Sans soins à la population
+84;neurologue;sans_soins;1;Auvergne-Rhône-Alpes;Neurologue;Sans soins à la population
+84;oncologue;public_particulier;2;Auvergne-Rhône-Alpes;Oncologue médical;Public particulier
+84;ophtalmologue;public_particulier;3;Auvergne-Rhône-Alpes;Ophtalmologue;Public particulier
+84;ophtalmologue;sans_soins;1;Auvergne-Rhône-Alpes;Ophtalmologue;Sans soins à la population
+84;opticien_lunetier;public_particulier;2;Auvergne-Rhône-Alpes;Opticien-lunetier;Public particulier
+84;opticien_lunetier;sans_soins;11;Auvergne-Rhône-Alpes;Opticien-lunetier;Sans soins à la population
+84;orl;public_particulier;2;Auvergne-Rhône-Alpes;Oto-rhino-laryngologiste (ORL);Public particulier
+84;orthophoniste;public_particulier;3;Auvergne-Rhône-Alpes;Orthophoniste;Public particulier
+84;orthophoniste;sans_soins;1;Auvergne-Rhône-Alpes;Orthophoniste;Sans soins à la population
+84;orthoptiste;public_particulier;2;Auvergne-Rhône-Alpes;Orthoptiste;Public particulier
+84;orthoptiste;sans_soins;2;Auvergne-Rhône-Alpes;Orthoptiste;Sans soins à la population
+84;osteopathe;public_particulier;16;Auvergne-Rhône-Alpes;Ostéopathe;Public particulier
+84;pediatre;public_particulier;7;Auvergne-Rhône-Alpes;Pédiatre;Public particulier
+84;pediatre;sans_soins;11;Auvergne-Rhône-Alpes;Pédiatre;Sans soins à la population
+84;pedicure_podologue;public_particulier;10;Auvergne-Rhône-Alpes;Pédicure-podologue;Public particulier
+84;pharmacien;public_particulier;109;Auvergne-Rhône-Alpes;Pharmacien;Public particulier
+84;pharmacien;sans_soins;758;Auvergne-Rhône-Alpes;Pharmacien;Sans soins à la population
+84;physicien_medical;public_particulier;4;Auvergne-Rhône-Alpes;Physicien médical;Public particulier
+84;pneumologue;public_particulier;2;Auvergne-Rhône-Alpes;Pneumologue;Public particulier
+84;pneumologue;sans_soins;3;Auvergne-Rhône-Alpes;Pneumologue;Sans soins à la population
+84;psychiatre;public_particulier;11;Auvergne-Rhône-Alpes;Psychiatre;Public particulier
+84;psychiatre;sans_soins;3;Auvergne-Rhône-Alpes;Psychiatre;Sans soins à la population
+84;psychologue;public_particulier;345;Auvergne-Rhône-Alpes;Psychologue;Public particulier
+84;psychologue;sans_soins;32;Auvergne-Rhône-Alpes;Psychologue;Sans soins à la population
+84;psychomotricien;public_particulier;15;Auvergne-Rhône-Alpes;Psychomotricien;Public particulier
+84;psychomotricien;sans_soins;1;Auvergne-Rhône-Alpes;Psychomotricien;Sans soins à la population
+84;psychotherapeute;public_particulier;26;Auvergne-Rhône-Alpes;Psychothérapeute;Public particulier
+84;psychotherapeute;sans_soins;4;Auvergne-Rhône-Alpes;Psychothérapeute;Sans soins à la population
+84;q_addictologie;public_particulier;7;Auvergne-Rhône-Alpes;Médecin qualifié en addictologie;Public particulier
+84;q_addictologie;sans_soins;3;Auvergne-Rhône-Alpes;Médecin qualifié en addictologie;Sans soins à la population
+84;q_psychiatrie_enfant;public_particulier;1;Auvergne-Rhône-Alpes;Psychiatre qualifié pour l'enfant et l'adolescent (toutes voies);Public particulier
+84;radiologue;public_particulier;11;Auvergne-Rhône-Alpes;Radiologue;Public particulier
+84;radiologue;sans_soins;1;Auvergne-Rhône-Alpes;Radiologue;Sans soins à la population
+84;radiotherapeute;public_particulier;1;Auvergne-Rhône-Alpes;Radiothérapeute;Public particulier
+84;rhumatologue;public_particulier;4;Auvergne-Rhône-Alpes;Rhumatologue;Public particulier
+84;rhumatologue;sans_soins;2;Auvergne-Rhône-Alpes;Rhumatologue;Sans soins à la population
+84;sage_femme;public_particulier;18;Auvergne-Rhône-Alpes;Sage-femme;Public particulier
+84;technicien_labo;public_particulier;564;Auvergne-Rhône-Alpes;Technicien de laboratoire;Public particulier
+84;technicien_labo;sans_soins;23;Auvergne-Rhône-Alpes;Technicien de laboratoire;Sans soins à la population
+84;urgentiste;public_particulier;3;Auvergne-Rhône-Alpes;Médecin urgentiste;Public particulier
+84;urgentiste;sans_soins;1;Auvergne-Rhône-Alpes;Médecin urgentiste;Sans soins à la population
+93;anatomopathologiste;sans_soins;2;Provence-Alpes-Côte d'Azur;Anatomopathologiste;Sans soins à la population
+93;anesthesiste;public_particulier;44;Provence-Alpes-Côte d'Azur;Anesthésiste-réanimateur;Public particulier
+93;anesthesiste;sans_soins;1;Provence-Alpes-Côte d'Azur;Anesthésiste-réanimateur;Sans soins à la population
+93;appareilleur;sans_soins;8;Provence-Alpes-Côte d'Azur;Appareilleur;Sans soins à la population
+93;assistant_de_service_social;public_particulier;71;Provence-Alpes-Côte d'Azur;Assistant de service social;Public particulier
+93;assistant_de_service_social;sans_soins;30;Provence-Alpes-Côte d'Azur;Assistant de service social;Sans soins à la population
+93;assistant_dentaire;public_particulier;3;Provence-Alpes-Côte d'Azur;Assistant dentaire;Public particulier
+93;assistant_dentaire;sans_soins;6;Provence-Alpes-Côte d'Azur;Assistant dentaire;Sans soins à la population
+93;audioprothesiste;sans_soins;1;Provence-Alpes-Côte d'Azur;Audioprothésiste;Sans soins à la population
+93;biologiste;public_particulier;18;Provence-Alpes-Côte d'Azur;Biologiste médical;Public particulier
+93;biologiste;sans_soins;2;Provence-Alpes-Côte d'Azur;Biologiste médical;Sans soins à la population
+93;cardiologue;public_particulier;10;Provence-Alpes-Côte d'Azur;Cardiologue;Public particulier
+93;cardiologue;sans_soins;1;Provence-Alpes-Côte d'Azur;Cardiologue;Sans soins à la population
+93;chiropracteur;public_particulier;1;Provence-Alpes-Côte d'Azur;Chiropracteur;Public particulier
+93;chirurgien_dentiste;public_particulier;62;Provence-Alpes-Côte d'Azur;Chirurgien-dentiste;Public particulier
+93;chirurgien_dentiste;sans_soins;13;Provence-Alpes-Côte d'Azur;Chirurgien-dentiste;Sans soins à la population
+93;chirurgien_general;public_particulier;16;Provence-Alpes-Côte d'Azur;Chirurgien général;Public particulier
+93;chirurgien_maxillo_facial;public_particulier;4;Provence-Alpes-Côte d'Azur;Chirurgien maxillo-facial et stomatologue;Public particulier
+93;chirurgien_orthopediste;public_particulier;10;Provence-Alpes-Côte d'Azur;Chirurgien orthopédiste;Public particulier
+93;chirurgien_plasticien;public_particulier;4;Provence-Alpes-Côte d'Azur;Chirurgien plasticien;Public particulier
+93;chirurgien_plasticien;sans_soins;1;Provence-Alpes-Côte d'Azur;Chirurgien plasticien;Sans soins à la population
+93;chirurgien_thoracique;public_particulier;2;Provence-Alpes-Côte d'Azur;Chirurgien thoracique et cardiovasculaire;Public particulier
+93;chirurgien_vasculaire;public_particulier;3;Provence-Alpes-Côte d'Azur;Chirurgien vasculaire;Public particulier
+93;chirurgien_visceral;public_particulier;7;Provence-Alpes-Côte d'Azur;Chirurgien viscéral et digestif;Public particulier
+93;dermatologue;public_particulier;8;Provence-Alpes-Côte d'Azur;Dermatologue;Public particulier
+93;dermatologue;sans_soins;6;Provence-Alpes-Côte d'Azur;Dermatologue;Sans soins à la population
+93;dieteticien;public_particulier;14;Provence-Alpes-Côte d'Azur;Diététicien;Public particulier
+93;dieteticien;sans_soins;3;Provence-Alpes-Côte d'Azur;Diététicien;Sans soins à la population
+93;endocrinologue;public_particulier;1;Provence-Alpes-Côte d'Azur;Endocrinologue;Public particulier
+93;ens_medecin_specialiste;public_particulier;586;Provence-Alpes-Côte d'Azur;Médecin spécialiste (toutes spécialités);Public particulier
+93;ens_medecin_specialiste;sans_soins;21;Provence-Alpes-Côte d'Azur;Médecin spécialiste (toutes spécialités);Sans soins à la population
+93;ergotherapeute;public_particulier;9;Provence-Alpes-Côte d'Azur;Ergothérapeute;Public particulier
+93;ergotherapeute;sans_soins;1;Provence-Alpes-Côte d'Azur;Ergothérapeute;Sans soins à la population
+93;gastro_enterologue;public_particulier;6;Provence-Alpes-Côte d'Azur;Gastro-entérologue;Public particulier
+93;gastro_enterologue;sans_soins;1;Provence-Alpes-Côte d'Azur;Gastro-entérologue;Sans soins à la population
+93;geriatre;public_particulier;2;Provence-Alpes-Côte d'Azur;Gériatre;Public particulier
+93;geriatre;sans_soins;1;Provence-Alpes-Côte d'Azur;Gériatre;Sans soins à la population
+93;gynecologue;sans_soins;1;Provence-Alpes-Côte d'Azur;Gynécologue;Sans soins à la population
+93;hematologue;public_particulier;1;Provence-Alpes-Côte d'Azur;Hématologue;Public particulier
+93;infectiologue;public_particulier;3;Provence-Alpes-Côte d'Azur;Infectiologue;Public particulier
+93;infirmier;public_particulier;2302;Provence-Alpes-Côte d'Azur;Infirmier;Public particulier
+93;infirmier;sans_soins;194;Provence-Alpes-Côte d'Azur;Infirmier;Sans soins à la population
+93;interniste;public_particulier;19;Provence-Alpes-Côte d'Azur;Médecin interniste;Public particulier
+93;interniste;sans_soins;3;Provence-Alpes-Côte d'Azur;Médecin interniste;Sans soins à la population
+93;manipulateur_erm;public_particulier;49;Provence-Alpes-Côte d'Azur;Manipulateur en électroradiologie;Public particulier
+93;manipulateur_erm;sans_soins;10;Provence-Alpes-Côte d'Azur;Manipulateur en électroradiologie;Sans soins à la population
+93;masseur_kinesitherapeute;public_particulier;95;Provence-Alpes-Côte d'Azur;Masseur-kinésithérapeute;Public particulier
+93;masseur_kinesitherapeute;sans_soins;139;Provence-Alpes-Côte d'Azur;Masseur-kinésithérapeute;Sans soins à la population
+93;medecin_autre;sans_soins;1;Provence-Alpes-Côte d'Azur;Médecin, autre spécialité;Sans soins à la population
+93;medecin_generaliste;public_particulier;306;Provence-Alpes-Côte d'Azur;Médecin généraliste;Public particulier
+93;medecin_generaliste;sans_soins;207;Provence-Alpes-Côte d'Azur;Médecin généraliste;Sans soins à la population
+93;medecin_mpr;public_particulier;9;Provence-Alpes-Côte d'Azur;Médecin de médecine physique et de réadaptation;Public particulier
+93;medecin_non_precise;public_particulier;1;Provence-Alpes-Côte d'Azur;Médecin, spécialité non renseignée;Public particulier
+93;medecin_nucleaire;public_particulier;1;Provence-Alpes-Côte d'Azur;Médecin nucléaire;Public particulier
+93;medecin_sante_publique;public_particulier;10;Provence-Alpes-Côte d'Azur;Médecin de santé publique;Public particulier
+93;medecin_sante_publique;sans_soins;23;Provence-Alpes-Côte d'Azur;Médecin de santé publique;Sans soins à la population
+93;medecin_travail;public_particulier;271;Provence-Alpes-Côte d'Azur;Médecin du travail;Public particulier
+93;medecin_travail;sans_soins;21;Provence-Alpes-Côte d'Azur;Médecin du travail;Sans soins à la population
+93;medecin_vasculaire;public_particulier;1;Provence-Alpes-Côte d'Azur;Médecin vasculaire;Public particulier
+93;nephrologue;sans_soins;1;Provence-Alpes-Côte d'Azur;Néphrologue;Sans soins à la population
+93;neurochirurgien;public_particulier;8;Provence-Alpes-Côte d'Azur;Neurochirurgien;Public particulier
+93;neurologue;public_particulier;5;Provence-Alpes-Côte d'Azur;Neurologue;Public particulier
+93;oncologue;public_particulier;2;Provence-Alpes-Côte d'Azur;Oncologue médical;Public particulier
+93;ophtalmologue;public_particulier;5;Provence-Alpes-Côte d'Azur;Ophtalmologue;Public particulier
+93;opticien_lunetier;public_particulier;1;Provence-Alpes-Côte d'Azur;Opticien-lunetier;Public particulier
+93;orl;public_particulier;8;Provence-Alpes-Côte d'Azur;Oto-rhino-laryngologiste (ORL);Public particulier
+93;orl;sans_soins;1;Provence-Alpes-Côte d'Azur;Oto-rhino-laryngologiste (ORL);Sans soins à la population
+93;orthophoniste;public_particulier;4;Provence-Alpes-Côte d'Azur;Orthophoniste;Public particulier
+93;orthophoniste;sans_soins;2;Provence-Alpes-Côte d'Azur;Orthophoniste;Sans soins à la population
+93;orthoptiste;public_particulier;9;Provence-Alpes-Côte d'Azur;Orthoptiste;Public particulier
+93;orthoptiste;sans_soins;3;Provence-Alpes-Côte d'Azur;Orthoptiste;Sans soins à la population
+93;osteopathe;public_particulier;13;Provence-Alpes-Côte d'Azur;Ostéopathe;Public particulier
+93;osteopathe;sans_soins;1;Provence-Alpes-Côte d'Azur;Ostéopathe;Sans soins à la population
+93;pediatre;public_particulier;2;Provence-Alpes-Côte d'Azur;Pédiatre;Public particulier
+93;pediatre;sans_soins;7;Provence-Alpes-Côte d'Azur;Pédiatre;Sans soins à la population
+93;pedicure_podologue;public_particulier;2;Provence-Alpes-Côte d'Azur;Pédicure-podologue;Public particulier
+93;pharmacien;public_particulier;72;Provence-Alpes-Côte d'Azur;Pharmacien;Public particulier
+93;pharmacien;sans_soins;202;Provence-Alpes-Côte d'Azur;Pharmacien;Sans soins à la population
+93;physicien_medical;sans_soins;12;Provence-Alpes-Côte d'Azur;Physicien médical;Sans soins à la population
+93;pneumologue;public_particulier;7;Provence-Alpes-Côte d'Azur;Pneumologue;Public particulier
+93;pneumologue;sans_soins;2;Provence-Alpes-Côte d'Azur;Pneumologue;Sans soins à la population
+93;psychiatre;public_particulier;14;Provence-Alpes-Côte d'Azur;Psychiatre;Public particulier
+93;psychiatre;sans_soins;2;Provence-Alpes-Côte d'Azur;Psychiatre;Sans soins à la population
+93;psychologue;public_particulier;159;Provence-Alpes-Côte d'Azur;Psychologue;Public particulier
+93;psychologue;sans_soins;23;Provence-Alpes-Côte d'Azur;Psychologue;Sans soins à la population
+93;psychomotricien;public_particulier;9;Provence-Alpes-Côte d'Azur;Psychomotricien;Public particulier
+93;psychomotricien;sans_soins;5;Provence-Alpes-Côte d'Azur;Psychomotricien;Sans soins à la population
+93;psychotherapeute;public_particulier;12;Provence-Alpes-Côte d'Azur;Psychothérapeute;Public particulier
+93;q_psychiatrie_enfant;sans_soins;1;Provence-Alpes-Côte d'Azur;Psychiatre qualifié pour l'enfant et l'adolescent (toutes voies);Sans soins à la population
+93;radiologue;public_particulier;17;Provence-Alpes-Côte d'Azur;Radiologue;Public particulier
+93;reanimateur;public_particulier;1;Provence-Alpes-Côte d'Azur;Médecin réanimateur;Public particulier
+93;rhumatologue;public_particulier;1;Provence-Alpes-Côte d'Azur;Rhumatologue;Public particulier
+93;rhumatologue;sans_soins;1;Provence-Alpes-Côte d'Azur;Rhumatologue;Sans soins à la population
+93;sage_femme;public_particulier;11;Provence-Alpes-Côte d'Azur;Sage-femme;Public particulier
+93;technicien_labo;public_particulier;427;Provence-Alpes-Côte d'Azur;Technicien de laboratoire;Public particulier
+93;technicien_labo;sans_soins;23;Provence-Alpes-Côte d'Azur;Technicien de laboratoire;Sans soins à la population
+93;urgentiste;public_particulier;5;Provence-Alpes-Côte d'Azur;Médecin urgentiste;Public particulier
+93;urgentiste;sans_soins;2;Provence-Alpes-Côte d'Azur;Médecin urgentiste;Sans soins à la population
+93;urologue;public_particulier;4;Provence-Alpes-Côte d'Azur;Urologue;Public particulier
+94;anesthesiste;public_particulier;1;Corse;Anesthésiste-réanimateur;Public particulier
+94;assistant_de_service_social;public_particulier;4;Corse;Assistant de service social;Public particulier
+94;assistant_de_service_social;sans_soins;1;Corse;Assistant de service social;Sans soins à la population
+94;chirurgien_dentiste;public_particulier;1;Corse;Chirurgien-dentiste;Public particulier
+94;ens_medecin_specialiste;public_particulier;20;Corse;Médecin spécialiste (toutes spécialités);Public particulier
+94;ens_medecin_specialiste;sans_soins;1;Corse;Médecin spécialiste (toutes spécialités);Sans soins à la population
+94;gastro_enterologue;sans_soins;1;Corse;Gastro-entérologue;Sans soins à la population
+94;infirmier;public_particulier;114;Corse;Infirmier;Public particulier
+94;infirmier;sans_soins;11;Corse;Infirmier;Sans soins à la population
+94;manipulateur_erm;public_particulier;1;Corse;Manipulateur en électroradiologie;Public particulier
+94;masseur_kinesitherapeute;public_particulier;5;Corse;Masseur-kinésithérapeute;Public particulier
+94;medecin_generaliste;public_particulier;13;Corse;Médecin généraliste;Public particulier
+94;medecin_generaliste;sans_soins;12;Corse;Médecin généraliste;Sans soins à la population
+94;medecin_mpr;public_particulier;3;Corse;Médecin de médecine physique et de réadaptation;Public particulier
+94;medecin_sante_publique;sans_soins;1;Corse;Médecin de santé publique;Sans soins à la population
+94;medecin_travail;public_particulier;10;Corse;Médecin du travail;Public particulier
+94;medecin_travail;sans_soins;2;Corse;Médecin du travail;Sans soins à la population
+94;pediatre;public_particulier;1;Corse;Pédiatre;Public particulier
+94;pediatre;sans_soins;1;Corse;Pédiatre;Sans soins à la population
+94;pharmacien;public_particulier;10;Corse;Pharmacien;Public particulier
+94;pharmacien;sans_soins;8;Corse;Pharmacien;Sans soins à la population
+94;psychiatre;public_particulier;1;Corse;Psychiatre;Public particulier
+94;psychologue;public_particulier;9;Corse;Psychologue;Public particulier
+94;psychologue;sans_soins;2;Corse;Psychologue;Sans soins à la population
+94;psychomotricien;public_particulier;2;Corse;Psychomotricien;Public particulier
+94;psychomotricien;sans_soins;1;Corse;Psychomotricien;Sans soins à la population
+94;technicien_labo;public_particulier;14;Corse;Technicien de laboratoire;Public particulier

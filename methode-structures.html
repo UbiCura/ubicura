@@ -1,0 +1,731 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Structures de soins · Ubi Cura</title>
+<meta name="description" content="Offre de soins et de santé mentale en France, par territoire, à partir des données publiques.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%231D4D87%22/%3E%3Crect%20x%3D%227%22%20y%3D%2217%22%20width%3D%224.5%22%20height%3D%228%22%20rx%3D%221%22%20fill%3D%22%23B39BCB%22/%3E%3Crect%20x%3D%2213.75%22%20y%3D%2212%22%20width%3D%224.5%22%20height%3D%2213%22%20rx%3D%221%22%20fill%3D%22%23D4C3EA%22/%3E%3Crect%20x%3D%2220.5%22%20y%3D%227%22%20width%3D%224.5%22%20height%3D%2218%22%20rx%3D%221%22%20fill%3D%22%23FFFFFF%22/%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="Ubi Cura">
+<meta property="og:title" content="Structures de soins">
+<meta property="og:description" content="Offre de soins et de santé mentale en France, par territoire, à partir des données publiques.">
+<meta name="theme-color" content="#15171C">
+<link rel="stylesheet" href="polices/polices.css">
+<link rel="stylesheet" href="style.css?v=2b21456a4b">
+<script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||"dark")}catch(e){document.documentElement.setAttribute("data-theme","dark")}</script>
+</head>
+<body>
+<nav class="site" aria-label="Navigation du site">
+  <div class="in">
+    <a class="marque" href="index.html" title="Offre de soins et santé mentale en France, territoire par territoire">Ubi Cura</a>
+    <button class="menu" id="bouton-menu" type="button" aria-expanded="false" aria-controls="liens-site">Menu</button>
+    <div class="liens" id="liens-site">
+    <a class="l" href="atlas.html">Atlas</a>
+    <a class="l" href="rapports.html">Rapports nationaux</a>
+    <a class="l" href="territoires/index.html">Rapports par territoire</a>
+    <a class="l on" href="methode.html">Méthode, données et limites</a>
+    
+    <div class="projet">
+      <button class="l" id="bouton-projet" type="button" aria-expanded="false" aria-controls="menu-projet">Le projet <span class="fleche" aria-hidden="true">▾</span></button>
+      <div class="sous-menu" id="menu-projet" hidden>
+        <a href="a-propos.html">À propos</a>
+        <a href="publications.html">Publications</a>
+        <a href="journal.html">Journal des mises à jour</a>
+        <a href="a-venir.html">À venir</a>
+        <a href="contribuer.html">Proposer une base de données</a>
+        
+      </div>
+    </div>
+    <button class="theme" id="bascule-theme" type="button" aria-pressed="false">Fond clair</button>
+    </div>
+  </div>
+</nav>
+<script>
+// menu « Le projet », ouvert au clic ou au clavier, fermé par Échap ou par un clic ailleurs
+(function(){var b=document.getElementById("bouton-projet"),m=document.getElementById("menu-projet");if(!b||!m)return;
+function ouvrir(o,focus){m.hidden=!o;b.setAttribute("aria-expanded",String(o));if(o&&focus){var a=m.querySelector("a");if(a)a.focus()}}
+b.addEventListener("click",function(){ouvrir(m.hidden,false)});
+b.addEventListener("keydown",function(e){if(e.key==="ArrowDown"){e.preventDefault();ouvrir(true,true)}});
+m.addEventListener("keydown",function(e){var l=[].slice.call(m.querySelectorAll("a")),i=l.indexOf(document.activeElement);
+  if(e.key==="ArrowDown"){e.preventDefault();l[(i+1)%l.length].focus()}else if(e.key==="ArrowUp"){e.preventDefault();l[(i-1+l.length)%l.length].focus()}});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!m.hidden){ouvrir(false);b.focus()}});
+document.addEventListener("click",function(e){if(!m.hidden&&!b.parentNode.contains(e.target))ouvrir(false)})})();
+// téléphone, liens du site repliés derrière « Menu » (audit du 22 octobre 2026) ; sommaire d'une page replié derrière
+// « Sommaire », ouvert au clic, refermé quand on choisit une section
+(function(){var b=document.getElementById("bouton-menu"),n=b&&b.closest("nav.site");if(!b)return;
+b.addEventListener("click",function(){var o=!n.classList.contains("ouvert");n.classList.toggle("ouvert",o);b.setAttribute("aria-expanded",String(o))})})();
+document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll("aside.sommaire").forEach(function(a){
+  if(!a.querySelector("ul"))return;var t=document.createElement("button");t.type="button";t.className="bouton-sommaire";
+  t.setAttribute("aria-expanded","false");t.textContent="Sommaire";a.insertBefore(t,a.firstChild);
+  t.addEventListener("click",function(){var o=!a.classList.contains("ouvert");a.classList.toggle("ouvert",o);t.setAttribute("aria-expanded",String(o))});
+  a.addEventListener("click",function(e){if(e.target.closest("a")){a.classList.remove("ouvert");t.setAttribute("aria-expanded","false")}})})});
+(function(){var b=document.getElementById("bascule-theme"),r=document.documentElement;
+function maj(){var c=r.getAttribute("data-theme")==="light";b.textContent=c?"Fond sombre":"Fond clair";b.setAttribute("aria-pressed",String(c))}
+maj();b.addEventListener("click",function(){var t=r.getAttribute("data-theme")==="light"?"dark":"light";r.setAttribute("data-theme",t);
+try{localStorage.setItem("theme",t)}catch(e){}maj();window.dispatchEvent(new Event("theme"))})})();
+</script>
+<main class="" data-citation-page="Pithon L. (2026). Structures de soins. Ubi Cura, version du 23 octobre 2026" data-adresse="https://ubicura.fr">
+
+<h1>Structures de soins</h1>
+<p class="chapeau">Comment les structures de soins de FINESS et du Répertoire opérationnel des ressources sont réunies, relues, confirmées et confrontées à la statistique des hôpitaux.</p>
+<div class="rapport">
+<aside class="sommaire" aria-label="Sommaire de la méthode">
+<ul>
+<li><a href="methode.html">Vue d&#39;ensemble</a>
+</li>
+<li><a href="methode-structures.html" aria-current="page" class="actif">Structures de soins</a>
+</li>
+<li><a href="methode-indicateurs.html">Indicateurs du profil des territoires</a>
+</li>
+<li><a href="methode-controles.html">Contrôles et concordance</a>
+</li>
+<li><a href="methode-fichiers.html">Fichiers à télécharger</a>
+</li>
+</ul>
+</aside>
+<div class="methode">
+
+
+
+
+
+<h2 id="lieux">Structures de soins, FINESS et ROR réunis</h2>
+<p><strong>Ce qui est compté.</strong> Une structure de soins est un établissement ou un service recensé par FINESS (le fichier national des établissements sanitaires et sociaux) ou par l'extraction « Offres de santé » du Répertoire opérationnel des ressources (ROR) de l'Agence du numérique en santé, à une adresse donnée. Deux structures distinctes à la même adresse, par exemple un foyer de vie et un foyer d'hébergement de la même association, comptent pour deux. Une même structure décrite par les deux bases, ou inscrite deux fois, ne compte qu'une fois. Une structure n'est pas une capacité, une antenne ouverte une demi-journée par semaine compte autant qu'un centre ouvert tous les jours. Les antennes et permanences de CMP tenues en mairie, en CCAS ou en maison de santé sont comptées parmi les CMP quand le ROR les décrit comme tels, et leur nombre est donné à part pour chaque territoire (colonne antennes de cmp_par_public.csv).</p>
+<p><strong>Ce que chaque base apporte.</strong> FINESS est le registre administratif des autorisations. Il ne recense pas chaque antenne, enregistre souvent un CMP sous le numéro de son hôpital, et classe parfois sous une catégorie des structures qui relèvent d'une autre. Le ROR est rempli par les établissements eux-mêmes et décrit chaque unité, sa catégorie, son mode de prise en charge et l'âge de ses patients, mais certains hôpitaux y déclarent leurs unités à leur propre adresse.</p>
+<p><strong>Comment les deux bases sont réunies, dans l'ordre.</strong></p>
+<ol>
+<li>Dans FINESS, chaque établissement ouvert de la catégorie d'un type est retenu. Un établissement dont le nom dit CMP mais enregistré sous une autre catégorie (hôpital, établissement de santé mentale, CATTP, centre de santé) est compté comme CMP. Un établissement enregistré comme CMP dont le nom désigne autre chose (équipe mobile, CATTP, psychiatrie de liaison, unité en milieu pénitentiaire, CSAPA, hôpital de jour) est rangé dans le type que son nom désigne.</li>
+<li>Dans le ROR, chaque unité de soins est classée par sa catégorie, son champ, son mode de prise en charge et l'âge de ses patients. Ne sont pas comptées parmi les CMP, même quand le ROR les y range, les équipes mobiles, la psychiatrie de liaison, les urgences psychiatriques, les consultations non sectorisées et les consultations d'un hôpital ou d'une clinique désignées seulement comme consultations de psychiatrie, sans CMP ni numéro de secteur dans leur nom (comptées parmi les consultations de psychiatrie hors CMP, un CMP étant la consultation d'un secteur), les consultations spécialisées (stimulation magnétique, psychiatrie légale, psychotraumatisme, addictologie, diagnostic de l'autisme, troubles des apprentissages), les maisons des adolescents, les hôpitaux de jour, la réhabilitation, la thérapie familiale et les entretiens familiaux, les groupes de psychoéducation des proches, les centres de diagnostic ou d'évaluation et d'orientation, les unités d'hospitalisation et les CATTP, les consultations externes, de pathologie du travail ou pour étudiants, l'accueil familial thérapeutique, les unités de périnatalité qui ne se disent pas CMP, les soins en milieu pénitentiaire, les appartements de transition et les consultations de ville nominatives, sauf quand leur nom dit aussi CMP (« HJ CMP CATTP », « CMP addictologie »). Les unités rattachées au même établissement de FINESS dans la même commune forment une seule structure (plusieurs équipes ou secteurs d'un même CMP). Une unité rattachée à un hôpital mais située ailleurs garde sa propre structure, d'après son adresse ou la commune citée dans son nom.</li>
+<li>Les deux bases sont rapprochées par le même numéro FINESS et la même commune, puis par le même numéro dans une autre commune, puis par la même entité juridique gestionnaire et la même commune (appariées une à une), puis par le même nom distinctif.</li>
+<li>Deux structures restantes sont encore réunies en une seule quand elles décrivent la même structure, c'est-à-dire quand toutes ces conditions sont remplies. Même type, même établissement gestionnaire, même commune, même rue, même numéro dans la rue ou numéro absent d'un côté. Même nom, à des mots descriptifs près (l'un des deux noms contient tous les mots distinctifs de l'autre, « CMP Autun » et « CMP adultes Autun »), sans code de secteur ni public différents (« CATTP 81I01 » et « CATTP 81G01 », un CMP pour enfants et un CMP pour adultes restent deux). L'une ne vient que du ROR, ou les deux sont inscrites dans FINESS sous deux catégories dont l'une n'est pas celle du type. Enfin, deux numéros FINESS différents désignent deux établissements distincts, sauf quand l'un est celui d'un hôpital, sous lequel le ROR déclare souvent ses unités. Les numéros FINESS des structures ainsi réunies restent attachés à la structure gardée (colonne finess_absorbes).</li>
+<li>Le public d'un CMP vient des âges déclarés au ROR, sinon de son nom (enfants, adolescents, infanto-juvénile, code de secteur de psychiatrie générale ou infanto-juvénile). Sans indice, il est écrit « public non précisé ».</li>
+</ol>
+
+<p><strong>Relecture des deux bases.</strong> Chaque correction apportée à FINESS et au ROR est appliquée par une règle, la même pour toute la France, refaite à chaque mise à jour. Le tableau donne, pour cette version, ce qui a été constaté et le nombre de structures concernées.</p>
+<div class="defile"><table class="simple">
+<thead><tr><th>Base</th><th>Constat</th><th>Nombre</th><th>Ce qui en est fait</th></tr></thead>
+<tbody>
+<tr><td>ROR</td><td>Unités déclarées comme CMP qui sont des équipes mobiles, de la liaison, des urgences, des consultations non sectorisées ou spécialisées, des maisons des adolescents, des hôpitaux de jour ou des soins en milieu pénitentiaire</td><td>266</td><td>Non comptées parmi les CMP</td></tr>
+<tr><td>ROR</td><td>Consultations nominatives (nom d&#39;une personne dans le nom de l&#39;unité)</td><td>798</td><td>Écartées, aucun nom de personne n&#39;est publié</td></tr>
+<tr><td>FINESS</td><td>Établissements dont le nom dit CMP, enregistrés sous une autre catégorie (hôpital, établissement de santé mentale, CATTP, centre de santé)</td><td>452</td><td>Comptés comme CMP</td></tr>
+<tr><td>FINESS</td><td>Établissements enregistrés comme CMP dont le nom désigne autre chose (équipe mobile, CATTP, liaison, milieu pénitentiaire, CSAPA, hôpital de jour)</td><td>151</td><td>Rangés dans le type que désigne leur nom, Équipes mobiles de psychiatrie 48, Consultations de psychiatrie hors CMP 43, CATTP 24, Réhabilitation psychosociale 17, Hôpitaux de jour en psychiatrie (enfants et adolescents) 6, Urgences psychiatriques 5, Hôpitaux de jour en psychiatrie (adultes) 3, Repérage et diagnostic des troubles du neurodéveloppement 2, Addictologie à l&#39;hôpital 2, Psychotraumatisme et urgences médico-psychologiques 1</td></tr>
+<tr><td>FINESS</td><td>CMP connus de FINESS seul, sans âges déclarés</td><td>222</td><td>Public déduit du nom pour 101 (54 pour enfants et adolescents, 47 pour adultes), écrit « public non précisé » pour 121</td></tr>
+<tr><td>FINESS et ROR</td><td>Noms d&#39;unités du ROR formés de la description de l&#39;activité, ou noms comprenant un terme daté ou stigmatisant</td><td>8 225</td><td>Nom propre gardé pour 7956, terme retiré pour 241, réécrit pour 28, nom d&#39;origine conservé dans les fichiers</td></tr>
+<tr><td>FINESS et ROR</td><td>Même structure décrite deux fois (deux fois par le ROR, par exemple sous l&#39;ancien et le nouveau nom de son pôle ou à son ancienne et à sa nouvelle adresse, ou sous deux catégories de FINESS)</td><td>81</td><td>Réunies en une seule, numéros FINESS gardés</td></tr>
+<tr><td>FINESS et ROR</td><td>CATTP qui sont des ateliers thérapeutiques (catégorie FINESS ou nom), ou tenus en milieu pénitentiaire</td><td>58</td><td>Ateliers rangés avec la réhabilitation psychosociale (49), CATTP en milieu pénitentiaire rangés avec les consultations hors CMP (9), comme les CMP en milieu pénitentiaire</td></tr>
+<tr><td>FINESS, ROR et Sirene</td><td>CMP dont le nom, une unité du ROR ou l&#39;enseigne Sirene annonce aussi un CATTP (« CMP-CATTP »), sans autre CATTP de leur gestionnaire dans la commune</td><td>101</td><td>Un CATTP compté au même lieu que le CMP</td></tr>
+<tr><td>Sources des établissements</td><td>Structures reprises une à une sur les sources des établissements vérifiés</td><td>2 761</td><td>163 absentes des deux bases ajoutées, 229 inscriptions des bases non retenues</td></tr>
+<tr><td>FINESS et ROR</td><td>Structures présentes dans les deux bases, rapprochées par le numéro FINESS, l&#39;entité juridique et la commune, ou le nom</td><td>25 943</td><td>Comptées une seule fois (11 761 dans FINESS seul, 19 031 dans le ROR seul, dont 11 369 unités hospitalières que FINESS ne distingue pas)</td></tr>
+</tbody></table></div>
+
+<p><strong>Contrôles.</strong> Aucun établissement ouvert de FINESS ne doit disparaître de la réunion, sous son numéro ou rapproché d'une structure du ROR. Les CMP sont confrontés pour chaque département, chaque région et chaque établissement gestionnaire au nombre de CMP déclarés à la SAE de la DREES (voir plus bas), et les territoires où les sources divergent sont vérifiés sur les publications des établissements, des ARS et des collectivités. Les nombres de chaque étape figurent dans le tableau des contrôles de cette page.</p>
+<p>L'emplacement d'une structure vient des coordonnées de FINESS, sinon du ROR, sinon de son adresse géocodée par le service de l'IGN (Base Adresse Nationale), sinon du centre de sa commune, et cette précision est donnée pour chaque structure. Les distances sont mesurées à vol d'oiseau depuis le centre de chaque commune. Un type recensé dans moins de 90 % des départements est listé, mais il n'est pas comparé entre territoires. Les consultations de ville nominatives, déclarées seulement en Île-de-France, ne sont pas reprises, et aucun nom de personne n'est publié.</p>
+
+<div class="defile"><table class="simple">
+<thead><tr><th>Ce qui est compté</th><th>Structures recensées ici</th><th>Chiffre publié</th><th>Date</th><th>Écart</th><th>Source</th></tr></thead>
+<tbody>
+<tr><td>maternités</td><td>477</td><td>457</td><td>fin 2023</td><td>+4 %</td><td><a href="https://drees.solidarites-sante.gouv.fr/publications-communique-de-presse-documents-de-reference/panoramas-de-la-drees/250522_Panorama_etablissements-de-sante2025">DREES, Les établissements de santé en 2023, édition 2025</a></td></tr>
+<tr><td>structures des urgences générales ou pédiatriques</td><td>648</td><td>685</td><td>2023</td><td>-5 %</td><td><a href="https://drees.solidarites-sante.gouv.fr/publications-communique-de-presse-documents-de-reference/panoramas-de-la-drees/250522_Panorama_etablissements-de-sante2025">DREES, Les établissements de santé en 2023, édition 2025</a></td></tr>
+</tbody></table></div>
+
+<p>Le tableau suivant dit d'où vient chaque structure, une fois les deux bases réunies. Une structure est soit inscrite dans les deux bases (rapprochées par le numéro FINESS, le gestionnaire et la commune, ou le nom), soit dans FINESS seul, soit dans le ROR seul, soit absente des deux et ajoutée d'après les sources de son établissement ou le nom d'un CMP qui l'annonce. Ces quatre colonnes s'additionnent et refont le nombre de structures. La provenance ne dit rien de la fiabilité, c'est l'objet de la confirmation plus bas. Elle n'est pas donnée pour les types que FINESS ne distingue pas (unités hospitalières du ROR).</p>
+<div class="defile"><table class="simple">
+<thead><tr><th>Type de structure</th><th>Structures</th><th>Dans les deux bases</th><th>FINESS seul</th><th>ROR seul</th><th>Hors des deux bases (sources de l'établissement, nom d'un CMP)</th><th>Départements où il est recensé</th><th>Comparé entre territoires</th></tr></thead>
+<tbody>
+<tr><td>CMP, tous publics</td><td>2 739</td><td>2 040</td><td>173</td><td>363</td><td>163</td><td>100 %</td><td>oui</td></tr>
+<tr><td>CMP pour adultes</td><td>1 510</td><td>1 199</td><td>75</td><td>182</td><td>54</td><td>100 %</td><td>oui</td></tr>
+<tr><td>CMP pour enfants et adolescents</td><td>1 190</td><td>845</td><td>52</td><td>184</td><td>109</td><td>100 %</td><td>oui</td></tr>
+<tr><td>Consultations de psychiatrie hors CMP</td><td>409</td><td>18</td><td>33</td><td>358</td><td>0</td><td>86 %</td><td>non, listé seulement</td></tr>
+<tr><td>CATTP, accueil thérapeutique à temps partiel</td><td>1 587</td><td>646</td><td>66</td><td>774</td><td>101</td><td>95 %</td><td>oui</td></tr>
+<tr><td>Hôpitaux de jour en psychiatrie, adultes</td><td>1 070</td><td>2</td><td>2</td><td>1 066</td><td>0</td><td>100 %</td><td>oui</td></tr>
+<tr><td>Hôpitaux de jour en psychiatrie, enfants et adolescents</td><td>658</td><td>6</td><td>0</td><td>652</td><td>0</td><td>99 %</td><td>oui</td></tr>
+<tr><td>Hospitalisation complète en psychiatrie, adultes</td><td>643</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>100 %</td><td>oui</td></tr>
+<tr><td>Hospitalisation complète en psychiatrie, enfants et adolescents</td><td>230</td><td>0</td><td>0</td><td>230</td><td>0</td><td>95 %</td><td>oui</td></tr>
+<tr><td>Urgences psychiatriques, centres de crise et d&#39;accueil permanent</td><td>140</td><td>24</td><td>7</td><td>109</td><td>0</td><td>56 %</td><td>non, listé seulement</td></tr>
+<tr><td>Équipes mobiles de psychiatrie</td><td>329</td><td>32</td><td>18</td><td>279</td><td>0</td><td>80 %</td><td>non, listé seulement</td></tr>
+<tr><td>Réhabilitation psychosociale, appartements et accueil familial thérapeutiques</td><td>403</td><td>126</td><td>39</td><td>238</td><td>0</td><td>88 %</td><td>non, listé seulement</td></tr>
+<tr><td>Psychotraumatisme et urgences médico-psychologiques</td><td>72</td><td>1</td><td>0</td><td>71</td><td>0</td><td>62 %</td><td>non, listé seulement</td></tr>
+<tr><td>CMPP, centres médico-psycho-pédagogiques</td><td>535</td><td>411</td><td>91</td><td>33</td><td>0</td><td>97 %</td><td>oui</td></tr>
+<tr><td>CAMSP, centres d&#39;action médico-sociale précoce</td><td>401</td><td>336</td><td>26</td><td>39</td><td>0</td><td>100 %</td><td>oui</td></tr>
+<tr><td>Maisons des adolescents</td><td>10</td><td>0</td><td>1</td><td>9</td><td>0</td><td>6 %</td><td>non, listé seulement</td></tr>
+<tr><td>BAPU, aide psychologique universitaire</td><td>23</td><td>14</td><td>6</td><td>3</td><td>0</td><td>16 %</td><td>non, listé seulement</td></tr>
+<tr><td>Repérage et diagnostic des troubles du neurodéveloppement</td><td>134</td><td>0</td><td>4</td><td>130</td><td>0</td><td>88 %</td><td>non, listé seulement</td></tr>
+<tr><td>CSAPA, soins et prévention en addictologie</td><td>584</td><td>229</td><td>295</td><td>60</td><td>0</td><td>100 %</td><td>oui</td></tr>
+<tr><td>CAARUD, réduction des risques</td><td>175</td><td>90</td><td>78</td><td>7</td><td>0</td><td>96 %</td><td>oui</td></tr>
+<tr><td>Addictologie à l&#39;hôpital</td><td>306</td><td>3</td><td>1</td><td>302</td><td>0</td><td>91 %</td><td>oui</td></tr>
+<tr><td>Services d&#39;urgences</td><td>648</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>100 %</td><td>oui</td></tr>
+<tr><td>SMUR, interventions d&#39;urgence</td><td>175</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>44 %</td><td>non, listé seulement</td></tr>
+<tr><td>Soins non programmés</td><td>436</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>82 %</td><td>non, listé seulement</td></tr>
+<tr><td>Maternités</td><td>477</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>100 %</td><td>oui</td></tr>
+<tr><td>Néonatalogie</td><td>178</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>55 %</td><td>non, listé seulement</td></tr>
+<tr><td>Centres périnatals de proximité</td><td>26</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>13 %</td><td>non, listé seulement</td></tr>
+<tr><td>PMI, protection maternelle et infantile</td><td>1 173</td><td>60</td><td>910</td><td>203</td><td>0</td><td>91 %</td><td>oui</td></tr>
+<tr><td>Centres de santé sexuelle</td><td>521</td><td>28</td><td>444</td><td>49</td><td>0</td><td>79 %</td><td>non, listé seulement</td></tr>
+<tr><td>Pédiatrie à l&#39;hôpital</td><td>189</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>68 %</td><td>non, listé seulement</td></tr>
+<tr><td>Médecine polyvalente à l&#39;hôpital</td><td>695</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>88 %</td><td>non, listé seulement</td></tr>
+<tr><td>Gériatrie à l&#39;hôpital</td><td>328</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>75 %</td><td>non, listé seulement</td></tr>
+<tr><td>Cardiologie à l&#39;hôpital</td><td>337</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>85 %</td><td>non, listé seulement</td></tr>
+<tr><td>Neurologie à l&#39;hôpital</td><td>199</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>72 %</td><td>non, listé seulement</td></tr>
+<tr><td>Cancérologie et radiothérapie</td><td>423</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>82 %</td><td>non, listé seulement</td></tr>
+<tr><td>Réanimation et soins intensifs</td><td>270</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>79 %</td><td>non, listé seulement</td></tr>
+<tr><td>Chirurgie à l&#39;hôpital</td><td>590</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>84 %</td><td>non, listé seulement</td></tr>
+<tr><td>Dialyse</td><td>830</td><td>429</td><td>270</td><td>131</td><td>0</td><td>100 %</td><td>oui</td></tr>
+<tr><td>Soins palliatifs</td><td>356</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>71 %</td><td>non, listé seulement</td></tr>
+<tr><td>Structures douleur chronique</td><td>106</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>41 %</td><td>non, listé seulement</td></tr>
+<tr><td>Soins médicaux et de réadaptation</td><td>1 705</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>100 %</td><td>oui</td></tr>
+<tr><td>Hospitalisation à domicile</td><td>320</td><td>107</td><td>32</td><td>181</td><td>0</td><td>95 %</td><td>oui</td></tr>
+<tr><td>Soins infirmiers à domicile (SSIAD)</td><td>1 908</td><td>1 312</td><td>198</td><td>398</td><td>0</td><td>100 %</td><td>oui</td></tr>
+<tr><td>EHPAD</td><td>7 959</td><td>7 264</td><td>149</td><td>546</td><td>0</td><td>100 %</td><td>oui</td></tr>
+<tr><td>Résidences autonomie</td><td>2 804</td><td>1 935</td><td>446</td><td>423</td><td>0</td><td>100 %</td><td>oui</td></tr>
+<tr><td>Soins de longue durée (USLD)</td><td>594</td><td>315</td><td>267</td><td>12</td><td>0</td><td>100 %</td><td>oui</td></tr>
+<tr><td>Équipes spécialisées Alzheimer, accueil de jour et répit</td><td>884</td><td>101</td><td>224</td><td>559</td><td>0</td><td>100 %</td><td>oui</td></tr>
+<tr><td>Instituts médico-éducatifs (IME)</td><td>1 643</td><td>1 371</td><td>207</td><td>65</td><td>0</td><td>100 %</td><td>oui</td></tr>
+<tr><td>Instituts thérapeutiques, éducatifs et pédagogiques (ITEP)</td><td>626</td><td>507</td><td>92</td><td>27</td><td>0</td><td>100 %</td><td>oui</td></tr>
+<tr><td>Services d&#39;éducation spéciale et de soins à domicile (SESSAD)</td><td>2 186</td><td>1 501</td><td>72</td><td>613</td><td>0</td><td>100 %</td><td>oui</td></tr>
+<tr><td>Établissements pour enfants en situation de polyhandicap, de handicap moteur ou sensoriel</td><td>484</td><td>386</td><td>38</td><td>60</td><td>0</td><td>96 %</td><td>oui</td></tr>
+<tr><td>Maisons d&#39;accueil spécialisées et foyers d&#39;accueil médicalisés</td><td>1 955</td><td>1 131</td><td>43</td><td>781</td><td>0</td><td>100 %</td><td>oui</td></tr>
+<tr><td>Foyers de vie et d&#39;hébergement pour adultes en situation de handicap</td><td>3 365</td><td>1 748</td><td>54</td><td>1 563</td><td>0</td><td>100 %</td><td>oui</td></tr>
+<tr><td>Établissements et services d&#39;accompagnement par le travail (ESAT)</td><td>1 579</td><td>1 482</td><td>29</td><td>68</td><td>0</td><td>100 %</td><td>oui</td></tr>
+<tr><td>Services d&#39;accompagnement à domicile pour adultes en situation de handicap</td><td>1 811</td><td>1 629</td><td>81</td><td>101</td><td>0</td><td>100 %</td><td>oui</td></tr>
+<tr><td>Soins pour personnes en situation de précarité (PASS, LHSS, LAM, ACT)</td><td>853</td><td>374</td><td>319</td><td>160</td><td>0</td><td>100 %</td><td>oui</td></tr>
+<tr><td>Dépistage, vaccination et lutte antituberculeuse</td><td>588</td><td>112</td><td>398</td><td>78</td><td>0</td><td>92 %</td><td>oui</td></tr>
+<tr><td>Maisons de santé pluriprofessionnelles</td><td>3 225</td><td>173</td><td>3 051</td><td>1</td><td>0</td><td>100 %</td><td>oui</td></tr>
+<tr><td>Centres de santé</td><td>3 597</td><td>0</td><td>3 597</td><td>0</td><td>0</td><td>100 %</td><td>oui</td></tr>
+<tr><td>Communautés professionnelles territoriales de santé (CPTS)</td><td>508</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>sans objet</td><td>75 %</td><td>non, listé seulement</td></tr>
+</tbody></table></div>
+
+<h3 id="lieux-sae">Les CMP confrontés à la SAE</h3>
+<p>Pour vérifier les CMP par une source indépendante, ils sont confrontés au nombre de CMP que chaque établissement de psychiatrie déclare chaque année à la statistique annuelle des établissements de santé (SAE) de la DREES, en psychiatrie générale (adultes) et infanto-juvénile (enfants et adolescents). Les deux sources ne comptent pas la même chose. Ici, un CMP est une structure distincte. La SAE compte les CMP que chaque établissement déclare, et un hôpital peut y compter plusieurs équipes ou activités installées au même endroit, ou des CMP qu'il déclare dans le ROR à sa propre adresse, sans structure distincte connu (le cas des CMP du CHU de Guadeloupe). La colonne des unités du ROR montre ce que l'hôpital déclare avant la réunion en lieux. La SAE range aussi tous les CMP d'un établissement dans le département de son siège, même ceux situés dans un département voisin, d'où une comparaison par région. Par département, 66 départements sur 101 sont à 20 % près. Un CMP connu de FINESS seul, sans âges déclarés ni indice dans son nom, est compté sans public précisé. Un établissement que FINESS enregistre comme CMP mais dont le nom désigne autre chose (équipe mobile, CATTP, liaison, unité en milieu pénitentiaire) est rangé dans le type que son nom désigne.</p>
+<div class="defile"><table class="simple">
+<thead><tr><th>Région</th><th>CMP recensés ici (structures distinctes)</th><th>Adultes</th><th>Enfants et adolescents</th><th>Public non précisé</th><th>Unités de CMP déclarées au ROR</th><th>CMP déclarés à la SAE</th><th>SAE, adultes</th><th>SAE, enfants</th><th>Écart avec la SAE</th></tr></thead>
+<tbody>
+<tr><td>Guadeloupe</td><td>22</td><td>14</td><td>8</td><td>0</td><td>33</td><td>25</td><td>17</td><td>8</td><td>-12 %</td></tr>
+<tr><td>Martinique</td><td>17</td><td>8</td><td>9</td><td>0</td><td>17</td><td>17</td><td>8</td><td>9</td><td>+0 %</td></tr>
+<tr><td>Guyane</td><td>5</td><td>3</td><td>2</td><td>0</td><td>4</td><td>7</td><td>3</td><td>4</td><td>-29 %</td></tr>
+<tr><td>La Réunion</td><td>23</td><td>11</td><td>12</td><td>0</td><td>26</td><td>22</td><td>11</td><td>11</td><td>+5 %</td></tr>
+<tr><td>Mayotte</td><td>7</td><td>4</td><td>3</td><td>0</td><td>0</td><td>5</td><td>4</td><td>1</td><td>+40 %</td></tr>
+<tr><td>Île-de-France</td><td>413</td><td>219</td><td>181</td><td>13</td><td>425</td><td>424</td><td>194</td><td>230</td><td>-3 %</td></tr>
+<tr><td>Centre-Val de Loire</td><td>100</td><td>53</td><td>47</td><td>0</td><td>109</td><td>88</td><td>48</td><td>40</td><td>+14 %</td></tr>
+<tr><td>Bourgogne-Franche-Comté</td><td>122</td><td>65</td><td>53</td><td>5</td><td>126</td><td>137</td><td>79</td><td>58</td><td>-11 %</td></tr>
+<tr><td>Normandie</td><td>170</td><td>98</td><td>72</td><td>1</td><td>182</td><td>163</td><td>94</td><td>69</td><td>+4 %</td></tr>
+<tr><td>Hauts-de-France</td><td>219</td><td>117</td><td>96</td><td>7</td><td>261</td><td>212</td><td>116</td><td>96</td><td>+3 %</td></tr>
+<tr><td>Grand Est</td><td>215</td><td>134</td><td>81</td><td>0</td><td>301</td><td>299</td><td>184</td><td>115</td><td>-28 %</td></tr>
+<tr><td>Pays de la Loire</td><td>151</td><td>83</td><td>68</td><td>0</td><td>153</td><td>168</td><td>93</td><td>75</td><td>-10 %</td></tr>
+<tr><td>Bretagne</td><td>144</td><td>76</td><td>62</td><td>6</td><td>149</td><td>138</td><td>78</td><td>60</td><td>+4 %</td></tr>
+<tr><td>Nouvelle-Aquitaine</td><td>285</td><td>172</td><td>114</td><td>3</td><td>301</td><td>354</td><td>219</td><td>135</td><td>-19 %</td></tr>
+<tr><td>Occitanie</td><td>249</td><td>133</td><td>109</td><td>7</td><td>230</td><td>255</td><td>149</td><td>106</td><td>-2 %</td></tr>
+<tr><td>Auvergne-Rhône-Alpes</td><td>354</td><td>181</td><td>169</td><td>4</td><td>386</td><td>383</td><td>206</td><td>177</td><td>-8 %</td></tr>
+<tr><td>Provence-Alpes-Côte d&#39;Azur</td><td>221</td><td>128</td><td>94</td><td>2</td><td>266</td><td>202</td><td>109</td><td>93</td><td>+9 %</td></tr>
+<tr><td>Corse</td><td>22</td><td>11</td><td>10</td><td>1</td><td>25</td><td>23</td><td>11</td><td>12</td><td>-4 %</td></tr>
+<tr><td>France</td><td>2 739</td><td>1 510</td><td>1 190</td><td>49</td><td>2 994</td><td>2 922</td><td>1 623</td><td>1 299</td><td>-6 %</td></tr>
+</tbody></table></div>
+<p>Un CMP qui accueille adultes et enfants compte dans les deux colonnes. Détail par département dans concordance_cmp_sae.csv et cmp_par_public.csv.</p>
+
+
+<h3 id="lieux-sae-etablissements">Les CMP confrontés à la SAE, établissement par établissement</h3>
+<p>La confrontation est aussi faite pour chaque établissement gestionnaire (hôpital ou association, identifié par son entité juridique dans FINESS), ce qui désigne précisément où vérifier. Les CMP d'un établissement sont ceux que FINESS ou le ROR rattachent à son entité juridique, où qu'ils soient. L'écart est toléré jusqu'à 20 % ou un CMP. Bilan, 180 concorde, 49 moins ici qu&#39;à la SAE, 37 plus ici qu&#39;à la SAE, 9 absent de la SAE. Un écart signale une différence entre les sources, souvent des CMP déclarés à l'adresse de l'hôpital ou plusieurs équipes comptées à part à la SAE, pas une erreur de l'établissement. Les établissements en écart sont vérifiés un à un sur leurs propres publications, et les règles de réunion corrigées quand c'est nécessaire.</p>
+<details><summary>Établissements où les sources divergent (86)</summary>
+<div class="defile"><table class="simple filtrable">
+<thead><tr><th>Établissement gestionnaire</th><th>Département du siège</th><th>CMP déclarés à la SAE (adultes et enfants)</th><th>CMP recensés ici (adultes et enfants)</th><th>Unités de CMP au ROR</th><th>Constat</th></tr></thead>
+<tbody>
+<tr><td>CH HENRI LABORIT</td><td>86</td><td>29 et 12</td><td>12 et 2</td><td>18</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CENTRE HOSPITALIER ESQUIROL</td><td>87</td><td>27 et 5</td><td>8 et 1</td><td>17</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>EPSAN BRUMATH</td><td>67</td><td>25 et 9</td><td>14 et 3</td><td>18</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>HOPITAL DU HASENRAIN</td><td>68</td><td>12 et 5</td><td>0 et 0</td><td>0</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CHS DE SAINT CYR AU MONT D&#39;OR</td><td>69</td><td>25 et 17</td><td>13 et 14</td><td>33</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CENTRE HOSPITALIER DE NIORT</td><td>79</td><td>16 et 6</td><td>6 et 1</td><td>7</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CENTRE HOSPITALIER D&#39;ERSTEIN</td><td>67</td><td>16 et 10</td><td>6 et 6</td><td>17</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>HDJ INSTITUT PAUL SIVADON</td><td>75</td><td>10 et 6</td><td>2 et 0</td><td>3</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CH MONTAUBAN</td><td>82</td><td>17 et 9</td><td>6 et 5</td><td>11</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CENTRE HOSPITALIER DE DIGNE LES BAINS</td><td>04</td><td>5 et 5</td><td>14 et 8</td><td>3</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>CH DE LA HAUTE MARNE-HOP ANDRE BRETON</td><td>52</td><td>11 et 10</td><td>5 et 5</td><td>12</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CH CAMILLE CLAUDEL</td><td>16</td><td>6 et 8</td><td>16 et 9</td><td>19</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>CH PIERRE OUDOT BOURGOIN JALLIEU</td><td>38</td><td>0 et 9</td><td>0 et 0</td><td>0</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CH MONT DE MARSAN - SITE DE STE ANNE</td><td>40</td><td>23 et 8</td><td>19 et 4</td><td>23</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>FONDATION ARHM</td><td>69</td><td>13 et 20</td><td>11 et 13</td><td>21</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CH SAINTE ANNE</td><td>75</td><td>19 et 18</td><td>19 et 10</td><td>29</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CH CHARLES PERRENS</td><td>33</td><td>11 et 6</td><td>11 et 14</td><td>23</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>UNITE D&#39;HOSPIT PSYCHIATRIQUE ADULTE</td><td>74</td><td>4 et 1</td><td>9 et 4</td><td>14</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>CHS PIERREFEU DU VAR HENRI GUERIN</td><td>83</td><td>11 et 5</td><td>19 et 7</td><td>34</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>EPSM DE LA SARTHE</td><td>72</td><td>19 et 12</td><td>15 et 9</td><td>27</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CHI DE CRETEIL</td><td>94</td><td>0 et 9</td><td>1 et 1</td><td>1</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>FONDATION GEORGES BOISSEL</td><td>38</td><td>7 et 4</td><td>7 et 11</td><td>17</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>EPSM AGGL LILLOISE ST-ANDRE</td><td>59</td><td>8 et 4</td><td>8 et 11</td><td>22</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>CHS PAUL GUIRAUD SITE CLAMART</td><td>92</td><td>14 et 4</td><td>19 et 5</td><td>22</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>CH D&#39;ANTIBES JUAN LES PINS</td><td>06</td><td>4 et 10</td><td>3 et 4</td><td>7</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>HOPITAL LOUIS PASTEUR</td><td>68</td><td>3 et 3</td><td>0 et 0</td><td>0</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CENTRE HOSPITALIER DE ROUFFACH</td><td>68</td><td>19 et 3</td><td>13 et 3</td><td>17</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CH SUD FRANCILIEN SITE JEAN JAURES</td><td>91</td><td>4 et 3</td><td>10 et 3</td><td>19</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>HOPITAL MARIUS LACROIX</td><td>17</td><td>11 et 7</td><td>7 et 6</td><td>13</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CH LA CHARTREUSE DIJON</td><td>21</td><td>11 et 11</td><td>8 et 9</td><td>29</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CH GEORGES DAUMEZON</td><td>44</td><td>12 et 6</td><td>8 et 5</td><td>12</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>INSTITUT CAMILLE MIRET</td><td>46</td><td>12 et 6</td><td>8 et 5</td><td>18</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CHS ST REMY ET NFC CTRE JEAN MESSAGIER</td><td>25</td><td>10 et 8</td><td>8 et 5</td><td>14</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CH GEORGE SAND BOURGES</td><td>18</td><td>9 et 5</td><td>11 et 8</td><td>20</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>CHIC CHÂTEAU-RENAULT HÔP DR J.DELANEAU</td><td>37</td><td>1 et 1</td><td>2 et 5</td><td>7</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>CH DE L&#39;ESTRAN</td><td>50</td><td>4 et 4</td><td>7 et 6</td><td>13</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>ETABLISSEMENT PUBLIC DE SANTE MENTALE</td><td>56</td><td>8 et 7</td><td>11 et 9</td><td>19</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>CH DIEPPE</td><td>76</td><td>1 et 1</td><td>4 et 3</td><td>7</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>CENTRE HOSPITALIER DE PLAISIR</td><td>78</td><td>8 et 5</td><td>14 et 3</td><td>18</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>CENTRE HOSPITALIER DE PERIGUEUX</td><td>24</td><td>3 et 8</td><td>3 et 4</td><td>7</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>ETABLISSEMENT THERAPEUTIQUE ADO</td><td>17</td><td>0 et 5</td><td>0 et 1</td><td>6</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CH VERDUN/ST MIHIEL-UNITE D&#39;HOSP. ADOS</td><td>55</td><td>4 et 3</td><td>2 et 1</td><td>3</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CHS DE SARREGUEMINES</td><td>57</td><td>7 et 4</td><td>4 et 3</td><td>7</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>EPSM METZ-JURY</td><td>57</td><td>10 et 5</td><td>7 et 4</td><td>15</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>HOPITAL ESTAING - CHU63</td><td>63</td><td>3 et 1</td><td>0 et 0</td><td>0</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CH DE THIERS</td><td>63</td><td>1 et 3</td><td>0 et 0</td><td>0</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CH LANNEMEZAN</td><td>65</td><td>11 et 6</td><td>9 et 4</td><td>9</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>ET PUBLIC DE SANTÉ MENTALE DE LA SOMME</td><td>80</td><td>6 et 8</td><td>5 et 6</td><td>11</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>UDSM REG EST PARIS</td><td>94</td><td>0 et 8</td><td>0 et 4</td><td>7</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CHS ROGER PREVOT DE NANTERRE</td><td>92</td><td>7 et 10</td><td>7 et 6</td><td>16</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CH JACQUES LACARIN VICHY</td><td>03</td><td>3 et 5</td><td>7 et 5</td><td>12</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>CH LES CHANAUX MACON</td><td>71</td><td>2 et 0</td><td>4 et 2</td><td>7</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>CH VICTOR DUPOUY</td><td>95</td><td>3 et 3</td><td>6 et 4</td><td>14</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>APHM HOPITAL NORD</td><td>13</td><td>6 et 2</td><td>3 et 2</td><td>13</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CENTRE HOSPITALIER DE PLOUGUERNEVEL</td><td>22</td><td>9 et 4</td><td>6 et 4</td><td>13</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CH COTE BASQUE</td><td>64</td><td>10 et 4</td><td>9 et 2</td><td>11</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CHITS CH SAINTE MUSSE</td><td>83</td><td>5 et 4</td><td>3 et 3</td><td>10</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CENTRE HOSPITALIER DE CAYENNE</td><td>973</td><td>2 et 3</td><td>1 et 1</td><td>2</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CH BUECH DURANCE</td><td>05</td><td>5 et 4</td><td>6 et 6</td><td>14</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>CH MILLAU</td><td>12</td><td>2 et 1</td><td>2 et 3</td><td>4</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>SERVICES PSYCHIATRIQUES JONZAC</td><td>17</td><td>9 et 3</td><td>11 et 2</td><td>14</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>SITE SPECIALISE HENRI LABORIT</td><td>19</td><td>1 et 1</td><td>1 et 4</td><td>6</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>CENTRE HOSPITALIER SARLAT</td><td>24</td><td>1 et 0</td><td>4 et 0</td><td>4</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>CH DE ROANNE</td><td>42</td><td>2 et 3</td><td>4 et 4</td><td>10</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>CHS FRANCOIS TOSQUELLES ST ALBAN</td><td>48</td><td>5 et 6</td><td>7 et 7</td><td>14</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>GHU APHP CUP SITE HOTEL DIEU</td><td>75</td><td>4 et 3</td><td>5 et 5</td><td>11</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>CH LAVAUR SITE GUIRAUD</td><td>81</td><td>3 et 5</td><td>2 et 5</td><td>8</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>SECTORISATION PSY NEBOUZAN ASEI</td><td>31</td><td>0 et 2</td><td>0 et 0</td><td>0</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>LES APSYADES</td><td>44</td><td>0 et 9</td><td>0 et 7</td><td>1</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CH CAMBRAI</td><td>59</td><td>4 et 4</td><td>3 et 3</td><td>6</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CH VALENCIENNES</td><td>59</td><td>5 et 4</td><td>3 et 4</td><td>7</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>INSTITUT ALBERT CALMETTE A CAMIERS</td><td>62</td><td>0 et 8</td><td>1 et 5</td><td>7</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>HOPITAL CIVIL / NOUVEL HOPITAL CIVIL</td><td>67</td><td>1 et 3</td><td>1 et 1</td><td>15</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CLINIQUE FSEF RENNES BEAULIEU</td><td>35</td><td>0 et 2</td><td>0 et 0</td><td>0</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CHI POISSY ST GERMAIN SITE DE POISSY</td><td>78</td><td>5 et 4</td><td>5 et 2</td><td>8</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>C.H. LOUIS CONSTANT FLEMING</td><td>971</td><td>1 et 1</td><td>0 et 0</td><td>2</td><td>moins ici qu&#39;à la SAE</td></tr>
+<tr><td>CH DE CANNES SIMONE VEIL</td><td>06</td><td>2 et 3</td><td>3 et 3</td><td>6</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>CH DE RODEZ HOPITAL JACQUES PUEL</td><td>12</td><td>0 et 1</td><td>0 et 3</td><td>3</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>CH JOSEPH IMBERT D&#39;ARLES</td><td>13</td><td>4 et 4</td><td>5 et 6</td><td>13</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>CHU NIMES CAREMEAU</td><td>30</td><td>4 et 4</td><td>4 et 6</td><td>7</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>CH BEZIERS</td><td>34</td><td>5 et 4</td><td>6 et 5</td><td>11</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>CHS LA COLOMBIERE CHU MONTPELLIER</td><td>34</td><td>7 et 2</td><td>9 et 2</td><td>10</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>HOPITAL DE BELLEVUE - CHU42</td><td>42</td><td>4 et 2</td><td>4 et 4</td><td>10</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>CH DOUAI DECHY</td><td>59</td><td>2 et 3</td><td>3 et 4</td><td>11</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>CTRE ACCUEIL FAM THERAPEUTIQUE ENFANTS</td><td>75</td><td>1 et 1</td><td>3 et 1</td><td>2</td><td>plus ici qu&#39;à la SAE</td></tr>
+<tr><td>CHM</td><td>976</td><td>4 et 1</td><td>4 et 3</td><td>0</td><td>plus ici qu&#39;à la SAE</td></tr>
+</tbody></table></div></details>
+<p>Détail pour tous les établissements dans concordance_cmp_etablissements.csv.</p>
+
+
+
+<h3 id="lieux-confirmation">Confirmation des structures par des listes indépendantes</h3>
+<p>Chaque CMP, CATTP, hôpital de jour en psychiatrie, CMPP, CAMSP, CSAPA et CAARUD réuni de FINESS et du ROR est confronté à des listes officielles qui ne viennent ni de l'une ni de l'autre base. La première est la liste des sites que son établissement déclare à sa certification par la Haute Autorité de santé (données ouvertes de la HAS, décisions de 2021 à 2026). Une structure dont un numéro FINESS est un site de certification dont le nom désigne son type est confirmée. La certification ne couvre que les hôpitaux. Pour les structures médico-sociales (CMPP, CAMSP, CSAPA, CAARUD), la seconde liste est celle des évaluations des établissements et services médico-sociaux publiées par la HAS. Une structure évaluée sous la catégorie FINESS de son type est confirmée. Ces évaluations ont commencé en 2023, chaque structure en reçoit une tous les cinq ans, celles qui n'ont pas encore été évaluées restent donc nombreuses sans être douteuses. La troisième est le répertoire Sirene de l'INSEE, où chaque établissement d'un gestionnaire porte une enseigne (« CMP-CATTP enfants ») et une adresse. Une structure est confirmée quand son gestionnaire a, dans la même commune, un établissement actif sous une enseigne de son type, apparié un à un par le nom, le public et la rue. Un hôpital de jour pour adultes n'est confirmé que par un établissement pour adultes, un hôpital de jour d'une autre discipline (gériatrie, pédiatrie...) ne confirme rien. Un CATTP est compté comme FINESS et la SAE le comptent, un lieu où l'hôpital déclare cette activité, souvent tenue dans un CMP ou un centre de jour qui porte un autre nom. Les sites des hôpitaux les nomment rarement. Un CATTP qu'aucune liste ne confirme l'est donc par le nombre, quand son hôpital en compte ici autant qu'il en déclare à la SAE, à 20 % ou un CATTP près. Un hôpital de jour est lui aussi souvent une activité d'un site plutôt qu'un lieu qui porte ce nom. Celui qu'aucune liste ne confirme l'est quand son site déclare à la SAE des places d'hôpital de jour dans la discipline de son public (psychiatrie générale pour les adultes, infanto-juvénile pour les enfants). Une enseigne neutre dans Sirene (« HDJ Les Tilleuls ») peut confirmer un hôpital de jour de l'un ou l'autre public. Une structure confirmée par aucune de ces listes reste à vérifier sur les sources de son établissement. Elle reste comptée. Dans l'atlas, elle est marquée d'un point creux sur la carte et dans l'encadré « Structures de soins de ce territoire », qui donne pour chaque territoire le nombre de structures de chaque type, confirmées ou à vérifier, et la liste des structures avec leur niveau. Les CMP ont en plus été vérifiés établissement par établissement (liste ci-dessous). Dans les rapports et l'atlas, ces niveaux sont réunis en trois classes. Confirmée regroupe toutes les sources qui nomment la structure (son établissement, une autre source publique, la HAS, Sirene, son site principal, une vérification à la main). Recoupée par la statistique des hôpitaux (SAE) réunit les CATTP au nombre concordant et les hôpitaux de jour sur un site qui déclare des places. À vérifier correspond à une inscription dans FINESS ou le ROR seulement. Le tableau ci-dessous garde le détail par source. Sirene compte en outre 1 155 établissements actifs sous une enseigne de l&#39;un de ces types sans structure correspondante, dont 260 sous une enseigne de CMP, vérifiés établissement par établissement. Les autres restent à vérifier. Tous sont listés dans sirene_sans_correspondant.csv.</p>
+<div class="defile"><table class="simple">
+<thead><tr><th>Niveau</th><th>CMP</th><th>CATTP</th><th>Hôpitaux de jour, adultes</th><th>Hôpitaux de jour, enfants</th><th>CMPP</th><th>CAMSP</th><th>CSAPA</th><th>CAARUD</th></tr></thead>
+<tbody>
+<tr><td>Vérifiée sur les sources de l&#39;établissement</td><td>1 048</td><td>2</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>Vérifiée sur une autre source publique (HAS, ARS, Acceslibre)</td><td>296</td><td>1</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>Confirmée par la HAS et par Sirene</td><td>505</td><td>301</td><td>183</td><td>119</td><td>81</td><td>89</td><td>85</td><td>19</td></tr>
+<tr><td>Confirmée par la HAS (certification de l&#39;hôpital ou évaluation de la structure)</td><td>459</td><td>327</td><td>180</td><td>128</td><td>191</td><td>140</td><td>318</td><td>97</td></tr>
+<tr><td>Confirmée par Sirene</td><td>223</td><td>282</td><td>155</td><td>87</td><td>83</td><td>58</td><td>34</td><td>10</td></tr>
+<tr><td>Confirmée par son site principal (antenne ou site rattaché)</td><td>0</td><td>0</td><td>0</td><td>0</td><td>91</td><td>33</td><td>65</td><td>6</td></tr>
+<tr><td>Concordante avec la SAE (nombre de CATTP de l&#39;établissement, places d&#39;hôpital de jour du site)</td><td>0</td><td>361</td><td>261</td><td>130</td><td>0</td><td>0</td><td>0</td><td>0</td></tr>
+<tr><td>Examinée à la main et maintenue (source dans la colonne examen)</td><td>98</td><td>0</td><td>1</td><td>0</td><td>0</td><td>0</td><td>3</td><td>0</td></tr>
+<tr><td>Inscrite dans FINESS ou le ROR, à vérifier</td><td>110</td><td>313</td><td>290</td><td>194</td><td>89</td><td>81</td><td>79</td><td>43</td></tr>
+<tr><td>Total</td><td>2 739</td><td>1 587</td><td>1 070</td><td>658</td><td>535</td><td>401</td><td>584</td><td>175</td></tr>
+</tbody></table></div>
+
+
+<h3 id="lieux-liste-verifiee">Liste vérifiée, établissement par établissement</h3>
+<p>FINESS et le ROR réunis par les règles ci-dessus contiennent des erreurs que seules les sources des établissements permettent de corriger, par exemple des CMP déclarés à l'adresse de l'hôpital, un hôpital de jour décrit comme un CMP, ou une structure fermée encore inscrite. Pour chaque établissement de la liste ci-dessous, ses structures ont été reprises une à une sur des sources fiables, son site, la liste des sites de sa certification par la HAS, les documents de l'agence régionale de santé ou des collectivités, les données ouvertes publiques. Cette liste remplace alors, pour cet établissement, la réunion des deux bases. Chaque structure porte un statut, confirmée par l'établissement, confirmée par une autre source publique, ou seulement inscrite dans FINESS ou le ROR sans confirmation par les sources de l'établissement. Les inscriptions des bases qui ne correspondent à aucune structure vérifiée sont écartées et listées dans structures_non_retenues.csv. À chaque mise à jour, un établissement dont les inscriptions dans FINESS ou le ROR ont changé, ou dont la vérification a plus d'un an, est signalé à revérifier. 96 établissements vérifiés à ce jour. La vérification de tous les établissements qui gèrent des CMP est en cours.</p>
+<details><summary>Établissements vérifiés (96)</summary>
+<div class="defile"><table class="simple filtrable">
+<thead><tr><th>Établissement</th><th>Département</th><th>Types vérifiés</th><th>Confirmées par l'établissement</th><th>Confirmées par une autre source</th><th>Bases seules</th><th>Inscriptions non retenues</th><th>Sources</th><th>Date</th></tr></thead>
+<tbody>
+<tr><td>Centre hospitalier Sainte-Marie, Nice</td><td>06</td><td>CMP</td><td>8</td><td>5</td><td>0</td><td>1</td><td>Site de l&#39;établissement (où consulter), certification HAS</td><td>2026-10-13, à revérifier</td></tr>
+<tr><td>Centre hospitalier Montperrin, Aix-en-Provence</td><td></td><td>CMP</td><td>21</td><td>1</td><td>0</td><td>7</td><td>Site de l&#39;établissement (une page par structure), certification HAS (liste des sites)</td><td>2026-10-13</td></tr>
+<tr><td>Centre psychothérapique de l&#39;Ain</td><td></td><td>CMP</td><td>20</td><td>0</td><td>1</td><td>0</td><td>CPA, services de soins en psychiatrie et cartes des CMP (2024 et 2025)</td><td>2026-10-13</td></tr>
+<tr><td>Établissement public de santé mentale départemental de l&#39;Aisne</td><td></td><td>CMP</td><td>15</td><td>0</td><td>2</td><td>2</td><td>EPSMD de l&#39;Aisne, accès aux soins</td><td>2026-10-13</td></tr>
+<tr><td>Centre hospitalier Jacques-Lacarin, Vichy</td><td></td><td>CMP</td><td>0</td><td>12</td><td>0</td><td>1</td><td>HAS, certification du CH de Vichy (décision de mai 2026), liste des sites</td><td>2026-10-13</td></tr>
+<tr><td>Centre hospitalier Moulins-Yzeure</td><td></td><td>CMP</td><td>0</td><td>8</td><td>1</td><td>0</td><td>HAS, certification du CH Moulins-Yzeure (décision de décembre 2022), liste des sites</td><td>2026-10-13</td></tr>
+<tr><td>Centre hospitalier de Montluçon</td><td></td><td>CMP</td><td>0</td><td>6</td><td>1</td><td>0</td><td>HAS, certification du CH de Montluçon (décision de novembre 2025), liste des sites</td><td>2026-10-13</td></tr>
+<tr><td>Centre hospitalier spécialisé interdépartemental d&#39;Ainay-le-Château</td><td></td><td>CMP</td><td>0</td><td>6</td><td>0</td><td>0</td><td>HAS, certification du CHS d&#39;Ainay-le-Château (décision de janvier 2022), liste des sites</td><td>2026-10-13</td></tr>
+<tr><td>Centre hospitalier de Grasse</td><td></td><td>CMP</td><td>0</td><td>1</td><td>0</td><td>0</td><td>HAS, certification de l&#39;établissement, liste des sites (décision de novembre 2022)</td><td>2026-10-13</td></tr>
+<tr><td>Fondation Lenval, Nice</td><td></td><td>CMP</td><td>0</td><td>8</td><td>2</td><td>0</td><td>HAS, certification de l&#39;établissement, liste des sites (décision de février 2023)</td><td>2026-10-13</td></tr>
+<tr><td>CHU de Nice</td><td></td><td>CMP</td><td>0</td><td>1</td><td>1</td><td>0</td><td>HAS, certification de l&#39;établissement, liste des sites (décision de février 2023)</td><td>2026-10-13</td></tr>
+<tr><td>Centre hospitalier de Cannes Simone-Veil</td><td></td><td>CMP</td><td>0</td><td>5</td><td>2</td><td>0</td><td>HAS, certification de l&#39;établissement, liste des sites (décision d&#39;avril 2023)</td><td>2026-10-13</td></tr>
+<tr><td>Centre hospitalier d&#39;Antibes Juan-les-Pins</td><td></td><td>CMP</td><td>0</td><td>8</td><td>0</td><td>0</td><td>HAS, certification de l&#39;établissement, liste des sites (décision de novembre 2022)</td><td>2026-10-13</td></tr>
+<tr><td>Centre hospitalier de Digne-les-Bains</td><td></td><td>CMP</td><td>0</td><td>22</td><td>0</td><td>0</td><td>ARS Paca, inventaire des structures de psychiatrie des Alpes-de-Haute-Provence (février 2017)</td><td>2026-10-13</td></tr>
+<tr><td>Centre hospitalier Buëch-Durance, Laragne-Montéglin</td><td></td><td>CMP</td><td>0</td><td>12</td><td>0</td><td>3</td><td>HAS, certification du CH Buëch-Durance (décision de janvier 2023), liste des sites, ARS Paca, inventaire des structures de psychiatrie des Hautes-Alpes (2017)</td><td>2026-10-13</td></tr>
+<tr><td>Centre hospitalier des Escartons, Briançon</td><td></td><td>CMP</td><td>0</td><td>1</td><td>0</td><td>0</td><td>ARS Paca, inventaire des structures de psychiatrie des Hautes-Alpes (2017)</td><td>2026-10-13</td></tr>
+<tr><td>Centre hospitalier Ariège-Couserans, Saint-Lizier</td><td></td><td>CMP</td><td>0</td><td>7</td><td>0</td><td>0</td><td>HAS, certification de l&#39;établissement (décision de novembre 2024), liste des sites</td><td>2026-10-13</td></tr>
+<tr><td>Centre hospitalier Sainte-Marie, Privas</td><td>07</td><td>CMP</td><td>14</td><td>0</td><td>0</td><td>0</td><td>Association hospitalière Sainte-Marie, où consulter</td><td>2026-10-13, à revérifier</td></tr>
+<tr><td>Centre hospitalier Sainte-Marie, Privas (Drôme)</td><td>26</td><td>CMP</td><td>3</td><td>0</td><td>0</td><td>0</td><td>Association hospitalière Sainte-Marie, où consulter</td><td>2026-10-13, à revérifier</td></tr>
+<tr><td>Centre hospitalier Sainte-Marie, Rodez</td><td>12</td><td>CMP</td><td>8</td><td>0</td><td>0</td><td>0</td><td>Association hospitalière Sainte-Marie, où consulter</td><td>2026-10-13, à revérifier</td></tr>
+<tr><td>Centre hospitalier Sainte-Marie, Le Puy-en-Velay</td><td>43</td><td>CMP</td><td>7</td><td>0</td><td>0</td><td>0</td><td>Association hospitalière Sainte-Marie, où consulter</td><td>2026-10-13, à revérifier</td></tr>
+<tr><td>Centre hospitalier Sainte-Marie, Clermont-Ferrand</td><td>63</td><td>CMP</td><td>12</td><td>0</td><td>0</td><td>1</td><td>Association hospitalière Sainte-Marie, où consulter</td><td>2026-10-13, à revérifier</td></tr>
+<tr><td>Établissement public de santé mentale de la Guadeloupe</td><td></td><td>CMP</td><td>0</td><td>21</td><td>1</td><td>0</td><td>ARS Guadeloupe, annuaire des secteurs de l&#39;EPSM de la Guadeloupe (DIM, juillet 2018)</td><td>2026-10-13, à revérifier</td></tr>
+<tr><td>Assistance publique, hôpitaux de Paris</td><td></td><td>CMP</td><td>7</td><td>3</td><td>0</td><td>2</td><td>AP-HP, pages des services de psychiatrie</td><td>2026-10-14, à revérifier</td></tr>
+<tr><td>Établissement public de santé mentale du Var (EPSY Var), Pierrefeu-du-Var</td><td></td><td>CMP</td><td>22</td><td>0</td><td>2</td><td>11</td><td>EPSY Var, coordonnées de tous les sites</td><td>2026-10-14</td></tr>
+<tr><td>Établissement public de santé mentale de Saône-et-Loire, Sevrey</td><td></td><td>CMP</td><td>14</td><td>3</td><td>1</td><td>6</td><td>EPSM de Saône-et-Loire, où consulter (par âge et par territoire)</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier de Cadillac</td><td></td><td>CMP</td><td>29</td><td>0</td><td>0</td><td>1</td><td>CH de Cadillac, centres médico-psychologiques pour adultes et personnes âgées ; CH de Cadillac, centres médico-psychologiques pour enfants et adolescents</td><td>2026-10-14</td></tr>
+<tr><td>Établissement public de santé mentale de La Réunion</td><td></td><td>CMP</td><td>14</td><td>0</td><td>0</td><td>2</td><td>EPSM de La Réunion, offre de soins, centres extra-hospitaliers</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier de Rouffach</td><td></td><td>CMP</td><td>16</td><td>0</td><td>0</td><td>0</td><td>CH de Rouffach, psychiatrie adulte ; CH de Rouffach, psychiatrie enfants et ados</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier universitaire de La Réunion (sites du Sud)</td><td></td><td>CMP</td><td>8</td><td>0</td><td>1</td><td>3</td><td>CHU de La Réunion, CMP adultes ; CHU de La Réunion, CMPEA</td><td>2026-10-14</td></tr>
+<tr><td>Union sanitaire et sociale Aude-Pyrénées (USSAP), Limoux</td><td></td><td>CMP</td><td>9</td><td>0</td><td>1</td><td>1</td><td>USSAP, nos établissements (liste et carte)</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier d&#39;Erstein</td><td></td><td>CMP</td><td>10</td><td>0</td><td>1</td><td>2</td><td>CH d&#39;Erstein, pages des pôles</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier intercommunal de Fréjus-Saint-Raphaël</td><td></td><td>CMP</td><td>7</td><td>0</td><td>0</td><td>3</td><td>CHI de Fréjus-Saint-Raphaël, pôle de psychiatrie ; CHI de Fréjus-Saint-Raphaël, pédopsychiatrie</td><td>2026-10-14</td></tr>
+<tr><td>Hôpitaux Paris Est Val-de-Marne</td><td></td><td>CMP</td><td>33</td><td>0</td><td>2</td><td>2</td><td>Hôpitaux Paris Est Val-de-Marne, carte des structures extrahospitalières, adultes ; Hôpitaux Paris Est Val-de-Marne, carte des structures extrahospitalières, enfants et adolescents</td><td>2026-10-14</td></tr>
+<tr><td>Fondation Bon Sauveur de la Manche, Picauville</td><td></td><td>CMP</td><td>16</td><td>0</td><td>4</td><td>1</td><td>Fondation Bon Sauveur de la Manche, annuaire des services</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier de Libourne</td><td></td><td>CMP</td><td>10</td><td>0</td><td>0</td><td>0</td><td>GCS Psychiatrie publique 33, nos secteurs (carte des CMP des CH Charles-Perrens, de Cadillac et de Libourne)</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier Charles-Perrens, Bordeaux</td><td></td><td>CMP</td><td>21</td><td>0</td><td>3</td><td>0</td><td>GCS Psychiatrie publique 33, nos secteurs (carte des CMP des CH Charles-Perrens, de Cadillac et de Libourne)</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier Dinan/Saint-Brieuc, Fondation Saint-Jean-de-Dieu</td><td></td><td>CMP</td><td>0</td><td>9</td><td>0</td><td>0</td><td>Portail d&#39;accompagnement des professionnels de santé de l&#39;ARS Bretagne, liste des CMP et CMPEA du CH Dinan/Saint-Brieuc (mars 2022)</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier Henri-Mondor, Aurillac</td><td></td><td>CMP</td><td>7</td><td>0</td><td>0</td><td>1</td><td>CH Henri-Mondor d&#39;Aurillac, centres médico-psychologiques intersecteur ; CH Henri-Mondor d&#39;Aurillac, psychiatrie de l&#39;enfant et de l&#39;adolescent</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier Camille-Claudel, La Couronne</td><td></td><td>CMP</td><td>24</td><td>0</td><td>0</td><td>1</td><td>CH Camille-Claudel, où consulter (fiches des lieux de soins)</td><td>2026-10-14</td></tr>
+<tr><td>Établissement public de santé Alsace Nord (EPSAN), Brumath</td><td></td><td>CMP</td><td>15</td><td>0</td><td>1</td><td>4</td><td>EPSAN, les secteurs de psychiatrie adulte ; EPSAN, pôle de psychiatrie de l&#39;enfant et de l&#39;adolescent 67I02</td><td>2026-10-14</td></tr>
+<tr><td>Établissement psychiatrique de Loire-Atlantique Nord (EPSYLAN), Blain</td><td></td><td>CMP</td><td>14</td><td>0</td><td>2</td><td>2</td><td>EPSYLAN, où consulter</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier Le Vinatier, Bron</td><td></td><td>CMP</td><td>26</td><td>0</td><td>0</td><td>5</td><td>CH Le Vinatier, annuaire des structures</td><td>2026-10-14</td></tr>
+<tr><td>Centre psychothérapique de Nancy, Laxou</td><td></td><td>CMP</td><td>24</td><td>0</td><td>0</td><td>11</td><td>Epsytera, Centre psychothérapique de Nancy, structures de soins (fiches du site)</td><td>2026-10-14, à revérifier</td></tr>
+<tr><td>Centre hospitalier de Ravenel, Mirecourt</td><td></td><td>CMP</td><td>25</td><td>0</td><td>0</td><td>0</td><td>Epsytera, CH de Ravenel, structures de soins (fiches du site)</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier de l&#39;Estran, Pontorson</td><td></td><td>CMP</td><td>13</td><td>0</td><td>0</td><td>3</td><td>CH de l&#39;Estran, plaquette des CMP pour adultes (novembre 2023) ; CH de l&#39;Estran, plaquette des CMP pour enfants et adolescents (février 2026)</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier Drôme-Vivarais, Montéléger</td><td></td><td>CMP</td><td>18</td><td>2</td><td>0</td><td>3</td><td>CH Drôme-Vivarais, venir en consultation, structures de proximité</td><td>2026-10-14, à revérifier</td></tr>
+<tr><td>Établissement public de santé mentale de la Sarthe, Allonnes</td><td></td><td>CMP</td><td>24</td><td>0</td><td>0</td><td>5</td><td>EPSM de la Sarthe, fiches des structures (carte interactive des soins)</td><td>2026-10-14</td></tr>
+<tr><td>Nouvel Hôpital de Navarre, Évreux</td><td></td><td>CMP</td><td>18</td><td>0</td><td>0</td><td>5</td><td>Nouvel Hôpital de Navarre, trouver un établissement</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier Alpes-Isère, Saint-Égrève</td><td></td><td>CMP</td><td>43</td><td>2</td><td>0</td><td>7</td><td>CH Alpes-Isère, fiches des unités de soins (CMP adultes, CMP enfants)</td><td>2026-10-14</td></tr>
+<tr><td>Établissement public de santé mentale de la Marne, Châlons-en-Champagne</td><td></td><td>CMP</td><td>17</td><td>0</td><td>0</td><td>4</td><td>EPSM de la Marne, psychiatrie adulte, lieux de consultation ; EPSM de la Marne, psychiatrie de l&#39;enfant et de l&#39;adolescent, lieux de consultation ; EPSM de la Marne, psychiatrie de la personne âgée, lieux de consultation</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier intercommunal de Toulon-La Seyne-sur-Mer</td><td></td><td>CMP</td><td>0</td><td>6</td><td>0</td><td>2</td><td>ARS Provence-Alpes-Côte d&#39;Azur, inventaire des structures de psychiatrie, liste des CMP (septembre 2017)</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier de Montfavet (Bouches-du-Rhône)</td><td>13</td><td>CMP</td><td>0</td><td>4</td><td>0</td><td>1</td><td>ARS Provence-Alpes-Côte d&#39;Azur, inventaire des structures de psychiatrie, liste des CMP (septembre 2017)</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier de La Ciotat</td><td></td><td>CMP</td><td>0</td><td>1</td><td>0</td><td>0</td><td>ARS Provence-Alpes-Côte d&#39;Azur, inventaire des structures de psychiatrie, liste des CMP (septembre 2017)</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier de la Dracénie, Draguignan</td><td></td><td>CMP</td><td>0</td><td>1</td><td>0</td><td>0</td><td>ARS Provence-Alpes-Côte d&#39;Azur, inventaire des structures de psychiatrie, liste des CMP (septembre 2017)</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier de Martigues</td><td></td><td>CMP</td><td>0</td><td>10</td><td>0</td><td>0</td><td>ARS Provence-Alpes-Côte d&#39;Azur, inventaire des structures de psychiatrie, liste des CMP (septembre 2017)</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier d&#39;Arles</td><td></td><td>CMP</td><td>0</td><td>8</td><td>0</td><td>2</td><td>ARS Provence-Alpes-Côte d&#39;Azur, inventaire des structures de psychiatrie, liste des CMP (septembre 2017)</td><td>2026-10-14, à revérifier</td></tr>
+<tr><td>Centre hospitalier du Haut-Anjou, Château-Gontier-sur-Mayenne</td><td></td><td>CMP</td><td>0</td><td>3</td><td>2</td><td>0</td><td>ARS Pays de la Loire, annuaire des structures en santé mentale, Mayenne (mars 2025)</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier Georges-Daumezon, Bouguenais</td><td></td><td>CMP</td><td>0</td><td>12</td><td>0</td><td>1</td><td>ARS Pays de la Loire, annuaire des structures en santé mentale, Loire-Atlantique (2025)</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier Georges-Charpak, Saint-Nazaire</td><td></td><td>CMP</td><td>0</td><td>6</td><td>0</td><td>1</td><td>ARS Pays de la Loire, annuaire des structures en santé mentale, Loire-Atlantique (2025)</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier de Laval</td><td></td><td>CMP</td><td>0</td><td>8</td><td>0</td><td>0</td><td>ARS Pays de la Loire, annuaire des structures en santé mentale, Mayenne (mars 2025)</td><td>2026-10-14</td></tr>
+<tr><td>Établissement public de santé mentale de la Vendée, CH Georges-Mazurelle</td><td></td><td>CMP</td><td>0</td><td>25</td><td>2</td><td>0</td><td>ARS Pays de la Loire, annuaire des structures en santé mentale, Vendée (janvier 2025)</td><td>2026-10-14</td></tr>
+<tr><td>Centre de santé mentale angevin (CESAME), Sainte-Gemmes-sur-Loire</td><td></td><td>CMP</td><td>0</td><td>17</td><td>0</td><td>2</td><td>ARS Pays de la Loire, annuaire des structures en santé mentale, Maine-et-Loire (janvier 2025)</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier universitaire de Nîmes</td><td></td><td>CMP</td><td>10</td><td>0</td><td>0</td><td>1</td><td>CHU de Nîmes, pôle Psychiatries, pages des services</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier Guillaume-Régnier, Rennes</td><td></td><td>CMP</td><td>30</td><td>0</td><td>0</td><td>3</td><td>CH Guillaume-Régnier, les soins ambulatoires en psychiatrie (document du 2 juin 2025)</td><td>2026-10-14</td></tr>
+<tr><td>Groupe hospitalier Sud Île-de-France, Melun</td><td></td><td>CMP</td><td>10</td><td>0</td><td>0</td><td>6</td><td>GH Sud Île-de-France, psychiatrie générale, prise en charge ambulatoire ; GH Sud Île-de-France, pédopsychiatrie</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier Léon-Jean-Grégory, Thuir</td><td></td><td>CMP</td><td>21</td><td>0</td><td>0</td><td>3</td><td>CH de Thuir, annuaire des structures</td><td>2026-10-14</td></tr>
+<tr><td>Fondation Bon Sauveur d&#39;Alby, Albi</td><td></td><td>CMP</td><td>16</td><td>0</td><td>0</td><td>2</td><td>Fondation Bon Sauveur d&#39;Alby, fiches des établissements</td><td>2026-10-14</td></tr>
+<tr><td>Établissement public de santé Roger-Prévot, Moisselles</td><td></td><td>CMP</td><td>12</td><td>0</td><td>0</td><td>3</td><td>EPS Roger-Prévot, psychiatrie adulte, recherche des lieux de soins de type CMP ; EPS Roger-Prévot, psychiatrie de l&#39;enfant et de l&#39;adolescent, recherche des lieux de soins de type CMP</td><td>2026-10-14</td></tr>
+<tr><td>Établissement public de santé de Ville-Évrard, Neuilly-sur-Marne</td><td></td><td>CMP</td><td>34</td><td>1</td><td>0</td><td>7</td><td>EPS de Ville-Évrard, pages des secteurs de psychiatrie (mises à jour le 29 janvier 2026)</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier Saint-Jean-de-Dieu, Lyon</td><td></td><td>CMP</td><td>23</td><td>0</td><td>0</td><td>3</td><td>CH Saint-Jean-de-Dieu (Fondation ARHM), nos structures</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier universitaire de Brest</td><td></td><td>CMP</td><td>9</td><td>0</td><td>0</td><td>0</td><td>CHU de Brest, CMP-CATTP ; CHU de Brest, psychiatrie de l&#39;adulte ; CHU de Brest, psychiatrie de l&#39;enfant et de l&#39;adolescent</td><td>2026-10-14</td></tr>
+<tr><td>Établissement public de santé mentale du Finistère Sud, Quimper</td><td></td><td>CMP</td><td>15</td><td>0</td><td>0</td><td>2</td><td>EPSM du Finistère Sud, CMP et CMPI de l&#39;établissement</td><td>2026-10-14</td></tr>
+<tr><td>Établissement public de santé mentale du Morbihan, Saint-Avé</td><td></td><td>CMP</td><td>20</td><td>0</td><td>0</td><td>0</td><td>EPSM du Morbihan, trouver une structure</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier universitaire de Nantes</td><td></td><td>CMP</td><td>0</td><td>8</td><td>0</td><td>4</td><td>ARS Pays de la Loire, annuaire des structures en santé mentale de la Loire-Atlantique (mise à jour de mars 2025)</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier de Cholet</td><td></td><td>CMP</td><td>5</td><td>0</td><td>0</td><td>0</td><td>CH de Cholet, pôle santé mentale adulte ; CH de Cholet, psychiatrie de l&#39;enfant et de l&#39;adolescent</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier du Rouvray, Sotteville-lès-Rouen</td><td></td><td>CMP</td><td>31</td><td>0</td><td>0</td><td>5</td><td>CH du Rouvray, consultations de proximité</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier La Chartreuse, Dijon</td><td></td><td>CMP</td><td>17</td><td>0</td><td>0</td><td>1</td><td>CH La Chartreuse, structures extrahospitalières ; CH La Chartreuse, structures pour enfants et adolescents</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier Édouard-Toulouse, Marseille</td><td></td><td>CMP</td><td>13</td><td>0</td><td>0</td><td>2</td><td>CH Édouard-Toulouse, cartographie des soins (recherche par public et lieu d&#39;habitation)</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier de Narbonne</td><td></td><td>CMP</td><td>5</td><td>0</td><td>0</td><td>0</td><td>CH de Narbonne, centre médico-psychologique pour adultes ; CH de Narbonne, dispositifs de soins pour enfants et pour adolescents</td><td>2026-10-14</td></tr>
+<tr><td>Établissement public de santé mentale de Metz-Jury</td><td></td><td>CMP</td><td>10</td><td>0</td><td>0</td><td>1</td><td>EPSM de Metz-Jury, pages des centres médico-psychologiques ; EPSM de Metz-Jury, psychiatrie enfants et adolescents</td><td>2026-10-14</td></tr>
+<tr><td>Établissement public de santé mentale du Loiret Georges-Daumézon, Fleury-les-Aubrais</td><td></td><td>CMP</td><td>21</td><td>0</td><td>0</td><td>5</td><td>EPSM du Loiret Georges-Daumézon, annuaire des structures</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier spécialisé de la Savoie, Bassens</td><td></td><td>CMP</td><td>27</td><td>3</td><td>0</td><td>3</td><td>CHS de la Savoie, structures en Savoie</td><td>2026-10-14, à revérifier</td></tr>
+<tr><td>Établissement public de santé Barthélemy-Durand, Étampes</td><td></td><td>CMP</td><td>30</td><td>0</td><td>0</td><td>0</td><td>EPS Barthélemy-Durand, listes des CMP par secteur (adresser un patient majeur ou mineur)</td><td>2026-10-14</td></tr>
+<tr><td>EPSM Sud-Bretagne Jean-Martin-Charcot, Caudan</td><td></td><td>CMP</td><td>11</td><td>0</td><td>0</td><td>5</td><td>EPSM Sud-Bretagne Charcot, CMP/CATTP/HDJ du pôle adulte ; EPSM Sud-Bretagne Charcot, pôle de l&#39;enfant et de l&#39;adolescent ; EPSM Sud-Bretagne Charcot, pôle du sujet âgé</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier spécialisé de l&#39;Yonne, Auxerre</td><td></td><td>CMP</td><td>14</td><td>0</td><td>0</td><td>2</td><td>CHS de l&#39;Yonne, offre de soins et coordonnées du pôle adultes ; CHS de l&#39;Yonne, offre de soins et coordonnées du pôle infanto-juvénile et adolescents</td><td>2026-10-14</td></tr>
+<tr><td>Centre hospitalier universitaire de Montpellier</td><td></td><td>lieu_cmp:adultes</td><td>9</td><td>0</td><td>0</td><td>3</td><td>CHU de Montpellier, page « Votre secteur géodémographique » (psychiatrie adulte)</td><td>2026-10-15</td></tr>
+<tr><td>Hôpitaux de Lannemezan</td><td></td><td>CMP</td><td>13</td><td>0</td><td>0</td><td>1</td><td>Hôpitaux de Lannemezan, PPA1 Tarbes Nord Bagnères, centres médico-psychologiques ; Hôpitaux de Lannemezan, PPA2 Tarbes Sud Lourdes, centres médico-psychologiques ; Hôpitaux de Lannemezan, PPA3 Lannemezan Saint-Gaudens, centres médico-psychologiques ; Hôpitaux de Lannemezan, pédopsychiatrie, unités de soins extérieures au site de Lannemezan</td><td>2026-10-15</td></tr>
+<tr><td>Centre hospitalier de Dieppe</td><td></td><td>CMP</td><td>6</td><td>0</td><td>0</td><td>2</td><td>GHT Caux-Maritime, CH de Dieppe, psychiatrie adulte ; GHT Caux-Maritime, CH de Dieppe, psychiatrie enfant et adolescent</td><td>2026-10-15</td></tr>
+<tr><td>Centre hospitalier Pierre-Lôo, La Charité-sur-Loire</td><td></td><td>CMP</td><td>7</td><td>0</td><td>0</td><td>4</td><td>GHT de la Nièvre, tous les sites du GHT, fiches du CH Pierre-Lôo</td><td>2026-10-15</td></tr>
+<tr><td>Centre hospitalier Sud Francilien, Corbeil-Essonnes</td><td></td><td>CMP</td><td>9</td><td>0</td><td>0</td><td>2</td><td>CH Sud Francilien, prise de rendez-vous et suivi en psychiatrie</td><td>2026-10-15</td></tr>
+<tr><td>Groupe hospitalier du Havre</td><td></td><td>CMP</td><td>9</td><td>11</td><td>0</td><td>2</td><td>UNAFAM Normandie, annuaire 2025 de la Seine-Maritime (CMP pour adultes) ; vérification à la main du 15 octobre 2026 (CMP pour enfants et adolescents, site du GHH, Sirene, annonces de l&#39;établissement)</td><td>2026-10-15</td></tr>
+<tr><td>Centre hospitalier des Pyrénées, Pau</td><td></td><td>CMP</td><td>0</td><td>16</td><td>0</td><td>1</td><td>Sirene (établissements en activité du CH des Pyrénées) et vérification à la main ; guide de santé mentale des Pyrénées-Atlantiques (guidesantementale64.fr) ; site du CH des Pyrénées</td><td>2026-10-15</td></tr>
+<tr><td>Centre hospitalier de Châteauroux-Le Blanc</td><td></td><td>CMP</td><td>0</td><td>13</td><td>0</td><td>2</td><td>Sirene, établissements en activité du CH de Châteauroux-Le Blanc (enseignes de CMP)</td><td>2026-10-15, à revérifier</td></tr>
+<tr><td>Établissement public de santé mentale de l&#39;Aube, Brienne-le-Château</td><td></td><td>CMP</td><td>12</td><td>0</td><td>0</td><td>1</td><td>Site de l&#39;établissement (listes des structures pour adultes et pour enfants, une fiche par structure)</td><td>2026-10-15</td></tr>
+<tr><td>Centre hospitalier de Mayotte, Mamoudzou</td><td>976</td><td>CMP, Consultations de psychiatrie hors CMP</td><td>7</td><td>0</td><td>0</td><td>2</td><td>Site de l&#39;établissement (page du pôle santé mentale, contacts des secrétariats)</td><td>2026-10-16</td></tr>
+</tbody></table></div>
+</details>
+
+<h3 id="lieux-verifications">Vérifications sur d'autres sources</h3>
+<p>Les territoires et les établissements où les sources divergent sont vérifiés un à un sur leurs propres publications (site de l'établissement, documents des agences régionales de santé, listes ouvertes des collectivités). Pour les établissements de la liste vérifiée ci-dessus, leurs structures sont reprises une à une et remplacent la réunion des deux bases. Les autres constats ne modifient pas les chiffres. Ils servent à corriger les règles de réunion pour toute la France quand une erreur de règle apparaît, et à écrire, là où la donnée est montrée, ce qui a été constaté, avec sa source et sa date. Une vérification de plus de douze mois est signalée comme à refaire.</p>
+<details><summary>Vérifications sur d'autres sources (13)</summary>
+<div class="defile"><table class="simple filtrable">
+<thead><tr><th>Département</th><th>Ce qui a été vérifié</th><th>Constat</th><th>Source</th><th>Date</th></tr></thead>
+<tbody>
+<tr><td>01</td><td>Centre psychothérapique de l&#39;Ain</td><td>Le site de l&#39;établissement liste 10 CMP pour enfants et adolescents, 9 CMP adultes de secteur, un CMP de réhabilitation, un CMP pour personnes âgées et un CMP au centre pénitentiaire de Bourg-en-Bresse. Les 21 CMP recensés ici correspondent à cette liste, sauf le CMP du centre pénitentiaire, que FINESS et le ROR ne décrivent pas comme un CMP.</td><td><a href="https://www.cpa01.fr/offre-soins/services-soins-psychiatrie/">Centre psychothérapique de l&#39;Ain, services de soins en psychiatrie</a></td><td>2026-10-12</td></tr>
+<tr><td>69</td><td>Métropole de Lyon, liste des centres médico-psychologiques</td><td>La liste ouverte de la Métropole compte 50 lieux, pour 54 CMP recensés ici sur son territoire. 35 se retrouvent par leur numéro FINESS. 11 portent un numéro fermé dans FINESS entre 2021 et 2026, et plusieurs de ces CMP figurent dans le ROR sous un autre nom. Les 4 derniers sont des unités de liaison ou d&#39;urgence et un service départemental, qui ne sont pas des CMP.</td><td><a href="https://www.data.gouv.fr/datasets/centres-medico-psychologiques-de-la-metropole-de-lyon">Métropole de Lyon, centres médico-psychologiques (data.gouv.fr, Licence Ouverte)</a></td><td>2026-10-12</td></tr>
+<tr><td>86</td><td>Centre hospitalier Henri Laborit</td><td>Le livret de l&#39;établissement liste pour les adultes trois CMP de secteur installés au même endroit à Poitiers (14 rue Gay-Lussac, compté ici comme un seul lieu), le CMP Georges Ruetsch à Châtellerault, le CMP Signes, et des antennes à Loudun, Neuville-de-Poitou, Mirebeau, Vouillé, Civray, Vivonne, Gençay, Lusignan, Chauvigny et Montmorillon. Le CMP Georges Ruetsch et les antennes de Civray et de Vivonne pour adultes ne sont décrits comme CMP ni dans FINESS ni dans le ROR. Pour les enfants et les adolescents, il cite les CMP Françoise Dolto à Châtellerault, Sud Vienne et Nord Charente à Ruffec et Mosaïque à Poitiers.</td><td><a href="https://ch-laborit.fr/wp-content/uploads/1/2026/10/CH-Laborit-Ressources-oct-2026-web.pdf">CH Henri Laborit, livret ressources (octobre 2026)</a></td><td>2026-10-13</td></tr>
+<tr><td>87</td><td>Centre hospitalier Esquirol</td><td>Le guide de l&#39;établissement présente pour les adultes les CMP de Saint-Junien, Magnac-Laval, Saint-Léonard-de-Noblat, Saint-Yrieix-la-Perche et Van Gogh à Limoges, le CMP Sainte-Claire pour les personnes âgées, et trois CMP spécialisés installés sur le site de l&#39;hôpital à Limoges (Ellen Frank, Michel Foucault, Pinel), réunis ici en un seul lieu. Pour les enfants et les adolescents, il présente des centres de consultations et de soins ambulatoires sur le site de l&#39;hôpital. Ces lieux correspondent à ceux recensés ici, sauf le CMP de Beaubreuil, présent dans FINESS et le ROR mais absent du guide. Les 27 CMP pour adultes que l&#39;établissement déclare à la SAE comptent donc des unités ou des antennes qu&#39;il ne présente pas comme des lieux distincts.</td><td><a href="https://www.ch-esquirol-limoges.fr/wp-content/uploads/2023/10/guide-offre-de-soins-1.pdf">CH Esquirol, guide de l&#39;offre de soins (mis en ligne en octobre 2023, annoncé comme mis à jour chaque mois)</a></td><td>2026-10-13</td></tr>
+<tr><td>67</td><td>Établissement public de santé Alsace Nord (EPSAN)</td><td>Le site de l&#39;établissement liste pour les adultes des CMP à Wissembourg, Saverne, Haguenau (dont un pour personnes âgées), Strasbourg (rue de Koenigshoffen, rue Boecklin et une antenne rue Jacques-Kablé), Hochfelden, Molsheim, Schirmeck et Bischheim, et un CMP en milieu pénitentiaire à Strasbourg. Il présente les sites de Bischwiller, Brumath, Schiltigheim (rue de Wissembourg) et Molsheim (rue Schweisguth) comme des centres thérapeutiques de jour ou des hôpitaux de jour, que le ROR décrit comme CMP. Les antennes de Hochfelden et de la rue Jacques-Kablé et le CMP pour personnes âgées de Haguenau ne sont décrits comme CMP ni dans FINESS ni dans le ROR. Pour les enfants et les adolescents, le site ne donne pas l&#39;adresse des CMP.</td><td><a href="https://www.ch-epsan.fr/secteurspsy.html">EPSAN, les secteurs de psychiatrie adulte</a></td><td>2026-10-13</td></tr>
+<tr><td>68</td><td>Groupe hospitalier de la région de Mulhouse et Sud Alsace</td><td>Le site du groupe hospitalier présente un CMP pour enfants de 3 à 11 ans à l&#39;hôpital du Hasenrain à Mulhouse, un CMP et CATTP à Saint-Louis, et des consultations médico-psychologiques dans les CATTP de Sierentz et pour personnes âgées à Mulhouse. Aucun de ces lieux n&#39;est décrit comme CMP dans FINESS ou le ROR. Le site ne donne pas de liste complète des lieux de consultation pour adultes, alors que l&#39;établissement déclare 12 CMP pour adultes et 5 pour enfants à la SAE.</td><td><a href="https://www.ghrmsa.fr/fonctionnel/annuaire-des-services-475.html">GHRMSA, annuaire des services</a></td><td>2026-10-13</td></tr>
+<tr><td>68</td><td>Hôpitaux civils de Colmar</td><td>Le site de l&#39;établissement situe les CMP pour adultes du secteur 68G01 à l&#39;hôpital le Parc et avenue de Rome à Colmar, et rue Wilson à Sainte-Marie-aux-Mines, et cite un CMP pour enfants et adolescents sans en donner l&#39;adresse. Aucun n&#39;est décrit comme CMP dans FINESS ou le ROR.</td><td><a href="https://ch-colmar.fr/pole/psychiatrie/psychiatrie-adulte/psychiatrie-adulte/">Hôpitaux civils de Colmar, psychiatrie adulte</a></td><td>2026-10-13</td></tr>
+<tr><td>79</td><td>Centre hospitalier de Niort</td><td>Le site de l&#39;établissement présente ses CMP en sept lieux, Niort (40 avenue Charles-de-Gaulle pour les adultes et les adolescents, 2 rue de Romagné pour les enfants), Chef-Boutonne, Saint-Maixent-l&#39;École, Melle (rue Saint-Pierre pour les adultes, rue Eloi-Ricard pour les enfants et les adolescents) et Parthenay (tous publics). FINESS et le ROR décrivent sept lieux du même établissement, mais placent le CMP pour adultes de Niort rue Mazagran et déclarent pour adultes seulement les CMP de la rue Eloi-Ricard à Melle et de Parthenay.</td><td><a href="https://www.ch-niort.fr/patients-residents-et-accompagnants/nos-services">CH de Niort, nos services</a></td><td>2026-10-13</td></tr>
+<tr><td>82</td><td>Centre hospitalier de Montauban</td><td>Le site de l&#39;établissement liste pour les adultes les CMP Gambetta et Capou à Montauban, Castelsarrasin, Valence-d&#39;Agen et Nègrepelisse, avec des permanences à Beaumont-de-Lomagne et Grisolles, et pour les enfants et les adolescents des CMP à Montauban (dont le CAMPA pour les adolescents), Castelsarrasin et Moissac, avec des antennes à Beaumont-de-Lomagne et Valence-d&#39;Agen. Dans FINESS, le CMP pour adultes enregistré à Caussade porte l&#39;adresse de celui de Nègrepelisse (75 rue des Marchats). Un CMP pour adultes rue Léon-Cladel à Montauban et un à Moissac n&#39;apparaissent pas sur le site, et le CMP pour adultes de Valence-d&#39;Agen n&#39;est décrit ni dans FINESS ni dans le ROR.</td><td><a href="https://www.ch-montauban.fr/pole/pole-psychiatrie-adulte/psychiatrie-adulte/page/les-centre-medicaux-psychologiques/">CH de Montauban, les centres médico-psychologiques</a></td><td>2026-10-13</td></tr>
+<tr><td>69</td><td>Centre hospitalier de Saint-Cyr-au-Mont-d&#39;Or</td><td>Le site de l&#39;établissement liste pour les adultes 7 lieux du secteur 69G34 (Beaujeu, Gleizé, Bois-d&#39;Oingt, Tarare, Thizy, Grandris et la maison d&#39;arrêt de Villefranche) et 5 du secteur 69G35 (Albigny, Champagne-au-Mont-d&#39;Or, L&#39;Arbresle, Lyon Duchère et Vaise), et pour les enfants et adolescents environ 13 lieux. Les CMP pour adultes du site sont recensés ici, sauf Vaise, qui n&#39;apparaît que par la consultation pour personnes sourdes située dans ce quartier. À Tarare, l&#39;établissement liste pour les adultes un CMP-CATTP au 46 rue Gaston-Salet, auquel est désormais réuni le CMP enregistré dans FINESS à l&#39;adresse de l&#39;hôpital, et pour les enfants et adolescents un CMP-CATTP au 41 rue Étienne-Dolet et un hôpital de jour au 46 rue Gaston-Salet, que FINESS et le ROR décrivent tous deux comme un CMP (il reste compté ici parmi les CMP). La consultation de la maison d&#39;arrêt est rangée parmi les soins en milieu pénitentiaire. La SAE compte 42 CMP pour l&#39;établissement, davantage que les lieux listés sur son site.</td><td><a href="https://www.ch-st-cyr69.fr/?p=288">CH de Saint-Cyr-au-Mont-d&#39;Or, offre de soins</a></td><td>2026-10-13</td></tr>
+<tr><td>83</td><td>Établissement public de santé du Var (ex-CH de Pierrefeu)</td><td>Le site de l&#39;établissement liste des CMP pour adultes à Brignoles, Cuers, Hyères, La Garde et Saint-Maximin avec des antennes à La Valette et au Luc, des CMP pour enfants et adolescents à Brignoles, Cuers, Hyères et Saint-Maximin avec une antenne au Luc, des CMP de gérontopsychiatrie à Brignoles, La Garde et Pierrefeu, et des consultations avancées dans des CCAS. Le ROR décrit aussi comme CMP des permanences tenues dans des mairies, des CCAS et des maisons de santé (Bormes-les-Mimosas, Carcès, Carqueiranne, La Crau, La Farlède, Le Lavandou, Solliès-Toucas), comptées ici comme structures, d&#39;où un total supérieur aux 16 CMP déclarés à la SAE. Le CMP pour enfants de Cuers et l&#39;antenne de La Valette ne sont pas recensés, et les CMP de Solliès-Pont décrits par le ROR ne figurent pas sur cette page.</td><td><a href="https://www.ch-pierrefeu.fr/coordonnees-tous-sites/">EPSY Var, coordonnées de tous les sites</a></td><td>2026-10-13</td></tr>
+<tr><td>67</td><td>Centre hospitalier d&#39;Erstein</td><td>Le site de l&#39;établissement appelle centres de jour ses lieux de consultation pour adultes (Strasbourg Sud, Lingolsheim, Sélestat, Obernai, Erstein), dont les adresses de courriel portent le nom de CMP, et liste pour les enfants et adolescents des CMP et CATTP à Lingolsheim et Schirmeck et des centres de jour à Erstein, Sélestat et Molsheim. Le ROR les décrit comme CMP, de même que l&#39;hôpital de jour d&#39;Illkirch-Graffenstaden, une unité de réhabilitation et une consultation pour enfants à Obernai, que le site ne présente pas comme des CMP. Aucun n&#39;est enregistré comme CMP dans FINESS, et la SAE en déclare 26 pour l&#39;établissement.</td><td><a href="https://www.ch-erstein.fr/infos-pratiques/lieux-de-consulations">CH d&#39;Erstein, lieux de consultations et pages des pôles</a></td><td>2026-10-13</td></tr>
+<tr><td>84</td><td>Centre hospitalier de Montfavet</td><td>Le site de l&#39;établissement liste 15 CMP pour adultes (Carpentras, Bollène, Orange, Vaison-la-Romaine, Valréas, Erasmus et Saint-Lazare à Avignon, La Fraternité à Montfavet, Châteaurenard, Sorgues, Saint-Rémy-de-Provence, Apt, Cavaillon, L&#39;Isle-sur-la-Sorgue, Sénas) et 8 CMP pour enfants et adolescents (Avignon, Apt, Bollène, Carpentras, Cavaillon, Orange, Sorgues, Valréas). Le ROR décrivait plusieurs de ces CMP deux fois, sous le nom de leur nouveau pôle et à l&#39;adresse de l&#39;hôpital. Ces doubles sont désormais réunis. Restent ici en plus, pour les adultes, deux CMP à Avignon (Guillaume-Broutet et Joseph-Grasset) et le CMP Erasmus décrit sous deux numéros, et pour les enfants, des CMP à Châteaurenard, L&#39;Isle-sur-la-Sorgue et Vaison-la-Romaine que la page ne cite pas. Le CMP pour enfants de Cavaillon (63 avenue de Verdun), décrit aussi à son ancienne adresse, et celui de L&#39;Isle-sur-la-Sorgue (avenue de la Libération), que le ROR décrivait aussi à l&#39;adresse de l&#39;hôpital, ne comptent plus qu&#39;une fois chacun.</td><td><a href="https://www.ch-montfavet.fr/nos-activites/loffre-de-soins-adulte/">CH de Montfavet, offre de soins adulte et enfant</a></td><td>2026-10-13</td></tr>
+</tbody></table></div>
+</details>
+
+<p>« Sans objet » signale un type que FINESS ne distingue pas (unités hospitalières, équipes mobiles...), décrit seulement par le ROR. Le détail est dans les fichiers lieux_soins.csv (une structure par ligne, avec son emplacement, sa provenance et les professionnels déclarés sur place), lieux_soins_dep.csv, distances_lieux_dep.csv, concordance_finess_ror.csv et lieux_references.csv.</p>
+
+
+
+
+
+
+
+
+</div>
+</div>
+
+
+<footer>
+  Données du 23 octobre 2026. Sources, répertoire RPPS, FINESS, Répertoire opérationnel des ressources, INSEE (dont Sirene), Assurance Maladie, CAF, Santé publique France, DREES, HAS, IGN (voir <a href="methode.html">Méthode, données et limites</a>).
+  Résultats sous Licence Ouverte 2.0, en citant la source et la date de la version, sauf les indicateurs tirés des bases de l&#39;Assurance Maladie (Cnam, data.ameli.fr, cartographie des pathologies, secteurs conventionnels, patients sans médecin traitant) et ce qui en dérive, diffusés sous licence ODbL 1.0 (partage à l&#39;identique). Les fichiers suffixés _odbl et les données intégrées à l&#39;atlas, qui contiennent ces indicateurs, sont sous ODbL. Les rapports et les cartes qui les affichent contiennent des informations issues de cette base sous ODbL.
+  <p class="pied-liens"><a href="donnees-sources.html">Données sources</a> <a href="journal.html">Journal des mises à jour</a> <a href="a-venir.html">À venir</a> <a href="contribuer.html">Proposer une base de données</a> <a href="a-propos.html">À propos</a></p>
+</footer>
+</main>
+<script>
+// tableaux plus larges que la colonne de texte, fondu à droite et phrase d'indication tant qu'il reste des colonnes
+(function(){function maj(t){var d=t.scrollWidth>t.clientWidth+2;t.classList.toggle("deborde-d",d&&t.scrollLeft+t.clientWidth<t.scrollWidth-2);
+var n=t.nextElementSibling;if(!(n&&n.classList.contains("indice-defil"))){if(!d)return;n=document.createElement("p");n.className="indice-defil";n.textContent="Faites défiler le tableau vers la droite pour voir les autres colonnes.";t.after(n)}n.hidden=!d}
+// figures, choix de la profession (rapports, 9 octobre 2026)
+document.querySelectorAll("figure.graphique").forEach(function(fig){
+  var leg=fig.querySelector(".leg");
+  fig.querySelectorAll(".choix-variante button").forEach(function(b,i,tous){b.addEventListener("click",function(){
+    var vs=fig.querySelectorAll(".variante");vs.forEach(function(v,j){v.hidden=j!==i});
+    tous.forEach(function(x,j){x.setAttribute("aria-pressed",String(j===i))});
+    var t=vs[i].querySelector("title");if(leg&&t)leg.textContent=t.textContent})})});
+var ts=document.querySelectorAll(".corps table");ts.forEach(function(t){maj(t);t.addEventListener("scroll",function(){maj(t)},{passive:true})});
+addEventListener("resize",function(){ts.forEach(maj)})})();
+</script>
+<script>
+// Graphiques interactifs, communs aux rapports et à l'atlas (demande de Lucas du 9 octobre 2026).
+// Infobulle au survol de chaque point ou zone qui porte un titre, clic pour la garder, zoom à la molette et par
+// boutons, déplacement à la souris quand le graphique est zoomé. La page n'est pas bloquée, une molette qui
+// arrive pendant le défilement de la page continue de faire défiler la page.
+// Réglage, window.FIGURES = {zoom: "sélecteur des svg zoomables", bulle: "sélecteur des svg à infobulles"}.
+(function(){
+  var R=window.FIGURES||{zoom:"figure.zoomable svg",bulle:"figure.graphique svg"};
+  var bulle=document.createElement("div");bulle.className="bulle-fig";bulle.setAttribute("role","status");
+  document.addEventListener("DOMContentLoaded",function(){document.body.appendChild(bulle)});
+  if(document.body)document.body.appendChild(bulle);
+  var epingle=null,dernierDefil=0;
+  addEventListener("scroll",function(){dernierDefil=Date.now();if(!epingle)cacher()},{passive:true});
+  function svgDe(el,sel){var s=el&&el.closest&&el.closest("svg");while(s&&s.ownerSVGElement)s=s.ownerSVGElement;return s&&s.matches(sel)?s:null}
+  // texte de l'élément survolé, pris dans son titre (déplacé dans data-info pour éviter la bulle du navigateur)
+  function info(el,s){
+    for(var e=el;e&&e!==s;e=e.parentNode){
+      if(e.dataset&&e.dataset.info)return [e,e.dataset.info];
+      var t=e.querySelector&&e.querySelector(":scope > title");
+      if(t&&e!==s){e.dataset.info=t.textContent;t.remove();return [e,e.dataset.info]}}
+    return null}
+  function montrer(x,y,txt){bulle.textContent=txt;bulle.style.opacity=1;var w=bulle.offsetWidth,h=bulle.offsetHeight;
+    bulle.style.left=Math.max(8,Math.min(x+14,innerWidth-w-8))+"px";bulle.style.top=Math.max(8,y-h-12<8?y+16:y-h-12)+"px"}
+  function cacher(){bulle.style.opacity=0}
+  document.addEventListener("pointermove",function(ev){
+    if(epingle)return;var s=svgDe(ev.target,R.bulle);if(!s){cacher();return}
+    var i=info(ev.target,s);if(i)montrer(ev.clientX,ev.clientY,i[1]);else cacher()});
+  document.addEventListener("click",function(ev){
+    var s=svgDe(ev.target,R.bulle);
+    if(epingle){epingle.removeAttribute("data-choisi");epingle=null}
+    if(!s){cacher();return}
+    var i=info(ev.target,s);if(!i){cacher();return}
+    epingle=i[0];epingle.setAttribute("data-choisi","");montrer(ev.clientX,ev.clientY,i[1])});
+  document.addEventListener("keydown",function(ev){if(ev.key==="Escape"&&epingle){epingle.removeAttribute("data-choisi");epingle=null;cacher()}});
+
+  // zoom, le cadrage d'origine est repris chaque fois que la page redessine le graphique
+  function cadre(s){var v=s.getAttribute("viewBox");if(!v)return null;if(s.dataset.vbz!==v)s.dataset.vb0=v;return v.split(/[ ,]+/).map(Number)}
+  function zoomer(s,k,cx,cy){var b=cadre(s);if(!b)return;var o=s.dataset.vb0.split(/[ ,]+/).map(Number);
+    var w=Math.min(o[2],b[2]*k),h=Math.min(o[3],b[3]*k);if(w<o[2]/12)return;
+    if(cx==null){cx=b[0]+b[2]/2;cy=b[1]+b[3]/2}
+    var x=cx-(cx-b[0])*w/b[2],y=cy-(cy-b[1])*h/b[3];
+    x=Math.max(o[0],Math.min(x,o[0]+o[2]-w));y=Math.max(o[1],Math.min(y,o[1]+o[3]-h));
+    var v=[x,y,w,h].map(function(n){return +n.toFixed(2)}).join(" ");s.setAttribute("viewBox",v);s.dataset.vbz=v;boutons(s)}
+  function entier(s){return !s.dataset.vb0||s.getAttribute("viewBox")===s.dataset.vb0}
+  function boutons(s){
+    var hote=s.closest(".fig-corps")||s.closest("figure");
+    if(!hote){
+      // hors d'une figure (atlas), les boutons vont sur une ligne à eux juste au-dessus du graphique, sans recouvrir le
+      // titre du panneau ni le bouton Citer
+      hote=s.parentNode;
+      if(hote&&!hote.classList.contains("fig-zoom")){var enveloppe=document.createElement("div");enveloppe.className="fig-zoom";
+        hote.insertBefore(enveloppe,s);enveloppe.appendChild(s);hote=enveloppe}
+    }
+    if(!hote||hote.querySelector(":scope > .zoom-boutons"))return;
+    var bz=document.createElement("div");bz.className="zoom-boutons";
+    bz.innerHTML='<button type="button" aria-label="Zoomer">+</button><button type="button" aria-label="Dézoomer">−</button><button type="button" aria-label="Revenir à la vue entière">⟲</button>';
+    if(getComputedStyle(hote).position==="static")hote.style.position="relative";
+    hote.insertBefore(bz,hote.firstChild);
+    var cible=function(){var v=hote.querySelector(".variante:not([hidden]) svg");return v||s};
+    var b=bz.querySelectorAll("button");
+    b[0].onclick=function(){zoomer(cible(),.6)};b[1].onclick=function(){zoomer(cible(),1/.6)};
+    b[2].onclick=function(){var c=cible();cadre(c);if(c.dataset.vb0){c.setAttribute("viewBox",c.dataset.vb0);c.dataset.vbz=c.dataset.vb0}}}
+  document.querySelectorAll(R.zoom).forEach(boutons);
+  document.addEventListener("pointerover",function(ev){var s=svgDe(ev.target,R.zoom);if(s)boutons(s)});
+  // la molette seule fait toujours défiler la page ; le zoom à la molette demande Ctrl (ou ⌘), sinon le curseur restait
+  // pris dans la figure (remarque de Lucas du 23 octobre 2026) ; les boutons + et − restent le moyen ordinaire
+  document.addEventListener("wheel",function(ev){
+    if(!(ev.ctrlKey||ev.metaKey))return;
+    var s=svgDe(ev.target,R.zoom);if(!s)return;
+    if(Date.now()-dernierDefil<450)return;                       // la page défile, on la laisse défiler
+    if(ev.deltaY>0&&entier(s))return;                           // vue entière, molette vers le bas, la page défile
+    ev.preventDefault();var p=s.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;
+    var q=p.matrixTransform(s.getScreenCTM().inverse());zoomer(s,ev.deltaY<0?.8:1.25,q.x,q.y)},{passive:false});
+  var dep=null;
+  document.addEventListener("pointerdown",function(ev){var s=svgDe(ev.target,R.zoom);if(!s||entier(s))return;
+    var b=cadre(s);dep={x:ev.clientX,y:ev.clientY,b:b,s:s,k:b[2]/s.getBoundingClientRect().width,bouge:false}});
+  addEventListener("pointermove",function(ev){if(!dep)return;var o=dep.s.dataset.vb0.split(/[ ,]+/).map(Number),b=dep.b;
+    if(Math.abs(ev.clientX-dep.x)+Math.abs(ev.clientY-dep.y)>3)dep.bouge=true;if(!dep.bouge)return;
+    var x=Math.max(o[0],Math.min(b[0]-(ev.clientX-dep.x)*dep.k,o[0]+o[2]-b[2])),y=Math.max(o[1],Math.min(b[1]-(ev.clientY-dep.y)*dep.k,o[1]+o[3]-b[3]));
+    var v=[x,y,b[2],b[3]].map(function(n){return +n.toFixed(2)}).join(" ");dep.s.setAttribute("viewBox",v);dep.s.dataset.vbz=v});
+  addEventListener("pointerup",function(){dep=null});
+
+  // figures des rapports, même modèle que l'atlas (10 octobre 2026). Sous le titre « Figure N. légende », une ligne
+  // « Citer et exporter » ouvre la citation du rapport suivie du numéro et de la légende, l'image (copie, PNG, SVG, avec
+  // la citation dessous) et les données de la figure. La citation du rapport est donnée par la page (data-citation).
+  function citerFigures(){
+    var porte=document.querySelector("[data-citation]");if(!porte)return;var base=porte.dataset.citation;
+    document.querySelectorAll("figure.graphique").forEach(function(f){
+      if(f.dataset.cite)return;f.dataset.cite="1";
+      var cap=f.querySelector("figcaption");
+      var ligne=document.createElement("div");ligne.className="outils-figure";
+      var bc=document.createElement("button");bc.type="button";bc.className="citer-fig";bc.textContent="Citer et exporter";bc.setAttribute("aria-expanded","false");ligne.appendChild(bc);
+      if(cap)cap.after(ligne);else f.insertBefore(ligne,f.firstChild);
+      var boite=document.createElement("div");boite.className="citation-fig";boite.hidden=true;ligne.after(boite);
+      bc.onclick=function(){var ouvert=boite.hidden;bc.setAttribute("aria-expanded",String(ouvert));boite.hidden=!ouvert;if(!ouvert)return;
+        // la légende suit la profession choisie, la citation est donc refaite à chaque ouverture
+        var num=cap&&cap.querySelector("strong"),leg=cap&&cap.querySelector(".leg");
+        var ref=(num?num.textContent.replace(/\.$/,""):"Figure")+(leg?", "+leg.textContent.trim():"");
+        var texte=base.replace(/\s*$/,"")+(/[.]$/.test(base.trim())?" ":". ")+ref+".";
+        var nom=(ref.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,80)||"figure").toLowerCase();
+        boite.innerHTML='<p></p><div class="citation-actions"><button type="button" data-a="cit">Copier la citation</button></div>'
+          +'<ul class="exports"><li><span class="nom"><span class="genre">Image</span> de la figure</span><span class="citation-actions"><button type="button" data-a="img">Copier l’image</button><button type="button" data-a="png">PNG</button><button type="button" data-a="svg">SVG</button></span></li>'
+          +(f.dataset.donnees?'<li><span class="nom"><span class="genre">Données</span> de la figure, '+f.dataset.donneesNom+'</span><span class="citation-actions"><a class="bouton" download href="'+f.dataset.donnees+'">CSV</a></span></li>':'')
+          +'</ul><p class="small muted">Chaque fichier porte la citation du rapport, merci de la joindre à toute reprise.</p>';
+        boite.querySelector("p").textContent=texte;
+        boite.querySelectorAll("button").forEach(function(b){b.onclick=function(){var a=b.dataset.a;
+          if(a==="cit"){navigator.clipboard.writeText(texte).then(function(){b.textContent="Citation copiée"},function(){b.textContent="Copie impossible ici"});return}
+          var src=f.querySelector(".variante:not([hidden]) svg")||f.querySelector("svg");if(!src)return;
+          var svg=imageCitee(src,texte);
+          if(a==="svg"){enregistrer(new Blob([svg],{type:"image/svg+xml"}),nom+".svg");b.textContent="Enregistré";return}
+          var img=new Image(),url=URL.createObjectURL(new Blob([svg],{type:"image/svg+xml"}));
+          img.onload=function(){var c=document.createElement("canvas");c.width=img.width;c.height=img.height;c.getContext("2d").drawImage(img,0,0);URL.revokeObjectURL(url);
+            c.toBlob(function(png){if(!png)return;
+              if(a==="png"){enregistrer(png,nom+".png");b.textContent="Enregistré";return}
+              navigator.clipboard.write([new ClipboardItem({"image/png":png})]).then(function(){b.textContent="Image copiée"},function(){b.textContent="Copie impossible ici, utilisez PNG"})})};img.src=url}})}})}
+  function imageCitee(src,texte){
+    var ns="http://www.w3.org/2000/svg",c=src.cloneNode(true),vb=(src.dataset.vb0||src.getAttribute("viewBox")||"0 0 600 400").split(/[ ,]+/).map(Number);
+    // taille commune des exports (harmonisation, 22 octobre 2026), dessin rapporté à 800 pixels, image à 1 600, citation
+    // au petit corps de l'échelle typographique (11,5 pixels à cette largeur), couleurs du fond clair (valeurs de repli
+    // des variables, seules lues dans un fichier SVG isolé)
+    var fs=11.5*vb[2]/800,par=Math.max(40,Math.floor((vb[2]-16)/(fs*.55))),lignes=[];
+    texte.split(" ").forEach(function(m){var l=lignes.length?lignes[lignes.length-1]:null;if(l!=null&&(l+" "+m).length<=par)lignes[lignes.length-1]=l+" "+m;else lignes.push(m)});
+    var hc=fs*1.4*lignes.length+fs;c.setAttribute("xmlns",ns);c.setAttribute("viewBox",[vb[0],vb[1],vb[2],vb[3]+hc].join(" "));
+    c.setAttribute("width",1600);c.setAttribute("height",Math.round((vb[3]+hc)*1600/vb[2]));
+    var fond=document.createElementNS(ns,"rect");fond.setAttribute("x",vb[0]);fond.setAttribute("y",vb[1]);fond.setAttribute("width",vb[2]);fond.setAttribute("height",vb[3]+hc);fond.setAttribute("fill","#FFFFFF");c.insertBefore(fond,c.firstChild);
+    lignes.forEach(function(l,i){var t=document.createElementNS(ns,"text");t.setAttribute("x",vb[0]+8);t.setAttribute("y",vb[1]+vb[3]+fs*1.4*(i+1));t.setAttribute("font-size",fs);t.setAttribute("fill","#5F6675");t.setAttribute("font-family","Work Sans, Segoe UI, sans-serif");t.textContent=l;c.appendChild(t)});
+    return new XMLSerializer().serializeToString(c)}
+  function enregistrer(blob,nom){var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=nom;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},1000)}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",citerFigures);else citerFigures();
+
+  // tableaux des rapports et des pages, citables et exportables comme les figures (version 2, point 1, 22 octobre 2026).
+  // La citation est celle du rapport (data-citation) ou de la page (data-citation-page et son adresse), suivie du titre
+  // du tableau, tiré de sa légende ou de l'intertitre qui le précède (décision de Lucas, titre sans numéro). Le CSV
+  // reprend les lignes affichées, au format des fichiers du site (point-virgule, virgule décimale, nombres sans
+  // séparateur de milliers), avec la citation en dernière ligne.
+  function titreTableau(t){
+    if(t.caption&&t.caption.textContent.trim())return t.caption.textContent.trim();
+    for(var e=t.closest(".defile")||t;e&&e.tagName!=="MAIN";e=e.parentElement){
+      for(var p=e.previousElementSibling;p;p=p.previousElementSibling){
+        if(/^H[2-5]$/.test(p.tagName))return p.textContent.replace(/\s+/g," ").trim();
+        var h=p.querySelectorAll&&p.querySelectorAll("h2,h3,h4,h5");if(h&&h.length)return h[h.length-1].textContent.replace(/\s+/g," ").trim()}
+      if(e.tagName==="DETAILS"){var s=e.querySelector("summary");if(s)return s.textContent.trim()}}
+    return "Tableau"}
+  function celluleCsv(c){
+    // une adresse raccourcie à l'écran est écrite en entier dans le fichier
+    if(c.querySelectorAll){var lien=[].filter.call(c.querySelectorAll("a[href^='http']"),function(a){return /…$/.test(a.textContent.trim())});
+      if(lien.length){c=c.cloneNode(true);[].forEach.call(c.querySelectorAll("a[href^='http']"),function(a){if(/…$/.test(a.textContent.trim()))a.textContent=a.href})}}
+    var v=c.textContent.replace(/[\s  ]+/g," ").trim();
+    if(/^[−-]?\d{1,3}( \d{3})+(,\d+)?$/.test(v))v=v.replace(/ /g,"");
+    v=v.replace(/^−(?=\d)/,"-");
+    return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+  function tableauCsv(t){
+    return "﻿"+[].filter.call(t.querySelectorAll("tr"),function(tr){return !tr.hidden&&tr.style.display!=="none"})
+      .map(function(tr){return [].map.call(tr.children,celluleCsv).join(";")}).join("\r\n")}
+  function citerTableaux(){
+    var main=document.querySelector("main");if(!main)return;
+    var porte=document.querySelector("[data-citation]"),base;
+    if(porte)base=porte.dataset.citation.replace(/\s*$/,"");
+    else{base=(main.dataset.citationPage||"").replace(/\s*$/,"");if(!base)return;
+      var adr=main.dataset.adresse;base+=(adr?", "+adr+location.pathname.replace(/\/index\.html$/,"/"):"")+"."}
+    main.querySelectorAll("table").forEach(function(t){
+      if(t.dataset.cite||t.closest(".citation-fig,.sommaire,details.versions,nav,figure"))return;t.dataset.cite="1";
+      var bloc=t.closest(".defile")||t;
+      var ligne=document.createElement("div");ligne.className="outils-figure outils-tableau";
+      var bc=document.createElement("button");bc.type="button";bc.className="citer-fig";bc.textContent="Citer et exporter";bc.setAttribute("aria-expanded","false");ligne.appendChild(bc);
+      bloc.before(ligne);
+      var boite=document.createElement("div");boite.className="citation-fig";boite.hidden=true;ligne.after(boite);
+      bc.onclick=function(){var ouvert=boite.hidden;bc.setAttribute("aria-expanded",String(ouvert));boite.hidden=!ouvert;if(!ouvert)return;
+        var titre=titreTableau(t),texte=base+(/[.]$/.test(base)?" ":". ")+"Tableau, « "+titre+" ».";
+        var nom=(titre.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,80)||"tableau").toLowerCase();
+        boite.innerHTML='<p></p><div class="citation-actions"><button type="button" data-a="cit">Copier la citation</button></div>'
+          +'<ul class="exports"><li><span class="nom"><span class="genre">Données</span> du tableau, telles qu’affichées</span><span class="citation-actions"><button type="button" data-a="csv">CSV</button></span></li></ul>'
+          +'<p class="small muted">Le fichier porte la citation de la page, merci de la joindre à toute reprise.</p>';
+        boite.querySelector("p").textContent=texte;
+        boite.querySelectorAll("button").forEach(function(b){b.onclick=function(){
+          if(b.dataset.a==="cit"){navigator.clipboard.writeText(texte).then(function(){b.textContent="Citation copiée"},function(){b.textContent="Copie impossible ici"});return}
+          enregistrer(new Blob([tableauCsv(t)+"\r\n\r\n"+celluleCsv({textContent:texte})],{type:"text/csv;charset=utf-8"}),nom+".csv");b.textContent="Enregistré"}})}})}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",citerTableaux);else citerTableaux();
+
+  // « Comment lire » des rapports (audit du 22 octobre 2026, lot 2), un bouton sur la ligne d'outils de la figure ou du
+  // tableau commenté, à côté de « Citer et exporter », comme dans l'atlas. Le paragraphe garde sa place et s'ouvre au
+  // clic ; s'il ne suit pas une figure ou un tableau, il reste affiché. À l'impression il est toujours visible.
+  function lireReplie(){
+    document.querySelectorAll(".corps p.comment-lire").forEach(function(p){
+      if(p.dataset.lire)return;p.dataset.lire="1";var ligne=null,e=p.previousElementSibling;
+      for(var k=0;e&&k<5&&!ligne;k++,e=e.previousElementSibling){
+        if(e.matches("figure.graphique"))ligne=e.querySelector(".outils-figure");
+        else if(e.matches(".defile,table")){for(var o=e.previousElementSibling,j=0;o&&j<3;o=o.previousElementSibling,j++)if(o.classList.contains("outils-tableau")){ligne=o;break}}
+        else if(e.matches("h2,h3,h4,h5,.comment-lire"))break}
+      if(!ligne)return;
+      var b=document.createElement("button");b.type="button";b.className="citer-fig lire-fig";b.textContent="Comment lire";b.setAttribute("aria-expanded","false");
+      ligne.insertBefore(b,ligne.firstChild);p.classList.add("repli");
+      b.onclick=function(){var o=p.classList.contains("repli");p.classList.toggle("repli",!o);b.setAttribute("aria-expanded",String(o))}})}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",lireReplie);else lireReplie();
+
+  // longs tableaux de consultation (pages de la méthode), un champ filtre les lignes à mesure qu'on tape
+  function filtres(){
+    document.querySelectorAll("table.filtrable").forEach(function(t){
+      if(t.dataset.filtre)return;t.dataset.filtre="1";var bloc=t.closest(".defile")||t;
+      var l=document.createElement("label");l.className="filtre-tableau";l.innerHTML='<span>Filtrer le tableau</span><input type="search" autocomplete="off">';
+      var ligne=bloc.previousElementSibling&&bloc.previousElementSibling.classList.contains("citation-fig")?bloc.previousElementSibling:bloc;ligne.before(l);
+      var n=document.createElement("span");n.className="small muted";l.appendChild(n);
+      var champ=l.querySelector("input"),lignes=[].slice.call(t.tBodies[0]?t.tBodies[0].rows:[]);
+      var norm=function(x){return x.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()};
+      champ.addEventListener("input",function(){var q=norm(champ.value.trim()),k=0;
+        lignes.forEach(function(r){var ok=!q||norm(r.textContent).indexOf(q)>=0;r.hidden=!ok;if(ok)k++});
+        n.textContent=q?k+" ligne"+(k>1?"s":"")+" sur "+lignes.length:""})})}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",filtres);else filtres();
+})();
+
+// Figures qui apparaissent en douceur quand on arrive dessus (refonte du 23 octobre 2026). La classe posée sur la racine
+// n'existe qu'avec le script, si bien qu'une figure reste visible quand il ne tourne pas ; impression exclue.
+(function(){
+  if(!("IntersectionObserver" in window)||matchMedia("print").matches)return;
+  const cibles=document.querySelectorAll("figure.graphique,.une-carte");if(!cibles.length)return;
+  document.documentElement.classList.add("revele");
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("vu");io.unobserve(e.target)}}),{rootMargin:"0px 0px -8% 0px"});
+  cibles.forEach(c=>io.observe(c));
+  addEventListener("beforeprint",()=>cibles.forEach(c=>c.classList.add("vu")));
+})();
+// en-tête qui se resserre en barre flottante dès qu'on descend (essai du 23 octobre 2026, d'après reactbits.dev)
+(function(){var n=document.querySelector("nav.site");if(!n)return;
+  var f=function(){n.classList.toggle("defile",(window.scrollY||0)>12)};f();addEventListener("scroll",f,{passive:true})})();
+</script>
+<script src="cesure/hyphen.js" defer></script>
+<script src="cesure/hyphen-fr.js" defer></script>
+<script src="cesure/cesure.js" defer></script>
+<script>window.goatcounter={no_onload:navigator.doNotTrack==="1"||window.doNotTrack==="1"}</script><script data-goatcounter="https://ubicura.goatcounter.com/count" async src="https://gc.zgo.at/count.v5.js" crossorigin="anonymous" integrity="sha384-atnOLvQb9t+jTSipvd75X2yginT4PjVbqDdlJAmxMm+wYElFmeR6EmLP5bYeoRVQ"></script>
+</body>
+</html>

@@ -1,0 +1,1405 @@
+﻿niveau;code;indicateur;top;libelle_officiel;patients;population;prevalence_brute_pct;prevalence_standardisee_pct;couverture_ages
+dep;01;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;24390;635420;3,83841;3,90564;1
+dep;02;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;22850;511150;4,47031;4,4545;0,999562
+dep;03;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;18300;326580;5,60353;5,31064;0,999454
+dep;04;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;8560;167890;5,09858;4,86676;1,00117
+dep;05;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;8180;146080;5,59967;5,36772;1,00244
+dep;06;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;50490;1163540;4,33934;4,21103;1,0004
+dep;07;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;17210;331690;5,18858;4,94001;1,00058
+dep;08;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;12250;256360;4,77844;4,71115;1,00163
+dep;09;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;8250;154080;5,35436;5,07832;1,00242
+dep;10;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;11010;296710;3,71069;3,68886;1,00272
+dep;11;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;20470;382400;5,35303;5,13485;1
+dep;12;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;16300;275130;5,92447;5,54418;1,00061
+dep;13;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;93050;2160550;4,30677;4,36468;1,00021
+dep;14;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;32330;701340;4,60975;4,52866;1
+dep;15;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;8240;139970;5,88698;5,45533;1,00121
+dep;16;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;15330;344590;4,44877;4,2575;1,0013
+dep;17;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;32410;689650;4,69949;4,46352;1,00031
+dep;18;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;12320;289740;4,25209;4,09606;1,00162
+dep;19;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;13370;235090;5,68718;5,32222;1,0015
+dep;21;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;23700;520310;4,55498;4,48997;1
+dep;22;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;33430;615150;5,43445;5,23284;1,0003
+dep;23;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;7990;108840;7,34105;6,75311;1
+dep;24;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;22930;412530;5,55838;5,25925;1,00044
+dep;25;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;19880;533290;3,7278;3,76267;1,00101
+dep;26;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;23510;532550;4,41461;4,34987;1,00043
+dep;27;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;27880;593600;4,69677;4,69103;1,00036
+dep;28;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;18170;424640;4,27892;4,26866;1,00165
+dep;29;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;55570;934720;5,9451;5,74288;0,99982
+dep;2A;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;7970;151370;5,26524;4,94659;1,00251
+dep;2B;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;11100;165390;6,71141;6,35396;1,0009
+dep;30;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;35890;781150;4,59451;4,4792;1,00084
+dep;31;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;62760;1440880;4,35567;4,49485;0,999841
+dep;32;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;9950;190840;5,21379;4,88286;1
+dep;33;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;85100;1701940;5,00018;5,02011;1,00024
+dep;34;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;59380;1251170;4,74596;4,72197;1,00017
+dep;35;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;52650;1108760;4,74855;4,8399;1
+dep;36;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;9970;207550;4,80366;4,60986;1
+dep;37;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;25060;617070;4,06113;4,03668;0,999601
+dep;38;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;54350;1305820;4,16214;4,20896;1,00018
+dep;39;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;12260;255390;4,8005;4,64129;1,00082
+dep;40;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;23290;450350;5,17153;4,94059;1
+dep;41;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;13440;325440;4,12979;3,99631;1,00074
+dep;42;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;38750;765670;5,06093;5,02924;1,00026
+dep;43;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;15120;228010;6,63129;6,31357;1,00066
+dep;44;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;61810;1491970;4,14284;4,21379;1,00032
+dep;45;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;24450;677410;3,60934;3,6332;1
+dep;46;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;8430;173280;4,86496;4,50117;0,998814
+dep;47;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;16010;331800;4,8252;4,64277;1,00187
+dep;48;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;5030;72720;6,91694;6,54624;1,00199
+dep;49;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;31680;828250;3,82493;3,83908;0,999369
+dep;50;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;25690;493320;5,20757;5,00113;1,00039
+dep;51;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;21300;551010;3,86563;3,88887;1,00094
+dep;52;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;7440;163850;4,54074;4,40758;1
+dep;53;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;13520;302000;4,47682;4,42513;1,00074
+dep;54;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;28080;662310;4,23971;4,21501;1,00036
+dep;55;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;7240;171340;4,22552;4,16457;1
+dep;56;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;41230;796340;5,17744;4,97969;1,00049
+dep;57;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;38190;901060;4,23834;4,17633;1
+dep;58;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;10790;191990;5,62008;5,31965;1
+dep;59;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;116170;2533180;4,58594;4,72565;1
+dep;60;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;30950;816660;3,78983;3,89753;1,00065
+dep;61;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;12640;264770;4,77395;4,56813;0,999209
+dep;62;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;67500;1440960;4,68438;4,71614;1,0003
+dep;63;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;37390;653400;5,72238;5,60277;1,0008
+dep;64;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;37690;707330;5,32849;5,12038;1
+dep;65;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;13240;231640;5,71577;5,42061;0,999245
+dep;66;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;29690;513220;5,78504;5,61896;1,00067
+dep;67;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;49920;1144500;4,36173;4,38484;1,0002
+dep;68;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;32110;735400;4,36633;4,32485;1,00093
+dep;69;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;84310;1904880;4,426;4,64692;1
+dep;70;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;10550;228890;4,6092;4,45222;1,00095
+dep;71;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;26800;541060;4,95324;4,73597;0,999627
+dep;72;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;24190;556380;4,34775;4,28996;0,999587
+dep;73;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;19710;450080;4,37922;4,31323;1
+dep;74;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;28010;820260;3,41477;3,50122;1
+dep;75;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;89230;2068810;4,31311;4,44101;1,00011
+dep;76;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;67540;1242140;5,43739;5,47057;1,00044
+dep;77;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;51680;1450940;3,56183;3,76316;1,00019
+dep;78;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;49230;1487110;3,31045;3,45017;1
+dep;79;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;16130;370440;4,35428;4,21812;1,00124
+dep;80;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;26690;553040;4,82605;4,80988;1,00075
+dep;81;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;20200;397210;5,08547;4,84123;1
+dep;82;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;11810;267780;4,41034;4,31299;1,00169
+dep;83;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;54590;1169180;4,66908;4,48195;1,00018
+dep;84;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;26170;594310;4,40343;4,34747;1,00038
+dep;85;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;28620;721420;3,96718;3,82509;0,999651
+dep;86;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;19670;422620;4,6543;4,57965;1,00153
+dep;87;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;21990;359730;6,11292;5,87131;1
+dep;88;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;16420;356430;4,6068;4,50079;1,00122
+dep;89;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;16380;324290;5,05103;4,8486;1
+dep;90;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;4640;134660;3,44572;3,4381;1,00216
+dep;91;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;46160;1331090;3,46783;3,71788;1
+dep;92;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;56700;1619670;3,50071;3,73875;0,999824
+dep;93;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;57800;1625070;3,55677;3,96688;1,00017
+dep;94;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;50050;1380860;3,62455;3,8865;1
+dep;95;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;42880;1298030;3,30347;3,59122;1,00023
+dep;971;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;17720;387350;4,57467;4,49953;0,999436
+dep;972;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;11910;360720;3,30173;3,22539;1
+dep;973;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;3250;205970;1,5779;1,86859;1
+dep;974;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;37750;942430;4,0056;4,25541;0,99947
+reg;01;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;17720;387350;4,57467;4,49953;0,999436
+reg;02;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;11910;360720;3,30173;3,22539;1
+reg;03;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;3250;205970;1,5779;1,86859;1
+reg;04;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;37750;942430;4,0056;4,25541;0,99947
+reg;11;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;443720;12261580;3,61878;3,86074;1
+reg;24;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;103410;2541840;4,06831;4,00973;1
+reg;27;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;124990;2729870;4,57861;4,45302;0,99992
+reg;28;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;166080;3295170;5,0401;4,99229;1,00006
+reg;32;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;264160;5855000;4,5117;4,58744;1,00004
+reg;44;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;223950;5238960;4,2747;4,23311;1,00018
+reg;52;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;159820;3900020;4,09793;4,08296;1
+reg;53;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;182880;3454960;5,29326;5,1771;0,999945
+reg;75;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;311890;6134900;5,08386;4,91887;1,00003
+reg;76;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;301390;6131500;4,91544;4,81137;1
+reg;84;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;369280;8094340;4,5622;4,5791;1,00003
+reg;93;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;241050;5401550;4,46261;4,38103;0,999959
+reg;94;pec_troubles_psy;PSY_CAT_CAT;Maladies psychiatriques;19090;317210;6,0181;5,66752;1
+dep;01;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;3990;635420;0,627931;0,636247;0,994987
+dep;02;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;3510;511150;0,686687;0,688992;1
+dep;03;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;2610;326580;0,799192;0,774164;0,996169
+dep;04;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;1530;167890;0,911311;0,882904;1
+dep;05;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;1120;146080;0,766703;0,734908;0,991071
+dep;06;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;10540;1163540;0,905856;0,89047;1,00285
+dep;07;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;2560;331690;0,771805;0,744254;1
+dep;08;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;1850;256360;0,721641;0,709837;0,994595
+dep;09;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;1370;154080;0,889148;0,849151;0,992701
+dep;10;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;1940;296710;0,653837;0,656126;0,994845
+dep;11;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;3410;382400;0,891736;0,880557;0,997067
+dep;12;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;2680;275130;0,974085;0,928344;1
+dep;13;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;18220;2160550;0,843304;0,849989;1,00055
+dep;14;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;4240;701340;0,604557;0,596923;0,997642
+dep;15;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;1240;139970;0,885904;0,816667;1
+dep;16;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;1880;344590;0,545576;0,529222;1
+dep;17;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;3700;689650;0,536504;0,525864;0,997297
+dep;18;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;2150;289740;0,742045;0,723848;0,990698
+dep;19;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;1970;235090;0,837977;0,795821;1,00508
+dep;21;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;3840;520310;0,738022;0,732861;1,0026
+dep;22;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;5610;615150;0,911973;0,893299;1
+dep;23;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;970;108840;0,891216;0,857594;1
+dep;24;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;3200;412530;0,775701;0,742754;1
+dep;25;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;3250;533290;0,609425;0,617711;1
+dep;26;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;3740;532550;0,702281;0,698097;0,997326
+dep;27;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;3310;593600;0,557615;0,563375;1,00604
+dep;28;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;2320;424640;0,546345;0,548817;0,99569
+dep;29;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;8690;934720;0,92969;0,905499;0,998849
+dep;2A;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;1250;151370;0,825791;0,776432;1,008
+dep;2B;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;1740;165390;1,05206;1,00072;1
+dep;30;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;5050;781150;0,646483;0,640699;1
+dep;31;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;10680;1440880;0,741214;0,748611;1
+dep;32;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;1490;190840;0,780759;0,733293;0,979866
+dep;33;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;10670;1701940;0,626932;0,620471;0,999063
+dep;34;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;9680;1251170;0,773676;0,767829;1
+dep;35;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;9030;1108760;0,814423;0,830323;1,00221
+dep;36;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;1440;207550;0,693809;0,679714;0,993056
+dep;37;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;3630;617070;0,588264;0,59002;1,00275
+dep;38;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;8810;1305820;0,674672;0,681044;0,99773
+dep;39;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;1870;255390;0,732213;0,726743;1,0107
+dep;40;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;2640;450350;0,586211;0,563644;1
+dep;41;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;1900;325440;0,583825;0,584077;1,01053
+dep;42;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;6210;765670;0,811054;0,823591;1,00161
+dep;43;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;1780;228010;0,780668;0,75109;1
+dep;44;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;8800;1491970;0,589824;0,597254;1,00227
+dep;45;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;4120;677410;0,608199;0,619042;1,00243
+dep;46;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;1290;173280;0,74446;0,705828;0,984496
+dep;47;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;2540;331800;0,765521;0,757523;1
+dep;48;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;960;72720;1,32013;1,27365;1,01042
+dep;49;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;5050;828250;0,609719;0,620464;1
+dep;50;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;3260;493320;0,660829;0,641498;1,0092
+dep;51;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;3670;551010;0,66605;0,666974;0,99455
+dep;52;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;1120;163850;0,683552;0,65168;0,982143
+dep;53;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;2530;302000;0,837748;0,841478;0,996047
+dep;54;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;4660;662310;0,703598;0,701262;0,997854
+dep;55;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;1180;171340;0,688689;0,679838;1
+dep;56;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;6130;796340;0,769772;0,751282;1
+dep;57;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;6890;901060;0,764655;0,760119;1
+dep;58;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;1720;191990;0,89588;0,899378;1
+dep;59;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;16600;2533180;0,655303;0,673331;1,0006
+dep;60;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;4380;816660;0,536331;0,545804;1
+dep;61;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;1780;264770;0,672282;0,657562;0,994382
+dep;62;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;7520;1440960;0,521874;0,527344;1
+dep;63;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;5240;653400;0,801959;0,784726;0,998092
+dep;64;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;4810;707330;0,680022;0,654272;0,997921
+dep;65;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;2270;231640;0,979969;0,940186;0,995595
+dep;66;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;4450;513220;0,867075;0,874595;1,00225
+dep;67;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;9540;1144500;0,833552;0,833697;1,00314
+dep;68;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;6800;735400;0,924667;0,916999;1
+dep;69;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;14830;1904880;0,778527;0,815448;1,00067
+dep;70;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;1450;228890;0,633492;0,615118;0,993103
+dep;71;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;4180;541060;0,772558;0,763266;1
+dep;72;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;4190;556380;0,753082;0,760734;1,00239
+dep;73;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;3220;450080;0,715428;0,69511;0,993789
+dep;74;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;4480;820260;0,546168;0,552967;1
+dep;75;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;19380;2068810;0,93677;0,925084;0,999484
+dep;76;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;8370;1242140;0,673837;0,680597;0,998805
+dep;77;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;8410;1450940;0,579624;0,602823;1,00357
+dep;78;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;8510;1487110;0,572251;0,590012;1,00235
+dep;79;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;2310;370440;0,623583;0,61382;1
+dep;80;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;3710;553040;0,670838;0,668127;1
+dep;81;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;3130;397210;0,787996;0,764612;0,996805
+dep;82;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;2030;267780;0,758085;0,757731;1,00493
+dep;83;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;8350;1169180;0,714176;0,702224;1,0012
+dep;84;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;4200;594310;0,706702;0,704073;0,997619
+dep;85;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;4450;721420;0,616839;0,60699;1
+dep;86;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;2850;422620;0,674365;0,677156;1,00702
+dep;87;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;3040;359730;0,845078;0,829579;1
+dep;88;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;2650;356430;0,743484;0,72748;0,996226
+dep;89;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;2470;324290;0,761664;0,74242;0,991903
+dep;90;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;1000;134660;0,742611;0,730897;0,98
+dep;91;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;8450;1331090;0,634818;0,666385;1,00237
+dep;92;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;11310;1619670;0,69829;0,719502;1
+dep;93;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;12300;1625070;0,75689;0,805983;0,999187
+dep;94;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;10650;1380860;0,771258;0,794212;0,999061
+dep;95;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;7940;1298030;0,611696;0,642377;0,997481
+dep;971;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;5650;387350;1,45863;1,43908;0,99646
+dep;972;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;4440;360720;1,23087;1,19302;1
+dep;973;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;1060;205970;0,514638;0,595399;0,981132
+dep;974;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;8520;942430;0,904046;0,976166;1,00235
+reg;01;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;5650;387350;1,45863;1,43908;0,99646
+reg;02;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;4440;360720;1,23087;1,19302;1
+reg;03;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;1060;205970;0,514638;0,595399;0,981132
+reg;04;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;8520;942430;0,904046;0,976166;1,00235
+reg;11;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;86940;12261580;0,709044;0,730481;1
+reg;24;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;15560;2541840;0,612155;0,612604;1,00064
+reg;27;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;19780;2729870;0,724577;0,718826;1,00101
+reg;28;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;20960;3295170;0,636083;0,634709;1
+reg;32;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;35710;5855000;0,609906;0,61992;0,99972
+reg;44;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;40280;5238960;0,768855;0,763577;1,00025
+reg;52;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;25010;3900020;0,641279;0,644468;1
+reg;53;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;29460;3454960;0,852687;0,841048;1
+reg;75;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;40560;6134900;0,661135;0,644424;1,00025
+reg;76;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;48480;6131500;0,790671;0,779269;1
+reg;84;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;58710;8094340;0,725322;0,728695;0,99983
+reg;93;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;43950;5401550;0,813655;0,804378;1,00023
+reg;94;pec_psychotiques;PSY_PSC_IND;Troubles psychotiques;2990;317210;0,942593;0,885187;0,996656
+dep;01;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;12580;635420;1,97979;2,04706;1,00159
+dep;02;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;10500;511150;2,05419;2,0518;1,00095
+dep;03;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;9930;326580;3,0406;2,77954;1,00101
+dep;04;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;4280;167890;2,54929;2,3311;1,00234
+dep;05;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;4460;146080;3,05312;2,82388;1
+dep;06;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;26720;1163540;2,29644;2,17907;1,00075
+dep;07;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;9420;331690;2,84;2,66101;1
+dep;08;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;5330;256360;2,07911;2,03358;1
+dep;09;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;3990;154080;2,58956;2,395;1,00251
+dep;10;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;5100;296710;1,71885;1,68433;0,998039
+dep;11;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;9920;382400;2,59414;2,43949;1,00302
+dep;12;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;8450;275130;3,07128;2,78211;1,00355
+dep;13;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;46110;2160550;2,13418;2,17155;1,00043
+dep;14;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;15750;701340;2,2457;2,18235;1
+dep;15;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;4100;139970;2,9292;2,58752;1
+dep;16;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;7500;344590;2,1765;2,02254;1,00267
+dep;17;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;16190;689650;2,34757;2,14726;1,00062
+dep;18;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;6000;289740;2,07082;1,93185;0,996667
+dep;19;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;7160;235090;3,04564;2,72888;1
+dep;21;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;12610;520310;2,42356;2,37105;1,00159
+dep;22;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;17100;615150;2,77981;2,605;0,999415
+dep;23;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;4510;108840;4,1437;3,66734;1,00443
+dep;24;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;11850;412530;2,87252;2,59105;1
+dep;25;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;10140;533290;1,9014;1,91794;1,00099
+dep;26;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;12340;532550;2,31715;2,26844;1,00162
+dep;27;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;14400;593600;2,42588;2,44232;1,00139
+dep;28;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;7720;424640;1,81801;1,80946;1
+dep;29;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;29270;934720;3,13142;2,97592;1,00034
+dep;2A;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;4510;151370;2,97945;2,74148;1,00443
+dep;2B;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;6230;165390;3,76685;3,47816;1,00161
+dep;30;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;18890;781150;2,41823;2,32699;1,00053
+dep;31;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;31750;1440880;2,20351;2,29787;0,99937
+dep;32;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;5230;190840;2,74052;2,491;1,00382
+dep;33;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;44620;1701940;2,62171;2,63384;1,00022
+dep;34;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;27990;1251170;2,23711;2,21185;1,00071
+dep;35;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;25240;1108760;2,27642;2,33996;0,999208
+dep;36;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;5220;207550;2,51506;2,30998;0,998084
+dep;37;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;12500;617070;2,0257;2,00257;1,0016
+dep;38;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;26180;1305820;2,00487;2,04474;1,00038
+dep;39;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;6850;255390;2,68217;2,54463;1,00146
+dep;40;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;13060;450350;2,89997;2,70436;0,999234
+dep;41;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;6640;325440;2,04031;1,93471;1,00151
+dep;42;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;20650;765670;2,69698;2,65329;1,00048
+dep;43;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;8940;228010;3,92088;3,63928;1,00112
+dep;44;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;31300;1491970;2,0979;2,1499;1,00032
+dep;45;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;12010;677410;1,77293;1,78501;1
+dep;46;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;4170;173280;2,40651;2,10229;1
+dep;47;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;7780;331800;2,34479;2,171;1,00257
+dep;48;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;2320;72720;3,19032;2,9056;1,00431
+dep;49;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;15860;828250;1,91488;1,91751;1,00063
+dep;50;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;13530;493320;2,74264;2,5717;1,00148
+dep;51;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;9910;551010;1,79852;1,80942;1
+dep;52;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;3510;163850;2,1422;2,02002;1
+dep;53;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;7030;302000;2,32781;2,26939;0,998578
+dep;54;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;12780;662310;1,92961;1,90853;1,00156
+dep;55;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;2910;171340;1,69838;1,66919;1,00344
+dep;56;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;20860;796340;2,61948;2,45893;1,00048
+dep;57;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;17170;901060;1,90553;1,86466;1
+dep;58;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;5750;191990;2,99495;2,73717;1,00174
+dep;59;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;52310;2533180;2,06499;2,15353;1
+dep;60;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;15580;816660;1,90777;1,99413;1,00064
+dep;61;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;6390;264770;2,41342;2,23773;1
+dep;62;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;31040;1440960;2,15412;2,18384;1,00032
+dep;63;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;21110;653400;3,23079;3,13076;1,00095
+dep;64;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;19850;707330;2,80633;2,62619;1
+dep;65;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;6790;231640;2,93127;2,68185;1,00147
+dep;66;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;15150;513220;2,95195;2,79844;1,00132
+dep;67;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;21160;1144500;1,84884;1,86195;0,999527
+dep;68;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;13620;735400;1,85205;1,83112;1,00073
+dep;69;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;43460;1904880;2,28151;2,43494;1
+dep;70;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;5280;228890;2,30678;2,18635;0,996212
+dep;71;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;13630;541060;2,51913;2,34659;0,999266
+dep;72;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;12850;556380;2,30957;2,24977;1,00078
+dep;73;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;10760;450080;2,39069;2,34722;1,00093
+dep;74;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;14700;820260;1,79211;1,86432;1,00068
+dep;75;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;40910;2068810;1,97747;2,03204;1,00024
+dep;76;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;34660;1242140;2,79035;2,81592;0,999711
+dep;77;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;24850;1450940;1,71268;1,89403;1,0008
+dep;78;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;25090;1487110;1,68717;1,80719;0,999601
+dep;79;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;7900;370440;2,1326;2,01928;0,998734
+dep;80;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;13290;553040;2,40308;2,39466;1,00075
+dep;81;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;10400;397210;2,61826;2,42962;1,00288
+dep;82;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;5640;267780;2,10621;2,03293;1
+dep;83;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;30250;1169180;2,58728;2,41537;1
+dep;84;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;13470;594310;2,26649;2,22057;1,00148
+dep;85;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;14660;721420;2,0321;1,92042;1
+dep;86;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;10640;422620;2,51763;2,44124;1
+dep;87;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;12450;359730;3,46093;3,25738;1
+dep;88;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;7040;356430;1,97514;1,88224;1
+dep;89;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;8570;324290;2,6427;2,48529;1,00117
+dep;90;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;2100;134660;1,55948;1,55851;1,00476
+dep;91;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;22630;1331090;1,70011;1,88457;0,999558
+dep;92;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;27030;1619670;1,66886;1,82271;1,00074
+dep;93;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;25150;1625070;1,54763;1,84876;1,0008
+dep;94;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;22270;1380860;1,61276;1,77938;1,00045
+dep;95;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;18810;1298030;1,44912;1,67369;1,00053
+dep;971;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;6720;387350;1,73487;1,68271;1,00298
+dep;972;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;3900;360720;1,08117;1,02822;0,997436
+dep;973;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;890;205970;0,432102;0,530335;0,977528
+dep;974;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;13460;942430;1,42822;1,56818;0,999257
+reg;01;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;6720;387350;1,73487;1,68271;1,00298
+reg;02;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;3900;360720;1,08117;1,02822;0,997436
+reg;03;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;890;205970;0,432102;0,530335;0,977528
+reg;04;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;13460;942430;1,42822;1,56818;0,999257
+reg;11;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;206730;12261580;1,686;1,85345;1
+reg;24;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;50070;2541840;1,96983;1,92037;1,0004
+reg;27;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;64920;2729870;2,37814;2,27867;1,00031
+reg;28;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;84730;3295170;2,57134;2,53019;1
+reg;32;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;122720;5855000;2,09599;2,15058;0,999919
+reg;44;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;98510;5238960;1,88034;1,85255;1
+reg;52;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;81700;3900020;2,09486;2,08016;1
+reg;53;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;92460;3454960;2,67615;2,58627;1,00032
+reg;75;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;163490;6134900;2,66492;2,52843;1,00018
+reg;76;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;150690;6131500;2,45764;2,3753;0,999934
+reg;84;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;194160;8094340;2,39871;2,40987;1
+reg;93;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;125300;5401550;2,3197;2,24999;1
+reg;94;pec_humeur;PSY_TNH_CAT;Troubles névrotiques et de l'humeur;10750;317210;3,38892;3,11046;0,99907
+dep;01;pec_deficience;PSY_DME_IND;Déficience mentale;990;635420;0,155802;0,154429;0,989899
+dep;02;pec_deficience;PSY_DME_IND;Déficience mentale;1600;511150;0,31302;0,311487;0,99375
+dep;03;pec_deficience;PSY_DME_IND;Déficience mentale;1120;326580;0,342948;0,345495;1
+dep;04;pec_deficience;PSY_DME_IND;Déficience mentale;490;167890;0,291858;0,304087;0,979592
+dep;05;pec_deficience;PSY_DME_IND;Déficience mentale;440;146080;0,301205;0,318115;1,04545
+dep;06;pec_deficience;PSY_DME_IND;Déficience mentale;2120;1163540;0,182203;0,187516;1,00472
+dep;07;pec_deficience;PSY_DME_IND;Déficience mentale;1000;331690;0,301486;0,295964;0,98
+dep;08;pec_deficience;PSY_DME_IND;Déficience mentale;770;256360;0,300359;0,302552;1
+dep;09;pec_deficience;PSY_DME_IND;Déficience mentale;260;154080;0,168744;;0,884615
+dep;10;pec_deficience;PSY_DME_IND;Déficience mentale;540;296710;0,181996;0,18154;0,981481
+dep;11;pec_deficience;PSY_DME_IND;Déficience mentale;1080;382400;0,282427;0,290741;1,00926
+dep;12;pec_deficience;PSY_DME_IND;Déficience mentale;970;275130;0,352561;0,345967;0,979381
+dep;13;pec_deficience;PSY_DME_IND;Déficience mentale;4130;2160550;0,191155;0,191837;1,00242
+dep;14;pec_deficience;PSY_DME_IND;Déficience mentale;1490;701340;0,21245;0,210424;0,993289
+dep;15;pec_deficience;PSY_DME_IND;Déficience mentale;560;139970;0,400086;0,395973;1
+dep;16;pec_deficience;PSY_DME_IND;Déficience mentale;930;344590;0,269886;0,269807;1
+dep;17;pec_deficience;PSY_DME_IND;Déficience mentale;1650;689650;0,239252;0,249076;1,01212
+dep;18;pec_deficience;PSY_DME_IND;Déficience mentale;770;289740;0,265756;0,27409;1,01299
+dep;19;pec_deficience;PSY_DME_IND;Déficience mentale;960;235090;0,408354;0,401813;0,989583
+dep;21;pec_deficience;PSY_DME_IND;Déficience mentale;860;520310;0,165286;0,165783;1
+dep;22;pec_deficience;PSY_DME_IND;Déficience mentale;1500;615150;0,243843;0,252998;1,01333
+dep;23;pec_deficience;PSY_DME_IND;Déficience mentale;420;108840;0,385888;;0,928571
+dep;24;pec_deficience;PSY_DME_IND;Déficience mentale;1260;412530;0,305432;0,306556;1,01587
+dep;25;pec_deficience;PSY_DME_IND;Déficience mentale;1050;533290;0,196891;0,19453;0,980952
+dep;26;pec_deficience;PSY_DME_IND;Déficience mentale;1350;532550;0,253497;0,256505;1
+dep;27;pec_deficience;PSY_DME_IND;Déficience mentale;1320;593600;0,222372;0,219408;0,984848
+dep;28;pec_deficience;PSY_DME_IND;Déficience mentale;1210;424640;0,284947;0,289376;1,00826
+dep;29;pec_deficience;PSY_DME_IND;Déficience mentale;2060;934720;0,220387;0,2226;1,00971
+dep;2A;pec_deficience;PSY_DME_IND;Déficience mentale;260;151370;0,171765;;0,846154
+dep;2B;pec_deficience;PSY_DME_IND;Déficience mentale;340;165390;0,205575;0,213325;0,970588
+dep;30;pec_deficience;PSY_DME_IND;Déficience mentale;1770;781150;0,226589;0,232084;1
+dep;31;pec_deficience;PSY_DME_IND;Déficience mentale;2310;1440880;0,160319;0,16201;1,00433
+dep;32;pec_deficience;PSY_DME_IND;Déficience mentale;490;190840;0,25676;0,255368;0,979592
+dep;33;pec_deficience;PSY_DME_IND;Déficience mentale;3060;1701940;0,179795;0,179914;1
+dep;34;pec_deficience;PSY_DME_IND;Déficience mentale;2690;1251170;0,214999;0,215209;0,996283
+dep;35;pec_deficience;PSY_DME_IND;Déficience mentale;2170;1108760;0,195714;0,198019;1
+dep;36;pec_deficience;PSY_DME_IND;Déficience mentale;600;207550;0,289087;0,30834;1,03333
+dep;37;pec_deficience;PSY_DME_IND;Déficience mentale;1400;617070;0,226879;0,227634;0,992857
+dep;38;pec_deficience;PSY_DME_IND;Déficience mentale;2060;1305820;0,157755;0,157461;1
+dep;39;pec_deficience;PSY_DME_IND;Déficience mentale;580;255390;0,227104;;0,931034
+dep;40;pec_deficience;PSY_DME_IND;Déficience mentale;740;450350;0,164317;0,163372;0,986486
+dep;41;pec_deficience;PSY_DME_IND;Déficience mentale;660;325440;0,202802;0,207029;0,969697
+dep;42;pec_deficience;PSY_DME_IND;Déficience mentale;1460;765670;0,190683;0,192369;0,993151
+dep;43;pec_deficience;PSY_DME_IND;Déficience mentale;620;228010;0,271918;0,284283;1,03226
+dep;44;pec_deficience;PSY_DME_IND;Déficience mentale;2260;1491970;0,151478;0,151612;1
+dep;45;pec_deficience;PSY_DME_IND;Déficience mentale;1120;677410;0,165336;0,16424;0,991071
+dep;46;pec_deficience;PSY_DME_IND;Déficience mentale;390;173280;0,225069;;0,923077
+dep;47;pec_deficience;PSY_DME_IND;Déficience mentale;890;331800;0,268234;0,281354;1,02247
+dep;48;pec_deficience;PSY_DME_IND;Déficience mentale;570;72720;0,783828;0,761947;1
+dep;49;pec_deficience;PSY_DME_IND;Déficience mentale;1530;828250;0,184727;0,188182;1,00654
+dep;50;pec_deficience;PSY_DME_IND;Déficience mentale;1360;493320;0,275683;0,274795;1
+dep;51;pec_deficience;PSY_DME_IND;Déficience mentale;960;551010;0,174226;0,168251;0,96875
+dep;52;pec_deficience;PSY_DME_IND;Déficience mentale;450;163850;0,274641;0,27448;0,977778
+dep;53;pec_deficience;PSY_DME_IND;Déficience mentale;740;302000;0,245033;0,237527;0,959459
+dep;54;pec_deficience;PSY_DME_IND;Déficience mentale;1440;662310;0,217421;0,217487;1
+dep;55;pec_deficience;PSY_DME_IND;Déficience mentale;450;171340;0,262636;0,247884;0,955556
+dep;56;pec_deficience;PSY_DME_IND;Déficience mentale;1470;796340;0,184595;0,184852;0,986395
+dep;57;pec_deficience;PSY_DME_IND;Déficience mentale;2150;901060;0,238608;0,244268;1,0093
+dep;58;pec_deficience;PSY_DME_IND;Déficience mentale;630;191990;0,328142;0,329498;0,984127
+dep;59;pec_deficience;PSY_DME_IND;Déficience mentale;6750;2533180;0,266463;0,26698;1,00296
+dep;60;pec_deficience;PSY_DME_IND;Déficience mentale;1850;816660;0,226532;0,226016;1,00541
+dep;61;pec_deficience;PSY_DME_IND;Déficience mentale;710;264770;0,268157;0,278995;1,01408
+dep;62;pec_deficience;PSY_DME_IND;Déficience mentale;4230;1440960;0,293554;0,293407;1,00473
+dep;63;pec_deficience;PSY_DME_IND;Déficience mentale;1790;653400;0,273952;0,276761;1,00559
+dep;64;pec_deficience;PSY_DME_IND;Déficience mentale;1610;707330;0,227617;0,229656;1,00621
+dep;65;pec_deficience;PSY_DME_IND;Déficience mentale;590;231640;0,254706;;0,932203
+dep;66;pec_deficience;PSY_DME_IND;Déficience mentale;1400;513220;0,272787;0,285741;0,992857
+dep;67;pec_deficience;PSY_DME_IND;Déficience mentale;3750;1144500;0,327654;0,326423;1,00267
+dep;68;pec_deficience;PSY_DME_IND;Déficience mentale;2150;735400;0,292358;0,292823;1
+dep;69;pec_deficience;PSY_DME_IND;Déficience mentale;3040;1904880;0,15959;0,160505;1,00329
+dep;70;pec_deficience;PSY_DME_IND;Déficience mentale;700;228890;0,305824;0,313216;1,01429
+dep;71;pec_deficience;PSY_DME_IND;Déficience mentale;1390;541060;0,256903;0,2682;1,01439
+dep;72;pec_deficience;PSY_DME_IND;Déficience mentale;1300;556380;0,233653;0,234568;0,992308
+dep;73;pec_deficience;PSY_DME_IND;Déficience mentale;690;450080;0,153306;0,148554;0,971014
+dep;74;pec_deficience;PSY_DME_IND;Déficience mentale;1180;820260;0,143857;0,141931;0,991525
+dep;75;pec_deficience;PSY_DME_IND;Déficience mentale;2320;2068810;0,112142;0,114443;1
+dep;76;pec_deficience;PSY_DME_IND;Déficience mentale;3450;1242140;0,277746;0,280555;1,0087
+dep;77;pec_deficience;PSY_DME_IND;Déficience mentale;2520;1450940;0,173681;0,168696;0,996032
+dep;78;pec_deficience;PSY_DME_IND;Déficience mentale;2220;1487110;0,149283;0,147577;1
+dep;79;pec_deficience;PSY_DME_IND;Déficience mentale;1030;370440;0,278048;0,275725;0,990291
+dep;80;pec_deficience;PSY_DME_IND;Déficience mentale;1670;553040;0,301967;0,297418;0,994012
+dep;81;pec_deficience;PSY_DME_IND;Déficience mentale;970;397210;0,244203;0,244741;0,989691
+dep;82;pec_deficience;PSY_DME_IND;Déficience mentale;730;267780;0,272612;0,27146;1
+dep;83;pec_deficience;PSY_DME_IND;Déficience mentale;1980;1169180;0,169349;0,174067;0,994949
+dep;84;pec_deficience;PSY_DME_IND;Déficience mentale;1340;594310;0,225472;0,227759;0,992537
+dep;85;pec_deficience;PSY_DME_IND;Déficience mentale;1140;721420;0,158022;0,163392;1
+dep;86;pec_deficience;PSY_DME_IND;Déficience mentale;1090;422620;0,257915;0,259829;1
+dep;87;pec_deficience;PSY_DME_IND;Déficience mentale;980;359730;0,272427;0,268888;0,989796
+dep;88;pec_deficience;PSY_DME_IND;Déficience mentale;970;356430;0,272143;0,274214;0,989691
+dep;89;pec_deficience;PSY_DME_IND;Déficience mentale;890;324290;0,274446;0,27476;0,988764
+dep;90;pec_deficience;PSY_DME_IND;Déficience mentale;240;134660;0,178227;0,178142;1
+dep;91;pec_deficience;PSY_DME_IND;Déficience mentale;1860;1331090;0,139735;0,134178;0,989247
+dep;92;pec_deficience;PSY_DME_IND;Déficience mentale;1970;1619670;0,12163;0,117926;0,994924
+dep;93;pec_deficience;PSY_DME_IND;Déficience mentale;2930;1625070;0,1803;0,170184;1
+dep;94;pec_deficience;PSY_DME_IND;Déficience mentale;2300;1380860;0,166563;0,164579;1,01304
+dep;95;pec_deficience;PSY_DME_IND;Déficience mentale;2280;1298030;0,175651;0,168219;1
+dep;971;pec_deficience;PSY_DME_IND;Déficience mentale;1300;387350;0,335614;0,346962;1,00769
+dep;972;pec_deficience;PSY_DME_IND;Déficience mentale;960;360720;0,266134;0,272837;1
+dep;973;pec_deficience;PSY_DME_IND;Déficience mentale;270;205970;0,131087;0,114557;0,962963
+dep;974;pec_deficience;PSY_DME_IND;Déficience mentale;2540;942430;0,269516;0,249776;0,988189
+reg;01;pec_deficience;PSY_DME_IND;Déficience mentale;1300;387350;0,335614;0,346962;1,00769
+reg;02;pec_deficience;PSY_DME_IND;Déficience mentale;960;360720;0,266134;0,272837;1
+reg;03;pec_deficience;PSY_DME_IND;Déficience mentale;270;205970;0,131087;0,114557;0,962963
+reg;04;pec_deficience;PSY_DME_IND;Déficience mentale;2540;942430;0,269516;0,249776;0,988189
+reg;11;pec_deficience;PSY_DME_IND;Déficience mentale;18390;12261580;0,149981;0,146215;1,00054
+reg;24;pec_deficience;PSY_DME_IND;Déficience mentale;5760;2541840;0,226607;0,230069;1,00174
+reg;27;pec_deficience;PSY_DME_IND;Déficience mentale;6340;2729870;0,232245;0,234096;1
+reg;28;pec_deficience;PSY_DME_IND;Déficience mentale;8330;3295170;0,252794;0,253619;1,0012
+reg;32;pec_deficience;PSY_DME_IND;Déficience mentale;16110;5855000;0,275149;0,274317;1
+reg;44;pec_deficience;PSY_DME_IND;Déficience mentale;13620;5238960;0,259975;0,260945;1,00147
+reg;52;pec_deficience;PSY_DME_IND;Déficience mentale;6970;3900020;0,178717;0,179698;1,00143
+reg;53;pec_deficience;PSY_DME_IND;Déficience mentale;7200;3454960;0,208396;0,208135;0,998611
+reg;75;pec_deficience;PSY_DME_IND;Déficience mentale;14630;6134900;0,238472;0,239187;1,00137
+reg;76;pec_deficience;PSY_DME_IND;Déficience mentale;14210;6131500;0,231754;0,233023;1,0007
+reg;84;pec_deficience;PSY_DME_IND;Déficience mentale;15850;8094340;0,195816;0,196136;1
+reg;93;pec_deficience;PSY_DME_IND;Déficience mentale;10490;5401550;0,194204;0,196858;1,00095
+reg;94;pec_deficience;PSY_DME_IND;Déficience mentale;600;317210;0,189149;0,195779;0,983333
+dep;01;pec_addictions;PSY_ADD_CAT;Troubles addictifs;6040;635420;0,950552;0,960248;1
+dep;02;pec_addictions;PSY_ADD_CAT;Troubles addictifs;7050;511150;1,37924;1,37569;1
+dep;03;pec_addictions;PSY_ADD_CAT;Troubles addictifs;4610;326580;1,4116;1,37893;0,997831
+dep;04;pec_addictions;PSY_ADD_CAT;Troubles addictifs;2080;167890;1,23891;1,1635;0,995192
+dep;05;pec_addictions;PSY_ADD_CAT;Troubles addictifs;2280;146080;1,56079;1,48598;1
+dep;06;pec_addictions;PSY_ADD_CAT;Troubles addictifs;12380;1163540;1,06399;1,04084;1,00081
+dep;07;pec_addictions;PSY_ADD_CAT;Troubles addictifs;5340;331690;1,60994;1,54879;1
+dep;08;pec_addictions;PSY_ADD_CAT;Troubles addictifs;3760;256360;1,46669;1,43666;0,99734
+dep;09;pec_addictions;PSY_ADD_CAT;Troubles addictifs;2910;154080;1,88863;1,80682;1,00344
+dep;10;pec_addictions;PSY_ADD_CAT;Troubles addictifs;3220;296710;1,08523;1,08311;1
+dep;11;pec_addictions;PSY_ADD_CAT;Troubles addictifs;6210;382400;1,62395;1,55532;1,00161
+dep;12;pec_addictions;PSY_ADD_CAT;Troubles addictifs;4650;275130;1,69011;1,6441;1,0043
+dep;13;pec_addictions;PSY_ADD_CAT;Troubles addictifs;24310;2160550;1,12518;1,14164;1,00041
+dep;14;pec_addictions;PSY_ADD_CAT;Troubles addictifs;11230;701340;1,60122;1,5854;0,99911
+dep;15;pec_addictions;PSY_ADD_CAT;Troubles addictifs;2440;139970;1,74323;1,66683;0,995902
+dep;16;pec_addictions;PSY_ADD_CAT;Troubles addictifs;4110;344590;1,19272;1,14481;0,992701
+dep;17;pec_addictions;PSY_ADD_CAT;Troubles addictifs;8920;689650;1,29341;1,24035;1,00112
+dep;18;pec_addictions;PSY_ADD_CAT;Troubles addictifs;3620;289740;1,2494;1,2108;0,997238
+dep;19;pec_addictions;PSY_ADD_CAT;Troubles addictifs;3340;235090;1,42073;1,35378;0,997006
+dep;21;pec_addictions;PSY_ADD_CAT;Troubles addictifs;6150;520310;1,18199;1,17068;1,00163
+dep;22;pec_addictions;PSY_ADD_CAT;Troubles addictifs;10060;615150;1,63537;1,6032;1
+dep;23;pec_addictions;PSY_ADD_CAT;Troubles addictifs;2130;108840;1,957;1,88336;1,00469
+dep;24;pec_addictions;PSY_ADD_CAT;Troubles addictifs;5920;412530;1,43505;1,35835;1,00169
+dep;25;pec_addictions;PSY_ADD_CAT;Troubles addictifs;5480;533290;1,02758;1,04308;0,99635
+dep;26;pec_addictions;PSY_ADD_CAT;Troubles addictifs;6620;532550;1,24308;1,22998;1
+dep;27;pec_addictions;PSY_ADD_CAT;Troubles addictifs;7030;593600;1,1843;1,17413;1,00142
+dep;28;pec_addictions;PSY_ADD_CAT;Troubles addictifs;4380;424640;1,03146;1,03054;1,00228
+dep;29;pec_addictions;PSY_ADD_CAT;Troubles addictifs;16800;934720;1,79733;1,73886;0,999405
+dep;2A;pec_addictions;PSY_ADD_CAT;Troubles addictifs;1980;151370;1,30805;1,20722;1
+dep;2B;pec_addictions;PSY_ADD_CAT;Troubles addictifs;2440;165390;1,4753;1,37756;1,0082
+dep;30;pec_addictions;PSY_ADD_CAT;Troubles addictifs;9520;781150;1,21872;1,18148;1
+dep;31;pec_addictions;PSY_ADD_CAT;Troubles addictifs;19140;1440880;1,32835;1,35713;1,00052
+dep;32;pec_addictions;PSY_ADD_CAT;Troubles addictifs;2790;190840;1,46196;1,37918;0,996416
+dep;33;pec_addictions;PSY_ADD_CAT;Troubles addictifs;22180;1701940;1,30322;1,29967;1,00045
+dep;34;pec_addictions;PSY_ADD_CAT;Troubles addictifs;17980;1251170;1,43705;1,43078;1,00056
+dep;35;pec_addictions;PSY_ADD_CAT;Troubles addictifs;14770;1108760;1,33212;1,35844;0,999323
+dep;36;pec_addictions;PSY_ADD_CAT;Troubles addictifs;2570;207550;1,23826;1,19448;0,996109
+dep;37;pec_addictions;PSY_ADD_CAT;Troubles addictifs;7810;617070;1,26566;1,27532;1,00128
+dep;38;pec_addictions;PSY_ADD_CAT;Troubles addictifs;13910;1305820;1,06523;1,07797;1
+dep;39;pec_addictions;PSY_ADD_CAT;Troubles addictifs;2960;255390;1,15901;1,13348;1
+dep;40;pec_addictions;PSY_ADD_CAT;Troubles addictifs;6810;450350;1,51216;1,43574;1,00147
+dep;41;pec_addictions;PSY_ADD_CAT;Troubles addictifs;4330;325440;1,33051;1,29244;0,997691
+dep;42;pec_addictions;PSY_ADD_CAT;Troubles addictifs;9920;765670;1,2956;1,31622;0,997984
+dep;43;pec_addictions;PSY_ADD_CAT;Troubles addictifs;3770;228010;1,65344;1,59391;1,00265
+dep;44;pec_addictions;PSY_ADD_CAT;Troubles addictifs;17050;1491970;1,14278;1,16167;0,999413
+dep;45;pec_addictions;PSY_ADD_CAT;Troubles addictifs;6650;677410;0,98168;0,993317;0,996992
+dep;46;pec_addictions;PSY_ADD_CAT;Troubles addictifs;2570;173280;1,48315;1,39288;0,992218
+dep;47;pec_addictions;PSY_ADD_CAT;Troubles addictifs;4120;331800;1,24171;1,21284;1
+dep;48;pec_addictions;PSY_ADD_CAT;Troubles addictifs;1260;72720;1,73267;1,63453;1
+dep;49;pec_addictions;PSY_ADD_CAT;Troubles addictifs;8070;828250;0,974343;1,00048;1,00124
+dep;50;pec_addictions;PSY_ADD_CAT;Troubles addictifs;7760;493320;1,57302;1,54627;0,998711
+dep;51;pec_addictions;PSY_ADD_CAT;Troubles addictifs;5990;551010;1,08709;1,09588;1
+dep;52;pec_addictions;PSY_ADD_CAT;Troubles addictifs;2340;163850;1,42814;1,41533;1,00427
+dep;53;pec_addictions;PSY_ADD_CAT;Troubles addictifs;3400;302000;1,12583;1,14641;1
+dep;54;pec_addictions;PSY_ADD_CAT;Troubles addictifs;8160;662310;1,23205;1,23166;1,00123
+dep;55;pec_addictions;PSY_ADD_CAT;Troubles addictifs;2350;171340;1,37154;1,35041;1
+dep;56;pec_addictions;PSY_ADD_CAT;Troubles addictifs;12570;796340;1,57847;1,53725;0,999204
+dep;57;pec_addictions;PSY_ADD_CAT;Troubles addictifs;8700;901060;0,965529;0,948285;1,00115
+dep;58;pec_addictions;PSY_ADD_CAT;Troubles addictifs;2940;191990;1,53133;1,49485;1,0034
+dep;59;pec_addictions;PSY_ADD_CAT;Troubles addictifs;37820;2533180;1,49299;1,54235;1,00026
+dep;60;pec_addictions;PSY_ADD_CAT;Troubles addictifs;7760;816660;0,950212;0,958141;0,996134
+dep;61;pec_addictions;PSY_ADD_CAT;Troubles addictifs;4000;264770;1,51075;1,49766;1,0025
+dep;62;pec_addictions;PSY_ADD_CAT;Troubles addictifs;23420;1440960;1,62531;1,63577;1,00043
+dep;63;pec_addictions;PSY_ADD_CAT;Troubles addictifs;10880;653400;1,66514;1,64123;1,00092
+dep;64;pec_addictions;PSY_ADD_CAT;Troubles addictifs;11100;707330;1,56928;1,50988;0,999099
+dep;65;pec_addictions;PSY_ADD_CAT;Troubles addictifs;3850;231640;1,66206;1,59705;0,992208
+dep;66;pec_addictions;PSY_ADD_CAT;Troubles addictifs;8440;513220;1,64452;1,59107;1
+dep;67;pec_addictions;PSY_ADD_CAT;Troubles addictifs;10450;1144500;0,913062;0,910891;1
+dep;68;pec_addictions;PSY_ADD_CAT;Troubles addictifs;7210;735400;0,980419;0,961562;0,998613
+dep;69;pec_addictions;PSY_ADD_CAT;Troubles addictifs;18690;1904880;0,981164;1,05135;0,999465
+dep;70;pec_addictions;PSY_ADD_CAT;Troubles addictifs;3010;228890;1,31504;1,26082;0,996678
+dep;71;pec_addictions;PSY_ADD_CAT;Troubles addictifs;7630;541060;1,41019;1,36956;0,998689
+dep;72;pec_addictions;PSY_ADD_CAT;Troubles addictifs;6200;556380;1,11435;1,12024;0,998387
+dep;73;pec_addictions;PSY_ADD_CAT;Troubles addictifs;4680;450080;1,03982;1,01862;1,00427
+dep;74;pec_addictions;PSY_ADD_CAT;Troubles addictifs;6720;820260;0,819252;0,828108;0,998512
+dep;75;pec_addictions;PSY_ADD_CAT;Troubles addictifs;21430;2068810;1,03586;1,04473;0,999533
+dep;76;pec_addictions;PSY_ADD_CAT;Troubles addictifs;17250;1242140;1,38873;1,40584;1
+dep;77;pec_addictions;PSY_ADD_CAT;Troubles addictifs;10300;1450940;0,709885;0,745646;1
+dep;78;pec_addictions;PSY_ADD_CAT;Troubles addictifs;9530;1487110;0,64084;0,675324;1
+dep;79;pec_addictions;PSY_ADD_CAT;Troubles addictifs;4080;370440;1,10139;1,08549;1,00245
+dep;80;pec_addictions;PSY_ADD_CAT;Troubles addictifs;8180;553040;1,4791;1,47307;1
+dep;81;pec_addictions;PSY_ADD_CAT;Troubles addictifs;5500;397210;1,38466;1,34271;0,994545
+dep;82;pec_addictions;PSY_ADD_CAT;Troubles addictifs;3620;267780;1,35186;1,32307;0,997238
+dep;83;pec_addictions;PSY_ADD_CAT;Troubles addictifs;13480;1169180;1,15294;1,10946;0,999258
+dep;84;pec_addictions;PSY_ADD_CAT;Troubles addictifs;6990;594310;1,17615;1,15831;1
+dep;85;pec_addictions;PSY_ADD_CAT;Troubles addictifs;7570;721420;1,04932;1,02924;0,998679
+dep;86;pec_addictions;PSY_ADD_CAT;Troubles addictifs;4960;422620;1,17363;1,17561;1
+dep;87;pec_addictions;PSY_ADD_CAT;Troubles addictifs;5470;359730;1,52058;1,48107;1
+dep;88;pec_addictions;PSY_ADD_CAT;Troubles addictifs;5060;356430;1,41963;1,3629;0,998024
+dep;89;pec_addictions;PSY_ADD_CAT;Troubles addictifs;4400;324290;1,35681;1,32625;1
+dep;90;pec_addictions;PSY_ADD_CAT;Troubles addictifs;1280;134660;0,950542;0,946189;1
+dep;91;pec_addictions;PSY_ADD_CAT;Troubles addictifs;9860;1331090;0,740746;0,798227;0,998986
+dep;92;pec_addictions;PSY_ADD_CAT;Troubles addictifs;12940;1619670;0,798928;0,854979;1,00155
+dep;93;pec_addictions;PSY_ADD_CAT;Troubles addictifs;11420;1625070;0,702739;0,784014;1,00088
+dep;94;pec_addictions;PSY_ADD_CAT;Troubles addictifs;10920;1380860;0,790812;0,836452;1
+dep;95;pec_addictions;PSY_ADD_CAT;Troubles addictifs;8570;1298030;0,660231;0,726824;0,998833
+dep;971;pec_addictions;PSY_ADD_CAT;Troubles addictifs;2270;387350;0,586033;0,565113;0,995595
+dep;972;pec_addictions;PSY_ADD_CAT;Troubles addictifs;1810;360720;0,501774;0,476216;1
+dep;973;pec_addictions;PSY_ADD_CAT;Troubles addictifs;600;205970;0,291305;0,325169;0,966667
+dep;974;pec_addictions;PSY_ADD_CAT;Troubles addictifs;12460;942430;1,32211;1,41529;1
+reg;01;pec_addictions;PSY_ADD_CAT;Troubles addictifs;2270;387350;0,586033;0,565113;0,995595
+reg;02;pec_addictions;PSY_ADD_CAT;Troubles addictifs;1810;360720;0,501774;0,476216;1
+reg;03;pec_addictions;PSY_ADD_CAT;Troubles addictifs;600;205970;0,291305;0,325169;0,966667
+reg;04;pec_addictions;PSY_ADD_CAT;Troubles addictifs;12460;942430;1,32211;1,41529;1
+reg;11;pec_addictions;PSY_ADD_CAT;Troubles addictifs;94960;12261580;0,774452;0,822891;0,999789
+reg;24;pec_addictions;PSY_ADD_CAT;Troubles addictifs;29350;2541840;1,15468;1,14682;1
+reg;27;pec_addictions;PSY_ADD_CAT;Troubles addictifs;33830;2729870;1,23925;1,21645;1
+reg;28;pec_addictions;PSY_ADD_CAT;Troubles addictifs;47280;3295170;1,43483;1,42637;1
+reg;32;pec_addictions;PSY_ADD_CAT;Troubles addictifs;84230;5855000;1,4386;1,46005;1,00012
+reg;44;pec_addictions;PSY_ADD_CAT;Troubles addictifs;57230;5238960;1,09239;1,07791;1,00017
+reg;52;pec_addictions;PSY_ADD_CAT;Troubles addictifs;42280;3900020;1,0841;1,09182;1,00024
+reg;53;pec_addictions;PSY_ADD_CAT;Troubles addictifs;54190;3454960;1,56847;1,54629;1,00018
+reg;75;pec_addictions;PSY_ADD_CAT;Troubles addictifs;83150;6134900;1,35536;1,31479;1
+reg;76;pec_addictions;PSY_ADD_CAT;Troubles addictifs;88420;6131500;1,44206;1,41481;1,00011
+reg;84;pec_addictions;PSY_ADD_CAT;Troubles addictifs;93600;8094340;1,15636;1,16579;1,00021
+reg;93;pec_addictions;PSY_ADD_CAT;Troubles addictifs;61510;5401550;1,13875;1,12182;1
+reg;94;pec_addictions;PSY_ADD_CAT;Troubles addictifs;4420;317210;1,3934;1,28584;0,997738
+dep;01;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;2400;635420;0,377703;0,356212;1
+dep;02;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1930;511150;0,37758;0,367308;0,989637
+dep;03;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1290;326580;0,395003;0,457202;1
+dep;04;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;900;167890;0,536065;0,587996;0,955556
+dep;05;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;800;146080;0,547645;0,592888;0,95
+dep;06;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;4000;1163540;0,343778;0,376302;0,995
+dep;07;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1200;331690;0,361784;0,395504;0,991667
+dep;08;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1150;256360;0,448588;0,44538;0,965217
+dep;09;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;550;154080;0,356957;;0,945455
+dep;10;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1030;296710;0,34714;0,35306;1
+dep;11;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1450;382400;0,379184;0,419477;0,986207
+dep;12;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;740;275130;0,268964;0,311413;0,986486
+dep;13;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;6820;2160550;0,31566;0,311023;0,997067
+dep;14;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;2170;701340;0,309408;0,320979;1,00461
+dep;15;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;440;139970;0,314353;;0,886364
+dep;16;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1130;344590;0,327926;0,364426;0,973451
+dep;17;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;2570;689650;0,372653;0,438528;0,996109
+dep;18;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;710;289740;0,245047;0,267051;0,971831
+dep;19;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;930;235090;0,395593;0,471623;1
+dep;21;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1970;520310;0,37862;0,3906;0,989848
+dep;22;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;2790;615150;0,453548;0,496529;0,996416
+dep;23;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;400;108840;0,367512;;0,875
+dep;24;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;2350;412530;0,569656;0,688507;0,995745
+dep;25;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1200;533290;0,225018;0,217855;1
+dep;26;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1820;532550;0,341752;0,344443;0,983516
+dep;27;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;3720;593600;0,626685;0,607095;0,997312
+dep;28;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;2160;424640;0,508666;0,492591;0,990741
+dep;29;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;4020;934720;0,430075;0,46204;0,992537
+dep;2A;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;400;151370;0,264253;;0,875
+dep;2B;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;910;165390;0,550215;;0,945055
+dep;30;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;2800;781150;0,358446;0,374273;1
+dep;31;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;6270;1440880;0,435151;0,4225;0,995215
+dep;32;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;720;190840;0,377279;0,432866;0,972222
+dep;33;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;9390;1701940;0,551723;0,558668;0,998935
+dep;34;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;5770;1251170;0,461168;0,476641;0,998267
+dep;35;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;4240;1108760;0,382409;0,362652;0,997642
+dep;36;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;880;207550;0,423994;0,49451;0,965909
+dep;37;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1490;617070;0,241464;0,247127;1,00671
+dep;38;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;6090;1305820;0,466374;0,446241;0,998358
+dep;39;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;910;255390;0,356318;0,378859;0,989011
+dep;40;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;2140;450350;0,475186;0,530377;0,990654
+dep;41;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;920;325440;0,282694;0,294498;0,967391
+dep;42;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;3130;765670;0,408792;0,404206;0,996805
+dep;43;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1330;228010;0,583308;0,631196;0,992481
+dep;44;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;5780;1491970;0,387407;0,37151;0,99654
+dep;45;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1940;677410;0,286385;0,279036;1
+dep;46;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;540;173280;0,311634;0,3914;0,981481
+dep;47;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1440;331800;0,433996;0,476367;0,986111
+dep;48;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;440;72720;0,605061;;0,886364
+dep;49;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;2320;828250;0,280109;0,265053;0,991379
+dep;50;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1570;493320;0,318252;0,346577;0,980892
+dep;51;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1440;551010;0,261338;0,253624;0,986111
+dep;52;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;640;163850;0,390601;0,432452;0,984375
+dep;53;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1170;302000;0,387417;0,366825;0,957265
+dep;54;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;2920;662310;0,440881;0,447367;0,996575
+dep;55;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;810;171340;0,472744;0,492041;0,962963
+dep;56;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;3250;796340;0,408117;0,441976;0,990769
+dep;57;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;4270;901060;0,473886;0,498597;1,00234
+dep;58;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;660;191990;0,343768;;0,939394
+dep;59;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;9750;2533180;0,384892;0,357024;1
+dep;60;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;3040;816660;0,372248;0,347015;1
+dep;61;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;710;264770;0,268157;0,294084;0,985915
+dep;62;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;5430;1440960;0,376832;0,356389;0,998158
+dep;63;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;2330;653400;0,356596;0,372352;0,995708
+dep;64;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;3580;707330;0,506129;0,560599;1
+dep;65;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1300;231640;0,561216;0,643641;1
+dep;66;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;2590;513220;0,504657;0,551417;0,988417
+dep;67;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;5720;1144500;0,499782;0,501757;0,994755
+dep;68;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;3230;735400;0,439217;0,441712;0,996904
+dep;69;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;9580;1904880;0,502919;0,467553;1
+dep;70;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;720;228890;0,314562;0,322235;0,958333
+dep;71;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1710;541060;0,316046;0,34798;0,994152
+dep;72;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1570;556380;0,282181;0,27866;0,980892
+dep;73;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1740;450080;0,386598;0,39519;0,982759
+dep;74;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;3230;820260;0,393778;0,382286;1
+dep;75;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;7740;2068810;0,374128;0,42216;0,997416
+dep;76;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;9110;1242140;0,733412;0,715469;0,996707
+dep;77;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;8130;1450940;0,560326;0,497071;1
+dep;78;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;6780;1487110;0,455918;0,409535;0,995575
+dep;79;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1030;370440;0,278048;0,287333;0,980583
+dep;80;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1890;553040;0,341747;0,338372;0,984127
+dep;81;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1450;397210;0,365046;0,393173;0,97931
+dep;82;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;980;267780;0,365972;0,36646;0,979592
+dep;83;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;4480;1169180;0,383175;0,429674;0,997768
+dep;84;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1960;594310;0,329794;0,334702;0,989796
+dep;85;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;2050;721420;0,284162;0,305298;0,995122
+dep;86;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1220;422620;0,288675;0,287419;0,967213
+dep;87;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1480;359730;0,41142;0,45477;1
+dep;88;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;2100;356430;0,589176;0,643436;0,990476
+dep;89;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;970;324290;0,299115;0,31943;0,989691
+dep;90;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;290;134660;0,215357;;0,862069
+dep;91;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;5780;1331090;0,434231;0,386187;1
+dep;92;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;6190;1619670;0,382177;0,367434;0,998384
+dep;93;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;8440;1625070;0,519362;0,442957;0,998815
+dep;94;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;5760;1380860;0,417131;0,388809;0,994792
+dep;95;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;7370;1298030;0,567783;0,488946;1,00136
+dep;971;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1810;387350;0,467278;0,482281;0,983425
+dep;972;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1390;360720;0,38534;0,428975;0,992806
+dep;973;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;350;205970;0,169928;;0,885714
+dep;974;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;4020;942430;0,426557;0,344693;0,995025
+reg;01;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1810;387350;0,467278;0,482281;0,983425
+reg;02;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1390;360720;0,38534;0,428975;0,992806
+reg;03;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;350;205970;0,169928;;0,885714
+reg;04;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;4020;942430;0,426557;0,344693;0,995025
+reg;11;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;56190;12261580;0,458261;0,428099;0,999822
+reg;24;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;8090;2541840;0,318273;0,326194;0,997528
+reg;27;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;8410;2729870;0,308073;0,32435;1
+reg;28;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;17270;3295170;0,5241;0,534093;1,00174
+reg;32;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;22040;5855000;0,37643;0,356114;1,00045
+reg;44;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;23300;5238960;0,444745;0,456083;1
+reg;52;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;12890;3900020;0,330511;0,326086;1
+reg;53;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;14300;3454960;0,413898;0,429752;0,998601
+reg;75;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;27680;6134900;0,451189;0,491667;1
+reg;76;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;25610;6131500;0,417679;0,439535;1
+reg;84;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;34560;8094340;0,426965;0,421564;1
+reg;93;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;18950;5401550;0,350825;0,368349;1,00053
+reg;94;pec_enfance;PSY_ENF_IND;Troubles psychiatriques débutant dans l'enfance;1310;317210;0,412976;0,478777;0,969466
+dep;01;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;3290;635420;0,517768;0,531188;1,00304
+dep;02;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;2990;511150;0,584955;0,590545;1
+dep;03;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;2070;326580;0,633842;0,611518;1,00483
+dep;04;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;1050;167890;0,625409;0,611888;1
+dep;05;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;910;146080;0,622946;0,610487;1
+dep;06;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;5880;1163540;0,505354;0,494608;1,0051
+dep;07;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;3030;331690;0,913504;0,89131;1
+dep;08;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;1780;256360;0,694336;0,686575;1,00562
+dep;09;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;1150;154080;0,746366;0,719839;0,991304
+dep;10;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;1240;296710;0,417916;0,420844;1,00806
+dep;11;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;2990;382400;0,781904;0,759965;1,00334
+dep;12;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;2200;275130;0,799622;0,769799;1,00455
+dep;13;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;14980;2160550;0,693342;0,701472;1,00267
+dep;14;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;3450;701340;0,491915;0,483494;1
+dep;15;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;1000;139970;0,714439;0,664803;0,99
+dep;16;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;2320;344590;0,673264;0,642951;1
+dep;17;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;4020;689650;0,582904;0,533319;0,992537
+dep;18;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;1470;289740;0,507351;0,499668;1,0068
+dep;19;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;1700;235090;0,723127;0,686659;0,988235
+dep;21;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;2840;520310;0,545828;0,535627;1
+dep;22;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;3570;615150;0,580346;0,558766;0,994398
+dep;23;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;1070;108840;0,983094;0,886644;0,981308
+dep;24;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;2680;412530;0,64965;0,626161;1
+dep;25;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;2480;533290;0,465038;0,466121;1,00403
+dep;26;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;3260;532550;0,612149;0,609874;1
+dep;27;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;2760;593600;0,46496;0,4746;1
+dep;28;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;3510;424640;0,826583;0,836203;1,0057
+dep;29;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;6920;934720;0,740329;0,719989;1
+dep;2A;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;910;151370;0,601176;0,575508;0,989011
+dep;2B;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;1580;165390;0,955318;0,892456;1
+dep;30;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;5270;781150;0,674646;0,672657;1,0038
+dep;31;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;12090;1440880;0,839071;0,847471;1
+dep;32;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;1190;190840;0,623559;0,606258;1
+dep;33;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;11320;1701940;0,665123;0,666605;1,00265
+dep;34;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;8480;1251170;0,677766;0,672153;1,00236
+dep;35;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;6500;1108760;0,58624;0,593887;1,00308
+dep;36;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;1120;207550;0,539629;0,523966;0,991071
+dep;37;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;3300;617070;0,534785;0,527781;1
+dep;38;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;8020;1305820;0,614173;0,623611;1,00249
+dep;39;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;1370;255390;0,536434;0,525812;0,992701
+dep;40;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;3540;450350;0,786055;0,774263;0,997175
+dep;41;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;1780;325440;0,546952;0,539817;1
+dep;42;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;5720;765670;0,747058;0,746488;1,0035
+dep;43;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;1560;228010;0,684181;0,669414;1
+dep;44;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;8930;1491970;0,598538;0,606589;1,00224
+dep;45;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;3250;677410;0,479769;0,486136;1,00615
+dep;46;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;1030;173280;0,594414;0,565516;1
+dep;47;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;2150;331800;0,647981;0,640109;1
+dep;48;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;550;72720;0,756326;0,730318;1
+dep;49;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;4470;828250;0,539692;0,534323;0,997763
+dep;50;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;2690;493320;0,545285;0,532552;1
+dep;51;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;3270;551010;0,593456;0,596412;1,00306
+dep;52;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;760;163850;0,463839;0,441929;0,973684
+dep;53;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;1330;302000;0,440397;0,424635;0,984962
+dep;54;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;3290;662310;0,496746;0,489675;1,00608
+dep;55;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;810;171340;0,472744;0,459538;1
+dep;56;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;5160;796340;0,647964;0,621728;1
+dep;57;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;6340;901060;0,703616;0,680704;1
+dep;58;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;1450;191990;0,755248;0,722399;1
+dep;59;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;16780;2533180;0,662409;0,681414;1,00119
+dep;60;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;3810;816660;0,466534;0,498364;0,997375
+dep;61;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;1330;264770;0,502323;0,488718;1,00752
+dep;62;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;9010;1440960;0,625278;0,636321;1
+dep;63;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;4150;653400;0,635139;0,624019;1
+dep;64;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;5610;707330;0,793123;0,783656;1,00178
+dep;65;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;1610;231640;0,695044;0,673535;1,00621
+dep;66;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;3580;513220;0,697557;0,682933;1
+dep;67;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;7410;1144500;0,647444;0,653472;1,00135
+dep;68;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;5370;735400;0,730215;0,723972;0,998138
+dep;69;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;12810;1904880;0,672483;0,684554;1,00078
+dep;70;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;1150;228890;0,502425;0,474153;0,965217
+dep;71;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;3550;541060;0,656119;0,630748;1
+dep;72;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;2520;556380;0,452928;0,454177;1,00397
+dep;73;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;2440;450080;0,542126;0,534702;0,991803
+dep;74;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;4080;820260;0,497403;0,511139;0,997549
+dep;75;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;17160;2068810;0,829462;0,844311;1,00117
+dep;76;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;7500;1242140;0,603797;0,607319;1,00267
+dep;77;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;6430;1450940;0,443161;0,487487;1,00156
+dep;78;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;6700;1487110;0,450538;0,472558;1
+dep;79;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;2190;370440;0,591189;0,573119;1,00457
+dep;80;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;3480;553040;0,629249;0,625744;1
+dep;81;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;2860;397210;0,720022;0,682185;0,996503
+dep;82;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;1360;267780;0,50788;0,505322;1,00735
+dep;83;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;6580;1169180;0,562788;0,548653;1
+dep;84;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;3850;594310;0,64781;0,648595;1
+dep;85;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;4230;721420;0,586344;0,565294;0,997636
+dep;86;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;2890;422620;0,683829;0,670732;1
+dep;87;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;3030;359730;0,842298;0,821343;1,0066
+dep;88;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;1710;356430;0,479758;0,467403;1
+dep;89;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;2360;324290;0,727744;0,699249;1
+dep;90;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;530;134660;0,393584;0,383838;0,981132
+dep;91;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;6410;1331090;0,48156;0,533094;1,00156
+dep;92;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;8980;1619670;0,554434;0,599958;1,00223
+dep;93;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;8040;1625070;0,494748;0,587242;1,00249
+dep;94;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;8380;1380860;0,606868;0,681767;1,00358
+dep;95;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;5190;1298030;0,399837;0,475639;1
+dep;971;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;2550;387350;0,658319;0,649731;0,996078
+dep;972;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;1190;360720;0,329896;0,327292;1,01681
+dep;973;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;470;205970;0,228189;0,282979;0,957447
+dep;974;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;3880;942430;0,411702;0,465777;1
+reg;01;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;2550;387350;0,658319;0,649731;0,996078
+reg;02;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;1190;360720;0,329896;0,327292;1,01681
+reg;03;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;470;205970;0,228189;0,282979;0,957447
+reg;04;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;3880;942430;0,411702;0,465777;1
+reg;11;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;67300;12261580;0,548869;0,601494;1,0003
+reg;24;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;14430;2541840;0,567699;0,562276;1,00069
+reg;27;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;15700;2729870;0,575119;0,563842;1,00127
+reg;28;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;17730;3295170;0,53806;0,536862;1,00169
+reg;32;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;36070;5855000;0,616055;0,631119;1
+reg;44;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;31970;5238960;0,610236;0,601724;1,00031
+reg;52;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;21480;3900020;0,550766;0,54793;1,00047
+reg;53;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;22150;3454960;0,641107;0,626141;0,999549
+reg;75;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;42510;6134900;0,692921;0,676099;1,00047
+reg;76;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;44360;6131500;0,723477;0,7114;0,999775
+reg;84;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;51420;8094340;0,635259;0,636155;1,00058
+reg;93;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;33240;5401550;0,615379;0,607407;0,999398
+reg;94;pec_autres_psy;PSY_AUT_IND;Autres troubles psychiatriques;2500;317210;0,788121;0,747233;1
+dep;01;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);50520;635420;7,95065;8,25797;1
+dep;02;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);54510;511150;10,6642;10,5879;1,00055
+dep;03;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);35870;326580;10,9835;9,39937;1,00028
+dep;04;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);15700;167890;9,35136;8,21976;1,00127
+dep;05;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);11900;146080;8,14622;7,31379;1
+dep;06;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);106870;1163540;9,1849;8,4326;1,00009
+dep;07;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);28390;331690;8,5592;7,70821;1,00035
+dep;08;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);29450;256360;11,4878;11,0257;1,00034
+dep;09;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);14820;154080;9,61838;8,35385;1,00067
+dep;10;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);29910;296710;10,0806;9,68202;0,999666
+dep;11;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);38970;382400;10,1909;9,05378;1
+dep;12;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);27410;275130;9,96256;8,44759;1
+dep;13;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);195970;2160550;9,07038;9,25255;1,00005
+dep;14;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);73420;701340;10,4685;10,0489;0,999728
+dep;15;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);16810;139970;12,0097;9,91225;1
+dep;16;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);38400;344590;11,1437;9,88328;1,00052
+dep;17;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);75400;689650;10,9331;9,33876;1,00027
+dep;18;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);29900;289740;10,3196;9,12253;1,00033
+dep;19;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);26640;235090;11,3318;9,58772;1,00075
+dep;21;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);49270;520310;9,46935;9,17183;1,00061
+dep;22;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);67790;615150;11,0201;9,73188;0,999705
+dep;23;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);14210;108840;13,0559;10,4385;1,0007
+dep;24;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);48190;412530;11,6816;9,68553;1
+dep;25;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);49650;533290;9,31013;9,40191;0,999799
+dep;26;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);44950;532550;8,44052;8,12037;0,999778
+dep;27;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);54610;593600;9,1998;9,26103;1
+dep;28;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);37030;424640;8,72033;8,6254;1
+dep;29;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);97250;934720;10,4042;9,62585;1,00031
+dep;2A;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);14570;151370;9,62542;8,71163;1
+dep;2B;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);16190;165390;9,78898;8,795;1,00124
+dep;30;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);69490;781150;8,89586;8,36075;1,00014
+dep;31;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);110090;1440880;7,64047;8,23238;0,999909
+dep;32;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);18790;190840;9,84594;8,36838;1,00106
+dep;33;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);150500;1701940;8,84285;8,96636;0,999867
+dep;34;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);116030;1251170;9,27372;9,08396;1
+dep;35;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);90010;1108760;8,11808;8,51823;1,00044
+dep;36;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);23610;207550;11,3756;9,55669;1
+dep;37;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);56250;617070;9,11566;8,85403;1,00018
+dep;38;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);101600;1305820;7,78055;8,02135;1,0001
+dep;39;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);27800;255390;10,8853;9,99598;1,00108
+dep;40;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);43500;450350;9,65915;8,56399;1,00023
+dep;41;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);31690;325440;9,73759;8,82304;1,00063
+dep;42;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);80800;765670;10,5528;10,2137;1,00025
+dep;43;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);23800;228010;10,4381;9,43165;1
+dep;44;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);123790;1491970;8,29708;8,64526;1,00016
+dep;45;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);55850;677410;8,24464;8,28093;1,00018
+dep;46;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);18600;173280;10,7341;8,75687;1,00054
+dep;47;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);33380;331800;10,0603;8,77185;1,0006
+dep;48;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);6730;72720;9,25468;8,02497;0,995542
+dep;49;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);67880;828250;8,19559;8,22693;0,999705
+dep;50;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);53810;493320;10,9077;9,78495;1
+dep;51;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);53240;551010;9,66226;9,7468;1
+dep;52;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);18950;163850;11,5655;10,4003;1
+dep;53;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);25680;302000;8,50331;8,11348;1,00039
+dep;54;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);65750;662310;9,92738;9,75666;1
+dep;55;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);17440;171340;10,1786;9,42513;1,00057
+dep;56;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);77250;796340;9,70063;8,75187;1,00013
+dep;57;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);87470;901060;9,70746;9,21846;1
+dep;58;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);22110;191990;11,5162;9,58511;1
+dep;59;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);240600;2533180;9,49794;10,2955;1
+dep;60;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);69500;816660;8,51027;9,08916;1,00029
+dep;61;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);28560;264770;10,7867;9,50304;0,99965
+dep;62;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);154730;1440960;10,738;11,0472;1
+dep;63;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);64190;653400;9,824;9,39558;1,00016
+dep;64;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);66230;707330;9,36338;8,41092;1,00015
+dep;65;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);22850;231640;9,86444;8,41125;1,00088
+dep;66;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);49440;513220;9,6333;8,58079;1
+dep;67;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);89560;1144500;7,82525;8,01255;1,00033
+dep;68;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);54530;735400;7,41501;7,29726;1,00055
+dep;69;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);145990;1904880;7,664;8,40921;1
+dep;70;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);25130;228890;10,9791;10,1608;1,0004
+dep;71;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);58260;541060;10,7678;9,51538;1,00017
+dep;72;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);53320;556380;9,58338;9,15174;1,00019
+dep;73;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);36000;450080;7,99858;7,78669;1
+dep;74;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);57140;820260;6,96608;7,40018;0,999825
+dep;75;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);166480;2068810;8,04714;8,25023;1
+dep;76;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);132780;1242140;10,6896;10,7902;0,999925
+dep;77;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);95870;1450940;6,60744;7,66137;1,00021
+dep;78;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);101880;1487110;6,85087;7,59579;1
+dep;79;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);36570;370440;9,87204;9,05585;0,998906
+dep;80;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);61950;553040;11,2017;11,1283;1,00048
+dep;81;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);36350;397210;9,15133;8,11323;1
+dep;82;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);23800;267780;8,88789;8,41468;1
+dep;83;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);114200;1169180;9,76753;8,74496;1,00018
+dep;84;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);48410;594310;8,14558;7,86605;0,999793
+dep;85;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);69880;721420;9,68645;8,69646;0,999714
+dep;86;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);42150;422620;9,9735;9,42964;1,00047
+dep;87;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);44560;359730;12,3871;11,1645;1,00045
+dep;88;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);34910;356430;9,79435;8,99201;1,00029
+dep;89;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);32270;324290;9,95097;9,0737;1,00031
+dep;90;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);12400;134660;9,20838;9,13161;1
+dep;91;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);83990;1331090;6,30987;7,29814;1,00012
+dep;92;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);111550;1619670;6,88721;7,69399;0,99991
+dep;93;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);84680;1625070;5,21085;6,59248;1,00012
+dep;94;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);89370;1380860;6,47205;7,36513;1,00022
+dep;95;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);73670;1298030;5,67552;6,96951;1,00027
+dep;971;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);15670;387350;4,04544;3,89564;0,999362
+dep;972;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);13270;360720;3,67875;3,41697;1,00226
+dep;973;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);4700;205970;2,28189;3,7937;1
+dep;974;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);36630;942430;3,88676;4,94211;1,00055
+reg;01;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);15670;387350;4,04544;3,89564;0,999362
+reg;02;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);13270;360720;3,67875;3,41697;1,00226
+reg;03;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);4700;205970;2,28189;3,7937;1
+reg;04;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);36630;942430;3,88676;4,94211;1,00055
+reg;11;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);807490;12261580;6,58553;7,48647;1
+reg;24;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);234320;2541840;9,21852;8,76748;1,00004
+reg;27;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);276900;2729870;10,1433;9,46622;1,00004
+reg;28;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);343170;3295170;10,4143;10,1038;1,00003
+reg;32;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);581300;5855000;9,92827;10,4276;1
+reg;44;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);481220;5238960;9,18541;8,95386;1,00002
+reg;52;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);340550;3900020;8,73201;8,61369;1,00006
+reg;53;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);332310;3454960;9,61835;9,12112;1,00012
+reg;75;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);619720;6134900;10,1016;9,22726;1
+reg;76;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);553360;6131500;9,02487;8,54369;1,00002
+reg;84;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);686050;8094340;8,47568;8,52307;1
+reg;93;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);493050;5401550;9,12794;8,71259;1,00002
+reg;94;psychotropes;TPS_CAT_EXC;Traitements psychotropes (hors pathologies);30860;317210;9,72857;8,75164;0,999676
+dep;01;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);32780;635420;5,15879;5,33065;1
+dep;02;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);27730;511150;5,42502;5,41043;1,00072
+dep;03;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);21130;326580;6,47008;5,69795;1,00142
+dep;04;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);9070;167890;5,40235;4,8338;1
+dep;05;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);7170;146080;4,90827;4,47312;0,997211
+dep;06;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);64680;1163540;5,5589;5,16357;0,999845
+dep;07;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);18140;331690;5,46896;4,97644;0,999449
+dep;08;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);15050;256360;5,87065;5,6885;0,999336
+dep;09;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);8520;154080;5,5296;4,91983;1,00117
+dep;10;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);16380;296710;5,52054;5,3593;1,00122
+dep;11;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);21650;382400;5,66161;5,14911;1,00046
+dep;12;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);17840;275130;6,48421;5,61678;1,00112
+dep;13;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);119200;2160550;5,51711;5,60585;0,999832
+dep;14;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);47970;701340;6,83976;6,61262;0,999792
+dep;15;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);10040;139970;7,17297;6,08957;0,999004
+dep;16;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);21420;344590;6,21608;5,61603;1
+dep;17;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);45130;689650;6,5439;5,7319;1
+dep;18;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);17330;289740;5,98122;5,40666;1
+dep;19;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);15730;235090;6,69105;5,7691;1
+dep;21;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);31420;520310;6,03871;5,87576;1
+dep;22;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);37400;615150;6,07982;5,51028;0,999733
+dep;23;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);7670;108840;7,04704;5,903;1,00522
+dep;24;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);27340;412530;6,6274;5,63834;1
+dep;25;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);31940;533290;5,98924;6,05505;1,00063
+dep;26;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);28790;532550;5,40607;5,22381;0,999653
+dep;27;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);33240;593600;5,59973;5,63347;1,0006
+dep;28;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);22490;424640;5,29625;5,2522;0,999111
+dep;29;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);56350;934720;6,02854;5,6604;1,00035
+dep;2A;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);8460;151370;5,58895;5,10903;1,00236
+dep;2B;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);9710;165390;5,87097;5,34039;1,00103
+dep;30;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);40970;781150;5,24483;4,98;1,00073
+dep;31;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);70530;1440880;4,89493;5,17887;1,00028
+dep;32;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);11210;190840;5,87403;5,14168;1,00089
+dep;33;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);91310;1701940;5,36505;5,41208;1,00011
+dep;34;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);72120;1251170;5,7642;5,66321;1,00014
+dep;35;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);57340;1108760;5,17154;5,37394;0,999826
+dep;36;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);14340;207550;6,90918;5,96026;1,00139
+dep;37;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);37180;617070;6,02525;5,88511;1,00027
+dep;38;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);69960;1305820;5,35755;5,49938;0,999714
+dep;39;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);17100;255390;6,69564;6,23065;1,00058
+dep;40;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);25730;450350;5,71333;5,14421;1,00039
+dep;41;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);19440;325440;5,97345;5,51434;1
+dep;42;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);52550;765670;6,86327;6,69535;1,00019
+dep;43;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);14870;228010;6,52164;5,99328;1
+dep;44;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);85560;1491970;5,7347;5,93866;0,999883
+dep;45;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);34690;677410;5,12098;5,158;1,00058
+dep;46;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);10910;173280;6,29617;5,29857;1
+dep;47;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);18240;331800;5,49729;4,89139;0,999452
+dep;48;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);4010;72720;5,5143;4,89739;1
+dep;49;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);41650;828250;5,02867;5,06697;1
+dep;50;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);33250;493320;6,74005;6,17924;1,0003
+dep;51;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);31670;551010;5,74763;5,80133;1,00032
+dep;52;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);9730;163850;5,93836;5,45532;1
+dep;53;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);14760;302000;4,88742;4,72968;1
+dep;54;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);39530;662310;5,9685;5,89186;0,999747
+dep;55;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);9300;171340;5,4278;5,09727;1
+dep;56;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);46560;796340;5,84675;5,36591;1,00021
+dep;57;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);45820;901060;5,08512;4,89489;0,999782
+dep;58;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);12420;191990;6,46909;5,56556;1
+dep;59;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);134640;2533180;5,31506;5,68234;1
+dep;60;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);36390;816660;4,45595;4,69119;1
+dep;61;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);16060;264770;6,06564;5,49753;1,00125
+dep;62;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);80320;1440960;5,57406;5,71187;1,00025
+dep;63;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);41710;653400;6,38353;6,14239;1,00024
+dep;64;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);41500;707330;5,86713;5,33091;1,00024
+dep;65;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);14270;231640;6,16042;5,36798;1
+dep;66;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);27510;513220;5,36027;4,85719;0,999636
+dep;67;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);47030;1144500;4,10922;4,15935;1
+dep;68;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);29010;735400;3,94479;3,89064;0,999655
+dep;69;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);100120;1904880;5,25597;5,71154;0,9999
+dep;70;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);15160;228890;6,62327;6,20082;0,99934
+dep;71;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);35500;541060;6,56119;5,91545;1
+dep;72;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);30920;556380;5,55735;5,36813;1,00032
+dep;73;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);26300;450080;5,84341;5,69434;1,00038
+dep;74;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);39100;820260;4,76678;5,02079;1,00026
+dep;75;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);114230;2068810;5,52153;5,55281;1,00009
+dep;76;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);86780;1242140;6,98633;7,06028;1,00023
+dep;77;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);60950;1450940;4,20073;4,76716;1,00016
+dep;78;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);69450;1487110;4,67013;5,09545;1
+dep;79;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);21480;370440;5,79851;5,40038;1
+dep;80;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);29640;553040;5,35947;5,3311;1
+dep;81;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);21320;397210;5,36744;4,87163;1,00047
+dep;82;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);14430;267780;5,38875;5,14418;1,00069
+dep;83;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);65980;1169180;5,64327;5,14348;1
+dep;84;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);29040;594310;4,88634;4,74915;1,00034
+dep;85;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);42910;721420;5,94799;5,44627;1
+dep;86;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);25080;422620;5,93441;5,67528;1
+dep;87;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);28720;359730;7,98377;7,28359;0,999304
+dep;88;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);21260;356430;5,96471;5,55866;1
+dep;89;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);18400;324290;5,67393;5,25731;1,00109
+dep;90;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);7420;134660;5,51017;5,45663;0,997305
+dep;91;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);54670;1331090;4,10716;4,65029;1
+dep;92;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);76890;1619670;4,74726;5,17893;1,00013
+dep;93;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);49800;1625070;3,06448;3,73308;0,999598
+dep;94;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);59070;1380860;4,27777;4,7628;1,00051
+dep;95;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);44540;1298030;3,43135;4,09072;1,00022
+dep;971;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);8010;387350;2,0679;2,00294;1,00125
+dep;972;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);6660;360720;1,84631;1,72259;1,0015
+dep;973;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);2070;205970;1,005;1,64842;1
+dep;974;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);17930;942430;1,90253;2,36952;0,999442
+reg;01;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);8010;387350;2,0679;2,00294;1,00125
+reg;02;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);6660;360720;1,84631;1,72259;1,0015
+reg;03;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);2070;205970;1,005;1,64842;1
+reg;04;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);17930;942430;1,90253;2,36952;0,999442
+reg;11;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);529600;12261580;4,31918;4,79685;1,00006
+reg;24;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);145460;2541840;5,72263;5,50004;1
+reg;27;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);169350;2729870;6,20359;5,86006;1,00012
+reg;28;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);217300;3295170;6,5945;6,44521;1,00005
+reg;32;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);308720;5855000;5,27276;5,49293;1
+reg;44;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);264770;5238960;5,05387;4,95616;1,00004
+reg;52;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);215800;3900020;5,5333;5,48148;1,00005
+reg;53;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);197650;3454960;5,72076;5,48072;0,999949
+reg;75;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);369330;6134900;6,02015;5,56754;0,999973
+reg;76;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);335310;6131500;5,46865;5,2204;1
+reg;84;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);455490;8094340;5,62727;5,65653;0,999956
+reg;93;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);295150;5401550;5,46417;5,2504;1,00003
+reg;94;antidepresseurs;TPS_ADR_EXC;Traitements antidépresseurs ou thymorégulateurs (hors pathologies);18220;317210;5,74383;5,22183;1
+dep;01;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);25350;635420;3,98949;4,15752;0,999211
+dep;02;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);32160;511150;6,2917;6,24344;1
+dep;03;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);20470;326580;6,26799;5,29385;1,00098
+dep;04;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);8440;167890;5,0271;4,39917;0,998815
+dep;05;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);6180;146080;4,23056;3,77562;1,00162
+dep;06;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);53200;1163540;4,57225;4,17867;1,00075
+dep;07;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);14190;331690;4,27809;3,82817;0,999295
+dep;08;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);17190;256360;6,70541;6,43434;1,00116
+dep;09;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);7880;154080;5,11423;4,37934;0,998731
+dep;10;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);17800;296710;5,99912;5,76356;1,00056
+dep;11;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);21270;382400;5,56224;4,91782;1
+dep;12;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);13470;275130;4,89587;4,09188;0,998515
+dep;13;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);104300;2160550;4,82747;4,92497;0,999904
+dep;14;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);34490;701340;4,91773;4,70193;1
+dep;15;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);9350;139970;6,68;5,4654;1
+dep;16;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);23120;344590;6,70942;5,89377;1,00043
+dep;17;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);39870;689650;5,78119;4,87425;0,999749
+dep;18;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);17360;289740;5,99158;5,2633;1,00058
+dep;19;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);14840;235090;6,31248;5,28861;1,00067
+dep;21;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);24050;520310;4,62224;4,45759;0,999584
+dep;22;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);38020;615150;6,18061;5,41664;1,00105
+dep;23;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);8610;108840;7,91069;6,23145;1
+dep;24;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);27500;412530;6,66618;5,47502;1
+dep;25;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);24850;533290;4,65975;4,70633;0,999598
+dep;26;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);22340;532550;4,19491;4,02937;1
+dep;27;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);28910;593600;4,87028;4,90151;0,999308
+dep;28;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);18950;424640;4,4626;4,41083;1,00053
+dep;29;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);52490;934720;5,61559;5,15543;0,999809
+dep;2A;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);8450;151370;5,58235;5,04626;1
+dep;2B;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);8240;165390;4,98216;4,43102;0,998786
+dep;30;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);36270;781150;4,64315;4,34987;1
+dep;31;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);51550;1440880;3,57767;3,89432;1,00019
+dep;32;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);9430;190840;4,94131;4,13229;1
+dep;33;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);75200;1701940;4,41849;4,48899;1
+dep;34;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);58440;1251170;4,67083;4,57277;1
+dep;35;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);42550;1108760;3,83762;4,04689;0,999765
+dep;36;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);12640;207550;6,0901;5,02709;0,999209
+dep;37;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);26120;617070;4,23291;4,09548;1
+dep;38;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);45460;1305820;3,48134;3,60217;1
+dep;39;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);15650;255390;6,12788;5,5637;1
+dep;40;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);22820;450350;5,06717;4,45564;0,999124
+dep;41;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);16320;325440;5,01475;4,51239;1,00061
+dep;42;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);44710;765670;5,83933;5,62151;0,999776
+dep;43;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);12880;228010;5,64888;5,05941;1
+dep;44;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);52370;1491970;3,51012;3,67681;1
+dep;45;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);28870;677410;4,26182;4,27521;1
+dep;46;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);10100;173280;5,82872;4,68584;1,00099
+dep;47;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);19370;331800;5,83785;5,05163;0,999484
+dep;48;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);3550;72720;4,88174;4,2355;1,00282
+dep;49;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);35500;828250;4,28615;4,29568;1,00056
+dep;50;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);28000;493320;5,67583;5,02335;1,00071
+dep;51;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);27820;551010;5,04891;5,08967;0,999641
+dep;52;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);11310;163850;6,90265;6,18885;1,00088
+dep;53;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);14450;302000;4,78477;4,53085;1,00069
+dep;54;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);32290;662310;4,87536;4,79031;1,00093
+dep;55;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);9770;171340;5,70211;5,28739;1,00205
+dep;56;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);38790;796340;4,87103;4,35886;0,999742
+dep;57;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);47770;901060;5,30153;5,0239;1,00042
+dep;58;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);12590;191990;6,55763;5,41668;1,00159
+dep;59;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);131710;2533180;5,19939;5,6565;0,999924
+dep;60;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);42250;816660;5,17351;5,52217;1
+dep;61;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);16010;264770;6,04676;5,29327;1
+dep;62;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);89250;1440960;6,19379;6,37931;1,00011
+dep;63;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);32410;653400;4,96021;4,73157;1,00093
+dep;64;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);32740;707330;4,62867;4,12401;1,00061
+dep;65;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);10790;231640;4,65809;3,89503;0,999073
+dep;66;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);26840;513220;5,22973;4,66438;1
+dep;67;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);46030;1144500;4,02184;4,14304;1,00043
+dep;68;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);27370;735400;3,72178;3,65531;0,999635
+dep;69;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);69100;1904880;3,62753;4,01463;1,00014
+dep;70;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);13390;228890;5,84997;5,38335;1,00075
+dep;71;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);32140;541060;5,94019;5,16651;1,00031
+dep;72;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);30460;556380;5,47468;5,20818;1,00098
+dep;73;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);13510;450080;3,00169;2,92417;1,00148
+dep;74;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);25480;820260;3,10633;3,32156;0,999608
+dep;75;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);72960;2068810;3,52667;3,67515;1,00027
+dep;76;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);63420;1242140;5,1057;5,15801;1,00047
+dep;77;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);46980;1450940;3,2379;3,77704;1,00021
+dep;78;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);45740;1487110;3,07576;3,45026;0,999781
+dep;79;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);20630;370440;5,56905;5,07485;1,00048
+dep;80;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);39490;553040;7,14053;7,09117;1
+dep;81;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);18770;397210;4,72546;4,13135;1
+dep;82;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);12240;267780;4,57092;4,31336;1,00163
+dep;83;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);59480;1169180;5,08733;4,54032;1,00017
+dep;84;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);25180;594310;4,23685;4,0839;0,999206
+dep;85;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);36880;721420;5,11214;4,54636;1,00027
+dep;86;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);24070;422620;5,69542;5,33638;1
+dep;87;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);23390;359730;6,5021;5,80886;1
+dep;88;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);17290;356430;4,85088;4,42629;0,999422
+dep;89;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);18180;324290;5,60609;5,08199;1,00055
+dep;90;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);6670;134660;4,95322;4,9087;1
+dep;91;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);41160;1331090;3,0922;3,60072;1
+dep;92;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);50560;1619670;3,12162;3,54866;0,999802
+dep;93;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);45190;1625070;2,7808;3,55464;1,00022
+dep;94;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);41860;1380860;3,03144;3,49623;1
+dep;95;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);38510;1298030;2,9668;3,67641;1,00026
+dep;971;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);8300;387350;2,14276;2,04811;0,99759
+dep;972;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);7430;360720;2,05977;1,90548;0,997308
+dep;973;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);2550;205970;1,23804;1,95567;0,988235
+dep;974;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);19870;942430;2,10838;2,66429;1,0005
+reg;01;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);8300;387350;2,14276;2,04811;0,99759
+reg;02;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);7430;360720;2,05977;1,90548;0,997308
+reg;03;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);2550;205970;1,23804;1,95567;0,988235
+reg;04;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);19870;942430;2,10838;2,66429;1,0005
+reg;11;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);382950;12261580;3,12317;3,59639;1,00003
+reg;24;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);120260;2541840;4,73122;4,47724;1,00008
+reg;27;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);147500;2729870;5,40319;5,00664;1,00014
+reg;28;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);170820;3295170;5,18395;5,01462;1,00006
+reg;32;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);334860;5855000;5,71921;6,01371;1
+reg;44;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);254650;5238960;4,8607;4,73015;1
+reg;52;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);169660;3900020;4,35023;4,27864;1,00018
+reg;53;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);171850;3454960;4,97401;4,69259;1,00012
+reg;75;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);332160;6134900;5,41427;4,9113;1
+reg;76;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);280590;6131500;4,5762;4,31453;1
+reg;84;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);335250;8094340;4,14178;4,16613;1,00006
+reg;93;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);256770;5401550;4,75364;4,53186;1,00008
+reg;94;anxiolytiques;TPS_ANX_EXC;Traitements anxiolytiques (hors pathologies);16730;317210;5,27411;4,73264;1,0006
+dep;01;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);6190;635420;0,974159;1,02896;1,00323
+dep;02;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);14350;511150;2,8074;2,77647;1,0007
+dep;03;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);5120;326580;1,56776;1,27494;1,00195
+dep;04;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);3270;167890;1,9477;1,64813;1,00306
+dep;05;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);1990;146080;1,36227;1,18451;1,00503
+dep;06;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);25250;1163540;2,1701;1,95394;1,0004
+dep;07;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);3850;331690;1,16072;1,00736;1
+dep;08;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);7280;256360;2,83976;2,67734;0,998626
+dep;09;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);3380;154080;2,19367;1,83688;1,00592
+dep;10;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);5640;296710;1,90085;1,80524;1,00177
+dep;11;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);8840;382400;2,31172;1,99971;1,00113
+dep;12;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);4870;275130;1,77007;1,456;1,00205
+dep;13;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);45660;2160550;2,11335;2,16761;1,00044
+dep;14;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);12400;701340;1,76804;1,66569;1,00081
+dep;15;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);3200;139970;2,2862;1,72872;0,990625
+dep;16;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);6190;344590;1,79634;1,54862;1,00162
+dep;17;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);13320;689650;1,93141;1,5534;1
+dep;18;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);4860;289740;1,67737;1,43884;1,00412
+dep;19;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);4830;235090;2,05453;1,65226;0,995859
+dep;21;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);7370;520310;1,41646;1,36016;1,00136
+dep;22;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);16860;615150;2,74079;2,32843;1,00059
+dep;23;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);2560;108840;2,35208;1,74733;1
+dep;24;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);9490;412530;2,30044;1,79714;0,998946
+dep;25;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);7490;533290;1,40449;1,42312;1,00134
+dep;26;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);6020;532550;1,13041;1,07212;1
+dep;27;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);9670;593600;1,62904;1,64117;0,997932
+dep;28;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);6430;424640;1,51422;1,49131;1,00156
+dep;29;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);21860;934720;2,33867;2,09517;1,00046
+dep;2A;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);3290;151370;2,17348;1,94149;1
+dep;2B;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);3700;165390;2,23714;1,96223;1
+dep;30;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);12850;781150;1,64501;1,51893;1
+dep;31;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);21520;1440880;1,49353;1,6738;1,00046
+dep;32;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);3770;190840;1,97548;1,57467;1
+dep;33;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);26700;1701940;1,5688;1,61553;1,00037
+dep;34;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);22890;1251170;1,82949;1,78484;1
+dep;35;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);16800;1108760;1,51521;1,63251;1,00119
+dep;36;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);3680;207550;1,77307;1,41506;1,00272
+dep;37;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);8030;617070;1,30131;1,24744;1
+dep;38;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);11740;1305820;0,899052;0,940633;1,0017
+dep;39;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);3710;255390;1,45268;1,29948;0,997305
+dep;40;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);8620;450350;1,91407;1,63778;0,99884
+dep;41;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);5240;325440;1,61013;1,41349;1,00191
+dep;42;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);11160;765670;1,45755;1,38855;1,0009
+dep;43;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);3730;228010;1,63589;1,41767;0,997319
+dep;44;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);17160;1491970;1,15016;1,22615;1
+dep;45;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);8920;677410;1,31678;1,31918;1
+dep;46;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);3410;173280;1,96791;1,51531;0,997067
+dep;47;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);6700;331800;2,01929;1,69421;0,998507
+dep;48;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);1350;72720;1,85644;1,55802;1
+dep;49;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);9970;828250;1,20374;1,20661;1
+dep;50;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);9380;493320;1,9014;1,62244;0,998934
+dep;51;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);11670;551010;2,11793;2,13843;0,999143
+dep;52;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);4020;163850;2,45346;2,13579;0,995025
+dep;53;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);4860;302000;1,60927;1,50409;0,997942
+dep;54;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);12810;662310;1,93414;1,88619;0,999219
+dep;55;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);3410;171340;1,99019;1,7979;1,00293
+dep;56;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);17100;796340;2,14732;1,86514;1,00117
+dep;57;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);21080;901060;2,33947;2,18415;1
+dep;58;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);4130;191990;2,15115;1,72885;1,00242
+dep;59;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);53700;2533180;2,11987;2,35878;0,999814
+dep;60;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);15630;816660;1,91389;2,08715;1
+dep;61;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);5650;264770;2,13393;1,81225;1
+dep;62;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);38950;1440960;2,70306;2,79883;1,00077
+dep;63;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);9380;653400;1,43557;1,35343;1,00107
+dep;64;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);11720;707330;1,65694;1,44184;0,998294
+dep;65;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);4230;231640;1,82611;1,46937;0,995272
+dep;66;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);11100;513220;2,16282;1,87718;1,0009
+dep;67;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);20600;1144500;1,79991;1,86256;1
+dep;68;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);12170;735400;1,65488;1,61914;1,00082
+dep;69;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);16690;1904880;0,876171;0,994598;1
+dep;70;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);4730;228890;2,06649;1,86637;1,00211
+dep;71;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);7160;541060;1,32333;1,11745;1,0014
+dep;72;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);9030;556380;1,62299;1,51971;0,996678
+dep;73;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);3770;450080;0,837629;0,812806;1,00265
+dep;74;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);7470;820260;0,910687;0,992871;1,00268
+dep;75;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);24050;2068810;1,1625;1,24965;1,00042
+dep;76;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);25640;1242140;2,06418;2,08212;1
+dep;77;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);16850;1450940;1,16132;1,39813;1,00119
+dep;78;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);14840;1487110;0,997909;1,14938;0,999326
+dep;79;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);5790;370440;1,56301;1,39954;1,00173
+dep;80;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);15820;553040;2,86055;2,83737;1,00126
+dep;81;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);7100;397210;1,78747;1,51925;1
+dep;82;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);4540;267780;1,69542;1,57872;1
+dep;83;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);26740;1169180;2,28707;1,99107;1
+dep;84;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);9260;594310;1,55811;1,48852;1
+dep;85;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);10780;721420;1,49428;1,28336;0,998145
+dep;86;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);6060;422620;1,43391;1,33095;1
+dep;87;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);6910;359730;1,92089;1,66981;1
+dep;88;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);6080;356430;1,7058;1,51083;0,998355
+dep;89;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);5420;324290;1,67134;1,48897;1,00185
+dep;90;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);2220;134660;1,6486;1,62964;1
+dep;91;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);13720;1331090;1,03073;1,23678;0,999271
+dep;92;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);15960;1619670;0,985386;1,15536;1,00063
+dep;93;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);14670;1625070;0,90273;1,19403;1
+dep;94;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);13160;1380860;0,953029;1,1337;1
+dep;95;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);13350;1298030;1,02848;1,32172;1,00225
+dep;971;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);1780;387350;0,459533;0,430497;0,994382
+dep;972;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);1170;360720;0,324351;0,290978;0,991453
+dep;973;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);820;205970;0,398116;0,68461;0,987805
+dep;974;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);6790;942430;0,720478;0,947947;0,998527
+reg;01;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);1780;387350;0,459533;0,430497;0,994382
+reg;02;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);1170;360720;0,324351;0,290978;0,991453
+reg;03;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);820;205970;0,398116;0,68461;0,987805
+reg;04;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);6790;942430;0,720478;0,947947;0,998527
+reg;11;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);126590;12261580;1,03241;1,22762;1
+reg;24;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);37160;2541840;1,46193;1,36423;0,999731
+reg;27;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);42230;2729870;1,54696;1,41131;0,999763
+reg;28;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);62730;3295170;1,9037;1,8177;1,00032
+reg;32;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);138450;5855000;2,36465;2,51918;1
+reg;44;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);104750;5238960;1,99944;1,93135;1
+reg;52;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);51800;3900020;1,3282;1,30013;1,00039
+reg;53;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);72620;3454960;2,10191;1,94936;0,999862
+reg;75;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);108860;6134900;1,77444;1,57449;1,00009
+reg;76;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);109840;6131500;1,79141;1,67178;1
+reg;84;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);88310;8094340;1,09101;1,09904;1,00011
+reg;93;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);112160;5401550;2,07644;1,96123;1,00027
+reg;94;hypnotiques;TPS_HYP_EXC;Traitements hypnotiques (hors pathologies);7010;317210;2,20989;1,95598;1,00143
+dep;01;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);2910;635420;0,457965;0,47727;1,00344
+dep;02;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);3370;511150;0,659298;0,658843;1,00297
+dep;03;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);2030;326580;0,621593;0,541678;0,995074
+dep;04;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1020;167890;0,607541;0,545814;1
+dep;05;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);560;146080;0,383352;0,347149;1
+dep;06;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);7490;1163540;0,643725;0,592729;1,00534
+dep;07;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1830;331690;0,55172;0,502531;1,00546
+dep;08;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1740;256360;0,678733;0,663331;0,994253
+dep;09;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);890;154080;0,577622;0,532552;1,02247
+dep;10;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);2350;296710;0,792019;0,769281;1
+dep;11;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);2610;382400;0,682531;0,62477;1,00383
+dep;12;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);2160;275130;0,785083;0,651877;0,990741
+dep;13;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);13540;2160550;0,626692;0,636757;1
+dep;14;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);3670;701340;0,523284;0,504899;1
+dep;15;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1090;139970;0,778738;0,649347;1,01835
+dep;16;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1870;344590;0,542674;0,492236;1,00535
+dep;17;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);4020;689650;0,582904;0,518273;1,00746
+dep;18;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1590;289740;0,548768;0,494758;1
+dep;19;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1480;235090;0,629546;0,543186;1,00676
+dep;21;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);3130;520310;0,601564;0,586617;1,00639
+dep;22;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);4060;615150;0,660002;0,595119;1,00246
+dep;23;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);860;108840;0,790151;0,619365;0,976744
+dep;24;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);2550;412530;0,618137;0,523513;0,992157
+dep;25;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);2860;533290;0,536294;0,542527;1,00699
+dep;26;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);3000;532550;0,563327;0,547022;1,00667
+dep;27;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);3110;593600;0,523922;0,532095;1,00322
+dep;28;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);3020;424640;0,711191;0,710234;1,00662
+dep;29;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);5270;934720;0,563805;0,528747;1
+dep;2A;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1090;151370;0,72009;0,655902;1
+dep;2B;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1290;165390;0,779975;0,71275;1
+dep;30;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);4710;781150;0,602957;0,572481;0,997877
+dep;31;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);6570;1440880;0,455971;0,486248;1,00152
+dep;32;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1080;190840;0,565919;0,503313;1,00926
+dep;33;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);8760;1701940;0,514707;0,51993;0,997717
+dep;34;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);8270;1251170;0,660981;0,646912;0,997582
+dep;35;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);5630;1108760;0,507774;0,526861;0,998224
+dep;36;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1430;207550;0,688991;0,584588;0,993007
+dep;37;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);2780;617070;0,450516;0,432213;0,996403
+dep;38;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);5930;1305820;0,454121;0,467897;1
+dep;39;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1530;255390;0,599084;0,561889;1,01307
+dep;40;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);2160;450350;0,479627;0,436548;1,00463
+dep;41;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);2120;325440;0,651426;0,594811;1,00472
+dep;42;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);4730;765670;0,61776;0,590741;1
+dep;43;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1320;228010;0,578922;0,513564;0,984848
+dep;44;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);6920;1491970;0,463816;0,483328;1,00145
+dep;45;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);3740;677410;0,552103;0,556002;1,00535
+dep;46;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1260;173280;0,727147;0,632773;1
+dep;47;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1880;331800;0,566606;0,495984;1,00532
+dep;48;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);430;72720;0,591309;0,53137;1
+dep;49;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);4010;828250;0,484153;0,484138;1,00748
+dep;50;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);2870;493320;0,581772;0,535148;1,01045
+dep;51;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);2740;551010;0,497269;0,504692;1,0073
+dep;52;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1270;163850;0,775099;0,729498;1
+dep;53;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1670;302000;0,55298;0,533685;1,01198
+dep;54;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);3710;662310;0,560161;0,555742;1,00539
+dep;55;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1040;171340;0,60698;0,560478;0,980769
+dep;56;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);4220;796340;0,529924;0,488974;1,00474
+dep;57;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);4960;901060;0,550463;0,529676;0,997984
+dep;58;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1240;191990;0,645867;0,592674;1,00806
+dep;59;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);10490;2533180;0,414104;0,442091;0,999047
+dep;60;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);3430;816660;0,420003;0,451561;0,997085
+dep;61;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1890;264770;0,713827;0,652826;1,01058
+dep;62;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);6390;1440960;0,443454;0,457685;0,995305
+dep;63;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);3040;653400;0,465259;0,447856;1
+dep;64;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);3440;707330;0,486336;0,437485;0,997093
+dep;65;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1310;231640;0,565533;0,483723;1
+dep;66;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);3110;513220;0,605978;0,549932;1,00322
+dep;67;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);5530;1144500;0,48318;0,498508;1,00181
+dep;68;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);3640;735400;0,494969;0,492729;1
+dep;69;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);9030;1904880;0,474046;0,512784;1,00221
+dep;70;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1290;228890;0,563589;0,53089;0,992248
+dep;71;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);4380;541060;0,809522;0,73472;1,00228
+dep;72;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);3300;556380;0,59312;0,567466;1,00606
+dep;73;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);2320;450080;0,515464;0,500141;0,991379
+dep;74;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);3420;820260;0,416941;0,447443;1,00292
+dep;75;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);11190;2068810;0,540891;0,549686;0,999106
+dep;76;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);7380;1242140;0,594136;0,598817;0,998645
+dep;77;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);6290;1450940;0,433512;0,493923;1,00159
+dep;78;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);6550;1487110;0,440452;0,475182;1,00153
+dep;79;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);2180;370440;0,588489;0,542283;1,00459
+dep;80;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);2770;553040;0,500868;0,502499;1
+dep;81;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);2220;397210;0,558898;0,493363;1
+dep;82;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1480;267780;0,552693;0,521565;1
+dep;83;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);6740;1169180;0,576472;0,516178;0,998516
+dep;84;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);3090;594310;0,519931;0,504478;0,996764
+dep;85;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);3910;721420;0,541987;0,492686;1,00256
+dep;86;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1810;422620;0,428281;0,408296;1,00552
+dep;87;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);2710;359730;0,753343;0,670896;0,99631
+dep;88;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1610;356430;0,451702;0,42292;1
+dep;89;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1990;324290;0,613648;0,575447;1
+dep;90;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);780;134660;0,579237;0,559678;0,974359
+dep;91;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);5910;1331090;0,443997;0,492432;1
+dep;92;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);7320;1619670;0,451944;0,488757;0,998634
+dep;93;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);6260;1625070;0,385214;0,465966;0,998403
+dep;94;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);5890;1380860;0,426546;0,466201;1
+dep;95;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);4830;1298030;0,372102;0,452744;1
+dep;971;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1700;387350;0,43888;0,437648;1
+dep;972;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1620;360720;0,449102;0,42685;1,00617
+dep;973;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);510;205970;0,247609;0,443672;1
+dep;974;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);2840;942430;0,301349;0,404892;1
+reg;01;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1700;387350;0,43888;0,437648;1
+reg;02;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);1620;360720;0,449102;0,42685;1,00617
+reg;03;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);510;205970;0,247609;0,443672;1
+reg;04;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);2840;942430;0,301349;0,404892;1
+reg;11;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);54230;12261580;0,442276;0,486975;0,999816
+reg;24;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);14680;2541840;0,577534;0,551486;1
+reg;27;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);17200;2729870;0,630067;0,595641;1
+reg;28;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);18930;3295170;0,574477;0,56087;1
+reg;32;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);26450;5855000;0,451751;0,474127;1,00189
+reg;44;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);28580;5238960;0,545528;0,537587;1
+reg;52;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);19810;3900020;0,507946;0,498809;1
+reg;53;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);19180;3454960;0,555144;0,528675;0,999479
+reg;75;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);33720;6134900;0,549642;0,504296;1
+reg;76;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);36080;6131500;0,588437;0,558176;1
+reg;84;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);40630;8094340;0,501956;0,502877;0,999754
+reg;93;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);32440;5401550;0,600568;0,572074;0,999075
+reg;94;neuroleptiques;TPS_NLE_EXC;Traitements neuroleptiques (hors pathologies);2390;317210;0,753444;0,68708;1
