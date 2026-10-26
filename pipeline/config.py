@@ -802,6 +802,13 @@ PROFESSIONS_QUADRANTS = ["psychiatre", "psychologue", "q_psychiatrie_enfant", "m
 # régression géographiquement pondérée du lien avec le niveau de vie : professions présentes dans au moins une
 # intercommunalité sur deux (décision de Lucas du 23 octobre 2026, au-delà des trois professions d'origine)
 GWR_PRESENCE_MIN = 0.5
+# part de l'exercice libéral par territoire, indicateur de « Croiser deux indicateurs » (demande de Lucas du 23 octobre
+# 2026). Calculée seulement quand le territoire compte au moins PART_LIBERAL_EFFECTIF_MIN professionnels de la
+# profession (en dessous, une ou deux personnes font passer la part de 0 à 100 %), pour les professions principales où
+# libéraux et salariés pèsent tous deux en France et qui atteignent ce minimum dans au moins un département sur deux
+PART_LIBERAL_EFFECTIF_MIN = 10
+PART_LIBERAL_BORNES = (0.10, 0.90)
+PART_LIBERAL_PRESENCE_MIN = 0.5
 
 # Paires de professions testées pour la substitution ou le cumul (point 8 du chantier 4)
 PAIRES_SUBSTITUTION = [("medecin_generaliste", "psychologue"), ("medecin_generaliste", "psychiatre"),

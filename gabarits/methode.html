@@ -191,6 +191,9 @@
 <tr><td>{{ c.label }}</td><td>{{ c.unite }}</td><td>{{ c.explication }}</td><td>{{ (c.niveaux or [])|join(', ') }}</td><td>{% if c.fiche %}<a href="{{ racine }}donnees-sources.html#{{ c.fiche }}">{{ c.source }}</a>{% else %}{{ c.source }}{% endif %}</td><td>{{ c.licence }}</td></tr>
 {% endfor %}
 </tbody></table>
+{% if part_liberal %}
+<p><strong>Part de l'exercice libéral.</strong> Dans « Croiser deux indicateurs » de l'atlas, la part des professionnels d'un territoire qui déclarent une activité libérale, parmi tous ceux de la profession qui y exercent. Une personne qui exerce aussi en salariée compte comme libérale. La part n'est pas calculée quand le territoire compte moins de {{ part_liberal.minimum }} professionnels de la profession, car une ou deux personnes la feraient passer de 0 à 100 %. Elle est proposée pour les professions principales où libéraux et salariés pèsent tous deux en France et qui atteignent ce minimum dans au moins un département sur deux, {{ part_liberal.professions|join(', ')|lower }}.</p>
+{% endif %}
 
 {% endif %}
 {% if vue == 'controles' %}
@@ -202,6 +205,9 @@
 
 {% endif %}
 {% if vue == 'entree' %}
+<h2 id="suivi">Suivi dans le temps</h2>
+<p>À chaque nouvelle extraction du répertoire RPPS, une photographie des effectifs par profession, mode d'exercice et territoire (régions, départements, intercommunalités) est gardée avec la version des calculs qui l'a produite. Elle permettra de dire si une figure change d'une extraction à l'autre et pourquoi. Quand les règles de calcul changent entre deux dates, la comparaison le signale, pour qu'un changement de méthode ne passe pas pour une évolution de l'offre. {% if suivi and suivi.n %}{{ suivi.n }} photographie{{ 's' if suivi.n > 1 }} gardée{{ 's' if suivi.n > 1 }}, {% if suivi.n > 1 %}du {{ suivi.premiere }} au {{ suivi.derniere }}{% else %}celle de l'extraction du {{ suivi.derniere }}{% endif %}.{% endif %} Les évolutions depuis 2016 s'appuient sur les séries de la DREES.</p>
+
 {% if logiciels %}
 <h2 id="logiciels">Logiciels et reproductibilité</h2>
 <p>Les calculs sont réalisés en Python {{ logiciels.python }}. Les tirages aléatoires (rééchantillonnage pour les intervalles de confiance, permutations) utilisent une graine fixe, {{ logiciels.graine }}, pour que les résultats soient identiques d'une exécution à l'autre sur les mêmes données. Chaque source est consignée avec la date annoncée par son producteur et la date de téléchargement. Le code sera publié avec la première version citable du jeu de données.</p>

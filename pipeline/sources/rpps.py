@@ -16,6 +16,17 @@ FICHIERS = {k: config.BRUT / f"rpps_{k}.txt" for k in config.RPPS_RESSOURCES}
 
 
 def telecharger_tout(hors_ligne=False, rafraichir=False) -> dict[str, Path]:
+    fichiers = _telecharger_tout(hors_ligne, rafraichir)
+    # archive mensuelle de l'extraction brute, sur le PC seulement, pour recalculer une date passée (26 octobre 2026)
+    try:
+        from ..photographies import archiver_rpps
+        archiver_rpps(fichiers)
+    except Exception as e:  # noqa: BLE001
+        JOURNAL.note("Archive mensuelle du RPPS", f"non faite ({e.__class__.__name__}: {e})")
+    return fichiers
+
+
+def _telecharger_tout(hors_ligne=False, rafraichir=False) -> dict[str, Path]:
     if hors_ligne:
         manquants = [str(p) for p in FICHIERS.values() if not p.exists()]
         if manquants:

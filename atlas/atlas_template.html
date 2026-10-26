@@ -1214,6 +1214,15 @@ function prep(){
       L.units.forEach((u,k)=>{if(!u.x)u.x=[];const v=r&&r[k]?r[k][1]:null;u.x[i]=v;if(v!=null)vu=true})}
     if(vu)IDX.ctx.push({id:"route:"+e.id,label:"Temps médian par la route, "+e.lib.charAt(0).toLowerCase()+e.lib.slice(1),unite:"minutes",
       groupe:"Temps de trajet par la route",famille:e.fam||null,source:"",explication:"Durée en voiture, aux heures creuses, jusqu’à l’équipement le plus proche, médiane des habitants du territoire (INSEE).",i})});
+  // part de l'exercice libéral par territoire (demande de Lucas du 23 octobre 2026), ajoutée aux indicateurs du nuage
+  // avec la règle de analyses.part_liberal : pas de part sous l'effectif minimal de la profession dans le territoire
+  const PL=D.meta.part_liberal;
+  if(PL)PL.professions.forEach(p=>{const pr=IDX.prof.get(p);if(!pr)return;const i=IDX.ctx.length;
+    for(const lv of ["reg","dep","epci"]){const L=D.niveaux[lv],a=L&&L.n[p];if(!L)continue;
+      L.units.forEach((u,k)=>{if(!u.x)u.x=[];const t=a?a.all[k]:0;u.x[i]=a&&t>=PL.minimum?Math.round(a.lib[k]/t*1000)/10:null})}
+    IDX.ctx.push({id:"lib_part:"+p,label:"Part de l’exercice libéral, "+pluriel(pr.libelle).toLowerCase(),unite:"%",
+      groupe:"Exercice libéral",famille:famOf(pr),source:"",i,
+      explication:"Part des "+pluriel(pr.libelle).toLowerCase()+" du territoire qui déclarent une activité libérale, parmi tous ceux qui y exercent (répertoire RPPS). Une personne qui exerce aussi en salariée compte comme libérale. Non calculée quand le territoire compte moins de "+PL.minimum+" professionnels de la profession."})});
   IDX.epciDep=new Map(D.niveaux.epci.units.map(u=>[u.c,u.p]));
   IDX.depName=new Map(D.niveaux.dep.units.map(u=>[u.c,u.nm]));
   GL=new Map((D.meta.glossaire||[]).map(g=>[g.id,g]));
@@ -1878,6 +1887,15 @@ function selCard(){
     if(hs)ph+=(td?" De plus, ":" Par ailleurs, ")+nb(hs)+" ici une activité sans soins à la population (siège d’organisme, contrôle médical…), non comptée dans la densité.";
     if(ev)ph+=" D’après les séries de la DREES, qui comptent chaque professionnel dans un seul département, la densité "+deMot(ei.lib.split(",")[0].toLowerCase())+" a évolué de "+signe(ev[2])+" de "+ei.debut+" à "+ei.fin+", contre "+signe(ei.fr[2])+" en France.";
     h+='<p class="phrase">'+esc(ph)+'</p>';court=ph;
+    // combinaison des trois professions dans l'intercommunalité (carte des combinaisons, 23 octobre 2026), présence
+    // ou absence seulement, jamais d'addition
+    if(lv==="epci"&&S.fam!==SANTE){const g=unitN(lv,"medecin_generaliste",i,"all")>0,ps=unitN(lv,"psychologue",i,"all")>0,pt=unitN(lv,"psychiatre",i,"all")>0;
+      const cb=g&&ps&&pt?"Des médecins généralistes, des psychologues et des psychiatres y déclarent exercer."
+        :g&&ps?"Des médecins généralistes et des psychologues y déclarent exercer, mais aucun psychiatre."
+        :g&&!pt?"Des médecins généralistes y déclarent exercer, mais ni psychologue ni psychiatre."
+        :g?"Des médecins généralistes et des psychiatres y déclarent exercer, mais aucun psychologue.":"";
+      const nc=D.niveaux[lv].cmp?.[i]||0,cmpTxt=g&&!pt&&nc&&p0!=="psychiatre"?" L’intercommunalité accueille toutefois "+nc+" centre"+(nc>1?"s":"")+" médico-psychologique"+(nc>1?"s":"")+" (CMP), où des psychiatres peuvent consulter sans y être déclarés.":"";
+      if(cb)h+='<p class="phrase">'+esc(cb+cmpTxt)+'</p>'}
   }
   h+='<p class="small muted legende-barres" style="margin:14px 0 0"><svg viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><rect x="22" y="2" width="28" height="6" fill="'+css("--d1")+'"/><line x1="50" x2="50" y1="0" y2="10" stroke="'+css("--muted")+'" stroke-width="1"/><rect x="50" y="2" width="20" height="6" fill="'+css("--d5")+'"/></svg>'
     +'Chaque barre compare la densité du territoire à la moyenne '+MOYLAB[lv]+', marquée par le trait vertical, '+modeLab[S.mode]+'. Vers la gauche en cuivre, la densité est plus faible, vers la droite en bleu, plus forte, jusqu’à quatre fois moins ou quatre fois plus au bord. Le nombre est l’indice, 100 pour la moyenne, 50 pour deux fois moins, 200 pour deux fois plus. Survolez une ligne pour l’effectif et la densité, cliquez pour la cartographier.</p>';

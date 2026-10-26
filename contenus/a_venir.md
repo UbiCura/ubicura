@@ -16,6 +16,8 @@ Les principaux ajouts prévus, sans date ferme. Chacun ne sera intégré que si 
 
 ## Analyses et site
 
+**Explorer les données.** Une page où chaque analyse se règle soi-même, par exemple les territoires qui ont une profession sans l'autre ou l'évolution de l'offre depuis 2016 selon le niveau de vie, chaque vue restant citable.
+
 **Pages par intercommunalité.** Une page complète pour chaque intercommunalité, sur le modèle des départements.
 
 **Ce que dit la littérature.** Les travaux scientifiques sur chaque thème, avec leurs références.

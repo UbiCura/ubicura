@@ -728,6 +728,35 @@ def gwr_carte(ref, R, lab, prof="psychologue"):
                                           "à densité de population égale", couleurs=couleurs, legende_fn=leg)
 
 
+COMBINAISON_COULEURS = {"trois": "var(--d3, #DFE1E5)", "sans_psychiatre": "var(--d1, #BC6B3B)",
+                        "generaliste_seul": "var(--d0, #83451E)", "sans_psychologue": "var(--r3, #3167A9)",
+                        "autre": "var(--nodata, #ECECEF)"}
+
+
+def combinaisons_carte(agg, ref):
+    """Carte des intercommunalités selon la présence d'un généraliste, d'un psychologue et d'un psychiatre (demande de
+    Lucas du 23 octobre 2026), un aplat par intercommunalité, légende limitée aux combinaisons présentes."""
+    from . import cartes
+    from .analyses import COMBINAISON_CLASSES, combinaison_par_territoire
+    f = cartes.fonds(ref)
+    if not f or "atlas_epci" not in f:
+        return None
+    cl = combinaison_par_territoire(agg, ref, "epci")
+    # Hexagone et Corse seulement, comme la carte du lien local avec le niveau de vie (l'outre-mer reste dans le
+    # tableau, la carte des départements ne sait placer en médaillon que des départements)
+    dep = ref.epci.set_index("code")["dep"]
+    cl = cl[~cl.index.map(dep).astype(str).str.startswith("97")]
+    couleurs = {c: COMBINAISON_COULEURS[k] for c, k in cl.items()}
+    geoms = {c: f["atlas_epci"][c] for c in couleurs if c in f["atlas_epci"]}
+    presentes = [(k, lib) for k, lib in COMBINAISON_CLASSES if (cl == k).any()]
+
+    def leg(el, x, y, largeur):
+        fs = taille_role("petit", largeur)
+        return legende(el, x, y + fs, [("carre", COMBINAISON_COULEURS[k], lib) for k, lib in presentes], largeur, fs, x) + 4
+    return cartes.carte_france(geoms, {}, "Professions présentes dans chaque intercommunalité de l'Hexagone et de Corse, "
+                                          "médecin généraliste, psychologue et psychiatre", couleurs=couleurs, legende_fn=leg)
+
+
 def ecrire(out, agg, ref, professions, contexte, R):
     """Écrit les figures dans out/graphiques/ et renvoie la liste des noms produits."""
     from . import indicateurs
@@ -789,6 +818,10 @@ def ecrire(out, agg, ref, professions, contexte, R):
     ctx = contexte["contexte"] if contexte else None
     variantes("bivariee_sm", lambda q: bivariee(ref, ctx, agg, lab, ctxlab, q), ["psychiatre", "psychologue"], "psychiatre")
     variantes("gwr_sm", lambda q: gwr_carte(ref, R, lab, q), ["psychologue", "psychiatre"], "psychologue")
+    try:
+        figures["combinaisons_sm"] = combinaisons_carte(agg, ref)
+    except Exception as e:  # noqa: BLE001
+        log.warning("figure combinaisons_sm impossible (%s)", e)
     faites = []
     for nom, svg in figures.items():
         if svg:

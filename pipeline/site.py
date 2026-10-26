@@ -366,6 +366,24 @@ def en_bref(texte: str) -> list[str]:
     return out
 
 
+def _part_liberal_methode(site_data) -> dict | None:
+    """Règle de la part de l'exercice libéral (indicateur calculé dans l'atlas), pour la page « Indicateurs »."""
+    pl = (site_data.get("meta") or {}).get("part_liberal")
+    if not pl:
+        return None
+    lab = {p["id"]: p["libelle"] for p in site_data.get("professions", [])}
+    return {"minimum": pl["minimum"], "professions": [lab.get(p, p) for p in pl["professions"]]}
+
+
+def _suivi_methode() -> dict:
+    """Photographies des comptes gardées, une par extraction du RPPS (pipeline/photographies.py)."""
+    f = config.RESULTATS / "historique" / "photographies" / "index.json"
+    idx = json.loads(f.read_text(encoding="utf-8")) if f.exists() else []
+    from .lecture import date_longue
+    return {"n": len(idx), "premiere": date_longue(idx[0]["date_rpps"]) if idx else None,
+            "derniere": date_longue(idx[-1]["date_rpps"]) if idx else None}
+
+
 # ---------------------------------------------------------------- PDF
 def navigateur() -> str | None:
     for nom in ("msedge", "chromium", "chromium-browser", "google-chrome", "chrome"):
@@ -835,12 +853,14 @@ def construire(pdf=True) -> Path:
                    libelles=table_lib, fichiers=fichiers, concordance=concordance, inscrits=inscrits, lieux=lieux_m,
                    archive={"lien": f"donnees/{dernier.name}/{tout.name}", "taille": f"{tout.stat().st_size / 1e6:.0f} Mo"},
                    lien_dictionnaire=f"donnees/{dernier.name}/dictionnaire.html",
-                   lien_libelles=f"donnees/{dernier.name}/libelles.csv")
+                   lien_libelles=f"donnees/{dernier.name}/libelles.csv",
+                   part_liberal=_part_liberal_methode(site_data), suivi=_suivi_methode())
     lim, logi = ctx.get("limites"), ctx.get("logiciels")
     pages_methode = [
         ("entree", "methode.html", "Vue d'ensemble", [("methode", "Comment les chiffres sont établis")]
          + ([("limites", "Limites connues des données")] if lim else []) + [("sources", "Sources"),
             ("origine", "D'où vient chaque chiffre")] + ([("inscrits", "Inscrits sans activité déclarée")] if inscrits else [])
+         + [("suivi", "Suivi dans le temps")]
          + ([("logiciels", "Logiciels et reproductibilité")] if logi else [])
          + [("libelles", "Noms des établissements"), ("licences", "Licences et conditions de réutilisation")]),
         ("structures", "methode-structures.html", "Structures de soins", [("lieux", "Structures de soins, FINESS et ROR réunis")]),

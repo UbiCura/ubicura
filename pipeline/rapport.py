@@ -883,12 +883,18 @@ def _composition(C: Contexte):
          f"{pct(p_sans['part_population'].sum()).capitalize()} des habitants vivent dans une intercommunalité qui "
          f"compte au moins un psychologue mais aucun psychiatre, et {pct(g_sans['part_population'].sum())} dans une "
          f"intercommunalité qui a un médecin généraliste mais ni psychologue ni psychiatre.", "",
+         *graphique("combinaisons_sm"),
          _tableau(t, ["medecin_generaliste", "psychologue", "psychiatre", "territoires", "population", "part_population"],
                   ["Médecin généraliste", "Psychologue", "Psychiatre", "Intercommunalités", "Habitants", "Part des habitants"],
                   {"territoires": nombre, "population": nombre, "part_population": pct}), ""]
+    n_sans, n_tot = int(p_sans["territoires"].sum()), int(cb.loc[cb["niveau"] == "epci", "territoires"].sum())
     L += _comment_lire("Chaque ligne est une combinaison de présence ou d'absence des trois professions dans "
                        "l'intercommunalité. Absence ne veut pas dire absence d'accès, le professionnel le plus "
-                       "proche peut exercer dans l'intercommunalité voisine.", C.phrase_cmp(),
+                       "proche peut exercer dans l'intercommunalité voisine.",
+                       f"Sur la carte, les intercommunalités sans psychiatre déclaré couvrent une grande surface, "
+                       f"{nombre(n_sans)} sur {nombre(n_tot)}, mais elles sont peu peuplées et ne réunissent que "
+                       f"{pct(p_sans['part_population'].sum())} des habitants. La carte montre l'Hexagone et la Corse, "
+                       f"l'outre-mer est compté dans le tableau.", C.phrase_cmp(),
                        limites.phrase_md(["prof:psychiatre"]))
     if isinstance(comp, pd.DataFrame) and not comp.empty:
         d = comp[comp["niveau"] == "dep"].dropna(subset=["psychologues_par_psychiatre"]).copy()
@@ -904,10 +910,50 @@ def _composition(C: Contexte):
                                "rapport élevé signale une offre qui repose surtout sur les psychologues. Les deux "
                                "professions ne sont pas interchangeables, ce rapport se lit à côté des densités et "
                                "ne forme pas un score.")
+    L += _composition_densite(C)
     L += _plus_loin(["Combinaisons aussi calculées par commune dans combinaisons.csv. Rapport par département et par "
                      "intercommunalité dans composition_sante_mentale.csv, vide quand le territoire ne compte aucun "
                      "psychiatre."])
     return L
+
+
+def _composition_densite(C: Contexte):
+    """Psychologues pour un psychiatre selon la classe de densité de population des intercommunalités (demande de
+    Lucas du 23 octobre 2026), rapport des densités agrégées de chaque classe, jamais une somme des professions."""
+    cd = C.R.get("classes_densite")
+    if not isinstance(cd, pd.DataFrame) or cd.empty:
+        return []
+    t = cd[(cd["niveau"] == "epci") & cd["prof"].isin(["psychologue", "psychiatre"])]
+    piv = t.pivot_table(index="classe", columns="prof", values="densite_agregee")
+    classes = [c[2] for c in CLASSES_DENSITE if c[2] in piv.index]
+    if len(classes) < 2 or not {"psychologue", "psychiatre"} <= set(piv.columns):
+        return []
+    piv = piv.loc[classes].reset_index()
+    piv["ratio"] = piv["psychologue"] / piv["psychiatre"].replace(0, np.nan)
+    a, b = piv.iloc[0], piv.iloc[-1]
+    L = ["#### Selon la densité de population", "",
+         f"Plus l'intercommunalité est dense, moins on compte de psychologues pour un psychiatre, "
+         f"{nombre(a['ratio'], 1)} dans les intercommunalités très peu denses contre {nombre(b['ratio'], 1)} dans les "
+         f"denses.", "",
+         _tableau(piv, ["classe", "psychologue", "psychiatre", "ratio"],
+                  ["Densité de population de l'intercommunalité", "Psychologues pour 10 000 habitants",
+                   "Psychiatres pour 10 000 habitants", "Psychologues pour un psychiatre"],
+                  {"psychologue": lambda v: nombre(v, 1), "psychiatre": lambda v: nombre(v, 2),
+                   "ratio": lambda v: nombre(v, 1)}), ""]
+    L += _comment_lire("Chaque ligne réunit les intercommunalités d'une même classe de densité de population. Les "
+                       "densités sont celles de la classe entière, somme des professionnels rapportée à la somme des "
+                       "habitants. Le rapport compare deux professions qui ne sont pas interchangeables, il ne les "
+                       "additionne pas.")
+    return L
+
+
+def _cle_combinaison(C):
+    cb = C.R.get("combinaisons")
+    if not isinstance(cb, pd.DataFrame) or cb.empty:
+        return None
+    x = cb[(cb["niveau"] == "epci") & cb["psychologue"] & ~cb["psychiatre"]]
+    return (pct(x["part_population"].sum()), "des habitants ont un psychologue mais aucun psychiatre déclaré dans "
+                                            "leur intercommunalité") if len(x) else None
 
 
 PRINC = {SM: "psychologue", SANTE: "medecin_generaliste"}
@@ -2734,7 +2780,7 @@ def ecrire(out, agg, ref, professions, insee, R, jour):
                                       _cle_evolution(C, "psychiatre")))
                  + _groupe("La répartition de l'offre sur le territoire", intro_repart, _gradient(C, SM), _entonnoir(C, SM),
                            _zones(C, SM), _acces(C, SM), _financier(C, SM),
-                           cles=_cles(_cle_gini(C, "psychiatre"), _cle_sans(C, "psychiatre"), _cle_gradient(C, "psychologue"),
+                           cles=_cles(_cle_gini(C, "psychiatre"), _cle_combinaison(C), _cle_gradient(C, "psychologue"),
                                       _cle_acces(C, "psychiatre_liberal", "d'un psychiatre libéral")))
                  + _groupe("L'offre et le profil des habitants", intro_profil, _correlations(C, SM, ctxlab),
                            _vulnerabilite(C, ctxlab), _revenu(C, SM), rapport_bases.gwr_section(C), _retrait(C, SM),

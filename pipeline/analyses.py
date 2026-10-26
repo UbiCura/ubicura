@@ -978,6 +978,66 @@ def combinaisons(agg, ref, profs=("medecin_generaliste", "psychologue", "psychia
     return pd.concat(out, ignore_index=True)
 
 
+COMBINAISON_CLASSES = [  # présence (au moins un professionnel déclaré) de généraliste, psychologue, psychiatre
+    ("trois", "généraliste, psychologue et psychiatre"),
+    ("sans_psychiatre", "généraliste et psychologue, aucun psychiatre déclaré"),
+    ("generaliste_seul", "généraliste seul, ni psychologue ni psychiatre déclaré"),
+    ("sans_psychologue", "généraliste et psychiatre, aucun psychologue déclaré"),
+    ("autre", "autre combinaison")]
+
+
+def classe_combinaison(generaliste: bool, psychologue: bool, psychiatre: bool) -> str:
+    """Classe de COMBINAISON_CLASSES d'un territoire selon la présence des trois professions (demande de Lucas du
+    23 octobre 2026, carte des combinaisons). Présence et absence seulement, jamais d'addition des professions."""
+    if generaliste and psychologue and psychiatre:
+        return "trois"
+    if generaliste and psychologue:
+        return "sans_psychiatre"
+    if generaliste and not psychiatre:
+        return "generaliste_seul"
+    if generaliste:
+        return "sans_psychologue"
+    return "autre"
+
+
+def combinaison_par_territoire(agg, ref, niv="epci") -> pd.Series:
+    """Classe de combinaison de chaque territoire du niveau, mêmes comptes que combinaisons()."""
+    n, _dens, _pop = tables(agg, ref, niv, "all")
+    pres = {p: (n[p] > 0) if p in n else pd.Series(False, index=n.index)
+            for p in ("medecin_generaliste", "psychologue", "psychiatre")}
+    return pd.Series([classe_combinaison(g, ps, pt) for g, ps, pt in
+                      zip(pres["medecin_generaliste"], pres["psychologue"], pres["psychiatre"])], index=n.index)
+
+
+def part_liberal(n_lib, n_all, minimum=None) -> np.ndarray:
+    """Part des professionnels d'un territoire qui déclarent une activité libérale (une personne qui exerce aussi en
+    salariée compte comme libérale), NaN quand le territoire compte moins de config.PART_LIBERAL_EFFECTIF_MIN
+    professionnels de la profession (demande de Lucas du 23 octobre 2026, indicateur de « Croiser deux
+    indicateurs »)."""
+    minimum = config.PART_LIBERAL_EFFECTIF_MIN if minimum is None else minimum
+    lib, tot = np.asarray(n_lib, dtype=float), np.asarray(n_all, dtype=float)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        p = lib / tot
+    return np.where(tot >= minimum, p, np.nan)
+
+
+def professions_part_liberal(nat: pd.DataFrame, n_dep: pd.DataFrame) -> list[str]:
+    """Professions pour lesquelles la part du libéral est proposée, parmi config.PROFESSIONS_PRINCIPALES (pour ne pas
+    allonger le menu des indicateurs), celles où libéraux et salariés pèsent tous deux (part nationale dans
+    config.PART_LIBERAL_BORNES) et qui atteignent l'effectif minimal dans au moins config.PART_LIBERAL_PRESENCE_MIN des
+    départements. nat, effectifs nationaux (index prof, colonnes lib et all), n_dep, effectifs tous modes par
+    département (une colonne par profession)."""
+    bas, haut = config.PART_LIBERAL_BORNES
+    out = []
+    for p in [q for q in config.PROFESSIONS_PRINCIPALES if q in n_dep.columns]:
+        if p not in nat.index or not nat.at[p, "all"]:
+            continue
+        part = nat.at[p, "lib"] / nat.at[p, "all"]
+        if bas <= part <= haut and (n_dep[p] >= config.PART_LIBERAL_EFFECTIF_MIN).mean() >= config.PART_LIBERAL_PRESENCE_MIN:
+            out.append(p)
+    return out
+
+
 def composition_sante_mentale(agg, ref):
     """Psychologues par psychiatre, par territoire (point 15). Vide (NaN) sans psychiatre."""
     out = []

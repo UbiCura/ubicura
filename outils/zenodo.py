@@ -26,14 +26,12 @@ version archivée est lue par config.VERSION_ZENODO.
 from __future__ import annotations
 
 import argparse
-import ctypes
 import datetime as dt
 import getpass
 import hashlib
 import json
 import sys
 import time
-from ctypes import wintypes
 from pathlib import Path
 
 import requests
@@ -41,6 +39,7 @@ import requests
 RACINE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RACINE))
 from pipeline import config  # noqa: E402
+from outils import identifiants  # noqa: E402
 
 API = "https://zenodo.org/api"
 CIBLE_CLE = "Ubi Cura, Zenodo"            # nom de la clé dans le gestionnaire d'identifiants de Windows
@@ -56,41 +55,14 @@ class Arret(Exception):
 
 
 # ---------------------------------------------------------------- gestionnaire d'identifiants de Windows
-class _CREDENTIAL(ctypes.Structure):
-    _fields_ = [("Flags", wintypes.DWORD), ("Type", wintypes.DWORD), ("TargetName", wintypes.LPWSTR),
-                ("Comment", wintypes.LPWSTR), ("LastWritten", wintypes.FILETIME),
-                ("CredentialBlobSize", wintypes.DWORD), ("CredentialBlob", ctypes.POINTER(ctypes.c_ubyte)),
-                ("Persist", wintypes.DWORD), ("AttributeCount", wintypes.DWORD), ("Attributes", ctypes.c_void_p),
-                ("TargetAlias", wintypes.LPWSTR), ("UserName", wintypes.LPWSTR)]
-
-
-_GENERIQUE, _PERSISTANT = 1, 2   # CRED_TYPE_GENERIC, CRED_PERSIST_LOCAL_MACHINE
-
-
 def lire_cle() -> str | None:
-    if sys.platform != "win32":
-        return None
-    adv = ctypes.WinDLL("advapi32", use_last_error=True)
-    p = ctypes.POINTER(_CREDENTIAL)()
-    if not adv.CredReadW(CIBLE_CLE, _GENERIQUE, 0, ctypes.byref(p)):
-        return None
-    try:
-        brut = ctypes.string_at(p.contents.CredentialBlob, p.contents.CredentialBlobSize)
-        return brut.decode("utf-16-le").strip() or None
-    finally:
-        adv.CredFree(p)
+    return identifiants.lire(CIBLE_CLE)
 
 
 def ecrire_cle(cle: str) -> None:
-    adv = ctypes.WinDLL("advapi32", use_last_error=True)
-    blob = cle.encode("utf-16-le")
-    tampon = (ctypes.c_ubyte * len(blob)).from_buffer_copy(blob)
-    c = _CREDENTIAL(Type=_GENERIQUE, TargetName=CIBLE_CLE, UserName="zenodo.org",
-                    Comment="Clé d'accès personnelle à l'API de Zenodo, tutoriel 07",
-                    CredentialBlobSize=len(blob), CredentialBlob=tampon, Persist=_PERSISTANT)
-    if not adv.CredWriteW(ctypes.byref(c), 0):
-        raise Arret(f"la clé n'a pas pu être rangée dans le gestionnaire d'identifiants (erreur Windows "
-                    f"{ctypes.get_last_error()})")
+    erreur = identifiants.ecrire(CIBLE_CLE, cle, "zenodo.org", "Clé d'accès personnelle à l'API de Zenodo, tutoriel 07")
+    if erreur:
+        raise Arret(f"la clé n'a pas pu être rangée dans le gestionnaire d'identifiants (erreur Windows {erreur})")
 
 
 # ---------------------------------------------------------------- appels à l'API

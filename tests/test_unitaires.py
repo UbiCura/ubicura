@@ -1769,6 +1769,82 @@ def test_odisse_codes_et_decimales():
         hors = set(t.loc[t["niveau"] == niv, "code"]) - codes
         assert not hors, (niv, hors)
 
+def test_combinaisons_par_territoire():
+    """Classe de combinaison d'une intercommunalité (carte des combinaisons, 23 octobre 2026). La règle couvre chaque
+    cas de présence, et les classes recalculées à partir des effectifs publiés par intercommunalité redonnent les
+    comptes de combinaisons.csv."""
+    from pipeline.analyses import classe_combinaison
+    assert classe_combinaison(True, True, True) == "trois"
+    assert classe_combinaison(True, True, False) == "sans_psychiatre"
+    assert classe_combinaison(True, False, False) == "generaliste_seul"
+    assert classe_combinaison(True, False, True) == "sans_psychologue"
+    assert classe_combinaison(False, True, True) == "autre"
+    d = _dernier_resultats()
+    e, cb = _csv(d, "effectifs_epci_all.csv", dtype={"code": str}), _csv(d, "combinaisons.csv")
+    if e is None or cb is None:
+        raise Ignore("effectifs ou combinaisons absents")
+    cl = [classe_combinaison(g > 0, ps > 0, pt > 0) for g, ps, pt in
+          zip(e["n_medecin_generaliste"], e["n_psychologue"], e["n_psychiatre"])]
+    x = cb[cb["niveau"] == "epci"]
+    attendu = {("trois", True, True, True), ("sans_psychiatre", True, True, False),
+               ("generaliste_seul", True, False, False), ("sans_psychologue", True, False, True)}
+    for k, g, ps, pt in attendu:
+        n = x[(x["medecin_generaliste"] == g) & (x["psychologue"] == ps) & (x["psychiatre"] == pt)]["territoires"].sum()
+        assert cl.count(k) == n, (k, cl.count(k), n)
+
+
+def test_part_liberal():
+    """Part de l'exercice libéral (indicateur de « Croiser deux indicateurs », 23 octobre 2026), sur les effectifs
+    publiés par département. Aucune part sous l'effectif minimal, une part toujours entre 0 et 1 (un libéral est
+    compté une fois parmi tous les professionnels), et des professions retenues qui respectent les deux critères."""
+    import numpy as np
+    from pipeline import config
+    from pipeline.analyses import part_liberal, professions_part_liberal
+    d = _dernier_resultats()
+    a, l = _csv(d, "effectifs_dep_all.csv", dtype={"code": str}), _csv(d, "effectifs_dep_lib.csv", dtype={"code": str})
+    fr = _csv(d, "effectifs_france.csv")
+    if a is None or l is None or fr is None:
+        raise Ignore("effectifs absents")
+    l = l.set_index("code").reindex(a["code"]).fillna(0)
+    for p in ("psychologue", "psychiatre", "medecin_generaliste", "infirmier"):
+        v = part_liberal(l[f"n_{p}"].to_numpy(), a[f"n_{p}"].to_numpy())
+        petit = a[f"n_{p}"].to_numpy() < config.PART_LIBERAL_EFFECTIF_MIN
+        assert np.isnan(v[petit]).all() and not np.isnan(v[~petit]).any(), p
+        assert ((v[~petit] >= 0) & (v[~petit] <= 1)).all(), p
+    assert np.isnan(part_liberal([3], [9])[0]) and part_liberal([5], [10])[0] == .5
+    nat = fr.pivot_table(index="prof", columns="mode", values="n", aggfunc="sum", fill_value=0)
+    n_dep = a.set_index("code")[[c for c in a.columns if c.startswith("n_")]].rename(columns=lambda c: c[2:])
+    retenues = professions_part_liberal(nat, n_dep)
+    assert "psychologue" in retenues and "medecin_generaliste" in retenues, retenues
+    bas, haut = config.PART_LIBERAL_BORNES
+    for p in retenues:
+        assert bas <= nat.at[p, "lib"] / nat.at[p, "all"] <= haut, p
+        assert (n_dep[p] >= config.PART_LIBERAL_EFFECTIF_MIN).mean() >= config.PART_LIBERAL_PRESENCE_MIN, p
+
+
+def test_photographies():
+    """Photographie des comptes à chaque extraction du RPPS (26 octobre 2026). La dernière photographie redonne, par
+    profession, les effectifs publiés par intercommunalité et par département, sans ligne à zéro ni nom de personne."""
+    import json
+    import pandas as pd
+    from pipeline import photographies
+    idx = photographies.DOSSIER / "index.json"
+    if not idx.exists():
+        raise Ignore("aucune photographie, lancer run.py --hors-ligne")
+    dern = json.loads(idx.read_text(encoding="utf-8"))[-1]
+    ph = pd.read_csv(photographies.DOSSIER / dern["fichier"], sep=";", dtype={"code": str})
+    assert list(ph.columns) == ["niveau", "code", "prof", "mode", "n"] and (ph["n"] > 0).all()
+    assert set(ph["niveau"]) == set(photographies.NIVEAUX)
+    d = _dernier_resultats()
+    for niv in ("epci", "dep"):
+        e = _csv(d, f"effectifs_{niv}_all.csv", dtype={"code": str})
+        if e is None:
+            raise Ignore(f"effectifs_{niv}_all.csv absent")
+        x = ph[(ph["niveau"] == niv) & (ph["mode"] == "all")].groupby("prof")["n"].sum()
+        for p in ("psychologue", "psychiatre", "medecin_generaliste"):
+            assert int(x.get(p, 0)) == int(e[f"n_{p}"].sum()), (niv, p)
+
+
 if __name__ == "__main__":
     n = 0
     ignores = []

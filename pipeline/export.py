@@ -13,7 +13,7 @@ import pandas as pd
 from . import limites as limites_mod
 from . import (build, cartes, config, dictionnaire, graphiques, indicateurs, libelles, mises_a_jour, rapport,
                rapport_territoire)
-from .analyses import tables
+from .analyses import professions_part_liberal, tables
 from .lecture import GLOSSAIRE, noms_classes as noms_classes_uniques
 from .util import JOURNAL, log
 
@@ -151,6 +151,12 @@ def ecrire(agg, ref, professions, insee, R, diplomes, jour=None):
     e = agg.effectifs["dep"].assign(date=jour)
     _csv(e, hist / f"effectifs_dep_{jour}.csv")
     serie = _historique(hist)
+    # photographie des comptes de cette extraction du RPPS, pour suivre les figures dans le temps (26 octobre 2026)
+    try:
+        from . import photographies
+        photographies.ecrire(agg, jour)
+    except Exception as e:  # noqa: BLE001
+        JOURNAL.note("Photographie des comptes", f"non écrite ({e.__class__.__name__}: {e})")
 
     # --- données du site
     site = _site(agg, ref, professions, insee, R, serie, jour)
@@ -625,6 +631,8 @@ def _site(agg, ref, professions, insee, R, serie, jour):
         n_all, _d, pop = tables(agg, ref, niv, "all")
         codes = list(n_all.index)
         tab = {m: tables(agg, ref, niv, m)[0].reindex(codes).fillna(0).astype(int) for m in ["lib", "sal", "all"]}
+        if niv == "dep":
+            tab_dep = tab["all"]
         ctx = insee["contexte"].get(niv) if insee else None
         ctx = ctx.reindex(codes) if ctx is not None else None
         parent = (pd.Series("France", index=codes) if niv == "reg"
@@ -774,6 +782,10 @@ def _site(agg, ref, professions, insee, R, serie, jour):
                  "glossaire": [{"id": g[0], "terme": g[1], "definition": g[2], "famille": g[3]} for g in GLOSSAIRE],
                  "exclus_croisements": list(config.DEPARTEMENTS_EXCLUS_CROISEMENTS),
                  "noms_classes": noms_classes,
+                 # part de l'exercice libéral, indicateur de « Croiser deux indicateurs » calculé dans l'atlas avec
+                 # la même règle que analyses.part_liberal (23 octobre 2026)
+                 "part_liberal": {"minimum": config.PART_LIBERAL_EFFECTIF_MIN,
+                                  "professions": professions_part_liberal(nat, tab_dep)},
                  "licences": LICENCE_ODBL if indicateurs.odbl(insee) else LICENCE_LO,
                  "libelles": "Les libellés de certaines nomenclatures officielles sont remplacés par des formulations "
                              "respectueuses des personnes, sigles d'usage conservés. La table de correspondance "
