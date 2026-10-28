@@ -218,5 +218,6 @@
   addEventListener("beforeprint",()=>cibles.forEach(c=>c.classList.add("vu")));
 })();
 // en-tête qui se resserre en barre flottante dès qu'on descend (essai du 23 octobre 2026, d'après reactbits.dev)
+// classe « resserree » et non « defile », que .defile{overflow-x:auto} des tableaux rognait (liste « Le projet » cachée)
 (function(){var n=document.querySelector("nav.site");if(!n)return;
-  var f=function(){n.classList.toggle("defile",(window.scrollY||0)>12)};f();addEventListener("scroll",f,{passive:true})})();
+  var f=function(){n.classList.toggle("resserree",(window.scrollY||0)>12)};f();addEventListener("scroll",f,{passive:true})})();

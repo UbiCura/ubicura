@@ -1739,6 +1739,24 @@ def test_css_libelle_valeur_ecart():
                 assert re.search(r"(^|[;{])\s*(column-)?gap:", regle), (f.name, regle.strip()[:120])
 
 
+def test_classe_barre_resserree_sans_conflit():
+    """La classe que prend la barre du site quand on descend n'a aucune règle à elle seule hors de nav.site, sinon la
+    barre hérite d'un réglage d'autres éléments (overflow-x:auto de .defile cachait la liste « Le projet », remarque de
+    Lucas du 28 octobre 2026)."""
+    import re
+    from pipeline import config
+    js = (config.RACINE / "gabarits" / "figures.js").read_text(encoding="utf-8")
+    m = re.search(r'n\.classList\.toggle\("([\w-]+)",\(window\.scrollY', js)
+    assert m, "classe de la barre resserrée introuvable dans figures.js"
+    classe = m.group(1)
+    for f in (config.RACINE / "gabarits" / "style.css", config.RACINE / "atlas" / "atlas_template.html"):
+        css = f.read_text(encoding="utf-8")
+        for selecteurs in re.findall(r"([^{}]+)\{[^{}]*\}", css):
+            for s in selecteurs.split(","):
+                if re.search(rf"\.{classe}(?![\w-])", s):
+                    assert re.search(rf"nav\.site\.{classe}(?![\w-])", s), (f.name, s.strip()[:120])
+
+
 def test_typo_commune():
     """Les figures des rapports et de l'atlas suivent la même échelle typographique (harmonisation du 22 octobre 2026),
     jamais moins de 11,5 pixels à l'écran, et une taille convertie selon la largeur de la figure."""

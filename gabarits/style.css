@@ -511,7 +511,7 @@ html.revele figure.graphique:not(.vu),html.revele .une-carte:not(.vu){opacity:0}
 :root[data-theme="dark"]{--ombre-nav:rgb(0 0 0 / .55)}
 nav.site{background:transparent;backdrop-filter:none;border-bottom:0;padding:8px 12px 0}
 nav.site .in{max-width:100%;border:1px solid transparent;border-radius:14px;transition:max-width .5s cubic-bezier(.22,1,.36,1),background-color .4s,border-color .4s,box-shadow .4s}
-nav.site.defile .in{max-width:var(--largeur-contenu,1100px);background:var(--panel);border-color:color-mix(in srgb,var(--ink) 9%,transparent);box-shadow:0 14px 34px -14px var(--ombre-nav,rgb(0 0 0 / .5))}
+nav.site.resserree .in{max-width:var(--largeur-contenu,1100px);background:var(--panel);border-color:color-mix(in srgb,var(--ink) 9%,transparent);box-shadow:0 14px 34px -14px var(--ombre-nav,rgb(0 0 0 / .5))}
 }
 
 /* Figures en fenêtres (demande de Lucas du 23 octobre 2026, « testons sur l'ensemble ») : le cadre de la fenêtre, sa

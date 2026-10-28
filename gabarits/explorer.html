@@ -59,6 +59,11 @@
 .vue[hidden]{display:none}
 .cote{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start}
 .cote figure.graphique{margin:0}
+/* une figure posée dans la fenêtre d'un outil n'a pas de second cadre (fenêtre dans la fenêtre, remarque de Lucas du
+   28 octobre 2026), sa légende et « Citer et exporter » restent au-dessus d'elle sur le fond de la fenêtre */
+.outil figure.graphique{background:none;border:0;border-radius:0;box-shadow:none;padding:0}
+.outil figure.graphique>figcaption,.outil figure.graphique>.outils-figure{margin:0;padding:0 0 6px;background:none;border:0;border-radius:0}
+.outil figure.graphique>.outils-figure{padding-bottom:12px}
 .outil p{max-width:none;text-align:justify}
 .legende-x{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.8125rem;color:var(--muted);margin:4px 0 10px}
 .legende-x span{display:inline-flex;align-items:center;gap:6px}
