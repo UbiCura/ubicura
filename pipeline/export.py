@@ -353,7 +353,8 @@ def _lieux_csv(agg, noms, lab, out: Path):
         _csv(co.assign(libelle_type=co["type"].map(types)), out / "concentration_distance_lieux.csv")
     # distance de chaque commune au lieu le plus proche, types recensés presque partout (cartes des rapports)
     ok = set(L["couverture"].loc[L["couverture"]["complet"], "type"])
-    dc = L["distances_communes"][[t for t in L["distances_communes"].columns if t in ok]].round(1)
+    # case vide quand le territoire de la commune n'a aucune structure de ce type (lieux.distances)
+    dc = L["distances_communes"][[t for t in L["distances_communes"].columns if t in ok]].replace(np.inf, np.nan).round(1)
     com = noms["com"].set_index("code")
     dc = dc.add_prefix("dist_").assign(nom=com["nom"].reindex(dc.index).to_numpy(),
                                        dep=com["dep"].reindex(dc.index).to_numpy())

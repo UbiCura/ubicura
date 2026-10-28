@@ -36,7 +36,9 @@ DOCS_PUBLICS = {"docs/verification_2026-10-05.md", "docs/verification_2026-10-08
                 "docs/note_secteurs_hors_soins.md", "docs/note_suicide_ile_de_france_2026-10-05.md"}
 # le nom de l'assistant est assemblé ici, pour que ce fichier ne contienne pas lui-même ce qu'il recherche
 ASSISTANT = "cla" + "ude"
-EXCLUS = re.compile(rf"^({ASSISTANT.upper()}\.md|\.{ASSISTANT}/|prototypes/|docs/)")
+# l'offre professionnelle (prototype de l'API et sa démonstration) ne part pas en ligne avant d'être finalisée
+# (décision de Lucas du 28 octobre 2026)
+EXCLUS = re.compile(rf"^({ASSISTANT.upper()}\.md|\.{ASSISTANT}/|prototypes/|docs/|outils/api_|outils/lancer_api)")
 INTERDITS_CHEMIN = re.compile(r"^(donnees|resultats|site)/|\.(parquet|log)$|(^|/)rpps[^/]*\.(txt|csv)$", re.I)
 INTERDITS_TEXTE = [
     # noms propres écartés (Camille-Claudel, rue Claude-Monet, Jean-Claude), toute autre forme reste bloquante

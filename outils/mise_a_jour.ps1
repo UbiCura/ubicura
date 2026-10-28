@@ -14,7 +14,7 @@ Mise à jour des données, des résultats et du site, à lancer à la main ou pa
    07). Si oui, le site est refait pour la citer par son DOI. Une fenêtre rappelle aussi d'archiver une version chaque
    trimestre.
 7. Ne met plus rien en ligne de lui-même (décision de Lucas du 26 octobre 2026). Une version refaite et contrôlée est
-   comparée à la version en ligne (outils\comparer_versions.py) et signalée dans donneesersion_prete.json, que la
+   comparée à la version en ligne (outils\comparer_versions.py) et signalée dans donnees\version_prete.json, que la
    fenêtre du courrier affiche. Lucas décide de la publication. -Publier reste possible à la main.
 
 .PARAMETER Simuler
@@ -70,7 +70,7 @@ function VersionPrete([string]$motif) {
     $etatC = @{0 = "rien d'anormal"; 10 = "des écarts à regarder"; 20 = "un problème bloquant"}[$codeC]
     if (-not $etatC) { $etatC = "comparaison impossible (code $codeC)" }
     @{ resultats = $res.Name; motif = $motif; code_comparaison = $codeC; comparaison = $etatC; compte_rendu = $cr;
-       preparee_le = (Get-Date -Format s) } | ConvertTo-Json | Set-Content -Path (Join-Path $racine "donneesersion_prete.json") -Encoding UTF8
+       preparee_le = (Get-Date -Format s) } | ConvertTo-Json | Set-Content -Path (Join-Path $racine "donnees\version_prete.json") -Encoding UTF8
     Ecrire "Nouvelle version prête ($($res.Name), $motif), comparaison avec la version en ligne, $etatC. Rien n'est publié sans Lucas."
 }
 
@@ -102,6 +102,11 @@ if (Test-Path $verrou) {
 Set-Content -Path $verrou -Value $PID
 
 try {
+    # messages programmés par un clic de Lucas dans la fenêtre du courrier, dont l'heure est passée (28 octobre 2026)
+    if (-not $Simuler) {
+        $sortieM = & $python outils\messagerie.py envoyer-programmes 2>&1 | ForEach-Object { "$_" }
+        foreach ($l in $sortieM) { if ($l.Trim()) { Ecrire $l } }
+    }
     # nouvelle version archivée sur Zenodo, constatée chaque jour (code 10), sans clé rangée rien n'est fait (code 20)
     if (-not $Simuler) {
         $sortieZ = & $python outils\zenodo.py constater --discret 2>&1 | ForEach-Object { "$_" }

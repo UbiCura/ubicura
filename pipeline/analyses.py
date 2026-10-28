@@ -352,6 +352,36 @@ def km_vers_corde(d):
     return 2 * RAYON_TERRE * np.sin(np.asarray(d, float) / (2 * RAYON_TERRE))
 
 
+def zone_terrestre(dep) -> np.ndarray:
+    """Territoire d'un seul tenant où chercher le plus proche (config.ZONES_TERRESTRES). Une distance à vol d'oiseau
+    vers une structure de l'autre côté de la mer n'a pas de sens (Mayotte vers La Réunion, Guyane vers les Antilles,
+    note docs/note_valeurs_aberrantes_2026-10-28.md)."""
+    d = pd.Series(np.asarray(dep, dtype=object)).fillna("").astype(str)
+    return d.map(lambda x: config.ZONES_TERRESTRES.get(x, "hexagone")).to_numpy()
+
+
+def plus_proche_km(xyz, zones, xyz_src, zones_src) -> np.ndarray:
+    """Distance à vol d'oiseau (km) au point source le plus proche du même territoire, infinie quand le territoire n'en
+    compte aucun."""
+    from scipy.spatial import cKDTree
+    zones, zones_src = np.asarray(zones), np.asarray(zones_src)
+    d = np.full(len(xyz), np.inf)
+    for z in np.unique(zones):
+        m, s = zones == z, zones_src == z
+        if s.any():
+            d[m] = corde_vers_km(cKDTree(xyz_src[s]).query(xyz[m])[0])
+    return d
+
+
+def mediane_ponderee(x, w) -> float:
+    """Médiane pondérée (population), une distance infinie compte comme la plus grande. Vide quand la médiane tombe sur
+    un habitant sans structure sur son territoire."""
+    x, w = np.asarray(x, float), np.asarray(w, float)
+    o = np.argsort(x)
+    v = float(x[o][np.searchsorted(np.cumsum(w[o]) / w.sum(), .5)])
+    return v if np.isfinite(v) else np.nan
+
+
 def poids_distance(d, portee=20.0):
     """Décroissance avec la distance, transposée de l'APL de la DREES (qui raisonne en minutes de trajet).
     Pour la portée de référence de 20 km, poids 1 jusqu'à 10 km, 0,66 de 10 à 15 km, 0,33 de 15 à 20 km, 0 au-delà.
@@ -381,8 +411,8 @@ def accessibilite_2sfca(xyz, offre, population, portee=20.0):
 
 def accessibilite(agg, ref, voisins):
     """Distance au professionnel le plus proche (à vol d'oiseau, entre centres de communes) et accessibilité
-    potentielle à deux étapes, par commune, résumées par profession et par intercommunalité."""
-    from scipy.spatial import cKDTree
+    potentielle à deux étapes, par commune, résumées par profession et par intercommunalité. La distance est cherchée
+    sur le territoire de la commune (zone_terrestre), vide quand ce territoire ne compte aucun de ces professionnels."""
     centres = (voisins or {}).get("centres")
     if not centres:
         return None, None, None
@@ -397,32 +427,38 @@ def accessibilite(agg, ref, voisins):
     n_lib = n_lib.reindex(com["code"]).fillna(0)
     apl_profs = {p for _m, p in config.APL_PROFESSIONS}
     pop = com["pop"].to_numpy(float)
-    lignes, resume = [], []
+    zones = zone_terrestre(com["dep"])
+    lignes, resume, sans = [], [], []
     for p in config.PROFESSIONS_PRINCIPALES:
         if p not in n or n[p].sum() < 100:
             continue
         offre = n[p].to_numpy(float)
-        d, _ = cKDTree(xyz[offre > 0]).query(xyz)
-        d = corde_vers_km(d)
+        d = plus_proche_km(xyz, zones, xyz[offre > 0], zones[offre > 0])
         acc = accessibilite_2sfca(xyz, offre, pop)
+        fini = np.isfinite(d)
         lignes.append(pd.DataFrame({"code": com["code"].to_numpy(), "epci": com["epci"].to_numpy(),
                                     "dep": com["dep"].to_numpy(), "prof": p, "population": pop,
-                                    "distance_km": d, "accessibilite": acc,
+                                    "distance_km": np.where(fini, d, np.nan), "accessibilite": acc,
                                     "accessibilite_liberale": (accessibilite_2sfca(xyz, n_lib[p].to_numpy(float), pop)
                                                                if p in apl_profs and p in n_lib else np.nan)}))
-        o = np.argsort(d)
-        cum = np.cumsum(pop[o]) / pop.sum()
+        # moyenne sur les habitants dont le territoire compte au moins un de ces professionnels
         res = {"prof": p, "part_population_dans_la_commune": float(pop[d == 0].sum() / pop.sum()),
-               "distance_mediane_km": float(d[o][np.searchsorted(cum, .5)]),
-               "distance_moyenne_km": float(np.average(d, weights=pop))}
+               "distance_mediane_km": mediane_ponderee(d, pop),
+               "distance_moyenne_km": float(np.average(d[fini], weights=pop[fini]))}
+        if not fini.all():
+            sans.append(f"{p} {int((~fini).sum())}")
         for s in (5, 10, 20, 30):
             res[f"part_population_a_plus_de_{s}_km"] = float(pop[d > s].sum() / pop.sum())
         resume.append(res)
     if not lignes:
         return None, None, None
+    JOURNAL.controle("Distance au professionnel le plus proche, communes sans ce professionnel sur leur territoire "
+                     "(Corse et chaque département d'outre-mer comptés à part, aucune distance par-dessus la mer)",
+                     ", ".join(sans) if sans else "aucune")
     tc = pd.concat(lignes, ignore_index=True)
     epci = (tc.assign(dp=tc["distance_km"] * tc["population"], ap=tc["accessibilite"] * tc["population"])
-            .groupby(["prof", "epci"]).agg(population=("population", "sum"), dp=("dp", "sum"), ap=("ap", "sum"))
+            .groupby(["prof", "epci"]).agg(population=("population", "sum"),
+                                           dp=("dp", lambda s: s.sum(min_count=1)), ap=("ap", "sum"))
             .reset_index())
     epci["distance_moyenne_km"] = epci["dp"] / epci["population"]
     epci["accessibilite"] = epci["ap"] / epci["population"]

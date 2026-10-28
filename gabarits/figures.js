@@ -221,3 +221,68 @@
 // classe « resserree » et non « defile », que .defile{overflow-x:auto} des tableaux rognait (liste « Le projet » cachée)
 (function(){var n=document.querySelector("nav.site");if(!n)return;
   var f=function(){n.classList.toggle("resserree",(window.scrollY||0)>12)};f();addEventListener("scroll",f,{passive:true})})();
+// fenêtres repliables façon macOS (demandes de Lucas des 23 et 28 octobre 2026), pour tout élément .fenetre.repliable
+// qui porte une barre .fen-tete et un corps .fen-corps. Deux boutons sobres à droite de la barre, comme sous Windows
+// (choix de Lucas du 28 octobre 2026, les trois pastilles en couleur à gauche faisaient trop), replier ou déplier, et
+// agrandir à la largeur de l'écran (Échap pour revenir). Double clic sur la barre, replier. Une fenêtre
+// repliée garde son titre et sa phrase de résultat (copie de son .resultat). État gardé dans le navigateur du lecteur,
+// commodité seulement, jamais dans l'adresse, pour qu'un lien partagé ouvre toujours la fenêtre qu'il vise.
+(function(){
+  var fens=[].slice.call(document.querySelectorAll(".fenetre.repliable"));if(!fens.length)return;
+  var CLE="fenetres-repliees:"+location.pathname,etat={};
+  try{etat=JSON.parse(localStorage.getItem(CLE)||"{}")}catch(e){}
+  function garder(){try{localStorage.setItem(CLE,JSON.stringify(etat))}catch(e){}}
+  function titre(f){var h=f.querySelector(".fen-tete h2,.fen-tete h3");return h?h.textContent.trim():"cette fenêtre"}
+  // symboles dessinés au trait, de la couleur du texte, nets à toutes les tailles
+  var svg=function(d){return '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="'+d+'" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'};
+  var ICONE={moins:svg("M3 7h8"),plus:svg("M3 7h8M7 3v8"),agrandir:svg("M8.5 2.5h3v3M11.5 2.5L8 6M5.5 11.5h-3v-3M2.5 11.5L6 8"),
+    reduire:svg("M11.5 2.5L8 6M8 3v3h3M2.5 11.5L6 8M6 11V8H3")};
+  function poser(f,replie,memo){
+    f.classList.toggle("repliee",replie);var b=f.querySelector(".p-replier");
+    b.setAttribute("aria-expanded",String(!replie));b.innerHTML=replie?ICONE.plus:ICONE.moins;
+    b.setAttribute("aria-label",(replie?"Déplier":"Replier")+" la fenêtre « "+titre(f)+" »");
+    if(replie&&f.classList.contains("agrandie"))agrandir(f,false);
+    if(memo!==false){if(replie)etat[f.id]=1;else delete etat[f.id];garder()}
+    document.querySelectorAll('a[href^="#'+f.id+'"]').forEach(function(a){a.classList.toggle("vers-repliee",replie)});
+    if(!replie)dispatchEvent(new CustomEvent("fenetre",{detail:f}))}
+  function agrandir(f,oui){
+    f.classList.remove("agrandie");f.style.removeProperty("--deborde-g");f.style.removeProperty("--deborde-d");
+    if(oui){var r=f.getBoundingClientRect(),w=document.documentElement.clientWidth;
+      f.style.setProperty("--deborde-g",Math.max(0,r.left-16)+"px");f.style.setProperty("--deborde-d",Math.max(0,w-r.right-16)+"px");
+      f.classList.add("agrandie")}
+    var b=f.querySelector(".p-agrandir");b.setAttribute("aria-pressed",String(oui));b.innerHTML=oui?ICONE.reduire:ICONE.agrandir;
+    b.setAttribute("aria-label",(oui?"Rendre à la fenêtre « ":"Agrandir la fenêtre « ")+titre(f)+(oui?" » sa largeur":" » à la largeur de l’écran"));
+    dispatchEvent(new CustomEvent("fenetre",{detail:f}))}
+  function resume(f){var r=f.querySelector(".fen-corps .resultat"),c=f.querySelector(".fen-resume");if(r&&c)c.textContent=r.textContent.replace(/­/g,"")}
+  fens.forEach(function(f){
+    var corps=f.querySelector(".fen-corps"),tete=f.querySelector(".fen-tete"),p=tete&&tete.querySelector(".pastilles");if(!corps||!p)return;
+    corps.id=corps.id||f.id+"-corps";var t=titre(f);
+    p.innerHTML='<button type="button" class="p-agrandir" aria-pressed="false" aria-label="Agrandir la fenêtre « '+t+' » à la largeur de l’écran">'+ICONE.agrandir+'</button>'
+      +'<button type="button" class="p-replier" aria-controls="'+corps.id+'"></button>';
+    p.querySelector(".p-replier").onclick=function(){poser(f,!f.classList.contains("repliee"))};
+    p.querySelector(".p-agrandir").onclick=function(){if(f.classList.contains("repliee"))poser(f,false);agrandir(f,!f.classList.contains("agrandie"))};
+    tete.addEventListener("dblclick",function(e){if(!e.target.closest("button,a,input,select"))poser(f,!f.classList.contains("repliee"))});
+    var r=corps.querySelector(".resultat");if(r){resume(f);new MutationObserver(function(){resume(f)}).observe(r,{childList:true,characterData:true,subtree:true})}
+    // « Comment lire » de la barre, ouvre la note de lecture rangée en tête du corps
+    var bl=tete.querySelector(".fen-lire-bouton"),nl=f.querySelector(".fen-lire");
+    if(bl&&nl){nl.id=nl.id||f.id+"-lire";bl.setAttribute("aria-controls",nl.id);bl.setAttribute("aria-expanded","false");
+      bl.onclick=function(){var o=nl.hidden;if(o&&f.classList.contains("repliee"))poser(f,false);nl.hidden=!o;bl.setAttribute("aria-expanded",String(o))}}
+    poser(f,!!etat[f.id],false)});
+  // un lien vers une fenêtre repliée la déplie, l'adresse d'une vue partagée aussi (#paires?pA=…)
+  function viser(){var id=decodeURIComponent((location.hash||"").slice(1).split("?")[0]);if(!id)return;
+    var f=document.getElementById(id);if(f&&f.classList.contains("repliee"))poser(f,false)}
+  viser();addEventListener("hashchange",viser);
+  // le navigateur ne trouve pas l'ancre d'une vue partagée (#iFenEntonnoir?iProf=…), la page y descend donc elle-même,
+  // une fois les figures dessinées pour que la position soit juste
+  // (sans quoi le navigateur remet la page à la position qu'il avait gardée)
+  if((location.hash||"").indexOf("?")>=0&&"scrollRestoration" in history)history.scrollRestoration="manual";
+  addEventListener("load",function(){var h=location.hash||"";if(h.indexOf("?")<0)return;
+    var el=document.getElementById(decodeURIComponent(h.slice(1).split("?")[0]));
+    if(el)setTimeout(function(){el.scrollIntoView({block:"start"})},0)});
+  document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest('a[href^="#"]');if(!a)return;
+    var f=document.getElementById(a.getAttribute("href").slice(1).split("?")[0]);if(f&&f.classList.contains("repliee"))poser(f,false)});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape")fens.forEach(function(f){if(f.classList.contains("agrandie"))agrandir(f,false)})});
+  addEventListener("resize",function(){fens.forEach(function(f){if(f.classList.contains("agrandie"))agrandir(f,true)})});
+  window.fenetres={toutes:function(replie){fens.forEach(function(f){poser(f,replie)})}};
+  document.querySelectorAll("[data-fenetres]").forEach(function(b){b.onclick=function(){window.fenetres.toutes(b.dataset.fenetres==="replier")}});
+})();

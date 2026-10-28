@@ -75,13 +75,24 @@ def perimetres(e_types: str) -> dict[str, str]:
 
 
 def empreinte(lieux: pd.DataFrame, ej: str, types: list[str], dep: str = "") -> str:
-    """Empreinte des inscriptions de FINESS et du ROR d'un établissement pour ces types (clés des structures réunies,
-    numéros FINESS), qui change dès qu'une base ajoute, retire ou déplace une inscription."""
+    """Empreinte des inscriptions de FINESS et du ROR d'un établissement pour ces types, qui change dès qu'une base
+    ajoute, retire ou déplace une inscription. Elle ne retient que ce que donnent les bases, numéros FINESS et noms des
+    unités du ROR avec leur commune, en ensemble sans doublon, et non les clés des structures réunies, qui portent le
+    nom et l'adresse normalisés par nos règles. Un changement de règle (une structure réunie autrement, ou copiée dans
+    un autre type vérifié) ne la change donc plus (point sur la tâche planifiée du 28 octobre 2026, huit établissements
+    signalés à tort depuis la règle CMP-CATTP du 16 octobre)."""
+    from .lieux import _simple
     g = lieux[(lieux["ej"] == ej) & lieux["type"].isin(types)]
     if dep and "dep" in g:
         g = g[g["dep"] == dep]
-    cles = sorted(f"{t}|{l}|{f}" for t, l, f in zip(g["type"], g["lieu"], g["finess"].fillna("")))
-    return hashlib.sha1("\n".join(cles).encode("utf-8")).hexdigest()[:12]
+    ids = set()
+    for r in g.to_dict("records"):
+        com = str(r.get("commune") or "")
+        ids |= {f"F|{n}|{com}" for n in _nums_ligne(r)}
+        unites = r.get("noms_unites")
+        if isinstance(unites, str):
+            ids |= {f"R|{_simple(u)}|{com}" for u in unites.split(" | ") if u.strip()}
+    return hashlib.sha1("\n".join(sorted(ids)).encode("utf-8")).hexdigest()[:12]
 
 
 def _mots(s: str) -> set[str]:

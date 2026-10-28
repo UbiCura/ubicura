@@ -61,9 +61,23 @@ def _polices() -> str:
                   + base64.b64encode((dossier / m.group(1)).read_bytes()).decode() + ")", css)
 
 
+def _sans_outils_explorer(data: dict) -> None:
+    """Retire de l'atlas les données des seuls outils passés dans Explorer (inégalités et typologie, lots 2 et 3 de la
+    note docs/note_explorer_atlas_2026-10-28.md), qui les reçoit par pipeline/explorer.py. L'atlas garde ce que sa
+    carte et ses fiches lisent encore, l'indice de Gini de la fiche nationale (inegalites), le statut de chaque
+    territoire dans l'entonnoir (niveaux.*.entonnoir) et la distance médiane de la France (lieux.fr)."""
+    for cle in ("typologie", "acp", "revenu", "entonnoir"):
+        data.pop(cle, None)
+    for cle in ("acp", "classe"):
+        (data.get("niveaux", {}).get("epci") or {}).pop(cle, None)
+    for cle in ("escalier", "classes", "concentration", "tests", "typologie"):
+        (data.get("lieux") or {}).pop(cle, None)
+
+
 def construire(src: Path, dest: Path, nav: str = "", accueil: str = "", titre: str = "") -> Path:
     data = json.loads(Path(src).read_text(encoding="utf-8"))
     data.setdefault("tuiles", _tuiles())
+    _sans_outils_explorer(data)
     # citation de l'atlas et de ses graphiques, DOI repris dès qu'il est renseigné dans config
     data["citation"] = {"projet": config.NOM_PROJET, "auteur_court": config.CITATION_AUTEUR, "doi": config.DOI_DONNEES,
                         "adresse": config.ADRESSE_SITE, "titre_donnees": config.TITRES_DEPOTS["donnees"],

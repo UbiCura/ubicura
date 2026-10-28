@@ -188,6 +188,14 @@ AMELI_REGIONS_EXCLUES = ["06"]        # Mayotte comme région
 # des besoins). Mayotte, faute de recensement exhaustif la population de référence y est incertaine, et les données
 # de l'Assurance Maladie et de la CAF y sont absentes ou partielles. Règle écrite dans les rapports et l'atlas.
 DEPARTEMENTS_EXCLUS_CROISEMENTS = ["976"]
+# Territoires d'un seul tenant pour les distances au plus proche (structure ou professionnel). Une commune ne cherche
+# que sur son territoire, l'Hexagone, la Corse ou chaque département d'outre-mer, jamais par-dessus la mer (Mayotte
+# vers La Réunion jusqu'à 1 450 km, Guyane vers les Antilles, outre-mer vers l'Hexagone jusqu'à 9 000 km, note
+# docs/note_valeurs_aberrantes_2026-10-28.md, 28 octobre 2026). Les îles proches des côtes restent avec leur
+# territoire (Belle-Île, Marie-Galante). Sans structure de ce type sur le territoire, la distance reste vide. La Corse
+# à part, confirmé par Lucas le 28 octobre 2026.
+ZONES_TERRESTRES = {"2A": "corse", "2B": "corse", "971": "971", "972": "972", "973": "973", "974": "974",
+                    "976": "976"}
 # Carte bivariée offre et besoin (audit 4.2), palette bleu et rouge de Joshua Stevens (depuis le 23 octobre 2026, avec
 # la palette encre bleue et cuivre du site), 3 tiers de l'offre (bleu) sur 3 tiers de l'indicateur (rouge). Indice
 # offre x 3 + indicateur, du plus bas au plus haut.
@@ -366,6 +374,8 @@ ODISSE = [
 ACCES_ROUTE_DATAGOUV = "67fe0fe2423db9c4a05d8ced"
 ACCES_ROUTE_MOTIF = r"donnees_(\d{4})_reg(\d{2})\.parquet"
 ACCES_ROUTE_SEUILS = (15, 20, 30)     # minutes
+# contrôle du temps vers la psychiatrie ambulatoire face à notre distance au CMP (lieux.controle_route_cmp)
+ROUTE_CMP_MINUTES, ROUTE_CMP_KM = 30, 8
 ACCES_ROUTE = [  # code BPE, identifiant, libellé d'affichage, famille, profession RPPS comparable
     ("D250", "psychologue_liberal", "Psychologue libéral", SANTE_MENTALE, "psychologue"),
     ("D269", "psychiatre_liberal", "Psychiatre libéral", SANTE_MENTALE, "psychiatre"),
@@ -1452,6 +1462,16 @@ LIMITES = {
                   "dit rien des délais de rendez-vous, des tarifs ni des transports en commun, et ne couvre que "
                   "l'Hexagone, la Martinique et La Réunion."),
         "sources": [SRC_INSEE_ROUTE]},
+    # mesuré à chaque exécution par lieux.controle_route_cmp (note docs/note_valeurs_aberrantes_2026-10-28.md)
+    "route_psychiatrie_ambulatoire": {
+        "risque": "recensement incomplet",
+        "texte": ("Le temps de route de l'INSEE vers la psychiatrie ambulatoire contredit, dans de nombreuses communes, "
+                  "la distance au CMP le plus proche (plus de 30 minutes alors qu'un CMP est à moins de 8 km). La base "
+                  "permanente des équipements ne compte vraisemblablement que les CMP inscrits sous leur propre "
+                  "catégorie dans FINESS, alors qu'un CMP sur trois n'y figure que sous le numéro de son hôpital ou "
+                  "seulement dans le ROR. La distance au CMP le plus proche, tirée de FINESS et du ROR réunis, est plus "
+                  "sûre."),
+        "sources": [SRC_INSEE_ROUTE, SRC_FINESS, SRC_ROR]},
     "sae": {
         "risque": "rattachement",
         "texte": ("Les moyens de la psychiatrie hospitalière sont déclarés par les établissements et rattachés au "
@@ -1494,12 +1514,15 @@ LIMITES_COURT = {
                      "incomplètes ou anciennes."),
     "route": ("Temps en voiture vers le libéral le plus proche, sans les délais de rendez-vous, les tarifs ni les "
               "transports en commun."),
+    "route_psychiatrie_ambulatoire": ("Le temps de l'INSEE vers la psychiatrie ambulatoire ignore vraisemblablement un "
+                                      "CMP sur trois, la distance au CMP le plus proche est plus sûre."),
     "ald": "Les ALD comptent les personnes dont la maladie a été reconnue, pas toutes les personnes malades.",
     "caf": "Les allocations versées par la MSA ne sont pas comptées, ce qui sous-estime ces chiffres surtout en zone rurale.",
     "evolution": ("Les séries de la DREES comptent chaque professionnel une seule fois, dans le département de son "
                   "activité principale."),
 }
-LIMITES_ALIAS = {"sae_": "sae", "ald_": "ald", "caf_": "caf", "evol:": "evolution", "lieu_": "lieux", "lieux:": "lieux"}
+LIMITES_ALIAS = {"route:psychiatrie_ambulatoire": "route_psychiatrie_ambulatoire",
+                 "sae_": "sae", "ald_": "ald", "caf_": "caf", "evol:": "evolution", "lieu_": "lieux", "lieux:": "lieux"}
 
 LOI_INVERSE_BESOINS = ["suicides", "hospit_gestes_auto_infliges", "pec_troubles_psy"]
 LOI_INVERSE_PROFESSIONS = ["psychiatre", "psychologue", "q_psychiatrie_enfant", "medecin_generaliste"]
@@ -1530,9 +1553,10 @@ CROISEMENTS = [
     ("ctx:ase_mesures", "sae_infanto", "enfance", ""),
     ("ctx:ase_mesures", "dens:pedopsychiatre", "enfance", ""),
     # audit du 4 octobre 2026, 3.3, 3.5 et 3.6 (temps médian par la route de l'INSEE, préfixe route:)
-    ("route:psychiatrie_ambulatoire", "suicides", "trajet_suicide",
-     "Les départements éloignés des CMP ont-ils plus de suicides, au-delà de la ruralité ?"),
-    ("route:psychiatre_liberal", "suicides", "trajet_suicide", ""),
+    # la psychiatrie ambulatoire de l'INSEE (D109) est retirée le 28 octobre 2026, elle ignore un CMP sur trois
+    # (LIMITES["route_psychiatrie_ambulatoire"])
+    ("route:psychiatre_liberal", "suicides", "trajet_suicide",
+     "Les départements éloignés d'un psychiatre libéral ont-ils plus de suicides, au-delà de la ruralité ?"),
     ("ctx:handicap_places_enfants", "dens_lib:orthophoniste", "reeducation",
      "L'offre libérale de rééducation suit-elle l'offre médico-sociale pour les enfants ?"),
     ("ctx:handicap_places_enfants", "dens_lib:psychomotricien", "reeducation", ""),

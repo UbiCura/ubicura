@@ -1739,6 +1739,36 @@ def test_css_libelle_valeur_ecart():
                 assert re.search(r"(^|[;{])\s*(column-)?gap:", regle), (f.name, regle.strip()[:120])
 
 
+def test_sans_caractere_de_controle():
+    """Aucun caractère de contrôle dans le code et les textes des pages (un remplacement raté du 28 octobre 2026 avait mis
+    un caractère invisible à la place d'un chiffre, « 10 % » devenu « 1 % » à l'affichage)."""
+    import re
+    from pipeline import config
+    fichiers = [*(config.RACINE / "gabarits").glob("*.*"), config.RACINE / "atlas" / "atlas_template.html", *(config.RACINE / "contenus").glob("*.md")]
+    for f in fichiers:
+        if f.suffix in (".html", ".js", ".css", ".md"):
+            t = f.read_text(encoding="utf-8")
+            m = re.search(r"[\x00-\x08\x0b\x0c\x0e-\x1f]", t)
+            assert not m, (f.name, repr(t[max(0, m.start() - 30):m.start() + 10]))
+
+
+def test_fond_des_cellules():
+    """Dans un tableau, toutes les cellules ont le fond de la fenêtre qui le contient, colonnes figées comprises, seul
+    le survol d'une ligne peut l'éclaircir (défaut signalé par Lucas le 28 octobre 2026, première colonne plus claire
+    dans le tableau d'accès aux structures de l'atlas). Une cellule figée prend donc le fond de son conteneur
+    (--fond-cellule), et aucune règle à l'écran ne colore une ligne sur deux."""
+    import re
+    from pipeline import config
+    for f in (config.RACINE / "gabarits" / "style.css", config.RACINE / "atlas" / "atlas_template.html"):
+        css = f.read_text(encoding="utf-8")
+        for sel, corps in re.findall(r"([^{}]+)\{([^{}]*)\}", css):
+            if re.search(r"\b(td|th)\b", sel) and "position:sticky" in corps and "left:0" in corps:
+                fond = re.search(r"background:([^;}]+)", corps)
+                assert fond and "--fond-cellule" in fond.group(1), (f.name, sel.strip()[:80])
+            if "nth-child(even)" in sel and re.search(r"\b(td|tr)\b", sel):
+                assert re.search(r"background:\s*none", corps), (f.name, sel.strip()[:80], "ligne sur deux colorée")
+
+
 def test_classe_barre_resserree_sans_conflit():
     """La classe que prend la barre du site quand on descend n'a aucune règle à elle seule hors de nav.site, sinon la
     barre hérite d'un réglage d'autres éléments (overflow-x:auto de .defile cachait la liste « Le projet », remarque de
@@ -1880,6 +1910,328 @@ def test_explorer():
     assert {"infirmier_lib", "infirmier_sal"} <= set(traj["profs"]), "deux séries d'infirmiers, jamais additionnées"
     assert all(v["famille"] in ("Santé", "Santé mentale") for v in paires["profs"].values())
     assert all("976" not in s["deps"] for s in traj["profs"].values())
+
+
+def test_explorer_inegalites():
+    """Outils de l'onglet Inégalités déplacés dans Explorer (lot 2, 28 octobre 2026). Les données sont celles de
+    site_data.json sans calcul nouveau, le Gini de la page retombe sur inegalites.csv, et aucun outil n'est présent à la
+    fois dans l'atlas et dans Explorer."""
+    import json
+    from pipeline import config, explorer
+    d = _dernier_resultats()
+    f = d / "site_data.json"
+    if not f.exists():
+        raise Ignore("site_data.json absent")
+    sd = json.loads(f.read_text(encoding="utf-8"))
+    di = explorer.donnees_inegalites(sd)
+    assert di and set(di["niv"]) == {"dep", "epci"}
+    assert di["typo"]["profils"] == sd["typologie"] and di["typo"]["acp"] == sd["acp"]
+    assert len(di["typo"]["parent"]) == len(di["niv"]["epci"]["units"])
+    assert di["revenu"] == sd["revenu"] and di["entonnoir"] == sd["entonnoir"]
+    ecarts = [abs(explorer.gini_territoires(di, r["niv"], r["prof"]) - r["gini"]) for r in sd["inegalites"]
+              if r["mode"] == "all" and r["niv"] in di["niv"] and r["prof"] in di["niv"][r["niv"]]["n"]]
+    assert len(ecarts) > 50 and max(ecarts) < 1e-3, max(ecarts)   # inegalites.csv arrondi à trois décimales
+    atlas = (config.RACINE / "atlas" / "atlas_template.html").read_text(encoding="utf-8")
+    page = (config.RACINE / "gabarits" / "explorer.html").read_text(encoding="utf-8")
+    for fonction, fenetre in (("function escalier(", "iFenEscalier"), ("function funnel(", "iFenEntonnoir"),
+                              ("function lorenzOf(", "iFenConcentration"), ("function inegLieux(", "iFenDistNv"),
+                              ("function typologie(", "tyFenProfils"), ("function acpPanneau(", "tyFenAcp")):
+        assert fonction not in atlas and f'id="{fenetre}"' in page, fenetre
+    # l'atlas n'a plus d'onglet Inégalités ni Typologie, il renvoie vers la question d'Explorer
+    assert 'data-t="inegalites"' not in atlas and 'data-t="typologie"' not in atlas
+    assert 'explorer.html#qInegalites' in atlas and 'id="qInegalites"' in page
+
+
+def test_explorer_catalogue():
+    """Explorer lit ses variables dans le catalogue des indicateurs (site_data.json, contexte), un seul catalogue pour
+    le site, l'atlas, Explorer et l'API (décision de Lucas du 28 octobre 2026). Tout indicateur du catalogue publié par
+    intercommunalité est proposé pour les dixièmes, tout indicateur publié par département pour les trajectoires, rangé
+    dans son thème, et aucune liste d'indicateurs n'est écrite à la main dans le code de la page."""
+    import json
+    from pipeline import config, explorer
+    d = _dernier_resultats()
+    f = d / "site_data.json"
+    if not f.exists():
+        raise Ignore("site_data.json absent")
+    cat = json.loads(f.read_text(encoding="utf-8"))["contexte"]
+    paires, traj = explorer.donnees_paires(d), explorer.donnees_trajectoires(d)
+    epci = _csv(d, "contexte_epci.csv")
+    attendus = {c["id"] for c in cat if "intercommunalités" in c.get("niveaux", []) and c["id"] in epci.columns}
+    assert attendus and attendus == set(paires["vars"]), attendus ^ set(paires["vars"])
+    # un indicateur hors des anciennes listes écrites à la main, avec son thème du catalogue
+    nouveau = next(c for c in cat if c["id"] in paires["vars"] and c["id"] not in ("revenu_median", "densite_pop"))
+    assert paires["vars"][nouveau["id"]]["groupe"] == nouveau["groupe"]
+    dep = [c for c in cat if "départements" in c.get("niveaux", []) and c["id"] in traj["vars"]]
+    assert len(dep) > 8 and all(traj["vars"][c["id"]]["groupe"] == c["groupe"] for c in dep)
+    js = (config.RACINE / "gabarits" / "explorer.js").read_text(encoding="utf-8")
+    assert "DC.revenu" not in js and "DC.densite" not in js and "taux_pauvrete:" not in js
+
+
+def test_fenetres_repliables():
+    """Fenêtres repliables d'Explorer (note du 28 octobre 2026). Chaque fenêtre a un identifiant, une barre avec la
+    place des pastilles et un titre, un corps avec sa phrase de résultat, que la fenêtre repliée recopie. Une figure
+    posée dans une fenêtre n'a pas de second cadre. Les deux boutons de la barre (replier, agrandir) sont de vrais
+    boutons avec un nom accessible, placés à droite du titre (choix de Lucas du 28 octobre 2026)."""
+    import re
+    from pipeline import config
+    g = config.RACINE / "gabarits"
+    page, js, css = ((g / n).read_text(encoding="utf-8") for n in ("explorer.html", "figures.js", "style.css"))
+    fens = re.findall(r'<article class="fenetre repliable[^"]*" id="([\w-]+)"(.*?)</article>', page, re.S)
+    assert len(fens) >= 2, "fenêtres d'Explorer introuvables"
+    for ident, corps in fens:
+        assert '<span class="pastilles"></span>' in corps and re.search(r"<h3 id=", corps), ident
+        assert 'class="fen-resume"' in corps and 'class="resultat"' in corps, ident
+        assert 'class="fen-lire-bouton"' in corps and 'class="fen-lire" hidden' in corps, ident
+    for b in ("p-replier", "p-agrandir"):
+        assert f'class="{b}"' in js and re.search(rf'class="{b}"[^>]*aria-(label|controls)', js), b
+    assert "aria-expanded" in js and 'aria-pressed' in js and "Escape" in js
+    assert re.search(r"\.outil figure\.graphique\{background:none;border:0", page), "figure sans second cadre"
+    assert re.search(r"\.fen-tete \.pastilles\{grid-column:2", css), "boutons à droite du titre"
+def test_empreinte_inscriptions_brutes():
+    """Empreinte d'un établissement vérifié, sur les inscriptions réelles en cache. Elle ne dépend pas des clés produites
+    par nos règles (clé remplacée, structure copiée dans un autre type vérifié) et change quand une inscription des bases
+    disparaît."""
+    import pandas as pd
+    from pipeline import structures_verifiees as sv
+    if not sv.BASES.exists():
+        raise Ignore("inscriptions des bases absentes")
+    b = pd.read_parquet(sv.BASES)
+    e, _ = sv.charger()
+    r = e.iloc[0]
+    ts = [t for t in sv.types_de(r["types"]) if t not in sum(sv.ENFANTS_DE.values(), [])]
+    g = b[(b["ej"] == r["ej"]) & b["type"].isin(ts)]
+    if len(g) < 2:
+        raise Ignore("établissement trop petit pour le test")
+    ref0 = sv.empreinte(b, r["ej"], ts)
+    autre = b.assign(lieu="cle_" + b.index.astype(str))
+    assert sv.empreinte(autre, r["ej"], ts) == ref0, "l'empreinte dépend des clés des règles"
+    copie = pd.concat([b, g.head(1).assign(type=ts[-1] if len(ts) > 1 else ts[0])], ignore_index=True)
+    assert sv.empreinte(copie, r["ej"], ts) == ref0, "une copie dans un autre type vérifié change l'empreinte"
+    assert sv.empreinte(b.drop(index=g.index[0]), r["ej"], ts) != ref0 or g.iloc[0]["finess"] in set(g["finess"].iloc[1:]), \
+        "une inscription disparue ne change pas l'empreinte"
+
+
+_API = {}
+
+
+def _api_tables():
+    """Tables de l'API préparées une fois à partir de la dernière version des résultats (outils/api_donnees.py)."""
+    if not _API:
+        import sys
+        sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "outils"))
+        try:
+            import api_donnees
+        except ModuleNotFoundError:   # prototype de l'API absent du code public tant que l'offre n'est pas finalisée
+            raise Ignore("prototype de l'API absent")
+        d = _dernier_resultats()
+        if not (d / "lieux_soins.csv").exists() or not (d / "evolution_explorer.csv").exists():
+            raise Ignore("résultats incomplets")
+        _API.update(module=api_donnees, version=d, tables=api_donnees.preparer(d))
+    return _API
+
+
+def test_api_donnees():
+    """Données de l'API, sur les résultats réels. Aucun identifiant RPPS ni indicateur sous ODbL, aucune colonne hors du
+    contrat pour les structures, totaux égaux aux fichiers du site, règle de confidentialité des zones libres."""
+    import pandas as pd
+    from comparer_versions import RPPS
+    A_ = _api_tables()
+    a, d, t = A_["module"], A_["version"], A_["tables"]
+    for nom, x in t.items():
+        for c in x.columns:
+            if x[c].dtype == object:
+                assert not x[c].astype(str).str.contains(RPPS).any(), f"identifiant RPPS possible dans {nom}.{c}"
+    odbl = a.colonnes_odbl(d)
+    assert odbl, "liste des indicateurs sous ODbL vide"
+    assert not set(t["contexte"]["indicateur"]) & odbl and not set(t["catalogue"]["indicateur"]) & odbl
+    assert not any(set(x.columns) & odbl for x in t.values())
+    permis = set(a.COLS_STRUCTURES) | {"id", "numero_partage"}
+    assert {c for c in t["structures"].columns if not c.startswith("declares_")} <= permis
+    e = t["effectifs"]
+    dep = pd.read_csv(d / "effectifs_dep_all.csv", sep=";", decimal=",", dtype={"code": str})
+    for p in ("psychologue", "psychiatre", "infirmier"):
+        assert e[(e["niveau"] == "dep") & (e["prof"] == p) & (e["mode"] == "all")]["n"].sum() == dep[f"n_{p}"].sum()
+    fr = pd.read_csv(d / "effectifs_france.csv", sep=";")
+    assert int(e[(e["niveau"] == "fra") & (e["prof"] == "psychologue") & (e["mode"] == "all")]["n"].iloc[0]) == \
+        int(fr[(fr["prof"] == "psychologue") & (fr["mode"] == "all")]["n"].iloc[0])
+    com, ec = t["communes"], t["effectifs_communes"]
+    try:
+        a.zone(com, ec, [])
+        raise AssertionError("une zone vide doit être refusée")
+    except a.ZoneRefusee:
+        pass
+    petite = com[com["population"] > 0].sort_values("population").iloc[0]["code"]
+    zp = a.zone(com, ec, [petite])
+    attendu = ec[ec["code"] == petite].groupby(["prof", "mode"])["n"].sum()
+    assert all(l["n"] == attendu[(l["prof"], l["mode"])] for l in zp["effectifs"]), "commune entière, chiffres exacts"
+    # valeurs aberrantes contrôlées (constat du 28 octobre 2026), aucune distance par-dessus la mer en outre-mer, temps de
+    # l'INSEE vers la psychiatrie ambulatoire signalé dans sa limite, contrôles consignés
+    v = t["criteres_communes"].merge(com[["code", "dep"]], on="code")
+    for dep, km in a.DOM_DISTANCE_MAX.items():
+        x = v[v["dep"] == dep]
+        for c in [c for c in v.columns if c.endswith("|distance")]:
+            assert not (x[c] > km).any(), f"distance par-dessus la mer, {dep} {c}"
+    num = v.drop(columns=["code", "dep"]).apply(pd.to_numeric, errors="coerce")
+    assert not num.isin([float("inf"), float("-inf")]).any().any(), "distance infinie servie par l'API"
+    crit = t["criteres"].set_index("critere")
+    assert crit["moyenne_communes"].dropna().map(abs).lt(float("inf")).all()
+    if "route:psychiatrie_ambulatoire|temps" in crit.index:   # retiré en amont le 28 octobre 2026, limite si présent
+        assert crit.at["route:psychiatrie_ambulatoire|temps", "limite"]
+    # la table des contrôles existe, elle peut être vide une fois les distances corrigées en amont
+    assert {"controle", "critere", "communes"} <= set(t["controles"].columns) or t["controles"].empty
+    z = a.zone(com, ec, com.nlargest(3, "population")["code"].tolist())
+    assert all((l["n"] is None) == (l["classe"] is not None) for l in z["effectifs"])
+    assert all(l["n"] is None or l["n"] >= a.ZONE_EFFECTIF_MIN for l in z["effectifs"])
+
+
+def test_api_serveur():
+    """Serveur d'essai de l'API sur les tables réelles. Clé exigée, fiche d'un département, CSV à la française, zone
+    trop petite refusée."""
+    try:
+        from fastapi.testclient import TestClient
+    except ImportError:
+        raise Ignore("FastAPI absent")
+    A_ = _api_tables()
+    import api_serveur
+    m = {"version": A_["version"].name, "date_rpps": None, "licence": "essai"}
+    c = TestClient(api_serveur.creer_app(A_["tables"], m, {"cle-test": {"palier": "essai"}, "cle-g": {"palier": "gratuit"}}))
+    # petite porte gratuite (décision de Lucas du 28 octobre 2026), territoires standards ouverts, le reste payant
+    g = {"X-Cle": "cle-g"}
+    assert c.get("/v0/territoires/dep/78", headers=g).status_code == 200
+    assert c.get("/v0/rapport?niveau=dep&code=78&format=html", headers=g).status_code == 200
+    for q in ("/v0/zone?lat=48.8&lon=2.13&rayon_km=5", "/v0/recherche?critere=population|valeur:>:1000",
+              "/v0/comparer?sites=47.2,-1.5;47.4,-0.5", "/v0/rapport?lat=48.8&lon=2.13&rayon_km=5&format=html"):
+        assert c.get(q, headers=g).status_code == 403, q
+    assert c.get("/v0/series?prof=psychiatre", headers=g).json()["photographies_rpps"] == []
+    assert c.get("/v0/meta").status_code == 401
+    h = {"X-Cle": "cle-test"}
+    f = c.get("/v0/territoires/dep/78", headers=h).json()
+    psy = [x for x in f["effectifs"] if x["prof"] == "psychiatre" and x["mode"] == "all"][0]
+    assert psy["densite_moyenne_niveau"] and abs(psy["ecart"] - (psy["densite"] / psy["densite_moyenne_niveau"] - 1)) < 1e-9
+    r = c.get("/v0/effectifs?niveau=dep&prof=psychologue&format=csv", headers=h)
+    assert r.text.startswith("﻿") and ";" in r.text.splitlines()[0]
+    assert c.get("/v0/zone?communes=00000", headers=h).status_code == 422
+    z = c.get("/v0/zone?lat=48.80&lon=2.13&rayon_km=5&format=csv", headers=h)
+    assert z.text.startswith("﻿")
+    gz = c.get("/v0/zone/structures?lat=48.80&lon=2.13&rayon_km=5", headers=h).json()
+    assert gz["type"] == "FeatureCollection" and gz["features"]
+    g = c.get("/v0/structures?niveau=dep&code=78&type=lieu_cmp&format=geojson", headers=h).json()
+    assert g["type"] == "FeatureCollection" and g["features"]
+    # recherche multicritère, chaque commune rendue remplit toutes les conditions, sans note ni classement
+    crit = c.get("/v0/criteres", headers=h).json()["lignes"]
+    assert crit and all(x["libelle"] and x["unite"] is not None and x["source"] for x in crit)
+    noms = {x["critere"] for x in crit}
+    assert {"population|valeur", "psychiatre|distance"} <= noms and any(n.startswith("route:") for n in noms)
+    r = c.get("/v0/recherche?critere=psychiatre|distance:>:15&critere=population|valeur:>=:5000", headers=h).json()
+    assert r["communes_trouvees"] > 0
+    assert all(x["psychiatre|distance"] > 15 and x["population"] >= 5000 for x in r["communes"])
+    route = next(n for n in noms if n.startswith("route:"))
+    assert c.get(f"/v0/recherche?critere={route}:>:moyenne", headers=h).status_code == 200
+    assert c.get("/v0/recherche?critere=inconnu|valeur:>:1", headers=h).status_code == 400
+    # comparaison de sites
+    cp = c.get("/v0/comparer?sites=47.218,-1.553;47.478,-0.563&rayon_km=10", headers=h).json()
+    assert len(cp["sites"]) == 2 and all(z["population"] > 0 for z in cp["sites"])
+    assert c.get("/v0/comparer?sites=47.218,-1.553&rayon_km=10", headers=h).status_code == 400
+    # rapport d'un territoire et d'une zone, carte, sources et licences, aucun identifiant RPPS
+    for q in ("niveau=dep&code=71", "lat=46.6684&lon=4.3672&rayon_km=15"):
+        rp = c.get(f"/v0/rapport?{q}&format=html", headers=h)
+        assert rp.status_code == 200 and "<svg" in rp.text and "Sources et licences" in rp.text and "Licence Ouverte" in rp.text
+        from comparer_versions import RPPS
+        assert not RPPS.search(rp.text)
+
+
+def test_api_catalogue():
+    """L'API se nourrit du catalogue du site (principe du 28 octobre 2026). Chaque indicateur de contexte hors ODbL,
+    chaque profession et chaque type de structure présent dans les résultats figure au catalogue avec son libellé, son
+    unité, sa source, sa licence et ses niveaux, et le point d'accès générique le sert à chacun de ses niveaux."""
+    import json
+    import pandas as pd
+    try:
+        from fastapi.testclient import TestClient
+    except ImportError:
+        raise Ignore("FastAPI absent")
+    A_ = _api_tables()
+    import api_serveur
+    a, d, t = A_["module"], A_["version"], A_["tables"]
+    cat = t["catalogue"]
+    sd = json.loads((d / "site_data.json").read_text(encoding="utf-8"))
+    odbl = a.colonnes_odbl(d)
+    attendus = {m["id"] for m in sd["contexte"] if m["id"] not in odbl}
+    attendus |= set(pd.read_csv(d / "professions.csv", sep=";", dtype=str)["id"])
+    attendus |= set(pd.read_csv(d / "lieux_soins.csv", sep=";", dtype=str, usecols=["type"])["type"])
+    assert attendus <= set(cat["indicateur"]), sorted(attendus - set(cat["indicateur"]))[:10]
+    assert not cat["indicateur"].duplicated().any()
+    for c in ("libelle", "unite", "source", "licence", "niveaux"):
+        assert cat[c].fillna("").astype(str).str.strip().ne("").all(), f"catalogue, {c} vide"
+    c = TestClient(api_serveur.creer_app(t, {"version": d.name, "licence": "essai"}, {"k": {}}))
+    vides = [f"{r.indicateur}@{n}" for r in cat.itertuples() for n in r.niveaux.split(",")
+             if not c.get(f"/v0/indicateurs/{r.indicateur}?niveau={n}", headers={"X-Cle": "k"}).json().get("lignes")]
+    assert not vides, f"indicateurs du catalogue sans valeur à un niveau déclaré : {vides[:10]}"
+
+
+def test_comparaison_structures_verifiees():
+    """Comparaison avant publication, sur les résultats réels. Une version comparée à elle-même ne signale rien à
+    regarder pour les structures vérifiées à la main, et les établissements à revérifier du journal sont relus."""
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "outils"))
+    import comparer_versions as cv
+    d = _dernier_resultats()
+    if not (d / "journal.json").exists() or not (d / "verdicts_sans_structure.csv").exists():
+        raise Ignore("résultats incomplets")
+    c = cv.Compte()
+    cv.structures_verifiees(d, d, c)
+    assert c.niveau == 0, c.lignes
+    r = cv.a_reverifier(d)
+    assert r is not None and all(isinstance(s, str) and s for s in r)
+    assert not r or any("déjà signalés" in t for _, t in c.lignes)
+
+
+def test_distances_sans_traverser_la_mer():
+    """Une distance au plus proche est cherchée sur le territoire de la commune (Hexagone, Corse, chaque département
+    d'outre-mer), jamais par-dessus la mer (note docs/note_valeurs_aberrantes_2026-10-28.md). Sur les vraies structures,
+    un point de Mayotte n'a pas de voisin quand seules celles de La Réunion sont proposées, il en a un tout près parmi
+    celles de Mayotte. Les distances publiées des départements d'outre-mer et de la Corse restent sous 300 km."""
+    import numpy as np
+    from pipeline.analyses import coords_3d, mediane_ponderee, plus_proche_km, zone_terrestre
+    d = _dernier_resultats()
+    l = _csv(d, "lieux_soins.csv", dtype={"dep": str}, usecols=lambda c: c in ("dep", "latitude", "longitude", "type"))
+    l = l.dropna(subset=["latitude", "longitude"]).rename(columns={"latitude": "lat", "longitude": "lon"})
+    may, reu = l[l["dep"] == "976"].head(20), l[l["dep"] == "974"]
+    if may.empty or reu.empty:
+        raise Ignore("pas de structures à Mayotte ou à La Réunion")
+    xm, xr = coords_3d(may["lon"], may["lat"]), coords_3d(reu["lon"], reu["lat"])
+    zm, zr = zone_terrestre(may["dep"]), zone_terrestre(reu["dep"])
+    assert np.isinf(plus_proche_km(xm, zm, xr, zr)).all()
+    assert (plus_proche_km(xm, zm, xm, zm) == 0).all()
+    assert list(zone_terrestre(["2A", "2B", "75", "971", None])) == ["corse", "corse", "hexagone", "971", "hexagone"]
+    assert np.isnan(mediane_ponderee([1.0, np.inf, np.inf], [1, 1, 1]))
+    assert mediane_ponderee([1.0, 2.0, np.inf], [1, 5, 1]) == 2.0
+    t = _csv(d, "distances_lieux_dep.csv", dtype={"code": str})
+    loin = t[t["code"].str.match(r"97|2A|2B") & (t["distance_mediane_km"] > 300)]
+    assert loin.empty, loin[["code", "type", "distance_mediane_km"]].head().to_dict("records")
+
+
+def test_envoi_programme():
+    """Envoi programmé de la fenêtre du courrier (28 octobre 2026). Dates lues sous les deux formes, empreinte qui
+    change avec le texte ou les destinataires, sur un vrai brouillon (sans rien écrire ni envoyer)."""
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from outils import messagerie as m
+    assert m.lire_date("2026-11-03T09:30") == m.lire_date("03/11/2026 09:30")
+    assert m.lire_date("03/11/2026 9h") is not None and m.lire_date("demain") is None
+    bs = m.brouillons()
+    if not bs:
+        raise Ignore("aucun brouillon")
+    b = dict(bs[0])
+    e = m.empreinte(b)
+    assert m.empreinte(dict(b, corps=b["corps"] + " ")) != e
+    assert m.empreinte(dict(b, a=b["a"] + ["x@exemple.fr"])) != e
+    assert m.empreinte(dict(b, envoi_prevu="2026-11-03T09:30")) == e
+    assert not m.controler_brouillon({k: v for k, v in b.items() if k in
+                                      {"id", "a", "cc", "objet", "corps", "motif", "sources", "en_reponse_a"}}
+                                     | {"envoi_prevu": "2026-11-03T09:30"})
+    assert m.controler_brouillon({"id": "essai", "a": ["a@b.fr"], "objet": "o", "corps": "c", "motif": "m",
+                                  "envoi_prevu": "bientôt"})
 
 
 if __name__ == "__main__":

@@ -141,6 +141,8 @@ def comparer(avant: Path, apres: Path, c: Compte):
                     c.note(20 if abs(v) > LIEUX[1] else 10, f"Lieux de soins, {k}, {int(na[k])} avant, {int(nb.get(k, 0))} après ({v:+.0%})")
     elif a is not None and b is None:
         c.note(20, "Lieux de soins, fichier lieux_soins.csv disparu")
+    # 5 bis. structures vérifiées à la main, une nouvelle version d'une base ne doit rien défaire en silence
+    structures_verifiees(avant, apres, c)
     # 6. rapports territoriaux
     ta, tb = len(list((avant / "territoires").glob("*.md"))), len(list((apres / "territoires").glob("*.md")))
     if tb < ta:
@@ -148,6 +150,50 @@ def comparer(avant: Path, apres: Path, c: Compte):
     # 7. cohérence des indicateurs et des croisements (exigence de Lucas du 12 octobre 2026, après des indicateurs
     # fantômes nés d'un ajout placé dans la mauvaise liste de config.py)
     coherence(apres, c)
+
+
+CONFIRMEE = "confirmée par l'établissement"
+REVERIFIER = "Structures de soins, établissements à revérifier"
+
+
+def a_reverifier(version: Path) -> set[str] | None:
+    """Établissements vérifiés à la main que le journal signale à revérifier (empreinte des inscriptions de FINESS et
+    du ROR changée, ou vérification de plus d'un an), d'après le contrôle de pipeline/structures_verifiees.py. Le
+    journal n'en cite que les dix premiers."""
+    try:
+        j = json.loads((version / "journal.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    for nom, valeur in j.get("controles", []):
+        if nom.startswith(REVERIFIER):
+            return set() if valeur == "aucun" else {s.strip() for s in valeur.split(";") if s.strip()}
+    return None
+
+
+def structures_verifiees(avant: Path, apres: Path, c: Compte):
+    """Ce qui a été vérifié à la main doit survivre à une nouvelle version des bases (demande de Lucas du
+    28 octobre 2026, point sur la tâche planifiée). Moins de structures confirmées par leur établissement, un verdict
+    qui ne retrouve plus sa structure ou un établissement nouvellement signalé à revérifier sont à regarder."""
+    a, b = lire(avant / "lieux_soins.csv"), lire(apres / "lieux_soins.csv")
+    if a is not None and b is not None and "verification" in a and "verification" in b:
+        na, nb = int((a["verification"] == CONFIRMEE).sum()), int((b["verification"] == CONFIRMEE).sum())
+        if nb < na:
+            c.note(10, f"Structures confirmées par leur établissement, {na} avant, {nb} après")
+    sa, sb = lire(avant / "verdicts_sans_structure.csv"), lire(apres / "verdicts_sans_structure.csv")
+    if sb is not None and "cle" in sb:
+        connus = set(sa["cle"]) if sa is not None and "cle" in sa else set()
+        nouveaux = sb[~sb["cle"].isin(connus)]
+        if len(nouveaux):
+            c.note(10, f"Verdicts de la vérification à la main qui ne retrouvent plus leur structure, {len(nouveaux)} "
+                       f"nouveaux ({', '.join(nouveaux['structure'].astype(str).head(5))}), voir verdicts_sans_structure.csv")
+    ra, rb = a_reverifier(avant), a_reverifier(apres)
+    if rb:
+        nouveaux = rb - (ra or set())
+        if nouveaux:
+            c.note(10, f"Établissements vérifiés à la main nouvellement signalés à revérifier, {len(nouveaux)}, "
+                       + "; ".join(sorted(nouveaux)[:5]))
+        if rb - nouveaux:
+            c.note(0, f"Établissements vérifiés à la main déjà signalés à revérifier, {len(rb - nouveaux)}")
 
 
 # libellé qui laisse voir un identifiant du code (« lieux_psy libéraux... »)

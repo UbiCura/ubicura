@@ -866,22 +866,35 @@ def exercice_structures(lieux: pd.DataFrame, act: pd.DataFrame) -> pd.DataFrame 
 
 
 def distances(lieux: pd.DataFrame, ref, centres: dict) -> pd.DataFrame:
-    """Distance à vol d'oiseau du centre de chaque commune à la structure la plus proche de chaque type, en km."""
-    from scipy.spatial import cKDTree
-    from .analyses import coords_3d, corde_vers_km
+    """Distance à vol d'oiseau du centre de chaque commune à la structure la plus proche de chaque type, en km, cherchée
+    sur le territoire de la commune (Hexagone, Corse, chaque département d'outre-mer, config.ZONES_TERRESTRES).
+    Infinie quand ce territoire n'a aucune structure de ce type, ce que les résumés écrivent comme une case vide."""
+    from .analyses import coords_3d, plus_proche_km, zone_terrestre
     com = ref.communes[ref.communes["code"].isin(centres)]
     xy = np.array([centres[c] for c in com["code"]])
     xyz = coords_3d(xy[:, 0], xy[:, 1])
+    zones = zone_terrestre(com["dep"])
     out = {}
     for tid, g in lieux.dropna(subset=["lat", "lon"]).groupby("type"):
         p = coords_3d(g["lon"].to_numpy(float), g["lat"].to_numpy(float))
-        d, _ = cKDTree(p).query(xyz)
-        out[tid] = corde_vers_km(d)
+        out[tid] = plus_proche_km(xyz, zones, p, zone_terrestre(g["dep"]))
     return pd.DataFrame(out, index=com["code"].to_numpy())
 
 
 def resumer_distances(dist: pd.DataFrame, ref, niveaux=("epci", "dep", "reg")) -> dict:
-    """Par territoire et par type, distance médiane des habitants et part à plus de 20 et 30 km."""
+    """Par territoire et par type, distance médiane des habitants et part à plus de 20 et 30 km. Un habitant dont le
+    territoire n'a aucune structure de ce type compte au-delà de 20 et de 30 km, et la médiane reste vide quand elle
+    tombe sur lui (analyses.mediane_ponderee)."""
+    from .analyses import mediane_ponderee
+    sans = np.isinf(dist.to_numpy())
+    if sans.any():
+        com_dep = ref.communes.set_index("code")["dep"].reindex(dist.index)
+        par = {t: sorted(set(com_dep[np.isinf(dist[t].to_numpy())])) for t in dist.columns if np.isinf(dist[t]).any()}
+        JOURNAL.controle("Distances aux structures, types absents du territoire de la commune (Corse et chaque "
+                         "département d'outre-mer comptés à part, aucune distance par-dessus la mer)",
+                         f"{nombre(int(sans.sum()))} couples commune et type sur {nombre(sans.size)}, " + "; ".join(
+                             f"{dep} {sum(dep in v for v in par.values())} types"
+                             for dep in sorted({d for v in par.values() for d in v})))
     com = ref.communes.set_index("code").reindex(dist.index)
     pop = com["pop"].astype(float).fillna(0)
     res = {}
@@ -894,9 +907,7 @@ def resumer_distances(dist: pd.DataFrame, ref, niveaux=("epci", "dep", "reg")) -
                 continue
             for tid in dist.columns:
                 d = dist.loc[idx, tid].to_numpy()
-                o = np.argsort(d)
-                cum = np.cumsum(w[o]) / w.sum()
-                lignes.append((code, tid, float(d[o][np.searchsorted(cum, .5)]), float(w[d > 20].sum() / w.sum()),
+                lignes.append((code, tid, mediane_ponderee(d, w), float(w[d > 20].sum() / w.sum()),
                                float(w[d > 30].sum() / w.sum())))
         res[niv] = pd.DataFrame(lignes, columns=["code", "type", "distance_mediane_km", "part_plus_20_km",
                                                  "part_plus_30_km"])
@@ -1491,6 +1502,33 @@ def phrase_publics_cmp(r) -> str:
     return s
 
 
+def controle_route_cmp(ar, L: dict, ref) -> dict | None:
+    """Communes où le temps de route de l'INSEE vers la psychiatrie ambulatoire (BPE, D109) contredit la distance au CMP
+    le plus proche de nos structures (plus de config.ROUTE_CMP_MINUTES minutes en moyenne alors qu'un CMP est à moins
+    de config.ROUTE_CMP_KM km à vol d'oiseau). Cause probable, la BPE ne compterait que les CMP inscrits sous leur
+    propre catégorie dans FINESS (note docs/note_valeurs_aberrantes_2026-10-28.md, à confirmer sur la documentation de
+    l'INSEE). Résultat gardé dans L["incoherence_route_cmp"] pour le rapport."""
+    dist = (L or {}).get("distances_communes")
+    if not ar or not isinstance(dist, pd.DataFrame) or "lieu_cmp" not in dist:
+        return None
+    code = next((d["code"] for d in ar["defs"] if d["id"] == "psychiatrie_ambulatoire"), None)
+    c = ar["communes"]
+    x = c[c["typeeq_id"] == code]
+    t = (x["pd"] / x["pop_calcule"].where(x["pop_calcule"] > 0)).groupby(x["depcom"]).first()
+    j = pd.DataFrame({"temps": t, "km": dist["lieu_cmp"]}).dropna()
+    m = (j["temps"] > config.ROUTE_CMP_MINUTES) & (j["km"] < config.ROUTE_CMP_KM)
+    com = ref.communes.set_index("code").reindex(j.index[m])
+    r = {"communes": int(m.sum()), "habitants": float(com["pop"].fillna(0).sum()),
+         "departements": int(com["dep"].nunique()), "comparees": len(j),
+         "rho_spearman": float(j["temps"].corr(j["km"], method="spearman")) if len(j) > 50 else np.nan}
+    L["incoherence_route_cmp"] = r
+    JOURNAL.controle(f"Temps de route de l'INSEE vers la psychiatrie ambulatoire, communes à plus de "
+                     f"{config.ROUTE_CMP_MINUTES} minutes avec un CMP à moins de {config.ROUTE_CMP_KM} km",
+                     f"{nombre(r['communes'])} communes sur {nombre(r['comparees'])}, {nombre(r['habitants'])} habitants, "
+                     f"{r['departements']} départements, corrélation de rang {nombre(r['rho_spearman'], 2)}")
+    return r
+
+
 def escalier_distances(L: dict, ref, revenu_epci: pd.Series | None) -> pd.DataFrame | None:
     """Distance des habitants à la structure la plus proche selon le niveau de vie de leur intercommunalité. Les
     intercommunalités sont classées par revenu médian et réparties en dix groupes d'environ un dixième des habitants
@@ -1498,7 +1536,7 @@ def escalier_distances(L: dict, ref, revenu_epci: pd.Series | None) -> pd.DataFr
     la part à plus de 20 km sont calculées commune par commune. Types recensés presque partout seulement."""
     if not L or revenu_epci is None or revenu_epci.dropna().empty:
         return None
-    from .analyses import deciles_population
+    from .analyses import deciles_population, mediane_ponderee
     dist = L["distances_communes"]
     ok = set(L["couverture"].loc[L["couverture"]["complet"], "type"])
     types = [t for t in lieux_profil.types_avec("indicateur") if t in ok and t in dist.columns]
@@ -1516,11 +1554,9 @@ def escalier_distances(L: dict, ref, revenu_epci: pd.Series | None) -> pd.DataFr
             w, x = pop.to_numpy()[m], dist[tid].to_numpy()[m]
             if w.sum() <= 0:
                 continue
-            o = np.argsort(x)
-            cum = np.cumsum(w[o]) / w.sum()
             r = rev[dec.index[dec == d]]
             lignes.append({"type": tid, "decile": d, "niveau_de_vie_min": r.min(), "niveau_de_vie_max": r.max(),
-                           "population": w.sum(), "distance_mediane_km": float(x[o][np.searchsorted(cum, .5)]),
+                           "population": w.sum(), "distance_mediane_km": mediane_ponderee(x, w),
                            "part_plus_20_km": float(w[x > 20].sum() / w.sum())})
     return pd.DataFrame(lignes) if lignes else None
 
@@ -1536,8 +1572,9 @@ def _par_epci(L: dict, ref, types):
     dist = L["distances_communes"]
     com = ref.communes.set_index("code").reindex(dist.index)
     pop = com["pop"].astype(float).fillna(0)
-    hk = dist[types].mul(pop, axis=0)
-    return pop.groupby(com["epci"]).sum(), hk.groupby(com["epci"]).sum()
+    # vide pour une intercommunalité dont le territoire n'a aucune structure de ce type (lieux.distances)
+    hk = dist[types].replace(np.inf, np.nan).mul(pop, axis=0)
+    return pop.groupby(com["epci"]).sum(), hk.groupby(com["epci"]).sum(min_count=1)
 
 
 def inegalites_distances(L: dict, ref, ctx_epci: pd.DataFrame | None, rng) -> dict | None:
@@ -1551,7 +1588,7 @@ def inegalites_distances(L: dict, ref, ctx_epci: pd.DataFrame | None, rng) -> di
     if not L or ctx_epci is None:
         return None
     from scipy import stats
-    from .analyses import CLASSES_DENSITE, benjamini_hochberg, indice_concentration
+    from .analyses import CLASSES_DENSITE, benjamini_hochberg, indice_concentration, mediane_ponderee
     types = _types_comparables(L)
     if not types:
         return None
@@ -1574,10 +1611,8 @@ def inegalites_distances(L: dict, ref, ctx_epci: pd.DataFrame | None, rng) -> di
                 w, x = pop_c.to_numpy()[m], dist[tid].to_numpy()[m]
                 if w.sum() <= 0:
                     continue
-                o = np.argsort(x)
-                cum = np.cumsum(w[o]) / w.sum()
                 classes.append({"type": tid, "classe": lab, "population": w.sum(),
-                                "distance_mediane_km": float(x[o][np.searchsorted(cum, .5)]),
+                                "distance_mediane_km": mediane_ponderee(x, w),
                                 "part_plus_20_km": float(w[x > 20].sum() / w.sum())})
                 if isinstance(de, pd.DataFrame):
                     v = de[de["type"] == tid].set_index("code")["distance_mediane_km"]
@@ -1592,7 +1627,8 @@ def inegalites_distances(L: dict, ref, ctx_epci: pd.DataFrame | None, rng) -> di
         rev = ctx_epci["revenu_median"].reindex(pop_e.index)
         ok = rev.notna() & (pop_e > 0)
         for tid in types:
-            y, w, r = hk_e.loc[ok, tid].to_numpy(), pop_e[ok].to_numpy(), rev[ok].to_numpy()
+            ok_t = ok & hk_e[tid].notna()
+            y, w, r = hk_e.loc[ok_t, tid].to_numpy(), pop_e[ok_t].to_numpy(), rev[ok_t].to_numpy()
             ci, *_ = indice_concentration(y, w, r)
             bs = []
             for _ in range(config.BOOTSTRAP):
@@ -1600,7 +1636,7 @@ def inegalites_distances(L: dict, ref, ctx_epci: pd.DataFrame | None, rng) -> di
                 bs.append(indice_concentration(y[i], w[i], r[i])[0])
             lo, hi = np.percentile(bs, [2.5, 97.5])
             conc.append({"type": tid, "indice_concentration": ci, "ic95_bas": lo, "ic95_haut": hi,
-                         "intercommunalites": int(ok.sum())})
+                         "intercommunalites": int(ok_t.sum())})
     t = pd.DataFrame(tests)
     if len(t):
         t["q_bh"] = benjamini_hochberg(t["p"])
@@ -1621,6 +1657,7 @@ def typologie_lieux(affect: pd.DataFrame | None, L: dict, ref) -> pd.DataFrame |
     à la structure la plus proche (décision de Lucas du 12 octobre 2026)."""
     if not L or not isinstance(affect, pd.DataFrame) or affect.empty:
         return None
+    from .analyses import mediane_ponderee
     types = _types_comparables(L)
     dist = L["distances_communes"]
     com = ref.communes.set_index("code").reindex(dist.index)
@@ -1642,8 +1679,7 @@ def typologie_lieux(affect: pd.DataFrame | None, L: dict, ref) -> pd.DataFrame |
                 taux = n.loc[m, tid].sum() / pop_e[m].sum() * 1e5 if pop_e[m].sum() else np.nan
                 mc = (cl_c == k).to_numpy()
                 w, x = pop_c.to_numpy()[mc], dist[tid].to_numpy()[mc]
-                o = np.argsort(x)
-                med = float(x[o][np.searchsorted(np.cumsum(w[o]) / w.sum(), .5)]) if w.sum() else np.nan
+                med = mediane_ponderee(x, w) if w.sum() else np.nan
                 lignes.append({"famille": fam, "classe": int(k), "type": tid, "lieux_pour_100000": taux,
                                "indice_vs_national": 100 * taux / nat if nat else np.nan,
                                "distance_mediane_km": med})

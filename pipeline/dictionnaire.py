@@ -372,7 +372,7 @@ COLONNES = [
     (r"^antennes$", "CMP dont le nom dit qu'il s'agit d'une antenne ou d'une permanence (en mairie, en CCAS, en maison "
                     "de santé), comptés parmi les CMP et signalés comme tels."),
     (r"^lieux_pour_100000$", "Nombre de structures de soins de ce type pour 100 000 habitants."),
-    (r"^distance_mediane_km$", "Distance médiane des habitants à la structure la plus proche, en km, à vol d'oiseau."),
+    (r"^distance_mediane_km$", "Distance médiane des habitants à la structure la plus proche, en km, à vol d'oiseau, cherchée sur le même territoire (Hexagone, Corse ou département d'outre-mer), vide quand ce territoire n'en compte aucune."),
     (r"^part_plus_(20|30)_km$", "Part des habitants à plus de 20 ou 30 km de la structure la plus proche."),
     (r"^lieux_(les_deux|finess|ror)$", "Lieux présents dans les deux bases, dans FINESS seul ou dans le ROR seul."),
     (r"^part_departements$", "Part des départements (Mayotte écartée) où au moins une structure de ce type est recensée."),
@@ -565,9 +565,11 @@ COLONNES = [
     (r"^hexagone$", "Densité pour 10 000 habitants dans l'Hexagone."),
     (r"^(97\d)$", "Densité pour 10 000 habitants dans le département d'outre-mer {0}."),
     (r"^distance_km$", "Distance à vol d'oiseau (km) entre le centre de la commune et celui de la commune la plus "
-                       "proche où exerce au moins un professionnel."),
+                       "proche où exerce au moins un professionnel, sur le même territoire (Hexagone, Corse ou département d'outre-mer), "
+                       "vide quand ce territoire n'en compte aucun."),
     (r"^part_population_dans_la_commune$", "Part des habitants qui ont au moins un professionnel dans leur commune."),
-    (r"^distance_(mediane|moyenne)_km$", "Distance médiane ou moyenne des habitants au professionnel le plus proche (km)."),
+    (r"^distance_(mediane|moyenne)_km$", "Distance médiane ou moyenne des habitants au professionnel le plus proche (km), sans "
+     "traverser la mer, la moyenne sur les seuls habitants dont le territoire compte au moins un de ces professionnels."),
     (r"^part_population_a_plus_de_(\d+)_km$", "Part des habitants à plus de {0} km du professionnel le plus proche."),
     (r"^accessibilite$", "Accessibilité potentielle à deux étapes, en professionnels pour 10 000 habitants."),
     (r"^accessibilite_liberale$", "Même calcul limité aux professionnels libéraux, pour comparer avec l'APL de la DREES (cinq professions seulement)."),

@@ -111,6 +111,7 @@ def main(argv=None):
         lieux_res["lieux"] = confirmation.confirmer_par_sae(lieux_res["lieux"], lieux_res["concordance_etablissements"],
                                                             hop)
         lieux_res["concordance_cattp"] = lieux.concordance_cattp(lieux_res, hop, ref)
+        lieux.controle_route_cmp(externes.get("acces_route"), lieux_res, ref)
 
     act, professions = build.perimetre_elargi(act, fin, professions)
     agg = build.agreger(act, ref, fin, lieux_res)

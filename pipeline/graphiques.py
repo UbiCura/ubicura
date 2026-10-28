@@ -511,8 +511,10 @@ def distances(R, lab, cle):
     xs = np.linspace(0, xmax, 161)
     for k, p in enumerate(profs):
         t = tc[tc["prof"] == p]
-        o = np.argsort(t["distance_km"].to_numpy())
-        d, w = t["distance_km"].to_numpy()[o], t["population"].to_numpy()[o]
+        # vide quand le territoire n'a aucun de ces professionnels, compté au-delà de l'axe
+        dk = np.nan_to_num(t["distance_km"].to_numpy(float), nan=1e9)
+        o = np.argsort(dk)
+        d, w = dk[o], t["population"].to_numpy()[o]
         cum = np.cumsum(w) / w.sum()
         ys = np.interp(xs, d, cum, left=cum[0] if len(cum) else 0)
         f.chemin(list(zip(xs, ys)), VIOLET[k], 2.8 if k == 0 else 1.8, tirets=TRAITS[k])

@@ -726,6 +726,8 @@ def _route(B, T, famille):
         L += graphique(cle_u)
     L += [_tableau(t, cols, ents, {"temps_median_min": m, "fr_med": m, "part_population_a_plus_de_20_min": pct,
                                    "reg20": pct, "fr20": pct}), ""]
+    if "psychiatrie_ambulatoire" in ordre:
+        L += [limites.phrase_md(["route:psychiatrie_ambulatoire"]), ""]
     L += _comment_lire(
         "Durée d'un trajet en voiture, aux heures creuses, du domicile à l'équipement le plus proche, même s'il se "
         "trouve dans un autre département. Le temps médian partage les habitants en deux moitiés. Les "
@@ -900,12 +902,14 @@ def _sae(B, T):
     return L
 
 
-CARTE_TRAJET = {SM: "psychiatrie_ambulatoire", SANTE: "urgences"}
+# santé mentale, psychiatre libéral depuis le 28 octobre 2026, la psychiatrie ambulatoire de l'INSEE ignorant un CMP sur
+# trois (config.LIMITES["route_psychiatrie_ambulatoire"]), la distance au CMP a sa propre carte (_carte_distance_lieux)
+CARTE_TRAJET = {SM: "psychiatre_liberal", SANTE: "urgences"}
 
 
 def _carte_trajet(B, T, famille):
-    """Carte des communes du département selon le temps de trajet médian vers un CMP (santé mentale) ou un service
-    d'urgences (santé), audit du 4 octobre 2026, 4.6."""
+    """Carte des communes du département selon le temps de trajet médian vers un psychiatre libéral (santé mentale) ou
+    un service d'urgences (santé), audit du 4 octobre 2026, 4.6."""
     if T["niveau"] != "dep":
         return []
     eq = CARTE_TRAJET[famille]
@@ -913,7 +917,7 @@ def _carte_trajet(B, T, famille):
     geoms = B.communes_dep(T["code"])
     if not m or len(geoms) < 5:   # une carte par commune n'a pas de sens à Paris (une seule commune)
         return []
-    quoi = ("jusqu'à la structure de psychiatrie ambulatoire la plus proche, comme un CMP" if famille == SM else
+    quoi = ("jusqu'au psychiatre libéral le plus proche" if famille == SM else
             "jusqu'au service d'urgences le plus proche")
     svg = cartes.carte_temps(geoms, m, f"Temps de trajet médian des habitants de chaque commune {quoi}")
     if not svg:
@@ -1184,7 +1188,7 @@ def _carte_distance_lieux(B, T, famille, L):
     geoms = B.communes_dep(T["code"])
     if len(geoms) < 5:   # une carte par commune n'a pas de sens à Paris (une seule commune)
         return []
-    m = {c: float(dist.at[c, tid]) for c in geoms if c in dist.index}
+    m = {c: float(dist.at[c, tid]) for c in geoms if c in dist.index and np.isfinite(dist.at[c, tid])}
     svg = cartes.carte_temps(geoms, m, f"Distance à vol d'oiseau du centre de chaque commune jusqu'{jusqu}",
                              classes=cartes.CLASSES_DISTANCE, unite="km")
     if not svg:
@@ -1194,7 +1198,7 @@ def _carte_distance_lieux(B, T, famille, L):
     vals = list(m.values())
     loin = sum(1 for v in vals if v >= 20)
     return ([f"Commune par commune, la carte donne la distance à vol d'oiseau entre le centre de la commune et {quoi}, "
-             f"y compris hors du département. "
+             f"y compris hors du département mais jamais par-dessus la mer. "
              + (f"{loin} commune{'s' if loin > 1 else ''} sur {len(vals)} {'sont' if loin > 1 else 'est'} à 20 km ou "
                 f"plus." if loin else f"Aucune des {len(vals)} communes n'est à 20 km ou plus."), ""]
             + graphique(cle))
@@ -1290,7 +1294,10 @@ def _lieux(B, T, famille):
     out = ["## Structures de soins, FINESS et ROR réunis", "",
            f"FINESS et le Répertoire opérationnel des ressources (ROR), réunis sans double compte, recensent dans {lieu} "
            f"les structures suivantes. La distance est celle qui sépare la moitié des habitants de la structure la plus proche, à vol "
-           f"d'oiseau depuis le centre de leur commune, y compris quand cette structure se trouve hors du territoire.", "",
+           f"d'oiseau depuis le centre de leur commune, y compris quand cette structure se trouve hors du territoire, mais "
+           f"jamais par-dessus la mer (la Corse et chaque département d'outre-mer sont comptés à part)."
+           + (" Une distance laissée vide signale qu'aucune structure de ce type n'existe sur ce territoire."
+              if t["dist"].isna().any() else ""), "",
            _tableau(t, ["libelle", "n", "conf", "rec", "abv", "p100k", "dist", "dist_fr", "p30"],
                     ["Type de structure", "Structures", "Confirmées", "Recoupées par la statistique des hôpitaux", "À vérifier",
                      "Pour 100 000 hab.", "Distance médiane (km)", "France, distance médiane", "Habitants à plus de 30 km"],

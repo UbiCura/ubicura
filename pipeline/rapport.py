@@ -285,6 +285,7 @@ def _panorama(C: Contexte, famille):
     cle = "sm" if famille == SM else "sante"
     L += graphique(f"carte_dep_{cle}") + graphique(f"tuiles_dep_{cle}") + graphique(f"multiples_{cle}")
     L += graphique("lorenz_" + cle)
+    L += faire_varier("iFenConcentration", famille, "pour une autre profession, par département ou par mode d'exercice")
     if len(t):
         r = t.iloc[0]
         L += _comment_lire(
@@ -1006,7 +1007,8 @@ EQ_PHRASE = {"psychologue_liberal": "d'un psychologue libéral", "psychiatre_lib
              "psychiatrie_ambulatoire": "d'une structure de psychiatrie ambulatoire comme un CMP",
              "generaliste_liberal": "d'un médecin généraliste libéral", "urgences": "d'un service d'urgences",
              "orthophoniste_liberal": "d'un orthophoniste libéral", "pediatre_liberal": "d'un pédiatre libéral"}
-EQ_TETE = {SM: ["psychologue_liberal", "psychiatre_liberal", "psychiatrie_ambulatoire"],
+# la psychiatrie ambulatoire de l'INSEE reste dans le tableau avec sa limite, pas en tête (note du 28 octobre 2026)
+EQ_TETE = {SM: ["psychologue_liberal", "psychiatre_liberal"],
            SANTE: ["generaliste_liberal", "pediatre_liberal", "urgences"]}
 
 
@@ -1041,6 +1043,13 @@ def _route(C: Contexte, famille):
                   {"temps_median_min": lambda x: nombre(x, 0), "temps_moyen_min": lambda x: nombre(x, 0),
                    "part_population_a_plus_de_15_min": pct, "part_population_a_plus_de_20_min": pct,
                    "part_population_a_plus_de_30_min": pct}), ""]
+    inc = (getattr(C.agg, "lieux", None) or {}).get("incoherence_route_cmp")
+    if "psychiatrie_ambulatoire" in v.index:
+        L += [(f"{nombre(inc['communes'])} communes, où vivent {nombre(inc['habitants'])} habitants dans "
+               f"{nombre(inc['departements'])} départements, sont à plus de {config.ROUTE_CMP_MINUTES} minutes d'une "
+               f"structure de psychiatrie ambulatoire d'après l'INSEE alors qu'un CMP est à moins de "
+               f"{config.ROUTE_CMP_KM} km. " if inc and inc["communes"] else "")
+              + limites.phrase_md(["route:psychiatrie_ambulatoire"]), ""]
     L += _comment_lire(
         "Ces durées sont celles d'un trajet en voiture, aux heures creuses, depuis le lieu de résidence vers "
         "l'équipement le plus proche, même s'il se trouve dans un autre département. Pour les personnes sans "
@@ -2331,6 +2340,7 @@ def _revenu(C: Contexte, famille):
     L.append("")
     cp = c.loc[p0]
     L += graphique("escalier_" + ("sm" if famille == SM else "sante"))
+    L += faire_varier("iFenEscalier", famille, "pour une autre profession ou par département")
     L += _comment_lire(
         "Les intercommunalités sont classées de la plus modeste à la plus aisée selon le niveau de vie médian de "
         "leurs habitants, puis regroupées en dix tranches qui réunissent chacune un dixième de la population. "
@@ -2369,6 +2379,7 @@ def _entonnoir(C: Contexte, famille):
                   {"part_nettement_en_dessous": pct, "part_population_nettement_en_dessous": pct,
                    "part_hors_95": pct}), ""]
     L += graphique("entonnoir_" + ("sm" if famille == SM else "sante"))
+    L += faire_varier("iFenEntonnoir", famille, "pour une autre profession ou par département")
     L += _comment_lire(
         "Dans un petit territoire, quelques arrivées ou départs suffisent à faire varier fortement la densité. Le "
         "diagramme en entonnoir de l'atlas tient compte de la taille de chaque territoire. Il trace autour de la "
@@ -2758,6 +2769,14 @@ LECTURE = ("Chaque partie commence par un résumé « En bref ». Chaque tableau
 def graphique(nom):
     """Emplacement d'un graphique, invisible dans le Markdown, remplacé par la figure dans le site."""
     return [f"<!--GRAPHIQUE {nom}-->", ""]
+
+
+def faire_varier(fenetre: str, famille: str, texte: str) -> list[str]:
+    """Lien « Faire varier cette figure » vers la fenêtre d'Explorer qui refait la figure avec d'autres réglages
+    (décision de Lucas du 26 octobre 2026), réglé sur la famille du rapport, absent des PDF."""
+    fam = "sm" if famille == SM else "sante"
+    return [f'<p class="pas-imprime faire-varier"><a href="../../explorer.html#{fenetre}?fam={fam}">Faire varier cette '
+            f"figure</a>, {texte}, dans Explorer.</p>", ""]
 
 
 def ecrire(out, agg, ref, professions, insee, R, jour):

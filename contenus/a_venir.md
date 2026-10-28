@@ -16,7 +16,7 @@ Les principaux ajouts prévus, sans date ferme. Chacun ne sera intégré que si 
 
 ## Analyses et site
 
-**D'autres analyses à régler soi-même.** Les croisements de l'atlas, les inégalités et la typologie rejoindront la page Explorer, rangés par question.
+**D'autres analyses à régler soi-même.** Après les inégalités et les distances aux structures, les croisements de l'atlas et la typologie rejoindront la page Explorer, rangés par question.
 
 **Pages par intercommunalité.** Une page complète pour chaque intercommunalité, sur le modèle des départements.
 

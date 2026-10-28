@@ -37,8 +37,8 @@ def _confirmees(lieux: pd.DataFrame) -> pd.DataFrame:
 def _mediane(x, w):
     if w.sum() <= 0:
         return np.nan
-    o = np.argsort(x)
-    return float(x[o][np.searchsorted(np.cumsum(w[o]) / w.sum(), .5)])
+    from .analyses import mediane_ponderee
+    return mediane_ponderee(x, w)
 
 
 def sensibilite(L: dict, ref, centres: dict | None, ctx_epci: pd.DataFrame | None, rng) -> pd.DataFrame | None:

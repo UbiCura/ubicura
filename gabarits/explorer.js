@@ -1,9 +1,9 @@
 // Page « Explorer les données » (décision de Lucas du 26 octobre 2026), outils réglés par le lecteur. Données préparées
 // par pipeline/explorer.py (mêmes comptes que les rapports), réglages gardés dans l'adresse de la page.
 const fr = d3.formatLocale({decimal: ",", thousands: " ", grouping: [3], currency: ["", " €"]});
-const f1 = fr.format(",.1f"), f0 = fr.format(",.0f"), fp = v => (v >= 0 ? "+" : "−") + fr.format(",.1f")(Math.abs(v)) + " %";
+const f1 = fr.format(",.1f"), f0 = fr.format(",.0f"), fp = v => (v >= 0 ? "+" : "−") + fr.format(",.1f")(Math.abs(v)) + " %";
 const fd = v => v == null ? "" : (Math.abs(v) < 10 ? fr.format(",.2f")(v) : f1(v));
-const pc = v => v < .001 && v > 0 ? "moins de 0,1 %" : fr.format(",.1f")(v * 100) + " %";
+const pc = v => v < .001 && v > 0 ? "moins de 0,1 %" : fr.format(",.1f")(v * 100) + " %";
 const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
 const court = s => s.replace(/ \(.*\)/, "").replace(/,.*/, "");
 const bulle = document.getElementById("bulle");
@@ -39,17 +39,22 @@ function figer(svg) {
 }
 
 // ---------------------------------------------------------------- famille et état dans l'adresse de la page
-const FAMILLES = [["sm", "Santé mentale", "Santé mentale"], ["sante", "Santé", "Santé"], ["tout", "Toute l'offre de soins", null]];
+// familles tirées des professions du catalogue (santé mentale, santé), plus toute l'offre ; la clé courte sert à l'adresse
+const CLES_FAMILLE = {"Santé mentale": "sm", "Santé": "sante"};
+const FAMILLES = [...new Set(Object.values(DC.profs).map(p => p.famille))].filter(f => CLES_FAMILLE[f])
+  .sort((a, b) => (a === "Santé mentale" ? -1 : 1) - (b === "Santé mentale" ? -1 : 1)).map(f => [CLES_FAMILLE[f], f, f])
+  .concat([["tout", "Toute l'offre de soins", null]]);
 const DEFAUTS = {sm: {pA: "psychologue", pB: "psychiatre", tProfs: ["psychiatre", "psychologue"]},
                  sante: {pA: "medecin_generaliste", pB: "pediatre", tProfs: ["medecin_generaliste", "pediatre"]},
                  tout: {pA: "psychologue", pB: "psychiatre", tProfs: ["psychiatre", "medecin_generaliste"]}};
-const ETAT = {fam: "sm", ...DEFAUTS.sm, pV: "revenu", tV: "revenu_median", tK: 5, tM: "base", tPar: "groupes", tG: "tous", tDep: null};
+const ETAT = {fam: "sm", ...DEFAUTS.sm, pV: "revenu_median", tV: "revenu_median", tK: 5, tM: "base", tPar: "groupes", tG: "tous", tDep: null};
 const nomFamille = () => FAMILLES.find(f => f[0] === ETAT.fam)[2];
-const dansFamille = info => !nomFamille() || info.famille === nomFamille();
+const dansFamille = info => !nomFamille() || !info.famille || info.famille === nomFamille();
 function lireAdresse() {
   const q = new URLSearchParams(location.hash.split("?")[1] || "");
   if (q.has("fam") && DEFAUTS[q.get("fam")]) Object.assign(ETAT, {fam: q.get("fam")}, DEFAUTS[q.get("fam")]);
   for (const [k, v] of q) { if (!(k in ETAT) || k === "fam") continue; ETAT[k] = k === "tProfs" ? v.split(",").filter(p => DT.profs[p]) : k === "tK" ? +v : v; }
+  ETAT.pV = {revenu: "revenu_median", densite: "densite_pop"}[ETAT.pV] || ETAT.pV;
 }
 function ecrireAdresse(ancre) {
   const q = new URLSearchParams();
@@ -60,11 +65,12 @@ function famille() {
   choix("fam", FAMILLES.map(f => [f[0], f[1]]), f => f === ETAT.fam, f => { Object.assign(ETAT, {fam: f}, DEFAUTS[f]); Object.keys(OUVERTS).forEach(k => OUVERTS[k] = false); }, () => { tout(); ecrireAdresse(""); });
 }
 
-// ordre des groupes, santé mentale puis premier recours, comme dans l'atlas
+// ordre des groupes, santé mentale puis premier recours, comme dans l'atlas (réglage de présentation) ; un groupe nouveau
+// du catalogue suit, dans l'ordre de la table des professions, et un thème d'indicateurs dans l'ordre du catalogue
 const ORDRE_GROUPES = ["Psychiatrie", "Psychologie et psychothérapie", "Qualifications complémentaires", "Premier recours",
   "Médecins spécialistes, ensemble", "Spécialités médicales", "Spécialités chirurgicales", "Spécialités médico-techniques",
   "Rééducation", "Médico-technique", "Appareillage", "Prévention et santé publique", "Autres médecins", "Autres"];
-const rangGroupe = g => { const i = ORDRE_GROUPES.indexOf(g); return i < 0 ? 99 : i; };
+const rangGroupe = g => { const i = ORDRE_GROUPES.indexOf(g); if (i >= 0) return i; const j = (DC.groupes || []).indexOf(g); return j < 0 ? 999 : 100 + j; };
 // liste de professions, même composant que le choix de la profession dans l'atlas (nom souligné et flèche, professions
 // rangées par groupe, recherche au-delà de quinze noms), plusieurs choix possibles pour les trajectoires
 const OUVERTS = {};
@@ -72,7 +78,8 @@ function liste(id, infos, choisies, clic, interdites, apres, multi = false, max 
   const el = document.getElementById(id);
   const ids = Object.keys(infos).filter(p => dansFamille(infos[p]));
   const groupes = [...new Set(ids.map(p => infos[p].groupe))].sort((a, b) => rangGroupe(a) - rangGroupe(b));
-  const nom = p => court(infos[p].lib || infos[p].libelle);
+  // libellé entier quand la forme courte confondrait deux choix (structures pour adultes et pour enfants)
+  const nom = p => infos[p].entier ? infos[p].lib : court(infos[p].lib || infos[p].libelle);
   const filtre = el.querySelector(".filtre-liste")?.value || "";
   el.className = "prof-choix"; el.innerHTML = "";
   const b = document.createElement("button"); b.type = "button"; b.setAttribute("aria-haspopup", "true");
@@ -106,15 +113,18 @@ const GEO = topojson.feature(TOPO, TOPO.objects.epci).features.filter(f => {
   const [x, y] = d3.geoCentroid(f); return x > -6 && x < 10 && y > 41 && y < 52; });
 const classeP = (c, a, b) => { const r = DC.epci[c]; if (!r) return null; const ha = r[IDX[a]] > 0, hb = r[IDX[b]] > 0;
   return ha && hb ? "deux" : ha ? "a" : hb ? "b" : "aucun"; };
-const VARS_P = {revenu: ["niveau de vie médian", "du plus modeste au plus aisé", DC.revenu], densite: ["densité de population", "de la moins dense à la plus dense", DC.densite]};
-const SEUIL_VISIBLE = .01;   // une situation qui réunit moins de 1 % des habitants ne se voit pas sur les barres
+const minusc = s => /^[A-ZÉ]{2}/.test(s) ? s : s.charAt(0).toLowerCase() + s.slice(1);
+const VARS_P = Object.fromEntries(Object.entries(DC.vars).map(([k, v]) => [k, [v.article || minusc(v.lib), v.sens, v.valeurs]]));
+const INFOS_VP = Object.fromEntries(Object.entries(DC.vars).map(([k, v]) => [k, {lib: v.lib, groupe: v.groupe, famille: v.famille, entier: true}]));
+const SEUIL_VISIBLE = .01;   // une situation qui réunit moins de 1 % des habitants ne se voit pas sur les barres
 function paires() {
   const apres = () => { paires(); ecrireAdresse("paires"); };
   if (!DC.profs[ETAT.pA] || !dansFamille(DC.profs[ETAT.pA])) ETAT.pA = DEFAUTS[ETAT.fam].pA;
   if (!DC.profs[ETAT.pB] || !dansFamille(DC.profs[ETAT.pB])) ETAT.pB = DEFAUTS[ETAT.fam].pB;
   liste("pA", DC.profs, [ETAT.pA], p => ETAT.pA = p, [ETAT.pB], apres);
   liste("pB", DC.profs, [ETAT.pB], p => ETAT.pB = p, [ETAT.pA], apres);
-  choix("pV", Object.entries(VARS_P).map(([k, v]) => [k, v[0]]), v => v === ETAT.pV, v => ETAT.pV = v, apres);
+  if (!VARS_P[ETAT.pV]) ETAT.pV = VARS_P.revenu_median ? "revenu_median" : Object.keys(VARS_P)[0];
+  liste("pV", INFOS_VP, [ETAT.pV], v => ETAT.pV = v, [], apres);
   const A = ETAT.pA, B = ETAT.pB;
   const CL = [["a", `${min(A)} mais aucun ${min(B)}`, "var(--d1, #BC6B3B)"],
               ["b", `${min(B)} mais aucun ${min(A)}`, "var(--r3, #3167A9)"],
@@ -146,7 +156,7 @@ function paires() {
       montrer(ev, `<b>${r[0]}</b><div class="l"><span>Habitants</span><span>${f0(r[1])}</span></div><div class="l"><span>${NOMP(A)}, déclarés</span><span>${f0(r[IDX[A]])}</span></div><div class="l"><span>${NOMP(B)}, déclarés</span><span>${f0(r[IDX[B]])}</span></div>`); })
     .on("mouseleave", cacher);
   const [vlib, vsens, vals] = VARS_P[ETAT.pV];
-  document.getElementById("pTitreBarres").textContent = `Part des habitants à qui il manque au moins l'une des deux professions dans leur intercommunalité, par dixième de ${vlib} des intercommunalités`;
+  document.getElementById("pTitreBarres").textContent = `Part des habitants à qui il manque au moins l'une des deux professions dans leur intercommunalité, par dixième des intercommunalités selon ${vlib}`;
   const ordre = ["a", "b", "aucun"].filter(k => tot[k][0] > 0);
   document.getElementById("pLegende2").innerHTML = ordre.map(k => `<span${part(k) < SEUIL_VISIBLE ? ' class="rare"' : ""}><i class="carre" style="background:${coul[k]}"></i>${lib[k]}, ${pc(part(k))} des habitants</span>`).join("");
   const codes = Object.keys(DC.epci).filter(c => vals[c] != null).sort((x, y) => vals[x] - vals[y]);
@@ -158,7 +168,7 @@ function paires() {
   const db = document.getElementById("pBarres"); db.innerHTML = "";
   const sb = d3.select(db).append("svg").attr("xmlns", "http://www.w3.org/2000/svg").attr("viewBox", `0 0 ${bw} ${bh}`).attr("role", "img").attr("aria-label", document.getElementById("pTitreBarres").textContent);
   sb.append("g").attr("class", "grillage").selectAll("line").data(y.ticks(4)).join("line").attr("x1", m.l).attr("x2", bw - m.r).attr("y1", y).attr("y2", y);
-  sb.append("g").attr("class", "axe").attr("transform", `translate(${m.l - 6},0)`).call(d3.axisLeft(y).ticks(4).tickFormat(v => fr.format(",.0f")(v * 100) + " %").tickSize(0).tickPadding(6)).call(s => s.select(".domain").remove());
+  sb.append("g").attr("class", "axe").attr("transform", `translate(${m.l - 6},0)`).call(d3.axisLeft(y).ticks(4).tickFormat(v => fr.format(",.0f")(v * 100) + " %").tickSize(0).tickPadding(6)).call(s => s.select(".domain").remove());
   sb.append("g").attr("class", "axe").attr("transform", `translate(0,${bh - m.b + 4})`).call(d3.axisBottom(x).tickFormat(i => i + 1).tickSize(0).tickPadding(8)).call(s => s.select(".domain").remove());
   sb.append("text").attr("class", "etiq").attr("x", (m.l + bw - m.r) / 2).attr("y", bh - 4).attr("text-anchor", "middle").text(`dixièmes des intercommunalités, ${vsens}`);
   for (const d of dec) { let y0 = 0;
@@ -167,11 +177,11 @@ function paires() {
     for (const k of ordre) { const v = d.parts[k]; if (!v) continue;
       g.append("rect").attr("x", x(d.i)).attr("width", x.bandwidth()).attr("y", y(y0 + v)).attr("height", Math.max(0, y(y0) - y(y0 + v) - (y0 ? 2 : 0))).attr("rx", 2).attr("fill", coul[k]);
       y0 += v; }
-    sb.append("text").attr("class", "etiq").attr("x", x(d.i) + x.bandwidth() / 2).attr("y", y(y0) - 5).attr("text-anchor", "middle").text(fr.format(",.0f")(y0 * 100) + " %"); }
+    sb.append("text").attr("class", "etiq").attr("x", x(d.i) + x.bandwidth() / 2).attr("y", y(y0) - 5).attr("text-anchor", "middle").text(fr.format(",.0f")(y0 * 100) + " %"); }
   figer(svg.node()); figer(sb.node());
   const rares = ordre.filter(k => part(k) < SEUIL_VISIBLE);
-  document.getElementById("pLire").innerHTML = `<strong>Comment lire.</strong> Sur la carte, chaque intercommunalité reçoit une couleur selon que les deux professions y comptent au moins un professionnel déclaré dans le répertoire RPPS, ou non. Elle montre l'Hexagone et la Corse, l'outre-mer est compté dans les barres et le tableau. Une profession absente ne veut pas dire que les habitants n'y ont pas accès, le professionnel le plus proche peut exercer dans l'intercommunalité voisine. Les barres réunissent les intercommunalités par dixième de ${vlib}, 10 % des intercommunalités chacune, et donnent la part de leurs habitants à qui il manque au moins l'une des deux professions. Le reste de chaque barre, jusqu'à 100 %, correspond aux habitants qui ont les deux.`
-    + (rares.length ? ` ${rares.length > 1 ? "Les situations" : "La situation"} ${rares.map(k => `« ${lib[k]} »`).join(" et ")} ${rares.length > 1 ? "concernent" : "concerne"} moins de 1 % des habitants, trop peu pour se voir sur les barres, ${rares.length > 1 ? "ces situations restent" : "cette situation reste"} dans la légende et le tableau.` : "")
+  document.getElementById("pLire").innerHTML = `<strong>Comment lire.</strong> Sur la carte, chaque intercommunalité reçoit une couleur selon que les deux professions y comptent au moins un professionnel déclaré dans le répertoire RPPS, ou non. Elle montre l'Hexagone et la Corse, l'outre-mer est compté dans les barres et le tableau. Une profession absente ne veut pas dire que les habitants n'y ont pas accès, le professionnel le plus proche peut exercer dans l'intercommunalité voisine. Les barres réunissent les intercommunalités par dixième, rangées selon ${vlib}, 10 % des intercommunalités chacune, et donnent la part de leurs habitants à qui il manque au moins l'une des deux professions. Le reste de chaque barre, jusqu'à 100 %, correspond aux habitants qui ont les deux.`
+    + (rares.length ? ` ${rares.length > 1 ? "Les situations" : "La situation"} ${rares.map(k => `« ${lib[k]} »`).join(" et ")} ${rares.length > 1 ? "concernent" : "concerne"} moins de 1 % des habitants, trop peu pour se voir sur les barres, ${rares.length > 1 ? "ces situations restent" : "cette situation reste"} dans la légende et le tableau.` : "")
     + ` Les deux professions ne sont jamais additionnées.`;
   const lignes = CL.map(c => [c[0], c[1], tot[c[0]][0], tot[c[0]][1], part(c[0])]);
   document.getElementById("pTable").innerHTML = `<table><caption>Intercommunalités et habitants dans chaque situation, France entière</caption><thead><tr><th>Dans l'intercommunalité</th><th>Intercommunalités</th><th>Habitants</th><th>Part des habitants</th></tr></thead><tbody>`
@@ -183,7 +193,7 @@ function paires() {
 }
 
 // ---------------------------------------------------------------- trajectoires
-const ARTICLE = {revenu_median: "le niveau de vie médian", taux_pauvrete: "le taux de pauvreté", densite_pop: "la densité de population", part_80p: "la part des 80 ans et plus", part_0_14: "la part des moins de 15 ans", part_monoparentales: "la part des familles monoparentales", taux_chomage: "le taux de chômage", part_cadres: "la part des cadres"};
+const ARTICLE = new Proxy({}, {get: (o, k) => (DT.vars[k] || {}).article || "la variable choisie"});   // forme du nom dans une phrase, d'après le catalogue
 const nomT = p => court(DT.profs[p].libelle);
 const K_REPLI = {1: "#83451E", 2: "#C0703F", 3: "#A7ACB5", 4: "#3F74C0", 5: "#163F75"};
 const couleurT = i => { const n = ETAT.tK === 3 ? [1, 3, 5][i] : i + 1; return `var(--k${n}, ${K_REPLI[n]})`; };
@@ -235,7 +245,8 @@ function trajectoires() {
   if (!ETAT.tProfs.length) ETAT.tProfs = DEFAUTS[ETAT.fam].tProfs.filter(p => DT.profs[p]);
   liste("tProfs", DT.profs, ETAT.tProfs, p => { if (ETAT.tProfs.includes(p)) { if (ETAT.tProfs.length > 1) ETAT.tProfs = ETAT.tProfs.filter(x => x !== p); } else ETAT.tProfs = [...ETAT.tProfs, p].slice(-max); }, [], apres, true, max);
   choix("tPar", [["groupes", "groupe de départements"], ["professions", "profession"]], v => v === ETAT.tPar, v => ETAT.tPar = v, apres);
-  choix("tVar", Object.entries(DT.vars).map(([k, v]) => [k, v.libelle]), v => v === ETAT.tV, v => ETAT.tV = v, apres);
+  if (!DT.vars[ETAT.tV]) ETAT.tV = DT.vars.revenu_median ? "revenu_median" : Object.keys(DT.vars)[0];
+  liste("tVar", Object.fromEntries(Object.entries(DT.vars).map(([k, v]) => [k, {lib: v.libelle, groupe: v.groupe, famille: v.famille, entier: true}])), [ETAT.tV], v => ETAT.tV = v, [], apres);
   choix("tK", [[3, "trois"], [5, "cinq"]], k => k === ETAT.tK, k => { ETAT.tK = k; if (ETAT.tG !== "tous" && +ETAT.tG >= k) ETAT.tG = "tous"; }, apres);
   const parProf = ETAT.tPar === "professions";
   document.getElementById("tLigneG").hidden = !parProf; document.getElementById("tLibG").hidden = !parProf;
@@ -295,9 +306,12 @@ document.querySelectorAll(".outil .onglets").forEach(barre => {
   const bs = [...barre.querySelectorAll("button")];
   const choisir = b0 => bs.forEach(b => { const on = b === b0; b.setAttribute("aria-selected", String(on)); b.tabIndex = on ? 0 : -1;
     document.getElementById(b.dataset.vue).hidden = !on; });
-  bs.forEach((b, i) => { b.onclick = () => choisir(b);
+  // une vue qui reparaît se redessine à sa largeur (figures d'explorer_inegalites.js)
+  bs.forEach((b, i) => { b.onclick = () => { choisir(b); dispatchEvent(new CustomEvent("fenetre", {detail: barre.closest(".fenetre")})); };
     b.onkeydown = e => { if (e.key === "ArrowRight" || e.key === "ArrowLeft") { const n = bs[(i + (e.key === "ArrowRight" ? 1 : bs.length - 1)) % bs.length]; choisir(n); n.focus(); } }; });
   choisir(bs[0]);
 });
-function tout() { famille(); paires(); trajectoires(); if (window.cesure) window.cesure(document.querySelector(".explorer")); }
-lireAdresse(); tout();
+// outils des autres fichiers (explorer_inegalites.js, explorer_typologie.js, lots 2 et 3), appelés s'ils sont chargés ; le premier dessin attend que
+// tous les fichiers de la page soient lus
+function tout() { famille(); if (typeof inegalites === "function") inegalites(); if (typeof typologieE === "function") typologieE(); paires(); trajectoires(); if (window.cesure) window.cesure(document.querySelector(".explorer")); }
+document.addEventListener("DOMContentLoaded", () => { lireAdresse(); tout(); });
