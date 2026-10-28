@@ -38,6 +38,18 @@ button,select,input{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 .wrap{max-width:1260px;margin:0 auto;padding:24px 20px 64px}
 header.top{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+/* en-tête d'accueil, quand l'atlas sert de première page du site (28 octobre 2026), purement typographique, sans
+   cadre ni dégradé (direction du 23 octobre, couleur sur les données seulement) : la carte est la seule image */
+.bandeau-accueil{margin:10px 0 14px;padding:0 0 14px;border-bottom:1px solid var(--line)}
+.bandeau-accueil .surtitre{display:none}
+.bandeau-accueil h1{font-family:"Newsreader",Georgia,serif;font-weight:400;font-size:clamp(1.9rem,3.2vw,2.6rem);line-height:1.1;letter-spacing:-.01em;margin:0 0 8px}
+.bandeau-accueil .lede{font-size:1.0625rem;max-width:none;margin:0 0 12px;color:var(--ink)}
+.bandeau-accueil~#maj{display:none}
+.bandeau-accueil .portes{display:flex;flex-wrap:wrap;gap:8px 22px;align-items:baseline;font-size:.9375rem}
+.bandeau-accueil .portes a{color:var(--ink);text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--ink) 35%,transparent);text-underline-offset:4px}
+.bandeau-accueil .portes a:hover{text-decoration-color:currentColor}
+.bandeau-accueil .portes .version{color:var(--muted);font-size:.8125rem;margin-left:auto}
+@media (max-width:600px){.bandeau-accueil .portes .version{margin-left:0}}
 h1{font-family:var(--serif);font-weight:500;font-size:clamp(1.625rem,2.4vw,2rem);line-height:1.1;margin:0;letter-spacing:-.01em}
 .lede{color:var(--ink);max-width:none;margin:6px 0 0;font-size:.9375rem}
 header.top>div{flex:1 1 100%}
@@ -130,6 +142,7 @@ svg text{fill:var(--muted);font-family:var(--sans);font-size:11px}
 #cbTable td:first-child{min-width:280px}
 #cbTable .cb-titre th{text-align:left;font-weight:600;padding-top:14px;border-bottom:1px solid var(--line);white-space:normal}
 #cbTable .num{text-align:right}
+.vers-explorer{font-size:.9375rem;color:var(--muted);margin:0 0 14px}
 /* questions préparées, sous le nuage de « Croiser deux indicateurs » : une ligne par croisement, un clic le charge */
 .suggestions{margin-top:22px}
 /* rangées de réglages d'une marge à l'autre (remarque de Lucas du 23 octobre 2026, « que ça termine bien à la marge
@@ -364,6 +377,12 @@ button.lien.lx-ouvrir{font-size:.875rem;margin-top:2px;display:inline-block;whit
 .acpbar .h{color:var(--muted);font-size:.75rem}
 .acpbar svg{height:12px;width:100%}
 .tylegende{list-style:none;padding:0;margin:12px 0 0;display:grid;gap:8px}
+.typo-fenetre .typo-corps{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:28px;align-items:start;margin-top:12px}
+.typo-fenetre .typo-corps>.mapbox{padding:0}
+.typo-fenetre .tylegende{gap:12px}
+.typo-fenetre .tylegende li{grid-template-columns:14px minmax(0,1fr)}
+.typo-fenetre .tylegende li span.n{grid-column:2;white-space:normal;margin-top:-6px}
+@media (max-width:900px){.typo-fenetre .typo-corps{grid-template-columns:1fr}}
 .tylegende li{display:grid;grid-template-columns:14px 1fr auto;gap:10px;align-items:baseline;font-size:.875rem}
 .tylegende i{width:12px;height:12px;border-radius:2px;display:inline-block}
 .tylegende span.n{color:var(--muted);font-size:.875rem;white-space:nowrap}
@@ -678,6 +697,7 @@ html.revele .panel svg[role="img"]:not(.vu){opacity:0}
 
 <!-- CROISEMENTS -->
 <section data-p="croisements" class="hidden">
+  <p class="vers-explorer">D'autres analyses se règlent dans <a href="explorer.html">Explorer</a>, les territoires qui ont une profession sans l'autre et l'évolution de l'offre depuis 2016 selon le profil des départements.</p>
   <div class="two">
     <div class="panel pad">
       <h2>Croiser deux indicateurs <button class="how" data-how="correlation,force,effet_ville,ecologique">Comment lire</button></h2><div class="howtxt hidden"></div>
@@ -791,11 +811,15 @@ html.revele .panel svg[role="img"]:not(.vu){opacity:0}
 
 <!-- TYPOLOGIE -->
 <section data-p="typologie" class="hidden">
-  <div class="two typo">
-    <div class="panel mapbox" id="tmapbox"><div class="zoombar" role="group" aria-label="Zoom de la carte" data-carte="tmap"><button type="button" data-z="in" title="Zoomer" aria-label="Zoomer">+</button><button type="button" data-z="out" title="Dézoomer" aria-label="Dézoomer">−</button><button type="button" data-z="reset" title="Revenir à la vue d’ensemble">Recentrer</button></div><svg class="map" id="tmap" viewBox="0 0 960 800" role="img" aria-label="Carte des groupes de territoires"></svg></div>
-    <div class="panel droite" data-avec="tmap"><div class="dedans pad defile" tabindex="0" aria-label="Groupes de la typologie"><h2>Profils d’offre des intercommunalités <button class="how" data-how="typologie,indice100">Comment lire</button></h2><div class="howtxt hidden"></div><p class="note" id="tyNote"></p><p class="phrase" id="tyPhrase"></p>
-      <ul class="tylegende" id="tyLegende"></ul>
-      <details class="plus"><summary>Pour aller plus loin</summary><p id="tyMethode"></p></details></div></div>
+  <!-- carte et groupes dans une seule fenêtre sur toute la largeur (remarque de Lucas du 28 octobre 2026, les noms des
+       groupes se cassaient mot par mot dans la colonne étroite) -->
+  <div class="panel pad typo-fenetre" data-avec="tmap"><h2>Profils d’offre des intercommunalités <button class="how" data-how="typologie,indice100">Comment lire</button></h2><div class="howtxt hidden"></div>
+    <div class="typo-corps">
+      <div class="mapbox" id="tmapbox"><div class="zoombar" role="group" aria-label="Zoom de la carte" data-carte="tmap"><button type="button" data-z="in" title="Zoomer" aria-label="Zoomer">+</button><button type="button" data-z="out" title="Dézoomer" aria-label="Dézoomer">−</button><button type="button" data-z="reset" title="Revenir à la vue d’ensemble">Recentrer</button></div><svg class="map" id="tmap" viewBox="0 0 960 800" role="img" aria-label="Carte des groupes de territoires"></svg></div>
+      <div class="typo-texte"><p class="note" id="tyNote"></p><p class="phrase" id="tyPhrase"></p>
+        <ul class="tylegende" id="tyLegende"></ul>
+        <details class="plus"><summary>Pour aller plus loin</summary><p id="tyMethode"></p></details></div>
+    </div>
   </div>
   <div class="panel pad" style="margin-top:24px"><h2>Profil de chaque groupe</h2><p class="note">Densité de chaque profession dans le groupe, indice 100 pour la moyenne des intercommunalités.</p><div class="scroll"><table id="ttab"></table></div></div>
   <div class="two" style="margin-top:24px">

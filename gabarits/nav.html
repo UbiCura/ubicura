@@ -3,7 +3,8 @@
     <a class="marque" href="{{ racine }}index.html" title="{{ sous_titre }}">{{ nom_projet }}</a>
     <button class="menu" id="bouton-menu" type="button" aria-expanded="false" aria-controls="liens-site">Menu</button>
     <div class="liens" id="liens-site">
-    <a class="l{% if page == 'atlas' %} on{% endif %}" href="{{ racine }}atlas.html">Atlas</a>
+    <a class="l{% if page == 'atlas' %} on{% endif %}" href="{{ racine }}index.html">Atlas</a>
+    <a class="l{% if page == 'explorer' %} on{% endif %}" href="{{ racine }}explorer.html">Explorer</a>
     <a class="l{% if page == 'rapports' %} on{% endif %}" href="{{ racine }}rapports.html">Rapports nationaux</a>
     <a class="l{% if page == 'territoires' %} on{% endif %}" href="{{ racine }}territoires/index.html">Rapports par territoire</a>
     <a class="l{% if page == 'methode' %} on{% endif %}" href="{{ racine }}methode.html">Méthode, données et limites</a>

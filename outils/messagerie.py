@@ -118,7 +118,7 @@ def dossier_envoyes(m: imaplib.IMAP4_SSL) -> str | None:
 
 # ---------------------------------------------------------------- fichiers
 def lire_json(f: Path, defaut=None):
-    return json.loads(f.read_text(encoding="utf-8")) if f.exists() else defaut
+    return json.loads(f.read_text(encoding="utf-8-sig")) if f.exists() else defaut   # PowerShell écrit avec un BOM
 
 
 def ecrire_json(f: Path, contenu) -> None:
@@ -379,6 +379,21 @@ def envoyer(b: dict) -> str:
     return f"Message envoyé à {', '.join(b['a'])}{remarque}."
 
 
+def version_prete() -> str | None:
+    """Phrase pour la fenêtre quand la mise à jour hebdomadaire a préparé une version plus récente que celle en ligne."""
+    v = lire_json(config.DONNEES / "version_prete.json")
+    try:
+        pub = json.loads((config.DONNEES / "publication.json").read_text(encoding="utf-8-sig")).get("version") or ""
+    except (OSError, ValueError):
+        pub = ""
+    if not v or not v.get("resultats") or v["resultats"] <= pub:
+        return None
+    from pipeline.lecture import date_longue
+    return (f"Nouvelle version des données prête, résultats du {date_longue(v['resultats'])} ({v.get('motif', '')}). "
+            f"Comparaison avec la version en ligne, {v.get('comparaison', 'inconnue')}. Rien n'est publié sans toi, "
+            f"lance la mise en ligne (outils\\publier.ps1) après avoir lu le compte rendu.")
+
+
 # ---------------------------------------------------------------- fenêtre
 COULEURS = {"fond": "#F4F4F1", "panneau": "#FFFFFF", "encre": "#1C2028", "discret": "#5D6371", "ligne": "#E2E3E6",
             "bleu": "#1D4D87", "cuivre": "#83451E", "ocre": "#8A5A0E"}
@@ -421,6 +436,11 @@ def cmd_boite(args) -> int:
     resume = tk.Label(entete, text=(cr or {}).get("resume") or "Pas encore de compte rendu ce matin.", justify="left",
                       wraplength=1100, bg=c["fond"], fg=c["encre"], font=police, anchor="w")
     resume.pack(anchor="w", fill="x", pady=(8, 0))
+    # nouvelle version des données préparée par la mise à jour hebdomadaire, jamais publiée sans Lucas (26 octobre 2026)
+    avis = version_prete()
+    if avis:
+        tk.Label(entete, text=avis, justify="left", wraplength=1100, bg=c["fond"], fg=c["bleu"], font=("Segoe UI Semibold", 10),
+                 anchor="w").pack(anchor="w", fill="x", pady=(8, 0))
 
     onglets = ttk.Notebook(racine)
     onglets.pack(fill="both", expand=True, padx=20, pady=(8, 16))

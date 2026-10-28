@@ -11,8 +11,11 @@ Mise à jour des données, des résultats et du site, à lancer à la main ou pa
    depuis les fichiers bruts par un code indépendant (outils\controle_independant.py).
 5. Garde un compte rendu de chaque passage dans donnees\journaux\.
 6. Chaque jour, regarde sur Zenodo si une nouvelle version des trois dépôts a été publiée (outils\zenodo.py, tutoriel
-   07). Si oui, le site est refait pour la citer par son DOI, et publié avec -Publier. Une fenêtre rappelle aussi
-   d'archiver une version chaque trimestre.
+   07). Si oui, le site est refait pour la citer par son DOI. Une fenêtre rappelle aussi d'archiver une version chaque
+   trimestre.
+7. Ne met plus rien en ligne de lui-même (décision de Lucas du 26 octobre 2026). Une version refaite et contrôlée est
+   comparée à la version en ligne (outils\comparer_versions.py) et signalée dans donneesersion_prete.json, que la
+   fenêtre du courrier affiche. Lucas décide de la publication. -Publier reste possible à la main.
 
 .PARAMETER Simuler
 Fait seulement la vérification et dit ce qui serait fait, sans rien télécharger ni recalculer.
@@ -58,6 +61,19 @@ function PublierSite {
     return $LASTEXITCODE
 }
 
+function VersionPrete([string]$motif) {
+    # version refaite et contrôlée, comparée à la version en ligne et signalée à Lucas (fenêtre du courrier), sans envoi
+    $sortie = & $python outils\comparer_versions.py 2>&1 | ForEach-Object { "$_" }
+    $codeC = $LASTEXITCODE
+    $cr = ($sortie | Where-Object { $_ -match "^Compte rendu, " } | Select-Object -Last 1) -replace "^Compte rendu, ", ""
+    $res = Get-ChildItem (Join-Path $racine "resultats") -Directory | Where-Object { $_.Name -match '^\d{4}-\d{2}-\d{2}$' } | Sort-Object Name | Select-Object -Last 1
+    $etatC = @{0 = "rien d'anormal"; 10 = "des écarts à regarder"; 20 = "un problème bloquant"}[$codeC]
+    if (-not $etatC) { $etatC = "comparaison impossible (code $codeC)" }
+    @{ resultats = $res.Name; motif = $motif; code_comparaison = $codeC; comparaison = $etatC; compte_rendu = $cr;
+       preparee_le = (Get-Date -Format s) } | ConvertTo-Json | Set-Content -Path (Join-Path $racine "donneesersion_prete.json") -Encoding UTF8
+    Ecrire "Nouvelle version prête ($($res.Name), $motif), comparaison avec la version en ligne, $etatC. Rien n'est publié sans Lucas."
+}
+
 function Verifier {
     # renvoie le code de sortie de la vérification (0 à jour, 10 à mettre à jour, 20 incomplète)
     $sortie = & $python run.py --verifier 2>&1 | ForEach-Object { "$_" }
@@ -99,7 +115,7 @@ try {
             } elseif ($Publier) {
                 if ((PublierSite) -ne 0) { Ecrire "Site non publié, voir le compte rendu de publication dans donnees\journaux." }
                 else { & $python outils\zenodo.py site-refait | Out-Null; Ecrire "Site publié, il cite la version archivée sur Zenodo." }
-            } else { & $python outils\zenodo.py site-refait | Out-Null }
+            } else { & $python outils\zenodo.py site-refait | Out-Null; VersionPrete "site refait pour citer la version archivée sur Zenodo" }
         }
     }
 
@@ -178,7 +194,7 @@ try {
     Enregistrer @{ dernier_controle = "conforme" }
     if ($Publier) {
         if ((PublierSite) -ne 0) { Ecrire "Site non publié, voir le compte rendu de publication dans donnees\journaux."; exit 1 }
-    }
+    } else { VersionPrete "nouvelle version d'au moins une source" }
     exit 0
 }
 finally {

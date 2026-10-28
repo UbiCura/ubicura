@@ -1845,6 +1845,25 @@ def test_photographies():
             assert int(x.get(p, 0)) == int(e[f"n_{p}"].sum()), (niv, p)
 
 
+def test_explorer():
+    """Page « Explorer » (26 octobre 2026). Ses données redonnent les comptes publiés, la part des habitants avec un
+    psychologue mais aucun psychiatre déclaré est celle de combinaisons.csv, et les trajectoires couvrent les séries de
+    la DREES sans Mayotte."""
+    from pipeline import explorer
+    d = _dernier_resultats()
+    paires, traj, cb = explorer.donnees_paires(d), explorer.donnees_trajectoires(d), _csv(d, "combinaisons.csv")
+    if not paires or not traj or cb is None:
+        raise Ignore("résultats incomplets")
+    x = cb[(cb["niveau"] == "epci") & cb["psychologue"] & ~cb["psychiatre"]]["part_population"].sum()
+    assert abs(explorer.part_une_sans_l_autre(paires, "psychologue", "psychiatre") - x) < 1e-5   # CSV à six chiffres
+    assert len(paires["epci"]) == int(cb.loc[cb["niveau"] == "epci", "territoires"].sum())
+    assert "psychiatre" in traj["profs"] and "revenu_median" in traj["vars"]
+    assert traj["profs"]["psychologue"]["source"] == "ADELI" and traj["profs"]["psychologue"]["famille"] == "Santé mentale"
+    assert {"infirmier_lib", "infirmier_sal"} <= set(traj["profs"]), "deux séries d'infirmiers, jamais additionnées"
+    assert all(v["famille"] in ("Santé", "Santé mentale") for v in paires["profs"].values())
+    assert all("976" not in s["deps"] for s in traj["profs"].values())
+
+
 if __name__ == "__main__":
     n = 0
     ignores = []

@@ -72,4 +72,38 @@ def calculer(drees: pd.DataFrame | None, pops: pd.DataFrame | None, ref) -> dict
                          f"France {fr.iloc[0] * 100:+.1f} %, densité en baisse dans "
                          f"{(nb := int((g['evolution_densite'] < 0).sum()))} département{'s' if nb > 1 else ''} sur {g['evolution_densite'].notna().sum()}"
                          if len(fr) and pd.notna(fr.iloc[0]) else "non calculée")
-    return {"evolution_offre": t, "evolution_offre_resume": resume}
+    return {"evolution_offre": t, "evolution_offre_resume": resume, **serie_explorer(drees, pops, ref)}
+
+
+def _source(motif: str) -> str:
+    return ("ADELI" if "adeli" in motif else "SNDS" if "snds" in motif else
+            "INSEE, base Tous salariés" if "bts" in motif else "RPPS")
+
+
+def serie_explorer(drees: pd.DataFrame, pops: pd.DataFrame, ref) -> dict:
+    """Toutes les séries de démographie de la DREES par département depuis config.EVOLUTION_DEBUT, pour les
+    trajectoires de la page Explorer (26 octobre 2026), chacune avec sa source (RPPS, ADELI jusqu'en 2024, SNDS et base
+    Tous salariés pour les infirmiers libéraux et salariés, jamais additionnés). Le total « médecins, toutes
+    spécialités » n'est pas repris. Le tableau des rapports (evolution_offre) ne change pas."""
+    pop = pops.set_index(["code", "annee"])["population"]
+    deps = set(ref.deps["code"])
+    lignes = []
+    for motif, spec, mode, profs, lab, _def in config.DREES_DEMOGRAPHIE:
+        if profs == ["medecins"]:
+            continue
+        cle = ("chirurgiens" if spec == r"^chirurgie$" else f"{profs[0]}_{mode}" if mode != "all" else profs[0])
+        x = drees[(drees["motif"] == motif) & (drees["niveau"] == "dep") & drees["effectif"].notna()
+                  & (drees["spec"].fillna("") == (spec or "")) & drees["code"].isin(deps)]
+        x = x[x["annee"] >= config.EVOLUTION_DEBUT]
+        if x.empty:
+            continue
+        x = x.groupby(["code", "annee"], as_index=False)["effectif"].sum()
+        x["population"] = [pop.get((c, a), np.nan) for c, a in zip(x["code"], x["annee"])]
+        lignes.append(x.assign(prof=cle, libelle=lab, source=_source(motif)))
+    if not lignes:
+        return {}
+    t = pd.concat(lignes, ignore_index=True).dropna(subset=["population"])
+    JOURNAL.controle("Séries de la page Explorer", f"{t['prof'].nunique()} séries de la DREES par département, dont "
+                     f"{t.loc[t['source'] == 'ADELI', 'prof'].nunique()} tirées d'ADELI")
+    return {"evolution_explorer": t[["prof", "libelle", "source", "code", "annee", "effectif", "population"]]
+            .sort_values(["prof", "code", "annee"]).reset_index(drop=True)}

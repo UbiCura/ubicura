@@ -1,7 +1,7 @@
 """Site statique (chantier 6). Pages générées avec Jinja2 à partir des résultats de chaque exécution.
 
 site/index.html                      accueil, chiffres clés et « En bref »
-site/atlas.html                      atlas, avec la barre de navigation du site
+site/index.html                      atlas, première page du site (atlas.html y renvoie)
 site/rapports.html                   liste des versions
 site/rapports/AAAA-MM-JJ/            sante-mentale.html, sante.html et leurs PDF
 site/territoires/                    rapports par région et par département (dernière version seulement)
@@ -888,20 +888,6 @@ def construire(pdf=True) -> Path:
             chapeau_page=chapeaux[cle], **contenu), encoding="utf-8")
         pages.append(SITE / fichier)
 
-    # accueil
-    tm = {k: (dernier / f).read_text(encoding="utf-8") for k, (f, _t) in RAPPORTS.items()}
-    ctx = dict(commun, racine="", page="accueil", titre="Accueil")
-    terr = _territoires_recherche(dernier)
-    (SITE / "index.html").write_text(env.get_template("accueil.html").render(
-        ctx, tuiles=_tuiles(site_data), bref_sm=en_bref(tm["sante-mentale"]), bref_sante=en_bref(tm["sante"]),
-        territoires_liste=terr, territoires_json=json.dumps(terr, ensure_ascii=False).replace("</", "<\\/"),
-        apercu=_apercu_carte(dernier), apercu_titre=_titre_svg(_apercu_carte(dernier)), apercu_classes=_classes_courtes(),
-        evolutions=_evolutions(dernier), fenetres=(fen := _fenetres(site_data, dernier)),
-        fenetres_json=json.dumps(fen, ensure_ascii=False).replace("</", "<\\/"),
-        lien_sm=f"rapports/{dernier.name}/sante-mentale.html", lien_sante=f"rapports/{dernier.name}/sante.html"),
-        encoding="utf-8")
-    pages.append(SITE / "index.html")
-
     # à propos, texte versionné dans contenus/a_propos.md
     src = config.RACINE / "contenus" / "a_propos.md"
     if src.exists():
@@ -925,6 +911,18 @@ def construire(pdf=True) -> Path:
                 ctx, corps=f"<h1>{titre}</h1>" + corps), encoding="utf-8")
             pages.append(SITE / sortie)
 
+    # explorer les données (décision de Lucas du 26 octobre 2026), analyses réglées par le lecteur
+    from . import explorer
+    if explorer.ecrire(dernier, SITE, site_data):
+        ctx = dict(commun, racine="", page="explorer", titre="Explorer les données")
+        cit = (f"{commun['citation_auteur']} ({commun['annee_version']}). Explorer les données. {config.NOM_PROJET}, "
+               f"version du {commun['date_longue']}, {commun['adresse_site'].rstrip('/')}/explorer.html")
+        # empreinte du code et des données de la page, pour que les navigateurs prennent la nouvelle version
+        empreinte = hashlib.sha1(b"".join((SITE / "explorer" / f).read_bytes() for f in ("explorer.js", "donnees.js"))).hexdigest()[:10]
+        (SITE / "explorer.html").write_text(rendre(env, "explorer.html", ctx, citation=cit, version_explorer=empreinte),
+                                            encoding="utf-8")
+        pages.append(SITE / "explorer.html")
+
     # données sources, une fiche par jeu
     ctx = dict(commun, racine="", page="sources", titre="Données sources")
     (SITE / "donnees-sources.html").write_text(rendre(env, "donnees_sources.html",
@@ -939,12 +937,36 @@ def construire(pdf=True) -> Path:
     ctx = dict(commun, racine="", page="publications", titre="Publications")
     (SITE / "publications.html").write_text(rendre(env, "publications.html", ctx), encoding="utf-8")
 
-    # atlas, avec la navigation du site
+    # l'atlas est la première page du site (décisions de Lucas du 28 octobre 2026, la page d'accueil précédente n'était
+    # « pas très pro », puis une seule page plutôt qu'un accueil et un atlas presque identiques), sous un en-tête
+    # purement typographique ; atlas.html renvoie vers index.html pour les liens déjà partagés, gabarits/accueil.html
+    # n'est plus utilisé
     sys.path.insert(0, str(config.RACINE / "atlas"))
     import construire_atlas  # noqa: E402
     nav = ("<style>" + _css_nav() + "</style>"
            + env.get_template("nav.html").render(racine="", page="atlas") + _compteur())
-    construire_atlas.construire(dernier / "site_data.json", SITE / "atlas.html", nav)
+    entete = (f'<header class="bandeau-accueil">'
+              f'<h1>L’offre de soins en France, territoire par territoire</h1>'
+              f'<p class="lede">Où exercent les professionnels de santé et de santé mentale, et ce qui accompagne leur '
+              f'présence dans le profil des habitants. Données publiques, chaque chiffre est sourcé et citable.</p>'
+              f'<div class="portes"><a href="explorer.html">Explorer les données</a>'
+              f'<a href="rapports/{dernier.name}/sante-mentale.html">Rapport santé mentale</a>'
+              f'<a href="rapports/{dernier.name}/sante.html">Rapport santé</a>'
+              f'<a href="territoires/index.html">Rapports par territoire</a>'
+              f'<a href="methode.html">Méthode, données et limites</a>'
+              f'<span class="version">Données du {commun["date_longue"]}, '
+              f'<a href="https://doi.org/{config.DOI_DONNEES}">doi:{config.DOI_DONNEES}</a></span></div></header>')
+    construire_atlas.construire(dernier / "site_data.json", SITE / "index.html", nav, accueil=entete,
+                                titre=f"{config.NOM_PROJET}, l’offre de soins en France, territoire par territoire")
+    (SITE / "atlas.html").write_text(
+        '<!doctype html>\n<html lang="fr"><head><meta charset="utf-8">'
+        '<meta name="viewport" content="width=device-width, initial-scale=1">'
+        f'<title>Atlas de l’offre de soins · {config.NOM_PROJET}</title>'
+        '<link rel="canonical" href="index.html"><meta http-equiv="refresh" content="0; url=index.html">'
+        '<script>location.replace("index.html" + location.search + location.hash)</script>'
+        '<style>body{font-family:system-ui,sans-serif;background:#121419;color:#E8E9EE;padding:40px}a{color:#9DC7FE}</style>'
+        '</head><body><p>L’atlas de l’offre de soins est désormais la première page du site. '
+        '<a href="index.html">Ouvrir l’atlas</a>.</p></body></html>\n', encoding="utf-8")
 
     # contrôle du langage sur les pages (le texte visible, sans les balises)
     pb = []

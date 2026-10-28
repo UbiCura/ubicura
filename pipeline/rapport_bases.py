@@ -96,7 +96,11 @@ def evolution(C, famille):
                   ["Profession", "Période", "Densité au début (DREES)", "Densité à la fin (DREES)", "Évolution en France",
                    "Évolution médiane des départements", "Départements en baisse"],
                   {"debut": lambda v: nombre(v, 2), "fin": lambda v: nombre(v, 2), "evolution": _signe,
-                   "mediane": _signe}), ""]
+                   "mediane": _signe}), "",
+         '<p class="pas-imprime faire-varier"><a href="../../explorer.html#trajectoires?tProfs='
+         + ("psychiatre,psychologue&fam=sm" if famille == SM else "medecin_generaliste,pediatre&fam=sante")
+         + "\">Suivre ces évolutions selon le niveau de vie, la densité de population ou l'âge des habitants</a>, "
+           'dans Explorer.</p>', ""]
     L += _comment_lire(
         "La densité rapporte le nombre de professionnels au 1er janvier à la population au 1er janvier de la même "
         "année. Une densité peut baisser alors que le nombre de professionnels augmente, si la population augmente "

@@ -197,6 +197,10 @@ FICHIERS = [
                                            "régions et les départements, d'après les séries de démographie de la DREES "
                                            "(un professionnel compté une fois, dans le département de son activité "
                                            "principale) et les estimations de population de l'INSEE au 1er janvier."),
+    (r"^evolution_explorer\.csv$", lambda m: "Effectif et population de chaque année depuis 2016, par département, pour "
+                                              "toutes les séries de démographie de la DREES (colonne source, RPPS, ADELI "
+                                              "jusqu'en 2024, SNDS pour les infirmiers libéraux, base Tous salariés pour "
+                                              "les infirmiers salariés), données des trajectoires de la page Explorer."),
     (r"^evolution_offre_resume\.csv$", lambda m: "Évolution de la densité entre la première et la dernière année de "
                                                   "la période, par profession et territoire."),
     (r"^sensibilite_ile_de_france\.csv$", lambda m: "Corrélation de rang entre l'offre de santé mentale et les "

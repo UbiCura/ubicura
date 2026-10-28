@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block contenu %}
+<style>
+/* Page « Explorer les données » (décision de Lucas du 26 octobre 2026). Une question, une grande fenêtre sur toute la
+   largeur de la page, les réglages en tête, les figures liées côte à côte. Règle de Lucas du 26 octobre 2026, des
+   onglets seulement entre des vues d'un même résultat (figures, tableau), des fenêtres séparées pour des analyses
+   différentes. Lignes des groupes validées par le skill dataviz le 25 octobre 2026. */
+:root{--k1:#83451E;--k2:#C0703F;--k3:#A7ACB5;--k4:#3F74C0;--k5:#163F75;
+  --c1:#2a78d6;--c2:#eb6834;--c3:#1baf7a;--c4:#6250d6;--c5:#e87ba4;--c6:#008300}
+:root[data-theme="dark"]{--k1:#FFBC8F;--k2:#C9773F;--k3:#6B717B;--k4:#6A9BE0;--k5:#B5D5FF;
+  --c1:#3987e5;--c2:#d95926;--c3:#199e70;--c4:#9085e9;--c5:#d55181;--c6:#008300}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--k1:#FFBC8F;--k2:#C9773F;--k3:#6B717B;--k4:#6A9BE0;--k5:#B5D5FF;
+  --c1:#3987e5;--c2:#d95926;--c3:#199e70;--c4:#9085e9;--c5:#d55181;--c6:#008300}}
+.famille-page{display:flex;align-items:baseline;gap:8px 20px;flex-wrap:wrap;margin:24px 0 0}
+.famille-page .lib{font-size:.8125rem;color:var(--muted)}
+/* liste des professions, reprise du choix de la profession de l'atlas */
+.prof-choix{position:relative;display:inline-block;max-width:100%}
+.prof-choix>button{font:inherit;font-size:.9375rem;font-weight:400;color:var(--ink);background:none;border:0;border-bottom:1px solid var(--ink);padding:3px 0;cursor:pointer;display:inline-flex;gap:10px;align-items:center;white-space:nowrap;max-width:100%}
+.prof-choix>button span{overflow:hidden;text-overflow:ellipsis}
+.prof-choix>button svg{display:inline-block;flex:none;width:11px;height:7px;transition:transform .2s ease}
+.prof-choix>button[aria-expanded="true"] svg{transform:rotate(180deg)}
+.prof-liste{position:absolute;top:calc(100% + 10px);left:-14px;z-index:30;background:var(--table,var(--panel));border-radius:4px;box-shadow:0 14px 36px rgb(0 0 0 / .34);padding:8px 0;min-width:340px;max-height:min(70vh,560px);overflow:auto}
+.prof-liste[hidden]{display:none!important}
+.prof-liste p{font-size:.8125rem;color:var(--muted);margin:0;padding:10px 16px 2px;text-align:left!important;hyphens:manual}
+.prof-liste .consigne{padding:10px 16px 0}
+.prof-liste.large{width:min(820px,calc(100vw - 48px));max-height:min(72vh,620px);padding:0 0 10px}
+.prof-liste .filtre-liste{position:sticky;top:0;z-index:1;display:block;width:100%;background:var(--table,var(--panel));color:var(--ink);border:0;border-bottom:1px solid var(--line);padding:12px 16px;font:inherit;font-size:.9375rem}
+.prof-liste.large .colonnes{columns:3 220px;column-gap:8px;padding-top:4px}
+.prof-liste .grp{break-inside:avoid}
+.prof-liste .grp[hidden],.prof-liste button[hidden]{display:none}
+.prof-liste button{display:block;width:100%;text-align:left;font:inherit;font-size:.9375rem;color:var(--ink);background:none;border:0;padding:6px 16px;cursor:pointer}
+.prof-liste button:hover,.prof-liste button:focus-visible{background:color-mix(in srgb,var(--ink) 7%,transparent);outline:none}
+.prof-liste button[aria-current="true"]{font-weight:600}
+.prof-liste button[aria-pressed]::before{content:"";display:inline-block;width:12px;height:12px;border:1px solid var(--muted);border-radius:2px;margin-right:10px;vertical-align:-1px}
+.prof-liste button[aria-pressed="true"]::before{background:var(--ink);border-color:var(--ink);box-shadow:inset 0 0 0 2px var(--table,var(--panel))}
+.prof-liste button:disabled{opacity:.35;cursor:default}
+[hidden]{display:none!important}
+.explorer .tete{max-width:none}
+.questions{list-style:none;padding:0;margin:0 0 8px}
+.questions li{margin:0 0 8px}
+.questions .ou{font-size:.8125rem;color:var(--muted);margin-left:8px}
+.questions .avenir{color:var(--muted)}
+.outil{background:var(--panel);border-radius:12px;margin:40px 0 0;padding:22px 24px 20px}
+.outil h2{margin:0 0 8px}
+.outil .resultat{max-width:none;margin:0 0 14px}
+.reglages{display:grid;grid-template-columns:max-content 1fr;gap:8px 20px;margin:0 0 16px;padding:0 0 14px;border-bottom:1px solid var(--line);align-items:baseline}
+.reglages .lib{font-size:.8125rem;color:var(--muted)}
+.choix{display:flex;flex-wrap:wrap;gap:4px 16px}
+.choix button{font:inherit;font-size:.9375rem;background:none;border:0;padding:2px 0;color:var(--muted);cursor:pointer;border-bottom:1px solid transparent}
+.choix button:hover{color:var(--ink)}
+.choix button[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.choix button:disabled{opacity:.35;cursor:default}
+.choix input{font:inherit;font-size:.9375rem;background:transparent;color:var(--ink);border:0;border-bottom:1px solid var(--line);padding:2px 0;width:280px}
+.choix input:focus{outline:none;border-bottom-color:var(--ink)}
+.onglets{display:flex;gap:4px 24px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin:0 0 16px}
+.onglets button{font:inherit;font-size:.9375rem;background:none;border:0;padding:6px 0 8px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.onglets button:hover{color:var(--ink)}
+.onglets button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.vue[hidden]{display:none}
+.cote{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start}
+.cote figure.graphique{margin:0}
+.outil p{max-width:none;text-align:justify}
+.legende-x{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.8125rem;color:var(--muted);margin:4px 0 10px}
+.legende-x span{display:inline-flex;align-items:center;gap:6px}
+.legende-x i{display:inline-block;width:18px;height:2px;border-radius:1px}
+.legende-x i.carre{width:12px;height:12px;border-radius:2px}
+.legende-x i.tiret{height:0;border-top:1.5px dashed var(--ink)}
+.legende-x .rare{opacity:.7}
+.grille-t{display:grid;gap:12px 32px}
+.grille-t h3{font-family:inherit;font-weight:500;font-size:.9375rem;margin:0 0 2px}
+.grille-t .unite{font-size:.8125rem;color:var(--muted);margin:0 0 4px;text-align:left}
+.fig-corps svg{display:block;width:100%;height:auto;overflow:visible}
+.axe text{fill:var(--muted);font-size:12px;font-family:"Work Sans",system-ui,sans-serif}
+.grillage line{stroke:var(--line)}
+.courbe{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.repere{fill:none;stroke:var(--ink);stroke-width:1.5;stroke-dasharray:4 3}
+.etiq{font-size:12px;font-family:"Work Sans",system-ui,sans-serif;fill:var(--muted)}
+.etiq.forte{fill:var(--ink)}
+.curseur{stroke:var(--muted);stroke-width:1}
+.territoire{stroke:var(--contour,#fff);stroke-width:.3}
+.territoire:hover{stroke:var(--ink);stroke-width:1}
+.bulle-x{position:fixed;pointer-events:none;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:.8125rem;box-shadow:0 4px 16px rgba(0,0,0,.18);display:none;z-index:50;min-width:200px;text-align:left}
+.bulle-x b{font-weight:500}
+.bulle-x .l{display:flex;justify-content:space-between;gap:16px}
+.bulle-x .l span:first-child{display:inline-flex;align-items:center;gap:6px}
+.bulle-x i{display:inline-block;width:10px;height:10px;border-radius:2px}
+.outil .vue > div{overflow-x:auto}
+.outil table{border-collapse:collapse;width:100%;font-size:.9375rem;margin:4px 0 8px;font-variant-numeric:tabular-nums}
+.outil caption{caption-side:top;text-align:left;font-size:.8125rem;color:var(--muted);padding:0 0 12px}
+.outil th,.outil td{padding:10px 16px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;vertical-align:baseline}
+.outil th{font-weight:500;font-size:.8125rem;color:var(--muted);border-bottom-color:color-mix(in srgb,var(--ink) 30%,transparent)}
+.outil th:first-child,.outil td:first-child{text-align:left;padding-left:0;white-space:normal}
+.outil th:last-child,.outil td:last-child{padding-right:0}
+.outil tbody tr:hover td{background:color-mix(in srgb,var(--ink) 4%,transparent)}
+td i.pastille{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.outil .a-savoir{max-width:none;margin:14px 0 0}
+@media (max-width:820px){.reglages{grid-template-columns:1fr}.cote,.grille-t{grid-template-columns:1fr!important}.outil{padding:16px}}
+</style>
+
+<div class="explorer" data-citation="{{ citation }}">
+<div class="tete">
+<h1>Explorer les données</h1>
+<p class="chapeau">Chaque question ouvre un outil que l'on règle soi-même. Réglé par défaut, il montre le résultat publié dans les rapports. Chaque réglage s'inscrit dans l'adresse de la page, pour partager ou citer la vue choisie.</p>
+<ul class="questions">
+  <li><a href="#paires">Où trouve-t-on une profession sans l'autre, un psychologue mais aucun psychiatre par exemple ?</a><span class="ou">carte et niveau de vie</span></li>
+  <li><a href="#trajectoires">Les départements modestes rattrapent-ils leur retard depuis 2016 ?</a><span class="ou">courbes dans le temps</span></li>
+  <li><a href="{{ racine }}index.html">L'offre suit-elle le profil des habitants ?</a><span class="ou">« Croiser deux indicateurs », dans l'atlas</span></li>
+  <li><span class="avenir">Combien de psychologues pour un psychiatre, selon la densité et le niveau de vie à la fois ?</span><span class="ou">à venir, tableau croisé</span></li>
+  <li><span class="avenir">L'offre pour l'enfant suit-elle la part des moins de 15 ans ?</span><span class="ou">à venir</span></li>
+</ul>
+<div class="famille-page"><span class="lib">Professions proposées</span><div class="choix" id="fam"></div></div>
+</div>
+
+<!-- ============================================================ une profession sans l'autre -->
+<section class="outil" id="paires" aria-labelledby="pH">
+  <h2 id="pH">Une profession sans l'autre</h2>
+  <p class="resultat" id="pLecture"></p>
+  <div class="reglages">
+    <span class="lib">Présente</span><div id="pA"></div>
+    <span class="lib">Absente</span><div id="pB"></div>
+    <span class="lib">Dixièmes selon</span><div class="choix" id="pV"></div>
+  </div>
+  <div class="onglets" role="tablist">
+    <button type="button" role="tab" data-vue="pVueFig">Carte et dixièmes</button>
+    <button type="button" role="tab" data-vue="pVueTable">Tableau</button>
+  </div>
+  <div class="vue" id="pVueFig" role="tabpanel">
+    <div class="cote">
+      <figure class="graphique" id="figCarte"><figcaption class="small muted"><strong>Figure 1.</strong> <span class="leg" id="pTitreCarte"></span>.</figcaption><div class="fig-corps"><div class="legende-x" id="pLegende"></div><div id="pCarte"></div></div></figure>
+      <figure class="graphique" id="figBarres"><figcaption class="small muted"><strong>Figure 2.</strong> <span class="leg" id="pTitreBarres"></span>.</figcaption><div class="fig-corps"><div class="legende-x" id="pLegende2"></div><div id="pBarres"></div></div></figure>
+    </div>
+    <p class="comment-lire" id="pLire"></p>
+  </div>
+  <div class="vue" id="pVueTable" role="tabpanel" hidden><div id="pTable"></div></div>
+  <p class="a-savoir" id="pSavoir"></p>
+</section>
+
+<!-- ============================================================ trajectoires -->
+<section class="outil" id="trajectoires" aria-labelledby="tH">
+  <h2 id="tH">Croiser des trajectoires</h2>
+  <p class="resultat" id="tResultat"></p>
+  <div class="reglages">
+    <span class="lib">Professions</span><div id="tProfs"></div>
+    <span class="lib">Une courbe par</span><div class="choix" id="tPar"></div>
+    <span class="lib">Ranger selon</span><div class="choix" id="tVar"></div>
+    <span class="lib">Groupes</span><div class="choix" id="tK"></div>
+    <span class="lib" id="tLibG">Groupe montré</span><div class="choix" id="tLigneG"><div class="choix" id="tG"></div></div>
+    <span class="lib" id="tLibM">Afficher</span><div class="choix" id="tLigneM"><div class="choix" id="tMode"></div></div>
+    <span class="lib">Repérer</span><div class="choix"><input id="tDep" list="deps" placeholder="un département, par son nom ou son numéro" aria-label="Repérer un département"><datalist id="deps"></datalist></div>
+  </div>
+  <div class="onglets" role="tablist">
+    <button type="button" role="tab" data-vue="tVueCourbes">Courbes</button>
+    <button type="button" role="tab" data-vue="tVueTable">Tableau</button>
+  </div>
+  <div class="vue" id="tVueCourbes" role="tabpanel">
+    <figure class="graphique" id="figTraj"><figcaption class="small muted"><strong>Figure 3.</strong> <span class="leg" id="tTitre"></span>.</figcaption><div class="fig-corps"><div class="legende-x" id="tLegende"></div><div class="grille-t" id="tGrille"></div></div></figure>
+    <div id="tLectures"></div>
+    <p class="comment-lire"><strong>Comment lire.</strong> Chaque courbe suit la densité d'un groupe de départements, la somme de leurs professionnels rapportée à la somme de leurs habitants, pour 10&nbsp;000 habitants. Les groupes sont formés une seule fois, d'après la valeur la plus récente de la variable choisie, et restent les mêmes d'une année à l'autre. En base 100, chaque courbe vaut 100 la première année de sa série et montre la variation relative, ce qui permet de comparer des professions de tailles très différentes. Avec une courbe par profession, l'affichage est toujours en base 100, les professions sont comparées par leur variation et jamais additionnées. Une courbe qui s'arrête avant 2026 suit une série qui s'arrête, l'année de sa dernière valeur est écrite à côté. La figure décrit des évolutions, elle n'en donne pas la cause.</p>
+  </div>
+  <div class="vue" id="tVueTable" role="tabpanel" hidden><div id="tTable"></div></div>
+  <p class="a-savoir" id="tSavoir"></p>
+</section>
+</div>
+<div class="bulle-x" id="bulle" role="status"></div>
+{% for s in ["d3.min.js", "topojson-client.min.js", "fond.js", "donnees.js", "explorer.js"] %}<script src="{{ racine }}explorer/{{ s }}?v={{ version_explorer }}"></script>
+{% endfor %}{% endblock %}

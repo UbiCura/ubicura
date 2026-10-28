@@ -61,7 +61,7 @@ def _polices() -> str:
                   + base64.b64encode((dossier / m.group(1)).read_bytes()).decode() + ")", css)
 
 
-def construire(src: Path, dest: Path, nav: str = "") -> Path:
+def construire(src: Path, dest: Path, nav: str = "", accueil: str = "", titre: str = "") -> Path:
     data = json.loads(Path(src).read_text(encoding="utf-8"))
     data.setdefault("tuiles", _tuiles())
     # citation de l'atlas et de ses graphiques, DOI repris dès qu'il est renseigné dans config
@@ -103,6 +103,13 @@ def construire(src: Path, dest: Path, nav: str = "") -> Path:
     for k, v in remplacements.items():
         html = html.replace(k, v.replace("</script", "<\\/script"), 1)
     html = html.replace("<!--NAV-->", nav, 1)
+    # première page du site (décision de Lucas du 28 octobre 2026), l'atlas lui-même avec un bandeau d'accueil à la place
+    # de son en-tête, la carte juste en dessous
+    if accueil:
+        i, j = html.index('<header class="top">'), html.index("</header>") + len("</header>")
+        html = html[:i] + accueil + html[j:]
+    if titre:
+        html = html.replace("<title>Atlas de l’offre de soins</title>", f"<title>{titre}</title>", 1)
     # graphiques interactifs, même module que les rapports du site (gabarits/figures.js)
     fig = (ICI.parent / "gabarits" / "figures.js").read_text(encoding="utf-8")
     reglage = ('window.FIGURES={zoom:"#cbPlot,#funnel,#acpPlan,#lorenz,#escalier",'

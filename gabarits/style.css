@@ -85,14 +85,20 @@ main:has(> .rapport) > footer{margin-left:260px;max-width:50rem}
 .methode h2{scroll-margin-top:80px}
 /* tableaux de la page méthode, dans la largeur de la colonne, texte qui passe à la ligne (9 octobre 2026) */
 .methode table.simple{width:100%;font-size:.875rem}
-.methode > table.simple{display:block;overflow-x:auto}
+.methode > table.simple{display:table}
+.methode > table.simple.defile{display:block;overflow-x:auto}
 .methode table.simple td,.methode table.simple th{vertical-align:top}
 .methode table.simple td:first-child{min-width:9em}
 /* limites, colonnes courtes pas plus larges que nécessaire, le texte prend le reste */
 .methode table.limites th:nth-child(3){width:45%}.methode h2:first-child{margin-top:0}
 .sommaire a.actif{color:var(--ink);font-weight:600}.sommaire a:hover{color:var(--ink)}
-.corps table{border-collapse:collapse;width:100%;font-size:.875rem;margin:12px 0 18px;display:block;overflow-x:auto}
-.corps th,.corps td{padding:6px 9px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;vertical-align:top}
+/* tableaux sur toute la largeur, aérés (remarque de Lucas du 28 octobre 2026), en défilement seulement s'ils sont plus
+   larges que la colonne (classe « defile » posée par le script de la page) */
+.corps table{border-collapse:collapse;width:100%;font-size:.875rem;margin:12px 0 18px;display:table}
+.corps table.defile{display:block;overflow-x:auto}
+.corps th,.corps td{padding:8px 14px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;vertical-align:top}
+.corps th:first-child,.corps td:first-child{padding-left:0}.corps th:last-child,.corps td:last-child{padding-right:0}
+.corps thead th{border-bottom:1px solid color-mix(in srgb,var(--ink) 30%,transparent)}
 .corps th{font-weight:600;color:var(--muted);text-align:right;vertical-align:bottom;hyphens:manual}
 /* tableau plus large que la colonne de texte, estompé à droite tant qu'il reste des colonnes */
 .corps table.deborde-d{-webkit-mask-image:linear-gradient(to right,#000 calc(100% - 36px),transparent);mask-image:linear-gradient(to right,#000 calc(100% - 36px),transparent)}
@@ -121,7 +127,7 @@ figure.graphique svg text{font-family:var(--sans)}
 .carte strong{font-family:var(--serif);font-size:1.25rem;font-weight:600;display:block;margin-bottom:4px}
 .carte span{color:var(--muted);font-size:.875rem}
 table.simple{border-collapse:collapse;width:100%;font-size:.875rem}
-table.simple th,table.simple td{padding:6px 9px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+table.simple th,table.simple td{padding:8px 14px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
 table.simple th{color:var(--muted);font-weight:600}
 .statut-ok{color:var(--r4)}.statut-erreur{color:var(--accent)}
 footer{border-top:1px solid var(--line);margin-top:48px;padding-top:16px;color:var(--muted);font-size:.875rem}

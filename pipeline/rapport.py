@@ -884,6 +884,8 @@ def _composition(C: Contexte):
          f"compte au moins un psychologue mais aucun psychiatre, et {pct(g_sans['part_population'].sum())} dans une "
          f"intercommunalité qui a un médecin généraliste mais ni psychologue ni psychiatre.", "",
          *graphique("combinaisons_sm"),
+         '<p class="pas-imprime faire-varier"><a href="../../explorer.html#paires">Faire varier cette figure</a>, avec '
+         "d'autres paires de professions et selon le niveau de vie, dans Explorer.</p>", "",
          _tableau(t, ["medecin_generaliste", "psychologue", "psychiatre", "territoires", "population", "part_population"],
                   ["Médecin généraliste", "Psychologue", "Psychiatre", "Intercommunalités", "Habitants", "Part des habitants"],
                   {"territoires": nombre, "population": nombre, "part_population": pct}), ""]

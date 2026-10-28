@@ -28,7 +28,8 @@
 </main>
 <script>
 // tableaux plus larges que la colonne de texte, fondu à droite et phrase d'indication tant qu'il reste des colonnes
-(function(){function maj(t){var d=t.scrollWidth>t.clientWidth+2;t.classList.toggle("deborde-d",d&&t.scrollLeft+t.clientWidth<t.scrollWidth-2);
+(function(){function cadre(t){t.classList.remove("defile");if(t.offsetWidth>t.parentElement.clientWidth+2)t.classList.add("defile")}
+function maj(t){var d=t.scrollWidth>t.clientWidth+2;t.classList.toggle("deborde-d",d&&t.scrollLeft+t.clientWidth<t.scrollWidth-2);
 var n=t.nextElementSibling;if(!(n&&n.classList.contains("indice-defil"))){if(!d)return;n=document.createElement("p");n.className="indice-defil";n.textContent="Faites défiler le tableau vers la droite pour voir les autres colonnes.";t.after(n)}n.hidden=!d}
 // figures, choix de la profession (rapports, 9 octobre 2026)
 document.querySelectorAll("figure.graphique").forEach(function(fig){
@@ -37,8 +38,9 @@ document.querySelectorAll("figure.graphique").forEach(function(fig){
     var vs=fig.querySelectorAll(".variante");vs.forEach(function(v,j){v.hidden=j!==i});
     tous.forEach(function(x,j){x.setAttribute("aria-pressed",String(j===i))});
     var t=vs[i].querySelector("title");if(leg&&t)leg.textContent=t.textContent})})});
-var ts=document.querySelectorAll(".corps table");ts.forEach(function(t){maj(t);t.addEventListener("scroll",function(){maj(t)},{passive:true})});
-addEventListener("resize",function(){ts.forEach(maj)})})();
+var ts=document.querySelectorAll(".corps table,.methode > table.simple");ts.forEach(function(t){cadre(t);maj(t);t.addEventListener("scroll",function(){maj(t)},{passive:true})});
+function tous(){ts.forEach(function(t){cadre(t);maj(t)})}
+addEventListener("resize",tous);if(document.fonts)document.fonts.ready.then(tous)})();
 </script>
 <script>
 {% include "figures.js" %}
