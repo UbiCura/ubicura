@@ -171,7 +171,7 @@ GLOSSAIRE = [
      "professionnel libéral le plus proche, calculée par l'INSEE pour chaque carré habité de 200 mètres de côté. "
      "Le temps médian est celui en dessous duquel vit la moitié des habitants.", ""),
     ("zones","Zones peu dotées et zones de concentration",
-     "Un territoire mal doté n'est pas forcément un désert, ses habitants peuvent consulter juste à côté. Une zone "
+     "Un territoire peu doté n'est pas forcément un désert, ses habitants peuvent consulter juste à côté. Une zone "
      "peu dotée réunit des territoires voisins tous en dessous de la moyenne, ce qui rend le recours de proximité "
      "plus difficile. Une zone de concentration est l'inverse. Ces zones sont repérées par un calcul qui vérifie "
      "que la ressemblance entre voisins ne tient pas au hasard (indice de Moran local).", ""),

@@ -1090,7 +1090,7 @@ def composition_sante_mentale(agg, ref):
 def entonnoir(agg, ref):
     """Diagramme en entonnoir. Chaque territoire est situé par rapport aux limites de Poisson à 95 % et
     99,8 % autour de la densité nationale, qui dépendent de sa population. Statut de -2 (nettement en
-    dessous) à +2 (nettement au-dessus), 0 dans la norme. Mesure aussi la surdispersion, part des
+    dessous) à +2 (nettement au-dessus), 0 proche de la moyenne. Mesure aussi la surdispersion, part des
     territoires hors des limites à 95 % (5 % attendus si seul le hasard jouait)."""
     lignes, resume, grilles = [], [], []
     for niv in config.NIVEAUX_ANALYSE:

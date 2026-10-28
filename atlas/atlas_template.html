@@ -11,6 +11,7 @@
 <meta name="theme-color" content="#15171C">
 <script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||"dark")}catch(e){document.documentElement.setAttribute("data-theme","dark")}</script>
 <style>/*POLICES*/</style>
+<style>/*LEAFLET_CSS*/</style>
 <style>
 :root{--mesure:none}  /* les textes d'un encadré prennent tous sa largeur (demande de Lucas du 22 octobre 2026) */
 .panel p:not(.indice-defil){max-width:var(--mesure)}
@@ -36,7 +37,9 @@ html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-size:15px;line-height:1.5}
 button,select,input{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--focus);outline-offset:2px}
-.wrap{max-width:1260px;margin:0 auto;padding:24px 20px 64px}
+/* même largeur que les autres pages du site (1 100 pixels, contenu de 1 060), décision du 22 octobre 2026 rappelée par
+   Lucas le 28 octobre (l'atlas et Explorer n'avaient pas la même largeur) */
+.wrap{max-width:var(--largeur-contenu,1100px);margin:0 auto;padding:24px 20px 64px}
 header.top{display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
 /* en-tête d'accueil, quand l'atlas sert de première page du site (28 octobre 2026), purement typographique, sans
    cadre ni dégradé (direction du 23 octobre, couleur sur les données seulement) : la carte est la seule image */
@@ -265,21 +268,44 @@ dl.f dt{color:var(--muted)}dl.f dd{margin:0;text-align:right;font-variant-numeri
   .two.typo>.droite>.dedans{position:absolute;inset:0;display:block;overflow-y:auto;overscroll-behavior:auto;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
 }
 .selzone{margin-top:24px;scroll-margin-top:200px}
-.selhead{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+/* tête de la fiche en barre de fenêtre, titre et outils à gauche, bouton de repli à droite comme dans Explorer */
+.selhead{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:16px;align-items:start}
 .selhead h2{font-size:1.6rem;justify-content:flex-start}
-.selhead .actions{display:flex;gap:8px;align-items:center}
+.sel-sous{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 18px;font-size:.875rem}
+.sel-sous a.lien-rapport{font-size:.8125rem;color:var(--ink);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.sel-sous a.lien-rapport:hover{text-decoration-color:currentColor}
+.selhead .pastilles{display:inline-flex;gap:2px;margin:-4px -6px 0 0}
+.selhead .pastilles button{width:30px;height:30px;border-radius:6px;border:0;padding:0;cursor:pointer;display:grid;place-items:center;background:none;color:var(--muted)}
+.selhead .pastilles button:hover{color:var(--ink);background:color-mix(in srgb,var(--ink) 8%,transparent)}
+.selhead .pastilles button:focus-visible{outline:2px solid var(--focus,var(--ink));outline-offset:1px;color:var(--ink)}
+.grid.carte>#selCard.repliee{padding-bottom:0}.grid.carte>#selCard.repliee>.selhead{margin-bottom:0;border-bottom:0;border-radius:8px/14px}
 .selzone>.phrase{max-width:var(--mesure)}
-.selcols{display:grid;grid-template-columns:1fr 1fr;gap:8px 40px;margin-top:6px;align-items:start}
-@media (max-width:760px){.selcols{grid-template-columns:1fr}}
-.selcols .bloc{margin-top:10px}
-.selcols .prow{grid-template-columns:minmax(110px,42%) 1fr 44px}
+/* fiche d'un territoire, les groupes coulent en colonnes de même hauteur sous chaque titre (offre de santé mentale,
+   de santé, profil de la population), plus de colonne courte à côté d'une colonne longue (remarque de Lucas du
+   28 octobre 2026) */
+.fiche-colonnes{columns:3 280px;column-gap:44px;margin-top:2px}
+.fiche-colonnes>.fiche-bt{column-span:all;font-family:var(--serif);font-weight:600;font-size:1.0625rem;color:var(--ink);margin:22px 0 0;padding-top:12px;border-top:1px solid var(--line)}
+.fiche-colonnes>.fiche-bt:first-child{margin-top:6px}
+.fiche-colonnes .gr{break-inside:avoid;padding-bottom:4px}
+.fiche-colonnes .gr.pop{break-inside:auto}
+.fiche-colonnes .gh,.fiche-colonnes details.groupe>summary{break-after:avoid;margin:0 0 2px;padding-top:12px}
+dl.kv{margin:6px 0 0;font-size:.875rem}
+dl.kv>div{display:flex;justify-content:space-between;align-items:baseline;gap:14px;padding:2px 0;break-inside:avoid}
+dl.kv dt{color:var(--muted);min-width:0}
+dl.kv dd{margin:0;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+.mention{font-size:.75rem;font-weight:400;color:var(--muted);margin-left:8px}
+.fiche-legende{display:flex;flex-wrap:wrap;align-items:center;gap:6px 24px;margin:18px 0 0;font-size:.8125rem;color:var(--muted)}
+.fiche-legende span{display:inline-flex;align-items:center;gap:7px}
+.fiche-legende svg{width:26px;height:10px;flex:none}
 details.groupe>summary{cursor:pointer;font-size:.75rem;color:var(--muted);font-weight:600;margin:10px 0 2px}
 .brief .phrase{font-size:1rem}
 .lien{background:none;border:0;padding:0;color:var(--ink);text-decoration:underline;text-underline-offset:3px;cursor:pointer;font-size:.875rem}
-.prow{display:grid;grid-template-columns:150px 1fr 44px;align-items:center;gap:8px;font-size:.875rem;padding:1px 0;cursor:pointer;border-radius:3px}
+.prow{display:grid;grid-template-columns:minmax(0,1fr) minmax(72px,112px) 2.6em;align-items:center;column-gap:10px;font-size:.875rem;padding:1px 4px;margin:0 -4px;cursor:pointer;border-radius:3px}
 .prow:hover,.prow.on{background:color-mix(in srgb,var(--ink) 8%,transparent)}
 .prow .lbl{line-height:1.25;padding:2px 0}
 .prow .v{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+.prow .aucun{font-size:.75rem;color:var(--muted);white-space:nowrap}
+.prow .prec{grid-column:1/-1;font-size:.75rem;line-height:1.35;color:var(--muted);text-align:left;margin:-1px 0 3px}
 .gh{font-size:.75rem;color:var(--muted);margin:10px 0 2px;font-weight:600}
 .hbars div.r{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:16px;align-items:start;font-size:.875rem;margin-bottom:6px}
 .hbars div.r>span:nth-child(2){white-space:nowrap;text-align:right;font-variant-numeric:tabular-nums}
@@ -331,6 +357,18 @@ svg.map circle.lieu.creux{filter:drop-shadow(0 0 .35px var(--panel)) drop-shadow
 .lx-droite svg{border-radius:4px}
 .lx-droite .lx-legende{margin:2px 0 0}
 .lx-droite .lieuinfo{margin:2px 0 0;padding:2px 0 2px 10px}
+/* plan IGN (Leaflet), ses calques restent sous la barre du site ; le plan SVG, hors de l'écran, sert à l'export */
+.lx-plan{position:relative;z-index:0;isolation:isolate;aspect-ratio:400/340;min-height:240px;border-radius:4px;background:#E9ECF0;font-family:var(--sans)}
+/* fond en gris, la couleur reste aux structures (couleur sur les données seulement) */
+.lx-plan .leaflet-tile-pane{filter:grayscale(1) contrast(.92) brightness(1.04)}
+:root[data-theme="dark"] .lx-plan .leaflet-tile-pane{filter:grayscale(1) brightness(.8) contrast(1.02)}
+.lx-plan .leaflet-control-attribution{font-size:.6875rem;color:#3F4550;background:rgb(255 255 255 / .82)}
+.lx-plan .leaflet-control-attribution a{color:#1C2028}
+.lx-plan .leaflet-bar a{color:#1C2028}
+/* la règle générale svg{width:100%} écrasait la couche de dessin de Leaflet, ses dimensions sont les siennes */
+.lx-plan .leaflet-pane svg{width:auto;height:auto;border-radius:0}
+.lx-plan:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+svg.lx-export{position:absolute;left:-10000px;top:0;width:400px;height:340px}
 @media (max-width:900px){.lx-corps{grid-template-columns:minmax(0,1fr)}.lx-droite{position:static;order:-1}}
 .lx-table th,.lx-table td{white-space:normal}
 .ad-grille{display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
@@ -401,10 +439,6 @@ ul.src{padding-left:1.1em;margin:8px 0}ul.src li{margin-bottom:6px}
 .collant .bar #prof{padding:6px 10px;font-size:.9375rem;min-height:36px;border-radius:4px}
 .panel h2{display:flex;justify-content:flex-start;align-items:baseline;gap:8px;flex-wrap:wrap}
 #mapOutils .outils{display:flex;gap:8px;align-items:center}
-.legende-barres svg{width:46px;height:10px;vertical-align:-1px;margin-right:6px}
-.repli-fiche .chevron{display:inline-block;transition:transform .15s}
-.repli-fiche[aria-expanded="false"] .chevron{transform:rotate(-90deg)}
-@media (prefers-reduced-motion:reduce){.repli-fiche .chevron{transition:none}}
 button.repli{background:none;border:0;padding:0;font:inherit;color:inherit;cursor:pointer;display:inline-flex;align-items:baseline;gap:8px;text-align:left}
 button.repli .chevron{display:inline-block;font-size:.8em;color:var(--muted);transition:transform .15s}
 button.repli[aria-expanded="false"] .chevron{transform:rotate(-90deg)}
@@ -435,7 +469,7 @@ dl.gl dt{font-weight:600;margin-top:12px}dl.gl dd{margin:2px 0 0;max-width:var(-
 @media screen{
 :root{
   --bg:#F4F4F1;--panel:#FFFFFF;--table:#FFFFFF;--ink:#1C2028;--muted:#5D6371;--faint:#8A909C;--line:#E2E3E6;--nodata:#ECECEF;
-  --accent:#8A5A0E;--signal:#8A5A0E;--focus:#1C2028;--chiffre:#1D4D87;--largeur-contenu:1260px;--ombre-nav:rgb(16 24 40 / .22);--fen:#E9ECF0;--fen-corps:#FFFFFF;--fen-bord:rgb(16 24 40 / .09);--ombre-fig:rgb(16 24 40 / .16);
+  --accent:#8A5A0E;--signal:#8A5A0E;--focus:#1C2028;--chiffre:#1D4D87;--largeur-contenu:1100px;--ombre-nav:rgb(16 24 40 / .22);--fen:#E9ECF0;--fen-corps:#FFFFFF;--fen-bord:rgb(16 24 40 / .09);--ombre-fig:rgb(16 24 40 / .16);
   /* palette « encre bleue et cuivre » (choix de Lucas du 23 octobre 2026) : densités en six paliers d'un bleu d'encre,
      écart à la moyenne en cuivre dessous, gris au milieu, bleu dessus ; chaque bras validé (contrôle ordinal du skill
      dataviz, palier le plus faible à 2:1 de la surface) ; le signal des limites reste ocre, distinct des données */
@@ -458,7 +492,7 @@ h1{font-weight:400}
 .collant{box-shadow:0 1px 0 var(--line);background:var(--bg);backdrop-filter:none}
 /* barre opaque (le texte transparaissait dessous) et compacte quand on descend : onglets repliés, réglages gardés */
 .collant{position:relative;top:auto}
-.rappel-reglages{position:fixed;z-index:9;top:calc(var(--haut-nav,64px) + 6px);left:50%;width:min(var(--largeur-contenu,1260px) - 40px,calc(100vw - 32px));transform:translate(-50%,-6px);opacity:0;pointer-events:none;
+.rappel-reglages{position:fixed;z-index:9;top:calc(var(--haut-nav,64px) + 6px);left:50%;width:min(var(--largeur-contenu,1100px) - 40px,calc(100vw - 32px));transform:translate(-50%,-6px);opacity:0;pointer-events:none;
   display:flex;align-items:center;gap:6px 22px;flex-wrap:wrap;padding:6px 8px 6px 18px;background:var(--panel);border:1px solid var(--fen-bord);border-radius:12px;box-shadow:0 14px 34px -14px var(--ombre-nav,rgb(0 0 0 / .5));
   transition:opacity .22s ease-out,transform .22s ease-out}
 .rappel-reglages.vu{opacity:1;transform:translate(-50%,0);pointer-events:auto}
@@ -466,7 +500,7 @@ h1{font-weight:400}
 .rappel-reglages .rr-texte{flex:1;min-width:0;font-size:.8125rem;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rappel-reglages .rr-ouvrir{font:inherit;font-size:.8125rem;color:var(--ink);background:color-mix(in srgb,var(--ink) 8%,transparent);border:0;border-radius:8px;padding:6px 12px;cursor:pointer}
 .rappel-reglages .rr-ouvrir:hover,.rappel-reglages .rr-ouvrir[aria-expanded="true"]{background:color-mix(in srgb,var(--ink) 14%,transparent)}
-.collant.flotte{position:fixed;z-index:10;top:calc(var(--haut-nav,64px) + 58px);left:50%;transform:translateX(-50%);width:min(var(--largeur-contenu,1260px) - 40px,calc(100vw - 32px));
+.collant.flotte{position:fixed;z-index:10;top:calc(var(--haut-nav,64px) + 58px);left:50%;transform:translateX(-50%);width:min(var(--largeur-contenu,1100px) - 40px,calc(100vw - 32px));
   max-height:calc(100vh - var(--haut-nav,64px) - 72px);overflow:auto;padding:0 20px 4px;background:var(--fen-corps);border:6px solid var(--fen);border-radius:14px;box-shadow:0 0 0 1px var(--fen-bord),0 24px 60px -20px var(--ombre-nav,rgb(0 0 0 / .5))}
 @media (prefers-reduced-motion:no-preference){.collant.flotte{animation:onglet-fondu .18s ease-out}}
 /* encadrés en fenêtres (demande de Lucas du 23 octobre 2026) : cadre, barre de titre (titre, « Comment lire », « Citer
@@ -558,6 +592,17 @@ nav.tabs button{padding:12px 0;margin-right:24px}
 .prof-liste.deux:not(.cherche) .volet-choix .grp>p{display:none}
 @media (max-width:640px){.prof-liste.deux{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto minmax(0,1fr)}.prof-liste.deux .volet-themes{max-height:30vh;border-right:0;border-bottom:1px solid var(--line)}}
 #lieuxBar{display:none!important}
+/* fiche d'un territoire et structures de ce territoire en fenêtres, barre de titre et intérieur calme, comme les
+   encadrés des onglets et d'Explorer (demande de Lucas du 28 octobre 2026, harmoniser avec le reste) */
+.grid.carte>.selzone{--fond-cellule:var(--fen-corps);background:var(--fen-corps);border:6px solid var(--fen);border-top:0;border-radius:14px;padding:0 20px 18px;box-shadow:0 0 0 1px var(--fen-bord),0 22px 46px -30px var(--ombre-fig)}
+.grid.carte>#selCard>.selhead{margin:0 -20px 4px;padding:14px 20px 10px;background:var(--fen);border-bottom:1px solid var(--fen-bord);border-radius:8px 8px 0 0/14px 14px 0 0}
+.grid.carte>#selCard>.selhead h2{font-weight:400;font-size:1.5rem;margin:0}
+.grid.carte>#selCard>.selhead .outils-encadre{margin:2px 0 4px}
+.grid.carte>#lieuxCard>h2:first-child{margin:0 -20px;padding:12px 20px 2px;background:var(--fen);border-radius:8px 8px 0 0/14px 14px 0 0;font-size:1.25rem}
+.grid.carte>#lieuxCard>h2:first-child+.outils-encadre{margin:0 -20px 16px;padding:4px 20px 10px;background:var(--fen);border-bottom:1px solid var(--fen-bord)}
+@media (max-width:760px){.grid.carte>.selzone{padding:0 14px 14px}
+  .grid.carte>#selCard>.selhead{margin:0 -14px 4px;padding:12px 14px 8px}
+  .grid.carte>#lieuxCard>h2:first-child,.grid.carte>#lieuxCard>h2:first-child+.outils-encadre{margin-left:-14px;margin-right:-14px;padding-left:14px;padding-right:14px}}
 .prof-liste button{display:block;width:100%;text-align:left;font:inherit;font-size:.9375rem;color:var(--ink);background:none;border:0;padding:6px 16px;cursor:pointer}
 .prof-liste button:hover,.prof-liste button:focus-visible{background:color-mix(in srgb,var(--ink) 7%,transparent);outline:none}
 .prof-liste button[aria-current="true"]{font-weight:600}
@@ -814,6 +859,7 @@ html.revele .panel svg[role="img"]:not(.vu){opacity:0}
 
 <script>/*D3*/</script>
 <script>/*TOPO*/</script>
+<script>/*LEAFLET*/</script>
 <script>/*CESURE*/</script>
 <script>/*TOPOLOGY*/</script>
 <script>/*DONNEES*/</script>
@@ -1566,7 +1612,7 @@ function structuresTerritoire(){const el=document.getElementById("lieuxCard");
   el.querySelectorAll(".lx-item").forEach(b=>b.onclick=()=>{const p=LX.pts[+b.dataset.j];LX_TYPE_LOCAL=b.dataset.l;
     LX_CHOISI_LOCAL=LX_CHOISI_LOCAL===p?null:p;if(st)st.value=LX_TYPE_LOCAL;plan();
     // plan hors de l'écran (petits écrans), on le fait venir sans changer son cadrage
-    const r=document.getElementById("lxCarte").getBoundingClientRect(),haut=document.querySelector(".collant")?.getBoundingClientRect().bottom||0;
+    const r=(document.getElementById("lxPlan")||document.getElementById("lxCarte")).getBoundingClientRect(),haut=document.querySelector(".collant")?.getBoundingClientRect().bottom||0;
     if(r.top<haut||r.bottom>innerHeight)scrollTo({top:scrollY+r.top-haut-60,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})})}
 // ---------- carte du territoire choisi, dans l'encadré des structures (décision de Lucas du 16 octobre 2026). Sur la
 // grande carte les points ne paraissent qu'en zoomant, ici le plan est cadré sur le territoire, avec ses limites
@@ -1574,6 +1620,54 @@ function structuresTerritoire(){const el=document.getElementById("lieuxCard");
 // plein confirmée, point creux à vérifier. Un clic dans la liste repère la structure sur ce plan, la grande carte ne bouge
 // pas. Les points ne sont pas dans l'ordre de tabulation, la liste en est l'équivalent au clavier.
 let LX_TYPE_LOCAL="lieu_cmp_adultes",LX_CHOISI_LOCAL=null;
+// Plan IGN sous les structures (demande de Lucas du 28 octobre 2026), fond de la Géoplateforme (couche
+// GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2, grille PM_0_19, PNG), adresse et couche relevées le 28 octobre 2026 dans les
+// capacités du service WMTS, conditions sur https://cartes.gouv.fr/cgu. Le plan en SVG reste dessiné hors de l'écran,
+// c'est lui que « Citer et exporter » enregistre (les images du fond viennent d'un autre serveur). Sans Leaflet, ou si
+// le fond ne se charge pas, les points et le contour restent lisibles.
+// TODO mention exacte du Plan IGN à confirmer à la réponse de l'IGN (question du 28 octobre 2026,
+// docs/demande_ign_2026-10-28.md), « Plan IGN, © IGN, Géoplateforme » d'ici là, comme la démonstration de l'API
+const IGN_PLAN="https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&STYLE=normal&TILEMATRIXSET=PM_0_19&FORMAT=image/png&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}";
+const IGN_MENTION='Plan IGN, © IGN, <a href="https://cartes.gouv.fr/cgu" target="_blank" rel="noopener">Géoplateforme</a>';
+// points posés sur le fond clair du plan, mêmes couleurs dans les deux thèmes (bleu d'encre, choisi en cuivre)
+const PLAN_POINT="#1D4D87",PLAN_CHOISI="#8A5A0E";
+const planIgn=()=>!!(window.L&&window.L.map);
+let LX_PLAN=null;
+function dessinerPlanIgn(lv,code,lignes,l){
+  const LF=window.L,el=document.getElementById("lxPlan");if(!el)return;
+  const cle=lv+"|"+code,f=formeTerritoire(lv,code);
+  if(!LX_PLAN||LX_PLAN.el!==el){
+    // encadré refait (autre réglage), même territoire, le cadrage choisi est gardé
+    const vue=LX_PLAN&&LX_PLAN.cle===cle?[LX_PLAN.carte.getCenter(),LX_PLAN.carte.getZoom()]:null;
+    if(LX_PLAN)LX_PLAN.carte.remove();
+    // molette réservée au défilement de la page (zoom avec Ctrl, comme la grande carte), un doigt fait défiler la page
+    // sur téléphone, deux doigts rapprochent le plan
+    const carte=LF.map(el,{scrollWheelZoom:false,dragging:!LF.Browser.mobile,tap:false,zoomSnap:.5,minZoom:5,maxZoom:18});
+    LF.tileLayer(IGN_PLAN,{maxZoom:18,attribution:IGN_MENTION}).addTo(carte);
+    carte.attributionControl.setPrefix(false);
+    el.addEventListener("wheel",ev=>{if(!ev.ctrlKey)return;ev.preventDefault();carte.setZoom(carte.getZoom()+(ev.deltaY<0?.5:-.5))},{passive:false});
+    LX_PLAN={el,carte,cle,cadre:vue?cle:null,points:LF.layerGroup()};
+    if(f){LF.geoJSON(f,{interactive:false,style:{color:"#FFFFFF",weight:5,opacity:.8,fill:false}}).addTo(carte);
+      LX_PLAN.contour=LF.geoJSON(f,{interactive:false,style:{color:"#1C2028",weight:2,opacity:.9,fill:false}}).addTo(carte)}
+    LX_PLAN.points.addTo(carte);
+    if(vue)carte.setView(vue[0],vue[1],{animate:false})}
+  const P=LX_PLAN;
+  // cadrage sur le territoire une seule fois, ensuite seul le lecteur le change
+  if(P.cadre!==cle){if(P.contour)P.carte.fitBounds(P.contour.getBounds(),{padding:[14,14],animate:false});else P.carte.setView([46.6,2.45],5);P.cadre=cle}
+  P.points.clearLayers();
+  const pts=l.pts.filter(p=>isFinite(p[1])&&isFinite(p[2])&&p[1]&&p[2]).sort((a,b)=>(a===LX_CHOISI_LOCAL)-(b===LX_CHOISI_LOCAL));
+  for(const p of pts){const ch=p===LX_CHOISI_LOCAL,c=ch?PLAN_CHOISI:PLAN_POINT,vide=creux(p),demi=recoupe(p);
+    // point plein confirmée (cerné de blanc), à demi rempli recoupée, creux à vérifier (centre blanc)
+    const m=LF.circleMarker([p[1]/1e4,p[2]/1e4],{radius:ch?8:5.5,color:vide||demi?c:"#FFFFFF",weight:vide?2.2:1.5,
+      fillColor:vide?"#FFFFFF":c,fillOpacity:vide?.9:demi?.45:1,bubblingMouseEvents:false});
+    m.on("mousemove",ev=>showTip(ev.originalEvent,'<div class="tt">'+esc(LX.noms[p[3]])+'</div><div class="tl">'+esc(LX.communes[p[4]]||p[4])+'</div>'+(p[11]!=null?'<div class="tl">'+symboleConf(p)+' '+esc(CONF[p[11]].lib)+'</div>':'')));
+    m.on("mouseout",hideTip);
+    m.on("click",()=>{LX_CHOISI_LOCAL=LX_CHOISI_LOCAL===p?null:p;dessinerCarteTerritoire(lv,code,lignes)});
+    P.points.addLayer(m)}
+  // structure choisie dans la liste hors du cadre, le plan se déplace jusqu'à elle sans changer d'échelle
+  if(LX_CHOISI_LOCAL&&pts.includes(LX_CHOISI_LOCAL)){const ll=[LX_CHOISI_LOCAL[1]/1e4,LX_CHOISI_LOCAL[2]/1e4];if(!P.carte.getBounds().contains(ll))P.carte.panTo(ll,{animate:false})}
+  const u=D.niveaux[lv].units[IDX[lv].get(code)];
+  el.setAttribute("aria-label","Plan IGN de "+u.nm+", "+minLib(l.lib)+", "+fmt.format(l.pts.length)+" structures, point plein confirmée, point creux à vérifier")}
 const LX_MAILLES={};
 // contours de tous les territoires d'un niveau (le fond ne partage pas les arcs entre voisins, d'où le maillage complet)
 // filtre, territoires retenus (par leurs propriétés), pour ne tracer que les limites utiles au plan
@@ -1584,11 +1678,13 @@ function formeTerritoire(lv,code){const f=(geom[lv]||[]).find(x=>x.properties[lv
 function carteTerritoireHtml(lignes){
   const opts=lignes.map(l=>'<option value="'+l.id+'"'+(l.id===LX_TYPE_LOCAL?" selected":"")+'>'+esc(l.lib)+' ('+fmt.format(l.pts.length)+')</option>').join("");
   return '<div class="lx-droite"><label class="small muted" for="lxType">Structures montrées sur le plan</label><select id="lxType">'+opts+'</select>'
-    +'<svg id="lxCarte" viewBox="0 0 400 340" role="img" aria-label="Plan du territoire et de ses structures de soins"></svg>'
+    +(planIgn()?'<div id="lxPlan" class="lx-plan" role="img" aria-label="Plan IGN du territoire et de ses structures de soins"></div>':'')
+    +'<svg id="lxCarte"'+(planIgn()?' class="lx-export" aria-hidden="true"':'')+' viewBox="0 0 400 340" role="img" aria-label="Plan du territoire et de ses structures de soins"></svg>'
     +'<div class="lx-legende small" id="lxLegende"></div><div class="lieuinfo small" id="lxFiche" hidden aria-live="polite"></div></div>'}
 function dessinerCarteTerritoire(lv,code,lignes){
   const svg=d3.select("#lxCarte");if(svg.empty())return;svg.selectAll("*").remove();
   const l=lignes.find(x=>x.id===LX_TYPE_LOCAL)||lignes[0];if(!l)return;
+  dessinerPlanIgn(lv,code,lignes,l);
   const f=formeTerritoire(lv,code);if(!f){svg.append("text").attr("x",200).attr("y",170).attr("text-anchor","middle").attr("fill",css("--muted")).text("Contour du territoire indisponible");return}
   const dep=depOfFeat(lv,f),dom=DOMS.includes(dep);
   const proj=(dom?d3.geoMercator():d3.geoConicConformal().parallels([44,49]).rotate([-3,0])).fitExtent([[14,14],[386,326]],f),path=d3.geoPath(proj);
@@ -1814,6 +1910,8 @@ function natCard(){
   h+=limiteHtml(["prof:"+p]);
   document.getElementById("natCard").innerHTML=h;
 }
+// symboles au trait des fenêtres d'Explorer (gabarits/figures.js), replier et déplier
+const ICONE_FEN=(()=>{const s=d=>'<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="'+d+'" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';return {moins:s("M3 7h8"),plus:s("M3 7h8M7 3v8")}})();
 function selCard(){
   const el=document.getElementById("selCard"),br=document.getElementById("selBrief");
   br.classList.toggle("choisi",!!(S.sel&&S.sel.lv===S.level));
@@ -1821,7 +1919,7 @@ function selCard(){
   el.classList.remove("hidden");
   const lv=S.sel.lv,i=IDX[lv].get(S.sel.c),u=D.niveaux[lv].units[i];
   const parent=lv==="epci"?(IDX.depName.get(u.p)||u.p):lv==="reg"?"Région":u.p;
-  let h='<div class="selhead"><div><h2>'+esc(u.nm)+' <button class="how" data-how="indice100,attendu,entonnoir">Comment lire</button></h2><div class="howtxt hidden"></div><div class="muted small">'+esc(parent)+', '+fmt.format(u.pop)+' habitants</div></div><div class="actions">'+[["sante-mentale","Rapport santé mentale"],["sante","Rapport santé"]].filter(([k])=>(D.rapports_territoires||[]).includes(lv+"-"+S.sel.c+"-"+k)).map(([k,l])=>'<a class="btn ghost" href="'+(D.rapports_dossier||"territoires")+'/'+lv+'-'+S.sel.c+'-'+k+'.html">'+l+'</a>').join("")+'<button class="btn ghost repli-fiche" id="selReplier" type="button" aria-controls="selCorps" aria-expanded="'+!S.selReplie+'"><span class="chevron" aria-hidden="true">▾</span> '+(S.selReplie?"Afficher le détail":"Masquer le détail")+'</button></div></div>';
+  let h='<div class="selhead"><div class="sel-titre"><h2>'+esc(u.nm)+' <button class="how" data-how="indice100,attendu,entonnoir">Comment lire</button></h2><div class="howtxt hidden"></div><div class="sel-sous"><span class="muted">'+esc(parent)+', '+fmt.format(u.pop)+' habitants</span>'+[["sante-mentale","Rapport santé mentale"],["sante","Rapport santé"]].filter(([k])=>(D.rapports_territoires||[]).includes(lv+"-"+S.sel.c+"-"+k)).map(([k,l])=>'<a class="lien-rapport" href="'+(D.rapports_dossier||"territoires")+'/'+lv+'-'+S.sel.c+'-'+k+'.html">'+l+'</a>').join("")+'</div></div><div class="pastilles"><button id="selReplier" type="button" aria-controls="selCorps" aria-expanded="'+!S.selReplie+'" aria-label="'+(S.selReplie?"Déplier":"Replier")+' la fiche « '+esc(u.nm)+' »">'+(S.selReplie?ICONE_FEN.plus:ICONE_FEN.moins)+'</button></div></div>';
   const finTete=h.length;
   let court="",precision="";
   // phrase sur la profession affichée
@@ -1830,7 +1928,7 @@ function selCard(){
     let ph=n0===0?(FEM.has(p0)?"Aucune ":"Aucun ")+lab.toLowerCase()+" ne déclare exercer dans ce territoire.":f1.format(d)+" "+(d>=2?pluriel(lab):lab.toLowerCase())+" pour 10 000 habitants, "+(Math.abs(d/nd-1)<.05?"autant que la moyenne "+MOYLAB[lv]:fois(d,nd)+" que la moyenne "+MOYLAB[lv])+".";
     const a=att(lv,p0,i);
     if(a&&S.mode==="all"){const e=a*u.pop/1e4,diff=e-unitN(lv,p0,i,"all");
-      ph+=" Compte tenu du profil de sa population, on en attendrait environ "+fmt.format(Math.round(e))+(Math.abs(diff)<1?", c’est conforme à l’attendu.":diff>0?", il en manque environ "+fmt.format(Math.round(diff))+".":", il y en a environ "+fmt.format(Math.round(-diff))+" de plus.")+" C’est une comparaison avec des territoires semblables, pas une mesure du besoin."}
+      ph+=" Compte tenu du profil de sa population, l’effectif attendu est d’environ "+fmt.format(Math.round(e))+(Math.abs(diff)<1?", l’effectif observé y correspond.":diff>0?", on en compte environ "+fmt.format(Math.round(diff))+" de moins.":", on en compte environ "+fmt.format(Math.round(-diff))+" de plus.")+" C’est une comparaison avec des territoires semblables, pas une mesure du besoin."}
     const st=D.niveaux[lv].entonnoir?.[p0]?.[i];
     if(st!=null)ph+=" Compte tenu de sa taille, ce territoire est "+STATUT[String(st)]+".";
     // aucun psychiatre déclaré, mais des CMP où des psychiatres peuvent consulter (FINESS)
@@ -1858,40 +1956,43 @@ function selCard(){
       const nc=D.niveaux[lv].cmp?.[i]||0,cmpTxt=g&&!pt&&nc&&p0!=="psychiatre"?" L’intercommunalité accueille toutefois "+nc+" centre"+(nc>1?"s":"")+" médico-psychologique"+(nc>1?"s":"")+" (CMP), où des psychiatres peuvent consulter sans y être déclarés.":"";
       if(cb)h+='<p class="phrase">'+esc(cb+cmpTxt)+'</p>'}
   }
-  h+='<p class="small muted legende-barres" style="margin:14px 0 0"><svg viewBox="0 0 100 10" preserveAspectRatio="none" aria-hidden="true"><rect x="22" y="2" width="28" height="6" fill="'+css("--d1")+'"/><line x1="50" x2="50" y1="0" y2="10" stroke="'+css("--muted")+'" stroke-width="1"/><rect x="50" y="2" width="20" height="6" fill="'+css("--d5")+'"/></svg>'
-    +'Chaque barre compare la densité du territoire à la moyenne '+MOYLAB[lv]+', marquée par le trait vertical, '+modeLab[S.mode]+'. Vers la gauche en cuivre, la densité est plus faible, vers la droite en bleu, plus forte, jusqu’à quatre fois moins ou quatre fois plus au bord. Le nombre est l’indice, 100 pour la moyenne, 50 pour deux fois moins, 200 pour deux fois plus. Survolez une ligne pour l’effectif et la densité, cliquez pour la cartographier.</p>';
-  const dv=DIV();
+  // légende en couleur (registre, point 10), l'explication de l'indice est dans « Comment lire »
+  const dv=DIV(),barreL=c=>'<svg viewBox="0 0 26 10" aria-hidden="true"><rect x="1" y="2" width="24" height="6" fill="'+c+'"/></svg>';
+  h+='<div class="fiche-legende"><span>'+barreL(dv[1])+'moins dense</span><span><svg viewBox="0 0 26 10" aria-hidden="true"><line x1="13" x2="13" y1="0" y2="10" stroke="'+css("--muted")+'" stroke-width="1.5"/></svg>moyenne '+MOYLAB[lv]+' = 100</span><span>'+barreL(dv[5])+'plus dense</span><span>50 = deux fois moins, 200 = deux fois plus, '+modeLab[S.mode]+'</span></div>';
   const ligne=p=>{const ind=unitD(lv,p.id,i)/refD(lv,p.id)*100,l=Math.max(-2,Math.min(2,Math.log2(Math.max(ind,1)/100)));
       const w=Math.abs(l)/2*50,left=l<0?50-w:50,c=l<0?dv[1]:dv[5];
       const nP=unitN(lv,p.id,i),dP=unitD(lv,p.id,i),bulleP=p.libelle+", "+fmt.format(nP)+" professionnel"+(nP>1?"s":"")+", "+f1.format(dP)+" pour 10 000 habitants, indice "+fmt.format(Math.round(ind))+" (moyenne "+MOYLAB[lv]+" = 100)";
+      if(nP===0){let prec="";
+        if(p.id==="pedopsychiatre"&&IDX.prof.has("q_psychiatrie_enfant")){const q=unitN(lv,"q_psychiatrie_enfant",i);if(q>0)prec=fmt.format(q)+" psychiatre"+(q>1?"s":"")+" qualifié"+(q>1?"s":"")+" pour l’enfant et l’adolescent y exerce"+(q>1?"nt":"")+"."}
+        if(p.id==="psychiatre"){const nc=D.niveaux[lv].cmp?.[i]||0;if(nc)prec=fmt.format(nc)+" CMP, où des psychiatres peuvent consulter sans y être déclarés."}
+        return'<div class="prow zero'+(p.id===S.prof?' on':'')+'" data-p="'+p.id+'" title="'+esc(p.libelle+", aucun professionnel déclaré dans ce territoire, la densité n’est pas comparée"+(prec?". "+prec:"."))+'"><span class="lbl">'+esc(p.libelle)+'</span><span class="aucun">aucun déclaré</span><span class="v"></span>'+(prec?'<span class="prec">'+esc(prec)+'</span>':'')+'</div>'}
       return'<div class="prow'+(p.id===S.prof?' on':'')+'" data-p="'+p.id+'" title="'+esc(bulleP)+'"><span class="lbl">'+esc(p.libelle)+'</span><svg viewBox="0 0 100 10" preserveAspectRatio="none" style="height:10px"><line x1="50" x2="50" y1="0" y2="10" stroke="'+css("--muted")+'" stroke-width=".6"/><rect x="'+left+'" width="'+w+'" y="2" height="6" fill="'+c+'"/></svg><span class="v">'+fmt.format(Math.round(ind))+'</span></div>'};
   const blocs={};
   // deux blocs séparés, santé mentale puis santé
   for(const fam of [SM,SANTE]){
     if(S.fam!=="*"&&S.fam!==fam)continue;
     const ps=D.professions.filter(p=>famOf(p)===fam&&natN(p.id)>0);if(!ps.length)continue;
-    const h0=h;h='<div class="bloc"><div class="bt">'+(fam===SM?"Santé mentale":"Santé")+'</div>';
+    const h0=h;h='<h3 class="fiche-bt">'+(fam===SM?"Santé mentale":"Santé")+'</h3>';
     for(const g of [...new Set(ps.map(p=>p.groupe))].sort((a,b)=>ordreGroupe(a)-ordreGroupe(b))){
       const pg=ps.filter(p=>p.groupe===g),annexe=pg.some(p=>natOf(p)!=="profession");
-      if(annexe){h+='<details class="groupe"'+(pg.some(p=>p.id===S.prof)?' open':'')+'><summary>'+esc(g)+' <span class="tag">ne s’additionne pas</span></summary>';for(const p of pg)h+=ligne(p);h+='</details>'}
+      if(annexe){h+='<details class="groupe gr"'+(pg.some(p=>p.id===S.prof)?' open':'')+'><summary>'+esc(g)+'<span class="mention">ne s’additionne pas</span></summary>';for(const p of pg)h+=ligne(p);h+='</details>'}
       // spécialités médicales repliées par groupe, ouvertes quand la profession affichée en fait partie (version 2)
-      else if((D.meta.groupes_specialites||[]).includes(g)){h+='<details class="groupe"'+(pg.some(p=>p.id===S.prof)?' open':'')+'><summary>'+esc(g)+' <span class="tag">'+pg.length+'</span></summary>';for(const p of pg)h+=ligne(p);h+='</details>'}
-      else{h+='<div class="gh">'+esc(g)+'</div>';for(const p of pg)h+=ligne(p)}
+      else if((D.meta.groupes_specialites||[]).includes(g)){h+='<details class="groupe gr"'+(pg.some(p=>p.id===S.prof)?' open':'')+'><summary>'+esc(g)+'<span class="mention">'+pg.length+' spécialités</span></summary>';for(const p of pg)h+=ligne(p);h+='</details>'}
+      else{h+='<div class="gr"><div class="gh">'+esc(g)+'</div>';for(const p of pg)h+=ligne(p);h+='</div>'}
     }
-    h+='</div>';blocs[fam]=h;h=h0;
+    blocs[fam]=h;h=h0;
   }
-  if(u.x){blocs.pop='';const h0=h;h='';const grp=[...new Set(ctxVisibles().filter(c=>u.x[c.i]!=null).map(c=>c.groupe||"Profil de la population"))];const ligneCtx=c=>u.x[c.i]==null?'':'<dt title="'+esc((c.explication||"")+(c.source?" Source, "+c.source+".":""))+'">'+esc(c.label)+'</dt><dd>'+(c.unite==="€"?fmt.format(Math.round(u.x[c.i]))+' €':f1.format(u.x[c.i])+(c.unite==="%"?" %":""))+'</dd>';
-  h+='<div class="bloc"><div class="bt">Profil de la population</div>'+grp.map(g=>'<div class="gh">'+esc(g)+'</div><dl class="f">'+ctxVisibles().filter(c=>(c.groupe||"Profil de la population")===g).map(ligneCtx).join("")+'</dl>').join("")+'</div>';blocs.pop=h;h=h0}
-  // santé mentale et profil de la population à gauche, santé à droite (ou profil à droite si une seule famille)
-  const g1=[blocs[SM],S.fam==="*"?blocs.pop:"",S.fam===SANTE?blocs[SANTE]:""].join(""),g2=S.fam==="*"?(blocs[SANTE]||""):(blocs.pop||"");
-  h+='<div class="selcols"><div>'+g1+'</div><div>'+g2+'</div></div>';
+  if(u.x){blocs.pop='';const h0=h;h='';const grp=[...new Set(ctxVisibles().filter(c=>u.x[c.i]!=null).map(c=>c.groupe||"Profil de la population"))];const ligneCtx=c=>u.x[c.i]==null?'':'<div><dt title="'+esc((c.explication||"")+(c.source?" Source, "+c.source+".":""))+'">'+esc(c.label)+'</dt><dd>'+(c.unite==="€"?fmt.format(Math.round(u.x[c.i]))+'\u202f€':(u.x[c.i]===0?"0":f1.format(u.x[c.i]))+(c.unite==="%"?"\u202f%":c.unite==="km"?"\u202fkm":c.unite==="minutes"?"\u202fmin":""))+'</dd></div>';
+  h+='<h3 class="fiche-bt">Profil de la population</h3>'+grp.map(g=>'<div class="gr pop">'+(g==="Profil de la population"?'':'<div class="gh">'+esc(g)+'</div>')+'<dl class="kv">'+ctxVisibles().filter(c=>(c.groupe||"Profil de la population")===g).map(ligneCtx).join("")+'</dl></div>').join("");blocs.pop=h;h=h0}
+  // offre de la famille choisie (santé mentale puis santé), puis profil de la population, chacun en colonnes équilibrées
+  h+='<div class="fiche-colonnes">'+[blocs[SM],blocs[SANTE],blocs.pop].filter(Boolean).join("")+'</div>';
   if(LX&&D.niveaux[lv].lieux)h+='<p class="small" style="margin:14px 0 0"><button type="button" class="lien" id="selVersLieux">Structures de soins de ce territoire, niveau de confirmation et liste</button></p>';
   // limites propres à ce territoire (par exemple les suicides en Île-de-France)
   const codes=[S.sel.c,lv==="epci"?u.p:null],lims=Object.keys(D.limites||{}).filter(k=>codes.some(c=>c&&D.limites[k].territoires?.[c]));
   if(fragile(lv,S.sel.c))lims.unshift(fragile(lv,S.sel.c));
   h+=limiteHtml(["prof:"+p0,...lims],codes);
   // le détail se masque ou s'affiche par la flèche, l'en-tête reste visible (le choix est gardé d'un territoire à l'autre)
-  el.innerHTML=h.slice(0,finTete)+'<div id="selCorps" data-export="fiche"'+(S.selReplie?' hidden':'')+'>'+h.slice(finTete)+'</div>';
+  el.innerHTML=h.slice(0,finTete)+'<div id="selCorps" data-export="fiche"'+(S.selReplie?' hidden':'')+'>'+h.slice(finTete)+'</div>';el.classList.toggle("repliee",!!S.selReplie);
   // valeurs de la fiche, exportées par « Citer et exporter »
   EXPORT_CSV.fiche=()=>{const lignes=[["Profession","Effectif","Pour 10 000 habitants","Indice (moyenne "+MOYLAB[lv]+" = 100)"]];
     for(const pr of D.professions.filter(x=>(S.fam==="*"||famOf(x)===S.fam)&&!x.id.startsWith("esm_")&&natN(x.id)>0)){const n=unitN(lv,pr.id,i),d=unitD(lv,pr.id,i),r=refD(lv,pr.id);
@@ -1901,7 +2002,8 @@ function selCard(){
   br.innerHTML='<h2>'+esc(u.nm)+'</h2><div class="muted small">'+esc(parent)+', '+fmt.format(u.pop)+' habitants</div>'+(court?'<p class="phrase">'+esc(court.split(". ")[0].replace(/\.$/,""))+'.'+(precision?' '+esc(precision):'')+'</p>':'')+'<button class="lien" id="selVoir">Voir son profil complet sous la carte</button>';
   document.getElementById("selVoir").onclick=()=>el.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});
   document.getElementById("selReplier").onclick=()=>{S.selReplie=!S.selReplie;const b=document.getElementById("selReplier");
-    document.getElementById("selCorps").hidden=S.selReplie;b.setAttribute("aria-expanded",String(!S.selReplie));b.lastChild.textContent=" "+(S.selReplie?"Afficher le détail":"Masquer le détail")};
+    document.getElementById("selCorps").hidden=S.selReplie;b.setAttribute("aria-expanded",String(!S.selReplie));b.innerHTML=S.selReplie?ICONE_FEN.plus:ICONE_FEN.moins;
+    b.setAttribute("aria-label",(S.selReplie?"Déplier":"Replier")+" la fiche « "+u.nm+" »");el.classList.toggle("repliee",S.selReplie)};
   el.querySelectorAll(".prow").forEach(r=>r.onclick=()=>{S.prof=r.dataset.p;document.getElementById("prof").value=S.prof;render()});
   const vl=document.getElementById("selVersLieux");if(vl)vl.onclick=versStructures;
 }
@@ -2386,7 +2488,7 @@ function effetVille(){
 
 
 // ---------- entonnoir
-const STATUT={"-2":"nettement en dessous de la moyenne des territoires, au-delà de ce que le hasard expliquerait","-1":"en dessous de la moyenne des territoires, un écart que le hasard expliquerait rarement","0":"dans la norme, l’écart à la moyenne des territoires peut tenir au hasard","1":"au-dessus de la moyenne des territoires, un écart que le hasard expliquerait rarement","2":"nettement au-dessus de la moyenne des territoires, au-delà de ce que le hasard expliquerait"};
+const STATUT={"-2":"nettement en dessous de la moyenne des territoires, au-delà de ce que le hasard expliquerait","-1":"en dessous de la moyenne des territoires, un écart que le hasard expliquerait rarement","0":"proche de la moyenne des territoires, l’écart peut tenir au hasard","1":"au-dessus de la moyenne des territoires, un écart que le hasard expliquerait rarement","2":"nettement au-dessus de la moyenne des territoires, au-delà de ce que le hasard expliquerait"};
 
 // lien vers les fenêtres d'Explorer qui ont repris les onglets Inégalités et Typologie (lots 2 et 3, 28 octobre
 // 2026), réglé sur la profession, le niveau et la famille choisis ici ; les régions, sans escalier ni entonnoir,

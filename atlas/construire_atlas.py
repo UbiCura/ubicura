@@ -32,6 +32,26 @@ ISC = ("/* Copyright {} Mike Bostock\n"
        "CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE. */\n")
 
 
+# Leaflet 1.9.4 (plan IGN de l'encadré des structures d'un territoire, 28 octobre 2026), fichiers dist pris sur unpkg
+# et contrôlés le 28 octobre 2026 contre les empreintes publiées par cdnjs (sha512 de leaflet.js et leaflet.css
+# identiques), licence BSD à deux clauses reproduite dans la page et dans vendor/LICENSE-leaflet.txt
+LEAFLET_EMPREINTES = {
+    "leaflet.js": "BwHfrr4c9kmRkLw6iXFdzcdWV/PGkVgiIyIWLLlTSXzWQzxuSg4DiQUCpauz/EWjgk5TYQqX/kvn9pG1NpYfqg==",
+    "leaflet.css": "Zcn6bjR/8RZbLEpLIeOwNtzREBAJnUKESxces60Mpoj+2okopSAcSUIUOseddDm0cxnGQzxIR7vJgsLZbdLE3w==",
+}
+
+
+def _leaflet(nom: str) -> str:
+    """Fichier de Leaflet, refusé si son empreinte n'est pas celle qui a été contrôlée, précédé de sa licence."""
+    import base64
+    import hashlib
+    brut = (ICI / "vendor" / nom).read_bytes()
+    if base64.b64encode(hashlib.sha512(brut).digest()).decode() != LEAFLET_EMPREINTES[nom]:
+        raise ValueError(f"Empreinte inattendue pour atlas/vendor/{nom}")
+    licence = (ICI / "vendor" / "LICENSE-leaflet.txt").read_text(encoding="utf-8").replace("*/", "* /")
+    return "/*\n" + licence + "*/\n" + brut.decode("utf-8")
+
+
 def _fond() -> Path:
     """Fond de carte fabriqué par python run.py à partir des contours de l'IGN (pipeline.cartes)."""
     sys.path.insert(0, str(ICI.parent))
@@ -106,6 +126,8 @@ def construire(src: Path, dest: Path, nav: str = "", accueil: str = "", titre: s
     remplacements = {
         "/*D3*/": ISC.format("2010-2023") + (ICI / "vendor" / "d3.min.js").read_text(encoding="utf-8"),
         "/*TOPO*/": ISC.format("2012-2019") + (ICI / "vendor" / "topojson-client.min.js").read_text(encoding="utf-8"),
+        "/*LEAFLET*/": _leaflet("leaflet.js"),
+        "/*LEAFLET_CSS*/": _leaflet("leaflet.css"),
         # césure française du texte justifié, module hyphen (licence ISC) et règles du français, puis le réglage du site
         "/*CESURE*/": "\n".join((d / f).read_text(encoding="utf-8") for d, f in
                                 ((ICI / "vendor", "hyphen.js"), (ICI / "vendor", "hyphen-fr.js"),

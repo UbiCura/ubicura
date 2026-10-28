@@ -1,3 +1,6 @@
 # Les scripts shell (hook pre-push) doivent garder des fins de ligne Unix, même sous Windows.
 .githooks/* text eol=lf
 *.sh text eol=lf
+# Leaflet est contrôlé par son empreinte (atlas/construire_atlas.py), il doit être gardé octet pour octet.
+atlas/vendor/leaflet.js -text
+atlas/vendor/leaflet.css -text

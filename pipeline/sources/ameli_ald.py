@@ -93,7 +93,7 @@ def charger(hors_ligne=False, rafraichir=False):
                      "explication": (f"Personnes en affection de longue durée n° {num} ({noms.get(num, lab)}) pour "
                                      f"100 000 personnes protégées du régime général, taux standardisé sur l'âge pour "
                                      f"comparer des départements jeunes et âgés. Année {annee}."),
-                     "source": SOURCE, "famille": fam, "licence": "Licence Ouverte 2.0", "niveau_origine": "dep",
+                     "source": SOURCE, "famille": fam, "licence": "Licence Ouverte 1.0", "niveau_origine": "dep",
                      "annee": annee, "groupe": None if fam == config.SANTE_MENTALE else config.GROUPE_ALD})
     n_dep = table["code"].nunique()
     JOURNAL.note(SOURCE, "ok", f"{table['ald'].nunique()} affections, {n_dep} départements, année {annee}, "

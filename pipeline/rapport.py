@@ -989,7 +989,7 @@ def _zones(C: Contexte, famille):
                    "Intercommunalités en zone de concentration", "Habitants concernés"],
                   {"desert_n": nombre, "desert_pop": pct, "conc_n": nombre, "conc_pop": pct}), ""]
     L += _comment_lire(
-        "Un territoire mal doté n'est pas forcément un désert. S'il est entouré de territoires bien dotés, ses "
+        "Un territoire peu doté n'est pas forcément un désert. S'il est entouré de territoires bien dotés, ses "
         "habitants peuvent consulter à côté. Une zone peu dotée réunit au contraire des territoires voisins tous en "
         "dessous de la moyenne, ce qui rend le recours de proximité plus difficile. Une zone de concentration est "
         "l'inverse. La carte de ces zones se trouve dans l'atlas (affichage « Zones »).")
@@ -1221,6 +1221,37 @@ def _financier(C: Contexte, famille):
             f"licence ODbL. Part non calculée pour un département qui compte moins de "
             f"{config.AMELI_SECTEURS_EFFECTIF_MIN} libéraux de la profession. Mayotte est exclue. Valeurs par "
             f"département dans contexte_dep_odbl.csv."]
+    # dépassements réellement facturés par les libéraux de secteur 2 (montants des honoraires, 28 octobre 2026)
+    h = ac.get("honoraires")
+    if h is not None and not h.empty:
+        hf = h[(h["niveau"] == "FR") & h["prof"].isin(FINANCIER[famille])].set_index("prof").reindex(FINANCIER[famille]).dropna(how="all")
+        hd = h[(h["niveau"] == "dep") & ~h["code"].isin(config.AMELI_DEPARTEMENTS_EXCLUS)]
+        if not hf.empty and hf["taux_depassement_s2"].notna().any():
+            hf["libelle"] = hf.index.map(lab)
+            hf["mediane"] = [hd.loc[hd["prof"] == q, "taux_depassement_s2"].median() for q in hf.index]
+            hf["publies"] = [int(hd.loc[hd["prof"] == q, "taux_depassement_s2"].notna().sum()) for q in hf.index]
+            q0 = hf.index[0]
+            v0 = hd.loc[hd["prof"] == q0, "taux_depassement_s2"].dropna()
+            L += ["#### Dépassements réellement facturés", "",
+                  f"En {h['annee'].iloc[0]}, les dépassements facturés par les {hf.at[q0, 'libelle'].lower()} libéraux de "
+                  f"secteur 2 représentent {pct(hf.at[q0, 'taux_depassement_s2'])} de leurs honoraires sans dépassement. "
+                  # un taux publié à 0 recouvre des dépassements minuscules mais réels (arrondi du jeu), jamais un 0 seul
+                  f"Selon les départements, ce taux va de {pct(v0.min()) if v0.min() > 0 else 'moins de 0,1 %'} à "
+                  f"{pct(v0.max())}, avec une médiane de "
+                  f"{pct(v0.median())}.", "",
+                  _tableau(hf.reset_index(), ["libelle", "taux_depassement_s2", "mediane", "publies"],
+                           ["Profession", "Dépassements en part des honoraires, France", "Milieu des départements",
+                            "Départements où le taux est publié"],
+                           {"taux_depassement_s2": pct, "mediane": pct, "publies": nombre}), ""]
+            L += _comment_lire(
+                "Le taux rapporte les dépassements facturés par les libéraux de secteur 2 à leurs honoraires sans "
+                "dépassement, tel que le publie l'Assurance Maladie. Un taux de 50 % veut dire que, pour 100 euros "
+                "au tarif de la Sécurité sociale, ces médecins facturent en moyenne 50 euros de plus. C'est une "
+                "moyenne sur l'ensemble de leurs actes, pas ce que paie chaque patient.",
+                limites.phrase_md(["taux_depassement"]))
+            plus.append(f"Source, Assurance Maladie, montants des honoraires des libéraux par territoire, année "
+                        f"{h['annee'].iloc[0]}, licence ODbL. Valeurs par département dans contexte_dep_odbl.csv et "
+                        f"honoraires_odbl.csv.")
     ald = ac.get("ald")
     if famille == SANTE and ald is not None and not ald.empty:
         a = ald[(ald["niveau"] == "dep") & ~ald["code"].isin(config.AMELI_DEPARTEMENTS_EXCLUS)].set_index("code")["valeur"].dropna()
@@ -1247,6 +1278,52 @@ def _financier(C: Contexte, famille):
     if "#### Patients sans médecin traitant" in L:
         L[0] = "### Accès financier et médecin traitant"
     L += _plus_loin(plus)
+    return L
+
+
+AGE = {SM: ["psychiatre"], SANTE: ["medecin_generaliste", "pediatre", "gynecologue", "ophtalmologue", "chirurgien_dentiste",
+                                    "masseur_kinesitherapeute", "sage_femme", "pharmacien", "infirmier_liberal"]}
+
+
+def _age(C: Contexte, famille):
+    """Part des professionnels de 60 ans et plus, d'après les séries de la DREES (28 octobre 2026)."""
+    ag = C.externes.get("age")
+    if not ag or ag.get("table") is None:
+        return []
+    t = ag["table"]
+    ids = [f"age60_{p}" for p in AGE[famille]]
+    fr = t[(t["niveau"] == "france") & t["indicateur"].isin(ids)]
+    if fr.empty:
+        return []
+    dep = t[(t["niveau"] == "dep") & ~t["code"].isin(config.DEPARTEMENTS_EXCLUS_CROISEMENTS)]
+    lignes = []
+    for i in ids:
+        x = fr[fr["indicateur"] == i].sort_values("annee")
+        if len(x) < 1:
+            continue
+        a0, a1 = x.iloc[0], x.iloc[-1]
+        d = dep[(dep["indicateur"] == i) & (dep["annee"] == a1["annee"])]["part_60"]
+        lignes.append({"libelle": a1["libelle"], "annee0": int(a0["annee"]), "part0": a0["part_60"], "annee1": int(a1["annee"]),
+                       "part1": a1["part_60"], "mediane": d.median(), "min": d.min(), "max": d.max()})
+    if not lignes:
+        return []
+    T = pd.DataFrame(lignes)
+    r = T.iloc[0]
+    # « Psychiatres, dont psychiatres de l'enfant » devient « psychiatres (psychiatres de l'enfant compris) » dans la phrase
+    nom, _, dont = minuscule(r["libelle"]).partition(", dont ")
+    nom = nom + (f" ({dont} compris)" if dont else "")
+    L = ["### Âge des professionnels", "",
+         f"Au 1er janvier {r['annee1']}, {pct(r['part1'])} des {nom} ont 60 ans ou plus, contre "
+         f"{pct(r['part0'])} en {r['annee0']}. Selon les départements, cette part va de {pct(r['min'])} à "
+         f"{pct(r['max'])}." + (" L'âge des psychologues n'est pas publié de façon utilisable." if famille == SM else ""), "",
+         _tableau(T, ["libelle", "annee0", "part0", "annee1", "part1", "mediane"],
+                  ["Profession", "Première année", "60 ans et plus", "Dernière année", "60 ans et plus",
+                   "Milieu des départements"],
+                  {"annee0": str, "annee1": str, "part0": pct, "part1": pct, "mediane": pct}), ""]
+    L += _comment_lire(
+        "La part des 60 ans et plus est un repère du renouvellement à venir de la profession dans le territoire. Elle "
+        "ne prévoit pas les départs, qui dépendent aussi de l'âge de cessation d'activité et des installations.",
+        limites.phrase_md(["age_drees"]))
     return L
 
 
@@ -2375,7 +2452,7 @@ def _entonnoir(C: Contexte, famille):
          f"de ce que le hasard pourrait expliquer.", "",
          _tableau(t, ["libelle", "part_nettement_en_dessous", "part_population_nettement_en_dessous", "part_hors_95"],
                   ["Profession", "Intercommunalités nettement en dessous", "Habitants concernés",
-                   "Intercommunalités hors de la norme (au-dessus ou en dessous)"],
+                   "Intercommunalités hors des limites à 95 % (au-dessus ou en dessous)"],
                   {"part_nettement_en_dessous": pct, "part_population_nettement_en_dessous": pct,
                    "part_hors_95": pct}), ""]
     L += graphique("entonnoir_" + ("sm" if famille == SM else "sante"))
@@ -2386,7 +2463,7 @@ def _entonnoir(C: Contexte, famille):
         "moyenne des intercommunalités deux limites qui se resserrent quand la population augmente. Un territoire sous la "
         "limite la plus large est dit nettement en dessous, ce que le hasard expliquerait au plus deux fois sur "
         "mille.",
-        f"Si seul le hasard jouait, environ 5 % des territoires seraient hors de la norme. Pour les "
+        f"Si seul le hasard jouait, environ 5 % des territoires sortiraient des limites à 95 %. Pour les "
         f"{pluriel(r0['libelle'])}, c'est {pct(r0['part_hors_95'])}. {hasard}",
         "Pour une profession rare comme la pédopsychiatrie, les limites sont si larges que presque aucun "
         "territoire n'en sort. Cela ne signifie pas que l'offre est homogène, seulement que les effectifs sont trop "
@@ -2396,7 +2473,7 @@ def _entonnoir(C: Contexte, famille):
                      "national. La forte proportion de territoires hors des limites traduit une surdispersion par "
                      "rapport au modèle de Poisson. Les limites ne sont pas élargies pour en tenir compte, elles "
                      "repèrent donc les écarts au hasard, pas les seuls territoires exceptionnels. Statut de chaque "
-                     "territoire dans entonnoir.csv (-2 nettement en dessous, -1 en dessous, 0 dans la norme, 1 "
+                     "territoire dans entonnoir.csv (-2 nettement en dessous, -1 en dessous, 0 proche de la moyenne, 1 "
                      "au-dessus, 2 nettement au-dessus)."])
     return L
 
@@ -2487,7 +2564,7 @@ def _retrait(C: Contexte, famille):
             f"pauvreté, densité de population...) en comptent environ {nombre(r['effectif_attendu'])}. Le rapport "
             f"de {nombre(r['rapport'], 2)} se lit « {nombre(r['rapport'] * 100)} % de l'effectif attendu ».",
             "Ce n'est pas une mesure du besoin de soins. C'est une comparaison avec des territoires semblables, "
-            "qui peuvent eux-mêmes être mal dotés. Ces tableaux décrivent un écart et ne classent pas les "
+            "qui peuvent eux-mêmes être peu dotés. Ces tableaux décrivent un écart et ne classent pas les "
             "territoires. Sur de petits effectifs, quelques arrivées ou départs suffisent à changer la liste d'une "
             "année à l'autre.")
     if isinstance(q, pd.DataFrame) and len(q):
@@ -2793,7 +2870,7 @@ def ecrire(out, agg, ref, professions, insee, R, jour):
                     "territoires et ne disent pas ce qui cause la présence ou l'absence de l'offre.")
     partie_sm = (["## Santé mentale", "", "### En bref", ""]
                  + [f"- {p}" for p in _en_bref_sm(C, ctxlab)] + [""]
-                 + _groupe("L'offre de soins en santé mentale", intro_offre, _panorama(C, SM), rapport_bases.evolution(C, SM),
+                 + _groupe("L'offre de soins en santé mentale", intro_offre, _panorama(C, SM), rapport_bases.evolution(C, SM), _age(C, SM),
                            _hopital(C), _lieux(C, SM), _public_cible(C, SM), _modes(C, SM), _porte(C, SM),
                            _exercice(C, SM),
                            cles=_cles(_cle_effectif(C, "psychologue"), _cle_effectif(C, "psychiatre"),
@@ -2814,7 +2891,7 @@ def ecrire(out, agg, ref, professions, insee, R, jour):
                  + _typologie(C, "sm"))
     partie_sante = (["## Santé", "", "### En bref", ""]
                     + [f"- {p}" for p in _en_bref_sante(C, ctxlab)] + [""]
-                    + _groupe("L'offre de soins générale", intro_offre, _panorama(C, SANTE), rapport_bases.evolution(C, SANTE),
+                    + _groupe("L'offre de soins générale", intro_offre, _panorama(C, SANTE), rapport_bases.evolution(C, SANTE), _age(C, SANTE),
                               _lieux(C, SANTE), _public_cible(C, SANTE), _modes(C, SANTE), _porte(C, SANTE),
                               _exercice(C, SANTE),
                               cles=_cles(_cle_effectif(C, "medecin_generaliste"), _cle_effectif(C, "pharmacien"),

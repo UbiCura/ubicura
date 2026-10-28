@@ -322,10 +322,10 @@ def entonnoir(R, lab, cle, p=None):
             f.ajout(f'<path d="M{cx - 3:.1f},{f.hh + 5:.1f}L{cx + 3:.1f},{f.hh + 5:.1f}L{cx:.1f},{f.hh:.1f}Z" '
                     f'fill="{c}">{info}</path>')
         else:
-            # territoires dans la norme en retrait, les écarts au hasard en avant
+            # territoires proches de la moyenne en retrait, les écarts au hasard en avant
             f.ajout(f'<circle cx="{cx:.1f}" cy="{f.Y(v):.1f}" r="2.2" fill="{c}" '
                     f'fill-opacity="{.35 if int(r["statut"]) == 0 else .9}">{info}</circle>')
-    leg = [(-2, "nettement en dessous"), (-1, "en dessous"), (0, "dans la norme"), (1, "au-dessus"),
+    leg = [(-2, "nettement en dessous"), (-1, "en dessous"), (0, "proche de la moyenne"), (1, "au-dessus"),
            (2, "nettement au-dessus")]
     fs = f.fs("petit")
     y = legende(f.el, f.g, 14, [("point", couleurs[k], l) for k, l in leg], f.w, fs)

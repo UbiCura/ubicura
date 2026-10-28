@@ -41,6 +41,11 @@ VOCABULAIRE_A_EVITER = [
     (r"\bgenere(e|s|es)? automatiquement\b|\bproduit automatiquement\b", "vocabulaire « généré » à éviter sur le site"),
     # consigne du 4 octobre 2026, ne pas mettre en avant l'outil qui télécharge ou calcule
     (r"\b(le|du|par le|au) programme\b", "« le programme » mis en avant, préférer une formulation centrée sur les données"),
+    # remarque de Lucas du 28 octobre 2026, l'écart à l'effectif attendu n'est ni un manque ni un écart à une norme
+    (r"\bil en manque\b|\bmanquent environ\b", "écart à l'effectif attendu présenté comme un manque, le décrire (« environ N de moins »)"),
+    # règle 13, aucun territoire désigné comme mauvais élève (séance principale, 28 octobre 2026)
+    (r"\bmal dote(e|s|es)?\b", "« mal doté » désigne un mauvais élève, préférer « peu doté » ou « moins doté »"),
+    (r"\b(dans|hors de) la norme\b", "« la norme » pour un écart à la moyenne, préférer « proche de la moyenne » ou les limites à 95 %"),
 ]
 
 # Noms propres d'institutions conservés tels quels (validé par Lucas pour la MDPH).

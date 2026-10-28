@@ -1,10 +1,12 @@
 """Assurance Maladie, accès financier aux spécialistes et accès au médecin traitant (data.ameli.fr, ODbL).
 
-Deux jeux, lus par l'API Opendatasoft de data.ameli.fr.
+Trois jeux, lus par l'API Opendatasoft de data.ameli.fr.
 - Effectifs de libéraux par secteur conventionnel. Pour chaque spécialité retenue, part des libéraux qui peuvent
   pratiquer des dépassements d'honoraires (secteur 2, avec ou sans Optam, et non conventionnés), et part de ceux
   dont les dépassements ne sont pas encadrés (secteur 2 sans Optam et non conventionnés).
 - Part des patients en affection longue durée sans médecin traitant.
+- Montants des honoraires des libéraux (28 octobre 2026). Pour les mêmes spécialités, taux de dépassement des libéraux
+  de secteur 2, tel que publié, c'est-à-dire les dépassements réellement facturés en part de leurs honoraires.
 
 Les deux décrivent l'accès aux soins, pas le besoin. Données sous licence ODbL, isolées comme les autres données
 de l'Assurance Maladie dans les fichiers suffixés _odbl."""
@@ -19,6 +21,7 @@ from ..util import JOURNAL, get_json, lire_meta, telecharger
 
 SOURCE_SECTEURS = "Assurance Maladie, effectifs de libéraux par secteur conventionnel (data.ameli.fr, licence ODbL)"
 SOURCE_ALD = "Assurance Maladie, patients en affection longue durée sans médecin traitant (data.ameli.fr, licence ODbL)"
+SOURCE_HONORAIRES = "Assurance Maladie, montants des honoraires des libéraux par territoire (data.ameli.fr, licence ODbL)"
 PAGE = "https://data.ameli.fr/explore/dataset/{}/"
 
 
@@ -75,6 +78,36 @@ def _secteurs(hors_ligne, rafraichir):
     return t.drop(columns=["region", "departement"]), meta
 
 
+def _nombre(s):
+    """Montant publié, « NS » (secret statistique) ou vide donnent une valeur manquante."""
+    return pd.to_numeric(s.where(~s.fillna("").str.strip().isin(["", "NS"])), errors="coerce")
+
+
+def _honoraires(hors_ligne, rafraichir):
+    dest = config.BRUT / "ameli_honoraires.csv"
+    profs = ",".join(f'"{p}"' for p, *_ in config.AMELI_SECTEURS_PROFESSIONS)
+    annee = None if hors_ligne else _derniere_annee(config.AMELI_HONORAIRES_API)
+    where = f"profession_sante in ({profs})" + (f" and annee=date'{annee}'" if annee else "")
+    meta = _export(config.AMELI_HONORAIRES_API, dest,
+                   "annee,profession_sante,region,departement,hono_sans_depassement_totaux,depassements_totaux,"
+                   "depassements_moyens,taux_depassement_s2", where, hors_ligne, rafraichir)
+    df = pd.read_csv(dest, sep=";", dtype=str)
+    df["annee"] = df["annee"].str[:4]
+    df = df[df["annee"] == df["annee"].max()].copy()
+    for c in ("hono_sans_depassement_totaux", "depassements_totaux", "depassements_moyens", "taux_depassement_s2"):
+        df[c] = _nombre(df[c])
+    # sous secret statistique, le jeu écrit un taux de 0, gardé comme valeur manquante (jamais un faux 0)
+    df.loc[df["depassements_totaux"].isna(), "taux_depassement_s2"] = float("nan")
+    df["niveau"] = "dep"
+    df.loc[df["departement"] == "999", "niveau"] = "reg"
+    df.loc[(df["departement"] == "999") & (df["region"] == "99"), "niveau"] = "FR"
+    df["code"] = df["departement"].where(df["niveau"] == "dep", df["region"]).str.zfill(2)
+    df.loc[df["niveau"] == "FR", "code"] = "FR"
+    ids = {p: i for p, i, _lab, _fam in config.AMELI_SECTEURS_PROFESSIONS}
+    df["prof"] = df["profession_sante"].map(ids)
+    return df.drop(columns=["region", "departement"]), meta
+
+
 def _ald(hors_ligne, rafraichir):
     dest = config.BRUT / "ameli_ald_sans_medecin_traitant.csv"
     annee = None if hors_ligne else _derniere_annee(config.AMELI_ALD_API)
@@ -92,8 +125,9 @@ def _ald(hors_ligne, rafraichir):
 
 
 def charger(ref, hors_ligne=False, rafraichir=False):
-    """Renvoie {"contexte": {"dep", "reg"}, "defs": [...], "secteurs": DataFrame, "ald": DataFrame} ou None."""
-    out = {"contexte": {"dep": pd.DataFrame(), "reg": pd.DataFrame()}, "defs": [], "secteurs": None, "ald": None}
+    """Renvoie {"contexte": {"dep", "reg"}, "defs": [...], "secteurs", "ald", "honoraires" (DataFrame)} ou None."""
+    out = {"contexte": {"dep": pd.DataFrame(), "reg": pd.DataFrame()}, "defs": [], "secteurs": None, "ald": None,
+           "honoraires": None}
     try:
         t, meta = _secteurs(hors_ligne, rafraichir)
         out["secteurs"] = t
@@ -121,6 +155,39 @@ def charger(ref, hors_ligne=False, rafraichir=False):
                          f"{int((t['niveau'] == 'dep').sum())}")
     except Exception as e:  # noqa: BLE001
         JOURNAL.note("Assurance Maladie, secteurs conventionnels", "erreur", str(e)[:300])
+    try:
+        h, meta = _honoraires(hors_ligne, rafraichir)
+        # sans aucun libéral de secteur 2 dans le territoire (secteurs conventionnels), un taux de 0 n'a pas de sens
+        if out["secteurs"] is not None:
+            s2 = out["secteurs"].set_index(["niveau", "code", "prof"])["secteur_2"]
+            sans_s2 = s2.reindex(pd.MultiIndex.from_frame(h[["niveau", "code", "prof"]])).to_numpy() == 0
+            h.loc[sans_s2, "taux_depassement_s2"] = float("nan")
+        out["honoraires"] = h
+        for p, iid, lab, fam in config.AMELI_SECTEURS_PROFESSIONS:
+            x = h[h["prof"] == iid]
+            cle = f"taux_depassement_{iid}"
+            for niv in ("dep", "reg"):
+                out["contexte"][niv][cle] = x[x["niveau"] == niv].set_index("code")["taux_depassement_s2"] * 100
+            out["defs"].append({
+                "id": cle, "libelle": f"{lab} libéraux en secteur 2, dépassements en part des honoraires", "unite": "%",
+                "explication": f"Montant des dépassements facturés par les {lab.lower()} libéraux de secteur 2 du "
+                               f"territoire, rapporté à leurs honoraires sans dépassement, en {h['annee'].iloc[0]}, tel "
+                               f"que le publie l'Assurance Maladie. Mesure les dépassements réellement facturés, en "
+                               f"moyenne, pas ce que paie chaque patient. Non publié quand les montants sont couverts "
+                               f"par le secret statistique.",
+                "source": SOURCE_HONORAIRES, "famille": fam, "licence": config.AMELI_LICENCE, "niveau_origine": "dep",
+                "groupe": config.GROUPE_ACCES})
+        fr = h[(h["niveau"] == "FR") & (h["prof"] == "psychiatre")]
+        dep = h[h["niveau"] == "dep"]
+        JOURNAL.note("Assurance Maladie, montants des honoraires", "ok",
+                     f"année {h['annee'].iloc[0]}, {dep['code'].nunique()} départements, taux de dépassement des "
+                     f"psychiatres libéraux de secteur 2 en France "
+                     + (f"{fr['taux_depassement_s2'].iloc[0] * 100:.1f} %".replace(".", ",") if len(fr) else "non publié"),
+                     url=PAGE.format("honoraires"), date_donnees=(meta.get("maj_source") or "")[:10])
+        JOURNAL.controle("Assurance Maladie, taux de dépassement non publiés (secret statistique)",
+                         f"{int(dep['taux_depassement_s2'].isna().sum())} sur {len(dep)} couples département et profession")
+    except Exception as e:  # noqa: BLE001
+        JOURNAL.note("Assurance Maladie, montants des honoraires", "erreur", str(e)[:300])
     try:
         a, meta = _ald(hors_ligne, rafraichir)
         out["ald"] = a

@@ -208,6 +208,12 @@ GROUPE_ACCES = "Accès financier et médecin traitant"
 # 2026. Part des patients en affection longue durée sans médecin traitant, par département et région, 2018 à 2025.
 AMELI_SECTEURS_API = "https://data.ameli.fr/api/explore/v2.1/catalog/datasets/demographie-secteurs-conventionnels"
 AMELI_ALD_API = "https://data.ameli.fr/api/explore/v2.1/catalog/datasets/patients-longueduree-annuelle"
+# Montants des honoraires des libéraux par profession et territoire (département, région), ODbL, vérifié sur l'API le
+# 28 octobre 2026 (« Professionnels de santé libéraux : montants des honoraires par territoire », mis à jour le
+# 12 octobre 2026, années 2010 à 2025, mêmes libellés de profession que les secteurs conventionnels). Le taux de
+# dépassement des libéraux de secteur 2 est repris tel que publié, sauf quand les montants sont sous secret statistique
+# (« NS »), où le jeu écrit un taux de 0 que l'on garde comme valeur manquante.
+AMELI_HONORAIRES_API = "https://data.ameli.fr/api/explore/v2.1/catalog/datasets/honoraires"
 # spécialité dans le jeu (libellé exact), identifiant, libellé d'affichage, famille
 AMELI_SECTEURS_PROFESSIONS = [
     ("Psychiatres", "psychiatre", "Psychiatres", SANTE_MENTALE),
@@ -600,8 +606,9 @@ SOURCES_INFO = [
      "https://www.data.gouv.fr/datasets/donnees-sur-la-localisation-et-lacces-de-la-population-aux-equipements"),
     (r"^Assurance Maladie, pathologies", "Caisse nationale de l'Assurance Maladie (Cnam)",
      "ODbL 1.0 (partage à l'identique)", "https://data.ameli.fr/explore/dataset/effectifs/"),
+    # Licence Ouverte 1.0 (et non 2.0) d'après l'API de data.gouv, champ license « fr-lo », lu le 28 octobre 2026
     (r"^Assurance Maladie, affections de longue durée", "Caisse nationale de l'Assurance Maladie (Cnam)",
-     "Licence Ouverte 2.0", "https://www.data.gouv.fr/datasets/beneficiaires-du-dispositif-des-affections-de-longue-duree-ald"),
+     "Licence Ouverte 1.0", "https://www.data.gouv.fr/datasets/beneficiaires-du-dispositif-des-affections-de-longue-duree-ald"),
     (r"^CAF", "Caisse nationale des allocations familiales (CNAF)", "Licence Ouverte 2.0", None),   # page notée par le module
     (r"^INSEE, estimations", "INSEE", "Licence Ouverte 2.0", INSEE_ESTIMATIONS_PAGE),
     (r"^Assurance Maladie", "Caisse nationale de l'Assurance Maladie (Cnam)", "ODbL 1.0 (partage à l'identique)",
@@ -1521,8 +1528,28 @@ LIMITES_COURT = {
     "evolution": ("Les séries de la DREES comptent chaque professionnel une seule fois, dans le département de son "
                   "activité principale."),
 }
+# âge des professionnels (DREES) et dépassements réellement facturés (Assurance Maladie), 28 octobre 2026
+LIMITES["age_drees"] = {
+    "risque": "définition différente",
+    "texte": ("La DREES compte chaque professionnel une fois, dans le département de son activité principale, au "
+              "1er janvier, ce qui diffère des comptages par lieu d'exercice du reste du site. Les séries des "
+              "professions longtemps inscrites au répertoire Adeli (psychologues, orthophonistes, psychomotriciens, "
+              "ergothérapeutes et autres) ne comptent que les actifs de moins de 62 ans, leur âge n'est donc pas "
+              "montré. L'extraction ouverte du RPPS ne donne pas l'âge."),
+    "sources": [("DREES, la démographie des professionnels de santé depuis 2012", DREES_DEMOGRAPHIE_PAGE)]}
+LIMITES["taux_depassement"] = {
+    "risque": "champ partiel",
+    "texte": ("Le taux ne concerne que les libéraux de secteur 2 et les dépassements facturés à l'Assurance Maladie. "
+              "Il n'est pas publié quand les montants sont couverts par le secret statistique, ni quand le territoire "
+              "ne compte aucun libéral de secteur 2."),
+    "sources": [("Assurance Maladie, professionnels de santé libéraux, montants des honoraires par territoire",
+                 "https://data.ameli.fr/explore/dataset/honoraires/")]}
+LIMITES_COURT["age_drees"] = ("Âge d'après la DREES, au lieu d'activité principale, psychologues et autres professions "
+                              "d'Adeli absents.")
+LIMITES_COURT["taux_depassement"] = "Libéraux de secteur 2 seulement, taux non publié sous secret statistique."
 LIMITES_ALIAS = {"route:psychiatrie_ambulatoire": "route_psychiatrie_ambulatoire",
-                 "sae_": "sae", "ald_": "ald", "caf_": "caf", "evol:": "evolution", "lieu_": "lieux", "lieux:": "lieux"}
+                 "sae_": "sae", "ald_": "ald", "caf_": "caf", "evol:": "evolution", "lieu_": "lieux", "lieux:": "lieux",
+                 "age60_": "age_drees", "taux_depassement_": "taux_depassement"}
 
 LOI_INVERSE_BESOINS = ["suicides", "hospit_gestes_auto_infliges", "pec_troubles_psy"]
 LOI_INVERSE_PROFESSIONS = ["psychiatre", "psychologue", "q_psychiatrie_enfant", "medecin_generaliste"]
@@ -1669,6 +1696,8 @@ SOURCES_SUIVIES = [
      "Personnes prises en charge pour troubles psychiques et traitements psychotropes, par département."),
     (r"^ameli_secteurs", "Démographie des libéraux par secteur conventionnel", "Assurance Maladie",
      r"^Assurance Maladie, (secteurs|effectifs de libéraux)", "Part des libéraux pouvant pratiquer des dépassements d'honoraires."),
+    (r"^ameli_honoraires", "Montants des honoraires des libéraux par territoire", "Assurance Maladie",
+     r"^Assurance Maladie, montants des honoraires", "Dépassements d'honoraires réellement facturés par les libéraux de secteur 2."),
     (r"^ameli_ald_sans", "Patients en affection longue durée sans médecin traitant", "Assurance Maladie",
      r"^Assurance Maladie, (affection longue durée sans|patients en affection)",
      "Part des patients en affection longue durée sans médecin traitant, par département."),

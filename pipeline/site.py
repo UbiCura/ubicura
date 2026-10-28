@@ -791,7 +791,10 @@ def construire(pdf=True) -> Path:
             html = env.get_template("rapport.html").render(ctx, titre_rapport=t, corps=corps, sommaire=sommaire,
                                                            pdf=f"{cle}.pdf" if (cible_pdf.exists() or (exe and refaire)) else None)
             (dossier / f"{cle}.html").write_text(html, encoding="utf-8")
-            pages.append(dossier / f"{cle}.html")
+            # le langage n'est contrôlé que sur la dernière version, les versions déjà publiées restent telles quelles
+            # (archives citables, décision du 28 octobre 2026)
+            if d == dernier:
+                pages.append(dossier / f"{cle}.html")
             if exe and refaire:
                 if not imprimer_rapport(env, ctx, d, cle, cible_pdf, exe):
                     log.warning("PDF non produit pour %s %s", d.name, cle)

@@ -88,7 +88,7 @@ function escalierI() {
 
 // ---------------------------------------------------------------- écarts qui dépassent le hasard (entonnoir)
 const STATUT_I = {"-2": "nettement en dessous de la moyenne des territoires, au-delà de ce que le hasard expliquerait", "-1": "en dessous de la moyenne des territoires, un écart que le hasard expliquerait rarement",
-  "0": "dans la norme, l'écart à la moyenne des territoires peut tenir au hasard", "1": "au-dessus de la moyenne des territoires, un écart que le hasard expliquerait rarement", "2": "nettement au-dessus de la moyenne des territoires, au-delà de ce que le hasard expliquerait"};
+  "0": "proche de la moyenne des territoires, l'écart peut tenir au hasard", "1": "au-dessus de la moyenne des territoires, un écart que le hasard expliquerait rarement", "2": "nettement au-dessus de la moyenne des territoires, au-delà de ce que le hasard expliquerait"};
 const COUL_STATUT = s => s <= -2 ? "var(--d0, #83451E)" : s === -1 ? "var(--d1, #BC6B3B)" : s >= 2 ? "var(--d6, #1D4D87)" : s === 1 ? "var(--d5, #4A77B0)" : "var(--muted, #5D6371)";
 function entonnoirI() {
   const lv = ETAT.iNiv, p = ETAT.iProf, lab = libI(p), lim = DI.entonnoir?.limites?.[lv]?.[p], st = DI.niv[lv].statut?.[p];
@@ -96,7 +96,7 @@ function entonnoirI() {
   document.getElementById("iEnTitre").textContent = `${cap(plurielI(lab))} pour 10 000 habitants selon la population des ${NIV_I[lv][1]}, avec les limites de ce que le hasard pourrait produire, tous modes d'exercice`;
   if (!lim) { div.innerHTML = `<p class="small muted">Profession trop peu nombreuse pour ce diagramme.</p>`; document.getElementById("iEnResultat").textContent = ""; document.getElementById("iEnLegende").innerHTML = ""; return; }
   const L = DI.niv[lv], pts = L.units.map((u, i) => ({u, i, x: u[2], y: dI(lv, p, i), s: st ? st[i] : null})).filter(d => d.x > 0), nd = refI(lv, p, "all");
-  legende("iEnLegende", [["var(--d0, #83451E)", "nettement en dessous"], ["var(--d1, #BC6B3B)", "en dessous"], ["var(--muted, #5D6371)", "dans la norme"], ["var(--d5, #4A77B0)", "au-dessus"], ["var(--d6, #1D4D87)", "nettement au-dessus"], [null, `moyenne ${NIV_I[lv][3]}, ${f1(nd)}`, true]]);
+  legende("iEnLegende", [["var(--d0, #83451E)", "nettement en dessous"], ["var(--d1, #BC6B3B)", "en dessous"], ["var(--muted, #5D6371)", "proche de la moyenne"], ["var(--d5, #4A77B0)", "au-dessus"], ["var(--d6, #1D4D87)", "nettement au-dessus"], [null, `moyenne ${NIV_I[lv][3]}, ${f1(nd)}`, true]]);
   const w = largeur(div), h = haut(w, 460), m = {l: 52, r: 16, t: 14, b: 44}, svg = svgI(div, w, h, document.getElementById("iEnTitre").textContent);
   const x = d3.scaleLog().domain(d3.extent(pts, d => d.x)).nice().range([m.l, w - m.r]);
   const ymax = Math.max(d3.quantile(pts.map(d => d.y).sort(d3.ascending), .98) || 1, d3.max(lim, r => r[2]) * .5 || 1) * 1.1;

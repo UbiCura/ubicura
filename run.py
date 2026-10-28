@@ -74,13 +74,18 @@ def main(argv=None):
     hop = sae.charger(ref, ctx.get("dep"), hl, rf)
     ald = ameli_ald.charger(hl, rf)
     allo = caf.charger(ref, hl, rf)
-    for src in (am, spf, acc, isd, hop, ald, allo):
+    # séries de la DREES (tableau de concordance, évolution), lues avant les analyses, et part des 60 ans et plus des
+    # professionnels par département tirée des mêmes classeurs (28 octobre 2026)
+    series = drees_demographie.charger(hl, rf)
+    age = drees_demographie.ages(dict(zip(professions["id"], professions["famille"])))
+    for src in (am, spf, acc, isd, hop, ald, allo, age):
         if src:
             for niv, t in src["contexte"].items():
                 ctx[niv] = ctx[niv].join(t, how="left") if niv in ctx else t
             indicateurs += src["defs"]
     contexte = {"contexte": ctx, "millesimes": ins["millesimes"] if ins else {}, "indicateurs": indicateurs,
-                "ameli": am, "odisse": spf, "ameli_acces": acc, "drees_isd": isd, "sae": hop, "ald": ald, "caf": allo} if (ins or indicateurs) else None
+                "ameli": am, "odisse": spf, "ameli_acces": acc, "drees_isd": isd, "sae": hop, "ald": ald, "caf": allo,
+                "age": age} if (ins or indicateurs) else None
     # temps de trajet par la route (INSEE) et accessibilité officielle (DREES), pour situer nos distances
     externes = {"acces_route": acces_route.charger(ref, hl, rf), "apl": apl.charger(ref, hl, rf)}
     if contexte:
@@ -129,8 +134,7 @@ def main(argv=None):
     JOURNAL.controle("Spécialités médicales dont moins d'un tiers des médecins exercent en libéral",
                      ", ".join(L["nom"].split(",")[0] for L in _spec.values()) or "aucune")
     R = analyses.tout(agg, ref, ctx if contexte else None, voisins, offres, externes)
-    # effectifs rapprochés des séries publiées par la DREES (tableau de concordance)
-    series = drees_demographie.charger(hl, rf)
+    # effectifs rapprochés des séries publiées par la DREES (tableau de concordance, séries lues plus haut)
     R.update(concordance.calculer(agg, series))
     # évolution de l'offre sur dix ans, séries de la DREES et populations annuelles de l'INSEE
     R.update(evolution.calculer(series, insee_estimations.charger(hl, rf), ref))

@@ -153,6 +153,10 @@ FICHIERS = [
     (r"^secteurs_conventionnels\.csv$", lambda m: "Libéraux par secteur conventionnel (secteur 1, secteur 2 avec ou "
                                                   "sans Optam, non conventionnés), par spécialité, en France, par "
                                                   "région et par département (Assurance Maladie)."),
+    (r"^honoraires\.csv$", lambda m: "Honoraires des libéraux et dépassements réellement facturés, par spécialité, en "
+                                     "France, par région et par département (Assurance Maladie, dernière année)."),
+    (r"^age_professionnels\.csv$", lambda m: "Part des professionnels de 60 ans et plus, par profession, en France et "
+                                             "par département, première et dernière année des séries de la DREES."),
     (r"^psychiatrie_hopital\.csv$", lambda m: "Psychiatrie à l'hôpital d'après la SAE de la DREES (lits, places, CMP, "
                                               "temps plein de psychiatres et psychologues, file active), par "
                                               "département, région et pour la France."),
@@ -374,6 +378,9 @@ COLONNES = [
     (r"^lieux_pour_100000$", "Nombre de structures de soins de ce type pour 100 000 habitants."),
     (r"^distance_mediane_km$", "Distance médiane des habitants à la structure la plus proche, en km, à vol d'oiseau, cherchée sur le même territoire (Hexagone, Corse ou département d'outre-mer), vide quand ce territoire n'en compte aucune."),
     (r"^part_plus_(20|30)_km$", "Part des habitants à plus de 20 ou 30 km de la structure la plus proche."),
+    (r"^recensement_complet$", "Vrai quand ce type de structure est recensé dans au moins 90 % des départements. Faux, "
+                               "les distances sont trop longues, la structure existant souvent sans être inscrite sous "
+                               "ce type dans FINESS ou le ROR."),
     (r"^lieux_(les_deux|finess|ror)$", "Lieux présents dans les deux bases, dans FINESS seul ou dans le ROR seul."),
     (r"^part_departements$", "Part des départements (Mayotte écartée) où au moins une structure de ce type est recensée."),
     (r"^complet$", "Vrai quand le type est recensé dans au moins 90 % des départements et comparé entre territoires."),
@@ -490,6 +497,15 @@ COLONNES = [
                              "conventionnés), non calculée sous 5 libéraux."),
     (r"^part_depassements_libres$", "Part des libéraux en secteur 2 sans Optam ou non conventionnés."),
     (r"^profession_sante$", "Spécialité, libellé de l'Assurance Maladie."),
+    (r"^hono_sans_depassement_totaux$", "Honoraires sans dépassement des libéraux de la spécialité, en euros."),
+    (r"^depassements_totaux$", "Dépassements d'honoraires facturés par les libéraux de la spécialité, en euros, vide "
+                               "sous secret statistique."),
+    (r"^depassements_moyens$", "Dépassements moyens par libéral de la spécialité, en euros, vide sous secret statistique."),
+    (r"^taux_depassement_s2$", "Dépassements des libéraux de secteur 2 en part de leurs honoraires sans dépassement, "
+                               "tel que publié, vide sous secret statistique ou sans libéral de secteur 2."),
+    (r"^plus_60$", "Professionnels de 60 ans et plus (DREES)."),
+    (r"^somme_tranches$", "Somme des tranches d'âge, contrôle face à l'effectif publié."),
+    (r"^part_60$", "Part des professionnels de 60 ans et plus."),
     (r"^nombre$", "Nombre brut (lits, places, CMP, équivalents temps plein ou patients selon l'indicateur)."),
     (r"^categorie$", "Catégorie d'établissement, libellé d'affichage."),
     (r"^categorie_libelle_officiel$", "Catégorie d'établissement, libellé officiel de la nomenclature FINESS."),
@@ -657,7 +673,7 @@ COLONNES = [
     (r"^decile$", "Dixième de la population, de 1 (territoires les plus modestes) à 10 (les plus aisés)."),
     (r"^niveau_de_vie_(min|max)$", "Niveau de vie médian le plus bas ou le plus haut des territoires de la tranche (€)."),
     (r"^densite$", "Professionnels pour 10 000 habitants."),
-    (r"^statut$", "Position dans l'entonnoir, -2 nettement en dessous, -1 en dessous, 0 dans la norme, 1 au-dessus, "
+    (r"^statut$", "Position dans l'entonnoir, -2 nettement en dessous, -1 en dessous, 0 proche de la moyenne, 1 au-dessus, "
                   "2 nettement au-dessus."),
     (r"^effectif_au_taux_national$", "Effectif qu'aurait le territoire avec la densité nationale."),
     (r"^part_hors_95$", "Part des territoires hors des limites à 95 %."),

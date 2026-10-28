@@ -123,6 +123,10 @@ def ecrire(agg, ref, professions, insee, R, diplomes, jour=None):
             _csv(insee["odisse"]["table"], out / "sante_mentale_sante_publique_france.csv")
         if insee.get("ameli_acces") and insee["ameli_acces"].get("secteurs") is not None:
             _csv(insee["ameli_acces"]["secteurs"], out / "secteurs_conventionnels_odbl.csv")
+        if insee.get("ameli_acces") and insee["ameli_acces"].get("honoraires") is not None:
+            _csv(insee["ameli_acces"]["honoraires"], out / "honoraires_odbl.csv")
+        if insee.get("age"):
+            _csv(insee["age"]["table"], out / "age_professionnels.csv")
         if insee.get("sae"):
             _csv(insee["sae"]["table"], out / "psychiatrie_hopital.csv")
         if insee.get("ald"):
@@ -275,6 +279,9 @@ def _lieux_csv(agg, noms, lab, out: Path):
         _csv(pd.DataFrame((ver.get("verdicts") or {}).get("non_trouves") or [], columns=["cle", "structure", "verdict"]),
              out / "verdicts_sans_structure.csv")
     types = {tp[0]: tp[1] for tp in config.LIEUX_TYPES}
+    # un type recensé dans moins de config.LIEUX_COUVERTURE_MIN des départements donne des distances trop longues (la
+    # structure existe souvent sans être inscrite sous ce type), signalé dans chaque fichier de distances (28 octobre 2026)
+    complet = L["couverture"].set_index("type")["complet"]
     for niv in ("epci", "dep", "reg"):
         c = L["comptes"][niv].pivot_table(index="code", columns="type", values="n", fill_value=0)
         base = noms[niv].set_index("code")[["nom", "pop"]].rename(columns={"pop": "population"})
@@ -285,11 +292,14 @@ def _lieux_csv(agg, noms, lab, out: Path):
         _csv(w.reset_index(), out / f"lieux_soins_{niv}.csv")
         d = (L.get("distances") or {}).get(niv)
         if isinstance(d, pd.DataFrame):
-            d = d.assign(libelle_type=d["type"].map(types), nom=d["code"].map(noms[niv].set_index("code")["nom"]))
+            d = d.assign(libelle_type=d["type"].map(types), nom=d["code"].map(noms[niv].set_index("code")["nom"]),
+                         recensement_complet=d["type"].map(complet).fillna(False).astype(bool))
             _csv(d, out / f"distances_lieux_{niv}.csv")
     d = (L.get("distances") or {}).get("fr")
     if isinstance(d, pd.DataFrame):
-        _csv(d.assign(libelle_type=d["type"].map(types)), out / "distances_lieux_france.csv")
+        _csv(d.assign(libelle_type=d["type"].map(types),
+                      recensement_complet=d["type"].map(complet).fillna(False).astype(bool)),
+             out / "distances_lieux_france.csv")
     # CMP par public, chaque niveau et la France
     rc = []
     for niv in ("epci", "dep", "reg", "fr"):
@@ -618,7 +628,8 @@ def _exercice_atlas(L, top) -> dict:
 
 
 def _site(agg, ref, professions, insee, R, serie, jour):
-    ctx_def = [{k: d[k] for k in ("id", "label", "unite", "explication", "source", "famille", "licence", "groupe", "niveaux")}
+    ctx_def = [{k: d[k] for k in ("id", "label", "unite", "explication", "source", "famille", "licence", "groupe", "niveaux",
+                                  "licence_id", "niveaux_codes", "agregation", "type_valeur", "page_source")}
                for d in indicateurs.liste(insee)]
     # lien de chaque indicateur vers la fiche de son jeu de données (page « Données sources » du site)
     for d in ctx_def:

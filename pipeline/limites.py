@@ -44,7 +44,8 @@ def phrase_md(identifiants, code: str | None = None) -> str:
 
 
 # nom lisible de chaque limite, pour la page méthode
-NOMS = {"suicides": "Décès par suicide", "hospit_gestes_auto_infliges": "Hospitalisations pour geste auto-infligé",
+NOMS = {"age_drees": "Âge des professionnels", "taux_depassement": "Dépassements d'honoraires facturés",
+        "suicides": "Décès par suicide", "hospit_gestes_auto_infliges": "Hospitalisations pour geste auto-infligé",
         "urgences_gestes_auto_infliges": "Passages aux urgences pour geste auto-infligé",
         "prof:infirmier": "Infirmiers", "prof:psychiatre": "Psychiatres, lieu d'exercice", "prof:pedopsychiatre": "Pédopsychiatres, définition",
         "prof:psychologue": "Psychologues", "route": "Temps de trajet par la route",

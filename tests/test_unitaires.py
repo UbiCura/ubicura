@@ -1739,6 +1739,79 @@ def test_css_libelle_valeur_ecart():
                 assert re.search(r"(^|[;{])\s*(column-)?gap:", regle), (f.name, regle.strip()[:120])
 
 
+def test_fiche_territoire():
+    """Fiche d'un territoire de l'atlas (remarques de Lucas du 28 octobre 2026) : une fenêtre comme les autres encadrés,
+    une légende en couleur et non un paragraphe, des groupes en colonnes équilibrées et non une colonne courte à côté
+    d'une longue, aucun indice 0 laissé seul pour une profession absente, aucune mention encadrée, pas de titre
+    « Profil de la population » répété sous le titre du même nom."""
+    import re
+    from pipeline import config
+    t = (config.RACINE / "atlas" / "atlas_template.html").read_text(encoding="utf-8")
+    corps = t[t.index("function selCard(){"):t.index("function hbars(")]
+    assert "legende-barres" not in t and "selcols" not in t
+    assert 'class="fiche-legende"' in corps and 'class="fiche-colonnes"' in corps
+    assert re.search(r"\.fiche-colonnes\{[^}]*columns:", t)
+    assert re.search(r"\.grid\.carte>\.selzone\{[^}]*border:6px solid var\(--fen\)", t)
+    assert "if(nP===0)" in corps and "aucun déclaré" in corps
+    assert 'class="tag"' not in corps
+    assert 'g==="Profil de la population"?\'\'' in corps
+    # tête en barre de fenêtre, repli par le symbole des fenêtres d'Explorer, plus de bouton encadré (28 octobre 2026)
+    assert 'class="pastilles"><button id="selReplier"' in corps and "btn ghost" not in corps
+    assert "Masquer le détail" not in t
+
+
+def test_ecart_attendu_sans_manque_ni_norme():
+    """L'écart à l'effectif attendu est décrit, jamais présenté comme un manque, et un écart à la moyenne n'est pas un
+    écart à une norme (remarque de Lucas du 28 octobre 2026) : contrôlé dans l'atlas, Explorer et le code des rapports,
+    et par le vocabulaire à éviter de pipeline.libelles pour tout texte publié."""
+    import re
+    from pipeline import config, libelles
+    fichiers = [config.RACINE / "atlas" / "atlas_template.html", *(config.RACINE / "gabarits").glob("*.js"),
+                *(config.RACINE / "pipeline").glob("rapport*.py"), config.RACINE / "pipeline" / "graphiques.py"]
+    for f in fichiers:
+        t = f.read_text(encoding="utf-8")
+        assert not re.search(r"il en manque|(dans|hors de) la norme", t), f.name
+    assert libelles.termes_proscrits("il en manque environ 5") and libelles.termes_proscrits("ce territoire est dans la norme")
+    assert not libelles.termes_proscrits("l'effectif attendu est d'environ 50, on en compte environ 5 de moins")
+    # règle 13, pas de « mauvais élève »
+    assert libelles.termes_proscrits("un territoire mal doté") and libelles.termes_proscrits("des intercommunalités mal dotées")
+    assert not libelles.termes_proscrits("un territoire peu doté, moins doté que ses voisins")
+    # les versions déjà publiées des rapports restent telles quelles, seul le langage de la dernière est contrôlé
+    site = (config.RACINE / "pipeline" / "site.py").read_text(encoding="utf-8")
+    assert "if d == dernier:\n                pages.append(dossier / f\"{cle}.html\")" in site.replace("\r\n", "\n")
+
+
+def test_meme_largeur_atlas_explorer():
+    """L'atlas (première page) et les autres pages du site, Explorer compris, ont la même largeur de contenu
+    (décision du 22 octobre 2026, remarque de Lucas du 28 octobre 2026 sur l'atlas plus large qu'Explorer)."""
+    import re
+    from pipeline import config
+    css = (config.RACINE / "gabarits" / "style.css").read_text(encoding="utf-8")
+    t = (config.RACINE / "atlas" / "atlas_template.html").read_text(encoding="utf-8")
+    site = int(re.search(r"(?m)^main\{max-width:(\d+)px", css).group(1))
+    assert re.search(r"\.wrap\{max-width:var\(--largeur-contenu,%dpx\)" % site, t)
+    assert set(int(x) for x in re.findall(r"--largeur-contenu[:,](\d+)px", t)) == {site}
+    explorer = (config.RACINE / "gabarits" / "explorer.html").read_text(encoding="utf-8")
+    assert not re.search(r"main\{[^}]*max-width:(?!%dpx)\d+px" % site, explorer)
+
+
+def test_plan_ign_structures():
+    """Plan IGN sous les structures d'un territoire (28 octobre 2026) : Leaflet intégré à la page avec l'empreinte
+    contrôlée et sa licence, fond de la Géoplateforme avec sa mention, plan SVG gardé pour l'export, molette réservée
+    au défilement, et la page À propos dit que ce fond est chargé chez l'IGN."""
+    from pipeline import config
+    from atlas import construire_atlas as ca
+    js = ca._leaflet("leaflet.js")
+    assert "BSD 2-Clause License" in js and "Leaflet 1.9.4" in js
+    assert "BSD 2-Clause License" in ca._leaflet("leaflet.css")
+    t = (config.RACINE / "atlas" / "atlas_template.html").read_text(encoding="utf-8")
+    assert "<script>/*LEAFLET*/</script>" in t and "<style>/*LEAFLET_CSS*/</style>" in t
+    assert "https://data.geopf.fr/wmts?" in t and "LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2" in t
+    assert "Plan IGN, © IGN" in t and "TODO mention exacte du Plan IGN" in t
+    assert "scrollWheelZoom:false" in t and 'svg id="lxCarte"' in t
+    assert "Géoplateforme de l'IGN" in (config.RACINE / "contenus" / "a_propos.md").read_text(encoding="utf-8")
+
+
 def test_sans_caractere_de_controle():
     """Aucun caractère de contrôle dans le code et les textes des pages (un remplacement raté du 28 octobre 2026 avait mis
     un caractère invisible à la place d'un chiffre, « 10 % » devenu « 1 % » à l'affichage)."""
@@ -1891,6 +1964,55 @@ def test_photographies():
         x = ph[(ph["niveau"] == niv) & (ph["mode"] == "all")].groupby("prof")["n"].sum()
         for p in ("psychologue", "psychiatre", "medecin_generaliste"):
             assert int(x.get(p, 0)) == int(e[f"n_{p}"].sum()), (niv, p)
+
+
+def test_age_professionnels():
+    """Part des 60 ans et plus d'après les classeurs de la DREES en cache (28 octobre 2026). Les tranches d'âge
+    additionnées redonnent l'effectif publié, les séries d'Adeli (actifs de moins de 62 ans) sont écartées, seuls de
+    vrais codes de département sont gardés, et la borne de chaque tranche est lue correctement."""
+    from pipeline import config
+    from pipeline.sources import drees_demographie as dd
+    assert dd._borne("08-entre 60 et 64 ans") == 60 and dd._borne("10- 65 ans et plus") == 65
+    assert dd._borne("01-moins de 30 ans") == 0 and dd._borne("00-Ensemble") is None
+    assert dd._borne("09 - Entre 60 et 64 ans") == 60
+    prof = _csv(_dernier_resultats(), "professions.csv")
+    if prof is None or not dd._fichier(r"^medecins rpps").exists():
+        raise Ignore("classeurs de la DREES absents du cache")
+    r = dd.ages(dict(zip(prof["id"], prof["famille"])))
+    assert r and len(r["defs"]) >= 15
+    t = r["table"]
+    fr = t[t["niveau"] == "france"]
+    assert ((fr["somme_tranches"] - fr["effectif"]).abs() <= fr["effectif"] * .005).all()
+    assert t["part_60"].between(0, 1).all()
+    assert t.loc[t["niveau"] == "dep", "code"].str.fullmatch(r"\d{2}|2A|2B|97\d").all()
+    adeli = {p for x in config.DREES_DEMOGRAPHIE if x[5] == config._ADELI for p in x[3]}
+    assert not any(d["id"] == f"age60_{p}" for d in r["defs"] for p in adeli), "série d'Adeli gardée"
+    assert all(d["famille"] in (config.SANTE_MENTALE, config.SANTE) for d in r["defs"])
+    assert next(d for d in r["defs"] if d["id"] == "age60_psychiatre")["famille"] == config.SANTE_MENTALE
+
+
+def test_taux_depassement():
+    """Taux de dépassement des libéraux de secteur 2 (montants des honoraires de l'Assurance Maladie, 28 octobre
+    2026). Repris tel que publié, sauf sous secret statistique (« NS », le jeu écrit alors 0) et dans un territoire sans
+    libéral de secteur 2, où il reste une valeur manquante, jamais un faux 0."""
+    import pandas as pd
+    from pipeline import config
+    from pipeline.sources import ameli_acces
+    if not (config.BRUT / "ameli_honoraires.csv").exists() or not (config.BRUT / "ameli_secteurs_conventionnels.csv").exists():
+        raise Ignore("jeux de l'Assurance Maladie absents du cache")
+    brut = pd.read_csv(config.BRUT / "ameli_honoraires.csv", sep=";", dtype=str)
+    r = ameli_acces.charger(None, hors_ligne=True)
+    h, s = r["honoraires"], r["secteurs"]
+    assert h is not None and len(h) and {f"taux_depassement_{i}" for _p, i, _l, _f in config.AMELI_SECTEURS_PROFESSIONS} <= {d["id"] for d in r["defs"]}
+    ns = brut["depassements_totaux"].fillna("").str.strip().isin(["NS", ""])
+    assert ns.any(), "aucun montant sous secret dans le jeu, le test ne vérifie plus rien"
+    assert h.loc[h["depassements_totaux"].isna(), "taux_depassement_s2"].isna().all()
+    s2 = s.set_index(["niveau", "code", "prof"])["secteur_2"]
+    sans = s2.reindex(pd.MultiIndex.from_frame(h[["niveau", "code", "prof"]])).to_numpy() == 0
+    assert h.loc[sans, "taux_depassement_s2"].isna().all()
+    fr = h[(h["niveau"] == "FR") & (h["prof"] == "psychiatre")]["taux_depassement_s2"]
+    publie = brut[(brut["departement"] == "999") & (brut["region"] == "99") & (brut["profession_sante"] == "Psychiatres")]
+    assert len(fr) == 1 and abs(fr.iloc[0] - float(publie["taux_depassement_s2"].iloc[0])) < 1e-9
 
 
 def test_explorer():
@@ -2163,7 +2285,7 @@ def test_api_catalogue():
     assert not cat["indicateur"].duplicated().any()
     for c in ("libelle", "unite", "source", "licence", "niveaux"):
         assert cat[c].fillna("").astype(str).str.strip().ne("").all(), f"catalogue, {c} vide"
-    c = TestClient(api_serveur.creer_app(t, {"version": d.name, "licence": "essai"}, {"k": {}}))
+    c = TestClient(api_serveur.creer_app(t, {"version": d.name, "licence": "essai"}, {"k": {"palier": "gratuit"}}))
     vides = [f"{r.indicateur}@{n}" for r in cat.itertuples() for n in r.niveaux.split(",")
              if not c.get(f"/v0/indicateurs/{r.indicateur}?niveau={n}", headers={"X-Cle": "k"}).json().get("lignes")]
     assert not vides, f"indicateurs du catalogue sans valeur à un niveau déclaré : {vides[:10]}"
@@ -2232,6 +2354,98 @@ def test_envoi_programme():
                                      | {"envoi_prevu": "2026-11-03T09:30"})
     assert m.controler_brouillon({"id": "essai", "a": ["a@b.fr"], "objet": "o", "corps": "c", "motif": "m",
                                   "envoi_prevu": "bientôt"})
+
+
+def test_registre_licences():
+    """Registre des licences (demande de Lucas du 28 octobre 2026). Chaque licence vérifiée porte son adresse officielle et
+    sa date de lecture, une licence non vérifiée n'entre jamais dans l'offre payante, chaque source suivie et chaque
+    indicateur publié trouvent leur licence, les affections de longue durée sont en Licence Ouverte 1.0 (data.gouv)."""
+    import json
+    from pipeline import licences
+    for ident, l in licences.LICENCES.items():
+        assert {"nom", "affiche", "page", "lue_le", "usage_commercial", "partage_identique", "mention", "statut"} <= set(l)
+        assert l["usage_commercial"] in (licences.OUI, licences.NON, licences.A_CONFIRMER)
+        if l["statut"] == "vérifié":
+            assert l["page"].startswith("https://") and l["lue_le"], ident
+        else:
+            assert not licences.offre_payante(ident), f"licence non vérifiée dans l'offre payante, {ident}"
+    assert licences.offre_payante("lo-2.0") and licences.offre_payante("odbl-1.0")
+    assert licences.offre_payante("lo-1.0") and not licences.offre_payante(None)   # texte de 2011 relu le 28 octobre 2026
+    d = _dernier_resultats()
+    j = json.loads((d / "journal.json").read_text(encoding="utf-8"))
+    for s in j["sources"]:
+        if s.get("licence"):
+            assert licences.identifiant(s["licence"], s["source"]) in licences.LICENCES, s["source"]
+    assert licences.identifiant("Licence Ouverte 2.0", "Assurance Maladie, affections de longue durée") == "lo-1.0"
+    assert licences.identifiant("Licence Ouverte 2.0", "FINESS (Finess+)") == "lo-2.0"
+    assert licences.identifiant("ODbL", "Assurance Maladie, pathologies") == "odbl-1.0"
+    assert "OpenStreetMap" in licences.attribution("INSEE, temps d'accès par la route")
+
+
+def test_catalogue_enrichi():
+    """Catalogue unique, sur les vraies données (tables de contexte et indicateurs de la dernière version). Chaque
+    indicateur porte l'identifiant de sa licence dans le registre, ses niveaux en codes, sa règle d'agrégation et le type
+    de sa valeur. Les indicateurs sous ODbL sont ceux du registre, une part n'est jamais déclarée exactement agrégeable,
+    une médiane ou un taux standardisé jamais agrégeable."""
+    import json
+    import pandas as pd
+    from pipeline import config, indicateurs, licences
+    d = _dernier_resultats()
+    sd = json.loads((d / "site_data.json").read_text(encoding="utf-8"))
+    tables = {}
+    for niv in ("com", "epci", "dep", "reg"):
+        f = d / f"contexte_{niv}.csv"
+        if f.exists():
+            x = pd.read_csv(f, sep=";", decimal=",", dtype={"code": str})
+            o = d / f"contexte_{niv}_odbl.csv"
+            if o.exists():
+                x = x.merge(pd.read_csv(o, sep=";", decimal=",", dtype={"code": str}), on="code", how="left")
+            tables[niv] = x.set_index("code")
+    propres = {c[0] for c in config.CONTEXTE} | {c[0] for c in config.CONTEXTE_VULNERABILITE}
+    autres = [{"id": m["id"], "libelle": m["label"], "unite": m["unite"], "explication": m.get("explication", ""),
+               "source": m["source"], "famille": m.get("famille", ""), "licence": m["licence"], "groupe": m.get("groupe")}
+              for m in sd["contexte"] if m["id"] not in propres]
+    cat = indicateurs.liste({"contexte": tables, "indicateurs": autres})
+    assert len(cat) >= len(sd["contexte"]) - 2
+    regles = {"moyenne_ponderee_population", "moyenne_ponderee_population_approchee", "non_agregeable"}
+    for x in cat:
+        assert x["licence_id"] in licences.LICENCES, x["id"]
+        assert x["licence"] == licences.affiche(x["licence_id"])
+        assert x["agregation"] in regles and x["type_valeur"], x["id"]
+        assert set(x["niveaux_codes"]) <= {"com", "epci", "dep", "reg"}
+        if x["unite"] == "%":
+            assert x["agregation"] != "moyenne_ponderee_population", x["id"]
+        if "standardis" in x["unite"] or x["unite"] in ("km", "€"):
+            assert x["agregation"] == "non_agregeable", x["id"]
+    odbl_site = {m["id"] for m in sd["contexte"] if "odbl" in str(m["licence"]).lower()}
+    assert indicateurs.odbl({"contexte": tables, "indicateurs": autres}) >= odbl_site
+    ald = [x for x in cat if x["source"].startswith("Assurance Maladie, affections de longue durée")]
+    assert ald and all(x["licence_id"] == "lo-1.0" for x in ald)
+
+
+def test_api_offre_payante_licences():
+    """Aucune donnée dont la licence n'établit pas l'usage commercial n'est servie dans un palier payant. La porte
+    gratuite, qui ne donne que ce qui est déjà gratuit sur le site, peut les servir."""
+    try:
+        from fastapi.testclient import TestClient
+    except ImportError:
+        raise Ignore("FastAPI absent")
+    import api_serveur
+    A_ = _api_tables()
+    cat = A_["tables"]["catalogue"]
+    assert {"licence_id", "offre_payante", "attribution"} <= set(cat.columns)
+    hors = set(cat.loc[~cat["offre_payante"].astype(bool), "indicateur"])
+    m = {"version": A_["version"].name, "date_rpps": None, "licence": "essai"}
+    c = TestClient(api_serveur.creer_app(A_["tables"], m, {"p": {"palier": "essai"}, "g": {"palier": "gratuit"}}))
+    servis = {x["indicateur"] for x in c.get("/v0/catalogue", headers={"X-Cle": "p"}).json()["lignes"]}
+    assert not servis & hors, sorted(servis & hors)[:5]
+    if hors:
+        i = sorted(hors)[0]
+        assert c.get(f"/v0/indicateurs/{i}", headers={"X-Cle": "p"}).status_code == 403
+        gratuit = {x["indicateur"] for x in c.get("/v0/catalogue", headers={"X-Cle": "g"}).json()["lignes"]}
+        assert hors <= gratuit
+    fiche = c.get("/v0/territoires/dep/78", headers={"X-Cle": "p"}).json()
+    assert not {x["indicateur"] for x in fiche["contexte"]} & hors
 
 
 if __name__ == "__main__":

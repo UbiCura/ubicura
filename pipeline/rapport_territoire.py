@@ -1138,7 +1138,7 @@ def _ecarts(B, T, famille):
                 f"tableau compte {nombre(r['effectif'])} {pluriel(B.lab[p]) if r['effectif'] != 1 else B.lab[p].lower()} "
                 f"là où l'on en attendrait environ {nombre(r['effectif_attendu'])}.",
                 "Ce n'est pas une mesure du besoin de soins, et les territoires de comparaison peuvent eux-mêmes être "
-                "mal dotés. Seules les intercommunalités où l'on attendrait au moins deux professionnels figurent ici. "
+                "peu dotés. Seules les intercommunalités où l'on attendrait au moins deux professionnels figurent ici. "
                 "Une intercommunalité qui s'étend sur plusieurs départements est rattachée à celui où vit la plus "
                 "grande partie de sa population. Sur de petits effectifs, la liste peut changer d'une année à l'autre."))
 
