@@ -351,14 +351,23 @@ svg.map circle.lieu.creux{filter:drop-shadow(0 0 .35px var(--panel)) drop-shadow
 .lieuxzone h2{scroll-margin-top:200px}
 .lieuxzone h2:focus{outline:none}
 .lieuxzone .phrase{max-width:var(--mesure)}
-.lx-corps{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:8px 28px;align-items:start}
-.lx-droite{position:sticky;top:200px;display:flex;flex-direction:column;gap:6px}
+/* plan au-dessus du tableau, tous deux sur toute la largeur de la fenêtre : le tableau n'est plus coupé par le plan,
+   le plan IGN gagne en taille (remarques de Lucas du 28 octobre 2026) */
+.lx-corps{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start}
+.lx-droite{display:flex;flex-direction:column;gap:8px}
+.lx-plan-tete{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
+.lx-plan-tete .lx-legende{margin:0 0 0 auto}
+.lx-resultat{margin:4px 0 14px}
+.lx-conf>span[aria-hidden]{display:inline-flex;flex-wrap:wrap;gap:2px 14px;justify-content:flex-end}
+.lx-conf>span[aria-hidden]>span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.lx-table td:nth-child(3){text-align:right}
+.lx-droite>svg#lxCarte:not(.lx-export){max-width:560px}
 .lx-droite select{max-width:100%}
 .lx-droite svg{border-radius:4px}
 .lx-droite .lx-legende{margin:2px 0 0}
 .lx-droite .lieuinfo{margin:2px 0 0;padding:2px 0 2px 10px}
 /* plan IGN (Leaflet), ses calques restent sous la barre du site ; le plan SVG, hors de l'écran, sert à l'export */
-.lx-plan{position:relative;z-index:0;isolation:isolate;aspect-ratio:400/340;min-height:240px;border-radius:4px;background:#E9ECF0;font-family:var(--sans)}
+.lx-plan{position:relative;z-index:0;isolation:isolate;height:clamp(300px,44vw,520px);border-radius:4px;background:#E9ECF0;font-family:var(--sans)}
 /* fond en gris, la couleur reste aux structures (couleur sur les données seulement) */
 .lx-plan .leaflet-tile-pane{filter:grayscale(1) contrast(.92) brightness(1.04)}
 :root[data-theme="dark"] .lx-plan .leaflet-tile-pane{filter:grayscale(1) brightness(.8) contrast(1.02)}
@@ -369,7 +378,7 @@ svg.map circle.lieu.creux{filter:drop-shadow(0 0 .35px var(--panel)) drop-shadow
 .lx-plan .leaflet-pane svg{width:auto;height:auto;border-radius:0}
 .lx-plan:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 svg.lx-export{position:absolute;left:-10000px;top:0;width:400px;height:340px}
-@media (max-width:900px){.lx-corps{grid-template-columns:minmax(0,1fr)}.lx-droite{position:static;order:-1}}
+
 .lx-table th,.lx-table td{white-space:normal}
 .ad-grille{display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
 #adTable th,#adTable td{white-space:normal;text-align:left}
@@ -518,7 +527,21 @@ section[data-p]>.panel,section[data-p]>.two,section[data-p]>#hmCadres>.panel{mar
 .grid.carte>.mapbox>#mapOutils{order:-1;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 18px;margin:-12px -12px 12px;padding:11px 16px 10px!important;background:var(--fen);border-bottom:1px solid var(--fen-bord);border-radius:8px 8px 0 0/14px 14px 0 0}
 #mapOutils .map-titre{flex:1 1 20rem;font-family:var(--serif);font-size:1.125rem;line-height:1.3;color:var(--ink)}
 #mapOutils>.howtxt,#mapOutils>.citation{flex:1 1 100%}
-.grid.carte>.mapbox>.vuebar{top:68px}.grid.carte>.mapbox>.zoombar{top:106px}
+/* commandes de la carte dans sa barre de titre (remarques de Lucas du 28 octobre 2026, boutons encadrés posés sur la
+   carte) : présentation en mots, zoom en symboles au trait comme les boutons des fenêtres, titre et commandes sur une
+   ligne, « Comment lire » et « Citer et exporter » sur la suivante, comme dans toutes les fenêtres */
+#mapOutils .map-commandes{display:flex;flex-wrap:wrap;align-items:center;gap:4px 16px;margin-left:auto}
+#mapOutils :is(.vuebar,.zoombar){position:static}
+#mapOutils .vuebar .seg{background:none}
+#mapOutils .zoombar{display:inline-flex;gap:2px;border:0;border-radius:0;background:none;overflow:visible}
+#mapOutils .zoombar[hidden]{display:none}
+#mapOutils .zoombar button{width:30px;height:30px;min-width:0;padding:0;border:0;border-radius:6px;display:grid;place-items:center;background:none;color:var(--muted);cursor:pointer}
+#mapOutils .zoombar button+button{border-left:0}
+#mapOutils .zoombar svg,.selhead .pastilles svg{width:14px;height:14px;display:block}
+#mapOutils .zoombar button:hover{color:var(--ink);background:color-mix(in srgb,var(--ink) 8%,transparent)}
+#mapOutils .zoombar button:focus-visible{outline:2px solid var(--focus,var(--ink));outline-offset:1px;color:var(--ink)}
+#mapOutils>.outils-encadre{flex:1 1 100%;order:3}
+#mapOutils>.howtxt,#mapOutils>.citation{order:4}
 /* la colonne du profil défile sans retenir la molette : arrivée en bas, la page reprend (remarque de Lucas, défilement bloqué) */
 .grid.carte .defile{overscroll-behavior:auto}
 /* figures larges, aux libellés longs (effet ville, corrélations) : toute la largeur de la fenêtre, la lecture dessous
@@ -709,13 +732,11 @@ html.revele .panel svg[role="img"]:not(.vu){opacity:0}
 <section data-p="carte">
   <div class="grid carte">
     <div class="panel mapbox" id="mapbox">
-      <div class="zoombar" role="group" aria-label="Zoom de la carte" data-carte="map"><button type="button" data-z="in" title="Zoomer" aria-label="Zoomer">+</button><button type="button" data-z="out" title="Dézoomer" aria-label="Dézoomer">−</button><button type="button" data-z="reset" title="Revenir à la vue d’ensemble">Recentrer</button></div>
-      <div class="vuebar"><div class="seg" data-k="vue" role="group" aria-label="Présentation"><button data-v="carte">Carte</button><button data-v="tuiles" title="Un carré de même taille par département">Tuiles</button></div></div>
       <svg class="map" id="map" viewBox="0 0 960 800" role="img" aria-label="Carte de France"></svg>
       <div class="legend" id="legend"></div>
       <div class="lieuxbar" id="lieuxBar" hidden><label for="lieuxType">Structures de soins sur la carte</label> <select id="lieuxType"><option value="">Aucun</option></select></div>
       <div class="lieuinfo small" id="lieuInfo" hidden aria-live="polite"></div>
-      <div id="mapOutils" style="padding:0 16px 8px"><span class="map-titre" id="mapTitre"></span><span class="outils outils-encadre" data-elements="map"><button class="how" data-how="densite,attendu,accessibilite,zones,epci">Comment lire</button></span><div class="howtxt hidden"></div></div>
+      <div id="mapOutils" style="padding:0 16px 8px"><span class="map-titre" id="mapTitre"></span><div class="map-commandes"><div class="vuebar"><div class="seg" data-k="vue" role="group" aria-label="Présentation de la carte"><button data-v="carte" title="Chaque territoire à sa forme et à sa surface">Carte</button><button data-v="tuiles" title="Un carré de même taille par département, quelle que soit sa surface (niveau des départements)">À taille égale</button></div></div><div class="zoombar" role="group" aria-label="Zoom de la carte" data-carte="map"><button type="button" data-z="in" title="Rapprocher (ou Ctrl et molette)" aria-label="Rapprocher la carte"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M6 2.25a3.75 3.75 0 1 0 0 7.5a3.75 3.75 0 1 0 0-7.5M8.75 8.75L12 12M4.25 6h3.5M6 4.25v3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" data-z="out" title="Éloigner" aria-label="Éloigner la carte"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M6 2.25a3.75 3.75 0 1 0 0 7.5a3.75 3.75 0 1 0 0-7.5M8.75 8.75L12 12M4.25 6h3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" data-z="reset" title="Revenir à la vue d’ensemble" aria-label="Revenir à la vue d’ensemble de la carte"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 5V2h3M9 2h3v3M12 9v3H9M5 12H2V9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div><span class="outils outils-encadre" data-elements="map"><button class="how" data-how="densite,attendu,accessibilite,zones,epci,corse">Comment lire</button></span><div class="howtxt hidden"></div></div>
       <div id="mapLimite" style="padding:0 16px 14px"></div>
       <div class="tip" id="tip"></div>
     </div>
@@ -1036,7 +1057,8 @@ const roleTexte=fs=>fs>=12.75?"titre":fs>=10.75?"texte":"petit";
 function normaliserTextes(svg){
   const vb=svg.viewBox&&svg.viewBox.baseVal,w=svg.getBoundingClientRect().width;
   if(!vb||!vb.width||w<40)return;
-  const k=vb.width/Math.max(w,vb.width*.9);
+  // la carte, plus réduite que les autres figures, garde des libellés lisibles (encarts d'outre-mer)
+  const k=vb.width/Math.max(w,vb.width*(svg.classList.contains("map")?.5:.9));
   svg.querySelectorAll("text").forEach(t=>{
     if(t.hasAttribute("data-typo-libre"))return;
     if(!t.dataset.fs0){const f=parseFloat(getComputedStyle(t).fontSize);if(!f)return;t.dataset.fs0=f}
@@ -1292,11 +1314,22 @@ const geom={epci:topojson.feature(topo,topo.objects.epci).features,dep:topojson.
 // régions d'outre-mer, un seul département chacune
 const REG_DOM={"01":"971","02":"972","03":"973","04":"974","06":"976"};
 const depOfFeat=(lv,f)=>lv==="dep"?f.properties.dep:lv==="reg"?(REG_DOM[f.properties.reg]||""):(IDX.epciDep?.get(f.properties.epci)||"");
-const metro=d3.geoConicConformal().parallels([44,49]).rotate([-3,0]).fitExtent([[180,10],[W-10,H-10]],{type:"FeatureCollection",features:geom.dep.filter(f=>f.properties.dep.length===2)});
+// Sur la carte nationale seulement, la Corse est rapprochée du continent de 1,3 degré de longitude, à la même échelle
+// (pratique courante des cartes de France). À sa place exacte, elle tenait le coin sud-est du cadre, collée au bord, et
+// repoussait la France vers la gauche (remarque de Lucas du 28 octobre 2026). Les plans des territoires, les distances
+// et les exports de données gardent les coordonnées réelles.
+const CORSE=["2A","2B"],DLON_CORSE=1.3;
+const estCorse=(lv,f)=>lv==="reg"?f.properties.reg==="94":CORSE.includes(depOfFeat(lv,f));
+const decaler=g=>{const m=c=>typeof c[0]==="number"?[c[0]-DLON_CORSE,c[1]]:c.map(m);return {...g,coordinates:m(g.coordinates)}};
+const metro=d3.geoConicConformal().parallels([44,49]).rotate([-3,0]).fitExtent([[180,14],[W-14,H-14]],{type:"FeatureCollection",
+  features:geom.dep.filter(f=>f.properties.dep.length===2).map(f=>CORSE.includes(f.properties.dep)?{...f,geometry:decaler(f.geometry)}:f)});
+// projection de la Corse, la même que le continent après le décalage (flux d3, rien n'est recopié)
+const corseProj={stream:s=>{const t=metro.stream(s);return {point:(x,y)=>t.point(x-DLON_CORSE,y),sphere:()=>t.sphere(),
+  lineStart:()=>t.lineStart(),lineEnd:()=>t.lineEnd(),polygonStart:()=>t.polygonStart(),polygonEnd:()=>t.polygonEnd()}}};
 const boxes=DOMS.map((d,i)=>{const y=14+i*154;return{d,b:[[14,y+16],[164,y+142]]}});
-const P={metro:d3.geoPath(metro)};
+const P={metro:d3.geoPath(metro),corse:d3.geoPath(corseProj)};
 for(const b of boxes)P[b.d]=d3.geoPath(d3.geoMercator().fitExtent(b.b,{type:"FeatureCollection",features:geom.dep.filter(f=>f.properties.dep===b.d)}));
-const pathOf=(lv,f)=>{const d=depOfFeat(lv,f);return(DOMS.includes(d)?P[d]:P.metro)(f)};
+const pathOf=(lv,f)=>{const d=depOfFeat(lv,f);return(DOMS.includes(d)?P[d]:estCorse(lv,f)?P.corse:P.metro)(f)};
 const keyOf=(lv,f)=>f.properties[lv];
 
 function mapInit(svgId){
@@ -1450,7 +1483,7 @@ function lieuxOptions(){const sel=document.getElementById("lieuxType"),bar=docum
   sel.innerHTML='<option value="">Aucune</option>'+grp.map(g=>'<optgroup label="'+esc(g)+'">'+types.filter(t=>t.groupe===g)
     .map(t=>'<option value="'+t.id+'"'+(S.lieux===t.id?" selected":"")+'>'+esc(t.lib)+(t.complet?"":" (recensement incomplet)")+'</option>').join("")+'</optgroup>').join("");
   if(S.lieux&&!types.some(t=>t.id===S.lieux))S.lieux="";sel.value=S.lieux||""}
-function projLieu(pt){const d=lieuDep(pt[4]),ll=[pt[2]/1e4,pt[1]/1e4];return DOMS.includes(d)?(P[d]?P[d].projection()(ll):null):metro(ll)}
+function projLieu(pt){const d=lieuDep(pt[4]),ll=[pt[2]/1e4,pt[1]/1e4];return DOMS.includes(d)?(P[d]?P[d].projection()(ll):null):CORSE.includes(d)?metro([ll[0]-DLON_CORSE,ll[1]]):metro(ll)}
 function dessinerLieux(Mx){Mx.zoomable.selectAll("g.lieux").remove();Mx.svg.selectAll("g.lieuxdom").remove();
   if(!LX||!S.lieux||Mx.tuiles){document.getElementById("lieuInfo").hidden=true;return ""}
   const k=LX.types.findIndex(t=>t.id===S.lieux),t=LX.types[k],pts=LX.pts.filter(p=>p[0]===k);
@@ -1546,6 +1579,10 @@ function precisionLieu(p,id){const tags=[];
   if(p[13]&1)tags.push("antenne ou permanence");
   if(p[13]&2)tags.push("au même lieu qu’un CMP");
   return tags}
+function confLigne(l,c,r,b){if(!l.conf)return '<span class="muted">niveau non établi</span>';
+  const rec=(LX.types_recoupes||[]).includes(l.id),N=n=>fmt.format(n),s=(k,cl)=>'<span>'+symboleConf(null,cl)+N(k)+'</span>';
+  return '<span class="lx-conf"><span aria-hidden="true">'+s(c,"confirmee")+(rec?s(r,"recoupee"):'')+s(b,"a_verifier")+'</span><span class="sr">'
+    +N(c)+' confirmée'+(c>1?'s':'')+(rec?', '+N(r)+' recoupée'+(r>1?'s':''):'')+', '+N(b)+' à vérifier</span></span>'}
 function structuresTerritoire(){const el=document.getElementById("lieuxCard");
   const vider=()=>{el.classList.add("hidden");el.innerHTML="";delete EXPORT_CSV.structures};
   if(!LX||!S.sel||S.sel.lv!==S.level)return vider();
@@ -1561,18 +1598,25 @@ function structuresTerritoire(){const el=document.getElementById("lieuxCard");
   const base=[...autres,...(typeConfirme("lieu_cmp")?cmpTous:[])],nc=base.filter(confirme).length,nr=base.filter(recoupe).length,nb=base.filter(creux).length;
   let h='<h2 tabindex="-1">Structures de soins de ce territoire <button class="how" data-how="lieux,confirmation">Comment lire</button></h2><div class="howtxt hidden"></div>';
   h+='<div data-export="structures">';
-  h+='<p class="phrase">FINESS et le Répertoire opérationnel des ressources (ROR), réunis sans double compte, recensent ici les structures suivantes.'
-    +(base.length?' Sur les '+N(base.length)+' dont le niveau de confirmation est établi, '+N(nc)+' '+(nc>1?"sont confirmées":"est confirmée")+' par une source indépendante des deux bases, '+(nr?N(nr)+' '+(nr>1?"sont recoupées":"est recoupée")+' par la statistique annuelle des établissements de santé (SAE, le nombre ou l’activité du site, pas l’adresse), ':'')+'et '+N(nb)+' '+(nb>1?"restent":"reste")+' à vérifier.':'')+'</p>';
-  h+='<div class="lx-legende small">'+(base.length?'<span class="lx-leg">'+symboleConf(null,"confirmee")+' confirmée</span>'+(nr?'<span class="lx-leg">'+symboleConf(null,"recoupee")+' recoupée par la statistique des hôpitaux (SAE, le nombre ou l’activité du site, pas l’adresse)</span>':'')+'<span class="lx-leg">'+symboleConf(null,"a_verifier")+' à vérifier, inscrite dans FINESS ou le ROR seulement</span>':'')+'<span>Un clic sur une structure la repère sur le plan du territoire.</span></div>';
+  // l'encadré repensé (demande de Lucas du 28 octobre 2026) : le résultat d'abord, en une phrase et une légende en
+  // couleur, puis le plan sur toute la largeur, puis la liste par type, le détail de chaque type à un clic
+  const accord=(k,s,p)=>N(k)+' '+(k>1?p:s);
+  h+='<p class="phrase">'+(base.length>1?'Sur les '+N(base.length)+' structures de ce territoire dont le niveau de confirmation est établi, '
+      +accord(nc,"est confirmée","sont confirmées")+' par une source indépendante de FINESS et du Répertoire opérationnel des ressources (ROR)'
+      +(nr?', '+accord(nr,"est recoupée","sont recoupées")+' par la statistique annuelle des établissements de santé (SAE), qui confirme le nombre et non l’adresse,':'')
+      +' et '+accord(nb,"reste","restent")+' à vérifier.'
+    :base.length?'La structure de ce territoire dont le niveau de confirmation est établi '+(nc?'est confirmée par une source indépendante de FINESS et du Répertoire opérationnel des ressources (ROR).':nr?'est recoupée par la statistique annuelle des établissements de santé (SAE).':'reste à vérifier.')
+    :'FINESS et le Répertoire opérationnel des ressources (ROR), réunis sans double compte, recensent ici les structures suivantes.')+'</p>';
+  if(base.length)h+='<div class="lx-legende lx-resultat">'+legendeClasses(nc,nr,nb)+'</div>';
   const lignesPlan=groupes.flatMap(([,ls])=>ls).filter(l=>l.pts.length);
   if(!lignesPlan.some(l=>l.id===LX_TYPE_LOCAL))LX_TYPE_LOCAL=(lignesPlan.find(l=>l.id==="lieu_cmp_adultes")||lignesPlan[0]||{}).id;
   if(LX_CHOISI_LOCAL&&!ici.includes(LX_CHOISI_LOCAL))LX_CHOISI_LOCAL=null;
-  h+='<div class="lx-corps"><div class="lx-gauche"><div class="scroll"><table class="lx-table"><thead><tr><th scope="col">Type de structure</th><th scope="col">Structures</th><th scope="col">'+symboleConf(null,"confirmee")+' Confirmées</th><th scope="col">'+symboleConf(null,"recoupee")+' Recoupées</th><th scope="col">'+symboleConf(null,"a_verifier")+' À vérifier</th></tr></thead><tbody>';
+  h+='<div class="lx-corps">'+(lignesPlan.length?carteTerritoireHtml(lignesPlan):'')+'<div class="lx-gauche"><div class="scroll"><table class="lx-table"><thead><tr><th scope="col">Type de structure</th><th scope="col">Structures</th><th scope="col">Niveau de confirmation</th></tr></thead><tbody>';
   const cp=D.niveaux[lv].cmp_public,cs=D.niveaux[lv].cmp_sae?.[i];
-  for(const [g,ls] of groupes){h+='<tr class="lx-groupe"><th colspan="5" scope="colgroup">'+esc(g)+'</th></tr>';
+  for(const [g,ls] of groupes){h+='<tr class="lx-groupe"><th colspan="3" scope="colgroup">'+esc(g)+'</th></tr>';
     for(const l of ls){const n=l.pts.length,c=l.pts.filter(confirme).length,r=l.pts.filter(recoupe).length,b=l.pts.filter(creux).length,ouv=LX_OUVERTS.has(l.id);
       h+='<tr><td>'+esc(l.lib)+(n?'<br><button type="button" class="lien lx-ouvrir" data-l="'+l.id+'" aria-expanded="'+ouv+'" aria-controls="lx-'+l.id+'">'+(ouv?"Masquer la liste":"Voir la liste")+'</button>':'')+'</td>'
-        +'<td>'+N(n)+'</td>'+(l.conf?'<td>'+N(c)+'</td><td>'+((LX.types_recoupes||[]).includes(l.id)?N(r):'<span class="muted">sans objet</span>')+'</td><td>'+N(b)+'</td>':'<td colspan="3" class="muted lx-nonetabli">niveau non établi</td>')+'</tr>';
+        +'<td>'+N(n)+'</td><td>'+confLigne(l,c,r,b)+'</td></tr>';
       const notes=[];
       if(l.id==="lieu_cattp"){const m=l.pts.filter(p=>p[13]&2).length;
         if(m)notes.push(N(m)+(m>1?" sont au même lieu qu’un CMP, comptés à part comme lieux d’activité déclarés":" est au même lieu qu’un CMP, compté à part comme lieu d’activité déclaré"));
@@ -1580,17 +1624,17 @@ function structuresTerritoire(){const el=document.getElementById("lieuxCard");
         if(s)notes.push(N(s)+" "+(s>1?"sont recoupés":"est recoupé")+" par la statistique des hôpitaux, leur établissement y déclarant autant de CATTP, ce qui confirme le nombre et non l’adresse")}
       if(l.id==="lieu_cmp_adultes"||l.id==="lieu_cmp_enfants"){const d=l.pts.filter(p=>p._pub==="d").length;
         if(d)notes.push(N(d)+" accueille"+(d>1?"nt":"")+" aussi "+(l.id==="lieu_cmp_adultes"?"les enfants":"les adultes")+", compté"+(d>1?"s":"")+" dans les deux lignes")}
-      if(notes.length)h+='<tr class="lx-note"><td colspan="4">'+esc(notes.join(", "))+'.</td></tr>';
-      if(n)h+='<tr class="lx-liste"'+(ouv?'':' hidden')+' id="lx-'+l.id+'"><td colspan="4"><ul>'+l.pts.slice().sort((a,b)=>(LX.communes[a[4]]||"").localeCompare(LX.communes[b[4]]||"","fr")||LX.noms[a[3]].localeCompare(LX.noms[b[3]],"fr"))
+      if(notes.length)h+='<tr class="lx-note"><td colspan="3">'+esc(notes.join(", "))+'.</td></tr>';
+      if(n)h+='<tr class="lx-liste"'+(ouv?'':' hidden')+' id="lx-'+l.id+'"><td colspan="3"><ul>'+l.pts.slice().sort((a,b)=>(LX.communes[a[4]]||"").localeCompare(LX.communes[b[4]]||"","fr")||LX.noms[a[3]].localeCompare(LX.noms[b[3]],"fr"))
         .map(p=>{const tags=precisionLieu(p,l.id);return '<li><button type="button" class="lx-item" data-j="'+LX.pts.indexOf(p)+'" data-l="'+l.id+'">'+(p[11]!=null?symboleConf(p):'')+'<span class="nom">'+esc(LX.noms[p[3]])+'</span><span class="muted">, '+esc(LX.communes[p[4]]||p[4])+(p[11]!=null?', '+esc(CONF[p[11]].lib):'')+(tags.length?', '+esc(tags.join(", ")):'')+'</span></button></li>'}).join("")+'</ul></td></tr>'}}
-  h+='</tbody></table></div></div>'+(lignesPlan.length?carteTerritoireHtml(lignesPlan):'')+'</div>';
+  h+='</tbody></table></div></div></div>';
   // CMP en tout, par public, et concordance avec la SAE
   if(cmpTous.length&&cp){const v=k=>cp[k][i]||0;
     h+='<p class="note">'+N(cmpTous.length)+' CMP en tout, dont '+N(v("adultes"))+' pour adultes et '+N(v("enfants"))+' pour enfants et adolescents'
       +(v("les_deux")?', '+N(v("les_deux"))+' accueillant les deux':'')+(v("non_precise")?', '+N(v("non_precise"))+' au public non précisé (connu'+(v("non_precise")>1?"s":"")+' de FINESS seul)':'')
       +(v("antennes")?'. '+(v("antennes")>1?N(v("antennes"))+' sont des antennes ou des permanences':'L’un d’eux est une antenne ou une permanence')+' (en mairie, en CCAS ou en maison de santé, par exemple)':'')+'.'
       +(cs?' '+esc(cs[1].charAt(0).toUpperCase()+cs[1].slice(1))+' ('+N(cs[0])+' CMP déclarés à la SAE par les établissements dont le siège est ici).':'')+'</p>'}
-  h+='<p class="note">Une structure confirmée figure sur une liste qui ne vient ni de FINESS ni du ROR (sources de son établissement, autre source publique, certification ou évaluation de la HAS, répertoire Sirene). Le point creux marque une structure que rien d’autre ne confirme encore, ce qui ne veut pas dire qu’elle est fermée. Une structure n’est pas une capacité. Les types recensés de façon incomplète (équipes mobiles, centres de crise...) restent sur la carte et ne sont pas comptés ici.</p>';
+  h+='<p class="note">Une structure n’est pas une capacité. Les types recensés de façon incomplète (équipes mobiles, centres de crise...) restent sur la carte et ne sont pas comptés ici.</p>';
   h+='</div>';
   // constats vérifiés sur d'autres sources (sites des établissements, ARS, listes ouvertes), pour le département
   const depV=lv==="dep"?code:lv==="epci"?u.p:null;
@@ -1677,10 +1721,10 @@ function mailleLx(niv,filtre,cle){const k=niv+"|"+(cle||"");if(!(k in LX_MAILLES
 function formeTerritoire(lv,code){const f=(geom[lv]||[]).find(x=>x.properties[lv]===code);return f||null}
 function carteTerritoireHtml(lignes){
   const opts=lignes.map(l=>'<option value="'+l.id+'"'+(l.id===LX_TYPE_LOCAL?" selected":"")+'>'+esc(l.lib)+' ('+fmt.format(l.pts.length)+')</option>').join("");
-  return '<div class="lx-droite"><label class="small muted" for="lxType">Structures montrées sur le plan</label><select id="lxType">'+opts+'</select>'
+  return '<div class="lx-droite"><div class="lx-plan-tete"><label class="small muted" for="lxType">Sur le plan</label><select id="lxType">'+opts+'</select><div class="lx-legende small" id="lxLegende"></div></div>'
     +(planIgn()?'<div id="lxPlan" class="lx-plan" role="img" aria-label="Plan IGN du territoire et de ses structures de soins"></div>':'')
     +'<svg id="lxCarte"'+(planIgn()?' class="lx-export" aria-hidden="true"':'')+' viewBox="0 0 400 340" role="img" aria-label="Plan du territoire et de ses structures de soins"></svg>'
-    +'<div class="lx-legende small" id="lxLegende"></div><div class="lieuinfo small" id="lxFiche" hidden aria-live="polite"></div></div>'}
+    +'<div class="lieuinfo small" id="lxFiche" hidden aria-live="polite"></div></div>'}
 function dessinerCarteTerritoire(lv,code,lignes){
   const svg=d3.select("#lxCarte");if(svg.empty())return;svg.selectAll("*").remove();
   const l=lignes.find(x=>x.id===LX_TYPE_LOCAL)||lignes[0];if(!l)return;

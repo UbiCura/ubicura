@@ -1781,6 +1781,37 @@ def test_ecart_attendu_sans_manque_ni_norme():
     assert "if d == dernier:\n                pages.append(dossier / f\"{cle}.html\")" in site.replace("\r\n", "\n")
 
 
+def test_carte_corse_et_plan_des_structures():
+    """Carte nationale et encadré des structures (remarques de Lucas du 28 octobre 2026) : la Corse est rapprochée du
+    continent par un même décalage pour ses contours et ses structures, le cadrage en tient compte, le lecteur en est
+    averti ; les commandes de la carte sont dans sa barre de titre, en mots et en symboles au trait, chacune avec son nom
+    accessible ; l'encadré des structures donne le résultat d'abord (phrase et légende en couleur), puis le plan sur
+    toute la largeur, puis la liste par type en trois colonnes, jamais coupée."""
+    import re
+    from pipeline import config
+    from pipeline.lecture import GLOSSAIRE
+    t = (config.RACINE / "atlas" / "atlas_template.html").read_text(encoding="utf-8")
+    d = float(re.search(r"DLON_CORSE=([\d.]+)", t).group(1))
+    assert 0 < d < 2
+    assert "estCorse(lv,f)?P.corse:P.metro" in t and "metro([ll[0]-DLON_CORSE,ll[1]])" in t
+    assert "CORSE.includes(f.properties.dep)?{...f,geometry:decaler(f.geometry)}" in t
+    assert "zones,epci,corse" in t and any(g[0] == "corse" for g in GLOSSAIRE)
+    assert ".lx-corps{display:grid;grid-template-columns:minmax(0,1fr);" in t
+    assert "position:sticky;top:200px" not in t
+    # commandes de la carte dans la barre de titre, plus posées sur la carte
+    outils = t[t.index('<div id="mapOutils"'):t.index('<div id="mapLimite"')]
+    assert 'class="map-commandes"' in outils and 'data-k="vue"' in outils and 'data-carte="map"' in outils
+    assert "Tuiles</button>" not in t and "À taille égale</button>" in outils
+    zoom = outils[outils.index('class="zoombar"'):]
+    assert zoom.count("aria-label=") >= 4 and "Recentrer" not in zoom
+    assert "#mapOutils .zoombar svg" in t
+    # encadré des structures, le résultat, puis le plan, puis la liste par type en trois colonnes
+    corps = t[t.index("function structuresTerritoire(){"):t.index("// ---------- carte du territoire choisi")]
+    assert corps.index('class="lx-legende lx-resultat"') < corps.index("carteTerritoireHtml(lignesPlan)") < corps.index('class="lx-table"')
+    assert '<th scope="col">Niveau de confirmation</th>' in corps and 'colspan="5"' not in corps and 'colspan="4"' not in corps
+    assert "Un clic sur une structure la repère" not in corps
+
+
 def test_meme_largeur_atlas_explorer():
     """L'atlas (première page) et les autres pages du site, Explorer compris, ont la même largeur de contenu
     (décision du 22 octobre 2026, remarque de Lucas du 28 octobre 2026 sur l'atlas plus large qu'Explorer)."""

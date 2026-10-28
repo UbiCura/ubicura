@@ -74,6 +74,9 @@ GLOSSAIRE = [
      "1 250 en France. C'est une échelle proche des bassins de vie, plus fine que le département et moins "
      "instable que la commune, où beaucoup de petites communes n'ont aucun professionnel par simple effet de "
      "taille.", ""),
+    ("corse", "Place de la Corse",
+     "Sur la carte de France, la Corse est rapprochée du continent, à la même échelle, pour que la carte reste "
+     "lisible. Les plans des territoires et les distances gardent sa position réelle.", ""),
     ("indice100", "Indice 100",
      "Comparaison à la moyenne des territoires du même niveau. Un indice de 150 signifie une densité supérieure de "
      "moitié à cette moyenne, un indice de 50 une densité deux fois plus faible.", ""),
