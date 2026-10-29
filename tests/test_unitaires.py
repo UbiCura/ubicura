@@ -2199,6 +2199,28 @@ def test_explorer_inegalites():
     assert 'explorer.html#qInegalites' in atlas and 'id="qInegalites"' in page
 
 
+def test_explorer_addicto():
+    """L'addictologie est une question d'Explorer (choix de Lucas du 29 octobre 2026, option C) : ses données et sa
+    limite sont écrites pour la page, l'atlas ne les porte plus, et la fiche d'un territoire de l'atlas y renvoie avec
+    sa région. Sur le site construit à partir des derniers résultats."""
+    import json
+    from pipeline import config
+    site = config.RACINE / "site"
+    da_f, atlas_f = site / "explorer" / "donnees_outils.js", site / "index.html"   # l'atlas est la page d'accueil
+    if not da_f.exists() or not atlas_f.exists():
+        raise Ignore("site non construit")
+    texte = da_f.read_text(encoding="utf-8")
+    if "const DA=" not in texte:
+        raise Ignore("site construit avant la question")
+    da = json.loads(texte.split("const DA=", 1)[1].rsplit(";", 1)[0])
+    assert da["ind"] and da["offre"] and da["limite"]["sources"]
+    assert all(c in da["regions"] for i in da["ind"] for c in i["v"])
+    page = (site / "explorer.html").read_text(encoding="utf-8")
+    assert 'id="qAddicto"' in page and "explorer_addicto.js" in page
+    atlas = atlas_f.read_text(encoding="utf-8")
+    assert 'id="adPanel"' not in atlas and "#qAddicto?fam=" in atlas
+
+
 def test_explorer_catalogue():
     """Explorer lit ses variables dans le catalogue des indicateurs (site_data.json, contexte), un seul catalogue pour
     le site, l'atlas, Explorer et l'API (décision de Lucas du 28 octobre 2026). Tout indicateur du catalogue publié par
@@ -2639,7 +2661,10 @@ def test_declares_numero_partage():
     840000541 du CH de Montfavet, dont les 54 psychiatres étaient recopiés sur un CATTP, deux CMP et une maison
     d'accueil spécialisée). Sur les vraies inscriptions et les vraies activités du RPPS en cache, Vaucluse : chaque
     structure qui partage son numéro le sait (partage_par), la somme attribuée aux structures seules sous leur numéro
-    ne dépasse jamais l'effectif de l'établissement, et le dernier fichier publié n'attribue aucun effectif partagé."""
+    ne dépasse jamais l'effectif de l'établissement, et le dernier fichier publié n'attribue aucun effectif partagé.
+    Partage compté tous types confondus (710015587 à Montceau-les-Mines, hospitalisation complète et hôpital de jour
+    sous la même clé de lieu, créditées chacune des 3 psychiatres de l'hôpital, séance de l'API du 29 octobre 2026),
+    sans compter les lignes par public d'une même structure."""
     import pandas as pd
     import pyarrow.dataset as ds
     from pipeline import config, lieux as lieux_mod, structures_verifiees as sv
@@ -2647,13 +2672,22 @@ def test_declares_numero_partage():
     if not sv.BASES.exists() or not act_f.exists():
         raise Ignore("inscriptions ou activités du RPPS absentes du cache")
     b = pd.read_parquet(sv.BASES)
-    b = b[b["commune"].str.startswith("84", na=False)]
+    b = b[b["commune"].str.startswith(("84", "71"), na=False)]
     nums = sorted(set(b["finess"].dropna()) | set(b["finess_rapproche"].dropna()))
     act = ds.dataset(act_f).to_table(columns=["id", "prof", "finess", "com"], filter=ds.field("finess").isin(nums)).to_pandas()
     pros = lieux_mod.professionnels(b, act)
     assert "partage_par" in pros
-    montfavet = b[(b["finess"] == "840000541") & (b["commune"] == "84007")]["lieu"].unique()
-    assert len(montfavet) > 1 and (pros.loc[pros.index.isin(montfavet), "partage_par"] == len(montfavet)).all()
+    enfants = {t[0] for t in config.LIEUX_TYPES if t[4].get("parent")}
+    s = b[~b["type"].isin(enfants)]
+    montfavet = s[(s["finess"] == "840000541") & (s["commune"] == "84007")].drop_duplicates(["type", "lieu"])
+    assert len(montfavet) > 1 and (pros.loc[pros.index.isin(montfavet["lieu"]), "partage_par"] == len(montfavet)).all()
+    # deux types sous la même clé de lieu, jamais une structure seule
+    mm = s[(s["finess"] == "710015587") & (s["commune"] == "71263")]
+    assert mm["type"].nunique() >= 2 and mm["lieu"].nunique() == 1
+    if mm["lieu"].iloc[0] in pros.index:
+        assert pros.at[mm["lieu"].iloc[0], "partage_par"] >= mm["type"].nunique()
+    plusieurs = s.drop_duplicates(["type", "lieu"]).groupby("lieu")["type"].nunique()
+    assert not (pros.index.map(plusieurs).fillna(1).to_numpy() > pros["partage_par"].to_numpy()).any()
     seules = pros[pros["partage_par"] == 1].drop(columns="partage_par")
     cle = b.drop_duplicates("lieu").set_index("lieu")[["finess", "commune"]]
     somme = seules.join(cle).groupby(["finess", "commune"]).sum()
@@ -2668,6 +2702,15 @@ def test_declares_numero_partage():
         raise Ignore("dernier fichier publié antérieur à la correction")
     partages = l["declares_partage_par"].notna()
     assert partages.any() and l.loc[partages, "declares_psychiatre"].isna().all()
+    import json
+    j = json.loads((d / "journal.json").read_text(encoding="utf-8"))
+    if any("tous types confondus" in k for k, _v in j.get("controles", [])):
+        # dans le fichier publié, une structure (id_structure) seule sous son numéro dans sa commune, tous types
+        # confondus et hors lignes par public, est la seule à porter des déclarés
+        p = l[~l["type"].isin(enfants)].assign(num=l["finess"].fillna(l["finess_rapproche"]))
+        n = p.dropna(subset=["num"]).drop_duplicates("id_structure").groupby(["num", "commune"])["id_structure"].transform("size")
+        avec = p.loc[n.index]
+        assert (avec.loc[n > 1, "declares_psychiatre"].isna()).all()
     e = _csv(d, "declares_etablissements.csv", dtype=str)
     assert e is not None and (e["structures_partageant"].astype(int) > 1).all()
 
@@ -2734,6 +2777,62 @@ def test_verdict_ne_retire_pas_une_structure_attestee():
     l = _csv(d, "lieux_soins.csv", dtype=str, usecols=lambda c: c in ("nom", "commune", "type"))
     assert ((l["nom"] == "CMP Le Petit Nice") & (l["commune"] == "05046") & (l["type"] == "lieu_cmp")).any()
     assert ((v["nom"] == "CMP de Paul-Brousse") & (v["commune"] == "94076")).any()
+
+
+def test_aucune_structure_en_double():
+    """Aucune paire de structures du même type, du même numéro FINESS, de la même commune, du même nom et de la même
+    adresse, abréviations développées (constat de la séance de l'API du 29 octobre 2026, foyers de Limoux, Lunel et
+    Albias et SESSAD de Morlaix et de Dieppe décrits par une unité du ROR par mode d'accueil ou par déficience). Seules
+    restent les paires d'un CMP pour adultes et d'un CMP pour enfants au même lieu, deux structures selon la règle.
+    Derniers résultats."""
+    import json
+    from pipeline.lieux import _simple, voie_developpee
+    d = _dernier_resultats()
+    j = json.loads((d / "journal.json").read_text(encoding="utf-8"))
+    if not any(k.startswith("Structures en double, même type") for k, _v in j.get("controles", [])):
+        raise Ignore("résultats antérieurs au contrôle des doublons")
+    l = _csv(d, "lieux_soins.csv", dtype=str)
+    p = l[~l["type"].str.endswith(("_adultes", "_enfants")) & l["finess"].notna()].copy()
+    p["n"] = p["nom"].fillna("").map(_simple)
+    p["a"] = p["adresse"].fillna("").map(lambda s: _simple(voie_developpee(s)))
+    dbl = p[p.duplicated(["type", "finess", "commune", "n", "a"], keep=False)]
+    assert set(dbl["type"]) <= {"lieu_cmp"}, dbl[["type", "nom", "nom_commune"]].head().to_dict()
+    assert not ((l["nom"] == "EANM LA COLLINE DE LUGUEL") & (l["type"] == "lieu_foyers_handicap")).sum() > 1
+
+
+def test_fusion_garde_la_categorie_du_type():
+    """Lors d'une fusion de deux descriptions d'une même structure, la structure gardée est celle inscrite dans FINESS sous
+    une catégorie de son type : à Aiglun, l'EHPAD Les Carmes (040002289, catégorie 500) et non l'unité « UHR - Centre des
+    Carmes USLD » que le ROR déclare sous le numéro de l'USLD (040002248), gardée à tort dans les résultats du 29 octobre
+    2026 au soir. Les deux inscriptions sont reprises de ces résultats et du flux FINESS en cache, l'unité du ROR placée
+    en premier. Puis, sur les derniers résultats quand ils suivent la règle, l'EHPAD gardé porte son propre numéro."""
+    import pandas as pd
+    from pipeline import config, lieux as lieux_mod
+    d = _dernier_resultats()
+    l = _csv(d, "lieux_soins.csv", dtype=str)
+    fh = config.BRUT / "finess_historique.csv"
+    ehpad = l[(l["type"] == "lieu_ehpad") & l["finess"].isin(["040002248", "040002289"])] if l is not None else None
+    if ehpad is None or ehpad.empty or not fh.exists():
+        raise Ignore("résultats ou flux FINESS absents")
+    f = next((x.split(";") for x in fh.open(encoding="latin-1") if x.startswith("structureet;040002289;")), None)
+    if f is None:
+        raise Ignore("EHPAD Les Carmes absent du flux FINESS")
+    r = ehpad.iloc[0]
+    ror = {"type": "lieu_ehpad", "lieu": "R_UHR_CARMES", "nom": "UHR - CENTRE DES CARMES USLD",
+           "nom_affiche": "CENTRE DES CARMES USLD", "ej": f[2], "finess": "040002248", "finess_rapproche": None,
+           "finess_absorbes": None, "commune": r["commune"], "adresse": "AV MARIUS AUTRIC", "categorie_finess": None,
+           "provenance": "ror"}
+    fin = {"type": "lieu_ehpad", "lieu": "F040002289|" + r["commune"], "nom": None, "nom_affiche": f[3], "nom_finess": f[3],
+           "ej": f[2], "finess": "040002289", "finess_rapproche": None, "finess_absorbes": None, "commune": r["commune"],
+           "adresse": " ".join(x for x in (f[7], f[8], f[9]) if x), "categorie_finess": f[18], "provenance": "finess"}
+    x = pd.DataFrame([ror, fin])
+    cat = pd.Series({"040002248": "362", "040002289": f[18]})
+    y, n = lieux_mod.fusion_meme_adresse(x, cat, None)
+    assert n == 1 and list(y["finess"]) == ["040002289"], y[["finess", "nom_affiche"]].to_dict()
+    assert "040002248" in y["finess_absorbes"].iloc[0]
+    if (ehpad["finess"] == "040002248").any():
+        raise Ignore("derniers résultats antérieurs à la règle (structure de l'USLD gardée)")
+    assert (ehpad["finess"] == "040002289").sum() == 1
 
 
 def test_distances_sans_traverser_la_mer():
@@ -3010,6 +3109,193 @@ def test_reseaux_messages():
         assert not r.JOURNAL_PUBLICATIONS.exists()
     finally:
         r.MESSAGES, r.FIGURES, r.JOURNAL_PUBLICATIONS = avant
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def test_reseaux_suivre():
+    """Abonnements Bluesky du compte du projet (demande de Lucas du 29 octobre 2026), sans rien envoyer, sur la vraie
+    liste vérifiée (docs/reseaux/comptes_a_suivre.csv). Liste sans erreur, seuls les comptes cochés sont suivis, cinq
+    par jour au plus, jamais deux fois le même, un identifiant qui mène à un autre compte est refusé, un compte déjà
+    suivi est noté sans nouvel abonnement, l'essai n'envoie rien, et l'enregistrement est un abonnement et rien d'autre."""
+    import csv
+    import datetime as dt
+    import re
+    import shutil
+    import tempfile
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from outils import reseaux as r
+    lignes = r.lire_comptes()
+    assert not r.controler_comptes(lignes), r.controler_comptes(lignes)
+    assert 20 <= len(lignes) <= 40
+    with (r.COMPTES_A_SUIVRE.parent / "linkedin_a_suivre.csv").open(encoding="utf-8-sig", newline="") as f:
+        li = list(csv.DictReader(f, delimiter=";"))
+    assert li and all(re.match(r"https://(www|fr)\.linkedin\.com/(company|school)/[^/]+/?$", x["adresse"])
+                      and x["verification"] for x in li)
+    assert len({x["adresse"].rstrip("/") for x in li}) == len(li)
+    rec = r.enregistrement_suivi(lignes[0]["did"], dt.datetime(2026, 11, 3, 9, 30))
+    assert set(rec) == {"$type", "subject", "createdAt"} and rec["$type"] == "app.bsky.graph.follow"
+    assert r.controler_comptes([dict(lignes[0], did="did:plc:faux")])
+    assert r.controler_comptes([lignes[0], dict(lignes[1], identifiant=lignes[0]["identifiant"])])
+    avant = (r.COMPTES_A_SUIVRE, r.JOURNAL_ABONNEMENTS, r.session_bluesky)
+    tmp = Path(tempfile.mkdtemp(prefix="suivre_"))
+    try:
+        r.COMPTES_A_SUIVRE, r.JOURNAL_ABONNEMENTS = tmp / "comptes.csv", tmp / "journal.csv"
+        r.session_bluesky = lambda *a: {"did": "did:plc:" + "a" * 24, "jeton": "", "serveur": "", "handle": ""}
+        autre, deja, non_coche = lignes[0], lignes[1], lignes[2]
+        coches = [dict(x, valide="" if x is non_coche else "2026-10-29") for x in lignes]
+        r.ecrire_comptes(coches)
+        assert r.lire_comptes() == coches
+        envoyes = []
+
+        def suiveur(_s, did):
+            envoyes.append(did)
+            return f"at://moi/app.bsky.graph.follow/{len(envoyes)}"
+        resoudre = lambda h: "did:plc:" + "b" * 24 if h == autre["identifiant"] else \
+            next(x["did"] for x in lignes if x["identifiant"] == h)
+        dejas = lambda _moi, did: did == deja["did"]
+        assert r.suivre(essai=True, resoudre=resoudre, deja=dejas, suiveur=suiveur, pause=0) == 0
+        assert not envoyes and not r.JOURNAL_ABONNEMENTS.exists()
+        assert r.suivre(resoudre=resoudre, deja=dejas, suiveur=suiveur, pause=0) == 0
+        assert len(envoyes) == r.SUIVIS_PAR_JOUR
+        assert r.suivre(resoudre=resoudre, deja=dejas, suiveur=suiveur, pause=0) == 0
+        assert len(envoyes) == r.SUIVIS_PAR_JOUR   # quota du jour atteint
+        # le lendemain, la suite de la liste, sans reprendre un compte déjà traité
+        j = r.JOURNAL_ABONNEMENTS.read_text(encoding="utf-8-sig")
+        hier = (dt.date.today() - dt.timedelta(days=1)).isoformat()
+        r.JOURNAL_ABONNEMENTS.write_text(j.replace(dt.date.today().isoformat(), hier), encoding="utf-8-sig")
+        for _ in range(len(lignes)):
+            r.suivre(resoudre=resoudre, deja=dejas, suiveur=suiveur, pause=0)
+            j = r.JOURNAL_ABONNEMENTS.read_text(encoding="utf-8-sig")
+            r.JOURNAL_ABONNEMENTS.write_text(j.replace(dt.date.today().isoformat(), hier), encoding="utf-8-sig")
+        assert len(envoyes) == len(set(envoyes)) == len(lignes) - 3
+        assert not {autre["did"], deja["did"], non_coche["did"]} & set(envoyes)
+        etats = {x["did"]: x["etat"] for x in r.journal_abonnements()}
+        assert etats[deja["did"]] == "deja_suivi" and autre["did"] not in etats and non_coche["did"] not in etats
+    finally:
+        r.COMPTES_A_SUIVRE, r.JOURNAL_ABONNEMENTS, r.session_bluesky = avant
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def test_statistiques_photographie():
+    """Onglet « Statistiques » (demande de Lucas du 29 octobre 2026), photographie du jour sur les vraies sources
+    publiques, dans un dossier temporaire. Une seule par jour sans forcer, une source en échec n'arrête pas les autres,
+    Zenodo toutes versions au moins égal à la dernière version, aucun jeton écrit dans la photographie, séries d'un
+    point par jour."""
+    import datetime as dt
+    import shutil
+    import tempfile
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from outils import statistiques as s
+    avant = s.DOSSIER
+    tmp = Path(tempfile.mkdtemp(prefix="stats_"))
+    try:
+        s.DOSSIER = tmp
+        photo = s.photographier()
+        if not any(v.get("ok") for v in photo["sources"].values()):
+            raise Ignore("aucune source joignable (hors ligne)")
+        assert s.photographier() is None and s.fichier(dt.date.today()).exists()
+        b = photo["sources"]["bluesky"]
+        if b["ok"]:
+            assert all(isinstance(b[k], int) for k in ("abonnes", "abonnements", "messages", "jaime"))
+            assert b["jaime"] == sum(m["jaime"] for m in b["publications"])
+        z = photo["sources"]["zenodo"]
+        if z["ok"]:
+            assert set(s.DEPOTS) <= set(z)
+            for cle in s.DEPOTS:
+                assert z[cle]["vues"] >= z[cle]["vues_version"] and z[cle]["doi_version"].startswith("10.5281/zenodo.")
+        jeton = s.jeton_goatcounter()
+        texte = s.fichier(dt.date.today()).read_text(encoding="utf-8")
+        assert not jeton or jeton not in texte
+        g = photo["sources"]["goatcounter"]
+        assert not g["ok"] or g.get("sans_jeton") == (not jeton)
+
+        def casse():
+            raise RuntimeError("code 503")
+        p2 = s.photographier(forcer=True, sources={"datagouv": casse, "zenodo": s.zenodo})
+        assert not p2["sources"]["datagouv"]["ok"] and "503" in p2["sources"]["datagouv"]["erreur"]
+        assert p2["sources"]["zenodo"]["ok"] == z["ok"]
+        photos = s.photographies()
+        assert len(photos) == 1 and photos[0][0] == dt.date.today()
+        if p2["sources"]["zenodo"]["ok"]:
+            assert s.serie(photos, "zenodo", "donnees", "vues") == [(dt.date.today(),
+                                                                     p2["sources"]["zenodo"]["donnees"]["vues"])]
+        assert s.serie(photos, "datagouv", "vues") == []   # lecture en échec, jour omis
+        assert s.visiteurs_par_semaine(photos) == []
+    finally:
+        s.DOSSIER = avant
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def test_veille_des_bases():
+    """Veille des bases (demande de Lucas du 29 octobre 2026), sur les vrais titres et le vrai catalogue de data.ameli,
+    dans un dossier temporaire. Bases intégrées reconnues et retirées, déclinaisons géographiques réunies, documents
+    administratifs et thèmes hors du projet sous le seuil, un passage par semaine, jamais deux fois le même candidat,
+    marques et examens contrôlés."""
+    import json
+    import shutil
+    import tempfile
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from outils import veille as v
+    integres, examines = v.jetons_connus()
+    for ident in ("708_bases-statistiques-sae", "demographie-secteurs-conventionnels", "suicides-deces-departement",
+                  "effectifs", "honoraires"):
+        assert ident in integres, ident
+    assert examines, "notes des bases examinées introuvables"
+    # titres réels relevés le 29 octobre 2026
+    assert v.famille("Gestes auto-infligés : Hospitalisations (Département)") == \
+        v.famille("Gestes auto-infligés : Hospitalisations (France)")
+    assert v.famille("Professionnels de santé libéraux : montants des honoraires par territoire (département, région)") \
+        == v.famille("Professionnels de santé libéraux : montants des honoraires par territoire")
+    marche = ("Maintenance et entretien des espaces verts et plantations pour l’Etablissement Public de Santé Mentale "
+              "METZ-JURY Site de MAIZIERES LES METZ")
+    assert v.pertinence(marche, "", [], "points", "notspecified", "2024-06-10")[0] < v.SCORE_MIN
+    assert v.pertinence("Antibiotiques : Consommation en établissements de santé (Région)", "", [], "région",
+                        "Licence ouverte 2.0", "2025-11-18")[0] < v.SCORE_MIN
+    s, r = v.pertinence("Santé mentale : Pensées suicidaires et tentatives de suicide (Région)", "", [], "région",
+                        "Licence ouverte 2.0", "2025-03-21")
+    assert s >= v.SCORE_MIN and any("santé mentale" in x for x in r)
+    assert v.interdit("https://www.doctolib.fr/x") and not v.interdit("https://data.ameli.fr/explore/dataset/x/")
+    assert v.domaine("Santé mentale : Pensées suicidaires et tentatives de suicide (Région)", "", []) == "Santé mentale"
+    assert v.domaine("Bases statistiques communale, départementale et régionale de la délinquance enregistrée", "",
+                     []) == "Victimes, violences et délinquance"
+    avant = (v.DOSSIER, v.CANDIDATS, v.MARQUES, v.EXAMENS, v.PASSAGES)
+    tmp = Path(tempfile.mkdtemp(prefix="veille_"))
+    try:
+        v.DOSSIER, v.CANDIDATS, v.MARQUES, v.EXAMENS, v.PASSAGES = (tmp, tmp / "c.json", tmp / "m.json", tmp / "e",
+                                                                    tmp / "p.json")
+        try:
+            b = v.relever(catalogues={"ameli": lambda _d: v.ods("ameli")})
+        except Exception as e:   # noqa: BLE001
+            raise Ignore(f"data.ameli injoignable ({e})")
+        if not b["catalogues"]["ameli"]["ok"]:
+            raise Ignore("data.ameli injoignable")
+        cands = v.lire_json(v.CANDIDATS, {})
+        idents = {m.split(":", 1)[1] for c in cands.values() for m in c["membres"]}
+        assert not idents & integres and b["retires_integres"] >= 3
+        assert all(c["score"] >= v.SCORE_MIN and c["adresse"].startswith("https://data.ameli.fr/") for c in cands.values())
+        assert all(c["domaine"] in v.DOMAINES for c in cands.values()) and b["type"] == "complet"
+        assert v.relever(catalogues={"ameli": lambda _d: []}) is None   # un passage par semaine
+        b2 = v.relever(forcer=True, catalogues={"ameli": lambda _d: v.ods("ameli")})
+        assert b2["type"] == "semaine" and b2["nouveaux"] == 0 and len(v.lire_json(v.CANDIDATS, {})) == len(cands)
+        if cands:
+            cle = next(iter(cands))
+            v.marquer(cle, "interessant", "à voir")
+            assert v.marques()[cle]["marque"] == "interessant"
+            v.marquer(cle, None, "")
+            assert cle not in v.marques()
+            bon = {"cle": cle, "donnees": "d", "croisements": "c", "figures": ["f"], "produits": {"implantation": "i"},
+                   "licence": "ODbL", "effort": "moyen", "limites": "l", "avis": "à garder en réserve",
+                   "liste": {"1": "x", "9 bis": "y"}, "sources": []}
+            assert not v.controler_examen(bon, cands)
+            assert v.controler_examen(dict(bon, croisements=""), cands)
+            assert v.controler_examen(dict(bon, produits={"autre": "x"}), cands)
+            assert v.controler_examen(dict(bon, figures=[]), cands)
+            assert v.controler_examen(dict(bon, cle="inconnu:x"), cands)
+            assert v.controler_examen(dict(bon, effort="énorme"), cands)
+            assert v.controler_examen(dict(bon, liste={"42": "x"}), cands)
+            json.dumps(bon)
+    finally:
+        v.DOSSIER, v.CANDIDATS, v.MARQUES, v.EXAMENS, v.PASSAGES = avant
         shutil.rmtree(tmp, ignore_errors=True)
 
 

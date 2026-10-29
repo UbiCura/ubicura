@@ -287,6 +287,10 @@ function selCard(){
   // offre de la famille choisie (santé mentale puis santé), puis profil de la population, chacun en colonnes équilibrées
   h+='<div class="fiche-colonnes">'+[blocs[SM],blocs[SANTE],blocs.pop].filter(Boolean).join("")+'</div>';
   if(LX&&D.niveaux[lv].lieux)h+='<p class="small" style="margin:14px 0 0"><button type="button" class="lien" id="selVersLieux">Structures de soins de ce territoire, niveau de confirmation et liste</button></p>';
+  // addictologie de la région du territoire, dans Explorer (choix de Lucas du 29 octobre 2026), consommations publiées
+  // par région seulement
+  const rg=regionDe(lv,S.sel.c);
+  if(S.fam!==SANTE&&rg)h+='<p class="small" style="margin:6px 0 0"><a href="explorer.html#qAddicto?fam='+famCle()+'&adReg='+rg+'">L’addictologie '+esc(enRegion(rg))+', de l’offre aux consommations, dans Explorer</a></p>';
   // limites propres à ce territoire (par exemple les suicides en Île-de-France)
   const codes=[S.sel.c,lv==="epci"?u.p:null],lims=Object.keys(D.limites||{}).filter(k=>codes.some(c=>c&&D.limites[k].territoires?.[c]));
   if(fragile(lv,S.sel.c))lims.unshift(fragile(lv,S.sel.c));
@@ -406,6 +410,13 @@ const STATUT={"-2":"nettement en dessous de la moyenne des territoires, au-delà
 function liensExplorerOnglets(){const n=document.getElementById("lienNuage");if(n)n.href=lienNuage({});
   const a=document.getElementById("lienExplorerOnglets");if(!a)return;
   a.href="explorer.html#qInegalites?fam="+famCle()+"&iProf="+encodeURIComponent(S.prof)+"&iNiv="+(S.level==="dep"?"dep":"epci")}
+// code de la région d'un territoire, par le nom de région que porte chaque département (u.p)
+function regionDe(lv,c){const R=D.niveaux.reg;if(!R)return null;if(lv==="reg")return c;
+  const dep=lv==="dep"?c:(D.niveaux.epci.units[IDX.epci.get(c)]||{}).p,u=D.niveaux.dep&&D.niveaux.dep.units[IDX.dep.get(dep)];
+  const r=u&&R.units.find(x=>x.nm===u.p);return r?r.c:null}
+// région à la française dans une phrase (« en Bretagne », « dans les Hauts-de-France », « à La Réunion »)
+function enRegion(c){const u=D.niveaux.reg.units[IDX.reg.get(c)],n=u?u.nm:c;
+  return /^(La Réunion|Mayotte)$/.test(n)?"à "+n:/^(Hauts|Pays)/.test(n)?"dans les "+n:/^(Grand Est|Centre)/.test(n)?"dans le "+n:"en "+n}
 // « Croiser deux indicateurs » vit dans Explorer (lot 2 du 29 octobre 2026). Une case des corrélations ou une barre des
 // indicateurs entre eux y ouvre le nuage réglé sur la même profession, le même indicateur et le même niveau.
 function lienNuage(o){return "explorer.html#cxFenNuage?fam="+famCle()+"&cxProf="+encodeURIComponent(o.prof||S.prof)
@@ -557,7 +568,7 @@ function render(){
   if(S.tab==="carte"){lieuxOptions();drawMap();natCard();selCard();structuresTerritoire();lowerPanels();parcoursAtlas();listeCherche()}
   if(S.tab==="tableau"){table();accesLieux()}
   liensExplorerOnglets();
-  if(S.tab==="croisements"){heatmap();effetVille();indicateursEntreEux();addictologie();offreBesoin();gwrCarte();sommaireOnglet("croisements");setTimeout(()=>sommaireOnglet("croisements"),400)}
+  if(S.tab==="croisements"){heatmap();effetVille();indicateursEntreEux();offreBesoin();gwrCarte();sommaireOnglet("croisements");setTimeout(()=>sommaireOnglet("croisements"),400)}
   if(S.tab==="sources")sources();
   if(S.tab==="comprendre")comprendre();
   normaliserEncadres();signer();

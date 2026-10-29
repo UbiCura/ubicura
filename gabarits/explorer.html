@@ -146,6 +146,8 @@
 .outil tbody tr:hover td{background:color-mix(in srgb,var(--ink) 4%,transparent)}
 td i.pastille{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
 .outil .a-savoir{max-width:none;margin:14px 0 0}
+.ad-notes{margin:8px 0 0}.ad-notes span{display:block}
+.ad-offre{width:100%;table-layout:fixed}.ad-offre th,.ad-offre td{white-space:normal;hyphens:none}.ad-offre th:first-child{width:34%}.ad-offre th:nth-child(2){width:15%}.ad-offre td:nth-child(2){text-align:right;padding-right:18px}
 @media (max-width:820px){.reglages{grid-template-columns:1fr}.cote,.grille-t{grid-template-columns:1fr!important}}
 /* « Croiser deux indicateurs » (lot 2 du 29 octobre 2026), même moteur que l'atlas. Règles des questions préparées
    reprises de l'atlas, qui ne montre plus le nuage, et règles du moteur limitées à la question */
@@ -206,6 +208,7 @@ td i.pastille{display:inline-block;width:10px;height:10px;border-radius:2px;marg
   <div class="grp"><p class="q">Quels profils d'offre distinguent les intercommunalités ?</p><ul><li><a href="#tyFenProfils">Profils d'offre des intercommunalités</a></li><li><a href="#tyFenAcp">Ce qui distingue les intercommunalités</a></li></ul></div>
   <div class="grp"><p class="q">Où trouve-t-on une profession sans l'autre ?</p><ul><li><a href="#paires">Une profession sans l'autre</a></li></ul></div>
   <div class="grp"><p class="q">Les départements modestes rattrapent-ils leur retard depuis 2016 ?</p><ul><li><a href="#trajectoires">Croiser des trajectoires</a></li></ul></div>
+  <div class="grp"><p class="q">L'addictologie, de l'offre aux consommations</p><ul><li><a href="#adFenConso">Consommations et décès attribuables, par région</a></li><li><a href="#adFenOffre">L'offre en addictologie en France</a></li></ul></div>
   <div class="grp"><p class="q">L'offre suit-elle le profil des habitants ?</p><ul><li><a href="#cxFenNuage">Croiser deux indicateurs</a></li></ul></div>
   <div class="grp"><p class="q">Combien de psychologues pour un psychiatre, selon la densité et le niveau de vie à la fois ?</p><ul><li><span class="avenir">à venir, tableau croisé</span></li></ul></div>
   <div class="grp"><p class="q">L'offre pour l'enfant suit-elle les familles ?</p><ul><li><span class="avenir">à venir</span></li></ul></div>
@@ -401,6 +404,35 @@ td i.pastille{display:inline-block;width:10px;height:10px;border-radius:2px;marg
 </article>
 </section>
 
+<!-- ============================================================ addictologie, reprise de l'atlas (choix de Lucas du 29 octobre 2026) -->
+<section class="question" id="qAddicto" aria-labelledby="qAddictoT">
+<h2 class="q-titre" id="qAddictoT">L'addictologie, de l'offre aux consommations</h2>
+<div class="q-reglages" role="group" aria-label="Réglages de la question « L'addictologie, de l'offre aux consommations »"><span class="lib cache-visuel">Région repérée</span><div id="adReg"></div></div>
+
+<article class="fenetre repliable outil" id="adFenConso" aria-labelledby="adConsoH">
+  <div class="fen-tete"><span class="pastilles"></span><div class="fen-titre"><h3 id="adConsoH">Consommations et décès attribuables, par région</h3><p class="fen-resume"></p></div>
+    <div class="fen-outils"><button type="button" class="fen-lire-bouton">Comment lire</button></div></div>
+  <div class="fen-corps">
+    <div class="fen-lire" hidden><p class="comment-lire"><strong>Comment lire.</strong> Chaque colonne est un indicateur, chaque ligne une région, rangées par ordre alphabétique. Le point donne la valeur de la région, le trait sa fourchette, l'intervalle de confiance à 95 % de l'enquête, dans lequel la vraie valeur se trouve avec une forte probabilité. Deux régions dont les fourchettes se chevauchent ne se distinguent pas avec certitude. Le pointillé marque la médiane des régions. Les consommations d'alcool et de tabac sont déclarées par les personnes interrogées, les décès attribuables au tabac sont estimés. Les consommations ne sont publiées que par région, elles ne sont pas rapportées aux départements.</p></div>
+    <p class="resultat" id="adResultat"></p>
+    <figure class="graphique" id="figAddicto"><figcaption class="small muted"><strong>Figure 11.</strong> <span class="leg" id="adTitre"></span>.</figcaption><div class="fig-corps"><div id="adFigure"></div></div></figure>
+    <p class="small muted ad-notes" id="adNotes"></p>
+  </div>
+</article>
+
+<article class="fenetre repliable outil" id="adFenOffre" aria-labelledby="adOffreH">
+  <div class="fen-tete"><span class="pastilles"></span><div class="fen-titre"><h3 id="adOffreH">L'offre en addictologie en France</h3><p class="fen-resume"></p></div>
+    <div class="fen-outils"><button type="button" class="fen-lire-bouton">Comment lire</button></div></div>
+  <div class="fen-corps">
+    <div class="fen-lire" hidden><p class="comment-lire"><strong>Comment lire.</strong> Les centres de soins, d'accompagnement et de prévention en addictologie (CSAPA) sont comptés à trois niveaux, les lieux où ils reçoivent, les établissements et les structures principales. Ces trois comptes décrivent la même offre et ne s'additionnent pas. Les CAARUD accueillent et accompagnent les personnes qui consomment des drogues, pour réduire les risques. Les unités d'addictologie à l'hôpital comprennent les équipes de liaison (ELSA), qui interviennent dans les services sans lieu propre. Les médecins qualifiés en addictologie sont un comptage de qualification, qui ne s'ajoute pas à celui de leur spécialité.</p></div>
+    <p class="resultat" id="adOffreResultat"></p>
+    <figure class="graphique" id="figAdOffre"><figcaption class="small muted"><strong>Tableau.</strong> <span class="leg">L'offre en addictologie en France, d'après FINESS, le Répertoire opérationnel des ressources et le RPPS</span>.</figcaption><div class="fig-corps"><div id="adOffre"></div></div></figure>
+    <p class="small">Le croisement entre les CSAPA, les personnes prises en charge pour une addiction et les médecins addictologues, par département, est l'une des questions préparées de <a href="#cxFenNuage">« Croiser deux indicateurs »</a>.</p>
+  </div>
+</article>
+<p class="a-savoir" id="adSavoir"></p>
+</section>
+
 <!-- ============================================================ croiser deux indicateurs, moteur de l'atlas (lot 2 du 29 octobre 2026) -->
 <section class="question" id="qCroisements" aria-labelledby="qCroisementsT" data-moteur>
 <h2 class="q-titre" id="qCroisementsT">L'offre suit-elle le profil des habitants ?</h2>
@@ -421,7 +453,7 @@ td i.pastille{display:inline-block;width:10px;height:10px;border-radius:2px;marg
     </div>
     <div class="onglets" role="tablist"><button type="button" role="tab" data-vue="cxVueNuage">Nuage</button><button type="button" role="tab" data-vue="cxVueDonnees">Données par territoire</button><button type="button" role="tab" data-vue="cxVueQuestions">Questions préparées</button></div>
     <div class="vue" id="cxVueNuage" role="tabpanel">
-      <figure class="graphique zoomable" id="figCxNuage"><figcaption class="small muted"><strong>Figure 11.</strong> <span class="leg" id="cxTitre"></span>.</figcaption><div class="fig-corps"><svg id="scatter" role="img" aria-label="Nuage de points des territoires" viewBox="0 0 560 420"></svg></div></figure>
+      <figure class="graphique zoomable" id="figCxNuage"><figcaption class="small muted"><strong>Figure 12.</strong> <span class="leg" id="cxTitre"></span>.</figcaption><div class="fig-corps"><svg id="scatter" role="img" aria-label="Nuage de points des territoires" viewBox="0 0 560 420"></svg></div></figure>
       <div id="scLimite"></div>
       <p class="note" id="xvarNote"></p>
     </div>
@@ -441,5 +473,5 @@ td i.pastille{display:inline-block;width:10px;height:10px;border-radius:2px;marg
 </section>
 </div>
 <div class="bulle-x" id="bulle" role="status"></div>
-{% for s in ["d3.min.js", "topojson-client.min.js", "fond.js", "donnees.js", "donnees_outils.js", "explorer.js", "explorer_inegalites.js", "explorer_typologie.js"] %}<script src="{{ racine }}explorer/{{ s }}?v={{ version_explorer }}"></script>
+{% for s in ["d3.min.js", "topojson-client.min.js", "fond.js", "donnees.js", "donnees_outils.js", "explorer.js", "explorer_inegalites.js", "explorer_typologie.js", "explorer_addicto.js"] %}<script src="{{ racine }}explorer/{{ s }}?v={{ version_explorer }}"></script>
 {% endfor %}{% endblock %}

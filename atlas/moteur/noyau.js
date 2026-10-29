@@ -92,7 +92,12 @@ function titreGraphe(id){
   return t}
 // repère les tableaux qui défilent de côté (fondu sur le bord, phrase d'indication sous le tableau)
 const DEFIL=new ResizeObserver(es=>es.forEach(e=>majDefil(e.target.parentElement)));
-function majDefil(b){if(!b)return;const d=b.scrollWidth>b.clientWidth+2;b.classList.toggle("deborde-d",d&&b.scrollLeft+b.clientWidth<b.scrollWidth-2);b.classList.toggle("deborde-g",d&&b.scrollLeft>2);
+function majDefil(b){if(!b)return;
+  // tableaux des corrélations, défilement de côté dès que le tableau dépasse son cadre, mesuré quand l'onglet s'affiche
+  // ou que la largeur change (mesuré au dessin seulement, l'onglet caché laissait le tableau élargir la page du
+  // téléphone, 657 pixels pour 375, relevé du 29 octobre 2026)
+  if(b.classList.contains("hmbox")&&b.closest("#hmCadres")){const t=b.querySelector("table");b.classList.toggle("defile-x",!!t&&t.offsetWidth>b.clientWidth+1)}
+  const d=b.scrollWidth>b.clientWidth+2;b.classList.toggle("deborde-d",d&&b.scrollLeft+b.clientWidth<b.scrollWidth-2);b.classList.toggle("deborde-g",d&&b.scrollLeft>2);
   let n=b.nextElementSibling;if(!(n&&n.classList.contains("indice-defil"))){if(!d)return;n=document.createElement("p");n.className="indice-defil";n.textContent="Faites défiler le tableau vers la droite pour voir les autres colonnes.";b.after(n)}n.hidden=!d}
 document.querySelectorAll(".scroll,.hmbox,.tabdonnees").forEach(b=>{b.addEventListener("scroll",()=>majDefil(b),{passive:true});new MutationObserver(()=>{const t=b.querySelector("table");if(t&&!t.dataset.observe){t.dataset.observe=1;DEFIL.observe(t)}majDefil(b)}).observe(b,{childList:true,subtree:true});const t=b.querySelector("table");if(t){t.dataset.observe=1;DEFIL.observe(t)}});
 addEventListener("resize",()=>document.querySelectorAll(".scroll,.hmbox,.tabdonnees").forEach(majDefil));

@@ -134,7 +134,7 @@ def donnees_trajectoires(dossier: Path) -> dict | None:
 # niveaux des outils d'inégalités, ceux pour lesquels le niveau de vie et l'entonnoir sont calculés (lot 2, 28 octobre 2026)
 NIVEAUX_INEGALITES = ("dep", "epci")
 # code des outils repris de l'atlas, un fichier par question, chargés après explorer.js
-FICHIERS_OUTILS = ("explorer_inegalites.js", "explorer_typologie.js")
+FICHIERS_OUTILS = ("explorer_inegalites.js", "explorer_typologie.js", "explorer_addicto.js")
 CLES_LIEUX = ("types", "escalier", "classes", "fr", "concentration", "tests")
 
 
@@ -231,7 +231,13 @@ def ecrire(dossier: Path, site: Path, site_data: dict) -> bool:
     # outils repris de l'atlas (lots 2 et 3), mêmes données que l'atlas, Gini recalculé face à inegalites.csv
     di = donnees_inegalites(site_data)
     if di:
-        (out / "donnees_outils.js").write_text(f"const DI={js(di)};\n", encoding="utf-8")
+        # addictologie (choix de Lucas du 29 octobre 2026), données de l'encadré de l'atlas et leur limite
+        da = site_data.get("addicto") or {"offre": [], "ind": [], "regions": {}}
+        lim = config.LIMITES.get("addictions")
+        da = {**da, "limite": {"texte": lim["texte"], "sources": lim["sources"]} if lim else None}
+        (out / "donnees_outils.js").write_text(f"const DI={js(di)};\nconst DA={js(da)};\n", encoding="utf-8")
+        JOURNAL.controle("Explorer, addictologie", f"{len(da['ind'])} indicateurs régionaux, {len(da['offre'])} lignes "
+                         f"d'offre en France")
         for code in FICHIERS_OUTILS:
             shutil.copyfile(config.RACINE / "gabarits" / code, out / code)
         pub = {(r["niv"], r["prof"]): r["gini"] for r in site_data.get("inegalites", []) if r.get("mode") == "all"}

@@ -1,50 +1,9 @@
 // Moteur de l'atlas, module « croisements » (propre à l'atlas). Corrélations par groupe d'indicateurs, effet ville,
 // offre et indicateur sur une même carte, lien local avec le niveau de vie, indicateurs entre eux, régressions,
-// addictologie. « Croiser deux indicateurs » est dans le module « nuage », chargé par Explorer (lot 2 du 29 octobre 2026).
+// l'addictologie est passée dans Explorer (29 octobre 2026). « Croiser deux indicateurs » est dans le module « nuage », chargé par Explorer (lot 2 du 29 octobre 2026).
 // Dépend du noyau et de la carte. La page qui le charge fournit render() (tout redessiner après un changement de
 // niveau ou de profession), syncBar() (remettre les réglages affichés d'accord avec S) et ouvrirNuage() (ouvrir un
 // croisement dans « Croiser deux indicateurs », dans Explorer), et les éléments de la page que les fonctions remplissent.
-// encadré « Addictologie » (22 octobre 2026), même calcul que la partie du rapport santé mentale, régions rangées par
-// ordre alphabétique et non par valeur (pas de palmarès)
-function addictologie(){const A=D.addicto,P=document.getElementById("adPanel");if(!P)return;
-  const vis=!!(A&&(A.ind.length||A.offre.length))&&S.fam!=="Santé";P.hidden=!vis;if(!vis)return;
-  const f1=new Intl.NumberFormat("fr-FR",{maximumFractionDigits:1});
-  document.getElementById("adTable").innerHTML='<thead><tr><th scope="col">Offre</th><th scope="col">Nombre</th><th scope="col">Précision</th></tr></thead><tbody>'
-    +A.offre.map(r=>'<tr><td>'+esc(r.objet)+'</td><td>'+fmt.format(r.n)+'</td><td class="small muted">'+esc(r.note||"")+'</td></tr>').join("")+'</tbody>';
-  document.getElementById("adPhrase").textContent=A.ind.length?"Selon les régions, "+A.ind.filter(i=>i.phrase).map(i=>{const v=Object.values(i.v).map(x=>x[0]);
-    return i.phrase.replace("{min}",f1.format(d3.min(v))).replace("{max}",f1.format(d3.max(v))).replace("{annee}",i.annee)}).join(", ")+".":"";
-  document.getElementById("adLimite").innerHTML=limiteHtml(["addictions"]);
-  const svg=d3.select("#adPlot");svg.selectAll("*").remove();if(!A.ind.length)return;
-  const codes=[...new Set(A.ind.flatMap(i=>Object.keys(i.v)))].filter(c=>A.regions[c]).sort((a,b)=>A.regions[a].localeCompare(A.regions[b],"fr"));
-  const nomsR=cs=>cs.map(c=>A.regions[c]).sort((a,b)=>a.localeCompare(b,"fr")).join(", "),
-    manques=A.ind.map(i=>Object.keys(A.regions).filter(c=>!(c in i.v))),commun=manques[0].filter(c=>manques.every(m=>m.includes(c))),
-    notes=(commun.length?["Aucune mesure publiée pour "+nomsR(commun)+"."]:[]).concat(A.ind.map((i,j)=>[i,manques[j].filter(c=>!commun.includes(c))])
-      .filter(([,m])=>m.length).map(([i,m])=>"« "+i.lib+" », pas de mesure publiée pour "+nomsR(m)+"."));
-  // titres et unités coupés selon la place de chaque colonne à leur taille d'écran (normaliserTextes), la hauteur de
-  // l'en-tête suit le plus long
-  const W=900,pas=21,ecran=svg.node().getBoundingClientRect().width||W,k=W/Math.max(ecran,W*.9);
-  const g0=Math.max(150,largeurLignes(svg,codes.map(c=>A.regions[c]))*k+14),larg=(W-g0-12)/A.ind.length;
-  const fT=TYPO.texte*k,fP=TYPO.petit*k,ent=A.ind.map(i=>({t:coupeLib(i.lib,Math.floor((larg-20)/(fT*.58))),u:coupeLib(i.unite+", "+i.annee,Math.floor((larg-20)/(fP*.56)))}));
-  const haut=d3.max(ent,e=>e.t.length*fT*1.3+e.u.length*fP*1.3)+14,bas=haut+pas*codes.length+34,h=bas+14*notes.length;svg.attr("viewBox","0 0 "+W+" "+h);
-  codes.forEach((c,k)=>{const y=haut+pas*k+pas/2;
-    if(k%2===0)svg.append("rect").attr("x",g0).attr("y",y-pas/2).attr("width",W-g0-12).attr("height",pas).attr("fill",css("--line")).attr("opacity",.25);
-    svg.append("text").attr("x",g0-8).attr("y",y+4).attr("text-anchor","end").attr("font-size",11).attr("fill",css("--ink")).text(A.regions[c])});
-  A.ind.forEach((ind,j)=>{const x0=g0+j*larg+10,x1=x0+larg-24,vals=Object.values(ind.v);
-    const vmax=d3.max(vals,x=>Math.max(x[0],x[2]??x[0]))*1.05,X=d3.scaleLinear().domain([0,vmax]).nice(4).range([x0,x1]);
-    const e=ent[j];
-    e.t.forEach((t,l)=>svg.append("text").attr("x",(x0+x1)/2).attr("y",fT*1.1+fT*1.3*l).attr("text-anchor","middle").attr("font-size",11).attr("font-weight",600).attr("fill",css("--ink")).text(t));
-    e.u.forEach((t,l)=>svg.append("text").attr("x",(x0+x1)/2).attr("y",fT*1.1+fT*1.3*e.t.length+fP*1.3*l).attr("text-anchor","middle").attr("font-size",10).attr("fill",css("--muted")).text(t));
-    X.ticks(4).forEach(v=>{svg.append("line").attr("x1",X(v)).attr("x2",X(v)).attr("y1",haut).attr("y2",bas-34).attr("stroke",css("--line"));
-      svg.append("text").attr("x",X(v)).attr("y",bas-18).attr("text-anchor","middle").attr("font-size",10).attr("fill",css("--muted")).text(f1.format(v))});
-    const med=d3.median(vals,x=>x[0]);svg.append("line").attr("x1",X(med)).attr("x2",X(med)).attr("y1",haut).attr("y2",bas-34).attr("stroke",css("--muted")).attr("stroke-dasharray","3 3");
-    codes.forEach((c,k)=>{const r=ind.v[c];if(!r)return;const y=haut+pas*k+pas/2;
-      if(r[1]!=null&&r[2]!=null)svg.append("line").attr("x1",X(r[1])).attr("x2",X(r[2])).attr("y1",y).attr("y2",y).attr("stroke",css("--r3")).attr("stroke-width",2);
-      svg.append("circle").attr("cx",X(r[0])).attr("cy",y).attr("r",4).attr("fill",css("--r5")).append("title").text(A.regions[c]+", "+f1.format(r[0])+(r[1]!=null?" (de "+f1.format(r[1])+" à "+f1.format(r[2])+")":""))})});
-  ["Point, valeur de la région. Trait, fourchette (intervalle de confiance à 95 %). Pointillé, médiane des régions."].concat(notes)
-    .forEach((t,k)=>svg.append("text").attr("x",12).attr("y",bas-3+14*k).attr("font-size",10).attr("fill",css("--muted")).text(t))}
-// redessin quand la largeur de la figure change (encadré déplié, fenêtre redimensionnée), les titres en dépendent
-const AD_RO=new ResizeObserver(es=>{const w=Math.round(es[0].contentRect.width);if(w&&w!==AD_RO.w){AD_RO.w=w;addictologie()}});
-{const e=document.getElementById("adPlot");if(e)AD_RO.observe(e)}
 // ---------- indicateurs entre eux (départements), liens d'un indicateur avec les autres, et régressions multiples
 function indicateursEntreEux(){
   const T=D.croisements_indicateurs||[],ids=[...new Set(T.flatMap(r=>[r.a,r.b]))],lab=v=>(IDX.ctx.find(c=>c.id===v)||{label:v}).label;

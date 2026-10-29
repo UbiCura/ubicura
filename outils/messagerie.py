@@ -261,6 +261,10 @@ def cmd_relever(_args) -> int:
         nouveaux.append(f)
     m.logout()
     ecrire_json(ETAT, {"uidvalidite": validite, "dernier_uid": max([dernier, *uids]), "derniere_releve": maintenant()})
+    from outils import statistiques   # photographie quotidienne de l'écho du projet, une fois par jour, lecture seule
+    statistiques.photographier_du_jour()
+    from outils import veille   # veille des bases, une fois par semaine avec la relève, lecture seule
+    veille.relever_de_la_semaine()
     if not nouveaux:
         print("Aucun nouveau message.")
         return 0
@@ -439,8 +443,11 @@ def cmd_envoyer_programmes(_args) -> int:
         except (Arret, smtplib.SMTPException, OSError) as e:
             print(f"{b['id']} non envoyé, nouvel essai au prochain passage ({e}).")
             code = 20
-    # messages des réseaux programmés d'un clic dans l'onglet « Réseaux » (tutoriels 10 et 11)
-    return max(code, reseaux.publier_programmes())
+    # messages des réseaux programmés d'un clic dans l'onglet « Réseaux » (tutoriels 10 et 11), puis abonnements
+    # Bluesky aux comptes cochés par Lucas, cinq par jour au plus
+    from outils import statistiques   # photographie du jour si la relève ne l'a pas encore prise
+    statistiques.photographier_du_jour()
+    return max(code, reseaux.publier_programmes(), reseaux.suivre_discret())
 
 
 def etat_mise_a_jour() -> dict:
@@ -832,6 +839,12 @@ def cmd_boite(args) -> int:
     # -- onglet des réseaux, messages pour LinkedIn et Bluesky publiés d'un clic (outils/reseaux.py, tutoriels 10 et 11)
     from outils import reseaux
     res = reseaux.onglet(onglets, racine, c, police, petite, zone_texte, remplir)
+    # -- onglet des statistiques, écho du projet en lecture seule (outils/statistiques.py, tutoriel 13)
+    from outils import statistiques
+    stats = statistiques.onglet(onglets, racine, c, police, petite)
+    # -- onglet de la veille des bases, candidats marqués par Lucas et examinés à la séance de travail (outils/veille.py)
+    from outils import veille
+    vei = veille.onglet(onglets, racine, c, police, petite, zone_texte, remplir)
 
     def mettre_a_jour_bilan():
         e = lire_json(ETAT, {})
@@ -858,6 +871,7 @@ def cmd_boite(args) -> int:
     def fermer():
         garder_modifications()
         res["garder"]()
+        vei["garder"]()
         racine.destroy()
 
     racine.protocol("WM_DELETE_WINDOW", fermer)
@@ -884,6 +898,10 @@ def cmd_boite(args) -> int:
     racine.focus_force()
     if args and getattr(args, "onglet", None) == "reseaux":
         onglets.select(res["page"])
+    if args and getattr(args, "onglet", None) == "statistiques":
+        onglets.select(stats["page"])
+    if args and getattr(args, "onglet", None) == "veille":
+        onglets.select(vei["page"])
     if args and getattr(args, "capture", None):
         racine.after(1500, lambda: (capturer(racine, Path(args.capture)), racine.destroy()))
     racine.mainloop()
@@ -937,7 +955,7 @@ def main() -> int:
     sous.add_parser("envoyer-programmes").set_defaults(f=cmd_envoyer_programmes)
     p = sous.add_parser("boite")
     p.add_argument("--capture", help=argparse.SUPPRESS)
-    p.add_argument("--onglet", choices=["reseaux"], help=argparse.SUPPRESS)
+    p.add_argument("--onglet", choices=["reseaux", "statistiques", "veille"], help=argparse.SUPPRESS)
     p.set_defaults(f=cmd_boite)
     args = ap.parse_args()
     try:

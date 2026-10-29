@@ -11,6 +11,9 @@ donnees\\messagerie\\reseaux\\ (hors de Git).
     python outils\\reseaux.py ajouter F              ajoute le message du fichier JSON F, après contrôle
     python outils\\reseaux.py apercu ID              ce qui serait envoyé à chaque réseau, sans rien envoyer
     python outils\\reseaux.py publier-programmes     publie les messages programmés par Lucas dont l'heure est passée
+    python outils\\reseaux.py suivre [--essai]       abonne le compte Bluesky du projet aux comptes cochés par Lucas
+                                                    dans docs\\reseaux\\comptes_a_suivre.csv, cinq par jour au plus
+                                                    (aussi lancé par messagerie.py envoyer-programmes)
 
 Interfaces officielles seulement, jamais d'automate qui pilote un compte, jamais le mot de passe principal d'un compte.
 Les identifiants sont saisis par Lucas et rangés dans le gestionnaire d'identifiants de Windows (outils/identifiants.py),
@@ -35,6 +38,7 @@ Fichiers de donnees\\messagerie\\reseaux\\
     messages\\<id>.json          message (a_relire, plus_tard, programme, publie, ecarte), une version par réseau
     figures\\<id>.png            figure du message, copiée à l'ajout ; une figure changée annule la validation
     journal_publications.csv    date, réseau, message, adresse publique et texte de chaque publication
+    journal_abonnements.csv     date, état (suivi, deja_suivi) et compte de chaque abonnement sur Bluesky
     etat.json                   autorisation LinkedIn (date d'expiration), sans aucun secret
 """
 from __future__ import annotations
@@ -83,6 +87,19 @@ MOTIF_APP_BLUESKY = re.compile(r"^[a-z0-9]{4}(-[a-z0-9]{4}){3}$")   # forme des 
 LIEN = re.compile(r"https?://[^\s<>«»\"]+|(?<![\w@/.-])(?:www\.)?ubicura\.fr(?:/[^\s<>«»\"]*)?")
 FIN_DE_LIEN = ".,;:!?)»'’\""
 RESERVES_LINKEDIN = set("|{}@[]()<>#\\*_~")
+
+# abonnements du compte Bluesky du projet (demande de Lucas du 29 octobre 2026), seulement aux comptes de la liste
+# vérifiée qu'il a cochés, une poignée par jour, jamais deux fois le même, ni message ni « j'aime ». Lexique
+# app.bsky.graph.follow (dépôt bluesky-social/bsky, lexicons/app/bsky/graph/follow.json, subject en DID et createdAt
+# obligatoires), relations lues par app.bsky.graph.getRelationships sur l'API publique.
+COMPTES_A_SUIVRE = RACINE / "docs" / "reseaux" / "comptes_a_suivre.csv"
+COLONNES_COMPTES = ["reseau", "identifiant", "did", "nom", "categorie", "pourquoi", "verification", "verifie_le",
+                    "valide"]
+JOURNAL_ABONNEMENTS = DOSSIER / "journal_abonnements.csv"
+BLUESKY_PUBLIC = "https://public.api.bsky.app"
+COLLECTION_SUIVI = "app.bsky.graph.follow"   # seule collection écrite par la commande suivre
+SUIVIS_PAR_JOUR, PAUSE_SUIVI = 5, 30         # cinq comptes par jour au plus, 30 secondes entre deux abonnements
+MOTIF_DID = re.compile(r"did:plc:[a-z2-7]{24}")
 
 
 class Arret(Exception):
@@ -280,18 +297,38 @@ def _erreur_http(reseau: str, r) -> Arret:
     return Arret(f"{reseau} a refusé la demande (code {r.status_code}{', ' + str(detail)[:200] if detail else ''}).")
 
 
+def _handle_actuel(did: str) -> str | None:
+    """Identifiant actuel du compte, lu sur l'interface publique de Bluesky (app.bsky.actor.getProfile), sans secret."""
+    if not did:
+        return None
+    try:
+        r = _http().get("https://public.api.bsky.app/xrpc/app.bsky.actor.getProfile", params={"actor": did}, timeout=30)
+        return r.json().get("handle") if r.status_code == 200 else None
+    except Exception:  # noqa: BLE001
+        return None
+
+
 def session_bluesky(identifiant: str | None = None, mdp: str | None = None) -> dict:
     """Session ouverte avec le mot de passe d'application, {jeton, did, handle, serveur}."""
+    candidats = [identifiant]
     if not (identifiant and mdp):
         identifiant, mdp = identifiants.lire_compte(CIBLE_BLUESKY)
-    if not (identifiant and mdp):
+        # l'identifiant rangé est celui du jour de la saisie (ubicura.bsky.social le 29 octobre 2026), il change quand le
+        # compte passe à @ubicura.fr ; le DID du compte (config.BLUESKY_DID) ne change jamais, puis l'identifiant actuel
+        # lu sur l'interface publique, puis celui qui est rangé
+        candidats = [config.BLUESKY_DID, _handle_actuel(config.BLUESKY_DID), identifiant]
+    candidats = [c for c in dict.fromkeys(candidats) if c]
+    if not (candidats and mdp):
         raise Arret("aucun compte Bluesky dans le gestionnaire d'identifiants de Windows (tutoriel 11, partie D).")
     requests = _http()
-    try:
-        r = requests.post(f"{BLUESKY_ENTREE}/xrpc/com.atproto.server.createSession",
-                          json={"identifier": identifiant, "password": mdp}, timeout=60)
-    except requests.RequestException as e:
-        raise Arret(f"Bluesky ne répond pas ({e.__class__.__name__}). Réessayer plus tard.") from e
+    for c in candidats:
+        try:
+            r = requests.post(f"{BLUESKY_ENTREE}/xrpc/com.atproto.server.createSession",
+                              json={"identifier": c, "password": mdp}, timeout=60)
+        except requests.RequestException as e:
+            raise Arret(f"Bluesky ne répond pas ({e.__class__.__name__}). Réessayer plus tard.") from e
+        if r.status_code not in (400, 401):
+            break
     if r.status_code == 401:
         raise Arret("Bluesky refuse l'identifiant ou le mot de passe d'application (tutoriel 11, partie D).")
     if r.status_code != 200:
@@ -477,9 +514,180 @@ def publier_programmes(publieurs=None) -> int:
     return code
 
 
+# ---------------------------------------------------------------- comptes à suivre (Bluesky seulement)
+def lire_comptes(f: Path | None = None) -> list[dict]:
+    f = f or COMPTES_A_SUIVRE
+    with f.open(encoding="utf-8-sig", newline="") as h:
+        lecteur = csv.DictReader(h, delimiter=";")
+        if lecteur.fieldnames != COLONNES_COMPTES:
+            raise Arret(f"colonnes de {f.name} inattendues ({lecteur.fieldnames}), attendu {COLONNES_COMPTES}.")
+        return [{k: (v or "").strip() for k, v in ligne.items()} for ligne in lecteur]
+
+
+def ecrire_comptes(lignes: list[dict], f: Path | None = None) -> None:
+    f = f or COMPTES_A_SUIVRE
+    tmp = f.with_suffix(".tmp")
+    with tmp.open("w", encoding="utf-8-sig", newline="") as h:
+        w = csv.DictWriter(h, fieldnames=COLONNES_COMPTES, delimiter=";", lineterminator="\n")
+        w.writeheader()
+        w.writerows(lignes)
+    tmp.replace(f)
+
+
+def controler_comptes(lignes: list[dict]) -> list[str]:
+    """Erreurs de la liste des comptes à suivre, qui empêchent tout abonnement."""
+    erreurs, vus = [], set()
+    for i, c in enumerate(lignes, start=2):
+        if c["reseau"] != "bluesky":
+            erreurs.append(f"ligne {i}, réseau {c['reseau']!r}, seul bluesky est suivi par la commande")
+        if not MOTIF_DID.fullmatch(c["did"]):
+            erreurs.append(f"ligne {i}, DID illisible ({c['did']!r})")
+        for cle in ("identifiant", "did"):
+            if c[cle] in vus:
+                erreurs.append(f"ligne {i}, {c[cle]} en double")
+            vus.add(c[cle])
+        for cle in ("identifiant", "nom", "pourquoi", "verification"):
+            if not c[cle]:
+                erreurs.append(f"ligne {i}, {cle} manquant")
+        if not re.fullmatch(r"\d{4}-\d{2}-\d{2}", c["verifie_le"]):
+            erreurs.append(f"ligne {i}, date de vérification au format AAAA-MM-JJ")
+        if c["valide"] and not re.fullmatch(r"oui|\d{4}-\d{2}-\d{2}", c["valide"]):
+            erreurs.append(f"ligne {i}, colonne valide vide, « oui » ou date du choix")
+    return erreurs
+
+
+def journal_abonnements() -> list[dict]:
+    if not JOURNAL_ABONNEMENTS.exists():
+        return []
+    with JOURNAL_ABONNEMENTS.open(encoding="utf-8-sig", newline="") as f:
+        return list(csv.DictReader(f, delimiter=";"))
+
+
+def journaliser_abonnement(c: dict, etat: str, uri: str = "") -> None:
+    neuf = not JOURNAL_ABONNEMENTS.exists()
+    JOURNAL_ABONNEMENTS.parent.mkdir(parents=True, exist_ok=True)
+    with JOURNAL_ABONNEMENTS.open("a", encoding="utf-8-sig" if neuf else "utf-8", newline="") as f:
+        w = csv.writer(f, delimiter=";")
+        if neuf:
+            w.writerow(["date", "etat", "identifiant", "did", "nom", "enregistrement"])
+        w.writerow([maintenant(), etat, c["identifiant"], c["did"], c["nom"], uri])
+
+
+def did_public(identifiant: str) -> str | None:
+    """DID auquel mène aujourd'hui l'identifiant, lu sur l'API publique, ou None (compte supprimé, suspendu)."""
+    requests = _http()
+    try:
+        r = requests.get(f"{BLUESKY_PUBLIC}/xrpc/app.bsky.actor.getProfile", params={"actor": identifiant},
+                         timeout=30)
+    except requests.RequestException as e:
+        raise Arret(f"Bluesky ne répond pas ({e.__class__.__name__}). Réessayer plus tard.") from e
+    return r.json().get("did") if r.status_code == 200 else None
+
+
+def suit_deja(moi: str, did: str) -> bool:
+    """Vrai si le compte du projet suit déjà ce compte (abonnement fait à la main dans Bluesky compris)."""
+    requests = _http()
+    try:
+        r = requests.get(f"{BLUESKY_PUBLIC}/xrpc/app.bsky.graph.getRelationships",
+                         params={"actor": moi, "others": [did]}, timeout=30)
+    except requests.RequestException as e:
+        raise Arret(f"Bluesky ne répond pas ({e.__class__.__name__}). Réessayer plus tard.") from e
+    if r.status_code != 200:
+        raise _erreur_http("Bluesky", r)
+    return any(x.get("did") == did and x.get("following") for x in r.json().get("relationships", []))
+
+
+def enregistrement_suivi(did: str, quand: dt.datetime) -> dict:
+    return {"$type": COLLECTION_SUIVI, "subject": did,
+            "createdAt": quand.astimezone(dt.timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")}
+
+
+def suivre_bluesky(s: dict, did: str) -> str:
+    """Un abonnement, et rien d'autre (ni message, ni « j'aime »). Renvoie l'adresse at:// de l'enregistrement."""
+    requests = _http()
+    try:
+        r = requests.post(f"{s['serveur']}/xrpc/com.atproto.repo.createRecord", timeout=60,
+                          headers={"Authorization": f"Bearer {s['jeton']}"},
+                          json={"repo": s["did"], "collection": COLLECTION_SUIVI,
+                                "record": enregistrement_suivi(did, dt.datetime.now())})
+    except requests.RequestException as e:
+        raise Arret(f"Bluesky ne répond pas ({e.__class__.__name__}). Réessayer plus tard.") from e
+    if r.status_code != 200:
+        raise _erreur_http("Bluesky", r)
+    return r.json()["uri"]
+
+
+def suivre(essai: bool = False, discret: bool = False, resoudre=None, deja=None, suiveur=None,
+           pause: float = PAUSE_SUIVI) -> int:
+    """Abonne le compte du projet aux comptes cochés par Lucas, cinq par jour au plus, dans l'ordre de la liste.
+    Un compte déjà dans le journal n'est jamais repris. Un identifiant qui mène à un autre DID que celui vérifié est
+    refusé (compte à revérifier). Codes 0 rien à faire ou fait, 20 au moins un échec. Avec essai, rien n'est envoyé."""
+    import time
+    resoudre, deja, suiveur = resoudre or did_public, deja or suit_deja, suiveur or suivre_bluesky
+    lignes = lire_comptes()
+    erreurs = controler_comptes(lignes)
+    if erreurs:
+        raise Arret("liste des comptes à suivre à corriger, aucun abonnement. " + " ; ".join(erreurs))
+    journal = journal_abonnements()
+    traites = {j["did"] for j in journal}
+    aujourdhui = dt.date.today().isoformat()
+    reste = SUIVIS_PAR_JOUR - sum(1 for j in journal if j["etat"] == "suivi" and j["date"][:10] == aujourdhui)
+    a_faire = [c for c in lignes if c["valide"] and c["did"] not in traites]
+    if not a_faire:
+        if not discret:
+            print("Aucun compte coché en attente d'abonnement.")
+        return 0
+    if reste <= 0:
+        if not discret:
+            print(f"Déjà {SUIVIS_PAR_JOUR} abonnements aujourd'hui, la suite demain ({len(a_faire)} en attente).")
+        return 0
+    s = None if essai else session_bluesky()
+    moi = s["did"] if s else config.BLUESKY_DID
+    faits, code = 0, 0
+    for c in a_faire:
+        if faits >= reste:
+            break
+        try:
+            actuel = resoudre(c["identifiant"])
+            if actuel != c["did"]:
+                print(f"{c['nom']} (@{c['identifiant']}) non suivi, l'identifiant mène à "
+                      f"{actuel or 'aucun compte'} au lieu du compte vérifié, à revérifier dans la liste.")
+                continue
+            if deja(moi, c["did"]):
+                if not essai:
+                    journaliser_abonnement(c, "deja_suivi")
+                print(f"{c['nom']} (@{c['identifiant']}) déjà suivi, noté au journal.")
+                continue
+            if essai:
+                print(f"{c['nom']} (@{c['identifiant']}) serait suivi (essai, rien n'est envoyé).")
+                faits += 1
+                continue
+            if faits:
+                time.sleep(pause)
+            uri = suiveur(s, c["did"])
+            journaliser_abonnement(c, "suivi", uri)
+            faits += 1
+            print(f"Bluesky, abonnement à {c['nom']} (@{c['identifiant']}).")
+        except Arret as e:
+            print(f"{c['nom']} non suivi, nouvel essai au prochain passage ({e}).")
+            code = 20
+            break
+    restants = len(a_faire) - faits
+    if faits and restants > 0 and not discret:
+        print(f"{restants} compte(s) coché(s) encore en attente, {SUIVIS_PAR_JOUR} par jour au plus.")
+    return code
+
+
+def etat_suivis() -> dict:
+    """Pour la fenêtre, {did: texte de l'état} des comptes déjà traités."""
+    return {j["did"]: ("suivi le " if j["etat"] == "suivi" else "déjà suivi, constaté le ") +
+            f"{j['date'][8:10]}/{j['date'][5:7]}" for j in journal_abonnements()}
+
+
 def etat_comptes() -> dict:
     """État de chaque compte pour la fenêtre, sans connexion ni secret affiché, {réseau: (relié, texte)}."""
     ident, mdp = identifiants.lire_compte(CIBLE_BLUESKY)
+    ident = _handle_actuel(config.BLUESKY_DID) or ident   # identifiant du jour, il a pu changer depuis la saisie
     sortie = {"bluesky": (bool(ident and mdp), f"Bluesky, compte {ident} relié" if ident and mdp
                           else "Bluesky, compte pas encore relié (tutoriel 11)")}
     auteur, jeton = identifiants.lire_compte(CIBLE_LINKEDIN_JETON)
@@ -667,6 +875,133 @@ def cmd_publier_programmes(_args) -> int:
     return publier_programmes()
 
 
+def cmd_suivre(args) -> int:
+    return suivre(essai=args.essai)
+
+
+def suivre_discret() -> int:
+    """Pour envoyer-programmes (tâche planifiée), n'écrit que ce qui a été fait ou a échoué."""
+    try:
+        return suivre(discret=True)
+    except Arret as e:
+        print(f"Abonnements Bluesky, {e}")
+        return 20
+
+
+# ---------------------------------------------------------------- choix des comptes à suivre
+def fenetre_comptes(racine, c: dict, petite) -> None:
+    """Fenêtre où Lucas coche les comptes que Bluesky suivra. Le choix est écrit dans la colonne valide de
+    docs\\reseaux\\comptes_a_suivre.csv (date du choix). Un compte déjà suivi reste coché, il n'est jamais repris."""
+    import tkinter as tk
+    from tkinter import messagebox, ttk
+
+    try:
+        lignes = lire_comptes()
+    except (Arret, OSError) as e:
+        messagebox.showerror("Liste illisible", str(e), parent=racine)
+        return
+    faits = etat_suivis()
+    coche = {x["did"]: bool(x["valide"]) for x in lignes}
+    f = tk.Toplevel(racine)
+    f.title("Comptes à suivre sur Bluesky")
+    f.configure(bg=c["fond"])
+    f.geometry("1080x720")
+    f.transient(racine)
+    cadre = ttk.Frame(f, padding=12)
+    cadre.pack(fill="both", expand=True)
+    tk.Label(cadre, justify="left", anchor="w", bg=c["fond"], fg=c["discret"], font=petite, wraplength=1040,
+             text="Coche les comptes que le compte du projet suivra. Chaque compte a été vu sur Bluesky et rattaché à "
+                  "son organisme ou à sa personne (colonne Vérification). Les abonnements partent "
+                  f"{SUIVIS_PAR_JOUR} par jour au plus, avec la mise à jour quotidienne, sans message ni « j'aime ». "
+                  "Double clic ou barre d'espace pour cocher ou décocher.").pack(fill="x", pady=(0, 8))
+    tableau = ttk.Frame(cadre)
+    tableau.pack(fill="both", expand=True)
+    arbre = ttk.Treeview(tableau, columns=("case", "nom", "identifiant", "categorie", "etat"), show="headings",
+                         selectmode="browse", height=18)
+    for col, lib, larg in (("case", "Suivre", 60), ("nom", "Nom", 300), ("identifiant", "Identifiant", 260),
+                           ("categorie", "Catégorie", 190), ("etat", "État", 150)):
+        arbre.heading(col, text=lib, anchor="w")
+        arbre.column(col, width=larg, anchor="w", stretch=col == "nom")
+    defil = ttk.Scrollbar(tableau, orient="vertical", command=arbre.yview)
+    arbre.configure(yscrollcommand=defil.set)
+    defil.pack(side="right", fill="y")
+    arbre.pack(side="left", fill="both", expand=True)
+    detail = tk.Label(cadre, justify="left", anchor="w", bg=c["fond"], fg=c["encre"], font=petite, wraplength=1040,
+                      height=3)
+    detail.pack(fill="x", pady=(8, 0))
+    par_did = {x["did"]: x for x in lignes}
+
+    def remplir_arbre(choisi=None):
+        arbre.delete(*arbre.get_children())
+        for x in lignes:
+            arbre.insert("", "end", iid=x["did"], values=(
+                "☑" if coche[x["did"]] or x["did"] in faits else "☐", x["nom"], "@" + x["identifiant"], x["categorie"],
+                faits.get(x["did"], "en attente" if coche[x["did"]] else "")))
+        if choisi:
+            arbre.selection_set(choisi)
+            arbre.see(choisi)
+
+    def montrer(_e=None):
+        sel = arbre.selection()
+        if sel:
+            x = par_did[sel[0]]
+            detail.configure(text=f"Pourquoi. {x['pourquoi']}\nVérification ({x['verifie_le']}). {x['verification']}")
+
+    def basculer(_e=None):
+        sel = arbre.selection()
+        if not sel:
+            return
+        if sel[0] in faits:
+            detail.configure(text="Ce compte est déjà suivi. Pour ne plus le suivre, se désabonner dans Bluesky.")
+            return
+        coche[sel[0]] = not coche[sel[0]]
+        remplir_arbre(sel[0])
+        montrer()
+
+    def tout(valeur):
+        for d in coche:
+            if d not in faits:
+                coche[d] = valeur
+        remplir_arbre(arbre.selection()[0] if arbre.selection() else None)
+
+    def enregistrer_choix():
+        nouveaux = [x for x in lignes if coche[x["did"]] and not x["valide"]]
+        retires = [x for x in lignes if not coche[x["did"]] and x["valide"]]
+        if not (nouveaux or retires):
+            f.destroy()
+            return
+        texte = (f"{len(nouveaux)} compte(s) ajouté(s) au choix, {len(retires)} retiré(s).\n\nLes abonnements partiront "
+                 f"{SUIVIS_PAR_JOUR} par jour au plus, avec la mise à jour quotidienne. Enregistrer ce choix ?")
+        if not messagebox.askyesno("Enregistrer le choix ?", texte, icon="question", default="yes", parent=f):
+            return
+        try:
+            a_jour = lire_comptes()   # relue, la liste a pu changer depuis l'ouverture de la fenêtre
+            jour = dt.date.today().isoformat()
+            for x in a_jour:
+                if x["did"] in coche:
+                    x["valide"] = (x["valide"] or jour) if coche[x["did"]] else ""
+            ecrire_comptes(a_jour)
+        except (Arret, OSError) as e:
+            messagebox.showerror("Choix non enregistré", str(e), parent=f)
+            return
+        f.destroy()
+
+    boutons = ttk.Frame(cadre)
+    boutons.pack(fill="x", pady=(8, 0))
+    ttk.Button(boutons, text="Enregistrer le choix", style="Envoyer.TButton", command=enregistrer_choix).pack(
+        side="left")
+    ttk.Button(boutons, text="Tout cocher", command=lambda: tout(True)).pack(side="left", padx=(10, 0))
+    ttk.Button(boutons, text="Tout décocher", command=lambda: tout(False)).pack(side="left", padx=(10, 0))
+    ttk.Button(boutons, text="Fermer sans enregistrer", command=f.destroy).pack(side="right")
+    arbre.bind("<<TreeviewSelect>>", montrer)
+    arbre.bind("<Double-1>", basculer)
+    arbre.bind("<space>", basculer)
+    remplir_arbre(lignes[0]["did"] if lignes else None)
+    montrer()
+    f.grab_set()
+    f.wait_window()
+
+
 # ---------------------------------------------------------------- onglet de la fenêtre du courrier
 def onglet(onglets, racine, c: dict, police, petite, zone_texte, remplir) -> dict:
     """Onglet « Réseaux » de la fenêtre du courrier. Renvoie {garder, rafraichir} pour la fenêtre."""
@@ -687,6 +1022,29 @@ def onglet(onglets, racine, c: dict, police, petite, zone_texte, remplir) -> dic
         pub.heading(col, text=lib, anchor="w")
         pub.column(col, width=larg, anchor="w")
     pub.pack(fill="both", expand=True)
+    ttk.Label(gauche, text="Comptes à suivre sur Bluesky", style="Discret.TLabel").pack(anchor="w", pady=(12, 2))
+    resume_suivis = tk.Label(gauche, justify="left", anchor="w", wraplength=330, bg=c["fond"], fg=c["discret"],
+                             font=petite)
+    resume_suivis.pack(fill="x")
+
+    def resumer_suivis():
+        try:
+            lignes = lire_comptes()
+        except (Arret, OSError) as e:
+            resume_suivis.configure(text=f"Liste illisible ({e}).")
+            return
+        faits = etat_suivis()
+        coches = [x for x in lignes if x["valide"]]
+        resume_suivis.configure(text=f"{len(lignes)} comptes vérifiés, {len(coches)} cochés, "
+                                     f"{sum(1 for x in lignes if x['did'] in faits)} déjà suivis. "
+                                     f"{SUIVIS_PAR_JOUR} abonnements par jour au plus.")
+
+    def choisir_comptes():
+        fenetre_comptes(racine, c, petite)
+        resumer_suivis()
+
+    ttk.Button(gauche, text="Choisir les comptes à suivre", command=choisir_comptes).pack(anchor="w", pady=(4, 0))
+    resumer_suivis()
 
     droite = ttk.Frame(page, padding=(16, 0, 0, 0))
     droite.pack(side="left", fill="both", expand=True)
@@ -851,6 +1209,7 @@ def onglet(onglets, racine, c: dict, police, petite, zone_texte, remplir) -> dic
                                                       j["titre"]))
         e = etat_comptes()
         comptes.configure(text="   ·   ".join(t for _, t in e.values()))
+        resumer_suivis()
 
     def changer_statut(statut):
         m = etat["courant"]
@@ -953,6 +1312,9 @@ def main() -> int:
     p.add_argument("id")
     p.set_defaults(f=cmd_apercu)
     sous.add_parser("publier-programmes").set_defaults(f=cmd_publier_programmes)
+    p = sous.add_parser("suivre")
+    p.add_argument("--essai", action="store_true", help="dit ce qui serait fait, sans rien envoyer")
+    p.set_defaults(f=cmd_suivre)
     args = ap.parse_args()
     try:
         return args.f(args)

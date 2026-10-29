@@ -86,7 +86,9 @@ const DEFAUTS = {sm: {pA: "psychologue", pB: "psychiatre", tProfs: ["psychiatre"
                  tout: {pA: "psychologue", pB: "psychiatre", tProfs: ["psychiatre", "medecin_generaliste"]}};
 const ETAT = {fam: "sm", ...DEFAUTS.sm, pV: "revenu_median", tV: "revenu_median", tK: 5, tM: "base", tPar: "groupes", tG: "tous", tDep: null,
   // « Croiser deux indicateurs » (explorer_croisements.js), lus dans l'adresse avant que la fenêtre ne se charge
-  cxProf: null, cxNiv: null, cxMode: null, cxX: null, cxY: null, cxLog: null};
+  cxProf: null, cxNiv: null, cxMode: null, cxX: null, cxY: null, cxLog: null,
+  // région repérée dans la question de l'addictologie (explorer_addicto.js), un lien de la fiche de l'atlas la règle
+  adReg: null};
 const nomFamille = () => FAMILLES.find(f => f[0] === ETAT.fam)[2];
 const dansFamille = info => !nomFamille() || !info.famille || info.famille === nomFamille();
 function lireAdresse() {
@@ -370,7 +372,7 @@ document.querySelectorAll(".outil .onglets").forEach(barre => {
 });
 // outils des autres fichiers (explorer_inegalites.js, explorer_typologie.js, lots 2 et 3), appelés s'ils sont chargés ; le premier dessin attend que
 // tous les fichiers de la page soient lus
-function tout() { famille(); if (typeof inegalites === "function") inegalites(); if (typeof typologieE === "function") typologieE(); if (window.croisementsE) window.croisementsE(); paires(); trajectoires(); if (window.cesure) window.cesure(document.querySelector(".explorer")); }
+function tout() { famille(); if (typeof inegalites === "function") inegalites(); if (typeof typologieE === "function") typologieE(); if (typeof addictoE === "function") addictoE(); if (window.croisementsE) window.croisementsE(); paires(); trajectoires(); if (window.cesure) window.cesure(document.querySelector(".explorer")); }
 document.addEventListener("DOMContentLoaded", () => { lireAdresse(); tout(); });
 // « Croiser deux indicateurs » (lot 2 du 29 octobre 2026), chargé quand sa fenêtre approche de l'écran ou que l'adresse
 // la vise, ses données pesant plusieurs mégaoctets ; même dossier et même version que ce fichier

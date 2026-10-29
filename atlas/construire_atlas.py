@@ -104,8 +104,9 @@ def _sans_outils_explorer(data: dict) -> None:
     note docs/note_explorer_atlas_2026-10-28.md), qui les reçoit par pipeline/explorer.py. L'atlas garde ce que sa
     carte et ses fiches lisent encore, l'indice de Gini de la fiche nationale (inegalites), le statut de chaque
     territoire dans l'entonnoir (niveaux.*.entonnoir) et la distance médiane de la France (lieux.fr). Les questions préparées entre
-    bases (croisements_bases) suivent « Croiser deux indicateurs » dans Explorer (lot 2 du 29 octobre 2026)."""
-    for cle in ("typologie", "acp", "revenu", "entonnoir", "croisements_bases"):
+    bases (croisements_bases) suivent « Croiser deux indicateurs » dans Explorer (lot 2 du 29 octobre 2026), l'addictologie
+    (addicto) sa question d'Explorer (29 octobre 2026)."""
+    for cle in ("typologie", "acp", "revenu", "entonnoir", "croisements_bases", "addicto"):
         data.pop(cle, None)
     for cle in ("acp", "classe"):
         (data.get("niveaux", {}).get("epci") or {}).pop(cle, None)

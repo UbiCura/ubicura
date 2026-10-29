@@ -907,7 +907,10 @@ def professionnels(lieux: pd.DataFrame, act: pd.DataFrame) -> pd.DataFrame:
     (numéro FINESS), pas à une structure : quand plusieurs structures partagent ce numéro dans la même commune, l'effectif
     est celui de l'établissement, pas de chacune d'elles. La colonne partage_par donne ce nombre de structures, et un
     effectif partagé n'est jamais attribué à une structure ni additionné entre elles (règle des trois temps, constat du
-    29 octobre 2026, 3 882 numéros partagés par 12 910 structures)."""
+    29 octobre 2026, 3 882 numéros partagés par 12 910 structures). Les structures sont comptées tous types confondus,
+    une par type et par clé de lieu (la même clé porte souvent l'hospitalisation complète et l'hôpital de jour d'un
+    hôpital, 710015587 à Montceau-les-Mines, constat de la séance de l'API du 29 octobre 2026), sans compter les lignes
+    par public d'une même structure (types enfants, CMP pour adultes et pour enfants)."""
     a = act[act["finess"].fillna("") != ""][["id", "prof", "finess", "com"]].copy()
     a["prof"], a["com"] = a["prof"].astype(str), a["com"].astype(str)
     a = a[a["prof"].isin(PROFESSIONS)]
@@ -916,7 +919,16 @@ def professionnels(lieux: pd.DataFrame, act: pd.DataFrame) -> pd.DataFrame:
     j = a.merge(l, left_on=["finess", "com"], right_on=["finess", "commune"])
     t = j.groupby(["lieu", "prof"])["id"].nunique().unstack(fill_value=0)
     t = t.reindex(columns=[p for p in PROFESSIONS if p in t.columns])
-    partage = l.groupby(["finess", "commune"])["lieu"].transform("nunique")
+    # toutes les clés de lieu à numéro FINESS, même sans professionnel déclaré, pour que le partage soit connu de chacune
+    # (sinon une structure à numéro partagé sans déclaré recevait 0 au lieu de rien, 2 224 dans la version du 29 octobre)
+    t = t.reindex(pd.Index(l["lieu"].unique(), name=t.index.name), fill_value=0)
+    # structures distinctes sous chaque numéro et dans chaque commune, une par type et par clé de lieu, hors types enfants
+    enfants = {t_[0] for t_ in config.LIEUX_TYPES if t_[4].get("parent")}
+    s = pd.DataFrame({"type": lieux["type"], "lieu": lieux["lieu"], "finess": num, "commune": lieux["commune"]})
+    s = s[~s["type"].isin(enfants)].dropna().drop_duplicates(["type", "lieu"])
+    n_struct = s.groupby(["finess", "commune"]).size()
+    n_types = s.groupby(["finess", "commune"])["type"].nunique()
+    partage = pd.Series(list(zip(l["finess"], l["commune"])), index=l.index).map(n_struct).fillna(1).astype(int)
     t["partage_par"] = t.index.map(dict(zip(l["lieu"], partage))).fillna(1).astype(int)
     # contrôle permanent, la somme attribuée aux structures d'un même établissement ne dépasse jamais l'effectif qui y est
     # déclaré, puisqu'un effectif partagé n'est attribué à aucune
@@ -925,11 +937,17 @@ def professionnels(lieux: pd.DataFrame, act: pd.DataFrame) -> pd.DataFrame:
     cle = l.set_index("lieu")[["finess", "commune"]]
     somme = propres.join(cle).groupby(["finess", "commune"]).sum()
     depasse = int((somme.sub(etab.reindex(somme.index).reindex(columns=somme.columns).fillna(0)) > 0).any(axis=1).sum())
+    # contrôle permanent, aucune clé de lieu portée par plusieurs types n'est créditée comme une structure seule
+    cles_types = s.groupby("lieu")["type"].nunique()
+    seule_a_tort = int((t.index.map(cles_types).fillna(1).to_numpy() > t["partage_par"].to_numpy()).sum())
     JOURNAL.controle("Professionnels déclarés par structure, numéros FINESS partagés entre plusieurs structures d'une "
-                     "même commune (effectif de l'établissement, attribué à aucune)",
-                     f"{int((partage > 1).groupby([l['finess'], l['commune']]).any().sum())} numéros, "
-                     f"{int((t['partage_par'] > 1).sum())} structures avec des déclarés ; établissements dont la somme "
-                     f"attribuée dépasse l'effectif déclaré (attendu, aucun) {depasse}")
+                     "même commune, tous types confondus (effectif de l'établissement, attribué à aucune)",
+                     f"{int((n_struct > 1).sum())} numéros, dont {int((n_types > 1).sum())} portés par des structures "
+                     f"de plusieurs types, {int(n_struct[n_struct > 1].sum())} structures, "
+                     f"{int(((t['partage_par'] > 1) & (t.drop(columns='partage_par').sum(axis=1) > 0)).sum())} clés de "
+                     f"lieu avec des déclarés ; établissements dont la somme "
+                     f"attribuée dépasse l'effectif déclaré (attendu, aucun) {depasse} ; clés de lieu de plusieurs types "
+                     f"créditées comme une structure seule (attendu, aucune) {seule_a_tort}")
     return t
 
 
@@ -1248,6 +1266,27 @@ def _public_nom(s: str) -> tuple:
     return ("enf" if enf else "ado" if ado else ""), bool(_MARQUE_AGES.search(s))
 
 
+def controle_doublons(lieux: pd.DataFrame) -> tuple[int, int]:
+    """Contrôle permanent (29 octobre 2026) : aucune paire de structures du même type, du même numéro FINESS, de la même
+    commune, du même nom lisible et de la même adresse (abréviations développées). Les paires d'un CMP pour adultes et
+    d'un CMP pour enfants au même lieu sont comptées à part, deux structures selon la règle, à vérifier (antenne
+    d'Hornoy-le-Bourg, CMP Emmaüs d'Aulnay-sous-Bois). Renvoie les deux nombres."""
+    enfants = {t[0] for t in config.LIEUX_TYPES if t[4].get("parent")}
+    p = lieux[~lieux["type"].isin(enfants) & lieux["finess"].notna()]
+    nom = (p["nom_affiche"] if "nom_affiche" in p else p["nom"]).fillna(p["nom"]).fillna("").map(_simple)
+    adr = p["adresse"].fillna("").map(lambda s: _simple(voie_developpee(s)))
+    pub = p["lieu"].str.extract(r"\|([AE])$")[0].fillna("")
+    cle = pd.DataFrame({"type": p["type"], "f": p["finess"], "c": p["commune"], "n": nom, "a": adr, "p": pub})
+    dbl = cle[cle.duplicated(["type", "f", "c", "n", "a"], keep=False)]
+    publics = dbl.groupby(["type", "f", "c", "n", "a"])["p"].nunique()
+    vrais = int((publics == 1).sum())
+    par_public = int((publics > 1).sum())
+    JOURNAL.controle("Structures en double, même type, même numéro FINESS, même commune, même nom et même adresse "
+                     "(attendu, aucune)", f"{vrais} paires ; {par_public} paires d'un CMP pour adultes et d'un CMP pour "
+                     f"enfants au même lieu, deux structures à vérifier")
+    return vrais, par_public
+
+
 def fusion_meme_adresse(lieux: pd.DataFrame, cat_finess: pd.Series | None = None,
                         noms_communes: pd.Series | None = None) -> tuple[pd.DataFrame, int]:
     """Une même structure déclarée deux fois (« CMP Le Petit Nice » et « CMP Petit Nice - 05G05 » à Embrun, le même CMP du ROR
@@ -1261,7 +1300,10 @@ def fusion_meme_adresse(lieux: pd.DataFrame, cat_finess: pd.Series | None = None
     x = lieux.copy()
     if "finess_absorbes" not in x:
         x["finess_absorbes"] = None
-    adr = x["adresse"].fillna("").map(_simple) if "adresse" in x else pd.Series("", index=x.index)
+    # voie aux abréviations développées (« CHE DE LUGUEL » et « CHEMIN DE LUGUEL », foyer de Limoux décrit deux fois
+    # par le ROR, constat du 29 octobre 2026)
+    adr = (x["adresse"].fillna("").map(lambda s: _simple(voie_developpee(s))) if "adresse" in x
+           else pd.Series("", index=x.index))
     num = adr.str.extract(r"^(\d+)")[0]
     rue = adr.str.replace(r"^\d+\s*(?:bis|ter|b|t)?\s+", "", regex=True)
     pub = x["lieu"].str.extract(r"\|([AE])$")[0].fillna("")
@@ -1269,8 +1311,27 @@ def fusion_meme_adresse(lieux: pd.DataFrame, cat_finess: pd.Series | None = None
     mots = noms.map(lambda s: set(_distinctif(_MODALITES.sub(" ", s)).split()) - {"cmp", "cmpea"})
     codes = noms.map(lambda s: frozenset(_CODE_SECTEUR.findall(s)))
     publics = noms.map(_public_nom)
-    # catégorie FINESS de chaque numéro, pour reconnaître le numéro d'un hôpital sous lequel le ROR déclare ses unités
+    # pour la première règle, le nom lisible est comparé aussi, débarrassé de la description de l'unité du ROR
+    # (« Hébergement complet internat », « Prestations en milieu ordinaire, troubles du spectre de l'autisme ») : le ROR
+    # décrit souvent une même structure par une unité par mode d'accueil ou par déficience (constat du 29 octobre
+    # 2026). Les noms concordent quand le nom d'origine ou le nom lisible concorde. Dans le nom lisible, les mots du
+    # libellé du type ne comptent pas (« Soins palliatifs : hospitalisation complète » devenu « Soins palliatifs » ne
+    # dit rien de plus que son type, Saint-Priest-en-Jarez), et le nom d'un hôpital mis à la place d'un nom d'unité
+    # trop vague ne compte pas (« CATTP » déclaré sous le numéro du CH de Roanne et affiché « CH de Roanne »).
     cat_num = cat_finess if cat_finess is not None else pd.Series(dtype=object)
+    lisible = (x["nom_affiche"] if "nom_affiche" in x else pd.Series(None, index=x.index)).fillna(noms).map(_simple)
+    etab = x["structure_nom"] if "structure_nom" in x else pd.Series(None, index=x.index, dtype=object)
+    etab = etab.fillna(x["nom_finess"] if "nom_finess" in x else None).fillna("").map(_simple)
+    nom_hopital = x["finess"].map(cat_num).isin(config.FINESS_HOPITAUX) & (lisible == etab) & (lisible != noms)
+    lisible = lisible.where(~nom_hopital, noms)
+    mots_type = x["type"].map({t_[0]: set(_simple(t_[1]).split()) for t_ in config.LIEUX_TYPES}).map(
+        lambda s: s if isinstance(s, set) else set())
+    formes = [(mots, codes, publics),
+              (pd.Series([set(_distinctif(_MODALITES.sub(" ", s)).split()) - {"cmp", "cmpea"} - mt
+                          for s, mt in zip(lisible, mots_type)], index=x.index),
+               lisible.map(lambda s: frozenset(_CODE_SECTEUR.findall(s))), lisible.map(_public_nom))]
+    # catégorie FINESS de chaque numéro (cat_num), pour reconnaître le numéro d'un hôpital sous lequel le ROR déclare
+    # ses unités
     hopitaux = set(config.FINESS_CMP_PAR_NOM)
     cat = x["categorie_finess"] if "categorie_finess" in x else pd.Series(None, index=x.index, dtype=object)
     propres = _categories_propres()
@@ -1278,11 +1339,22 @@ def fusion_meme_adresse(lieux: pd.DataFrame, cat_finess: pd.Series | None = None
     remplace = {}   # (type, lieu absorbé) -> lieu gardé
     a_retirer = []
     cand = x[(rue != "") & x["ej"].notna() & ~x["type"].isin(set(enfants_de))]
-    for _, g in cand.groupby([cand["type"], cand["commune"], cand["ej"], rue[cand.index], pub[cand.index]]):
+    # la structure gardée est celle inscrite dans FINESS sous une catégorie de son type, quand il y en a une (EHPAD Les
+    # Carmes d'Aiglun gardé, et non l'unité « UHR - Centre des Carmes USLD » déclarée sous le numéro de l'USLD, 29 octobre
+    # 2026). Sauf pour les types des listes vérifiées (CMP), dont les verdicts et l'empreinte tiennent à la clé gardée.
+    from .structures_verifiees import FICHIER_ETAB
+    verifies = set()
+    if FICHIER_ETAB.exists():
+        for ts in pd.read_csv(FICHIER_ETAB, sep=";", dtype=str)["types"].dropna():
+            verifies |= {t.split(":")[0].strip() for t in ts.split(",")}
+    for (ty, *_r), g in cand.groupby([cand["type"], cand["commune"], cand["ej"], rue[cand.index], pub[cand.index]]):
         if len(g) < 2:
             continue
+        ordre = list(g.index)
+        if ty not in verifies and propres.get(ty):
+            ordre.sort(key=lambda j: cat[j] not in propres[ty])
         gardes = []
-        for i in g.index:
+        for i in ordre:
             cible = None
             for k in gardes:
                 n1, n2 = num[i], num[k]
@@ -1308,9 +1380,8 @@ def fusion_meme_adresse(lieux: pd.DataFrame, cat_finess: pd.Series | None = None
                     continue
                 # même nom à des mots descriptifs près (l'un contient tous les mots distinctifs de l'autre), sans
                 # secteur ni public différents (« CATTP 13I11 » et « CATTP 13G26 », « CATTP pédo » et « CATTP »)
-                mi, mk = mots[i], mots[k]
-                meme_nom = (bool(mi) and bool(mk) and (mi <= mk or mk <= mi)
-                            and not (codes[i] and codes[k] and codes[i] != codes[k]) and publics[i] == publics[k])
+                meme_nom = any(bool(m[i]) and bool(m[k]) and (m[i] <= m[k] or m[k] <= m[i])
+                               and not (c[i] and c[k] and c[i] != c[k]) and p[i] == p[k] for m, c, p in formes)
                 if num_ok and meme_nom and (ror_seul or double):
                     cible = k
                     break
@@ -1950,6 +2021,7 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
             f"fichiers")
     lieux, n_fus = fusion_meme_adresse(lieux, fin.drop_duplicates("nofinesset").set_index("nofinesset")["categetab"],
                                        ref.communes.set_index("code")["nom"])
+    controle_doublons(lieux)
     _releve("FINESS et ROR", "Même structure décrite deux fois (deux fois par le ROR, par exemple sous l'ancien et le "
             "nouveau nom de son pôle ou à son ancienne et à sa nouvelle adresse, ou sous deux catégories de FINESS)", n_fus,
             "Réunies en une seule, numéros FINESS gardés")

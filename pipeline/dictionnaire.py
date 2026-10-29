@@ -374,11 +374,12 @@ COLONNES = [
     (r"^age_(min|max)$", "Âge minimal ou maximal des patients déclaré dans le ROR, en années."),
     (r"^lits_ror$", "Lits déclarés dans le ROR pour les unités de la structure."),
     (r"^unites_ror$", "Nombre d'unités du ROR réunies dans le lieu."),
-    (r"^declares_partage_par$", "Nombre de structures de la commune qui partagent le numéro FINESS de celle-ci. Le répertoire "
-                                "rattache une activité à l'établissement, pas à la structure, l'effectif de l'établissement "
+    (r"^declares_partage_par$", "Nombre de structures de la commune, tous types confondus, qui partagent le numéro FINESS "
+                                "de celle-ci. Le répertoire rattache une activité à l'établissement, pas à la structure, l'effectif de l'établissement "
                                 "n'est alors attribué à aucune d'elles et figure une seule fois dans "
                                 "declares_etablissements.csv. Vide quand la structure est seule sous son numéro."),
-    (r"^structures_partageant$", "Nombre de structures de la commune qui partagent ce numéro FINESS."),
+    (r"^structures_partageant$", "Nombre de structures de la commune, tous types confondus, qui partagent ce "
+                                 "numéro FINESS."),
     (r"^declares_(.+)$", "Personnes déclarant au répertoire une activité sous le numéro FINESS de la structure et dans sa "
                          "commune, pour cette profession, quand la structure est seule sous ce numéro dans la commune. Vide "
                          "pour une structure sans numéro FINESS propre, et pour une structure qui partage son numéro avec "
