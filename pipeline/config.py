@@ -546,6 +546,13 @@ CONTOURS_DATAGOUV = "5808de39c751df1e0679df72"
 CONTOURS_PAGE_PRODUCTEUR = ("https://www.data.gouv.fr/datasets/admin-express-admin-express-cog-admin-express-cog-carto-"
                             "admin-express-cog-carto-pe-admin-express-cog-carto-plus-pe")
 
+# INSEE, données carroyées à 200 m de Filosofi 2019 (parues le 12 octobre 2023), Hexagone, Corse, Martinique et La
+# Réunion, point de départ des distances au centre de la population de chaque commune (demande de Lucas du 29 octobre
+# 2026). Adresse relevée le 29 octobre 2026 sur la page de l'INSEE, archive zip contenant un 7z de trois CSV.
+INSEE_CARREAUX_PAGE = "https://www.insee.fr/fr/statistiques/7655475"
+INSEE_CARREAUX_URL = "https://www.insee.fr/fr/statistiques/fichier/7655475/Filosofi2019_carreaux_200m_csv.zip"
+INSEE_CARREAUX_DATE = "2023-10-12"
+
 # ---------------------------------------------------------------- producteurs et licences des sources
 # Repris par le journal (util.JOURNAL.note) pour la page « Méthode et données » et la fin des rapports. Licences
 # vérifiées le 4 octobre 2026 sur l'API de data.gouv (champ license), les métadonnées des portails Opendatasoft
@@ -629,7 +636,8 @@ SOURCES_INFO = [
      "Licence Ouverte 2.0", "https://www.data.gouv.fr/datasets/offres-de-sante-sanitaire-medico-social-et-de-ville-en-"
      "france-metropolitaine-et-drom-1"),
     (r"^IGN, géocodage", "IGN, service de géocodage de la Géoplateforme (Base Adresse Nationale)", "Licence Ouverte 2.0",
-     "https://geoservices.ign.fr/documentation/services/services-geoplateforme/geocodage"),
+     "https://geoservices.ign.fr/documentation/services/services-geoplateforme/geocodage"),    (r"^INSEE, données carroyées", "Institut national de la statistique et des études économiques (INSEE)",
+     "Licence Ouverte 2.0", INSEE_CARREAUX_PAGE),
 ]
 
 # ---------------------------------------------------------------- France Travail (optionnel)
@@ -946,6 +954,9 @@ ROR_CHAMP_VILLE = "05"   # consultations de ville, déclarées seulement en Île
 GEOCODAGE_CSV = "https://data.geopf.fr/geocodage/search/csv"
 GEOCODAGE_PAGE = "https://geoservices.ign.fr/documentation/services/services-geoplateforme/geocodage"
 GEOCODAGE_SCORE_MIN = 0.5
+# point d'une commune dans la Base Adresse Nationale (résultat de type commune, le chef-lieu), même service, recherche
+# simple, vérifié le 29 octobre 2026 (Saint-Laurent-du-Maroni, 5,488 N, 53,999 O, en ville)
+GEOCODAGE_RECHERCHE = "https://data.geopf.fr/geocodage/search"
 # modes de prise en charge (TRE_R213) regroupés
 MODES_CONSULTATION = {"02", "20", "32", "54", "57"}
 MODES_MOBILE = {"10", "11", "43", "44", "45", "52", "53", "59"}
@@ -1386,11 +1397,18 @@ LIMITES = {
                   "enseigne (« CMP-CATTP ») et que son gestionnaire n'en a pas d'autre dans la commune, un CATTP est "
                   "compté au même lieu. Les professionnels déclarés sur place viennent du RPPS, beaucoup "
                   "déclarent leur hôpital de rattachement plutôt que le lieu où ils consultent. Les distances sont "
-                  "mesurées à vol d'oiseau depuis le centre de chaque commune, l'emplacement d'une structure sans coordonnées "
-                  "connues étant le centre de sa commune. Un type recensé dans moins de 90 % des départements est "
+                  "mesurées à vol d'oiseau depuis le centre de la population de chaque commune, moyenne de ses carreaux "
+                  "de 200 mètres habités pondérée par leurs habitants (INSEE, Filosofi 2019), point qui peut tomber entre "
+                  "deux bourgs d'une même commune. Les carreaux ne couvrent ni la Guadeloupe, ni la Guyane, ni Mayotte, "
+                  "où les distances partent du chef-lieu de la commune dans la Base Adresse Nationale. L'emplacement "
+                  "d'une structure sans coordonnées connues est le centre de sa commune. Un type recensé dans moins de 90 % des départements est "
                   "listé, mais pas comparé entre territoires."),
         "sources": [SRC_ROR, SRC_FINESS, SRC_ARS_MARTINIQUE,
-                    ("IGN, service de géocodage de la Géoplateforme", GEOCODAGE_PAGE)]},
+                    ("IGN, service de géocodage de la Géoplateforme", GEOCODAGE_PAGE),
+                    ("INSEE, données carroyées à 200 m (Filosofi 2019)", INSEE_CARREAUX_PAGE)],
+        "territoires": {"971": "En Guadeloupe, distances depuis le chef-lieu de chaque commune, faute de carreaux de l'INSEE.",
+                        "973": "En Guyane, distances depuis le chef-lieu de chaque commune, faute de carreaux de l'INSEE.",
+                        "976": "À Mayotte, distances depuis le chef-lieu de chaque commune, faute de carreaux de l'INSEE."}},
     "confirmation": {
         "risque": "confirmation incomplète",
         "texte": ("Chaque CMP, CATTP, hôpital de jour en psychiatrie, CMPP, CAMSP, CSAPA et CAARUD est confronté à "
@@ -1647,6 +1665,18 @@ GOATCOUNTER = "ubicura"   # compte créé par Lucas le 23 octobre 2026, tableau 
 GOATCOUNTER_SCRIPT = "https://gc.zgo.at/count.v5.js"
 GOATCOUNTER_INTEGRITE = "sha384-atnOLvQb9t+jTSipvd75X2yginT4PjVbqDdlJAmxMm+wYElFmeR6EmLP5bYeoRVQ"
 
+# Réseaux (feuille de route de la communication, phase 2, décisions de Lucas du 29 octobre 2026), messages relus et
+# publiés d'un clic depuis l'onglet « Réseaux » de la fenêtre du courrier (outils/reseaux.py, tutoriels 10 et 11).
+# Bluesky, compte du projet, identifiant @ubicura.fr prouvé par le fichier https://ubicura.fr/.well-known/atproto-did
+# qui contient le DID du compte seul (option « No DNS Panel » de l'application, src/screens/Settings/components/
+# ChangeHandleDialog.tsx du dépôt bluesky-social/social-app, et https://atproto.com/specs/handle, lus le 29 octobre 2026),
+# sans toucher aux enregistrements du domaine. DID donné par Lucas (tutoriel 11, partie B) ; vide, aucun fichier.
+BLUESKY_DID = "did:plc:afctyaab6pcdw2j7iz2wcg7f"   # compte @ubicura.bsky.social créé par Lucas le 29 octobre 2026, DID lu sur l'API publique de Bluesky (resolveHandle)
+# LinkedIn, version de l'interface (en-tête Linkedin-Version, AAAAMM). Chaque version vit au moins un an, 202610 est la
+# plus récente d'après https://learn.microsoft.com/en-us/linkedin/marketing/versioning (lue le 29 octobre 2026, fin de
+# vie le 15 octobre 2027). À avancer avant cette date.
+LINKEDIN_VERSION = "202610"
+
 DOI_DONNEES = "10.5281/zenodo.23264933"   # DOI général des données (première version publiée le 9 octobre 2026, 10.5281/zenodo.23264934)
 DOI_RAPPORTS = {"sante-mentale": "10.5281/zenodo.23265073", "sante": "10.5281/zenodo.23265208"}
 # dernière version archivée sur Zenodo (date du dossier de résultats). Une version plus récente du site est citée par son
@@ -1683,6 +1713,8 @@ SOURCES_SUIVIES = [
      r"^Référentiel", "Rattachement des communes aux territoires, populations légales, dénominateur des densités."),
     (r"^contours_communes", "Contours des communes, ADMIN EXPRESS", "IGN", r"^Contours",
      "Fonds de carte de l'atlas et des rapports, distances entre communes."),
+    (r"^insee_carreaux_", "Données carroyées à 200 m (Filosofi 2019)", "INSEE", r"^INSEE, données carroyées",
+     "Point de départ des distances au centre de la population de chaque commune."),
     (r"^apl_", "Accessibilité potentielle localisée (APL)", "DREES", r"^DREES, (accessibilité|APL)",
      "Comparaison avec l'accessibilité calculée ici."),
     (r"^drees_demographie/", "Démographie des professionnels de santé", "DREES", r"^DREES, démographie",

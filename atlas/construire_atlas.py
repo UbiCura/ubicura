@@ -81,12 +81,31 @@ def _polices() -> str:
                   + base64.b64encode((dossier / m.group(1)).read_bytes()).decode() + ")", css)
 
 
+# moteur de l'atlas en modules (découpage du 29 octobre 2026, docs/note_atlas_2026-10-29.md), dans l'ordre où ils sont
+# réunis : chacun ne s'appuie que sur ceux qui le précèdent, sauf ce que la page qui les charge fournit (render, syncBar)
+MODULES = ("noyau", "carte", "structures", "croisements", "atlas")
+# modules repris par Explorer pour « Croiser deux indicateurs » (lot 2 du 29 octobre 2026), avec son adaptateur
+# gabarits/explorer_croisements.js qui fournit render() et syncBar()
+MODULES_EXPLORER = ("noyau", "carte", "nuage")
+
+
+def moteur(modules=MODULES) -> str:
+    """Code des modules réunis, à placer dans une seule fonction (ils en partagent les noms)."""
+    return "\n".join((ICI / "moteur" / f"{m}.js").read_text(encoding="utf-8").rstrip("\n") for m in modules)
+
+
+def source() -> str:
+    """Gabarit de l'atlas avec son moteur, tel qu'il part dans la page (sans bibliothèques ni données), pour les tests."""
+    return (ICI / "atlas_template.html").read_text(encoding="utf-8").replace("/*MOTEUR*/", moteur(), 1)
+
+
 def _sans_outils_explorer(data: dict) -> None:
     """Retire de l'atlas les données des seuls outils passés dans Explorer (inégalités et typologie, lots 2 et 3 de la
     note docs/note_explorer_atlas_2026-10-28.md), qui les reçoit par pipeline/explorer.py. L'atlas garde ce que sa
     carte et ses fiches lisent encore, l'indice de Gini de la fiche nationale (inegalites), le statut de chaque
-    territoire dans l'entonnoir (niveaux.*.entonnoir) et la distance médiane de la France (lieux.fr)."""
-    for cle in ("typologie", "acp", "revenu", "entonnoir"):
+    territoire dans l'entonnoir (niveaux.*.entonnoir) et la distance médiane de la France (lieux.fr). Les questions préparées entre
+    bases (croisements_bases) suivent « Croiser deux indicateurs » dans Explorer (lot 2 du 29 octobre 2026)."""
+    for cle in ("typologie", "acp", "revenu", "entonnoir", "croisements_bases"):
         data.pop(cle, None)
     for cle in ("acp", "classe"):
         (data.get("niveaux", {}).get("epci") or {}).pop(cle, None)
@@ -94,10 +113,9 @@ def _sans_outils_explorer(data: dict) -> None:
         (data.get("lieux") or {}).pop(cle, None)
 
 
-def construire(src: Path, dest: Path, nav: str = "", accueil: str = "", titre: str = "") -> Path:
-    data = json.loads(Path(src).read_text(encoding="utf-8"))
-    data.setdefault("tuiles", _tuiles())
-    _sans_outils_explorer(data)
+def completer(data: dict) -> dict:
+    """Citation, limites des données et glossaire de « Comment lire », relus dans config et pipeline/lecture.py, communs
+    à l'atlas et aux outils d'Explorer qui reprennent son moteur (pipeline/explorer.py)."""
     # citation de l'atlas et de ses graphiques, DOI repris dès qu'il est renseigné dans config
     data["citation"] = {"projet": config.NOM_PROJET, "auteur_court": config.CITATION_AUTEUR, "doi": config.DOI_DONNEES,
                         "adresse": config.ADRESSE_SITE, "titre_donnees": config.TITRES_DEPOTS["donnees"],
@@ -113,6 +131,14 @@ def construire(src: Path, dest: Path, nav: str = "", accueil: str = "", titre: s
     if isinstance(data.get("meta"), dict):
         from pipeline.lecture import GLOSSAIRE
         data["meta"]["glossaire"] = [{"id": g[0], "terme": g[1], "definition": g[2], "famille": g[3]} for g in GLOSSAIRE]
+    return data
+
+
+def construire(src: Path, dest: Path, nav: str = "", accueil: str = "", titre: str = "") -> Path:
+    data = json.loads(Path(src).read_text(encoding="utf-8"))
+    data.setdefault("tuiles", _tuiles())
+    _sans_outils_explorer(data)
+    completer(data)
     # rapports par territoire publiés à côté de l'atlas, pour y renvoyer depuis la fiche d'un territoire
     # l'atlas autonome (atlas/atlas.html) renvoie aux rapports publiés dans site/territoires
     dossier = Path(dest).parent / "territoires"
@@ -122,7 +148,7 @@ def construire(src: Path, dest: Path, nav: str = "", accueil: str = "", titre: s
     data["rapports_dossier"] = os.path.relpath(dossier, Path(dest).parent).replace("\\", "/")
     # dossier du site, pour renvoyer chaque indicateur à la fiche de son jeu de données
     data["site_dossier"] = os.path.relpath(dossier.parent, Path(dest).parent).replace("\\", "/")
-    html = (ICI / "atlas_template.html").read_text(encoding="utf-8")
+    html = source()
     remplacements = {
         "/*D3*/": ISC.format("2010-2023") + (ICI / "vendor" / "d3.min.js").read_text(encoding="utf-8"),
         "/*TOPO*/": ISC.format("2012-2019") + (ICI / "vendor" / "topojson-client.min.js").read_text(encoding="utf-8"),
@@ -149,7 +175,7 @@ def construire(src: Path, dest: Path, nav: str = "", accueil: str = "", titre: s
     # graphiques interactifs, même module que les rapports du site (gabarits/figures.js)
     fig = (ICI.parent / "gabarits" / "figures.js").read_text(encoding="utf-8")
     reglage = ('window.FIGURES={zoom:"#cbPlot,#funnel,#acpPlan,#lorenz,#escalier",'
-               'bulle:"#scatter,#cbPlot,#indPlot,#regPlot,#lorenz,#escalier,#funnel,#acpPlan,#effetVille"};')
+               'bulle:"#cbPlot,#indPlot,#regPlot,#lorenz,#escalier,#funnel,#acpPlan,#effetVille"};')
     html = html.replace("</body>", "<script>" + reglage + fig + "</script>\n</body>", 1)
     dest.parent.mkdir(parents=True, exist_ok=True)
     dest.write_text(html, encoding="utf-8")

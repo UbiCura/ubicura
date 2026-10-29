@@ -426,7 +426,7 @@ def test_langage_sorties():
     import json
     from pipeline import config, libelles
     racine = Path(__file__).resolve().parent.parent
-    a_verifier = [racine / "atlas" / "atlas_template.html"]
+    a_verifier = [racine / "atlas" / "atlas_template.html", *(racine / "atlas" / "moteur").glob("*.js")]
     dates = sorted(p for p in (config.RESULTATS).glob("20*") if p.is_dir())
     if dates:
         a_verifier += [dates[-1] / "rapport.md", dates[-1] / "site_data.json"]
@@ -1458,6 +1458,12 @@ class Ignore(Exception):
     """Test qui ne peut pas tourner faute de résultats, dit à voix haute à la fin."""
 
 
+def _atlas() -> str:
+    """Code de l'atlas tel qu'il part dans la page, gabarit et modules du moteur réunis (découpage du 29 octobre 2026)."""
+    from atlas import construire_atlas
+    return construire_atlas.source()
+
+
 def _dernier_resultats():
     """Dossier de résultats le plus récent qui contient la liste des structures de soins."""
     import re
@@ -1746,7 +1752,7 @@ def test_fiche_territoire():
     « Profil de la population » répété sous le titre du même nom."""
     import re
     from pipeline import config
-    t = (config.RACINE / "atlas" / "atlas_template.html").read_text(encoding="utf-8")
+    t = _atlas()
     corps = t[t.index("function selCard(){"):t.index("function hbars(")]
     assert "legende-barres" not in t and "selcols" not in t
     assert 'class="fiche-legende"' in corps and 'class="fiche-colonnes"' in corps
@@ -1766,7 +1772,8 @@ def test_ecart_attendu_sans_manque_ni_norme():
     et par le vocabulaire à éviter de pipeline.libelles pour tout texte publié."""
     import re
     from pipeline import config, libelles
-    fichiers = [config.RACINE / "atlas" / "atlas_template.html", *(config.RACINE / "gabarits").glob("*.js"),
+    fichiers = [config.RACINE / "atlas" / "atlas_template.html", *(config.RACINE / "atlas" / "moteur").glob("*.js"),
+                *(config.RACINE / "gabarits").glob("*.js"),
                 *(config.RACINE / "pipeline").glob("rapport*.py"), config.RACINE / "pipeline" / "graphiques.py"]
     for f in fichiers:
         t = f.read_text(encoding="utf-8")
@@ -1790,7 +1797,7 @@ def test_carte_corse_et_plan_des_structures():
     import re
     from pipeline import config
     from pipeline.lecture import GLOSSAIRE
-    t = (config.RACINE / "atlas" / "atlas_template.html").read_text(encoding="utf-8")
+    t = _atlas()
     d = float(re.search(r"DLON_CORSE=([\d.]+)", t).group(1))
     assert 0 < d < 2
     assert "estCorse(lv,f)?P.corse:P.metro" in t and "metro([ll[0]-DLON_CORSE,ll[1]])" in t
@@ -1812,13 +1819,106 @@ def test_carte_corse_et_plan_des_structures():
     assert "Un clic sur une structure la repère" not in corps
 
 
+def _js_noms(code: str) -> tuple[set, set]:
+    """Noms déclarés au premier niveau d'un module du moteur, et noms qu'il emploie (commentaires, chaînes, expressions
+    régulières et propriétés retirés, variables locales aussi). Approximation suffisante pour contrôler les dépendances."""
+    import re
+    sortie, i, n, prec = [], 0, len(code), ""
+    while i < n:
+        c = code[i]
+        if code.startswith("//", i):
+            j = code.find("\n", i)
+            i = n if j < 0 else j
+        elif code.startswith("/*", i):
+            i = code.find("*/", i + 2) + 2
+        elif c in "'\"":
+            j = i + 1
+            while j < n and code[j] != c:
+                j += 2 if code[j] == "\\" else 1
+            sortie.append('""')
+            i, prec = j + 1, '"'
+        elif c == "/" and (prec == "" or prec in "(,=:[!&|?{};+-*%<>~^" or prec in ("return", "typeof")):
+            j, classe = i + 1, False
+            while j < n and code[j] != "\n" and (code[j] != "/" or classe):
+                classe = (code[j] == "[") or (classe and code[j] != "]")
+                j += 2 if code[j] == "\\" else 1
+            j += 1
+            while j < n and code[j].isalpha():
+                j += 1
+            sortie.append("0")
+            i, prec = j, "0"
+        else:
+            m = re.compile(r"[A-Za-z_$][\w$]*").match(code, i)
+            if m and (i == 0 or not (code[i - 1].isalnum() or code[i - 1] in "_$")):
+                sortie.append(m.group(0))
+                i, prec = m.end(), m.group(0) if m.group(0) in ("return", "typeof") else "a"
+                continue
+            sortie.append(c)
+            prec = c if not c.isspace() else prec
+            i += 1
+    t = "".join(sortie)
+    haut = set()
+    for ligne in t.split("\n"):
+        m = re.match(r"(?:async function|function|const|let|var)\s+([A-Za-z_$][\w$]*)", ligne)
+        if m:
+            haut.add(m.group(1))
+            if not ligne.startswith(("function", "async")):   # autres noms de la même déclaration, hors parenthèses
+                profondeur, debut = 0, m.end()
+                for k, ch in enumerate(ligne[debut:], debut):
+                    profondeur += (ch in "([{") - (ch in ")]}")
+                    if profondeur == 0 and ch == ";":
+                        break
+                    if profondeur == 0 and ch == ",":
+                        suite = re.match(r",\s*([A-Za-z_$][\w$]*)\s*=(?!=)", ligne[k:])
+                        if suite:
+                            haut.add(suite.group(1))
+        haut |= set(re.findall(r";\s*function\s+([A-Za-z_$][\w$]*)", ligne))
+    locaux = set(re.findall(r"(?:const|let|var)\s+([A-Za-z_$][\w$]*)", t)) | set(re.findall(r",\s*([A-Za-z_$][\w$]*)\s*=(?!=)", t))
+    employes = set(re.findall(r"(?<![\w$.])(?<!\?\.)([A-Za-z_$][\w$]*)", t))
+    return haut, employes - (locaux - haut)
+
+
+def test_moteur_atlas_modules():
+    """Moteur de l'atlas en modules (découpage du 29 octobre 2026) : chaque nom est déclaré dans un seul module, le noyau
+    ne s'appuie sur aucun autre, la carte sur le noyau seulement, les croisements et le nuage sur le noyau et la carte,
+    plus ce que la page qui les charge fournit (render, syncBar, ouvrirNuage). Le nuage, « Croiser deux indicateurs »,
+    n'est chargé que par Explorer avec son adaptateur. Le gabarit ne contient plus de code du moteur."""
+    from atlas import construire_atlas as ca
+    tous = list(dict.fromkeys(ca.MODULES + ca.MODULES_EXPLORER))
+    permis = {"noyau": (), "carte": ("noyau",), "croisements": ("noyau", "carte"), "nuage": ("noyau", "carte"),
+              "structures": tous, "atlas": tous}
+    fournis = {"croisements": {"render", "syncBar", "ouvrirNuage"}, "nuage": {"render", "syncBar"}}
+    noms = {m: _js_noms((ca.ICI / "moteur" / f"{m}.js").read_text(encoding="utf-8")) for m in tous}
+    vus = {}
+    for m, (haut, _) in noms.items():
+        for x in haut:
+            assert x not in vus, f"{x} déclaré dans {vus[x]} et dans {m}"
+            vus[x] = m
+    for m, (haut, employes) in noms.items():
+        hors = {x for x in employes if x in vus and vus[x] != m and vus[x] not in permis[m]}
+        hors -= fournis.get(m, set())
+        assert not hors, f"le module {m} emploie {sorted(hors)}"
+    # la page de l'atlas fournit tout ce que ses modules attendent, l'adaptateur d'Explorer ce qu'attend le nuage, et
+    # le nuage ne vit qu'à un seul endroit (lot 2 du 29 octobre 2026)
+    assert fournis["croisements"] <= noms["atlas"][0]
+    adaptateur = _js_noms((ca.ICI.parent / "gabarits" / "explorer_croisements.js").read_text(encoding="utf-8"))[0]
+    assert fournis["nuage"] <= adaptateur
+    assert "nuage" not in ca.MODULES and "nuage" in ca.MODULES_EXPLORER
+    gabarit = (ca.ICI / "atlas_template.html").read_text(encoding="utf-8")
+    assert "(function(){\n/*MOTEUR*/\n})();" in gabarit.replace("\r\n", "\n") and "function render(" not in gabarit
+    assert ca.source().count("function render(") == 1
+    assert 'id="scatter"' not in ca.source() and 'id="lienNuage"' in ca.source()
+    page = (ca.ICI.parent / "gabarits" / "explorer.html").read_text(encoding="utf-8")
+    assert 'id="scatter"' in page and "data-moteur" in page
+
+
 def test_meme_largeur_atlas_explorer():
     """L'atlas (première page) et les autres pages du site, Explorer compris, ont la même largeur de contenu
     (décision du 22 octobre 2026, remarque de Lucas du 28 octobre 2026 sur l'atlas plus large qu'Explorer)."""
     import re
     from pipeline import config
     css = (config.RACINE / "gabarits" / "style.css").read_text(encoding="utf-8")
-    t = (config.RACINE / "atlas" / "atlas_template.html").read_text(encoding="utf-8")
+    t = _atlas()
     site = int(re.search(r"(?m)^main\{max-width:(\d+)px", css).group(1))
     assert re.search(r"\.wrap\{max-width:var\(--largeur-contenu,%dpx\)" % site, t)
     assert set(int(x) for x in re.findall(r"--largeur-contenu[:,](\d+)px", t)) == {site}
@@ -1835,10 +1935,13 @@ def test_plan_ign_structures():
     js = ca._leaflet("leaflet.js")
     assert "BSD 2-Clause License" in js and "Leaflet 1.9.4" in js
     assert "BSD 2-Clause License" in ca._leaflet("leaflet.css")
-    t = (config.RACINE / "atlas" / "atlas_template.html").read_text(encoding="utf-8")
+    t = _atlas()
     assert "<script>/*LEAFLET*/</script>" in t and "<style>/*LEAFLET_CSS*/</style>" in t
     assert "https://data.geopf.fr/wmts?" in t and "LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2" in t
-    assert "Plan IGN, © IGN" in t and "TODO mention exacte du Plan IGN" in t
+    # mention demandée par l'IGN (réponse du 29 octobre 2026), Plan IGN vérifié dans le registre des licences
+    assert "© IGN – <a" in t and "TODO mention exacte du Plan IGN" not in t
+    from pipeline import licences
+    assert licences.identifiant("Plan IGN") == "ign-lo-2.0" and licences.LICENCES["ign-lo-2.0"]["statut"] == "vérifié"
     assert "scrollWheelZoom:false" in t and 'svg id="lxCarte"' in t
     assert "Géoplateforme de l'IGN" in (config.RACINE / "contenus" / "a_propos.md").read_text(encoding="utf-8")
 
@@ -1848,7 +1951,8 @@ def test_sans_caractere_de_controle():
     un caractère invisible à la place d'un chiffre, « 10 % » devenu « 1 % » à l'affichage)."""
     import re
     from pipeline import config
-    fichiers = [*(config.RACINE / "gabarits").glob("*.*"), config.RACINE / "atlas" / "atlas_template.html", *(config.RACINE / "contenus").glob("*.md")]
+    fichiers = [*(config.RACINE / "gabarits").glob("*.*"), config.RACINE / "atlas" / "atlas_template.html",
+                *(config.RACINE / "atlas" / "moteur").glob("*.js"), *(config.RACINE / "contenus").glob("*.md")]
     for f in fichiers:
         if f.suffix in (".html", ".js", ".css", ".md"):
             t = f.read_text(encoding="utf-8")
@@ -1896,7 +2000,7 @@ def test_typo_commune():
     jamais moins de 11,5 pixels à l'écran, et une taille convertie selon la largeur de la figure."""
     import re
     from pipeline import config, graphiques
-    atlas = (config.RACINE / "atlas" / "atlas_template.html").read_text(encoding="utf-8")
+    atlas = _atlas()
     m = re.search(r"const TYPO=\{titre:([\d.]+),texte:([\d.]+),petit:([\d.]+)\}", atlas)
     assert m and tuple(map(float, m.groups())) == (graphiques.TYPO["titre"], graphiques.TYPO["texte"],
                                                      graphiques.TYPO["petit"])
@@ -2084,7 +2188,7 @@ def test_explorer_inegalites():
     ecarts = [abs(explorer.gini_territoires(di, r["niv"], r["prof"]) - r["gini"]) for r in sd["inegalites"]
               if r["mode"] == "all" and r["niv"] in di["niv"] and r["prof"] in di["niv"][r["niv"]]["n"]]
     assert len(ecarts) > 50 and max(ecarts) < 1e-3, max(ecarts)   # inegalites.csv arrondi à trois décimales
-    atlas = (config.RACINE / "atlas" / "atlas_template.html").read_text(encoding="utf-8")
+    atlas = _atlas()
     page = (config.RACINE / "gabarits" / "explorer.html").read_text(encoding="utf-8")
     for fonction, fenetre in (("function escalier(", "iFenEscalier"), ("function funnel(", "iFenEntonnoir"),
                               ("function lorenzOf(", "iFenConcentration"), ("function inegLieux(", "iFenDistNv"),
@@ -2339,6 +2443,299 @@ def test_comparaison_structures_verifiees():
     assert not r or any("déjà signalés" in t for _, t in c.lignes)
 
 
+def test_structures_fermees_dans_finess():
+    """Une structure d'une liste vérifiée dont tous les numéros FINESS ont été fermés dans Finess+ pendant l'année de
+    validité de la vérification, ou après, et qu'aucune inscription active ne décrit, n'est plus comptée et son
+    établissement est à revérifier (règle du 29 octobre 2026, CMP du CH Sainte-Marie de Nice fermés les 20 et
+    22 septembre 2026). Selon la source de la vérification, une fermeture antérieure laisse comptée une structure que
+    l'établissement présente encore, écarte une structure attestée par les seules bases, et n'écarte une structure
+    vérifiée sur une autre source publique que si elle date de moins d'un an. Lignes réelles de la liste vérifiée, dates
+    de fermeture relevées dans Finess+ de septembre 2026, derniers résultats."""
+    import pandas as pd
+    from pipeline import structures_verifiees as sv
+    s = pd.read_csv(sv.FICHIER, sep=";", dtype=str).fillna("").set_index("nom")
+    cas = {"Antenne de CMP de Puget-Théniers": ("2026-09-22", False),    # l'établissement la présente le 29 octobre
+           "Permanence du CMP à Thaon-les-Vosges": ("2019-03-01", False),  # établissement, fermeture ancienne
+           "CMP pour enfants de Modane": ("2017-07-31", False),           # autre source publique, plus d'un an
+           "Antenne du CMP à Aiguebelle": ("2026-08-21", True),           # autre source publique, moins d'un an
+           "CMP Infanto-Juvénile de Feillens": ("2025-03-31", True)}      # seules les bases l'attestaient
+    for nom, (date, ecartee) in cas.items():
+        r = s.loc[nom]
+        f = {n.strip().zfill(9): date for n in r["finess"].split(",")}
+        assert (sv.fermee_depuis(r, f) == date) is ecartee, (nom, r["statut"], r["date"])
+        assert sv.fermee_depuis(r, {}) is None
+    # revérification du 29 octobre 2026, les CMP fermés de Sainte-Marie sont des verdicts « ferme » avec leur source
+    assert "CMP Les Eaux Vives" not in s.index and "Antenne de CMP de Puget-Théniers" in s.index
+    from pipeline import verdicts
+    v = verdicts.charger().set_index("cle")
+    assert v.loc["630786754|060033677|Nice|cmp les eaux vives", "verdict"] == "ferme"
+    assert "chsmnice.ahsm.fr" in v.loc["630786754|060787686|Beausoleil|cmp de beausoleil", "commentaire"]
+    d = _dernier_resultats()
+    l = _csv(d, "lieux_soins.csv", dtype=str, usecols=lambda c: c in ("nom", "entite_juridique", "type"))
+    sm = l[l["entite_juridique"] == "630786754"]
+    assert not sm["nom"].isin(["CMP Les Eaux Vives", "CMP Michel-Ange", "CMP de Beausoleil"]).any()
+    assert sm["nom"].eq("Antenne de CMP de Puget-Théniers").any()
+
+
+def test_arrondissements_municipaux():
+    """Les arrondissements de Paris, Lyon et Marseille sont ramenés à leur commune pour comparer la commune d'une
+    adresse de FINESS ou d'un résultat de géocodage à celle de la structure (29 octobre 2026). Avant, toutes les
+    structures de Paris étaient posées au centre de la commune. Référentiel d'Etalab et derniers résultats."""
+    import pandas as pd
+    from pipeline import lieux
+    a = lieux.arrondissements()
+    if not a:
+        raise Ignore("référentiel absent")
+    assert len(a) == 45 and a["75115"] == "75056" and a["69383"] == "69123" and a["13205"] == "13055"
+    assert list(lieux.commune_de(pd.Series(["75115", "06088", None]))[:2]) == ["75056", "06088"]
+    d = _dernier_resultats()
+    l = _csv(d, "lieux_soins.csv", dtype=str, usecols=lambda c: c in ("commune", "emplacement"))
+    for ville in ("75056", "69123", "13055"):
+        v = l[l["commune"] == ville]
+        part = (v["emplacement"] == "centre de la commune").mean()
+        assert part < .05, (ville, round(part, 3))
+
+
+def test_verdicts_orphelins_situation():
+    """Chaque verdict qui ne retrouve plus sa structure dit ce qu'est devenue son inscription (contrôle permanent des
+    inscriptions renommées, 29 octobre 2026), d'après le numéro FINESS de sa clé, sans que le verdict soit reporté sur
+    une autre structure."""
+    d = _dernier_resultats()
+    v = _csv(d, "verdicts_sans_structure.csv", dtype=str)
+    if v is None or "situation" not in v:
+        raise Ignore("verdicts_sans_structure.csv sans la colonne situation")
+    assert v["situation"].notna().all()
+    assert v["situation"].str.match(r"numéro fermé dans FINESS le \d{4}-\d{2}-\d{2}|renommée|disparue|sans numéro|même nom").all()
+    beausoleil = v[v["cle"].str.contains("060787686", na=False)]
+    assert beausoleil.empty or beausoleil["situation"].str.startswith("numéro fermé dans FINESS le 2026-09-20").all()
+    nyons = v[v["cle"].str.contains("260021845", na=False)]
+    assert nyons.empty or nyons["situation"].str.startswith("même nom sous ce numéro").all()
+    renommees = v[v["situation"].str.startswith(("renommée", "même nom"))]
+    assert renommees["structure_actuelle"].notna().all()
+
+
+def test_projections_carreaux():
+    """Coordonnées des carreaux de l'INSEE converties en longitude et latitude par les formules de Snyder, contrôlées sur
+    l'exemple de calcul de l'EPSG pour le Lambert azimutal européen (guidance note 7-2, 50° N et 5° E) et sur le méridien
+    central d'une zone UTM (45° N, arc de méridien de l'ellipsoïde GRS 80 réduit de 0,9996)."""
+    from pipeline.sources import insee_carreaux as ic
+    lon, lat = ic.laea_inverse(3962799.45, 2999718.85)
+    assert abs(lon - 5) < 1e-6 and abs(lat - 50) < 1e-6
+    lon, lat = ic.laea_inverse(4321000, 3210000)
+    assert abs(lon - 10) < 1e-6 and abs(lat - 52) < 1e-6
+    lon, lat = ic.utm_inverse(500000, 4982950.400, 20)   # arc de méridien par la série directe de Snyder (3-21)
+    assert abs(lon + 63) < 1e-9 and abs(lat - 45) < 1e-5
+    lon, lat = ic.utm_inverse(500000, 10000000, 40, sud=True)
+    assert abs(lon - 57) < 1e-9 and abs(lat) < 1e-9
+    import pandas as pd
+    c = ic.centres_carreaux(pd.Series(["CRS3035RES200mN2999618E3962699"]))
+    assert abs(c.at[0, "lon"] - 5) < 1e-4 and abs(c.at[0, "lat"] - 50) < 1e-4   # coin sud-ouest plus 100 mètres
+
+
+def test_centres_population():
+    """Point de départ des distances au centre de la population de chaque commune (29 octobre 2026), d'après les vraies
+    données carroyées en cache. Le centre de Paris tombe au centre de la ville, celui de Saint-Laurent-du-Maroni, que les
+    carreaux ne couvrent pas, sur son chef-lieu au bord du fleuve et non au milieu de la forêt, et presque toutes les
+    communes habitées de l'Hexagone sont situées par leur population."""
+    from pipeline.sources import insee_carreaux as ic
+    if not ic.CACHE.exists():
+        raise Ignore("centres de population non calculés")
+    import pandas as pd
+    c = pd.read_parquet(ic.CACHE).set_index("code")
+    assert 2.30 < c.at["75056", "lon"] < 2.40 and 48.84 < c.at["75056", "lat"] < 48.88
+    assert abs(c["pop"].sum() / 64e6 - 1) < .06, c["pop"].sum()
+    assert not c.index.str.startswith(("971", "973", "976")).any()
+    if ic.CACHE_BAN.exists():
+        b = pd.read_parquet(ic.CACHE_BAN).set_index("code")
+        if "97311" in b.index:
+            assert b.at["97311", "lat"] > 5.4
+    d = _dernier_resultats()
+    import json
+    j = json.loads((d / "journal.json").read_text(encoding="utf-8"))
+    ctl = dict((k, v) for k, v in j.get("controles", []))
+    v = ctl.get("Point de départ des distances, communes habitées situées par le centre de leur population, leur "
+                "chef-lieu ou le centre de leur contour")
+    if v is None:
+        raise Ignore("résultats antérieurs au point de départ pondéré")
+    n_pop = int(v.split(" par leur population")[0].replace(" ", ""))
+    assert n_pop > 33000, v
+
+
+def test_cle_persistante_structures():
+    """Clé persistante des structures (29 octobre 2026). Sur deux vraies versions publiées de part et d'autre de la
+    nouvelle version du ROR du 26 octobre 2026, presque toutes les structures du 28 octobre gardent leur clé le
+    29 octobre, y compris celles que FINESS a renommées ou que le ROR a renumérotées, aucune clé n'est
+    portée par deux structures, les lignes par public prennent la clé de leur structure, et une version comparée à
+    elle-même garde toutes ses clés."""
+    import pandas as pd
+    from pipeline import cles_structures as cs, config
+    v28, v29 = config.RESULTATS / "2026-10-28" / "lieux_soins.csv", _dernier_resultats() / "lieux_soins.csv"
+    if not v28.exists() or not v29.exists():
+        raise Ignore("versions du 28 octobre et du jour absentes")
+    a = pd.read_csv(v28, sep=";", dtype=str)
+    b = pd.read_csv(v29, sep=";", dtype=str)
+    ca, reg, _ = cs.attribuer(a, "2026-10-28", pd.DataFrame(columns=cs.COLS))
+    cb, reg2, c = cs.attribuer(b, "2026-10-29", reg)
+    assert ca.notna().all() and cb.notna().all()
+    parents = ~b["type"].isin(cs._parents())
+    assert not cb[parents].duplicated().any()
+    # CMP pour adultes de la même structure, même clé que la ligne « tous publics »
+    cmp_ = b[b["type"] == "lieu_cmp"].assign(id=cb).set_index(["commune", "nom", "adresse"])["id"]
+    cmp_ = cmp_[~cmp_.index.duplicated(keep=False)]
+    adu = b[b["type"] == "lieu_cmp_adultes"].assign(id=cb)
+    commun = adu.set_index(["commune", "nom", "adresse"])["id"]
+    commun = commun[commun.index.isin(cmp_.index) & ~commun.index.duplicated(keep=False)]
+    assert (commun == cmp_.reindex(commun.index)).mean() > .99
+    retrouvees = sum(c[e] for e in cs.ETAPES)
+    assert retrouvees / len(reg) > .99, c
+    assert c["numéro FINESS"] + c["unité du ROR"] + c["nom ou voie"] > 100, c   # clé interne changée, structure retrouvée
+    _c, _r, soi = cs.attribuer(b, "2026-10-30", reg2)
+    assert soi["nouvelles"] == 0 and soi["disparues"] == 0, soi
+
+
+def test_voies_developpees():
+    """Abréviations des voies développées pour le géocodage (29 octobre 2026), sur de vraies adresses de FINESS."""
+    from pipeline.lieux import voie_developpee
+    assert voie_developpee("R Anne De Ticheville") == "Rue Anne De Ticheville"
+    assert voie_developpee("27 AV DU GAL LECLERC") == "27 Avenue DU Général LECLERC"
+    assert voie_developpee("LD SITE DE TATTONE") == "Lieu-dit SITE DE TATTONE"
+    assert voie_developpee("RUE DU 8 MAI 1945") == "RUE DU 8 MAI 1945"
+
+
+def test_empreinte_meme_calcul():
+    """L'empreinte d'un établissement vérifié se calcule de la même façon dans la chaîne et dans l'outil qui la
+    renouvelle (outils/structures_verifiees.py valider) : le fichier des inscriptions des bases porte les numéros FINESS
+    rapprochés et absorbés que l'empreinte compte. Sans eux, 43 des 48 établissements étaient signalés à revérifier
+    sans que rien n'ait changé (constat du 29 octobre 2026). Sur les vraies inscriptions en cache, un établissement que
+    la dernière exécution ne signale pas a la même empreinte recalculée ici."""
+    import pandas as pd
+    from pipeline import structures_verifiees as sv
+    from pipeline.sources import referentiel
+    if not sv.BASES.exists():
+        raise Ignore("inscriptions des bases absentes")
+    b = pd.read_parquet(sv.BASES)
+    assert {"finess_rapproche", "finess_absorbes"} <= set(b.columns)
+    d = _dernier_resultats()
+    e = _csv(d, "etablissements_verifies.csv", dtype=str)
+    if e is None or "raison_reverification" not in e:
+        raise Ignore("résultats antérieurs à la raison de revérification")
+    ref = referentiel.charger(True)
+    b = b.assign(dep=b["commune"].map(ref.communes.set_index("code")["dep"]))
+    etab, _s = sv.charger()
+    stock = etab.set_index(["ej", "etablissement"])
+    ok = e[e["raison_reverification"].isna()]
+    assert len(ok) > 40
+    for r in ok.itertuples():
+        x = stock.loc[(r.ej, r.etablissement)]
+        if not x["empreinte"]:
+            continue
+        ts = [t for t in sv.types_de(x["types"]) if t not in sum(sv.ENFANTS_DE.values(), [])]
+        assert sv.empreinte(b, r.ej, ts, x["departement"]) == x["empreinte"], r.etablissement
+
+
+def test_declares_numero_partage():
+    """Un effectif déclaré au répertoire sous un numéro FINESS que plusieurs structures de la commune partagent est celui
+    de l'établissement, jamais attribué à l'une d'elles (règle des trois temps, constat du 29 octobre 2026, numéro
+    840000541 du CH de Montfavet, dont les 54 psychiatres étaient recopiés sur un CATTP, deux CMP et une maison
+    d'accueil spécialisée). Sur les vraies inscriptions et les vraies activités du RPPS en cache, Vaucluse : chaque
+    structure qui partage son numéro le sait (partage_par), la somme attribuée aux structures seules sous leur numéro
+    ne dépasse jamais l'effectif de l'établissement, et le dernier fichier publié n'attribue aucun effectif partagé."""
+    import pandas as pd
+    import pyarrow.dataset as ds
+    from pipeline import config, lieux as lieux_mod, structures_verifiees as sv
+    act_f = config.INTER / "rpps_activites.parquet"
+    if not sv.BASES.exists() or not act_f.exists():
+        raise Ignore("inscriptions ou activités du RPPS absentes du cache")
+    b = pd.read_parquet(sv.BASES)
+    b = b[b["commune"].str.startswith("84", na=False)]
+    nums = sorted(set(b["finess"].dropna()) | set(b["finess_rapproche"].dropna()))
+    act = ds.dataset(act_f).to_table(columns=["id", "prof", "finess", "com"], filter=ds.field("finess").isin(nums)).to_pandas()
+    pros = lieux_mod.professionnels(b, act)
+    assert "partage_par" in pros
+    montfavet = b[(b["finess"] == "840000541") & (b["commune"] == "84007")]["lieu"].unique()
+    assert len(montfavet) > 1 and (pros.loc[pros.index.isin(montfavet), "partage_par"] == len(montfavet)).all()
+    seules = pros[pros["partage_par"] == 1].drop(columns="partage_par")
+    cle = b.drop_duplicates("lieu").set_index("lieu")[["finess", "commune"]]
+    somme = seules.join(cle).groupby(["finess", "commune"]).sum()
+    a = act.assign(prof=act["prof"].astype(str), com=act["com"].astype(str))
+    etab = a.groupby(["finess", "com", "prof"])["id"].nunique().unstack(fill_value=0)
+    for (f, c), r in somme.iterrows():
+        for p, v in r.items():
+            assert v <= (etab.at[(f, c), p] if (f, c) in etab.index and p in etab else 0), (f, c, p)
+    d = _dernier_resultats()
+    l = _csv(d, "lieux_soins.csv", dtype=str)
+    if l is None or "declares_partage_par" not in l:
+        raise Ignore("dernier fichier publié antérieur à la correction")
+    partages = l["declares_partage_par"].notna()
+    assert partages.any() and l.loc[partages, "declares_psychiatre"].isna().all()
+    e = _csv(d, "declares_etablissements.csv", dtype=str)
+    assert e is not None and (e["structures_partageant"].astype(int) > 1).all()
+
+
+def test_lecture_locale_arrete_la_chaine():
+    """Finess+ ou Sirene en cache mais illisibles (mémoire saturée) arrêtent la chaîne au lieu de la laisser se
+    rabattre sur le flux FINESS historique sans coordonnées (exécution du 29 octobre 2026 à 14 h 37). L'échec de lecture
+    est provoqué ici sur les vrais fichiers du cache, sans donnée inventée."""
+    from unittest import mock
+    from pipeline import config
+    from pipeline.sources import finess, sirene
+    from pipeline.util import LectureLocaleImpossible
+    if not (config.BRUT / "finess_plus.json.gz").exists():
+        raise Ignore("Finess+ absent du cache")
+    with mock.patch.object(finess.gzip, "open", side_effect=MemoryError()):
+        try:
+            finess.charger(hors_ligne=True)
+            raise AssertionError("la lecture impossible de Finess+ n'a pas arrêté la chaîne")
+        except LectureLocaleImpossible:
+            pass
+    if sirene.EXTRAIT.exists():
+        with mock.patch.object(sirene.pd, "read_parquet", side_effect=MemoryError()):
+            try:
+                sirene.charger(hors_ligne=True)
+                raise AssertionError("la lecture impossible de Sirene n'a pas arrêté la chaîne")
+            except LectureLocaleImpossible:
+                pass
+
+
+def test_seuil_structures_au_centre():
+    """La comparaison avant publication bloque une version dont plus de 10 % des structures sont posées au centre de leur
+    commune (source de coordonnées perdue), et laisse passer la dernière version."""
+    import sys
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "outils"))
+    import comparer_versions as cv
+    d = _dernier_resultats()
+    p = cv.part_au_centre(d)
+    if p is None:
+        raise Ignore("lieux_soins.csv absent")
+    assert p < cv.PART_CENTRE_BLOQUANT, p
+    c = cv.Compte()
+    cv.emplacements(d, d, c)
+    assert c.niveau == 0 and any("centre de leur commune" in t for _, t in c.lignes)
+
+
+def test_verdict_ne_retire_pas_une_structure_attestee():
+    """Un verdict de retrait (doublon, fermée, introuvable, pas un CMP) porte sur une inscription des bases. Il ne retire
+    jamais une structure que la liste vérifiée de son établissement atteste par l'établissement ou par une autre source
+    publique (CMP Le Petit Nice d'Embrun, attesté par la HAS, retiré le 29 octobre 2026 par le verdict « doublon » d'une
+    autre inscription). Une structure gardée sur la seule foi des bases reste soumise aux verdicts (CMP de Paul-Brousse).
+    Sur les derniers résultats et les vraies listes."""
+    import json
+    import pandas as pd
+    from pipeline import structures_verifiees as sv
+    d = _dernier_resultats()
+    j = json.loads((d / "journal.json").read_text(encoding="utf-8"))
+    if not any(k.startswith("Verdicts de retrait qui désignent une structure attestée") for k, _v in j.get("controles", [])):
+        raise Ignore("résultats antérieurs à la règle")
+    s = pd.read_csv(sv.FICHIER, sep=";", dtype=str).fillna("")
+    nr = _csv(d, "structures_non_retenues.csv", dtype=str)
+    v = nr[nr["raison"].str.startswith("vérification à la main", na=False)]
+    attestees = set(zip(*[s.loc[s["statut"].isin(["etablissement", "source_publique"]), c] for c in ("ej", "nom", "commune")]))
+    assert not [r for r in zip(v["ej"], v["nom"], v["commune"]) if r in attestees]
+    l = _csv(d, "lieux_soins.csv", dtype=str, usecols=lambda c: c in ("nom", "commune", "type"))
+    assert ((l["nom"] == "CMP Le Petit Nice") & (l["commune"] == "05046") & (l["type"] == "lieu_cmp")).any()
+    assert ((v["nom"] == "CMP de Paul-Brousse") & (v["commune"] == "94076")).any()
+
+
 def test_distances_sans_traverser_la_mer():
     """Une distance au plus proche est cherchée sur le territoire de la commune (Hexagone, Corse, chaque département
     d'outre-mer), jamais par-dessus la mer (note docs/note_valeurs_aberrantes_2026-10-28.md). Sur les vraies structures,
@@ -2511,6 +2908,127 @@ def test_verrou_execution():
                 assert f.exists()
     finally:
         config.DONNEES = ancien
+
+
+def test_referencement():
+    """Phase 1 de la communication (29 octobre 2026) : balises de citation des rapports pour Google Scholar, DOI
+    seulement pour la version archivée, jeu de données schema.org avec les champs demandés par Google, et sur le site
+    construit, une adresse de référence par page, aucune page exclue de la publication dans le plan du site."""
+    import json
+    import re
+    import xml.etree.ElementTree as ET
+    from pipeline import config, referencement as rf
+    b = rf.balises_rapport("sante-mentale", config.VERSION_ZENODO, config.TITRES_DEPOTS["sante-mentale"], True)
+    for nom in ("citation_title", "citation_author", "citation_publication_date", "citation_pdf_url", "citation_doi"):
+        assert f'name="{nom}"' in b, nom
+    assert config.VERSION_ZENODO.replace("-", "/") in b and config.DOI_RAPPORTS["sante-mentale"] in b
+    b2 = rf.balises_rapport("sante", "2026-10-01", "Rapport", False)
+    assert "citation_doi" not in b2 and "citation_pdf_url" not in b2
+    j = rf.jeu_de_donnees("2026-10-29", "donnees/2026-10-29/donnees.zip", ["https://www.data.gouv.fr/datasets/x", "x.html"])
+    assert 50 <= len(j["description"]) <= 5000 and j["license"].startswith("https://")
+    assert j["creator"]["sameAs"].endswith(config.ORCID) and j["identifier"].endswith(config.DOI_DONNEES)
+    assert j["isBasedOn"] == ["https://www.data.gouv.fr/datasets/x"]
+    assert rf._injecter(rf._injecter("<head></head>", "<a>"), "<b>") == f"<head>{rf.MARQUE}<b>\n</head>"
+    site = config.RACINE / "site"
+    if not (site / "sitemap.xml").exists():
+        raise Ignore("site non construit")
+    ns = {"s": "http://www.sitemaps.org/schemas/sitemap/0.9"}
+    locs = [e.text for e in ET.parse(site / "sitemap.xml").getroot().findall("s:url/s:loc", ns)]
+    assert locs and all(u.startswith(config.ADRESSE_SITE) for u in locs)
+    assert not any(re.search(r"/(prototype\d*|maquettes|_[^/]*)/", u) for u in locs)
+    assert f"{config.ADRESSE_SITE.rstrip('/')}/" in locs and not any(u.endswith("/atlas.html") for u in locs)
+    for p in rf.pages_publiques(site):
+        t = p.read_text(encoding="utf-8")
+        assert t.count('rel="canonical"') == 1 and t.count(rf.MARQUE) <= 1, p
+    fichiers = (site / "methode-fichiers.html").read_text(encoding="utf-8")
+    jeu = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', fichiers).group(1))
+    assert jeu["@type"] == "Dataset" and jeu["distribution"][0]["contentUrl"].endswith(".zip")
+    assert "Sitemap:" in (site / "robots.txt").read_text(encoding="utf-8")
+
+
+def test_reseaux_messages():
+    """Onglet « Réseaux » (phase 2 de la communication, 29 octobre 2026), sans rien publier, sur les trois premiers
+    messages rédigés à partir de constats publiés (docs/reseaux/messages). Contrôles passés, version Bluesky de
+    300 graphèmes au plus, facettes de lien en octets UTF-8 qui retombent sur le lien, texte LinkedIn échappé, figure
+    PNG de 2 Mo au plus avec son texte de remplacement, et un message modifié après sa programmation jamais publié."""
+    import datetime as dt
+    import json
+    import shutil
+    import tempfile
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from outils import reseaux as r
+    fichiers = sorted((Path(__file__).resolve().parent.parent / "docs" / "reseaux" / "messages").glob("*.json"))
+    if not fichiers:
+        raise Ignore("aucun message rédigé")
+    ms = [json.loads(f.read_text(encoding="utf-8")) for f in fichiers]
+    for m in ms:
+        assert not r.controler_message(m), (m["id"], r.controler_message(m))
+        texte = m["bluesky"]
+        assert r.graphemes(texte) <= r.BLUESKY_GRAPHEMES and len(texte.encode("utf-8")) <= r.BLUESKY_OCTETS
+        brut = texte.encode("utf-8")
+        for f in r.facettes(texte):
+            lien = brut[f["index"]["byteStart"]:f["index"]["byteEnd"]].decode("utf-8")
+            assert f["features"][0]["uri"] in (lien, "https://" + lien) and not lien.endswith((".", ","))
+        rec = r.enregistrement_bluesky(m, {"$type": "blob"}, 1600, 900, dt.datetime(2026, 11, 3, 9, 30))
+        assert rec["createdAt"].endswith("Z") and rec["embed"]["images"][0]["alt"] and rec["langs"] == ["fr"]
+        c = r.corps_linkedin(m, "urn:li:person:x", "urn:li:image:x")
+        assert c["content"]["media"]["altText"] and c["visibility"] == "PUBLIC"
+        assert "\\(" in c["commentary"] or "(" not in m["linkedin"]
+    # graphèmes, accents séparés et emoji composés comptent pour un
+    assert r.graphemes("é") == 1 and r.graphemes("é") == 1 and r.graphemes("👩‍🔬") == 1
+    assert r.graphemes("🇫🇷") == 1 and r.graphemes("a\r\nb") == 3
+    assert r.echapper_linkedin("(a) #b @c") == "\\(a\\) \\#b \\@c"
+    assert [x[2] for x in r.liens("voir ubicura.fr/explorer.html. Et https://doi.org/10.5281/x,")] == \
+        ["https://ubicura.fr/explorer.html", "https://doi.org/10.5281/x"]
+    assert r.controler_message(dict(ms[0], bluesky=ms[0]["bluesky"] + " x" * 200))
+    assert r.controler_message(dict(ms[0], alt=""))
+    assert r.controler_message(dict(ms[0], linkedin=ms[0]["linkedin"] + "\nRésultat : rien"))
+    # un message programmé puis modifié n'est jamais publié, il revient à relire
+    avant = (r.MESSAGES, r.FIGURES, r.JOURNAL_PUBLICATIONS)
+    tmp = Path(tempfile.mkdtemp(prefix="reseaux_"))
+    try:
+        r.MESSAGES, r.FIGURES, r.JOURNAL_PUBLICATIONS = tmp / "messages", tmp / "figures", tmp / "journal.csv"
+        r.FIGURES.mkdir(parents=True)
+        m = dict(ms[0])
+        shutil.copyfile(r.chemin_figure(m), r.FIGURES / f"{m['id']}.png")
+        m.update(figure=f"{m['id']}.png", publications={})
+        r.programmer(m, dt.datetime.now() - dt.timedelta(minutes=1))
+        assert r.empreinte(m) == m["empreinte_validee"]
+        m["bluesky"] += " Ajout."
+        r.enregistrer(m)
+
+        def interdit(_m):
+            raise AssertionError("message modifié publié")
+        assert r.publier_programmes({"linkedin": interdit, "bluesky": interdit}) == 0
+        assert r.lire_json(r.MESSAGES / f"{m['id']}.json")["statut"] == "a_relire"
+        # même chose quand seule la figure change
+        m = r.lire_json(r.MESSAGES / f"{m['id']}.json")
+        r.programmer(m, dt.datetime.now() - dt.timedelta(minutes=1))
+        (r.FIGURES / f"{m['id']}.png").write_bytes((r.FIGURES / f"{m['id']}.png").read_bytes() + b"\0")
+        assert r.publier_programmes({"linkedin": interdit, "bluesky": interdit}) == 0
+        assert r.lire_json(r.MESSAGES / f"{m['id']}.json")["statut"] == "a_relire"
+        assert not r.JOURNAL_PUBLICATIONS.exists()
+    finally:
+        r.MESSAGES, r.FIGURES, r.JOURNAL_PUBLICATIONS = avant
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def test_identifiant_bluesky():
+    """Fichier .well-known/atproto-did de l'identifiant @ubicura.fr, le DID seul sans retour à la ligne, retiré sans DID
+    valide (forme did:plc de 24 caractères en base 32, https://atproto.com/specs/handle)."""
+    import tempfile
+    from pipeline import config, site
+    d = Path(tempfile.mkdtemp(prefix="site_"))
+    f = d / ".well-known" / "atproto-did"
+    did = "did:plc:" + "a2" * 12
+    assert site.identifiant_bluesky(d, did) and f.read_bytes() == did.encode("ascii")
+    assert not site.identifiant_bluesky(d, "did:plc:trop-court") and not f.exists()
+    site.identifiant_bluesky(d, did)
+    assert not site.identifiant_bluesky(d, "") and not f.exists()
+    assert not config.BLUESKY_DID or site.DID_VALIDE.fullmatch(config.BLUESKY_DID)
+    publie = config.RACINE / "site" / ".well-known" / "atproto-did"
+    if config.BLUESKY_DID and publie.exists():
+        assert publie.read_text(encoding="ascii") == config.BLUESKY_DID
 
 
 if __name__ == "__main__":

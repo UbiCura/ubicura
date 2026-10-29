@@ -234,8 +234,23 @@ def _lieux_csv(agg, noms, lab, out: Path):
     pros = L["pros"].add_prefix("declares_")
     t = t.merge(pros, left_on="lieu", right_index=True, how="left")
     sans_num = t["finess"].isna()
-    for c in pros.columns:
+    partage = t.pop("declares_partage_par") if "declares_partage_par" in t else pd.Series(1, index=t.index)
+    cols_dec = [c for c in pros.columns if c != "declares_partage_par"]
+    for c in cols_dec:
         t[c] = t[c].where(sans_num, t[c].fillna(0))
+    # effectif d'un établissement dont plusieurs structures partagent le numéro FINESS dans la commune, jamais attribué
+    # à l'une d'elles (règle des trois temps, 29 octobre 2026), montré une seule fois dans declares_etablissements.csv
+    partagee = partage.fillna(1) > 1
+    etab = t.loc[partagee, ["finess", "commune", "nom_commune"] + cols_dec].assign(structures_partageant=partage[partagee])
+    t.loc[partagee, cols_dec] = np.nan
+    t["declares_partage_par"] = partage.where(partagee).astype("Int64")
+    if len(etab):
+        etab = etab.groupby(["finess", "commune", "nom_commune"], as_index=False).first()
+        etab["structures_partageant"] = etab["structures_partageant"].astype(int)
+        _csv(etab, out / "declares_etablissements.csv")
+    # clé persistante de chaque structure, tenue d'une version à l'autre (pipeline/cles_structures.py, 29 octobre 2026)
+    from . import cles_structures
+    t.insert(0, "id_structure", cles_structures.appliquer(t, out.name))
     _csv(t.drop(columns="lieu").sort_values(["type", "dep", "commune", "nom"]), out / "lieux_soins.csv")
     # établissements Sirene actifs sous une enseigne de CMP sans structure correspondante, à vérifier
     ss = L.get("sirene_seul")
@@ -257,8 +272,11 @@ def _lieux_csv(agg, noms, lab, out: Path):
                  par.loc[(r.ej, r.departement)] if (r.ej, r.departement) in par.index else
                  pd.Series(0, index=list(sv.STATUTS))).to_numpy() for r in e.itertuples()]
         e = pd.concat([e.reset_index(drop=True), pd.DataFrame(vals, columns=cols)], axis=1)
-        a_rev = {(r[0]) for r in ver.get("a_reverifier", [])}
-        e["a_reverifier"] = e["ej"].isin(a_rev)
+        # par établissement vérifié et non par gestionnaire (le CH Sainte-Marie de Nice signalé seul, et non les cinq
+        # établissements de l'association, constat du 29 octobre 2026), avec la raison du signalement
+        raisons = {(r[0], r[1]): r[2] for r in ver.get("a_reverifier", [])}
+        e["raison_reverification"] = [raisons.get((r.ej, r.etablissement)) for r in e.itertuples()]
+        e["a_reverifier"] = e["raison_reverification"].notna()
         _csv(e, out / "etablissements_verifies.csv")
         _csv(pd.DataFrame(ver.get("non_retenues") or [], columns=["ej", "etablissement", "type", "nom", "commune",
                                                                   "nom_commune", "finess", "provenance", "raison"]),
@@ -276,7 +294,8 @@ def _lieux_csv(agg, noms, lab, out: Path):
         JOURNAL.controle("Nom de personne dans les textes de vérification publiés (attendu, aucun)",
                          "aucun" if not n_nom else f"{n_nom} textes")
         # verdicts de la vérification à la main sans structure correspondante (clé changée, structure déjà réunie)
-        _csv(pd.DataFrame((ver.get("verdicts") or {}).get("non_trouves") or [], columns=["cle", "structure", "verdict"]),
+        _csv(pd.DataFrame((ver.get("verdicts") or {}).get("non_trouves") or [],
+                          columns=["cle", "structure", "verdict", "finess", "situation", "structure_actuelle"]),
              out / "verdicts_sans_structure.csv")
     types = {tp[0]: tp[1] for tp in config.LIEUX_TYPES}
     # un type recensé dans moins de config.LIEUX_COUVERTURE_MIN des départements donne des distances trop longues (la
@@ -430,6 +449,8 @@ def _lieux_points(agg, ref):
             dec = 0
         elif dec is not None and not any(dec):
             dec = 0
+        # numéro FINESS partagé avec d'autres structures de la commune, l'effectif est celui de l'établissement
+        npart = int(pros.at[r.lieu, "partage_par"]) if r.lieu in pros.index and "partage_par" in pros else 1
         pts.append([ordre[r.type], int(round(r.lat * 1e4)), int(round(r.lon * 1e4)), inom[r.nom_affiche or ""],
                     r.commune, prov.index(r.provenance), prec.index(r.precision) if r.precision in prec else len(prec) - 1,
                     dec, r.epci if isinstance(r.epci, str) else "", r.dep if isinstance(r.dep, str) else "",
@@ -437,7 +458,8 @@ def _lieux_points(agg, ref):
                     niveaux.index(cf) if cf in niveaux else None,
                     publics.get(r.lieu, "") if r.type == "lieu_cmp" else "",
                     (1 if r.type == "lieu_cmp" and r.lieu in antennes else 0)
-                    + (2 if r.type == "lieu_cattp" and r.Index in meme_lieu else 0)])
+                    + (2 if r.type == "lieu_cattp" and r.Index in meme_lieu else 0),
+                    npart if npart > 1 else 0])
     return {"types": [{"id": tp[0], "lib": tp[1], "famille": tp[2], "groupe": tp[3],
                        "complet": bool(couv.at[tp[0], "complet"]) if tp[0] in couv.index else False,
                        "part": _r(couv.at[tp[0], "part_departements"]) if tp[0] in couv.index else None}
@@ -450,7 +472,7 @@ def _lieux_points(agg, ref):
                    for r in ((L.get("distances") or {}).get("fr", pd.DataFrame(columns=["type"]))).itertuples()},
             "communes": ref.communes[ref.communes["code"].isin(set(x["commune"]))].set_index("code")["nom"].to_dict(),
             "champs": ["type", "lat", "lon", "nom", "commune", "provenance", "precision", "declares", "epci", "dep", "reg",
-                       "confirmation", "public", "signaux"],
+                       "confirmation", "public", "signaux", "partage"],
             # niveaux de confirmation, libellé court, et types pour lesquels le niveau est établi
             "confirmations": [{"id": k, "lib": conf_mod.NIVEAUX_COURTS.get(k, conf_mod.NIVEAUX[k]),
                                "confirme": k != "bases", "classe": conf_mod.classe(k)} for k in niveaux],

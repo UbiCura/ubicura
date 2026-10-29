@@ -40,12 +40,20 @@ def cmp_et_psychiatres(act: pd.DataFrame, finess: pd.DataFrame | None, ref, lieu
         pros = lieux_res["pros"]
         cols = [c for c in ("psychiatre", "pedopsychiatre") if c in pros]
         psy = pros[cols].sum(axis=1) if cols else pd.Series(dtype=float)
-        f["avec_psychiatre"] = f["lieu"].map(psy).fillna(0) > 0
-        JOURNAL.controle("CMP (FINESS et ROR réunis) où au moins un psychiatre déclare son activité au répertoire",
-                         f"{int(f['avec_psychiatre'].sum())} sur {len(f)}, {int(f['epci'].isna().sum())} hors du référentiel")
+        # un CMP qui partage le numéro FINESS de son établissement dans la commune n'est pas compté « avec psychiatre »
+        # sur la foi des psychiatres de l'établissement (29 octobre 2026), il est compté à part
+        partage = f["lieu"].map(pros["partage_par"]).fillna(1) if "partage_par" in pros else pd.Series(1, index=f.index)
+        a_psy = f["lieu"].map(psy).fillna(0) > 0
+        f["avec_psychiatre"] = a_psy & (partage == 1)
+        n_partage = int((a_psy & (partage > 1)).sum())
+        JOURNAL.controle("CMP (FINESS et ROR réunis) où au moins un psychiatre déclare son activité au répertoire sous le "
+                         "numéro propre du CMP",
+                         f"{int(f['avec_psychiatre'].sum())} sur {len(f)}, et {n_partage} qui partagent le numéro de leur "
+                         f"établissement où des psychiatres sont déclarés, {int(f['epci'].isna().sum())} hors du référentiel")
         t = (f.dropna(subset=["epci"]).groupby(["epci", "dep"], as_index=False)
              .agg(cmp=("lieu", "size"), cmp_avec_psychiatre=("avec_psychiatre", "sum")))
         t.attrs["total"], t.attrs["avec"], t.attrs["source"] = len(f), int(f["avec_psychiatre"].sum()), "FINESS et ROR"
+        t.attrs["avec_partage"] = n_partage
         return t
     if finess is None or "com" not in finess:
         return None

@@ -170,6 +170,28 @@ def donnees_inegalites(site_data: dict) -> dict | None:
     return sortie
 
 
+# « Croiser deux indicateurs » (lot 2 du 29 octobre 2026), même moteur que l'atlas (atlas/moteur/), mêmes données
+NIVEAUX_NUAGE = ("dep", "epci")
+CLES_NUAGE = ("meta", "professions", "france", "contexte", "route", "croisements_bases", "croisements_indicateurs",
+              "sensibilite")
+
+
+def donnees_nuage(site_data: dict) -> dict | None:
+    """Données de « Croiser deux indicateurs », prises telles quelles dans site_data.json et complétées comme celles de
+    l'atlas (citation, limites, glossaire). Seuls les départements et les intercommunalités, niveaux du nuage, et les
+    champs que lit la page sont gardés (corrélations publiées sans leurs champs vides)."""
+    niv = site_data.get("niveaux", {})
+    if not all(lv in niv for lv in NIVEAUX_NUAGE) or not site_data.get("contexte"):
+        return None
+    d = {k: site_data.get(k) for k in CLES_NUAGE}
+    d["niveaux"] = {lv: {k: niv[lv][k] for k in ("units", "n", "route") if k in niv[lv]} for lv in NIVEAUX_NUAGE}
+    d["correlations"] = [{k: v for k, v in r.items() if v is not None} for r in site_data.get("correlations", [])
+                         if r.get("niv") in NIVEAUX_NUAGE]
+    d["limites"] = site_data.get("limites") or {}
+    d["site_dossier"] = "."
+    return d
+
+
 def gini_territoires(di: dict, lv: str, p: str, mode: str = "all") -> float:
     """Indice de Gini entre territoires, même calcul que la courbe de Lorenz de la page (territoires classés par
     densité, aire sous la courbe par les trapèzes), sert au contrôle face à inegalites.csv."""
@@ -220,6 +242,20 @@ def ecrire(dossier: Path, site: Path, site_data: dict) -> bool:
                          f"couples niveau et profession, écart maximal avec inegalites.csv {ecart}")
     else:
         JOURNAL.controle("Explorer, inégalités", "non écrites, niveaux absents de site_data.json")
+    # « Croiser deux indicateurs », noyau, carte et nuage du moteur de l'atlas réunis avec l'adaptateur de la page,
+    # chargés quand la fenêtre approche de l'écran (les données pèsent plusieurs mégaoctets)
+    dn = donnees_nuage(site_data)
+    if dn:
+        isc.completer(dn)
+        (out / "donnees_croisements.js").write_text("window.DONNEES=" + js(dn) + ";", encoding="utf-8")
+        adaptateur = (config.RACINE / "gabarits" / "explorer_croisements.js").read_text(encoding="utf-8")
+        (out / "croisements.js").write_text("(function(){\n" + isc.moteur(isc.MODULES_EXPLORER) + "\n" + adaptateur
+                                             + "\n})();\n", encoding="utf-8")
+        JOURNAL.controle("Explorer, croiser deux indicateurs",
+                         f"{len(dn['contexte'])} indicateurs du catalogue, {len(dn['croisements_bases'] or [])} questions "
+                         f"préparées, {len(dn['correlations'])} corrélations publiées, même code que l'atlas")
+    else:
+        JOURNAL.controle("Explorer, croiser deux indicateurs", "non écrit, niveaux ou catalogue absents de site_data.json")
     JOURNAL.controle("Page Explorer", f"{len(paires['ordre'])} professions pour les paires, {len(paires['epci'])} "
                      f"intercommunalités, {len(traj['profs'])} séries de la DREES, psychologue sans psychiatre déclaré "
                      f"{part_une_sans_l_autre(paires, 'psychologue', 'psychiatre') * 100:.1f} % des habitants".replace(".", ","))

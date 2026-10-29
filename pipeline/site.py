@@ -768,6 +768,7 @@ def construire(pdf=True) -> Path:
 
     # rapports, une version par date
     versions = []
+    rapports_cites = {}   # balises de citation de chaque version (pipeline/referencement.py)
     for d in reversed(dates):
         dossier = SITE / "rapports" / d.name
         dossier.mkdir(parents=True, exist_ok=True)
@@ -799,6 +800,8 @@ def construire(pdf=True) -> Path:
                 if not imprimer_rapport(env, ctx, d, cle, cible_pdf, exe):
                     log.warning("PDF non produit pour %s %s", d.name, cle)
             v["pdf_sm" if cle == "sante-mentale" else "pdf_sante"] = cible_pdf.exists()
+            rapports_cites[f"rapports/{d.name}/{cle}.html"] = {
+                "cle": cle, "iso": d.name, "titre": config.TITRES_DEPOTS.get(cle, titre), "pdf": cible_pdf.exists()}
         versions.append(v)
     ctx = dict(commun, racine="", page="rapports", titre="Rapports nationaux")
     (SITE / "rapports.html").write_text(rendre(env, "rapports.html",
@@ -930,8 +933,9 @@ def construire(pdf=True) -> Path:
 
     # données sources, une fiche par jeu
     ctx = dict(commun, racine="", page="sources", titre="Données sources")
+    fiches_sources = donnees_sources(dernier, site_data)
     (SITE / "donnees-sources.html").write_text(rendre(env, "donnees_sources.html",
-        ctx, fiches=donnees_sources(dernier, site_data)), encoding="utf-8")
+        ctx, fiches=fiches_sources), encoding="utf-8")
     pages.append(SITE / "donnees-sources.html")
 
     # journal des mises à jour (jeux de données modifiés, effectifs nationaux, nouveautés du site)
@@ -972,6 +976,16 @@ def construire(pdf=True) -> Path:
         '<style>body{font-family:system-ui,sans-serif;background:#121419;color:#E8E9EE;padding:40px}a{color:#9DC7FE}</style>'
         '</head><body><p>L’atlas de l’offre de soins est désormais la première page du site. '
         '<a href="index.html">Ouvrir l’atlas</a>.</p></body></html>\n', encoding="utf-8")
+
+    # référencement, adresse de référence et aperçu des liens sur chaque page, citation des rapports, description du
+    # jeu de données, plan du site (feuille de route de la communication, phase 1, 29 octobre 2026)
+    from . import referencement
+    referencement.appliquer(SITE, dernier.name, rapports_cites,
+                            {"page": "methode-fichiers.html", "archive": f"donnees/{dernier.name}/{tout.name}",
+                             "sources": [u for f in fiches_sources for u in f["pages"]]},
+                            exe, _apercu_carte(dernier))
+    # identifiant Bluesky @ubicura.fr, prouvé par un fichier du site (phase 2, tutoriel 11)
+    identifiant_bluesky(SITE, config.BLUESKY_DID)
 
     # contrôle du langage sur les pages (le texte visible, sans les balises)
     pb = []
@@ -1080,6 +1094,31 @@ def _css_nav() -> str:
         elif l.startswith("nav.site"):
             (mobiles if tel else simples).append(l)
     return "\n".join(simples) + ("\n@media (max-width:760px){" + "\n".join(mobiles) + "}" if mobiles else "")
+
+
+DID_VALIDE = re.compile(r"did:(plc:[a-z2-7]{24}|web:[a-z0-9.-]+)")
+
+
+def identifiant_bluesky(site: Path, did: str) -> bool:
+    """Écrit .well-known/atproto-did, le DID du compte Bluesky du projet seul, sans espace ni retour à la ligne, pour
+    l'identifiant @ubicura.fr (https://atproto.com/specs/handle, lu le 29 octobre 2026). Sans DID valide, le fichier est
+    retiré. GitHub Pages le sert en application/octet-stream et non en text/plain, toléré par la spécification, qui ne
+    demande pas de vérifier le type ; la résolution se vérifie après la mise en ligne (tutoriel 11, partie C)."""
+    f = site / ".well-known" / "atproto-did"
+    did = (did or "").strip()
+    if not did:
+        f.unlink(missing_ok=True)
+        JOURNAL.controle("Site, identifiant Bluesky (.well-known/atproto-did)", "aucun DID indiqué, pas de fichier")
+        return False
+    if not DID_VALIDE.fullmatch(did):
+        f.unlink(missing_ok=True)
+        log.warning("DID Bluesky illisible dans config.BLUESKY_DID, fichier .well-known/atproto-did non écrit")
+        JOURNAL.controle("Site, identifiant Bluesky (.well-known/atproto-did)", "DID illisible, pas de fichier")
+        return False
+    f.parent.mkdir(parents=True, exist_ok=True)
+    f.write_bytes(did.encode("ascii"))
+    JOURNAL.controle("Site, identifiant Bluesky (.well-known/atproto-did)", f"écrit, {did}")
+    return True
 
 
 def _apercu_carte(dossier: Path) -> str:

@@ -143,6 +143,7 @@ def comparer(avant: Path, apres: Path, c: Compte):
         c.note(20, "Lieux de soins, fichier lieux_soins.csv disparu")
     # 5 bis. structures vérifiées à la main, une nouvelle version d'une base ne doit rien défaire en silence
     structures_verifiees(avant, apres, c)
+    emplacements(avant, apres, c)
     # 6. rapports territoriaux
     ta, tb = len(list((avant / "territoires").glob("*.md"))), len(list((apres / "territoires").glob("*.md")))
     if tb < ta:
@@ -156,10 +157,47 @@ CONFIRMEE = "confirmée par l'établissement"
 REVERIFIER = "Structures de soins, établissements à revérifier"
 
 
+# part des structures posées au centre de leur commune faute d'adresse (29 octobre 2026), environ 3 % dans une
+# exécution saine, 64 % quand Finess+ n'a pas été lu (exécution du 29 octobre à 14 h 37)
+PART_CENTRE_BLOQUANT = .10
+HAUSSE_CENTRE_A_REGARDER = .02
+
+
+def part_au_centre(version: Path) -> float | None:
+    """Part des structures dont l'emplacement est le centre de leur commune (contour ou chef-lieu), d'après
+    lieux_soins.csv."""
+    t = lire(version / "lieux_soins.csv")
+    if t is None or "emplacement" not in t or t.empty:
+        return None
+    return float(t["emplacement"].fillna("").str.startswith("centre de la commune").mean())
+
+
+def emplacements(avant: Path, apres: Path, c: Compte):
+    """Une version dont trop de structures sont posées au centre de leur commune a perdu une source de coordonnées
+    (Finess+, géocodage), elle n'est pas publiée."""
+    pa, pb = part_au_centre(avant), part_au_centre(apres)
+    if pb is None:
+        return
+    texte = f"{pb:.1%}".replace(".", ",")
+    if pb > PART_CENTRE_BLOQUANT:
+        c.note(20, f"Structures posées au centre de leur commune, {texte}, au-delà de "
+                   f"{PART_CENTRE_BLOQUANT:.0%} (source de coordonnées perdue ?)")
+    elif pa is not None and pb - pa > HAUSSE_CENTRE_A_REGARDER:
+        c.note(10, f"Structures posées au centre de leur commune, {texte}, en hausse de "
+                   f"{(pb - pa) * 100:.1f} points".replace(".", ","))
+    else:
+        c.note(0, f"Structures posées au centre de leur commune, {texte}")
+
+
 def a_reverifier(version: Path) -> set[str] | None:
     """Établissements vérifiés à la main que le journal signale à revérifier (empreinte des inscriptions de FINESS et
-    du ROR changée, ou vérification de plus d'un an), d'après le contrôle de pipeline/structures_verifiees.py. Le
-    journal n'en cite que les dix premiers."""
+    du ROR changée, vérification de plus d'un an, structure fermée depuis dans FINESS), d'après la colonne
+    raison_reverification de etablissements_verifies.csv (29 octobre 2026), sinon le contrôle du journal, qui n'en cite
+    que les dix premiers."""
+    e = lire(version / "etablissements_verifies.csv")
+    if e is not None and "raison_reverification" in e:
+        r = e[e["raison_reverification"].notna()]
+        return {f"{n} ({x})" for n, x in zip(r["etablissement"], r["raison_reverification"])}
     try:
         j = json.loads((version / "journal.json").read_text(encoding="utf-8"))
     except (OSError, ValueError):

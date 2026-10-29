@@ -35,8 +35,23 @@ PROVENANCES = {"les_deux": "FINESS et ROR", "finess": "FINESS seul", "ror": "ROR
 PRECISIONS = {"finess": "coordonnées FINESS", "ror": "coordonnées du ROR", "adresse": "adresse géocodée au numéro",
               "rue": "adresse géocodée à la rue", "lieu_dit": "adresse géocodée au lieu-dit",
               "commune": "centre de la commune",
+              # chef-lieu dans la Base Adresse Nationale, plus près des habitants que le centre du contour (29 octobre
+              # 2026), le libellé commence comme le précédent pour rester lu comme une position approchée
+              "chef_lieu": "centre de la commune, au chef-lieu",
               "rattachement": "adresse de l'établissement de rattachement, lieu exact inconnu"}
 CACHE_GEO = config.INTER / "geocodage_lieux.parquet"
+REQUETE_GEO = "voie développée et commune"   # forme de la requête, un échec d'une autre forme est cherché de nouveau
+# abréviations des voies dans FINESS et le ROR, développées pour le géocodage (« R » rue, « AV » avenue, 29 octobre
+# 2026, environ un dixième des adresses jusque-là introuvables retrouvées à la rue ou au numéro)
+ABREVIATIONS = {"R": "Rue", "AV": "Avenue", "AVE": "Avenue", "BD": "Boulevard", "BLD": "Boulevard", "CHE": "Chemin",
+                "CH": "Chemin", "PL": "Place", "RTE": "Route", "IMP": "Impasse", "ALL": "Allée", "LD": "Lieu-dit",
+                "QU": "Quai", "QUA": "Quartier", "CRS": "Cours", "SQ": "Square", "PROM": "Promenade", "FG": "Faubourg",
+                "HAM": "Hameau", "RES": "Résidence", "ST": "Saint", "STE": "Sainte", "GAL": "Général",
+                "MAL": "Maréchal", "DR": "Docteur", "PDT": "Président"}
+
+
+def voie_developpee(v: str) -> str:
+    return " ".join(ABREVIATIONS.get(m.upper().strip("."), m) for m in str(v).split())
 # professions dont on compte les personnes déclarées dans chaque lieu
 PROFESSIONS = ["psychiatre", "pedopsychiatre", "q_psychiatrie_enfant", "psychologue", "infirmier", "orthophoniste",
                "psychomotricien", "ergotherapeute", "medecin_generaliste", "pediatre", "geriatre", "sage_femme",
@@ -709,11 +724,66 @@ def reunir(lr: pd.DataFrame, lf: pd.DataFrame, fin_cat: pd.Series | None = None)
     return out, stats
 
 
+_ARRONDISSEMENTS: dict | None = None
+
+
+def arrondissements() -> dict:
+    """Arrondissements municipaux de Paris, Lyon et Marseille et le code de leur commune (75115 vers 75056), d'après le
+    référentiel d'Etalab. FINESS et la Base Adresse Nationale situent une adresse dans son arrondissement, le projet
+    compte par commune : sans cette table, les coordonnées de FINESS et le géocodage de ces trois villes étaient écartés
+    comme « hors de la commune » et leurs 2 300 structures posées au centre de la commune (constat du 29 octobre
+    2026, toutes les structures de Paris)."""
+    global _ARRONDISSEMENTS
+    if _ARRONDISSEMENTS is None:
+        import json
+        try:
+            brut = json.loads((config.BRUT / "ref_communes.json").read_text(encoding="utf-8"))
+            _ARRONDISSEMENTS = {c["code"]: c["commune"] for c in brut
+                                if c.get("type") == "arrondissement-municipal" and c.get("commune")}
+        except (OSError, ValueError, KeyError) as e:
+            log.warning("arrondissements municipaux illisibles dans le référentiel : %s", e)
+            _ARRONDISSEMENTS = {}
+    return _ARRONDISSEMENTS
+
+
+_NOMS_COMMUNES: dict | None = None
+
+
+def noms_communes() -> dict:
+    """Nom de chaque commune actuelle, d'après le référentiel d'Etalab, pour le géocodage."""
+    global _NOMS_COMMUNES
+    if _NOMS_COMMUNES is None:
+        import json
+        try:
+            brut = json.loads((config.BRUT / "ref_communes.json").read_text(encoding="utf-8"))
+            _NOMS_COMMUNES = {c["code"]: c["nom"] for c in brut if c.get("type") == "commune-actuelle"}
+        except (OSError, ValueError, KeyError) as e:
+            log.warning("noms des communes illisibles dans le référentiel : %s", e)
+            _NOMS_COMMUNES = {}
+    return _NOMS_COMMUNES
+
+
+def commune_de(code: pd.Series) -> pd.Series:
+    """Code de commune, l'arrondissement municipal ramené à sa commune."""
+    arr = arrondissements()
+    return code.map(lambda c: arr.get(c, c) if isinstance(c, str) else c)
+
+
 def _geocoder(adresses: pd.DataFrame, hors_ligne: bool) -> pd.DataFrame:
     """Coordonnées des adresses (voie, commune) par le service de géocodage de l'IGN, avec cache. En mode hors ligne,
-    seul le cache sert. Ne garde que les résultats situés dans la commune attendue, avec un score suffisant."""
-    cols = ["voie", "commune", "lat", "lon", "score", "niveau"]
+    seul le cache sert. Ne garde que les résultats situés dans la commune attendue, avec un score suffisant. La requête
+    porte la voie et le nom de la commune (29 octobre 2026) : avec la voie seule, le score restait autour de 0,4 même
+    pour une adresse trouvée dans la bonne commune, sous le seuil de config.GEOCODAGE_SCORE_MIN, et 4 200 structures
+    étaient posées au centre de leur commune. Un échec obtenu avec la voie seule est cherché de nouveau."""
+    cols = ["voie", "commune", "lat", "lon", "score", "niveau", "requete"]
     cache = pd.read_parquet(CACHE_GEO) if CACHE_GEO.exists() else pd.DataFrame(columns=cols)
+    # échecs gardés pour Paris, Lyon et Marseille avant le 29 octobre 2026, dus au code d'arrondissement rendu par le
+    # service et non à l'adresse, cherchés de nouveau
+    villes = set(arrondissements().values())
+    cache = cache[~(cache["commune"].isin(villes) & cache["lat"].isna())]
+    if "requete" not in cache:
+        cache["requete"] = None
+    cache = cache[cache["lat"].notna() | (cache["requete"] == REQUETE_GEO)]
     a = adresses.dropna().drop_duplicates()
     a = a[a["voie"].str.len() > 2]
     connus = set(zip(cache["voie"], cache["commune"]))
@@ -723,10 +793,12 @@ def _geocoder(adresses: pd.DataFrame, hors_ligne: bool) -> pd.DataFrame:
         nouveaux = []
         for i in range(0, len(manque), 2000):
             lot = manque.iloc[i:i + 2000]
+            lot = lot.assign(nom_commune=lot["commune"].map(noms_communes()).fillna(""),
+                             voie_q=lot["voie"].map(voie_developpee))
             corps = lot.rename(columns={"commune": "citycode"}).to_csv(index=False)
             try:
                 r = requests.post(config.GEOCODAGE_CSV, files={"data": ("adresses.csv", corps.encode("utf-8"))},
-                                  data={"columns": "voie", "citycode": "citycode"}, timeout=300)
+                                  data={"columns": ["voie_q", "nom_commune"], "citycode": "citycode"}, timeout=300)
                 r.raise_for_status()
                 g = pd.read_csv(io.StringIO(r.content.decode("utf-8")), dtype=str)
             except Exception as e:  # noqa: BLE001
@@ -734,13 +806,13 @@ def _geocoder(adresses: pd.DataFrame, hors_ligne: bool) -> pd.DataFrame:
                 JOURNAL.note("IGN, géocodage des adresses", "erreur", str(e)[:300], page=config.GEOCODAGE_PAGE)
                 break
             sc = pd.to_numeric(g.get("result_score"), errors="coerce")
-            ok = (g.get("result_citycode") == g["citycode"]) & (sc >= config.GEOCODAGE_SCORE_MIN)
+            ok = (commune_de(g.get("result_citycode")) == g["citycode"]) & (sc >= config.GEOCODAGE_SCORE_MIN)
             niveau = g.get("result_type").map({"housenumber": "adresse", "street": "rue", "locality": "lieu_dit",
                                                 "municipality": "commune"})
             nouveaux.append(pd.DataFrame({"voie": g["voie"], "commune": g["citycode"],
                                           "lat": pd.to_numeric(g["latitude"], errors="coerce").where(ok),
                                           "lon": pd.to_numeric(g["longitude"], errors="coerce").where(ok),
-                                          "score": sc, "niveau": niveau.where(ok)}))
+                                          "score": sc, "niveau": niveau.where(ok), "requete": REQUETE_GEO}))
         if nouveaux:
             cache = pd.concat([cache] + nouveaux, ignore_index=True).drop_duplicates(["voie", "commune"], keep="last")
             CACHE_GEO.parent.mkdir(parents=True, exist_ok=True)
@@ -766,14 +838,14 @@ def hors_commune(lat: pd.Series, lon: pd.Series, communes: pd.Series, formes: di
 
 
 def localiser(lieux: pd.DataFrame, fin: pd.DataFrame, centres: dict | None, hors_ligne: bool,
-              formes: dict | None = None) -> pd.DataFrame:
+              formes: dict | None = None, chefs_lieux=None) -> pd.DataFrame:
     """Coordonnées et précision de chaque structure (voir le texte du module)."""
     f = fin.set_index("nofinesset")
     x = lieux.copy()
     num = x["finess"].fillna(x.get("finess_rapproche"))
     origine = x["origine_commune"] if "origine_commune" in x else pd.Series(None, index=x.index, dtype=object)
     # une unité dont la commune est déduite de son nom n'a pas d'adresse, elle est placée au centre de la commune
-    meme_commune = (num.map(f["com"]) == x["commune"]) & (origine != "nom")
+    meme_commune = (commune_de(num.map(f["com"])) == x["commune"]) & (origine != "nom")
     x["lat"] = num.map(f["lat"]).where(meme_commune)
     x["lon"] = num.map(f["lon"]).where(meme_commune)
     x["lat"], x["lon"] = x["lat"].astype(float), x["lon"].astype(float)
@@ -809,6 +881,16 @@ def localiser(lieux: pd.DataFrame, fin: pd.DataFrame, centres: dict | None, hors
     # une unité placée à son établissement de rattachement faute de mieux est signalée comme telle
     x.loc[(origine == "structure") & x["lat"].notna(), "precision"] = "rattachement"
     m = x["lat"].isna()
+    # adresse inconnue ou introuvable, le chef-lieu de la commune (chefs_lieux, fonction des codes de commune vers leur
+    # point dans la Base Adresse Nationale), sinon le centre de son contour
+    if chefs_lieux is not None and m.any():
+        ch = chefs_lieux(sorted(set(x.loc[m, "commune"].dropna())))
+        c = x.loc[m, "commune"].map(lambda k: ch.get(k))
+        idx = c[c.notna()].index
+        x.loc[idx, "lon"] = [v[0] for v in c[idx]]
+        x.loc[idx, "lat"] = [v[1] for v in c[idx]]
+        x.loc[idx, "precision"] = "chef_lieu"
+        m = x["lat"].isna()
     if centres and m.any():
         c = x.loc[m, "commune"].map(lambda k: centres.get(k))
         ok = c.notna()
@@ -821,7 +903,11 @@ def localiser(lieux: pd.DataFrame, fin: pd.DataFrame, centres: dict | None, hors
 
 def professionnels(lieux: pd.DataFrame, act: pd.DataFrame) -> pd.DataFrame:
     """Personnes distinctes déclarant une activité à l'établissement et dans la commune de la structure, par profession. Les
-    lieux du ROR sans numéro FINESS d'établissement n'en ont pas."""
+    lieux du ROR sans numéro FINESS d'établissement n'en ont pas. Le répertoire rattache une activité à un établissement
+    (numéro FINESS), pas à une structure : quand plusieurs structures partagent ce numéro dans la même commune, l'effectif
+    est celui de l'établissement, pas de chacune d'elles. La colonne partage_par donne ce nombre de structures, et un
+    effectif partagé n'est jamais attribué à une structure ni additionné entre elles (règle des trois temps, constat du
+    29 octobre 2026, 3 882 numéros partagés par 12 910 structures)."""
     a = act[act["finess"].fillna("") != ""][["id", "prof", "finess", "com"]].copy()
     a["prof"], a["com"] = a["prof"].astype(str), a["com"].astype(str)
     a = a[a["prof"].isin(PROFESSIONS)]
@@ -829,7 +915,22 @@ def professionnels(lieux: pd.DataFrame, act: pd.DataFrame) -> pd.DataFrame:
     l = pd.DataFrame({"lieu": lieux["lieu"], "finess": num, "commune": lieux["commune"]}).dropna().drop_duplicates("lieu")
     j = a.merge(l, left_on=["finess", "com"], right_on=["finess", "commune"])
     t = j.groupby(["lieu", "prof"])["id"].nunique().unstack(fill_value=0)
-    return t.reindex(columns=[p for p in PROFESSIONS if p in t.columns])
+    t = t.reindex(columns=[p for p in PROFESSIONS if p in t.columns])
+    partage = l.groupby(["finess", "commune"])["lieu"].transform("nunique")
+    t["partage_par"] = t.index.map(dict(zip(l["lieu"], partage))).fillna(1).astype(int)
+    # contrôle permanent, la somme attribuée aux structures d'un même établissement ne dépasse jamais l'effectif qui y est
+    # déclaré, puisqu'un effectif partagé n'est attribué à aucune
+    propres = t[t["partage_par"] == 1].drop(columns="partage_par")
+    etab = j.groupby(["finess", "commune", "prof"])["id"].nunique().unstack(fill_value=0)
+    cle = l.set_index("lieu")[["finess", "commune"]]
+    somme = propres.join(cle).groupby(["finess", "commune"]).sum()
+    depasse = int((somme.sub(etab.reindex(somme.index).reindex(columns=somme.columns).fillna(0)) > 0).any(axis=1).sum())
+    JOURNAL.controle("Professionnels déclarés par structure, numéros FINESS partagés entre plusieurs structures d'une "
+                     "même commune (effectif de l'établissement, attribué à aucune)",
+                     f"{int((partage > 1).groupby([l['finess'], l['commune']]).any().sum())} numéros, "
+                     f"{int((t['partage_par'] > 1).sum())} structures avec des déclarés ; établissements dont la somme "
+                     f"attribuée dépasse l'effectif déclaré (attendu, aucun) {depasse}")
+    return t
 
 
 def exercice_structures(lieux: pd.DataFrame, act: pd.DataFrame) -> pd.DataFrame | None:
@@ -1811,8 +1912,12 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
     bad = lieux["nom"].fillna("").map(norm).str.contains(config.NOM_PERSONNE, regex=True)
     if bad.any():
         raise ValueError(f"{int(bad.sum())} lieux tirés du ROR portent un nom de personne")
+    # une structure sans adresse va au centre du contour de sa commune, les distances partent du centre de sa population
+    geo = (voisins or {}).get("centres_geo") or (voisins or {}).get("centres")
     centres = (voisins or {}).get("centres")
-    lieux = localiser(lieux, fin, centres, hors_ligne, (voisins or {}).get("formes"))
+    from .sources import insee_carreaux
+    lieux = localiser(lieux, fin, geo, hors_ligne, (voisins or {}).get("formes"),
+                      chefs_lieux=lambda codes: insee_carreaux.chefs_lieux_ban(ref, codes, hors_ligne))
     rattach = ref.communes.set_index("code")[["epci", "dep", "reg"]]
     lieux = lieux.join(rattach, on="commune")
     labels = {t[0]: t for t in config.LIEUX_TYPES}
@@ -1853,8 +1958,12 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
     # bases avant remplacement sont gardées pour préparer les vérifications (jamais publiées).
     from . import structures_verifiees as sv
     try:
-        avant = lieux[[c for c in ("type", "lieu", "nom", "nom_finess", "ej", "finess", "commune", "adresse",
-                                   "provenance", "unites_ror", "noms_unites", "lat", "lon", "precision") if c in lieux]].copy()
+        # numéros rapprochés et absorbés compris, que l'empreinte des établissements vérifiés compte : sans eux,
+        # l'empreinte calculée par outils/structures_verifiees.py valider différait de celle de la chaîne et
+        # signalait à tort 43 des 48 établissements à revérifier (constat du 29 octobre 2026)
+        avant = lieux[[c for c in ("type", "lieu", "nom", "nom_finess", "ej", "finess", "finess_rapproche",
+                                   "finess_absorbes", "commune", "adresse", "provenance", "unites_ror", "noms_unites",
+                                   "lat", "lon", "precision") if c in lieux]].copy()
         avant.to_parquet(sv.BASES, index=False)
     except Exception as e:  # noqa: BLE001
         log.warning("structures avant vérification non enregistrées : %s", e)
@@ -1865,13 +1974,19 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
     pre, _ = confirmation.confirmer(lieux, has, sirene, essms)
     garder = set(pre.index[pre["confirmation"].isin(["has", "sirene", "has_sirene"])])
     avant_liste = pre.copy()
-    lieux, verif = sv.appliquer(lieux, ref, (voisins or {}).get("centres"), hors_ligne, garder=garder)
+    lieux, verif = sv.appliquer(lieux, ref, geo, hors_ligne, garder=garder,
+                                fermees=sv.fermees_finess(fin))
+    # structures des listes vérifiées fermées depuis dans FINESS (29 octobre 2026), rangées avec les inscriptions non
+    # retenues, leur raison le dit
+    verif["non_retenues"] = list(verif["non_retenues"]) + verif["fermees"]
     # confirmation par la certification HAS et par Sirene (listes indépendantes de FINESS et du ROR)
     lieux, sirene_seul = confirmation.confirmer(lieux, has, sirene, essms)
     # verdicts de la vérification à la main (décisions de Lucas du 15 octobre 2026, pipeline/verdicts.py)
     from . import verdicts as verdicts_mod
-    lieux, rendu_verdicts = verdicts_mod.appliquer(lieux, avant_liste, ref, (voisins or {}).get("centres"), hors_ligne)
+    lieux, rendu_verdicts = verdicts_mod.appliquer(lieux, avant_liste, ref, geo, hors_ligne)
     verif["non_retenues"] = list(verif["non_retenues"]) + rendu_verdicts["retirees"]
+    rendu_verdicts["non_trouves"] = verdicts_mod.situation_orphelins(rendu_verdicts["non_trouves"], lieux,
+                                                                     sv.fermees_finess(fin))
     verif["verdicts"] = rendu_verdicts
     # ateliers thérapeutiques et CATTP en milieu pénitentiaire rangés dans leur type (16 octobre 2026)
     lieux, n_atelier, n_prison = retyper_cattp(lieux)

@@ -140,16 +140,54 @@ def placer(n: pd.DataFrame, centres: dict | None, hors_ligne: bool) -> pd.DataFr
     return n.drop(columns=[c for c in ("lat_base", "lon_base", "precision_base") if c in n])
 
 
+def fermees_finess(fin: pd.DataFrame | None) -> dict:
+    """Numéros FINESS fermés et date de leur fermeture d'après Finess+ (le flux historique ne la donne pas)."""
+    if fin is None or "date_fermeture" not in fin:
+        return {}
+    f = fin[~fin["actif"].astype(bool) & fin["date_fermeture"].notna()]
+    return dict(zip(f["nofinesset"].astype(str).str.zfill(9), f["date_fermeture"].astype(str).str[:10]))
+
+
+def fermee_depuis(r, fermees: dict) -> str | None:
+    """Date de fermeture dans FINESS d'une structure de la liste vérifiée qui ne doit plus être comptée, quand tous ses
+    numéros FINESS relevés sont fermés (règle du 29 octobre 2026, précisée le même jour), sinon None.
+    - Fermeture postérieure à la vérification, la structure n'est plus comptée, quelle que soit la source.
+    - Fermeture antérieure, selon la source de la vérification (statut). L'établissement qui présente encore la
+      structure après la fermeture l'emporte, elle reste comptée (antenne de Puget-Théniers du CH Sainte-Marie, page
+      de l'établissement du 29 octobre 2026, numéro fermé le 22 septembre). Une autre source publique peut retarder,
+      la fermeture l'emporte si elle date de moins d'un an (DUREE_JOURS, durée de validité d'une vérification), comme
+      pour les CMP de Sainte-Marie fermés les 20 et 22 septembre et encore décrits par des pages lues le 15 octobre ;
+      plus ancienne, elle était connue et la structure a été trouvée, souvent passée sous un autre numéro. Une
+      structure gardée sur la seule foi des bases n'est plus attestée par rien, elle n'est plus comptée."""
+    nums = {n.strip().zfill(9) for n in str(r.get("finess") or "").split(",") if n.strip()}
+    if not nums or not all(n in fermees for n in nums) or not r.get("date"):
+        return None
+    date = max(fermees[n] for n in nums)
+    try:
+        ecart = (dt.date.fromisoformat(r["date"]) - dt.date.fromisoformat(date)).days
+    except ValueError:
+        return None
+    statut = r.get("statut") or ""
+    if ecart < 0 or statut == "bases":
+        return date
+    if statut == "etablissement":
+        return None
+    return date if ecart < DUREE_JOURS else None
+
+
 def appliquer(lieux: pd.DataFrame, ref, centres: dict | None = None,
-              hors_ligne: bool = True, garder: set | None = None) -> tuple[pd.DataFrame, dict]:
+              hors_ligne: bool = True, garder: set | None = None,
+              fermees: dict | None = None) -> tuple[pd.DataFrame, dict]:
     """Remplace, pour chaque établissement vérifié, ses structures des types vérifiés par la liste vérifiée. Les
     numéros FINESS des inscriptions rapprochées restent attachés (finess_absorbes), celles qui ne correspondent à
     aucune structure vérifiée sont consignées. Une inscription non citée par la source mais confirmée par une autre
     liste officielle (index dans garder, certification HAS ou Sirene) est gardée en attendant une vérification à la
-    main (décision de Lucas du 14 octobre 2026). Renvoie les structures et un compte rendu."""
+    main (décision de Lucas du 14 octobre 2026). Une structure de la liste fermée depuis dans FINESS (fermees, numéro
+    et date) et qu'aucune inscription active ne décrit n'est plus comptée, et son établissement est à revérifier
+    (fermee_depuis). Renvoie les structures et un compte rendu."""
     e, s = charger()
-    garder = garder or set()
-    rendu = {"etablissements": e, "a_reverifier": [], "non_retenues": [], "gardees": [], "ajoutees": 0}
+    garder, fermees = garder or set(), fermees or {}
+    rendu = {"etablissements": e, "a_reverifier": [], "non_retenues": [], "gardees": [], "ajoutees": 0, "fermees": []}
     gardes = []
     if e.empty:
         return lieux, rendu
@@ -232,6 +270,16 @@ def appliquer(lieux: pd.DataFrame, ref, centres: dict | None = None,
                         propres.index[:1].tolist() if len(cand) == 1 and len(propres) == 1
                         and len(v[v["commune"] == r["commune"]]) == 1 else [])
                 pris |= set(lies)
+                ferme = None if lies else fermee_depuis(r, fermees)
+                if ferme:
+                    raison = (f"fermée dans FINESS le {ferme} (numéro {r['finess']}), aucune inscription active de FINESS "
+                              f"ni du ROR, vérification du {r['date']} à refaire")
+                    rendu["fermees"].append({"ej": ej, "etablissement": et["etablissement"], "type": t, "nom": r["nom"],
+                                             "commune": r["commune"], "nom_commune": nom_com.get(r["commune"], ""),
+                                             "finess": r["finess"], "provenance": "sources", "raison": raison})
+                    if ej not in {a[0] for a in rendu["a_reverifier"]}:
+                        rendu["a_reverifier"].append((ej, et["etablissement"], "structure de la liste fermée depuis dans FINESS"))
+                    continue
                 nums = set()
                 for i in lies:
                     for c in ("finess", "finess_rapproche", "finess_absorbes"):
@@ -313,7 +361,16 @@ def appliquer(lieux: pd.DataFrame, ref, centres: dict | None = None,
                      f"{n_et} établissements, {int(x['verifiee'].sum())} structures vérifiées, "
                      f"{rendu['ajoutees']} absentes des deux bases, {len(rendu['non_retenues'])} inscriptions non retenues, "
                      f"{len(rendu['gardees'])} gardées en attente de vérification (confirmées par la HAS ou Sirene)")
+    f = rendu["fermees"]
+    JOURNAL.controle("Structures des listes vérifiées fermées depuis dans FINESS, plus comptées (attendu, aucune)",
+                     "aucune" if not f else f"{len(f)}, " + "; ".join(f"{r['nom']} ({r['nom_commune']}), "
+                                                                  f"{r['raison'].split(' (')[0]}" for r in f[:8]))
+    # le contrôle n'en cite que les dix premiers, la liste entière est dans etablissements_verifies.csv
+    # (raison_reverification), d'où la comparaison avant publication relit le nombre exact
     JOURNAL.controle("Structures de soins, établissements à revérifier (attendu, aucun)",
                      "aucun" if not rendu["a_reverifier"] else
                      "; ".join(f"{n} ({r})" for _, n, r in rendu["a_reverifier"][:10]))
+    if len(rendu["a_reverifier"]) > 10:
+        JOURNAL.controle("Structures de soins, nombre d'établissements à revérifier",
+                         f"{len(rendu['a_reverifier'])}, liste et raisons dans etablissements_verifies.csv")
     return x, rendu

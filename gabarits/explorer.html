@@ -147,6 +147,48 @@
 td i.pastille{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
 .outil .a-savoir{max-width:none;margin:14px 0 0}
 @media (max-width:820px){.reglages{grid-template-columns:1fr}.cote,.grille-t{grid-template-columns:1fr!important}}
+/* « Croiser deux indicateurs » (lot 2 du 29 octobre 2026), même moteur que l'atlas. Règles des questions préparées
+   reprises de l'atlas, qui ne montre plus le nuage, et règles du moteur limitées à la question */
+#cbTable{min-width:640px}
+#cbTable td{vertical-align:top;line-height:1.4}
+#cbTable td:first-child{min-width:280px}
+#cbTable .cb-titre th{text-align:left;font-weight:600;padding-top:14px;border-bottom:1px solid var(--line);white-space:normal}
+#cbTable .num{text-align:right}
+.suggestions{margin-top:22px}
+.sc-hote{position:relative}
+.suggestions h3{font-family:var(--serif);font-size:1.125rem;font-weight:500;margin:0 0 4px}
+.cb-vue h3{font-family:var(--serif);font-size:18px;font-weight:600;margin:8px 0 6px}
+.cb-q{font-size:.875rem;color:var(--muted);margin:14px 0 4px;padding-bottom:3px;border-bottom:1px solid var(--line)}
+.cb-axe{display:grid;grid-template-columns:minmax(0,1fr) 132px 44px;gap:10px;font-size:.75rem;color:var(--muted);padding:0 6px}
+.cb-axe span{display:flex;justify-content:space-between;gap:8px}
+.cb-ligne{display:grid;grid-template-columns:minmax(0,1fr) 132px 44px;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;border-radius:6px;padding:5px 6px;color:var(--ink);font:inherit;font-size:.875rem;line-height:1.35;cursor:pointer}
+.cb-ligne:hover{background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.cb-ligne.on{background:color-mix(in srgb,var(--ink) 10%,transparent);box-shadow:inset 2px 0 0 var(--ink)}
+.cb-ligne:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
+.cb-ligne svg{width:132px;height:16px;display:block}
+.cb-ligne .rho{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+#qCroisements select.natif{display:none}
+#qCroisements .reglages .seg{display:contents}
+#qCroisements svg text{fill:var(--muted);font-family:var(--sans);font-size:11px}
+#qCroisements svg text.signature{font-size:10px;opacity:.75}
+#qCroisements #scatter{display:block;width:100%;height:auto;max-width:none}
+#qCroisements .zoombar{position:absolute;top:8px;right:8px;z-index:2;display:flex;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:var(--fen-corps,var(--panel))}
+#qCroisements .zoombar button{background:none;border:0;padding:4px 10px;cursor:pointer;color:var(--ink);font-size:.875rem;min-width:32px}
+#qCroisements .zoombar button+button{border-left:1px solid var(--line)}
+#qCroisements .zoombar button:hover{background:color-mix(in srgb,var(--ink) 8%,transparent)}
+#qCroisements .legende-signaux{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.875rem;color:var(--muted);margin:6px 0}
+#qCroisements .asavoir{box-sizing:border-box;border-left:3px solid var(--accent,#9A6B00);background:color-mix(in srgb,var(--accent,#9A6B00) 8%,transparent);padding:5px 11px;font-size:.875rem;margin:10px 0 0;border-radius:0 4px 4px 0}
+#qCroisements details.asavoir>summary{cursor:pointer;list-style:none}
+#qCroisements details.asavoir>summary::-webkit-details-marker{display:none}
+#qCroisements details.asavoir>summary::after{content:"Lire la suite";margin-left:.6em;font-size:.75rem;color:var(--muted);text-decoration:underline;white-space:nowrap}
+#qCroisements details.asavoir[open]>summary::after{content:"Replier"}
+#qCroisements details.asavoir>p{margin:6px 0 2px;max-width:none}
+#qCroisements .asavoir-terr{font-weight:600}
+#qCroisements .note{font-size:.875rem;color:var(--muted);max-width:none}
+#qCroisements .comment-lire p{margin:0 0 8px}
+#qCroisements .resultat[hidden]{display:none}
+#qCroisements .indice-defil{font-size:.75rem;color:var(--muted);margin:4px 0 0;text-align:right}
+.tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--bg);font-size:.875rem;padding:8px 10px;border-radius:4px;max-width:min(470px,calc(100vw - 16px));opacity:0;z-index:40}
 </style>
 
 <div class="explorer" data-citation="{{ citation }}">
@@ -164,7 +206,7 @@ td i.pastille{display:inline-block;width:10px;height:10px;border-radius:2px;marg
   <div class="grp"><p class="q">Quels profils d'offre distinguent les intercommunalités ?</p><ul><li><a href="#tyFenProfils">Profils d'offre des intercommunalités</a></li><li><a href="#tyFenAcp">Ce qui distingue les intercommunalités</a></li></ul></div>
   <div class="grp"><p class="q">Où trouve-t-on une profession sans l'autre ?</p><ul><li><a href="#paires">Une profession sans l'autre</a></li></ul></div>
   <div class="grp"><p class="q">Les départements modestes rattrapent-ils leur retard depuis 2016 ?</p><ul><li><a href="#trajectoires">Croiser des trajectoires</a></li></ul></div>
-  <div class="grp"><p class="q">L'offre suit-elle le profil des habitants ?</p><ul><li><a href="{{ racine }}index.html">Croiser deux indicateurs, dans l'atlas</a></li></ul></div>
+  <div class="grp"><p class="q">L'offre suit-elle le profil des habitants ?</p><ul><li><a href="#cxFenNuage">Croiser deux indicateurs</a></li></ul></div>
   <div class="grp"><p class="q">Combien de psychologues pour un psychiatre, selon la densité et le niveau de vie à la fois ?</p><ul><li><span class="avenir">à venir, tableau croisé</span></li></ul></div>
   <div class="grp"><p class="q">L'offre pour l'enfant suit-elle les familles ?</p><ul><li><span class="avenir">à venir</span></li></ul></div>
 </nav>
@@ -357,6 +399,45 @@ td i.pastille{display:inline-block;width:10px;height:10px;border-radius:2px;marg
     <p class="a-savoir" id="tSavoir"></p>
   </div>
 </article>
+</section>
+
+<!-- ============================================================ croiser deux indicateurs, moteur de l'atlas (lot 2 du 29 octobre 2026) -->
+<section class="question" id="qCroisements" aria-labelledby="qCroisementsT" data-moteur>
+<h2 class="q-titre" id="qCroisementsT">L'offre suit-elle le profil des habitants ?</h2>
+<div class="q-reglages" role="group" aria-label="Réglages de la question « L'offre suit-elle le profil des habitants ? »"><span class="lib cache-visuel">Profession</span><span id="cxProfAncre"></span><span class="lib cache-visuel">Niveau</span><div class="choix" id="cxNiv"></div><span class="lib cache-visuel">Exercice</span><div class="choix fin" id="cxMode"></div></div>
+<p class="vers-atlas-l"><a id="cxVersAtlas" href="{{ racine }}index.html">Voir cette profession sur la carte de l'atlas</a></p>
+<div hidden><span id="maj"></span><select id="prof" aria-label="Profession"></select><select id="grp" aria-hidden="true"></select><span id="famNote"></span></div>
+
+<article class="fenetre repliable outil" id="cxFenNuage" aria-labelledby="cxH">
+  <div class="fen-tete"><span class="pastilles"></span><div class="fen-titre"><h3 id="cxH">Croiser deux indicateurs</h3><p class="fen-resume" id="cxResume"></p></div>
+    <div class="fen-outils"><button type="button" class="fen-lire-bouton">Comment lire</button></div></div>
+  <div class="fen-corps">
+    <div class="fen-lire" hidden><p class="comment-lire"><strong>Comment lire.</strong> Chaque point est un territoire, placé selon l'indicateur choisi en abscisse et la densité de la profession, ou un second indicateur, en ordonnée.</p></div>
+    <p class="resultat" id="scPhrase"></p><p class="resultat" id="scPrepare"></p>
+    <div class="reglages">
+      <span class="lib">En abscisse</span><div class="choix"><select id="xvar" aria-label="Indicateur en abscisse"></select></div>
+      <span class="lib">En ordonnée</span><div class="choix"><select id="yvar" aria-label="Axe vertical"></select></div>
+      <span class="seg" data-k="ylog"><span class="lib">Échelle</span><div class="choix" id="cxLog"></div></span>
+    </div>
+    <div class="onglets" role="tablist"><button type="button" role="tab" data-vue="cxVueNuage">Nuage</button><button type="button" role="tab" data-vue="cxVueDonnees">Données par territoire</button><button type="button" role="tab" data-vue="cxVueQuestions">Questions préparées</button></div>
+    <div class="vue" id="cxVueNuage" role="tabpanel">
+      <figure class="graphique zoomable" id="figCxNuage"><figcaption class="small muted"><strong>Figure 11.</strong> <span class="leg" id="cxTitre"></span>.</figcaption><div class="fig-corps"><svg id="scatter" role="img" aria-label="Nuage de points des territoires" viewBox="0 0 560 420"></svg></div></figure>
+      <div id="scLimite"></div>
+      <p class="note" id="xvarNote"></p>
+    </div>
+    <div class="vue" id="cxVueDonnees" role="tabpanel" hidden>
+      <div class="choix"><input type="search" id="scFiltre" placeholder="Filtrer les territoires" aria-label="Filtrer les territoires"></div>
+      <div class="table-haute tabdonnees"><table id="scTable" data-export="scTable"></table></div>
+    </div>
+    <div class="vue" id="cxVueQuestions" role="tabpanel" hidden>
+      <div class="suggestions" id="scSuggestions"></div>
+      <details class="plus"><summary>Toutes les questions préparées, en tableau</summary><div class="table-haute"><table id="cbTable"></table></div></details>
+    </div>
+    <details class="plus"><summary>Pour aller plus loin</summary><p id="scNote"></p></details>
+  </div>
+</article>
+<p class="a-savoir"><strong>À savoir.</strong> Analyse écologique, un lien entre territoires ne dit rien des personnes ni d'une cause. Les questions préparées portent leur fourchette plausible, leur valeur à densité de population égale et la correction de Benjamini-Hochberg pour tests multiples. Mayotte est écartée des croisements entre départements. Sources, Annuaire santé, extractions en libre accès du RPPS (data.gouv), INSEE et les bases du catalogue des indicateurs, chacune avec sa fiche sur la page « Données sources ».</p>
+<div class="tip" id="tip" role="tooltip"></div>
 </section>
 </div>
 <div class="bulle-x" id="bulle" role="status"></div>

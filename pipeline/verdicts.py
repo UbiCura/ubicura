@@ -135,6 +135,15 @@ def appliquer(lieux: pd.DataFrame, avant: pd.DataFrame | None, ref, centres: dic
             continue
         lieu = x.at[i, "lieu"]
         lignes = x.index[(x["lieu"] == lieu) & x["type"].isin([PARENT] + enfants)]
+        # un verdict de retrait porte sur une inscription des bases. Il ne retire pas une structure que la liste vérifiée
+        # de son établissement atteste par l'établissement ou par une autre source publique, c'est la liste qu'on
+        # corrige alors (CMP Le Petit Nice d'Embrun, attesté par la HAS, retiré le 29 octobre 2026 par le verdict
+        # « doublon » d'une autre inscription quand le ROR lui a rattaché le numéro de celle-ci). Une structure gardée
+        # sur la seule foi des bases reste soumise aux verdicts.
+        statut = x.at[i, "statut_verification"] if "statut_verification" in x else None
+        if sorte in RETIRES and isinstance(statut, str) and statut in ("etablissement", "source_publique"):
+            rendu["sur_liste"] = rendu.get("sur_liste", 0) + 1
+            continue
         rendu["appliques"][sorte] = rendu["appliques"].get(sorte, 0) + 1
         if sorte in RETIRES:
             if sorte == "pas_un_cmp" and r.type_reel in labels:
@@ -199,7 +208,46 @@ def appliquer(lieux: pd.DataFrame, avant: pd.DataFrame | None, ref, centres: dic
                      f"{rendu['retypees']} rangées dans leur type réel ({rendu.get('deja_comptees', 0)} y étaient déjà), "
                      f"{rendu['remises']} remises, "
                      f"{rendu['adresses']} adresses corrigées, {len(rendu['non_trouves'])} sans structure correspondante")
+    JOURNAL.controle("Verdicts de retrait qui désignent une structure attestée par la liste vérifiée de son établissement, "
+                     "sans effet (la liste prévaut)", str(rendu.get("sur_liste", 0)))
     return x, rendu
+
+
+def situation_orphelins(non_trouves: list, lieux: pd.DataFrame, fermees: dict) -> list:
+    """Ce que sont devenues les structures des verdicts sans structure (contrôle permanent des inscriptions renommées,
+    29 octobre 2026), d'après le numéro FINESS de leur clé : « numéro fermé dans FINESS » (avec sa date), « renommée »
+    quand une structure porte encore ce numéro sous un autre nom (son nom est donné), « disparue des bases » sinon. Le
+    verdict n'est jamais reporté sur la structure renommée, qui peut être un autre lieu sous le même numéro (CMP Les
+    Eaux Vives de Nice et CMP du Congrès, numéro 060033677 du ROR, constat du 29 octobre 2026)."""
+    noms = {}
+    for c in ("finess", "finess_rapproche", "finess_absorbes"):
+        if c in lieux:
+            for nums, nom in zip(lieux[c], lieux.get("nom_affiche", lieux["nom"]).fillna(lieux["nom"])):
+                for n in _txt(nums).split(","):
+                    if n:
+                        noms.setdefault(n, set()).add(str(nom))
+    sortie = []
+    for r in non_trouves:
+        num = (r["cle"].split("|") + ["", ""])[1]
+        if num in fermees:
+            sit, actuelle = f"numéro fermé dans FINESS le {fermees[num]}", ""
+        elif num in noms:
+            # même nom sous ce numéro : la clé a changé par la commune ou le gestionnaire (antenne du CMP de Nyons
+            # placée à Dieulefit par FINESS), le verdict est à relire plutôt que tenu pour un renommage
+            meme = any(_simple(n)[:40] == r["cle"].split("|")[-1] for n in noms[num])
+            sit = ("même nom sous ce numéro, autre commune ou autre gestionnaire, verdict à relire" if meme
+                   else "renommée, même numéro FINESS sous un autre nom")
+            actuelle = " ; ".join(sorted(noms[num])[:3])
+        else:
+            sit, actuelle = "disparue des bases" if num else "sans numéro FINESS, disparue des bases", ""
+        sortie.append({**r, "finess": num, "situation": sit, "structure_actuelle": actuelle})
+    compte = {}
+    for r in sortie:
+        k = r["situation"].split(" le ")[0].split(",")[0]
+        compte[k] = compte.get(k, 0) + 1
+    JOURNAL.controle("Verdicts sans structure, ce que sont devenues les inscriptions (renommées, fermées, disparues)",
+                     "aucun" if not sortie else f"{len(sortie)}, " + ", ".join(f"{k} {n}" for k, n in sorted(compte.items())))
+    return sortie
 
 
 def _retype(ligne: pd.DataFrame, r, labels: dict) -> pd.DataFrame:

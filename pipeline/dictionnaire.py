@@ -26,7 +26,11 @@ FICHIERS = [
      "Moran local des distances médianes par intercommunalité, avec correction de Benjamini-Hochberg."),
     (r"^lieux_soins\.csv$", lambda m: "Structures de soins réunies de FINESS et du Répertoire opérationnel des ressources (ROR), "
                                        "sans double compte. Une ligne par structure et par type, avec son emplacement, sa "
-                                       "provenance et les professionnels déclarés sur place au répertoire."),
+                                       "provenance et les professionnels déclarés sous son numéro FINESS quand elle est "
+                                       "seule à le porter dans sa commune."),
+    (r"^declares_etablissements\.csv$", lambda m: "Professionnels déclarés au répertoire dans un établissement dont plusieurs "
+                                                   "structures de la même commune partagent le numéro FINESS, une ligne par "
+                                                   "établissement. Cet effectif n'est attribué à aucune de ces structures."),
     (r"^lieux_soins_(epci|dep|reg)\.csv$", lambda m: f"Nombre de structures de soins de chaque type par {NIVEAUX[m.group(1)]}, "
                                                     "et pour 100 000 habitants."),
     (r"^distances_lieux_(epci|dep|reg|france)\.csv$",
@@ -320,7 +324,17 @@ COLONNES = [
     (r"^structures_etablissement$", "Structures confirmées par l'établissement."),
     (r"^structures_source_publique$", "Structures confirmées par une autre source publique."),
     (r"^structures_bases$", "Structures seulement inscrites dans FINESS ou le ROR."),
-    (r"^a_reverifier$", "Vrai quand les inscriptions des bases ont changé depuis la vérification, ou qu'elle a plus d'un an."),
+    (r"^a_reverifier$", "Vrai quand les inscriptions des bases ont changé depuis la vérification, qu'elle a plus d'un an, "
+                        "ou qu'une structure de sa liste a été fermée depuis dans FINESS."),
+    (r"^id_structure$", "Clé persistante de la structure, la même d'une version à l'autre même quand son numéro FINESS, son "
+                        "nom ou son inscription au ROR changent, jamais réutilisée (règle dans pipeline/cles_structures.py)."),
+    (r"^raison_reverification$", "Pourquoi l'établissement est à revérifier (inscriptions de FINESS ou du ROR modifiées, "
+                                 "vérification de plus d'un an, structure de sa liste fermée depuis dans FINESS), vide sinon."),
+    (r"^situation$", "Ce qu'est devenue l'inscription d'un verdict sans structure, d'après le numéro FINESS de sa clé "
+                     "(numéro fermé dans FINESS, renommée sous le même numéro, même nom mais autre commune ou "
+                     "autre gestionnaire, disparue des bases)."),
+    (r"^structure_actuelle$", "Nom de la structure qui porte aujourd'hui le même numéro FINESS, quand l'inscription a été "
+                              "renommée. Le verdict ne lui est pas reporté."),
     (r"^raison$", "Raison pour laquelle l'inscription n'est pas retenue."),
     (r"^ej$", "Numéro FINESS de l'entité juridique (l'hôpital ou l'association gestionnaire)."),
     (r"^dep_siege$", "Département du siège de l'établissement d'après la SAE."),
@@ -360,8 +374,16 @@ COLONNES = [
     (r"^age_(min|max)$", "Âge minimal ou maximal des patients déclaré dans le ROR, en années."),
     (r"^lits_ror$", "Lits déclarés dans le ROR pour les unités de la structure."),
     (r"^unites_ror$", "Nombre d'unités du ROR réunies dans le lieu."),
-    (r"^declares_(.+)$", "Personnes déclarant au répertoire une activité à l'établissement et dans la commune de la structure, "
-                         "pour cette profession. Vide pour une structure sans numéro FINESS propre."),
+    (r"^declares_partage_par$", "Nombre de structures de la commune qui partagent le numéro FINESS de celle-ci. Le répertoire "
+                                "rattache une activité à l'établissement, pas à la structure, l'effectif de l'établissement "
+                                "n'est alors attribué à aucune d'elles et figure une seule fois dans "
+                                "declares_etablissements.csv. Vide quand la structure est seule sous son numéro."),
+    (r"^structures_partageant$", "Nombre de structures de la commune qui partagent ce numéro FINESS."),
+    (r"^declares_(.+)$", "Personnes déclarant au répertoire une activité sous le numéro FINESS de la structure et dans sa "
+                         "commune, pour cette profession, quand la structure est seule sous ce numéro dans la commune. Vide "
+                         "pour une structure sans numéro FINESS propre, et pour une structure qui partage son numéro avec "
+                         "d'autres (voir declares_partage_par), l'effectif étant alors celui de l'établissement. Une "
+                         "personne déclarée dans deux structures compte dans chacune, ces effectifs ne s'additionnent pas."),
     (r"^n_lieu_.+$", "Nombre de structures de ce type dans le territoire."),
     (r"^pour_100000_lieu_.+$", "Nombre de structures de ce type pour 100 000 habitants."),
     (r"^lieux_lieu_.+$", "Nombre de structures de ce type pour 100 000 habitants (FINESS et ROR réunis)."),

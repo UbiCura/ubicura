@@ -182,7 +182,9 @@ def ols_aicc(y, X):
 def centres_epci(ref, voisins) -> pd.DataFrame | None:
     """Centre de chaque intercommunalité de l'Hexagone, moyenne des centres des communes pondérée par la population,
     en kilomètres (projection équirectangulaire autour de 46,5 degrés de latitude)."""
-    cs = (voisins or {}).get("centres")
+    # centres des contours, le lien local avec le niveau de vie garde sa géographie (le point de départ des distances au
+    # centre de la population, 29 octobre 2026, ne vaut que pour les distances)
+    cs = (voisins or {}).get("centres_geo") or (voisins or {}).get("centres")
     if not cs:
         return None
     com = ref.communes.set_index("code")

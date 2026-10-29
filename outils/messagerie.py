@@ -12,7 +12,8 @@ rien n'est publié.
     python outils\\messagerie.py ajouter-brouillon F ajoute le brouillon du fichier JSON F, après contrôle
     python outils\\messagerie.py compte-rendu F      enregistre le compte rendu du fichier JSON F
     python outils\\messagerie.py boite               ouvre la fenêtre du courrier (compte rendu, brouillons, envoi)
-    python outils\\messagerie.py envoyer-programmes  envoie les messages programmés par Lucas dont l'heure est passée
+    python outils\\messagerie.py envoyer-programmes  envoie les messages programmés par Lucas dont l'heure est passée,
+                                                    courriels et messages des réseaux (outils/reseaux.py)
 
 Serveurs de la messagerie Zimbra d'OVHcloud, d'après le guide « Configurer son adresse e-mail Zimbra sur une
 application de messagerie » (https://docs.ovhcloud.com/fr/guides/web-cloud/email-and-collaborative-solutions/zimbra/
@@ -421,6 +422,7 @@ def cmd_envoyer_programmes(_args) -> int:
     """Envoie les messages programmés dont l'heure est passée. Codes de sortie 0 rien à faire ou tout envoyé, 20 au
     moins un échec (le message reste programmé et sera retenté)."""
     code = 0
+    from outils import reseaux
     for b in brouillons():
         if b.get("statut") != "programme":
             continue
@@ -437,7 +439,8 @@ def cmd_envoyer_programmes(_args) -> int:
         except (Arret, smtplib.SMTPException, OSError) as e:
             print(f"{b['id']} non envoyé, nouvel essai au prochain passage ({e}).")
             code = 20
-    return code
+    # messages des réseaux programmés d'un clic dans l'onglet « Réseaux » (tutoriels 10 et 11)
+    return max(code, reseaux.publier_programmes())
 
 
 def etat_mise_a_jour() -> dict:
@@ -546,7 +549,7 @@ def cmd_boite(args) -> int:
     c = COULEURS
     racine = tk.Tk()
     racine.title(f"{NOM_AFFICHE}, courrier de {ADRESSE}")
-    racine.geometry("1180x760")
+    racine.geometry("1240x900")
     racine.minsize(900, 560)
     racine.configure(bg=c["fond"])
     style = ttk.Style(racine)
@@ -826,12 +829,18 @@ def cmd_boite(args) -> int:
 
     liste_r.bind("<<TreeviewSelect>>", afficher_recu)
 
+    # -- onglet des réseaux, messages pour LinkedIn et Bluesky publiés d'un clic (outils/reseaux.py, tutoriels 10 et 11)
+    from outils import reseaux
+    res = reseaux.onglet(onglets, racine, c, police, petite, zone_texte, remplir)
+
     def mettre_a_jour_bilan():
         e = lire_json(ETAT, {})
         nb_b = len(a_relire())
         nb_r = sum(1 for r in recus() if not r.get("compte_rendu"))
         der = (e.get("derniere_releve") or "")[:16].replace("T", " à ")
+        nb_s = len(res["a_relire"]())
         bilan.configure(text=f"{nb_b} brouillon(s) à relire, {nb_r} message(s) sans compte rendu"
+                             + (f", {nb_s} message(s) pour les réseaux" if nb_s else "")
                              + (f", dernière relève le {der}" if der else ", aucune relève encore"))
 
     def relever_maintenant():
@@ -848,17 +857,20 @@ def cmd_boite(args) -> int:
 
     def fermer():
         garder_modifications()
+        res["garder"]()
         racine.destroy()
 
     racine.protocol("WM_DELETE_WINDOW", fermer)
 
     def envois_programmes():
         # chaque minute tant que la fenêtre est ouverte, envoi des messages programmés par un clic dont l'heure est passée
-        if any(b.get("statut") == "programme" and (lire_date(b.get("envoi_prevu")) or dt.datetime.max)
-               <= dt.datetime.now() for b in brouillons()):
+        du = lambda x: x.get("statut") == "programme" and (lire_date(x.get("envoi_prevu")) or dt.datetime.max)             <= dt.datetime.now()  # noqa: E731
+        if any(du(b) for b in brouillons()) or any(du(m) for m in reseaux.messages()):
             garder_modifications()
+            res["garder"]()
             cmd_envoyer_programmes(None)
             rafraichir_brouillons(liste_b.selection()[0] if liste_b.selection() else None)
+            res["rafraichir"]()
         racine.after(60_000, envois_programmes)
 
     racine.after(60_000, envois_programmes)
@@ -870,6 +882,8 @@ def cmd_boite(args) -> int:
     racine.attributes("-topmost", True)
     racine.after(800, lambda: racine.attributes("-topmost", False))
     racine.focus_force()
+    if args and getattr(args, "onglet", None) == "reseaux":
+        onglets.select(res["page"])
     if args and getattr(args, "capture", None):
         racine.after(1500, lambda: (capturer(racine, Path(args.capture)), racine.destroy()))
     racine.mainloop()
@@ -923,6 +937,7 @@ def main() -> int:
     sous.add_parser("envoyer-programmes").set_defaults(f=cmd_envoyer_programmes)
     p = sous.add_parser("boite")
     p.add_argument("--capture", help=argparse.SUPPRESS)
+    p.add_argument("--onglet", choices=["reseaux"], help=argparse.SUPPRESS)
     p.set_defaults(f=cmd_boite)
     args = ap.parse_args()
     try:

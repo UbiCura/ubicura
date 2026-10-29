@@ -90,8 +90,12 @@ def voisinages(ref, hors_ligne=False, rafraichir=False) -> dict | None:
                     if x != y:
                         voisins[niv].setdefault(x, set()).add(y)
                         voisins[niv].setdefault(y, set()).add(x)
-        voisins["centres"] = {c: (x, y) for c, (x, y, _a) in centres.items()}
+        # centre du contour, pour placer une structure sans adresse dans sa commune ; les distances partent du centre de
+        # la population de la commune (pipeline/sources/insee_carreaux.py, demande de Lucas du 29 octobre 2026)
+        voisins["centres_geo"] = {c: (x, y) for c, (x, y, _a) in centres.items()}
         voisins["formes"] = formes
+        from . import insee_carreaux
+        voisins["centres"] = insee_carreaux.centres_depart(ref, voisins["centres_geo"], formes, hors_ligne, rafraichir)
         contours.note_journal(f"{len(voisins['epci'])} EPCI et {len(voisins['dep'])} départements avec voisins, "
                               f"{len(centres)} communes situées")
         JOURNAL.controle("Communes du référentiel situées sur la carte (pour les distances)",

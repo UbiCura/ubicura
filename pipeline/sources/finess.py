@@ -14,12 +14,16 @@ import json
 import pandas as pd
 
 from .. import config
-from ..util import (JOURNAL, choisir_ressource, date_version, lire_meta, log, ressources_datagouv, telecharger)
+from ..util import (JOURNAL, LectureLocaleImpossible, choisir_ressource, date_version, lire_meta, log,
+                    ressources_datagouv, telecharger)
 
 SORTIE = ["nofinesset", "rs", "categetab", "libcategetab", "categagretab", "libcategagretab", "com", "actif"]
 # colonnes ajoutées le 12 octobre 2026 pour réunir FINESS et le ROR sans double compte (pipeline/lieux.py), entité
 # juridique gestionnaire, adresse et coordonnées (Finess+ seulement, géocodées par la Base Adresse Nationale)
 LIEU = ["nofinessej", "adresse", "lat", "lon", "score_ban", "finess_porteuse"]
+# date de fermeture inscrite dans Finess+ (29 octobre 2026), pour qu'une structure d'une liste vérifiée fermée depuis
+# dans FINESS ne reste pas comptée (pipeline/structures_verifiees.py, fermees_finess)
+FERMETURE = ["date_fermeture"]
 # codes de département du flux historique pour l'outre-mer
 DOM_HISTO = {"9A": "971", "9B": "972", "9C": "973", "9D": "974", "9F": "976"}
 
@@ -61,7 +65,8 @@ def _historique(hors_ligne, rafraichir):
     df["adresse"] = (df["numvoie"].str.strip() + " " + df["typvoie"].str.strip() + " " + df["voie"].str.strip()).str.strip()
     df["lat"] = df["lon"] = df["score_ban"] = float("nan")
     df["finess_porteuse"] = None   # le flux historique ne décrit pas les relations de budget entre établissements
-    return df[SORTIE + LIEU].copy(), dest
+    df["date_fermeture"] = None
+    return df[SORTIE + LIEU + FERMETURE].copy(), dest
 
 
 def _degres(geo: dict) -> tuple:
@@ -90,8 +95,11 @@ def _nouveau(hors_ligne, rafraichir, libelles: pd.DataFrame | None):
         telecharger(r["url"], dest, "finess", rafraichir, extra_meta={"titre": r["titre"], "maj_source": r["maj"]})
     elif not dest.exists():
         raise FileNotFoundError(dest)
-    with gzip.open(dest, "rt", encoding="utf-8") as f:
-        d = json.load(f)
+    try:
+        with gzip.open(dest, "rt", encoding="utf-8") as f:
+            d = json.load(f)
+    except Exception as e:  # noqa: BLE001
+        raise LectureLocaleImpossible(f"Finess+ en cache ({dest.name}) illisible, {type(e).__name__} {e}"[:300]) from e
     lignes = []
     # relations de budget entre établissements (roleEge, rôle « B »), l'établissement non porteuse est une antenne de
     # l'établissement porteuse (schéma de Finess+, constat du 16 octobre 2026 sur les CMPP et les CAMSP)
@@ -110,9 +118,9 @@ def _nouveau(hors_ligne, rafraichir, libelles: pd.DataFrame | None):
             lignes.append((info.get("numFinessEge") or "", info.get("nomEgeLong") or info.get("nomEgeCourt") or "",
                            e.get("categorieentiteGeographiqueExercice") or "", e.get("etatObjet") or "",
                            adr.get("cogCommune") or "", ej, adr.get("ligneQuatre") or "",
-                           *_degres(geo), geo.get("scoreBAN")))
+                           *_degres(geo), geo.get("scoreBAN"), info.get("dateFermeture")))
     df = pd.DataFrame(lignes, columns=["nofinesset", "rs", "categetab", "etat", "com", "nofinessej", "adresse",
-                                       "lat", "lon", "score_ban"])
+                                       "lat", "lon", "score_ban", "date_fermeture"])
     porteuse = {num_de.get(a, "").strip().zfill(9): num_de.get(b, "").strip().zfill(9) for a, b in relations
                 if num_de.get(a) and num_de.get(b) and a != b}
     df["finess_porteuse"] = df["nofinesset"].str.strip().str.zfill(9).map(porteuse)
@@ -139,7 +147,7 @@ def _nouveau(hors_ligne, rafraichir, libelles: pd.DataFrame | None):
                          f"{df.loc[sans, 'categetab'].nunique()} catégories, {int(sans.sum())} établissements")
     JOURNAL.controle("Finess+, établissements actifs avec coordonnées géographiques",
                      f"{int((df['actif'] & df['lat'].notna()).sum())} sur {int(df['actif'].sum())}")
-    return df[SORTIE + LIEU].copy(), dest
+    return df[SORTIE + LIEU + FERMETURE].copy(), dest
 
 
 def charger(hors_ligne=False, rafraichir=False) -> pd.DataFrame | None:
@@ -147,8 +155,8 @@ def charger(hors_ligne=False, rafraichir=False) -> pd.DataFrame | None:
     try:
         histo, dest_h = _historique(hors_ligne, rafraichir)
     except Exception as e:  # noqa: BLE001
-        log.warning("FINESS historique indisponible : %s", e)
-        JOURNAL.note("FINESS historique (gelé en mai 2026)", "erreur", str(e)[:300])
+        log.warning("FINESS historique indisponible : %r", e)
+        JOURNAL.note("FINESS historique (gelé en mai 2026)", "erreur", (str(e) or type(e).__name__)[:300])
     essais = [("Finess+", lambda: _nouveau(hors_ligne, rafraichir, histo))]
     if histo is not None:
         essais.append(("FINESS historique (gelé en mai 2026)", lambda: (histo, dest_h)))
@@ -166,7 +174,10 @@ def charger(hors_ligne=False, rafraichir=False) -> pd.DataFrame | None:
             JOURNAL.note(f"FINESS ({nom})", "ok", detail,
                          url=meta.get("url", ""), date_donnees=date_version(meta), lignes=len(df))
             return df
-        except Exception as e:  # noqa: BLE001
-            log.warning("FINESS via %s indisponible : %s", nom, e)
+        except LectureLocaleImpossible as e:
             JOURNAL.note(f"FINESS ({nom})", "erreur", str(e)[:300])
+            raise
+        except Exception as e:  # noqa: BLE001
+            log.warning("FINESS via %s indisponible : %r", nom, e)
+            JOURNAL.note(f"FINESS ({nom})", "erreur", (str(e) or type(e).__name__)[:300])
     return None

@@ -56,16 +56,33 @@ LICENCES = {
                         "https://data.ameli.fr/terms/terms-and-conditions/ (lues le 28 octobre 2026)."),
         "statut": "vérifié",
     },
+    "ign-lo-2.0": {
+        # réponse écrite de l'IGN à la question du 28 octobre 2026 (Relation utilisateurs de cartes.gouv.fr, 29 octobre
+        # 2026, dossier DRG CRM:0072209), « tous usages, pour tous acteurs, sont autorisés gratuitement même pour des
+        # prestations payantes », sauf SCAN 25, SCAN 100 et SCAN OACI ; page de l'IGN lue le 29 octobre 2026
+        "nom": "Licence Ouverte 2.0 (Etalab), produits de l'IGN dont le Plan IGN",
+        "affiche": "Licence Ouverte 2.0 (IGN)",
+        "page": "https://www.ign.fr/institut/espace-presse/ign-operateur-data-et-cartographe-au-service-de-la-transition-ecologique",
+        "lue_le": "2026-10-29",
+        "usage_commercial": OUI,             # « même pour des prestations payantes » (réponse de l'IGN)
+        "partage_identique": NON,
+        "mention": "© IGN – nom du produit, par exemple « © IGN – Plan IGN » (forme demandée par l'IGN).",
+        "obligations": ("Celles de la Licence Ouverte 2.0. Hors de ce champ, SCAN 25, SCAN 100 et SCAN OACI, payants pour le "
+                        "grand public au-delà de forfaits."),
+        "statut": "vérifié",
+    },
     "cgu-geoplateforme": {
         "nom": "Conditions générales d'utilisation de la Géoplateforme (IGN)",
         "affiche": "Conditions de la Géoplateforme (IGN)",
         "page": "https://cartes.gouv.fr/cgu",
         "lue_le": "2026-10-28",              # version du 15 octobre 2024
-        "usage_commercial": A_CONFIRMER,      # gratuit sauf licence spécifique, pas d'interdiction, licence du Plan IGN non lue
+        "usage_commercial": A_CONFIRMER,      # données de l'IGN sous Licence Ouverte (voir ign-lo-2.0), résultats des calculs non dits
         "partage_identique": NON,
-        "mention": "À confirmer (aucune mention imposée dans les conditions générales lues).",
-        "obligations": ("Itinéraire 10 requêtes par seconde, isochrone 5, WMTS sans limite d'usage. Droit de republier les "
-                        "résultats dans un service payant non établi, question à l'IGN (docs/demande_ign_2026-10-28.md)."),
+        "mention": "© IGN – nom du produit, pour les données de l'IGN (réponse de l'IGN du 29 octobre 2026).",
+        "obligations": ("Itinéraire 10 requêtes par seconde, isochrone 5, WMTS sans limite d'usage. La réponse de l'IGN du "
+                        "29 octobre 2026 (dossier DRG CRM:0072209) ne dit pas explicitement si les résultats des calculs "
+                        "d'itinéraire et d'isochrone peuvent être conservés et republiés dans un service payant, question "
+                        "précisée dans un second courriel."),
         "statut": "à confirmer",
     },
 }
@@ -75,7 +92,8 @@ MOTIFS = [
     (r"odbl|open database", "odbl-1.0"),
     (r"licence ouverte (?:v ?)?1(?:\.0)?\b|fr-lo", "lo-1.0"),
     (r"licence ouverte|etalab|lov2", "lo-2.0"),
-    (r"g[ée]oplateforme|plan ign", "cgu-geoplateforme"),
+    (r"plan ign", "ign-lo-2.0"),
+    (r"g[ée]oplateforme", "cgu-geoplateforme"),
 ]
 
 # Sources dont la licence relevée sur data.gouv diffère du libellé de config.SOURCES_INFO (API data.gouv, champ license,

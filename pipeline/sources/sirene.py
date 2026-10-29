@@ -16,7 +16,7 @@ from datetime import datetime
 import pandas as pd
 
 from .. import config
-from ..util import JOURNAL, date_version, lire_meta, log, meta_path, ressources_datagouv, telecharger
+from ..util import JOURNAL, LectureLocaleImpossible, date_version, lire_meta, log, meta_path, ressources_datagouv, telecharger
 
 DOSSIER = config.BRUT / "sirene"
 EXTRAIT = DOSSIER / "etablissements_finess.parquet"
@@ -75,12 +75,18 @@ def charger(hors_ligne=False, rafraichir=False) -> dict | None:
             _mettre_a_jour(rafraichir)
         if not EXTRAIT.exists():
             raise FileNotFoundError(EXTRAIT)
+    except Exception as e:  # noqa: BLE001
+        # le nom de l'exception quand son message est vide (lecture échouée sans texte le 29 octobre 2026)
+        JOURNAL.note(SOURCE, "erreur", (str(e) or type(e).__name__)[:300])
+        log.warning("Sirene indisponible : %r", e)
+        return None
+    # fichiers en cache, une lecture qui échoue arrête la chaîne (util.LectureLocaleImpossible)
+    try:
         s = pd.read_parquet(EXTRAIT)
         siren = sirens_finess()
     except Exception as e:  # noqa: BLE001
-        JOURNAL.note(SOURCE, "erreur", str(e)[:300])
-        log.warning("Sirene indisponible : %s", e)
-        return None
+        JOURNAL.note(SOURCE, "erreur", f"lecture locale impossible, {type(e).__name__} {e}"[:300])
+        raise LectureLocaleImpossible(f"Sirene en cache illisible, {type(e).__name__} {e}"[:300]) from e
     ens = s[["enseigne1Etablissement", "enseigne2Etablissement", "enseigne3Etablissement",
              "denominationUsuelleEtablissement"]].fillna("").agg(" / ".join, axis=1)
     s = s.assign(enseigne=ens.str.replace(r"(\s/\s)+", " / ", regex=True).str.strip(" /"))

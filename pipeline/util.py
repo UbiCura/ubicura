@@ -260,6 +260,13 @@ def telecharger(url: str, dest: Path, famille: str, rafraichir=False, hors_ligne
     raise IOError(f"Impossible de télécharger {url}")
 
 
+class LectureLocaleImpossible(RuntimeError):
+    """Fichier d'une source en cache qu'on ne parvient pas à lire (mémoire saturée, fichier abîmé). La chaîne s'arrête
+    au lieu de se rabattre sans bruit sur une source moins complète (décision du 29 octobre 2026, après une exécution
+    qui avait perdu Finess+ et Sirene faute de mémoire et placé 37 564 structures au centre de leur commune). Un échec
+    de téléchargement reste noté sans arrêter le reste."""
+
+
 def ressources_datagouv(dataset: str) -> list[dict]:
     """Liste des ressources d'un jeu data.gouv (slug ou identifiant)."""
     d = get_json(config.DATAGOUV_API.format(dataset))

@@ -233,8 +233,12 @@ class Contexte:
                     f"{'s' if cmp_[avec[0]] > 1 else ''} médico-psychologique{'s' if cmp_[avec[0]] > 1 else ''} (CMP), "
                     f"où des psychiatres peuvent consulter sans y être déclarés.")
         c = getattr(self.agg, "cmp", None)
+        partage = (f" {nombre(c.attrs['avec_partage'])} autres partagent le numéro FINESS de leur établissement, où des "
+                   f"psychiatres sont déclarés sans qu'on sache lesquels consultent au CMP."
+                   if c is not None and c.attrs.get("avec_partage") else "")
         total = (f" Seuls {nombre(c.attrs['avec'])} des {nombre(c.attrs['total'])} CMP recensés ont au moins "
-                 f"un psychiatre déclaré à leur adresse." if total and codes is None and c is not None and "total" in c.attrs else "")
+                 f"un psychiatre déclaré sous leur propre numéro FINESS.{partage}"
+                 if total and codes is None and c is not None and "total" in c.attrs else "")
         return (f"D'après FINESS et le ROR réunis, {nombre(len(avec))} de ces {nombre(len(zero))} intercommunalités "
                 f"{'accueille' if len(avec) == 1 else 'accueillent'} pourtant "
                 f"au moins un centre médico-psychologique (CMP), où des psychiatres peuvent consulter sans y être "

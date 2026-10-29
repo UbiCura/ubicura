@@ -16,7 +16,7 @@ Les principaux ajouts prévus, sans date ferme. Chacun ne sera intégré que si 
 
 ## Analyses et site
 
-**D'autres analyses à régler soi-même.** Après les inégalités et les distances aux structures, les croisements de l'atlas et la typologie rejoindront la page Explorer, rangés par question, avec des analyses qui tiennent compte de deux caractéristiques des territoires à la fois, comme la densité de population et le niveau de vie.
+**D'autres analyses à régler soi-même.** Après les inégalités, les distances aux structures, la typologie et « Croiser deux indicateurs », les autres croisements de l'atlas rejoindront la page Explorer, rangés par question, avec des analyses qui tiennent compte de deux caractéristiques des territoires à la fois, comme la densité de population et le niveau de vie.
 
 **Pages par intercommunalité.** Une page complète pour chaque intercommunalité, sur le modèle des départements, avec le plan de ses structures de soins.
 
