@@ -36,6 +36,43 @@ function figer(svg) {
   s.selectAll(".etiq.forte").attr("fill", "var(--ink, #1C2028)");
   s.selectAll(".territoire").attr("stroke", "var(--contour, #FFFFFF)").attr("stroke-width", .3);
   s.selectAll(".curseur").attr("stroke", "var(--muted, #5D6371)");
+  glisser(svg);
+}
+
+// quand un réglage redessine une figure de mêmes dimensions, chaque élément glisse de son ancienne place à la nouvelle
+// (barres, points, courbes, étiquettes, graduations), comme « Croiser deux indicateurs » dans l'atlas (demande de Lucas
+// du 29 octobre 2026) ; un élément est retrouvé par sa place dans la figure (même balise, même classe, même rang), un
+// élément sans ancien apparaît en fondu ; glissement plus court pour qui a demandé moins d'animations à son système
+// (choix de Lucas du 29 octobre 2026, même règle que l'atlas). Les
+// attributs d'arrivée sont ceux du dessin, l'export reste le même.
+const DUREE_GLISSE = () => matchMedia("(prefers-reduced-motion: reduce)").matches ? 250 : 480, GEOMETRIE = ["x", "y", "width", "height", "cx", "cy", "r", "x1", "x2", "y1", "y2", "d", "transform"];
+const nombres = v => (String(v).match(/-?[\d.]+(e-?\d+)?/g) || []).length;
+function cles(racine) {
+  const m = new Map(), rang = new Map();
+  racine.querySelectorAll("*").forEach(e => { if (e.closest("title") || e.tagName === "title") return;
+    let chemin = [], x = e;
+    while (x && x !== racine) { chemin.unshift(x.tagName + "." + (x.getAttribute("class") || "")); x = x.parentNode; }
+    const base = chemin.join(">"), k = rang.get(base) || 0; rang.set(base, k + 1); m.set(base + "#" + k, e); });
+  return m;
+}
+function glisser(svg) {
+  const div = svg.parentNode, ancien = div && div._ancien;
+  if (div) div._ancien = null;
+  if (!ancien || ancien.getAttribute("viewBox") !== svg.getAttribute("viewBox")) return;
+  const vieux = cles(ancien), duree = DUREE_GLISSE();
+  for (const [k, e] of cles(svg)) {
+    const o = vieux.get(k), s = d3.select(e);
+    if (!o) { const op = e.getAttribute("opacity");
+      if (e.tagName !== "g" && e.tagName !== "tspan") s.attr("opacity", 0).transition().duration(duree).attr("opacity", op || 1)
+        .on("end", function () { if (op == null) this.removeAttribute("opacity"); });
+      continue; }
+    const t = s.transition().duration(duree).ease(d3.easeCubicOut);
+    for (const a of GEOMETRIE) {
+      const v0 = o.getAttribute(a), v1 = e.getAttribute(a);
+      if (v0 == null || v1 == null || v0 === v1 || (a === "d" && nombres(v0) !== nombres(v1))) continue;
+      s.attr(a, v0); t.attr(a, v1);
+    }
+  }
 }
 
 // ---------------------------------------------------------------- famille et état dans l'adresse de la page
@@ -61,6 +98,24 @@ function ecrireAdresse(ancre) {
   for (const [k, v] of Object.entries(ETAT)) if (v != null) q.set(k, Array.isArray(v) ? v.join(",") : v);
   history.replaceState(null, "", "#" + ancre + "?" + q.toString());
 }
+// réglages de chaque question rangés dans la barre gardée en haut, seul celui de la question en cours de lecture est
+// montré (la dernière dont le titre est passé sous la barre, la première tant qu'on n'en a passé aucune) ; déplacés une
+// fois pour toutes au chargement, pour que la page ne saute pas en descendant
+{ const barre = document.querySelector(".reglages-page"), place = document.getElementById("regQ");
+  const qs = [...document.querySelectorAll(".question")].map(q => [q, q.querySelector(":scope > .q-reglages")]);
+  qs.forEach(([, r]) => { if (r) { r.hidden = true; place.appendChild(r); } });
+  let actif;
+  const nav = document.querySelector("nav.site");
+  // hauteur de la barre du site, mesurée comme dans l'atlas (elle passe sur deux lignes sur un écran moyen)
+  if (nav) new ResizeObserver(() => document.documentElement.style.setProperty("--haut-nav", nav.offsetHeight + "px")).observe(nav);
+  const suivre = () => { const hb = barre.getBoundingClientRect(), bas = hb.bottom + 40;
+    barre.classList.toggle("flotte", hb.top <= (nav ? nav.getBoundingClientRect().bottom : 64) + 6.5);
+    let [q, r] = qs[0]; for (const x of qs) if (x[0].getBoundingClientRect().top <= bas) [q, r] = x;
+    if (r === actif) return;
+    if (actif) actif.hidden = true; actif = r; if (r) r.hidden = false;
+    place.querySelectorAll(".prof-liste").forEach(l => { if (!r || !r.contains(l)) l.hidden = true; }); };
+  addEventListener("scroll", suivre, {passive: true}); addEventListener("resize", suivre);
+  addEventListener("load", suivre); suivre(); }
 function famille() {
   choix("fam", FAMILLES.map(f => [f[0], f[1]]), f => f === ETAT.fam, f => { Object.assign(ETAT, {fam: f}, DEFAUTS[f]); Object.keys(OUVERTS).forEach(k => OUVERTS[k] = false); }, () => { tout(); ecrireAdresse(""); });
 }

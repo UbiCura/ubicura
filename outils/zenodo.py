@@ -9,6 +9,9 @@ clé d'accès personnelle de Lucas (tutoriel 07).
     python outils\\zenodo.py publier      publie les trois brouillons après confirmation (une publication est
                                          définitive)
     python outils\\zenodo.py abandonner   supprime les brouillons préparés, rien n'est publié
+    python outils\\zenodo.py annoter      ajoute une mention en tête de la description d'une version déjà publiée
+                                         (par exemple pour renvoyer vers la version qui la corrige), après
+                                         confirmation
     python outils\\zenodo.py constater    lit la dernière version publiée de chaque dépôt et met à jour la version
                                          archivée citée par le site (codes de sortie 0 rien de nouveau, 10 nouvelle
                                          version archivée, 20 vérification impossible)
@@ -29,7 +32,9 @@ import argparse
 import datetime as dt
 import getpass
 import hashlib
+import html
 import json
+import re
 import sys
 import time
 from pathlib import Path
@@ -156,6 +161,29 @@ def version_du_depot(d: dict) -> str:
     return m.get("version") or m.get("publication_date") or "sans numéro"
 
 
+def paragraphe(titre: str, texte: str) -> str:
+    """Paragraphe de description Zenodo, titre en gras, texte échappé, adresses DOI rendues cliquables."""
+    corps = html.escape(texte, quote=False)
+    corps = re.sub(r"(https://doi\.org/[^\s<]*[^\s<.,;)])", r'<a href="\1">\1</a>', corps)
+    return f"<p><strong>{titre}.</strong> {corps}</p>"
+
+
+def sans_paragraphe(description: str, titre: str) -> str:
+    return re.sub(rf"<p>\s*<strong>{re.escape(titre)}\.</strong>.*?</p>\s*", "", description or "", flags=re.S)
+
+
+def avec_paragraphe(description: str, titre: str, texte: str) -> str:
+    """Description avec le paragraphe « titre » en tête, à la place d'un paragraphe de même titre déjà présent."""
+    return paragraphe(titre, texte) + "\n" + sans_paragraphe(description, titre)
+
+
+def doi_donnees_remplace(description: str, ids_donnees: set[str], doi: str) -> str:
+    """Le lien « Les données de cette version sont archivées à part » d'un rapport pointe vers la version des données
+    déposée avec lui (il pointait vers la première version, celle du 9 octobre 2026, jusqu'au 29 octobre 2026)."""
+    return re.sub(r"10\.5281/zenodo\.(\d+)", lambda m: doi if m.group(1) in ids_donnees else m.group(0),
+                  description or "")
+
+
 # ---------------------------------------------------------------- commandes
 def cmd_cle(_args) -> int:
     print("Colle la clé d'accès créée sur Zenodo, puis appuie sur Entrée. Rien ne s'affiche pendant la saisie, c'est "
@@ -201,9 +229,13 @@ def cmd_preparer(args) -> int:
     fichiers = site.fichiers_zenodo(version, DOSSIER / version)
     etat = lire_etat()
     etat.update({"en_preparation": version, "brouillons": {}, "date_preparation": dt.datetime.now().isoformat("T", "seconds")})
-    for cle, x in e.items():
+    ids_donnees = {str(d["id"]) for d in z.depots() if str(d.get("conceptrecid")) == concept(DEPOTS["donnees"])}
+    doi_donnees = None           # DOI de la version des données de cette version, cité par les deux rapports
+    for cle, x in e.items():     # les données d'abord (ordre de DEPOTS)
         if version_du_depot(x["derniere"]) == version:
             print(f"- {NOMS[cle]}, version {version} déjà publiée, laissé tel quel.")
+            if cle == "donnees":
+                doi_donnees = x["derniere"]["metadata"].get("doi")
             continue
         # le brouillon de nouvelle version, repris s'il existe déjà, sinon créé à partir de la dernière version publiée
         if x["brouillon"]:
@@ -225,6 +257,17 @@ def cmd_preparer(args) -> int:
                             "python outils\\zenodo.py abandonner, puis recommencer.")
         meta = brouillon["metadata"]
         meta.update({"version": version, "publication_date": version})
+        if cle == "donnees":
+            doi_donnees = (meta.get("prereserve_doi") or {}).get("doi")
+        elif doi_donnees:
+            meta["description"] = doi_donnees_remplace(meta.get("description"), ids_donnees, doi_donnees)
+        else:
+            raise Arret("DOI de la version des données introuvable, les rapports ne peuvent pas la citer. Lancer "
+                        "python outils\\zenodo.py abandonner, puis recommencer.")
+        # la note de la version précédente ne vaut pas pour celle-ci
+        meta["description"] = sans_paragraphe(meta.get("description"), "Note de version")
+        if args.note:
+            meta["description"] = avec_paragraphe(meta["description"], "Note de version", args.note)
         z.appel("PUT", f"/deposit/depositions/{bid}", json={"metadata": meta})
         # adresse donnée par Zenodo lui-même (le brouillon n'est visible que du titulaire du compte, connecté)
         lien = brouillon["links"].get("latest_draft_html") or brouillon["links"].get("html") or f"https://zenodo.org/deposit/{bid}"
@@ -266,6 +309,47 @@ def cmd_publier(args) -> int:
             z.appel("POST", f"/deposit/depositions/{b['id']}/actions/publish")
             print(f"- {NOMS[cle]}, publié.")
     return cmd_constater(args)
+
+
+def cmd_annoter(args) -> int:
+    """Mention en tête de la description de la version publiée args.version de chaque dépôt. {doi} dans le texte est
+    remplacé par le DOI de la dernière version publiée du même dépôt. Zenodo permet de corriger la description d'une
+    version publiée (actions edit puis publish), ses fichiers restent inchangés."""
+    z = connexion()
+    tous = z.depots()
+    e = etat_depots(z)
+    cibles = []
+    for cle, doi in DEPOTS.items():
+        lies = [d for d in tous if str(d.get("conceptrecid")) == concept(doi) and d.get("submitted")
+                and version_du_depot(d) == args.version]
+        if len(lies) != 1:
+            raise Arret(f"{len(lies)} version(s) publiée(s) {args.version} pour le dépôt {NOMS[cle]}, une seule "
+                        "attendue. Rien n'a été modifié.")
+        derniere = e[cle]["derniere"]
+        if derniere["id"] == lies[0]["id"] and "{doi}" in args.texte:
+            raise Arret(f"la version {args.version} est encore la dernière du dépôt {NOMS[cle]}, publier d'abord la "
+                        "suivante. Rien n'a été modifié.")
+        texte = args.texte.replace("{doi}", "https://doi.org/" + derniere["metadata"]["doi"])
+        cibles.append((cle, lies[0], texte))
+    for cle, d, texte in cibles:
+        print(f"- {NOMS[cle]}, version {args.version} ({d['metadata']['doi']}), mention ajoutée en tête,\n  {texte}")
+    print("La description corrigée sera visible de tous sur Zenodo. Les fichiers ne changent pas.")
+    if not args.oui and input("Écris oui puis Entrée pour corriger les descriptions : ").strip().lower() != "oui":
+        print("Rien n'a été modifié.")
+        return 0
+    for cle, d, texte in cibles:
+        bid = d["id"]
+        z.appel("POST", f"/deposit/depositions/{bid}/actions/edit")
+        try:
+            meta = z.appel("GET", f"/deposit/depositions/{bid}").json()["metadata"]
+            meta["description"] = avec_paragraphe(meta.get("description"), args.titre, texte)
+            z.appel("PUT", f"/deposit/depositions/{bid}", json={"metadata": meta})
+            z.appel("POST", f"/deposit/depositions/{bid}/actions/publish")
+        except Arret:
+            z.appel("POST", f"/deposit/depositions/{bid}/actions/discard", attendu=(200, 201, 202, 204, 400))
+            raise
+        print(f"- {NOMS[cle]}, description corrigée.")
+    return 0
 
 
 def cmd_abandonner(_args) -> int:
@@ -364,6 +448,13 @@ def main() -> int:
     sous.add_parser("verifier")
     p = sous.add_parser("preparer")
     p.add_argument("--version", help="date de la version à archiver (par défaut la plus récente)")
+    p.add_argument("--note", help="paragraphe « Note de version » en tête de la description (ce que la version "
+                                  "corrige ou ajoute)")
+    p = sous.add_parser("annoter")
+    p.add_argument("--version", required=True, help="date de la version publiée à annoter")
+    p.add_argument("--texte", required=True, help="mention à ajouter, {doi} donne le DOI de la dernière version")
+    p.add_argument("--titre", default="Version remplacée", help="titre en gras de la mention")
+    p.add_argument("--oui", action="store_true", help="ne pas demander de confirmation")
     p = sous.add_parser("publier")
     p.add_argument("--oui", action="store_true", help="ne pas demander de confirmation")
     sous.add_parser("abandonner")
@@ -378,7 +469,7 @@ def main() -> int:
     args = ap.parse_args()
     try:
         return {"cle": cmd_cle, "verifier": cmd_verifier, "preparer": cmd_preparer, "publier": cmd_publier,
-                "abandonner": cmd_abandonner, "constater": cmd_constater,
+                "abandonner": cmd_abandonner, "annoter": cmd_annoter, "constater": cmd_constater,
                 "rappel": cmd_rappel, "site-refait": cmd_site_refait}[args.commande](args)
     except Arret as e:
         print(f"Arrêt, {e}")

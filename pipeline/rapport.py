@@ -2983,9 +2983,15 @@ def _fin(insee, famille):
         if garder(fam):
             L += [f"**{terme}.** {definition}", ""]
     L += ["### Indicateurs de contexte", ""]
-    for d in indicateurs.liste(insee):
-        if garder(d["famille"]):
-            L += [f"**{d['label']}** ({d['unite']}). {d['explication']} Source, {d['source']}.", ""]
-    if insee:
-        L += ["Millésimes INSEE, " + ", ".join(sorted({str(v) for v in insee["millesimes"].values() if v})) + ".", ""]
+    defs = [f"**{d['label']}** ({d['unite']}). {d['explication']} Source, {d['source']}."
+            for d in indicateurs.liste(insee) if garder(d["famille"])]
+    fin = ["Millésimes INSEE, " + ", ".join(sorted({str(v) for v in insee["millesimes"].values() if v})) + "."] if insee else []
+    # les deux dernières définitions et les millésimes restent sur une même page : l'annexe commence sur une page
+    # nouvelle, et la fin du glossaire pouvait tomber seule sur une page presque vide (PDF du 29 octobre 2026)
+    for x in defs[:-2]:
+        L += [x, ""]
+    L += ['<div class="ensemble" markdown="1">', ""]
+    for x in defs[-2:] + fin:
+        L += [x, ""]
+    L += ["</div>", ""]
     return L

@@ -440,19 +440,98 @@ def cmd_envoyer_programmes(_args) -> int:
     return code
 
 
-def version_prete() -> str | None:
-    """Phrase pour la fenêtre quand la mise à jour hebdomadaire a préparé une version plus récente que celle en ligne."""
-    v = lire_json(config.DONNEES / "version_prete.json")
+def etat_mise_a_jour() -> dict:
+    """État des données du site pour l'encadré de la fenêtre, en mots simples (demandes de Lucas du 29 octobre 2026,
+    encadré toujours visible, sans détail technique, le suivi des versions n'est pas à sa charge). Lu dans le verrou de la
+    tâche, son dernier journal, la version prête et son compte rendu, l'état des dépôts Zenodo. Renvoie titre, lignes
+    (texte, ton) et fichier du compte rendu."""
+    from pipeline.lecture import date_longue
+    lignes, fichier = [], None
+    journaux = sorted((config.DONNEES / "journaux").glob("mise_a_jour_*.log"))
+    verrou = config.DONNEES / "mise_a_jour.verrou"
+    en_cours = False
+    if verrou.exists():
+        try:
+            import psutil
+            en_cours = psutil.pid_exists(int(verrou.read_text(encoding="utf-8-sig").split()[0]))
+        except (ValueError, IndexError, OSError, ImportError):
+            en_cours = True
+    texte = journaux[-1].read_text(encoding="utf-8-sig", errors="replace").splitlines() if journaux else []
+    heure = lambda l: l[11:16].replace(":", " h ").lstrip("0")  # noqa: E731
     try:
         pub = json.loads((config.DONNEES / "publication.json").read_text(encoding="utf-8-sig")).get("version") or ""
     except (OSError, ValueError):
         pub = ""
-    if not v or not v.get("resultats") or v["resultats"] <= pub:
-        return None
-    from pipeline.lecture import date_longue
-    return (f"Nouvelle version des données prête, résultats du {date_longue(v['resultats'])} ({v.get('motif', '')}). "
-            f"Comparaison avec la version en ligne, {v.get('comparaison', 'inconnue')}. Rien n'est publié sans toi, "
-            f"lance la mise en ligne (outils\\publier.ps1) après avoir lu le compte rendu.")
+    lignes.append((f"En ligne, les données du {date_longue(pub)}." if pub else "Version en ligne inconnue.", "encre"))
+    if en_cours:
+        lignes.append((f"Mise à jour en cours depuis {heure(texte[0])}. Rien à faire de ton côté." if texte
+                       else "Mise à jour en cours. Rien à faire de ton côté.", "discret"))
+    # sources dont le producteur a publié une nouvelle version (premier relevé du passage), nommées par leur sigle
+    courts = [(r"RPPS", "RPPS"), (r"\(ROR\)", "ROR"), (r"^FINESS", "FINESS"), (r"Statistique annuelle", "SAE")]
+    nouvelles = []
+    for l in texte:
+        m = re.search(r"nouvelle version\s+(.+?), version du producteur (\d{4}-\d{2}-\d{2})", l)
+        if m:
+            nom = next((c for motif, c in courts if re.search(motif, m.group(1))), None)
+            nouvelles.append((nom, f"{dt.date.fromisoformat(m.group(2)):%d/%m}"))
+        elif nouvelles and "jeux de données à mettre à jour" in l:
+            break
+    v = lire_json(config.DONNEES / "version_prete.json") or {}
+    if v.get("resultats") and v["resultats"] > pub:
+        nommees = [f"{n} du {d}" for n, d in nouvelles if n]
+        autres = len(nouvelles) - len(nommees)
+        if nommees:
+            srcs = ", ".join(nommees) + (f" et {autres} autre{'s' if autres > 1 else ''} source{'s' if autres > 1 else ''}" if autres else "")
+        else:
+            srcs = f"{len(nouvelles)} source{'s' if len(nouvelles) > 1 else ''}" if nouvelles else ""
+        lignes.append((f"Nouvelle version prête, les données du {date_longue(v['resultats'])}"
+                       + (f", avec les nouvelles versions publiées par les producteurs ({srcs})." if srcs else ".")
+                       + " Elle est vérifiée, puis sa mise en ligne t'est proposée. Rien n'est publié sans toi.", "bleu"))
+        cr = Path(v.get("compte_rendu") or "")
+        if cr.is_file():
+            fichier = cr
+    elif texte and not en_cours:
+        fin = next((l for l in reversed(texte) if l[:4].isdigit()), texte[0])
+        lignes.append((f"Dernière vérification des sources le {dt.date.fromisoformat(fin[:10]):%d/%m} à {heure(fin)}, "
+                       "rien de nouveau à mettre en ligne.", "discret"))
+    z = lire_json(config.DONNEES / "zenodo.json") or {}
+    if z.get("en_preparation"):
+        lignes.append((f"Archive sur Zenodo, les brouillons de la version du {date_longue(z['en_preparation'])} attendent ta "
+                       "publication (tutoriel 07).", "bleu"))
+    return {"titre": "Données du site", "lignes": lignes, "fichier": fichier, "en_cours": en_cours}
+
+
+def paragraphe_justifie(parent, texte, police, couleur, fond):
+    """Paragraphe justifié sur toute la largeur disponible (Tk ne justifie pas le texte d'une étiquette), recomposé
+    quand la fenêtre change de largeur ; la dernière ligne reste alignée à gauche (demande de Lucas du 29 octobre 2026)."""
+    import tkinter as tk
+    import tkinter.font as tkfont
+    f = tkfont.Font(font=police)
+    toile = tk.Canvas(parent, bg=fond, highlightthickness=0, bd=0, height=f.metrics("linespace"))
+    mots, espace, haut = texte.split(), f.measure(" "), f.metrics("linespace") + 3
+
+    def composer(e=None):
+        largeur = max(200, (e.width if e else toile.winfo_width()) - 2)
+        toile.delete("all")
+        lignes, ligne = [], []
+        for m in mots:
+            if ligne and sum(f.measure(x) for x in ligne + [m]) + espace * len(ligne) > largeur:
+                lignes.append(ligne)
+                ligne = []
+            ligne.append(m)
+        if ligne:
+            lignes.append(ligne)
+        for k, ligne in enumerate(lignes):
+            x, plein = 0, sum(f.measure(w) for w in ligne)
+            ecart = (largeur - plein) / (len(ligne) - 1) if k < len(lignes) - 1 and len(ligne) > 1 else espace
+            for w in ligne:
+                toile.create_text(x, k * haut, text=w, anchor="nw", font=f, fill=couleur)
+                x += f.measure(w) + ecart
+        toile.configure(height=max(1, len(lignes)) * haut)
+
+    toile.bind("<Configure>", composer)
+    toile.composer = composer
+    return toile
 
 
 # ---------------------------------------------------------------- fenêtre
@@ -494,14 +573,24 @@ def cmd_boite(args) -> int:
     bilan = ttk.Label(entete, style="Discret.TLabel")
     bilan.pack(anchor="w", pady=(2, 0))
     cr = lire_json(COMPTES_RENDUS / f"{dt.date.today().isoformat()}.json")
-    resume = tk.Label(entete, text=(cr or {}).get("resume") or "Pas encore de compte rendu ce matin.", justify="left",
-                      wraplength=1100, bg=c["fond"], fg=c["encre"], font=police, anchor="w")
-    resume.pack(anchor="w", fill="x", pady=(8, 0))
-    # nouvelle version des données préparée par la mise à jour hebdomadaire, jamais publiée sans Lucas (26 octobre 2026)
-    avis = version_prete()
-    if avis:
-        tk.Label(entete, text=avis, justify="left", wraplength=1100, bg=c["fond"], fg=c["bleu"], font=("Segoe UI Semibold", 10),
-                 anchor="w").pack(anchor="w", fill="x", pady=(8, 0))
+    # résumé du matin et encadré en paragraphes justifiés sur toute la largeur (demande de Lucas du 29 octobre 2026)
+    paragraphe_justifie(entete, (cr or {}).get("resume") or "Pas encore de compte rendu ce matin.", police, c["encre"],
+                        c["fond"]).pack(anchor="w", fill="x", pady=(8, 0))
+    # encadré des données du site, toujours visible, en mots simples ; une version prête n'est jamais publiée sans Lucas
+    em = etat_mise_a_jour()
+    boite = tk.Frame(entete, bg=c["panneau"], highlightbackground=c["bleu"] if em["fichier"] else c["ligne"],
+                     highlightcolor=c["ligne"], highlightthickness=1, padx=14, pady=10)
+    boite.pack(anchor="w", fill="x", pady=(10, 0))
+    haut_boite = tk.Frame(boite, bg=c["panneau"])
+    haut_boite.pack(anchor="w", fill="x")
+    tk.Label(haut_boite, text=em["titre"], bg=c["panneau"], fg=c["encre"], font=("Segoe UI Semibold", 11),
+             anchor="w").pack(side="left")
+    if em["fichier"]:
+        import os
+        ttk.Button(haut_boite, text="Compte rendu détaillé",
+                   command=lambda f=em["fichier"]: os.startfile(f)).pack(side="right")
+    for texte_l, ton in em["lignes"]:
+        paragraphe_justifie(boite, texte_l, police, c[ton], c["panneau"]).pack(anchor="w", fill="x", pady=(4, 0))
 
     onglets = ttk.Notebook(racine)
     onglets.pack(fill="both", expand=True, padx=20, pady=(8, 16))
@@ -552,7 +641,6 @@ def cmd_boite(args) -> int:
     droite.columnconfigure(1, weight=1)
     droite.rowconfigure(4, weight=1)
     droite.bind("<Configure>", lambda e: [w.configure(wraplength=max(300, e.width - 24)) for w in (motif, sources)])
-    entete.bind("<Configure>", lambda e: resume.configure(wraplength=max(400, e.width - 220)))
 
     etat = {"courant": None}
 

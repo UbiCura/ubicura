@@ -32,7 +32,7 @@ const natDI = (p, m) => natNI(p, m) / DI.france.pop * 1e4;
 // figures dessinées à la largeur réelle de leur fenêtre, pour que les textes gardent leur taille sur un téléphone
 const largeur = div => Math.max(320, Math.min(1400, Math.round(div.getBoundingClientRect().width) || 1000));
 const haut = (w, h) => Math.round(w < 640 ? h * .82 : h);
-function svgI(div, w, h, aria) { div.innerHTML = ""; return d3.select(div).append("svg").attr("xmlns", "http://www.w3.org/2000/svg").attr("viewBox", `0 0 ${w} ${h}`).attr("role", "img").attr("aria-label", aria); }
+function svgI(div, w, h, aria) { div._ancien = div.querySelector(":scope > svg"); div.innerHTML = ""; return d3.select(div).append("svg").attr("xmlns", "http://www.w3.org/2000/svg").attr("viewBox", `0 0 ${w} ${h}`).attr("role", "img").attr("aria-label", aria); }
 function grilleY(svg, y, m, w, n) { svg.append("g").attr("class", "grillage").selectAll("line").data(y.ticks(n)).join("line").attr("x1", m.l).attr("x2", w - m.r).attr("y1", y).attr("y2", y); }
 function axeY(svg, y, m, n, fmt) { svg.append("g").attr("class", "axe").attr("transform", `translate(${m.l - 6},0)`).call(d3.axisLeft(y).ticks(n).tickFormat(fmt).tickSize(0).tickPadding(6)).call(s => s.select(".domain").remove()); }
 function axeX(svg, x, h, m, gen) { svg.append("g").attr("class", "axe").attr("transform", `translate(0,${h - m.b + 4})`).call(gen(x).tickSize(0).tickPadding(8)).call(s => s.select(".domain").remove()); }

@@ -23,7 +23,8 @@ NOTE_DEP = ("La DREES place chaque professionnel dans le département de son act
 
 
 def _date_rpps():
-    m = lire_meta(config.BRUT / "rpps_activite.txt")
+    from .sources import rpps
+    m = rpps.META_LUE or lire_meta(config.BRUT / "rpps_activite.txt")
     d = pd.to_datetime(m.get("maj_source") or m.get("telecharge_le"), errors="coerce", utc=True)
     return None if pd.isna(d) else d.date()
 

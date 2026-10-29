@@ -11,9 +11,24 @@
   --c1:#3987e5;--c2:#d95926;--c3:#199e70;--c4:#9085e9;--c5:#d55181;--c6:#008300}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--k1:#FFBC8F;--k2:#C9773F;--k3:#6B717B;--k4:#6A9BE0;--k5:#B5D5FF;
   --c1:#3987e5;--c2:#d95926;--c3:#199e70;--c4:#9085e9;--c5:#d55181;--c6:#008300}}
-/* réglages communs à toutes les fenêtres, gardés sous la barre du site pendant la lecture (note du 28 octobre 2026) */
-.reglages-page{position:sticky;top:var(--haut-nav,64px);z-index:8;display:flex;align-items:baseline;gap:8px 20px;flex-wrap:wrap;margin:22px 0 0;padding:12px 0;background:var(--bg);border-bottom:1px solid var(--line)}
-.reglages-page .lib{font-size:.8125rem;color:var(--muted)}
+/* une seule ligne de réglages gardée sous la barre du site pendant la lecture, les trois familles puis le réglage de
+   la question en cours de lecture (profession et niveau, type de structure), qui change en descendant (remarque de
+   Lucas du 29 octobre 2026, le choix de la profession n'était qu'en haut de la question) */
+.reglages-page{position:sticky;top:calc(var(--haut-nav,64px) + 6px);z-index:8;display:flex;align-items:baseline;gap:8px 28px;flex-wrap:wrap;margin:22px 0 0;padding:9px 0;background:var(--bg);border-bottom:1px solid var(--line);border-radius:0;
+  transition:background-color .22s ease-out,box-shadow .22s ease-out,padding .22s ease-out,border-radius .22s ease-out}
+/* une fois collée, même allure que le rappel des réglages de l'atlas (panneau arrondi qui flotte sous la barre du site,
+   remarque de Lucas du 29 octobre 2026), à hauteur égale pour que la page ne bouge pas */
+.reglages-page.flotte{padding:9px 10px 9px 18px;background:var(--panel);border-bottom-color:transparent;border-radius:12px;box-shadow:0 0 0 1px var(--fen-bord),0 14px 34px -14px var(--ombre-nav,rgb(0 0 0 / .5))}
+.reglages-page .reg-q{flex:1 1 auto;display:flex;min-width:0}
+.reglages-page .reg-q:empty{display:none}
+.reglages-page .q-reglages{flex:1 1 auto;margin:0;min-width:0}
+.reglages-page .prof-choix{min-width:0}
+.reglages-page .prof-choix>button{white-space:normal;text-align:left}
+.reglages-page .q-reglages[hidden]{display:none}
+.reglages-page .q-reglages .fin{margin-left:auto}
+.cache-visuel{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.vers-atlas-l{margin:0 0 18px;font-size:.875rem;text-align:right}
+@media (max-width:700px){.reglages-page{gap:6px 20px}.reglages-page .q-reglages .fin{margin-left:0}}
 /* sommaire des questions sur plusieurs colonnes, chaque question avec ses fenêtres, sans rogner leur largeur */
 .sommaire-questions{columns:3 260px;column-gap:40px;margin:24px 0 36px;padding:0 0 10px;border-bottom:1px solid var(--line)}
 .sommaire-questions .tout{column-span:all;display:flex;gap:18px;margin:0 0 14px;font-size:.8125rem}
@@ -30,7 +45,7 @@
 .q-reglages{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 18px;margin:0 0 18px}
 .q-reglages .lib{font-size:.8125rem;color:var(--muted)}
 .q-reglages .lib:not(:first-child){margin-left:14px}
-.q-reglages .vers-atlas{margin-left:auto;font-size:.875rem;color:var(--ink)}
+.vers-atlas-l a{color:var(--ink)}
 .question>.a-savoir{max-width:none;margin:-6px 0 0;font-size:.875rem;color:var(--muted)}
 /* long tableau (un territoire par ligne) dans une hauteur limitée, en-tête gardé en haut */
 .table-haute{max-height:560px;overflow:auto}
@@ -139,7 +154,7 @@ td i.pastille{display:inline-block;width:10px;height:10px;border-radius:2px;marg
 <h1>Explorer les données</h1>
 <p class="chapeau">Chaque question ouvre des fenêtres que l'on règle soi-même. Réglées par défaut, elles montrent le résultat publié dans les rapports. Chaque réglage s'inscrit dans l'adresse de la page, pour partager ou citer la vue choisie.</p>
 </div>
-<div class="reglages-page" role="group" aria-label="Réglages communs à toutes les fenêtres"><span class="lib">Professions proposées</span><div class="choix" id="fam"></div></div>
+<div class="reglages-page" role="group" aria-label="Réglages"><div class="choix" id="fam" role="group" aria-label="Professions proposées"></div><div class="reg-q" id="regQ"></div></div>
 
 <!-- sommaire par question (note du 28 octobre 2026), les outils de l'atlas viendront s'y ranger lot par lot -->
 <nav class="sommaire-questions" aria-label="Questions de la page">
@@ -157,7 +172,8 @@ td i.pastille{display:inline-block;width:10px;height:10px;border-radius:2px;marg
 <!-- ============================================================ inégalités, outils repris de l'atlas (lot 2) -->
 <section class="question" id="qInegalites" aria-labelledby="qInegalitesT">
 <h2 class="q-titre" id="qInegalitesT">Les territoires modestes sont-ils moins bien dotés ?</h2>
-<div class="q-reglages"><span class="lib">Profession</span><div id="iProf"></div><span class="lib">Niveau</span><div class="choix" id="iNiv"></div><a class="vers-atlas" id="iVersAtlas" href="{{ racine }}index.html">Voir cette profession sur la carte de l'atlas</a></div>
+<div class="q-reglages" role="group" aria-label="Réglages de la question « Les territoires modestes sont-ils moins bien dotés ? »"><span class="lib cache-visuel">Profession</span><div id="iProf"></div><span class="lib cache-visuel">Niveau</span><div class="choix fin" id="iNiv"></div></div>
+<p class="vers-atlas-l"><a id="iVersAtlas" href="{{ racine }}index.html">Voir cette profession sur la carte de l'atlas</a></p>
 
 <article class="fenetre repliable outil" id="iFenEscalier" aria-labelledby="iEsH">
   <div class="fen-tete"><span class="pastilles"></span><div class="fen-titre"><h3 id="iEsH">Selon le niveau de vie</h3><p class="fen-resume"></p></div>
@@ -209,7 +225,7 @@ td i.pastille{display:inline-block;width:10px;height:10px;border-radius:2px;marg
 <!-- ============================================================ distances aux structures de soins (lot 2) -->
 <section class="question" id="qDistances" aria-labelledby="qDistancesT">
 <h2 class="q-titre" id="qDistancesT">À quelle distance des structures de soins vit-on ?</h2>
-<div class="q-reglages"><span class="lib">Structure de soins, pour les deux fenêtres</span><div id="iType"></div></div>
+<div class="q-reglages" role="group" aria-label="Réglages de la question « À quelle distance des structures de soins vit-on ? »"><span class="lib cache-visuel">Structure de soins, pour les deux fenêtres</span><div id="iType"></div></div>
 
 <article class="fenetre repliable outil" id="iFenDistNv" aria-labelledby="iDnH">
   <div class="fen-tete"><span class="pastilles"></span><div class="fen-titre"><h3 id="iDnH">Selon le niveau de vie</h3><p class="fen-resume"></p></div>

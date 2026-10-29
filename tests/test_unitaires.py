@@ -2479,6 +2479,40 @@ def test_api_offre_payante_licences():
     assert not {x["indicateur"] for x in fiche["contexte"]} & hors
 
 
+def test_verrou_execution():
+    """Une seule exécution à la fois (incident du 29 octobre 2026, tâche planifiée et exécution à la main en même temps).
+    Verrou d'un processus disparu repris, verrou d'un processus Python vivant refusé, verrou retiré à la fin."""
+    import os
+    import sys
+    import tempfile
+    import psutil
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    import run
+    from pipeline import config
+    ancien = config.DONNEES
+    try:
+        with tempfile.TemporaryDirectory() as d:
+            config.DONNEES = Path(d)
+            f = config.DONNEES / "execution.verrou"
+            mort = max(psutil.pids()) + 1000
+            f.write_text(f"{mort} 2026-10-29T08:00:00", encoding="utf-8")
+            with run.verrou_execution():
+                assert f.read_text(encoding="utf-8").split()[0] == str(os.getpid())
+            assert not f.exists()
+            vivant = next((q.pid for q in psutil.process_iter(["name"]) if q.pid != os.getpid()
+                           and "python" in (q.info["name"] or "").lower()), None)
+            if vivant:
+                f.write_text(f"{vivant} 2026-10-29T08:00:00", encoding="utf-8")
+                try:
+                    with run.verrou_execution():
+                        raise AssertionError("verrou d'une exécution vivante ignoré")
+                except SystemExit as e:
+                    assert e.code == 3
+                assert f.exists()
+    finally:
+        config.DONNEES = ancien
+
+
 if __name__ == "__main__":
     n = 0
     ignores = []

@@ -55,7 +55,8 @@ def table(effectifs: dict) -> pd.DataFrame:
 
 def ecrire(agg, jour: str) -> dict | None:
     """Photographie des comptes de cette exécution, nommée par la date de l'extraction du RPPS."""
-    meta = lire_meta(config.BRUT / "rpps_activite.txt")
+    from .sources import rpps
+    meta = rpps.META_LUE or lire_meta(config.BRUT / "rpps_activite.txt")
     date_rpps = date_version(meta) if meta else None
     if not date_rpps:
         JOURNAL.controle("Photographie des comptes", "non écrite, date de l'extraction du RPPS inconnue")

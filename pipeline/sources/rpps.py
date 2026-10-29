@@ -153,8 +153,15 @@ def _inscrits(ins, act):
     return t
 
 
+# métadonnées de l'extraction effectivement lue, notées avant la lecture : la tâche planifiée peut remplacer le fichier
+# pendant une exécution, et la date relue à la fin serait celle d'une autre extraction (incident du 29 octobre 2026)
+META_LUE: dict = {}
+
+
 def lire_activites(fichiers: dict, ref) -> tuple[pd.DataFrame, pd.DataFrame]:
     chemin = fichiers["activite"]
+    META_LUE.clear()
+    META_LUE.update(lire_meta(chemin))
     sep, cols = _entete(chemin)
     C = {
         "id": trouver_colonne(cols, [r"^identification nationale pp$", r"^identifiant pp$"], nom="identifiant"),
@@ -236,7 +243,7 @@ def lire_activites(fichiers: dict, ref) -> tuple[pd.DataFrame, pd.DataFrame]:
 
     table_inscrits = _inscrits(pd.concat(inscrits).drop_duplicates(), act)
 
-    meta = lire_meta(chemin)
+    meta = META_LUE
     localisees = act["com"].notna().mean()
     JOURNAL.note("RPPS activité", "ok", f"{n_lu} lignes lues, {n_etud} lignes d'étudiants écartées, "
                  f"{n_sans} lignes d'inscrits sans situation d'exercice écartées, "

@@ -54,6 +54,39 @@ def main(argv=None):
     if args.verifier:
         from pipeline import verification
         sys.exit(verification.afficher(verification.verifier()))
+    with verrou_execution():
+        executer(args)
+
+
+def verrou_execution():
+    """Une seule exécution à la fois. Deux exécutions simultanées (tâche planifiée et exécution lancée à la main, le
+    29 octobre 2026) écrivent dans le même dossier de résultats et l'une peut lire une source que l'autre est en train
+    de remplacer. Le verrou d'une exécution arrêtée net (processus disparu) est repris."""
+    import contextlib
+    import os
+    import psutil
+    f = config.DONNEES / "execution.verrou"
+
+    @contextlib.contextmanager
+    def tenir():
+        if f.exists():
+            try:
+                autre = int(f.read_text(encoding="utf-8").split()[0])
+            except (ValueError, IndexError):
+                autre = None
+            if autre and autre != os.getpid() and psutil.pid_exists(autre)                     and "python" in psutil.Process(autre).name().lower():
+                logging.error("Une autre exécution est en cours (processus %s, verrou %s). Attendre qu'elle se "
+                              "termine, puis relancer.", autre, f)
+                sys.exit(3)
+        f.write_text(f"{os.getpid()} {time.strftime('%Y-%m-%dT%H:%M:%S')}", encoding="utf-8")
+        try:
+            yield
+        finally:
+            f.unlink(missing_ok=True)
+    return tenir()
+
+
+def executer(args):
     t0 = time.time()
     hl, rf = args.hors_ligne, args.rafraichir
 
