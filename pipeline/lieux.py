@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import io
 import re
+import unicodedata
 
 import numpy as np
 import pandas as pd
@@ -38,9 +39,15 @@ PRECISIONS = {"finess": "coordonnées FINESS", "ror": "coordonnées du ROR", "ad
               # chef-lieu dans la Base Adresse Nationale, plus près des habitants que le centre du contour (29 octobre
               # 2026), le libellé commence comme le précédent pour rester lu comme une position approchée
               "chef_lieu": "centre de la commune, au chef-lieu",
+              # adresse du gestionnaire reprise pour une structure d'une autre commune (29 octobre 2026), jamais
+              # géocodée dans la commune de la structure, où elle tomberait sur une rue homonyme
+              "chef_lieu_gestionnaire": "centre de la commune, au chef-lieu (adresse du gestionnaire reprise)",
+              "commune_gestionnaire": "centre de la commune (adresse du gestionnaire reprise)",
               "rattachement": "adresse de l'établissement de rattachement, lieu exact inconnu"}
 CACHE_GEO = config.INTER / "geocodage_lieux.parquet"
-REQUETE_GEO = "voie développée et commune"   # forme de la requête, un échec d'une autre forme est cherché de nouveau
+REQUETE_GEO = "voie développée et commune, nom de rue plus long accepté, commune voisine"   # forme de la requête et de la règle
+                                                                           # d'acceptation, un échec d'une autre forme
+                                                                           # est cherché de nouveau
 # abréviations des voies dans FINESS et le ROR, développées pour le géocodage (« R » rue, « AV » avenue, 29 octobre
 # 2026, environ un dixième des adresses jusque-là introuvables retrouvées à la rue ou au numéro)
 ABREVIATIONS = {"R": "Rue", "AV": "Avenue", "AVE": "Avenue", "BD": "Boulevard", "BLD": "Boulevard", "CHE": "Chemin",
@@ -769,20 +776,105 @@ def commune_de(code: pd.Series) -> pd.Series:
     return code.map(lambda c: arr.get(c, c) if isinstance(c, str) else c)
 
 
+GEOCODAGE_SCORE_RUE = 0.3   # score minimal d'une rue trouvée dans la bonne commune sous un nom plus long
+_MOTS_GENERIQUES_VOIE = {"rue", "avenue", "boulevard", "chemin", "route", "place", "allee", "impasse", "quai", "cours",
+                         "de", "du", "des", "la", "le", "les", "l", "d", "et", "a", "au", "aux", "en", "sur", "bis", "ter"}
+
+
+def mots_voie(voie) -> set:
+    """Mots distinctifs d'un nom de voie (sans le type de voie, les articles ni les numéros), pour comparer une rue
+    cherchée et une rue trouvée."""
+    s = unicodedata.normalize("NFD", str(voie or "")).encode("ascii", "ignore").decode().lower()
+    return {w for w in re.findall(r"[a-z]+", s) if w not in _MOTS_GENERIQUES_VOIE and len(w) > 1}
+
+
+_VOIES_SANS_NOM = re.compile(r"^(?:le |la )?bourg$|route (?:nationale|departementale|communale)|^(?:rn|rd|vc)\b|"
+                             r"^(?:place|rue) (?:de l )?(?:eglise|mairie|gare)$")
+_CODES_POSTAUX = None
+
+
+def codes_postaux() -> dict:
+    """Codes postaux de chaque commune actuelle et communes de chaque code postal, d'après le référentiel d'Etalab."""
+    global _CODES_POSTAUX
+    if _CODES_POSTAUX is None:
+        import json
+        de, communes = {}, {}
+        try:
+            brut = json.loads((config.BRUT / "ref_communes.json").read_text(encoding="utf-8"))
+            for c in brut:
+                if c.get("type") == "commune-actuelle":
+                    de[c["code"]] = sorted(c.get("codesPostaux") or [])
+                    for cp in de[c["code"]]:
+                        communes.setdefault(cp, set()).add(c["code"])
+        except (OSError, ValueError, KeyError) as e:
+            log.warning("codes postaux illisibles dans le référentiel : %s", e)
+        _CODES_POSTAUX = (de, communes)
+    return _CODES_POSTAUX
+
+
+def voie_a_nom_propre(voie) -> bool:
+    """Vrai pour une voie qui porte un nom propre, faux pour « Le Bourg », « Route nationale », « Place de l'Église »,
+    qui existent dans presque chaque commune."""
+    m = mots_voie(voie)
+    if not m:
+        return False
+    s = " ".join(re.findall(r"[a-z]+", unicodedata.normalize("NFD", str(voie)).encode("ascii", "ignore").decode().lower()))
+    s = re.sub(r"^\d+\s*(?:bis|ter)?\s*", "", s)
+    return not _VOIES_SANS_NOM.search(s)
+
+
+def _commune_voisine(lot: pd.DataFrame, requests) -> pd.DataFrame | None:
+    """Adresses introuvables dans leur commune, cherchées dans le code postal de cette commune (décision de Lucas du 29
+    octobre 2026). Une adresse est acceptée dans une commune voisine qui partage ce code postal, au numéro ou à la rue,
+    avec un score d'au moins config.GEOCODAGE_SCORE_MIN, quand tous les mots de la rue cherchée sont dans la rue trouvée et
+    que la rue a un nom propre (« 34 rue Pasteur » à Mayot pour une structure inscrite à La Fère, code postal 02800). Renvoie voie, commune (celle de l'inscription), lat, lon, score, niveau et commune_adresse."""
+    if lot.empty:
+        return None
+    de, communes = codes_postaux()
+    l2 = lot.assign(postcode=lot["commune"].map(lambda c: (de.get(c) or [""])[0]))
+    l2 = l2[l2["postcode"] != ""]
+    if l2.empty:
+        return None
+    corps = l2[["voie", "commune", "voie_q", "postcode"]].to_csv(index=False)
+    try:
+        r = requests.post(config.GEOCODAGE_CSV, files={"data": ("adresses.csv", corps.encode("utf-8"))},
+                          data={"columns": ["voie_q"], "postcode": "postcode"}, timeout=300)
+        r.raise_for_status()
+        g = pd.read_csv(io.StringIO(r.content.decode("utf-8")), dtype=str)
+    except Exception as e:  # noqa: BLE001
+        log.warning("géocodage dans le code postal indisponible : %s", e)
+        return None
+    sc = pd.to_numeric(g.get("result_score"), errors="coerce")
+    trouvee = commune_de(g.get("result_citycode"))
+    rue = g.get("result_street", pd.Series(index=g.index, dtype=object)).fillna(
+        g.get("result_name", pd.Series(index=g.index, dtype=object)))
+    ok = pd.Series([isinstance(t, str) and t != c and t in communes.get(cp, set()) and voie_a_nom_propre(q)
+                    and bool(mots_voie(q)) and mots_voie(q) <= mots_voie(ru)
+                    for t, c, cp, q, ru in zip(trouvee, g["commune"], g["postcode"], g["voie_q"], rue)], index=g.index)
+    ok &= (sc >= config.GEOCODAGE_SCORE_MIN) & g.get("result_type").isin(["housenumber", "street"])
+    g = g[ok]
+    return pd.DataFrame({"voie": g["voie"], "commune": g["commune"],
+                         "lat": pd.to_numeric(g["latitude"], errors="coerce"),
+                         "lon": pd.to_numeric(g["longitude"], errors="coerce"), "score": sc[ok],
+                         "niveau": g["result_type"].map({"housenumber": "adresse", "street": "rue"}),
+                         "commune_adresse": trouvee[ok]})
+
+
 def _geocoder(adresses: pd.DataFrame, hors_ligne: bool) -> pd.DataFrame:
     """Coordonnées des adresses (voie, commune) par le service de géocodage de l'IGN, avec cache. En mode hors ligne,
     seul le cache sert. Ne garde que les résultats situés dans la commune attendue, avec un score suffisant. La requête
     porte la voie et le nom de la commune (29 octobre 2026) : avec la voie seule, le score restait autour de 0,4 même
     pour une adresse trouvée dans la bonne commune, sous le seuil de config.GEOCODAGE_SCORE_MIN, et 4 200 structures
     étaient posées au centre de leur commune. Un échec obtenu avec la voie seule est cherché de nouveau."""
-    cols = ["voie", "commune", "lat", "lon", "score", "niveau", "requete"]
+    cols = ["voie", "commune", "lat", "lon", "score", "niveau", "requete", "commune_adresse"]
     cache = pd.read_parquet(CACHE_GEO) if CACHE_GEO.exists() else pd.DataFrame(columns=cols)
     # échecs gardés pour Paris, Lyon et Marseille avant le 29 octobre 2026, dus au code d'arrondissement rendu par le
     # service et non à l'adresse, cherchés de nouveau
     villes = set(arrondissements().values())
     cache = cache[~(cache["commune"].isin(villes) & cache["lat"].isna())]
-    if "requete" not in cache:
-        cache["requete"] = None
+    for c in ("requete", "commune_adresse"):
+        if c not in cache:
+            cache[c] = None
     cache = cache[cache["lat"].notna() | (cache["requete"] == REQUETE_GEO)]
     a = adresses.dropna().drop_duplicates()
     a = a[a["voie"].str.len() > 2]
@@ -806,13 +898,29 @@ def _geocoder(adresses: pd.DataFrame, hors_ligne: bool) -> pd.DataFrame:
                 JOURNAL.note("IGN, géocodage des adresses", "erreur", str(e)[:300], page=config.GEOCODAGE_PAGE)
                 break
             sc = pd.to_numeric(g.get("result_score"), errors="coerce")
-            ok = (commune_de(g.get("result_citycode")) == g["citycode"]) & (sc >= config.GEOCODAGE_SCORE_MIN)
+            meme = commune_de(g.get("result_citycode")) == g["citycode"]
+            # une rue trouvée dans la bonne commune sous un nom plus long que celui de la base (« Rue Marceau » pour
+            # « Rue François Séverin Marceau » à Cholet, score 0,44) est acceptée sous le seuil quand tous les mots de la
+            # rue cherchée sont dans la rue trouvée (constat du 29 octobre 2026, 41 structures de plus à leur rue)
+            rue = g.get("result_street", pd.Series(index=g.index, dtype=object)).fillna(
+                g.get("result_name", pd.Series(index=g.index, dtype=object)))
+            plus_long = [bool(mots_voie(q)) and mots_voie(q) <= mots_voie(t) for q, t in zip(lot["voie_q"], rue)]
+            ok = meme & ((sc >= config.GEOCODAGE_SCORE_MIN) |
+                         ((sc >= GEOCODAGE_SCORE_RUE) & g.get("result_type").isin(["housenumber", "street"])
+                          & pd.Series(plus_long, index=g.index)))
             niveau = g.get("result_type").map({"housenumber": "adresse", "street": "rue", "locality": "lieu_dit",
                                                 "municipality": "commune"})
-            nouveaux.append(pd.DataFrame({"voie": g["voie"], "commune": g["citycode"],
-                                          "lat": pd.to_numeric(g["latitude"], errors="coerce").where(ok),
-                                          "lon": pd.to_numeric(g["longitude"], errors="coerce").where(ok),
-                                          "score": sc, "niveau": niveau.where(ok), "requete": REQUETE_GEO}))
+            res = pd.DataFrame({"voie": g["voie"], "commune": g["citycode"],
+                                "lat": pd.to_numeric(g["latitude"], errors="coerce").where(ok),
+                                "lon": pd.to_numeric(g["longitude"], errors="coerce").where(ok),
+                                "score": sc, "niveau": niveau.where(ok), "requete": REQUETE_GEO, "commune_adresse": None})
+            voisine = _commune_voisine(lot[~ok.to_numpy()], requests)
+            if voisine is not None and len(voisine):
+                res = res.set_index(["voie", "commune"])
+                v = voisine.set_index(["voie", "commune"])
+                res.update(v)
+                res = res.reset_index()
+            nouveaux.append(res)
         if nouveaux:
             cache = pd.concat([cache] + nouveaux, ignore_index=True).drop_duplicates(["voie", "commune"], keep="last")
             CACHE_GEO.parent.mkdir(parents=True, exist_ok=True)
@@ -834,6 +942,34 @@ def hors_commune(lat: pd.Series, lon: pd.Series, communes: pd.Series, formes: di
         g = formes.get(c)
         if g is not None and pd.notna(y) and pd.notna(x_) and g.distance(Point(float(x_), float(y))) > tolerance:
             out.at[i] = True
+    return out
+
+
+def _cle_adresse(a) -> str | None:
+    if not isinstance(a, str) or not a.strip():
+        return None
+    s = unicodedata.normalize("NFD", voie_developpee(a)).encode("ascii", "ignore").decode().lower()
+    return " ".join(re.findall(r"[a-z0-9]+", s)) or None
+
+
+def adresse_du_gestionnaire(x: pd.DataFrame, f: pd.DataFrame) -> pd.Series:
+    """Vrai pour une structure dont l'adresse est celle d'un établissement de son gestionnaire situé dans une autre
+    commune (29 octobre 2026). Le ROR et FINESS reprennent souvent l'adresse du siège pour chaque site (les services
+    d'accompagnement de l'ADAPEI du Morbihan à Lorient, Pontivy et Ploërmel sous « 36 boulevard de la Résistance »), et
+    le géocodage, limité à la commune de la structure, trouvait alors une rue homonyme. Seulement quand la même adresse
+    du même gestionnaire est reprise dans plusieurs communes et que FINESS enregistre un établissement de ce gestionnaire
+    à cette adresse dans une autre commune. f, établissements de FINESS indexés par numéro (adresse, com, nofinessej)."""
+    out = pd.Series(False, index=x.index)
+    if "ej" not in x or "nofinessej" not in f:
+        return out
+    k = x["adresse"].map(_cle_adresse)
+    p = pd.DataFrame({"ej": f["nofinessej"], "k": f["adresse"].map(_cle_adresse), "c": commune_de(f["com"])}).dropna()
+    proprio = p.groupby(["ej", "k"])["c"].agg(set)
+    g = pd.DataFrame({"ej": x["ej"], "k": k, "c": x["commune"]}).dropna()
+    plusieurs = g.groupby(["ej", "k"])["c"].transform("nunique") > 1
+    for i in g.index[plusieurs]:
+        cs = proprio.get((g.at[i, "ej"], g.at[i, "k"]))
+        out[i] = bool(cs) and g.at[i, "c"] not in cs
     return out
 
 
@@ -866,7 +1002,8 @@ def localiser(lieux: pd.DataFrame, fin: pd.DataFrame, centres: dict | None, hors
                      entier_fr(int(loin.sum())))
     # adresse, celle du ROR, sinon celle de FINESS
     x["adresse"] = x.get("voie").fillna(num.map(f["adresse"])) if "voie" in x else num.map(f["adresse"])
-    m = x["lat"].isna() & x["adresse"].notna()
+    gestionnaire = adresse_du_gestionnaire(x, f)
+    m = x["lat"].isna() & x["adresse"].notna() & ~gestionnaire
     if m.any():
         cache = _geocoder(x.loc[m, ["adresse", "commune"]].rename(columns={"adresse": "voie"}), hors_ligne)
         g = cache.dropna(subset=["lat"]).set_index(["voie", "commune"])
@@ -878,6 +1015,22 @@ def localiser(lieux: pd.DataFrame, fin: pd.DataFrame, centres: dict | None, hors
             x.loc[idx, "lat"] = pd.to_numeric(gg["lat"], errors="coerce").to_numpy(float)
             x.loc[idx, "lon"] = pd.to_numeric(gg["lon"], errors="coerce").to_numpy(float)
             x.loc[idx, "precision"] = gg["niveau"].to_numpy()
+            # adresse trouvée dans une commune voisine du même code postal (décision de Lucas du 29 octobre 2026), la
+            # structure est comptée là où elle reçoit, sa commune d'inscription reste dans commune_inscription
+            ca = gg["commune_adresse"].to_numpy() if "commune_adresse" in gg else np.full(len(idx), None)
+            autre = pd.Series([isinstance(v, str) and v != c for v, c in zip(ca, x.loc[idx, "commune"])], index=idx)
+            if autre.any():
+                if "commune_inscription" not in x:
+                    x["commune_inscription"] = None
+                i2 = autre[autre].index
+                x.loc[i2, "commune_inscription"] = x.loc[i2, "commune"]
+                x.loc[i2, "commune"] = ca[autre.to_numpy()]
+            enfants = {t_[0] for t_ in config.LIEUX_TYPES if t_[4].get("parent")}
+            v_ = x.loc[autre[autre].index]
+            JOURNAL.controle("Structures dont l'adresse se trouve dans une commune voisine du même code postal, "
+                             "comptées dans la commune de leur adresse",
+                             entier_fr(len(v_[~v_["type"].isin(enfants)].drop_duplicates(["type", "lieu"])
+                                           if "lieu" in v_ else v_)))
     # une unité placée à son établissement de rattachement faute de mieux est signalée comme telle
     x.loc[(origine == "structure") & x["lat"].notna(), "precision"] = "rattachement"
     m = x["lat"].isna()
@@ -889,7 +1042,7 @@ def localiser(lieux: pd.DataFrame, fin: pd.DataFrame, centres: dict | None, hors
         idx = c[c.notna()].index
         x.loc[idx, "lon"] = [v[0] for v in c[idx]]
         x.loc[idx, "lat"] = [v[1] for v in c[idx]]
-        x.loc[idx, "precision"] = "chef_lieu"
+        x.loc[idx, "precision"] = np.where(gestionnaire[idx], "chef_lieu_gestionnaire", "chef_lieu")
         m = x["lat"].isna()
     if centres and m.any():
         c = x.loc[m, "commune"].map(lambda k: centres.get(k))
@@ -897,7 +1050,16 @@ def localiser(lieux: pd.DataFrame, fin: pd.DataFrame, centres: dict | None, hors
         idx = c[ok].index
         x.loc[idx, "lon"] = [v[0] for v in c[ok]]
         x.loc[idx, "lat"] = [v[1] for v in c[ok]]
-        x.loc[idx, "precision"] = "commune"
+        x.loc[idx, "precision"] = np.where(gestionnaire[idx], "commune_gestionnaire", "commune")
+    # structures replacées faute d'adresse propre, une par type et par clé, sans les lignes par public des CMP ni les
+    # inscriptions qui ont leurs propres coordonnées dans FINESS ou le ROR
+    enfants = {t_[0] for t_ in config.LIEUX_TYPES if t_[4].get("parent")}
+    r = x[x["precision"].isin(["chef_lieu_gestionnaire", "commune_gestionnaire"]) & ~x["type"].isin(enfants)]
+    r = r.drop_duplicates(["type", "lieu"]) if "lieu" in r else r
+    JOURNAL.controle("Structures qui portent l'adresse d'un établissement de leur gestionnaire situé dans une autre "
+                     "commune, placées au chef-lieu ou au centre de leur commune et non sur une rue homonyme",
+                     f"{entier_fr(len(r))} (au chef-lieu {entier_fr(int((r['precision'] == 'chef_lieu_gestionnaire').sum()))}, "
+                     f"au centre du contour {entier_fr(int((r['precision'] == 'commune_gestionnaire').sum()))})")
     return x
 
 

@@ -1,0 +1,68 @@
+{
+  "region": "32",
+  "nom": "Hauts-de-France",
+  "fichier": "hauts-de-france_arrete_2023-12-26.pdf",
+  "document": "Arrêté du 26 décembre 2023 portant désignation des établissements de santé assurant la mission de psychiatrie de secteur",
+  "emetteur": "Agence régionale de santé des Hauts-de-France",
+  "date_document": "2023-12-26",
+  "recu": "pièce jointe du courriel de l'ARS du 29 octobre 2026 (messagerie, reçu n° 295)",
+  "confirme": "« aucune modification depuis », courriel de l'ARS du 29 octobre 2026 (messagerie, reçu n° 300)",
+  "licence": "document administratif communiqué (CRPA)",
+  "lecteur": "tableau_lignes",
+  "types": {
+    "G": "psychiatrie générale (adultes)",
+    "I": "psychiatrie infanto-juvénile"
+  },
+  "limites": [
+    {
+      "texte": "Les communes fusionnées depuis décembre 2023 ne sont pas mises à jour dans l'arrêté, elles sont rattachées par le référentiel géographique (courriel de l'ARS du 29 octobre 2026)."
+    },
+    {
+      "texte": "L'EPSM de l'Aisne assure une partie des missions de secteur du CH de Saint-Quentin, qui reste officiellement responsable de son secteur (courriel de l'ARS du 29 octobre 2026).",
+      "etablissements": [
+        "CH St Quentin",
+        "EPSM Aisne",
+        "EPSMDA"
+      ]
+    }
+  ],
+  "source_courte": "Arrêté de l'ARS des Hauts-de-France du 26 décembre 2023",
+  "etablissements": {
+    "_source": "numéros FINESS des entités juridiques relevés dans le flux FINESS le 29 octobre 2026 ; « CH Isarien » est le nom de l'EPSM de l'Oise (Journal officiel du 28 avril 2024, centre hospitalier isarien et EPSM de l'Oise, siège à Clermont)",
+    "CH ARRAS": "620100057",
+    "CH Abbeville": "800000028",
+    "CH BAPAUME": "620100073",
+    "CH BOULOGNE-SUR-MER": "620103440",
+    "CH CALAIS": "620101337",
+    "CH CAMBRAI": "590781605",
+    "CH DENAIN": "590782165",
+    "CH DOUAI": "590783239",
+    "CH Douai": "590783239",
+    "CH FOURMIES": "590781662",
+    "CH HENIN-BEAUMONT": "620100677",
+    "CH Isarien": "600100028",
+    "CH LENS": "620100685",
+    "CH Lens": "620100685",
+    "CH MAUBEUGE": "590781803",
+    "CH Péronne": "800000093",
+    "CH SAINT-AMAND-LES-EAUX": "590782207",
+    "CH SOMAIN": "590780052",
+    "CH St Quentin": "020000063",
+    "CH VALENCIENNES": "590782215",
+    "CHAM": "620103432",
+    "CHI Montdidier-Roye": "800000085",
+    "CHU de Lille": "590780193",
+    "EPSM  VAL DE LYS ARTOIS": "620101287",
+    "EPSM AGGLOM. LILLOISE": "590034740",
+    "EPSM Agglomération lilloise": "590034740",
+    "EPSM Aisne": "020000295",
+    "EPSMDA": "020000295",
+    "EPSM DES FLANDRES": "590782678",
+    "EPSM LILLE METROPOLE": "590782660",
+    "EPSM de l'Oise": "600100028",
+    "EPSM de la Somme": "800000119",
+    "IDAC de Camiers": "620112607",
+    "La Nouvelle Forge": "600107049",
+    "Les Marronniers": "620001834"
+  }
+}

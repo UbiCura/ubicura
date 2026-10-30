@@ -1204,6 +1204,75 @@ def _carte_distance_lieux(B, T, famille, L):
             + graphique(cle))
 
 
+def _carte_secteurs(B, T, L):
+    """Secteurs de psychiatrie du département d'après l'arrêté de l'ARS (demande de Lucas du 29 octobre 2026), une carte
+    par type de secteur (psychiatrie générale puis infanto-juvénile, au choix sur le site), CMP du public du secteur
+    posés par-dessus avec leur classe de confirmation, légende en texte sous la carte sur téléphone. Seulement pour les
+    régions dont l'arrêté est reçu, une mention ailleurs, rien tant que la sectorisation n'est pas publiée."""
+    from html import escape
+    from . import confirmation as conf_mod, sectorisation as secto
+    from .sources import sectorisation as source
+    if T["niveau"] != "dep" or not secto.PUBLIER:
+        return []
+    res = L.get("sectorisation") or {}
+    s = res.get("secteurs")
+    d = next((x for x in source.descriptions() if x["region"] == B.dep_reg.get(T["code"])), None)
+    if d is None or not isinstance(s, pd.DataFrame):
+        return ["### Secteurs de psychiatrie", "", "Sectorisation non disponible pour cette région.", ""]
+    s = s[(s["dep"] == T["code"]) & s["commune"].notna()]
+    geoms = B.communes_dep(T["code"])
+    if s.empty or not geoms:
+        return []
+    publics = {"G": ("lieu_cmp_adultes", "CMP pour adultes"), "I": ("lieu_cmp_enfants", "CMP pour enfants et adolescents")}
+    x = L["lieux"]
+    cle = f"dep-{T['code']}_sm_secteurs"
+    svgs, legendes, nb = [], [], {}
+    for ty in [t for t in d.get("types", {}) if t in set(s["type"])]:
+        g = s[s["type"] == ty]
+        par_com = g.groupby("commune")["secteur"].agg(lambda v: sorted(set(v))).to_dict()
+        porteurs = g.drop_duplicates("secteur").set_index("secteur")["etablissement"].to_dict()
+        nb[ty] = len(porteurs)
+        tid, nom_pts = publics.get(ty, (None, ""))
+        c = x[(x["type"] == tid) & (x["dep"] == T["code"]) & x["lat"].notna()] if tid else x.iloc[:0]
+        pts = [{"lon": float(r.lon), "lat": float(r.lat), "classe": conf_mod.classe(getattr(r, "confirmation", None)),
+                "info": f"{r.nom_affiche if isinstance(r.nom_affiche, str) else r.nom} ({B.noms['com'].get(r.commune, r.commune)})"}
+               for r in c.itertuples()]
+        svg = cartes.carte_secteurs(geoms, par_com, porteurs, f"Secteurs de {d['types'][ty]}, {T['nom']}",
+                                    points=pts, nom_points=nom_pts)
+        if not svg:
+            continue
+        svgs.append(svg.replace("<svg ", f'<svg data-variante="{escape(d["types"][ty].capitalize())}" ', 1))
+        legendes.append(f'<p><strong>{escape(d["types"][ty].capitalize())}.</strong> '
+                        + " ; ".join(escape(f"{k}, {v}") for k, v in sorted(porteurs.items()))
+                        + (". Ville hachurée, partagée entre secteurs" if any(len(v) > 1 for v in par_com.values()) else "")
+                        + (f". Points, {escape(nom_pts)}, pleins si confirmés, creux à vérifier" if pts else "") + ".</p>")
+    if not svgs:
+        return []
+    (B.dossier_fig / f"{cle}.svg").write_text(svgs[0], encoding="utf-8")
+    for ty, v in zip([t for t in d["types"] if t in nb][1:], svgs[1:]):
+        (B.dossier_fig / f"{cle}__{ty}.svg").write_text(v, encoding="utf-8")
+    etabs = set(s["etablissement"])
+    lim = [li["texte"] if isinstance(li, dict) else li for li in d.get("limites", [])
+           if not isinstance(li, dict) or not li.get("etablissements") or etabs & set(li["etablissements"])]
+    source_min = d.get("source_courte") or d["document"]
+    source_min = source_min[:1].lower() + source_min[1:]
+    combien = " et ".join(f"{nombre(n)} secteur{'s' if n > 1 else ''} de {d['types'][t]}" for t, n in nb.items())
+    return (["### Secteurs de psychiatrie", "",
+             f"L'arrêté de l'agence régionale de santé découpe le département en {combien}. Chaque secteur est confié à "
+             f"un établissement responsable, qui accueille les habitants de ses communes.", ""]
+            + graphique(cle)
+            + ['<div class="legende-texte small">' + "".join(legendes) + "</div>", ""]
+            + _comment_lire(
+                "Chaque couleur est un secteur, deux secteurs voisins n'ont jamais la même. Une ville découpée entre "
+                "secteurs par quartiers est hachurée. Les CMP du public du secteur sont posés à leur adresse, ou au "
+                "centre de leur commune quand l'adresse n'a pas été trouvée. Le secteur dépend de la commune où vit le "
+                "patient, un CMP peut donc se trouver hors du secteur qu'il dessert.",
+                limites.A_SAVOIR + " ".join(lim) if lim else "")
+            + [f"Source, {source_min}, document administratif communiqué par l'agence "
+               f"(code des relations entre le public et l'administration). Table complète dans secteurs_psychiatrie.csv.",
+               ""])
+
+
 def _verification_cmp(L, T):
     """Concordance des sources pour les CMP du territoire (structures recensées, unités du ROR, SAE), puis, en volet replié,
     la confrontation hôpital par hôpital (13 octobre 2026). Décrit des écarts entre sources, ne juge aucun établissement."""
@@ -1330,6 +1399,8 @@ def _lieux(B, T, famille):
                          "professionnels déclarés dans chaque structure figurent dans lieux_soins.csv.",
                          limites.phrase_md(["lieux"]))
     out += _carte_distance_lieux(B, T, famille, L)
+    if famille == SM:
+        out += _carte_secteurs(B, T, L)
     liste = []
     for tid, lib, fam, groupe, _r in config.LIEUX_TYPES:
         g = x[x["type"] == tid]

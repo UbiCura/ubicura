@@ -8,7 +8,7 @@ Les principaux ajouts prévus, sans date ferme. Chacun ne sera intégré que si 
 
 **Temps de trajet vers chaque type de structure de soins.** Les temps par la route publiés par l'INSEE portent sur onze types d'équipements de sa base. Ils seront calculés aussi vers les structures recensées ici (CMP pour adultes et pour enfants, CATTP, hôpitaux de jour, CMPP, CAMSP, structures d'addictologie), avec la part des habitants à moins de 10, 20 et 30 minutes.
 
-**Sectorisation psychiatrique.** Quel secteur et quels CMP servent chaque commune, là où une source officielle et datée existe.
+**Sectorisation psychiatrique dans les autres régions.** Les secteurs des Hauts-de-France sont en ligne. Ceux des autres régions s'ajouteront à mesure que les agences régionales de santé communiqueront leur arrêté.
 
 **Violences sexistes, sexuelles et intrafamiliales.** Victimes enregistrées par département et structures d'aide, avec la limite des plaintes écrite à chaque fois.
 

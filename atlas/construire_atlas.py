@@ -135,7 +135,30 @@ def completer(data: dict) -> dict:
     return data
 
 
-def construire(src: Path, dest: Path, nav: str = "", accueil: str = "", titre: str = "") -> Path:
+# Page d'accueil du site allégée (demande de Lucas du 29 octobre 2026, index.html de 15 Mo qu'un réseau d'entreprise
+# n'ouvrait pas). Avec externes=True, les blocs lourds partent dans des fichiers à empreinte appelés au même endroit
+# par <script src>, ce qui garde l'ordre d'exécution (bibliothèques, fond, données, moteur, puis figures.js avant
+# DOMContentLoaded) tout en laissant le navigateur afficher la page pendant leur téléchargement et les garder en cache.
+# Sans externes, la page reste autonome (atlas/atlas.html, dépôt sur Zenodo).
+EXTERNES = {"/*D3*/": "d3", "/*TOPO*/": "topojson", "/*LEAFLET*/": "leaflet", "/*CESURE*/": "cesure",
+            "/*TOPOLOGY*/": "fond", "/*DONNEES*/": "donnees"}
+CHARGEMENT = ('<p class="atlas-chargement" id="atlasChargement" role="status" style="margin:0;padding:10px 16px 0;'
+              'color:var(--muted);font-size:14px">Chargement des données de l’atlas…</p>')
+ECHEC = ("Les données de l’atlas n’ont pas pu être chargées. Un réseau lent ou un pare-feu peut les bloquer. "
+         "Les rapports, la méthode et les données restent accessibles par le menu.")
+
+
+def _fichier_externe(dossier: Path, nom: str, contenu: str) -> str:
+    """Écrit un bloc de la page dans atlas_<nom>.<empreinte>.js, rend son nom. L'empreinte change avec le contenu, un
+    navigateur garde donc le fichier en cache tant qu'il ne change pas."""
+    import hashlib
+    octets = contenu.encode("utf-8")
+    f = f"atlas_{nom}.{hashlib.sha256(octets).hexdigest()[:10]}.js"
+    (dossier / f).write_bytes(octets)
+    return f
+
+
+def construire(src: Path, dest: Path, nav: str = "", accueil: str = "", titre: str = "", externes: bool = False) -> Path:
     data = json.loads(Path(src).read_text(encoding="utf-8"))
     data.setdefault("tuiles", _tuiles())
     _sans_outils_explorer(data)
@@ -163,6 +186,33 @@ def construire(src: Path, dest: Path, nav: str = "", accueil: str = "", titre: s
         "/*DONNEES*/": "window.DONNEES=" + json.dumps(data, ensure_ascii=False, separators=(",", ":")) + ";",
         "/*POLICES*/": _polices(),
     }
+    dest = Path(dest)
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    if externes:
+        ecrits = set()
+        for k, nom in EXTERNES.items():
+            f = _fichier_externe(dest.parent, nom, remplacements.pop(k))
+            ecrits.add(f)
+            html = html.replace(f"<script>{k}</script>", f'<script src="{f}"></script>', 1)
+        # anciennes versions des mêmes fichiers retirées, le site ne garde que celles de la page
+        for vieux in dest.parent.glob("atlas_*.*.js"):
+            if re.fullmatch(r"atlas_[a-z0-9]+\.[0-9a-f]{10}\.js", vieux.name) and vieux.name not in ecrits:
+                vieux.unlink()
+        # polices du site (fichiers woff2 à côté des pages) au lieu du base64, en cache d'une page à l'autre
+        import posixpath
+        polices = posixpath.normpath(data["site_dossier"] + "/polices")
+        css = (ICI.parent / "gabarits" / "polices" / "polices.css").read_text(encoding="utf-8")
+        remplacements["/*POLICES*/"] = re.sub(r"url\(([\w.-]+\.woff2)\)", lambda m: f"url({polices}/{m.group(1)})", css)
+        # message pendant le téléchargement, puis moteur lancé seulement si les données sont arrivées
+        html = html.replace('<svg class="map" id="map"', CHARGEMENT + '<svg class="map" id="map"', 1)
+        if html.count("<script>\n(function(){\n") != 1:
+            raise ValueError("Gabarit de l'atlas inattendu, le moteur n'est pas trouvé une seule fois.")
+        html = html.replace("<script>\n(function(){\n", "<script>\nif(window.DONNEES&&window.TOPO)(function(){\n", 1)
+        fin = ('<script>(function(){var c=document.getElementById("atlasChargement");if(!c)return;'
+               'if(window.DONNEES&&window.TOPO)c.remove();else c.textContent=' + json.dumps(ECHEC, ensure_ascii=False)
+               + "})();</script>\n")
+        i = html.index("</body>")
+        html = html[:i] + fin + html[i:]
     for k, v in remplacements.items():
         html = html.replace(k, v.replace("</script", "<\\/script"), 1)
     html = html.replace("<!--NAV-->", nav, 1)

@@ -2975,11 +2975,13 @@ def _fin(insee, famille):
         L += [MENTION_ODBL, ""]
     L += _plus_loin([f"- {nom}, {res}" for nom, res in JOURNAL.controles])
 
-    L += ["## Précautions de lecture", "", DEFINITIONS["rpps"], "",
+    # les précautions de lecture tiennent d'un seul tenant : le glossaire qui suit commence sur une page nouvelle, et
+    # leur dernière ligne pouvait tomber seule sur une page presque vide (PDF du 30 octobre 2026)
+    L += ["## Précautions de lecture", "", '<div class="ensemble" markdown="1">', "", DEFINITIONS["rpps"], "",
           "Un professionnel qui exerce dans plusieurs territoires compte dans chacun, mais une seule fois pour la "
           "France entière. Les effectifs attendus comparent des territoires semblables et ne disent rien d'un "
           "besoin de soins. Les psychologues, psychiatres et autres professions sont présentés côte à côte, sans "
-          "être additionnés, car ils ne sont pas interchangeables.", ""]
+          "être additionnés, car ils ne sont pas interchangeables.", "", "</div>", ""]
 
     garder = lambda fam: famille is None or not fam or fam == famille  # noqa: E731
     L += ["## Glossaire", ""]

@@ -89,6 +89,11 @@ FICHIERS = [
                                            "distinctes, activités sans lieu d'exercice comprises."),
     (r"^professions\.csv$", lambda m: "Liste des professions, qualifications et comptages du périmètre élargi."),
     (r"^secteurs\.csv$", lambda m: "Effectifs par secteur d'activité déclaré au RPPS, France et départements."),
+    (r"^secteurs_psychiatrie\.csv$", lambda m: "Sectorisation psychiatrique d'après les arrêtés des agences régionales de "
+     "santé reçus (Hauts-de-France, arrêté du 26 décembre 2023), une ligne par commune, type de secteur et secteur, avec "
+     "l'établissement responsable. Documents administratifs communiqués, réutilisables sans altération avec leur source et "
+     "leur date (code des relations entre le public et l'administration, articles L321-1 et L322-1). Les autres régions "
+     "n'y figurent pas, leur arrêté n'étant pas encore reçu."),
     (r"^categories_etablissements\.csv$", lambda m: "Effectifs salariés par catégorie d'établissement FINESS, "
                                                     "France et départements."),
     (r"^structures_principales\.csv$", lambda m: "Principales structures d'exercice salarié par profession, "
@@ -358,12 +363,27 @@ COLONNES = [
     (r"^libelle_type$", "Libellé du type de structure de soins."),
     (r"^groupe$", "Groupe du type de lieu ou de la profession."),
     (r"^unite_ror$", "Nom de l'unité dans le ROR (vide pour une structure présente dans FINESS seul)."),
+    (r"^secteur_psychiatrie$", "Code du secteur de psychiatrie dans l'arrêté de l'ARS (59G22, G pour la psychiatrie "
+                               "générale des adultes, I pour la psychiatrie infanto-juvénile)."),
+    (r"^type_secteur$", "Type de secteur de psychiatrie, générale (adultes) ou infanto-juvénile."),
+    (r"^etablissement_responsable$", "Établissement de santé responsable du secteur, tel que l'arrêté le nomme."),
+    (r"^finess_entite_juridique$", "Numéro FINESS de l'entité juridique de l'établissement responsable."),
+    (r"^partie$", "Partie de commune quand une ville est découpée entre plusieurs secteurs (« LILLE NORD »), vide sinon."),
+    (r"^code_arrete$", "Code de commune écrit dans l'arrêté, avant rattachement à la commune actuelle."),
+    (r"^nom_arrete$", "Nom de commune écrit dans l'arrêté."),
+    (r"^rattachement$", "Façon dont la commune actuelle a été retrouvée, par son code, par l'ancien code d'une commune "
+                        "fusionnée, ou par son nom quand le code a changé depuis l'arrêté."),
+    (r"^document$", "Document source, arrêté de l'agence régionale de santé."),
+    (r"^date_document$", "Date du document source."),
     (r"^secteur$", "Code du secteur de psychiatrie quand le nom de la structure le cite (93G16, 31I01, G pour la psychiatrie générale, I pour la psychiatrie infanto-juvénile, Z pour un intersecteur), vide sinon. Il ne dit pas quelles communes le secteur dessert."),
     (r"^finess_rapproche$", "Numéro FINESS d'un CMP de FINESS rapproché de la structure du ROR par l'entité juridique et la commune."),
     (r"^finess_rapproche$", "Numéro FINESS d'un CMP de FINESS rapproché de la structure du ROR par l'entité juridique et la "
                             "commune."),
     (r"^entite_juridique$", "Numéro FINESS de l'entité juridique gestionnaire."),
     (r"^nom_commune$", "Nom de la commune."),
+    (r"^commune_inscription$", "Commune d'inscription de la structure dans FINESS ou le ROR, quand son adresse se trouve "
+                               "dans une commune voisine du même code postal, où elle est comptée (règle du 29 octobre "
+                               "2026). Vide sinon."),
     (r"^adresse$", "Adresse de la structure (voie), quand elle est connue."),
     (r"^(latitude|longitude)$", "Coordonnées de la structure, en degrés (WGS 84)."),
     (r"^emplacement$", "Précision de l'emplacement, coordonnées de FINESS, du ROR, adresse géocodée (numéro, rue ou "
@@ -735,6 +755,9 @@ def ecrire(out: Path, indicateurs=None):
         if p.name == "porte_offre.csv":
             local.update({"groupe": "Grand secteur d'exercice (libéral, hôpital public, privé, médico-social...).",
                           "classe": "Classe de densité de population de l'intercommunalité, ou Ensemble."})
+        if p.name == "secteurs_psychiatrie.csv":
+            local.update({"commune": "Code de la commune actuelle (code officiel géographique) rattachée au secteur.",
+                          "type": "Type de secteur dans l'arrêté (G psychiatrie générale, I psychiatrie infanto-juvénile)."})
         if p.name == "libelles.csv":
             desc = "Table de correspondance entre libellés officiels et libellés d'affichage."
             local.update({"source": "Nomenclature d'origine.", "code": "Code dans la nomenclature, s'il existe.",

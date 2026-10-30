@@ -85,6 +85,22 @@ LICENCES = {
                         "précisée dans un second courriel."),
         "statut": "à confirmer",
     },
+    "crpa-document-communique": {
+        # documents administratifs communiqués sur demande (arrêtés de sectorisation psychiatrique des ARS, demande du 28
+        # octobre 2026). Articles L321-1 et L322-1 du code des relations entre le public et l'administration, Légifrance,
+        # version en vigueur depuis le 19 mars 2016, lus le 29 octobre 2026
+        "nom": "Informations publiques d'un document administratif communiqué (CRPA, articles L321-1 et L322-1)",
+        "affiche": "Document administratif communiqué (CRPA)",
+        "page": "https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000032255220",
+        "lue_le": "2026-10-29",
+        "usage_commercial": A_CONFIRMER,      # L321-1, réutilisation « à d'autres fins que celles de la mission de service
+                                              # public », redevance possible (L324-1), à confirmer par le juriste
+        "partage_identique": NON,
+        "mention": "La source (l'administration émettrice et le document) et la date de sa dernière mise à jour (L322-1).",
+        "obligations": ("Sans altération ni dénaturation du sens (L322-1). Aucune donnée personnelle reprise (L322-2), les "
+                        "noms des agents qui ont transmis le document restent dans la messagerie, jamais publiés."),
+        "statut": "à confirmer",
+    },
 }
 
 # Libellés libres trouvés aujourd'hui dans config.SOURCES_INFO, le catalogue et les portails, vers leur identifiant
@@ -94,6 +110,7 @@ MOTIFS = [
     (r"licence ouverte|etalab|lov2", "lo-2.0"),
     (r"plan ign", "ign-lo-2.0"),
     (r"g[ée]oplateforme", "cgu-geoplateforme"),
+    (r"document administratif communiqu", "crpa-document-communique"),
 ]
 
 # Sources dont la licence relevée sur data.gouv diffère du libellé de config.SOURCES_INFO (API data.gouv, champ license,

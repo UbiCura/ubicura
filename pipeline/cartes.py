@@ -433,6 +433,136 @@ def _legende(el, x, y, largeur):
     return y + 20 * ((len(CLASSES) + colonnes - 1) // colonnes)
 
 
+# Secteurs de psychiatrie (29 octobre 2026). Chaque secteur porte son code en clair, la couleur ne sert qu'à séparer
+# deux secteurs voisins (coloriage glouton du graphe des secteurs qui se touchent), d'où des teintes claires, sans le
+# cuivre des densités ni l'ocre réservé aux limites. Codes écrits à l'encre sombre, lisibles sur chaque teinte.
+TEINTES_SECTEURS = ["#cde2fb", "#c4ecdc", "#ddd8f7", "#d9ebc8", "#f6d5e2", "#e3e2dc", "#bfe0ea", "#efe3c9"]
+
+
+def teintes_secteurs(geoms: dict, secteurs: dict) -> tuple[dict, dict, dict]:
+    """Contour de chaque secteur (communes d'un seul secteur), sa teinte (indice dans TEINTES_SECTEURS) et ses voisins.
+    Deux secteurs se touchent à un kilomètre près (les contours simplifiés laissent des jours), une ville partagée
+    comptant dans chacun de ses secteurs (les secteurs qui se rejoignent dans Amiens sont voisins). Coloriage glouton,
+    les secteurs qui ont le plus de voisins d'abord."""
+    import shapely
+    seuls, avec_partagees = {}, {}
+    for c, g in geoms.items():
+        s = secteurs.get(c) or []
+        if len(s) == 1:
+            seuls.setdefault(s[0], []).append(g)
+        for x in s:
+            avec_partagees.setdefault(x, []).append(g)
+    poly = {s: shapely.union_all(v) for s, v in seuls.items()}
+    etendu = {s: shapely.union_all(v) for s, v in avec_partagees.items() if s in poly}
+    codes = sorted(poly)
+    voisins = {s: set() for s in codes}
+    for i, a in enumerate(codes):
+        ga = etendu[a].buffer(0.01)
+        for b in codes[i + 1:]:
+            if ga.intersects(etendu[b]):
+                voisins[a].add(b)
+                voisins[b].add(a)
+    teinte = {}
+    for s in sorted(codes, key=lambda x: (-len(voisins[x]), x)):
+        prises = {teinte[v] for v in voisins[s] if v in teinte}
+        teinte[s] = next(i for i in range(len(TEINTES_SECTEURS) + 1) if i not in prises) % len(TEINTES_SECTEURS)
+    return poly, teinte, voisins
+
+
+# structures posées sur la carte des secteurs, remplissage et contour selon la classe de confirmation (mots de
+# pipeline.confirmation.CLASSES), pleines, grises ou creuses comme sur le plan de l'atlas
+CLASSES_CONFIRMATION = {"confirmee": "confirmé", "recoupee": "recoupé par la statistique des hôpitaux",
+                        "a_verifier": "à vérifier"}
+ROND_CONFIRMATION = {"confirmee": ("#1C2028", "#ffffff"), "recoupee": ("#8A8F99", "#ffffff"),
+                     "a_verifier": ("#ffffff", "#1C2028")}
+
+
+def carte_secteurs(geoms: dict, secteurs: dict, porteurs: dict, titre: str, largeur=560, hauteur_max=520,
+                   points=None, nom_points="") -> str:
+    """Carte des secteurs de psychiatrie d'un département. geoms associe chaque commune à sa géométrie, secteurs chaque
+    commune à la liste de ses secteurs (plusieurs pour une ville découpée entre secteurs, hachurée), porteurs chaque
+    secteur au nom de son établissement porteur. Secteurs voisins de teintes différentes, frontières des secteurs
+    marquées, code du secteur posé dans le secteur, légende des établissements sous la carte. points, structures posées
+    par-dessus (dictionnaires lon, lat, classe de confirmation, info), pleines si confirmées, grises si recoupées par la
+    statistique des hôpitaux, creuses à vérifier, comme sur le plan de l'atlas ; nom_points les nomme dans la légende."""
+    geoms = {k: g for k, g in geoms.items() if g is not None and not g.is_empty}
+    if not geoms or not any(secteurs.get(k) for k in geoms):
+        return ""
+    poly, teinte, _voisins = teintes_secteurs(geoms, secteurs)
+    codes = sorted(poly)
+    xs0, ys0, xs1, ys1 = zip(*(g.bounds for g in geoms.values()))
+    x0, x1, y0, y1 = min(xs0), max(xs1), min(ys0), max(ys1)
+    k = math.cos(math.radians((y0 + y1) / 2))
+    lw, lh = (x1 - x0) * k or 1e-6, (y1 - y0) or 1e-6
+    marge = 8
+    s_ = min((largeur - 2 * marge) / lw, (hauteur_max - 2 * marge) / lh)
+    h = lh * s_ + 2 * marge
+    P = lambda x, y: (marge + (x - x0) * k * s_, marge + (y1 - y) * s_)  # noqa: E731
+    el = ['<defs><pattern id="hachure-secteurs" width="5" height="5" patternUnits="userSpaceOnUse" '
+          'patternTransform="rotate(45)"><rect width="5" height="5" fill="#ffffff"/>'
+          '<line x1="0" y1="0" x2="0" y2="5" stroke="#6b7280" stroke-width="1.6"/></pattern></defs>',
+          '<g fill-rule="evenodd" stroke="#ffffff" stroke-width=".35">']
+    for code, g in geoms.items():
+        sc = secteurs.get(code) or []
+        fill = ("#E9E8EC" if not sc else "url(#hachure-secteurs)" if len(sc) > 1
+                else TEINTES_SECTEURS[teinte[sc[0]]])
+        d = _trace_relatif(_anneaux(g), P)
+        if d:
+            info = nom(code) + (", aucun secteur dans l'arrêté" if not sc else ", secteur " + " et ".join(sc)
+                                if len(sc) == 1 else ", partagée entre les secteurs " + ", ".join(sc))
+            el.append(f'<path d="{d}" fill="{fill}"><title>{escape(info)}</title></path>')
+    el.append("</g>")
+    el.append('<g fill="none" stroke="#1C2028" stroke-width="1.1" stroke-linejoin="round">')
+    for s in codes:
+        d = _trace_relatif(_anneaux(poly[s]), P)
+        if d:
+            el.append(f'<path d="{d}"/>')
+    el.append("</g>")
+    pts = [q for q in (points or []) if q.get("lon") is not None and x0 <= q["lon"] <= x1 and y0 <= q["lat"] <= y1]
+    if pts:
+        el.append('<g stroke-width="1.2">')
+        for q in pts:
+            x, y = P(q["lon"], q["lat"])
+            f, c = ROND_CONFIRMATION.get(q.get("classe"), ROND_CONFIRMATION["a_verifier"])
+            el.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="3.4" fill="{f}" stroke="{c}">'
+                      f'<title>{escape(q.get("info", ""))}</title></circle>')
+        el.append("</g>")
+    taille = taille_role("petit", largeur)
+    # codes posés du plus grand secteur au plus petit, un code qui en chevaucherait un autre n'est pas écrit (petits
+    # secteurs d'une métropole), le secteur reste dans la légende et dans l'infobulle de ses communes
+    poses = []
+    for s in sorted(codes, key=lambda c: -poly[c].area):
+        p = poly[s].representative_point()
+        x, y = P(p.x, p.y)
+        lw_, lh_ = len(s) * float(taille) * .62 + 4, float(taille) + 4
+        boite = (x - lw_ / 2, y - lh_ / 2, x + lw_ / 2, y + lh_ / 2)
+        if any(not (boite[2] < b[0] or boite[0] > b[2] or boite[3] < b[1] or boite[1] > b[3]) for b in poses):
+            continue
+        poses.append(boite)
+        el.append(f'<text x="{x:.0f}" y="{y + 4:.0f}" text-anchor="middle" font-size="{taille}" font-weight="600" '
+                  f'fill="#1C2028" paint-order="stroke" stroke="#ffffff" stroke-width="2.5">{escape(s)}</text>')
+    # légende, un secteur par ligne avec son établissement porteur, sur deux colonnes
+    lignes = [(s, porteurs.get(s, "")) for s in codes]
+    if any(len(v) > 1 for v in secteurs.values()):
+        lignes.append((None, "commune partagée entre secteurs (ville découpée par quartiers)"))
+    classes = {q.get("classe") if q.get("classe") in ROND_CONFIRMATION else "a_verifier" for q in pts}
+    lignes += [("•" + k, f"{nom_points}, {v}") for k, v in CLASSES_CONFIRMATION.items() if k in classes]
+    col, pas = largeur / 2, 18
+    for i, (s, txt) in enumerate(lignes):
+        xx, yy = marge + (i % 2) * col, h + 8 + pas * (i // 2)
+        if s and s.startswith("•"):
+            f, c = ROND_CONFIRMATION[s[1:]]
+            el.append(f'<circle cx="{xx + 7:.0f}" cy="{yy + 6:.0f}" r="3.4" fill="{f}" stroke="{c}" stroke-width="1.2"/>')
+            el.append(f'<text x="{xx + 20:.0f}" y="{yy + 10:.0f}" font-size="{taille}" fill="{DISCRET}">{escape(txt)}</text>')
+            continue
+        fill = "url(#hachure-secteurs)" if s is None else TEINTES_SECTEURS[teinte[s]]
+        el.append(f'<rect x="{xx:.0f}" y="{yy:.0f}" width="14" height="12" fill="{fill}" stroke="{LIGNE}"/>')
+        lab = (f"{s}, {txt}" if s else txt)
+        el.append(f'<text x="{xx + 20:.0f}" y="{yy + 10:.0f}" font-size="{taille}" fill="{DISCRET}">'
+                  f'{escape(lab)}</text>')
+    return _svg(largeur, h + 8 + pas * math.ceil(len(lignes) / 2) + 4, titre, el)
+
+
 def _svg(largeur, hauteur, titre, el):
     return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {largeur} {hauteur:.0f}" role="img" '
             f'aria-label="{escape(titre)}" font-family="Work Sans, system-ui, sans-serif">'

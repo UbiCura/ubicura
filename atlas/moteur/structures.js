@@ -197,9 +197,16 @@ function structuresTerritoire(){const el=document.getElementById("lieuxCard");
     tr.hidden=!ouv;b.setAttribute("aria-expanded",String(ouv));b.textContent=ouv?"Masquer la liste":"Voir la liste";if(ouv)LX_OUVERTS.add(id);else LX_OUVERTS.delete(id)});
   const plan=()=>dessinerCarteTerritoire(lv,code,lignesPlan);
   plan();
-  const st=document.getElementById("lxType");if(st)st.onchange=()=>{LX_TYPE_LOCAL=st.value;LX_CHOISI_LOCAL=null;plan()};
+  const se=document.getElementById("lxSecteurs");
+  // type de secteur suivi tant que le lecteur ne l'a pas choisi lui-même
+  // une valeur posée par le code est reportée sur la liste soignée qui double la liste du navigateur (choixListe)
+  const miroir=sel=>{const b=sel&&document.querySelector('.prof-choix[data-pour="'+sel.id+'"] button');if(!b)return;const t=sel.selectedOptions[0]?.textContent||"";
+    b.querySelector("span").textContent=t;b.setAttribute("aria-label",(sel.getAttribute("aria-label")||"Choix")+", "+t)};
+  const reglerSecteurs=()=>{if(!LX_SECTEURS_CHOISI)LX_SECTEURS_TYPE=typeSecteurPour(LX_TYPE_LOCAL);if(se){se.value=LX_SECTEURS_TYPE||"";miroir(se)}};
+  if(se){reglerSecteurs();se.onchange=()=>{LX_SECTEURS_TYPE=se.value;LX_SECTEURS_CHOISI=true;dessinerSecteurs(lv,code)};dessinerSecteurs(lv,code)}
+  const st=document.getElementById("lxType");if(st)st.onchange=()=>{LX_TYPE_LOCAL=st.value;LX_CHOISI_LOCAL=null;if(se)reglerSecteurs();plan()};
   el.querySelectorAll(".lx-item").forEach(b=>b.onclick=()=>{const p=LX.pts[+b.dataset.j];LX_TYPE_LOCAL=b.dataset.l;
-    LX_CHOISI_LOCAL=LX_CHOISI_LOCAL===p?null:p;if(st)st.value=LX_TYPE_LOCAL;plan();
+    LX_CHOISI_LOCAL=LX_CHOISI_LOCAL===p?null:p;if(st){st.value=LX_TYPE_LOCAL;miroir(st)}if(se)reglerSecteurs();plan();
     // plan hors de l'écran (petits écrans), on le fait venir sans changer son cadrage
     const r=(document.getElementById("lxPlan")||document.getElementById("lxCarte")).getBoundingClientRect(),haut=document.querySelector(".collant")?.getBoundingClientRect().bottom||0;
     if(r.top<haut||r.bottom>innerHeight)scrollTo({top:scrollY+r.top-haut-60,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})})}
@@ -222,6 +229,37 @@ const IGN_MENTION='© IGN – <a href="https://cartes.gouv.fr/" target="_blank" 
 const PLAN_POINT="#1D4D87",PLAN_CHOISI="#8A5A0E";
 const planIgn=()=>!!(window.L&&window.L.map);
 let LX_PLAN=null;
+// ---------- secteurs de psychiatrie sur le plan (demande de Lucas du 29 octobre 2026), d'après les arrêtés des ARS reçus
+// (pipeline/sectorisation.py, secteurs_psychiatrie.geojson à côté de la page, chargé à la première demande). Une couche
+// par type, générale ou infanto-juvénile, en aplats clairs sous les structures, deux secteurs voisins jamais de la même
+// teinte, une ville partagée entre secteurs en pointillé. Ailleurs, la sectorisation est dite non disponible.
+let LX_SECTEURS=null,LX_SECTEURS_ETAT="",LX_SECTEURS_TYPE=null,LX_SECTEURS_CHOISI=false;
+function chargerSecteurs(fin){if(LX_SECTEURS||LX_SECTEURS_ETAT==="erreur")return fin();
+  if(LX_SECTEURS_ETAT==="charge")return;LX_SECTEURS_ETAT="charge";
+  fetch("secteurs_psychiatrie.geojson").then(r=>{if(!r.ok)throw new Error(r.status);return r.json()})
+    .then(j=>{LX_SECTEURS=j;LX_SECTEURS_ETAT="";fin()}).catch(()=>{LX_SECTEURS_ETAT="erreur";fin()})}
+const regionDuTerritoire=(lv,code)=>typeof regionDe==="function"?regionDe(lv,code):null;
+// type de secteur proposé d'abord, celui du public des CMP montrés, aucun pour les autres types
+const typeSecteurPour=id=>/_enfants$/.test(id)?"I":/^lieu_cmp/.test(id)?"G":"";
+function bulleSecteur(pr){const lim=(pr.limites||[]).map(t=>'<div class="tl">'+esc(t)+'</div>').join("");
+  return '<div class="tt">'+(pr.secteur?'Secteur '+esc(pr.secteur):'Commune partagée entre les secteurs '+esc((pr.partagee||[]).join(", ")))+'</div>'
+    +'<div class="tl">'+esc(pr.type_lib||"")+'</div><div class="tl">Établissement responsable, '+esc(pr.etablissement||"")+'</div>'
+    +'<div class="tl muted">Source, '+esc(pr.source||"")+'</div>'+lim}
+function dessinerSecteurs(lv,code){const P=LX_PLAN,LF=window.L;if(!P||!LF)return;
+  if(P.secteurs)P.secteurs.clearLayers();else{P.secteurs=LF.layerGroup().addTo(P.carte);P.points.remove();P.points.addTo(P.carte)}
+  const ty=LX_SECTEURS_TYPE,leg=document.getElementById("lxSecteursNote");if(!ty){if(leg)leg.textContent="";return}
+  if(!LX_SECTEURS){if(leg)leg.textContent=LX_SECTEURS_ETAT==="erreur"?"Secteurs indisponibles dans cette version de l'atlas.":"Chargement des secteurs…";
+    chargerSecteurs(()=>dessinerSecteurs(lv,code));return}
+  const reg=regionDuTerritoire(lv,code);
+  if(!reg||!(LX_SECTEURS.regions||[]).includes(reg)){if(leg)leg.textContent="Sectorisation non disponible pour cette région.";return}
+  const t=LX_SECTEURS.teintes||[];
+  const fs=LX_SECTEURS.features.filter(f=>f.properties.region===reg&&f.properties.type===ty);
+  LF.geoJSON({type:"FeatureCollection",features:fs},{style:f=>f.properties.secteur
+    ?{color:"#1C2028",weight:1.2,opacity:.75,fillColor:t[f.properties.teinte]||"#E3E2DC",fillOpacity:.5}
+    :{color:"#1C2028",weight:1,opacity:.75,dashArray:"4 3",fillColor:"#FFFFFF",fillOpacity:.55},
+    onEachFeature:(f,lay)=>{lay.on("mousemove",ev=>showTip(ev.originalEvent,bulleSecteur(f.properties)));lay.on("mouseout",hideTip)}}).addTo(P.secteurs);
+  if(leg){const d=fs.find(f=>f.properties.secteur);leg.textContent=d?"Secteurs de "+d.properties.type_lib+", d'après l'arrêté de l'ARS du "
+    +new Date(d.properties.date+"T00:00").toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"})+", établissement responsable dans l'infobulle.":""}}
 function dessinerPlanIgn(lv,code,lignes,l){
   const LF=window.L,el=document.getElementById("lxPlan");if(!el)return;
   const cle=lv+"|"+code,f=formeTerritoire(lv,code);
@@ -255,6 +293,7 @@ function dessinerPlanIgn(lv,code,lignes,l){
     P.points.addLayer(m)}
   // structure choisie dans la liste hors du cadre, le plan se déplace jusqu'à elle sans changer d'échelle
   if(LX_CHOISI_LOCAL&&pts.includes(LX_CHOISI_LOCAL)){const ll=[LX_CHOISI_LOCAL[1]/1e4,LX_CHOISI_LOCAL[2]/1e4];if(!P.carte.getBounds().contains(ll))P.carte.panTo(ll,{animate:false})}
+  dessinerSecteurs(lv,code);
   const u=D.niveaux[lv].units[IDX[lv].get(code)];
   el.setAttribute("aria-label","Plan IGN de "+u.nm+", "+minLib(l.lib)+", "+fmt.format(l.pts.length)+" structures, point plein confirmée, point creux à vérifier")}
 const LX_MAILLES={};
@@ -266,7 +305,7 @@ function mailleLx(niv,filtre,cle){const k=niv+"|"+(cle||"");if(!(k in LX_MAILLES
 function formeTerritoire(lv,code){const f=(geom[lv]||[]).find(x=>x.properties[lv]===code);return f||null}
 function carteTerritoireHtml(lignes){
   const opts=lignes.map(l=>'<option value="'+l.id+'"'+(l.id===LX_TYPE_LOCAL?" selected":"")+'>'+esc(l.lib)+' ('+fmt.format(l.pts.length)+')</option>').join("");
-  return '<div class="lx-droite"><div class="lx-plan-tete"><label class="small muted" for="lxType">Sur le plan</label><select id="lxType">'+opts+'</select><div class="lx-legende small" id="lxLegende"></div></div>'
+  return '<div class="lx-droite"><div class="lx-plan-tete"><span class="lx-choix"><label class="small muted" for="lxType">Sur le plan</label><select id="lxType">'+opts+'</select></span>'+(planIgn()?'<span class="lx-choix"><label class="small muted" for="lxSecteurs">Secteurs</label><select id="lxSecteurs"><option value="">aucun</option><option value="G">psychiatrie générale</option><option value="I">psychiatrie infanto-juvénile</option></select></span>':'')+'<div class="lx-legende small" id="lxLegende"></div></div>'+(planIgn()?'<p class="small muted lx-secteurs-note" id="lxSecteursNote"></p>':'')
     +(planIgn()?'<div id="lxPlan" class="lx-plan" role="img" aria-label="Plan IGN du territoire et de ses structures de soins"></div>':'')
     +'<svg id="lxCarte"'+(planIgn()?' class="lx-export" aria-hidden="true"':'')+' viewBox="0 0 400 340" role="img" aria-label="Plan du territoire et de ses structures de soins"></svg>'
     +'<div class="lieuinfo small" id="lxFiche" hidden aria-live="polite"></div></div>'}
@@ -306,8 +345,9 @@ function dessinerCarteTerritoire(lv,code,lignes){
     .on("mouseleave",hideTip)
     .on("click",(ev,d)=>{LX_CHOISI_LOCAL=LX_CHOISI_LOCAL===d.p?null:d.p;dessinerCarteTerritoire(lv,code,lignes)});
   // légende en couleur, nombres du type montré, emplacements approchés signalés
-  const nc=l.pts.filter(confirme).length,nr=l.pts.filter(recoupe).length,nb=l.pts.filter(creux).length,kc=LX.precisions.findIndex(x=>/centre de la commune/.test(x));
-  const approx=kc>=0?l.pts.filter(p=>p[6]===kc).length:0,horsCadre=l.pts.length-pts.length;
+  const nc=l.pts.filter(confirme).length,nr=l.pts.filter(recoupe).length,nb=l.pts.filter(creux).length,kc=new Set(LX.precisions.map((x,i)=>/^centre de la commune/.test(x)?i:-1).filter(i=>i>=0));
+  // positions approchées, contour, chef-lieu ou adresse du gestionnaire reprise (29 octobre 2026)
+  const approx=l.pts.filter(p=>kc.has(p[6])).length,horsCadre=l.pts.length-pts.length;
   // structures au même emplacement (même immeuble, ou centre de la même commune), un seul point visible pour plusieurs
   const nEmpl=d3.rollup(l.pts,v=>v.length,p=>p[1]+","+p[2]),superposes=d3.sum([...nEmpl.values()].filter(v=>v>1));
   document.getElementById("lxLegende").innerHTML=(l.conf?legendeClasses(nc,nr,nb):'<span>Niveau de confirmation non établi pour ce type.</span>')

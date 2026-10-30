@@ -1926,6 +1926,33 @@ def test_meme_largeur_atlas_explorer():
     assert not re.search(r"main\{[^}]*max-width:(?!%dpx)\d+px" % site, explorer)
 
 
+def test_menu_deux_temps_explorer():
+    """Le menu en deux temps des indicateurs (thèmes puis indicateurs, noyau.js) garde dans Explorer la mise en page
+    de l'atlas : sans elle les indicateurs se rangeaient sous les thèmes, hors de vue, et « Croiser deux indicateurs »
+    ne permettait plus de choisir (bug signalé par Lucas le 29 octobre 2026). Un thème n'y est pas une case à cocher."""
+    import re
+    from pipeline import config
+    regles = re.findall(r"(?m)^\.prof-liste\.deux[^\n]*", _atlas())
+    assert len(regles) >= 10
+    explorer = (config.RACINE / "gabarits" / "explorer.html").read_text(encoding="utf-8")
+    manque = [r for r in regles if r.split("  /*")[0] not in explorer]
+    assert not manque, manque
+    assert ".prof-liste.deux .theme::before{content:none}" in explorer
+
+
+def test_fin_du_rapport_d_un_tenant():
+    """Les précautions de lecture et la fin du glossaire tiennent d'un seul tenant à l'impression : l'annexe et le
+    glossaire commencent sur une page nouvelle, et une ligne isolée tombait seule sur une page presque vide (PDF du 29
+    et du 30 octobre 2026)."""
+    from pipeline import rapport
+    s = "\n".join(rapport._fin(None, None))
+    prec = s[s.index("## Précautions de lecture"):s.index("## Glossaire")]
+    assert '<div class="ensemble" markdown="1">' in prec and prec.rstrip().endswith("</div>")
+    assert s.rstrip().endswith("</div>")
+    css = (Path(__file__).resolve().parents[1] / "gabarits" / "style.css").read_text(encoding="utf-8")
+    assert "figure.graphique,table,.ensemble{break-inside:avoid}" in css
+
+
 def test_plan_ign_structures():
     """Plan IGN sous les structures d'un territoire (28 octobre 2026) : Leaflet intégré à la page avec l'empreinte
     contrôlée et sa licence, fond de la Géoplateforme avec sa mention, plan SVG gardé pour l'export, molette réservée
@@ -1944,6 +1971,47 @@ def test_plan_ign_structures():
     assert licences.identifiant("Plan IGN") == "ign-lo-2.0" and licences.LICENCES["ign-lo-2.0"]["statut"] == "vérifié"
     assert "scrollWheelZoom:false" in t and 'svg id="lxCarte"' in t
     assert "Géoplateforme de l'IGN" in (config.RACINE / "contenus" / "a_propos.md").read_text(encoding="utf-8")
+
+
+def test_accueil_leger():
+    """Page d'accueil allégée (demande de Lucas du 29 octobre 2026, index.html de 15 Mo qu'un réseau d'entreprise
+    n'ouvrait pas). Avec externes, données, fond et bibliothèques partent dans des fichiers à empreinte appelés dans le
+    même ordre, avant le moteur, la page pèse moins d'un mégaoctet, le moteur ne démarre qu'avec ses données et un
+    message dit pourquoi l'atlas manque si un fichier est bloqué. Les anciennes versions sont retirées. Sans externes, la
+    page reste autonome (atlas.html, dépôt sur Zenodo). Sur le vrai site_data.json de la dernière exécution."""
+    import hashlib
+    import re
+    import tempfile
+    from atlas import construire_atlas as ca
+    src = _dernier_resultats() / "site_data.json"
+    if not src.exists():
+        raise Ignore("site_data.json absent")
+    with tempfile.TemporaryDirectory() as d:
+        d = Path(d)
+        (d / "territoires").mkdir()
+        (d / "atlas_donnees.0123456789.js").write_text("ancien", encoding="utf-8")
+        page = ca.construire(src, d / "index.html", externes=True)
+        h = page.read_text(encoding="utf-8")
+        assert page.stat().st_size < 1_000_000, page.stat().st_size
+        assert "window.DONNEES=" not in h and "window.TOPO=" not in h and "base64," not in h
+        noms = re.findall(r'<script src="(atlas_([a-z0-9]+)\.[0-9a-f]{10}\.js)"></script>', h)
+        assert [n for _, n in noms] == ["d3", "topojson", "leaflet", "cesure", "fond", "donnees"], noms
+        for f, _ in noms:
+            octets = (d / f).read_bytes()
+            assert f.split(".")[1] == hashlib.sha256(octets).hexdigest()[:10], f
+        assert not (d / "atlas_donnees.0123456789.js").exists(), "ancienne version gardée"
+        assert (d / noms[-1][0]).read_text(encoding="utf-8").startswith("window.DONNEES={")
+        # moteur après les données, lancé seulement si elles sont arrivées, message de chargement puis d'échec
+        assert h.index(noms[-1][0]) < h.index("if(window.DONNEES&&window.TOPO)(function(){")
+        assert 'id="atlasChargement"' in h and ca.ECHEC.split(".")[0] in h
+        assert "url(polices/" in h
+        # même contenu, mêmes noms, le cache du navigateur reste valable d'une construction à l'autre
+        assert [f for f, _ in re.findall(r'<script src="(atlas_([a-z0-9]+)\.[0-9a-f]{10}\.js)"></script>',
+                                         ca.construire(src, d / "index.html", externes=True).read_text(encoding="utf-8"))] \
+            == [f for f, _ in noms]
+        autonome = ca.construire(src, d / "autonome.html").read_text(encoding="utf-8")
+        assert "window.DONNEES={" in autonome and "window.TOPO=" in autonome and '<script src="atlas_' not in autonome
+        assert "if(window.DONNEES&&window.TOPO)" not in autonome and 'id="atlasChargement"' not in autonome
 
 
 def test_sans_caractere_de_controle():
@@ -2624,6 +2692,73 @@ def test_voies_developpees():
     assert voie_developpee("RUE DU 8 MAI 1945") == "RUE DU 8 MAI 1945"
 
 
+def test_rue_au_nom_plus_long():
+    """Une rue trouvée dans la bonne commune sous un nom plus long que celui de la base est acceptée sous le seuil de
+    score (29 octobre 2026) quand tous les mots de la rue cherchée y sont, jamais quand la rue trouvée est une autre rue.
+    Adresses réelles de FINESS et du ROR et réponses du service de géocodage de l'IGN relevées le même jour (CMP de
+    Cholet, « Rue François Séverin Marceau », score 0,44 ; La Fère, « 34 Rue Vauban » rendu pour « 34 Rue Pasteur »)."""
+    from pipeline import lieux
+    assert lieux.mots_voie("23 RUE MARCEAU") <= lieux.mots_voie("Rue François Séverin Marceau")
+    assert not lieux.mots_voie("34 RUE PASTEUR") <= lieux.mots_voie("Rue Vauban")
+    assert lieux.mots_voie("AV PRESIDENT JOHN FIT KENNEDY") == {"av", "president", "john", "fit", "kennedy"}
+    assert lieux.mots_voie(lieux.voie_developpee("R docteur Villers")) == {"docteur", "villers"}
+    assert lieux.GEOCODAGE_SCORE_RUE < lieux.config.GEOCODAGE_SCORE_MIN
+    assert "nom de rue plus long" in lieux.REQUETE_GEO   # les échecs déjà gardés sont cherchés de nouveau
+
+
+def test_commune_voisine_meme_code_postal():
+    """Adresse trouvée dans une commune voisine du même code postal (décision de Lucas du 29 octobre 2026) : seulement
+    pour une rue à nom propre, jamais « Le Bourg », « Route nationale » ni « Place de l'Église », et seulement entre
+    communes qui partagent un code postal d'après le référentiel (La Fère et Mayot, 02800). Le fichier des structures
+    publie la commune d'inscription, décrite au dictionnaire."""
+    from pipeline import dictionnaire, lieux
+    assert lieux.voie_a_nom_propre("34 RUE PASTEUR") and lieux.voie_a_nom_propre("Rue Anne de Ticheville")
+    for v in ("LE BOURG", "ROUTE NATIONALE", "Route Departementale 306", "Place de l'Église", "RN 7"):
+        assert not lieux.voie_a_nom_propre(v), v
+    de, communes = lieux.codes_postaux()
+    if not de:
+        raise Ignore("référentiel des communes absent du cache")
+    assert "02800" in de["02304"] and {"02304", "02473"} <= communes["02800"]   # La Fère, Mayot
+    assert "^commune_inscription$" in open(dictionnaire.__file__, encoding="utf-8").read()
+    assert "commune voisine" in lieux.REQUETE_GEO   # les échecs déjà gardés sont cherchés de nouveau
+
+
+def test_adresse_du_gestionnaire():
+    """Une structure qui porte l'adresse d'un établissement de son gestionnaire situé dans une autre commune n'est pas
+    géocodée dans sa commune, où elle tomberait sur une rue homonyme (29 octobre 2026, services d'accompagnement de
+    l'ADAPEI du Morbihan à Auray, Lorient, Pontivy et Ploërmel sous « 36 boulevard de la Résistance », adresse du siège
+    à Vannes d'après FINESS, Auray placée jusque-là au numéro d'un boulevard homonyme). Sur les structures des derniers
+    résultats et le flux FINESS en cache."""
+    import pandas as pd
+    from pipeline import config, lieux
+    fh = config.BRUT / "finess_historique.csv"
+    l = _csv(_dernier_resultats(), "lieux_soins.csv", dtype=str)
+    if l is None or not fh.exists():
+        raise Ignore("résultats ou flux FINESS absents")
+    lg = [r.split(";") for r in fh.open(encoding="latin-1") if r.startswith("structureet;")]
+    f = pd.DataFrame({"nofinessej": [r[2] for r in lg],
+                      "adresse": [" ".join(v for v in (r[7], r[8], r[9]) if v) for r in lg],
+                      "com": [r[13] + r[12][-3:] if len(r) > 13 and r[13].isdigit() else None for r in lg]},
+                     index=[r[1] for r in lg])
+    x = l[~l["type"].str.endswith(("_adultes", "_enfants"))].rename(columns={"entite_juridique": "ej"})
+    g = lieux.adresse_du_gestionnaire(x, f)
+    adapei = x[x["adresse"].eq("36 BOULEVARD DE LA RESISTANCE") & x["nom"].str.contains("ADAPEI", na=False)]
+    if adapei.empty:
+        raise Ignore("services de l'ADAPEI du Morbihan absents des résultats")
+    assert g[adapei.index].all() and set(adapei["nom_commune"]) >= {"Auray", "Lorient", "Pontivy", "Ploërmel"}
+    # l'établissement de FINESS à l'adresse de son propre siège n'est jamais écarté
+    vannes = x[(x["commune"] == "56260") & x["adresse"].eq("36 BD DE LA RESISTANCE")]
+    assert not g[vannes.index].any()
+    assert 100 < g.sum() < len(x) * .02
+    # même mention au chef-lieu et au centre du contour, toutes deux lues comme des positions approchées (contrôle de
+    # comparer_versions, compte de l'atlas)
+    for k in ("chef_lieu", "chef_lieu_gestionnaire", "commune", "commune_gestionnaire"):
+        assert lieux.PRECISIONS[k].startswith("centre de la commune")
+    assert "gestionnaire" in lieux.PRECISIONS["commune_gestionnaire"]
+    js = (lieux.config.RACINE / "atlas" / "moteur" / "structures.js").read_text(encoding="utf-8")
+    assert "findIndex(x=>/centre de la commune/" not in js and "kc.has(p[6])" in js
+
+
 def test_empreinte_meme_calcul():
     """L'empreinte d'un établissement vérifié se calcule de la même façon dans la chaîne et dans l'outil qui la
     renouvelle (outils/structures_verifiees.py valider) : le fichier des inscriptions des bases porte les numéros FINESS
@@ -2798,6 +2933,177 @@ def test_aucune_structure_en_double():
     dbl = p[p.duplicated(["type", "finess", "commune", "n", "a"], keep=False)]
     assert set(dbl["type"]) <= {"lieu_cmp"}, dbl[["type", "nom", "nom_commune"]].head().to_dict()
     assert not ((l["nom"] == "EANM LA COLLINE DE LUGUEL") & (l["type"] == "lieu_foyers_handicap")).sum() > 1
+
+
+def test_sectorisation_hauts_de_france():
+    """Arrêté de sectorisation des Hauts-de-France du 26 décembre 2023 (reçu de l'ARS le 29 octobre 2026), lu en entier
+    sur le document en cache : aucune ligne perdue, toutes les communes de la région couvertes une fois par type de
+    secteur sauf Hargicourt (02370), absente du tableau de psychiatrie générale de l'arrêté, villes découpées entre
+    secteurs reconnues (Lille, Roubaix, Tourcoing, Dunkerque, Amiens, Abbeville, Valenciennes), communes dont le code a
+    changé rattachées (Filain dans Pargny-et-Filain, « Les Hauts Talican » sous l'ancien code 60054), chaque
+    établissement porteur relié à une entité juridique de FINESS, licence au registre. Puis les CMP de la région des
+    derniers résultats confrontés aux secteurs, la plupart tenus par l'établissement porteur du secteur de leur commune."""
+    from pipeline import config, licences, sectorisation as SA
+    from pipeline.sources import referentiel, sectorisation as S
+    d = next((x for x in S.descriptions() if x["region"] == "32"), None)
+    if d is None or not (S.DOSSIER / d["fichier"]).exists():
+        raise Ignore("arrêté des Hauts-de-France absent de donnees/brut/sectorisation")
+    assert licences.identifiant(d["licence"]) == "crpa-document-communique"
+    ref = referentiel.charger(hors_ligne=True)
+    t, perdus = S.LECTEURS[d["lecteur"]](S.DOSSIER / d["fichier"])
+    assert perdus == 0 and len(t) > 7500
+    s = S.charger(ref)
+    r = S.controler(s, ref, d, perdus)
+    assert r["codes_inconnus"] == 0 and not r["etablissements_sans_finess"]
+    assert r["G_sans_secteur"] == ["02370"] and r["I_sans_secteur"] == []
+    assert not r["G_hors_region"] and not r["I_hors_region"]
+    assert not r["G_plusieurs_inexpliques"] and not r["I_plusieurs_inexpliques"]
+    assert {"59350", "80021", "59183"} <= set(r["G_plusieurs_secteurs"])
+    assert ((s["code_arrete"] == "02311") & (s["commune"] == "02589")).any()
+    assert ((s["code_arrete"] == "60054") & (s["commune"] == "60694")).any()
+    assert s.loc[s["etablissement"] == "CH Isarien", "ej"].eq("600100028").all()
+    # entités juridiques de l'arrêté présentes dans FINESS
+    fh = config.BRUT / "finess_historique.csv"
+    if fh.exists():
+        ejs = {x.split(";")[2] for x in fh.open(encoding="latin-1") if x.startswith("structureet;")}
+        assert set(s["ej"]) <= ejs, set(s["ej"]) - ejs
+    l = _csv(_dernier_resultats(), "lieux_soins.csv", dtype=str)
+    if l is None:
+        raise Ignore("résultats absents pour la confrontation aux CMP")
+    c, par_secteur = SA.confronter(s, SA.cmp_par_public(l))
+    assert len(c) > 150 and (c["constat"] == "porteur du secteur").mean() > .9
+    assert set(c["constat"]) <= set(SA.CONSTATS) and par_secteur["secteur"].nunique() > 100
+    # même confrontation sur la table des structures telle que l'exécution la donne (clé, entité juridique, nom
+    # d'origine et nom affiché, code de secteur recalculé), tables écrites hors des résultats publiés
+    import tempfile
+    from pathlib import Path
+    pendant = l.drop(columns=["secteur"]).rename(columns={"entite_juridique": "ej", "id_structure": "lieu"}) \
+        .assign(nom_affiche=l["nom"], nom=l["unite_ror"].fillna(l["nom"]))
+    ancien = SA.DOSSIER_INTERNE
+    SA.DOSSIER_INTERNE = Path(tempfile.mkdtemp())
+    try:
+        res = SA.appliquer(ref, pendant)
+        assert {"secteurs.csv", "cmp.csv", "par_secteur.csv"} <= {p.name for p in SA.DOSSIER_INTERNE.iterdir()}
+        assert (res["cmp"]["constat"] == "porteur du secteur").sum() == (c["constat"] == "porteur du secteur").sum()
+        assert (res["cmp"]["secteur_cite"] != "").sum() == (c["secteur_cite"] != "").sum()
+        assert not SA.PUBLIER or res["geojson"]["features"]
+    finally:
+        SA.DOSSIER_INTERNE = ancien
+    # carte des secteurs de psychiatrie générale de la Somme, secteurs voisins de teintes différentes (ceux qui se
+    # rejoignent dans Amiens, ville partagée, comptent pour voisins), chaque secteur à sa légende, Amiens hachurée
+    from pipeline import cartes
+    fonds = cartes.fonds_communes(ref)
+    if fonds:
+        cartes.retenir_noms(ref)
+        x = s[(s["type"] == "G") & (s["dep"] == "80")]
+        secteurs = x.groupby("commune")["secteur"].agg(lambda v: sorted(set(v))).to_dict()
+        poly, teinte, voisins = cartes.teintes_secteurs(fonds["80"], secteurs)
+        assert all(teinte[a] != teinte[b] for a in voisins for b in voisins[a])
+        assert {"80G01", "80G02", "80G04", "80G08"} <= voisins["80G01"] | {"80G01"}
+        svg = cartes.carte_secteurs(fonds["80"], secteurs, x.drop_duplicates("secteur").set_index("secteur")[
+            "etablissement"].to_dict(), "Secteurs de psychiatrie générale, Somme")
+        assert all(f"{c}, " in svg for c in poly) and "hachure-secteurs" in svg and "Amiens" in svg
+
+
+def test_couche_secteurs_atlas():
+    """Couche « secteurs de psychiatrie » du plan de l'atlas (demande de Lucas du 29 octobre 2026), faite sur l'arrêté
+    des Hauts-de-France en cache : chaque secteur de chaque type a un seul contour, avec son établissement responsable,
+    sa teinte, la source courte et la date de l'arrêté ; une ville partagée entre secteurs est un objet à part qui cite
+    ses secteurs ; la limite de Saint-Quentin n'est portée que par les secteurs du CH de Saint-Quentin et de l'EPSM de
+    l'Aisne, celle des communes fusionnées par tous ; un secteur fait seulement de parties de villes se lit sur la ville
+    partagée ; fichier assez léger pour le site. Table publiée sans nom de
+    personne, colonnes au dictionnaire. Côté atlas, chargement du fichier, mention des régions sans arrêté, liste
+    soignée tenue à jour quand le code change le type de secteur."""
+    import json
+    from pipeline import cartes, dictionnaire, sectorisation as SA
+    from pipeline.sources import referentiel, sectorisation as S
+    d = next((x for x in S.descriptions() if x["region"] == "32"), None)
+    if d is None or not (S.DOSSIER / d["fichier"]).exists():
+        raise Ignore("arrêté des Hauts-de-France absent de donnees/brut/sectorisation")
+    ref = referentiel.charger(hors_ligne=True)
+    s = S.charger(ref)
+    fonds = cartes.fonds_communes(ref)
+    if not fonds:
+        raise Ignore("contours des communes absents")
+    g = SA.geojson_secteurs(s, fonds)
+    assert g["regions"] == ["32"] and len(g["teintes"]) >= 4
+    sect = [f["properties"] for f in g["features"] if f["properties"].get("secteur")]
+    part = [f["properties"] for f in g["features"] if not f["properties"].get("secteur")]
+    # un secteur fait seulement de parties de villes (59G12, 59G22 à 59G24, dans Roubaix et Tourcoing) n'a pas de
+    # contour propre et se lit sur la ville partagée qui le cite
+    attendu = set(map(tuple, s.drop_duplicates(["type", "secteur"])[["type", "secteur"]].values))
+    vus = {(p["type"], p["secteur"]) for p in sect}
+    assert len(vus) == len(sect) and vus <= attendu
+    assert attendu - vus <= {(p["type"], x) for p in part for x in p["partagee"]}, attendu - vus
+    assert len(attendu - vus) < 10
+    assert {p["type"] for p in sect} == {"G", "I"}
+    assert all(p["etablissement"] and p["ej"] and p["date"] == "2023-12-26" and p["source"] == d["source_courte"]
+               and p["teinte"] < len(g["teintes"]) for p in sect)
+    assert part and all(len(p["partagee"]) > 1 and p["commune"] for p in part)
+    assert any(p["commune"] == "80021" and p["type"] == "G" for p in part)
+    stq = [p for p in sect if any("Saint-Quentin" in t for t in p["limites"])]
+    assert stq and {p["etablissement"] for p in stq} <= {"CH St Quentin", "EPSM Aisne", "EPSMDA"}
+    assert all(any("fusionnées" in t for t in p["limites"]) for p in sect)
+    assert len(json.dumps(g, ensure_ascii=False, separators=(",", ":"))) < 500_000
+    t = SA.table_publiee(s)
+    assert len(t) == len(s) and not t.columns.duplicated().any()
+    assert not any(c in t.columns for c in ("nom_professionnel", "rpps", "agent"))
+    sans = [c for c in t.columns if dictionnaire._decrire_colonne(c, {}).startswith("Description manquante")]
+    assert not sans, sans
+    js = (Path(__file__).parent.parent / "atlas" / "moteur" / "structures.js").read_text(encoding="utf-8")
+    assert "secteurs_psychiatrie.geojson" in js and "Sectorisation non disponible pour cette région." in js
+    assert "miroir(se)" in js and "miroir(st)" in js
+
+
+def test_carte_secteurs_rapport():
+    """Section « Secteurs de psychiatrie » des rapports départementaux de santé mentale, sur l'arrêté des Hauts-de-France
+    et les structures des derniers résultats : rien tant que la sectorisation n'est pas publiée ; pour l'Aisne, une
+    carte par type de secteur (la seconde en variante du site), CMP du public du secteur posés par-dessus, légende en
+    texte pour le téléphone avec chaque secteur et son établissement, limite de Saint-Quentin citée ; pour un
+    département d'une région sans arrêté, la seule mention « Sectorisation non disponible pour cette région »."""
+    import tempfile
+    from types import SimpleNamespace
+    import pandas as pd
+    from pipeline import cartes, rapport_territoire as RT, sectorisation as SA
+    from pipeline.sources import referentiel, sectorisation as S
+    d = next((x for x in S.descriptions() if x["region"] == "32"), None)
+    if d is None or not (S.DOSSIER / d["fichier"]).exists():
+        raise Ignore("arrêté des Hauts-de-France absent de donnees/brut/sectorisation")
+    l = _csv(_dernier_resultats(), "lieux_soins.csv", dtype=str)
+    ref = referentiel.charger(hors_ligne=True)
+    fonds = cartes.fonds_communes(ref)
+    if l is None or not fonds:
+        raise Ignore("résultats ou contours des communes absents")
+    # table des structures telle que l'exécution la donne (coordonnées, code du niveau de confirmation)
+    num = lambda v: pd.to_numeric(v.str.replace(",", "."), errors="coerce")  # noqa: E731
+    l = l.assign(lat=num(l["latitude"]), lon=num(l["longitude"]), nom_affiche=l["nom"],
+                 confirmation=l["classe_confirmation"].map({"confirmée": "has", "à vérifier": "bases"}))
+    cartes.retenir_noms(ref)
+    dossier = Path(tempfile.mkdtemp())
+    B = SimpleNamespace(dep_reg=ref.deps.set_index("code")["reg"], communes_dep=lambda c: fonds.get(c, {}),
+                        noms={"com": ref.communes.set_index("code")["nom"]}, dossier_fig=dossier)
+    L = {"lieux": l, "sectorisation": {"secteurs": S.charger(ref)}}
+    aisne = {"niveau": "dep", "code": "02", "nom": "Aisne"}
+    ancien = SA.PUBLIER
+    try:
+        SA.PUBLIER = False
+        assert RT._carte_secteurs(B, aisne, L) == []
+        SA.PUBLIER = True
+        md = "\n".join(RT._carte_secteurs(B, aisne, L))
+        bretagne = RT._carte_secteurs(B, {"niveau": "dep", "code": "35", "nom": "Ille-et-Vilaine"}, L)
+    finally:
+        SA.PUBLIER = ancien
+    assert "<!--GRAPHIQUE dep-02_sm_secteurs-->" in md and "7 secteurs de psychiatrie générale" in md
+    assert {p.name for p in dossier.iterdir()} == {"dep-02_sm_secteurs.svg", "dep-02_sm_secteurs__I.svg"}
+    g = (dossier / "dep-02_sm_secteurs.svg").read_text(encoding="utf-8")
+    i = (dossier / "dep-02_sm_secteurs__I.svg").read_text(encoding="utf-8")
+    assert 'data-variante="Psychiatrie générale (adultes)"' in g and 'data-variante="Psychiatrie infanto-juvénile"' in i
+    n_adultes = int(((l["type"] == "lieu_cmp_adultes") & (l["dep"] == "02") & l["lat"].notna()).sum())
+    assert n_adultes and g.count("<circle") == n_adultes + 1 and "CMP pour adultes" in g
+    assert "CMP pour enfants et adolescents" in i
+    assert 'class="legende-texte' in md and "02G06, CH St Quentin" in md and "Saint-Quentin" in md
+    assert "Source, arrêté de l'ARS des Hauts-de-France du 26 décembre 2023" in md
+    assert bretagne == ["### Secteurs de psychiatrie", "", "Sectorisation non disponible pour cette région.", ""]
 
 
 def test_fusion_garde_la_categorie_du_type():

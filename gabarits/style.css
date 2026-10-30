@@ -79,7 +79,7 @@ main:has(> .rapport) > footer{margin-left:260px;max-width:50rem}
 /* rapport */
 .rapport{display:grid;grid-template-columns:220px minmax(0,1fr);gap:40px;align-items:start}
 @media (max-width:900px){.rapport{grid-template-columns:minmax(0,1fr)}.sommaire[aria-hidden="true"]{display:none}}
-.sommaire{position:sticky;top:70px;font-size:.875rem;max-height:calc(100vh - 90px);overflow:auto}
+.sommaire{position:sticky;top:70px;font-size:.875rem;max-height:calc(100vh - 90px);overflow:auto;scrollbar-gutter:stable;padding-right:14px;box-sizing:border-box}  /* la barre de défilement, superposée sous Windows 11, ne recouvre plus la fin des titres (remarque de Lucas du 29 octobre 2026) */
 .sommaire ul{list-style:none;padding:0;margin:0}.sommaire ul ul{padding-left:12px}
 .sommaire a{color:var(--muted);text-decoration:none;display:block;padding:2px 0}
 .methode h2{scroll-margin-top:80px}
@@ -597,3 +597,12 @@ a.vers-repliee{opacity:.7}
 @media (max-width:760px){.fen-tete{padding:10px 8px 8px 16px;column-gap:8px}.fenetre.repliable>.fen-corps{padding:16px}}
 }
 @media print{.fen-tete .pastilles,.fen-outils{display:none}.fenetre.repliee>.fen-corps{display:block}}
+/* légende en texte d'une carte dont la légende dessinée devient illisible sur téléphone (carte des secteurs de
+   psychiatrie des rapports départementaux, demande de Lucas du 29 octobre 2026) */
+.legende-texte{display:none}
+.legende-texte p{text-align:left;hyphens:manual;margin:.4em 0}
+@media screen and (max-width:600px){.legende-texte{display:block}}
+/* boutons de variante d'une figure zoomable gardés hors des boutons de zoom posés en haut à droite (trois boutons de
+   28 px), sans quoi ils se chevauchaient sur téléphone */
+.graphique.zoomable .choix-variante{padding-right:110px}
+.graphique.zoomable .choix-variante button{text-align:left}

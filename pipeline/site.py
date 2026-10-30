@@ -47,10 +47,11 @@ DONNEES_FIGURES = [("addicto_regions", "sante_mentale_sante_publique_france.csv"
                    ("multiples_", "effectifs_dep_all.csv"), ("unites_", "temps_acces.csv"),
                    ("_position", "effectifs_dep_all.csv"), ("_carte", "effectifs_epci_all.csv"),
                    ("_trajet", "temps_acces_communes.csv"), ("_unites", "temps_acces.csv"),
-                   ("eloignement_", "escalier_distance_lieux.csv"), ("_distlieux", "distances_lieux_communes.csv")]
+                   ("eloignement_", "escalier_distance_lieux.csv"), ("_distlieux", "distances_lieux_communes.csv"),
+                   ("_sm_secteurs", "secteurs_psychiatrie.csv")]
 # figures où l'on zoome et où l'on clique sur un point ou une zone pour lire son nom
 ZOOMABLES = ("entonnoir_", "quadrants_", "carte_dep_", "multiples_", "bivariee_", "gwr_", "_carte", "_trajet",
-             "_position", "tuiles_dep_", "_distlieux")
+             "_position", "tuiles_dep_", "_distlieux", "_secteurs")
 
 
 def md_html(texte: str, graphiques: Path | None, imprimer=False, donnees: dict | None = None):
@@ -965,8 +966,14 @@ def construire(pdf=True) -> Path:
               f'<a href="methode.html">Méthode, données et limites</a>'
               f'<span class="version">Données du {commun["date_longue"]}, '
               f'<a href="https://doi.org/{config.DOI_DONNEES}">doi:{config.DOI_DONNEES}</a></span></div></header>')
+    # données, fond de carte et bibliothèques dans des fichiers à part, chargés au même endroit (page de 15 Mo qu'un
+    # réseau d'entreprise n'ouvrait pas, 29 octobre 2026), l'atlas autonome de Zenodo garde tout dans la page
     construire_atlas.construire(dernier / "site_data.json", SITE / "index.html", nav, accueil=entete,
-                                titre=f"{config.NOM_PROJET}, l’offre de soins en France, territoire par territoire")
+                                titre=f"{config.NOM_PROJET}, l’offre de soins en France, territoire par territoire",
+                                externes=True)
+    # contours des secteurs de psychiatrie, chargés par le plan de l'atlas à la demande (29 octobre 2026)
+    if (dernier / "secteurs_psychiatrie.geojson").exists():
+        shutil.copy(dernier / "secteurs_psychiatrie.geojson", SITE / "secteurs_psychiatrie.geojson")
     (SITE / "atlas.html").write_text(
         '<!doctype html>\n<html lang="fr"><head><meta charset="utf-8">'
         '<meta name="viewport" content="width=device-width, initial-scale=1">'

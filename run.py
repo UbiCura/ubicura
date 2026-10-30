@@ -150,6 +150,13 @@ def executer(args):
                                                             hop)
         lieux_res["concordance_cattp"] = lieux.concordance_cattp(lieux_res, hop, ref)
         lieux.controle_route_cmp(externes.get("acces_route"), lieux_res, ref)
+        # sectorisation psychiatrique des arrêtés des ARS reçus, CMP confrontés aux secteurs (29 octobre 2026)
+        try:
+            from pipeline import sectorisation as secto
+            lieux_res["sectorisation"] = secto.appliquer(ref, lieux_res["lieux"])
+        except Exception as e:  # noqa: BLE001
+            logging.exception("sectorisation")
+            JOURNAL.note("Sectorisation psychiatrique", "erreur", str(e)[:300])
 
     act, professions = build.perimetre_elargi(act, fin, professions)
     agg = build.agreger(act, ref, fin, lieux_res)

@@ -214,6 +214,7 @@ def _lieux_csv(agg, noms, lab, out: Path):
         "finess": x["finess"].fillna(x.get("finess_rapproche")),
         "finess_rapproche": x.get("finess_rapproche"), "finess_absorbes": x.get("finess_absorbes"),
         "entite_juridique": x["ej"], "commune": x["commune"],
+        "commune_inscription": x.get("commune_inscription", pd.Series(index=x.index, dtype=object)),
         "nom_commune": x["commune"].map(noms["com"].set_index("code")["nom"]), "epci": x["epci"], "dep": x["dep"],
         "reg": x["reg"], "adresse": x["adresse"], "latitude": x["lat"].round(5), "longitude": x["lon"].round(5),
         "emplacement": x["precision"].map(lieux_mod.PRECISIONS),
@@ -372,6 +373,15 @@ def _lieux_csv(agg, noms, lab, out: Path):
     rl = L.get("relecture")
     if isinstance(rl, pd.DataFrame) and len(rl):
         _csv(rl, out / "relecture_structures.csv")
+    # sectorisation psychiatrique des arrêtés des ARS reçus, publiée seulement après l'accord de Lucas
+    # (sectorisation.PUBLIER), table par commune et contours des secteurs pour le plan de l'atlas
+    from . import sectorisation as secto
+    sc = L.get("sectorisation") or {}
+    if secto.PUBLIER and isinstance(sc.get("secteurs"), pd.DataFrame) and len(sc["secteurs"]):
+        _csv(secto.table_publiee(sc["secteurs"]), out / "secteurs_psychiatrie.csv")
+        if sc.get("geojson"):
+            (out / "secteurs_psychiatrie.geojson").write_text(
+                json.dumps(sc["geojson"], ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     ig = L.get("inegalites") or {}
     cl, te, co = ig.get("classes"), ig.get("tests"), ig.get("concentration")
     if isinstance(cl, pd.DataFrame) and len(cl):
