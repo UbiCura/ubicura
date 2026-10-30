@@ -92,8 +92,11 @@ def code_secteur(*noms) -> str | None:
     return None
 
 
+# « Unité administrative », nom d'unité du ROR de neuf structures (trois CMPP de l'Aidaphi à Blois et Vendôme, audit
+# du 30 octobre 2026), ne désigne aucun lieu de soins, le nom de la structure ou de FINESS le remplace
 NOMS_VAGUES = (r"(accompagnements?|accompagnements? individuels?|consultations?|suivi|accueil|prise en charge|soins|"
-               r"soins ambulatoires|ambulatoire|hospitalisation|unite|equipe)( .{0,12})?|tous types de deficiences.*")
+               r"soins ambulatoires|ambulatoire|hospitalisation|unite|equipe)( .{0,12})?|tous types de deficiences.*|"
+               r"unites? administratives?|services? administratifs?|administration|siege( social)?")
 GENERIQUES = re.compile(r"\b(cmp|cattp|cattg|centre|medico|psychologique|consultations?|soins|ambulatoires?|"
                         r"adultes?|enfants?|adolescents?|psy|psychiatrie|et|de|des|du|la|le|les|d|l)\b")
 
@@ -1756,6 +1759,162 @@ def niveau_concordance(ecart) -> str | None:
     return next(lab for seuil, lab in CONCORDANCE if abs(ecart) <= seuil)
 
 
+# Types que la SAE permet de recouper, par département (audit des chiffres du 30 octobre 2026, constats 2 et 4) : table
+# de la SAE et discipline (GEN adultes, INF enfants et adolescents, None les deux). Les CMP et les CATTP sont des
+# nombres déclarés par établissement, rangés au département de son siège ; les hôpitaux de jour se comptent par les
+# sites qui déclarent des places d'hôpital de jour (un site peut porter plusieurs hôpitaux de jour, le compte de la SAE
+# est donc un minimum).
+SAE_RECOUPE = {"lieu_cmp_adultes": ("cmp_disciplines", "GEN"), "lieu_cmp_enfants": ("cmp_disciplines", "INF"),
+               "lieu_cattp": ("cattp_disciplines", None), "lieu_hdj_psy_adultes": ("hdj_sites", "GEN"),
+               "lieu_hdj_psy_enfants": ("hdj_sites", "INF")}
+# Un département (ou une région) dont les bases inscrivent moins de la moitié des structures que la SAE y déclare
+# n'a ni distance au plus proche ni nombre pour 100 000 publiés pour ce type, la mesure serait faite jusqu'aux
+# structures des départements voisins (Haute-Vienne, aucun CATTP inscrit pour 6 déclarés, distance médiane de 50 km)
+SAE_PART_MIN = .5
+
+
+def _dep_finess(n: str) -> str:
+    """Département d'un numéro FINESS, ses deux premiers caractères (2A et 2B pour la Corse), et outre-mer « 97 » suivi
+    du quatrième chiffre (970100012, Guadeloupe 971 ; 9703 Guyane, 9704 La Réunion, 9706 Mayotte)."""
+    n = str(n).strip().zfill(9)
+    return "97" + n[3] if n.startswith("970") else n[:2]
+
+
+def manques_sae(L: dict, sae: dict | None, ref) -> pd.DataFrame | None:
+    """Pour chaque type que la SAE permet de recouper, chaque département et chaque région, structures inscrites dans
+    FINESS et le ROR face aux structures déclarées à la SAE, et « manque » quand les bases en inscrivent moins de
+    SAE_PART_MIN de ce que la SAE déclare. Les intercommunalités suivent le département qui porte l'essentiel de leur
+    population. Colonnes type, niveau, code, inscrites, declarees, manque."""
+    if not L or not sae:
+        return None
+    x = L["lieux"]
+    dep_reg = ref.deps.set_index("code")["reg"]
+    lignes = []
+    for tid, (table, dis) in SAE_RECOUPE.items():
+        s = sae.get(table)
+        if table == "hdj_sites":
+            if not isinstance(s, dict) or dis not in s:
+                continue
+            dec = pd.Series([_dep_finess(n) for n in s[dis]], dtype=object).value_counts()
+        else:
+            if not isinstance(s, pd.DataFrame):
+                continue
+            cols = [dis] if dis else [c for c in ("GEN", "INF") if c in s]
+            if not all(c in s for c in cols):
+                continue
+            dec = s[cols].sum(axis=1)
+        dec = dec[dec > 0].astype(float)
+        ins = x[x["type"] == tid].groupby("dep").size().astype(float)
+        for niv, d_, i_ in (("dep", dec, ins), ("reg", dec.groupby(dec.index.map(dep_reg)).sum(),
+                                                   ins.groupby(ins.index.map(dep_reg)).sum())):
+            t = pd.DataFrame({"declarees": d_}).join(i_.rename("inscrites"), how="left").fillna(0)
+            t = t[t.index.notna()]
+            lignes.append(t.assign(type=tid, niveau=niv, manque=t["inscrites"] < SAE_PART_MIN * t["declarees"])
+                          .rename_axis("code").reset_index())
+    if not lignes:
+        return None
+    out = pd.concat(lignes, ignore_index=True)
+    # intercommunalités, d'après le département qui porte l'essentiel de leur population
+    dep_m = out[(out["niveau"] == "dep") & out["manque"]]
+    e = ref.epci[["code", "dep"]]
+    ep = [e[e["dep"] == r.code].assign(type=r.type, niveau="epci", inscrites=np.nan, declarees=np.nan, manque=True,
+                                       dep_manque=r.code)[["code", "type", "niveau", "inscrites", "declarees", "manque",
+                                                           "dep_manque"]]
+          for r in dep_m.itertuples()]
+    if ep:
+        out = pd.concat([out] + ep, ignore_index=True)
+    lab = {t[0]: t[1] for t in config.LIEUX_TYPES}
+    m = out[(out["niveau"] == "dep") & out["manque"]]
+    JOURNAL.controle("Structures inscrites face à la SAE, départements où les bases en inscrivent moins de la moitié "
+                     "(distance et nombre pour 100 000 non publiés pour ce type)",
+                     "; ".join(f"{_court(lab[t], t)} {len(g)} ({', '.join(f'{c} {int(i)} pour {int(d)}' for c, i, d in zip(g['code'], g['inscrites'], g['declarees']))})"
+                               for t, g in m.groupby("type")) or "aucun")
+    return out
+
+
+def masquer_manques(L: dict, ref) -> dict:
+    """Retire des distances par territoire (L["distances"]) les mesures des territoires où les bases inscrivent moins de
+    la moitié des structures que la SAE déclare (manques_sae, rangé dans L["manques_sae"]). La distance médiane et les
+    parts à plus de 20 et 30 km y deviennent vides. Renvoie la limite à ajouter à config.LIMITES (une seule, « manque_sae »,
+    avec une phrase par territoire qui nomme chaque type touché et ses nombres), sa phrase courte et les alias des
+    indicateurs."""
+    m = L.get("manques_sae")
+    if not isinstance(m, pd.DataFrame) or not m["manque"].any():
+        return {}
+    m = m[m["manque"]]
+    for niv in ("epci", "dep", "reg"):
+        d = (L.get("distances") or {}).get(niv)
+        if not isinstance(d, pd.DataFrame):
+            continue
+        cle_m = set(zip(m.loc[m["niveau"] == niv, "type"], m.loc[m["niveau"] == niv, "code"]))
+        touche = [(t, c) in cle_m for t, c in zip(d["type"], d["code"])]
+        d.loc[touche, ["distance_mediane_km", "part_plus_20_km", "part_plus_30_km"]] = np.nan
+    lab = {t[0]: t[1] for t in config.LIEUX_TYPES}
+    noms_dep = ref.deps.set_index("code")["nom"]
+    # une seule limite pour tous les types et une seule phrase par territoire, qui nomme chaque type touché avec ses
+    # nombres (remarque du 30 octobre 2026, trois « À savoir » presque identiques s'empilaient dans la fiche de Limoges)
+    noms = {"lieu_cattp": "CATTP", "lieu_cmp_adultes": "CMP pour adultes", "lieu_cmp_enfants": "CMP pour enfants et adolescents",
+            "lieu_hdj_psy_adultes": "hôpitaux de jour en psychiatrie pour adultes",
+            "lieu_hdj_psy_enfants": "hôpitaux de jour en psychiatrie pour enfants et adolescents"}
+
+    def morceau(tid, dec, ins):
+        dec, ins = int(dec), int(ins)
+        inscrits = "aucun inscrit" if not ins else f"{nombre(ins)} inscrit{'s' if ins > 1 else ''}"
+        if tid.startswith("lieu_hdj"):
+            return (f"les {noms[tid]} ({nombre(dec)} site{'s' if dec > 1 else ''} qui déclare{'nt' if dec > 1 else ''} des "
+                    f"places, {inscrits})")
+        return f"les {noms.get(tid, _court(lab[tid], tid))} ({nombre(dec)} déclaré{'s' if dec > 1 else ''}, {inscrits})"
+
+    def liste(xs):
+        return xs[0] if len(xs) == 1 else ", ".join(xs[:-1]) + " et " + xs[-1]
+
+    terr = {}
+    for (niv, code), g in m.groupby(["niveau", "code"]):
+        if niv == "epci":
+            deps = sorted(set(g["dep_manque"]))
+            src = m[(m["niveau"] == "dep") & m["code"].isin(deps) & m["type"].isin(g["type"])]
+            ou = (f", dans le département qui porte l'essentiel de la population de ce territoire "
+                  f"({noms_dep.get(deps[0], deps[0])})")
+        else:
+            src, ou = g, ""
+        items = [morceau(r.type, r.declarees, r.inscrites) for r in src.sort_values("type").itertuples()]
+        # une région porte la clé « reg: » suivie de son code, qui sinon se confondrait avec un département (région 03
+        # Guyane et département 03 Allier, 01 Guadeloupe et Ain, 04 La Réunion et Alpes-de-Haute-Provence)
+        terr[f"reg:{code}" if niv == "reg" else code] = ("FINESS et le Répertoire opérationnel des ressources inscrivent moins de la moitié des structures que "
+                      "les établissements déclarent à la statistique annuelle des établissements de santé (SAE) pour "
+                      f"{liste(items)}{ou}. Leur distance et leur nombre pour 100 000 n'y sont pas publiés.")
+    limites_ = {"manque_sae": {
+        "risque": "recensement incomplet",
+        "nom": "Structures déclarées à la SAE et absentes des bases",
+        "court": "Structures déclarées à la SAE et absentes des bases, distance et nombre non publiés.",
+        "texte": ("Dans quelques départements, la statistique annuelle des établissements de santé (SAE), que remplit "
+                  "chaque établissement, déclare bien plus de CMP, de CATTP ou de sites d'hôpital de jour que FINESS et le "
+                  "Répertoire opérationnel des ressources n'en inscrivent (moins de la moitié). Une distance mesurée là "
+                  "irait jusqu'aux structures des départements voisins, elle n'est donc pas publiée, pas plus que le "
+                  "nombre pour 100 000. La SAE range les structures d'un établissement au département de son siège."),
+        "sources": [config.SRC_DREES_SAE],
+        "territoires": terr}}
+    alias = {f"{p}{tid}": "manque_sae" for tid in m["type"].unique() for p in ("lieux_", "dist_")}
+    JOURNAL.controle("Distances retirées faute de structures inscrites (départements, intercommunalités, régions)",
+                     ", ".join(f"{_court(lab[t], t)} {int((g['niveau'] == 'dep').sum())} départements, "
+                               f"{int((g['niveau'] == 'epci').sum())} intercommunalités, {int((g['niveau'] == 'reg').sum())} régions"
+                               for t, g in m.groupby("type")))
+    return {"limites": limites_, "alias": alias}
+
+
+def masquer_distances_communes(L: dict, ref) -> None:
+    """Distances des communes des départements touchés (manques_sae) rendues vides pour le type, juste avant
+    l'écriture des fichiers et des rapports, une fois faites les analyses nationales qui s'appuient sur elles."""
+    m = L.get("manques_sae")
+    dc = L.get("distances_communes")
+    if not isinstance(m, pd.DataFrame) or not isinstance(dc, pd.DataFrame):
+        return
+    com_dep = ref.communes.set_index("code")["dep"].reindex(dc.index)
+    for r in m[(m["niveau"] == "dep") & m["manque"]].itertuples():
+        if r.type in dc.columns:
+            dc.loc[(com_dep == r.code).to_numpy(), r.type] = np.nan
+
+
 def concordance_etablissements(L: dict, sae: dict | None, fin: pd.DataFrame | None = None) -> pd.DataFrame | None:
     """CMP et CATTP confrontés hôpital par hôpital (entité juridique) aux déclarations de la SAE (13 octobre 2026).
     Un écart désigne un établissement précis à vérifier. Les CMP d'un hôpital sont ceux que FINESS ou le ROR
@@ -2047,6 +2206,12 @@ def indicateurs(L: dict, ref, ctx: dict | None = None) -> dict | None:
             if parts and isinstance(cn, pd.DataFrame) and all(p_ in cn for p_ in parts):
                 pp = pop.astype(float) * cn[parts].sum(axis=1).reindex(pop.index) / 100
                 t[tp] = c[tp] / pp.where(pp > 0) * 1e5
+        # territoires où les bases inscrivent moins de la moitié des structures que la SAE déclare (manques_sae)
+        mq = L.get("manques_sae")
+        if isinstance(mq, pd.DataFrame):
+            for r in mq[(mq["niveau"] == niv) & mq["manque"]].itertuples():
+                if r.type in t.columns and r.code in t.index:
+                    t.loc[r.code, r.type] = np.nan
         t = t.add_prefix("lieux_")
         d = (L.get("distances") or {}).get(niv)
         if isinstance(d, pd.DataFrame):

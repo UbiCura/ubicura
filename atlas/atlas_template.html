@@ -150,6 +150,9 @@ body .collant .bar>.groupe-reg.plein>.seg{display:flex;flex:1 1 auto;justify-con
    (remarque de Lucas du 23 octobre 2026, « j'aime bien les choses justifiées et cohérentes ») */
 body .asavoir,body details.asavoir>summary{text-align:justify;hyphens:auto;-webkit-hyphens:auto}
 body details.asavoir>summary{padding-right:0}
+/* sur téléphone, un « À savoir » justifié laissait de grands blancs (la césure manque souvent), aligné à gauche comme
+   les encadrés des rapports (relecture du 30 octobre 2026, règle 19) */
+@media (max-width:640px){body .asavoir,body details.asavoir>summary{text-align:left}}
 body details.asavoir>summary::after{position:static;display:inline;margin-left:.6em;white-space:nowrap}
 /* tableaux des corrélations à leur hauteur naturelle, sans défilement interne (remarque de Lucas du 23 octobre 2026),
    la ligne des professions collée sous la barre de rappel pendant la lecture ; défilement horizontal seulement si

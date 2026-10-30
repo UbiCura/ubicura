@@ -562,7 +562,10 @@ COLONNES = [
     (r"^effectif$", "Effectif (personnes distinctes, somme sur les territoires pour inegalites.csv)."),
     (r"^effectif_attendu$", "Effectif attendu compte tenu du profil sociodémographique (régression de Poisson). "
                             "Ce n'est pas une mesure du besoin."),
-    (r"^densite_nationale$", "Somme des effectifs des territoires rapportée à la population, pour 10 000 habitants."),
+    (r"^densite_nationale$", "Somme des effectifs des territoires du niveau rapportée à la population, pour 10 000 habitants. "
+                             "Un professionnel qui exerce dans plusieurs territoires y compte une fois par territoire, "
+                             "c'est la moyenne calculée comme les territoires et non la densité de la France, dont "
+                             "l'effectif (chaque personne une fois) est dans effectifs_france.csv."),
     (r"^moyenne$|^mediane$|^p10$|^p90$", "Statistique de la densité pour 10 000 habitants entre territoires."),
     (r"^rapport_p90_p10$", "Rapport entre le 9e et le 1er décile des densités."),
     (r"^gini$", "Indice de Gini de la répartition rapportée à la population (0 égalité, 1 concentration totale)."),

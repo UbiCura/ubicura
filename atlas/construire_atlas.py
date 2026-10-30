@@ -127,7 +127,9 @@ def completer(data: dict) -> dict:
                        **{k: {"risque": L["risque"], "texte": L["texte"], "sources": L["sources"],
                               "territoires": L.get("territoires", {}),
                               "court": config.LIMITES_COURT.get(k, "")} for k, L in config.LIMITES.items()}}
-    data["limites_alias"] = config.LIMITES_ALIAS
+    # alias relus dans config, ceux calculés à l'exécution (structures déclarées à la SAE et absentes des bases) gardés,
+    # sans quoi un site refait seul perdait la limite propre à chaque territoire (audit du 30 octobre 2026)
+    data["limites_alias"] = {**(data.get("limites_alias") or {}), **config.LIMITES_ALIAS}
     # glossaire relu de même dans pipeline/lecture.py, pour qu'une définition ajoutée paraisse dans « Comment lire »
     if isinstance(data.get("meta"), dict):
         from pipeline.lecture import GLOSSAIRE

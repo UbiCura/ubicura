@@ -55,7 +55,10 @@ function limiteCourte(L){if(L.court)return L.court;const m=L.texte.match(/^(.+?[
 function limiteHtml(ids,codes){const vues=new Set();let h="";
   for(const id of ids){const k=cleLimite(id);if(!k||vues.has(k))continue;vues.add(k);const L=D.limites[k];let terr="";
     for(const c of (codes||[]))if(c&&L.territoires?.[c]){terr=L.territoires[c];break}
-    h+='<details class="asavoir"><summary><strong>À savoir.</strong> '+esc(limiteCourte(L))+(terr?' <span class="asavoir-terr">'+esc(terr)+'</span>':'')+'</summary>'+
+    // structures déclarées à la SAE et absentes des bases (audit du 30 octobre 2026), la phrase du territoire, qui
+    // nomme chaque type et ses nombres, tient lieu de résumé, l'explication reste dans le texte qui s'ouvre au clic
+    const seul=terr&&k==="manque_sae";
+    h+='<details class="asavoir"><summary><strong>À savoir.</strong> '+(seul?esc(terr):esc(limiteCourte(L))+(terr?' <span class="asavoir-terr">'+esc(terr)+'</span>':''))+'</summary>'+
        '<p>'+esc(L.texte)+' Source, '+L.sources.map(([ti,u])=>'<a href="'+esc(u)+'" target="_blank" rel="noopener">'+esc(ti)+'</a>').join(", ")+'.</p></details>'}
   return h}
 

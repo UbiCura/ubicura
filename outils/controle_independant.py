@@ -262,6 +262,19 @@ if "site_certification_has" in ls and (B / "has" / "has_2021_2025_sites.csv").ex
             note(f"{_lib} confirmés par la HAS (évaluation ou certification)",
                  float(_x["site_certification_has"].astype(str).eq("True").sum()), float(_m.sum()), 0)
 
+# ------------------------------------------------------------------ familles d'indicateurs, tous les territoires
+# (audit des chiffres du 30 octobre 2026) : profil des populations, structures pour 100 000 rapportées au public de
+# leur libellé, densités et populations, SAE, CAF, Santé publique France (outils/controle_familles.py)
+sys.path.insert(0, str(RACINE / "outils"))
+import controle_familles  # noqa: E402
+lignes += controle_familles.tout(R)
+# effectifs des professions recomptés depuis l'extraction du RPPS (fichier de 800 Mo, contrôle lourd, seulement sur
+# demande, une exécution lourde à la fois sur la machine)
+import os  # noqa: E402
+if os.environ.get("OFFRE_CONTROLE_RPPS") == "1":
+    import controle_rpps  # noqa: E402
+    lignes += controle_rpps.tout(R)
+
 print("\n".join(lignes))
 print(f"\nRésultats contrôlés, {R}")
 print(f"{sum(l.startswith('ok') for l in lignes)} contrôles conformes, {sum(l.startswith('ÉCART') for l in lignes)} écarts")

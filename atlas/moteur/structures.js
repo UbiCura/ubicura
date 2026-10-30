@@ -182,10 +182,12 @@ function structuresTerritoire(){const el=document.getElementById("lieuxCard");
   h+='<p class="note">Une structure n’est pas une capacité. Les types recensés de façon incomplète (équipes mobiles, centres de crise...) restent sur la carte et ne sont pas comptés ici.</p>';
   h+='</div>';
   // constats vérifiés sur d'autres sources (sites des établissements, ARS, listes ouvertes), pour le département
-  const depV=lv==="dep"?code:lv==="epci"?u.p:null;
+  const depV=lv==="dep"?code:lv==="epci"?u.p:null,codeLim=lv==="reg"?"reg:"+code:code;
   const ver=(D.verifications_lieux||[]).filter(v=>v.code===depV);
   if(ver.length)h+='<div class="note" style="margin-top:8px"><strong>Vérifié sur d’autres sources.</strong> '+ver.map(v=>esc(v.constat)+' Source, <a href="'+esc(v.adresse)+'" target="_blank" rel="noopener">'+esc(v.source)+'</a>, consultée le '+esc(v.date.split("-").reverse().join("/"))+(v.a_refaire?", vérification à refaire":"")+'.').join(" ")+'</div>';
-  h+=limiteHtml(["lieux"]);
+  // limite propre à un type que les bases inscrivent ici bien moins que la SAE ne le déclare (audit du 30 octobre 2026)
+  const manques=groupes.flatMap(([,ls])=>ls.map(l=>"lieux_"+l.id)).filter(id=>{const k=cleLimite(id);return k&&k!=="lieux"&&(D.limites[k].territoires?.[codeLim]||D.limites[k].territoires?.[depV])});
+  h+=limiteHtml(["lieux",...manques],[codeLim,depV]);
   el.innerHTML=h;
   // liste affichée, exportée par « Citer et exporter »
   EXPORT_CSV.structures=()=>{const lignes=[["Groupe","Type de structure","Nom","Commune","Code commune","Public des CMP","Niveau de confirmation","Précisions","Provenance"]];

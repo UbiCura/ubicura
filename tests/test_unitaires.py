@@ -1940,6 +1940,108 @@ def test_menu_deux_temps_explorer():
     assert ".prof-liste.deux .theme::before{content:none}" in explorer
 
 
+def test_manques_sae():
+    """Territoires où FINESS et le ROR inscrivent moins de la moitié des structures que les établissements déclarent à
+    la SAE (audit du 30 octobre 2026, constats 2 et 4), sur la SAE en cache et les derniers résultats : le Jura
+    (aucun CATTP inscrit pour 14 déclarés) et la Haute-Vienne (aucun pour 6) sont repérés pour les CATTP, leurs
+    intercommunalités aussi, pas un département où les sources concordent ; le département des numéros FINESS
+    d'outre-mer est le bon (9701 Guadeloupe) ; la distance médiane et les parts à plus de 20 et 30 km y deviennent
+    vides, les autres restent, et chaque territoire touché porte sa phrase dans la limite du type."""
+    import pandas as pd
+    from pipeline import lieux as Lm
+    from pipeline.sources import referentiel, sae as sae_src
+    assert Lm._dep_finess("970100012") == "971" and Lm._dep_finess("2A0000014") == "2A" and Lm._dep_finess("870000015") == "87"
+    d = _dernier_resultats()
+    l = _csv(d, "lieux_soins.csv", dtype=str, usecols=["id_structure", "type", "dep"])
+    dist = _csv(d, "distances_lieux_dep.csv", dtype={"code": str})
+    ref = referentiel.charger(hors_ligne=True)
+    hop = sae_src.charger(ref, hors_ligne=True)
+    if l is None or dist is None or not hop:
+        raise Ignore("résultats ou SAE absents")
+    m = Lm.manques_sae({"lieux": l}, hop, ref)
+    dep = m[(m["niveau"] == "dep") & (m["type"] == "lieu_cattp")].set_index("code")
+    if "39" not in dep.index or dep.at["39", "inscrites"] > 0:
+        raise Ignore("CATTP du Jura inscrits depuis, repère à revoir")
+    assert dep.at["39", "manque"] and dep.at["87", "manque"] and dep.at["39", "declarees"] >= 10
+    assert not dep.loc[dep["inscrites"] >= dep["declarees"], "manque"].any()
+    ep = m[(m["niveau"] == "epci") & (m["type"] == "lieu_cattp")]
+    assert set(ep["code"]) >= set(ref.epci.loc[ref.epci["dep"] == "39", "code"])
+    L = {"lieux": l, "manques_sae": m, "distances": {"dep": dist[["code", "type", "distance_mediane_km", "part_plus_20_km",
+                                                                    "part_plus_30_km"]].copy()}}
+    sortie = Lm.masquer_manques(L, ref)
+    dd = L["distances"]["dep"].set_index(["type", "code"])
+    assert pd.isna(dd.at[("lieu_cattp", "39"), "distance_mediane_km"]) and pd.isna(dd.at[("lieu_cattp", "87"), "part_plus_30_km"])
+    assert pd.notna(dd.at[("lieu_cmp_adultes", "39"), "distance_mediane_km"])
+    # une seule limite et une seule phrase par territoire, qui nomme chaque type touché avec ses nombres (trois
+    # « À savoir » presque identiques s'empilaient dans la fiche de Limoges Métropole, remarque du 30 octobre 2026)
+    assert list(sortie["limites"]) == ["manque_sae"] and sortie["limites"]["manque_sae"]["court"]
+    terr = sortie["limites"]["manque_sae"]["territoires"]
+    assert "75" not in terr and "les CATTP (14 déclarés, aucun inscrit)" in terr["39"]
+    # régions sous « reg: », la Guyane (région 03) ne se confond pas avec l'Allier (département 03)
+    assert "reg:03" in terr and "CATTP" in terr["reg:03"] and "03" not in terr
+    t87 = terr["87"]
+    assert t87.count("FINESS et le Répertoire") == 1 and "les CATTP" in t87 and "les CMP pour adultes" in t87
+    e87 = ref.epci.loc[ref.epci["dep"] == "87", "code"].iloc[0]
+    assert "l'essentiel de la population de ce territoire (Haute-Vienne)" in terr[e87]
+    assert sortie["alias"]["dist_lieu_cattp"] == sortie["alias"]["lieux_lieu_cmp_adultes"] == "manque_sae"
+
+
+def test_controle_familles_leger():
+    """Recalcul indépendant des familles d'indicateurs (outils/controle_familles.py, audit du 30 octobre 2026) sur les
+    derniers résultats, parties qui ne lisent pas le dossier complet de l'INSEE : populations et densités des
+    professions, inégalités (Gini, Theil, déciles), effectif attendu, accessibilité, distances agrégées depuis les
+    communes, CAF et Santé publique France. Aucun écart attendu."""
+    import importlib.util
+    spec = importlib.util.spec_from_file_location("controle_familles", Path(__file__).parent.parent / "outils" / "controle_familles.py")
+    F = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(F)
+    d = _dernier_resultats()
+    if not (d / "site_data.json").exists():
+        raise Ignore("résultats incomplets")
+    ref = F.referentiel()
+    for f in (lambda: F.densites(d, ref), lambda: F.inegalites(d), lambda: F.attendu(d), lambda: F.accessibilite(d),
+              lambda: F.distances(d, ref), lambda: F.caf(d, ref), lambda: F.odisse(d)):
+        f()
+    ecarts = [x for x in F.lignes if x.startswith("ÉCART")]
+    assert len(F.lignes) > 100 and not ecarts, ecarts[:5]
+
+
+def test_nom_unite_administrative_vague():
+    """« Unité Administrative », nom d'unité du ROR porté par trois CMPP de Blois et Vendôme (Aidaphi) et six autres
+    structures dans les résultats du 30 octobre 2026, est un nom vague, remplacé par celui de la structure ou de FINESS
+    (« CMPP-AIDAPHI-BLOIS »). Les noms qui désignent un lieu restent gardés."""
+    import re
+    from pipeline.lieux import NOMS_VAGUES, _simple
+    for n in ("Unité Administrative", "Unités administratives", "Siège social", "Administration"):
+        assert re.fullmatch(NOMS_VAGUES, _simple(n)), n
+    for n in ("CMPP Blois", "CMP Munster", "Hôpital de jour Les Tilleuls"):
+        assert not re.fullmatch(NOMS_VAGUES, _simple(n)), n
+
+
+def test_comparer_valeurs_indicateurs():
+    """Le contrôle avant publication compare la médiane des territoires de chaque indicateur du catalogue entre deux
+    versions (audit du 30 octobre 2026, constat 5) : une version comparée à elle-même ne signale rien, et quand les
+    résultats du 29 et du 30 octobre 2026 sont là, la correction des taux de structures rapportés à leur public (EHPAD
+    multipliés par 14) est signalée « à regarder », avec le changement de libellé."""
+    import importlib.util
+    from pipeline import config
+    spec = importlib.util.spec_from_file_location("comparer_versions", Path(__file__).parent.parent / "outils" / "comparer_versions.py")
+    C = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(C)
+    d = _dernier_resultats()
+    c = C.Compte()
+    C.valeurs_indicateurs(d, d, c)
+    assert c.niveau == 0, c.lignes
+    a, b = config.RESULTATS / "2026-10-29", config.RESULTATS / "2026-10-30"
+    if not ((a / "contexte_dep.csv").exists() and (b / "contexte_dep.csv").exists()):
+        raise Ignore("résultats du 29 et du 30 octobre 2026 absents")
+    c = C.Compte()
+    C.valeurs_indicateurs(a, b, c)
+    textes = " ".join(t for n, t in c.lignes if n == "à regarder")
+    assert c.niveau == 10 and "(lieux_lieu_ehpad), médiane des départements" in textes, textes[:500]
+    assert "Indicateur lieux_lieu_ehpad, unité" in textes
+
+
 def test_structures_rapportees_a_leur_public():
     """Les structures d'un public particulier sont rapportées à ce public et non à toute la population : du 15 au 30
     octobre 2026, une variable locale écrasait le contexte de l'INSEE et les EHPAD, CMP pour enfants, CMPP, CAMSP...
@@ -1960,11 +2062,48 @@ def test_structures_rapportees_a_leur_public():
                 continue
             cible = n["population"] * (c[parts].sum(axis=1).reindex(n.index) / 100 if parts else 1)
             attendu = (n[f"n_{tp}"] / cible.where(cible > 0) * 1e5).reindex(c.index)
-            ok = np.isclose(c[f"lieux_{tp}"], attendu, rtol=1e-3, equal_nan=True) | attendu.isna()
+            # un taux absent est permis là où la règle des manques de la SAE le retire (audit, constat 7, test_manques_sae)
+            ok = np.isclose(c[f"lieux_{tp}"], attendu, rtol=1e-3, equal_nan=True) | attendu.isna() | c[f"lieux_{tp}"].isna()
             assert ok.all(), f"{niv}, {tp} : {(~ok).sum()} territoires ne sont pas rapportés aux {public or 'habitants'}"
+            assert c[f"lieux_{tp}"].notna().mean() > .8, f"{niv}, {tp} : trop de taux absents"
             verifies += 1
             publics += bool(parts)
     assert verifies >= 30 and publics >= 15
+
+
+def test_depassements_effectif_minimum():
+    """Aucun taux de dépassement n'est publié pour moins de AMELI_SECTEURS_EFFECTIF_MIN libéraux de secteur 2, comme
+    les parts de secteur 2 : 144 couples département et profession sur 505 reposaient sur 1 à 4 médecins, dont 167 %
+    pour 2 médecins généralistes du Tarn-et-Garonne (audit du 30 octobre 2026). Vraies données en cache."""
+    import pandas as pd
+    from pipeline import config
+    from pipeline.sources import ameli_acces
+    if not (config.BRUT / "ameli_honoraires.csv").exists():
+        raise Ignore("fichier des honoraires de l'Assurance Maladie absent du cache")
+    o = ameli_acces.charger(None, hors_ligne=True)
+    h = o["honoraires"]
+    s2 = o["secteurs"].set_index(["niveau", "code", "prof"])["secteur_2"]
+    n = s2.reindex(pd.MultiIndex.from_frame(h[["niveau", "code", "prof"]])).to_numpy()
+    publie = h["taux_depassement_s2"].notna().to_numpy()
+    assert not (publie & ~(n >= config.AMELI_SECTEURS_EFFECTIF_MIN)).any()
+    assert publie.sum() > 300
+
+
+def test_comparaison_des_valeurs_entre_versions():
+    """Le contrôle avant publication signale un indicateur dont la médiane des territoires change fortement : le 30
+    octobre 2026, des taux de structures multipliés par 7 à 194 étaient passés sans signal (audit, constat 5). Vraies
+    versions du 29 et du 30 octobre, quand elles sont encore sur le PC."""
+    from pipeline import config
+    sys.path.insert(0, str(config.RACINE / "outils"))
+    import comparer_versions as cv
+    avant, apres = config.RESULTATS / "2026-10-29", config.RESULTATS / "2026-10-30"
+    if not ((avant / "contexte_dep.csv").exists() and (apres / "contexte_dep.csv").exists()):
+        raise Ignore("versions du 29 et du 30 octobre 2026 absentes")
+    c = cv.Compte()
+    cv.comparer(avant, apres, c)
+    signal = " ".join(t for n, t in c.lignes if n == "à regarder" and "médiane" in t)
+    assert "lieux_lieu_ehpad" in signal and "lieux_lieu_cmpp" in signal
+    assert "lieux_lieu_cmp_adultes" not in signal and "psychiatre" not in signal
 
 
 def test_fin_du_rapport_d_un_tenant():

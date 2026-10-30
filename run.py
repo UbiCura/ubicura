@@ -128,6 +128,16 @@ def executer(args):
     # lieux de soins, FINESS et ROR réunis sans double compte (version 2, 12 octobre 2026)
     lieux_res = lieux.calculer(ror.charger(hl, rf), fin, act, ref, voisins, hl,
                                has_certification.charger(hl, rf), sirene.charger(hl, rf), has_essms.charger(hl, rf))
+    # types recoupés par la SAE, territoires où les bases en inscrivent moins de la moitié, distances et taux retirés
+    # avec leur limite (audit des chiffres du 30 octobre 2026)
+    if lieux_res:
+        lieux_res["manques_sae"] = lieux.manques_sae(lieux_res, hop, ref)
+        _manques = lieux.masquer_manques(lieux_res, ref)
+        if _manques:
+            from pipeline import limites as _lim
+            _lim.completer(_manques["limites"])
+            config.LIMITES_ALIAS.update(_manques["alias"])
+            config.LIMITES_COURT.update({k: L["court"] for k, L in _manques["limites"].items() if L.get("court")})
     # lieux pour 100 000 habitants et distances, ajoutés aux indicateurs de contexte pour être croisés
     src_lieux = lieux.indicateurs(lieux_res, ref, ctx) if contexte else None
     if src_lieux:
@@ -185,6 +195,9 @@ def executer(args):
     except Exception as e:  # noqa: BLE001
         logging.exception("journal des mises à jour")
         JOURNAL.note("Journal des mises à jour", "erreur", str(e)[:300])
+    if lieux_res:
+        # distances des communes des départements sans mesure, retirées une fois faites les analyses nationales
+        lieux.masquer_distances_communes(lieux_res, ref)
     out = export.ecrire(agg, ref, professions, contexte, R, diplomes, jour=args.date)
     try:
         dossier_site = site.construire(pdf=not args.sans_pdf)

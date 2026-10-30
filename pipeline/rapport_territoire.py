@@ -1185,6 +1185,11 @@ def _carte_distance_lieux(B, T, famille, L):
     couv = L["couverture"].set_index("type")
     if not isinstance(dist, pd.DataFrame) or tid not in dist or tid not in couv.index or not couv.at[tid, "complet"]:
         return []
+    # pas de carte des distances là où les bases inscrivent moins de la moitié des structures que la SAE déclare
+    mq = L.get("manques_sae")
+    if isinstance(mq, pd.DataFrame) and ((mq["niveau"] == "dep") & (mq["code"] == T["code"]) & (mq["type"] == tid)
+                                         & mq["manque"]).any():
+        return []
     geoms = B.communes_dep(T["code"])
     if len(geoms) < 5:   # une carte par commune n'a pas de sens à Paris (une seule commune)
         return []
@@ -1321,6 +1326,16 @@ def _verification_cmp(L, T):
     return out
 
 
+def _phrase_manques(code, niv="dep") -> str:
+    """Un seul « À savoir » pour les types que les bases inscrivent ici bien moins que la SAE ne le déclare, la phrase
+    du territoire en tête, qui nomme chaque type et ses nombres (lieux.masquer_manques, remarque du 30 octobre 2026)."""
+    L = config.LIMITES.get("manque_sae") or {}
+    terr = (L.get("territoires") or {}).get(f"reg:{code}" if niv == "reg" else code)
+    if not terr:
+        return ""
+    return limites.A_SAVOIR + terr + " " + L["texte"].split(". ", 2)[-1] + " Source, " + limites.sources_md(L) + "."
+
+
 def _lieux(B, T, famille):
     """Structures de soins du territoire, FINESS et ROR réunis sans double compte, nombre, distance des habitants au plus
     proche comparée à la France, et liste des structures en volet replié."""
@@ -1337,6 +1352,8 @@ def _lieux(B, T, famille):
     d_fr = dfr.set_index("type") if isinstance(dfr, pd.DataFrame) else pd.DataFrame()
     pop = float(B.noms_pop[niv].get(code, 0)) if hasattr(B, "noms_pop") else float(
         (B.ref.deps if niv == "dep" else B.ref.regs).set_index("code")["pop"].get(code, 0))
+    mq = L.get("manques_sae")
+    manques = set(mq.loc[(mq["niveau"] == niv) & (mq["code"] == code) & mq["manque"], "type"])         if isinstance(mq, pd.DataFrame) else set()
     lignes = []
     for tid, lib, fam, groupe, _r in config.LIEUX_TYPES:
         if fam != famille or tid not in couv.index or not couv.at[tid, "complet"]:
@@ -1348,13 +1365,16 @@ def _lieux(B, T, famille):
         cf = g["confirmation"] if "confirmation" in g else pd.Series(dtype=object)
         etabli = "confirmation" in x and L["lieux"].loc[L["lieux"]["type"] == tid, "confirmation"].notna().any()
         k = conf_mod.compter_classes(cf) if etabli else {}
-        lignes.append({"libelle": lib, "n": n, "p100k": n / pop * 1e5 if pop else None,
+        # type dont les bases inscrivent ici moins de la moitié de ce que la SAE déclare, ni taux ni distance
+        # (lieux.manques_sae, audit du 30 octobre 2026)
+        sans_mesure = tid in manques
+        lignes.append({"libelle": lib, "n": n, "p100k": n / pop * 1e5 if pop and not sans_mesure else None,
                        "conf": k.get("confirmee") if etabli else None,
                        "rec": (k.get("recoupee") if tid in conf_mod.TYPES_RECOUPES else "sans objet") if etabli else None,
                        "abv": k.get("a_verifier") if etabli else None,
-                       "dist": d_ici.at[tid, "distance_mediane_km"] if tid in d_ici.index else None,
+                       "dist": d_ici.at[tid, "distance_mediane_km"] if tid in d_ici.index and not sans_mesure else None,
                        "dist_fr": d_fr.at[tid, "distance_mediane_km"] if tid in d_fr.index else None,
-                       "p30": d_ici.at[tid, "part_plus_30_km"] if tid in d_ici.index else None})
+                       "p30": d_ici.at[tid, "part_plus_30_km"] if tid in d_ici.index and not sans_mesure else None})
     if not lignes:
         return []
     t = pd.DataFrame(lignes)
@@ -1397,7 +1417,7 @@ def _lieux(B, T, famille):
         out += _verification_cmp(L, T)
     out += _comment_lire("Une structure n'est pas une capacité, et les structures ne s'ajoutent pas aux professionnels. Les "
                          "professionnels déclarés dans chaque structure figurent dans lieux_soins.csv.",
-                         limites.phrase_md(["lieux"]))
+                         _phrase_manques(code, niv) if manques else "", limites.phrase_md(["lieux"]))
     out += _carte_distance_lieux(B, T, famille, L)
     if famille == SM:
         out += _carte_secteurs(B, T, L)

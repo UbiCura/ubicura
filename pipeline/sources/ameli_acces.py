@@ -157,11 +157,18 @@ def charger(ref, hors_ligne=False, rafraichir=False):
         JOURNAL.note("Assurance Maladie, secteurs conventionnels", "erreur", str(e)[:300])
     try:
         h, meta = _honoraires(hors_ligne, rafraichir)
-        # sans aucun libéral de secteur 2 dans le territoire (secteurs conventionnels), un taux de 0 n'a pas de sens
+        # le taux n'est publié qu'à partir du même effectif que les parts de secteur 2 (AMELI_SECTEURS_EFFECTIF_MIN) :
+        # 144 couples département et profession sur 505 reposaient sur 1 à 4 libéraux de secteur 2, dont 167 % pour
+        # 2 médecins généralistes du Tarn-et-Garonne (audit du 30 octobre 2026), et sans aucun, un taux n'a pas de sens
         if out["secteurs"] is not None:
             s2 = out["secteurs"].set_index(["niveau", "code", "prof"])["secteur_2"]
-            sans_s2 = s2.reindex(pd.MultiIndex.from_frame(h[["niveau", "code", "prof"]])).to_numpy() == 0
-            h.loc[sans_s2, "taux_depassement_s2"] = float("nan")
+            n_s2 = s2.reindex(pd.MultiIndex.from_frame(h[["niveau", "code", "prof"]])).to_numpy()
+            trop_peu = ~(n_s2 >= config.AMELI_SECTEURS_EFFECTIF_MIN)
+            h.loc[trop_peu, "taux_depassement_s2"] = float("nan")
+            JOURNAL.controle(f"Assurance Maladie, taux de dépassement non publiés (moins de "
+                             f"{config.AMELI_SECTEURS_EFFECTIF_MIN} libéraux de secteur 2)",
+                             f"{int((trop_peu & (h['niveau'] == 'dep').to_numpy()).sum())} sur "
+                             f"{int((h['niveau'] == 'dep').sum())} couples département et profession")
         out["honoraires"] = h
         for p, iid, lab, fam in config.AMELI_SECTEURS_PROFESSIONS:
             x = h[h["prof"] == iid]
@@ -175,7 +182,9 @@ def charger(ref, hors_ligne=False, rafraichir=False):
                                f"territoire, rapporté à leurs honoraires sans dépassement, en {h['annee'].iloc[0]}, tel "
                                f"que le publie l'Assurance Maladie. Mesure les dépassements réellement facturés, en "
                                f"moyenne, pas ce que paie chaque patient. Non publié quand les montants sont couverts "
-                               f"par le secret statistique.",
+                               f"par le secret statistique ou quand le territoire compte moins de "
+                               f"{config.AMELI_SECTEURS_EFFECTIF_MIN} libéraux de secteur 2, car un ou deux médecins "
+                               f"suffiraient à faire varier fortement le taux.",
                 "source": SOURCE_HONORAIRES, "famille": fam, "licence": config.AMELI_LICENCE, "niveau_origine": "dep",
                 "groupe": config.GROUPE_ACCES})
         fr = h[(h["niveau"] == "FR") & (h["prof"] == "psychiatre")]

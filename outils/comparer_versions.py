@@ -33,6 +33,8 @@ POPULATION = (.01, .05)        # variation de la population totale
 LIGNES = (.20, .50)            # variation du nombre de lignes d'un fichier
 VIDES = .05                    # hausse de la part de valeurs manquantes d'un indicateur
 LIEUX = (.15, .40)             # variation du nombre de lieux de soins d'un type (FINESS et ROR, mis à jour chaque semaine)
+VALEURS = .20                  # variation de la médiane des territoires d'un indicateur du catalogue (audit du 30 octobre
+                               # 2026, constat 5, des taux multipliés par 7 à 194 étaient passés sans signal)
 PRINCIPALES = ["psychologue", "psychiatre", "pedopsychiatre", "psychotherapeute", "medecin_generaliste", "infirmier",
                "masseur_kinesitherapeute", "orthophoniste", "psychomotricien", "pharmacien", "chirurgien_dentiste",
                "sage_femme", "pediatre"]
@@ -130,6 +132,8 @@ def comparer(avant: Path, apres: Path, c: Compte):
                 c.note(10, f"{f}, l'indicateur {col} a {vb:.0%} de valeurs manquantes contre {va:.0%} avant")
         for col in sorted(set(a.columns) - set(b.columns)):
             c.note(10, f"{f}, l'indicateur {col} a disparu")
+    # 4 bis. valeurs de chaque indicateur du catalogue, médiane des territoires de chaque niveau
+    valeurs_indicateurs(avant, apres, c)
     # 5. lieux de soins par type, le ROR étant rempli par les établissements, une région peut changer d'un coup
     a, b = lire(avant / "lieux_soins.csv"), lire(apres / "lieux_soins.csv")
     if a is not None and b is not None:
@@ -151,6 +155,58 @@ def comparer(avant: Path, apres: Path, c: Compte):
     # 7. cohérence des indicateurs et des croisements (exigence de Lucas du 12 octobre 2026, après des indicateurs
     # fantômes nés d'un ajout placé dans la mauvaise liste de config.py)
     coherence(apres, c)
+
+
+def catalogue(version: Path) -> dict:
+    """Indicateurs du catalogue d'une version (site_data.json), par identifiant, avec libellé et unité."""
+    try:
+        d = json.loads((version / "site_data.json").read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        return {}
+    return {x["id"]: x for x in d.get("contexte", [])}
+
+
+def valeurs_indicateurs(avant: Path, apres: Path, c: Compte):
+    """Pour chaque indicateur du catalogue présent dans les deux versions, médiane des territoires de chaque niveau
+    (départements, intercommunalités, régions) avant et après, « à regarder » au-delà de VALEURS. Une correction voulue
+    passe par -Valider après lecture, une erreur nouvelle ne passe plus en silence. Signale aussi un libellé ou une
+    unité qui change, qu'un lecteur doit pouvoir comprendre."""
+    ca, cb = catalogue(avant), catalogue(apres)
+    for i in sorted(set(ca) & set(cb)):
+        for champ in ("unite", "label"):
+            if (ca[i].get(champ) or "") != (cb[i].get(champ) or ""):
+                c.note(10, f"Indicateur {i}, {'unité' if champ == 'unite' else 'libellé'} « {ca[i].get(champ)} » devenu "
+                           f"« {cb[i].get(champ)} »")
+    touches = {}
+    for niv in ("dep", "epci", "reg"):
+        for f in (f"contexte_{niv}.csv", f"contexte_{niv}_odbl.csv"):
+            a, b = lire(avant / f), lire(apres / f)
+            if a is None or b is None or "code" not in a or "code" not in b:
+                continue
+            a, b = a.set_index("code"), b.set_index("code")
+            for col in a.columns:
+                if col not in b or not np.issubdtype(a[col].dtype, np.number) or not np.issubdtype(b[col].dtype, np.number):
+                    continue
+                x = pd.DataFrame({"a": a[col], "b": b[col].reindex(a.index)}).dropna()
+                if len(x) < 5:
+                    continue
+                ma, mb = float(x["a"].median()), float(x["b"].median())
+                # écart relatif de la médiane, et à défaut (médiane nulle) écart rapporté à l'étendue interquartile
+                if ma:
+                    v = mb / ma - 1
+                else:
+                    iqr = float(x["a"].quantile(.75) - x["a"].quantile(.25)) or 1.0
+                    v = (mb - ma) / iqr
+                if abs(v) > VALEURS:
+                    touches.setdefault(col, []).append(f"{NIVEAU_NOM[niv]} {ma:.4g} avant, {mb:.4g} après ({v:+.0%})")
+    for col, ls in sorted(touches.items()):
+        lib = (cb.get(col) or ca.get(col) or {}).get("label") or col
+        c.note(10, f"Valeurs de l'indicateur « {lib} » ({col}), médiane des {'; '.join(ls)}")
+    if not touches:
+        c.note(0, f"Valeurs des indicateurs du catalogue, aucune médiane de territoires qui change de plus de {VALEURS:.0%}")
+
+
+NIVEAU_NOM = {"dep": "départements", "epci": "intercommunalités", "reg": "régions"}
 
 
 CONFIRMEE = "confirmée par l'établissement"

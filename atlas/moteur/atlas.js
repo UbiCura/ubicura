@@ -153,7 +153,7 @@ function drawMap(){
   legend+=legendeHospitaliere(p,lv);
   legend+=dessinerLieux(M);
   document.getElementById("legend").innerHTML=legend;
-  document.getElementById("mapLimite").innerHTML=(S.metric==="trajet"?limiteHtml(["route"]):S.metric==="evol"?limiteHtml(["evol:"]):limiteHtml(["prof:"+p,...psyBulle.map(x=>"prof:"+x)]))+(sigs.length?limiteHtml(sigs):"")+(S.lieux?limiteHtml(["lieux"]):"");
+  document.getElementById("mapLimite").innerHTML=(S.metric==="trajet"?limiteHtml(["route"]):S.metric==="evol"?limiteHtml(["evol:"]):limiteHtml(["prof:"+p,...psyBulle.map(x=>"prof:"+x)]))+(sigs.length?limiteHtml(sigs):"")+(S.lieux?limiteHtml(["lieux","dist_"+S.lieux]):"");
 }
 document.getElementById("lieuxType").addEventListener("change",e=>{S.lieux=e.target.value;LIEU_CHOISI=null;if(!S.lieux&&S.metric==="lieux")S.metric="dens";render()});
 
@@ -188,7 +188,10 @@ function bulle(lv,i,p){const u=D.niveaux[lv].units[i];
   // distance vide, aucune structure de ce type sur le territoire (la Corse et chaque département d'outre-mer comptés à
   // part, jamais par-dessus la mer, note du 28 octobre 2026)
   if(S.metric==="lieux"&&S.lieux){const dl=D.niveaux[lv].lieux_dist?.[S.lieux]?.[i],tl=LX?.types.find(t=>t.id===S.lieux);
-    h+='<div class="tl">'+esc(tl?tl.lib:"Structure")+', '+(dl==null?'aucune structure de ce type sur ce territoire, la distance n’est pas cherchée par-dessus la mer':'la moitié des habitants à moins de '+f1.format(dl)+' km à vol d’oiseau')+'.</div>'}
+    // distance retirée là où les bases inscrivent moins de la moitié des structures que la SAE déclare (audit du 30
+    // octobre 2026), la précision du territoire le dit
+    const km=cleLimite("dist_"+S.lieux),manque=km&&D.limites[km].territoires?.[lv==="reg"?"reg:"+u.c:u.c];
+    h+='<div class="tl">'+esc(tl?tl.lib:"Structure")+', '+(manque?'distance non publiée. '+esc(manque):dl==null?'aucune structure de ce type sur ce territoire, la distance n’est pas cherchée par-dessus la mer.':'la moitié des habitants à moins de '+f1.format(dl)+' km à vol d’oiseau.')+'</div>'}
   if(S.metric==="acces"&&D.niveaux[lv].distance?.[p]?.[i]==null&&D.niveaux[lv].distance?.[p])h+='<div class="tl">Aucun de ces professionnels sur ce territoire, la distance n’est pas cherchée par-dessus la mer.</div>';
   if(S.metric==="acces"&&D.niveaux[lv].distance?.[p]?.[i]!=null)h+='<div class="tl">Distance moyenne au plus proche '+f1.format(D.niveaux[lv].distance[p][i])+' km, accessibilité '+f1.format(D.niveaux[lv].acces[p][i])+' pour 10 000 hab.</div>';
   const ev=evol(lv,p,i),ei=evolInfo(p);if(ev)h+='<div class="tl">'+esc(ei.lib)+', évolution de la densité de '+ei.debut+' à '+ei.fin+' selon la DREES, '+signe(ev[2])+' (France '+signe(ei.fr[2])+').</div>';
@@ -296,7 +299,9 @@ function selCard(){
   const rg=regionDe(lv,S.sel.c);
   if(S.fam!==SANTE&&rg)h+='<p class="small" style="margin:6px 0 0"><a href="explorer.html#qAddicto?fam='+famCle()+'&adReg='+rg+'">L’addictologie '+esc(enRegion(rg))+', de l’offre aux consommations, dans Explorer</a></p>';
   // limites propres à ce territoire (par exemple les suicides en Île-de-France)
-  const codes=[S.sel.c,lv==="epci"?u.p:null],lims=Object.keys(D.limites||{}).filter(k=>codes.some(c=>c&&D.limites[k].territoires?.[c]));
+  // une région se désigne « reg: » suivi de son code dans les territoires d'une limite, pour ne pas se confondre avec
+  // un département de même code (Guyane 03 et Allier 03), seule la limite des manques de la SAE l'utilise
+  const codes=[S.sel.c,lv==="epci"?u.p:null,lv==="reg"?"reg:"+S.sel.c:null],lims=Object.keys(D.limites||{}).filter(k=>codes.some(c=>c&&D.limites[k].territoires?.[c]));
   if(fragile(lv,S.sel.c))lims.unshift(fragile(lv,S.sel.c));
   h+=limiteHtml(["prof:"+p0,...lims],codes);
   // le détail se masque ou s'affiche par la flèche, l'en-tête reste visible (le choix est gardé d'un territoire à l'autre)
