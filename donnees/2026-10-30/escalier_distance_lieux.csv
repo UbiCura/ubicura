@@ -1,0 +1,171 @@
+﻿type;decile;niveau_de_vie_min;niveau_de_vie_max;population;distance_mediane_km;part_plus_20_km;libelle_type
+lieu_cmp_adultes;1;16920;23320;6709817;3,01533;0,0234096;CMP pour adultes
+lieu_cmp_adultes;2;23330;24360;6917379;4,66734;0,0328458;CMP pour adultes
+lieu_cmp_adultes;3;24370;24750;6547630;2,61865;0,0282207;CMP pour adultes
+lieu_cmp_adultes;4;24760;25380;6618897;4,39716;0,0216213;CMP pour adultes
+lieu_cmp_adultes;5;25380;25740;7159728;1,54244;0,00857519;CMP pour adultes
+lieu_cmp_adultes;6;25740;26320;6602289;3,47764;0,0114816;CMP pour adultes
+lieu_cmp_adultes;7;26330;27080;6327769;2,26417;0,0110151;CMP pour adultes
+lieu_cmp_adultes;8;27110;28040;5648923;3,32999;0,00482039;CMP pour adultes
+lieu_cmp_adultes;9;28050;28430;7840033;0,763149;0,00125408;CMP pour adultes
+lieu_cmp_adultes;10;28440;45880;6682766;4,54208;0,0120715;CMP pour adultes
+lieu_cmp_enfants;1;16920;23320;6709817;3,45007;0,0537645;CMP pour enfants et adolescents
+lieu_cmp_enfants;2;23330;24360;6917379;6,30023;0,112284;CMP pour enfants et adolescents
+lieu_cmp_enfants;3;24370;24750;6547630;4,16392;0,0928956;CMP pour enfants et adolescents
+lieu_cmp_enfants;4;24760;25380;6618897;5,7578;0,0764411;CMP pour enfants et adolescents
+lieu_cmp_enfants;5;25380;25740;7159728;2,02049;0,047138;CMP pour enfants et adolescents
+lieu_cmp_enfants;6;25740;26320;6602289;3,30164;0,0314453;CMP pour enfants et adolescents
+lieu_cmp_enfants;7;26330;27080;6327769;3,3648;0,0299123;CMP pour enfants et adolescents
+lieu_cmp_enfants;8;27110;28040;5648923;3,75447;0,0417506;CMP pour enfants et adolescents
+lieu_cmp_enfants;9;28050;28430;7840033;0,658312;0,0030871;CMP pour enfants et adolescents
+lieu_cmp_enfants;10;28440;45880;6682766;4,91835;0,0294751;CMP pour enfants et adolescents
+lieu_cattp;1;16920;23320;6709817;4,5914;0,122237;CATTP, accueil thérapeutique à temps partiel
+lieu_cattp;2;23330;24360;6917379;7,51389;0,169777;CATTP, accueil thérapeutique à temps partiel
+lieu_cattp;3;24370;24750;6547630;3,44448;0,0763687;CATTP, accueil thérapeutique à temps partiel
+lieu_cattp;4;24760;25380;6618897;6,3565;0,115211;CATTP, accueil thérapeutique à temps partiel
+lieu_cattp;5;25380;25740;7159728;1,54213;0,0625721;CATTP, accueil thérapeutique à temps partiel
+lieu_cattp;6;25740;26320;6602289;3,15952;0,029748;CATTP, accueil thérapeutique à temps partiel
+lieu_cattp;7;26330;27080;6327769;2,89177;0,0441543;CATTP, accueil thérapeutique à temps partiel
+lieu_cattp;8;27110;28040;5648923;3,67661;0,0102823;CATTP, accueil thérapeutique à temps partiel
+lieu_cattp;9;28050;28430;7840033;0,620788;0,00297652;CATTP, accueil thérapeutique à temps partiel
+lieu_cattp;10;28440;45880;6682766;4,99764;0,0444184;CATTP, accueil thérapeutique à temps partiel
+lieu_hdj_psy_adultes;1;16920;23320;6709817;5,29615;0,123542;Hôpitaux de jour en psychiatrie, adultes
+lieu_hdj_psy_adultes;2;23330;24360;6917379;8,50804;0,208478;Hôpitaux de jour en psychiatrie, adultes
+lieu_hdj_psy_adultes;3;24370;24750;6547630;3,80783;0,0919571;Hôpitaux de jour en psychiatrie, adultes
+lieu_hdj_psy_adultes;4;24760;25380;6618897;6,10474;0,111371;Hôpitaux de jour en psychiatrie, adultes
+lieu_hdj_psy_adultes;5;25380;25740;7159728;2,23918;0,0434585;Hôpitaux de jour en psychiatrie, adultes
+lieu_hdj_psy_adultes;6;25740;26320;6602289;3,99486;0,0660525;Hôpitaux de jour en psychiatrie, adultes
+lieu_hdj_psy_adultes;7;26330;27080;6327769;4,09445;0,0640142;Hôpitaux de jour en psychiatrie, adultes
+lieu_hdj_psy_adultes;8;27110;28040;5648923;3,80714;0,0324329;Hôpitaux de jour en psychiatrie, adultes
+lieu_hdj_psy_adultes;9;28050;28430;7840033;1,73095;0,00678007;Hôpitaux de jour en psychiatrie, adultes
+lieu_hdj_psy_adultes;10;28440;45880;6682766;6,1693;0,0363065;Hôpitaux de jour en psychiatrie, adultes
+lieu_hdj_psy_enfants;1;16920;23320;6709817;7,36126;0,157352;Hôpitaux de jour en psychiatrie, enfants et adolescents
+lieu_hdj_psy_enfants;2;23330;24360;6917379;13,227;0,323565;Hôpitaux de jour en psychiatrie, enfants et adolescents
+lieu_hdj_psy_enfants;3;24370;24750;6547630;4,97509;0,166192;Hôpitaux de jour en psychiatrie, enfants et adolescents
+lieu_hdj_psy_enfants;4;24760;25380;6618897;7,15939;0,162672;Hôpitaux de jour en psychiatrie, enfants et adolescents
+lieu_hdj_psy_enfants;5;25380;25740;7159728;2,98737;0,0591303;Hôpitaux de jour en psychiatrie, enfants et adolescents
+lieu_hdj_psy_enfants;6;25740;26320;6602289;5,36981;0,0934171;Hôpitaux de jour en psychiatrie, enfants et adolescents
+lieu_hdj_psy_enfants;7;26330;27080;6327769;5,39759;0,0895553;Hôpitaux de jour en psychiatrie, enfants et adolescents
+lieu_hdj_psy_enfants;8;27110;28040;5648923;6,00356;0,0841927;Hôpitaux de jour en psychiatrie, enfants et adolescents
+lieu_hdj_psy_enfants;9;28050;28430;7840033;1,55913;0,0128982;Hôpitaux de jour en psychiatrie, enfants et adolescents
+lieu_hdj_psy_enfants;10;28440;45880;6682766;7,30534;0,0659619;Hôpitaux de jour en psychiatrie, enfants et adolescents
+lieu_hc_psy_adultes;1;16920;23320;6709817;7,07082;0,147903;Hospitalisation complète en psychiatrie, adultes
+lieu_hc_psy_adultes;2;23330;24360;6917379;14,4569;0,376461;Hospitalisation complète en psychiatrie, adultes
+lieu_hc_psy_adultes;3;24370;24750;6547630;5,5561;0,199027;Hospitalisation complète en psychiatrie, adultes
+lieu_hc_psy_adultes;4;24760;25380;6618897;10,6539;0,238495;Hospitalisation complète en psychiatrie, adultes
+lieu_hc_psy_adultes;5;25380;25740;7159728;3,95083;0,0888271;Hospitalisation complète en psychiatrie, adultes
+lieu_hc_psy_adultes;6;25740;26320;6602289;5,3615;0,124003;Hospitalisation complète en psychiatrie, adultes
+lieu_hc_psy_adultes;7;26330;27080;6327769;6,16844;0,149577;Hospitalisation complète en psychiatrie, adultes
+lieu_hc_psy_adultes;8;27110;28040;5648923;5,18862;0,107493;Hospitalisation complète en psychiatrie, adultes
+lieu_hc_psy_adultes;9;28050;28430;7840033;1,29139;0,0167252;Hospitalisation complète en psychiatrie, adultes
+lieu_hc_psy_adultes;10;28440;45880;6682766;6,99976;0,0813118;Hospitalisation complète en psychiatrie, adultes
+lieu_cmpp;1;16920;23320;6709817;8,27537;0,197646;CMPP, centres médico-psycho-pédagogiques
+lieu_cmpp;2;23330;24360;6917379;13,2126;0,356508;CMPP, centres médico-psycho-pédagogiques
+lieu_cmpp;3;24370;24750;6547630;5,89326;0,200458;CMPP, centres médico-psycho-pédagogiques
+lieu_cmpp;4;24760;25380;6618897;8,93905;0,208863;CMPP, centres médico-psycho-pédagogiques
+lieu_cmpp;5;25380;25740;7159728;5,81857;0,222514;CMPP, centres médico-psycho-pédagogiques
+lieu_cmpp;6;25740;26320;6602289;6,61891;0,20714;CMPP, centres médico-psycho-pédagogiques
+lieu_cmpp;7;26330;27080;6327769;7,18956;0,205628;CMPP, centres médico-psycho-pédagogiques
+lieu_cmpp;8;27110;28040;5648923;7,22121;0,181164;CMPP, centres médico-psycho-pédagogiques
+lieu_cmpp;9;28050;28430;7840033;1,13624;0,0285726;CMPP, centres médico-psycho-pédagogiques
+lieu_cmpp;10;28440;45880;6682766;9,06256;0,118124;CMPP, centres médico-psycho-pédagogiques
+lieu_camsp;1;16920;23320;6709817;7,40548;0,17635;CAMSP, centres d'action médico-sociale précoce
+lieu_camsp;2;23330;24360;6917379;12,8398;0,356806;CAMSP, centres d'action médico-sociale précoce
+lieu_camsp;3;24370;24750;6547630;7,80571;0,241748;CAMSP, centres d'action médico-sociale précoce
+lieu_camsp;4;24760;25380;6618897;9,18451;0,239478;CAMSP, centres d'action médico-sociale précoce
+lieu_camsp;5;25380;25740;7159728;4,39471;0,142608;CAMSP, centres d'action médico-sociale précoce
+lieu_camsp;6;25740;26320;6602289;7,61369;0,185617;CAMSP, centres d'action médico-sociale précoce
+lieu_camsp;7;26330;27080;6327769;7,52994;0,16852;CAMSP, centres d'action médico-sociale précoce
+lieu_camsp;8;27110;28040;5648923;7,04555;0,0983225;CAMSP, centres d'action médico-sociale précoce
+lieu_camsp;9;28050;28430;7840033;3,07418;0,0233227;CAMSP, centres d'action médico-sociale précoce
+lieu_camsp;10;28440;45880;6682766;8,57918;0,0690484;CAMSP, centres d'action médico-sociale précoce
+lieu_csapa;1;16920;23320;6709817;6,65656;0,201875;CSAPA, soins et prévention en addictologie
+lieu_csapa;2;23330;24360;6917379;12,6541;0,350238;CSAPA, soins et prévention en addictologie
+lieu_csapa;3;24370;24750;6547630;5,46778;0,173471;CSAPA, soins et prévention en addictologie
+lieu_csapa;4;24760;25380;6618897;7,59281;0,199206;CSAPA, soins et prévention en addictologie
+lieu_csapa;5;25380;25740;7159728;4,08271;0,127808;CSAPA, soins et prévention en addictologie
+lieu_csapa;6;25740;26320;6602289;7,15373;0,173357;CSAPA, soins et prévention en addictologie
+lieu_csapa;7;26330;27080;6327769;6,4033;0,124664;CSAPA, soins et prévention en addictologie
+lieu_csapa;8;27110;28040;5648923;6,34148;0,0981074;CSAPA, soins et prévention en addictologie
+lieu_csapa;9;28050;28430;7840033;1,44797;0,0223202;CSAPA, soins et prévention en addictologie
+lieu_csapa;10;28440;45880;6682766;8,85397;0,110121;CSAPA, soins et prévention en addictologie
+lieu_caarud;1;16920;23320;6709817;18,5478;0,466144;CAARUD, réduction des risques
+lieu_caarud;2;23330;24360;6917379;26,4091;0,611929;CAARUD, réduction des risques
+lieu_caarud;3;24370;24750;6547630;11,3282;0,385397;CAARUD, réduction des risques
+lieu_caarud;4;24760;25380;6618897;18,511;0,484009;CAARUD, réduction des risques
+lieu_caarud;5;25380;25740;7159728;10,1993;0,30648;CAARUD, réduction des risques
+lieu_caarud;6;25740;26320;6602289;12,7329;0,383382;CAARUD, réduction des risques
+lieu_caarud;7;26330;27080;6327769;12,3807;0,328789;CAARUD, réduction des risques
+lieu_caarud;8;27110;28040;5648923;11,6206;0,287089;CAARUD, réduction des risques
+lieu_caarud;9;28050;28430;7840033;2,71091;0,0467098;CAARUD, réduction des risques
+lieu_caarud;10;28440;45880;6682766;15,4765;0,339018;CAARUD, réduction des risques
+lieu_urgences;1;16920;23320;6709817;6,24818;0,103369;Services d'urgences
+lieu_urgences;2;23330;24360;6917379;8,26806;0,16918;Services d'urgences
+lieu_urgences;3;24370;24750;6547630;5,18486;0,101913;Services d'urgences
+lieu_urgences;4;24760;25380;6618897;6,63176;0,112375;Services d'urgences
+lieu_urgences;5;25380;25740;7159728;2,54146;0,0558745;Services d'urgences
+lieu_urgences;6;25740;26320;6602289;5,96603;0,0925529;Services d'urgences
+lieu_urgences;7;26330;27080;6327769;4,59216;0,0720834;Services d'urgences
+lieu_urgences;8;27110;28040;5648923;5,27829;0,039727;Services d'urgences
+lieu_urgences;9;28050;28430;7840033;1,17845;0,0184708;Services d'urgences
+lieu_urgences;10;28440;45880;6682766;6,22444;0,0464061;Services d'urgences
+lieu_maternite;1;16920;23320;6709817;7,00743;0,161438;Maternités
+lieu_maternite;2;23330;24360;6917379;11,6552;0,314951;Maternités
+lieu_maternite;3;24370;24750;6547630;5,72254;0,165338;Maternités
+lieu_maternite;4;24760;25380;6618897;8,0733;0,203779;Maternités
+lieu_maternite;5;25380;25740;7159728;3,15459;0,0787347;Maternités
+lieu_maternite;6;25740;26320;6602289;6,43015;0,128584;Maternités
+lieu_maternite;7;26330;27080;6327769;6,21789;0,125387;Maternités
+lieu_maternite;8;27110;28040;5648923;5,38877;0,0558248;Maternités
+lieu_maternite;9;28050;28430;7840033;2,48831;0,0202375;Maternités
+lieu_maternite;10;28440;45880;6682766;7,28849;0,0620052;Maternités
+lieu_ehpad;1;16920;23320;6709817;1,14504;0,000748605;EHPAD
+lieu_ehpad;2;23330;24360;6917379;0,981392;0,000135022;EHPAD
+lieu_ehpad;3;24370;24750;6547630;0,938485;0;EHPAD
+lieu_ehpad;4;24760;25380;6618897;0,809329;0,000118147;EHPAD
+lieu_ehpad;5;25380;25740;7159728;0,641658;0,000108803;EHPAD
+lieu_ehpad;6;25740;26320;6602289;0,844379;0,000190691;EHPAD
+lieu_ehpad;7;26330;27080;6327769;0,781697;0,000115365;EHPAD
+lieu_ehpad;8;27110;28040;5648923;0,94427;0,000277398;EHPAD
+lieu_ehpad;9;28050;28430;7840033;0,416013;0;EHPAD
+lieu_ehpad;10;28440;45880;6682766;1,16176;0;EHPAD
+lieu_ime;1;16920;23320;6709817;3,79169;0,0573688;Instituts médico-éducatifs (IME)
+lieu_ime;2;23330;24360;6917379;6,26218;0,0990975;Instituts médico-éducatifs (IME)
+lieu_ime;3;24370;24750;6547630;2,88026;0,0464082;Instituts médico-éducatifs (IME)
+lieu_ime;4;24760;25380;6618897;5,09897;0,0471847;Instituts médico-éducatifs (IME)
+lieu_ime;5;25380;25740;7159728;2,809;0,0176012;Instituts médico-éducatifs (IME)
+lieu_ime;6;25740;26320;6602289;4,07015;0,0183296;Instituts médico-éducatifs (IME)
+lieu_ime;7;26330;27080;6327769;3,4131;0,0346764;Instituts médico-éducatifs (IME)
+lieu_ime;8;27110;28040;5648923;2,90799;0,0135238;Instituts médico-éducatifs (IME)
+lieu_ime;9;28050;28430;7840033;1,06038;0,00228443;Instituts médico-éducatifs (IME)
+lieu_ime;10;28440;45880;6682766;4,26095;0,00977245;Instituts médico-éducatifs (IME)
+lieu_sessad;1;16920;23320;6709817;3,10913;0,0533815;Services d'éducation spéciale et de soins à domicile (SESSAD)
+lieu_sessad;2;23330;24360;6917379;5,58993;0,103145;Services d'éducation spéciale et de soins à domicile (SESSAD)
+lieu_sessad;3;24370;24750;6547630;2,74462;0,0511194;Services d'éducation spéciale et de soins à domicile (SESSAD)
+lieu_sessad;4;24760;25380;6618897;4,24247;0,0492534;Services d'éducation spéciale et de soins à domicile (SESSAD)
+lieu_sessad;5;25380;25740;7159728;1,89487;0,0238524;Services d'éducation spéciale et de soins à domicile (SESSAD)
+lieu_sessad;6;25740;26320;6602289;3,56674;0,0255869;Services d'éducation spéciale et de soins à domicile (SESSAD)
+lieu_sessad;7;26330;27080;6327769;2,81339;0,0282329;Services d'éducation spéciale et de soins à domicile (SESSAD)
+lieu_sessad;8;27110;28040;5648923;2,36072;0,0080495;Services d'éducation spéciale et de soins à domicile (SESSAD)
+lieu_sessad;9;28050;28430;7840033;1,4406;0,00209693;Services d'éducation spéciale et de soins à domicile (SESSAD)
+lieu_sessad;10;28440;45880;6682766;4,02093;0,0216942;Services d'éducation spéciale et de soins à domicile (SESSAD)
+lieu_msp;1;16920;23320;6709817;2,52319;0,0041247;Maisons de santé pluriprofessionnelles
+lieu_msp;2;23330;24360;6917379;3,13016;0,0119297;Maisons de santé pluriprofessionnelles
+lieu_msp;3;24370;24750;6547630;1,8046;0,00105534;Maisons de santé pluriprofessionnelles
+lieu_msp;4;24760;25380;6618897;2,96676;0,00776519;Maisons de santé pluriprofessionnelles
+lieu_msp;5;25380;25740;7159728;1,93503;0,00103118;Maisons de santé pluriprofessionnelles
+lieu_msp;6;25740;26320;6602289;2,68962;0,000107387;Maisons de santé pluriprofessionnelles
+lieu_msp;7;26330;27080;6327769;1,87579;0,00640115;Maisons de santé pluriprofessionnelles
+lieu_msp;8;27110;28040;5648923;2,71467;9,15219e-05;Maisons de santé pluriprofessionnelles
+lieu_msp;9;28050;28430;7840033;0,85105;0,000111224;Maisons de santé pluriprofessionnelles
+lieu_msp;10;28440;45880;6682766;3,53262;0,00182709;Maisons de santé pluriprofessionnelles
+lieu_centre_sante;1;16920;23320;6709817;2,58278;0,0360762;Centres de santé
+lieu_centre_sante;2;23330;24360;6917379;5,44682;0,0979077;Centres de santé
+lieu_centre_sante;3;24370;24750;6547630;1,97785;0,0406927;Centres de santé
+lieu_centre_sante;4;24760;25380;6618897;4,12937;0,047396;Centres de santé
+lieu_centre_sante;5;25380;25740;7159728;1,24272;0,00749498;Centres de santé
+lieu_centre_sante;6;25740;26320;6602289;2,63349;0,0210463;Centres de santé
+lieu_centre_sante;7;26330;27080;6327769;2,10024;0,0238411;Centres de santé
+lieu_centre_sante;8;27110;28040;5648923;2,36021;0,0128419;Centres de santé
+lieu_centre_sante;9;28050;28430;7840033;0,259133;0,00227537;Centres de santé
+lieu_centre_sante;10;28440;45880;6682766;3,65315;0,00333844;Centres de santé

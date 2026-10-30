@@ -1,0 +1,304 @@
+﻿prof;mode;n;libelle
+allergologue;lib;328;Allergologue
+allergologue;sal;232;Allergologue
+anatomopathologiste;aut;1;Anatomopathologiste
+anatomopathologiste;lib;796;Anatomopathologiste
+anatomopathologiste;sal;1143;Anatomopathologiste
+anesthesiste;aut;22;Anesthésiste-réanimateur
+anesthesiste;lib;5388;Anesthésiste-réanimateur
+anesthesiste;sal;9327;Anesthésiste-réanimateur
+appareilleur;aut;5;Appareilleur
+appareilleur;lib;1437;Appareilleur
+appareilleur;sal;2976;Appareilleur
+assistant_de_service_social;aut;15;Assistant de service social
+assistant_de_service_social;lib;313;Assistant de service social
+assistant_de_service_social;sal;25525;Assistant de service social
+assistant_dentaire;aut;8;Assistant dentaire
+assistant_dentaire;sal;11184;Assistant dentaire
+audioprothesiste;aut;9;Audioprothésiste
+audioprothesiste;lib;2279;Audioprothésiste
+audioprothesiste;sal;4392;Audioprothésiste
+biologiste;aut;3;Biologiste médical
+biologiste;lib;1281;Biologiste médical
+biologiste;sal;1909;Biologiste médical
+cardiologue;aut;12;Cardiologue
+cardiologue;lib;5697;Cardiologue
+cardiologue;sal;4226;Cardiologue
+chiropracteur;aut;1;Chiropracteur
+chiropracteur;lib;1936;Chiropracteur
+chiropracteur;sal;41;Chiropracteur
+chirurgien_dentiste;aut;173;Chirurgien-dentiste
+chirurgien_dentiste;lib;41602;Chirurgien-dentiste
+chirurgien_dentiste;sal;12737;Chirurgien-dentiste
+chirurgien_general;aut;8;Chirurgien général
+chirurgien_general;lib;877;Chirurgien général
+chirurgien_general;sal;1467;Chirurgien général
+chirurgien_maxillo_facial;aut;2;Chirurgien maxillo-facial et stomatologue
+chirurgien_maxillo_facial;lib;843;Chirurgien maxillo-facial et stomatologue
+chirurgien_maxillo_facial;sal;475;Chirurgien maxillo-facial et stomatologue
+chirurgien_orthopediste;aut;4;Chirurgien orthopédiste
+chirurgien_orthopediste;lib;3210;Chirurgien orthopédiste
+chirurgien_orthopediste;sal;2119;Chirurgien orthopédiste
+chirurgien_pediatrique;lib;167;Chirurgien pédiatrique
+chirurgien_pediatrique;sal;405;Chirurgien pédiatrique
+chirurgien_plasticien;aut;2;Chirurgien plasticien
+chirurgien_plasticien;lib;1033;Chirurgien plasticien
+chirurgien_plasticien;sal;439;Chirurgien plasticien
+chirurgien_thoracique;aut;1;Chirurgien thoracique et cardiovasculaire
+chirurgien_thoracique;lib;363;Chirurgien thoracique et cardiovasculaire
+chirurgien_thoracique;sal;498;Chirurgien thoracique et cardiovasculaire
+chirurgien_vasculaire;lib;505;Chirurgien vasculaire
+chirurgien_vasculaire;sal;445;Chirurgien vasculaire
+chirurgien_visceral;aut;1;Chirurgien viscéral et digestif
+chirurgien_visceral;lib;831;Chirurgien viscéral et digestif
+chirurgien_visceral;sal;1147;Chirurgien viscéral et digestif
+dermatologue;aut;6;Dermatologue
+dermatologue;lib;2864;Dermatologue
+dermatologue;sal;1677;Dermatologue
+dieteticien;aut;41;Diététicien
+dieteticien;lib;8694;Diététicien
+dieteticien;sal;10417;Diététicien
+endocrinologue;aut;6;Endocrinologue
+endocrinologue;lib;975;Endocrinologue
+endocrinologue;sal;1785;Endocrinologue
+ens_medecin_specialiste;aut;313;Médecin spécialiste (toutes spécialités)
+ens_medecin_specialiste;lib;68889;Médecin spécialiste (toutes spécialités)
+ens_medecin_specialiste;sal;97859;Médecin spécialiste (toutes spécialités)
+ergotherapeute;aut;4;Ergothérapeute
+ergotherapeute;lib;4579;Ergothérapeute
+ergotherapeute;sal;14846;Ergothérapeute
+esm_assistant_de_service_social;sal;3269;Assistant de service social, en établissement psychiatrique
+esm_dieteticien;sal;282;Diététicien, en établissement psychiatrique
+esm_ergotherapeute;sal;984;Ergothérapeute, en établissement psychiatrique
+esm_infirmier;sal;29914;Infirmier, en établissement psychiatrique
+esm_manipulateur_erm;sal;120;Manipulateur en électroradiologie, en établissement psychiatrique
+esm_masseur_kinesitherapeute;sal;240;Masseur-kinésithérapeute, en établissement psychiatrique
+esm_medecin_autre;sal;265;Médecin, autre spécialité, en établissement psychiatrique
+esm_medecin_generaliste;sal;1522;Médecin généraliste, en établissement psychiatrique
+esm_orthophoniste;sal;1422;Orthophoniste, en établissement psychiatrique
+esm_pediatre;sal;110;Pédiatre, en établissement psychiatrique
+esm_pedopsychiatre;sal;258;Pédopsychiatre, en établissement psychiatrique
+esm_pharmacien;sal;468;Pharmacien, en établissement psychiatrique
+esm_psychiatre;sal;5403;Psychiatre, en établissement psychiatrique
+esm_psychologue;sal;10336;Psychologue, en établissement psychiatrique
+esm_psychomotricien;sal;2896;Psychomotricien, en établissement psychiatrique
+esm_psychotherapeute;sal;3426;Psychothérapeute, en établissement psychiatrique
+gastro_enterologue;aut;4;Gastro-entérologue
+gastro_enterologue;lib;2221;Gastro-entérologue
+gastro_enterologue;sal;2624;Gastro-entérologue
+geriatre;aut;8;Gériatre
+geriatre;lib;239;Gériatre
+geriatre;sal;3472;Gériatre
+gynecologue;aut;16;Gynécologue
+gynecologue;lib;4966;Gynécologue
+gynecologue;sal;4943;Gynécologue
+hematologue;aut;2;Hématologue
+hematologue;lib;126;Hématologue
+hematologue;sal;1090;Hématologue
+infectiologue;lib;31;Infectiologue
+infectiologue;sal;469;Infectiologue
+infirmier;aut;1730;Infirmier
+infirmier;lib;132067;Infirmier
+infirmier;sal;439934;Infirmier
+interniste;aut;25;Médecin interniste
+interniste;lib;328;Médecin interniste
+interniste;sal;2802;Médecin interniste
+manipulateur_erm;aut;1;Manipulateur en électroradiologie
+manipulateur_erm;lib;14;Manipulateur en électroradiologie
+manipulateur_erm;sal;35592;Manipulateur en électroradiologie
+masseur_kinesitherapeute;lib;97004;Masseur-kinésithérapeute
+masseur_kinesitherapeute;sal;18569;Masseur-kinésithérapeute
+medecin_autre;lib;21;Médecin, autre spécialité
+medecin_autre;sal;548;Médecin, autre spécialité
+medecin_generaliste;aut;306;Médecin généraliste
+medecin_generaliste;lib;67771;Médecin généraliste
+medecin_generaliste;sal;48327;Médecin généraliste
+medecin_mpr;aut;4;Médecin de médecine physique et de réadaptation
+medecin_mpr;lib;485;Médecin de médecine physique et de réadaptation
+medecin_mpr;sal;2439;Médecin de médecine physique et de réadaptation
+medecin_non_precise;sal;4;Médecin, spécialité non renseignée
+medecin_nucleaire;aut;1;Médecin nucléaire
+medecin_nucleaire;lib;681;Médecin nucléaire
+medecin_nucleaire;sal;586;Médecin nucléaire
+medecin_sante_publique;aut;4;Médecin de santé publique
+medecin_sante_publique;lib;22;Médecin de santé publique
+medecin_sante_publique;sal;1585;Médecin de santé publique
+medecin_travail;aut;16;Médecin du travail
+medecin_travail;lib;39;Médecin du travail
+medecin_travail;sal;4845;Médecin du travail
+medecin_vasculaire;aut;2;Médecin vasculaire
+medecin_vasculaire;lib;1293;Médecin vasculaire
+medecin_vasculaire;sal;596;Médecin vasculaire
+nephrologue;aut;6;Néphrologue
+nephrologue;lib;716;Néphrologue
+nephrologue;sal;1868;Néphrologue
+neurochirurgien;aut;1;Neurochirurgien
+neurochirurgien;lib;368;Neurochirurgien
+neurochirurgien;sal;539;Neurochirurgien
+neurologue;aut;9;Neurologue
+neurologue;lib;1284;Neurologue
+neurologue;sal;2758;Neurologue
+oncologue;aut;3;Oncologue médical
+oncologue;lib;361;Oncologue médical
+oncologue;sal;1592;Oncologue médical
+ophtalmologue;aut;12;Ophtalmologue
+ophtalmologue;lib;5013;Ophtalmologue
+ophtalmologue;sal;2713;Ophtalmologue
+opticien_lunetier;aut;12;Opticien-lunetier
+opticien_lunetier;lib;10259;Opticien-lunetier
+opticien_lunetier;sal;31916;Opticien-lunetier
+orl;aut;3;Oto-rhino-laryngologiste (ORL)
+orl;lib;2137;Oto-rhino-laryngologiste (ORL)
+orl;sal;1636;Oto-rhino-laryngologiste (ORL)
+orthophoniste;aut;3;Orthophoniste
+orthophoniste;lib;25923;Orthophoniste
+orthophoniste;sal;7329;Orthophoniste
+orthoptiste;aut;1;Orthoptiste
+orthoptiste;lib;4476;Orthoptiste
+orthoptiste;sal;3400;Orthoptiste
+osteopathe;aut;11;Ostéopathe
+osteopathe;lib;40570;Ostéopathe
+osteopathe;sal;1035;Ostéopathe
+pediatre;aut;34;Pédiatre
+pediatre;lib;3444;Pédiatre
+pediatre;sal;7478;Pédiatre
+pedicure_podologue;lib;14812;Pédicure-podologue
+pedicure_podologue;sal;392;Pédicure-podologue
+pedopsychiatre;aut;3;Pédopsychiatre
+pedopsychiatre;lib;185;Pédopsychiatre
+pedopsychiatre;sal;571;Pédopsychiatre
+pharmacien;lib;27149;Pharmacien
+pharmacien;sal;48998;Pharmacien
+physicien_medical;lib;16;Physicien médical
+physicien_medical;sal;794;Physicien médical
+pneumologue;aut;16;Pneumologue
+pneumologue;lib;1436;Pneumologue
+pneumologue;sal;2571;Pneumologue
+psychiatre;aut;38;Psychiatre
+psychiatre;lib;6721;Psychiatre
+psychiatre;sal;10919;Psychiatre
+psychologue;aut;327;Psychologue
+psychologue;lib;40232;Psychologue
+psychologue;sal;51994;Psychologue
+psychomotricien;aut;10;Psychomotricien
+psychomotricien;lib;7863;Psychomotricien
+psychomotricien;sal;13584;Psychomotricien
+psychotherapeute;aut;56;Psychothérapeute
+psychotherapeute;lib;11470;Psychothérapeute
+psychotherapeute;sal;10284;Psychothérapeute
+q_addictologie;aut;1;Médecin qualifié en addictologie
+q_addictologie;lib;326;Médecin qualifié en addictologie
+q_addictologie;sal;895;Médecin qualifié en addictologie
+q_psychiatrie_enfant;aut;12;Psychiatre qualifié pour l'enfant et l'adolescent (toutes voies)
+q_psychiatrie_enfant;lib;844;Psychiatre qualifié pour l'enfant et l'adolescent (toutes voies)
+q_psychiatrie_enfant;sal;1430;Psychiatre qualifié pour l'enfant et l'adolescent (toutes voies)
+radiologue;aut;22;Radiologue
+radiologue;lib;7614;Radiologue
+radiologue;sal;4469;Radiologue
+radiotherapeute;aut;4;Radiothérapeute
+radiotherapeute;lib;687;Radiothérapeute
+radiotherapeute;sal;784;Radiothérapeute
+reanimateur;aut;1;Médecin réanimateur
+reanimateur;lib;106;Médecin réanimateur
+reanimateur;sal;1116;Médecin réanimateur
+rhumatologue;aut;7;Rhumatologue
+rhumatologue;lib;1552;Rhumatologue
+rhumatologue;sal;1609;Rhumatologue
+sage_femme;aut;9;Sage-femme
+sage_femme;lib;10017;Sage-femme
+sage_femme;sal;19819;Sage-femme
+technicien_labo;aut;3;Technicien de laboratoire
+technicien_labo;lib;39;Technicien de laboratoire
+technicien_labo;sal;56406;Technicien de laboratoire
+urgentiste;aut;4;Médecin urgentiste
+urgentiste;lib;265;Médecin urgentiste
+urgentiste;sal;2914;Médecin urgentiste
+urologue;lib;1390;Urologue
+urologue;sal;1029;Urologue
+allergologue;all;458;Allergologue
+anatomopathologiste;all;1739;Anatomopathologiste
+anesthesiste;all;13256;Anesthésiste-réanimateur
+appareilleur;all;4364;Appareilleur
+assistant_de_service_social;all;25797;Assistant de service social
+assistant_dentaire;all;11191;Assistant dentaire
+audioprothesiste;all;6343;Audioprothésiste
+biologiste;all;3126;Biologiste médical
+cardiologue;all;7890;Cardiologue
+chiropracteur;all;1961;Chiropracteur
+chirurgien_dentiste;all;50432;Chirurgien-dentiste
+chirurgien_general;all;2064;Chirurgien général
+chirurgien_maxillo_facial;all;1036;Chirurgien maxillo-facial et stomatologue
+chirurgien_orthopediste;all;4358;Chirurgien orthopédiste
+chirurgien_pediatrique;all;461;Chirurgien pédiatrique
+chirurgien_plasticien;all;1167;Chirurgien plasticien
+chirurgien_thoracique;all;665;Chirurgien thoracique et cardiovasculaire
+chirurgien_vasculaire;all;745;Chirurgien vasculaire
+chirurgien_visceral;all;1682;Chirurgien viscéral et digestif
+dermatologue;all;3736;Dermatologue
+dieteticien;all;17973;Diététicien
+endocrinologue;all;2404;Endocrinologue
+ens_medecin_specialiste;all;144530;Médecin spécialiste (toutes spécialités)
+ergotherapeute;all;17942;Ergothérapeute
+esm_assistant_de_service_social;all;3269;Assistant de service social, en établissement psychiatrique
+esm_dieteticien;all;282;Diététicien, en établissement psychiatrique
+esm_ergotherapeute;all;984;Ergothérapeute, en établissement psychiatrique
+esm_infirmier;all;29914;Infirmier, en établissement psychiatrique
+esm_manipulateur_erm;all;120;Manipulateur en électroradiologie, en établissement psychiatrique
+esm_masseur_kinesitherapeute;all;240;Masseur-kinésithérapeute, en établissement psychiatrique
+esm_medecin_autre;all;265;Médecin, autre spécialité, en établissement psychiatrique
+esm_medecin_generaliste;all;1522;Médecin généraliste, en établissement psychiatrique
+esm_orthophoniste;all;1422;Orthophoniste, en établissement psychiatrique
+esm_pediatre;all;110;Pédiatre, en établissement psychiatrique
+esm_pedopsychiatre;all;258;Pédopsychiatre, en établissement psychiatrique
+esm_pharmacien;all;468;Pharmacien, en établissement psychiatrique
+esm_psychiatre;all;5403;Psychiatre, en établissement psychiatrique
+esm_psychologue;all;10336;Psychologue, en établissement psychiatrique
+esm_psychomotricien;all;2896;Psychomotricien, en établissement psychiatrique
+esm_psychotherapeute;all;3426;Psychothérapeute, en établissement psychiatrique
+gastro_enterologue;all;4078;Gastro-entérologue
+geriatre;all;3586;Gériatre
+gynecologue;all;8215;Gynécologue
+hematologue;all;1175;Hématologue
+infectiologue;all;482;Infectiologue
+infirmier;all;553074;Infirmier
+interniste;all;3016;Médecin interniste
+manipulateur_erm;all;35607;Manipulateur en électroradiologie
+masseur_kinesitherapeute;all;112935;Masseur-kinésithérapeute
+medecin_autre;all;558;Médecin, autre spécialité
+medecin_generaliste;all;103934;Médecin généraliste
+medecin_mpr;all;2723;Médecin de médecine physique et de réadaptation
+medecin_non_precise;all;4;Médecin, spécialité non renseignée
+medecin_nucleaire;all;918;Médecin nucléaire
+medecin_sante_publique;all;1597;Médecin de santé publique
+medecin_travail;all;4872;Médecin du travail
+medecin_vasculaire;all;1559;Médecin vasculaire
+nephrologue;all;2287;Néphrologue
+neurochirurgien;all;742;Neurochirurgien
+neurologue;all;3534;Neurologue
+oncologue;all;1823;Oncologue médical
+ophtalmologue;all;6215;Ophtalmologue
+opticien_lunetier;all;41551;Opticien-lunetier
+orl;all;2993;Oto-rhino-laryngologiste (ORL)
+orthophoniste;all;31406;Orthophoniste
+orthoptiste;all;7156;Orthoptiste
+osteopathe;all;41159;Ostéopathe
+pediatre;all;9678;Pédiatre
+pedicure_podologue;all;14963;Pédicure-podologue
+pedopsychiatre;all;697;Pédopsychiatre
+pharmacien;all;76000;Pharmacien
+physicien_medical;all;800;Physicien médical
+pneumologue;all;3509;Pneumologue
+psychiatre;all;15674;Psychiatre
+psychologue;all;81185;Psychologue
+psychomotricien;all;18721;Psychomotricien
+psychotherapeute;all;18612;Psychothérapeute
+q_addictologie;all;1076;Médecin qualifié en addictologie
+q_psychiatrie_enfant;all;2009;Psychiatre qualifié pour l'enfant et l'adolescent (toutes voies)
+radiologue;all;9933;Radiologue
+radiotherapeute;all;1171;Radiothérapeute
+reanimateur;all;1184;Médecin réanimateur
+rhumatologue;all;2610;Rhumatologue
+sage_femme;all;27044;Sage-femme
+technicien_labo;all;56446;Technicien de laboratoire
+urgentiste;all;3024;Médecin urgentiste
+urologue;all;1890;Urologue

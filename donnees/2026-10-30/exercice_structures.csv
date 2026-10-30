@@ -1,0 +1,2880 @@
+﻿niveau;code;nom;type;libelle_type;prof;personnes
+fr;FR;France;lieu_caarud;CAARUD;infirmier;115
+fr;FR;France;lieu_caarud;CAARUD;medecin_generaliste;41
+fr;FR;France;lieu_caarud;CAARUD;psychiatre;2
+fr;FR;France;lieu_caarud;CAARUD;psychologue;28
+fr;FR;France;lieu_caarud;CAARUD;psychomotricien;2
+fr;FR;France;lieu_camsp;CAMSP;ergotherapeute;133
+fr;FR;France;lieu_camsp;CAMSP;infirmier;250
+fr;FR;France;lieu_camsp;CAMSP;medecin_generaliste;58
+fr;FR;France;lieu_camsp;CAMSP;orthophoniste;353
+fr;FR;France;lieu_camsp;CAMSP;pedopsychiatre;3
+fr;FR;France;lieu_camsp;CAMSP;psychiatre;70
+fr;FR;France;lieu_camsp;CAMSP;psychologue;446
+fr;FR;France;lieu_camsp;CAMSP;psychomotricien;583
+fr;FR;France;lieu_camsp;CAMSP;q_psychiatrie_enfant;33
+fr;FR;France;lieu_cattp;CATTP;ergotherapeute;12
+fr;FR;France;lieu_cattp;CATTP;infirmier;247
+fr;FR;France;lieu_cattp;CATTP;medecin_generaliste;4
+fr;FR;France;lieu_cattp;CATTP;orthophoniste;3
+fr;FR;France;lieu_cattp;CATTP;pedopsychiatre;3
+fr;FR;France;lieu_cattp;CATTP;psychiatre;31
+fr;FR;France;lieu_cattp;CATTP;psychologue;54
+fr;FR;France;lieu_cattp;CATTP;psychomotricien;26
+fr;FR;France;lieu_cattp;CATTP;q_psychiatrie_enfant;5
+fr;FR;France;lieu_cmp;CMP;ergotherapeute;2
+fr;FR;France;lieu_cmp;CMP;infirmier;37
+fr;FR;France;lieu_cmp;CMP;orthophoniste;16
+fr;FR;France;lieu_cmp;CMP;pedopsychiatre;3
+fr;FR;France;lieu_cmp;CMP;psychiatre;52
+fr;FR;France;lieu_cmp;CMP;psychologue;94
+fr;FR;France;lieu_cmp;CMP;psychomotricien;14
+fr;FR;France;lieu_cmp;CMP;q_psychiatrie_enfant;11
+fr;FR;France;lieu_cmpp;CMPP;ergotherapeute;34
+fr;FR;France;lieu_cmpp;CMPP;infirmier;54
+fr;FR;France;lieu_cmpp;CMPP;medecin_generaliste;58
+fr;FR;France;lieu_cmpp;CMPP;orthophoniste;735
+fr;FR;France;lieu_cmpp;CMPP;pedopsychiatre;26
+fr;FR;France;lieu_cmpp;CMPP;psychiatre;278
+fr;FR;France;lieu_cmpp;CMPP;psychologue;1605
+fr;FR;France;lieu_cmpp;CMPP;psychomotricien;786
+fr;FR;France;lieu_cmpp;CMPP;q_psychiatrie_enfant;107
+fr;FR;France;lieu_csapa;CSAPA;ergotherapeute;3
+fr;FR;France;lieu_csapa;CSAPA;infirmier;1288
+fr;FR;France;lieu_csapa;CSAPA;medecin_generaliste;354
+fr;FR;France;lieu_csapa;CSAPA;orthophoniste;3
+fr;FR;France;lieu_csapa;CSAPA;pedopsychiatre;1
+fr;FR;France;lieu_csapa;CSAPA;psychiatre;125
+fr;FR;France;lieu_csapa;CSAPA;psychologue;535
+fr;FR;France;lieu_csapa;CSAPA;psychomotricien;3
+fr;FR;France;lieu_csapa;CSAPA;q_psychiatrie_enfant;9
+fr;FR;France;ensemble;Au moins une de ces structures;ergotherapeute;184
+fr;FR;France;ensemble;Au moins une de ces structures;infirmier;1991
+fr;FR;France;ensemble;Au moins une de ces structures;medecin_generaliste;501
+fr;FR;France;ensemble;Au moins une de ces structures;orthophoniste;1097
+fr;FR;France;ensemble;Au moins une de ces structures;pedopsychiatre;35
+fr;FR;France;ensemble;Au moins une de ces structures;psychiatre;540
+fr;FR;France;ensemble;Au moins une de ces structures;psychologue;2725
+fr;FR;France;ensemble;Au moins une de ces structures;psychomotricien;1395
+fr;FR;France;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;157
+reg;01;Guadeloupe;lieu_caarud;CAARUD;infirmier;1
+reg;01;Guadeloupe;lieu_caarud;CAARUD;psychologue;1
+reg;01;Guadeloupe;lieu_camsp;CAMSP;infirmier;2
+reg;01;Guadeloupe;lieu_camsp;CAMSP;medecin_generaliste;1
+reg;01;Guadeloupe;lieu_camsp;CAMSP;orthophoniste;5
+reg;01;Guadeloupe;lieu_camsp;CAMSP;psychiatre;1
+reg;01;Guadeloupe;lieu_camsp;CAMSP;psychologue;4
+reg;01;Guadeloupe;lieu_camsp;CAMSP;psychomotricien;11
+reg;01;Guadeloupe;lieu_cmpp;CMPP;medecin_generaliste;1
+reg;01;Guadeloupe;lieu_cmpp;CMPP;orthophoniste;3
+reg;01;Guadeloupe;lieu_cmpp;CMPP;psychiatre;2
+reg;01;Guadeloupe;lieu_cmpp;CMPP;psychologue;14
+reg;01;Guadeloupe;lieu_cmpp;CMPP;psychomotricien;12
+reg;01;Guadeloupe;lieu_csapa;CSAPA;psychiatre;2
+reg;01;Guadeloupe;lieu_csapa;CSAPA;psychologue;2
+reg;02;Martinique;lieu_camsp;CAMSP;infirmier;4
+reg;02;Martinique;lieu_camsp;CAMSP;orthophoniste;2
+reg;02;Martinique;lieu_cmpp;CMPP;orthophoniste;4
+reg;02;Martinique;lieu_cmpp;CMPP;psychologue;6
+reg;02;Martinique;lieu_cmpp;CMPP;psychomotricien;5
+reg;02;Martinique;lieu_csapa;CSAPA;infirmier;3
+reg;02;Martinique;lieu_csapa;CSAPA;medecin_generaliste;1
+reg;02;Martinique;lieu_csapa;CSAPA;psychologue;1
+reg;03;Guyane;lieu_caarud;CAARUD;infirmier;1
+reg;03;Guyane;lieu_camsp;CAMSP;ergotherapeute;1
+reg;03;Guyane;lieu_camsp;CAMSP;psychologue;6
+reg;03;Guyane;lieu_camsp;CAMSP;psychomotricien;3
+reg;03;Guyane;lieu_cattp;CATTP;medecin_generaliste;1
+reg;03;Guyane;lieu_cmpp;CMPP;orthophoniste;1
+reg;03;Guyane;lieu_cmpp;CMPP;psychologue;6
+reg;03;Guyane;lieu_cmpp;CMPP;psychomotricien;2
+reg;03;Guyane;lieu_csapa;CSAPA;infirmier;1
+reg;03;Guyane;lieu_csapa;CSAPA;psychologue;1
+reg;04;La Réunion;lieu_caarud;CAARUD;infirmier;3
+reg;04;La Réunion;lieu_camsp;CAMSP;ergotherapeute;6
+reg;04;La Réunion;lieu_camsp;CAMSP;infirmier;4
+reg;04;La Réunion;lieu_camsp;CAMSP;medecin_generaliste;1
+reg;04;La Réunion;lieu_camsp;CAMSP;orthophoniste;7
+reg;04;La Réunion;lieu_camsp;CAMSP;psychiatre;1
+reg;04;La Réunion;lieu_camsp;CAMSP;psychologue;12
+reg;04;La Réunion;lieu_camsp;CAMSP;psychomotricien;29
+reg;04;La Réunion;lieu_cmpp;CMPP;ergotherapeute;1
+reg;04;La Réunion;lieu_cmpp;CMPP;medecin_generaliste;1
+reg;04;La Réunion;lieu_cmpp;CMPP;orthophoniste;8
+reg;04;La Réunion;lieu_cmpp;CMPP;psychiatre;2
+reg;04;La Réunion;lieu_cmpp;CMPP;psychologue;17
+reg;04;La Réunion;lieu_cmpp;CMPP;psychomotricien;5
+reg;04;La Réunion;lieu_csapa;CSAPA;infirmier;11
+reg;04;La Réunion;lieu_csapa;CSAPA;medecin_generaliste;1
+reg;04;La Réunion;lieu_csapa;CSAPA;psychologue;1
+reg;06;Mayotte;lieu_caarud;CAARUD;medecin_generaliste;1
+reg;06;Mayotte;lieu_cmpp;CMPP;psychologue;1
+reg;11;Île-de-France;lieu_caarud;CAARUD;infirmier;11
+reg;11;Île-de-France;lieu_caarud;CAARUD;medecin_generaliste;8
+reg;11;Île-de-France;lieu_caarud;CAARUD;psychologue;5
+reg;11;Île-de-France;lieu_caarud;CAARUD;psychomotricien;1
+reg;11;Île-de-France;lieu_camsp;CAMSP;ergotherapeute;10
+reg;11;Île-de-France;lieu_camsp;CAMSP;infirmier;18
+reg;11;Île-de-France;lieu_camsp;CAMSP;medecin_generaliste;6
+reg;11;Île-de-France;lieu_camsp;CAMSP;orthophoniste;40
+reg;11;Île-de-France;lieu_camsp;CAMSP;psychiatre;9
+reg;11;Île-de-France;lieu_camsp;CAMSP;psychologue;56
+reg;11;Île-de-France;lieu_camsp;CAMSP;psychomotricien;68
+reg;11;Île-de-France;lieu_camsp;CAMSP;q_psychiatrie_enfant;5
+reg;11;Île-de-France;lieu_cattp;CATTP;ergotherapeute;4
+reg;11;Île-de-France;lieu_cattp;CATTP;infirmier;23
+reg;11;Île-de-France;lieu_cattp;CATTP;medecin_generaliste;1
+reg;11;Île-de-France;lieu_cattp;CATTP;orthophoniste;1
+reg;11;Île-de-France;lieu_cattp;CATTP;pedopsychiatre;1
+reg;11;Île-de-France;lieu_cattp;CATTP;psychiatre;8
+reg;11;Île-de-France;lieu_cattp;CATTP;psychologue;21
+reg;11;Île-de-France;lieu_cattp;CATTP;psychomotricien;8
+reg;11;Île-de-France;lieu_cattp;CATTP;q_psychiatrie_enfant;1
+reg;11;Île-de-France;lieu_cmp;CMP;ergotherapeute;2
+reg;11;Île-de-France;lieu_cmp;CMP;infirmier;21
+reg;11;Île-de-France;lieu_cmp;CMP;orthophoniste;16
+reg;11;Île-de-France;lieu_cmp;CMP;pedopsychiatre;2
+reg;11;Île-de-France;lieu_cmp;CMP;psychiatre;47
+reg;11;Île-de-France;lieu_cmp;CMP;psychologue;78
+reg;11;Île-de-France;lieu_cmp;CMP;psychomotricien;11
+reg;11;Île-de-France;lieu_cmp;CMP;q_psychiatrie_enfant;9
+reg;11;Île-de-France;lieu_cmpp;CMPP;infirmier;3
+reg;11;Île-de-France;lieu_cmpp;CMPP;medecin_generaliste;3
+reg;11;Île-de-France;lieu_cmpp;CMPP;orthophoniste;147
+reg;11;Île-de-France;lieu_cmpp;CMPP;pedopsychiatre;11
+reg;11;Île-de-France;lieu_cmpp;CMPP;psychiatre;96
+reg;11;Île-de-France;lieu_cmpp;CMPP;psychologue;437
+reg;11;Île-de-France;lieu_cmpp;CMPP;psychomotricien;168
+reg;11;Île-de-France;lieu_cmpp;CMPP;q_psychiatrie_enfant;35
+reg;11;Île-de-France;lieu_csapa;CSAPA;ergotherapeute;1
+reg;11;Île-de-France;lieu_csapa;CSAPA;infirmier;298
+reg;11;Île-de-France;lieu_csapa;CSAPA;medecin_generaliste;51
+reg;11;Île-de-France;lieu_csapa;CSAPA;pedopsychiatre;1
+reg;11;Île-de-France;lieu_csapa;CSAPA;psychiatre;40
+reg;11;Île-de-France;lieu_csapa;CSAPA;psychologue;117
+reg;11;Île-de-France;lieu_csapa;CSAPA;psychomotricien;1
+reg;11;Île-de-France;lieu_csapa;CSAPA;q_psychiatrie_enfant;4
+reg;24;Centre-Val de Loire;lieu_caarud;CAARUD;infirmier;11
+reg;24;Centre-Val de Loire;lieu_caarud;CAARUD;medecin_generaliste;1
+reg;24;Centre-Val de Loire;lieu_caarud;CAARUD;psychologue;5
+reg;24;Centre-Val de Loire;lieu_camsp;CAMSP;ergotherapeute;2
+reg;24;Centre-Val de Loire;lieu_camsp;CAMSP;infirmier;6
+reg;24;Centre-Val de Loire;lieu_camsp;CAMSP;orthophoniste;9
+reg;24;Centre-Val de Loire;lieu_camsp;CAMSP;psychiatre;2
+reg;24;Centre-Val de Loire;lieu_camsp;CAMSP;psychologue;7
+reg;24;Centre-Val de Loire;lieu_camsp;CAMSP;psychomotricien;17
+reg;24;Centre-Val de Loire;lieu_camsp;CAMSP;q_psychiatrie_enfant;2
+reg;24;Centre-Val de Loire;lieu_cattp;CATTP;infirmier;8
+reg;24;Centre-Val de Loire;lieu_cattp;CATTP;psychiatre;1
+reg;24;Centre-Val de Loire;lieu_cattp;CATTP;psychologue;1
+reg;24;Centre-Val de Loire;lieu_cattp;CATTP;psychomotricien;1
+reg;24;Centre-Val de Loire;lieu_cmpp;CMPP;ergotherapeute;1
+reg;24;Centre-Val de Loire;lieu_cmpp;CMPP;infirmier;1
+reg;24;Centre-Val de Loire;lieu_cmpp;CMPP;orthophoniste;15
+reg;24;Centre-Val de Loire;lieu_cmpp;CMPP;pedopsychiatre;1
+reg;24;Centre-Val de Loire;lieu_cmpp;CMPP;psychiatre;4
+reg;24;Centre-Val de Loire;lieu_cmpp;CMPP;psychologue;44
+reg;24;Centre-Val de Loire;lieu_cmpp;CMPP;psychomotricien;28
+reg;24;Centre-Val de Loire;lieu_cmpp;CMPP;q_psychiatrie_enfant;2
+reg;24;Centre-Val de Loire;lieu_csapa;CSAPA;infirmier;35
+reg;24;Centre-Val de Loire;lieu_csapa;CSAPA;medecin_generaliste;12
+reg;24;Centre-Val de Loire;lieu_csapa;CSAPA;psychiatre;10
+reg;24;Centre-Val de Loire;lieu_csapa;CSAPA;psychologue;31
+reg;24;Centre-Val de Loire;lieu_csapa;CSAPA;q_psychiatrie_enfant;1
+reg;27;Bourgogne-Franche-Comté;lieu_caarud;CAARUD;infirmier;5
+reg;27;Bourgogne-Franche-Comté;lieu_caarud;CAARUD;medecin_generaliste;3
+reg;27;Bourgogne-Franche-Comté;lieu_caarud;CAARUD;psychologue;1
+reg;27;Bourgogne-Franche-Comté;lieu_camsp;CAMSP;ergotherapeute;5
+reg;27;Bourgogne-Franche-Comté;lieu_camsp;CAMSP;infirmier;4
+reg;27;Bourgogne-Franche-Comté;lieu_camsp;CAMSP;medecin_generaliste;2
+reg;27;Bourgogne-Franche-Comté;lieu_camsp;CAMSP;orthophoniste;28
+reg;27;Bourgogne-Franche-Comté;lieu_camsp;CAMSP;psychiatre;2
+reg;27;Bourgogne-Franche-Comté;lieu_camsp;CAMSP;psychologue;30
+reg;27;Bourgogne-Franche-Comté;lieu_camsp;CAMSP;psychomotricien;45
+reg;27;Bourgogne-Franche-Comté;lieu_camsp;CAMSP;q_psychiatrie_enfant;1
+reg;27;Bourgogne-Franche-Comté;lieu_cattp;CATTP;infirmier;1
+reg;27;Bourgogne-Franche-Comté;lieu_cmpp;CMPP;ergotherapeute;2
+reg;27;Bourgogne-Franche-Comté;lieu_cmpp;CMPP;infirmier;7
+reg;27;Bourgogne-Franche-Comté;lieu_cmpp;CMPP;medecin_generaliste;7
+reg;27;Bourgogne-Franche-Comté;lieu_cmpp;CMPP;orthophoniste;63
+reg;27;Bourgogne-Franche-Comté;lieu_cmpp;CMPP;pedopsychiatre;1
+reg;27;Bourgogne-Franche-Comté;lieu_cmpp;CMPP;psychiatre;16
+reg;27;Bourgogne-Franche-Comté;lieu_cmpp;CMPP;psychologue;110
+reg;27;Bourgogne-Franche-Comté;lieu_cmpp;CMPP;psychomotricien;49
+reg;27;Bourgogne-Franche-Comté;lieu_cmpp;CMPP;q_psychiatrie_enfant;4
+reg;27;Bourgogne-Franche-Comté;lieu_csapa;CSAPA;infirmier;38
+reg;27;Bourgogne-Franche-Comté;lieu_csapa;CSAPA;medecin_generaliste;13
+reg;27;Bourgogne-Franche-Comté;lieu_csapa;CSAPA;psychiatre;4
+reg;27;Bourgogne-Franche-Comté;lieu_csapa;CSAPA;psychologue;23
+reg;28;Normandie;lieu_caarud;CAARUD;infirmier;3
+reg;28;Normandie;lieu_caarud;CAARUD;medecin_generaliste;2
+reg;28;Normandie;lieu_caarud;CAARUD;psychologue;1
+reg;28;Normandie;lieu_camsp;CAMSP;ergotherapeute;6
+reg;28;Normandie;lieu_camsp;CAMSP;infirmier;4
+reg;28;Normandie;lieu_camsp;CAMSP;medecin_generaliste;6
+reg;28;Normandie;lieu_camsp;CAMSP;orthophoniste;24
+reg;28;Normandie;lieu_camsp;CAMSP;psychiatre;2
+reg;28;Normandie;lieu_camsp;CAMSP;psychologue;27
+reg;28;Normandie;lieu_camsp;CAMSP;psychomotricien;27
+reg;28;Normandie;lieu_cattp;CATTP;infirmier;9
+reg;28;Normandie;lieu_cattp;CATTP;psychologue;3
+reg;28;Normandie;lieu_cattp;CATTP;psychomotricien;1
+reg;28;Normandie;lieu_cmpp;CMPP;ergotherapeute;7
+reg;28;Normandie;lieu_cmpp;CMPP;infirmier;2
+reg;28;Normandie;lieu_cmpp;CMPP;medecin_generaliste;10
+reg;28;Normandie;lieu_cmpp;CMPP;orthophoniste;61
+reg;28;Normandie;lieu_cmpp;CMPP;pedopsychiatre;1
+reg;28;Normandie;lieu_cmpp;CMPP;psychiatre;13
+reg;28;Normandie;lieu_cmpp;CMPP;psychologue;135
+reg;28;Normandie;lieu_cmpp;CMPP;psychomotricien;50
+reg;28;Normandie;lieu_cmpp;CMPP;q_psychiatrie_enfant;7
+reg;28;Normandie;lieu_csapa;CSAPA;infirmier;33
+reg;28;Normandie;lieu_csapa;CSAPA;medecin_generaliste;22
+reg;28;Normandie;lieu_csapa;CSAPA;psychiatre;3
+reg;28;Normandie;lieu_csapa;CSAPA;psychologue;21
+reg;32;Hauts-de-France;lieu_caarud;CAARUD;infirmier;17
+reg;32;Hauts-de-France;lieu_caarud;CAARUD;medecin_generaliste;3
+reg;32;Hauts-de-France;lieu_caarud;CAARUD;psychiatre;1
+reg;32;Hauts-de-France;lieu_caarud;CAARUD;psychologue;3
+reg;32;Hauts-de-France;lieu_caarud;CAARUD;psychomotricien;1
+reg;32;Hauts-de-France;lieu_camsp;CAMSP;ergotherapeute;30
+reg;32;Hauts-de-France;lieu_camsp;CAMSP;infirmier;40
+reg;32;Hauts-de-France;lieu_camsp;CAMSP;medecin_generaliste;4
+reg;32;Hauts-de-France;lieu_camsp;CAMSP;orthophoniste;51
+reg;32;Hauts-de-France;lieu_camsp;CAMSP;pedopsychiatre;1
+reg;32;Hauts-de-France;lieu_camsp;CAMSP;psychiatre;6
+reg;32;Hauts-de-France;lieu_camsp;CAMSP;psychologue;46
+reg;32;Hauts-de-France;lieu_camsp;CAMSP;psychomotricien;73
+reg;32;Hauts-de-France;lieu_camsp;CAMSP;q_psychiatrie_enfant;4
+reg;32;Hauts-de-France;lieu_cattp;CATTP;ergotherapeute;2
+reg;32;Hauts-de-France;lieu_cattp;CATTP;infirmier;136
+reg;32;Hauts-de-France;lieu_cattp;CATTP;pedopsychiatre;1
+reg;32;Hauts-de-France;lieu_cattp;CATTP;psychiatre;2
+reg;32;Hauts-de-France;lieu_cattp;CATTP;psychologue;7
+reg;32;Hauts-de-France;lieu_cattp;CATTP;psychomotricien;6
+reg;32;Hauts-de-France;lieu_cattp;CATTP;q_psychiatrie_enfant;1
+reg;32;Hauts-de-France;lieu_cmp;CMP;infirmier;6
+reg;32;Hauts-de-France;lieu_cmp;CMP;pedopsychiatre;1
+reg;32;Hauts-de-France;lieu_cmp;CMP;psychiatre;2
+reg;32;Hauts-de-France;lieu_cmp;CMP;psychologue;14
+reg;32;Hauts-de-France;lieu_cmp;CMP;psychomotricien;3
+reg;32;Hauts-de-France;lieu_cmp;CMP;q_psychiatrie_enfant;1
+reg;32;Hauts-de-France;lieu_cmpp;CMPP;ergotherapeute;2
+reg;32;Hauts-de-France;lieu_cmpp;CMPP;infirmier;1
+reg;32;Hauts-de-France;lieu_cmpp;CMPP;medecin_generaliste;4
+reg;32;Hauts-de-France;lieu_cmpp;CMPP;orthophoniste;63
+reg;32;Hauts-de-France;lieu_cmpp;CMPP;pedopsychiatre;2
+reg;32;Hauts-de-France;lieu_cmpp;CMPP;psychiatre;22
+reg;32;Hauts-de-France;lieu_cmpp;CMPP;psychologue;137
+reg;32;Hauts-de-France;lieu_cmpp;CMPP;psychomotricien;70
+reg;32;Hauts-de-France;lieu_cmpp;CMPP;q_psychiatrie_enfant;9
+reg;32;Hauts-de-France;lieu_csapa;CSAPA;infirmier;90
+reg;32;Hauts-de-France;lieu_csapa;CSAPA;medecin_generaliste;24
+reg;32;Hauts-de-France;lieu_csapa;CSAPA;psychiatre;13
+reg;32;Hauts-de-France;lieu_csapa;CSAPA;psychologue;78
+reg;44;Grand Est;lieu_caarud;CAARUD;infirmier;15
+reg;44;Grand Est;lieu_caarud;CAARUD;medecin_generaliste;6
+reg;44;Grand Est;lieu_camsp;CAMSP;ergotherapeute;20
+reg;44;Grand Est;lieu_camsp;CAMSP;infirmier;7
+reg;44;Grand Est;lieu_camsp;CAMSP;medecin_generaliste;7
+reg;44;Grand Est;lieu_camsp;CAMSP;orthophoniste;32
+reg;44;Grand Est;lieu_camsp;CAMSP;psychiatre;10
+reg;44;Grand Est;lieu_camsp;CAMSP;psychologue;50
+reg;44;Grand Est;lieu_camsp;CAMSP;psychomotricien;47
+reg;44;Grand Est;lieu_camsp;CAMSP;q_psychiatrie_enfant;3
+reg;44;Grand Est;lieu_cattp;CATTP;ergotherapeute;4
+reg;44;Grand Est;lieu_cattp;CATTP;infirmier;7
+reg;44;Grand Est;lieu_cattp;CATTP;orthophoniste;1
+reg;44;Grand Est;lieu_cattp;CATTP;psychiatre;1
+reg;44;Grand Est;lieu_cattp;CATTP;psychologue;2
+reg;44;Grand Est;lieu_cattp;CATTP;psychomotricien;1
+reg;44;Grand Est;lieu_cmpp;CMPP;ergotherapeute;8
+reg;44;Grand Est;lieu_cmpp;CMPP;medecin_generaliste;3
+reg;44;Grand Est;lieu_cmpp;CMPP;orthophoniste;48
+reg;44;Grand Est;lieu_cmpp;CMPP;psychiatre;12
+reg;44;Grand Est;lieu_cmpp;CMPP;psychologue;111
+reg;44;Grand Est;lieu_cmpp;CMPP;psychomotricien;38
+reg;44;Grand Est;lieu_cmpp;CMPP;q_psychiatrie_enfant;3
+reg;44;Grand Est;lieu_csapa;CSAPA;ergotherapeute;1
+reg;44;Grand Est;lieu_csapa;CSAPA;infirmier;289
+reg;44;Grand Est;lieu_csapa;CSAPA;medecin_generaliste;40
+reg;44;Grand Est;lieu_csapa;CSAPA;psychiatre;8
+reg;44;Grand Est;lieu_csapa;CSAPA;psychologue;62
+reg;52;Pays de la Loire;lieu_caarud;CAARUD;infirmier;6
+reg;52;Pays de la Loire;lieu_caarud;CAARUD;medecin_generaliste;4
+reg;52;Pays de la Loire;lieu_camsp;CAMSP;ergotherapeute;3
+reg;52;Pays de la Loire;lieu_camsp;CAMSP;infirmier;5
+reg;52;Pays de la Loire;lieu_camsp;CAMSP;medecin_generaliste;2
+reg;52;Pays de la Loire;lieu_camsp;CAMSP;orthophoniste;9
+reg;52;Pays de la Loire;lieu_camsp;CAMSP;psychiatre;4
+reg;52;Pays de la Loire;lieu_camsp;CAMSP;psychologue;32
+reg;52;Pays de la Loire;lieu_camsp;CAMSP;psychomotricien;18
+reg;52;Pays de la Loire;lieu_camsp;CAMSP;q_psychiatrie_enfant;2
+reg;52;Pays de la Loire;lieu_cattp;CATTP;infirmier;11
+reg;52;Pays de la Loire;lieu_cattp;CATTP;psychiatre;1
+reg;52;Pays de la Loire;lieu_cattp;CATTP;psychologue;4
+reg;52;Pays de la Loire;lieu_cattp;CATTP;psychomotricien;1
+reg;52;Pays de la Loire;lieu_cmpp;CMPP;ergotherapeute;1
+reg;52;Pays de la Loire;lieu_cmpp;CMPP;medecin_generaliste;2
+reg;52;Pays de la Loire;lieu_cmpp;CMPP;orthophoniste;11
+reg;52;Pays de la Loire;lieu_cmpp;CMPP;psychiatre;7
+reg;52;Pays de la Loire;lieu_cmpp;CMPP;psychologue;42
+reg;52;Pays de la Loire;lieu_cmpp;CMPP;psychomotricien;29
+reg;52;Pays de la Loire;lieu_cmpp;CMPP;q_psychiatrie_enfant;4
+reg;52;Pays de la Loire;lieu_csapa;CSAPA;infirmier;28
+reg;52;Pays de la Loire;lieu_csapa;CSAPA;medecin_generaliste;14
+reg;52;Pays de la Loire;lieu_csapa;CSAPA;orthophoniste;3
+reg;52;Pays de la Loire;lieu_csapa;CSAPA;psychiatre;7
+reg;52;Pays de la Loire;lieu_csapa;CSAPA;psychologue;12
+reg;52;Pays de la Loire;lieu_csapa;CSAPA;psychomotricien;1
+reg;52;Pays de la Loire;lieu_csapa;CSAPA;q_psychiatrie_enfant;1
+reg;53;Bretagne;lieu_caarud;CAARUD;infirmier;3
+reg;53;Bretagne;lieu_caarud;CAARUD;medecin_generaliste;1
+reg;53;Bretagne;lieu_camsp;CAMSP;ergotherapeute;6
+reg;53;Bretagne;lieu_camsp;CAMSP;infirmier;21
+reg;53;Bretagne;lieu_camsp;CAMSP;medecin_generaliste;4
+reg;53;Bretagne;lieu_camsp;CAMSP;orthophoniste;16
+reg;53;Bretagne;lieu_camsp;CAMSP;psychiatre;3
+reg;53;Bretagne;lieu_camsp;CAMSP;psychologue;10
+reg;53;Bretagne;lieu_camsp;CAMSP;psychomotricien;21
+reg;53;Bretagne;lieu_cmpp;CMPP;medecin_generaliste;3
+reg;53;Bretagne;lieu_cmpp;CMPP;orthophoniste;37
+reg;53;Bretagne;lieu_cmpp;CMPP;psychiatre;11
+reg;53;Bretagne;lieu_cmpp;CMPP;psychologue;58
+reg;53;Bretagne;lieu_cmpp;CMPP;psychomotricien;30
+reg;53;Bretagne;lieu_cmpp;CMPP;q_psychiatrie_enfant;1
+reg;53;Bretagne;lieu_csapa;CSAPA;infirmier;60
+reg;53;Bretagne;lieu_csapa;CSAPA;medecin_generaliste;16
+reg;53;Bretagne;lieu_csapa;CSAPA;psychiatre;3
+reg;53;Bretagne;lieu_csapa;CSAPA;psychologue;7
+reg;75;Nouvelle-Aquitaine;lieu_caarud;CAARUD;infirmier;9
+reg;75;Nouvelle-Aquitaine;lieu_caarud;CAARUD;medecin_generaliste;4
+reg;75;Nouvelle-Aquitaine;lieu_caarud;CAARUD;psychologue;3
+reg;75;Nouvelle-Aquitaine;lieu_camsp;CAMSP;ergotherapeute;6
+reg;75;Nouvelle-Aquitaine;lieu_camsp;CAMSP;infirmier;42
+reg;75;Nouvelle-Aquitaine;lieu_camsp;CAMSP;medecin_generaliste;5
+reg;75;Nouvelle-Aquitaine;lieu_camsp;CAMSP;orthophoniste;19
+reg;75;Nouvelle-Aquitaine;lieu_camsp;CAMSP;pedopsychiatre;1
+reg;75;Nouvelle-Aquitaine;lieu_camsp;CAMSP;psychiatre;4
+reg;75;Nouvelle-Aquitaine;lieu_camsp;CAMSP;psychologue;35
+reg;75;Nouvelle-Aquitaine;lieu_camsp;CAMSP;psychomotricien;33
+reg;75;Nouvelle-Aquitaine;lieu_camsp;CAMSP;q_psychiatrie_enfant;4
+reg;75;Nouvelle-Aquitaine;lieu_cattp;CATTP;infirmier;5
+reg;75;Nouvelle-Aquitaine;lieu_cattp;CATTP;psychiatre;2
+reg;75;Nouvelle-Aquitaine;lieu_cattp;CATTP;psychologue;1
+reg;75;Nouvelle-Aquitaine;lieu_cattp;CATTP;psychomotricien;2
+reg;75;Nouvelle-Aquitaine;lieu_cmp;CMP;infirmier;1
+reg;75;Nouvelle-Aquitaine;lieu_cmp;CMP;psychologue;2
+reg;75;Nouvelle-Aquitaine;lieu_cmpp;CMPP;ergotherapeute;8
+reg;75;Nouvelle-Aquitaine;lieu_cmpp;CMPP;infirmier;2
+reg;75;Nouvelle-Aquitaine;lieu_cmpp;CMPP;medecin_generaliste;6
+reg;75;Nouvelle-Aquitaine;lieu_cmpp;CMPP;orthophoniste;96
+reg;75;Nouvelle-Aquitaine;lieu_cmpp;CMPP;pedopsychiatre;7
+reg;75;Nouvelle-Aquitaine;lieu_cmpp;CMPP;psychiatre;28
+reg;75;Nouvelle-Aquitaine;lieu_cmpp;CMPP;psychologue;166
+reg;75;Nouvelle-Aquitaine;lieu_cmpp;CMPP;psychomotricien;102
+reg;75;Nouvelle-Aquitaine;lieu_cmpp;CMPP;q_psychiatrie_enfant;21
+reg;75;Nouvelle-Aquitaine;lieu_csapa;CSAPA;infirmier;77
+reg;75;Nouvelle-Aquitaine;lieu_csapa;CSAPA;medecin_generaliste;41
+reg;75;Nouvelle-Aquitaine;lieu_csapa;CSAPA;psychiatre;11
+reg;75;Nouvelle-Aquitaine;lieu_csapa;CSAPA;psychologue;49
+reg;75;Nouvelle-Aquitaine;lieu_csapa;CSAPA;psychomotricien;1
+reg;75;Nouvelle-Aquitaine;lieu_csapa;CSAPA;q_psychiatrie_enfant;2
+reg;76;Occitanie;lieu_caarud;CAARUD;infirmier;15
+reg;76;Occitanie;lieu_caarud;CAARUD;medecin_generaliste;3
+reg;76;Occitanie;lieu_caarud;CAARUD;psychiatre;1
+reg;76;Occitanie;lieu_caarud;CAARUD;psychologue;5
+reg;76;Occitanie;lieu_camsp;CAMSP;ergotherapeute;6
+reg;76;Occitanie;lieu_camsp;CAMSP;infirmier;11
+reg;76;Occitanie;lieu_camsp;CAMSP;medecin_generaliste;6
+reg;76;Occitanie;lieu_camsp;CAMSP;orthophoniste;23
+reg;76;Occitanie;lieu_camsp;CAMSP;pedopsychiatre;1
+reg;76;Occitanie;lieu_camsp;CAMSP;psychiatre;10
+reg;76;Occitanie;lieu_camsp;CAMSP;psychologue;39
+reg;76;Occitanie;lieu_camsp;CAMSP;psychomotricien;54
+reg;76;Occitanie;lieu_camsp;CAMSP;q_psychiatrie_enfant;4
+reg;76;Occitanie;lieu_cattp;CATTP;infirmier;6
+reg;76;Occitanie;lieu_cattp;CATTP;psychiatre;1
+reg;76;Occitanie;lieu_cmp;CMP;infirmier;4
+reg;76;Occitanie;lieu_cmpp;CMPP;ergotherapeute;3
+reg;76;Occitanie;lieu_cmpp;CMPP;infirmier;3
+reg;76;Occitanie;lieu_cmpp;CMPP;medecin_generaliste;13
+reg;76;Occitanie;lieu_cmpp;CMPP;orthophoniste;94
+reg;76;Occitanie;lieu_cmpp;CMPP;pedopsychiatre;1
+reg;76;Occitanie;lieu_cmpp;CMPP;psychiatre;26
+reg;76;Occitanie;lieu_cmpp;CMPP;psychologue;154
+reg;76;Occitanie;lieu_cmpp;CMPP;psychomotricien;103
+reg;76;Occitanie;lieu_cmpp;CMPP;q_psychiatrie_enfant;4
+reg;76;Occitanie;lieu_csapa;CSAPA;infirmier;123
+reg;76;Occitanie;lieu_csapa;CSAPA;medecin_generaliste;37
+reg;76;Occitanie;lieu_csapa;CSAPA;psychiatre;8
+reg;76;Occitanie;lieu_csapa;CSAPA;psychologue;44
+reg;76;Occitanie;lieu_csapa;CSAPA;q_psychiatrie_enfant;1
+reg;84;Auvergne-Rhône-Alpes;lieu_caarud;CAARUD;infirmier;9
+reg;84;Auvergne-Rhône-Alpes;lieu_caarud;CAARUD;medecin_generaliste;3
+reg;84;Auvergne-Rhône-Alpes;lieu_caarud;CAARUD;psychologue;4
+reg;84;Auvergne-Rhône-Alpes;lieu_camsp;CAMSP;ergotherapeute;28
+reg;84;Auvergne-Rhône-Alpes;lieu_camsp;CAMSP;infirmier;10
+reg;84;Auvergne-Rhône-Alpes;lieu_camsp;CAMSP;medecin_generaliste;9
+reg;84;Auvergne-Rhône-Alpes;lieu_camsp;CAMSP;orthophoniste;58
+reg;84;Auvergne-Rhône-Alpes;lieu_camsp;CAMSP;psychiatre;5
+reg;84;Auvergne-Rhône-Alpes;lieu_camsp;CAMSP;psychologue;66
+reg;84;Auvergne-Rhône-Alpes;lieu_camsp;CAMSP;psychomotricien;90
+reg;84;Auvergne-Rhône-Alpes;lieu_camsp;CAMSP;q_psychiatrie_enfant;2
+reg;84;Auvergne-Rhône-Alpes;lieu_cattp;CATTP;ergotherapeute;2
+reg;84;Auvergne-Rhône-Alpes;lieu_cattp;CATTP;infirmier;36
+reg;84;Auvergne-Rhône-Alpes;lieu_cattp;CATTP;medecin_generaliste;2
+reg;84;Auvergne-Rhône-Alpes;lieu_cattp;CATTP;orthophoniste;1
+reg;84;Auvergne-Rhône-Alpes;lieu_cattp;CATTP;pedopsychiatre;1
+reg;84;Auvergne-Rhône-Alpes;lieu_cattp;CATTP;psychiatre;13
+reg;84;Auvergne-Rhône-Alpes;lieu_cattp;CATTP;psychologue;14
+reg;84;Auvergne-Rhône-Alpes;lieu_cattp;CATTP;psychomotricien;5
+reg;84;Auvergne-Rhône-Alpes;lieu_cattp;CATTP;q_psychiatrie_enfant;2
+reg;84;Auvergne-Rhône-Alpes;lieu_cmp;CMP;infirmier;5
+reg;84;Auvergne-Rhône-Alpes;lieu_cmp;CMP;psychiatre;3
+reg;84;Auvergne-Rhône-Alpes;lieu_cmp;CMP;q_psychiatrie_enfant;1
+reg;84;Auvergne-Rhône-Alpes;lieu_cmpp;CMPP;ergotherapeute;1
+reg;84;Auvergne-Rhône-Alpes;lieu_cmpp;CMPP;infirmier;1
+reg;84;Auvergne-Rhône-Alpes;lieu_cmpp;CMPP;medecin_generaliste;4
+reg;84;Auvergne-Rhône-Alpes;lieu_cmpp;CMPP;orthophoniste;51
+reg;84;Auvergne-Rhône-Alpes;lieu_cmpp;CMPP;pedopsychiatre;1
+reg;84;Auvergne-Rhône-Alpes;lieu_cmpp;CMPP;psychiatre;19
+reg;84;Auvergne-Rhône-Alpes;lieu_cmpp;CMPP;psychologue;93
+reg;84;Auvergne-Rhône-Alpes;lieu_cmpp;CMPP;psychomotricien;50
+reg;84;Auvergne-Rhône-Alpes;lieu_cmpp;CMPP;q_psychiatrie_enfant;7
+reg;84;Auvergne-Rhône-Alpes;lieu_csapa;CSAPA;infirmier;116
+reg;84;Auvergne-Rhône-Alpes;lieu_csapa;CSAPA;medecin_generaliste;55
+reg;84;Auvergne-Rhône-Alpes;lieu_csapa;CSAPA;psychiatre;7
+reg;84;Auvergne-Rhône-Alpes;lieu_csapa;CSAPA;psychologue;64
+reg;93;Provence-Alpes-Côte d'Azur;lieu_caarud;CAARUD;infirmier;6
+reg;93;Provence-Alpes-Côte d'Azur;lieu_caarud;CAARUD;medecin_generaliste;2
+reg;93;Provence-Alpes-Côte d'Azur;lieu_camsp;CAMSP;ergotherapeute;4
+reg;93;Provence-Alpes-Côte d'Azur;lieu_camsp;CAMSP;infirmier;72
+reg;93;Provence-Alpes-Côte d'Azur;lieu_camsp;CAMSP;medecin_generaliste;4
+reg;93;Provence-Alpes-Côte d'Azur;lieu_camsp;CAMSP;orthophoniste;22
+reg;93;Provence-Alpes-Côte d'Azur;lieu_camsp;CAMSP;psychiatre;10
+reg;93;Provence-Alpes-Côte d'Azur;lieu_camsp;CAMSP;psychologue;23
+reg;93;Provence-Alpes-Côte d'Azur;lieu_camsp;CAMSP;psychomotricien;43
+reg;93;Provence-Alpes-Côte d'Azur;lieu_camsp;CAMSP;q_psychiatrie_enfant;6
+reg;93;Provence-Alpes-Côte d'Azur;lieu_cattp;CATTP;infirmier;4
+reg;93;Provence-Alpes-Côte d'Azur;lieu_cattp;CATTP;psychiatre;2
+reg;93;Provence-Alpes-Côte d'Azur;lieu_cattp;CATTP;psychologue;1
+reg;93;Provence-Alpes-Côte d'Azur;lieu_cattp;CATTP;psychomotricien;1
+reg;93;Provence-Alpes-Côte d'Azur;lieu_cattp;CATTP;q_psychiatrie_enfant;1
+reg;93;Provence-Alpes-Côte d'Azur;lieu_cmpp;CMPP;infirmier;34
+reg;93;Provence-Alpes-Côte d'Azur;lieu_cmpp;CMPP;medecin_generaliste;1
+reg;93;Provence-Alpes-Côte d'Azur;lieu_cmpp;CMPP;orthophoniste;33
+reg;93;Provence-Alpes-Côte d'Azur;lieu_cmpp;CMPP;pedopsychiatre;1
+reg;93;Provence-Alpes-Côte d'Azur;lieu_cmpp;CMPP;psychiatre;21
+reg;93;Provence-Alpes-Côte d'Azur;lieu_cmpp;CMPP;psychologue;74
+reg;93;Provence-Alpes-Côte d'Azur;lieu_cmpp;CMPP;psychomotricien;42
+reg;93;Provence-Alpes-Côte d'Azur;lieu_cmpp;CMPP;q_psychiatrie_enfant;10
+reg;93;Provence-Alpes-Côte d'Azur;lieu_csapa;CSAPA;ergotherapeute;1
+reg;93;Provence-Alpes-Côte d'Azur;lieu_csapa;CSAPA;infirmier;83
+reg;93;Provence-Alpes-Côte d'Azur;lieu_csapa;CSAPA;medecin_generaliste;25
+reg;93;Provence-Alpes-Côte d'Azur;lieu_csapa;CSAPA;psychiatre;7
+reg;93;Provence-Alpes-Côte d'Azur;lieu_csapa;CSAPA;psychologue;20
+reg;94;Corse;lieu_camsp;CAMSP;medecin_generaliste;1
+reg;94;Corse;lieu_camsp;CAMSP;orthophoniste;8
+reg;94;Corse;lieu_camsp;CAMSP;psychiatre;1
+reg;94;Corse;lieu_camsp;CAMSP;psychologue;3
+reg;94;Corse;lieu_camsp;CAMSP;psychomotricien;6
+reg;94;Corse;lieu_cattp;CATTP;infirmier;1
+reg;94;Corse;lieu_cmpp;CMPP;orthophoniste;2
+reg;94;Corse;lieu_cmpp;CMPP;psychiatre;1
+reg;94;Corse;lieu_cmpp;CMPP;psychologue;2
+reg;94;Corse;lieu_cmpp;CMPP;psychomotricien;4
+reg;94;Corse;lieu_csapa;CSAPA;infirmier;3
+reg;94;Corse;lieu_csapa;CSAPA;medecin_generaliste;3
+reg;94;Corse;lieu_csapa;CSAPA;psychiatre;2
+reg;94;Corse;lieu_csapa;CSAPA;psychologue;2
+reg;01;Guadeloupe;ensemble;Au moins une de ces structures;infirmier;3
+reg;01;Guadeloupe;ensemble;Au moins une de ces structures;medecin_generaliste;2
+reg;01;Guadeloupe;ensemble;Au moins une de ces structures;orthophoniste;8
+reg;01;Guadeloupe;ensemble;Au moins une de ces structures;psychiatre;5
+reg;01;Guadeloupe;ensemble;Au moins une de ces structures;psychologue;21
+reg;01;Guadeloupe;ensemble;Au moins une de ces structures;psychomotricien;23
+reg;02;Martinique;ensemble;Au moins une de ces structures;infirmier;7
+reg;02;Martinique;ensemble;Au moins une de ces structures;medecin_generaliste;1
+reg;02;Martinique;ensemble;Au moins une de ces structures;orthophoniste;6
+reg;02;Martinique;ensemble;Au moins une de ces structures;psychologue;7
+reg;02;Martinique;ensemble;Au moins une de ces structures;psychomotricien;5
+reg;03;Guyane;ensemble;Au moins une de ces structures;ergotherapeute;1
+reg;03;Guyane;ensemble;Au moins une de ces structures;infirmier;2
+reg;03;Guyane;ensemble;Au moins une de ces structures;medecin_generaliste;1
+reg;03;Guyane;ensemble;Au moins une de ces structures;orthophoniste;1
+reg;03;Guyane;ensemble;Au moins une de ces structures;psychologue;13
+reg;03;Guyane;ensemble;Au moins une de ces structures;psychomotricien;5
+reg;04;La Réunion;ensemble;Au moins une de ces structures;ergotherapeute;7
+reg;04;La Réunion;ensemble;Au moins une de ces structures;infirmier;18
+reg;04;La Réunion;ensemble;Au moins une de ces structures;medecin_generaliste;3
+reg;04;La Réunion;ensemble;Au moins une de ces structures;orthophoniste;15
+reg;04;La Réunion;ensemble;Au moins une de ces structures;psychiatre;3
+reg;04;La Réunion;ensemble;Au moins une de ces structures;psychologue;30
+reg;04;La Réunion;ensemble;Au moins une de ces structures;psychomotricien;34
+reg;06;Mayotte;ensemble;Au moins une de ces structures;medecin_generaliste;1
+reg;06;Mayotte;ensemble;Au moins une de ces structures;psychologue;1
+reg;11;Île-de-France;ensemble;Au moins une de ces structures;ergotherapeute;17
+reg;11;Île-de-France;ensemble;Au moins une de ces structures;infirmier;374
+reg;11;Île-de-France;ensemble;Au moins une de ces structures;medecin_generaliste;67
+reg;11;Île-de-France;ensemble;Au moins une de ces structures;orthophoniste;203
+reg;11;Île-de-France;ensemble;Au moins une de ces structures;pedopsychiatre;15
+reg;11;Île-de-France;ensemble;Au moins une de ces structures;psychiatre;199
+reg;11;Île-de-France;ensemble;Au moins une de ces structures;psychologue;701
+reg;11;Île-de-France;ensemble;Au moins une de ces structures;psychomotricien;254
+reg;11;Île-de-France;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;53
+reg;24;Centre-Val de Loire;ensemble;Au moins une de ces structures;ergotherapeute;3
+reg;24;Centre-Val de Loire;ensemble;Au moins une de ces structures;infirmier;61
+reg;24;Centre-Val de Loire;ensemble;Au moins une de ces structures;medecin_generaliste;13
+reg;24;Centre-Val de Loire;ensemble;Au moins une de ces structures;orthophoniste;23
+reg;24;Centre-Val de Loire;ensemble;Au moins une de ces structures;pedopsychiatre;1
+reg;24;Centre-Val de Loire;ensemble;Au moins une de ces structures;psychiatre;17
+reg;24;Centre-Val de Loire;ensemble;Au moins une de ces structures;psychologue;87
+reg;24;Centre-Val de Loire;ensemble;Au moins une de ces structures;psychomotricien;46
+reg;24;Centre-Val de Loire;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;5
+reg;27;Bourgogne-Franche-Comté;ensemble;Au moins une de ces structures;ergotherapeute;7
+reg;27;Bourgogne-Franche-Comté;ensemble;Au moins une de ces structures;infirmier;55
+reg;27;Bourgogne-Franche-Comté;ensemble;Au moins une de ces structures;medecin_generaliste;25
+reg;27;Bourgogne-Franche-Comté;ensemble;Au moins une de ces structures;orthophoniste;91
+reg;27;Bourgogne-Franche-Comté;ensemble;Au moins une de ces structures;pedopsychiatre;1
+reg;27;Bourgogne-Franche-Comté;ensemble;Au moins une de ces structures;psychiatre;22
+reg;27;Bourgogne-Franche-Comté;ensemble;Au moins une de ces structures;psychologue;158
+reg;27;Bourgogne-Franche-Comté;ensemble;Au moins une de ces structures;psychomotricien;92
+reg;27;Bourgogne-Franche-Comté;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;5
+reg;28;Normandie;ensemble;Au moins une de ces structures;ergotherapeute;13
+reg;28;Normandie;ensemble;Au moins une de ces structures;infirmier;51
+reg;28;Normandie;ensemble;Au moins une de ces structures;medecin_generaliste;38
+reg;28;Normandie;ensemble;Au moins une de ces structures;orthophoniste;84
+reg;28;Normandie;ensemble;Au moins une de ces structures;pedopsychiatre;1
+reg;28;Normandie;ensemble;Au moins une de ces structures;psychiatre;17
+reg;28;Normandie;ensemble;Au moins une de ces structures;psychologue;183
+reg;28;Normandie;ensemble;Au moins une de ces structures;psychomotricien;76
+reg;28;Normandie;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;7
+reg;32;Hauts-de-France;ensemble;Au moins une de ces structures;ergotherapeute;34
+reg;32;Hauts-de-France;ensemble;Au moins une de ces structures;infirmier;290
+reg;32;Hauts-de-France;ensemble;Au moins une de ces structures;medecin_generaliste;33
+reg;32;Hauts-de-France;ensemble;Au moins une de ces structures;orthophoniste;114
+reg;32;Hauts-de-France;ensemble;Au moins une de ces structures;pedopsychiatre;5
+reg;32;Hauts-de-France;ensemble;Au moins une de ces structures;psychiatre;42
+reg;32;Hauts-de-France;ensemble;Au moins une de ces structures;psychologue;284
+reg;32;Hauts-de-France;ensemble;Au moins une de ces structures;psychomotricien;152
+reg;32;Hauts-de-France;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;14
+reg;44;Grand Est;ensemble;Au moins une de ces structures;ergotherapeute;33
+reg;44;Grand Est;ensemble;Au moins une de ces structures;infirmier;318
+reg;44;Grand Est;ensemble;Au moins une de ces structures;medecin_generaliste;55
+reg;44;Grand Est;ensemble;Au moins une de ces structures;orthophoniste;80
+reg;44;Grand Est;ensemble;Au moins une de ces structures;psychiatre;30
+reg;44;Grand Est;ensemble;Au moins une de ces structures;psychologue;225
+reg;44;Grand Est;ensemble;Au moins une de ces structures;psychomotricien;84
+reg;44;Grand Est;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;5
+reg;52;Pays de la Loire;ensemble;Au moins une de ces structures;ergotherapeute;4
+reg;52;Pays de la Loire;ensemble;Au moins une de ces structures;infirmier;50
+reg;52;Pays de la Loire;ensemble;Au moins une de ces structures;medecin_generaliste;20
+reg;52;Pays de la Loire;ensemble;Au moins une de ces structures;orthophoniste;23
+reg;52;Pays de la Loire;ensemble;Au moins une de ces structures;psychiatre;18
+reg;52;Pays de la Loire;ensemble;Au moins une de ces structures;psychologue;89
+reg;52;Pays de la Loire;ensemble;Au moins une de ces structures;psychomotricien;49
+reg;52;Pays de la Loire;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;7
+reg;53;Bretagne;ensemble;Au moins une de ces structures;ergotherapeute;6
+reg;53;Bretagne;ensemble;Au moins une de ces structures;infirmier;84
+reg;53;Bretagne;ensemble;Au moins une de ces structures;medecin_generaliste;24
+reg;53;Bretagne;ensemble;Au moins une de ces structures;orthophoniste;52
+reg;53;Bretagne;ensemble;Au moins une de ces structures;psychiatre;16
+reg;53;Bretagne;ensemble;Au moins une de ces structures;psychologue;75
+reg;53;Bretagne;ensemble;Au moins une de ces structures;psychomotricien;51
+reg;53;Bretagne;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;1
+reg;75;Nouvelle-Aquitaine;ensemble;Au moins une de ces structures;ergotherapeute;14
+reg;75;Nouvelle-Aquitaine;ensemble;Au moins une de ces structures;infirmier;136
+reg;75;Nouvelle-Aquitaine;ensemble;Au moins une de ces structures;medecin_generaliste;56
+reg;75;Nouvelle-Aquitaine;ensemble;Au moins une de ces structures;orthophoniste;112
+reg;75;Nouvelle-Aquitaine;ensemble;Au moins une de ces structures;pedopsychiatre;7
+reg;75;Nouvelle-Aquitaine;ensemble;Au moins une de ces structures;psychiatre;43
+reg;75;Nouvelle-Aquitaine;ensemble;Au moins une de ces structures;psychologue;250
+reg;75;Nouvelle-Aquitaine;ensemble;Au moins une de ces structures;psychomotricien;136
+reg;75;Nouvelle-Aquitaine;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;24
+reg;76;Occitanie;ensemble;Au moins une de ces structures;ergotherapeute;9
+reg;76;Occitanie;ensemble;Au moins une de ces structures;infirmier;162
+reg;76;Occitanie;ensemble;Au moins une de ces structures;medecin_generaliste;57
+reg;76;Occitanie;ensemble;Au moins une de ces structures;orthophoniste;116
+reg;76;Occitanie;ensemble;Au moins une de ces structures;pedopsychiatre;2
+reg;76;Occitanie;ensemble;Au moins une de ces structures;psychiatre;45
+reg;76;Occitanie;ensemble;Au moins une de ces structures;psychologue;241
+reg;76;Occitanie;ensemble;Au moins une de ces structures;psychomotricien;154
+reg;76;Occitanie;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;8
+reg;84;Auvergne-Rhône-Alpes;ensemble;Au moins une de ces structures;ergotherapeute;31
+reg;84;Auvergne-Rhône-Alpes;ensemble;Au moins une de ces structures;infirmier;177
+reg;84;Auvergne-Rhône-Alpes;ensemble;Au moins une de ces structures;medecin_generaliste;72
+reg;84;Auvergne-Rhône-Alpes;ensemble;Au moins une de ces structures;orthophoniste;107
+reg;84;Auvergne-Rhône-Alpes;ensemble;Au moins une de ces structures;pedopsychiatre;2
+reg;84;Auvergne-Rhône-Alpes;ensemble;Au moins une de ces structures;psychiatre;44
+reg;84;Auvergne-Rhône-Alpes;ensemble;Au moins une de ces structures;psychologue;238
+reg;84;Auvergne-Rhône-Alpes;ensemble;Au moins une de ces structures;psychomotricien;143
+reg;84;Auvergne-Rhône-Alpes;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;12
+reg;93;Provence-Alpes-Côte d'Azur;ensemble;Au moins une de ces structures;ergotherapeute;5
+reg;93;Provence-Alpes-Côte d'Azur;ensemble;Au moins une de ces structures;infirmier;199
+reg;93;Provence-Alpes-Côte d'Azur;ensemble;Au moins une de ces structures;medecin_generaliste;30
+reg;93;Provence-Alpes-Côte d'Azur;ensemble;Au moins une de ces structures;orthophoniste;55
+reg;93;Provence-Alpes-Côte d'Azur;ensemble;Au moins une de ces structures;pedopsychiatre;1
+reg;93;Provence-Alpes-Côte d'Azur;ensemble;Au moins une de ces structures;psychiatre;38
+reg;93;Provence-Alpes-Côte d'Azur;ensemble;Au moins une de ces structures;psychologue;117
+reg;93;Provence-Alpes-Côte d'Azur;ensemble;Au moins une de ces structures;psychomotricien;85
+reg;93;Provence-Alpes-Côte d'Azur;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;16
+reg;94;Corse;ensemble;Au moins une de ces structures;infirmier;4
+reg;94;Corse;ensemble;Au moins une de ces structures;medecin_generaliste;4
+reg;94;Corse;ensemble;Au moins une de ces structures;orthophoniste;10
+reg;94;Corse;ensemble;Au moins une de ces structures;psychiatre;3
+reg;94;Corse;ensemble;Au moins une de ces structures;psychologue;7
+reg;94;Corse;ensemble;Au moins une de ces structures;psychomotricien;10
+dep;01;Ain;lieu_camsp;CAMSP;ergotherapeute;4
+dep;01;Ain;lieu_camsp;CAMSP;infirmier;1
+dep;01;Ain;lieu_camsp;CAMSP;orthophoniste;2
+dep;01;Ain;lieu_camsp;CAMSP;psychologue;3
+dep;01;Ain;lieu_camsp;CAMSP;psychomotricien;4
+dep;01;Ain;lieu_cattp;CATTP;ergotherapeute;1
+dep;01;Ain;lieu_cattp;CATTP;infirmier;13
+dep;01;Ain;lieu_cattp;CATTP;psychiatre;1
+dep;01;Ain;lieu_cattp;CATTP;psychologue;2
+dep;01;Ain;lieu_csapa;CSAPA;infirmier;6
+dep;01;Ain;lieu_csapa;CSAPA;medecin_generaliste;7
+dep;01;Ain;lieu_csapa;CSAPA;psychologue;13
+dep;02;Aisne;lieu_caarud;CAARUD;infirmier;2
+dep;02;Aisne;lieu_camsp;CAMSP;ergotherapeute;1
+dep;02;Aisne;lieu_camsp;CAMSP;psychologue;1
+dep;02;Aisne;lieu_camsp;CAMSP;psychomotricien;1
+dep;02;Aisne;lieu_cattp;CATTP;psychologue;1
+dep;02;Aisne;lieu_cmpp;CMPP;orthophoniste;2
+dep;02;Aisne;lieu_cmpp;CMPP;psychiatre;1
+dep;02;Aisne;lieu_cmpp;CMPP;psychologue;11
+dep;02;Aisne;lieu_cmpp;CMPP;psychomotricien;2
+dep;02;Aisne;lieu_csapa;CSAPA;infirmier;5
+dep;02;Aisne;lieu_csapa;CSAPA;medecin_generaliste;4
+dep;02;Aisne;lieu_csapa;CSAPA;psychologue;7
+dep;03;Allier;lieu_camsp;CAMSP;infirmier;1
+dep;03;Allier;lieu_camsp;CAMSP;psychologue;2
+dep;03;Allier;lieu_camsp;CAMSP;psychomotricien;3
+dep;03;Allier;lieu_cattp;CATTP;infirmier;2
+dep;03;Allier;lieu_cattp;CATTP;psychologue;1
+dep;03;Allier;lieu_cmpp;CMPP;psychiatre;1
+dep;03;Allier;lieu_cmpp;CMPP;psychologue;2
+dep;03;Allier;lieu_cmpp;CMPP;psychomotricien;1
+dep;03;Allier;lieu_csapa;CSAPA;infirmier;3
+dep;03;Allier;lieu_csapa;CSAPA;medecin_generaliste;1
+dep;03;Allier;lieu_csapa;CSAPA;psychologue;2
+dep;04;Alpes-de-Haute-Provence;lieu_caarud;CAARUD;infirmier;1
+dep;04;Alpes-de-Haute-Provence;lieu_camsp;CAMSP;ergotherapeute;2
+dep;04;Alpes-de-Haute-Provence;lieu_camsp;CAMSP;infirmier;1
+dep;04;Alpes-de-Haute-Provence;lieu_camsp;CAMSP;medecin_generaliste;1
+dep;04;Alpes-de-Haute-Provence;lieu_camsp;CAMSP;orthophoniste;1
+dep;04;Alpes-de-Haute-Provence;lieu_camsp;CAMSP;psychologue;4
+dep;04;Alpes-de-Haute-Provence;lieu_camsp;CAMSP;psychomotricien;8
+dep;04;Alpes-de-Haute-Provence;lieu_cmpp;CMPP;psychiatre;1
+dep;04;Alpes-de-Haute-Provence;lieu_cmpp;CMPP;psychologue;2
+dep;04;Alpes-de-Haute-Provence;lieu_cmpp;CMPP;psychomotricien;1
+dep;04;Alpes-de-Haute-Provence;lieu_cmpp;CMPP;q_psychiatrie_enfant;1
+dep;04;Alpes-de-Haute-Provence;lieu_csapa;CSAPA;infirmier;7
+dep;04;Alpes-de-Haute-Provence;lieu_csapa;CSAPA;medecin_generaliste;1
+dep;04;Alpes-de-Haute-Provence;lieu_csapa;CSAPA;psychologue;2
+dep;05;Hautes-Alpes;lieu_camsp;CAMSP;ergotherapeute;1
+dep;05;Hautes-Alpes;lieu_camsp;CAMSP;medecin_generaliste;1
+dep;05;Hautes-Alpes;lieu_camsp;CAMSP;orthophoniste;3
+dep;05;Hautes-Alpes;lieu_camsp;CAMSP;psychomotricien;2
+dep;05;Hautes-Alpes;lieu_cmpp;CMPP;psychiatre;1
+dep;05;Hautes-Alpes;lieu_cmpp;CMPP;psychologue;3
+dep;05;Hautes-Alpes;lieu_cmpp;CMPP;psychomotricien;4
+dep;05;Hautes-Alpes;lieu_csapa;CSAPA;infirmier;1
+dep;05;Hautes-Alpes;lieu_csapa;CSAPA;medecin_generaliste;2
+dep;05;Hautes-Alpes;lieu_csapa;CSAPA;psychologue;2
+dep;06;Alpes-Maritimes;lieu_caarud;CAARUD;infirmier;1
+dep;06;Alpes-Maritimes;lieu_caarud;CAARUD;medecin_generaliste;1
+dep;06;Alpes-Maritimes;lieu_camsp;CAMSP;infirmier;15
+dep;06;Alpes-Maritimes;lieu_camsp;CAMSP;orthophoniste;7
+dep;06;Alpes-Maritimes;lieu_camsp;CAMSP;psychiatre;5
+dep;06;Alpes-Maritimes;lieu_camsp;CAMSP;psychologue;3
+dep;06;Alpes-Maritimes;lieu_camsp;CAMSP;psychomotricien;9
+dep;06;Alpes-Maritimes;lieu_camsp;CAMSP;q_psychiatrie_enfant;2
+dep;06;Alpes-Maritimes;lieu_csapa;CSAPA;infirmier;40
+dep;06;Alpes-Maritimes;lieu_csapa;CSAPA;medecin_generaliste;9
+dep;06;Alpes-Maritimes;lieu_csapa;CSAPA;psychologue;9
+dep;07;Ardèche;lieu_caarud;CAARUD;infirmier;1
+dep;07;Ardèche;lieu_camsp;CAMSP;ergotherapeute;3
+dep;07;Ardèche;lieu_camsp;CAMSP;medecin_generaliste;2
+dep;07;Ardèche;lieu_camsp;CAMSP;orthophoniste;3
+dep;07;Ardèche;lieu_camsp;CAMSP;psychologue;2
+dep;07;Ardèche;lieu_camsp;CAMSP;psychomotricien;8
+dep;07;Ardèche;lieu_cattp;CATTP;infirmier;5
+dep;07;Ardèche;lieu_cattp;CATTP;orthophoniste;1
+dep;07;Ardèche;lieu_cattp;CATTP;psychiatre;1
+dep;07;Ardèche;lieu_cattp;CATTP;psychomotricien;1
+dep;07;Ardèche;lieu_cattp;CATTP;q_psychiatrie_enfant;1
+dep;07;Ardèche;lieu_cmpp;CMPP;infirmier;1
+dep;07;Ardèche;lieu_cmpp;CMPP;orthophoniste;4
+dep;07;Ardèche;lieu_cmpp;CMPP;psychiatre;1
+dep;07;Ardèche;lieu_cmpp;CMPP;psychologue;4
+dep;07;Ardèche;lieu_cmpp;CMPP;psychomotricien;2
+dep;07;Ardèche;lieu_csapa;CSAPA;infirmier;7
+dep;07;Ardèche;lieu_csapa;CSAPA;medecin_generaliste;2
+dep;07;Ardèche;lieu_csapa;CSAPA;psychologue;5
+dep;08;Ardennes;lieu_caarud;CAARUD;infirmier;2
+dep;08;Ardennes;lieu_caarud;CAARUD;medecin_generaliste;1
+dep;08;Ardennes;lieu_camsp;CAMSP;orthophoniste;6
+dep;08;Ardennes;lieu_camsp;CAMSP;psychologue;4
+dep;08;Ardennes;lieu_camsp;CAMSP;psychomotricien;2
+dep;08;Ardennes;lieu_csapa;CSAPA;infirmier;3
+dep;08;Ardennes;lieu_csapa;CSAPA;medecin_generaliste;1
+dep;08;Ardennes;lieu_csapa;CSAPA;psychiatre;2
+dep;08;Ardennes;lieu_csapa;CSAPA;psychologue;5
+dep;09;Ariège;lieu_caarud;CAARUD;infirmier;2
+dep;09;Ariège;lieu_camsp;CAMSP;medecin_generaliste;1
+dep;09;Ariège;lieu_camsp;CAMSP;orthophoniste;1
+dep;09;Ariège;lieu_camsp;CAMSP;psychologue;1
+dep;09;Ariège;lieu_camsp;CAMSP;psychomotricien;2
+dep;09;Ariège;lieu_cattp;CATTP;infirmier;1
+dep;09;Ariège;lieu_cmpp;CMPP;orthophoniste;2
+dep;09;Ariège;lieu_cmpp;CMPP;psychiatre;1
+dep;09;Ariège;lieu_cmpp;CMPP;psychologue;3
+dep;09;Ariège;lieu_cmpp;CMPP;psychomotricien;2
+dep;09;Ariège;lieu_csapa;CSAPA;infirmier;2
+dep;09;Ariège;lieu_csapa;CSAPA;medecin_generaliste;3
+dep;09;Ariège;lieu_csapa;CSAPA;psychiatre;2
+dep;09;Ariège;lieu_csapa;CSAPA;psychologue;2
+dep;09;Ariège;lieu_csapa;CSAPA;q_psychiatrie_enfant;1
+dep;10;Aube;lieu_caarud;CAARUD;medecin_generaliste;3
+dep;10;Aube;lieu_camsp;CAMSP;ergotherapeute;1
+dep;10;Aube;lieu_camsp;CAMSP;orthophoniste;2
+dep;10;Aube;lieu_camsp;CAMSP;psychiatre;1
+dep;10;Aube;lieu_camsp;CAMSP;psychologue;3
+dep;10;Aube;lieu_camsp;CAMSP;psychomotricien;2
+dep;10;Aube;lieu_camsp;CAMSP;q_psychiatrie_enfant;1
+dep;10;Aube;lieu_csapa;CSAPA;infirmier;3
+dep;10;Aube;lieu_csapa;CSAPA;medecin_generaliste;4
+dep;10;Aube;lieu_csapa;CSAPA;psychologue;8
+dep;11;Aude;lieu_caarud;CAARUD;psychologue;1
+dep;11;Aude;lieu_camsp;CAMSP;orthophoniste;5
+dep;11;Aude;lieu_camsp;CAMSP;psychiatre;2
+dep;11;Aude;lieu_camsp;CAMSP;psychologue;6
+dep;11;Aude;lieu_camsp;CAMSP;psychomotricien;9
+dep;11;Aude;lieu_cattp;CATTP;psychiatre;1
+dep;11;Aude;lieu_cmpp;CMPP;ergotherapeute;2
+dep;11;Aude;lieu_cmpp;CMPP;medecin_generaliste;2
+dep;11;Aude;lieu_cmpp;CMPP;orthophoniste;8
+dep;11;Aude;lieu_cmpp;CMPP;psychiatre;2
+dep;11;Aude;lieu_cmpp;CMPP;psychologue;21
+dep;11;Aude;lieu_cmpp;CMPP;psychomotricien;9
+dep;11;Aude;lieu_csapa;CSAPA;infirmier;4
+dep;11;Aude;lieu_csapa;CSAPA;medecin_generaliste;4
+dep;11;Aude;lieu_csapa;CSAPA;psychologue;2
+dep;12;Aveyron;lieu_camsp;CAMSP;ergotherapeute;1
+dep;12;Aveyron;lieu_camsp;CAMSP;medecin_generaliste;1
+dep;12;Aveyron;lieu_camsp;CAMSP;orthophoniste;2
+dep;12;Aveyron;lieu_camsp;CAMSP;psychologue;6
+dep;12;Aveyron;lieu_camsp;CAMSP;psychomotricien;5
+dep;12;Aveyron;lieu_cattp;CATTP;infirmier;5
+dep;12;Aveyron;lieu_cmpp;CMPP;infirmier;1
+dep;12;Aveyron;lieu_cmpp;CMPP;medecin_generaliste;4
+dep;12;Aveyron;lieu_cmpp;CMPP;orthophoniste;11
+dep;12;Aveyron;lieu_cmpp;CMPP;psychiatre;1
+dep;12;Aveyron;lieu_cmpp;CMPP;psychologue;8
+dep;12;Aveyron;lieu_cmpp;CMPP;psychomotricien;12
+dep;12;Aveyron;lieu_csapa;CSAPA;infirmier;5
+dep;12;Aveyron;lieu_csapa;CSAPA;medecin_generaliste;3
+dep;12;Aveyron;lieu_csapa;CSAPA;psychologue;2
+dep;13;Bouches-du-Rhône;lieu_caarud;CAARUD;infirmier;4
+dep;13;Bouches-du-Rhône;lieu_caarud;CAARUD;medecin_generaliste;1
+dep;13;Bouches-du-Rhône;lieu_camsp;CAMSP;infirmier;53
+dep;13;Bouches-du-Rhône;lieu_camsp;CAMSP;medecin_generaliste;2
+dep;13;Bouches-du-Rhône;lieu_camsp;CAMSP;orthophoniste;8
+dep;13;Bouches-du-Rhône;lieu_camsp;CAMSP;psychiatre;4
+dep;13;Bouches-du-Rhône;lieu_camsp;CAMSP;psychologue;12
+dep;13;Bouches-du-Rhône;lieu_camsp;CAMSP;psychomotricien;12
+dep;13;Bouches-du-Rhône;lieu_camsp;CAMSP;q_psychiatrie_enfant;3
+dep;13;Bouches-du-Rhône;lieu_cattp;CATTP;infirmier;4
+dep;13;Bouches-du-Rhône;lieu_cattp;CATTP;psychiatre;2
+dep;13;Bouches-du-Rhône;lieu_cattp;CATTP;psychologue;1
+dep;13;Bouches-du-Rhône;lieu_cattp;CATTP;psychomotricien;1
+dep;13;Bouches-du-Rhône;lieu_cattp;CATTP;q_psychiatrie_enfant;1
+dep;13;Bouches-du-Rhône;lieu_cmpp;CMPP;infirmier;34
+dep;13;Bouches-du-Rhône;lieu_cmpp;CMPP;orthophoniste;27
+dep;13;Bouches-du-Rhône;lieu_cmpp;CMPP;pedopsychiatre;1
+dep;13;Bouches-du-Rhône;lieu_cmpp;CMPP;psychiatre;17
+dep;13;Bouches-du-Rhône;lieu_cmpp;CMPP;psychologue;51
+dep;13;Bouches-du-Rhône;lieu_cmpp;CMPP;psychomotricien;24
+dep;13;Bouches-du-Rhône;lieu_cmpp;CMPP;q_psychiatrie_enfant;8
+dep;13;Bouches-du-Rhône;lieu_csapa;CSAPA;ergotherapeute;1
+dep;13;Bouches-du-Rhône;lieu_csapa;CSAPA;infirmier;21
+dep;13;Bouches-du-Rhône;lieu_csapa;CSAPA;medecin_generaliste;7
+dep;13;Bouches-du-Rhône;lieu_csapa;CSAPA;psychiatre;6
+dep;13;Bouches-du-Rhône;lieu_csapa;CSAPA;psychologue;1
+dep;14;Calvados;lieu_caarud;CAARUD;psychologue;1
+dep;14;Calvados;lieu_camsp;CAMSP;orthophoniste;1
+dep;14;Calvados;lieu_camsp;CAMSP;psychiatre;2
+dep;14;Calvados;lieu_camsp;CAMSP;psychologue;5
+dep;14;Calvados;lieu_camsp;CAMSP;psychomotricien;4
+dep;14;Calvados;lieu_cattp;CATTP;infirmier;1
+dep;14;Calvados;lieu_cmpp;CMPP;ergotherapeute;1
+dep;14;Calvados;lieu_cmpp;CMPP;infirmier;2
+dep;14;Calvados;lieu_cmpp;CMPP;medecin_generaliste;1
+dep;14;Calvados;lieu_cmpp;CMPP;orthophoniste;20
+dep;14;Calvados;lieu_cmpp;CMPP;pedopsychiatre;1
+dep;14;Calvados;lieu_cmpp;CMPP;psychiatre;6
+dep;14;Calvados;lieu_cmpp;CMPP;psychologue;41
+dep;14;Calvados;lieu_cmpp;CMPP;psychomotricien;15
+dep;14;Calvados;lieu_cmpp;CMPP;q_psychiatrie_enfant;3
+dep;14;Calvados;lieu_csapa;CSAPA;infirmier;13
+dep;14;Calvados;lieu_csapa;CSAPA;medecin_generaliste;11
+dep;14;Calvados;lieu_csapa;CSAPA;psychiatre;1
+dep;14;Calvados;lieu_csapa;CSAPA;psychologue;5
+dep;15;Cantal;lieu_caarud;CAARUD;infirmier;1
+dep;15;Cantal;lieu_camsp;CAMSP;ergotherapeute;1
+dep;15;Cantal;lieu_camsp;CAMSP;infirmier;4
+dep;15;Cantal;lieu_camsp;CAMSP;psychomotricien;1
+dep;15;Cantal;lieu_cmpp;CMPP;medecin_generaliste;1
+dep;15;Cantal;lieu_cmpp;CMPP;orthophoniste;2
+dep;15;Cantal;lieu_cmpp;CMPP;psychiatre;1
+dep;15;Cantal;lieu_cmpp;CMPP;psychologue;3
+dep;15;Cantal;lieu_cmpp;CMPP;psychomotricien;4
+dep;15;Cantal;lieu_csapa;CSAPA;infirmier;2
+dep;15;Cantal;lieu_csapa;CSAPA;medecin_generaliste;1
+dep;15;Cantal;lieu_csapa;CSAPA;psychologue;1
+dep;16;Charente;lieu_camsp;CAMSP;ergotherapeute;3
+dep;16;Charente;lieu_camsp;CAMSP;infirmier;1
+dep;16;Charente;lieu_camsp;CAMSP;medecin_generaliste;1
+dep;16;Charente;lieu_camsp;CAMSP;orthophoniste;3
+dep;16;Charente;lieu_camsp;CAMSP;psychiatre;1
+dep;16;Charente;lieu_camsp;CAMSP;psychologue;2
+dep;16;Charente;lieu_camsp;CAMSP;psychomotricien;5
+dep;16;Charente;lieu_camsp;CAMSP;q_psychiatrie_enfant;1
+dep;16;Charente;lieu_cmpp;CMPP;orthophoniste;13
+dep;16;Charente;lieu_cmpp;CMPP;pedopsychiatre;2
+dep;16;Charente;lieu_cmpp;CMPP;psychiatre;1
+dep;16;Charente;lieu_cmpp;CMPP;psychologue;17
+dep;16;Charente;lieu_cmpp;CMPP;psychomotricien;19
+dep;16;Charente;lieu_cmpp;CMPP;q_psychiatrie_enfant;2
+dep;16;Charente;lieu_csapa;CSAPA;psychologue;1
+dep;17;Charente-Maritime;lieu_camsp;CAMSP;ergotherapeute;1
+dep;17;Charente-Maritime;lieu_cmpp;CMPP;ergotherapeute;6
+dep;17;Charente-Maritime;lieu_cmpp;CMPP;medecin_generaliste;2
+dep;17;Charente-Maritime;lieu_cmpp;CMPP;orthophoniste;17
+dep;17;Charente-Maritime;lieu_cmpp;CMPP;psychiatre;3
+dep;17;Charente-Maritime;lieu_cmpp;CMPP;psychologue;24
+dep;17;Charente-Maritime;lieu_cmpp;CMPP;psychomotricien;17
+dep;17;Charente-Maritime;lieu_cmpp;CMPP;q_psychiatrie_enfant;2
+dep;17;Charente-Maritime;lieu_csapa;CSAPA;infirmier;10
+dep;17;Charente-Maritime;lieu_csapa;CSAPA;medecin_generaliste;9
+dep;17;Charente-Maritime;lieu_csapa;CSAPA;psychologue;9
+dep;18;Cher;lieu_caarud;CAARUD;infirmier;2
+dep;18;Cher;lieu_camsp;CAMSP;ergotherapeute;1
+dep;18;Cher;lieu_camsp;CAMSP;psychomotricien;2
+dep;18;Cher;lieu_cattp;CATTP;infirmier;1
+dep;18;Cher;lieu_cmpp;CMPP;infirmier;1
+dep;18;Cher;lieu_cmpp;CMPP;orthophoniste;2
+dep;18;Cher;lieu_cmpp;CMPP;psychologue;4
+dep;18;Cher;lieu_cmpp;CMPP;psychomotricien;2
+dep;18;Cher;lieu_csapa;CSAPA;infirmier;9
+dep;18;Cher;lieu_csapa;CSAPA;medecin_generaliste;3
+dep;18;Cher;lieu_csapa;CSAPA;psychiatre;1
+dep;18;Cher;lieu_csapa;CSAPA;psychologue;4
+dep;19;Corrèze;lieu_camsp;CAMSP;orthophoniste;3
+dep;19;Corrèze;lieu_camsp;CAMSP;psychomotricien;2
+dep;19;Corrèze;lieu_cattp;CATTP;psychologue;1
+dep;19;Corrèze;lieu_cattp;CATTP;psychomotricien;1
+dep;19;Corrèze;lieu_cmpp;CMPP;medecin_generaliste;1
+dep;19;Corrèze;lieu_cmpp;CMPP;orthophoniste;8
+dep;19;Corrèze;lieu_cmpp;CMPP;pedopsychiatre;1
+dep;19;Corrèze;lieu_cmpp;CMPP;psychiatre;1
+dep;19;Corrèze;lieu_cmpp;CMPP;psychologue;14
+dep;19;Corrèze;lieu_cmpp;CMPP;psychomotricien;6
+dep;19;Corrèze;lieu_cmpp;CMPP;q_psychiatrie_enfant;1
+dep;19;Corrèze;lieu_csapa;CSAPA;infirmier;1
+dep;19;Corrèze;lieu_csapa;CSAPA;medecin_generaliste;1
+dep;19;Corrèze;lieu_csapa;CSAPA;psychiatre;1
+dep;19;Corrèze;lieu_csapa;CSAPA;psychologue;2
+dep;21;Côte-d'Or;lieu_caarud;CAARUD;infirmier;1
+dep;21;Côte-d'Or;lieu_camsp;CAMSP;ergotherapeute;1
+dep;21;Côte-d'Or;lieu_camsp;CAMSP;infirmier;1
+dep;21;Côte-d'Or;lieu_camsp;CAMSP;medecin_generaliste;1
+dep;21;Côte-d'Or;lieu_camsp;CAMSP;orthophoniste;22
+dep;21;Côte-d'Or;lieu_camsp;CAMSP;psychiatre;1
+dep;21;Côte-d'Or;lieu_camsp;CAMSP;psychologue;11
+dep;21;Côte-d'Or;lieu_camsp;CAMSP;psychomotricien;21
+dep;21;Côte-d'Or;lieu_camsp;CAMSP;q_psychiatrie_enfant;1
+dep;21;Côte-d'Or;lieu_cmpp;CMPP;ergotherapeute;2
+dep;21;Côte-d'Or;lieu_cmpp;CMPP;infirmier;5
+dep;21;Côte-d'Or;lieu_cmpp;CMPP;medecin_generaliste;1
+dep;21;Côte-d'Or;lieu_cmpp;CMPP;orthophoniste;23
+dep;21;Côte-d'Or;lieu_cmpp;CMPP;psychiatre;8
+dep;21;Côte-d'Or;lieu_cmpp;CMPP;psychologue;31
+dep;21;Côte-d'Or;lieu_cmpp;CMPP;psychomotricien;13
+dep;21;Côte-d'Or;lieu_cmpp;CMPP;q_psychiatrie_enfant;2
+dep;21;Côte-d'Or;lieu_csapa;CSAPA;infirmier;5
+dep;21;Côte-d'Or;lieu_csapa;CSAPA;medecin_generaliste;5
+dep;21;Côte-d'Or;lieu_csapa;CSAPA;psychiatre;1
+dep;21;Côte-d'Or;lieu_csapa;CSAPA;psychologue;4
+dep;22;Côtes-d'Armor;lieu_caarud;CAARUD;infirmier;1
+dep;22;Côtes-d'Armor;lieu_camsp;CAMSP;ergotherapeute;2
+dep;22;Côtes-d'Armor;lieu_camsp;CAMSP;infirmier;1
+dep;22;Côtes-d'Armor;lieu_camsp;CAMSP;orthophoniste;4
+dep;22;Côtes-d'Armor;lieu_camsp;CAMSP;psychomotricien;6
+dep;22;Côtes-d'Armor;lieu_cmpp;CMPP;orthophoniste;1
+dep;22;Côtes-d'Armor;lieu_cmpp;CMPP;psychiatre;1
+dep;22;Côtes-d'Armor;lieu_cmpp;CMPP;psychologue;9
+dep;22;Côtes-d'Armor;lieu_cmpp;CMPP;psychomotricien;2
+dep;22;Côtes-d'Armor;lieu_csapa;CSAPA;infirmier;4
+dep;22;Côtes-d'Armor;lieu_csapa;CSAPA;medecin_generaliste;4
+dep;22;Côtes-d'Armor;lieu_csapa;CSAPA;psychologue;1
+dep;23;Creuse;lieu_camsp;CAMSP;psychiatre;1
+dep;23;Creuse;lieu_camsp;CAMSP;psychologue;2
+dep;23;Creuse;lieu_camsp;CAMSP;q_psychiatrie_enfant;1
+dep;23;Creuse;lieu_cmpp;CMPP;ergotherapeute;1
+dep;23;Creuse;lieu_cmpp;CMPP;orthophoniste;3
+dep;23;Creuse;lieu_cmpp;CMPP;psychiatre;1
+dep;23;Creuse;lieu_cmpp;CMPP;psychologue;8
+dep;23;Creuse;lieu_cmpp;CMPP;psychomotricien;2
+dep;23;Creuse;lieu_cmpp;CMPP;q_psychiatrie_enfant;1
+dep;24;Dordogne;lieu_camsp;CAMSP;infirmier;1
+dep;24;Dordogne;lieu_camsp;CAMSP;psychologue;4
+dep;24;Dordogne;lieu_camsp;CAMSP;psychomotricien;3
+dep;24;Dordogne;lieu_cattp;CATTP;infirmier;2
+dep;24;Dordogne;lieu_cmpp;CMPP;orthophoniste;7
+dep;24;Dordogne;lieu_cmpp;CMPP;psychiatre;2
+dep;24;Dordogne;lieu_cmpp;CMPP;psychologue;15
+dep;24;Dordogne;lieu_cmpp;CMPP;psychomotricien;3
+dep;24;Dordogne;lieu_cmpp;CMPP;q_psychiatrie_enfant;1
+dep;24;Dordogne;lieu_csapa;CSAPA;infirmier;10
+dep;24;Dordogne;lieu_csapa;CSAPA;medecin_generaliste;3
+dep;24;Dordogne;lieu_csapa;CSAPA;psychologue;3
+dep;25;Doubs;lieu_cmpp;CMPP;medecin_generaliste;4
+dep;25;Doubs;lieu_cmpp;CMPP;orthophoniste;12
+dep;25;Doubs;lieu_cmpp;CMPP;psychiatre;5
+dep;25;Doubs;lieu_cmpp;CMPP;psychologue;31
+dep;25;Doubs;lieu_cmpp;CMPP;psychomotricien;11
+dep;25;Doubs;lieu_csapa;CSAPA;infirmier;10
+dep;25;Doubs;lieu_csapa;CSAPA;medecin_generaliste;3
+dep;25;Doubs;lieu_csapa;CSAPA;psychologue;5
+dep;26;Drôme;lieu_camsp;CAMSP;ergotherapeute;1
+dep;26;Drôme;lieu_camsp;CAMSP;orthophoniste;1
+dep;26;Drôme;lieu_camsp;CAMSP;psychologue;2
+dep;26;Drôme;lieu_camsp;CAMSP;psychomotricien;2
+dep;26;Drôme;lieu_cmpp;CMPP;orthophoniste;5
+dep;26;Drôme;lieu_cmpp;CMPP;psychiatre;2
+dep;26;Drôme;lieu_cmpp;CMPP;psychologue;7
+dep;26;Drôme;lieu_cmpp;CMPP;psychomotricien;8
+dep;26;Drôme;lieu_cmpp;CMPP;q_psychiatrie_enfant;1
+dep;26;Drôme;lieu_csapa;CSAPA;infirmier;10
+dep;26;Drôme;lieu_csapa;CSAPA;medecin_generaliste;5
+dep;26;Drôme;lieu_csapa;CSAPA;psychologue;2
+dep;27;Eure;lieu_caarud;CAARUD;infirmier;2
+dep;27;Eure;lieu_camsp;CAMSP;ergotherapeute;3
+dep;27;Eure;lieu_camsp;CAMSP;infirmier;2
+dep;27;Eure;lieu_camsp;CAMSP;medecin_generaliste;2
+dep;27;Eure;lieu_camsp;CAMSP;orthophoniste;1
+dep;27;Eure;lieu_camsp;CAMSP;psychologue;2
+dep;27;Eure;lieu_camsp;CAMSP;psychomotricien;5
+dep;27;Eure;lieu_cmpp;CMPP;ergotherapeute;5
+dep;27;Eure;lieu_cmpp;CMPP;medecin_generaliste;1
+dep;27;Eure;lieu_cmpp;CMPP;orthophoniste;1
+dep;27;Eure;lieu_cmpp;CMPP;psychiatre;2
+dep;27;Eure;lieu_cmpp;CMPP;psychologue;18
+dep;27;Eure;lieu_cmpp;CMPP;psychomotricien;1
+dep;27;Eure;lieu_cmpp;CMPP;q_psychiatrie_enfant;1
+dep;27;Eure;lieu_csapa;CSAPA;infirmier;4
+dep;27;Eure;lieu_csapa;CSAPA;psychologue;4
+dep;28;Eure-et-Loir;lieu_caarud;CAARUD;infirmier;1
+dep;28;Eure-et-Loir;lieu_camsp;CAMSP;ergotherapeute;1
+dep;28;Eure-et-Loir;lieu_camsp;CAMSP;orthophoniste;1
+dep;28;Eure-et-Loir;lieu_camsp;CAMSP;psychomotricien;6
+dep;28;Eure-et-Loir;lieu_cattp;CATTP;infirmier;5
+dep;28;Eure-et-Loir;lieu_cattp;CATTP;psychiatre;1
+dep;28;Eure-et-Loir;lieu_cattp;CATTP;psychologue;1
+dep;28;Eure-et-Loir;lieu_cattp;CATTP;psychomotricien;1
+dep;28;Eure-et-Loir;lieu_cmpp;CMPP;orthophoniste;2
+dep;28;Eure-et-Loir;lieu_cmpp;CMPP;psychiatre;2
+dep;28;Eure-et-Loir;lieu_cmpp;CMPP;psychologue;14
+dep;28;Eure-et-Loir;lieu_cmpp;CMPP;psychomotricien;6
+dep;28;Eure-et-Loir;lieu_cmpp;CMPP;q_psychiatrie_enfant;1
+dep;28;Eure-et-Loir;lieu_csapa;CSAPA;infirmier;4
+dep;28;Eure-et-Loir;lieu_csapa;CSAPA;medecin_generaliste;2
+dep;28;Eure-et-Loir;lieu_csapa;CSAPA;psychiatre;1
+dep;28;Eure-et-Loir;lieu_csapa;CSAPA;psychologue;7
+dep;29;Finistère;lieu_camsp;CAMSP;ergotherapeute;1
+dep;29;Finistère;lieu_camsp;CAMSP;infirmier;15
+dep;29;Finistère;lieu_camsp;CAMSP;medecin_generaliste;1
+dep;29;Finistère;lieu_camsp;CAMSP;orthophoniste;6
+dep;29;Finistère;lieu_camsp;CAMSP;psychologue;2
+dep;29;Finistère;lieu_camsp;CAMSP;psychomotricien;4
+dep;29;Finistère;lieu_cmpp;CMPP;medecin_generaliste;3
+dep;29;Finistère;lieu_cmpp;CMPP;orthophoniste;17
+dep;29;Finistère;lieu_cmpp;CMPP;psychiatre;2
+dep;29;Finistère;lieu_cmpp;CMPP;psychologue;16
+dep;29;Finistère;lieu_cmpp;CMPP;psychomotricien;14
+dep;29;Finistère;lieu_cmpp;CMPP;q_psychiatrie_enfant;1
+dep;29;Finistère;lieu_csapa;CSAPA;infirmier;46
+dep;29;Finistère;lieu_csapa;CSAPA;medecin_generaliste;2
+dep;29;Finistère;lieu_csapa;CSAPA;psychiatre;1
+dep;29;Finistère;lieu_csapa;CSAPA;psychologue;1
+dep;2A;Corse-du-Sud;lieu_camsp;CAMSP;orthophoniste;7
+dep;2A;Corse-du-Sud;lieu_camsp;CAMSP;psychiatre;1
+dep;2A;Corse-du-Sud;lieu_camsp;CAMSP;psychologue;3
+dep;2A;Corse-du-Sud;lieu_camsp;CAMSP;psychomotricien;6
+dep;2A;Corse-du-Sud;lieu_cattp;CATTP;infirmier;1
+dep;2A;Corse-du-Sud;lieu_cmpp;CMPP;orthophoniste;2
+dep;2A;Corse-du-Sud;lieu_cmpp;CMPP;psychiatre;1
+dep;2A;Corse-du-Sud;lieu_cmpp;CMPP;psychologue;2
+dep;2A;Corse-du-Sud;lieu_cmpp;CMPP;psychomotricien;4
+dep;2A;Corse-du-Sud;lieu_csapa;CSAPA;medecin_generaliste;2
+dep;2A;Corse-du-Sud;lieu_csapa;CSAPA;psychologue;1
+dep;2B;Haute-Corse;lieu_camsp;CAMSP;medecin_generaliste;1
+dep;2B;Haute-Corse;lieu_camsp;CAMSP;orthophoniste;1
+dep;2B;Haute-Corse;lieu_csapa;CSAPA;infirmier;3
+dep;2B;Haute-Corse;lieu_csapa;CSAPA;medecin_generaliste;1
+dep;2B;Haute-Corse;lieu_csapa;CSAPA;psychiatre;2
+dep;2B;Haute-Corse;lieu_csapa;CSAPA;psychologue;1
+dep;30;Gard;lieu_caarud;CAARUD;medecin_generaliste;1
+dep;30;Gard;lieu_caarud;CAARUD;psychologue;3
+dep;30;Gard;lieu_camsp;CAMSP;ergotherapeute;2
+dep;30;Gard;lieu_camsp;CAMSP;orthophoniste;1
+dep;30;Gard;lieu_camsp;CAMSP;psychologue;4
+dep;30;Gard;lieu_camsp;CAMSP;psychomotricien;9
+dep;30;Gard;lieu_cmpp;CMPP;orthophoniste;10
+dep;30;Gard;lieu_cmpp;CMPP;psychiatre;4
+dep;30;Gard;lieu_cmpp;CMPP;psychologue;9
+dep;30;Gard;lieu_cmpp;CMPP;psychomotricien;11
+dep;30;Gard;lieu_csapa;CSAPA;infirmier;7
+dep;30;Gard;lieu_csapa;CSAPA;medecin_generaliste;4
+dep;30;Gard;lieu_csapa;CSAPA;psychiatre;1
+dep;30;Gard;lieu_csapa;CSAPA;psychologue;12
+dep;31;Haute-Garonne;lieu_camsp;CAMSP;infirmier;5
+dep;31;Haute-Garonne;lieu_camsp;CAMSP;psychologue;1
+dep;31;Haute-Garonne;lieu_camsp;CAMSP;psychomotricien;3
+dep;31;Haute-Garonne;lieu_cmpp;CMPP;infirmier;2
+dep;31;Haute-Garonne;lieu_cmpp;CMPP;medecin_generaliste;1
+dep;31;Haute-Garonne;lieu_cmpp;CMPP;orthophoniste;29
+dep;31;Haute-Garonne;lieu_cmpp;CMPP;pedopsychiatre;1
+dep;31;Haute-Garonne;lieu_cmpp;CMPP;psychiatre;9
+dep;31;Haute-Garonne;lieu_cmpp;CMPP;psychologue;43
+dep;31;Haute-Garonne;lieu_cmpp;CMPP;psychomotricien;31
+dep;31;Haute-Garonne;lieu_cmpp;CMPP;q_psychiatrie_enfant;1
+dep;31;Haute-Garonne;lieu_csapa;CSAPA;infirmier;12
+dep;31;Haute-Garonne;lieu_csapa;CSAPA;medecin_generaliste;9
+dep;31;Haute-Garonne;lieu_csapa;CSAPA;psychiatre;2
+dep;31;Haute-Garonne;lieu_csapa;CSAPA;psychologue;6
+dep;32;Gers;lieu_caarud;CAARUD;infirmier;1
+dep;32;Gers;lieu_camsp;CAMSP;orthophoniste;2
+dep;32;Gers;lieu_camsp;CAMSP;psychologue;4
+dep;32;Gers;lieu_camsp;CAMSP;psychomotricien;3
+dep;32;Gers;lieu_cmpp;CMPP;orthophoniste;6
+dep;32;Gers;lieu_cmpp;CMPP;psychiatre;1
+dep;32;Gers;lieu_cmpp;CMPP;psychologue;6
+dep;32;Gers;lieu_cmpp;CMPP;psychomotricien;5
+dep;32;Gers;lieu_csapa;CSAPA;infirmier;2
+dep;32;Gers;lieu_csapa;CSAPA;medecin_generaliste;1
+dep;33;Gironde;lieu_caarud;CAARUD;infirmier;8
+dep;33;Gironde;lieu_caarud;CAARUD;medecin_generaliste;2
+dep;33;Gironde;lieu_camsp;CAMSP;infirmier;5
+dep;33;Gironde;lieu_camsp;CAMSP;psychologue;1
+dep;33;Gironde;lieu_cattp;CATTP;infirmier;1
+dep;33;Gironde;lieu_cattp;CATTP;psychiatre;2
+dep;33;Gironde;lieu_cattp;CATTP;psychomotricien;1
+dep;33;Gironde;lieu_cmpp;CMPP;infirmier;2
+dep;33;Gironde;lieu_cmpp;CMPP;orthophoniste;3
+dep;33;Gironde;lieu_cmpp;CMPP;pedopsychiatre;2
+dep;33;Gironde;lieu_cmpp;CMPP;psychiatre;4
+dep;33;Gironde;lieu_cmpp;CMPP;psychologue;14
+dep;33;Gironde;lieu_cmpp;CMPP;psychomotricien;4
+dep;33;Gironde;lieu_cmpp;CMPP;q_psychiatrie_enfant;5
+dep;33;Gironde;lieu_csapa;CSAPA;infirmier;25
+dep;33;Gironde;lieu_csapa;CSAPA;medecin_generaliste;9
+dep;33;Gironde;lieu_csapa;CSAPA;psychiatre;1
+dep;33;Gironde;lieu_csapa;CSAPA;psychologue;13
+dep;34;Hérault;lieu_caarud;CAARUD;infirmier;7
+dep;34;Hérault;lieu_caarud;CAARUD;medecin_generaliste;1
+dep;34;Hérault;lieu_camsp;CAMSP;ergotherapeute;1
+dep;34;Hérault;lieu_camsp;CAMSP;infirmier;3
+dep;34;Hérault;lieu_camsp;CAMSP;psychiatre;1
+dep;34;Hérault;lieu_camsp;CAMSP;psychologue;3
+dep;34;Hérault;lieu_camsp;CAMSP;psychomotricien;4
+dep;34;Hérault;lieu_camsp;CAMSP;q_psychiatrie_enfant;1
+dep;34;Hérault;lieu_cmpp;CMPP;medecin_generaliste;1
+dep;34;Hérault;lieu_cmpp;CMPP;orthophoniste;3
+dep;34;Hérault;lieu_cmpp;CMPP;psychiatre;4
+dep;34;Hérault;lieu_cmpp;CMPP;psychologue;10
+dep;34;Hérault;lieu_cmpp;CMPP;psychomotricien;7
+dep;34;Hérault;lieu_cmpp;CMPP;q_psychiatrie_enfant;2
+dep;34;Hérault;lieu_csapa;CSAPA;infirmier;14
+dep;34;Hérault;lieu_csapa;CSAPA;medecin_generaliste;6
+dep;34;Hérault;lieu_csapa;CSAPA;psychiatre;3
+dep;34;Hérault;lieu_csapa;CSAPA;psychologue;8
+dep;35;Ille-et-Vilaine;lieu_caarud;CAARUD;infirmier;2
+dep;35;Ille-et-Vilaine;lieu_caarud;CAARUD;medecin_generaliste;1
+dep;35;Ille-et-Vilaine;lieu_camsp;CAMSP;ergotherapeute;1
+dep;35;Ille-et-Vilaine;lieu_camsp;CAMSP;medecin_generaliste;3
+dep;35;Ille-et-Vilaine;lieu_camsp;CAMSP;orthophoniste;3
+dep;35;Ille-et-Vilaine;lieu_camsp;CAMSP;psychiatre;1
+dep;35;Ille-et-Vilaine;lieu_camsp;CAMSP;psychologue;1
+dep;35;Ille-et-Vilaine;lieu_camsp;CAMSP;psychomotricien;5
+dep;35;Ille-et-Vilaine;lieu_cmpp;CMPP;orthophoniste;9
+dep;35;Ille-et-Vilaine;lieu_cmpp;CMPP;psychiatre;4
+dep;35;Ille-et-Vilaine;lieu_cmpp;CMPP;psychologue;20
+dep;35;Ille-et-Vilaine;lieu_cmpp;CMPP;psychomotricien;6
+dep;35;Ille-et-Vilaine;lieu_csapa;CSAPA;infirmier;4
+dep;35;Ille-et-Vilaine;lieu_csapa;CSAPA;medecin_generaliste;6
+dep;35;Ille-et-Vilaine;lieu_csapa;CSAPA;psychiatre;2
+dep;35;Ille-et-Vilaine;lieu_csapa;CSAPA;psychologue;4
+dep;36;Indre;lieu_camsp;CAMSP;psychomotricien;1
+dep;36;Indre;lieu_cmpp;CMPP;pedopsychiatre;1
+dep;36;Indre;lieu_cmpp;CMPP;psychiatre;1
+dep;36;Indre;lieu_cmpp;CMPP;psychologue;7
+dep;36;Indre;lieu_cmpp;CMPP;psychomotricien;2
+dep;36;Indre;lieu_cmpp;CMPP;q_psychiatrie_enfant;1
+dep;36;Indre;lieu_csapa;CSAPA;infirmier;4
+dep;36;Indre;lieu_csapa;CSAPA;medecin_generaliste;1
+dep;36;Indre;lieu_csapa;CSAPA;psychologue;3
+dep;37;Indre-et-Loire;lieu_caarud;CAARUD;infirmier;2
+dep;37;Indre-et-Loire;lieu_camsp;CAMSP;orthophoniste;6
+dep;37;Indre-et-Loire;lieu_camsp;CAMSP;psychiatre;2
+dep;37;Indre-et-Loire;lieu_camsp;CAMSP;psychologue;5
+dep;37;Indre-et-Loire;lieu_camsp;CAMSP;psychomotricien;5
+dep;37;Indre-et-Loire;lieu_camsp;CAMSP;q_psychiatrie_enfant;2
+dep;37;Indre-et-Loire;lieu_cattp;CATTP;infirmier;1
+dep;37;Indre-et-Loire;lieu_cmpp;CMPP;orthophoniste;5
+dep;37;Indre-et-Loire;lieu_cmpp;CMPP;psychiatre;1
+dep;37;Indre-et-Loire;lieu_cmpp;CMPP;psychologue;14
+dep;37;Indre-et-Loire;lieu_cmpp;CMPP;psychomotricien;11
+dep;37;Indre-et-Loire;lieu_csapa;CSAPA;infirmier;3
+dep;37;Indre-et-Loire;lieu_csapa;CSAPA;medecin_generaliste;1
+dep;37;Indre-et-Loire;lieu_csapa;CSAPA;psychiatre;3
+dep;37;Indre-et-Loire;lieu_csapa;CSAPA;psychologue;5
+dep;38;Isère;lieu_camsp;CAMSP;ergotherapeute;6
+dep;38;Isère;lieu_camsp;CAMSP;infirmier;2
+dep;38;Isère;lieu_camsp;CAMSP;orthophoniste;13
+dep;38;Isère;lieu_camsp;CAMSP;psychiatre;1
+dep;38;Isère;lieu_camsp;CAMSP;psychologue;7
+dep;38;Isère;lieu_camsp;CAMSP;psychomotricien;13
+dep;38;Isère;lieu_camsp;CAMSP;q_psychiatrie_enfant;1
+dep;38;Isère;lieu_cattp;CATTP;infirmier;6
+dep;38;Isère;lieu_cattp;CATTP;medecin_generaliste;1
+dep;38;Isère;lieu_cattp;CATTP;psychiatre;2
+dep;38;Isère;lieu_cattp;CATTP;psychologue;1
+dep;38;Isère;lieu_cattp;CATTP;psychomotricien;2
+dep;38;Isère;lieu_cmpp;CMPP;orthophoniste;12
+dep;38;Isère;lieu_cmpp;CMPP;psychiatre;7
+dep;38;Isère;lieu_cmpp;CMPP;psychologue;23
+dep;38;Isère;lieu_cmpp;CMPP;psychomotricien;6
+dep;38;Isère;lieu_cmpp;CMPP;q_psychiatrie_enfant;3
+dep;38;Isère;lieu_csapa;CSAPA;infirmier;11
+dep;38;Isère;lieu_csapa;CSAPA;medecin_generaliste;9
+dep;38;Isère;lieu_csapa;CSAPA;psychologue;8
+dep;39;Jura;lieu_caarud;CAARUD;infirmier;1
+dep;39;Jura;lieu_caarud;CAARUD;medecin_generaliste;1
+dep;39;Jura;lieu_cmpp;CMPP;medecin_generaliste;1
+dep;39;Jura;lieu_cmpp;CMPP;orthophoniste;7
+dep;39;Jura;lieu_cmpp;CMPP;psychiatre;2
+dep;39;Jura;lieu_cmpp;CMPP;psychologue;9
+dep;39;Jura;lieu_cmpp;CMPP;psychomotricien;4
+dep;39;Jura;lieu_csapa;CSAPA;infirmier;5
+dep;39;Jura;lieu_csapa;CSAPA;medecin_generaliste;3
+dep;39;Jura;lieu_csapa;CSAPA;psychiatre;1
+dep;39;Jura;lieu_csapa;CSAPA;psychologue;6
+dep;40;Landes;lieu_caarud;CAARUD;psychologue;2
+dep;40;Landes;lieu_camsp;CAMSP;ergotherapeute;1
+dep;40;Landes;lieu_camsp;CAMSP;infirmier;1
+dep;40;Landes;lieu_camsp;CAMSP;medecin_generaliste;1
+dep;40;Landes;lieu_camsp;CAMSP;psychologue;2
+dep;40;Landes;lieu_camsp;CAMSP;psychomotricien;2
+dep;40;Landes;lieu_csapa;CSAPA;infirmier;4
+dep;40;Landes;lieu_csapa;CSAPA;medecin_generaliste;3
+dep;40;Landes;lieu_csapa;CSAPA;psychiatre;2
+dep;40;Landes;lieu_csapa;CSAPA;psychologue;5
+dep;40;Landes;lieu_csapa;CSAPA;q_psychiatrie_enfant;1
+dep;41;Loir-et-Cher;lieu_caarud;CAARUD;infirmier;1
+dep;41;Loir-et-Cher;lieu_caarud;CAARUD;psychologue;1
+dep;41;Loir-et-Cher;lieu_camsp;CAMSP;infirmier;1
+dep;41;Loir-et-Cher;lieu_camsp;CAMSP;orthophoniste;1
+dep;41;Loir-et-Cher;lieu_camsp;CAMSP;psychologue;2
+dep;41;Loir-et-Cher;lieu_camsp;CAMSP;psychomotricien;2
+dep;41;Loir-et-Cher;lieu_cmpp;CMPP;ergotherapeute;1
+dep;41;Loir-et-Cher;lieu_cmpp;CMPP;orthophoniste;6
+dep;41;Loir-et-Cher;lieu_cmpp;CMPP;psychologue;4
+dep;41;Loir-et-Cher;lieu_cmpp;CMPP;psychomotricien;6
+dep;41;Loir-et-Cher;lieu_csapa;CSAPA;infirmier;3
+dep;41;Loir-et-Cher;lieu_csapa;CSAPA;medecin_generaliste;4
+dep;41;Loir-et-Cher;lieu_csapa;CSAPA;psychiatre;1
+dep;41;Loir-et-Cher;lieu_csapa;CSAPA;psychologue;6
+dep;42;Loire;lieu_caarud;CAARUD;psychologue;1
+dep;42;Loire;lieu_camsp;CAMSP;ergotherapeute;2
+dep;42;Loire;lieu_camsp;CAMSP;medecin_generaliste;1
+dep;42;Loire;lieu_camsp;CAMSP;orthophoniste;5
+dep;42;Loire;lieu_camsp;CAMSP;psychiatre;2
+dep;42;Loire;lieu_camsp;CAMSP;psychologue;17
+dep;42;Loire;lieu_camsp;CAMSP;psychomotricien;13
+dep;42;Loire;lieu_camsp;CAMSP;q_psychiatrie_enfant;1
+dep;42;Loire;lieu_cattp;CATTP;infirmier;3
+dep;42;Loire;lieu_cattp;CATTP;psychologue;1
+dep;42;Loire;lieu_cmpp;CMPP;medecin_generaliste;1
+dep;42;Loire;lieu_cmpp;CMPP;orthophoniste;15
+dep;42;Loire;lieu_cmpp;CMPP;psychiatre;2
+dep;42;Loire;lieu_cmpp;CMPP;psychologue;18
+dep;42;Loire;lieu_cmpp;CMPP;psychomotricien;10
+dep;42;Loire;lieu_cmpp;CMPP;q_psychiatrie_enfant;1
+dep;42;Loire;lieu_csapa;CSAPA;infirmier;5
+dep;42;Loire;lieu_csapa;CSAPA;medecin_generaliste;3
+dep;42;Loire;lieu_csapa;CSAPA;psychologue;2
+dep;43;Haute-Loire;lieu_caarud;CAARUD;infirmier;1
+dep;43;Haute-Loire;lieu_caarud;CAARUD;psychologue;2
+dep;43;Haute-Loire;lieu_camsp;CAMSP;ergotherapeute;1
+dep;43;Haute-Loire;lieu_camsp;CAMSP;medecin_generaliste;1
+dep;43;Haute-Loire;lieu_camsp;CAMSP;orthophoniste;2
+dep;43;Haute-Loire;lieu_camsp;CAMSP;psychologue;5
+dep;43;Haute-Loire;lieu_camsp;CAMSP;psychomotricien;5
+dep;43;Haute-Loire;lieu_cattp;CATTP;medecin_generaliste;1
+dep;43;Haute-Loire;lieu_cmpp;CMPP;orthophoniste;1
+dep;43;Haute-Loire;lieu_cmpp;CMPP;pedopsychiatre;1
+dep;43;Haute-Loire;lieu_cmpp;CMPP;psychologue;12
+dep;43;Haute-Loire;lieu_cmpp;CMPP;psychomotricien;6
+dep;43;Haute-Loire;lieu_cmpp;CMPP;q_psychiatrie_enfant;1
+dep;43;Haute-Loire;lieu_csapa;CSAPA;infirmier;3
+dep;43;Haute-Loire;lieu_csapa;CSAPA;medecin_generaliste;3
+dep;43;Haute-Loire;lieu_csapa;CSAPA;psychologue;3
+dep;44;Loire-Atlantique;lieu_caarud;CAARUD;infirmier;3
+dep;44;Loire-Atlantique;lieu_caarud;CAARUD;medecin_generaliste;1
+dep;44;Loire-Atlantique;lieu_camsp;CAMSP;infirmier;4
+dep;44;Loire-Atlantique;lieu_camsp;CAMSP;medecin_generaliste;1
+dep;44;Loire-Atlantique;lieu_camsp;CAMSP;orthophoniste;7
+dep;44;Loire-Atlantique;lieu_camsp;CAMSP;psychiatre;4
+dep;44;Loire-Atlantique;lieu_camsp;CAMSP;psychologue;15
+dep;44;Loire-Atlantique;lieu_camsp;CAMSP;psychomotricien;11
+dep;44;Loire-Atlantique;lieu_camsp;CAMSP;q_psychiatrie_enfant;2
+dep;44;Loire-Atlantique;lieu_cattp;CATTP;infirmier;1
+dep;44;Loire-Atlantique;lieu_cattp;CATTP;psychiatre;1
+dep;44;Loire-Atlantique;lieu_cattp;CATTP;psychologue;3
+dep;44;Loire-Atlantique;lieu_cmpp;CMPP;medecin_generaliste;1
+dep;44;Loire-Atlantique;lieu_cmpp;CMPP;orthophoniste;5
+dep;44;Loire-Atlantique;lieu_cmpp;CMPP;psychiatre;5
+dep;44;Loire-Atlantique;lieu_cmpp;CMPP;psychologue;13
+dep;44;Loire-Atlantique;lieu_cmpp;CMPP;psychomotricien;15
+dep;44;Loire-Atlantique;lieu_cmpp;CMPP;q_psychiatrie_enfant;2
+dep;44;Loire-Atlantique;lieu_csapa;CSAPA;infirmier;15
+dep;44;Loire-Atlantique;lieu_csapa;CSAPA;medecin_generaliste;9
+dep;44;Loire-Atlantique;lieu_csapa;CSAPA;orthophoniste;3
+dep;44;Loire-Atlantique;lieu_csapa;CSAPA;psychiatre;6
+dep;44;Loire-Atlantique;lieu_csapa;CSAPA;psychologue;7
+dep;44;Loire-Atlantique;lieu_csapa;CSAPA;psychomotricien;1
+dep;44;Loire-Atlantique;lieu_csapa;CSAPA;q_psychiatrie_enfant;1
+dep;45;Loiret;lieu_caarud;CAARUD;infirmier;5
+dep;45;Loiret;lieu_caarud;CAARUD;medecin_generaliste;1
+dep;45;Loiret;lieu_caarud;CAARUD;psychologue;4
+dep;45;Loiret;lieu_camsp;CAMSP;infirmier;5
+dep;45;Loiret;lieu_camsp;CAMSP;orthophoniste;1
+dep;45;Loiret;lieu_camsp;CAMSP;psychomotricien;1
+dep;45;Loiret;lieu_cattp;CATTP;infirmier;1
+dep;45;Loiret;lieu_cmpp;CMPP;psychologue;1
+dep;45;Loiret;lieu_cmpp;CMPP;psychomotricien;1
+dep;45;Loiret;lieu_csapa;CSAPA;infirmier;12
+dep;45;Loiret;lieu_csapa;CSAPA;medecin_generaliste;2
+dep;45;Loiret;lieu_csapa;CSAPA;psychiatre;4
+dep;45;Loiret;lieu_csapa;CSAPA;psychologue;6
+dep;45;Loiret;lieu_csapa;CSAPA;q_psychiatrie_enfant;1
+dep;46;Lot;lieu_caarud;CAARUD;infirmier;1
+dep;46;Lot;lieu_caarud;CAARUD;psychologue;1
+dep;46;Lot;lieu_camsp;CAMSP;medecin_generaliste;2
+dep;46;Lot;lieu_camsp;CAMSP;orthophoniste;1
+dep;46;Lot;lieu_camsp;CAMSP;psychologue;2
+dep;46;Lot;lieu_camsp;CAMSP;psychomotricien;1
+dep;46;Lot;lieu_cmpp;CMPP;ergotherapeute;1
+dep;46;Lot;lieu_cmpp;CMPP;orthophoniste;5
+dep;46;Lot;lieu_cmpp;CMPP;psychiatre;1
+dep;46;Lot;lieu_cmpp;CMPP;psychologue;9
+dep;46;Lot;lieu_cmpp;CMPP;psychomotricien;6
+dep;46;Lot;lieu_csapa;CSAPA;infirmier;4
+dep;46;Lot;lieu_csapa;CSAPA;medecin_generaliste;1
+dep;46;Lot;lieu_csapa;CSAPA;psychologue;3
+dep;47;Lot-et-Garonne;lieu_caarud;CAARUD;infirmier;1
+dep;47;Lot-et-Garonne;lieu_camsp;CAMSP;infirmier;1
+dep;47;Lot-et-Garonne;lieu_camsp;CAMSP;medecin_generaliste;1
+dep;47;Lot-et-Garonne;lieu_camsp;CAMSP;orthophoniste;4
+dep;47;Lot-et-Garonne;lieu_camsp;CAMSP;pedopsychiatre;1
+dep;47;Lot-et-Garonne;lieu_camsp;CAMSP;psychologue;8
+dep;47;Lot-et-Garonne;lieu_camsp;CAMSP;psychomotricien;6
+dep;47;Lot-et-Garonne;lieu_camsp;CAMSP;q_psychiatrie_enfant;1
+dep;47;Lot-et-Garonne;lieu_cmpp;CMPP;orthophoniste;16
+dep;47;Lot-et-Garonne;lieu_cmpp;CMPP;pedopsychiatre;2
+dep;47;Lot-et-Garonne;lieu_cmpp;CMPP;psychiatre;2
+dep;47;Lot-et-Garonne;lieu_cmpp;CMPP;psychologue;27
+dep;47;Lot-et-Garonne;lieu_cmpp;CMPP;psychomotricien;15
+dep;47;Lot-et-Garonne;lieu_cmpp;CMPP;q_psychiatrie_enfant;2
+dep;47;Lot-et-Garonne;lieu_csapa;CSAPA;infirmier;4
+dep;47;Lot-et-Garonne;lieu_csapa;CSAPA;medecin_generaliste;3
+dep;47;Lot-et-Garonne;lieu_csapa;CSAPA;psychologue;4
+dep;48;Lozère;lieu_camsp;CAMSP;infirmier;1
+dep;48;Lozère;lieu_camsp;CAMSP;orthophoniste;2
+dep;48;Lozère;lieu_camsp;CAMSP;psychiatre;1
+dep;48;Lozère;lieu_camsp;CAMSP;psychologue;1
+dep;48;Lozère;lieu_camsp;CAMSP;psychomotricien;1
+dep;48;Lozère;lieu_csapa;CSAPA;infirmier;1
+dep;48;Lozère;lieu_csapa;CSAPA;medecin_generaliste;1
+dep;48;Lozère;lieu_csapa;CSAPA;psychologue;1
+dep;49;Maine-et-Loire;lieu_caarud;CAARUD;infirmier;1
+dep;49;Maine-et-Loire;lieu_caarud;CAARUD;medecin_generaliste;3
+dep;49;Maine-et-Loire;lieu_camsp;CAMSP;psychologue;4
+dep;49;Maine-et-Loire;lieu_camsp;CAMSP;psychomotricien;2
+dep;49;Maine-et-Loire;lieu_cattp;CATTP;infirmier;1
+dep;50;Manche;lieu_camsp;CAMSP;orthophoniste;4
+dep;50;Manche;lieu_camsp;CAMSP;psychologue;5
+dep;50;Manche;lieu_camsp;CAMSP;psychomotricien;4
+dep;50;Manche;lieu_cattp;CATTP;infirmier;2
+dep;50;Manche;lieu_cmpp;CMPP;medecin_generaliste;1
+dep;50;Manche;lieu_cmpp;CMPP;orthophoniste;18
+dep;50;Manche;lieu_cmpp;CMPP;psychiatre;1
+dep;50;Manche;lieu_cmpp;CMPP;psychologue;22
+dep;50;Manche;lieu_cmpp;CMPP;psychomotricien;12
+dep;50;Manche;lieu_csapa;CSAPA;infirmier;3
+dep;51;Marne;lieu_camsp;CAMSP;ergotherapeute;3
+dep;51;Marne;lieu_camsp;CAMSP;infirmier;1
+dep;51;Marne;lieu_camsp;CAMSP;medecin_generaliste;2
+dep;51;Marne;lieu_camsp;CAMSP;orthophoniste;5
+dep;51;Marne;lieu_camsp;CAMSP;psychiatre;2
+dep;51;Marne;lieu_camsp;CAMSP;psychologue;9
+dep;51;Marne;lieu_camsp;CAMSP;psychomotricien;7
+dep;51;Marne;lieu_cattp;CATTP;psychiatre;1
+dep;51;Marne;lieu_csapa;CSAPA;infirmier;10
+dep;51;Marne;lieu_csapa;CSAPA;medecin_generaliste;6
+dep;51;Marne;lieu_csapa;CSAPA;psychiatre;1
+dep;51;Marne;lieu_csapa;CSAPA;psychologue;6
+dep;52;Haute-Marne;lieu_caarud;CAARUD;infirmier;1
+dep;52;Haute-Marne;lieu_camsp;CAMSP;medecin_generaliste;1
+dep;52;Haute-Marne;lieu_camsp;CAMSP;psychologue;1
+dep;52;Haute-Marne;lieu_camsp;CAMSP;psychomotricien;2
+dep;52;Haute-Marne;lieu_cattp;CATTP;ergotherapeute;1
+dep;52;Haute-Marne;lieu_cattp;CATTP;infirmier;4
+dep;52;Haute-Marne;lieu_cattp;CATTP;orthophoniste;1
+dep;52;Haute-Marne;lieu_cattp;CATTP;psychologue;2
+dep;52;Haute-Marne;lieu_cattp;CATTP;psychomotricien;1
+dep;52;Haute-Marne;lieu_cmpp;CMPP;orthophoniste;3
+dep;52;Haute-Marne;lieu_cmpp;CMPP;psychologue;5
+dep;52;Haute-Marne;lieu_cmpp;CMPP;psychomotricien;5
+dep;52;Haute-Marne;lieu_csapa;CSAPA;infirmier;1
+dep;52;Haute-Marne;lieu_csapa;CSAPA;medecin_generaliste;2
+dep;52;Haute-Marne;lieu_csapa;CSAPA;psychologue;2
+dep;53;Mayenne;lieu_camsp;CAMSP;medecin_generaliste;1
+dep;53;Mayenne;lieu_camsp;CAMSP;psychologue;3
+dep;53;Mayenne;lieu_camsp;CAMSP;psychomotricien;2
+dep;53;Mayenne;lieu_cattp;CATTP;infirmier;8
+dep;53;Mayenne;lieu_cattp;CATTP;psychologue;1
+dep;53;Mayenne;lieu_cattp;CATTP;psychomotricien;1
+dep;53;Mayenne;lieu_cmpp;CMPP;orthophoniste;1
+dep;53;Mayenne;lieu_cmpp;CMPP;psychiatre;1
+dep;53;Mayenne;lieu_cmpp;CMPP;psychologue;8
+dep;53;Mayenne;lieu_cmpp;CMPP;psychomotricien;3
+dep;53;Mayenne;lieu_cmpp;CMPP;q_psychiatrie_enfant;1
+dep;53;Mayenne;lieu_csapa;CSAPA;infirmier;2
+dep;53;Mayenne;lieu_csapa;CSAPA;psychologue;1
+dep;54;Meurthe-et-Moselle;lieu_caarud;CAARUD;infirmier;1
+dep;54;Meurthe-et-Moselle;lieu_camsp;CAMSP;ergotherapeute;4
+dep;54;Meurthe-et-Moselle;lieu_camsp;CAMSP;infirmier;2
+dep;54;Meurthe-et-Moselle;lieu_camsp;CAMSP;orthophoniste;3
+dep;54;Meurthe-et-Moselle;lieu_camsp;CAMSP;psychologue;7
+dep;54;Meurthe-et-Moselle;lieu_camsp;CAMSP;psychomotricien;4
+dep;54;Meurthe-et-Moselle;lieu_cattp;CATTP;ergotherapeute;3
+dep;54;Meurthe-et-Moselle;lieu_cmpp;CMPP;ergotherapeute;1
+dep;54;Meurthe-et-Moselle;lieu_cmpp;CMPP;orthophoniste;17
+dep;54;Meurthe-et-Moselle;lieu_cmpp;CMPP;psychiatre;1
+dep;54;Meurthe-et-Moselle;lieu_cmpp;CMPP;psychologue;38
+dep;54;Meurthe-et-Moselle;lieu_cmpp;CMPP;psychomotricien;5
+dep;54;Meurthe-et-Moselle;lieu_cmpp;CMPP;q_psychiatrie_enfant;1
+dep;54;Meurthe-et-Moselle;lieu_csapa;CSAPA;infirmier;3
+dep;54;Meurthe-et-Moselle;lieu_csapa;CSAPA;medecin_generaliste;1
+dep;54;Meurthe-et-Moselle;lieu_csapa;CSAPA;psychiatre;2
+dep;54;Meurthe-et-Moselle;lieu_csapa;CSAPA;psychologue;3
+dep;55;Meuse;lieu_caarud;CAARUD;infirmier;1
+dep;55;Meuse;lieu_camsp;CAMSP;ergotherapeute;1
+dep;55;Meuse;lieu_camsp;CAMSP;infirmier;1
+dep;55;Meuse;lieu_camsp;CAMSP;orthophoniste;1
+dep;55;Meuse;lieu_camsp;CAMSP;psychologue;5
+dep;55;Meuse;lieu_camsp;CAMSP;psychomotricien;2
+dep;55;Meuse;lieu_cmpp;CMPP;orthophoniste;2
+dep;55;Meuse;lieu_cmpp;CMPP;psychiatre;1
+dep;55;Meuse;lieu_cmpp;CMPP;psychologue;13
+dep;55;Meuse;lieu_cmpp;CMPP;psychomotricien;3
+dep;55;Meuse;lieu_cmpp;CMPP;q_psychiatrie_enfant;1
+dep;55;Meuse;lieu_csapa;CSAPA;infirmier;3
+dep;55;Meuse;lieu_csapa;CSAPA;medecin_generaliste;3
+dep;55;Meuse;lieu_csapa;CSAPA;psychologue;2
+dep;56;Morbihan;lieu_camsp;CAMSP;ergotherapeute;2
+dep;56;Morbihan;lieu_camsp;CAMSP;infirmier;5
+dep;56;Morbihan;lieu_camsp;CAMSP;orthophoniste;3
+dep;56;Morbihan;lieu_camsp;CAMSP;psychiatre;2
+dep;56;Morbihan;lieu_camsp;CAMSP;psychologue;7
+dep;56;Morbihan;lieu_camsp;CAMSP;psychomotricien;6
+dep;56;Morbihan;lieu_cmpp;CMPP;orthophoniste;10
+dep;56;Morbihan;lieu_cmpp;CMPP;psychiatre;4
+dep;56;Morbihan;lieu_cmpp;CMPP;psychologue;13
+dep;56;Morbihan;lieu_cmpp;CMPP;psychomotricien;8
+dep;56;Morbihan;lieu_csapa;CSAPA;infirmier;6
+dep;56;Morbihan;lieu_csapa;CSAPA;medecin_generaliste;4
+dep;56;Morbihan;lieu_csapa;CSAPA;psychologue;1
+dep;57;Moselle;lieu_camsp;CAMSP;ergotherapeute;3
+dep;57;Moselle;lieu_camsp;CAMSP;infirmier;1
+dep;57;Moselle;lieu_camsp;CAMSP;medecin_generaliste;1
+dep;57;Moselle;lieu_camsp;CAMSP;orthophoniste;1
+dep;57;Moselle;lieu_camsp;CAMSP;psychiatre;3
+dep;57;Moselle;lieu_camsp;CAMSP;psychologue;8
+dep;57;Moselle;lieu_camsp;CAMSP;psychomotricien;6
+dep;57;Moselle;lieu_camsp;CAMSP;q_psychiatrie_enfant;2
+dep;57;Moselle;lieu_cmpp;CMPP;ergotherapeute;4
+dep;57;Moselle;lieu_cmpp;CMPP;medecin_generaliste;1
+dep;57;Moselle;lieu_cmpp;CMPP;orthophoniste;7
+dep;57;Moselle;lieu_cmpp;CMPP;psychiatre;2
+dep;57;Moselle;lieu_cmpp;CMPP;psychologue;28
+dep;57;Moselle;lieu_cmpp;CMPP;psychomotricien;6
+dep;57;Moselle;lieu_cmpp;CMPP;q_psychiatrie_enfant;1
+dep;57;Moselle;lieu_csapa;CSAPA;infirmier;10
+dep;57;Moselle;lieu_csapa;CSAPA;medecin_generaliste;1
+dep;57;Moselle;lieu_csapa;CSAPA;psychologue;9
+dep;58;Nièvre;lieu_camsp;CAMSP;ergotherapeute;2
+dep;58;Nièvre;lieu_camsp;CAMSP;infirmier;1
+dep;58;Nièvre;lieu_camsp;CAMSP;orthophoniste;2
+dep;58;Nièvre;lieu_camsp;CAMSP;psychologue;6
+dep;58;Nièvre;lieu_camsp;CAMSP;psychomotricien;6
+dep;58;Nièvre;lieu_cattp;CATTP;infirmier;1
+dep;58;Nièvre;lieu_cmpp;CMPP;infirmier;2
+dep;58;Nièvre;lieu_cmpp;CMPP;medecin_generaliste;1
+dep;58;Nièvre;lieu_cmpp;CMPP;orthophoniste;10
+dep;58;Nièvre;lieu_cmpp;CMPP;pedopsychiatre;1
+dep;58;Nièvre;lieu_cmpp;CMPP;psychologue;19
+dep;58;Nièvre;lieu_cmpp;CMPP;psychomotricien;9
+dep;58;Nièvre;lieu_cmpp;CMPP;q_psychiatrie_enfant;1
+dep;58;Nièvre;lieu_csapa;CSAPA;infirmier;6
+dep;58;Nièvre;lieu_csapa;CSAPA;psychologue;2
+dep;59;Nord;lieu_caarud;CAARUD;infirmier;12
+dep;59;Nord;lieu_caarud;CAARUD;medecin_generaliste;3
+dep;59;Nord;lieu_caarud;CAARUD;psychiatre;1
+dep;59;Nord;lieu_caarud;CAARUD;psychologue;2
+dep;59;Nord;lieu_camsp;CAMSP;ergotherapeute;17
+dep;59;Nord;lieu_camsp;CAMSP;infirmier;5
+dep;59;Nord;lieu_camsp;CAMSP;medecin_generaliste;1
+dep;59;Nord;lieu_camsp;CAMSP;orthophoniste;36
+dep;59;Nord;lieu_camsp;CAMSP;pedopsychiatre;1
+dep;59;Nord;lieu_camsp;CAMSP;psychiatre;4
+dep;59;Nord;lieu_camsp;CAMSP;psychologue;17
+dep;59;Nord;lieu_camsp;CAMSP;psychomotricien;31
+dep;59;Nord;lieu_camsp;CAMSP;q_psychiatrie_enfant;3
+dep;59;Nord;lieu_cattp;CATTP;ergotherapeute;1
+dep;59;Nord;lieu_cattp;CATTP;infirmier;5
+dep;59;Nord;lieu_cattp;CATTP;psychiatre;1
+dep;59;Nord;lieu_cattp;CATTP;psychologue;4
+dep;59;Nord;lieu_cattp;CATTP;psychomotricien;4
+dep;59;Nord;lieu_cmp;CMP;infirmier;6
+dep;59;Nord;lieu_cmp;CMP;psychiatre;1
+dep;59;Nord;lieu_cmp;CMP;psychologue;5
+dep;59;Nord;lieu_cmp;CMP;psychomotricien;1
+dep;59;Nord;lieu_cmpp;CMPP;ergotherapeute;2
+dep;59;Nord;lieu_cmpp;CMPP;medecin_generaliste;1
+dep;59;Nord;lieu_cmpp;CMPP;orthophoniste;38
+dep;59;Nord;lieu_cmpp;CMPP;psychiatre;14
+dep;59;Nord;lieu_cmpp;CMPP;psychologue;59
+dep;59;Nord;lieu_cmpp;CMPP;psychomotricien;30
+dep;59;Nord;lieu_cmpp;CMPP;q_psychiatrie_enfant;7
+dep;59;Nord;lieu_csapa;CSAPA;infirmier;62
+dep;59;Nord;lieu_csapa;CSAPA;medecin_generaliste;16
+dep;59;Nord;lieu_csapa;CSAPA;psychiatre;11
+dep;59;Nord;lieu_csapa;CSAPA;psychologue;38
+dep;60;Oise;lieu_camsp;CAMSP;infirmier;13
+dep;60;Oise;lieu_camsp;CAMSP;orthophoniste;1
+dep;60;Oise;lieu_camsp;CAMSP;psychologue;4
+dep;60;Oise;lieu_camsp;CAMSP;psychomotricien;10
+dep;60;Oise;lieu_cattp;CATTP;infirmier;5
+dep;60;Oise;lieu_cattp;CATTP;psychologue;2
+dep;60;Oise;lieu_cattp;CATTP;psychomotricien;1
+dep;60;Oise;lieu_cmp;CMP;psychologue;2
+dep;60;Oise;lieu_cmpp;CMPP;infirmier;1
+dep;60;Oise;lieu_cmpp;CMPP;orthophoniste;12
+dep;60;Oise;lieu_cmpp;CMPP;pedopsychiatre;1
+dep;60;Oise;lieu_cmpp;CMPP;psychiatre;3
+dep;60;Oise;lieu_cmpp;CMPP;psychologue;48
+dep;60;Oise;lieu_cmpp;CMPP;psychomotricien;25
+dep;60;Oise;lieu_cmpp;CMPP;q_psychiatrie_enfant;1
+dep;60;Oise;lieu_csapa;CSAPA;infirmier;10
+dep;60;Oise;lieu_csapa;CSAPA;medecin_generaliste;1
+dep;60;Oise;lieu_csapa;CSAPA;psychologue;15
+dep;61;Orne;lieu_camsp;CAMSP;ergotherapeute;1
+dep;61;Orne;lieu_camsp;CAMSP;infirmier;1
+dep;61;Orne;lieu_camsp;CAMSP;medecin_generaliste;2
+dep;61;Orne;lieu_camsp;CAMSP;orthophoniste;3
+dep;61;Orne;lieu_camsp;CAMSP;psychologue;8
+dep;61;Orne;lieu_camsp;CAMSP;psychomotricien;7
+dep;61;Orne;lieu_cattp;CATTP;infirmier;6
+dep;61;Orne;lieu_cattp;CATTP;psychologue;1
+dep;61;Orne;lieu_cattp;CATTP;psychomotricien;1
+dep;61;Orne;lieu_cmpp;CMPP;medecin_generaliste;1
+dep;61;Orne;lieu_cmpp;CMPP;orthophoniste;3
+dep;61;Orne;lieu_cmpp;CMPP;psychiatre;1
+dep;61;Orne;lieu_cmpp;CMPP;psychologue;7
+dep;61;Orne;lieu_cmpp;CMPP;psychomotricien;1
+dep;61;Orne;lieu_cmpp;CMPP;q_psychiatrie_enfant;1
+dep;61;Orne;lieu_csapa;CSAPA;infirmier;2
+dep;61;Orne;lieu_csapa;CSAPA;medecin_generaliste;5
+dep;61;Orne;lieu_csapa;CSAPA;psychiatre;1
+dep;61;Orne;lieu_csapa;CSAPA;psychologue;1
+dep;62;Pas-de-Calais;lieu_caarud;CAARUD;infirmier;2
+dep;62;Pas-de-Calais;lieu_caarud;CAARUD;psychomotricien;1
+dep;62;Pas-de-Calais;lieu_camsp;CAMSP;ergotherapeute;12
+dep;62;Pas-de-Calais;lieu_camsp;CAMSP;infirmier;1
+dep;62;Pas-de-Calais;lieu_camsp;CAMSP;medecin_generaliste;3
+dep;62;Pas-de-Calais;lieu_camsp;CAMSP;orthophoniste;13
+dep;62;Pas-de-Calais;lieu_camsp;CAMSP;psychiatre;2
+dep;62;Pas-de-Calais;lieu_camsp;CAMSP;psychologue;23
+dep;62;Pas-de-Calais;lieu_camsp;CAMSP;psychomotricien;30
+dep;62;Pas-de-Calais;lieu_camsp;CAMSP;q_psychiatrie_enfant;1
+dep;62;Pas-de-Calais;lieu_cattp;CATTP;ergotherapeute;1
+dep;62;Pas-de-Calais;lieu_cattp;CATTP;infirmier;3
+dep;62;Pas-de-Calais;lieu_cattp;CATTP;pedopsychiatre;1
+dep;62;Pas-de-Calais;lieu_cattp;CATTP;psychiatre;1
+dep;62;Pas-de-Calais;lieu_cattp;CATTP;q_psychiatrie_enfant;1
+dep;62;Pas-de-Calais;lieu_cmp;CMP;pedopsychiatre;1
+dep;62;Pas-de-Calais;lieu_cmp;CMP;psychiatre;1
+dep;62;Pas-de-Calais;lieu_cmp;CMP;psychologue;7
+dep;62;Pas-de-Calais;lieu_cmp;CMP;psychomotricien;2
+dep;62;Pas-de-Calais;lieu_cmp;CMP;q_psychiatrie_enfant;1
+dep;62;Pas-de-Calais;lieu_cmpp;CMPP;medecin_generaliste;2
+dep;62;Pas-de-Calais;lieu_cmpp;CMPP;orthophoniste;5
+dep;62;Pas-de-Calais;lieu_cmpp;CMPP;pedopsychiatre;1
+dep;62;Pas-de-Calais;lieu_cmpp;CMPP;psychiatre;3
+dep;62;Pas-de-Calais;lieu_cmpp;CMPP;psychologue;11
+dep;62;Pas-de-Calais;lieu_cmpp;CMPP;psychomotricien;8
+dep;62;Pas-de-Calais;lieu_cmpp;CMPP;q_psychiatrie_enfant;1
+dep;62;Pas-de-Calais;lieu_csapa;CSAPA;infirmier;8
+dep;62;Pas-de-Calais;lieu_csapa;CSAPA;medecin_generaliste;1
+dep;62;Pas-de-Calais;lieu_csapa;CSAPA;psychiatre;2
+dep;62;Pas-de-Calais;lieu_csapa;CSAPA;psychologue;13
+dep;63;Puy-de-Dôme;lieu_camsp;CAMSP;medecin_generaliste;1
+dep;63;Puy-de-Dôme;lieu_camsp;CAMSP;orthophoniste;5
+dep;63;Puy-de-Dôme;lieu_camsp;CAMSP;psychologue;2
+dep;63;Puy-de-Dôme;lieu_camsp;CAMSP;psychomotricien;4
+dep;63;Puy-de-Dôme;lieu_cattp;CATTP;infirmier;1
+dep;63;Puy-de-Dôme;lieu_cattp;CATTP;psychiatre;1
+dep;63;Puy-de-Dôme;lieu_cmpp;CMPP;orthophoniste;3
+dep;63;Puy-de-Dôme;lieu_cmpp;CMPP;psychologue;2
+dep;63;Puy-de-Dôme;lieu_cmpp;CMPP;psychomotricien;4
+dep;63;Puy-de-Dôme;lieu_csapa;CSAPA;infirmier;1
+dep;63;Puy-de-Dôme;lieu_csapa;CSAPA;medecin_generaliste;3
+dep;63;Puy-de-Dôme;lieu_csapa;CSAPA;psychiatre;5
+dep;63;Puy-de-Dôme;lieu_csapa;CSAPA;psychologue;2
+dep;64;Pyrénées-Atlantiques;lieu_caarud;CAARUD;medecin_generaliste;2
+dep;64;Pyrénées-Atlantiques;lieu_caarud;CAARUD;psychologue;1
+dep;64;Pyrénées-Atlantiques;lieu_camsp;CAMSP;infirmier;29
+dep;64;Pyrénées-Atlantiques;lieu_camsp;CAMSP;orthophoniste;2
+dep;64;Pyrénées-Atlantiques;lieu_camsp;CAMSP;psychologue;2
+dep;64;Pyrénées-Atlantiques;lieu_camsp;CAMSP;psychomotricien;4
+dep;64;Pyrénées-Atlantiques;lieu_cmpp;CMPP;medecin_generaliste;2
+dep;64;Pyrénées-Atlantiques;lieu_cmpp;CMPP;orthophoniste;9
+dep;64;Pyrénées-Atlantiques;lieu_cmpp;CMPP;psychiatre;4
+dep;64;Pyrénées-Atlantiques;lieu_cmpp;CMPP;psychologue;14
+dep;64;Pyrénées-Atlantiques;lieu_cmpp;CMPP;psychomotricien;10
+dep;64;Pyrénées-Atlantiques;lieu_cmpp;CMPP;q_psychiatrie_enfant;1
+dep;64;Pyrénées-Atlantiques;lieu_csapa;CSAPA;infirmier;13
+dep;64;Pyrénées-Atlantiques;lieu_csapa;CSAPA;medecin_generaliste;11
+dep;64;Pyrénées-Atlantiques;lieu_csapa;CSAPA;psychiatre;5
+dep;64;Pyrénées-Atlantiques;lieu_csapa;CSAPA;psychologue;8
+dep;64;Pyrénées-Atlantiques;lieu_csapa;CSAPA;q_psychiatrie_enfant;1
+dep;65;Hautes-Pyrénées;lieu_camsp;CAMSP;infirmier;1
+dep;65;Hautes-Pyrénées;lieu_camsp;CAMSP;psychologue;3
+dep;65;Hautes-Pyrénées;lieu_camsp;CAMSP;psychomotricien;6
+dep;65;Hautes-Pyrénées;lieu_cmpp;CMPP;medecin_generaliste;2
+dep;65;Hautes-Pyrénées;lieu_cmpp;CMPP;orthophoniste;5
+dep;65;Hautes-Pyrénées;lieu_cmpp;CMPP;psychiatre;1
+dep;65;Hautes-Pyrénées;lieu_cmpp;CMPP;psychologue;17
+dep;65;Hautes-Pyrénées;lieu_cmpp;CMPP;psychomotricien;9
+dep;65;Hautes-Pyrénées;lieu_csapa;CSAPA;infirmier;3
+dep;65;Hautes-Pyrénées;lieu_csapa;CSAPA;medecin_generaliste;3
+dep;65;Hautes-Pyrénées;lieu_csapa;CSAPA;psychiatre;1
+dep;65;Hautes-Pyrénées;lieu_csapa;CSAPA;psychologue;2
+dep;66;Pyrénées-Orientales;lieu_caarud;CAARUD;infirmier;1
+dep;66;Pyrénées-Orientales;lieu_caarud;CAARUD;medecin_generaliste;1
+dep;66;Pyrénées-Orientales;lieu_caarud;CAARUD;psychiatre;1
+dep;66;Pyrénées-Orientales;lieu_camsp;CAMSP;infirmier;1
+dep;66;Pyrénées-Orientales;lieu_camsp;CAMSP;orthophoniste;2
+dep;66;Pyrénées-Orientales;lieu_camsp;CAMSP;pedopsychiatre;1
+dep;66;Pyrénées-Orientales;lieu_camsp;CAMSP;psychologue;1
+dep;66;Pyrénées-Orientales;lieu_camsp;CAMSP;psychomotricien;4
+dep;66;Pyrénées-Orientales;lieu_camsp;CAMSP;q_psychiatrie_enfant;1
+dep;66;Pyrénées-Orientales;lieu_cmpp;CMPP;medecin_generaliste;1
+dep;66;Pyrénées-Orientales;lieu_cmpp;CMPP;orthophoniste;7
+dep;66;Pyrénées-Orientales;lieu_cmpp;CMPP;psychiatre;2
+dep;66;Pyrénées-Orientales;lieu_cmpp;CMPP;psychologue;6
+dep;66;Pyrénées-Orientales;lieu_cmpp;CMPP;psychomotricien;1
+dep;66;Pyrénées-Orientales;lieu_cmpp;CMPP;q_psychiatrie_enfant;1
+dep;66;Pyrénées-Orientales;lieu_csapa;CSAPA;infirmier;1
+dep;66;Pyrénées-Orientales;lieu_csapa;CSAPA;medecin_generaliste;1
+dep;66;Pyrénées-Orientales;lieu_csapa;CSAPA;psychologue;1
+dep;67;Bas-Rhin;lieu_caarud;CAARUD;infirmier;10
+dep;67;Bas-Rhin;lieu_caarud;CAARUD;medecin_generaliste;2
+dep;67;Bas-Rhin;lieu_camsp;CAMSP;ergotherapeute;2
+dep;67;Bas-Rhin;lieu_camsp;CAMSP;infirmier;1
+dep;67;Bas-Rhin;lieu_camsp;CAMSP;medecin_generaliste;2
+dep;67;Bas-Rhin;lieu_camsp;CAMSP;orthophoniste;12
+dep;67;Bas-Rhin;lieu_camsp;CAMSP;psychiatre;3
+dep;67;Bas-Rhin;lieu_camsp;CAMSP;psychologue;5
+dep;67;Bas-Rhin;lieu_camsp;CAMSP;psychomotricien;10
+dep;67;Bas-Rhin;lieu_cmpp;CMPP;orthophoniste;9
+dep;67;Bas-Rhin;lieu_cmpp;CMPP;psychiatre;6
+dep;67;Bas-Rhin;lieu_cmpp;CMPP;psychologue;15
+dep;67;Bas-Rhin;lieu_cmpp;CMPP;psychomotricien;5
+dep;67;Bas-Rhin;lieu_csapa;CSAPA;ergotherapeute;1
+dep;67;Bas-Rhin;lieu_csapa;CSAPA;infirmier;238
+dep;67;Bas-Rhin;lieu_csapa;CSAPA;medecin_generaliste;16
+dep;67;Bas-Rhin;lieu_csapa;CSAPA;psychiatre;2
+dep;67;Bas-Rhin;lieu_csapa;CSAPA;psychologue;14
+dep;68;Haut-Rhin;lieu_camsp;CAMSP;ergotherapeute;6
+dep;68;Haut-Rhin;lieu_camsp;CAMSP;infirmier;1
+dep;68;Haut-Rhin;lieu_camsp;CAMSP;medecin_generaliste;1
+dep;68;Haut-Rhin;lieu_camsp;CAMSP;orthophoniste;1
+dep;68;Haut-Rhin;lieu_camsp;CAMSP;psychologue;6
+dep;68;Haut-Rhin;lieu_camsp;CAMSP;psychomotricien;10
+dep;68;Haut-Rhin;lieu_cattp;CATTP;infirmier;3
+dep;68;Haut-Rhin;lieu_cmpp;CMPP;ergotherapeute;3
+dep;68;Haut-Rhin;lieu_cmpp;CMPP;medecin_generaliste;2
+dep;68;Haut-Rhin;lieu_cmpp;CMPP;orthophoniste;11
+dep;68;Haut-Rhin;lieu_cmpp;CMPP;psychiatre;2
+dep;68;Haut-Rhin;lieu_cmpp;CMPP;psychologue;14
+dep;68;Haut-Rhin;lieu_cmpp;CMPP;psychomotricien;14
+dep;68;Haut-Rhin;lieu_csapa;CSAPA;infirmier;8
+dep;68;Haut-Rhin;lieu_csapa;CSAPA;medecin_generaliste;3
+dep;68;Haut-Rhin;lieu_csapa;CSAPA;psychologue;11
+dep;69;Rhône;lieu_caarud;CAARUD;infirmier;3
+dep;69;Rhône;lieu_caarud;CAARUD;medecin_generaliste;1
+dep;69;Rhône;lieu_camsp;CAMSP;ergotherapeute;5
+dep;69;Rhône;lieu_camsp;CAMSP;infirmier;1
+dep;69;Rhône;lieu_camsp;CAMSP;medecin_generaliste;3
+dep;69;Rhône;lieu_camsp;CAMSP;orthophoniste;21
+dep;69;Rhône;lieu_camsp;CAMSP;psychologue;9
+dep;69;Rhône;lieu_camsp;CAMSP;psychomotricien;18
+dep;69;Rhône;lieu_cattp;CATTP;infirmier;4
+dep;69;Rhône;lieu_cattp;CATTP;pedopsychiatre;1
+dep;69;Rhône;lieu_cattp;CATTP;psychiatre;7
+dep;69;Rhône;lieu_cattp;CATTP;psychologue;5
+dep;69;Rhône;lieu_cattp;CATTP;q_psychiatrie_enfant;1
+dep;69;Rhône;lieu_cmp;CMP;infirmier;5
+dep;69;Rhône;lieu_cmp;CMP;psychiatre;3
+dep;69;Rhône;lieu_cmp;CMP;q_psychiatrie_enfant;1
+dep;69;Rhône;lieu_cmpp;CMPP;medecin_generaliste;2
+dep;69;Rhône;lieu_cmpp;CMPP;orthophoniste;3
+dep;69;Rhône;lieu_cmpp;CMPP;psychiatre;3
+dep;69;Rhône;lieu_cmpp;CMPP;psychologue;12
+dep;69;Rhône;lieu_cmpp;CMPP;psychomotricien;5
+dep;69;Rhône;lieu_cmpp;CMPP;q_psychiatrie_enfant;1
+dep;69;Rhône;lieu_csapa;CSAPA;infirmier;48
+dep;69;Rhône;lieu_csapa;CSAPA;medecin_generaliste;12
+dep;69;Rhône;lieu_csapa;CSAPA;psychiatre;2
+dep;69;Rhône;lieu_csapa;CSAPA;psychologue;14
+dep;70;Haute-Saône;lieu_caarud;CAARUD;infirmier;2
+dep;70;Haute-Saône;lieu_caarud;CAARUD;psychologue;1
+dep;70;Haute-Saône;lieu_camsp;CAMSP;psychologue;1
+dep;70;Haute-Saône;lieu_camsp;CAMSP;psychomotricien;2
+dep;70;Haute-Saône;lieu_cmpp;CMPP;orthophoniste;2
+dep;70;Haute-Saône;lieu_cmpp;CMPP;psychologue;5
+dep;70;Haute-Saône;lieu_cmpp;CMPP;psychomotricien;2
+dep;70;Haute-Saône;lieu_csapa;CSAPA;infirmier;1
+dep;70;Haute-Saône;lieu_csapa;CSAPA;medecin_generaliste;1
+dep;70;Haute-Saône;lieu_csapa;CSAPA;psychologue;2
+dep;71;Saône-et-Loire;lieu_caarud;CAARUD;infirmier;1
+dep;71;Saône-et-Loire;lieu_camsp;CAMSP;orthophoniste;3
+dep;71;Saône-et-Loire;lieu_camsp;CAMSP;psychiatre;1
+dep;71;Saône-et-Loire;lieu_camsp;CAMSP;psychologue;5
+dep;71;Saône-et-Loire;lieu_camsp;CAMSP;psychomotricien;6
+dep;71;Saône-et-Loire;lieu_cmpp;CMPP;orthophoniste;2
+dep;71;Saône-et-Loire;lieu_cmpp;CMPP;psychiatre;1
+dep;71;Saône-et-Loire;lieu_cmpp;CMPP;psychologue;3
+dep;71;Saône-et-Loire;lieu_cmpp;CMPP;psychomotricien;6
+dep;71;Saône-et-Loire;lieu_cmpp;CMPP;q_psychiatrie_enfant;1
+dep;71;Saône-et-Loire;lieu_csapa;CSAPA;infirmier;2
+dep;71;Saône-et-Loire;lieu_csapa;CSAPA;psychologue;1
+dep;72;Sarthe;lieu_caarud;CAARUD;infirmier;1
+dep;72;Sarthe;lieu_camsp;CAMSP;ergotherapeute;3
+dep;72;Sarthe;lieu_camsp;CAMSP;infirmier;1
+dep;72;Sarthe;lieu_camsp;CAMSP;orthophoniste;2
+dep;72;Sarthe;lieu_camsp;CAMSP;psychologue;10
+dep;72;Sarthe;lieu_camsp;CAMSP;psychomotricien;3
+dep;72;Sarthe;lieu_cattp;CATTP;infirmier;1
+dep;72;Sarthe;lieu_cmpp;CMPP;ergotherapeute;1
+dep;72;Sarthe;lieu_cmpp;CMPP;orthophoniste;1
+dep;72;Sarthe;lieu_cmpp;CMPP;psychologue;11
+dep;72;Sarthe;lieu_cmpp;CMPP;psychomotricien;5
+dep;72;Sarthe;lieu_csapa;CSAPA;infirmier;7
+dep;72;Sarthe;lieu_csapa;CSAPA;medecin_generaliste;5
+dep;72;Sarthe;lieu_csapa;CSAPA;psychologue;1
+dep;73;Savoie;lieu_caarud;CAARUD;infirmier;1
+dep;73;Savoie;lieu_caarud;CAARUD;medecin_generaliste;1
+dep;73;Savoie;lieu_caarud;CAARUD;psychologue;1
+dep;73;Savoie;lieu_camsp;CAMSP;ergotherapeute;1
+dep;73;Savoie;lieu_camsp;CAMSP;infirmier;1
+dep;73;Savoie;lieu_camsp;CAMSP;orthophoniste;4
+dep;73;Savoie;lieu_camsp;CAMSP;psychologue;8
+dep;73;Savoie;lieu_camsp;CAMSP;psychomotricien;8
+dep;73;Savoie;lieu_csapa;CSAPA;infirmier;4
+dep;73;Savoie;lieu_csapa;CSAPA;medecin_generaliste;3
+dep;73;Savoie;lieu_csapa;CSAPA;psychologue;3
+dep;74;Haute-Savoie;lieu_caarud;CAARUD;infirmier;2
+dep;74;Haute-Savoie;lieu_caarud;CAARUD;medecin_generaliste;1
+dep;74;Haute-Savoie;lieu_camsp;CAMSP;ergotherapeute;4
+dep;74;Haute-Savoie;lieu_camsp;CAMSP;medecin_generaliste;1
+dep;74;Haute-Savoie;lieu_camsp;CAMSP;orthophoniste;2
+dep;74;Haute-Savoie;lieu_camsp;CAMSP;psychiatre;2
+dep;74;Haute-Savoie;lieu_camsp;CAMSP;psychologue;9
+dep;74;Haute-Savoie;lieu_camsp;CAMSP;psychomotricien;11
+dep;74;Haute-Savoie;lieu_cattp;CATTP;ergotherapeute;1
+dep;74;Haute-Savoie;lieu_cattp;CATTP;infirmier;2
+dep;74;Haute-Savoie;lieu_cattp;CATTP;psychiatre;1
+dep;74;Haute-Savoie;lieu_cattp;CATTP;psychologue;4
+dep;74;Haute-Savoie;lieu_cattp;CATTP;psychomotricien;2
+dep;74;Haute-Savoie;lieu_cmpp;CMPP;ergotherapeute;1
+dep;74;Haute-Savoie;lieu_cmpp;CMPP;orthophoniste;6
+dep;74;Haute-Savoie;lieu_cmpp;CMPP;psychiatre;2
+dep;74;Haute-Savoie;lieu_cmpp;CMPP;psychologue;12
+dep;74;Haute-Savoie;lieu_cmpp;CMPP;psychomotricien;4
+dep;74;Haute-Savoie;lieu_csapa;CSAPA;infirmier;16
+dep;74;Haute-Savoie;lieu_csapa;CSAPA;medecin_generaliste;6
+dep;74;Haute-Savoie;lieu_csapa;CSAPA;psychologue;10
+dep;75;Paris;lieu_caarud;CAARUD;infirmier;3
+dep;75;Paris;lieu_caarud;CAARUD;medecin_generaliste;7
+dep;75;Paris;lieu_camsp;CAMSP;ergotherapeute;3
+dep;75;Paris;lieu_camsp;CAMSP;infirmier;9
+dep;75;Paris;lieu_camsp;CAMSP;medecin_generaliste;1
+dep;75;Paris;lieu_camsp;CAMSP;orthophoniste;10
+dep;75;Paris;lieu_camsp;CAMSP;psychiatre;3
+dep;75;Paris;lieu_camsp;CAMSP;psychologue;10
+dep;75;Paris;lieu_camsp;CAMSP;psychomotricien;15
+dep;75;Paris;lieu_camsp;CAMSP;q_psychiatrie_enfant;1
+dep;75;Paris;lieu_cattp;CATTP;ergotherapeute;3
+dep;75;Paris;lieu_cattp;CATTP;infirmier;2
+dep;75;Paris;lieu_cattp;CATTP;psychologue;6
+dep;75;Paris;lieu_cattp;CATTP;psychomotricien;1
+dep;75;Paris;lieu_cmp;CMP;ergotherapeute;2
+dep;75;Paris;lieu_cmp;CMP;infirmier;16
+dep;75;Paris;lieu_cmp;CMP;orthophoniste;13
+dep;75;Paris;lieu_cmp;CMP;pedopsychiatre;2
+dep;75;Paris;lieu_cmp;CMP;psychiatre;42
+dep;75;Paris;lieu_cmp;CMP;psychologue;59
+dep;75;Paris;lieu_cmp;CMP;psychomotricien;4
+dep;75;Paris;lieu_cmp;CMP;q_psychiatrie_enfant;8
+dep;75;Paris;lieu_cmpp;CMPP;infirmier;1
+dep;75;Paris;lieu_cmpp;CMPP;medecin_generaliste;1
+dep;75;Paris;lieu_cmpp;CMPP;orthophoniste;34
+dep;75;Paris;lieu_cmpp;CMPP;pedopsychiatre;2
+dep;75;Paris;lieu_cmpp;CMPP;psychiatre;32
+dep;75;Paris;lieu_cmpp;CMPP;psychologue;95
+dep;75;Paris;lieu_cmpp;CMPP;psychomotricien;30
+dep;75;Paris;lieu_cmpp;CMPP;q_psychiatrie_enfant;11
+dep;75;Paris;lieu_csapa;CSAPA;ergotherapeute;1
+dep;75;Paris;lieu_csapa;CSAPA;infirmier;40
+dep;75;Paris;lieu_csapa;CSAPA;medecin_generaliste;28
+dep;75;Paris;lieu_csapa;CSAPA;pedopsychiatre;1
+dep;75;Paris;lieu_csapa;CSAPA;psychiatre;33
+dep;75;Paris;lieu_csapa;CSAPA;psychologue;47
+dep;75;Paris;lieu_csapa;CSAPA;psychomotricien;1
+dep;75;Paris;lieu_csapa;CSAPA;q_psychiatrie_enfant;4
+dep;76;Seine-Maritime;lieu_caarud;CAARUD;infirmier;1
+dep;76;Seine-Maritime;lieu_caarud;CAARUD;medecin_generaliste;2
+dep;76;Seine-Maritime;lieu_camsp;CAMSP;ergotherapeute;2
+dep;76;Seine-Maritime;lieu_camsp;CAMSP;infirmier;1
+dep;76;Seine-Maritime;lieu_camsp;CAMSP;medecin_generaliste;2
+dep;76;Seine-Maritime;lieu_camsp;CAMSP;orthophoniste;15
+dep;76;Seine-Maritime;lieu_camsp;CAMSP;psychologue;7
+dep;76;Seine-Maritime;lieu_camsp;CAMSP;psychomotricien;7
+dep;76;Seine-Maritime;lieu_cattp;CATTP;psychologue;2
+dep;76;Seine-Maritime;lieu_cmpp;CMPP;ergotherapeute;1
+dep;76;Seine-Maritime;lieu_cmpp;CMPP;medecin_generaliste;6
+dep;76;Seine-Maritime;lieu_cmpp;CMPP;orthophoniste;20
+dep;76;Seine-Maritime;lieu_cmpp;CMPP;psychiatre;3
+dep;76;Seine-Maritime;lieu_cmpp;CMPP;psychologue;47
+dep;76;Seine-Maritime;lieu_cmpp;CMPP;psychomotricien;21
+dep;76;Seine-Maritime;lieu_cmpp;CMPP;q_psychiatrie_enfant;2
+dep;76;Seine-Maritime;lieu_csapa;CSAPA;infirmier;11
+dep;76;Seine-Maritime;lieu_csapa;CSAPA;medecin_generaliste;7
+dep;76;Seine-Maritime;lieu_csapa;CSAPA;psychiatre;1
+dep;76;Seine-Maritime;lieu_csapa;CSAPA;psychologue;11
+dep;77;Seine-et-Marne;lieu_caarud;CAARUD;infirmier;3
+dep;77;Seine-et-Marne;lieu_camsp;CAMSP;ergotherapeute;1
+dep;77;Seine-et-Marne;lieu_camsp;CAMSP;medecin_generaliste;1
+dep;77;Seine-et-Marne;lieu_camsp;CAMSP;orthophoniste;2
+dep;77;Seine-et-Marne;lieu_camsp;CAMSP;psychologue;9
+dep;77;Seine-et-Marne;lieu_camsp;CAMSP;psychomotricien;8
+dep;77;Seine-et-Marne;lieu_cattp;CATTP;infirmier;7
+dep;77;Seine-et-Marne;lieu_cattp;CATTP;medecin_generaliste;1
+dep;77;Seine-et-Marne;lieu_cattp;CATTP;psychiatre;2
+dep;77;Seine-et-Marne;lieu_cattp;CATTP;psychologue;5
+dep;77;Seine-et-Marne;lieu_cattp;CATTP;psychomotricien;1
+dep;77;Seine-et-Marne;lieu_cmp;CMP;psychomotricien;1
+dep;77;Seine-et-Marne;lieu_cmpp;CMPP;orthophoniste;5
+dep;77;Seine-et-Marne;lieu_cmpp;CMPP;psychiatre;4
+dep;77;Seine-et-Marne;lieu_cmpp;CMPP;psychologue;13
+dep;77;Seine-et-Marne;lieu_cmpp;CMPP;psychomotricien;10
+dep;77;Seine-et-Marne;lieu_cmpp;CMPP;q_psychiatrie_enfant;1
+dep;77;Seine-et-Marne;lieu_csapa;CSAPA;infirmier;15
+dep;77;Seine-et-Marne;lieu_csapa;CSAPA;medecin_generaliste;1
+dep;77;Seine-et-Marne;lieu_csapa;CSAPA;psychologue;7
+dep;78;Yvelines;lieu_camsp;CAMSP;ergotherapeute;2
+dep;78;Yvelines;lieu_camsp;CAMSP;medecin_generaliste;2
+dep;78;Yvelines;lieu_camsp;CAMSP;orthophoniste;10
+dep;78;Yvelines;lieu_camsp;CAMSP;psychiatre;3
+dep;78;Yvelines;lieu_camsp;CAMSP;psychologue;8
+dep;78;Yvelines;lieu_camsp;CAMSP;psychomotricien;9
+dep;78;Yvelines;lieu_camsp;CAMSP;q_psychiatrie_enfant;2
+dep;78;Yvelines;lieu_cattp;CATTP;psychologue;1
+dep;78;Yvelines;lieu_cmp;CMP;infirmier;3
+dep;78;Yvelines;lieu_cmp;CMP;orthophoniste;2
+dep;78;Yvelines;lieu_cmp;CMP;psychiatre;3
+dep;78;Yvelines;lieu_cmp;CMP;psychologue;12
+dep;78;Yvelines;lieu_cmp;CMP;psychomotricien;3
+dep;78;Yvelines;lieu_cmp;CMP;q_psychiatrie_enfant;1
+dep;78;Yvelines;lieu_cmpp;CMPP;medecin_generaliste;1
+dep;78;Yvelines;lieu_cmpp;CMPP;orthophoniste;23
+dep;78;Yvelines;lieu_cmpp;CMPP;pedopsychiatre;1
+dep;78;Yvelines;lieu_cmpp;CMPP;psychiatre;7
+dep;78;Yvelines;lieu_cmpp;CMPP;psychologue;69
+dep;78;Yvelines;lieu_cmpp;CMPP;psychomotricien;21
+dep;78;Yvelines;lieu_cmpp;CMPP;q_psychiatrie_enfant;2
+dep;78;Yvelines;lieu_csapa;CSAPA;infirmier;8
+dep;78;Yvelines;lieu_csapa;CSAPA;medecin_generaliste;2
+dep;78;Yvelines;lieu_csapa;CSAPA;psychiatre;1
+dep;78;Yvelines;lieu_csapa;CSAPA;psychologue;6
+dep;79;Deux-Sèvres;lieu_camsp;CAMSP;infirmier;2
+dep;79;Deux-Sèvres;lieu_camsp;CAMSP;orthophoniste;2
+dep;79;Deux-Sèvres;lieu_camsp;CAMSP;psychologue;6
+dep;79;Deux-Sèvres;lieu_camsp;CAMSP;psychomotricien;1
+dep;79;Deux-Sèvres;lieu_cattp;CATTP;infirmier;2
+dep;79;Deux-Sèvres;lieu_cmp;CMP;infirmier;1
+dep;79;Deux-Sèvres;lieu_cmp;CMP;psychologue;2
+dep;79;Deux-Sèvres;lieu_cmpp;CMPP;medecin_generaliste;1
+dep;79;Deux-Sèvres;lieu_cmpp;CMPP;orthophoniste;8
+dep;79;Deux-Sèvres;lieu_cmpp;CMPP;psychiatre;1
+dep;79;Deux-Sèvres;lieu_cmpp;CMPP;psychologue;12
+dep;79;Deux-Sèvres;lieu_cmpp;CMPP;psychomotricien;8
+dep;79;Deux-Sèvres;lieu_csapa;CSAPA;infirmier;3
+dep;79;Deux-Sèvres;lieu_csapa;CSAPA;medecin_generaliste;1
+dep;79;Deux-Sèvres;lieu_csapa;CSAPA;psychologue;2
+dep;79;Deux-Sèvres;lieu_csapa;CSAPA;psychomotricien;1
+dep;80;Somme;lieu_caarud;CAARUD;infirmier;1
+dep;80;Somme;lieu_caarud;CAARUD;psychologue;1
+dep;80;Somme;lieu_camsp;CAMSP;infirmier;21
+dep;80;Somme;lieu_camsp;CAMSP;orthophoniste;1
+dep;80;Somme;lieu_camsp;CAMSP;psychologue;1
+dep;80;Somme;lieu_camsp;CAMSP;psychomotricien;1
+dep;80;Somme;lieu_cattp;CATTP;infirmier;123
+dep;80;Somme;lieu_cattp;CATTP;psychomotricien;1
+dep;80;Somme;lieu_cmpp;CMPP;medecin_generaliste;1
+dep;80;Somme;lieu_cmpp;CMPP;orthophoniste;6
+dep;80;Somme;lieu_cmpp;CMPP;psychiatre;2
+dep;80;Somme;lieu_cmpp;CMPP;psychologue;8
+dep;80;Somme;lieu_cmpp;CMPP;psychomotricien;5
+dep;80;Somme;lieu_csapa;CSAPA;infirmier;5
+dep;80;Somme;lieu_csapa;CSAPA;medecin_generaliste;2
+dep;80;Somme;lieu_csapa;CSAPA;psychologue;5
+dep;81;Tarn;lieu_caarud;CAARUD;infirmier;2
+dep;81;Tarn;lieu_camsp;CAMSP;ergotherapeute;2
+dep;81;Tarn;lieu_camsp;CAMSP;medecin_generaliste;2
+dep;81;Tarn;lieu_camsp;CAMSP;orthophoniste;4
+dep;81;Tarn;lieu_camsp;CAMSP;psychiatre;4
+dep;81;Tarn;lieu_camsp;CAMSP;psychologue;4
+dep;81;Tarn;lieu_camsp;CAMSP;psychomotricien;2
+dep;81;Tarn;lieu_camsp;CAMSP;q_psychiatrie_enfant;2
+dep;81;Tarn;lieu_cmp;CMP;infirmier;4
+dep;81;Tarn;lieu_cmpp;CMPP;medecin_generaliste;1
+dep;81;Tarn;lieu_cmpp;CMPP;orthophoniste;4
+dep;81;Tarn;lieu_cmpp;CMPP;psychologue;11
+dep;81;Tarn;lieu_cmpp;CMPP;psychomotricien;5
+dep;81;Tarn;lieu_csapa;CSAPA;infirmier;7
+dep;81;Tarn;lieu_csapa;CSAPA;medecin_generaliste;1
+dep;81;Tarn;lieu_csapa;CSAPA;psychologue;4
+dep;82;Tarn-et-Garonne;lieu_caarud;CAARUD;infirmier;1
+dep;82;Tarn-et-Garonne;lieu_camsp;CAMSP;orthophoniste;3
+dep;82;Tarn-et-Garonne;lieu_camsp;CAMSP;psychiatre;2
+dep;82;Tarn-et-Garonne;lieu_camsp;CAMSP;psychologue;3
+dep;82;Tarn-et-Garonne;lieu_camsp;CAMSP;psychomotricien;5
+dep;82;Tarn-et-Garonne;lieu_cmpp;CMPP;medecin_generaliste;1
+dep;82;Tarn-et-Garonne;lieu_cmpp;CMPP;orthophoniste;5
+dep;82;Tarn-et-Garonne;lieu_cmpp;CMPP;psychologue;11
+dep;82;Tarn-et-Garonne;lieu_cmpp;CMPP;psychomotricien;5
+dep;82;Tarn-et-Garonne;lieu_csapa;CSAPA;infirmier;61
+dep;82;Tarn-et-Garonne;lieu_csapa;CSAPA;medecin_generaliste;1
+dep;82;Tarn-et-Garonne;lieu_csapa;CSAPA;psychologue;1
+dep;83;Var;lieu_camsp;CAMSP;infirmier;2
+dep;83;Var;lieu_camsp;CAMSP;orthophoniste;1
+dep;83;Var;lieu_camsp;CAMSP;psychologue;1
+dep;83;Var;lieu_camsp;CAMSP;psychomotricien;6
+dep;83;Var;lieu_cmpp;CMPP;medecin_generaliste;1
+dep;83;Var;lieu_cmpp;CMPP;orthophoniste;5
+dep;83;Var;lieu_cmpp;CMPP;psychiatre;2
+dep;83;Var;lieu_cmpp;CMPP;psychologue;12
+dep;83;Var;lieu_cmpp;CMPP;psychomotricien;11
+dep;83;Var;lieu_cmpp;CMPP;q_psychiatrie_enfant;1
+dep;83;Var;lieu_csapa;CSAPA;infirmier;7
+dep;83;Var;lieu_csapa;CSAPA;medecin_generaliste;4
+dep;83;Var;lieu_csapa;CSAPA;psychiatre;1
+dep;83;Var;lieu_csapa;CSAPA;psychologue;2
+dep;84;Vaucluse;lieu_camsp;CAMSP;ergotherapeute;1
+dep;84;Vaucluse;lieu_camsp;CAMSP;infirmier;1
+dep;84;Vaucluse;lieu_camsp;CAMSP;orthophoniste;2
+dep;84;Vaucluse;lieu_camsp;CAMSP;psychiatre;1
+dep;84;Vaucluse;lieu_camsp;CAMSP;psychologue;3
+dep;84;Vaucluse;lieu_camsp;CAMSP;psychomotricien;6
+dep;84;Vaucluse;lieu_camsp;CAMSP;q_psychiatrie_enfant;1
+dep;84;Vaucluse;lieu_cmpp;CMPP;orthophoniste;1
+dep;84;Vaucluse;lieu_cmpp;CMPP;psychologue;6
+dep;84;Vaucluse;lieu_cmpp;CMPP;psychomotricien;3
+dep;84;Vaucluse;lieu_csapa;CSAPA;infirmier;7
+dep;84;Vaucluse;lieu_csapa;CSAPA;medecin_generaliste;2
+dep;84;Vaucluse;lieu_csapa;CSAPA;psychologue;4
+dep;85;Vendée;lieu_caarud;CAARUD;infirmier;1
+dep;85;Vendée;lieu_cmpp;CMPP;medecin_generaliste;1
+dep;85;Vendée;lieu_cmpp;CMPP;orthophoniste;4
+dep;85;Vendée;lieu_cmpp;CMPP;psychiatre;1
+dep;85;Vendée;lieu_cmpp;CMPP;psychologue;10
+dep;85;Vendée;lieu_cmpp;CMPP;psychomotricien;6
+dep;85;Vendée;lieu_cmpp;CMPP;q_psychiatrie_enfant;1
+dep;85;Vendée;lieu_csapa;CSAPA;infirmier;4
+dep;85;Vendée;lieu_csapa;CSAPA;psychiatre;1
+dep;85;Vendée;lieu_csapa;CSAPA;psychologue;3
+dep;86;Vienne;lieu_camsp;CAMSP;ergotherapeute;1
+dep;86;Vienne;lieu_camsp;CAMSP;infirmier;2
+dep;86;Vienne;lieu_camsp;CAMSP;medecin_generaliste;1
+dep;86;Vienne;lieu_camsp;CAMSP;orthophoniste;1
+dep;86;Vienne;lieu_camsp;CAMSP;psychiatre;1
+dep;86;Vienne;lieu_camsp;CAMSP;psychologue;3
+dep;86;Vienne;lieu_camsp;CAMSP;psychomotricien;3
+dep;86;Vienne;lieu_cmpp;CMPP;ergotherapeute;1
+dep;86;Vienne;lieu_cmpp;CMPP;orthophoniste;5
+dep;86;Vienne;lieu_cmpp;CMPP;psychiatre;3
+dep;86;Vienne;lieu_cmpp;CMPP;psychologue;9
+dep;86;Vienne;lieu_cmpp;CMPP;psychomotricien;5
+dep;86;Vienne;lieu_cmpp;CMPP;q_psychiatrie_enfant;2
+dep;86;Vienne;lieu_csapa;CSAPA;infirmier;5
+dep;86;Vienne;lieu_csapa;CSAPA;medecin_generaliste;1
+dep;86;Vienne;lieu_csapa;CSAPA;psychiatre;2
+dep;87;Haute-Vienne;lieu_camsp;CAMSP;medecin_generaliste;1
+dep;87;Haute-Vienne;lieu_camsp;CAMSP;orthophoniste;4
+dep;87;Haute-Vienne;lieu_camsp;CAMSP;psychiatre;1
+dep;87;Haute-Vienne;lieu_camsp;CAMSP;psychologue;5
+dep;87;Haute-Vienne;lieu_camsp;CAMSP;psychomotricien;7
+dep;87;Haute-Vienne;lieu_camsp;CAMSP;q_psychiatrie_enfant;1
+dep;87;Haute-Vienne;lieu_cmpp;CMPP;orthophoniste;8
+dep;87;Haute-Vienne;lieu_cmpp;CMPP;psychiatre;6
+dep;87;Haute-Vienne;lieu_cmpp;CMPP;psychologue;12
+dep;87;Haute-Vienne;lieu_cmpp;CMPP;psychomotricien;13
+dep;87;Haute-Vienne;lieu_cmpp;CMPP;q_psychiatrie_enfant;4
+dep;87;Haute-Vienne;lieu_csapa;CSAPA;infirmier;2
+dep;87;Haute-Vienne;lieu_csapa;CSAPA;medecin_generaliste;1
+dep;87;Haute-Vienne;lieu_csapa;CSAPA;psychologue;2
+dep;88;Vosges;lieu_camsp;CAMSP;orthophoniste;1
+dep;88;Vosges;lieu_camsp;CAMSP;psychiatre;1
+dep;88;Vosges;lieu_camsp;CAMSP;psychologue;2
+dep;88;Vosges;lieu_camsp;CAMSP;psychomotricien;2
+dep;88;Vosges;lieu_cmpp;CMPP;psychologue;1
+dep;88;Vosges;lieu_csapa;CSAPA;infirmier;10
+dep;88;Vosges;lieu_csapa;CSAPA;medecin_generaliste;5
+dep;88;Vosges;lieu_csapa;CSAPA;psychiatre;1
+dep;88;Vosges;lieu_csapa;CSAPA;psychologue;2
+dep;89;Yonne;lieu_caarud;CAARUD;medecin_generaliste;2
+dep;89;Yonne;lieu_camsp;CAMSP;ergotherapeute;2
+dep;89;Yonne;lieu_camsp;CAMSP;infirmier;2
+dep;89;Yonne;lieu_camsp;CAMSP;medecin_generaliste;1
+dep;89;Yonne;lieu_camsp;CAMSP;orthophoniste;1
+dep;89;Yonne;lieu_camsp;CAMSP;psychologue;7
+dep;89;Yonne;lieu_camsp;CAMSP;psychomotricien;4
+dep;89;Yonne;lieu_cmpp;CMPP;orthophoniste;1
+dep;89;Yonne;lieu_cmpp;CMPP;psychologue;6
+dep;89;Yonne;lieu_cmpp;CMPP;psychomotricien;2
+dep;89;Yonne;lieu_csapa;CSAPA;infirmier;8
+dep;89;Yonne;lieu_csapa;CSAPA;psychiatre;2
+dep;89;Yonne;lieu_csapa;CSAPA;psychologue;2
+dep;90;Territoire de Belfort;lieu_camsp;CAMSP;psychologue;1
+dep;90;Territoire de Belfort;lieu_camsp;CAMSP;psychomotricien;6
+dep;90;Territoire de Belfort;lieu_cmpp;CMPP;medecin_generaliste;1
+dep;90;Territoire de Belfort;lieu_cmpp;CMPP;orthophoniste;6
+dep;90;Territoire de Belfort;lieu_cmpp;CMPP;psychologue;6
+dep;90;Territoire de Belfort;lieu_cmpp;CMPP;psychomotricien;2
+dep;90;Territoire de Belfort;lieu_csapa;CSAPA;infirmier;1
+dep;90;Territoire de Belfort;lieu_csapa;CSAPA;medecin_generaliste;1
+dep;90;Territoire de Belfort;lieu_csapa;CSAPA;psychologue;1
+dep;91;Essonne;lieu_caarud;CAARUD;infirmier;1
+dep;91;Essonne;lieu_caarud;CAARUD;medecin_generaliste;1
+dep;91;Essonne;lieu_camsp;CAMSP;infirmier;1
+dep;91;Essonne;lieu_camsp;CAMSP;medecin_generaliste;1
+dep;91;Essonne;lieu_camsp;CAMSP;orthophoniste;4
+dep;91;Essonne;lieu_camsp;CAMSP;psychiatre;1
+dep;91;Essonne;lieu_camsp;CAMSP;psychologue;7
+dep;91;Essonne;lieu_camsp;CAMSP;psychomotricien;6
+dep;91;Essonne;lieu_camsp;CAMSP;q_psychiatrie_enfant;1
+dep;91;Essonne;lieu_cattp;CATTP;infirmier;3
+dep;91;Essonne;lieu_cattp;CATTP;orthophoniste;1
+dep;91;Essonne;lieu_cattp;CATTP;pedopsychiatre;1
+dep;91;Essonne;lieu_cattp;CATTP;psychologue;1
+dep;91;Essonne;lieu_cattp;CATTP;q_psychiatrie_enfant;1
+dep;91;Essonne;lieu_cmp;CMP;psychiatre;2
+dep;91;Essonne;lieu_cmp;CMP;psychologue;1
+dep;91;Essonne;lieu_cmpp;CMPP;orthophoniste;34
+dep;91;Essonne;lieu_cmpp;CMPP;pedopsychiatre;2
+dep;91;Essonne;lieu_cmpp;CMPP;psychiatre;11
+dep;91;Essonne;lieu_cmpp;CMPP;psychologue;89
+dep;91;Essonne;lieu_cmpp;CMPP;psychomotricien;26
+dep;91;Essonne;lieu_cmpp;CMPP;q_psychiatrie_enfant;5
+dep;91;Essonne;lieu_csapa;CSAPA;infirmier;5
+dep;91;Essonne;lieu_csapa;CSAPA;medecin_generaliste;2
+dep;91;Essonne;lieu_csapa;CSAPA;psychologue;8
+dep;92;Hauts-de-Seine;lieu_caarud;CAARUD;infirmier;1
+dep;92;Hauts-de-Seine;lieu_caarud;CAARUD;psychologue;1
+dep;92;Hauts-de-Seine;lieu_cattp;CATTP;infirmier;3
+dep;92;Hauts-de-Seine;lieu_cattp;CATTP;psychiatre;3
+dep;92;Hauts-de-Seine;lieu_cattp;CATTP;psychologue;5
+dep;92;Hauts-de-Seine;lieu_cattp;CATTP;psychomotricien;1
+dep;92;Hauts-de-Seine;lieu_cmp;CMP;orthophoniste;1
+dep;92;Hauts-de-Seine;lieu_cmp;CMP;psychologue;2
+dep;92;Hauts-de-Seine;lieu_cmp;CMP;psychomotricien;1
+dep;92;Hauts-de-Seine;lieu_cmpp;CMPP;infirmier;1
+dep;92;Hauts-de-Seine;lieu_cmpp;CMPP;medecin_generaliste;1
+dep;92;Hauts-de-Seine;lieu_cmpp;CMPP;orthophoniste;15
+dep;92;Hauts-de-Seine;lieu_cmpp;CMPP;pedopsychiatre;2
+dep;92;Hauts-de-Seine;lieu_cmpp;CMPP;psychiatre;24
+dep;92;Hauts-de-Seine;lieu_cmpp;CMPP;psychologue;52
+dep;92;Hauts-de-Seine;lieu_cmpp;CMPP;psychomotricien;22
+dep;92;Hauts-de-Seine;lieu_cmpp;CMPP;q_psychiatrie_enfant;11
+dep;92;Hauts-de-Seine;lieu_csapa;CSAPA;medecin_generaliste;9
+dep;92;Hauts-de-Seine;lieu_csapa;CSAPA;psychologue;4
+dep;93;Seine-Saint-Denis;lieu_caarud;CAARUD;infirmier;1
+dep;93;Seine-Saint-Denis;lieu_caarud;CAARUD;psychologue;1
+dep;93;Seine-Saint-Denis;lieu_camsp;CAMSP;ergotherapeute;2
+dep;93;Seine-Saint-Denis;lieu_camsp;CAMSP;infirmier;2
+dep;93;Seine-Saint-Denis;lieu_camsp;CAMSP;medecin_generaliste;1
+dep;93;Seine-Saint-Denis;lieu_camsp;CAMSP;orthophoniste;8
+dep;93;Seine-Saint-Denis;lieu_camsp;CAMSP;psychiatre;1
+dep;93;Seine-Saint-Denis;lieu_camsp;CAMSP;psychologue;11
+dep;93;Seine-Saint-Denis;lieu_camsp;CAMSP;psychomotricien;10
+dep;93;Seine-Saint-Denis;lieu_cattp;CATTP;infirmier;2
+dep;93;Seine-Saint-Denis;lieu_cattp;CATTP;psychiatre;2
+dep;93;Seine-Saint-Denis;lieu_cattp;CATTP;psychologue;1
+dep;93;Seine-Saint-Denis;lieu_cmpp;CMPP;orthophoniste;12
+dep;93;Seine-Saint-Denis;lieu_cmpp;CMPP;pedopsychiatre;2
+dep;93;Seine-Saint-Denis;lieu_cmpp;CMPP;psychiatre;8
+dep;93;Seine-Saint-Denis;lieu_cmpp;CMPP;psychologue;44
+dep;93;Seine-Saint-Denis;lieu_cmpp;CMPP;psychomotricien;26
+dep;93;Seine-Saint-Denis;lieu_cmpp;CMPP;q_psychiatrie_enfant;3
+dep;93;Seine-Saint-Denis;lieu_csapa;CSAPA;infirmier;180
+dep;93;Seine-Saint-Denis;lieu_csapa;CSAPA;medecin_generaliste;3
+dep;93;Seine-Saint-Denis;lieu_csapa;CSAPA;psychiatre;2
+dep;93;Seine-Saint-Denis;lieu_csapa;CSAPA;psychologue;20
+dep;94;Val-de-Marne;lieu_caarud;CAARUD;infirmier;2
+dep;94;Val-de-Marne;lieu_caarud;CAARUD;psychologue;3
+dep;94;Val-de-Marne;lieu_caarud;CAARUD;psychomotricien;1
+dep;94;Val-de-Marne;lieu_camsp;CAMSP;ergotherapeute;1
+dep;94;Val-de-Marne;lieu_camsp;CAMSP;orthophoniste;6
+dep;94;Val-de-Marne;lieu_camsp;CAMSP;psychologue;4
+dep;94;Val-de-Marne;lieu_camsp;CAMSP;psychomotricien;9
+dep;94;Val-de-Marne;lieu_cattp;CATTP;ergotherapeute;1
+dep;94;Val-de-Marne;lieu_cattp;CATTP;infirmier;4
+dep;94;Val-de-Marne;lieu_cattp;CATTP;psychiatre;1
+dep;94;Val-de-Marne;lieu_cattp;CATTP;psychologue;2
+dep;94;Val-de-Marne;lieu_cattp;CATTP;psychomotricien;2
+dep;94;Val-de-Marne;lieu_cmp;CMP;psychologue;5
+dep;94;Val-de-Marne;lieu_cmp;CMP;psychomotricien;2
+dep;94;Val-de-Marne;lieu_cmpp;CMPP;infirmier;1
+dep;94;Val-de-Marne;lieu_cmpp;CMPP;orthophoniste;16
+dep;94;Val-de-Marne;lieu_cmpp;CMPP;pedopsychiatre;1
+dep;94;Val-de-Marne;lieu_cmpp;CMPP;psychiatre;8
+dep;94;Val-de-Marne;lieu_cmpp;CMPP;psychologue;55
+dep;94;Val-de-Marne;lieu_cmpp;CMPP;psychomotricien;21
+dep;94;Val-de-Marne;lieu_cmpp;CMPP;q_psychiatrie_enfant;2
+dep;94;Val-de-Marne;lieu_csapa;CSAPA;infirmier;47
+dep;94;Val-de-Marne;lieu_csapa;CSAPA;medecin_generaliste;3
+dep;94;Val-de-Marne;lieu_csapa;CSAPA;psychiatre;4
+dep;94;Val-de-Marne;lieu_csapa;CSAPA;psychologue;18
+dep;95;Val-d'Oise;lieu_camsp;CAMSP;ergotherapeute;1
+dep;95;Val-d'Oise;lieu_camsp;CAMSP;infirmier;6
+dep;95;Val-d'Oise;lieu_camsp;CAMSP;psychiatre;1
+dep;95;Val-d'Oise;lieu_camsp;CAMSP;psychologue;7
+dep;95;Val-d'Oise;lieu_camsp;CAMSP;psychomotricien;11
+dep;95;Val-d'Oise;lieu_camsp;CAMSP;q_psychiatrie_enfant;1
+dep;95;Val-d'Oise;lieu_cattp;CATTP;infirmier;2
+dep;95;Val-d'Oise;lieu_cattp;CATTP;psychomotricien;3
+dep;95;Val-d'Oise;lieu_cmp;CMP;infirmier;2
+dep;95;Val-d'Oise;lieu_cmpp;CMPP;orthophoniste;13
+dep;95;Val-d'Oise;lieu_cmpp;CMPP;pedopsychiatre;1
+dep;95;Val-d'Oise;lieu_cmpp;CMPP;psychiatre;4
+dep;95;Val-d'Oise;lieu_cmpp;CMPP;psychologue;30
+dep;95;Val-d'Oise;lieu_cmpp;CMPP;psychomotricien;17
+dep;95;Val-d'Oise;lieu_cmpp;CMPP;q_psychiatrie_enfant;1
+dep;95;Val-d'Oise;lieu_csapa;CSAPA;infirmier;3
+dep;95;Val-d'Oise;lieu_csapa;CSAPA;medecin_generaliste;3
+dep;95;Val-d'Oise;lieu_csapa;CSAPA;psychiatre;1
+dep;95;Val-d'Oise;lieu_csapa;CSAPA;psychologue;9
+dep;971;Guadeloupe;lieu_caarud;CAARUD;infirmier;1
+dep;971;Guadeloupe;lieu_caarud;CAARUD;psychologue;1
+dep;971;Guadeloupe;lieu_camsp;CAMSP;infirmier;2
+dep;971;Guadeloupe;lieu_camsp;CAMSP;medecin_generaliste;1
+dep;971;Guadeloupe;lieu_camsp;CAMSP;orthophoniste;5
+dep;971;Guadeloupe;lieu_camsp;CAMSP;psychiatre;1
+dep;971;Guadeloupe;lieu_camsp;CAMSP;psychologue;4
+dep;971;Guadeloupe;lieu_camsp;CAMSP;psychomotricien;11
+dep;971;Guadeloupe;lieu_cmpp;CMPP;medecin_generaliste;1
+dep;971;Guadeloupe;lieu_cmpp;CMPP;orthophoniste;3
+dep;971;Guadeloupe;lieu_cmpp;CMPP;psychiatre;2
+dep;971;Guadeloupe;lieu_cmpp;CMPP;psychologue;14
+dep;971;Guadeloupe;lieu_cmpp;CMPP;psychomotricien;12
+dep;971;Guadeloupe;lieu_csapa;CSAPA;psychiatre;2
+dep;971;Guadeloupe;lieu_csapa;CSAPA;psychologue;2
+dep;972;Martinique;lieu_camsp;CAMSP;infirmier;4
+dep;972;Martinique;lieu_camsp;CAMSP;orthophoniste;2
+dep;972;Martinique;lieu_cmpp;CMPP;orthophoniste;4
+dep;972;Martinique;lieu_cmpp;CMPP;psychologue;6
+dep;972;Martinique;lieu_cmpp;CMPP;psychomotricien;5
+dep;972;Martinique;lieu_csapa;CSAPA;infirmier;3
+dep;972;Martinique;lieu_csapa;CSAPA;medecin_generaliste;1
+dep;972;Martinique;lieu_csapa;CSAPA;psychologue;1
+dep;973;Guyane;lieu_caarud;CAARUD;infirmier;1
+dep;973;Guyane;lieu_camsp;CAMSP;ergotherapeute;1
+dep;973;Guyane;lieu_camsp;CAMSP;psychologue;6
+dep;973;Guyane;lieu_camsp;CAMSP;psychomotricien;3
+dep;973;Guyane;lieu_cattp;CATTP;medecin_generaliste;1
+dep;973;Guyane;lieu_cmpp;CMPP;orthophoniste;1
+dep;973;Guyane;lieu_cmpp;CMPP;psychologue;6
+dep;973;Guyane;lieu_cmpp;CMPP;psychomotricien;2
+dep;973;Guyane;lieu_csapa;CSAPA;infirmier;1
+dep;973;Guyane;lieu_csapa;CSAPA;psychologue;1
+dep;974;La Réunion;lieu_caarud;CAARUD;infirmier;3
+dep;974;La Réunion;lieu_camsp;CAMSP;ergotherapeute;6
+dep;974;La Réunion;lieu_camsp;CAMSP;infirmier;4
+dep;974;La Réunion;lieu_camsp;CAMSP;medecin_generaliste;1
+dep;974;La Réunion;lieu_camsp;CAMSP;orthophoniste;7
+dep;974;La Réunion;lieu_camsp;CAMSP;psychiatre;1
+dep;974;La Réunion;lieu_camsp;CAMSP;psychologue;12
+dep;974;La Réunion;lieu_camsp;CAMSP;psychomotricien;29
+dep;974;La Réunion;lieu_cmpp;CMPP;ergotherapeute;1
+dep;974;La Réunion;lieu_cmpp;CMPP;medecin_generaliste;1
+dep;974;La Réunion;lieu_cmpp;CMPP;orthophoniste;8
+dep;974;La Réunion;lieu_cmpp;CMPP;psychiatre;2
+dep;974;La Réunion;lieu_cmpp;CMPP;psychologue;17
+dep;974;La Réunion;lieu_cmpp;CMPP;psychomotricien;5
+dep;974;La Réunion;lieu_csapa;CSAPA;infirmier;11
+dep;974;La Réunion;lieu_csapa;CSAPA;medecin_generaliste;1
+dep;974;La Réunion;lieu_csapa;CSAPA;psychologue;1
+dep;976;Mayotte;lieu_caarud;CAARUD;medecin_generaliste;1
+dep;976;Mayotte;lieu_cmpp;CMPP;psychologue;1
+dep;01;Ain;ensemble;Au moins une de ces structures;ergotherapeute;5
+dep;01;Ain;ensemble;Au moins une de ces structures;infirmier;20
+dep;01;Ain;ensemble;Au moins une de ces structures;medecin_generaliste;7
+dep;01;Ain;ensemble;Au moins une de ces structures;orthophoniste;2
+dep;01;Ain;ensemble;Au moins une de ces structures;psychiatre;1
+dep;01;Ain;ensemble;Au moins une de ces structures;psychologue;18
+dep;01;Ain;ensemble;Au moins une de ces structures;psychomotricien;4
+dep;02;Aisne;ensemble;Au moins une de ces structures;ergotherapeute;1
+dep;02;Aisne;ensemble;Au moins une de ces structures;infirmier;7
+dep;02;Aisne;ensemble;Au moins une de ces structures;medecin_generaliste;4
+dep;02;Aisne;ensemble;Au moins une de ces structures;orthophoniste;2
+dep;02;Aisne;ensemble;Au moins une de ces structures;psychiatre;1
+dep;02;Aisne;ensemble;Au moins une de ces structures;psychologue;20
+dep;02;Aisne;ensemble;Au moins une de ces structures;psychomotricien;3
+dep;03;Allier;ensemble;Au moins une de ces structures;infirmier;6
+dep;03;Allier;ensemble;Au moins une de ces structures;medecin_generaliste;1
+dep;03;Allier;ensemble;Au moins une de ces structures;psychiatre;1
+dep;03;Allier;ensemble;Au moins une de ces structures;psychologue;7
+dep;03;Allier;ensemble;Au moins une de ces structures;psychomotricien;4
+dep;04;Alpes-de-Haute-Provence;ensemble;Au moins une de ces structures;ergotherapeute;2
+dep;04;Alpes-de-Haute-Provence;ensemble;Au moins une de ces structures;infirmier;9
+dep;04;Alpes-de-Haute-Provence;ensemble;Au moins une de ces structures;medecin_generaliste;2
+dep;04;Alpes-de-Haute-Provence;ensemble;Au moins une de ces structures;orthophoniste;1
+dep;04;Alpes-de-Haute-Provence;ensemble;Au moins une de ces structures;psychiatre;1
+dep;04;Alpes-de-Haute-Provence;ensemble;Au moins une de ces structures;psychologue;8
+dep;04;Alpes-de-Haute-Provence;ensemble;Au moins une de ces structures;psychomotricien;9
+dep;04;Alpes-de-Haute-Provence;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;1
+dep;05;Hautes-Alpes;ensemble;Au moins une de ces structures;ergotherapeute;1
+dep;05;Hautes-Alpes;ensemble;Au moins une de ces structures;infirmier;1
+dep;05;Hautes-Alpes;ensemble;Au moins une de ces structures;medecin_generaliste;3
+dep;05;Hautes-Alpes;ensemble;Au moins une de ces structures;orthophoniste;3
+dep;05;Hautes-Alpes;ensemble;Au moins une de ces structures;psychiatre;1
+dep;05;Hautes-Alpes;ensemble;Au moins une de ces structures;psychologue;5
+dep;05;Hautes-Alpes;ensemble;Au moins une de ces structures;psychomotricien;6
+dep;06;Alpes-Maritimes;ensemble;Au moins une de ces structures;infirmier;56
+dep;06;Alpes-Maritimes;ensemble;Au moins une de ces structures;medecin_generaliste;9
+dep;06;Alpes-Maritimes;ensemble;Au moins une de ces structures;orthophoniste;7
+dep;06;Alpes-Maritimes;ensemble;Au moins une de ces structures;psychiatre;5
+dep;06;Alpes-Maritimes;ensemble;Au moins une de ces structures;psychologue;12
+dep;06;Alpes-Maritimes;ensemble;Au moins une de ces structures;psychomotricien;9
+dep;06;Alpes-Maritimes;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;2
+dep;07;Ardèche;ensemble;Au moins une de ces structures;ergotherapeute;3
+dep;07;Ardèche;ensemble;Au moins une de ces structures;infirmier;14
+dep;07;Ardèche;ensemble;Au moins une de ces structures;medecin_generaliste;4
+dep;07;Ardèche;ensemble;Au moins une de ces structures;orthophoniste;8
+dep;07;Ardèche;ensemble;Au moins une de ces structures;psychiatre;2
+dep;07;Ardèche;ensemble;Au moins une de ces structures;psychologue;11
+dep;07;Ardèche;ensemble;Au moins une de ces structures;psychomotricien;11
+dep;07;Ardèche;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;1
+dep;08;Ardennes;ensemble;Au moins une de ces structures;infirmier;5
+dep;08;Ardennes;ensemble;Au moins une de ces structures;medecin_generaliste;2
+dep;08;Ardennes;ensemble;Au moins une de ces structures;orthophoniste;6
+dep;08;Ardennes;ensemble;Au moins une de ces structures;psychiatre;2
+dep;08;Ardennes;ensemble;Au moins une de ces structures;psychologue;9
+dep;08;Ardennes;ensemble;Au moins une de ces structures;psychomotricien;2
+dep;09;Ariège;ensemble;Au moins une de ces structures;infirmier;5
+dep;09;Ariège;ensemble;Au moins une de ces structures;medecin_generaliste;4
+dep;09;Ariège;ensemble;Au moins une de ces structures;orthophoniste;3
+dep;09;Ariège;ensemble;Au moins une de ces structures;psychiatre;3
+dep;09;Ariège;ensemble;Au moins une de ces structures;psychologue;6
+dep;09;Ariège;ensemble;Au moins une de ces structures;psychomotricien;4
+dep;09;Ariège;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;1
+dep;10;Aube;ensemble;Au moins une de ces structures;ergotherapeute;1
+dep;10;Aube;ensemble;Au moins une de ces structures;infirmier;3
+dep;10;Aube;ensemble;Au moins une de ces structures;medecin_generaliste;7
+dep;10;Aube;ensemble;Au moins une de ces structures;orthophoniste;2
+dep;10;Aube;ensemble;Au moins une de ces structures;psychiatre;1
+dep;10;Aube;ensemble;Au moins une de ces structures;psychologue;11
+dep;10;Aube;ensemble;Au moins une de ces structures;psychomotricien;2
+dep;10;Aube;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;1
+dep;11;Aude;ensemble;Au moins une de ces structures;ergotherapeute;2
+dep;11;Aude;ensemble;Au moins une de ces structures;infirmier;4
+dep;11;Aude;ensemble;Au moins une de ces structures;medecin_generaliste;6
+dep;11;Aude;ensemble;Au moins une de ces structures;orthophoniste;13
+dep;11;Aude;ensemble;Au moins une de ces structures;psychiatre;5
+dep;11;Aude;ensemble;Au moins une de ces structures;psychologue;30
+dep;11;Aude;ensemble;Au moins une de ces structures;psychomotricien;17
+dep;12;Aveyron;ensemble;Au moins une de ces structures;ergotherapeute;1
+dep;12;Aveyron;ensemble;Au moins une de ces structures;infirmier;11
+dep;12;Aveyron;ensemble;Au moins une de ces structures;medecin_generaliste;7
+dep;12;Aveyron;ensemble;Au moins une de ces structures;orthophoniste;13
+dep;12;Aveyron;ensemble;Au moins une de ces structures;psychiatre;1
+dep;12;Aveyron;ensemble;Au moins une de ces structures;psychologue;16
+dep;12;Aveyron;ensemble;Au moins une de ces structures;psychomotricien;17
+dep;13;Bouches-du-Rhône;ensemble;Au moins une de ces structures;ergotherapeute;1
+dep;13;Bouches-du-Rhône;ensemble;Au moins une de ces structures;infirmier;116
+dep;13;Bouches-du-Rhône;ensemble;Au moins une de ces structures;medecin_generaliste;9
+dep;13;Bouches-du-Rhône;ensemble;Au moins une de ces structures;orthophoniste;35
+dep;13;Bouches-du-Rhône;ensemble;Au moins une de ces structures;pedopsychiatre;1
+dep;13;Bouches-du-Rhône;ensemble;Au moins une de ces structures;psychiatre;27
+dep;13;Bouches-du-Rhône;ensemble;Au moins une de ces structures;psychologue;64
+dep;13;Bouches-du-Rhône;ensemble;Au moins une de ces structures;psychomotricien;36
+dep;13;Bouches-du-Rhône;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;11
+dep;14;Calvados;ensemble;Au moins une de ces structures;ergotherapeute;1
+dep;14;Calvados;ensemble;Au moins une de ces structures;infirmier;16
+dep;14;Calvados;ensemble;Au moins une de ces structures;medecin_generaliste;12
+dep;14;Calvados;ensemble;Au moins une de ces structures;orthophoniste;21
+dep;14;Calvados;ensemble;Au moins une de ces structures;pedopsychiatre;1
+dep;14;Calvados;ensemble;Au moins une de ces structures;psychiatre;8
+dep;14;Calvados;ensemble;Au moins une de ces structures;psychologue;51
+dep;14;Calvados;ensemble;Au moins une de ces structures;psychomotricien;18
+dep;14;Calvados;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;3
+dep;15;Cantal;ensemble;Au moins une de ces structures;ergotherapeute;1
+dep;15;Cantal;ensemble;Au moins une de ces structures;infirmier;7
+dep;15;Cantal;ensemble;Au moins une de ces structures;medecin_generaliste;2
+dep;15;Cantal;ensemble;Au moins une de ces structures;orthophoniste;2
+dep;15;Cantal;ensemble;Au moins une de ces structures;psychiatre;1
+dep;15;Cantal;ensemble;Au moins une de ces structures;psychologue;4
+dep;15;Cantal;ensemble;Au moins une de ces structures;psychomotricien;5
+dep;16;Charente;ensemble;Au moins une de ces structures;ergotherapeute;3
+dep;16;Charente;ensemble;Au moins une de ces structures;infirmier;1
+dep;16;Charente;ensemble;Au moins une de ces structures;medecin_generaliste;1
+dep;16;Charente;ensemble;Au moins une de ces structures;orthophoniste;16
+dep;16;Charente;ensemble;Au moins une de ces structures;pedopsychiatre;2
+dep;16;Charente;ensemble;Au moins une de ces structures;psychiatre;2
+dep;16;Charente;ensemble;Au moins une de ces structures;psychologue;19
+dep;16;Charente;ensemble;Au moins une de ces structures;psychomotricien;23
+dep;16;Charente;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;3
+dep;17;Charente-Maritime;ensemble;Au moins une de ces structures;ergotherapeute;7
+dep;17;Charente-Maritime;ensemble;Au moins une de ces structures;infirmier;10
+dep;17;Charente-Maritime;ensemble;Au moins une de ces structures;medecin_generaliste;11
+dep;17;Charente-Maritime;ensemble;Au moins une de ces structures;orthophoniste;17
+dep;17;Charente-Maritime;ensemble;Au moins une de ces structures;psychiatre;3
+dep;17;Charente-Maritime;ensemble;Au moins une de ces structures;psychologue;33
+dep;17;Charente-Maritime;ensemble;Au moins une de ces structures;psychomotricien;17
+dep;17;Charente-Maritime;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;2
+dep;18;Cher;ensemble;Au moins une de ces structures;ergotherapeute;1
+dep;18;Cher;ensemble;Au moins une de ces structures;infirmier;13
+dep;18;Cher;ensemble;Au moins une de ces structures;medecin_generaliste;3
+dep;18;Cher;ensemble;Au moins une de ces structures;orthophoniste;2
+dep;18;Cher;ensemble;Au moins une de ces structures;psychiatre;1
+dep;18;Cher;ensemble;Au moins une de ces structures;psychologue;8
+dep;18;Cher;ensemble;Au moins une de ces structures;psychomotricien;4
+dep;19;Corrèze;ensemble;Au moins une de ces structures;infirmier;1
+dep;19;Corrèze;ensemble;Au moins une de ces structures;medecin_generaliste;2
+dep;19;Corrèze;ensemble;Au moins une de ces structures;orthophoniste;10
+dep;19;Corrèze;ensemble;Au moins une de ces structures;pedopsychiatre;1
+dep;19;Corrèze;ensemble;Au moins une de ces structures;psychiatre;2
+dep;19;Corrèze;ensemble;Au moins une de ces structures;psychologue;17
+dep;19;Corrèze;ensemble;Au moins une de ces structures;psychomotricien;9
+dep;19;Corrèze;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;1
+dep;21;Côte-d'Or;ensemble;Au moins une de ces structures;ergotherapeute;3
+dep;21;Côte-d'Or;ensemble;Au moins une de ces structures;infirmier;12
+dep;21;Côte-d'Or;ensemble;Au moins une de ces structures;medecin_generaliste;7
+dep;21;Côte-d'Or;ensemble;Au moins une de ces structures;orthophoniste;45
+dep;21;Côte-d'Or;ensemble;Au moins une de ces structures;psychiatre;10
+dep;21;Côte-d'Or;ensemble;Au moins une de ces structures;psychologue;43
+dep;21;Côte-d'Or;ensemble;Au moins une de ces structures;psychomotricien;32
+dep;21;Côte-d'Or;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;3
+dep;22;Côtes-d'Armor;ensemble;Au moins une de ces structures;ergotherapeute;2
+dep;22;Côtes-d'Armor;ensemble;Au moins une de ces structures;infirmier;6
+dep;22;Côtes-d'Armor;ensemble;Au moins une de ces structures;medecin_generaliste;4
+dep;22;Côtes-d'Armor;ensemble;Au moins une de ces structures;orthophoniste;5
+dep;22;Côtes-d'Armor;ensemble;Au moins une de ces structures;psychiatre;1
+dep;22;Côtes-d'Armor;ensemble;Au moins une de ces structures;psychologue;10
+dep;22;Côtes-d'Armor;ensemble;Au moins une de ces structures;psychomotricien;8
+dep;23;Creuse;ensemble;Au moins une de ces structures;ergotherapeute;1
+dep;23;Creuse;ensemble;Au moins une de ces structures;orthophoniste;3
+dep;23;Creuse;ensemble;Au moins une de ces structures;psychiatre;1
+dep;23;Creuse;ensemble;Au moins une de ces structures;psychologue;10
+dep;23;Creuse;ensemble;Au moins une de ces structures;psychomotricien;2
+dep;23;Creuse;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;1
+dep;24;Dordogne;ensemble;Au moins une de ces structures;infirmier;13
+dep;24;Dordogne;ensemble;Au moins une de ces structures;medecin_generaliste;3
+dep;24;Dordogne;ensemble;Au moins une de ces structures;orthophoniste;7
+dep;24;Dordogne;ensemble;Au moins une de ces structures;psychiatre;2
+dep;24;Dordogne;ensemble;Au moins une de ces structures;psychologue;22
+dep;24;Dordogne;ensemble;Au moins une de ces structures;psychomotricien;6
+dep;24;Dordogne;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;1
+dep;25;Doubs;ensemble;Au moins une de ces structures;infirmier;10
+dep;25;Doubs;ensemble;Au moins une de ces structures;medecin_generaliste;7
+dep;25;Doubs;ensemble;Au moins une de ces structures;orthophoniste;12
+dep;25;Doubs;ensemble;Au moins une de ces structures;psychiatre;5
+dep;25;Doubs;ensemble;Au moins une de ces structures;psychologue;36
+dep;25;Doubs;ensemble;Au moins une de ces structures;psychomotricien;11
+dep;26;Drôme;ensemble;Au moins une de ces structures;ergotherapeute;1
+dep;26;Drôme;ensemble;Au moins une de ces structures;infirmier;10
+dep;26;Drôme;ensemble;Au moins une de ces structures;medecin_generaliste;5
+dep;26;Drôme;ensemble;Au moins une de ces structures;orthophoniste;6
+dep;26;Drôme;ensemble;Au moins une de ces structures;psychiatre;2
+dep;26;Drôme;ensemble;Au moins une de ces structures;psychologue;11
+dep;26;Drôme;ensemble;Au moins une de ces structures;psychomotricien;10
+dep;26;Drôme;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;1
+dep;27;Eure;ensemble;Au moins une de ces structures;ergotherapeute;8
+dep;27;Eure;ensemble;Au moins une de ces structures;infirmier;8
+dep;27;Eure;ensemble;Au moins une de ces structures;medecin_generaliste;3
+dep;27;Eure;ensemble;Au moins une de ces structures;orthophoniste;2
+dep;27;Eure;ensemble;Au moins une de ces structures;psychiatre;2
+dep;27;Eure;ensemble;Au moins une de ces structures;psychologue;24
+dep;27;Eure;ensemble;Au moins une de ces structures;psychomotricien;6
+dep;27;Eure;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;1
+dep;28;Eure-et-Loir;ensemble;Au moins une de ces structures;ergotherapeute;1
+dep;28;Eure-et-Loir;ensemble;Au moins une de ces structures;infirmier;10
+dep;28;Eure-et-Loir;ensemble;Au moins une de ces structures;medecin_generaliste;2
+dep;28;Eure-et-Loir;ensemble;Au moins une de ces structures;orthophoniste;3
+dep;28;Eure-et-Loir;ensemble;Au moins une de ces structures;psychiatre;4
+dep;28;Eure-et-Loir;ensemble;Au moins une de ces structures;psychologue;22
+dep;28;Eure-et-Loir;ensemble;Au moins une de ces structures;psychomotricien;13
+dep;28;Eure-et-Loir;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;1
+dep;29;Finistère;ensemble;Au moins une de ces structures;ergotherapeute;1
+dep;29;Finistère;ensemble;Au moins une de ces structures;infirmier;61
+dep;29;Finistère;ensemble;Au moins une de ces structures;medecin_generaliste;6
+dep;29;Finistère;ensemble;Au moins une de ces structures;orthophoniste;23
+dep;29;Finistère;ensemble;Au moins une de ces structures;psychiatre;3
+dep;29;Finistère;ensemble;Au moins une de ces structures;psychologue;19
+dep;29;Finistère;ensemble;Au moins une de ces structures;psychomotricien;18
+dep;29;Finistère;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;1
+dep;2A;Corse-du-Sud;ensemble;Au moins une de ces structures;infirmier;1
+dep;2A;Corse-du-Sud;ensemble;Au moins une de ces structures;medecin_generaliste;2
+dep;2A;Corse-du-Sud;ensemble;Au moins une de ces structures;orthophoniste;9
+dep;2A;Corse-du-Sud;ensemble;Au moins une de ces structures;psychiatre;1
+dep;2A;Corse-du-Sud;ensemble;Au moins une de ces structures;psychologue;6
+dep;2A;Corse-du-Sud;ensemble;Au moins une de ces structures;psychomotricien;10
+dep;2B;Haute-Corse;ensemble;Au moins une de ces structures;infirmier;3
+dep;2B;Haute-Corse;ensemble;Au moins une de ces structures;medecin_generaliste;2
+dep;2B;Haute-Corse;ensemble;Au moins une de ces structures;orthophoniste;1
+dep;2B;Haute-Corse;ensemble;Au moins une de ces structures;psychiatre;2
+dep;2B;Haute-Corse;ensemble;Au moins une de ces structures;psychologue;1
+dep;30;Gard;ensemble;Au moins une de ces structures;ergotherapeute;2
+dep;30;Gard;ensemble;Au moins une de ces structures;infirmier;7
+dep;30;Gard;ensemble;Au moins une de ces structures;medecin_generaliste;5
+dep;30;Gard;ensemble;Au moins une de ces structures;orthophoniste;11
+dep;30;Gard;ensemble;Au moins une de ces structures;psychiatre;5
+dep;30;Gard;ensemble;Au moins une de ces structures;psychologue;27
+dep;30;Gard;ensemble;Au moins une de ces structures;psychomotricien;20
+dep;31;Haute-Garonne;ensemble;Au moins une de ces structures;infirmier;19
+dep;31;Haute-Garonne;ensemble;Au moins une de ces structures;medecin_generaliste;10
+dep;31;Haute-Garonne;ensemble;Au moins une de ces structures;orthophoniste;29
+dep;31;Haute-Garonne;ensemble;Au moins une de ces structures;pedopsychiatre;1
+dep;31;Haute-Garonne;ensemble;Au moins une de ces structures;psychiatre;11
+dep;31;Haute-Garonne;ensemble;Au moins une de ces structures;psychologue;50
+dep;31;Haute-Garonne;ensemble;Au moins une de ces structures;psychomotricien;34
+dep;31;Haute-Garonne;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;1
+dep;32;Gers;ensemble;Au moins une de ces structures;infirmier;3
+dep;32;Gers;ensemble;Au moins une de ces structures;medecin_generaliste;1
+dep;32;Gers;ensemble;Au moins une de ces structures;orthophoniste;8
+dep;32;Gers;ensemble;Au moins une de ces structures;psychiatre;1
+dep;32;Gers;ensemble;Au moins une de ces structures;psychologue;10
+dep;32;Gers;ensemble;Au moins une de ces structures;psychomotricien;7
+dep;33;Gironde;ensemble;Au moins une de ces structures;infirmier;41
+dep;33;Gironde;ensemble;Au moins une de ces structures;medecin_generaliste;11
+dep;33;Gironde;ensemble;Au moins une de ces structures;orthophoniste;3
+dep;33;Gironde;ensemble;Au moins une de ces structures;pedopsychiatre;2
+dep;33;Gironde;ensemble;Au moins une de ces structures;psychiatre;7
+dep;33;Gironde;ensemble;Au moins une de ces structures;psychologue;28
+dep;33;Gironde;ensemble;Au moins une de ces structures;psychomotricien;5
+dep;33;Gironde;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;5
+dep;34;Hérault;ensemble;Au moins une de ces structures;ergotherapeute;1
+dep;34;Hérault;ensemble;Au moins une de ces structures;infirmier;24
+dep;34;Hérault;ensemble;Au moins une de ces structures;medecin_generaliste;8
+dep;34;Hérault;ensemble;Au moins une de ces structures;orthophoniste;3
+dep;34;Hérault;ensemble;Au moins une de ces structures;psychiatre;7
+dep;34;Hérault;ensemble;Au moins une de ces structures;psychologue;21
+dep;34;Hérault;ensemble;Au moins une de ces structures;psychomotricien;11
+dep;34;Hérault;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;2
+dep;35;Ille-et-Vilaine;ensemble;Au moins une de ces structures;ergotherapeute;1
+dep;35;Ille-et-Vilaine;ensemble;Au moins une de ces structures;infirmier;6
+dep;35;Ille-et-Vilaine;ensemble;Au moins une de ces structures;medecin_generaliste;10
+dep;35;Ille-et-Vilaine;ensemble;Au moins une de ces structures;orthophoniste;11
+dep;35;Ille-et-Vilaine;ensemble;Au moins une de ces structures;psychiatre;7
+dep;35;Ille-et-Vilaine;ensemble;Au moins une de ces structures;psychologue;25
+dep;35;Ille-et-Vilaine;ensemble;Au moins une de ces structures;psychomotricien;11
+dep;36;Indre;ensemble;Au moins une de ces structures;infirmier;4
+dep;36;Indre;ensemble;Au moins une de ces structures;medecin_generaliste;1
+dep;36;Indre;ensemble;Au moins une de ces structures;pedopsychiatre;1
+dep;36;Indre;ensemble;Au moins une de ces structures;psychiatre;1
+dep;36;Indre;ensemble;Au moins une de ces structures;psychologue;10
+dep;36;Indre;ensemble;Au moins une de ces structures;psychomotricien;3
+dep;36;Indre;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;1
+dep;37;Indre-et-Loire;ensemble;Au moins une de ces structures;infirmier;6
+dep;37;Indre-et-Loire;ensemble;Au moins une de ces structures;medecin_generaliste;1
+dep;37;Indre-et-Loire;ensemble;Au moins une de ces structures;orthophoniste;10
+dep;37;Indre-et-Loire;ensemble;Au moins une de ces structures;psychiatre;6
+dep;37;Indre-et-Loire;ensemble;Au moins une de ces structures;psychologue;23
+dep;37;Indre-et-Loire;ensemble;Au moins une de ces structures;psychomotricien;16
+dep;37;Indre-et-Loire;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;2
+dep;38;Isère;ensemble;Au moins une de ces structures;ergotherapeute;6
+dep;38;Isère;ensemble;Au moins une de ces structures;infirmier;19
+dep;38;Isère;ensemble;Au moins une de ces structures;medecin_generaliste;10
+dep;38;Isère;ensemble;Au moins une de ces structures;orthophoniste;24
+dep;38;Isère;ensemble;Au moins une de ces structures;psychiatre;10
+dep;38;Isère;ensemble;Au moins une de ces structures;psychologue;39
+dep;38;Isère;ensemble;Au moins une de ces structures;psychomotricien;21
+dep;38;Isère;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;4
+dep;39;Jura;ensemble;Au moins une de ces structures;infirmier;6
+dep;39;Jura;ensemble;Au moins une de ces structures;medecin_generaliste;5
+dep;39;Jura;ensemble;Au moins une de ces structures;orthophoniste;7
+dep;39;Jura;ensemble;Au moins une de ces structures;psychiatre;3
+dep;39;Jura;ensemble;Au moins une de ces structures;psychologue;15
+dep;39;Jura;ensemble;Au moins une de ces structures;psychomotricien;4
+dep;40;Landes;ensemble;Au moins une de ces structures;ergotherapeute;1
+dep;40;Landes;ensemble;Au moins une de ces structures;infirmier;5
+dep;40;Landes;ensemble;Au moins une de ces structures;medecin_generaliste;4
+dep;40;Landes;ensemble;Au moins une de ces structures;psychiatre;2
+dep;40;Landes;ensemble;Au moins une de ces structures;psychologue;9
+dep;40;Landes;ensemble;Au moins une de ces structures;psychomotricien;2
+dep;40;Landes;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;1
+dep;41;Loir-et-Cher;ensemble;Au moins une de ces structures;ergotherapeute;1
+dep;41;Loir-et-Cher;ensemble;Au moins une de ces structures;infirmier;5
+dep;41;Loir-et-Cher;ensemble;Au moins une de ces structures;medecin_generaliste;4
+dep;41;Loir-et-Cher;ensemble;Au moins une de ces structures;orthophoniste;7
+dep;41;Loir-et-Cher;ensemble;Au moins une de ces structures;psychiatre;1
+dep;41;Loir-et-Cher;ensemble;Au moins une de ces structures;psychologue;13
+dep;41;Loir-et-Cher;ensemble;Au moins une de ces structures;psychomotricien;8
+dep;42;Loire;ensemble;Au moins une de ces structures;ergotherapeute;2
+dep;42;Loire;ensemble;Au moins une de ces structures;infirmier;8
+dep;42;Loire;ensemble;Au moins une de ces structures;medecin_generaliste;5
+dep;42;Loire;ensemble;Au moins une de ces structures;orthophoniste;19
+dep;42;Loire;ensemble;Au moins une de ces structures;psychiatre;3
+dep;42;Loire;ensemble;Au moins une de ces structures;psychologue;38
+dep;42;Loire;ensemble;Au moins une de ces structures;psychomotricien;22
+dep;42;Loire;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;2
+dep;43;Haute-Loire;ensemble;Au moins une de ces structures;ergotherapeute;1
+dep;43;Haute-Loire;ensemble;Au moins une de ces structures;infirmier;4
+dep;43;Haute-Loire;ensemble;Au moins une de ces structures;medecin_generaliste;5
+dep;43;Haute-Loire;ensemble;Au moins une de ces structures;orthophoniste;2
+dep;43;Haute-Loire;ensemble;Au moins une de ces structures;pedopsychiatre;1
+dep;43;Haute-Loire;ensemble;Au moins une de ces structures;psychologue;21
+dep;43;Haute-Loire;ensemble;Au moins une de ces structures;psychomotricien;11
+dep;43;Haute-Loire;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;1
+dep;44;Loire-Atlantique;ensemble;Au moins une de ces structures;infirmier;23
+dep;44;Loire-Atlantique;ensemble;Au moins une de ces structures;medecin_generaliste;10
+dep;44;Loire-Atlantique;ensemble;Au moins une de ces structures;orthophoniste;15
+dep;44;Loire-Atlantique;ensemble;Au moins une de ces structures;psychiatre;15
+dep;44;Loire-Atlantique;ensemble;Au moins une de ces structures;psychologue;37
+dep;44;Loire-Atlantique;ensemble;Au moins une de ces structures;psychomotricien;27
+dep;44;Loire-Atlantique;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;5
+dep;45;Loiret;ensemble;Au moins une de ces structures;infirmier;23
+dep;45;Loiret;ensemble;Au moins une de ces structures;medecin_generaliste;3
+dep;45;Loiret;ensemble;Au moins une de ces structures;orthophoniste;1
+dep;45;Loiret;ensemble;Au moins une de ces structures;psychiatre;4
+dep;45;Loiret;ensemble;Au moins une de ces structures;psychologue;11
+dep;45;Loiret;ensemble;Au moins une de ces structures;psychomotricien;2
+dep;45;Loiret;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;1
+dep;46;Lot;ensemble;Au moins une de ces structures;ergotherapeute;1
+dep;46;Lot;ensemble;Au moins une de ces structures;infirmier;5
+dep;46;Lot;ensemble;Au moins une de ces structures;medecin_generaliste;3
+dep;46;Lot;ensemble;Au moins une de ces structures;orthophoniste;5
+dep;46;Lot;ensemble;Au moins une de ces structures;psychiatre;1
+dep;46;Lot;ensemble;Au moins une de ces structures;psychologue;15
+dep;46;Lot;ensemble;Au moins une de ces structures;psychomotricien;7
+dep;47;Lot-et-Garonne;ensemble;Au moins une de ces structures;infirmier;6
+dep;47;Lot-et-Garonne;ensemble;Au moins une de ces structures;medecin_generaliste;4
+dep;47;Lot-et-Garonne;ensemble;Au moins une de ces structures;orthophoniste;20
+dep;47;Lot-et-Garonne;ensemble;Au moins une de ces structures;pedopsychiatre;2
+dep;47;Lot-et-Garonne;ensemble;Au moins une de ces structures;psychiatre;2
+dep;47;Lot-et-Garonne;ensemble;Au moins une de ces structures;psychologue;37
+dep;47;Lot-et-Garonne;ensemble;Au moins une de ces structures;psychomotricien;21
+dep;47;Lot-et-Garonne;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;2
+dep;48;Lozère;ensemble;Au moins une de ces structures;infirmier;2
+dep;48;Lozère;ensemble;Au moins une de ces structures;medecin_generaliste;1
+dep;48;Lozère;ensemble;Au moins une de ces structures;orthophoniste;2
+dep;48;Lozère;ensemble;Au moins une de ces structures;psychiatre;1
+dep;48;Lozère;ensemble;Au moins une de ces structures;psychologue;2
+dep;48;Lozère;ensemble;Au moins une de ces structures;psychomotricien;1
+dep;49;Maine-et-Loire;ensemble;Au moins une de ces structures;infirmier;2
+dep;49;Maine-et-Loire;ensemble;Au moins une de ces structures;medecin_generaliste;3
+dep;49;Maine-et-Loire;ensemble;Au moins une de ces structures;psychologue;4
+dep;49;Maine-et-Loire;ensemble;Au moins une de ces structures;psychomotricien;2
+dep;50;Manche;ensemble;Au moins une de ces structures;infirmier;5
+dep;50;Manche;ensemble;Au moins une de ces structures;medecin_generaliste;1
+dep;50;Manche;ensemble;Au moins une de ces structures;orthophoniste;21
+dep;50;Manche;ensemble;Au moins une de ces structures;psychiatre;1
+dep;50;Manche;ensemble;Au moins une de ces structures;psychologue;26
+dep;50;Manche;ensemble;Au moins une de ces structures;psychomotricien;16
+dep;51;Marne;ensemble;Au moins une de ces structures;ergotherapeute;3
+dep;51;Marne;ensemble;Au moins une de ces structures;infirmier;11
+dep;51;Marne;ensemble;Au moins une de ces structures;medecin_generaliste;8
+dep;51;Marne;ensemble;Au moins une de ces structures;orthophoniste;5
+dep;51;Marne;ensemble;Au moins une de ces structures;psychiatre;4
+dep;51;Marne;ensemble;Au moins une de ces structures;psychologue;15
+dep;51;Marne;ensemble;Au moins une de ces structures;psychomotricien;7
+dep;52;Haute-Marne;ensemble;Au moins une de ces structures;ergotherapeute;1
+dep;52;Haute-Marne;ensemble;Au moins une de ces structures;infirmier;6
+dep;52;Haute-Marne;ensemble;Au moins une de ces structures;medecin_generaliste;3
+dep;52;Haute-Marne;ensemble;Au moins une de ces structures;orthophoniste;4
+dep;52;Haute-Marne;ensemble;Au moins une de ces structures;psychologue;10
+dep;52;Haute-Marne;ensemble;Au moins une de ces structures;psychomotricien;8
+dep;53;Mayenne;ensemble;Au moins une de ces structures;infirmier;10
+dep;53;Mayenne;ensemble;Au moins une de ces structures;medecin_generaliste;1
+dep;53;Mayenne;ensemble;Au moins une de ces structures;orthophoniste;1
+dep;53;Mayenne;ensemble;Au moins une de ces structures;psychiatre;1
+dep;53;Mayenne;ensemble;Au moins une de ces structures;psychologue;13
+dep;53;Mayenne;ensemble;Au moins une de ces structures;psychomotricien;6
+dep;53;Mayenne;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;1
+dep;54;Meurthe-et-Moselle;ensemble;Au moins une de ces structures;ergotherapeute;8
+dep;54;Meurthe-et-Moselle;ensemble;Au moins une de ces structures;infirmier;6
+dep;54;Meurthe-et-Moselle;ensemble;Au moins une de ces structures;medecin_generaliste;1
+dep;54;Meurthe-et-Moselle;ensemble;Au moins une de ces structures;orthophoniste;20
+dep;54;Meurthe-et-Moselle;ensemble;Au moins une de ces structures;psychiatre;3
+dep;54;Meurthe-et-Moselle;ensemble;Au moins une de ces structures;psychologue;48
+dep;54;Meurthe-et-Moselle;ensemble;Au moins une de ces structures;psychomotricien;9
+dep;54;Meurthe-et-Moselle;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;1
+dep;55;Meuse;ensemble;Au moins une de ces structures;ergotherapeute;1
+dep;55;Meuse;ensemble;Au moins une de ces structures;infirmier;5
+dep;55;Meuse;ensemble;Au moins une de ces structures;medecin_generaliste;3
+dep;55;Meuse;ensemble;Au moins une de ces structures;orthophoniste;3
+dep;55;Meuse;ensemble;Au moins une de ces structures;psychiatre;1
+dep;55;Meuse;ensemble;Au moins une de ces structures;psychologue;20
+dep;55;Meuse;ensemble;Au moins une de ces structures;psychomotricien;5
+dep;55;Meuse;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;1
+dep;56;Morbihan;ensemble;Au moins une de ces structures;ergotherapeute;2
+dep;56;Morbihan;ensemble;Au moins une de ces structures;infirmier;11
+dep;56;Morbihan;ensemble;Au moins une de ces structures;medecin_generaliste;4
+dep;56;Morbihan;ensemble;Au moins une de ces structures;orthophoniste;13
+dep;56;Morbihan;ensemble;Au moins une de ces structures;psychiatre;5
+dep;56;Morbihan;ensemble;Au moins une de ces structures;psychologue;21
+dep;56;Morbihan;ensemble;Au moins une de ces structures;psychomotricien;14
+dep;57;Moselle;ensemble;Au moins une de ces structures;ergotherapeute;7
+dep;57;Moselle;ensemble;Au moins une de ces structures;infirmier;11
+dep;57;Moselle;ensemble;Au moins une de ces structures;medecin_generaliste;3
+dep;57;Moselle;ensemble;Au moins une de ces structures;orthophoniste;8
+dep;57;Moselle;ensemble;Au moins une de ces structures;psychiatre;5
+dep;57;Moselle;ensemble;Au moins une de ces structures;psychologue;45
+dep;57;Moselle;ensemble;Au moins une de ces structures;psychomotricien;12
+dep;57;Moselle;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;3
+dep;58;Nièvre;ensemble;Au moins une de ces structures;ergotherapeute;2
+dep;58;Nièvre;ensemble;Au moins une de ces structures;infirmier;10
+dep;58;Nièvre;ensemble;Au moins une de ces structures;medecin_generaliste;1
+dep;58;Nièvre;ensemble;Au moins une de ces structures;orthophoniste;12
+dep;58;Nièvre;ensemble;Au moins une de ces structures;pedopsychiatre;1
+dep;58;Nièvre;ensemble;Au moins une de ces structures;psychologue;26
+dep;58;Nièvre;ensemble;Au moins une de ces structures;psychomotricien;15
+dep;58;Nièvre;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;1
+dep;59;Nord;ensemble;Au moins une de ces structures;ergotherapeute;20
+dep;59;Nord;ensemble;Au moins une de ces structures;infirmier;90
+dep;59;Nord;ensemble;Au moins une de ces structures;medecin_generaliste;20
+dep;59;Nord;ensemble;Au moins une de ces structures;orthophoniste;74
+dep;59;Nord;ensemble;Au moins une de ces structures;pedopsychiatre;1
+dep;59;Nord;ensemble;Au moins une de ces structures;psychiatre;29
+dep;59;Nord;ensemble;Au moins une de ces structures;psychologue;125
+dep;59;Nord;ensemble;Au moins une de ces structures;psychomotricien;65
+dep;59;Nord;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;9
+dep;60;Oise;ensemble;Au moins une de ces structures;infirmier;29
+dep;60;Oise;ensemble;Au moins une de ces structures;medecin_generaliste;1
+dep;60;Oise;ensemble;Au moins une de ces structures;orthophoniste;13
+dep;60;Oise;ensemble;Au moins une de ces structures;pedopsychiatre;1
+dep;60;Oise;ensemble;Au moins une de ces structures;psychiatre;3
+dep;60;Oise;ensemble;Au moins une de ces structures;psychologue;71
+dep;60;Oise;ensemble;Au moins une de ces structures;psychomotricien;36
+dep;60;Oise;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;1
+dep;61;Orne;ensemble;Au moins une de ces structures;ergotherapeute;1
+dep;61;Orne;ensemble;Au moins une de ces structures;infirmier;9
+dep;61;Orne;ensemble;Au moins une de ces structures;medecin_generaliste;8
+dep;61;Orne;ensemble;Au moins une de ces structures;orthophoniste;6
+dep;61;Orne;ensemble;Au moins une de ces structures;psychiatre;2
+dep;61;Orne;ensemble;Au moins une de ces structures;psychologue;17
+dep;61;Orne;ensemble;Au moins une de ces structures;psychomotricien;9
+dep;61;Orne;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;1
+dep;62;Pas-de-Calais;ensemble;Au moins une de ces structures;ergotherapeute;13
+dep;62;Pas-de-Calais;ensemble;Au moins une de ces structures;infirmier;14
+dep;62;Pas-de-Calais;ensemble;Au moins une de ces structures;medecin_generaliste;5
+dep;62;Pas-de-Calais;ensemble;Au moins une de ces structures;orthophoniste;18
+dep;62;Pas-de-Calais;ensemble;Au moins une de ces structures;pedopsychiatre;3
+dep;62;Pas-de-Calais;ensemble;Au moins une de ces structures;psychiatre;8
+dep;62;Pas-de-Calais;ensemble;Au moins une de ces structures;psychologue;54
+dep;62;Pas-de-Calais;ensemble;Au moins une de ces structures;psychomotricien;41
+dep;62;Pas-de-Calais;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;4
+dep;63;Puy-de-Dôme;ensemble;Au moins une de ces structures;infirmier;2
+dep;63;Puy-de-Dôme;ensemble;Au moins une de ces structures;medecin_generaliste;4
+dep;63;Puy-de-Dôme;ensemble;Au moins une de ces structures;orthophoniste;8
+dep;63;Puy-de-Dôme;ensemble;Au moins une de ces structures;psychiatre;6
+dep;63;Puy-de-Dôme;ensemble;Au moins une de ces structures;psychologue;6
+dep;63;Puy-de-Dôme;ensemble;Au moins une de ces structures;psychomotricien;8
+dep;64;Pyrénées-Atlantiques;ensemble;Au moins une de ces structures;infirmier;42
+dep;64;Pyrénées-Atlantiques;ensemble;Au moins une de ces structures;medecin_generaliste;15
+dep;64;Pyrénées-Atlantiques;ensemble;Au moins une de ces structures;orthophoniste;11
+dep;64;Pyrénées-Atlantiques;ensemble;Au moins une de ces structures;psychiatre;9
+dep;64;Pyrénées-Atlantiques;ensemble;Au moins une de ces structures;psychologue;25
+dep;64;Pyrénées-Atlantiques;ensemble;Au moins une de ces structures;psychomotricien;14
+dep;64;Pyrénées-Atlantiques;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;2
+dep;65;Hautes-Pyrénées;ensemble;Au moins une de ces structures;infirmier;4
+dep;65;Hautes-Pyrénées;ensemble;Au moins une de ces structures;medecin_generaliste;5
+dep;65;Hautes-Pyrénées;ensemble;Au moins une de ces structures;orthophoniste;5
+dep;65;Hautes-Pyrénées;ensemble;Au moins une de ces structures;psychiatre;2
+dep;65;Hautes-Pyrénées;ensemble;Au moins une de ces structures;psychologue;22
+dep;65;Hautes-Pyrénées;ensemble;Au moins une de ces structures;psychomotricien;14
+dep;66;Pyrénées-Orientales;ensemble;Au moins une de ces structures;infirmier;3
+dep;66;Pyrénées-Orientales;ensemble;Au moins une de ces structures;medecin_generaliste;3
+dep;66;Pyrénées-Orientales;ensemble;Au moins une de ces structures;orthophoniste;9
+dep;66;Pyrénées-Orientales;ensemble;Au moins une de ces structures;pedopsychiatre;1
+dep;66;Pyrénées-Orientales;ensemble;Au moins une de ces structures;psychiatre;3
+dep;66;Pyrénées-Orientales;ensemble;Au moins une de ces structures;psychologue;8
+dep;66;Pyrénées-Orientales;ensemble;Au moins une de ces structures;psychomotricien;5
+dep;66;Pyrénées-Orientales;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;2
+dep;67;Bas-Rhin;ensemble;Au moins une de ces structures;ergotherapeute;3
+dep;67;Bas-Rhin;ensemble;Au moins une de ces structures;infirmier;249
+dep;67;Bas-Rhin;ensemble;Au moins une de ces structures;medecin_generaliste;19
+dep;67;Bas-Rhin;ensemble;Au moins une de ces structures;orthophoniste;20
+dep;67;Bas-Rhin;ensemble;Au moins une de ces structures;psychiatre;11
+dep;67;Bas-Rhin;ensemble;Au moins une de ces structures;psychologue;34
+dep;67;Bas-Rhin;ensemble;Au moins une de ces structures;psychomotricien;15
+dep;68;Haut-Rhin;ensemble;Au moins une de ces structures;ergotherapeute;9
+dep;68;Haut-Rhin;ensemble;Au moins une de ces structures;infirmier;12
+dep;68;Haut-Rhin;ensemble;Au moins une de ces structures;medecin_generaliste;6
+dep;68;Haut-Rhin;ensemble;Au moins une de ces structures;orthophoniste;12
+dep;68;Haut-Rhin;ensemble;Au moins une de ces structures;psychiatre;2
+dep;68;Haut-Rhin;ensemble;Au moins une de ces structures;psychologue;31
+dep;68;Haut-Rhin;ensemble;Au moins une de ces structures;psychomotricien;22
+dep;69;Rhône;ensemble;Au moins une de ces structures;ergotherapeute;5
+dep;69;Rhône;ensemble;Au moins une de ces structures;infirmier;61
+dep;69;Rhône;ensemble;Au moins une de ces structures;medecin_generaliste;18
+dep;69;Rhône;ensemble;Au moins une de ces structures;orthophoniste;24
+dep;69;Rhône;ensemble;Au moins une de ces structures;pedopsychiatre;1
+dep;69;Rhône;ensemble;Au moins une de ces structures;psychiatre;14
+dep;69;Rhône;ensemble;Au moins une de ces structures;psychologue;40
+dep;69;Rhône;ensemble;Au moins une de ces structures;psychomotricien;23
+dep;69;Rhône;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;3
+dep;70;Haute-Saône;ensemble;Au moins une de ces structures;infirmier;3
+dep;70;Haute-Saône;ensemble;Au moins une de ces structures;medecin_generaliste;1
+dep;70;Haute-Saône;ensemble;Au moins une de ces structures;orthophoniste;2
+dep;70;Haute-Saône;ensemble;Au moins une de ces structures;psychologue;9
+dep;70;Haute-Saône;ensemble;Au moins une de ces structures;psychomotricien;4
+dep;71;Saône-et-Loire;ensemble;Au moins une de ces structures;infirmier;3
+dep;71;Saône-et-Loire;ensemble;Au moins une de ces structures;orthophoniste;5
+dep;71;Saône-et-Loire;ensemble;Au moins une de ces structures;psychiatre;2
+dep;71;Saône-et-Loire;ensemble;Au moins une de ces structures;psychologue;9
+dep;71;Saône-et-Loire;ensemble;Au moins une de ces structures;psychomotricien;12
+dep;71;Saône-et-Loire;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;1
+dep;72;Sarthe;ensemble;Au moins une de ces structures;ergotherapeute;4
+dep;72;Sarthe;ensemble;Au moins une de ces structures;infirmier;10
+dep;72;Sarthe;ensemble;Au moins une de ces structures;medecin_generaliste;5
+dep;72;Sarthe;ensemble;Au moins une de ces structures;orthophoniste;3
+dep;72;Sarthe;ensemble;Au moins une de ces structures;psychologue;22
+dep;72;Sarthe;ensemble;Au moins une de ces structures;psychomotricien;8
+dep;73;Savoie;ensemble;Au moins une de ces structures;ergotherapeute;1
+dep;73;Savoie;ensemble;Au moins une de ces structures;infirmier;6
+dep;73;Savoie;ensemble;Au moins une de ces structures;medecin_generaliste;4
+dep;73;Savoie;ensemble;Au moins une de ces structures;orthophoniste;4
+dep;73;Savoie;ensemble;Au moins une de ces structures;psychologue;12
+dep;73;Savoie;ensemble;Au moins une de ces structures;psychomotricien;8
+dep;74;Haute-Savoie;ensemble;Au moins une de ces structures;ergotherapeute;6
+dep;74;Haute-Savoie;ensemble;Au moins une de ces structures;infirmier;20
+dep;74;Haute-Savoie;ensemble;Au moins une de ces structures;medecin_generaliste;7
+dep;74;Haute-Savoie;ensemble;Au moins une de ces structures;orthophoniste;8
+dep;74;Haute-Savoie;ensemble;Au moins une de ces structures;psychiatre;4
+dep;74;Haute-Savoie;ensemble;Au moins une de ces structures;psychologue;35
+dep;74;Haute-Savoie;ensemble;Au moins une de ces structures;psychomotricien;17
+dep;75;Paris;ensemble;Au moins une de ces structures;ergotherapeute;9
+dep;75;Paris;ensemble;Au moins une de ces structures;infirmier;71
+dep;75;Paris;ensemble;Au moins une de ces structures;medecin_generaliste;36
+dep;75;Paris;ensemble;Au moins une de ces structures;orthophoniste;56
+dep;75;Paris;ensemble;Au moins une de ces structures;pedopsychiatre;5
+dep;75;Paris;ensemble;Au moins une de ces structures;psychiatre;110
+dep;75;Paris;ensemble;Au moins une de ces structures;psychologue;214
+dep;75;Paris;ensemble;Au moins une de ces structures;psychomotricien;51
+dep;75;Paris;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;24
+dep;76;Seine-Maritime;ensemble;Au moins une de ces structures;ergotherapeute;3
+dep;76;Seine-Maritime;ensemble;Au moins une de ces structures;infirmier;13
+dep;76;Seine-Maritime;ensemble;Au moins une de ces structures;medecin_generaliste;15
+dep;76;Seine-Maritime;ensemble;Au moins une de ces structures;orthophoniste;35
+dep;76;Seine-Maritime;ensemble;Au moins une de ces structures;psychiatre;4
+dep;76;Seine-Maritime;ensemble;Au moins une de ces structures;psychologue;66
+dep;76;Seine-Maritime;ensemble;Au moins une de ces structures;psychomotricien;27
+dep;76;Seine-Maritime;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;2
+dep;77;Seine-et-Marne;ensemble;Au moins une de ces structures;ergotherapeute;1
+dep;77;Seine-et-Marne;ensemble;Au moins une de ces structures;infirmier;25
+dep;77;Seine-et-Marne;ensemble;Au moins une de ces structures;medecin_generaliste;3
+dep;77;Seine-et-Marne;ensemble;Au moins une de ces structures;orthophoniste;7
+dep;77;Seine-et-Marne;ensemble;Au moins une de ces structures;psychiatre;6
+dep;77;Seine-et-Marne;ensemble;Au moins une de ces structures;psychologue;34
+dep;77;Seine-et-Marne;ensemble;Au moins une de ces structures;psychomotricien;20
+dep;77;Seine-et-Marne;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;1
+dep;78;Yvelines;ensemble;Au moins une de ces structures;ergotherapeute;2
+dep;78;Yvelines;ensemble;Au moins une de ces structures;infirmier;11
+dep;78;Yvelines;ensemble;Au moins une de ces structures;medecin_generaliste;5
+dep;78;Yvelines;ensemble;Au moins une de ces structures;orthophoniste;35
+dep;78;Yvelines;ensemble;Au moins une de ces structures;pedopsychiatre;1
+dep;78;Yvelines;ensemble;Au moins une de ces structures;psychiatre;14
+dep;78;Yvelines;ensemble;Au moins une de ces structures;psychologue;96
+dep;78;Yvelines;ensemble;Au moins une de ces structures;psychomotricien;33
+dep;78;Yvelines;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;5
+dep;79;Deux-Sèvres;ensemble;Au moins une de ces structures;infirmier;8
+dep;79;Deux-Sèvres;ensemble;Au moins une de ces structures;medecin_generaliste;2
+dep;79;Deux-Sèvres;ensemble;Au moins une de ces structures;orthophoniste;9
+dep;79;Deux-Sèvres;ensemble;Au moins une de ces structures;psychiatre;1
+dep;79;Deux-Sèvres;ensemble;Au moins une de ces structures;psychologue;22
+dep;79;Deux-Sèvres;ensemble;Au moins une de ces structures;psychomotricien;10
+dep;80;Somme;ensemble;Au moins une de ces structures;infirmier;150
+dep;80;Somme;ensemble;Au moins une de ces structures;medecin_generaliste;3
+dep;80;Somme;ensemble;Au moins une de ces structures;orthophoniste;7
+dep;80;Somme;ensemble;Au moins une de ces structures;psychiatre;2
+dep;80;Somme;ensemble;Au moins une de ces structures;psychologue;14
+dep;80;Somme;ensemble;Au moins une de ces structures;psychomotricien;7
+dep;81;Tarn;ensemble;Au moins une de ces structures;ergotherapeute;2
+dep;81;Tarn;ensemble;Au moins une de ces structures;infirmier;13
+dep;81;Tarn;ensemble;Au moins une de ces structures;medecin_generaliste;3
+dep;81;Tarn;ensemble;Au moins une de ces structures;orthophoniste;8
+dep;81;Tarn;ensemble;Au moins une de ces structures;psychiatre;4
+dep;81;Tarn;ensemble;Au moins une de ces structures;psychologue;19
+dep;81;Tarn;ensemble;Au moins une de ces structures;psychomotricien;7
+dep;81;Tarn;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;2
+dep;82;Tarn-et-Garonne;ensemble;Au moins une de ces structures;infirmier;62
+dep;82;Tarn-et-Garonne;ensemble;Au moins une de ces structures;medecin_generaliste;2
+dep;82;Tarn-et-Garonne;ensemble;Au moins une de ces structures;orthophoniste;8
+dep;82;Tarn-et-Garonne;ensemble;Au moins une de ces structures;psychiatre;2
+dep;82;Tarn-et-Garonne;ensemble;Au moins une de ces structures;psychologue;15
+dep;82;Tarn-et-Garonne;ensemble;Au moins une de ces structures;psychomotricien;10
+dep;83;Var;ensemble;Au moins une de ces structures;infirmier;9
+dep;83;Var;ensemble;Au moins une de ces structures;medecin_generaliste;5
+dep;83;Var;ensemble;Au moins une de ces structures;orthophoniste;6
+dep;83;Var;ensemble;Au moins une de ces structures;psychiatre;3
+dep;83;Var;ensemble;Au moins une de ces structures;psychologue;15
+dep;83;Var;ensemble;Au moins une de ces structures;psychomotricien;17
+dep;83;Var;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;1
+dep;84;Vaucluse;ensemble;Au moins une de ces structures;ergotherapeute;1
+dep;84;Vaucluse;ensemble;Au moins une de ces structures;infirmier;8
+dep;84;Vaucluse;ensemble;Au moins une de ces structures;medecin_generaliste;2
+dep;84;Vaucluse;ensemble;Au moins une de ces structures;orthophoniste;3
+dep;84;Vaucluse;ensemble;Au moins une de ces structures;psychiatre;1
+dep;84;Vaucluse;ensemble;Au moins une de ces structures;psychologue;13
+dep;84;Vaucluse;ensemble;Au moins une de ces structures;psychomotricien;9
+dep;84;Vaucluse;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;1
+dep;85;Vendée;ensemble;Au moins une de ces structures;infirmier;5
+dep;85;Vendée;ensemble;Au moins une de ces structures;medecin_generaliste;1
+dep;85;Vendée;ensemble;Au moins une de ces structures;orthophoniste;4
+dep;85;Vendée;ensemble;Au moins une de ces structures;psychiatre;2
+dep;85;Vendée;ensemble;Au moins une de ces structures;psychologue;13
+dep;85;Vendée;ensemble;Au moins une de ces structures;psychomotricien;6
+dep;85;Vendée;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;1
+dep;86;Vienne;ensemble;Au moins une de ces structures;ergotherapeute;2
+dep;86;Vienne;ensemble;Au moins une de ces structures;infirmier;7
+dep;86;Vienne;ensemble;Au moins une de ces structures;medecin_generaliste;2
+dep;86;Vienne;ensemble;Au moins une de ces structures;orthophoniste;6
+dep;86;Vienne;ensemble;Au moins une de ces structures;psychiatre;6
+dep;86;Vienne;ensemble;Au moins une de ces structures;psychologue;12
+dep;86;Vienne;ensemble;Au moins une de ces structures;psychomotricien;8
+dep;86;Vienne;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;2
+dep;87;Haute-Vienne;ensemble;Au moins une de ces structures;infirmier;2
+dep;87;Haute-Vienne;ensemble;Au moins une de ces structures;medecin_generaliste;2
+dep;87;Haute-Vienne;ensemble;Au moins une de ces structures;orthophoniste;11
+dep;87;Haute-Vienne;ensemble;Au moins une de ces structures;psychiatre;6
+dep;87;Haute-Vienne;ensemble;Au moins une de ces structures;psychologue;17
+dep;87;Haute-Vienne;ensemble;Au moins une de ces structures;psychomotricien;19
+dep;87;Haute-Vienne;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;4
+dep;88;Vosges;ensemble;Au moins une de ces structures;infirmier;10
+dep;88;Vosges;ensemble;Au moins une de ces structures;medecin_generaliste;5
+dep;88;Vosges;ensemble;Au moins une de ces structures;orthophoniste;1
+dep;88;Vosges;ensemble;Au moins une de ces structures;psychiatre;2
+dep;88;Vosges;ensemble;Au moins une de ces structures;psychologue;5
+dep;88;Vosges;ensemble;Au moins une de ces structures;psychomotricien;2
+dep;89;Yonne;ensemble;Au moins une de ces structures;ergotherapeute;2
+dep;89;Yonne;ensemble;Au moins une de ces structures;infirmier;10
+dep;89;Yonne;ensemble;Au moins une de ces structures;medecin_generaliste;3
+dep;89;Yonne;ensemble;Au moins une de ces structures;orthophoniste;2
+dep;89;Yonne;ensemble;Au moins une de ces structures;psychiatre;2
+dep;89;Yonne;ensemble;Au moins une de ces structures;psychologue;15
+dep;89;Yonne;ensemble;Au moins une de ces structures;psychomotricien;6
+dep;90;Territoire de Belfort;ensemble;Au moins une de ces structures;infirmier;1
+dep;90;Territoire de Belfort;ensemble;Au moins une de ces structures;medecin_generaliste;2
+dep;90;Territoire de Belfort;ensemble;Au moins une de ces structures;orthophoniste;6
+dep;90;Territoire de Belfort;ensemble;Au moins une de ces structures;psychologue;8
+dep;90;Territoire de Belfort;ensemble;Au moins une de ces structures;psychomotricien;8
+dep;91;Essonne;ensemble;Au moins une de ces structures;infirmier;10
+dep;91;Essonne;ensemble;Au moins une de ces structures;medecin_generaliste;4
+dep;91;Essonne;ensemble;Au moins une de ces structures;orthophoniste;39
+dep;91;Essonne;ensemble;Au moins une de ces structures;pedopsychiatre;3
+dep;91;Essonne;ensemble;Au moins une de ces structures;psychiatre;14
+dep;91;Essonne;ensemble;Au moins une de ces structures;psychologue;106
+dep;91;Essonne;ensemble;Au moins une de ces structures;psychomotricien;31
+dep;91;Essonne;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;7
+dep;92;Hauts-de-Seine;ensemble;Au moins une de ces structures;infirmier;5
+dep;92;Hauts-de-Seine;ensemble;Au moins une de ces structures;medecin_generaliste;10
+dep;92;Hauts-de-Seine;ensemble;Au moins une de ces structures;orthophoniste;16
+dep;92;Hauts-de-Seine;ensemble;Au moins une de ces structures;pedopsychiatre;2
+dep;92;Hauts-de-Seine;ensemble;Au moins une de ces structures;psychiatre;27
+dep;92;Hauts-de-Seine;ensemble;Au moins une de ces structures;psychologue;64
+dep;92;Hauts-de-Seine;ensemble;Au moins une de ces structures;psychomotricien;24
+dep;92;Hauts-de-Seine;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;11
+dep;93;Seine-Saint-Denis;ensemble;Au moins une de ces structures;ergotherapeute;2
+dep;93;Seine-Saint-Denis;ensemble;Au moins une de ces structures;infirmier;185
+dep;93;Seine-Saint-Denis;ensemble;Au moins une de ces structures;medecin_generaliste;4
+dep;93;Seine-Saint-Denis;ensemble;Au moins une de ces structures;orthophoniste;20
+dep;93;Seine-Saint-Denis;ensemble;Au moins une de ces structures;pedopsychiatre;2
+dep;93;Seine-Saint-Denis;ensemble;Au moins une de ces structures;psychiatre;13
+dep;93;Seine-Saint-Denis;ensemble;Au moins une de ces structures;psychologue;77
+dep;93;Seine-Saint-Denis;ensemble;Au moins une de ces structures;psychomotricien;36
+dep;93;Seine-Saint-Denis;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;3
+dep;94;Val-de-Marne;ensemble;Au moins une de ces structures;ergotherapeute;2
+dep;94;Val-de-Marne;ensemble;Au moins une de ces structures;infirmier;54
+dep;94;Val-de-Marne;ensemble;Au moins une de ces structures;medecin_generaliste;3
+dep;94;Val-de-Marne;ensemble;Au moins une de ces structures;orthophoniste;22
+dep;94;Val-de-Marne;ensemble;Au moins une de ces structures;pedopsychiatre;1
+dep;94;Val-de-Marne;ensemble;Au moins une de ces structures;psychiatre;13
+dep;94;Val-de-Marne;ensemble;Au moins une de ces structures;psychologue;86
+dep;94;Val-de-Marne;ensemble;Au moins une de ces structures;psychomotricien;35
+dep;94;Val-de-Marne;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;2
+dep;95;Val-d'Oise;ensemble;Au moins une de ces structures;ergotherapeute;1
+dep;95;Val-d'Oise;ensemble;Au moins une de ces structures;infirmier;13
+dep;95;Val-d'Oise;ensemble;Au moins une de ces structures;medecin_generaliste;3
+dep;95;Val-d'Oise;ensemble;Au moins une de ces structures;orthophoniste;13
+dep;95;Val-d'Oise;ensemble;Au moins une de ces structures;pedopsychiatre;1
+dep;95;Val-d'Oise;ensemble;Au moins une de ces structures;psychiatre;6
+dep;95;Val-d'Oise;ensemble;Au moins une de ces structures;psychologue;46
+dep;95;Val-d'Oise;ensemble;Au moins une de ces structures;psychomotricien;31
+dep;95;Val-d'Oise;ensemble;Au moins une de ces structures;q_psychiatrie_enfant;2
+dep;971;Guadeloupe;ensemble;Au moins une de ces structures;infirmier;3
+dep;971;Guadeloupe;ensemble;Au moins une de ces structures;medecin_generaliste;2
+dep;971;Guadeloupe;ensemble;Au moins une de ces structures;orthophoniste;8
+dep;971;Guadeloupe;ensemble;Au moins une de ces structures;psychiatre;5
+dep;971;Guadeloupe;ensemble;Au moins une de ces structures;psychologue;21
+dep;971;Guadeloupe;ensemble;Au moins une de ces structures;psychomotricien;23
+dep;972;Martinique;ensemble;Au moins une de ces structures;infirmier;7
+dep;972;Martinique;ensemble;Au moins une de ces structures;medecin_generaliste;1
+dep;972;Martinique;ensemble;Au moins une de ces structures;orthophoniste;6
+dep;972;Martinique;ensemble;Au moins une de ces structures;psychologue;7
+dep;972;Martinique;ensemble;Au moins une de ces structures;psychomotricien;5
+dep;973;Guyane;ensemble;Au moins une de ces structures;ergotherapeute;1
+dep;973;Guyane;ensemble;Au moins une de ces structures;infirmier;2
+dep;973;Guyane;ensemble;Au moins une de ces structures;medecin_generaliste;1
+dep;973;Guyane;ensemble;Au moins une de ces structures;orthophoniste;1
+dep;973;Guyane;ensemble;Au moins une de ces structures;psychologue;13
+dep;973;Guyane;ensemble;Au moins une de ces structures;psychomotricien;5
+dep;974;La Réunion;ensemble;Au moins une de ces structures;ergotherapeute;7
+dep;974;La Réunion;ensemble;Au moins une de ces structures;infirmier;18
+dep;974;La Réunion;ensemble;Au moins une de ces structures;medecin_generaliste;3
+dep;974;La Réunion;ensemble;Au moins une de ces structures;orthophoniste;15
+dep;974;La Réunion;ensemble;Au moins une de ces structures;psychiatre;3
+dep;974;La Réunion;ensemble;Au moins une de ces structures;psychologue;30
+dep;974;La Réunion;ensemble;Au moins une de ces structures;psychomotricien;34
+dep;976;Mayotte;ensemble;Au moins une de ces structures;medecin_generaliste;1
+dep;976;Mayotte;ensemble;Au moins une de ces structures;psychologue;1

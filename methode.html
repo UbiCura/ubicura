@@ -1,0 +1,737 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Méthode, données et limites · Ubi Cura</title>
+<meta name="description" content="Offre de soins et de santé mentale en France, par territoire, à partir des données publiques.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%231D4D87%22/%3E%3Crect%20x%3D%227%22%20y%3D%2217%22%20width%3D%224.5%22%20height%3D%228%22%20rx%3D%221%22%20fill%3D%22%23B39BCB%22/%3E%3Crect%20x%3D%2213.75%22%20y%3D%2212%22%20width%3D%224.5%22%20height%3D%2213%22%20rx%3D%221%22%20fill%3D%22%23D4C3EA%22/%3E%3Crect%20x%3D%2220.5%22%20y%3D%227%22%20width%3D%224.5%22%20height%3D%2218%22%20rx%3D%221%22%20fill%3D%22%23FFFFFF%22/%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="Ubi Cura">
+<meta property="og:title" content="Méthode, données et limites">
+<meta property="og:description" content="Offre de soins et de santé mentale en France, par territoire, à partir des données publiques.">
+<meta name="theme-color" content="#15171C">
+<link rel="stylesheet" href="polices/polices.css">
+<link rel="stylesheet" href="style.css?v=9b85e8c7dc">
+<script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||"dark")}catch(e){document.documentElement.setAttribute("data-theme","dark")}</script>
+<!-- referencement --><link rel="canonical" href="https://ubicura.fr/methode.html"><meta property="og:url" content="https://ubicura.fr/methode.html"><meta property="og:image" content="https://ubicura.fr/apercu.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Carte des départements de France, densité de psychiatres comparée à la moyenne des départements"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image:alt" content="Carte des départements de France, densité de psychiatres comparée à la moyenne des départements">
+</head>
+<body>
+<nav class="site" aria-label="Navigation du site">
+  <div class="in">
+    <a class="marque" href="index.html" title="Offre de soins et santé mentale en France, territoire par territoire">Ubi Cura</a>
+    <button class="menu" id="bouton-menu" type="button" aria-expanded="false" aria-controls="liens-site">Menu</button>
+    <div class="liens" id="liens-site">
+    <a class="l" href="index.html">Atlas</a>
+    <a class="l" href="explorer.html">Explorer</a>
+    <a class="l" href="rapports.html">Rapports nationaux</a>
+    <a class="l" href="territoires/index.html">Rapports par territoire</a>
+    <a class="l on" href="methode.html">Méthode, données et limites</a>
+    
+    <div class="projet">
+      <button class="l" id="bouton-projet" type="button" aria-expanded="false" aria-controls="menu-projet">Le projet <span class="fleche" aria-hidden="true">▾</span></button>
+      <div class="sous-menu" id="menu-projet" hidden>
+        <a href="a-propos.html">À propos</a>
+        <a href="publications.html">Publications</a>
+        <a href="journal.html">Journal des mises à jour</a>
+        <a href="a-venir.html">À venir</a>
+        <a href="contribuer.html">Proposer une base de données</a>
+        
+      </div>
+    </div>
+    <button class="theme" id="bascule-theme" type="button" aria-pressed="false">Fond clair</button>
+    </div>
+  </div>
+</nav>
+<script>
+// menu « Le projet », ouvert au clic ou au clavier, fermé par Échap ou par un clic ailleurs
+(function(){var b=document.getElementById("bouton-projet"),m=document.getElementById("menu-projet");if(!b||!m)return;
+function ouvrir(o,focus){m.hidden=!o;b.setAttribute("aria-expanded",String(o));if(o&&focus){var a=m.querySelector("a");if(a)a.focus()}}
+b.addEventListener("click",function(){ouvrir(m.hidden,false)});
+b.addEventListener("keydown",function(e){if(e.key==="ArrowDown"){e.preventDefault();ouvrir(true,true)}});
+m.addEventListener("keydown",function(e){var l=[].slice.call(m.querySelectorAll("a")),i=l.indexOf(document.activeElement);
+  if(e.key==="ArrowDown"){e.preventDefault();l[(i+1)%l.length].focus()}else if(e.key==="ArrowUp"){e.preventDefault();l[(i-1+l.length)%l.length].focus()}});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!m.hidden){ouvrir(false);b.focus()}});
+document.addEventListener("click",function(e){if(!m.hidden&&!b.parentNode.contains(e.target))ouvrir(false)})})();
+// téléphone, liens du site repliés derrière « Menu » (audit du 22 octobre 2026) ; sommaire d'une page replié derrière
+// « Sommaire », ouvert au clic, refermé quand on choisit une section
+(function(){var b=document.getElementById("bouton-menu"),n=b&&b.closest("nav.site");if(!b)return;
+b.addEventListener("click",function(){var o=!n.classList.contains("ouvert");n.classList.toggle("ouvert",o);b.setAttribute("aria-expanded",String(o))})})();
+document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll("aside.sommaire").forEach(function(a){
+  if(!a.querySelector("ul"))return;var t=document.createElement("button");t.type="button";t.className="bouton-sommaire";
+  t.setAttribute("aria-expanded","false");t.textContent="Sommaire";a.insertBefore(t,a.firstChild);
+  t.addEventListener("click",function(){var o=!a.classList.contains("ouvert");a.classList.toggle("ouvert",o);t.setAttribute("aria-expanded",String(o))});
+  a.addEventListener("click",function(e){if(e.target.closest("a")){a.classList.remove("ouvert");t.setAttribute("aria-expanded","false")}})})});
+(function(){var b=document.getElementById("bascule-theme"),r=document.documentElement;
+function maj(){var c=r.getAttribute("data-theme")==="light";b.textContent=c?"Fond sombre":"Fond clair";b.setAttribute("aria-pressed",String(c))}
+maj();b.addEventListener("click",function(){var t=r.getAttribute("data-theme")==="light"?"dark":"light";r.setAttribute("data-theme",t);
+try{localStorage.setItem("theme",t)}catch(e){}maj();window.dispatchEvent(new Event("theme"))})})();
+</script>
+<main class="" data-citation-page="Pithon L. (2026). Méthode, données et limites. Ubi Cura, version du 30 octobre 2026" data-adresse="https://ubicura.fr">
+
+<h1>Méthode, données et limites</h1>
+<p class="chapeau">Comment les chiffres sont produits, d&#39;où ils viennent, ce qu&#39;ils ne disent pas, comment les vérifier et les réutiliser. Les structures de soins, les indicateurs, les contrôles et les fichiers ont chacun leur page.</p>
+<div class="rapport">
+<aside class="sommaire" aria-label="Sommaire de la méthode">
+<ul>
+<li><a href="methode.html" aria-current="page" class="actif">Vue d&#39;ensemble</a>
+<ul><li><a href="#methode">Comment les chiffres sont établis</a></li><li><a href="#limites">Limites connues des données</a></li><li><a href="#sources">Sources</a></li><li><a href="#origine">D&#39;où vient chaque chiffre</a></li><li><a href="#inscrits">Inscrits sans activité déclarée</a></li><li><a href="#suivi">Suivi dans le temps</a></li><li><a href="#logiciels">Logiciels et reproductibilité</a></li><li><a href="#libelles">Noms des établissements</a></li><li><a href="#licences">Licences et conditions de réutilisation</a></li></ul></li>
+<li><a href="methode-structures.html">Structures de soins</a>
+</li>
+<li><a href="methode-indicateurs.html">Indicateurs du profil des territoires</a>
+</li>
+<li><a href="methode-controles.html">Contrôles et concordance</a>
+</li>
+<li><a href="methode-fichiers.html">Fichiers à télécharger</a>
+</li>
+</ul>
+</aside>
+<div class="methode">
+
+
+<h2 id="methode">Comment les chiffres sont établis</h2>
+<p>Les chiffres proviennent des bases publiques listées plus bas. Les professionnels sont comptés par territoire, puis ces effectifs sont rapprochés du profil des habitants. Un professionnel est compté une fois par territoire où il déclare exercer, et une seule fois pour la France entière. Les analyses portent sur des territoires (communes, intercommunalités, départements, régions), jamais sur des personnes. Les résultats ne contiennent que des comptages, aucun nom ni identifiant de professionnel.</p>
+<p>Les données couvrent tous les professionnels inscrits au répertoire, pas un échantillon. Les tests statistiques sont donc indicatifs, et chaque résultat est accompagné d'une mesure de sa force et de son incertitude. Les liens entre territoires ne disent rien d'une cause.</p>
+
+
+<h2 id="limites">Limites connues des données</h2>
+<p>Certaines données sont incomplètes ou sous-déclarées. Chaque limite est rappelée là où la donnée est montrée, avec la source qui l'établit. Les voici réunies.</p>
+<div class="defile"><table class="simple limites">
+<thead><tr><th>Donnée</th><th>Nature de la limite</th><th>Ce qu'il faut savoir</th><th>Source</th></tr></thead>
+<tbody>
+<tr><td>Décès par suicide</td><td>sous-déclaration</td><td>Les décès par suicide sont sous-déclarés. Les décès de cause inconnue ou d&#39;intention indéterminée ne sont pas comptés, et une partie des conclusions d&#39;autopsie ne remontent pas. Pour les décès de 2006, la sous-estimation était évaluée à 9,4 % en France métropolitaine, 22 % en Rhône-Alpes et 46 % en Île-de-France. Santé publique France demande de lire les écarts entre départements avec prudence.</td><td><a href="https://www.santepubliquefrance.fr/regions-et-territoires/ile-de-france/bulletin-regional/conduites-suicidaires-en-ile-de-france-bilan-2024">Santé publique France, Conduites suicidaires en Île-de-France, bilan 2024</a><br>
+<a href="https://drees.solidarites-sante.gouv.fr/sites/default/files/2022-09/Fiche%2014%20-%20Donn%C3%A9es%20%C3%A9pid%C3%A9miologiques%20sur%20les%20d%C3%A9c%C3%A8s%20par%20suicide%20en%20France%20en%202017.pdf">Observatoire national du suicide, 5e rapport, fiche 14 (DREES)</a>
+</td></tr>
+<tr><td>Hospitalisations pour geste auto-infligé</td><td>champ incomplet</td><td>Seuls les séjours en hôpital de médecine, chirurgie et obstétrique sont comptés. Les séjours en établissement psychiatrique ne le sont pas.</td><td><a href="https://www.santepubliquefrance.fr/regions-et-territoires/ile-de-france/bulletin-regional/conduites-suicidaires-en-ile-de-france-bilan-2024">Santé publique France, Conduites suicidaires en Île-de-France, bilan 2024</a>
+</td></tr>
+<tr><td>Passages aux urgences pour geste auto-infligé</td><td>sous-déclaration</td><td>Seuls les services d&#39;urgences générales qui transmettent leurs données sont comptés, et le geste n&#39;est pas toujours identifié à l&#39;accueil, d&#39;où une sous-estimation probable. En Provence-Alpes-Côte d&#39;Azur et en Corse, un défaut de logiciel a sous-estimé ces passages de 2022 à avril 2024.</td><td><a href="https://www.santepubliquefrance.fr/regions-et-territoires/ile-de-france/bulletin-regional/conduites-suicidaires-en-ile-de-france-bilan-2024">Santé publique France, Conduites suicidaires en Île-de-France, bilan 2024</a>
+</td></tr>
+<tr><td>Infirmiers</td><td>sous-enregistrement</td><td>Beaucoup d&#39;infirmiers, surtout salariés, ne sont pas encore inscrits au RPPS malgré l&#39;obligation. Leurs effectifs sont donc sous-estimés ici, la DREES les compte à partir d&#39;autres sources.</td><td><a href="https://drees.solidarites-sante.gouv.fr/communique-de-presse-jeux-de-donnees/jeux-de-donnees/250325_DATA_d%C3%A9mographie-infirmieres-aides-soignantes-donnees">DREES, démographie des infirmières et des aides-soignantes, données détaillées (mars 2025)</a>
+</td></tr>
+<tr><td>Mayotte</td><td>données incomplètes</td><td>À Mayotte, la population de référence est celle du recensement de 2017 (256 518 habitants). Le recensement exhaustif mené fin 2025 en compte 323 153 au 1er janvier 2026, soit environ un quart de plus. Les densités de Mayotte sont donc surestimées d&#39;autant. Les données de l&#39;Assurance Maladie y sont partielles et celles de la CAF absentes. Mayotte est écartée des croisements entre départements.</td><td><a href="https://www.insee.fr/fr/information/9022279">INSEE, au 1er janvier 2026 la population de Mayotte est de 323 153 habitants</a>
+</td></tr>
+<tr><td>Psychiatres, lieu d&#39;exercice</td><td>lieu déclaré</td><td>Le répertoire situe chaque psychiatre à l&#39;adresse de la structure où il déclare exercer. La plupart des centres médico-psychologiques (CMP) n&#39;ont aucun psychiatre déclaré à leur adresse, les consultations y sont rattachées à l&#39;établissement dont ils dépendent. Un territoire sans psychiatre déclaré peut donc accueillir des consultations de psychiatrie. Le nombre de CMP de chaque territoire, recensés par FINESS et le ROR réunis sans double compte, est donné à côté.</td><td><a href="https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps">Annuaire santé, extractions en libre accès du RPPS (data.gouv)</a><br>
+<a href="https://www.data.gouv.fr/datasets/finess-structures-1">FINESS, établissements sanitaires et médico-sociaux (Finess+, data.gouv)</a><br>
+<a href="https://www.data.gouv.fr/datasets/offres-de-sante-sanitaire-medico-social-et-de-ville-en-france-metropolitaine-et-drom-1">Agence du numérique en santé, offres de santé du Répertoire opérationnel des ressources (data.gouv)</a>
+</td></tr>
+<tr><td>Pédopsychiatres, définition</td><td>définition étroite</td><td>La spécialité « pédopsychiatrie » déclarée au répertoire ne concerne qu&#39;une partie des médecins qui soignent des enfants et des adolescents. La plupart sont inscrits comme psychiatres, avec une qualification pour l&#39;enfant obtenue par une autre voie. La Cour des comptes comptait 545 pédopsychiatres au sens strict en 2021, et environ 2 000 en ajoutant les psychiatres qualifiés pour l&#39;enfant. Un territoire sans pédopsychiatre déclaré comme tel peut donc compter des psychiatres qui soignent des enfants. Le nombre de psychiatres qualifiés pour l&#39;enfant et l&#39;adolescent, toutes voies, est donné à côté. Comme les psychiatres, ils consultent aussi dans des structures où ils ne sont pas déclarés, rattachées à un hôpital ou à une association, CMP pour enfants et adolescents, centres médico-psycho-pédagogiques (CMPP) ou centres d&#39;action médico-sociale précoce (CAMSP). Un territoire sans pédopsychiatre déclaré peut donc accueillir des consultations pour enfants. Ces lieux, recensés par FINESS et le ROR réunis sans double compte, sont donnés à côté.</td><td><a href="https://www.ccomptes.fr/fr/publications/la-pedopsychiatrie">Cour des comptes, la pédopsychiatrie, un accès et une offre de soins à réorganiser, mars 2023</a><br>
+<a href="https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps">Annuaire santé, extractions en libre accès du RPPS (data.gouv)</a><br>
+<a href="https://www.data.gouv.fr/datasets/finess-structures-1">FINESS, établissements sanitaires et médico-sociaux (Finess+, data.gouv)</a><br>
+<a href="https://www.data.gouv.fr/datasets/offres-de-sante-sanitaire-medico-social-et-de-ville-en-france-metropolitaine-et-drom-1">Agence du numérique en santé, offres de santé du Répertoire opérationnel des ressources (data.gouv)</a>
+</td></tr>
+<tr><td>Structures de soins, FINESS et ROR réunis</td><td>recensement incomplet</td><td>Les structures de soins réunissent FINESS et le Répertoire opérationnel des ressources (ROR), rapprochés par le numéro FINESS d&#39;établissement, l&#39;entité juridique gestionnaire et la commune, puis par le nom, pour qu&#39;une même structure ne compte qu&#39;une fois. Ni l&#39;une ni l&#39;autre base n&#39;est complète. FINESS enregistre souvent un CMP sous le numéro de son hôpital, et le ROR est rempli par les établissements eux-mêmes, avec une complétude inégale selon les régions et des catégories parfois approximatives (équipes mobiles rangées parmi les CMP, unités sans catégorie). Ces erreurs de classement sont corrigées par des règles appliquées à toute la France, décrites et chiffrées dans la page méthode. Certaines structures manquent aux deux bases, par exemple deux CMP de Martinique cités par l&#39;ARS en 2018, ou des CMP listés sur le site de leur hôpital (voir les vérifications sur d&#39;autres sources). Une structure n&#39;est pas une capacité, une antenne peut n&#39;ouvrir que quelques demi-journées. Un CATTP est compté comme FINESS et la statistique annuelle des établissements de santé le comptent, un lieu où l&#39;hôpital déclare cette activité, souvent tenue dans un CMP ou un centre de jour qui porte un autre nom. Quand un CMP annonce un CATTP dans son nom ou son enseigne (« CMP-CATTP ») et que son gestionnaire n&#39;en a pas d&#39;autre dans la commune, un CATTP est compté au même lieu. Les professionnels déclarés sur place viennent du RPPS, beaucoup déclarent leur hôpital de rattachement plutôt que le lieu où ils consultent. Les distances sont mesurées à vol d&#39;oiseau depuis le centre de la population de chaque commune, moyenne de ses carreaux de 200 mètres habités pondérée par leurs habitants (INSEE, Filosofi 2019), point qui peut tomber entre deux bourgs d&#39;une même commune. Les carreaux ne couvrent ni la Guadeloupe, ni la Guyane, ni Mayotte, où les distances partent du chef-lieu de la commune dans la Base Adresse Nationale. L&#39;emplacement d&#39;une structure sans coordonnées connues est le centre de sa commune. Un type recensé dans moins de 90 % des départements est listé, mais pas comparé entre territoires.</td><td><a href="https://www.data.gouv.fr/datasets/offres-de-sante-sanitaire-medico-social-et-de-ville-en-france-metropolitaine-et-drom-1">Agence du numérique en santé, offres de santé du Répertoire opérationnel des ressources (data.gouv)</a><br>
+<a href="https://www.data.gouv.fr/datasets/finess-structures-1">FINESS, établissements sanitaires et médico-sociaux (Finess+, data.gouv)</a><br>
+<a href="https://www.martinique.ars.sante.fr/media/9531/download">ARS Martinique, offre de soins en psychiatrie (document de 2018)</a><br>
+<a href="https://geoservices.ign.fr/documentation/services/services-geoplateforme/geocodage">IGN, service de géocodage de la Géoplateforme</a><br>
+<a href="https://www.insee.fr/fr/statistiques/7655475">INSEE, données carroyées à 200 m (Filosofi 2019)</a>
+</td></tr>
+<tr><td>confirmation</td><td>confirmation incomplète</td><td>Chaque CMP, CATTP, hôpital de jour en psychiatrie, CMPP, CAMSP, CSAPA et CAARUD est confronté à des listes indépendantes de FINESS et du ROR, les sites que son établissement déclare à sa certification par la HAS, les évaluations des établissements médico-sociaux publiées par la HAS, et les établissements de son gestionnaire inscrits au répertoire Sirene sous une enseigne de son type. La liste de la certification reprend les numéros FINESS déclarés par l&#39;établissement à la date de sa certification, parfois ancienne de plusieurs années, sans adresse ni activité réelle. Les évaluations des établissements médico-sociaux ont commencé en 2023 et chaque structure est évaluée une fois tous les cinq ans, une structure pas encore évaluée n&#39;est donc pas douteuse pour autant. Les hôpitaux ferment rarement leurs anciens établissements dans Sirene, un établissement encore actif dans Sirene peut avoir cessé son activité. Une structure confirmée par l&#39;une de ces listes existe dans les listes officielles de son établissement, une structure confirmée par aucune reste à vérifier sur les sources de l&#39;établissement. Les rapports et l&#39;atlas réunissent ces sources en trois classes, confirmée (nommée par une source indépendante des deux bases), recoupée par la statistique des hôpitaux (SAE, nombre de CATTP de l&#39;hôpital ou places d&#39;hôpital de jour du site, l&#39;adresse n&#39;étant pas confirmée) et à vérifier (inscrite dans FINESS ou le ROR seulement).</td><td><a href="https://www.data.gouv.fr/datasets/certification-des-etablissements-de-sante-pour-la-qualite-des-soins-referentiel-deploye-2021-2025">HAS, certification des établissements de santé, données ouvertes</a><br>
+<a href="https://www.data.gouv.fr/datasets/resultats-devaluation-des-etablissements-et-services-sociaux-et-medico-sociaux-essms">HAS, résultats d&#39;évaluation des établissements et services sociaux et médico-sociaux</a><br>
+<a href="https://www.data.gouv.fr/datasets/base-sirene-des-entreprises-et-de-leurs-etablissements-siren-siret">INSEE, base Sirene des entreprises et de leurs établissements</a>
+</td></tr>
+<tr><td>addictions</td><td>mesure déclarée ou estimée</td><td>Les consommations d&#39;alcool et de tabac viennent du Baromètre de Santé publique France, une enquête où les personnes déclarent elles-mêmes ce qu&#39;elles consomment, ce qui sous-estime en général les consommations. Elles ne sont publiées que par région, avec une fourchette souvent large dans les petites régions et en outre-mer. Les décès attribuables au tabac sont une estimation. Les personnes prises en charge pour une addiction (Assurance Maladie) mesurent le recours aux soins, qui dépend aussi de l&#39;offre, et non le besoin.</td><td><a href="https://odisse.santepubliquefrance.fr/explore/dataset/alcool-indicateurs-du-barometre-de-sante-publique-france-2024-detail-region/">Santé publique France, Baromètre de Santé publique France 2024, alcool</a><br>
+<a href="https://odisse.santepubliquefrance.fr/explore/dataset/tabac-consommation-quotidienne_reg/">Santé publique France, consommation quotidienne de tabac par région</a><br>
+<a href="https://odisse.santepubliquefrance.fr/explore/dataset/tabac-deces-attribuables-au-tabac_reg/">Santé publique France, décès attribuables au tabac par région</a>
+</td></tr>
+<tr><td>Orthophonistes, tous les âges</td><td>tous les âges</td><td>Les orthophonistes soignent des patients de tous les âges, pas seulement des enfants. Le code de la santé publique vise les troubles congénitaux, développementaux ou acquis, ce qui comprend les troubles du langage après un accident vasculaire cérébral, les maladies neurodégénératives, la voix et la déglutition. Leur densité est donc rapportée à toute la population, et un croisement avec l&#39;offre pour les enfants n&#39;en décrit qu&#39;une partie de l&#39;activité.</td><td><a href="https://www.legifrance.gouv.fr/codes/article_lc/LEGIARTI000047568519">Code de la santé publique, article L4341-1 (Légifrance)</a><br>
+<a href="https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps">Annuaire santé, extractions en libre accès du RPPS (data.gouv)</a>
+</td></tr>
+<tr><td>Psychomotriciens, tous les âges</td><td>tous les âges</td><td>Les psychomotriciens interviennent auprès des jeunes enfants et des adolescents, mais aussi des adultes et des personnes âgées, en psychiatrie, en gériatrie et en établissement pour personnes âgées. Leur densité est donc rapportée à toute la population. Beaucoup sont salariés d&#39;un établissement, un croisement avec la seule offre libérale n&#39;en décrit qu&#39;une partie.</td><td><a href="https://www.onisep.fr/ressources/univers-metier/metiers/psychomotricien-psychomotricienne">Onisep, fiche métier psychomotricien ou psychomotricienne</a><br>
+<a href="http://www.metiers-fonctionpubliquehospitaliere.sante.gouv.fr/spip.php?page=fiche-metier&amp;idmet=13">Ministère de la Santé, répertoire des métiers de la fonction publique hospitalière, psychomotricien</a><br>
+<a href="https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps">Annuaire santé, extractions en libre accès du RPPS (data.gouv)</a>
+</td></tr>
+<tr><td>Médecins du travail</td><td>pas de soins à la population</td><td>Les médecins du travail suivent les salariés de leur entreprise ou de leur service de santé au travail. Ils ne soignent pas la population du territoire où ils sont déclarés.</td><td><a href="https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps">Annuaire santé, extractions en libre accès du RPPS (data.gouv)</a>
+</td></tr>
+<tr><td>Médecins de santé publique</td><td>pas de soins à la population</td><td>Les médecins de santé publique exercent surtout dans des administrations, des agences ou des services d&#39;épidémiologie et de prévention, rarement en soins à la population.</td><td><a href="https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps">Annuaire santé, extractions en libre accès du RPPS (data.gouv)</a>
+</td></tr>
+<tr><td>Psychologues</td><td>répertoire récent</td><td>Les psychologues sont inscrits au RPPS depuis la reprise du répertoire ADELI. Leur nombre est supérieur de 5,4 % au dernier chiffre publié par la DREES (2024, inscrits au répertoire ADELI, actifs occupés au 1er janvier, âgés de moins de 62 ans) et inférieur de 5,3 % à sa tendance prolongée jusqu&#39;à la date de l&#39;extraction. Les deux comptages ne portent pas sur le même champ, l&#39;écart est détaillé dans la page méthode.</td><td><a href="https://esante.gouv.fr/offres-services/annuaire-sante/bascule-des-professionnels-adeli-dans-le-rpps">Agence du numérique en santé, bascule des professionnels ADELI dans le RPPS</a><br>
+<a href="https://data.drees.solidarites-sante.gouv.fr/explore/dataset/la-demographie-des-professionnels-de-sante-depuis-2012/information/">DREES, la démographie des professionnels de santé</a>
+</td></tr>
+<tr><td>Temps de trajet par la route</td><td>champ limité</td><td>Temps d&#39;un trajet en voiture aux heures creuses vers le professionnel libéral le plus proche. Il ne dit rien des délais de rendez-vous, des tarifs ni des transports en commun, et ne couvre que l&#39;Hexagone, la Martinique et La Réunion.</td><td><a href="https://www.data.gouv.fr/datasets/donnees-sur-la-localisation-et-lacces-de-la-population-aux-equipements">INSEE, données sur la localisation et l&#39;accès de la population aux équipements</a>
+</td></tr>
+<tr><td>route_psychiatrie_ambulatoire</td><td>recensement incomplet</td><td>Le temps de route de l&#39;INSEE vers la psychiatrie ambulatoire contredit, dans de nombreuses communes, la distance au CMP le plus proche (plus de 3 minutes par kilomètre à vol d&#39;oiseau, plus 10 minutes, par exemple 22 minutes pour un CMP à un peu plus d&#39;un kilomètre). La même règle appliquée aux urgences ne retient presque aucune commune. La base permanente des équipements ne compte vraisemblablement que les CMP inscrits sous leur propre catégorie dans FINESS, alors qu&#39;un CMP sur trois n&#39;y figure que sous le numéro de son hôpital ou seulement dans le ROR. Ce temps n&#39;est donc pas montré pour un territoire dont plus de 1 % des habitants vivent dans une telle commune, ni pour la France entière. Le fichier des temps de trajet le garde avec une colonne de fiabilité. La distance au CMP le plus proche, tirée de FINESS et du ROR réunis, est plus sûre.</td><td><a href="https://www.data.gouv.fr/datasets/donnees-sur-la-localisation-et-lacces-de-la-population-aux-equipements">INSEE, données sur la localisation et l&#39;accès de la population aux équipements</a><br>
+<a href="https://www.data.gouv.fr/datasets/finess-structures-1">FINESS, établissements sanitaires et médico-sociaux (Finess+, data.gouv)</a><br>
+<a href="https://www.data.gouv.fr/datasets/offres-de-sante-sanitaire-medico-social-et-de-ville-en-france-metropolitaine-et-drom-1">Agence du numérique en santé, offres de santé du Répertoire opérationnel des ressources (data.gouv)</a>
+</td></tr>
+<tr><td>Psychiatrie à l&#39;hôpital (SAE)</td><td>rattachement</td><td>Les moyens de la psychiatrie hospitalière sont déclarés par les établissements et rattachés au département de l&#39;établissement, pas à celui des patients.</td><td><a href="https://data.drees.solidarites-sante.gouv.fr/explore/dataset/708_bases-statistiques-sae/">DREES, bases statistiques de la SAE</a>
+</td></tr>
+<tr><td>Affections de longue durée</td><td>reconnaissance administrative</td><td>Une affection de longue durée est reconnue à la demande du médecin, après accord du service médical de l&#39;Assurance Maladie. Les chiffres comptent les personnes dont la maladie a été reconnue, pas toutes les personnes malades, et dépendent donc aussi du recours aux soins. Ils ne couvrent que le régime général. L&#39;hypertension artérielle sévère n&#39;ouvre plus de nouvelle ALD depuis juin 2011.</td><td><a href="https://www.data.gouv.fr/datasets/beneficiaires-du-dispositif-des-affections-de-longue-duree-ald">Assurance Maladie, bénéficiaires du dispositif des ALD (data.gouv)</a><br>
+<a href="https://www.ameli.fr/assure/droits-demarches/maladie-accident-hospitalisation/affection-longue-duree-ald/demande-prise-en-charge-en-ald">ameli.fr, demande de prise en charge en ALD</a><br>
+<a href="https://www.legifrance.gouv.fr/loda/id/JORFTEXT000024249276/">Décret n° 2011-726 du 24 juin 2011 (Légifrance)</a>
+</td></tr>
+<tr><td>Allocations de la CAF</td><td>champ incomplet</td><td>Les allocations comptées ici sont celles versées par la CAF. Les personnes qui relèvent du régime agricole les reçoivent de la MSA et ne sont pas comptées, ce qui sous-estime ces chiffres surtout dans les territoires ruraux. Par intercommunalité, les effectifs sont arrondis à 5.</td><td><a href="https://www.monparcourshandicap.gouv.fr/principaux-interlocuteurs/la-caf-et-la-msa">Mon parcours handicap, la Caf et la MSA</a><br>
+<a href="https://data.caf.fr/explore/dataset/s_ben_epci_f/">CAF, allocataires par prestation et par intercommunalité</a>
+</td></tr>
+<tr><td>Évolution depuis 2016 (séries de la DREES)</td><td>champ différent</td><td>L&#39;évolution vient des séries de la DREES, qui comptent chaque professionnel une seule fois, dans le département de son activité principale, alors que les autres chiffres de ce site comptent une personne dans chaque territoire où elle exerce. Les populations des trois dernières années sont provisoires.</td><td><a href="https://data.drees.solidarites-sante.gouv.fr/explore/dataset/la-demographie-des-professionnels-de-sante-depuis-2012/information/">DREES, la démographie des professionnels de santé</a><br>
+<a href="https://catalogue-donnees.insee.fr/fr/catalogue/recherche/DS_ESTIMATION_POPULATION">INSEE, estimations localisées de population</a>
+</td></tr>
+<tr><td>Âge des professionnels</td><td>définition différente</td><td>La DREES compte chaque professionnel une fois, dans le département de son activité principale, au 1er janvier, ce qui diffère des comptages par lieu d&#39;exercice du reste du site. Les séries des professions longtemps inscrites au répertoire Adeli (psychologues, orthophonistes, psychomotriciens, ergothérapeutes et autres) ne comptent que les actifs de moins de 62 ans, leur âge n&#39;est donc pas montré. L&#39;extraction ouverte du RPPS ne donne pas l&#39;âge.</td><td><a href="https://data.drees.solidarites-sante.gouv.fr/explore/dataset/la-demographie-des-professionnels-de-sante-depuis-2012/information/">DREES, la démographie des professionnels de santé depuis 2012</a>
+</td></tr>
+<tr><td>Dépassements d&#39;honoraires facturés</td><td>champ partiel</td><td>Le taux ne concerne que les libéraux de secteur 2 et les dépassements facturés à l&#39;Assurance Maladie. Il n&#39;est pas publié quand les montants sont couverts par le secret statistique, ni quand le territoire ne compte aucun libéral de secteur 2.</td><td><a href="https://data.ameli.fr/explore/dataset/honoraires/">Assurance Maladie, professionnels de santé libéraux, montants des honoraires par territoire</a>
+</td></tr>
+<tr><td>Structures déclarées à la SAE et absentes des bases</td><td>recensement incomplet</td><td>Dans quelques départements, la statistique annuelle des établissements de santé (SAE), que remplit chaque établissement, déclare bien plus de CMP, de CATTP ou de sites d&#39;hôpital de jour que FINESS et le Répertoire opérationnel des ressources n&#39;en inscrivent (moins de la moitié). Une distance mesurée là irait jusqu&#39;aux structures des départements voisins, elle n&#39;est donc pas publiée, pas plus que le nombre pour 100 000. La SAE range les structures d&#39;un établissement au département de son siège.</td><td><a href="https://data.drees.solidarites-sante.gouv.fr/explore/dataset/708_bases-statistiques-sae/">DREES, bases statistiques de la SAE</a>
+</td></tr>
+<tr><td>Gériatre, exercice surtout salarié</td><td>exercice surtout salarié</td><td>Pour cette spécialité (gériatre), 7 % seulement des médecins exercent en libéral. La plupart sont salariés, le plus souvent à l&#39;hôpital, si bien que leur densité par territoire montre surtout où se trouvent les établissements, pas l&#39;accès des habitants, qui consultent souvent dans un territoire voisin.</td><td><a href="https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps">Annuaire santé, extractions en libre accès du RPPS (data.gouv)</a>
+</td></tr>
+<tr><td>Hématologue, exercice surtout salarié</td><td>exercice surtout salarié</td><td>Pour cette spécialité (hématologue), 11 % seulement des médecins exercent en libéral. La plupart sont salariés, le plus souvent à l&#39;hôpital, si bien que leur densité par territoire montre surtout où se trouvent les établissements, pas l&#39;accès des habitants, qui consultent souvent dans un territoire voisin.</td><td><a href="https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps">Annuaire santé, extractions en libre accès du RPPS (data.gouv)</a>
+</td></tr>
+<tr><td>Infectiologue, exercice surtout salarié</td><td>exercice surtout salarié</td><td>Pour cette spécialité (infectiologue), 6 % seulement des médecins exercent en libéral. La plupart sont salariés, le plus souvent à l&#39;hôpital, si bien que leur densité par territoire montre surtout où se trouvent les établissements, pas l&#39;accès des habitants, qui consultent souvent dans un territoire voisin.</td><td><a href="https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps">Annuaire santé, extractions en libre accès du RPPS (data.gouv)</a>
+</td></tr>
+<tr><td>Médecin de médecine physique et de réadaptation, exercice surtout salarié</td><td>exercice surtout salarié</td><td>Pour cette spécialité (médecin de médecine physique et de réadaptation), 18 % seulement des médecins exercent en libéral. La plupart sont salariés, le plus souvent à l&#39;hôpital, si bien que leur densité par territoire montre surtout où se trouvent les établissements, pas l&#39;accès des habitants, qui consultent souvent dans un territoire voisin.</td><td><a href="https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps">Annuaire santé, extractions en libre accès du RPPS (data.gouv)</a>
+</td></tr>
+<tr><td>Médecin interniste, exercice surtout salarié</td><td>exercice surtout salarié</td><td>Pour cette spécialité (médecin interniste), 11 % seulement des médecins exercent en libéral. La plupart sont salariés, le plus souvent à l&#39;hôpital, si bien que leur densité par territoire montre surtout où se trouvent les établissements, pas l&#39;accès des habitants, qui consultent souvent dans un territoire voisin.</td><td><a href="https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps">Annuaire santé, extractions en libre accès du RPPS (data.gouv)</a>
+</td></tr>
+<tr><td>Médecin réanimateur, exercice surtout salarié</td><td>exercice surtout salarié</td><td>Pour cette spécialité (médecin réanimateur), 9 % seulement des médecins exercent en libéral. La plupart sont salariés, le plus souvent à l&#39;hôpital, si bien que leur densité par territoire montre surtout où se trouvent les établissements, pas l&#39;accès des habitants, qui consultent souvent dans un territoire voisin.</td><td><a href="https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps">Annuaire santé, extractions en libre accès du RPPS (data.gouv)</a>
+</td></tr>
+<tr><td>Médecin urgentiste, exercice surtout salarié</td><td>exercice surtout salarié</td><td>Pour cette spécialité (médecin urgentiste), 9 % seulement des médecins exercent en libéral. La plupart sont salariés, le plus souvent à l&#39;hôpital, si bien que leur densité par territoire montre surtout où se trouvent les établissements, pas l&#39;accès des habitants, qui consultent souvent dans un territoire voisin.</td><td><a href="https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps">Annuaire santé, extractions en libre accès du RPPS (data.gouv)</a>
+</td></tr>
+<tr><td>Néphrologue, exercice surtout salarié</td><td>exercice surtout salarié</td><td>Pour cette spécialité (néphrologue), 31 % seulement des médecins exercent en libéral. La plupart sont salariés, le plus souvent à l&#39;hôpital, si bien que leur densité par territoire montre surtout où se trouvent les établissements, pas l&#39;accès des habitants, qui consultent souvent dans un territoire voisin.</td><td><a href="https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps">Annuaire santé, extractions en libre accès du RPPS (data.gouv)</a>
+</td></tr>
+<tr><td>Oncologue médical, exercice surtout salarié</td><td>exercice surtout salarié</td><td>Pour cette spécialité (oncologue médical), 20 % seulement des médecins exercent en libéral. La plupart sont salariés, le plus souvent à l&#39;hôpital, si bien que leur densité par territoire montre surtout où se trouvent les établissements, pas l&#39;accès des habitants, qui consultent souvent dans un territoire voisin.</td><td><a href="https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps">Annuaire santé, extractions en libre accès du RPPS (data.gouv)</a>
+</td></tr>
+</tbody></table></div>
+
+
+
+<h2 id="sources">Sources</h2>
+<p>Chaque source renvoie à la page du jeu de données chez son producteur. La date est celle de la dernière mise à jour annoncée par le producteur, à défaut celle du téléchargement.</p>
+<table class="simple">
+<thead><tr><th>Source</th><th>Producteur</th><th>Licence</th><th>Données du</th><th>Détail</th></tr></thead>
+<tbody>
+
+<tr><td><a href="https://github.com/etalab/decoupage-administratif">Référentiel Etalab</a> <span class="small">(<a href="https://cdn.jsdelivr.net/npm/@etalab/decoupage-administratif@latest/data/communes.json">fichier téléchargé</a>)</span></td>
+<td>Etalab, d&#39;après le Code officiel géographique et les populations légales de l&#39;INSEE</td><td>Licence Ouverte 2.0</td><td>2026-03-09</td><td>version 6.0.0 du paquet decoupage-administratif, 34 875 communes, 1 259 EPCI, 101 départements</td></tr>
+
+<tr><td><a href="https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps">RPPS activité</a> <span class="small">(<a href="https://www.data.gouv.fr/api/1/datasets/r/fffda7e9-0ea2-4c35-bba0-4496f3af935d">fichier téléchargé</a>)</span></td>
+<td>Agence du numérique en santé (ANS)</td><td>Licence Ouverte 2.0</td><td>2026-10-29</td><td>2 314 218 lignes lues, 67 816 lignes d&#39;étudiants écartées, 348 773 lignes d&#39;inscrits sans situation d&#39;exercice écartées, 1 471 482 professionnels distincts</td></tr>
+
+<tr><td><a href="https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps">RPPS diplômes</a> <span class="small">(<a href="https://www.data.gouv.fr/api/1/datasets/r/41ae70ac-90c8-4c4e-8644-4ef1b100f045">fichier téléchargé</a>)</span></td>
+<td>Agence du numérique en santé (ANS)</td><td>Licence Ouverte 2.0</td><td>2026-10-29</td><td>81 182 psychologues avec au moins un diplôme renseigné</td></tr>
+
+<tr><td><a href="https://www.data.gouv.fr/datasets/finess-structures-1">FINESS (Finess+)</a> <span class="small">(<a href="https://www.data.gouv.fr/api/1/datasets/r/fd101469-1ba3-4c45-8fbe-7f5e85152558">fichier téléchargé</a>)</span></td>
+<td>Agence du numérique en santé (ANS)</td><td>Licence Ouverte 2.0</td><td>2026-10-01</td><td>174 840 établissements, libellés de catégorie repris du flux historique</td></tr>
+
+<tr><td><a href="https://www.insee.fr/fr/statistiques/5359146">INSEE dossier complet</a> <span class="small">(<a href="https://www.insee.fr/fr/statistiques/fichier/5359146/dossier_complet.parquet">fichier téléchargé</a>)</span></td>
+<td>INSEE</td><td>Licence Ouverte 2.0</td><td>2026-09-03</td><td>format long, 34 875 communes appariées, toutes les variables présentes</td></tr>
+
+<tr><td><a href="https://data.ameli.fr/explore/dataset/effectifs/">Assurance Maladie, pathologies</a> <span class="small">(<a href="https://data.ameli.fr/api/explore/v2.1/catalog/datasets/effectifs/exports/csv?delimiter=%3B&amp;select=annee%2Ctop%2Cpatho_niv1%2Cpatho_niv2%2Ccla_age_5%2Cregion%2Cdept%2Cntop%2Cnpop&amp;where=top%20in%20%28%">fichier téléchargé</a>)</span></td>
+<td>Caisse nationale de l&#39;Assurance Maladie (Cnam)</td><td>ODbL 1.0 (partage à l&#39;identique)</td><td>2026-10-28</td><td>année 2024, 12 indicateurs, 100 départements</td></tr>
+
+<tr><td><a href="https://odisse.santepubliquefrance.fr/explore/dataset/suicides-deces-departement/">Santé publique France, décès par suicide</a> <span class="small">(<a href="https://odisse.santepubliquefrance.fr/api/explore/v2.1/catalog/datasets/suicides-deces-departement/exports/csv?delimiter=%3B&amp;select=annee%2Cnum_departement%2Ctaux_standardise&amp;where=classe_d_age%3D%22T">fichier téléchargé</a>)</span></td>
+<td>Santé publique France</td><td>Licence Ouverte 2.0</td><td>2026-01-09</td><td>année 2023, 101 territoires (départements)</td></tr>
+
+<tr><td><a href="https://odisse.santepubliquefrance.fr/explore/dataset/gestes-auto-infliges-patients-hospitalises-departement/">Santé publique France, personnes hospitalisées pour geste auto-infligé</a> <span class="small">(<a href="https://odisse.santepubliquefrance.fr/api/explore/v2.1/catalog/datasets/gestes-auto-infliges-patients-hospitalises-departement/exports/csv?delimiter=%3B&amp;select=annee%2Cnum_departement%2Ctaux_standardi">fichier téléchargé</a>)</span></td>
+<td>Santé publique France</td><td>Licence Ouverte 2.0</td><td>2026-09-09</td><td>année 2024, 101 territoires (départements)</td></tr>
+
+<tr><td><a href="https://odisse.santepubliquefrance.fr/explore/dataset/gestes-auto-infliges-passages-aux-urgences-departement/">Santé publique France, passages aux urgences pour geste auto-infligé</a> <span class="small">(<a href="https://odisse.santepubliquefrance.fr/api/explore/v2.1/catalog/datasets/gestes-auto-infliges-passages-aux-urgences-departement/exports/csv?delimiter=%3B&amp;select=annee%2Cnew_dpt%2Cpart_activite&amp;where=cl">fichier téléchargé</a>)</span></td>
+<td>Santé publique France</td><td>Licence Ouverte 2.0</td><td>2025-12-09</td><td>année 2024, 101 territoires (départements)</td></tr>
+
+<tr><td><a href="https://odisse.santepubliquefrance.fr/explore/dataset/sante-mentale-episodes-depressifs-caracterises-dans-les-12-derniers-mois_reg/">Santé publique France, adultes déclarant un épisode dépressif dans l&#39;année</a> <span class="small">(<a href="https://odisse.santepubliquefrance.fr/api/explore/v2.1/catalog/datasets/sante-mentale-episodes-depressifs-caracterises-dans-les-12-derniers-mois_reg/exports/csv?delimiter=%3B&amp;select=annee%2Creg%2Ctaux">fichier téléchargé</a>)</span></td>
+<td>Santé publique France</td><td>Licence Ouverte 2.0</td><td>2024-12-09</td><td>année 2021, 12 territoires (régions)</td></tr>
+
+<tr><td><a href="https://odisse.santepubliquefrance.fr/explore/dataset/conduites-suicidaires-indicateurs-du-barometre-de-sante-publique-france-2024-detail-region/">Santé publique France, adultes déclarant des pensées suicidaires dans l&#39;année</a> <span class="small">(<a href="https://odisse.santepubliquefrance.fr/api/explore/v2.1/catalog/datasets/conduites-suicidaires-indicateurs-du-barometre-de-sante-publique-france-2024-detail-region/exports/csv?delimiter=%3B&amp;select=anne">fichier téléchargé</a>)</span></td>
+<td>Santé publique France</td><td>Licence Ouverte 2.0</td><td>2025-12-11</td><td>année 2024, 17 territoires (régions)</td></tr>
+
+<tr><td><a href="https://odisse.santepubliquefrance.fr/explore/dataset/conduites-suicidaires-indicateurs-du-barometre-de-sante-publique-france-2024-detail-region/">Santé publique France, adultes déclarant une tentative de suicide au cours de la vie</a> <span class="small">(<a href="https://odisse.santepubliquefrance.fr/api/explore/v2.1/catalog/datasets/conduites-suicidaires-indicateurs-du-barometre-de-sante-publique-france-2024-detail-region/exports/csv?delimiter=%3B&amp;select=anne">fichier téléchargé</a>)</span></td>
+<td>Santé publique France</td><td>Licence Ouverte 2.0</td><td>2025-12-11</td><td>année 2024, 17 territoires (régions)</td></tr>
+
+<tr><td><a href="https://odisse.santepubliquefrance.fr/explore/dataset/alcool-indicateurs-du-barometre-de-sante-publique-france-2024-detail-region/">Santé publique France, adultes qui dépassent les repères de consommation d&#39;alcool</a> <span class="small">(<a href="https://odisse.santepubliquefrance.fr/api/explore/v2.1/catalog/datasets/alcool-indicateurs-du-barometre-de-sante-publique-france-2024-detail-region/exports/csv?delimiter=%3B&amp;select=annee%2Cnouvelles_r">fichier téléchargé</a>)</span></td>
+<td>Santé publique France</td><td>Licence Ouverte 2.0</td><td>2025-12-11</td><td>année 2024, 17 territoires (régions)</td></tr>
+
+<tr><td><a href="https://odisse.santepubliquefrance.fr/explore/dataset/tabac-consommation-quotidienne_reg/">Santé publique France, adultes qui fument chaque jour</a> <span class="small">(<a href="https://odisse.santepubliquefrance.fr/api/explore/v2.1/catalog/datasets/tabac-consommation-quotidienne_reg/exports/csv?delimiter=%3B&amp;select=annee%2Creg%2Ctab_quo_v%2Ctab_quo_icb%2Ctab_quo_ich&amp;where=se">fichier téléchargé</a>)</span></td>
+<td>Santé publique France</td><td>Licence Ouverte 2.0</td><td>2025-01-23</td><td>année 2021, 12 territoires (régions)</td></tr>
+
+<tr><td><a href="https://odisse.santepubliquefrance.fr/explore/dataset/tabac-deces-attribuables-au-tabac_reg/">Santé publique France, décès attribuables au tabac</a> <span class="small">(<a href="https://odisse.santepubliquefrance.fr/api/explore/v2.1/catalog/datasets/tabac-deces-attribuables-au-tabac_reg/exports/csv?delimiter=%3B&amp;select=annee%2Creg%2Ctaux_std%2Ctaux_std_inf%2Ctaux_std_sup&amp;wher">fichier téléchargé</a>)</span></td>
+<td>Santé publique France</td><td>Licence Ouverte 2.0</td><td>2026-06-26</td><td>année 2023, 17 territoires (régions)</td></tr>
+
+<tr><td><a href="https://data.ameli.fr/explore/dataset/demographie-secteurs-conventionnels/">Assurance Maladie, secteurs conventionnels</a></td>
+<td>Caisse nationale de l&#39;Assurance Maladie (Cnam)</td><td>ODbL 1.0 (partage à l&#39;identique)</td><td>2026-10-28</td><td>année 2025, 101 départements, psychiatres libéraux en France 6 349</td></tr>
+
+<tr><td><a href="https://data.ameli.fr/explore/dataset/honoraires/">Assurance Maladie, montants des honoraires</a></td>
+<td>Caisse nationale de l&#39;Assurance Maladie (Cnam)</td><td>ODbL 1.0 (partage à l&#39;identique)</td><td>2026-10-28</td><td>année 2025, 101 départements, taux de dépassement des psychiatres libéraux de secteur 2 en France 56,6 %</td></tr>
+
+<tr><td><a href="https://data.ameli.fr/explore/dataset/patients-longueduree-annuelle/">Assurance Maladie, affection longue durée sans médecin traitant</a></td>
+<td>Caisse nationale de l&#39;Assurance Maladie (Cnam)</td><td>ODbL 1.0 (partage à l&#39;identique)</td><td>2025-01-28</td><td>année 2025, 102 départements</td></tr>
+
+<tr><td><a href="https://data.drees.solidarites-sante.gouv.fr/explore/dataset/596_enfance-et-jeunesse-en-danger/">DREES, protection de l&#39;enfance</a></td>
+<td>DREES</td><td>Licence Ouverte 2.0</td><td>2026-10-06</td><td>2 indicateurs, année 2024, 106 départements</td></tr>
+
+<tr><td><a href="https://data.drees.solidarites-sante.gouv.fr/explore/dataset/627_personnes-en-situation-de-handicap/">DREES, personnes en situation de handicap</a></td>
+<td>DREES</td><td>Licence Ouverte 2.0</td><td>2026-10-06</td><td>4 indicateurs, années 2024 à 2025, 106 départements</td></tr>
+
+<tr><td><a href="https://data.drees.solidarites-sante.gouv.fr/explore/dataset/708_bases-statistiques-sae/">DREES, SAE psychiatrie</a></td>
+<td>DREES</td><td>Licence Ouverte 2.0</td><td>2025-12-17</td><td>année 2024, 631 établissements, 7 indicateurs</td></tr>
+
+<tr><td><a href="https://www.data.gouv.fr/datasets/beneficiaires-du-dispositif-des-affections-de-longue-duree-ald">Assurance Maladie, affections de longue durée</a> <span class="small">(<a href="https://www.data.gouv.fr/api/1/datasets/r/344515bf-c625-4839-862f-fa74d08b79cc">fichier téléchargé</a>)</span></td>
+<td>Caisse nationale de l&#39;Assurance Maladie (Cnam)</td><td>Licence Ouverte 1.0</td><td>2025-12-12</td><td>30 affections, 101 départements, année 2024, 9 indicateurs retenus</td></tr>
+
+<tr><td><a href="https://data.caf.fr/explore/dataset/s_ben_epci_f/">CAF, allocataires par prestation</a> <span class="small">(<a href="https://data.caf.fr/api/explore/v2.1/catalog/datasets/s_ben_epci_f">fichier téléchargé</a>)</span></td>
+<td>Caisse nationale des allocations familiales (CNAF)</td><td>Licence Ouverte 2.0</td><td>2026-02-11</td><td>décembre 2024, 1 251 intercommunalités dont 1 250 reconnues, 100 départements</td></tr>
+
+<tr><td><a href="https://data.drees.solidarites-sante.gouv.fr/explore/dataset/la-demographie-des-professionnels-de-sante-depuis-2012/information/">DREES, démographie des professionnels de santé</a></td>
+<td>DREES</td><td>Licence Ouverte 2.0</td><td>2026-07-02</td><td>18 séries lues (référence du tableau de concordance)</td></tr>
+
+<tr><td><a href="https://data.drees.solidarites-sante.gouv.fr/explore/dataset/la-demographie-des-professionnels-de-sante-depuis-2012/information/">DREES, démographie des professionnels de santé, âge des professionnels</a></td>
+<td>DREES</td><td>Licence Ouverte 2.0</td><td></td><td>20 séries, part des 60 ans et plus chez les médecins généralistes en France 31,4 %</td></tr>
+
+<tr><td><a href="https://www.data.gouv.fr/datasets/donnees-sur-la-localisation-et-lacces-de-la-population-aux-equipements">INSEE, temps d&#39;accès par la route</a> <span class="small">(<a href="https://www.data.gouv.fr/datasets/67fe0fe2423db9c4a05d8ced/">fichier téléchargé</a>)</span></td>
+<td>INSEE</td><td>Licence Ouverte 2.0 (distancier fondé sur OpenStreetMap, © ses contributeurs)</td><td>2026-08-19</td><td>millésime 2025, 15 régions, 34 793 communes</td></tr>
+
+<tr><td><a href="https://data.drees.solidarites-sante.gouv.fr/explore/dataset/530_l-accessibilite-potentielle-localisee-apl/">DREES, accessibilité potentielle localisée</a></td>
+<td>DREES</td><td>Licence Ouverte 2.0</td><td>2026-07-21</td><td>médecins généralistes 2024, infirmiers 2024, masseurs-kinésithérapeutes 2024, sages-femmes 2024, chirurgiens-dentistes 2024. Pour les médecins généralistes, l&#39;indicateur tous âges est utilisé, la DREES met en avant celui des 65 ans ou moins (3,3 consultations par habitant en 2024).</td></tr>
+
+<tr><td><a href="https://www.data.gouv.fr/datasets/admin-express-admin-express-cog-admin-express-cog-carto-admin-express-cog-carto-pe-admin-express-cog-carto-plus-pe">Contours des communes (IGN)</a></td>
+<td>IGN, ADMIN EXPRESS COG CARTO PE</td><td>Licence Ouverte 2.0</td><td>2026-10-19</td><td>1 249 EPCI et 96 départements avec voisins, 34 875 communes situées</td></tr>
+
+<tr><td><a href="https://www.data.gouv.fr/datasets/offres-de-sante-sanitaire-medico-social-et-de-ville-en-france-metropolitaine-et-drom-1">ANS, offres de santé (ROR)</a></td>
+<td>Agence du numérique en santé (ANS), Répertoire opérationnel des ressources</td><td>Licence Ouverte 2.0</td><td>2026-10-26</td><td>18 régions, 290 425 unités, 179 379 structures</td></tr>
+
+<tr><td><a href="https://www.data.gouv.fr/datasets/certification-des-etablissements-de-sante-pour-la-qualite-des-soins-referentiel-deploye-2021-2025">HAS, certification des établissements de santé, sites rattachés</a></td>
+<td>Haute Autorité de santé (HAS)</td><td>Licence Ouverte 2.0</td><td>2026-10-29</td><td>1944 entités juridiques, 8 336 sites, décisions du 26/10/2021 au 12/02/2026</td></tr>
+
+<tr><td><a href="https://www.data.gouv.fr/datasets/base-sirene-des-entreprises-et-de-leurs-etablissements-siren-siret">INSEE, répertoire Sirene, établissements des gestionnaires de FINESS</a></td>
+<td>Institut national de la statistique et des études économiques (INSEE)</td><td>Licence Ouverte 2.0</td><td>2026-10-01</td><td>389 135 établissements de 76 774 gestionnaires, dont 202 121 actifs</td></tr>
+
+<tr><td><a href="https://www.data.gouv.fr/datasets/resultats-devaluation-des-etablissements-et-services-sociaux-et-medico-sociaux-essms">HAS, évaluation des établissements et services médico-sociaux</a> <span class="small">(<a href="https://www.data.gouv.fr/api/1/datasets/r/ff8443a0-8fc9-45bc-a1bb-5f344f5000ed">fichier téléchargé</a>)</span></td>
+<td>Haute Autorité de santé (HAS)</td><td>Licence Ouverte 2.0</td><td>2026-10-22</td><td>22 078 structures évaluées, évaluations achevées du 10/11/2022 au 22/10/2026</td></tr>
+
+<tr><td>Sectorisation psychiatrique, Hauts-de-France</td>
+<td>Agence régionale de santé des Hauts-de-France</td><td>document administratif communiqué (CRPA)</td><td>2023-12-26</td><td>Arrêté du 26 décembre 2023 portant désignation des établissements de santé assurant la mission de psychiatrie de secteur, Agence régionale de santé des Hauts-de-France, 7 589 lignes, 115 secteurs, 35 libellés d&#39;établissement</td></tr>
+
+<tr><td><a href="https://catalogue-donnees.insee.fr/fr/catalogue/recherche/DS_ESTIMATION_POPULATION">INSEE, estimations de population</a> <span class="small">(<a href="https://api.insee.fr/melodi/data/DS_ESTIMATION_POPULATION?GEO=DEP&amp;EP_MEASURE=POP_JAN_1ST&amp;SEX=_T&amp;AGE=_T&amp;maxResult=10000">fichier téléchargé</a>)</span></td>
+<td>INSEE</td><td>Licence Ouverte 2.0</td><td>2026-08-05</td><td>101 départements, 1975 à 2026, provisoires 2024 à 2026</td></tr>
+
+</tbody></table>
+<p class="small">Chaque jeu de données a sa fiche (fichiers lus, versions, indicateurs qui en dérivent) sur la page <a href="donnees-sources.html">Données sources</a>. Les changements de version de chaque jeu sont consignés dans le <a href="journal.html">journal des mises à jour</a>. D'autres bases sont prévues, voir la page <a href="a-venir.html">À venir</a>. Une base publique utile peut être <a href="contribuer.html">proposée</a>.</p>
+
+<h2 id="origine">D'où vient chaque chiffre</h2>
+<p>Pour chaque type de chiffre affiché sur le site et dans les rapports, la source et le calcul. Les sources sont détaillées dans le tableau précédent, avec leur date et leur licence.</p>
+<div class="defile"><table class="simple">
+<thead><tr><th>Chiffre affiché</th><th>Source</th><th>Calcul</th></tr></thead>
+<tbody>
+<tr><td>Nombre de professionnels en France</td><td>RPPS (Agence du numérique en santé)</td><td>Personnes ayant au moins une activité déclarée, comptées une seule fois. Les étudiants (internes remplaçants) et les personnels non soignants du répertoire sont écartés. La spécialité d'un médecin est sa spécialité ordinale, à défaut sa compétence exclusive.</td></tr>
+<tr><td>Nombre de professionnels d'un territoire</td><td>RPPS</td><td>Personnes ayant au moins une activité de soins avec un lieu d'exercice dans le territoire. Une personne qui exerce dans plusieurs territoires compte dans chacun. La téléconsultation (des soins à distance, déclarés au siège de la société et non là où vivent les patients), les activités sans soins à la population (contrôle médical, industrie, sièges...) et les activités sans lieu (remplacements) sont comptées à part.</td></tr>
+<tr><td>Densité pour 10 000 habitants</td><td>RPPS et population municipale de l'INSEE (référentiel d'Etalab)</td><td>Nombre de professionnels divisé par la population, multiplié par 10 000.</td></tr>
+<tr><td>Structures de soins (CMP, CMPP, CAMSP, urgences, maternités...) et distance au plus proche</td><td>FINESS et ROR (Agence du numérique en santé), adresses géocodées par l'IGN</td><td>Structures distinctes réunies sans double compte, rapportées à 100 000 habitants. Distance à vol d'oiseau entre le centre de la commune des habitants et la structure la plus proche, médiane des habitants du territoire.</td></tr>
+<tr><td>Établissements et périmètre élargi de la santé mentale</td><td>FINESS, apparié au RPPS par le numéro d'établissement</td><td>Salariés d'un établissement de catégorie psychiatrique ou médico-psychologique, toutes professions.</td></tr>
+<tr><td>Profil des territoires (âge, revenu, pauvreté, chômage, diplôme, logement...)</td><td>INSEE, dossier complet</td><td>Valeurs publiées par l'INSEE pour chaque intercommunalité, département et région. Pour les parts, le numérateur et le dénominateur publiés par l'INSEE. Voir le tableau des indicateurs.</td></tr>
+<tr><td>Patients pris en charge pour troubles psychiques, psychotropes</td><td>Assurance Maladie, cartographie des pathologies</td><td>Patients divisés par la population couverte. La prévalence standardisée sur l'âge est calculée ici par la méthode directe, avec la structure d'âge de la France.</td></tr>
+<tr><td>Suicides, gestes auto-infligés</td><td>Santé publique France, portail Odissé</td><td>Valeurs publiées, lues telles quelles, dernière année disponible.</td></tr>
+<tr><td>Dépassements d'honoraires, patients sans médecin traitant</td><td>Assurance Maladie</td><td>Part des libéraux en secteur 2 ou non conventionnés, calculée ici à partir des effectifs par secteur. Part des patients sans médecin traitant lue telle quelle.</td></tr>
+<tr><td>Psychiatrie à l'hôpital</td><td>DREES, SAE</td><td>Lits, places, CMP, temps plein et file active des établissements additionnés par département, rapportés à la population (aux moins de 15 ans pour la psychiatrie de l'enfant).</td></tr>
+<tr><td>Protection de l'enfance, handicap</td><td>DREES, indicateurs sociaux départementaux</td><td>Valeurs publiées, lues telles quelles.</td></tr>
+<tr><td>Temps de trajet par la route</td><td>INSEE, distancier</td><td>Durée du trajet en voiture, aux heures creuses, de chaque carreau habité de 200 mètres vers l'équipement le plus proche (professionnels libéraux et structures de la base permanente des équipements), résumée par commune puis par territoire en tenant compte des habitants.</td></tr>
+<tr><td>Accessibilité calculée ici, distances</td><td>RPPS, contours des communes de l'IGN</td><td>Distance à vol d'oiseau entre centres de communes et méthode à deux étapes, comparée à l'accessibilité potentielle localisée de la DREES.</td></tr>
+<tr><td>Effectif attendu</td><td>RPPS et INSEE</td><td>Modèle de comptage (Poisson, vérifié par un modèle binomial négatif) sur les indicateurs de l'INSEE. Ce n'est pas un besoin de soins.</td></tr>
+<tr><td>Indices d'inégalité, corrélations, tests</td><td>Calculés ici à partir des chiffres ci-dessus</td><td>Méthodes décrites dans les volets « Pour aller plus loin » des rapports, avec leurs intervalles de confiance.</td></tr>
+</tbody></table></div>
+
+
+
+
+
+
+
+<h2 id="inscrits">Inscrits sans activité déclarée</h2>
+<p>Le RPPS compte aussi des personnes inscrites qui ne déclarent aucune activité. Pour elles, le fichier ne donne ni lieu, ni mode d'exercice, ni âge, ni date. On ne peut donc pas dire qu'elles n'exercent pas. Il peut s'agir de personnes retraitées, en congé, ayant changé de métier, ou exerçant sans avoir déclaré leur activité. Les effectifs publiés sur ce site sont ceux de la colonne « avec une activité déclarée ». Les étudiants sont exclus.</p>
+<div class="defile"><table class="simple">
+<thead><tr><th>Profession (libellé du RPPS)</th><th>Inscrits</th><th>Avec une activité déclarée</th><th>Sans activité déclarée</th><th>Part sans activité déclarée</th></tr></thead>
+<tbody>
+<tr><td>Infirmier</td><td>634 717</td><td>553 074</td><td>81 643</td><td>13 %</td></tr>
+<tr><td>Médecin</td><td>349 316</td><td>248 468</td><td>100 848</td><td>29 %</td></tr>
+<tr><td>Psychologue</td><td>120 619</td><td>81 185</td><td>39 434</td><td>33 %</td></tr>
+<tr><td>Masseur-Kinésithérapeute</td><td>117 925</td><td>112 935</td><td>4 990</td><td>4 %</td></tr>
+<tr><td>Pharmacien</td><td>76 012</td><td>76 000</td><td>12</td><td>0 %</td></tr>
+<tr><td>Technicien de Laboratoire</td><td>62 339</td><td>56 446</td><td>5 893</td><td>9 %</td></tr>
+<tr><td>Chirurgien-Dentiste</td><td>61 815</td><td>50 432</td><td>11 383</td><td>18 %</td></tr>
+<tr><td>Opticien-Lunetier</td><td>55 248</td><td>41 551</td><td>13 697</td><td>25 %</td></tr>
+<tr><td>Assistant de service social</td><td>51 708</td><td>25 797</td><td>25 911</td><td>50 %</td></tr>
+<tr><td>Ostéopathe</td><td>45 906</td><td>41 159</td><td>4 747</td><td>10 %</td></tr>
+<tr><td>Manipulateur ERM</td><td>45 131</td><td>35 607</td><td>9 524</td><td>21 %</td></tr>
+<tr><td>Orthophoniste</td><td>33 161</td><td>31 406</td><td>1 755</td><td>5 %</td></tr>
+<tr><td>Sage-Femme</td><td>32 341</td><td>27 044</td><td>5 297</td><td>16 %</td></tr>
+<tr><td>Diététicien</td><td>29 003</td><td>17 973</td><td>11 030</td><td>38 %</td></tr>
+<tr><td>Assistant dentaire</td><td>27 350</td><td>11 191</td><td>16 159</td><td>59 %</td></tr>
+<tr><td>Psychothérapeute</td><td>22 723</td><td>18 612</td><td>4 111</td><td>18 %</td></tr>
+<tr><td>Psychomotricien</td><td>22 069</td><td>18 721</td><td>3 348</td><td>15 %</td></tr>
+<tr><td>Ergothérapeute</td><td>21 430</td><td>17 942</td><td>3 488</td><td>16 %</td></tr>
+<tr><td>Pédicure-Podologue</td><td>15 067</td><td>14 963</td><td>104</td><td>1 %</td></tr>
+<tr><td>Orthoptiste</td><td>8 551</td><td>7 156</td><td>1 395</td><td>16 %</td></tr>
+<tr><td>Audio-Prothésiste</td><td>7 526</td><td>6 343</td><td>1 183</td><td>16 %</td></tr>
+<tr><td>Orthopédiste-Orthésiste</td><td>3 114</td><td>1 983</td><td>1 131</td><td>36 %</td></tr>
+<tr><td>Chiropracteur</td><td>2 396</td><td>1 961</td><td>435</td><td>18 %</td></tr>
+<tr><td>Orthoprothésiste</td><td>2 187</td><td>1 663</td><td>524</td><td>24 %</td></tr>
+<tr><td>Podo-Orthésiste</td><td>924</td><td>662</td><td>262</td><td>28 %</td></tr>
+<tr><td>Physicien médical</td><td>824</td><td>800</td><td>24</td><td>3 %</td></tr>
+<tr><td>Epithésiste</td><td>106</td><td>64</td><td>42</td><td>40 %</td></tr>
+<tr><td>Oculariste</td><td>72</td><td>53</td><td>19</td><td>26 %</td></tr>
+</tbody></table></div>
+
+
+
+
+
+
+<h2 id="suivi">Suivi dans le temps</h2>
+<p>À chaque nouvelle extraction du répertoire RPPS, une photographie des effectifs par profession, mode d'exercice et territoire (régions, départements, intercommunalités) est gardée avec la version des calculs qui l'a produite. Elle permettra de dire si une figure change d'une extraction à l'autre et pourquoi. Quand les règles de calcul changent entre deux dates, la comparaison le signale, pour qu'un changement de méthode ne passe pas pour une évolution de l'offre. 3 photographies gardées, du 14 octobre 2026 au 29 octobre 2026. Les évolutions depuis 2016 s'appuient sur les séries de la DREES.</p>
+
+
+<h2 id="logiciels">Logiciels et reproductibilité</h2>
+<p>Les calculs sont réalisés en Python 3.14.7. Les tirages aléatoires (rééchantillonnage pour les intervalles de confiance, permutations) utilisent une graine fixe, 20261003, combinée à la clé de chaque analyse (indicateurs, profession, niveau), pour que les résultats soient identiques d'une exécution à l'autre sur les mêmes données et que l'ajout d'une base ne déplace pas les intervalles des autres analyses (depuis le 30 octobre 2026). Chaque source est consignée avec la date annoncée par son producteur et la date de téléchargement. Le code est publié sous licence EUPL 1.2 sur le dépôt <a href="https://github.com/UbiCura/ubicura">https://github.com/UbiCura/ubicura</a>.</p>
+<div class="defile"><table class="simple">
+<thead><tr><th>Bibliothèque</th><th>Version</th><th>Usage</th></tr></thead>
+<tbody>
+<tr><td>pandas</td><td>3.0.6</td><td>lecture des fichiers, tableaux, agrégation par territoire</td></tr>
+<tr><td>numpy</td><td>2.5.3</td><td>calcul numérique, indices d&#39;inégalité, rééchantillonnage</td></tr>
+<tr><td>scipy</td><td>1.18.1</td><td>corrélations de rang, tests, intervalles, typologie</td></tr>
+<tr><td>pyarrow</td><td>25.0.1</td><td>lecture des fichiers Parquet de l&#39;INSEE et des temps de trajet</td></tr>
+<tr><td>shapely</td><td>2.1.2</td><td>contours des territoires, voisinages, distances</td></tr>
+<tr><td>requests</td><td>2.34.2</td><td>interrogation des API des producteurs et téléchargements</td></tr>
+<tr><td>openpyxl</td><td>3.1.5</td><td>lecture des tableaux Excel de la DREES</td></tr>
+<tr><td>py7zr</td><td>1.1.3</td><td>lecture des archives de la SAE</td></tr>
+<tr><td>jinja2</td><td>3.1.6</td><td>pages du site</td></tr>
+<tr><td>markdown</td><td>3.11</td><td>conversion des rapports en pages</td></tr>
+</tbody></table></div>
+
+
+<h2 id="libelles">Noms des établissements</h2>
+<p>Certaines nomenclatures officielles emploient des formulations datées ou stigmatisantes. Elles sont remplacées à l'affichage par des formulations respectueuses des personnes, en gardant les sigles d'usage. Les fichiers de données gardent les deux libellés, et la table de correspondance (70 libellés, avec le libellé officiel de chaque nomenclature) est disponible dans le fichier <a href="donnees/2026-10-30/libelles.csv">libelles.csv</a>.</p>
+
+<h2 id="licences">Licences et conditions de réutilisation</h2>
+<p>Résultats sous Licence Ouverte 2.0, en citant la source et la date de la version, sauf les indicateurs tirés des bases de l&#39;Assurance Maladie (Cnam, data.ameli.fr, cartographie des pathologies, secteurs conventionnels, patients sans médecin traitant) et ce qui en dérive, diffusés sous licence ODbL 1.0 (partage à l&#39;identique). Les fichiers suffixés _odbl et les données intégrées à l&#39;atlas, qui contiennent ces indicateurs, sont sous ODbL. Les rapports et les cartes qui les affichent contiennent des informations issues de cette base sous ODbL.</p>
+<p>Les sources sous <a href="https://www.etalab.gouv.fr/licence-ouverte-open-licence/">Licence Ouverte 2.0</a> (répertoire RPPS, FINESS, INSEE, Santé publique France, DREES, référentiel géographique, contours de l'IGN) peuvent être réutilisées librement, à condition d'en citer le producteur et la date de mise à jour, ce que fait le tableau des sources. Les temps de trajet de l'INSEE reposent sur le réseau routier d'OpenStreetMap, © ses contributeurs.</p>
+<p>Les bases de l'Assurance Maladie (cartographie des pathologies, effectifs par secteur conventionnel, patients sans médecin traitant) sont sous <a href="https://opendatacommons.org/licenses/odbl/1-0/">licence ODbL 1.0</a>. Toute base qui en dérive et qui est diffusée doit l'être sous la même licence, sous une forme lisible par une machine, avec la mention de la source. C'est le cas ici des fichiers suffixés _odbl, qui isolent ces indicateurs et ce qui en dérive (prévalences à âge égal, parts de secteur 2, corrélations, quadrants), et des données intégrées à l'atlas. Les rapports et les cartes qui affichent ces indicateurs le signalent dans leurs sources. Si vous réutilisez ces fichiers, ils restent sous ODbL et doivent citer l'Assurance Maladie (Cnam).</p>
+<p>Les arrêtés de sectorisation des agences régionales de santé sont des documents administratifs communiqués sur demande. Leur réutilisation est libre (article L321-1 du code des relations entre le public et l'administration), à condition de ne pas les altérer et d'en citer la source et la date (article L322-1), ce que font la carte, l'infobulle de chaque secteur et le fichier secteurs_psychiatrie.csv.</p>
+<p>Ce site est une réutilisation indépendante. Il n'est ni produit ni validé par les organismes producteurs des données.</p>
+<p>Logiciels et polices intégrés au site, <a href="https://d3js.org">d3</a> et <a href="https://github.com/topojson/topojson-client">topojson-client</a> (licence ISC, © Mike Bostock), polices Newsreader et Work Sans (SIL Open Font License).</p>
+
+
+
+</div>
+</div>
+<script>
+(function(){var m={lieux:"methode-structures.html",concordance:"methode-controles.html",controles:"methode-controles.html",
+indicateurs:"methode-indicateurs.html",telecharger:"methode-fichiers.html"},h=location.hash.slice(1);
+if(m[h])location.replace(m[h]+"#"+h)})();
+</script>
+
+<footer>
+  Données du 30 octobre 2026. Sources, répertoire RPPS, FINESS, Répertoire opérationnel des ressources, INSEE (dont Sirene), Assurance Maladie, CAF, Santé publique France, DREES, HAS, IGN (voir <a href="methode.html">Méthode, données et limites</a>).
+  Résultats sous Licence Ouverte 2.0, en citant la source et la date de la version, sauf les indicateurs tirés des bases de l&#39;Assurance Maladie (Cnam, data.ameli.fr, cartographie des pathologies, secteurs conventionnels, patients sans médecin traitant) et ce qui en dérive, diffusés sous licence ODbL 1.0 (partage à l&#39;identique). Les fichiers suffixés _odbl et les données intégrées à l&#39;atlas, qui contiennent ces indicateurs, sont sous ODbL. Les rapports et les cartes qui les affichent contiennent des informations issues de cette base sous ODbL.
+  <p class="pied-liens"><a href="donnees-sources.html">Données sources</a> <a href="journal.html">Journal des mises à jour</a> <a href="a-venir.html">À venir</a> <a href="contribuer.html">Proposer une base de données</a> <a href="a-propos.html">À propos</a></p>
+</footer>
+</main>
+<script>
+// tableaux plus larges que la colonne de texte, fondu à droite et phrase d'indication tant qu'il reste des colonnes
+(function(){function cadre(t){t.classList.remove("defile");if(t.offsetWidth>t.parentElement.clientWidth+2)t.classList.add("defile")}
+function maj(t){var d=t.scrollWidth>t.clientWidth+2;t.classList.toggle("deborde-d",d&&t.scrollLeft+t.clientWidth<t.scrollWidth-2);
+var n=t.nextElementSibling;if(!(n&&n.classList.contains("indice-defil"))){if(!d)return;n=document.createElement("p");n.className="indice-defil";n.textContent="Faites défiler le tableau vers la droite pour voir les autres colonnes.";t.after(n)}n.hidden=!d}
+// figures, choix de la profession (rapports, 9 octobre 2026)
+document.querySelectorAll("figure.graphique").forEach(function(fig){
+  var leg=fig.querySelector(".leg");
+  fig.querySelectorAll(".choix-variante button").forEach(function(b,i,tous){b.addEventListener("click",function(){
+    var vs=fig.querySelectorAll(".variante");vs.forEach(function(v,j){v.hidden=j!==i});
+    tous.forEach(function(x,j){x.setAttribute("aria-pressed",String(j===i))});
+    var t=vs[i].querySelector("title");if(leg&&t)leg.textContent=t.textContent})})});
+var ts=document.querySelectorAll(".corps table,.methode > table.simple");ts.forEach(function(t){cadre(t);maj(t);t.addEventListener("scroll",function(){maj(t)},{passive:true})});
+function tous(){ts.forEach(function(t){cadre(t);maj(t)})}
+addEventListener("resize",tous);if(document.fonts)document.fonts.ready.then(tous)})();
+</script>
+<script>
+// Graphiques interactifs, communs aux rapports et à l'atlas (demande de Lucas du 9 octobre 2026).
+// Infobulle au survol de chaque point ou zone qui porte un titre, clic pour la garder, zoom à la molette et par
+// boutons, déplacement à la souris quand le graphique est zoomé. La page n'est pas bloquée, une molette qui
+// arrive pendant le défilement de la page continue de faire défiler la page.
+// Réglage, window.FIGURES = {zoom: "sélecteur des svg zoomables", bulle: "sélecteur des svg à infobulles"}.
+(function(){
+  var R=window.FIGURES||{zoom:"figure.zoomable svg",bulle:"figure.graphique svg"};
+  var bulle=document.createElement("div");bulle.className="bulle-fig";bulle.setAttribute("role","status");
+  document.addEventListener("DOMContentLoaded",function(){document.body.appendChild(bulle)});
+  if(document.body)document.body.appendChild(bulle);
+  var epingle=null,dernierDefil=0;
+  addEventListener("scroll",function(){dernierDefil=Date.now();if(!epingle)cacher()},{passive:true});
+  function svgDe(el,sel){var s=el&&el.closest&&el.closest("svg");while(s&&s.ownerSVGElement)s=s.ownerSVGElement;return s&&s.matches(sel)?s:null}
+  // texte de l'élément survolé, pris dans son titre (déplacé dans data-info pour éviter la bulle du navigateur)
+  function info(el,s){
+    for(var e=el;e&&e!==s;e=e.parentNode){
+      if(e.dataset&&e.dataset.info)return [e,e.dataset.info];
+      var t=e.querySelector&&e.querySelector(":scope > title");
+      if(t&&e!==s){e.dataset.info=t.textContent;t.remove();return [e,e.dataset.info]}}
+    return null}
+  function montrer(x,y,txt){bulle.textContent=txt;bulle.style.opacity=1;var w=bulle.offsetWidth,h=bulle.offsetHeight;
+    bulle.style.left=Math.max(8,Math.min(x+14,innerWidth-w-8))+"px";bulle.style.top=Math.max(8,y-h-12<8?y+16:y-h-12)+"px"}
+  function cacher(){bulle.style.opacity=0}
+  document.addEventListener("pointermove",function(ev){
+    if(epingle)return;var s=svgDe(ev.target,R.bulle);if(!s){cacher();return}
+    var i=info(ev.target,s);if(i)montrer(ev.clientX,ev.clientY,i[1]);else cacher()});
+  document.addEventListener("click",function(ev){
+    var s=svgDe(ev.target,R.bulle);
+    if(epingle){epingle.removeAttribute("data-choisi");epingle=null}
+    if(!s){cacher();return}
+    var i=info(ev.target,s);if(!i){cacher();return}
+    epingle=i[0];epingle.setAttribute("data-choisi","");montrer(ev.clientX,ev.clientY,i[1])});
+  document.addEventListener("keydown",function(ev){if(ev.key==="Escape"&&epingle){epingle.removeAttribute("data-choisi");epingle=null;cacher()}});
+
+  // zoom, le cadrage d'origine est repris chaque fois que la page redessine le graphique
+  function cadre(s){var v=s.getAttribute("viewBox");if(!v)return null;if(s.dataset.vbz!==v)s.dataset.vb0=v;return v.split(/[ ,]+/).map(Number)}
+  function zoomer(s,k,cx,cy){var b=cadre(s);if(!b)return;var o=s.dataset.vb0.split(/[ ,]+/).map(Number);
+    var w=Math.min(o[2],b[2]*k),h=Math.min(o[3],b[3]*k);if(w<o[2]/12)return;
+    if(cx==null){cx=b[0]+b[2]/2;cy=b[1]+b[3]/2}
+    var x=cx-(cx-b[0])*w/b[2],y=cy-(cy-b[1])*h/b[3];
+    x=Math.max(o[0],Math.min(x,o[0]+o[2]-w));y=Math.max(o[1],Math.min(y,o[1]+o[3]-h));
+    var v=[x,y,w,h].map(function(n){return +n.toFixed(2)}).join(" ");s.setAttribute("viewBox",v);s.dataset.vbz=v;boutons(s)}
+  function entier(s){return !s.dataset.vb0||s.getAttribute("viewBox")===s.dataset.vb0}
+  function boutons(s){
+    var hote=s.closest(".fig-corps")||s.closest("figure");
+    if(!hote){
+      // hors d'une figure (atlas), les boutons vont sur une ligne à eux juste au-dessus du graphique, sans recouvrir le
+      // titre du panneau ni le bouton Citer
+      hote=s.parentNode;
+      if(hote&&!hote.classList.contains("fig-zoom")){var enveloppe=document.createElement("div");enveloppe.className="fig-zoom";
+        hote.insertBefore(enveloppe,s);enveloppe.appendChild(s);hote=enveloppe}
+    }
+    if(!hote||hote.querySelector(":scope > .zoom-boutons"))return;
+    var bz=document.createElement("div");bz.className="zoom-boutons";
+    bz.innerHTML='<button type="button" aria-label="Zoomer">+</button><button type="button" aria-label="Dézoomer">−</button><button type="button" aria-label="Revenir à la vue entière">⟲</button>';
+    if(getComputedStyle(hote).position==="static")hote.style.position="relative";
+    hote.insertBefore(bz,hote.firstChild);
+    var cible=function(){var v=hote.querySelector(".variante:not([hidden]) svg");return v||s};
+    var b=bz.querySelectorAll("button");
+    b[0].onclick=function(){zoomer(cible(),.6)};b[1].onclick=function(){zoomer(cible(),1/.6)};
+    b[2].onclick=function(){var c=cible();cadre(c);if(c.dataset.vb0){c.setAttribute("viewBox",c.dataset.vb0);c.dataset.vbz=c.dataset.vb0}}}
+  document.querySelectorAll(R.zoom).forEach(boutons);
+  document.addEventListener("pointerover",function(ev){var s=svgDe(ev.target,R.zoom);if(s)boutons(s)});
+  // la molette seule fait toujours défiler la page ; le zoom à la molette demande Ctrl (ou ⌘), sinon le curseur restait
+  // pris dans la figure (remarque de Lucas du 23 octobre 2026) ; les boutons + et − restent le moyen ordinaire
+  document.addEventListener("wheel",function(ev){
+    if(!(ev.ctrlKey||ev.metaKey))return;
+    var s=svgDe(ev.target,R.zoom);if(!s)return;
+    if(Date.now()-dernierDefil<450)return;                       // la page défile, on la laisse défiler
+    if(ev.deltaY>0&&entier(s))return;                           // vue entière, molette vers le bas, la page défile
+    ev.preventDefault();var p=s.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;
+    var q=p.matrixTransform(s.getScreenCTM().inverse());zoomer(s,ev.deltaY<0?.8:1.25,q.x,q.y)},{passive:false});
+  var dep=null;
+  document.addEventListener("pointerdown",function(ev){var s=svgDe(ev.target,R.zoom);if(!s||entier(s))return;
+    var b=cadre(s);dep={x:ev.clientX,y:ev.clientY,b:b,s:s,k:b[2]/s.getBoundingClientRect().width,bouge:false}});
+  addEventListener("pointermove",function(ev){if(!dep)return;var o=dep.s.dataset.vb0.split(/[ ,]+/).map(Number),b=dep.b;
+    if(Math.abs(ev.clientX-dep.x)+Math.abs(ev.clientY-dep.y)>3)dep.bouge=true;if(!dep.bouge)return;
+    var x=Math.max(o[0],Math.min(b[0]-(ev.clientX-dep.x)*dep.k,o[0]+o[2]-b[2])),y=Math.max(o[1],Math.min(b[1]-(ev.clientY-dep.y)*dep.k,o[1]+o[3]-b[3]));
+    var v=[x,y,b[2],b[3]].map(function(n){return +n.toFixed(2)}).join(" ");dep.s.setAttribute("viewBox",v);dep.s.dataset.vbz=v});
+  addEventListener("pointerup",function(){dep=null});
+
+  // figures des rapports, même modèle que l'atlas (10 octobre 2026). Sous le titre « Figure N. légende », une ligne
+  // « Citer et exporter » ouvre la citation du rapport suivie du numéro et de la légende, l'image (copie, PNG, SVG, avec
+  // la citation dessous) et les données de la figure. La citation du rapport est donnée par la page (data-citation).
+  function citerFigures(){
+    var porte=document.querySelector("[data-citation]");if(!porte)return;var base=porte.dataset.citation;
+    document.querySelectorAll("figure.graphique").forEach(function(f){
+      if(f.dataset.cite)return;f.dataset.cite="1";
+      var cap=f.querySelector("figcaption");
+      var ligne=document.createElement("div");ligne.className="outils-figure";
+      var bc=document.createElement("button");bc.type="button";bc.className="citer-fig";bc.textContent="Citer et exporter";bc.setAttribute("aria-expanded","false");ligne.appendChild(bc);
+      if(cap)cap.after(ligne);else f.insertBefore(ligne,f.firstChild);
+      var boite=document.createElement("div");boite.className="citation-fig";boite.hidden=true;ligne.after(boite);
+      bc.onclick=function(){var ouvert=boite.hidden;bc.setAttribute("aria-expanded",String(ouvert));boite.hidden=!ouvert;if(!ouvert)return;
+        // la légende suit la profession choisie, la citation est donc refaite à chaque ouverture
+        var num=cap&&cap.querySelector("strong"),leg=cap&&cap.querySelector(".leg");
+        var ref=(num?num.textContent.replace(/\.$/,""):"Figure")+(leg?", "+leg.textContent.trim():"");
+        var texte=base.replace(/\s*$/,"")+(/[.]$/.test(base.trim())?" ":". ")+ref+".";
+        var nom=(ref.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,80)||"figure").toLowerCase();
+        boite.innerHTML='<p></p><div class="citation-actions"><button type="button" data-a="cit">Copier la citation</button></div>'
+          +'<ul class="exports"><li><span class="nom"><span class="genre">Image</span> de la figure</span><span class="citation-actions"><button type="button" data-a="img">Copier l’image</button><button type="button" data-a="png">PNG</button><button type="button" data-a="svg">SVG</button></span></li>'
+          +(f.dataset.donnees?'<li><span class="nom"><span class="genre">Données</span> de la figure, '+f.dataset.donneesNom+'</span><span class="citation-actions"><a class="bouton" download href="'+f.dataset.donnees+'">CSV</a></span></li>':'')
+          +'</ul><p class="small muted">Chaque fichier porte la citation du rapport, merci de la joindre à toute reprise.</p>';
+        boite.querySelector("p").textContent=texte;
+        boite.querySelectorAll("button").forEach(function(b){b.onclick=function(){var a=b.dataset.a;
+          if(a==="cit"){navigator.clipboard.writeText(texte).then(function(){b.textContent="Citation copiée"},function(){b.textContent="Copie impossible ici"});return}
+          var src=f.querySelector(".variante:not([hidden]) svg")||f.querySelector("svg");if(!src)return;
+          var svg=imageCitee(src,texte);
+          if(a==="svg"){enregistrer(new Blob([svg],{type:"image/svg+xml"}),nom+".svg");b.textContent="Enregistré";return}
+          var img=new Image(),url=URL.createObjectURL(new Blob([svg],{type:"image/svg+xml"}));
+          img.onload=function(){var c=document.createElement("canvas");c.width=img.width;c.height=img.height;c.getContext("2d").drawImage(img,0,0);URL.revokeObjectURL(url);
+            c.toBlob(function(png){if(!png)return;
+              if(a==="png"){enregistrer(png,nom+".png");b.textContent="Enregistré";return}
+              navigator.clipboard.write([new ClipboardItem({"image/png":png})]).then(function(){b.textContent="Image copiée"},function(){b.textContent="Copie impossible ici, utilisez PNG"})})};img.src=url}})}})}
+  function imageCitee(src,texte){
+    var ns="http://www.w3.org/2000/svg",c=src.cloneNode(true),vb=(src.dataset.vb0||src.getAttribute("viewBox")||"0 0 600 400").split(/[ ,]+/).map(Number);
+    // taille commune des exports (harmonisation, 22 octobre 2026), dessin rapporté à 800 pixels, image à 1 600, citation
+    // au petit corps de l'échelle typographique (11,5 pixels à cette largeur), couleurs du fond clair (valeurs de repli
+    // des variables, seules lues dans un fichier SVG isolé)
+    var fs=11.5*vb[2]/800,par=Math.max(40,Math.floor((vb[2]-16)/(fs*.55))),lignes=[];
+    texte.split(" ").forEach(function(m){var l=lignes.length?lignes[lignes.length-1]:null;if(l!=null&&(l+" "+m).length<=par)lignes[lignes.length-1]=l+" "+m;else lignes.push(m)});
+    var hc=fs*1.4*lignes.length+fs;c.setAttribute("xmlns",ns);c.setAttribute("viewBox",[vb[0],vb[1],vb[2],vb[3]+hc].join(" "));
+    c.setAttribute("width",1600);c.setAttribute("height",Math.round((vb[3]+hc)*1600/vb[2]));
+    var fond=document.createElementNS(ns,"rect");fond.setAttribute("x",vb[0]);fond.setAttribute("y",vb[1]);fond.setAttribute("width",vb[2]);fond.setAttribute("height",vb[3]+hc);fond.setAttribute("fill","#FFFFFF");c.insertBefore(fond,c.firstChild);
+    lignes.forEach(function(l,i){var t=document.createElementNS(ns,"text");t.setAttribute("x",vb[0]+8);t.setAttribute("y",vb[1]+vb[3]+fs*1.4*(i+1));t.setAttribute("font-size",fs);t.setAttribute("fill","#5F6675");t.setAttribute("font-family","Work Sans, Segoe UI, sans-serif");t.textContent=l;c.appendChild(t)});
+    return new XMLSerializer().serializeToString(c)}
+  function enregistrer(blob,nom){var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=nom;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},1000)}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",citerFigures);else citerFigures();
+
+  // tableaux des rapports et des pages, citables et exportables comme les figures (version 2, point 1, 22 octobre 2026).
+  // La citation est celle du rapport (data-citation) ou de la page (data-citation-page et son adresse), suivie du titre
+  // du tableau, tiré de sa légende ou de l'intertitre qui le précède (décision de Lucas, titre sans numéro). Le CSV
+  // reprend les lignes affichées, au format des fichiers du site (point-virgule, virgule décimale, nombres sans
+  // séparateur de milliers), avec la citation en dernière ligne.
+  function titreTableau(t){
+    if(t.caption&&t.caption.textContent.trim())return t.caption.textContent.trim();
+    for(var e=t.closest(".defile")||t;e&&e.tagName!=="MAIN";e=e.parentElement){
+      for(var p=e.previousElementSibling;p;p=p.previousElementSibling){
+        if(/^H[2-5]$/.test(p.tagName))return p.textContent.replace(/\s+/g," ").trim();
+        var h=p.querySelectorAll&&p.querySelectorAll("h2,h3,h4,h5");if(h&&h.length)return h[h.length-1].textContent.replace(/\s+/g," ").trim()}
+      if(e.tagName==="DETAILS"){var s=e.querySelector("summary");if(s)return s.textContent.trim()}}
+    return "Tableau"}
+  function celluleCsv(c){
+    // une adresse raccourcie à l'écran est écrite en entier dans le fichier
+    if(c.querySelectorAll){var lien=[].filter.call(c.querySelectorAll("a[href^='http']"),function(a){return /…$/.test(a.textContent.trim())});
+      if(lien.length){c=c.cloneNode(true);[].forEach.call(c.querySelectorAll("a[href^='http']"),function(a){if(/…$/.test(a.textContent.trim()))a.textContent=a.href})}}
+    var v=c.textContent.replace(/[\s  ]+/g," ").trim();
+    if(/^[−-]?\d{1,3}( \d{3})+(,\d+)?$/.test(v))v=v.replace(/ /g,"");
+    v=v.replace(/^−(?=\d)/,"-");
+    return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+  function tableauCsv(t){
+    return "﻿"+[].filter.call(t.querySelectorAll("tr"),function(tr){return !tr.hidden&&tr.style.display!=="none"})
+      .map(function(tr){return [].map.call(tr.children,celluleCsv).join(";")}).join("\r\n")}
+  function citerTableaux(){
+    var main=document.querySelector("main");if(!main)return;
+    var porte=document.querySelector("[data-citation]"),base;
+    if(porte)base=porte.dataset.citation.replace(/\s*$/,"");
+    else{base=(main.dataset.citationPage||"").replace(/\s*$/,"");if(!base)return;
+      var adr=main.dataset.adresse;base+=(adr?", "+adr+location.pathname.replace(/\/index\.html$/,"/"):"")+"."}
+    main.querySelectorAll("table").forEach(function(t){
+      if(t.dataset.cite||t.closest(".citation-fig,.sommaire,details.versions,nav,figure"))return;t.dataset.cite="1";
+      var bloc=t.closest(".defile")||t;
+      var ligne=document.createElement("div");ligne.className="outils-figure outils-tableau";
+      var bc=document.createElement("button");bc.type="button";bc.className="citer-fig";bc.textContent="Citer et exporter";bc.setAttribute("aria-expanded","false");ligne.appendChild(bc);
+      bloc.before(ligne);
+      var boite=document.createElement("div");boite.className="citation-fig";boite.hidden=true;ligne.after(boite);
+      bc.onclick=function(){var ouvert=boite.hidden;bc.setAttribute("aria-expanded",String(ouvert));boite.hidden=!ouvert;if(!ouvert)return;
+        var titre=titreTableau(t),texte=base+(/[.]$/.test(base)?" ":". ")+"Tableau, « "+titre+" ».";
+        var nom=(titre.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,80)||"tableau").toLowerCase();
+        boite.innerHTML='<p></p><div class="citation-actions"><button type="button" data-a="cit">Copier la citation</button></div>'
+          +'<ul class="exports"><li><span class="nom"><span class="genre">Données</span> du tableau, telles qu’affichées</span><span class="citation-actions"><button type="button" data-a="csv">CSV</button></span></li></ul>'
+          +'<p class="small muted">Le fichier porte la citation de la page, merci de la joindre à toute reprise.</p>';
+        boite.querySelector("p").textContent=texte;
+        boite.querySelectorAll("button").forEach(function(b){b.onclick=function(){
+          if(b.dataset.a==="cit"){navigator.clipboard.writeText(texte).then(function(){b.textContent="Citation copiée"},function(){b.textContent="Copie impossible ici"});return}
+          enregistrer(new Blob([tableauCsv(t)+"\r\n\r\n"+celluleCsv({textContent:texte})],{type:"text/csv;charset=utf-8"}),nom+".csv");b.textContent="Enregistré"}})}})}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",citerTableaux);else citerTableaux();
+
+  // « Comment lire » des rapports (audit du 22 octobre 2026, lot 2), un bouton sur la ligne d'outils de la figure ou du
+  // tableau commenté, à côté de « Citer et exporter », comme dans l'atlas. Le paragraphe garde sa place et s'ouvre au
+  // clic ; s'il ne suit pas une figure ou un tableau, il reste affiché. À l'impression il est toujours visible.
+  function lireReplie(){
+    document.querySelectorAll(".corps p.comment-lire").forEach(function(p){
+      if(p.dataset.lire)return;p.dataset.lire="1";var ligne=null,e=p.previousElementSibling;
+      for(var k=0;e&&k<5&&!ligne;k++,e=e.previousElementSibling){
+        if(e.matches("figure.graphique"))ligne=e.querySelector(".outils-figure");
+        else if(e.matches(".defile,table")){for(var o=e.previousElementSibling,j=0;o&&j<3;o=o.previousElementSibling,j++)if(o.classList.contains("outils-tableau")){ligne=o;break}}
+        else if(e.matches("h2,h3,h4,h5,.comment-lire"))break}
+      if(!ligne)return;
+      var b=document.createElement("button");b.type="button";b.className="citer-fig lire-fig";b.textContent="Comment lire";b.setAttribute("aria-expanded","false");
+      ligne.insertBefore(b,ligne.firstChild);p.classList.add("repli");
+      b.onclick=function(){var o=p.classList.contains("repli");p.classList.toggle("repli",!o);b.setAttribute("aria-expanded",String(o))}})}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",lireReplie);else lireReplie();
+
+  // longs tableaux de consultation (pages de la méthode), un champ filtre les lignes à mesure qu'on tape
+  function filtres(){
+    document.querySelectorAll("table.filtrable").forEach(function(t){
+      if(t.dataset.filtre)return;t.dataset.filtre="1";var bloc=t.closest(".defile")||t;
+      var l=document.createElement("label");l.className="filtre-tableau";l.innerHTML='<span>Filtrer le tableau</span><input type="search" autocomplete="off">';
+      var ligne=bloc.previousElementSibling&&bloc.previousElementSibling.classList.contains("citation-fig")?bloc.previousElementSibling:bloc;ligne.before(l);
+      var n=document.createElement("span");n.className="small muted";l.appendChild(n);
+      var champ=l.querySelector("input"),lignes=[].slice.call(t.tBodies[0]?t.tBodies[0].rows:[]);
+      var norm=function(x){return x.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()};
+      champ.addEventListener("input",function(){var q=norm(champ.value.trim()),k=0;
+        lignes.forEach(function(r){var ok=!q||norm(r.textContent).indexOf(q)>=0;r.hidden=!ok;if(ok)k++});
+        n.textContent=q?k+" ligne"+(k>1?"s":"")+" sur "+lignes.length:""})})}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",filtres);else filtres();
+})();
+
+// Figures qui apparaissent en douceur quand on arrive dessus (refonte du 23 octobre 2026). La classe posée sur la racine
+// n'existe qu'avec le script, si bien qu'une figure reste visible quand il ne tourne pas ; impression exclue.
+(function(){
+  if(!("IntersectionObserver" in window)||matchMedia("print").matches)return;
+  const cibles=document.querySelectorAll("figure.graphique,.une-carte");if(!cibles.length)return;
+  document.documentElement.classList.add("revele");
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("vu");io.unobserve(e.target)}}),{rootMargin:"0px 0px -8% 0px"});
+  cibles.forEach(c=>io.observe(c));
+  addEventListener("beforeprint",()=>cibles.forEach(c=>c.classList.add("vu")));
+})();
+// en-tête qui se resserre en barre flottante dès qu'on descend (essai du 23 octobre 2026, d'après reactbits.dev)
+// classe « resserree » et non « defile », que .defile{overflow-x:auto} des tableaux rognait (liste « Le projet » cachée)
+(function(){var n=document.querySelector("nav.site");if(!n)return;
+  var f=function(){n.classList.toggle("resserree",(window.scrollY||0)>12)};f();addEventListener("scroll",f,{passive:true})})();
+// fenêtres repliables façon macOS (demandes de Lucas des 23 et 28 octobre 2026), pour tout élément .fenetre.repliable
+// qui porte une barre .fen-tete et un corps .fen-corps. Deux boutons sobres à droite de la barre, comme sous Windows
+// (choix de Lucas du 28 octobre 2026, les trois pastilles en couleur à gauche faisaient trop), replier ou déplier, et
+// agrandir à la largeur de l'écran (Échap pour revenir). Double clic sur la barre, replier. Une fenêtre
+// repliée garde son titre et sa phrase de résultat (copie de son .resultat). État gardé dans le navigateur du lecteur,
+// commodité seulement, jamais dans l'adresse, pour qu'un lien partagé ouvre toujours la fenêtre qu'il vise.
+(function(){
+  var fens=[].slice.call(document.querySelectorAll(".fenetre.repliable"));if(!fens.length)return;
+  var CLE="fenetres-repliees:"+location.pathname,etat={};
+  try{etat=JSON.parse(localStorage.getItem(CLE)||"{}")}catch(e){}
+  function garder(){try{localStorage.setItem(CLE,JSON.stringify(etat))}catch(e){}}
+  function titre(f){var h=f.querySelector(".fen-tete h2,.fen-tete h3");return h?h.textContent.trim():"cette fenêtre"}
+  // symboles dessinés au trait, de la couleur du texte, nets à toutes les tailles
+  var svg=function(d){return '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="'+d+'" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'};
+  var ICONE={moins:svg("M3 7h8"),plus:svg("M3 7h8M7 3v8"),agrandir:svg("M8.5 2.5h3v3M11.5 2.5L8 6M5.5 11.5h-3v-3M2.5 11.5L6 8"),
+    reduire:svg("M11.5 2.5L8 6M8 3v3h3M2.5 11.5L6 8M6 11V8H3")};
+  function poser(f,replie,memo){
+    f.classList.toggle("repliee",replie);var b=f.querySelector(".p-replier");
+    b.setAttribute("aria-expanded",String(!replie));b.innerHTML=replie?ICONE.plus:ICONE.moins;
+    b.setAttribute("aria-label",(replie?"Déplier":"Replier")+" la fenêtre « "+titre(f)+" »");
+    if(replie&&f.classList.contains("agrandie"))agrandir(f,false);
+    if(memo!==false){if(replie)etat[f.id]=1;else delete etat[f.id];garder()}
+    document.querySelectorAll('a[href^="#'+f.id+'"]').forEach(function(a){a.classList.toggle("vers-repliee",replie)});
+    if(!replie)dispatchEvent(new CustomEvent("fenetre",{detail:f}))}
+  function agrandir(f,oui){
+    f.classList.remove("agrandie");f.style.removeProperty("--deborde-g");f.style.removeProperty("--deborde-d");
+    if(oui){var r=f.getBoundingClientRect(),w=document.documentElement.clientWidth;
+      f.style.setProperty("--deborde-g",Math.max(0,r.left-16)+"px");f.style.setProperty("--deborde-d",Math.max(0,w-r.right-16)+"px");
+      f.classList.add("agrandie")}
+    var b=f.querySelector(".p-agrandir");b.setAttribute("aria-pressed",String(oui));b.innerHTML=oui?ICONE.reduire:ICONE.agrandir;
+    b.setAttribute("aria-label",(oui?"Rendre à la fenêtre « ":"Agrandir la fenêtre « ")+titre(f)+(oui?" » sa largeur":" » à la largeur de l’écran"));
+    dispatchEvent(new CustomEvent("fenetre",{detail:f}))}
+  function resume(f){var r=f.querySelector(".fen-corps .resultat"),c=f.querySelector(".fen-resume");if(r&&c)c.textContent=r.textContent.replace(/­/g,"")}
+  fens.forEach(function(f){
+    var corps=f.querySelector(".fen-corps"),tete=f.querySelector(".fen-tete"),p=tete&&tete.querySelector(".pastilles");if(!corps||!p)return;
+    corps.id=corps.id||f.id+"-corps";var t=titre(f);
+    p.innerHTML='<button type="button" class="p-agrandir" aria-pressed="false" aria-label="Agrandir la fenêtre « '+t+' » à la largeur de l’écran">'+ICONE.agrandir+'</button>'
+      +'<button type="button" class="p-replier" aria-controls="'+corps.id+'"></button>';
+    p.querySelector(".p-replier").onclick=function(){poser(f,!f.classList.contains("repliee"))};
+    p.querySelector(".p-agrandir").onclick=function(){if(f.classList.contains("repliee"))poser(f,false);agrandir(f,!f.classList.contains("agrandie"))};
+    tete.addEventListener("dblclick",function(e){if(!e.target.closest("button,a,input,select"))poser(f,!f.classList.contains("repliee"))});
+    var r=corps.querySelector(".resultat");if(r){resume(f);new MutationObserver(function(){resume(f)}).observe(r,{childList:true,characterData:true,subtree:true})}
+    // « Comment lire » de la barre, ouvre la note de lecture rangée en tête du corps
+    var bl=tete.querySelector(".fen-lire-bouton"),nl=f.querySelector(".fen-lire");
+    if(bl&&nl){nl.id=nl.id||f.id+"-lire";bl.setAttribute("aria-controls",nl.id);bl.setAttribute("aria-expanded","false");
+      bl.onclick=function(){var o=nl.hidden;if(o&&f.classList.contains("repliee"))poser(f,false);nl.hidden=!o;bl.setAttribute("aria-expanded",String(o))}}
+    poser(f,!!etat[f.id],false)});
+  // un lien vers une fenêtre repliée la déplie, l'adresse d'une vue partagée aussi (#paires?pA=…)
+  function viser(){var id=decodeURIComponent((location.hash||"").slice(1).split("?")[0]);if(!id)return;
+    var f=document.getElementById(id);if(f&&f.classList.contains("repliee"))poser(f,false)}
+  viser();addEventListener("hashchange",viser);
+  // le navigateur ne trouve pas l'ancre d'une vue partagée (#iFenEntonnoir?iProf=…), la page y descend donc elle-même,
+  // une fois les figures dessinées pour que la position soit juste
+  // (sans quoi le navigateur remet la page à la position qu'il avait gardée)
+  if((location.hash||"").indexOf("?")>=0&&"scrollRestoration" in history)history.scrollRestoration="manual";
+  addEventListener("load",function(){var h=location.hash||"";if(h.indexOf("?")<0)return;
+    var el=document.getElementById(decodeURIComponent(h.slice(1).split("?")[0]));
+    if(el)setTimeout(function(){el.scrollIntoView({block:"start"})},0)});
+  document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest('a[href^="#"]');if(!a)return;
+    var f=document.getElementById(a.getAttribute("href").slice(1).split("?")[0]);if(f&&f.classList.contains("repliee"))poser(f,false)});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape")fens.forEach(function(f){if(f.classList.contains("agrandie"))agrandir(f,false)})});
+  addEventListener("resize",function(){fens.forEach(function(f){if(f.classList.contains("agrandie"))agrandir(f,true)})});
+  window.fenetres={toutes:function(replie){fens.forEach(function(f){poser(f,replie)})}};
+  document.querySelectorAll("[data-fenetres]").forEach(function(b){b.onclick=function(){window.fenetres.toutes(b.dataset.fenetres==="replier")}});
+})();
+</script>
+
+<script src="cesure/hyphen.js" defer></script>
+<script src="cesure/hyphen-fr.js" defer></script>
+<script src="cesure/cesure.js" defer></script>
+<script>window.goatcounter={no_onload:navigator.doNotTrack==="1"||window.doNotTrack==="1"}</script><script data-goatcounter="https://ubicura.goatcounter.com/count" async src="https://gc.zgo.at/count.v5.js" crossorigin="anonymous" integrity="sha384-atnOLvQb9t+jTSipvd75X2yginT4PjVbqDdlJAmxMm+wYElFmeR6EmLP5bYeoRVQ"></script>
+</body>
+</html>

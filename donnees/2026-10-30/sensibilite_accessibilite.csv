@@ -1,0 +1,11 @@
+﻿prof;portee_km;rho_epci;quart_bas_conserve
+psychologue;10;0,739085;0,622222
+psychologue;30;0,797582;0,663492
+psychiatre;10;0,803518;0,701587
+psychiatre;30;0,870142;0,736508
+pedopsychiatre;10;0,832548;1
+pedopsychiatre;30;0,928247;0,74463
+medecin_generaliste;10;0,752925;0,625397
+medecin_generaliste;30;0,796019;0,663492
+orthophoniste;10;0,883187;0,780952
+orthophoniste;30;0,915713;0,793651

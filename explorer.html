@@ -1,0 +1,894 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Explorer les données · Ubi Cura</title>
+<meta name="description" content="Offre de soins et de santé mentale en France, par territoire, à partir des données publiques.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%231D4D87%22/%3E%3Crect%20x%3D%227%22%20y%3D%2217%22%20width%3D%224.5%22%20height%3D%228%22%20rx%3D%221%22%20fill%3D%22%23B39BCB%22/%3E%3Crect%20x%3D%2213.75%22%20y%3D%2212%22%20width%3D%224.5%22%20height%3D%2213%22%20rx%3D%221%22%20fill%3D%22%23D4C3EA%22/%3E%3Crect%20x%3D%2220.5%22%20y%3D%227%22%20width%3D%224.5%22%20height%3D%2218%22%20rx%3D%221%22%20fill%3D%22%23FFFFFF%22/%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="Ubi Cura">
+<meta property="og:title" content="Explorer les données">
+<meta property="og:description" content="Offre de soins et de santé mentale en France, par territoire, à partir des données publiques.">
+<meta name="theme-color" content="#15171C">
+<link rel="stylesheet" href="polices/polices.css">
+<link rel="stylesheet" href="style.css?v=9b85e8c7dc">
+<script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||"dark")}catch(e){document.documentElement.setAttribute("data-theme","dark")}</script>
+<!-- referencement --><link rel="canonical" href="https://ubicura.fr/explorer.html"><meta property="og:url" content="https://ubicura.fr/explorer.html"><meta property="og:image" content="https://ubicura.fr/apercu.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Carte des départements de France, densité de psychiatres comparée à la moyenne des départements"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image:alt" content="Carte des départements de France, densité de psychiatres comparée à la moyenne des départements">
+</head>
+<body>
+<nav class="site" aria-label="Navigation du site">
+  <div class="in">
+    <a class="marque" href="index.html" title="Offre de soins et santé mentale en France, territoire par territoire">Ubi Cura</a>
+    <button class="menu" id="bouton-menu" type="button" aria-expanded="false" aria-controls="liens-site">Menu</button>
+    <div class="liens" id="liens-site">
+    <a class="l" href="index.html">Atlas</a>
+    <a class="l on" href="explorer.html">Explorer</a>
+    <a class="l" href="rapports.html">Rapports nationaux</a>
+    <a class="l" href="territoires/index.html">Rapports par territoire</a>
+    <a class="l" href="methode.html">Méthode, données et limites</a>
+    
+    <div class="projet">
+      <button class="l" id="bouton-projet" type="button" aria-expanded="false" aria-controls="menu-projet">Le projet <span class="fleche" aria-hidden="true">▾</span></button>
+      <div class="sous-menu" id="menu-projet" hidden>
+        <a href="a-propos.html">À propos</a>
+        <a href="publications.html">Publications</a>
+        <a href="journal.html">Journal des mises à jour</a>
+        <a href="a-venir.html">À venir</a>
+        <a href="contribuer.html">Proposer une base de données</a>
+        
+      </div>
+    </div>
+    <button class="theme" id="bascule-theme" type="button" aria-pressed="false">Fond clair</button>
+    </div>
+  </div>
+</nav>
+<script>
+// menu « Le projet », ouvert au clic ou au clavier, fermé par Échap ou par un clic ailleurs
+(function(){var b=document.getElementById("bouton-projet"),m=document.getElementById("menu-projet");if(!b||!m)return;
+function ouvrir(o,focus){m.hidden=!o;b.setAttribute("aria-expanded",String(o));if(o&&focus){var a=m.querySelector("a");if(a)a.focus()}}
+b.addEventListener("click",function(){ouvrir(m.hidden,false)});
+b.addEventListener("keydown",function(e){if(e.key==="ArrowDown"){e.preventDefault();ouvrir(true,true)}});
+m.addEventListener("keydown",function(e){var l=[].slice.call(m.querySelectorAll("a")),i=l.indexOf(document.activeElement);
+  if(e.key==="ArrowDown"){e.preventDefault();l[(i+1)%l.length].focus()}else if(e.key==="ArrowUp"){e.preventDefault();l[(i-1+l.length)%l.length].focus()}});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!m.hidden){ouvrir(false);b.focus()}});
+document.addEventListener("click",function(e){if(!m.hidden&&!b.parentNode.contains(e.target))ouvrir(false)})})();
+// téléphone, liens du site repliés derrière « Menu » (audit du 22 octobre 2026) ; sommaire d'une page replié derrière
+// « Sommaire », ouvert au clic, refermé quand on choisit une section
+(function(){var b=document.getElementById("bouton-menu"),n=b&&b.closest("nav.site");if(!b)return;
+b.addEventListener("click",function(){var o=!n.classList.contains("ouvert");n.classList.toggle("ouvert",o);b.setAttribute("aria-expanded",String(o))})})();
+document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll("aside.sommaire").forEach(function(a){
+  if(!a.querySelector("ul"))return;var t=document.createElement("button");t.type="button";t.className="bouton-sommaire";
+  t.setAttribute("aria-expanded","false");t.textContent="Sommaire";a.insertBefore(t,a.firstChild);
+  t.addEventListener("click",function(){var o=!a.classList.contains("ouvert");a.classList.toggle("ouvert",o);t.setAttribute("aria-expanded",String(o))});
+  a.addEventListener("click",function(e){if(e.target.closest("a")){a.classList.remove("ouvert");t.setAttribute("aria-expanded","false")}})})});
+(function(){var b=document.getElementById("bascule-theme"),r=document.documentElement;
+function maj(){var c=r.getAttribute("data-theme")==="light";b.textContent=c?"Fond sombre":"Fond clair";b.setAttribute("aria-pressed",String(c))}
+maj();b.addEventListener("click",function(){var t=r.getAttribute("data-theme")==="light"?"dark":"light";r.setAttribute("data-theme",t);
+try{localStorage.setItem("theme",t)}catch(e){}maj();window.dispatchEvent(new Event("theme"))})})();
+</script>
+<main class="" data-citation-page="Pithon L. (2026). Explorer les données. Ubi Cura, version du 30 octobre 2026" data-adresse="https://ubicura.fr">
+
+<style>
+/* Page « Explorer les données » (décision de Lucas du 26 octobre 2026). Une question, une grande fenêtre sur toute la
+   largeur de la page, les réglages en tête, les figures liées côte à côte. Règle de Lucas du 26 octobre 2026, des
+   onglets seulement entre des vues d'un même résultat (figures, tableau), des fenêtres séparées pour des analyses
+   différentes. Lignes des groupes validées par le skill dataviz le 25 octobre 2026. */
+:root{--k1:#83451E;--k2:#C0703F;--k3:#A7ACB5;--k4:#3F74C0;--k5:#163F75;
+  --c1:#2a78d6;--c2:#eb6834;--c3:#1baf7a;--c4:#6250d6;--c5:#e87ba4;--c6:#008300}
+:root[data-theme="dark"]{--k1:#FFBC8F;--k2:#C9773F;--k3:#6B717B;--k4:#6A9BE0;--k5:#B5D5FF;
+  --c1:#3987e5;--c2:#d95926;--c3:#199e70;--c4:#9085e9;--c5:#d55181;--c6:#008300}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--k1:#FFBC8F;--k2:#C9773F;--k3:#6B717B;--k4:#6A9BE0;--k5:#B5D5FF;
+  --c1:#3987e5;--c2:#d95926;--c3:#199e70;--c4:#9085e9;--c5:#d55181;--c6:#008300}}
+/* une seule ligne de réglages gardée sous la barre du site pendant la lecture, les trois familles puis le réglage de
+   la question en cours de lecture (profession et niveau, type de structure), qui change en descendant (remarque de
+   Lucas du 29 octobre 2026, le choix de la profession n'était qu'en haut de la question) */
+.reglages-page{position:sticky;top:calc(var(--haut-nav,64px) + 6px);z-index:8;display:flex;align-items:baseline;gap:8px 28px;flex-wrap:wrap;margin:22px 0 0;padding:9px 0;background:var(--bg);border-bottom:1px solid var(--line);border-radius:0;
+  transition:background-color .22s ease-out,box-shadow .22s ease-out,padding .22s ease-out,border-radius .22s ease-out}
+/* une fois collée, même allure que le rappel des réglages de l'atlas (panneau arrondi qui flotte sous la barre du site,
+   remarque de Lucas du 29 octobre 2026), à hauteur égale pour que la page ne bouge pas */
+.reglages-page.flotte{padding:9px 10px 9px 18px;background:var(--panel);border-bottom-color:transparent;border-radius:12px;box-shadow:0 0 0 1px var(--fen-bord),0 14px 34px -14px var(--ombre-nav,rgb(0 0 0 / .5))}
+.reglages-page .reg-q{flex:1 1 auto;display:flex;min-width:0}
+.reglages-page .reg-q:empty{display:none}
+.reglages-page .q-reglages{flex:1 1 auto;margin:0;min-width:0}
+.reglages-page .prof-choix{min-width:0}
+.reglages-page .prof-choix>button{white-space:normal;text-align:left}
+.reglages-page .q-reglages[hidden]{display:none}
+.reglages-page .q-reglages .fin{margin-left:auto}
+.cache-visuel{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.vers-atlas-l{margin:0 0 18px;font-size:.875rem;text-align:right}
+@media (max-width:700px){.reglages-page{gap:6px 20px}.reglages-page .q-reglages .fin{margin-left:0}}
+/* sommaire des questions sur plusieurs colonnes, chaque question avec ses fenêtres, sans rogner leur largeur */
+.sommaire-questions{columns:3 260px;column-gap:40px;margin:24px 0 36px;padding:0 0 10px;border-bottom:1px solid var(--line)}
+.sommaire-questions .tout{column-span:all;display:flex;gap:18px;margin:0 0 14px;font-size:.8125rem}
+.sommaire-questions .tout button{font:inherit;background:none;border:0;padding:0;color:var(--ink);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px;cursor:pointer}
+.sommaire-questions .grp{break-inside:avoid-column;margin:0 0 16px}
+.sommaire-questions .q{font-size:.8125rem;line-height:1.4;color:var(--muted);margin:0 0 4px;text-align:left}
+.sommaire-questions ul{list-style:none;margin:0;padding:0}
+.sommaire-questions li a{display:block;padding:3px 0 3px 12px;border-left:2px solid var(--line);color:var(--ink);text-decoration:none;font-size:.9375rem;line-height:1.35;text-align:left}
+.sommaire-questions li a:hover{border-left-color:var(--ink)}
+.sommaire-questions .avenir{display:block;padding:3px 0 3px 12px;border-left:2px dotted var(--line);color:var(--muted);font-size:.875rem;line-height:1.35;text-align:left}
+.question{margin:0 0 40px}
+.question>.q-titre{font-size:1.25rem;margin:0 0 12px;scroll-margin-top:132px}
+/* réglage commun aux fenêtres d'une question, posé sous son titre */
+.q-reglages{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 18px;margin:0 0 18px}
+.q-reglages .lib{font-size:.8125rem;color:var(--muted)}
+.q-reglages .lib:not(:first-child){margin-left:14px}
+.vers-atlas-l a{color:var(--ink)}
+.question>.a-savoir{max-width:none;margin:-6px 0 0;font-size:.875rem;color:var(--muted)}
+/* long tableau (un territoire par ligne) dans une hauteur limitée, en-tête gardé en haut */
+.table-haute{max-height:560px;overflow:auto}
+.table-haute thead th{position:sticky;top:0;background:var(--fen-corps);z-index:1}
+.lien-prof{font:inherit;background:none;border:0;padding:0;color:var(--ink);text-align:left;cursor:pointer;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
+.lien-prof[aria-current="true"]{font-weight:600}
+.outil details.plus{margin:12px 0 0;font-size:.875rem}
+.outil details.plus summary{cursor:pointer;color:var(--muted)}
+/* typologie, carte et groupes côte à côte sur un écran large, l'un sous l'autre sinon */
+.typo-corps{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:28px;align-items:start}
+.tylegende{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:12px}
+.tylegende li{display:grid;grid-template-columns:14px minmax(0,1fr);column-gap:10px;font-size:.9375rem;line-height:1.4;text-align:left}
+.tylegende li i{width:12px;height:12px;border-radius:2px;margin-top:4px}
+.tylegende li .n{grid-column:2;font-size:.8125rem;color:var(--muted)}
+.outil th.ty-col{white-space:normal;min-width:130px;text-align:right}
+.outil tr.ty-sous th{text-align:left;padding-top:18px;font-size:.8125rem;color:var(--muted);white-space:normal}
+.outil td.barre-acp{width:22%;min-width:90px}
+.outil td.barre-acp svg{display:block;width:100%;height:12px}
+@media (max-width:820px){.typo-corps{grid-template-columns:1fr}}
+/* liste des professions, reprise du choix de la profession de l'atlas */
+.prof-choix{position:relative;display:inline-block;max-width:100%}
+.prof-choix>button{font:inherit;font-size:.9375rem;font-weight:400;color:var(--ink);background:none;border:0;border-bottom:1px solid var(--ink);padding:3px 0;cursor:pointer;display:inline-flex;gap:10px;align-items:center;white-space:nowrap;max-width:100%}
+.prof-choix>button span{overflow:hidden;text-overflow:ellipsis}
+.prof-choix>button svg{display:inline-block;flex:none;width:11px;height:7px;transition:transform .2s ease}
+.prof-choix>button[aria-expanded="true"] svg{transform:rotate(180deg)}
+.prof-liste{position:absolute;top:calc(100% + 10px);left:-14px;z-index:30;background:var(--table,var(--panel));border-radius:4px;box-shadow:0 14px 36px rgb(0 0 0 / .34);padding:8px 0;min-width:340px;max-height:min(70vh,560px);overflow:auto}
+.prof-liste[hidden]{display:none!important}
+.prof-liste p{font-size:.8125rem;color:var(--muted);margin:0;padding:10px 16px 2px;text-align:left!important;hyphens:manual}
+.prof-liste .consigne{padding:10px 16px 0}
+.prof-liste.large{width:min(820px,calc(100vw - 48px));max-height:min(72vh,620px);padding:0 0 10px}
+.prof-liste .filtre-liste{position:sticky;top:0;z-index:1;display:block;width:100%;background:var(--table,var(--panel));color:var(--ink);border:0;border-bottom:1px solid var(--line);padding:12px 16px;font:inherit;font-size:.9375rem}
+.prof-liste.large .colonnes{columns:3 220px;column-gap:8px;padding-top:4px}
+.prof-liste .grp{break-inside:avoid}
+.prof-liste .grp[hidden],.prof-liste button[hidden]{display:none}
+.prof-liste button{display:block;width:100%;text-align:left;font:inherit;font-size:.9375rem;color:var(--ink);background:none;border:0;padding:6px 16px;cursor:pointer}
+.prof-liste button:hover,.prof-liste button:focus-visible{background:color-mix(in srgb,var(--ink) 7%,transparent);outline:none}
+.prof-liste button[aria-current="true"]{font-weight:600}
+.prof-liste button[aria-pressed]::before{content:"";display:inline-block;width:12px;height:12px;border:1px solid var(--muted);border-radius:2px;margin-right:10px;vertical-align:-1px}
+.prof-liste button[aria-pressed="true"]::before{background:var(--ink);border-color:var(--ink);box-shadow:inset 0 0 0 2px var(--table,var(--panel))}
+.prof-liste button:disabled{opacity:.35;cursor:default}
+/* menu en deux temps des indicateurs (thèmes à gauche, indicateurs du thème à droite), repris de l'atlas avec
+   « Croiser deux indicateurs » : sans ces règles les indicateurs se rangeaient sous les thèmes, hors de vue, et le choix
+   semblait impossible (bug signalé par Lucas le 29 octobre 2026). Un thème n'est pas une case à cocher. */
+.prof-liste.deux{width:min(760px,calc(100vw - 48px));max-height:none;padding:0;overflow:hidden;display:grid;grid-template-columns:250px minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);height:min(70vh,560px)}
+.prof-liste.deux .filtre-liste{grid-column:1/-1}
+.prof-liste.deux .volet-themes{overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable;scrollbar-width:thin;padding:6px 0;border-right:1px solid var(--line)}
+.prof-liste.deux .volet-themes .theme{padding-right:18px}
+.prof-liste.deux .volet-choix{overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;padding:6px 0}
+.prof-liste.deux .volet-choix button{padding-left:22px}
+.prof-liste.deux .seuls{padding-bottom:6px;margin-bottom:6px;border-bottom:1px solid var(--line)}
+.prof-liste.deux .theme{display:flex;justify-content:space-between;align-items:baseline;gap:10px;color:var(--muted)}
+.prof-liste.deux .theme::before{content:none}
+.prof-liste.deux .theme .nb{font-size:.75rem;color:var(--faint);font-variant-numeric:tabular-nums}
+.prof-liste.deux .theme[aria-pressed="true"]{color:var(--ink);background:color-mix(in srgb,var(--ink) 8%,transparent)}
+.prof-liste.deux.cherche .theme{pointer-events:none}
+.prof-liste.deux.cherche .theme.vide{opacity:.35}
+.prof-liste.deux .volet-choix .grp>p{padding-top:6px}
+.prof-liste.deux:not(.cherche) .volet-choix .grp>p{display:none}
+@media (max-width:640px){.prof-liste.deux{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto minmax(0,1fr)}.prof-liste.deux .volet-themes{max-height:30vh;border-right:0;border-bottom:1px solid var(--line)}}
+[hidden]{display:none!important}
+.explorer .tete{max-width:none}
+.outil .resultat{max-width:none;margin:0 0 14px;font-size:1rem}
+.reglages{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:8px 20px;margin:0 0 16px;padding:0 0 14px;border-bottom:1px solid var(--line);align-items:baseline}
+.reglages .lib{font-size:.8125rem;color:var(--muted)}
+.choix{display:flex;flex-wrap:wrap;gap:4px 16px}
+/* une liste soignée au libellé long (« EHPAD, pour 100 000 personnes de 80 ans et plus ») se coupe en points de suspension au
+   lieu d'élargir la page sur téléphone */
+.choix>.prof-choix{min-width:0;max-width:100%}
+.choix button{font:inherit;font-size:.9375rem;background:none;border:0;padding:2px 0;color:var(--muted);cursor:pointer;border-bottom:1px solid transparent}
+.choix button:hover{color:var(--ink)}
+.choix button[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.choix button:disabled{opacity:.35;cursor:default}
+.choix input{font:inherit;font-size:.9375rem;background:transparent;color:var(--ink);border:0;border-bottom:1px solid var(--line);padding:2px 0;width:280px}
+.choix input:focus{outline:none;border-bottom-color:var(--ink)}
+.onglets{display:flex;gap:4px 24px;flex-wrap:wrap;border-bottom:1px solid var(--line);margin:0 0 16px}
+.onglets button{font:inherit;font-size:.9375rem;background:none;border:0;padding:6px 0 8px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.onglets button:hover{color:var(--ink)}
+.onglets button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+.vue[hidden]{display:none}
+.cote{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start}
+.cote figure.graphique{margin:0}
+/* une figure posée dans la fenêtre d'un outil n'a pas de second cadre (fenêtre dans la fenêtre, remarque de Lucas du
+   28 octobre 2026), sa légende et « Citer et exporter » restent au-dessus d'elle sur le fond de la fenêtre */
+.outil figure.graphique{background:none;border:0;border-radius:0;box-shadow:none;padding:0}
+.outil figure.graphique>figcaption,.outil figure.graphique>.outils-figure{margin:0;padding:0 0 6px;background:none;border:0;border-radius:0}
+.outil figure.graphique>.outils-figure{padding-bottom:12px}
+.outil .fen-corps p{max-width:none;text-align:justify}
+.outil .fen-tete p{max-width:none}
+.legende-x{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:.8125rem;color:var(--muted);margin:4px 0 10px}
+.legende-x span{display:inline-flex;align-items:center;gap:6px}
+.legende-x i{display:inline-block;width:18px;height:2px;border-radius:1px}
+.legende-x i.carre{width:12px;height:12px;border-radius:2px}
+.legende-x i.tiret{height:0;border-top:1.5px dashed var(--ink)}
+.legende-x .rare{opacity:.7}
+.grille-t{display:grid;gap:12px 32px}
+.grille-t h3{font-family:inherit;font-weight:500;font-size:.9375rem;margin:0 0 2px}
+.grille-t .unite{font-size:.8125rem;color:var(--muted);margin:0 0 4px;text-align:left}
+.fig-corps svg{display:block;width:100%;height:auto;overflow:visible}
+.axe text{fill:var(--muted);font-size:12px;font-family:"Work Sans",system-ui,sans-serif}
+.grillage line{stroke:var(--line)}
+.courbe{fill:none;stroke-width:2;stroke-linejoin:round;stroke-linecap:round}
+.repere{fill:none;stroke:var(--ink);stroke-width:1.5;stroke-dasharray:4 3}
+.etiq{font-size:12px;font-family:"Work Sans",system-ui,sans-serif;fill:var(--muted)}
+.etiq.forte{fill:var(--ink)}
+.curseur{stroke:var(--muted);stroke-width:1}
+.territoire{stroke:var(--contour,#fff);stroke-width:.3}
+.territoire:hover{stroke:var(--ink);stroke-width:1}
+.bulle-x{position:fixed;pointer-events:none;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px 10px;font-size:.8125rem;box-shadow:0 4px 16px rgba(0,0,0,.18);display:none;z-index:50;min-width:200px;text-align:left}
+.bulle-x b{font-weight:500}
+.bulle-x .l{display:flex;justify-content:space-between;gap:16px}
+.bulle-x .l span:first-child{display:inline-flex;align-items:center;gap:6px}
+.bulle-x i{display:inline-block;width:10px;height:10px;border-radius:2px}
+.outil .vue > div{overflow-x:auto}
+.outil table{border-collapse:collapse;width:100%;font-size:.9375rem;margin:4px 0 8px;font-variant-numeric:tabular-nums}
+.outil caption{caption-side:top;text-align:left;font-size:.8125rem;color:var(--muted);padding:0 0 12px}
+.outil th,.outil td{padding:10px 16px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap;vertical-align:baseline}
+.outil th{font-weight:500;font-size:.8125rem;color:var(--muted);border-bottom-color:color-mix(in srgb,var(--ink) 30%,transparent)}
+.outil th:first-child,.outil td:first-child{text-align:left;padding-left:0;white-space:normal}
+.outil th:last-child,.outil td:last-child{padding-right:0}
+.outil tbody tr:hover td{background:color-mix(in srgb,var(--ink) 4%,transparent)}
+td i.pastille{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+.outil .a-savoir{max-width:none;margin:14px 0 0}
+.ad-notes{margin:8px 0 0}.ad-notes span{display:block}
+.ad-offre{width:100%;table-layout:fixed}.ad-offre th,.ad-offre td{white-space:normal;hyphens:none}.ad-offre th:first-child{width:34%}.ad-offre th:nth-child(2){width:15%}.ad-offre td:nth-child(2){text-align:right;padding-right:18px}
+@media (max-width:820px){.reglages{grid-template-columns:minmax(0,1fr)}.cote,.grille-t{grid-template-columns:1fr!important}}
+/* « Croiser deux indicateurs » (lot 2 du 29 octobre 2026), même moteur que l'atlas. Règles des questions préparées
+   reprises de l'atlas, qui ne montre plus le nuage, et règles du moteur limitées à la question */
+#cbTable{min-width:640px}
+#cbTable td{vertical-align:top;line-height:1.4}
+#cbTable td:first-child{min-width:280px}
+#cbTable .cb-titre th{text-align:left;font-weight:600;padding-top:14px;border-bottom:1px solid var(--line);white-space:normal}
+#cbTable .num{text-align:right}
+.suggestions{margin-top:22px}
+.sc-hote{position:relative}
+.suggestions h3{font-family:var(--serif);font-size:1.125rem;font-weight:500;margin:0 0 4px}
+.cb-vue h3{font-family:var(--serif);font-size:18px;font-weight:600;margin:8px 0 6px}
+.cb-q{font-size:.875rem;color:var(--muted);margin:14px 0 4px;padding-bottom:3px;border-bottom:1px solid var(--line)}
+.cb-axe{display:grid;grid-template-columns:minmax(0,1fr) 132px 44px;gap:10px;font-size:.75rem;color:var(--muted);padding:0 6px}
+.cb-axe span{display:flex;justify-content:space-between;gap:8px}
+.cb-ligne{display:grid;grid-template-columns:minmax(0,1fr) 132px 44px;gap:10px;align-items:center;width:100%;text-align:left;background:none;border:0;border-radius:6px;padding:5px 6px;color:var(--ink);font:inherit;font-size:.875rem;line-height:1.35;cursor:pointer}
+.cb-ligne:hover{background:color-mix(in srgb,var(--accent) 10%,transparent)}
+.cb-ligne.on{background:color-mix(in srgb,var(--ink) 10%,transparent);box-shadow:inset 2px 0 0 var(--ink)}
+.cb-ligne:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
+.cb-ligne svg{width:132px;height:16px;display:block}
+.cb-ligne .rho{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
+#qCroisements select.natif{display:none}
+#qCroisements .reglages .seg{display:contents}
+#qCroisements svg text{fill:var(--muted);font-family:var(--sans);font-size:11px}
+#qCroisements svg text.signature{font-size:10px;opacity:.75}
+#qCroisements #scatter{display:block;width:100%;height:auto;max-width:none}
+#qCroisements .zoombar{position:absolute;top:8px;right:8px;z-index:2;display:flex;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:var(--fen-corps,var(--panel))}
+#qCroisements .zoombar button{background:none;border:0;padding:4px 10px;cursor:pointer;color:var(--ink);font-size:.875rem;min-width:32px}
+#qCroisements .zoombar button+button{border-left:1px solid var(--line)}
+#qCroisements .zoombar button:hover{background:color-mix(in srgb,var(--ink) 8%,transparent)}
+#qCroisements .legende-signaux{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.875rem;color:var(--muted);margin:6px 0}
+#qCroisements .asavoir{box-sizing:border-box;border-left:3px solid var(--accent,#9A6B00);background:color-mix(in srgb,var(--accent,#9A6B00) 8%,transparent);padding:5px 11px;font-size:.875rem;margin:10px 0 0;border-radius:0 4px 4px 0}
+#qCroisements details.asavoir>summary{cursor:pointer;list-style:none}
+#qCroisements details.asavoir>summary::-webkit-details-marker{display:none}
+#qCroisements details.asavoir>summary::after{content:"Lire la suite";margin-left:.6em;font-size:.75rem;color:var(--muted);text-decoration:underline;white-space:nowrap}
+#qCroisements details.asavoir[open]>summary::after{content:"Replier"}
+#qCroisements details.asavoir>p{margin:6px 0 2px;max-width:none}
+#qCroisements .asavoir-terr{font-weight:600}
+#qCroisements .note{font-size:.875rem;color:var(--muted);max-width:none}
+#qCroisements .comment-lire p{margin:0 0 8px}
+#qCroisements .resultat[hidden]{display:none}
+#qCroisements .indice-defil{font-size:.75rem;color:var(--muted);margin:4px 0 0;text-align:right}
+.tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--bg);font-size:.875rem;padding:8px 10px;border-radius:4px;max-width:min(470px,calc(100vw - 16px));opacity:0;z-index:40}
+</style>
+
+<div class="explorer" data-citation="Pithon L. (2026). Explorer les données. Ubi Cura, version du 30 octobre 2026, https://ubicura.fr/explorer.html">
+<div class="tete">
+<h1>Explorer les données</h1>
+<p class="chapeau">Chaque question ouvre des fenêtres que l'on règle soi-même. Réglées par défaut, elles montrent le résultat publié dans les rapports. Chaque réglage s'inscrit dans l'adresse de la page, pour partager ou citer la vue choisie.</p>
+</div>
+<div class="reglages-page" role="group" aria-label="Réglages"><div class="choix" id="fam" role="group" aria-label="Professions proposées"></div><div class="reg-q" id="regQ"></div></div>
+
+<!-- sommaire par question (note du 28 octobre 2026), les outils de l'atlas viendront s'y ranger lot par lot -->
+<nav class="sommaire-questions" aria-label="Questions de la page">
+  <div class="tout"><button type="button" data-fenetres="replier">Tout replier</button><button type="button" data-fenetres="deplier">Tout déplier</button></div>
+  <div class="grp"><p class="q">Les territoires modestes sont-ils moins bien dotés ?</p><ul><li><a href="#iFenEscalier">Selon le niveau de vie</a></li><li><a href="#iFenEntonnoir">Écarts qui dépassent le hasard</a></li><li><a href="#iFenConcentration">Concentration de l'offre</a></li></ul></div>
+  <div class="grp"><p class="q">À quelle distance des structures de soins vit-on ?</p><ul><li><a href="#iFenDistNv">Selon le niveau de vie</a></li><li><a href="#iFenDistType">Selon le type de territoire</a></li></ul></div>
+  <div class="grp"><p class="q">Quels profils d'offre distinguent les intercommunalités ?</p><ul><li><a href="#tyFenProfils">Profils d'offre des intercommunalités</a></li><li><a href="#tyFenAcp">Ce qui distingue les intercommunalités</a></li></ul></div>
+  <div class="grp"><p class="q">Où trouve-t-on une profession sans l'autre ?</p><ul><li><a href="#paires">Une profession sans l'autre</a></li></ul></div>
+  <div class="grp"><p class="q">Les départements modestes rattrapent-ils leur retard depuis 2016 ?</p><ul><li><a href="#trajectoires">Croiser des trajectoires</a></li></ul></div>
+  <div class="grp"><p class="q">L'addictologie, de l'offre aux consommations</p><ul><li><a href="#adFenConso">Consommations et décès attribuables, par région</a></li><li><a href="#adFenOffre">L'offre en addictologie en France</a></li></ul></div>
+  <div class="grp"><p class="q">L'offre suit-elle le profil des habitants ?</p><ul><li><a href="#cxFenNuage">Croiser deux indicateurs</a></li></ul></div>
+</nav>
+
+<!-- ============================================================ inégalités, outils repris de l'atlas (lot 2) -->
+<section class="question" id="qInegalites" aria-labelledby="qInegalitesT">
+<h2 class="q-titre" id="qInegalitesT">Les territoires modestes sont-ils moins bien dotés ?</h2>
+<div class="q-reglages" role="group" aria-label="Réglages de la question « Les territoires modestes sont-ils moins bien dotés ? »"><span class="lib cache-visuel">Profession</span><div id="iProf"></div><span class="lib cache-visuel">Niveau</span><div class="choix fin" id="iNiv"></div></div>
+<p class="vers-atlas-l"><a id="iVersAtlas" href="index.html">Voir cette profession sur la carte de l'atlas</a></p>
+
+<article class="fenetre repliable outil" id="iFenEscalier" aria-labelledby="iEsH">
+  <div class="fen-tete"><span class="pastilles"></span><div class="fen-titre"><h3 id="iEsH">Selon le niveau de vie</h3><p class="fen-resume"></p></div>
+    <div class="fen-outils"><button type="button" class="fen-lire-bouton">Comment lire</button></div></div>
+  <div class="fen-corps">
+    <div class="fen-lire" hidden><p class="comment-lire"><strong>Comment lire.</strong> Les territoires sont classés du plus modeste au plus aisé d'après le niveau de vie médian de leurs habitants (INSEE, Filosofi), puis regroupés en dix tranches qui réunissent chacune un dixième de la population. Chaque barre donne la densité de la profession dans la tranche, la somme des professionnels rapportée à la somme des habitants. La couleur compare la tranche à la moyenne des territoires du même niveau, calculée de la même façon. L'indice de concentration résume la pente, 0 quand l'offre suit la population, positif quand elle est plus présente dans les tranches aisées, négatif dans les tranches modestes. La figure décrit une répartition, elle n'en donne pas la cause.</p></div>
+    <p class="resultat" id="iEsResultat"></p>
+    <div class="onglets" role="tablist"><button type="button" role="tab" data-vue="iEsVueFig">Figure</button><button type="button" role="tab" data-vue="iEsVueTab">Tableau</button></div>
+    <div class="vue" id="iEsVueFig" role="tabpanel">
+      <figure class="graphique" id="figIEs"><figcaption class="small muted"><strong>Figure 1.</strong> <span class="leg" id="iEsTitre"></span>.</figcaption><div class="fig-corps"><div class="legende-x" id="iEsLegende"></div><div id="iEscalier"></div></div></figure>
+    </div>
+    <div class="vue" id="iEsVueTab" role="tabpanel" hidden><div id="iEsTable"></div></div>
+    <details class="plus"><summary>Pour aller plus loin</summary><p id="iEsNote"></p></details>
+  </div>
+</article>
+
+<article class="fenetre repliable outil" id="iFenEntonnoir" aria-labelledby="iEnH">
+  <div class="fen-tete"><span class="pastilles"></span><div class="fen-titre"><h3 id="iEnH">Écarts qui dépassent le hasard</h3><p class="fen-resume"></p></div>
+    <div class="fen-outils"><button type="button" class="fen-lire-bouton">Comment lire</button></div></div>
+  <div class="fen-corps">
+    <div class="fen-lire" hidden><p class="comment-lire"><strong>Comment lire.</strong> Chaque point est un territoire, placé selon sa population et la densité de la profession. Un petit territoire s'écarte beaucoup de la moyenne par le seul hasard, d'où la forme en entonnoir. La zone claire contiendrait 95 % des territoires si seul le hasard les séparait de la moyenne, les pointillés 99,8 %. Un point hors des pointillés s'écarte de la moyenne plus que le hasard ne l'explique. La couleur dit la situation de chaque territoire au regard du hasard, elle ne désigne aucun territoire comme mieux ou moins bien géré.</p></div>
+    <p class="resultat" id="iEnResultat"></p>
+    <div class="onglets" role="tablist"><button type="button" role="tab" data-vue="iEnVueFig">Entonnoir</button><button type="button" role="tab" data-vue="iEnVueTab">Tableau des territoires</button></div>
+    <div class="vue" id="iEnVueFig" role="tabpanel">
+      <figure class="graphique zoomable" id="figIEn"><figcaption class="small muted"><strong>Figure 2.</strong> <span class="leg" id="iEnTitre"></span>.</figcaption><div class="fig-corps"><div class="legende-x" id="iEnLegende"></div><div id="iEntonnoir"></div></div></figure>
+    </div>
+    <div class="vue" id="iEnVueTab" role="tabpanel" hidden><div class="table-haute" id="iEnTable"></div></div>
+    <details class="plus"><summary>Pour aller plus loin</summary><p id="iEnNote"></p></details>
+  </div>
+</article>
+
+<article class="fenetre repliable outil" id="iFenConcentration" aria-labelledby="iCoH">
+  <div class="fen-tete"><span class="pastilles"></span><div class="fen-titre"><h3 id="iCoH">Concentration de l'offre</h3><p class="fen-resume"></p></div>
+    <div class="fen-outils"><button type="button" class="fen-lire-bouton">Comment lire</button></div></div>
+  <div class="fen-corps">
+    <div class="fen-lire" hidden><p class="comment-lire"><strong>Comment lire.</strong> La courbe de Lorenz range les territoires du moins au mieux doté et cumule leur population en abscisse et leurs professionnels en ordonnée. Une répartition parfaitement égale suivrait la diagonale, plus la courbe s'en éloigne, plus l'offre est concentrée. L'indice de Gini résume cet écart, de 0 quand chaque territoire a la même densité à 1 quand tous les professionnels sont dans un seul territoire. Chaque profession a sa courbe, les professions ne sont jamais additionnées. Un clic sur une profession du tableau la choisit pour toute la question.</p></div>
+    <p class="resultat" id="iCoResultat"></p>
+    <div class="reglages"><span class="lib">Exercice</span><div class="choix" id="iMode"></div></div>
+    <div class="onglets" role="tablist"><button type="button" role="tab" data-vue="iCoVueFig">Courbes de Lorenz</button><button type="button" role="tab" data-vue="iCoVueTab">Professions classées</button></div>
+    <div class="vue" id="iCoVueFig" role="tabpanel">
+      <figure class="graphique" id="figILo"><figcaption class="small muted"><strong>Figure 3.</strong> <span class="leg" id="iLoTitre"></span>.</figcaption><div class="fig-corps"><div class="legende-x" id="iLoLegende"></div><div id="iLorenz"></div></div></figure>
+    </div>
+    <div class="vue" id="iCoVueTab" role="tabpanel" hidden><div class="table-haute" id="iCoTable"></div></div>
+  </div>
+</article>
+<p class="a-savoir"><strong>À savoir.</strong> Le répertoire situe chaque professionnel à l'adresse de la structure où il déclare exercer, un professionnel qui exerce dans plusieurs territoires compte dans chacun. Sources, Annuaire santé, extractions en libre accès du RPPS (data.gouv), INSEE, populations légales et niveau de vie (Filosofi).</p>
+</section>
+
+<!-- ============================================================ distances aux structures de soins (lot 2) -->
+<section class="question" id="qDistances" aria-labelledby="qDistancesT">
+<h2 class="q-titre" id="qDistancesT">À quelle distance des structures de soins vit-on ?</h2>
+<div class="q-reglages" role="group" aria-label="Réglages de la question « À quelle distance des structures de soins vit-on ? »"><span class="lib cache-visuel">Structure de soins, pour les deux fenêtres</span><div id="iType"></div></div>
+
+<article class="fenetre repliable outil" id="iFenDistNv" aria-labelledby="iDnH">
+  <div class="fen-tete"><span class="pastilles"></span><div class="fen-titre"><h3 id="iDnH">Selon le niveau de vie</h3><p class="fen-resume"></p></div>
+    <div class="fen-outils"><button type="button" class="fen-lire-bouton">Comment lire</button></div></div>
+  <div class="fen-corps">
+    <div class="fen-lire" hidden><p class="comment-lire"><strong>Comment lire.</strong> La distance est mesurée à vol d'oiseau depuis le centre de chaque commune jusqu'à la structure la plus proche du type choisi, parmi les structures recensées par FINESS et le Répertoire opérationnel des ressources (ROR) réunis sans double compte. La distance médiane d'une tranche est celle en deçà de laquelle vit la moitié de ses habitants. Les intercommunalités de toute la France sont classées par niveau de vie médian puis regroupées en dix tranches de population égale. La couleur compare chaque tranche à la médiane de la France entière.</p></div>
+    <p class="resultat" id="iDnResultat"></p>
+    <div class="onglets" role="tablist"><button type="button" role="tab" data-vue="iDnVueFig">Figure</button><button type="button" role="tab" data-vue="iDnVueTab">Tableau</button></div>
+    <div class="vue" id="iDnVueFig" role="tabpanel">
+      <figure class="graphique" id="figIDn"><figcaption class="small muted"><strong>Figure 4.</strong> <span class="leg" id="iDnTitre"></span>.</figcaption><div class="fig-corps"><div class="legende-x" id="iDnLegende"></div><div id="iDistNv"></div></div></figure>
+    </div>
+    <div class="vue" id="iDnVueTab" role="tabpanel" hidden><div id="iDnTable"></div></div>
+    <details class="plus"><summary>Pour aller plus loin</summary><p id="iDnNote"></p></details>
+  </div>
+</article>
+
+<article class="fenetre repliable outil" id="iFenDistType" aria-labelledby="iDtH">
+  <div class="fen-tete"><span class="pastilles"></span><div class="fen-titre"><h3 id="iDtH">Selon le type de territoire</h3><p class="fen-resume"></p></div>
+    <div class="fen-outils"><button type="button" class="fen-lire-bouton">Comment lire</button></div></div>
+  <div class="fen-corps">
+    <div class="fen-lire" hidden><p class="comment-lire"><strong>Comment lire.</strong> Les intercommunalités sont réparties en quatre classes selon leur densité de population, les mêmes que pour les professions. Chaque barre donne la distance médiane des habitants de la classe à la structure la plus proche, même structure que la fenêtre précédente. La part des habitants à plus de 20 km est donnée au survol et dans le tableau. Une distance n'est pas un temps de trajet, et une structure n'est pas une capacité d'accueil.</p></div>
+    <p class="resultat" id="iDtResultat"></p>
+    <div class="onglets" role="tablist"><button type="button" role="tab" data-vue="iDtVueFig">Figure</button><button type="button" role="tab" data-vue="iDtVueTab">Tableau</button></div>
+    <div class="vue" id="iDtVueFig" role="tabpanel">
+      <figure class="graphique" id="figIDt"><figcaption class="small muted"><strong>Figure 5.</strong> <span class="leg" id="iDtTitre"></span>.</figcaption><div class="fig-corps"><div id="iDistType"></div></div></figure>
+    </div>
+    <div class="vue" id="iDtVueTab" role="tabpanel" hidden><div id="iDtTable"></div></div>
+    <details class="plus"><summary>Pour aller plus loin</summary><p id="iDtNote"></p></details>
+  </div>
+</article>
+<p class="a-savoir"><strong>À savoir.</strong> Une structure est comptée là où elle reçoit les patients, deux structures distinctes à la même adresse comptent pour deux. Les intercommunalités sans niveau de vie publié (Guadeloupe, Martinique, Guyane, Mayotte) sont écartées de l'escalier. Sources, FINESS, Répertoire opérationnel des ressources, INSEE.</p>
+</section>
+
+<!-- ============================================================ typologie, reprise de l'atlas (lot 3) -->
+<section class="question" id="qTypologie" aria-labelledby="qTypologieT">
+<h2 class="q-titre" id="qTypologieT">Quels profils d'offre distinguent les intercommunalités ?</h2>
+
+<article class="fenetre repliable outil" id="tyFenProfils" aria-labelledby="tyH">
+  <div class="fen-tete"><span class="pastilles"></span><div class="fen-titre"><h3 id="tyH">Profils d'offre des intercommunalités</h3><p class="fen-resume"></p></div>
+    <div class="fen-outils"><button type="button" class="fen-lire-bouton">Comment lire</button></div></div>
+  <div class="fen-corps">
+    <div class="fen-lire" hidden><p class="comment-lire"><strong>Comment lire.</strong> Les intercommunalités sont réunies en groupes qui ont une offre de même composition, d'après la densité de chaque profession de la famille choisie. Chaque groupe est décrit par un indice, 100 pour la moyenne des intercommunalités, au-dessus de 100 l'offre du groupe est plus dense que la moyenne, en dessous elle l'est moins. Le nom de chaque groupe résume ces indices. Les spécialités médicales et les structures de soins sont décrites dans chaque groupe sans avoir servi à le former. Les groupes décrivent des territoires, ils ne disent rien d'une cause, et ne classent aucun territoire.</p></div>
+    <p class="resultat" id="tyResultat"></p>
+    <div class="onglets" role="tablist"><button type="button" role="tab" data-vue="tyVueCarte">Carte et groupes</button><button type="button" role="tab" data-vue="tyVueTab">Profil de chaque groupe</button></div>
+    <div class="vue" id="tyVueCarte" role="tabpanel">
+      <figure class="graphique" id="figTy"><figcaption class="small muted"><strong>Figure 6.</strong> <span class="leg" id="tyTitre"></span>.</figcaption>
+        <div class="fig-corps typo-corps"><div id="tyCarte"></div><div><p class="small muted" id="tyNote"></p><ul class="tylegende" id="tyLegende"></ul></div></div></figure>
+    </div>
+    <div class="vue" id="tyVueTab" role="tabpanel" hidden><div id="tyTable"></div></div>
+    <details class="plus"><summary>Pour aller plus loin</summary><p id="tyMethode"></p></details>
+  </div>
+</article>
+
+<article class="fenetre repliable outil" id="tyFenAcp" aria-labelledby="acpH">
+  <div class="fen-tete"><span class="pastilles"></span><div class="fen-titre"><h3 id="acpH">Ce qui distingue les intercommunalités</h3><p class="fen-resume"></p></div>
+    <div class="fen-outils"><button type="button" class="fen-lire-bouton">Comment lire</button></div></div>
+  <div class="fen-corps">
+    <div class="fen-lire" hidden><p class="comment-lire"><strong>Comment lire.</strong> L'analyse en composantes principales résume les différences d'offre entre intercommunalités en quelques axes. Le premier axe dit le plus souvent si l'offre est élevée ou faible dans l'ensemble, le deuxième oppose des territoires mieux dotés en certaines professions à d'autres mieux dotés en d'autres, à niveau d'offre égal. Chaque point est une intercommunalité, de la couleur de son groupe. Le poids d'une profession est sa corrélation avec l'axe, de −1 à +1. Les axes décrivent des territoires et ne disent rien d'une cause.</p></div>
+    <p class="resultat" id="acpResultat"></p>
+    <div class="onglets" role="tablist"><button type="button" role="tab" data-vue="acpVuePlan">Plan</button><button type="button" role="tab" data-vue="acpVuePoids">Poids des professions</button><button type="button" role="tab" data-vue="acpVueAxes">Part résumée par chaque axe</button></div>
+    <div class="vue" id="acpVuePlan" role="tabpanel">
+      <figure class="graphique zoomable" id="figAcp"><figcaption class="small muted"><strong>Figure 7.</strong> <span class="leg" id="acpTitre"></span>.</figcaption><div class="fig-corps"><div id="acpPlan"></div></div></figure>
+    </div>
+    <div class="vue" id="acpVuePoids" role="tabpanel" hidden><div id="acpCharges"></div></div>
+    <div class="vue" id="acpVueAxes" role="tabpanel" hidden><div id="acpAxes"></div></div>
+    <details class="plus"><summary>Pour aller plus loin</summary><p id="acpMethode"></p></details>
+  </div>
+</article>
+<p class="a-savoir"><strong>À savoir.</strong> Typologie et analyse calculées sur les intercommunalités de toute la France, la carte montre l'Hexagone et la Corse. Les petits territoires peuvent changer de groupe d'une version à l'autre. Sources, Annuaire santé, extractions en libre accès du RPPS (data.gouv), INSEE, FINESS et Répertoire opérationnel des ressources.</p>
+</section>
+
+<!-- ============================================================ une profession sans l'autre -->
+<section class="question" aria-labelledby="qPaires">
+<h2 class="q-titre" id="qPaires">Où trouve-t-on une profession sans l'autre ?</h2>
+<article class="fenetre repliable outil" id="paires" aria-labelledby="pH">
+  <div class="fen-tete"><span class="pastilles"></span><div class="fen-titre"><h3 id="pH">Une profession sans l'autre</h3><p class="fen-resume"></p></div>
+    <div class="fen-outils"><button type="button" class="fen-lire-bouton">Comment lire</button></div></div>
+  <div class="fen-corps">
+    <div class="fen-lire" hidden><p class="comment-lire" id="pLire"></p></div>
+    <p class="resultat" id="pLecture"></p>
+    <div class="reglages">
+      <span class="lib">Présente</span><div id="pA"></div>
+      <span class="lib">Absente</span><div id="pB"></div>
+      <span class="lib">Dixièmes selon</span><div class="choix" id="pV"></div>
+    </div>
+    <div class="onglets" role="tablist">
+      <button type="button" role="tab" data-vue="pVueFig">Carte et dixièmes</button>
+      <button type="button" role="tab" data-vue="pVueTable">Tableau</button>
+    </div>
+    <div class="vue" id="pVueFig" role="tabpanel">
+      <div class="cote">
+        <figure class="graphique" id="figCarte"><figcaption class="small muted"><strong>Figure 8.</strong> <span class="leg" id="pTitreCarte"></span>.</figcaption><div class="fig-corps"><div class="legende-x" id="pLegende"></div><div id="pCarte"></div></div></figure>
+        <figure class="graphique" id="figBarres"><figcaption class="small muted"><strong>Figure 9.</strong> <span class="leg" id="pTitreBarres"></span>.</figcaption><div class="fig-corps"><div class="legende-x" id="pLegende2"></div><div id="pBarres"></div></div></figure>
+      </div>
+    </div>
+    <div class="vue" id="pVueTable" role="tabpanel" hidden><div id="pTable"></div></div>
+    <p class="a-savoir" id="pSavoir"></p>
+  </div>
+</article>
+</section>
+
+<!-- ============================================================ trajectoires -->
+<section class="question" aria-labelledby="qTraj">
+<h2 class="q-titre" id="qTraj">Les départements modestes rattrapent-ils leur retard depuis 2016 ?</h2>
+<article class="fenetre repliable outil" id="trajectoires" aria-labelledby="tH">
+  <div class="fen-tete"><span class="pastilles"></span><div class="fen-titre"><h3 id="tH">Croiser des trajectoires</h3><p class="fen-resume"></p></div>
+    <div class="fen-outils"><button type="button" class="fen-lire-bouton">Comment lire</button></div></div>
+  <div class="fen-corps">
+    <div class="fen-lire" hidden><p class="comment-lire"><strong>Comment lire.</strong> Chaque courbe suit la densité d'un groupe de départements, la somme de leurs professionnels rapportée à la somme de leurs habitants, pour 10&nbsp;000 habitants. Les groupes sont formés une seule fois, d'après la valeur la plus récente de la variable choisie, et restent les mêmes d'une année à l'autre. En base 100, chaque courbe vaut 100 la première année de sa série et montre la variation relative, ce qui permet de comparer des professions de tailles très différentes. Avec une courbe par profession, l'affichage est toujours en base 100, les professions sont comparées par leur variation et jamais additionnées. Une courbe qui s'arrête avant 2026 suit une série qui s'arrête, l'année de sa dernière valeur est écrite à côté. La figure décrit des évolutions, elle n'en donne pas la cause.</p></div>
+    <p class="resultat" id="tResultat"></p>
+    <div class="reglages">
+      <span class="lib">Professions</span><div id="tProfs"></div>
+      <span class="lib">Une courbe par</span><div class="choix" id="tPar"></div>
+      <span class="lib">Ranger selon</span><div class="choix" id="tVar"></div>
+      <span class="lib">Groupes</span><div class="choix" id="tK"></div>
+      <span class="lib" id="tLibG">Groupe montré</span><div class="choix" id="tLigneG"><div class="choix" id="tG"></div></div>
+      <span class="lib" id="tLibM">Afficher</span><div class="choix" id="tLigneM"><div class="choix" id="tMode"></div></div>
+      <span class="lib">Repérer</span><div class="choix"><input id="tDep" list="deps" placeholder="un département, par son nom ou son numéro" aria-label="Repérer un département"><datalist id="deps"></datalist></div>
+    </div>
+    <div class="onglets" role="tablist">
+      <button type="button" role="tab" data-vue="tVueCourbes">Courbes</button>
+      <button type="button" role="tab" data-vue="tVueTable">Tableau</button>
+    </div>
+    <div class="vue" id="tVueCourbes" role="tabpanel">
+      <figure class="graphique" id="figTraj"><figcaption class="small muted"><strong>Figure 10.</strong> <span class="leg" id="tTitre"></span>.</figcaption><div class="fig-corps"><div class="legende-x" id="tLegende"></div><div class="grille-t" id="tGrille"></div></div></figure>
+      <div id="tLectures"></div>
+    </div>
+    <div class="vue" id="tVueTable" role="tabpanel" hidden><div id="tTable"></div></div>
+    <p class="a-savoir" id="tSavoir"></p>
+  </div>
+</article>
+</section>
+
+<!-- ============================================================ addictologie, reprise de l'atlas (choix de Lucas du 29 octobre 2026) -->
+<section class="question" id="qAddicto" aria-labelledby="qAddictoT">
+<h2 class="q-titre" id="qAddictoT">L'addictologie, de l'offre aux consommations</h2>
+<div class="q-reglages" role="group" aria-label="Réglages de la question « L'addictologie, de l'offre aux consommations »"><span class="lib cache-visuel">Région repérée</span><div id="adReg"></div></div>
+
+<article class="fenetre repliable outil" id="adFenConso" aria-labelledby="adConsoH">
+  <div class="fen-tete"><span class="pastilles"></span><div class="fen-titre"><h3 id="adConsoH">Consommations et décès attribuables, par région</h3><p class="fen-resume"></p></div>
+    <div class="fen-outils"><button type="button" class="fen-lire-bouton">Comment lire</button></div></div>
+  <div class="fen-corps">
+    <div class="fen-lire" hidden><p class="comment-lire"><strong>Comment lire.</strong> Chaque colonne est un indicateur, chaque ligne une région, rangées par ordre alphabétique. Le point donne la valeur de la région, le trait sa fourchette, l'intervalle de confiance à 95 % de l'enquête, dans lequel la vraie valeur se trouve avec une forte probabilité. Deux régions dont les fourchettes se chevauchent ne se distinguent pas avec certitude. Le pointillé marque la médiane des régions. Les consommations d'alcool et de tabac sont déclarées par les personnes interrogées, les décès attribuables au tabac sont estimés. Les consommations ne sont publiées que par région, elles ne sont pas rapportées aux départements.</p></div>
+    <p class="resultat" id="adResultat"></p>
+    <figure class="graphique" id="figAddicto"><figcaption class="small muted"><strong>Figure 11.</strong> <span class="leg" id="adTitre"></span>.</figcaption><div class="fig-corps"><div id="adFigure"></div></div></figure>
+    <p class="small muted ad-notes" id="adNotes"></p>
+  </div>
+</article>
+
+<article class="fenetre repliable outil" id="adFenOffre" aria-labelledby="adOffreH">
+  <div class="fen-tete"><span class="pastilles"></span><div class="fen-titre"><h3 id="adOffreH">L'offre en addictologie en France</h3><p class="fen-resume"></p></div>
+    <div class="fen-outils"><button type="button" class="fen-lire-bouton">Comment lire</button></div></div>
+  <div class="fen-corps">
+    <div class="fen-lire" hidden><p class="comment-lire"><strong>Comment lire.</strong> Les centres de soins, d'accompagnement et de prévention en addictologie (CSAPA) sont comptés à trois niveaux, les lieux où ils reçoivent, les établissements et les structures principales. Ces trois comptes décrivent la même offre et ne s'additionnent pas. Les CAARUD accueillent et accompagnent les personnes qui consomment des drogues, pour réduire les risques. Les unités d'addictologie à l'hôpital comprennent les équipes de liaison (ELSA), qui interviennent dans les services sans lieu propre. Les médecins qualifiés en addictologie sont un comptage de qualification, qui ne s'ajoute pas à celui de leur spécialité.</p></div>
+    <p class="resultat" id="adOffreResultat"></p>
+    <figure class="graphique" id="figAdOffre"><figcaption class="small muted"><strong>Tableau.</strong> <span class="leg">L'offre en addictologie en France, d'après FINESS, le Répertoire opérationnel des ressources et le RPPS</span>.</figcaption><div class="fig-corps"><div id="adOffre"></div></div></figure>
+    <p class="small">Le croisement entre les CSAPA, les personnes prises en charge pour une addiction et les médecins addictologues, par département, est l'une des questions préparées de <a href="#cxFenNuage">« Croiser deux indicateurs »</a>.</p>
+  </div>
+</article>
+<p class="a-savoir" id="adSavoir"></p>
+</section>
+
+<!-- ============================================================ croiser deux indicateurs, moteur de l'atlas (lot 2 du 29 octobre 2026) -->
+<section class="question" id="qCroisements" aria-labelledby="qCroisementsT" data-moteur>
+<h2 class="q-titre" id="qCroisementsT">L'offre suit-elle le profil des habitants ?</h2>
+<div class="q-reglages" role="group" aria-label="Réglages de la question « L'offre suit-elle le profil des habitants ? »"><span class="lib cache-visuel">Profession</span><span id="cxProfAncre"></span><span class="lib cache-visuel">Niveau</span><div class="choix" id="cxNiv"></div><span class="lib cache-visuel">Exercice</span><div class="choix fin" id="cxMode"></div></div>
+<p class="vers-atlas-l"><a id="cxVersAtlas" href="index.html">Voir cette profession sur la carte de l'atlas</a></p>
+<div hidden><span id="maj"></span><select id="prof" aria-label="Profession"></select><select id="grp" aria-hidden="true"></select><span id="famNote"></span></div>
+
+<article class="fenetre repliable outil" id="cxFenNuage" aria-labelledby="cxH">
+  <div class="fen-tete"><span class="pastilles"></span><div class="fen-titre"><h3 id="cxH">Croiser deux indicateurs</h3><p class="fen-resume" id="cxResume"></p></div>
+    <div class="fen-outils"><button type="button" class="fen-lire-bouton">Comment lire</button></div></div>
+  <div class="fen-corps">
+    <div class="fen-lire" hidden><p class="comment-lire"><strong>Comment lire.</strong> Chaque point est un territoire, placé selon l'indicateur choisi en abscisse et la densité de la profession, ou un second indicateur, en ordonnée.</p></div>
+    <p class="resultat" id="scPhrase"></p><p class="resultat" id="scPrepare"></p>
+    <div class="reglages">
+      <span class="lib">En abscisse</span><div class="choix"><select id="xvar" aria-label="Indicateur en abscisse"></select></div>
+      <span class="lib">En ordonnée</span><div class="choix"><select id="yvar" aria-label="Axe vertical"></select></div>
+      <span class="seg" data-k="ylog"><span class="lib">Échelle</span><div class="choix" id="cxLog"></div></span>
+    </div>
+    <div class="onglets" role="tablist"><button type="button" role="tab" data-vue="cxVueNuage">Nuage</button><button type="button" role="tab" data-vue="cxVueDonnees">Données par territoire</button><button type="button" role="tab" data-vue="cxVueQuestions">Questions préparées</button></div>
+    <div class="vue" id="cxVueNuage" role="tabpanel">
+      <figure class="graphique zoomable" id="figCxNuage"><figcaption class="small muted"><strong>Figure 12.</strong> <span class="leg" id="cxTitre"></span>.</figcaption><div class="fig-corps"><svg id="scatter" role="img" aria-label="Nuage de points des territoires" viewBox="0 0 560 420"></svg></div></figure>
+      <div id="scLimite"></div>
+      <p class="note" id="xvarNote"></p>
+    </div>
+    <div class="vue" id="cxVueDonnees" role="tabpanel" hidden>
+      <div class="choix"><input type="search" id="scFiltre" placeholder="Filtrer les territoires" aria-label="Filtrer les territoires"></div>
+      <div class="table-haute tabdonnees"><table id="scTable" data-export="scTable"></table></div>
+    </div>
+    <div class="vue" id="cxVueQuestions" role="tabpanel" hidden>
+      <div class="suggestions" id="scSuggestions"></div>
+      <details class="plus"><summary>Toutes les questions préparées, en tableau</summary><div class="table-haute"><table id="cbTable"></table></div></details>
+    </div>
+    <details class="plus"><summary>Pour aller plus loin</summary><p id="scNote"></p></details>
+  </div>
+</article>
+<p class="a-savoir"><strong>À savoir.</strong> Analyse écologique, un lien entre territoires ne dit rien des personnes ni d'une cause. Les questions préparées portent leur fourchette plausible, leur valeur à densité de population égale et la correction de Benjamini-Hochberg pour tests multiples. Mayotte est écartée des croisements entre départements. Sources, Annuaire santé, extractions en libre accès du RPPS (data.gouv), INSEE et les bases du catalogue des indicateurs, chacune avec sa fiche sur la page « Données sources ».</p>
+<div class="tip" id="tip" role="tooltip"></div>
+</section>
+</div>
+<div class="bulle-x" id="bulle" role="status"></div>
+<script src="explorer/d3.min.js?v=ba9069c86b"></script>
+<script src="explorer/topojson-client.min.js?v=ba9069c86b"></script>
+<script src="explorer/fond.js?v=ba9069c86b"></script>
+<script src="explorer/donnees.js?v=ba9069c86b"></script>
+<script src="explorer/donnees_outils.js?v=ba9069c86b"></script>
+<script src="explorer/explorer.js?v=ba9069c86b"></script>
+<script src="explorer/explorer_inegalites.js?v=ba9069c86b"></script>
+<script src="explorer/explorer_typologie.js?v=ba9069c86b"></script>
+<script src="explorer/explorer_addicto.js?v=ba9069c86b"></script>
+
+<footer>
+  Données du 30 octobre 2026. Sources, répertoire RPPS, FINESS, Répertoire opérationnel des ressources, INSEE (dont Sirene), Assurance Maladie, CAF, Santé publique France, DREES, HAS, IGN (voir <a href="methode.html">Méthode, données et limites</a>).
+  Résultats sous Licence Ouverte 2.0, en citant la source et la date de la version, sauf les indicateurs tirés des bases de l&#39;Assurance Maladie (Cnam, data.ameli.fr, cartographie des pathologies, secteurs conventionnels, patients sans médecin traitant) et ce qui en dérive, diffusés sous licence ODbL 1.0 (partage à l&#39;identique). Les fichiers suffixés _odbl et les données intégrées à l&#39;atlas, qui contiennent ces indicateurs, sont sous ODbL. Les rapports et les cartes qui les affichent contiennent des informations issues de cette base sous ODbL.
+  <p class="pied-liens"><a href="donnees-sources.html">Données sources</a> <a href="journal.html">Journal des mises à jour</a> <a href="a-venir.html">À venir</a> <a href="contribuer.html">Proposer une base de données</a> <a href="a-propos.html">À propos</a></p>
+</footer>
+</main>
+<script>
+// tableaux plus larges que la colonne de texte, fondu à droite et phrase d'indication tant qu'il reste des colonnes
+(function(){function cadre(t){t.classList.remove("defile");if(t.offsetWidth>t.parentElement.clientWidth+2)t.classList.add("defile")}
+function maj(t){var d=t.scrollWidth>t.clientWidth+2;t.classList.toggle("deborde-d",d&&t.scrollLeft+t.clientWidth<t.scrollWidth-2);
+var n=t.nextElementSibling;if(!(n&&n.classList.contains("indice-defil"))){if(!d)return;n=document.createElement("p");n.className="indice-defil";n.textContent="Faites défiler le tableau vers la droite pour voir les autres colonnes.";t.after(n)}n.hidden=!d}
+// figures, choix de la profession (rapports, 9 octobre 2026)
+document.querySelectorAll("figure.graphique").forEach(function(fig){
+  var leg=fig.querySelector(".leg");
+  fig.querySelectorAll(".choix-variante button").forEach(function(b,i,tous){b.addEventListener("click",function(){
+    var vs=fig.querySelectorAll(".variante");vs.forEach(function(v,j){v.hidden=j!==i});
+    tous.forEach(function(x,j){x.setAttribute("aria-pressed",String(j===i))});
+    var t=vs[i].querySelector("title");if(leg&&t)leg.textContent=t.textContent})})});
+var ts=document.querySelectorAll(".corps table,.methode > table.simple");ts.forEach(function(t){cadre(t);maj(t);t.addEventListener("scroll",function(){maj(t)},{passive:true})});
+function tous(){ts.forEach(function(t){cadre(t);maj(t)})}
+addEventListener("resize",tous);if(document.fonts)document.fonts.ready.then(tous)})();
+</script>
+<script>
+// Graphiques interactifs, communs aux rapports et à l'atlas (demande de Lucas du 9 octobre 2026).
+// Infobulle au survol de chaque point ou zone qui porte un titre, clic pour la garder, zoom à la molette et par
+// boutons, déplacement à la souris quand le graphique est zoomé. La page n'est pas bloquée, une molette qui
+// arrive pendant le défilement de la page continue de faire défiler la page.
+// Réglage, window.FIGURES = {zoom: "sélecteur des svg zoomables", bulle: "sélecteur des svg à infobulles"}.
+(function(){
+  var R=window.FIGURES||{zoom:"figure.zoomable svg",bulle:"figure.graphique svg"};
+  var bulle=document.createElement("div");bulle.className="bulle-fig";bulle.setAttribute("role","status");
+  document.addEventListener("DOMContentLoaded",function(){document.body.appendChild(bulle)});
+  if(document.body)document.body.appendChild(bulle);
+  var epingle=null,dernierDefil=0;
+  addEventListener("scroll",function(){dernierDefil=Date.now();if(!epingle)cacher()},{passive:true});
+  function svgDe(el,sel){var s=el&&el.closest&&el.closest("svg");while(s&&s.ownerSVGElement)s=s.ownerSVGElement;return s&&s.matches(sel)?s:null}
+  // texte de l'élément survolé, pris dans son titre (déplacé dans data-info pour éviter la bulle du navigateur)
+  function info(el,s){
+    for(var e=el;e&&e!==s;e=e.parentNode){
+      if(e.dataset&&e.dataset.info)return [e,e.dataset.info];
+      var t=e.querySelector&&e.querySelector(":scope > title");
+      if(t&&e!==s){e.dataset.info=t.textContent;t.remove();return [e,e.dataset.info]}}
+    return null}
+  function montrer(x,y,txt){bulle.textContent=txt;bulle.style.opacity=1;var w=bulle.offsetWidth,h=bulle.offsetHeight;
+    bulle.style.left=Math.max(8,Math.min(x+14,innerWidth-w-8))+"px";bulle.style.top=Math.max(8,y-h-12<8?y+16:y-h-12)+"px"}
+  function cacher(){bulle.style.opacity=0}
+  document.addEventListener("pointermove",function(ev){
+    if(epingle)return;var s=svgDe(ev.target,R.bulle);if(!s){cacher();return}
+    var i=info(ev.target,s);if(i)montrer(ev.clientX,ev.clientY,i[1]);else cacher()});
+  document.addEventListener("click",function(ev){
+    var s=svgDe(ev.target,R.bulle);
+    if(epingle){epingle.removeAttribute("data-choisi");epingle=null}
+    if(!s){cacher();return}
+    var i=info(ev.target,s);if(!i){cacher();return}
+    epingle=i[0];epingle.setAttribute("data-choisi","");montrer(ev.clientX,ev.clientY,i[1])});
+  document.addEventListener("keydown",function(ev){if(ev.key==="Escape"&&epingle){epingle.removeAttribute("data-choisi");epingle=null;cacher()}});
+
+  // zoom, le cadrage d'origine est repris chaque fois que la page redessine le graphique
+  function cadre(s){var v=s.getAttribute("viewBox");if(!v)return null;if(s.dataset.vbz!==v)s.dataset.vb0=v;return v.split(/[ ,]+/).map(Number)}
+  function zoomer(s,k,cx,cy){var b=cadre(s);if(!b)return;var o=s.dataset.vb0.split(/[ ,]+/).map(Number);
+    var w=Math.min(o[2],b[2]*k),h=Math.min(o[3],b[3]*k);if(w<o[2]/12)return;
+    if(cx==null){cx=b[0]+b[2]/2;cy=b[1]+b[3]/2}
+    var x=cx-(cx-b[0])*w/b[2],y=cy-(cy-b[1])*h/b[3];
+    x=Math.max(o[0],Math.min(x,o[0]+o[2]-w));y=Math.max(o[1],Math.min(y,o[1]+o[3]-h));
+    var v=[x,y,w,h].map(function(n){return +n.toFixed(2)}).join(" ");s.setAttribute("viewBox",v);s.dataset.vbz=v;boutons(s)}
+  function entier(s){return !s.dataset.vb0||s.getAttribute("viewBox")===s.dataset.vb0}
+  function boutons(s){
+    var hote=s.closest(".fig-corps")||s.closest("figure");
+    if(!hote){
+      // hors d'une figure (atlas), les boutons vont sur une ligne à eux juste au-dessus du graphique, sans recouvrir le
+      // titre du panneau ni le bouton Citer
+      hote=s.parentNode;
+      if(hote&&!hote.classList.contains("fig-zoom")){var enveloppe=document.createElement("div");enveloppe.className="fig-zoom";
+        hote.insertBefore(enveloppe,s);enveloppe.appendChild(s);hote=enveloppe}
+    }
+    if(!hote||hote.querySelector(":scope > .zoom-boutons"))return;
+    var bz=document.createElement("div");bz.className="zoom-boutons";
+    bz.innerHTML='<button type="button" aria-label="Zoomer">+</button><button type="button" aria-label="Dézoomer">−</button><button type="button" aria-label="Revenir à la vue entière">⟲</button>';
+    if(getComputedStyle(hote).position==="static")hote.style.position="relative";
+    hote.insertBefore(bz,hote.firstChild);
+    var cible=function(){var v=hote.querySelector(".variante:not([hidden]) svg");return v||s};
+    var b=bz.querySelectorAll("button");
+    b[0].onclick=function(){zoomer(cible(),.6)};b[1].onclick=function(){zoomer(cible(),1/.6)};
+    b[2].onclick=function(){var c=cible();cadre(c);if(c.dataset.vb0){c.setAttribute("viewBox",c.dataset.vb0);c.dataset.vbz=c.dataset.vb0}}}
+  document.querySelectorAll(R.zoom).forEach(boutons);
+  document.addEventListener("pointerover",function(ev){var s=svgDe(ev.target,R.zoom);if(s)boutons(s)});
+  // la molette seule fait toujours défiler la page ; le zoom à la molette demande Ctrl (ou ⌘), sinon le curseur restait
+  // pris dans la figure (remarque de Lucas du 23 octobre 2026) ; les boutons + et − restent le moyen ordinaire
+  document.addEventListener("wheel",function(ev){
+    if(!(ev.ctrlKey||ev.metaKey))return;
+    var s=svgDe(ev.target,R.zoom);if(!s)return;
+    if(Date.now()-dernierDefil<450)return;                       // la page défile, on la laisse défiler
+    if(ev.deltaY>0&&entier(s))return;                           // vue entière, molette vers le bas, la page défile
+    ev.preventDefault();var p=s.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;
+    var q=p.matrixTransform(s.getScreenCTM().inverse());zoomer(s,ev.deltaY<0?.8:1.25,q.x,q.y)},{passive:false});
+  var dep=null;
+  document.addEventListener("pointerdown",function(ev){var s=svgDe(ev.target,R.zoom);if(!s||entier(s))return;
+    var b=cadre(s);dep={x:ev.clientX,y:ev.clientY,b:b,s:s,k:b[2]/s.getBoundingClientRect().width,bouge:false}});
+  addEventListener("pointermove",function(ev){if(!dep)return;var o=dep.s.dataset.vb0.split(/[ ,]+/).map(Number),b=dep.b;
+    if(Math.abs(ev.clientX-dep.x)+Math.abs(ev.clientY-dep.y)>3)dep.bouge=true;if(!dep.bouge)return;
+    var x=Math.max(o[0],Math.min(b[0]-(ev.clientX-dep.x)*dep.k,o[0]+o[2]-b[2])),y=Math.max(o[1],Math.min(b[1]-(ev.clientY-dep.y)*dep.k,o[1]+o[3]-b[3]));
+    var v=[x,y,b[2],b[3]].map(function(n){return +n.toFixed(2)}).join(" ");dep.s.setAttribute("viewBox",v);dep.s.dataset.vbz=v});
+  addEventListener("pointerup",function(){dep=null});
+
+  // figures des rapports, même modèle que l'atlas (10 octobre 2026). Sous le titre « Figure N. légende », une ligne
+  // « Citer et exporter » ouvre la citation du rapport suivie du numéro et de la légende, l'image (copie, PNG, SVG, avec
+  // la citation dessous) et les données de la figure. La citation du rapport est donnée par la page (data-citation).
+  function citerFigures(){
+    var porte=document.querySelector("[data-citation]");if(!porte)return;var base=porte.dataset.citation;
+    document.querySelectorAll("figure.graphique").forEach(function(f){
+      if(f.dataset.cite)return;f.dataset.cite="1";
+      var cap=f.querySelector("figcaption");
+      var ligne=document.createElement("div");ligne.className="outils-figure";
+      var bc=document.createElement("button");bc.type="button";bc.className="citer-fig";bc.textContent="Citer et exporter";bc.setAttribute("aria-expanded","false");ligne.appendChild(bc);
+      if(cap)cap.after(ligne);else f.insertBefore(ligne,f.firstChild);
+      var boite=document.createElement("div");boite.className="citation-fig";boite.hidden=true;ligne.after(boite);
+      bc.onclick=function(){var ouvert=boite.hidden;bc.setAttribute("aria-expanded",String(ouvert));boite.hidden=!ouvert;if(!ouvert)return;
+        // la légende suit la profession choisie, la citation est donc refaite à chaque ouverture
+        var num=cap&&cap.querySelector("strong"),leg=cap&&cap.querySelector(".leg");
+        var ref=(num?num.textContent.replace(/\.$/,""):"Figure")+(leg?", "+leg.textContent.trim():"");
+        var texte=base.replace(/\s*$/,"")+(/[.]$/.test(base.trim())?" ":". ")+ref+".";
+        var nom=(ref.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,80)||"figure").toLowerCase();
+        boite.innerHTML='<p></p><div class="citation-actions"><button type="button" data-a="cit">Copier la citation</button></div>'
+          +'<ul class="exports"><li><span class="nom"><span class="genre">Image</span> de la figure</span><span class="citation-actions"><button type="button" data-a="img">Copier l’image</button><button type="button" data-a="png">PNG</button><button type="button" data-a="svg">SVG</button></span></li>'
+          +(f.dataset.donnees?'<li><span class="nom"><span class="genre">Données</span> de la figure, '+f.dataset.donneesNom+'</span><span class="citation-actions"><a class="bouton" download href="'+f.dataset.donnees+'">CSV</a></span></li>':'')
+          +'</ul><p class="small muted">Chaque fichier porte la citation du rapport, merci de la joindre à toute reprise.</p>';
+        boite.querySelector("p").textContent=texte;
+        boite.querySelectorAll("button").forEach(function(b){b.onclick=function(){var a=b.dataset.a;
+          if(a==="cit"){navigator.clipboard.writeText(texte).then(function(){b.textContent="Citation copiée"},function(){b.textContent="Copie impossible ici"});return}
+          var src=f.querySelector(".variante:not([hidden]) svg")||f.querySelector("svg");if(!src)return;
+          var svg=imageCitee(src,texte);
+          if(a==="svg"){enregistrer(new Blob([svg],{type:"image/svg+xml"}),nom+".svg");b.textContent="Enregistré";return}
+          var img=new Image(),url=URL.createObjectURL(new Blob([svg],{type:"image/svg+xml"}));
+          img.onload=function(){var c=document.createElement("canvas");c.width=img.width;c.height=img.height;c.getContext("2d").drawImage(img,0,0);URL.revokeObjectURL(url);
+            c.toBlob(function(png){if(!png)return;
+              if(a==="png"){enregistrer(png,nom+".png");b.textContent="Enregistré";return}
+              navigator.clipboard.write([new ClipboardItem({"image/png":png})]).then(function(){b.textContent="Image copiée"},function(){b.textContent="Copie impossible ici, utilisez PNG"})})};img.src=url}})}})}
+  function imageCitee(src,texte){
+    var ns="http://www.w3.org/2000/svg",c=src.cloneNode(true),vb=(src.dataset.vb0||src.getAttribute("viewBox")||"0 0 600 400").split(/[ ,]+/).map(Number);
+    // taille commune des exports (harmonisation, 22 octobre 2026), dessin rapporté à 800 pixels, image à 1 600, citation
+    // au petit corps de l'échelle typographique (11,5 pixels à cette largeur), couleurs du fond clair (valeurs de repli
+    // des variables, seules lues dans un fichier SVG isolé)
+    var fs=11.5*vb[2]/800,par=Math.max(40,Math.floor((vb[2]-16)/(fs*.55))),lignes=[];
+    texte.split(" ").forEach(function(m){var l=lignes.length?lignes[lignes.length-1]:null;if(l!=null&&(l+" "+m).length<=par)lignes[lignes.length-1]=l+" "+m;else lignes.push(m)});
+    var hc=fs*1.4*lignes.length+fs;c.setAttribute("xmlns",ns);c.setAttribute("viewBox",[vb[0],vb[1],vb[2],vb[3]+hc].join(" "));
+    c.setAttribute("width",1600);c.setAttribute("height",Math.round((vb[3]+hc)*1600/vb[2]));
+    var fond=document.createElementNS(ns,"rect");fond.setAttribute("x",vb[0]);fond.setAttribute("y",vb[1]);fond.setAttribute("width",vb[2]);fond.setAttribute("height",vb[3]+hc);fond.setAttribute("fill","#FFFFFF");c.insertBefore(fond,c.firstChild);
+    lignes.forEach(function(l,i){var t=document.createElementNS(ns,"text");t.setAttribute("x",vb[0]+8);t.setAttribute("y",vb[1]+vb[3]+fs*1.4*(i+1));t.setAttribute("font-size",fs);t.setAttribute("fill","#5F6675");t.setAttribute("font-family","Work Sans, Segoe UI, sans-serif");t.textContent=l;c.appendChild(t)});
+    return new XMLSerializer().serializeToString(c)}
+  function enregistrer(blob,nom){var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=nom;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},1000)}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",citerFigures);else citerFigures();
+
+  // tableaux des rapports et des pages, citables et exportables comme les figures (version 2, point 1, 22 octobre 2026).
+  // La citation est celle du rapport (data-citation) ou de la page (data-citation-page et son adresse), suivie du titre
+  // du tableau, tiré de sa légende ou de l'intertitre qui le précède (décision de Lucas, titre sans numéro). Le CSV
+  // reprend les lignes affichées, au format des fichiers du site (point-virgule, virgule décimale, nombres sans
+  // séparateur de milliers), avec la citation en dernière ligne.
+  function titreTableau(t){
+    if(t.caption&&t.caption.textContent.trim())return t.caption.textContent.trim();
+    for(var e=t.closest(".defile")||t;e&&e.tagName!=="MAIN";e=e.parentElement){
+      for(var p=e.previousElementSibling;p;p=p.previousElementSibling){
+        if(/^H[2-5]$/.test(p.tagName))return p.textContent.replace(/\s+/g," ").trim();
+        var h=p.querySelectorAll&&p.querySelectorAll("h2,h3,h4,h5");if(h&&h.length)return h[h.length-1].textContent.replace(/\s+/g," ").trim()}
+      if(e.tagName==="DETAILS"){var s=e.querySelector("summary");if(s)return s.textContent.trim()}}
+    return "Tableau"}
+  function celluleCsv(c){
+    // une adresse raccourcie à l'écran est écrite en entier dans le fichier
+    if(c.querySelectorAll){var lien=[].filter.call(c.querySelectorAll("a[href^='http']"),function(a){return /…$/.test(a.textContent.trim())});
+      if(lien.length){c=c.cloneNode(true);[].forEach.call(c.querySelectorAll("a[href^='http']"),function(a){if(/…$/.test(a.textContent.trim()))a.textContent=a.href})}}
+    var v=c.textContent.replace(/[\s  ]+/g," ").trim();
+    if(/^[−-]?\d{1,3}( \d{3})+(,\d+)?$/.test(v))v=v.replace(/ /g,"");
+    v=v.replace(/^−(?=\d)/,"-");
+    return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+  function tableauCsv(t){
+    return "﻿"+[].filter.call(t.querySelectorAll("tr"),function(tr){return !tr.hidden&&tr.style.display!=="none"})
+      .map(function(tr){return [].map.call(tr.children,celluleCsv).join(";")}).join("\r\n")}
+  function citerTableaux(){
+    var main=document.querySelector("main");if(!main)return;
+    var porte=document.querySelector("[data-citation]"),base;
+    if(porte)base=porte.dataset.citation.replace(/\s*$/,"");
+    else{base=(main.dataset.citationPage||"").replace(/\s*$/,"");if(!base)return;
+      var adr=main.dataset.adresse;base+=(adr?", "+adr+location.pathname.replace(/\/index\.html$/,"/"):"")+"."}
+    main.querySelectorAll("table").forEach(function(t){
+      if(t.dataset.cite||t.closest(".citation-fig,.sommaire,details.versions,nav,figure"))return;t.dataset.cite="1";
+      var bloc=t.closest(".defile")||t;
+      var ligne=document.createElement("div");ligne.className="outils-figure outils-tableau";
+      var bc=document.createElement("button");bc.type="button";bc.className="citer-fig";bc.textContent="Citer et exporter";bc.setAttribute("aria-expanded","false");ligne.appendChild(bc);
+      bloc.before(ligne);
+      var boite=document.createElement("div");boite.className="citation-fig";boite.hidden=true;ligne.after(boite);
+      bc.onclick=function(){var ouvert=boite.hidden;bc.setAttribute("aria-expanded",String(ouvert));boite.hidden=!ouvert;if(!ouvert)return;
+        var titre=titreTableau(t),texte=base+(/[.]$/.test(base)?" ":". ")+"Tableau, « "+titre+" ».";
+        var nom=(titre.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,80)||"tableau").toLowerCase();
+        boite.innerHTML='<p></p><div class="citation-actions"><button type="button" data-a="cit">Copier la citation</button></div>'
+          +'<ul class="exports"><li><span class="nom"><span class="genre">Données</span> du tableau, telles qu’affichées</span><span class="citation-actions"><button type="button" data-a="csv">CSV</button></span></li></ul>'
+          +'<p class="small muted">Le fichier porte la citation de la page, merci de la joindre à toute reprise.</p>';
+        boite.querySelector("p").textContent=texte;
+        boite.querySelectorAll("button").forEach(function(b){b.onclick=function(){
+          if(b.dataset.a==="cit"){navigator.clipboard.writeText(texte).then(function(){b.textContent="Citation copiée"},function(){b.textContent="Copie impossible ici"});return}
+          enregistrer(new Blob([tableauCsv(t)+"\r\n\r\n"+celluleCsv({textContent:texte})],{type:"text/csv;charset=utf-8"}),nom+".csv");b.textContent="Enregistré"}})}})}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",citerTableaux);else citerTableaux();
+
+  // « Comment lire » des rapports (audit du 22 octobre 2026, lot 2), un bouton sur la ligne d'outils de la figure ou du
+  // tableau commenté, à côté de « Citer et exporter », comme dans l'atlas. Le paragraphe garde sa place et s'ouvre au
+  // clic ; s'il ne suit pas une figure ou un tableau, il reste affiché. À l'impression il est toujours visible.
+  function lireReplie(){
+    document.querySelectorAll(".corps p.comment-lire").forEach(function(p){
+      if(p.dataset.lire)return;p.dataset.lire="1";var ligne=null,e=p.previousElementSibling;
+      for(var k=0;e&&k<5&&!ligne;k++,e=e.previousElementSibling){
+        if(e.matches("figure.graphique"))ligne=e.querySelector(".outils-figure");
+        else if(e.matches(".defile,table")){for(var o=e.previousElementSibling,j=0;o&&j<3;o=o.previousElementSibling,j++)if(o.classList.contains("outils-tableau")){ligne=o;break}}
+        else if(e.matches("h2,h3,h4,h5,.comment-lire"))break}
+      if(!ligne)return;
+      var b=document.createElement("button");b.type="button";b.className="citer-fig lire-fig";b.textContent="Comment lire";b.setAttribute("aria-expanded","false");
+      ligne.insertBefore(b,ligne.firstChild);p.classList.add("repli");
+      b.onclick=function(){var o=p.classList.contains("repli");p.classList.toggle("repli",!o);b.setAttribute("aria-expanded",String(o))}})}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",lireReplie);else lireReplie();
+
+  // longs tableaux de consultation (pages de la méthode), un champ filtre les lignes à mesure qu'on tape
+  function filtres(){
+    document.querySelectorAll("table.filtrable").forEach(function(t){
+      if(t.dataset.filtre)return;t.dataset.filtre="1";var bloc=t.closest(".defile")||t;
+      var l=document.createElement("label");l.className="filtre-tableau";l.innerHTML='<span>Filtrer le tableau</span><input type="search" autocomplete="off">';
+      var ligne=bloc.previousElementSibling&&bloc.previousElementSibling.classList.contains("citation-fig")?bloc.previousElementSibling:bloc;ligne.before(l);
+      var n=document.createElement("span");n.className="small muted";l.appendChild(n);
+      var champ=l.querySelector("input"),lignes=[].slice.call(t.tBodies[0]?t.tBodies[0].rows:[]);
+      var norm=function(x){return x.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()};
+      champ.addEventListener("input",function(){var q=norm(champ.value.trim()),k=0;
+        lignes.forEach(function(r){var ok=!q||norm(r.textContent).indexOf(q)>=0;r.hidden=!ok;if(ok)k++});
+        n.textContent=q?k+" ligne"+(k>1?"s":"")+" sur "+lignes.length:""})})}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",filtres);else filtres();
+})();
+
+// Figures qui apparaissent en douceur quand on arrive dessus (refonte du 23 octobre 2026). La classe posée sur la racine
+// n'existe qu'avec le script, si bien qu'une figure reste visible quand il ne tourne pas ; impression exclue.
+(function(){
+  if(!("IntersectionObserver" in window)||matchMedia("print").matches)return;
+  const cibles=document.querySelectorAll("figure.graphique,.une-carte");if(!cibles.length)return;
+  document.documentElement.classList.add("revele");
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("vu");io.unobserve(e.target)}}),{rootMargin:"0px 0px -8% 0px"});
+  cibles.forEach(c=>io.observe(c));
+  addEventListener("beforeprint",()=>cibles.forEach(c=>c.classList.add("vu")));
+})();
+// en-tête qui se resserre en barre flottante dès qu'on descend (essai du 23 octobre 2026, d'après reactbits.dev)
+// classe « resserree » et non « defile », que .defile{overflow-x:auto} des tableaux rognait (liste « Le projet » cachée)
+(function(){var n=document.querySelector("nav.site");if(!n)return;
+  var f=function(){n.classList.toggle("resserree",(window.scrollY||0)>12)};f();addEventListener("scroll",f,{passive:true})})();
+// fenêtres repliables façon macOS (demandes de Lucas des 23 et 28 octobre 2026), pour tout élément .fenetre.repliable
+// qui porte une barre .fen-tete et un corps .fen-corps. Deux boutons sobres à droite de la barre, comme sous Windows
+// (choix de Lucas du 28 octobre 2026, les trois pastilles en couleur à gauche faisaient trop), replier ou déplier, et
+// agrandir à la largeur de l'écran (Échap pour revenir). Double clic sur la barre, replier. Une fenêtre
+// repliée garde son titre et sa phrase de résultat (copie de son .resultat). État gardé dans le navigateur du lecteur,
+// commodité seulement, jamais dans l'adresse, pour qu'un lien partagé ouvre toujours la fenêtre qu'il vise.
+(function(){
+  var fens=[].slice.call(document.querySelectorAll(".fenetre.repliable"));if(!fens.length)return;
+  var CLE="fenetres-repliees:"+location.pathname,etat={};
+  try{etat=JSON.parse(localStorage.getItem(CLE)||"{}")}catch(e){}
+  function garder(){try{localStorage.setItem(CLE,JSON.stringify(etat))}catch(e){}}
+  function titre(f){var h=f.querySelector(".fen-tete h2,.fen-tete h3");return h?h.textContent.trim():"cette fenêtre"}
+  // symboles dessinés au trait, de la couleur du texte, nets à toutes les tailles
+  var svg=function(d){return '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="'+d+'" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'};
+  var ICONE={moins:svg("M3 7h8"),plus:svg("M3 7h8M7 3v8"),agrandir:svg("M8.5 2.5h3v3M11.5 2.5L8 6M5.5 11.5h-3v-3M2.5 11.5L6 8"),
+    reduire:svg("M11.5 2.5L8 6M8 3v3h3M2.5 11.5L6 8M6 11V8H3")};
+  function poser(f,replie,memo){
+    f.classList.toggle("repliee",replie);var b=f.querySelector(".p-replier");
+    b.setAttribute("aria-expanded",String(!replie));b.innerHTML=replie?ICONE.plus:ICONE.moins;
+    b.setAttribute("aria-label",(replie?"Déplier":"Replier")+" la fenêtre « "+titre(f)+" »");
+    if(replie&&f.classList.contains("agrandie"))agrandir(f,false);
+    if(memo!==false){if(replie)etat[f.id]=1;else delete etat[f.id];garder()}
+    document.querySelectorAll('a[href^="#'+f.id+'"]').forEach(function(a){a.classList.toggle("vers-repliee",replie)});
+    if(!replie)dispatchEvent(new CustomEvent("fenetre",{detail:f}))}
+  function agrandir(f,oui){
+    f.classList.remove("agrandie");f.style.removeProperty("--deborde-g");f.style.removeProperty("--deborde-d");
+    if(oui){var r=f.getBoundingClientRect(),w=document.documentElement.clientWidth;
+      f.style.setProperty("--deborde-g",Math.max(0,r.left-16)+"px");f.style.setProperty("--deborde-d",Math.max(0,w-r.right-16)+"px");
+      f.classList.add("agrandie")}
+    var b=f.querySelector(".p-agrandir");b.setAttribute("aria-pressed",String(oui));b.innerHTML=oui?ICONE.reduire:ICONE.agrandir;
+    b.setAttribute("aria-label",(oui?"Rendre à la fenêtre « ":"Agrandir la fenêtre « ")+titre(f)+(oui?" » sa largeur":" » à la largeur de l’écran"));
+    dispatchEvent(new CustomEvent("fenetre",{detail:f}))}
+  function resume(f){var r=f.querySelector(".fen-corps .resultat"),c=f.querySelector(".fen-resume");if(r&&c)c.textContent=r.textContent.replace(/­/g,"")}
+  fens.forEach(function(f){
+    var corps=f.querySelector(".fen-corps"),tete=f.querySelector(".fen-tete"),p=tete&&tete.querySelector(".pastilles");if(!corps||!p)return;
+    corps.id=corps.id||f.id+"-corps";var t=titre(f);
+    p.innerHTML='<button type="button" class="p-agrandir" aria-pressed="false" aria-label="Agrandir la fenêtre « '+t+' » à la largeur de l’écran">'+ICONE.agrandir+'</button>'
+      +'<button type="button" class="p-replier" aria-controls="'+corps.id+'"></button>';
+    p.querySelector(".p-replier").onclick=function(){poser(f,!f.classList.contains("repliee"))};
+    p.querySelector(".p-agrandir").onclick=function(){if(f.classList.contains("repliee"))poser(f,false);agrandir(f,!f.classList.contains("agrandie"))};
+    tete.addEventListener("dblclick",function(e){if(!e.target.closest("button,a,input,select"))poser(f,!f.classList.contains("repliee"))});
+    var r=corps.querySelector(".resultat");if(r){resume(f);new MutationObserver(function(){resume(f)}).observe(r,{childList:true,characterData:true,subtree:true})}
+    // « Comment lire » de la barre, ouvre la note de lecture rangée en tête du corps
+    var bl=tete.querySelector(".fen-lire-bouton"),nl=f.querySelector(".fen-lire");
+    if(bl&&nl){nl.id=nl.id||f.id+"-lire";bl.setAttribute("aria-controls",nl.id);bl.setAttribute("aria-expanded","false");
+      bl.onclick=function(){var o=nl.hidden;if(o&&f.classList.contains("repliee"))poser(f,false);nl.hidden=!o;bl.setAttribute("aria-expanded",String(o))}}
+    poser(f,!!etat[f.id],false)});
+  // un lien vers une fenêtre repliée la déplie, l'adresse d'une vue partagée aussi (#paires?pA=…)
+  function viser(){var id=decodeURIComponent((location.hash||"").slice(1).split("?")[0]);if(!id)return;
+    var f=document.getElementById(id);if(f&&f.classList.contains("repliee"))poser(f,false)}
+  viser();addEventListener("hashchange",viser);
+  // le navigateur ne trouve pas l'ancre d'une vue partagée (#iFenEntonnoir?iProf=…), la page y descend donc elle-même,
+  // une fois les figures dessinées pour que la position soit juste
+  // (sans quoi le navigateur remet la page à la position qu'il avait gardée)
+  if((location.hash||"").indexOf("?")>=0&&"scrollRestoration" in history)history.scrollRestoration="manual";
+  addEventListener("load",function(){var h=location.hash||"";if(h.indexOf("?")<0)return;
+    var el=document.getElementById(decodeURIComponent(h.slice(1).split("?")[0]));
+    if(el)setTimeout(function(){el.scrollIntoView({block:"start"})},0)});
+  document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest('a[href^="#"]');if(!a)return;
+    var f=document.getElementById(a.getAttribute("href").slice(1).split("?")[0]);if(f&&f.classList.contains("repliee"))poser(f,false)});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape")fens.forEach(function(f){if(f.classList.contains("agrandie"))agrandir(f,false)})});
+  addEventListener("resize",function(){fens.forEach(function(f){if(f.classList.contains("agrandie"))agrandir(f,true)})});
+  window.fenetres={toutes:function(replie){fens.forEach(function(f){poser(f,replie)})}};
+  document.querySelectorAll("[data-fenetres]").forEach(function(b){b.onclick=function(){window.fenetres.toutes(b.dataset.fenetres==="replier")}});
+})();
+</script>
+
+<script src="cesure/hyphen.js" defer></script>
+<script src="cesure/hyphen-fr.js" defer></script>
+<script src="cesure/cesure.js" defer></script>
+<script>window.goatcounter={no_onload:navigator.doNotTrack==="1"||window.doNotTrack==="1"}</script><script data-goatcounter="https://ubicura.goatcounter.com/count" async src="https://gc.zgo.at/count.v5.js" crossorigin="anonymous" integrity="sha384-atnOLvQb9t+jTSipvd75X2yginT4PjVbqDdlJAmxMm+wYElFmeR6EmLP5bYeoRVQ"></script>
+</body>
+</html>

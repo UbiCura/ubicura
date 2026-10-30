@@ -1,0 +1,20 @@
+﻿cle;structure;verdict;finess;situation;structure_actuelle
+630786754|||cmp marie beatrice ror;CMP Marie-Béatrice (ROR);pas_un_cmp;;sans numéro FINESS, disparue des bases;
+630786754|060780996|Marie|cmp marie beatrice;CMP Marie-Béatrice;pas_un_cmp;060780996;renommée, même numéro FINESS sous un autre nom;"AT (Appartement Thérapeutique Réinsertion) ; C2A - Centre d'Accueil et d'Admission ; CHS SAINTE MARIE NICE"
+630786754|630016210|Clermont-Ferrand|cmp janet frame;CMP Janet Frame;pas_un_cmp;630016210;disparue des bases;
+710781329|710014929|Sevrey|cmp pour adultes de sevrey;CMP pour adultes de Sevrey;pas_un_cmp;710014929;disparue des bases;
+260003264|260013693|Crest|antenne du cmp crest;Antenne du CMP Crest;doublon;260013693;renommée, même numéro FINESS sous un autre nom;Antenne du CMP Barcelo à Die
+260003264|260023049|Crest|antenne du cmp crest;Antenne du CMP Crest;doublon;260023049;renommée, même numéro FINESS sous un autre nom;Antenne du CMP pour enfants à Die
+260003264|260021845|Nyons|antenne du cmp nyons;Antenne du CMP NYONS;doublon;260021845;même nom sous ce numéro, autre commune ou autre gestionnaire, verdict à relire;Antenne du CMP NYONS
+750712184|750802258|Paris|cmp pour enfants rue rene binet;CMP pour enfants rue René-Binet;existe;750802258;renommée, même numéro FINESS sous un autre nom;CMP pour enfants de Bichat, rue René-Binet
+750712184|750033938|Paris|cmp boulevard ney;CMP boulevard Ney;existe;750033938;renommée, même numéro FINESS sous un autre nom;CMP Policlinique Ney, hôpital Bichat
+130789274|130806706|Arles|cmp cattp secteur 13g26 ch arles;CMP CATTP SECTEUR 13G26 CH ARLES;doublon;130806706;même nom sous ce numéro, autre commune ou autre gestionnaire, verdict à relire;CMP CATTP SECTEUR 13G26 CH ARLES
+440000263|440051225|Nort-sur-Erdre|adultes ppa nort sppid 44g12;Adultes - PPA NORT SPPID - 44G12;doublon;440051225;renommée, même numéro FINESS sous un autre nom;PPA NORT SUR ERDRE HDJ
+670013366|670014281|Saverne|cmp pour personnes agees de saverne vill;CMP pour personnes âgées de Saverne, villa Dollinger;pas_un_cmp;670014281;renommée, même numéro FINESS sous un autre nom;"AT Personnes âgées Saverne Villa Dollinger 19 côte de Saverne ; CMP Personnes âgées Saverne Villa Dollinger 19 côte de Saverne ; HJ Personnes âgées Saverne Villa Dollinger 19 côte de Saverne"
+330781295|330058611|Bègles|cmp de begles avenue du marechal leclerc;CMP de Bègles, avenue du Maréchal-Leclerc;pas_un_cmp;330058611;renommée, même numéro FINESS sous un autre nom;"CMP (Centre Médico-Psychologique) Bègles ; Psychiatrie adulte HDJ La Rivière Bleu"
+630786754|060033677|Nice|cmp les eaux vives;CMP Les Eaux Vives;ferme;060033677;renommée, même numéro FINESS sous un autre nom;CMP DU CONGRES
+630786754|060787827|Nice|cmp michel ange;CMP Michel-Ange;ferme;060787827;numéro fermé dans FINESS le 2026-09-22;
+630786754|060020021|Saint-Laurent-du-Var|cmp hlm point du jour;CMP HLM Point du Jour;ferme;060020021;numéro fermé dans FINESS le 2026-09-22;
+630786754|060787686|Beausoleil|cmp de beausoleil;CMP de Beausoleil;ferme;060787686;numéro fermé dans FINESS le 2026-09-20;
+630786754|060019650|Roquebillière|cmp centre jean chanton;Antenne de psychiatrie adulte de Roquebillière;ferme;060019650;numéro fermé dans FINESS le 2026-09-22;
+440000263|440054724|Orvault|cmp pour adolescents d orvault;CMP pour adolescents d'Orvault;ferme;440054724;numéro fermé dans FINESS le 2025-11-13;
