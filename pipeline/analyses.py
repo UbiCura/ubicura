@@ -190,34 +190,6 @@ def pearson_pondere(x, y, w):
     return cov / np.sqrt(np.average((x - mx) ** 2, weights=w) * np.average((y - my) ** 2, weights=w))
 
 
-def ols_hc1(y, X, noms):
-    """Moindres carrés avec erreurs standard robustes HC1. X sans constante (ajoutée ici)."""
-    n, k = X.shape
-    Xc = np.column_stack([np.ones(n), X])
-    XtX_inv = np.linalg.pinv(Xc.T @ Xc)
-    beta = XtX_inv @ Xc.T @ y
-    res = y - Xc @ beta
-    meat = (Xc * res[:, None] ** 2).T @ Xc
-    V = XtX_inv @ meat @ XtX_inv * n / (n - k - 1)
-    se = np.sqrt(np.diag(V))
-    t = beta / se
-    p = 2 * stats.norm.sf(np.abs(t))
-    r2 = 1 - res.var() / y.var()
-    vif = []
-    for j in range(k):
-        autres = np.delete(X, j, axis=1)
-        if autres.shape[1] == 0:
-            vif.append(1.0)
-            continue
-        Z = np.column_stack([np.ones(n), autres])
-        b = np.linalg.lstsq(Z, X[:, j], rcond=None)[0]
-        r2j = 1 - (X[:, j] - Z @ b).var() / X[:, j].var()
-        vif.append(1 / max(1 - r2j, 1e-9))
-    coefs = pd.DataFrame({"variable": ["constante"] + noms, "coef": beta, "erreur_std": se, "t": t, "p": p,
-                          "vif": [np.nan] + vif})
-    return coefs, Xc @ beta, r2
-
-
 def moran(valeurs: pd.Series, voisins: dict, permutations=999, rng=None):
     codes = [c for c in valeurs.index if c in voisins and voisins[c]]
     if len(codes) < 10:
@@ -633,10 +605,13 @@ def medianes_histogramme(h: pd.DataFrame, cles: list) -> pd.DataFrame:
     return t[cles + ["temps_median_min"]]
 
 
-def temps_acces(ar, ref):
+def temps_acces(ar, ref, contredites=None):
     """Temps de trajet en voiture vers l'équipement le plus proche, résumé par territoire (France, région,
     département, intercommunalité). Moyenne et parts pondérées par la population des carreaux, médiane tirée
-    de l'histogramme par minute, gardé par commune depuis le 5 octobre 2026 (médiane à tous les niveaux)."""
+    de l'histogramme par minute, gardé par commune depuis le 5 octobre 2026 (médiane à tous les niveaux).
+    Pour la psychiatrie ambulatoire, part des habitants vivant dans une commune où le temps contredit la distance au
+    CMP (contredites, lieux.controle_route_cmp) et colonne « fiable », fausse au-delà de config.ROUTE_CMP_PART_MAX :
+    le temps de ces territoires reste dans le fichier mais n'est plus montré (audit externe du 30 octobre 2026)."""
     if not ar:
         return None
     seuils = config.ACCES_ROUTE_SEUILS
@@ -672,6 +647,41 @@ def temps_acces(ar, ref):
     t = t.merge(pd.concat(med, ignore_index=True), on=["niveau", "code", "equipement"], how="left")
     t = t.rename(columns={"pop": "population"}).drop(columns=["pop_calcule", "pd"] + [f"sup_{s}" for s in seuils])
     t.insert(3, "libelle", t["equipement"].map({d["id"]: d.get("libelle", d["id"]) for d in ar["defs"]}))
+    t["part_population_temps_contredit"] = np.nan
+    t["fiable"] = True
+    if contredites is not None:
+        ps = c[c["equipement"] == "psychiatrie_ambulatoire"].assign(FR="FR")
+        ps = ps.assign(contredit=ps["pop"].where(ps["depcom"].isin(set(contredites)), 0.0))
+        parts = []
+        for niv, cle in [("FR", "FR"), ("reg", "reg"), ("dep", "dep_ref"), ("epci", "epci")]:
+            g = ps.dropna(subset=[cle]).groupby(cle)[["contredit", "pop"]].sum()
+            parts.append(pd.DataFrame({"niveau": niv, "code": g.index, "part": (g["contredit"] / g["pop"]).to_numpy()}))
+        p = pd.concat(parts, ignore_index=True).set_index(["niveau", "code"])["part"]
+        cible = t["equipement"] == "psychiatrie_ambulatoire"
+        t.loc[cible, "part_population_temps_contredit"] = [p.get((n, c_), np.nan) for n, c_ in
+                                                           zip(t.loc[cible, "niveau"], t.loc[cible, "code"])]
+        t.loc[cible, "fiable"] = ~(t.loc[cible, "part_population_temps_contredit"] > config.ROUTE_CMP_PART_MAX)
+        f = t[cible]
+        noms = {"FR": "France", "reg": "régions", "dep": "départements", "epci": "intercommunalités"}
+        JOURNAL.controle("Temps de route de l'INSEE vers la psychiatrie ambulatoire, territoires où il n'est pas montré "
+                         f"(plus de {config.ROUTE_CMP_PART_MAX * 100:g} % des habitants dans une commune où il contredit "
+                         "la distance au CMP)".replace(".", ","),
+                         ", ".join(f"{noms[niv]} {int((~f.loc[f['niveau'] == niv, 'fiable']).sum())} sur "
+                                   f"{int((f['niveau'] == niv).sum())}" for niv in noms))
+    return t
+
+
+TEMPS_COLONNES = ["temps_moyen_min", "temps_median_min", "part_population_a_plus_de_15_min",
+                  "part_population_a_plus_de_20_min", "part_population_a_plus_de_30_min"]
+
+
+def temps_montres(t: pd.DataFrame) -> pd.DataFrame:
+    """Temps de trajet tels qu'ils sont montrés au lecteur, valeurs vidées là où le temps n'est pas fiable (colonne
+    « fiable » de temps_acces). La ligne reste, pour que le rapport dise « non montré » avec sa limite."""
+    if "fiable" not in t:
+        return t
+    t = t.copy()
+    t.loc[~t["fiable"].astype(bool), [c for c in TEMPS_COLONNES if c in t]] = np.nan
     return t
 
 
@@ -1533,7 +1543,8 @@ def tout(agg, ref, ctx, voisins, offres, externes=None):
     # temps de trajet calculés avant les croisements, qui s'en servent (audit du 4 octobre, 3.3)
     externes = externes or {}
     log.info("analyse : temps de trajet (INSEE) et comparaison avec l'APL (DREES)")
-    R["temps_acces"] = temps_acces(externes.get("acces_route"), ref)
+    R["temps_acces"] = temps_acces(externes.get("acces_route"), ref,
+                                   (getattr(agg, "lieux", None) or {}).get("route_cmp_contredites"))
     if ctx is not None:
         log.info("analyse : loi inverse des soins, concordance des indicateurs de besoin, croisements")
         R["loi_inverse"] = loi_inverse(agg, ref, ctx, rng)

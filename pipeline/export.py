@@ -755,10 +755,18 @@ def _site(agg, ref, professions, insee, R, serie, jour):
         ta = R.get("temps_acces")
         if isinstance(ta, pd.DataFrame) and len(ta):
             t = ta[ta["niveau"] == niv]
-            bloc["route"] = {e: [None if pd.isna(r.part_population_a_plus_de_20_min) else
+            # temps non fiable (contredit par la distance au CMP, analyses.temps_acces) retiré, territoires listés
+            fiable = t["fiable"] if "fiable" in t else pd.Series(True, index=t.index)
+            bloc["route"] = {e: [None if pd.isna(r.part_population_a_plus_de_20_min) or r.fiable is False else
                                  [_r(r.part_population_a_plus_de_20_min, 4), _r(r.temps_median_min, 1)]
-                                 for r in g.set_index("code").reindex(codes).itertuples()]
+                                 for r in g.assign(fiable=fiable.astype(object)).set_index("code").reindex(codes)
+                                 .itertuples()]
                              for e, g in t.groupby("equipement")}
+            masque = t[~fiable.astype(bool)]
+            if len(masque):
+                pos = {c: k for k, c in enumerate(codes)}
+                bloc["route_masque"] = {e: sorted(pos[c] for c in g["code"] if c in pos)
+                                        for e, g in masque.groupby("equipement")}
         # personnes déclarant ici une activité sans soins à la population (sièges, contrôle médical...) ou de
         # soins à distance (téléconsultation), non comptées dans la densité du territoire
         ap = (agg.particulieres or {}).get(niv)
@@ -976,8 +984,10 @@ def _route_site(R):
     if not isinstance(ta, pd.DataFrame) or ta.empty:
         return None
     fr = ta[ta["niveau"] == "FR"].set_index("equipement")
+    ok = (lambda e: bool(fr.at[e, "fiable"])) if "fiable" in fr else (lambda e: True)
     return [{"id": e, "lib": lib, "fam": fam, "prof": prof,
-             "fr": [_r(fr.at[e, "part_population_a_plus_de_20_min"], 4), _r(fr.at[e, "temps_median_min"], 1)]}
+             "fr": [_r(fr.at[e, "part_population_a_plus_de_20_min"], 4), _r(fr.at[e, "temps_median_min"], 1)]
+             if ok(e) else None}
             for _code, e, lib, fam, prof in config.ACCES_ROUTE if e in fr.index]
 
 

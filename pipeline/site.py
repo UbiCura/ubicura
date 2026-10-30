@@ -29,7 +29,7 @@ from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from . import config, dictionnaire, libelles, limites, mises_a_jour
 from .lecture import nombre, date_longue
-from .util import JOURNAL, date_version, lire_meta, log
+from .util import JOURNAL, controles_publics, date_version, lire_meta, log
 
 SITE = config.RACINE / "site"
 GABARITS = config.RACINE / "gabarits"
@@ -459,16 +459,108 @@ def lisez_moi_donnees(dossier: Path, archivee: bool | None = None) -> str:
     return "\n".join(lignes)
 
 
-def citation_donnees(version: str, archivee: bool | None = None) -> str:
-    """Citation des données d'une version, par Zenodo si elle y est archivée, sinon par l'adresse du site avec le DOI
-    général de la dernière version archivée."""
-    doi = config.DOI_DONNEES
+def doi_version(cle: str, version: str | None = None) -> str | None:
+    """DOI propre à une version archivée sur Zenodo (« donnees », « sante-mentale », « sante »), relevé par
+    outils/zenodo.py constater dans donnees/zenodo.json (audit externe du 30 octobre 2026, le DOI général renvoie
+    toujours à la dernière version et ne fige pas les chiffres cités). None quand il n'est pas relevé."""
+    try:
+        e = json.loads((config.DONNEES / "zenodo.json").read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        return None
+    return ((e.get("doi_versions") or {}).get(version or config.VERSION_ZENODO) or {}).get(cle)
+
+
+def doi_cite(cle: str, version: str | None = None) -> str | None:
+    """DOI à citer, celui de la version quand il est relevé, sinon le DOI général du dépôt."""
+    general = config.DOI_DONNEES if cle == "donnees" else config.DOI_RAPPORTS.get(cle)
+    return doi_version(cle, version) or general
+
+
+# dépôt public du code (branche main de UbiCura/ubicura, publié depuis le 22 octobre 2026)
+DEPOT_CODE = "https://github.com/UbiCura/ubicura"
+
+
+def sources_publiques(sources: list[dict]) -> list[dict]:
+    """Sources montrées sur la page Méthode. Une source facultative non activée (« ignoré ») n'est pas une source du
+    site et n'est pas listée ; une source absente ou en erreur est dite non disponible, sans le message du programme."""
+    out = []
+    for s in sources:
+        if s.get("statut") == "ignoré":
+            continue
+        if s.get("statut") != "ok":
+            s = dict(s, detail="Non disponible dans cette version.")
+        out.append(s)
+    return out
+
+
+def taille_fichier(octets: int) -> str:
+    """Taille lisible d'un fichier, en Ko sous un mégaoctet (« 0,0 Mo » relevé par l'audit externe du 30 octobre 2026),
+    en Mo au-delà."""
+    if octets < 1e6:
+        return f"{max(1, round(octets / 1e3))} Ko"
+    return f"{octets / 1e6:.1f} Mo".replace(".", ",")
+
+
+_IDENTIQUES: dict[str, bool] = {}
+
+
+def identique_archive(iso: str) -> bool:
+    """Vrai quand les résultats de la version iso sont ceux déposés sur Zenodo. La version en ligne peut être refaite
+    le jour même de l'archive (seconde mise en ligne du 30 octobre 2026 à 12 h 47, archive préparée à 11 h 43) : les CSV
+    sont comparés à ceux de l'archive par leur empreinte CRC32, gardée dans le zip (0,3 seconde). Sans archive sur
+    cette machine, la date seule fait foi."""
+    if iso != config.VERSION_ZENODO:
+        return False
+    if iso not in _IDENTIQUES:
+        import zipfile
+        import zlib
+        z, d = config.DONNEES / "zenodo" / iso / f"donnees_{iso}.zip", config.RESULTATS / iso
+        if not z.exists() or not d.is_dir():
+            _IDENTIQUES[iso] = True
+        else:
+            with zipfile.ZipFile(z) as zz:
+                crc = {i.filename: i.CRC for i in zz.infolist() if i.filename.endswith(".csv")}
+            _IDENTIQUES[iso] = ({f.name for f in d.glob("*.csv")} == set(crc)
+                                and all(zlib.crc32((d / n).read_bytes()) == c for n, c in crc.items()))
+    return _IDENTIQUES[iso]
+
+
+def mention_version(iso: str, archivee: bool | None = None) -> dict:
+    """État d'une version pour sa citation (rapport Zenodo du 30 octobre 2026, partie 3.1). archivee, la version est
+    celle déposée sur Zenodo ; posterieure, version de travail refaite après la dernière archive, datée à la minute
+    quand elle a le même jour que l'archive (heure de calcul des résultats) ; texte, « version du … » ou « version de
+    travail du …, postérieure à la version archivée du … »."""
     if archivee is None:
-        archivee = version == config.VERSION_ZENODO
-    debut = f"{config.CITATION_AUTEUR} ({version[:4]}). {config.TITRES_DEPOTS['donnees']}. Version du {date_longue(version)}"
-    if archivee or not config.ADRESSE_SITE:
-        return debut + ". Zenodo." + (f" https://doi.org/{doi}" if doi else "")
-    return f"{debut}, {config.ADRESSE_SITE}." + (f" Dernière version archivée, Zenodo, https://doi.org/{doi}" if doi else "")
+        archivee = identique_archive(iso)
+    posterieure = not archivee and iso >= config.VERSION_ZENODO
+    texte = f"version du {date_longue(iso)}"
+    if posterieure:
+        heure = ""
+        sd = config.RESULTATS / iso / "site_data.json"
+        if iso == config.VERSION_ZENODO and sd.exists():
+            from datetime import datetime
+            h = datetime.fromtimestamp(sd.stat().st_mtime)
+            heure = f", {h.hour} h {h.minute:02d}"
+        texte = (f"version de travail du {date_longue(iso)}{heure}, postérieure à la version archivée du "
+                 f"{date_longue(config.VERSION_ZENODO)}")
+    return {"archivee": archivee, "posterieure": posterieure, "texte": texte}
+
+
+def citation_donnees(version: str, archivee: bool | None = None) -> str:
+    """Citation des données d'une version. Archivée, par son DOI propre puis le DOI général (toutes les versions) ;
+    sinon par l'adresse du site, avec le DOI de la dernière version archivée et le DOI général."""
+    m = mention_version(version, archivee)
+    doi = doi_cite("donnees", version if m["archivee"] else config.VERSION_ZENODO)
+    tout = (f" Toutes les versions, https://doi.org/{config.DOI_DONNEES}."
+            if config.DOI_DONNEES and doi and doi != config.DOI_DONNEES else "")
+    debut = f"{config.CITATION_AUTEUR} ({version[:4]}). {config.TITRES_DEPOTS['donnees']}"
+    if m["archivee"] or not config.ADRESSE_SITE:
+        return f"{debut}. Version du {date_longue(version)}. Zenodo." + (f" https://doi.org/{doi}." if doi else "") + tout
+    if m["posterieure"]:
+        return (f"{debut}. {m['texte'][0].upper()}{m['texte'][1:]}" + (f" (https://doi.org/{doi})" if doi else "")
+                + f", {config.ADRESSE_SITE}." + tout)
+    return (f"{debut}. Version du {date_longue(version)}, {config.ADRESSE_SITE}."
+            + (f" Dernière version archivée, Zenodo, https://doi.org/{doi}." if doi else "") + tout)
 
 
 def a_propos_variables(version: str) -> dict:
@@ -476,36 +568,51 @@ def a_propos_variables(version: str) -> dict:
     return {"version": date_longue(version), "annee": version[:4], "nom_projet": config.NOM_PROJET,
             "version_zenodo": date_longue(config.VERSION_ZENODO), "annee_zenodo": config.VERSION_ZENODO[:4],
             "sous_titre": config.SOUS_TITRE[0].lower() + config.SOUS_TITRE[1:], "orcid": config.ORCID,
-            "contact": config.CONTACT, "doi_donnees": config.DOI_DONNEES or "",
-            "doi_sm": config.DOI_RAPPORTS.get("sante-mentale") or "", "doi_sante": config.DOI_RAPPORTS.get("sante") or "",
+            "contact": config.CONTACT, "doi_donnees": doi_cite("donnees") or "",
+            "doi_sm": doi_cite("sante-mentale") or "", "doi_sante": doi_cite("sante") or "",
+            "doi_general": config.DOI_DONNEES or "",
             "titre_donnees": config.TITRES_DEPOTS["donnees"], "titre_sm": config.TITRES_DEPOTS["sante-mentale"],
             "titre_sante": config.TITRES_DEPOTS["sante"]}
 
 
-def citation_territoire(titre: str, date: str, page: str) -> dict:
-    """Citation d'un rapport par territoire. Ces rapports ne sont pas archivés sur Zenodo, la citation donne l'adresse de
-    la page et le DOI des données."""
-    adresse = f"{config.ADRESSE_SITE.rstrip('/')}/territoires/{page}" if config.ADRESSE_SITE else page
+def citation_territoire(titre: str, date: str, page: str, iso: str | None = None) -> dict:
+    """Citation d'un rapport par territoire. Ces rapports ne sont pas archivés sur Zenodo, la citation donne l'adresse
+    datée de la page (territoires/AAAA-MM-JJ/, comme les rapports nationaux, audit externe du 30 octobre 2026) et le DOI
+    des données."""
+    chemin = f"territoires/{iso}/{page}" if iso else f"territoires/{page}"
+    adresse = f"{config.ADRESSE_SITE.rstrip('/')}/{chemin}" if config.ADRESSE_SITE else chemin
     titre = re.sub(r",\s*\d{1,2}(er)?\s+\S+\s+\d{4}\s*$", "", titre)   # la date du titre est donnée par la version
-    texte = f"{config.CITATION_AUTEUR} ({date[-4:]}). {titre}. Version du {date}. {config.NOM_PROJET}, {adresse}"
-    return {"texte": texte, "doi_rapport": None, "doi_donnees": config.DOI_DONNEES}
+    m = mention_version(iso) if iso else {"texte": f"version du {date}"}
+    texte = f"{config.CITATION_AUTEUR} ({date[-4:]}). {titre}. {m['texte'][0].upper()}{m['texte'][1:]}. {config.NOM_PROJET}, {adresse}"
+    return {"texte": texte, "doi_rapport": None, "doi_donnees": doi_cite("donnees")}
 
 
 def citation(cle: str, titre: str, date: str, iso: str | None = None, archivee: bool | None = None) -> dict:
     """Citation d'un rapport, avec les DOI quand ils existent. Une version qui n'est pas archivée sur Zenodo est citée par
     son adresse sur le site, avec le DOI général de la dernière version archivée. archivee=True force la citation d'une
     version archivée, pour les fichiers déposés sur Zenodo (outils/zenodo.py)."""
-    doi_r, doi_d = config.DOI_RAPPORTS.get(cle), config.DOI_DONNEES
-    if archivee is None:
-        archivee = not iso or iso == config.VERSION_ZENODO
-    if doi_r and not archivee and config.ADRESSE_SITE:
+    if iso:
+        m = mention_version(iso, archivee)
+    else:
+        m = {"archivee": True if archivee is None else archivee, "posterieure": False, "texte": ""}
+    archivee = m["archivee"]
+    # DOI propre à la version citée quand elle est archivée, sinon à la dernière version archivée, puis le DOI général
+    doi_r = doi_cite(cle, iso if archivee and iso else config.VERSION_ZENODO) if config.DOI_RAPPORTS.get(cle) else None
+    doi_d = doi_cite("donnees", iso if archivee and iso else config.VERSION_ZENODO)
+    general = config.DOI_RAPPORTS.get(cle)
+    tout = f" Toutes les versions, https://doi.org/{general}." if general and doi_r and doi_r != general else ""
+    if doi_r and not archivee and config.ADRESSE_SITE and m["posterieure"]:
+        texte = (f"{config.CITATION_AUTEUR} ({date[-4:]}). {config.TITRES_DEPOTS.get(cle, titre)}. "
+                 f"{m['texte'][0].upper()}{m['texte'][1:]} (https://doi.org/{doi_r}), "
+                 f"{config.ADRESSE_SITE.rstrip('/')}/rapports/{iso}/{cle}.html.{tout}")
+    elif doi_r and not archivee and config.ADRESSE_SITE:
         texte = (f"{config.CITATION_AUTEUR} ({date[-4:]}). {config.TITRES_DEPOTS.get(cle, titre)}. Version du {date}, "
                  f"{config.ADRESSE_SITE.rstrip('/')}/rapports/{iso}/{cle}.html. Dernière version archivée, Zenodo, "
-                 f"https://doi.org/{doi_r}")
+                 f"https://doi.org/{doi_r}.{tout}")
     # citation formelle sur le titre du dépôt Zenodo, sans le nom du site
     elif doi_r:
         texte = (f"{config.CITATION_AUTEUR} ({date[-4:]}). {config.TITRES_DEPOTS.get(cle, titre)}. Version du {date}. "
-                 f"Zenodo. https://doi.org/{doi_r}")
+                 f"Zenodo. https://doi.org/{doi_r}.{tout}")
     else:
         texte = (f"{config.CITATION_AUTEUR} ({date[-4:]}). {titre}, version du {date}. {config.NOM_PROJET}."
                  + (f" {config.ADRESSE_SITE}" if config.ADRESSE_SITE else ""))
@@ -787,7 +894,7 @@ def construire(pdf=True) -> Path:
             refaire = d == dernier or not cible_pdf.exists()
             # une version archivée sur Zenodo garde sur le site le PDF exact qui y est déposé (outils/zenodo.py)
             depose = config.DONNEES / "zenodo" / d.name / f"{cle}.pdf"
-            if d.name == config.VERSION_ZENODO and depose.exists():
+            if d.name == config.VERSION_ZENODO and depose.exists() and identique_archive(d.name):
                 shutil.copy2(depose, cible_pdf)
                 refaire = False
             html = env.get_template("rapport.html").render(ctx, titre_rapport=t, corps=corps, sommaire=sommaire,
@@ -839,7 +946,7 @@ def construire(pdf=True) -> Path:
             desc += " Licence ODbL."
         fichiers.append({"nom": f.name + (" (archive zip)" if cible.suffix == ".zip" else ""),
                          "lien": f"donnees/{dernier.name}/{cible.name}", "description": desc,
-                         "taille": f"{cible.stat().st_size / 1e6:.1f} Mo".replace(".", ",")})
+                         "taille": taille_fichier(cible.stat().st_size)})
     _, corps, _ = md_html((dernier / "dictionnaire_des_colonnes.md").read_text(encoding="utf-8"), None)
     ctx = dict(commun, racine="../../", page="methode", titre="Dictionnaire des colonnes")
     (ddir / "dictionnaire.html").write_text(rendre(env, "page.html",
@@ -856,7 +963,8 @@ def construire(pdf=True) -> Path:
                logiciels=logiciels())
     # la méthode en cinq pages (audit du 22 octobre 2026, lot 3), une vue d'ensemble courte et une page par grand
     # ensemble de consultation, sommaire commun
-    contenu = dict(sources=journal["sources"], controles=journal["controles"], indicateurs=site_data["contexte"],
+    contenu = dict(sources=sources_publiques(journal["sources"]), controles=controles_publics(journal["controles"]),
+                   indicateurs=site_data["contexte"], depot_code=DEPOT_CODE,
                    libelles=table_lib, fichiers=fichiers, concordance=concordance, inscrits=inscrits, lieux=lieux_m,
                    archive={"lien": f"donnees/{dernier.name}/{tout.name}", "taille": f"{tout.stat().st_size / 1e6:.0f} Mo"},
                    lien_dictionnaire=f"donnees/{dernier.name}/dictionnaire.html",
@@ -912,7 +1020,8 @@ def construire(pdf=True) -> Path:
                                    ("contribuer.md", "contribuer.html", "Proposer une base de données")):
         src = config.RACINE / "contenus" / fichier
         if src.exists():
-            _t, corps, _s = md_html(src.read_text(encoding="utf-8"), None)
+            texte = src.read_text(encoding="utf-8").replace("{contact}", config.CONTACT).replace("{depot_code}", DEPOT_CODE)
+            _t, corps, _s = md_html(texte, None)
             ctx = dict(commun, racine="", page=sortie[:-5], titre=titre)
             (SITE / sortie).write_text(rendre(env, "page.html",
                 ctx, corps=f"<h1>{titre}</h1>" + corps), encoding="utf-8")
@@ -946,7 +1055,7 @@ def construire(pdf=True) -> Path:
     (SITE / "journal.html").write_text(rendre(env, "journal.html", ctx, **journal_page()), encoding="utf-8")
     pages.append(SITE / "journal.html")
 
-    ctx = dict(commun, racine="", page="publications", titre="Publications")
+    ctx = dict(commun, racine="", page="publications", titre="Publications", contact=config.CONTACT)
     (SITE / "publications.html").write_text(rendre(env, "publications.html", ctx), encoding="utf-8")
 
     # l'atlas est la première page du site (décisions de Lucas du 28 octobre 2026, la page d'accueil précédente n'était
@@ -967,7 +1076,7 @@ def construire(pdf=True) -> Path:
               f'<a href="territoires/index.html">Rapports par territoire</a>'
               f'<a href="methode.html">Méthode, données et limites</a>'
               f'<span class="version">Données du {commun["date_longue"]}, '
-              f'<a href="https://doi.org/{config.DOI_DONNEES}">doi:{config.DOI_DONNEES}</a></span></div></header>')
+              f'<a href="https://doi.org/{doi_cite("donnees")}">doi:{doi_cite("donnees")}</a></span></div></header>')
     # données, fond de carte et bibliothèques dans des fichiers à part, chargés au même endroit (page de 15 Mo qu'un
     # réseau d'entreprise n'ouvrait pas, 29 octobre 2026), l'atlas autonome de Zenodo garde tout dans la page
     construire_atlas.construire(dernier / "site_data.json", SITE / "index.html", nav, accueil=entete,
@@ -1020,15 +1129,24 @@ def construire(pdf=True) -> Path:
 
 
 def _territoires(env, commun, dernier) -> list[Path]:
-    """Rapports par région et par département, seulement pour la dernière version (le site garde ainsi un
-    poids raisonnable). Pas de PDF stocké, le lecteur imprime la page s'il veut en garder une copie."""
+    """Rapports par région et par département de la dernière version. Chaque page est écrite deux fois, à l'adresse
+    stable territoires/dep-18-sante-mentale.html, qui montre toujours la dernière version, et à l'adresse datée
+    territoires/AAAA-MM-JJ/dep-18-sante-mentale.html, que donne la citation (audit externe du 30 octobre 2026). Les
+    dossiers datés ne sont gardés que pour la dernière version et la version archivée sur Zenodo (config.VERSION_ZENODO),
+    pour que le site garde un poids raisonnable (67 Mo par version). Pas de PDF stocké, le lecteur imprime la page s'il
+    veut en garder une copie."""
     src = dernier / "territoires"
     dossier = SITE / "territoires"
+    gardes = {dernier.name, config.VERSION_ZENODO}
     if dossier.exists():
-        shutil.rmtree(dossier)
+        for f in dossier.iterdir():
+            if f.is_dir() and re.fullmatch(r"\d{4}-\d{2}-\d{2}", f.name) and f.name in gardes - {dernier.name}:
+                continue
+            shutil.rmtree(f) if f.is_dir() else f.unlink()
     if not (src / "index.json").exists():
         return []
-    dossier.mkdir(parents=True)
+    date_dossier = dossier / dernier.name
+    date_dossier.mkdir(parents=True)
     index = json.loads((src / "index.json").read_text(encoding="utf-8"))
     reg_avec_rapport = {t["code"] for t in index if t["niveau"] == "reg" and t["fichiers"]}
     pages = []
@@ -1037,18 +1155,21 @@ def _territoires(env, commun, dernier) -> list[Path]:
             texte = (src / fichier).read_text(encoding="utf-8")
             autre = "sante" if cle == "sante-mentale" else "sante-mentale"
             base = f"{t['niveau']}-{t['code']}"
+            # le corps ne dépend de l'emplacement de la page que par le chemin des données, posé ensuite
             titre_r, corps, sommaire = md_html(texte, src / "graphiques",
-                                               donnees={"prefixe": f"../donnees/{dernier.name}/", "dossier": dernier})
-            ctx = dict(commun, date_longue=date_longue(dernier.name), racine="../", page="territoires",
-                       classe_main="territoire", titre=titre_r)
-            html = env.get_template("territoire.html").render(
-                ctx, titre_rapport=titre_r, corps=corps, sommaire=sommaire,
-                autre_lien=f"{base}-{autre}.html" if autre in t["fichiers"] else "index.html",
-                autre_titre="Lire le rapport santé" if cle == "sante-mentale" else "Lire le rapport santé mentale",
-                lien_region=f"reg-{t['reg']}-{cle}.html" if t["niveau"] == "dep" and t["reg"] in reg_avec_rapport else None,
-                lien_national=f"rapports/{dernier.name}/{cle}.html",
-                citation=citation_territoire(titre_r, date_longue(dernier.name), f"{base}-{cle}.html"))
-            (dossier / f"{base}-{cle}.html").write_text(html, encoding="utf-8")
+                                               donnees={"prefixe": f"@RACINE@donnees/{dernier.name}/", "dossier": dernier})
+            for cible, racine in ((dossier, "../"), (date_dossier, "../../")):
+                ctx = dict(commun, date_longue=date_longue(dernier.name), racine=racine, page="territoires",
+                           classe_main="territoire", titre=titre_r)
+                html = env.get_template("territoire.html").render(
+                    ctx, titre_rapport=titre_r, corps=corps.replace("@RACINE@", racine), sommaire=sommaire,
+                    autre_lien=f"{base}-{autre}.html" if autre in t["fichiers"] else "index.html",
+                    autre_titre="Lire le rapport santé" if cle == "sante-mentale" else "Lire le rapport santé mentale",
+                    lien_region=f"reg-{t['reg']}-{cle}.html" if t["niveau"] == "dep" and t["reg"] in reg_avec_rapport
+                    else None,
+                    lien_national=f"rapports/{dernier.name}/{cle}.html", lien_index=f"{racine}territoires/index.html",
+                    citation=citation_territoire(titre_r, date_longue(dernier.name), f"{base}-{cle}.html", dernier.name))
+                (cible / f"{base}-{cle}.html").write_text(html, encoding="utf-8")
             pages.append(dossier / f"{base}-{cle}.html")
     lien = lambda t, c: f"{t['niveau']}-{t['code']}-{c}.html" if c in t["fichiers"] else None  # noqa: E731
     regions = []
@@ -1066,28 +1187,10 @@ def _territoires(env, commun, dernier) -> list[Path]:
     (dossier / "index.html").write_text(rendre(env, "territoires.html",
         ctx, regions=regions,
         exemple_citation=citation_territoire("Offre de soins en santé mentale, Eure", date_longue(dernier.name),
-                                             "dep-27-sante-mentale.html")["texte"]),
+                                             "dep-27-sante-mentale.html", dernier.name)["texte"]),
                                         encoding="utf-8")
     pages.append(dossier / "index.html")
     return pages
-
-
-def _territoires_recherche(dernier) -> list[dict]:
-    """Régions et départements qui ont un rapport, pour la recherche de l'accueil (libellé affiché, nom, code, début
-    du nom de fichier et rapports disponibles). Le libellé dit le niveau, une région et un département pouvant porter
-    le même code."""
-    idx = dernier / "territoires" / "index.json"
-    if not idx.exists():
-        return []
-    from .util import norm
-    sortie = []
-    for t in json.loads(idx.read_text(encoding="utf-8")):
-        if not t.get("fichiers"):
-            continue
-        niveau = "région" if t["niveau"] == "reg" else f"département {t['code']}"
-        sortie.append({"libelle": f"{t['nom']}, {niveau}", "nom": t["nom"], "code": t["code"], "niveau": t["niveau"],
-                       "base": f"{t['niveau']}-{t['code']}", "fichiers": sorted(t["fichiers"])})
-    return sorted(sortie, key=lambda t: (norm(t["nom"]), t["niveau"] != "reg"))
 
 
 def _css_nav() -> str:
@@ -1134,57 +1237,6 @@ def _apercu_carte(dossier: Path) -> str:
     """Carte des psychiatres par département du rapport santé mentale, reprise telle quelle sur l'accueil."""
     f = dossier / "graphiques" / "carte_dep_sm.svg"
     return f.read_text(encoding="utf-8") if f.exists() else ""
-
-
-def _classes_courtes() -> list[dict]:
-    """Classes de la carte de l'accueil (cartes.CLASSES) en libellés courts, pour une légende posée sous le titre de la
-    carte, lue avant la figure (critique du 23 octobre 2026, la couleur était vue avant d'être expliquée)."""
-    import math
-    from .cartes import CLASSES
-    from .lecture import nombre
-    court = lambda v: nombre(v, 2).rstrip("0").rstrip(",")  # noqa: E731, 0,5 et 2 plutôt que 0,50 et 2,00
-    sortie, bas = [], None
-    for borne, couleur, _lib in CLASSES:
-        if borne is None:
-            lib = "aucun"
-        elif bas is None:
-            lib = f"moins de {court(borne)}"
-        elif borne == math.inf:
-            lib = f"plus de {court(bas)}"
-        else:
-            lib = f"{court(bas)} à {court(borne)}"
-        if borne is not None:
-            bas = borne
-        sortie.append({"couleur": couleur, "libelle": lib})
-    return sortie
-
-
-def _titre_svg(svg: str) -> str:
-    """Titre d'une figure SVG (son élément title), montré en légende au-dessus d'elle."""
-    m = re.search(r"<title>(.*?)</title>", svg or "", re.S)
-    return m.group(1).strip() if m else ""
-
-
-def _evolutions(dossier: Path) -> list[dict]:
-    """Mini-courbes de la densité en France depuis 2016 (séries de la DREES), psychiatres et médecins généralistes."""
-    import pandas as pd
-    f = dossier / "evolution_offre.csv"
-    if not f.exists():
-        return []
-    t = pd.read_csv(f, sep=";", decimal=",", dtype={"code": str})
-    out = []
-    for prof, lab in (("psychiatre", "Psychiatres"), ("pediatre", "Pédiatres"), ("medecin_generaliste", "Médecins généralistes")):
-        x = t[(t["niveau"] == "FR") & (t["prof"] == prof)].sort_values("annee")
-        if len(x) < 2:
-            continue
-        a, v = x["annee"].to_numpy(), x["densite"].to_numpy()
-        lo, hi = v.min(), v.max()
-        pts = " ".join(f"{(i / (len(v) - 1)) * 200:.1f},{38 - (vv - lo) / ((hi - lo) or 1) * 32:.1f}" for i, vv in enumerate(v))
-        ev = v[-1] / v[0] - 1
-        out.append({"libelle": lab, "debut": int(a[0]), "fin": int(a[-1]), "points": pts,
-                    "v_debut": nombre(v[0], 2), "v_fin": nombre(v[-1], 2),
-                    "evolution": ("+" if ev > 0 else "") + nombre(ev * 100, 1) + " %"})
-    return out
 
 
 def _tuiles(sd) -> list[dict]:

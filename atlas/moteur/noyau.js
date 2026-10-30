@@ -14,7 +14,6 @@ const MI={lib:0,sal:1,all:2};
 // logarithmique, les valeurs rondes (1, 2, 5 de chaque puissance de 10) passent d'abord, les autres seulement s'il reste
 // la place (au moins minPx pixels entre deux libellés).
 const nbAxe=v=>(+v).toLocaleString("fr-FR",{maximumSignificantDigits:3});
-const pctAxe=v=>(+v*100).toLocaleString("fr-FR",{maximumFractionDigits:0})+" %";
 function graduations(sc,n,minPx){const cand=sc.base?sc.ticks(n*3):sc.ticks(n);if(!sc.base)return cand;
   const mant=v=>+(v/10**Math.floor(Math.log10(v))).toFixed(6),rang=v=>{const k=mant(v);return k===1?0:k===2||k===5?1:k===1.5||k===3||k===4?2:3};
   const pris=[];for(const v of cand.slice().sort((a,b)=>rang(a)-rang(b)))if(pris.every(u=>Math.abs(sc(u)-sc(v))>=minPx))pris.push(v);
@@ -71,10 +70,14 @@ function grille(svg,y,m,w,n){svg.append("g").attr("class","grille").attr("transf
 // Une capture d'écran ne peut pas être empêchée, chaque graphique porte donc sa source, et un bouton donne la citation.
 function dateDonnees(){const g=D.meta.genere_le||"";return g?new Date(g+"T12:00").toLocaleDateString("fr-FR",{day:"numeric",month:"long",year:"numeric"}):""}
 function citationTexte(titre){const c=D.citation||{},a=(D.meta.genere_le||"").slice(0,4);
+  // DOI propre à la version, puis le DOI général de toutes les versions (rapport Zenodo du 30 octobre 2026, partie 3.1)
+  const tout=c.doi_general&&c.doi_general!==c.doi?" Toutes les versions, https://doi.org/"+c.doi_general+".":"";
+  // version de travail refaite après l'archive, dite comme telle avec le DOI de la version archivée
+  if(c.doi&&c.titre_donnees&&c.posterieure&&c.adresse)return (c.auteur_court||"Pithon L.")+" ("+a+"). "+titre+". D’après « "+c.titre_donnees+" », "+c.mention+" (https://doi.org/"+c.doi+"), "+c.adresse+"."+tout;
   // avec un DOI, citation formelle sur le titre du dépôt Zenodo des données, sans le nom du site
-  if(c.doi&&c.titre_donnees&&(!c.version_zenodo||c.version_zenodo===D.meta.genere_le||!c.adresse))return (c.auteur_court||"Pithon L.")+" ("+a+"). "+titre+". D’après « "+c.titre_donnees+" », version du "+dateDonnees()+". Zenodo. https://doi.org/"+c.doi;
+  if(c.doi&&c.titre_donnees&&(!c.version_zenodo||c.version_zenodo===D.meta.genere_le&&c.archivee!==false||!c.adresse))return (c.auteur_court||"Pithon L.")+" ("+a+"). "+titre+". D’après « "+c.titre_donnees+" », version du "+dateDonnees()+". Zenodo. https://doi.org/"+c.doi+"."+tout;
   // version plus récente que la dernière archivée sur Zenodo, citée par l'adresse du site
-  if(c.doi&&c.titre_donnees)return (c.auteur_court||"Pithon L.")+" ("+a+"). "+titre+". D’après « "+c.titre_donnees+" », version du "+dateDonnees()+", "+c.adresse+". Dernière version archivée, Zenodo, https://doi.org/"+c.doi;
+  if(c.doi&&c.titre_donnees)return (c.auteur_court||"Pithon L.")+" ("+a+"). "+titre+". D’après « "+c.titre_donnees+" », version du "+dateDonnees()+", "+c.adresse+". Dernière version archivée, Zenodo, https://doi.org/"+c.doi+"."+tout;
   return (c.auteur_court||"Pithon L.")+" ("+a+"). "+titre+". "+(c.projet||"Ubi Cura")+", données du "+dateDonnees()+"."+(c.adresse?" "+c.adresse:"")}
 // zone de la page que le moteur gère, toute la page dans l'atlas, la seule question qui le charge dans Explorer
 // (attribut data-moteur), pour ne toucher ni aux textes ni à la signature des autres figures de la page
@@ -414,8 +417,6 @@ const ICONE_FEN=(()=>{const s=d=>'<svg width="14" height="14" viewBox="0 0 14 14
 // libellés longs sur plusieurs lignes, jamais coupés, la marge gauche suit la ligne la plus longue
 // césures possibles dans les noms de professions longs (trait d'union discret, visible seulement si le mot est coupé)
 const coupureMots=t=>t.replace(/(Psycho|psycho|Pédo|pédo|Kinési|kinési|Ortho|ortho|Gynéco|gynéco|Ophtalmo)(?=\p{L})/gu,"$1\u00AD");
-// population en clair, « 15,2 millions d'habitants », « 850 000 habitants »
-const habitantsTxt=n=>n>=1e6?f1.format(n/1e6)+" million"+(n>=2e6?"s":"")+" d’habitants":fmt.format(Math.round(n/1e3)*1e3)+" habitants";
 // source d'un indicateur, liée à la fiche de son jeu de données sur la page « Données sources » du site
 function lienFiche(c){if(!c.fiche)return esc(c.source||"");const base=(D.site_dossier&&D.site_dossier!==".")?D.site_dossier+"/":"";
   return'<a href="'+base+'donnees-sources.html#'+c.fiche+'">'+esc(c.source)+'</a>'}

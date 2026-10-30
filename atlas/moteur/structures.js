@@ -203,7 +203,7 @@ function structuresTerritoire(){const el=document.getElementById("lieuxCard");
   // type de secteur suivi tant que le lecteur ne l'a pas choisi lui-même
   // une valeur posée par le code est reportée sur la liste soignée qui double la liste du navigateur (choixListe)
   const miroir=sel=>{const b=sel&&document.querySelector('.prof-choix[data-pour="'+sel.id+'"] button');if(!b)return;const t=sel.selectedOptions[0]?.textContent||"";
-    b.querySelector("span").textContent=t;b.setAttribute("aria-label",(sel.getAttribute("aria-label")||"Choix")+", "+t)};
+    b.querySelector("span").textContent=t;b.setAttribute("aria-label",(sel.getAttribute("aria-label")||document.querySelector('label[for="'+sel.id+'"]')?.textContent.trim()||"Choix")+", "+t)};
   const reglerSecteurs=()=>{if(!LX_SECTEURS_CHOISI)LX_SECTEURS_TYPE=typeSecteurPour(LX_TYPE_LOCAL);if(se){se.value=LX_SECTEURS_TYPE||"";miroir(se)}};
   if(se){reglerSecteurs();se.onchange=()=>{LX_SECTEURS_TYPE=se.value;LX_SECTEURS_CHOISI=true;dessinerSecteurs(lv,code)};dessinerSecteurs(lv,code)}
   const st=document.getElementById("lxType");if(st)st.onchange=()=>{LX_TYPE_LOCAL=st.value;LX_CHOISI_LOCAL=null;if(se)reglerSecteurs();plan()};

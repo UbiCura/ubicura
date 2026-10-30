@@ -1317,7 +1317,131 @@ def test_temps_acces():
     assert abs(e1["temps_moyen_min"] - 20) < 1e-9 and abs(e1["part_population_a_plus_de_20_min"] - .5) < 1e-9
     # médiane de l'intercommunalité E1, 100 habitants à 10 min et 100 à 30 min, la moitié est atteinte à 11 min
     assert abs(e1["temps_median_min"] - 11) < 1e-9, e1["temps_median_min"]
+    # psychiatrie ambulatoire, temps retiré là où plus de 1 % des habitants vivent dans une commune où il contredit
+    # la distance au CMP (audit externe du 30 octobre 2026), gardé dans le fichier avec sa fiabilité
+    ar = {"communes": com.assign(typeeq_id="D109"), "histogramme": his.assign(typeeq_id="D109"),
+          "defs": [{"code": "D109", "id": "psychiatrie_ambulatoire", "prof": None}]}
+    t = A.temps_acces(ar, ref, contredites=["A"]).set_index(["niveau", "code"])
+    assert abs(t.at[("FR", "FR"), "part_population_temps_contredit"] - .25) < 1e-9
+    assert not t.at[("FR", "FR"), "fiable"] and not t.at[("epci", "E1"), "fiable"] and t.at[("epci", "E2"), "fiable"]
+    assert t.at[("FR", "FR"), "temps_median_min"] > 0   # la valeur reste dans le fichier
+    v = A.temps_montres(t.reset_index()).set_index(["niveau", "code"])
+    assert pd.isna(v.at[("FR", "FR"), "temps_median_min"]) and pd.isna(v.at[("epci", "E1"), "part_population_a_plus_de_20_min"])
+    assert pd.notna(v.at[("epci", "E2"), "temps_median_min"])
+    assert A.temps_acces(ar, ref)["fiable"].all()   # sans contrôle des CMP, rien n'est retiré
 
+
+
+def test_doi_version_et_taille():
+    """DOI propre à la version archivée quand il est relevé (donnees/zenodo.json, doi_versions), DOI général sinon, et
+    tailles de fichiers en Ko sous un mégaoctet (audit externe du 30 octobre 2026)."""
+    import json
+    import tempfile
+    from pipeline import config, site
+    assert site.taille_fichier(1234) == "1 Ko" and site.taille_fichier(40) == "1 Ko"
+    assert site.taille_fichier(2_345_678) == "2,3 Mo"
+    ancien = config.DONNEES
+    try:
+        config.DONNEES = Path(tempfile.mkdtemp(prefix="zenodo_"))
+        assert site.doi_cite("donnees") == config.DOI_DONNEES   # rien de relevé, DOI général
+        (config.DONNEES / "zenodo.json").write_text(json.dumps({"doi_versions": {config.VERSION_ZENODO: {
+            "donnees": "10.5281/zenodo.1", "sante": "10.5281/zenodo.3"}}}), encoding="utf-8")
+        assert site.doi_cite("donnees") == "10.5281/zenodo.1" and site.doi_cite("sante") == "10.5281/zenodo.3"
+        assert site.doi_cite("sante-mentale") == config.DOI_RAPPORTS["sante-mentale"]
+        assert site.doi_cite("donnees", "1999-01-01") == config.DOI_DONNEES
+    finally:
+        config.DONNEES = ancien
+
+
+def test_limite_psychologues_calculee():
+    """La limite des psychologues est écrite avec les écarts de concordance_effectifs.csv, sens et valeurs compris, et
+    relue depuis site_data quand le site est refait seul (demande du 30 octobre 2026, audit externe)."""
+    import pandas as pd
+    from pipeline import concordance, config, limites
+    from pipeline.lecture import nombre
+    f = _dernier_resultats() / "concordance_effectifs.csv"
+    if not f.exists():
+        raise Ignore("concordance_effectifs.csv absent")
+    t = pd.read_csv(f, sep=";", decimal=",")
+    x = t[t["professions"] == "psychologue"]
+    if x.empty:
+        raise Ignore("pas de ligne psychologue dans la concordance")
+    garde = (dict(config.LIMITES["prof:psychologue"]), config.LIMITES_COURT["prof:psychologue"])
+    try:
+        concordance.limite_psychologues(t)
+        texte, court = config.LIMITES["prof:psychologue"]["texte"], config.LIMITES_COURT["prof:psychologue"]
+        e, a = float(x["ecart"].iloc[0]), float(x["ecart_a_l_attendu"].iloc[0])
+        assert f"{'supérieur' if e > 0 else 'inférieur'} de {nombre(abs(e) * 100, 1)} %" in texte, texte
+        assert f"{'supérieur' if a > 0 else 'inférieur'} de {nombre(abs(a) * 100, 1)} %" in texte, texte
+        assert f"{nombre(abs(e) * 100, 1)} % {'au-dessus' if e > 0 else 'en dessous'}" in court, court
+        assert str(int(x["annee_drees"].iloc[0])) in texte and str(int(x["annee_drees"].iloc[0])) in court
+        # site refait seul, le texte calculé revient de site_data
+        config.LIMITES["prof:psychologue"], config.LIMITES_COURT["prof:psychologue"] = garde
+        limites.completer({"prof:psychologue": {"texte": texte, "court": court}})
+        assert config.LIMITES["prof:psychologue"]["texte"] == texte and config.LIMITES_COURT["prof:psychologue"] == court
+    finally:
+        config.LIMITES["prof:psychologue"], config.LIMITES_COURT["prof:psychologue"] = garde
+
+
+def test_version_de_travail_posterieure():
+    """Une version refaite le jour même de l'archive Zenodo (CSV différents de ceux du zip déposé) est citée comme
+    version de travail postérieure, à la minute, avec le DOI de la version archivée puis le DOI général (rapport
+    Zenodo du 30 octobre 2026, partie 3.1). Fichiers réels copiés dans un dossier temporaire."""
+    import json
+    import shutil
+    import tempfile
+    import zipfile
+    from pipeline import config, site
+    src = _dernier_resultats()
+    vrais = [f for f in sorted(src.glob("*.csv")) if f.stat().st_size < 200_000][:2]
+    if len(vrais) < 2:
+        raise Ignore("pas assez de CSV dans les résultats")
+    garde = (config.DONNEES, config.RESULTATS, config.VERSION_ZENODO)
+    racine = Path(tempfile.mkdtemp(prefix="version_"))
+    try:
+        iso = "2026-10-30"
+        config.DONNEES, config.RESULTATS, config.VERSION_ZENODO = racine / "donnees", racine / "resultats", iso
+        d = config.RESULTATS / iso
+        d.mkdir(parents=True)
+        for f in vrais:
+            shutil.copy(f, d / f.name)
+        (d / "site_data.json").write_text("{}", encoding="utf-8")
+        (config.DONNEES / "zenodo" / iso).mkdir(parents=True)
+        with zipfile.ZipFile(config.DONNEES / "zenodo" / iso / f"donnees_{iso}.zip", "w") as z:
+            for f in vrais:
+                z.write(f, f.name)
+        (config.DONNEES / "zenodo.json").write_text(json.dumps({"doi_versions": {iso: {
+            "donnees": "10.5281/zenodo.23803283"}}}), encoding="utf-8")
+        site._IDENTIQUES.clear()
+        assert site.identique_archive(iso) and not site.mention_version(iso)["posterieure"]
+        c = site.citation_donnees(iso)
+        assert "Version du 30 octobre 2026. Zenodo. https://doi.org/10.5281/zenodo.23803283." in c, c
+        assert f"Toutes les versions, https://doi.org/{config.DOI_DONNEES}" in c, c
+        # résultats refaits après l'archive, un fichier change
+        (d / vrais[0].name).write_bytes(vrais[0].read_bytes() + b"\n")
+        site._IDENTIQUES.clear()
+        m = site.mention_version(iso)
+        assert not m["archivee"] and m["posterieure"] and " h " in m["texte"], m
+        c = site.citation_donnees(iso)
+        assert c.count("Version de travail du 30 octobre 2026, ") == 1 and "(https://doi.org/10.5281/zenodo.23803283)" in c, c
+        assert "postérieure à la version archivée du 30 octobre 2026" in c and "Toutes les versions" in c, c
+    finally:
+        config.DONNEES, config.RESULTATS, config.VERSION_ZENODO = garde
+        site._IDENTIQUES.clear()
+        shutil.rmtree(racine, ignore_errors=True)
+
+
+def test_pdf_mots_coupes():
+    """Texte copié depuis un PDF, césures invisibles et mots coupés par une espace repérés (audit externe du 30 octobre
+    2026), sans compter deux mots qui se suivent ni une coupure de fin de ligne avec son tiret."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "outils"))
+    import controle_pdf
+    vocab = {"ce", "rapport", "appuie", "sur", "les", "données", "médico", "psychologique", "pour", "tant"}
+    assert controle_pdf.mots_coupes("Ce rap port s'ap puie sur les données", vocab) == ["rap port", "ap puie"]
+    assert controle_pdf.mots_coupes("Ce rapp­ ort", vocab) == ["rapp­ ort"]
+    assert controle_pdf.mots_coupes("Ce rapport s'appuie sur les données médico-\npsychologique", vocab) == []
+    # deux mots du vocabulaire qui se suivent ne sont pas un mot coupé
+    assert controle_pdf.mots_coupes("pour tant", vocab | {"pourtant"}) == []
 
 
 def test_rapport_territoire():
@@ -1383,13 +1507,19 @@ def test_citation_zenodo():
     from pipeline import config, site
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "outils"))
     import zenodo
-    arch = site.citation("sante", "Rapport santé", "9 octobre 2026", config.VERSION_ZENODO)["texte"]
+    # la version archivée elle-même (archivee=True, comme pour les fichiers déposés) ; sans ce drapeau, des résultats
+    # refaits le même jour après l'archive sont, à juste titre, cités comme version de travail postérieure
+    arch = site.citation("sante", "Rapport santé", "9 octobre 2026", config.VERSION_ZENODO, archivee=True)["texte"]
     assert "Zenodo. https://doi.org/" in arch and config.ADRESSE_SITE not in arch
+    if not site.identique_archive(config.VERSION_ZENODO) and config.ADRESSE_SITE:
+        refaite = site.citation("sante", "Rapport santé", "9 octobre 2026", config.VERSION_ZENODO)["texte"]
+        assert "postérieure à la version archivée" in refaite
     if config.ADRESSE_SITE:
         recente = site.citation("sante", "Rapport santé", "1er janvier 2099", "2099-01-01")["texte"]
-        assert "/rapports/2099-01-01/sante.html" in recente and "Dernière version archivée" in recente
+        # version plus récente que l'archive, dite version de travail postérieure (rapport Zenodo du 30 octobre 2026)
+        assert "/rapports/2099-01-01/sante.html" in recente and "postérieure à la version archivée" in recente
         forcee = site.citation("sante", "Rapport santé", "1er janvier 2099", "2099-01-01", archivee=True)["texte"]
-        assert forcee.endswith("Zenodo. https://doi.org/" + config.DOI_RAPPORTS["sante"])
+        assert forcee.endswith("Zenodo. https://doi.org/" + config.DOI_RAPPORTS["sante"] + "."), forcee
     assert zenodo.concept("10.5281/zenodo.23264933") == "23264933"
 
 
@@ -1990,6 +2120,73 @@ def test_non_publies_sans_montant():
             for code, t in terr.items():
                 assert forme.fullmatch(t), (d["id"], niv, code, t)
                 assert "€" not in t and not re.search(r"\d[\d\s  ]*[.,]\d", t), t
+
+
+def test_zonages_brouillon():
+    """Zonages des professionnels de santé en brouillon (pipeline/sources/zonages.py, note du 30 octobre 2026), sur les
+    tables d'Atlasanté en cache : toutes les communes du référentiel ont une catégorie pour chacune des six professions,
+    aucune catégorie inconnue, les parts d'une commune font 1, Paris, Lyon et Marseille prennent le zonage de leurs
+    arrondissements (et non la ligne « NC » de la ville), les communes de La Réunion celui de leurs grands quartiers
+    pour les médecins, et la part de la population d'Auvergne-Rhône-Alpes en ZIP et en ZAC se tient à un point du
+    repère publié par l'ARS (28,5 % et 49,2 %, zonage des médecins de 2025). Rien n'est publié (PUBLIER faux)."""
+    import tempfile
+    from pipeline.sources import referentiel, zonages as Z
+    chemins = {k: Z.DOSSIER / f"t_zonages_{k}.csv" for k in Z.TABLES}
+    if not all(c.exists() for c in chemins.values()):
+        raise Ignore("tables des zonages absentes du cache, lancer python -m pipeline.sources.zonages")
+    assert not Z.PUBLIER
+    assert Z.ville_arrondissement("75114") == "75056" and Z.ville_arrondissement("69385") == "69123"
+    assert Z.code_categorie("3_Intermediaire") == Z.code_categorie("3_intermediaire") == "3_intermediaire"
+    assert Z.code_categorie("NC (collectivité d'Outre-Mer)") == "nc"
+    ref = referentiel.charger(hors_ligne=True)
+    t = Z.lire(chemins, ref)
+    actuelles = set(ref.communes["code"])
+    for prof, g in t.groupby("profession"):
+        assert set(g["commune"]) == actuelles, prof
+    assert not set(t["categorie"]) - set(Z.CATEGORIES)
+    assert ((t.groupby(["commune", "profession"])["part"].sum() - 1).abs() < 1e-9).all()
+    med = t[t["profession"] == "medecin_generaliste"]
+    for ville in ("75056", "69123", "13055"):
+        assert "nc" not in set(med.loc[med["commune"] == ville, "categorie"]), ville
+    assert not (med["commune"].str.startswith("974") & (med["categorie"] == "nc")).any()
+    reg = Z.parts_territoires(t, ref)["reg"]
+    ara = reg[(reg["code"] == "84") & (reg["profession"] == "medecin_generaliste")].set_index("categorie")["part_population"]
+    assert abs(ara["1_zip"] - .285) < .01 and abs(ara["2_zac"] - .492) < .01, ara.to_dict()
+    ancien = Z.DOSSIER_INTERNE
+    Z.DOSSIER_INTERNE = __import__("pathlib").Path(tempfile.mkdtemp())
+    try:
+        o = Z.charger(ref, hors_ligne=True)
+        assert {p.name for p in Z.DOSSIER_INTERNE.iterdir()} == {"zonages_communes.csv", "zonages_parts_epci.csv",
+                                                                 "zonages_parts_dep.csv", "zonages_parts_reg.csv"}
+        assert o["controles"]["categories_inconnues"] == []
+    finally:
+        Z.DOSSIER_INTERNE = ancien
+
+
+def test_site_sans_trace_de_programme():
+    """Aucune page du site construit ne montre une trace de programme (audit externe du 30 octobre 2026) : nom de
+    variable d'environnement ou de constante (« FT_CLIENT_ID », « config.LIEUX_PROFIL »), message d'exécution (« déjà
+    gardée », « fichier lu », « Traceback »), valeur vide de Python (« None », « nan ») ou page annoncée inachevée (« en
+    préparation », « sera indiquée à la mise en ligne », « sera publié avec »). Les adresses (liens) ne sont pas lues,
+    un identifiant de jeu de données peut y figurer. Sur le dernier site construit, pages, rapports nationaux et un
+    échantillon de rapports par territoire."""
+    import re
+    from pipeline import config
+    site = config.RACINE / "site"
+    pages = sorted(site.glob("*.html"))
+    if len(pages) < 5:
+        raise Ignore("site non construit")
+    pages += sorted((site / "territoires").glob("dep-*.html"))[:12] + sorted((site / "rapports").glob("*/*.html"))[:4]
+    motif = re.compile(r"\b(?:config\.)?[A-Z][A-Z0-9]{1,}_[A-Z0-9_]{2,}\b|déjà gardée|fichier lu|Traceback|\bdéfinir [A-Z]"
+                       r"|\bNone\b|\bnan\b|en préparation|indiquée à la mise en ligne|sera publié avec")
+    trouves = {}
+    for f in pages:
+        t = re.sub(r"<(script|style)[\s\S]*?</\1>", " ", f.read_text(encoding="utf-8", errors="replace"))
+        # adresses, avec ou sans protocole (le texte d'un lien peut être l'adresse sans « https:// »)
+        t = re.sub(r"https?://\S+|\b[\w-]+(?:\.[\w-]+)+/\S*", " ", re.sub(r"<[^>]+>", " ", t))
+        for m in motif.finditer(t):
+            trouves.setdefault(m.group(0), set()).add(f.name)
+    assert not trouves, {k: sorted(v)[:3] for k, v in trouves.items()}
 
 
 def test_manques_sae():

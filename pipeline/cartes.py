@@ -380,47 +380,6 @@ def carte(geoms: dict, rapports: dict, etiquettes: dict, titre: str, largeur=560
             f"<title>{escape(titre)}</title>" + "".join(el) + "</svg>")
 
 
-def reglette(lignes: list[dict], titre: str, largeur=640) -> str:
-    """Position d'un territoire parmi les autres, une ligne par profession. Chaque dict porte libelle,
-    valeurs (densités de tous les territoires comparés) et valeur (celle du territoire). Échelle
-    logarithmique, pour que quelques territoires très denses n'écrasent pas les autres."""
-    lignes = [l for l in lignes if len(l["valeurs"]) and l["valeur"] is not None and math.isfinite(l["valeur"])]
-    if not lignes:
-        return ""
-    import numpy as np
-    g, d, hl = 190, 70, 34
-    fs_t, fs_p = taille_role("texte", largeur), taille_role("petit", largeur)
-    H = 30 + hl * len(lignes) + 26
-    el = []
-    for i, l in enumerate(lignes):
-        v = np.asarray([x for x in l["valeurs"] if x > 0], float)
-        if not len(v):
-            continue
-        lo, hi = math.log10(v.min()), math.log10(v.max())
-        X = lambda x: g + ((math.log10(max(x, v.min())) - lo) / ((hi - lo) or 1)) * (largeur - g - d)  # noqa: E731
-        y = 30 + hl * i + 12
-        q1, me, q3 = np.percentile(v, [25, 50, 75])
-        el.append(f'<text x="{g - 10}" y="{y + 4}" text-anchor="end" font-size="{fs_t}" fill="{ENCRE}">{escape(l["libelle"])}</text>')
-        el.append(f'<line x1="{g}" y1="{y}" x2="{largeur - d}" y2="{y}" stroke="{LIGNE}" stroke-width="2"/>')
-        el.append(f'<rect x="{X(q1):.1f}" y="{y - 5}" width="{max(X(q3) - X(q1), 1):.1f}" height="10" fill="{VIOLET_PALE}"/>')
-        el.append(f'<line x1="{X(me):.1f}" y1="{y - 8}" x2="{X(me):.1f}" y2="{y + 8}" stroke="{DISCRET}" stroke-width="2"/>')
-        c = CUIVRE if l["valeur"] < me else VIOLET[0]
-        el.append(f'<circle cx="{X(l["valeur"]):.1f}" cy="{y}" r="6" fill="{c}" stroke="var(--bg, #FFFFFF)" stroke-width="1.5"/>')
-        el.append(f'<text x="{largeur - d + 8}" y="{y + 4}" font-size="{fs_t}" fill="{ENCRE}">{nombre(l["valeur"], 1 if l["valeur"] >= 1 else 2)}</text>')
-    el.append(f'<text x="{g}" y="18" font-size="{fs_p}" fill="{DISCRET}">la moins dotée</text>')
-    el.append(f'<text x="{largeur - d}" y="18" text-anchor="end" font-size="{fs_p}" fill="{DISCRET}">la mieux dotée</text>')
-    y = 30 + hl * len(lignes) + 8
-    el.append(f'<rect x="{g}" y="{y}" width="14" height="8" fill="{VIOLET_PALE}"/>'
-              f'<text x="{g + 20}" y="{y + 8}" font-size="{fs_p}" fill="{DISCRET}">moitié centrale des territoires</text>'
-              f'<line x1="{g + 214}" y1="{y - 2}" x2="{g + 214}" y2="{y + 10}" stroke="{DISCRET}" stroke-width="2"/>'
-              f'<text x="{g + 222}" y="{y + 8}" font-size="{fs_p}" fill="{DISCRET}">milieu</text>'
-              f'<circle cx="{g + 284}" cy="{y + 4}" r="5" fill="{CUIVRE}"/><circle cx="{g + 296}" cy="{y + 4}" r="5" fill="{VIOLET[0]}"/>'
-              f'<text x="{g + 306}" y="{y + 8}" font-size="{fs_p}" fill="{DISCRET}">ce territoire</text>')
-    return (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {largeur} {H}" role="img" '
-            f'aria-label="{escape(titre)}" font-family="Work Sans, system-ui, sans-serif">'
-            f"<title>{escape(titre)}</title>" + "".join(el) + "</svg>")
-
-
 # ---------------------------------------------------------------- diagrammes de l'audit du 4 octobre 2026
 def _legende(el, x, y, largeur):
     """Légende des classes, sur une ou deux lignes selon la largeur."""
@@ -728,12 +687,6 @@ def carte_temps(geoms: dict, minutes: dict, titre: str, largeur=560, hauteur_max
         el.append(f'<text x="{xx + 20:.0f}" y="{yy + 10:.0f}" font-size="{taille_role("petit", largeur)}" '
                   f'fill="{DISCRET}">{escape(lab)}</text>')
     return _svg(largeur, h + 8 + 20 * 2 + 4, titre, el)
-
-
-def legende_html() -> str:
-    """Légende des classes en HTML, qui garde une taille lisible quand la carte est réduite."""
-    return ('<ul class="legende">' + "".join(f'<li><span style="background:{c}"></span>{escape(lab)}</li>'
-                                              for _b, c, lab in CLASSES) + "</ul>")
 
 
 def grille_tuiles(geoms: dict) -> dict:

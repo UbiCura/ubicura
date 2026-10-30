@@ -19,7 +19,7 @@ import pandas as pd
 from scipy import stats
 
 from . import cartes, config, indicateurs, limites, rapport_bases
-from .analyses import tables
+from .analyses import tables, temps_montres
 from .lecture import de, nombre, pct, pluriel, un_pour
 from .rapport import (EQ_PHRASE, MENTION_ODBL, PRINCIPALES, SANTE, SM, Contexte, _comment_lire, _liste,
                       _plus_loin, _tableau, graphique, ligne_source)
@@ -241,7 +241,7 @@ def _route_valeurs(B, T, famille):
     if not isinstance(ta, pd.DataFrame) or ta.empty:
         return None
     t = ta[ta["equipement"].isin(EQUIPEMENTS[famille])]
-    x = t[(t["niveau"] == T["niveau"]) & (t["code"] == T["code"])].set_index("equipement")
+    x = temps_montres(t[(t["niveau"] == T["niveau"]) & (t["code"] == T["code"])]).set_index("equipement")
     return x if len(x) and x["population"].sum() > 0 else None
 
 
@@ -618,7 +618,10 @@ def _interne(B, T, famille, cle_fig):
          + (_phrase_sans(sans0, sans1, un, unite, B.lab[p0].lower(), B.lab[p1].lower()) if unite != "département" else
             f"Selon les départements, la densité {de(pluriel(B.lab[p0]))} va de {nombre(t[f'd_{p0}'].min(), 1)} à "
             f"{nombre(t[f'd_{p0}'].max(), 1)} pour 10 000 habitants."), ""]
-    niv_u = {"intercommunalité": "piece", "commune": "com", "département": "dep"}[unite]
+    # moyenne des intercommunalités entières, la même que l'atlas et Explorer : celle des parties découpées par les
+    # départements compte deux fois une personne qui exerce dans deux parties (12,9 au lieu de 12,8 pour les
+    # psychologues, audit externe du 30 octobre 2026)
+    niv_u = {"intercommunalité": "epci", "commune": "com", "département": "dep"}[unite]
     moy_u = {"intercommunalité": "des intercommunalités", "commune": "des communes", "département": "des départements"}[unite]
     ref_u = B.reference(p0, niv_u)
     cmp_ = cmp_pieces(B) if unite == "intercommunalité" else pd.Series(dtype=float)
@@ -697,7 +700,7 @@ def _route(B, T, famille):
     if x is None or not ar:
         return [titre, "", "Les temps de trajet de l'INSEE ne couvrent pas ce territoire (la Guadeloupe, la Guyane et "
                 "Mayotte n'y figurent pas).", ""] if ar else []
-    ta = B.R["temps_acces"]
+    ta = temps_montres(B.R["temps_acces"])
     fr = ta[ta["niveau"] == "FR"].set_index("equipement")
     reg = (ta[(ta["niveau"] == "reg") & (ta["code"] == T.get("reg"))].set_index("equipement")
            if T["niveau"] == "dep" and not T.get("reg_seul") else None)
@@ -714,7 +717,8 @@ def _route(B, T, famille):
         ents.append("Région, à plus de 20 min")
     cols.append("fr20")
     ents.append("France, à plus de 20 min")
-    m = lambda v: nombre(v, 0)  # noqa: E731
+    m = lambda v: nombre(v, 0) or "non montré"  # noqa: E731
+    p_ = lambda v: pct(v) or "non montré"  # noqa: E731
     L = [titre, ""]
     e_u, quoi = ("psychiatre_liberal", "d'un psychiatre libéral") if famille == SM else ("urgences", "d'un service d'urgences")
     if e_u in x.index and pd.notna(x.at[e_u, "part_population_a_plus_de_20_min"]):
@@ -724,8 +728,8 @@ def _route(B, T, famille):
         cle_u = f"{T['niveau']}-{T['code']}_{COURT[famille]}_unites"
         (B.dossier_fig / f"{cle_u}.svg").write_text(svg, encoding="utf-8")
         L += graphique(cle_u)
-    L += [_tableau(t, cols, ents, {"temps_median_min": m, "fr_med": m, "part_population_a_plus_de_20_min": pct,
-                                   "reg20": pct, "fr20": pct}), ""]
+    L += [_tableau(t, cols, ents, {"temps_median_min": m, "fr_med": m, "part_population_a_plus_de_20_min": p_,
+                                   "reg20": p_, "fr20": p_}), ""]
     if "psychiatrie_ambulatoire" in ordre:
         L += [limites.phrase_md(["route:psychiatrie_ambulatoire"]), ""]
     L += _comment_lire(

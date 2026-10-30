@@ -383,6 +383,13 @@ def cmd_constater(args) -> int:
               f"{config.VERSION_ZENODO}.")
         return 0
     v = versions["donnees"]
+    # DOI propre à cette version pour chaque dépôt, que le site cite à la place du DOI général (audit externe du 30
+    # octobre 2026), relevé même quand la version était déjà notée
+    dois = {cle: x["derniere"]["metadata"].get("doi") for cle, x in e.items()}
+    if all(dois.values()) and (etat.get("doi_versions") or {}).get(v) != dois:
+        etat.setdefault("doi_versions", {})[v] = dois
+        ecrire_etat(etat)
+        print(f"DOI de la version {v} relevés, " + ", ".join(f"{NOMS[c]} {d}" for c, d in dois.items()) + ".")
     if not (config.RESULTATS / v).is_dir():
         print(f"La dernière version publiée sur Zenodo ({v}) ne correspond à aucun dossier de résultats, rien n'est "
               "changé.")

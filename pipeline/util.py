@@ -62,6 +62,19 @@ class Journal:
 
 JOURNAL = Journal()
 
+# contrôles du journal qui décrivent la mécanique de l'exécution et non les données (archives, photographies, clés
+# internes, écriture des pages), gardés dans le journal d'exécution mais pas montrés au lecteur (audit externe du 30
+# octobre 2026, « traces de programme » sur la page Contrôles)
+CONTROLES_INTERNES = re.compile(r"^(Archive mensuelle|Photographie des comptes|Clé persistante|Rapports territoriaux "
+                                r"écrits|Rapports PDF|Site statique|Registre des structures de soins|Population totale du "
+                                r"référentiel)")
+
+
+def controles_publics(controles: list) -> list:
+    """Contrôles montrés au lecteur (page Contrôles, rapports nationaux), sans ceux qui décrivent la mécanique de
+    l'exécution."""
+    return [c for c in controles if not CONTROLES_INTERNES.search(str(c[0]))]
+
 
 # ---------------------------------------------------------------- texte
 def format_fr(texte: str) -> str:

@@ -68,8 +68,9 @@ def charger(hors_ligne=False, rafraichir=False):
                          "groupe": config.GROUPE_ENFANCE_HANDICAP})
         if annees:
             JOURNAL.note(f"DREES, {TITRES.get(jeu, jeu)}", "ok",
-                         f"{len(annees)} indicateurs, années {min(annees)} à {max(annees)}, "
-                         f"{df.loc[df['code_dep'].str.len() <= 3, 'code_dep'].nunique()} départements",
+                         f"{len(annees)} indicateurs, "
+                         + (f"année {min(annees)}, " if min(annees) == max(annees) else f"années {min(annees)} à {max(annees)}, ")
+                         + f"{df.loc[df['code_dep'].str.len() <= 3, 'code_dep'].nunique()} départements",
                          url=PAGE.format(jeu), date_donnees=(meta.get("maj_source") or "")[:10])
     if not defs:
         return None

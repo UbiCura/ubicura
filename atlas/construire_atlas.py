@@ -118,11 +118,20 @@ def completer(data: dict) -> dict:
     """Citation, limites des données et glossaire de « Comment lire », relus dans config et pipeline/lecture.py, communs
     à l'atlas et aux outils d'Explorer qui reprennent son moteur (pipeline/explorer.py)."""
     # citation de l'atlas et de ses graphiques, DOI repris dès qu'il est renseigné dans config
-    data["citation"] = {"projet": config.NOM_PROJET, "auteur_court": config.CITATION_AUTEUR, "doi": config.DOI_DONNEES,
-                        "adresse": config.ADRESSE_SITE, "titre_donnees": config.TITRES_DEPOTS["donnees"],
-                        "version_zenodo": config.VERSION_ZENODO}
+    # DOI propre à la version archivée quand il est relevé (pipeline.site.doi_cite), sinon le DOI général
+    # état de la version (archivée telle quelle, ou version de travail postérieure à l'archive, pipeline.site.mention_version)
+    from pipeline.site import doi_cite, mention_version
+    version = (data.get("meta") or {}).get("genere_le") or config.VERSION_ZENODO
+    m = mention_version(version)
+    data["citation"] = {"projet": config.NOM_PROJET, "auteur_court": config.CITATION_AUTEUR, "doi": doi_cite("donnees"),
+                        "doi_general": config.DOI_DONNEES, "adresse": config.ADRESSE_SITE,
+                        "titre_donnees": config.TITRES_DEPOTS["donnees"], "version_zenodo": config.VERSION_ZENODO,
+                        "archivee": m["archivee"], "posterieure": m["posterieure"], "mention": m["texte"]}
     # limites des données relues dans config, pour qu'une précision ajoutée paraisse sans attendre la prochaine exécution
-    # (les limites calculées à l'exécution, comme celles des spécialités surtout salariées, sont gardées)
+    # (les limites calculées à l'exécution, comme celles des spécialités surtout salariées, sont gardées, et le texte des
+    # limites refaites par un calcul, limites.CALCULEES, est d'abord repris de site_data)
+    from pipeline import limites as _limites
+    _limites.completer(data.get("limites"))
     data["limites"] = {**(data.get("limites") or {}),
                        **{k: {"risque": L["risque"], "texte": L["texte"], "sources": L["sources"],
                               "territoires": L.get("territoires", {}),

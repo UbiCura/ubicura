@@ -21,7 +21,7 @@ Ce site est un projet personnel, mené sans financement et sans lien avec une or
 
 ## Comment citer
 
-Les données et les deux rapports nationaux sont archivés sur Zenodo, chacun avec un identifiant permanent (DOI) qui renvoie toujours à la dernière version archivée, celle du {version_zenodo}. Merci de citer la version utilisée. Une version plus récente du site se cite par son adresse, comme l'indique chaque rapport en tête de page.
+Les données et les deux rapports nationaux sont archivés sur Zenodo. Chaque version archivée a son propre identifiant permanent (DOI), qui fige les chiffres cités, et un DOI général renvoie toujours à la dernière version (pour les données, [{doi_general}](https://doi.org/{doi_general})). Les citations ci-dessous donnent le DOI de la version du {version_zenodo}. Une version plus récente du site se cite par son adresse, comme l'indique chaque rapport en tête de page.
 
 - **Les données.** Pithon L. ({annee_zenodo}). {titre_donnees}. Version du {version_zenodo}. Zenodo. [https://doi.org/{doi_donnees}](https://doi.org/{doi_donnees})
 - **Le rapport santé mentale.** Pithon L. ({annee_zenodo}). {titre_sm}. Version du {version_zenodo}. Zenodo. [https://doi.org/{doi_sm}](https://doi.org/{doi_sm})

@@ -1997,28 +1997,49 @@ def phrase_publics_cmp(r) -> str:
 
 def controle_route_cmp(ar, L: dict, ref) -> dict | None:
     """Communes où le temps de route de l'INSEE vers la psychiatrie ambulatoire (BPE, D109) contredit la distance au CMP
-    le plus proche de nos structures (plus de config.ROUTE_CMP_MINUTES minutes en moyenne alors qu'un CMP est à moins
-    de config.ROUTE_CMP_KM km à vol d'oiseau). Cause probable, la BPE ne compterait que les CMP inscrits sous leur
+    le plus proche de nos structures (temps moyen au-delà de config.ROUTE_CMP_PENTE minutes par km à vol d'oiseau plus
+    config.ROUTE_CMP_MARGE minutes). Témoin, la même règle sur les urgences (D106), où les deux sources concordent,
+    journalisée à côté. Cause probable, la BPE ne compterait que les CMP inscrits sous leur
     propre catégorie dans FINESS (note docs/note_valeurs_aberrantes_2026-10-28.md, à confirmer sur la documentation de
-    l'INSEE). Résultat gardé dans L["incoherence_route_cmp"] pour le rapport."""
+    l'INSEE). Résultat gardé dans L["incoherence_route_cmp"] pour le rapport, communes en cause dans
+    L["route_cmp_contredites"] pour analyses.temps_acces."""
     dist = (L or {}).get("distances_communes")
     if not ar or not isinstance(dist, pd.DataFrame) or "lieu_cmp" not in dist:
         return None
-    code = next((d["code"] for d in ar["defs"] if d["id"] == "psychiatrie_ambulatoire"), None)
     c = ar["communes"]
-    x = c[c["typeeq_id"] == code]
-    t = (x["pd"] / x["pop_calcule"].where(x["pop_calcule"] > 0)).groupby(x["depcom"]).first()
-    j = pd.DataFrame({"temps": t, "km": dist["lieu_cmp"]}).dropna()
-    m = (j["temps"] > config.ROUTE_CMP_MINUTES) & (j["km"] < config.ROUTE_CMP_KM)
+    pop = ref.communes.set_index("code")["pop"]
+
+    def contredit(eq, type_lieu):
+        code = next((d["code"] for d in ar["defs"] if d["id"] == eq), None)
+        if code is None or type_lieu not in dist:
+            return None, None
+        x = c[c["typeeq_id"] == code]
+        t = (x["pd"] / x["pop_calcule"].where(x["pop_calcule"] > 0)).groupby(x["depcom"]).first()
+        j = pd.DataFrame({"temps": t, "km": dist[type_lieu]}).dropna()
+        return j, j["temps"] > config.ROUTE_CMP_PENTE * j["km"] + config.ROUTE_CMP_MARGE
+
+    j, m = contredit("psychiatrie_ambulatoire", "lieu_cmp")
+    if j is None:
+        return None
     com = ref.communes.set_index("code").reindex(j.index[m])
     r = {"communes": int(m.sum()), "habitants": float(com["pop"].fillna(0).sum()),
+         "part_habitants": float(com["pop"].fillna(0).sum() / pop.reindex(j.index).fillna(0).sum()),
          "departements": int(com["dep"].nunique()), "comparees": len(j),
          "rho_spearman": float(j["temps"].corr(j["km"], method="spearman")) if len(j) > 50 else np.nan}
+    ju, mu = contredit("urgences", "lieu_urgences")
+    if ju is not None:
+        r["part_habitants_temoin"] = float(pop.reindex(ju.index[mu]).fillna(0).sum() / pop.reindex(ju.index).fillna(0).sum())
     L["incoherence_route_cmp"] = r
-    JOURNAL.controle(f"Temps de route de l'INSEE vers la psychiatrie ambulatoire, communes à plus de "
-                     f"{config.ROUTE_CMP_MINUTES} minutes avec un CMP à moins de {config.ROUTE_CMP_KM} km",
-                     f"{nombre(r['communes'])} communes sur {nombre(r['comparees'])}, {nombre(r['habitants'])} habitants, "
-                     f"{r['departements']} départements, corrélation de rang {nombre(r['rho_spearman'], 2)}")
+    # communes où le temps contredit la distance, pour ne plus publier le temps des territoires touchés
+    L["route_cmp_contredites"] = j.index[m]
+    JOURNAL.controle(f"Temps de route de l'INSEE vers la psychiatrie ambulatoire, communes où il dépasse "
+                     f"{config.ROUTE_CMP_PENTE} minutes par km jusqu'au CMP le plus proche, plus {config.ROUTE_CMP_MARGE} "
+                     f"minutes",
+                     f"{nombre(r['communes'])} communes sur {nombre(r['comparees'])}, {nombre(r['habitants'])} habitants "
+                     f"({nombre(100 * r['part_habitants'], 1)} %), {r['departements']} départements, corrélation de rang "
+                     f"{nombre(r['rho_spearman'], 2)}"
+                     + (f", témoin des urgences {nombre(100 * r['part_habitants_temoin'], 2)} % des habitants"
+                        if "part_habitants_temoin" in r else ""))
     return r
 
 

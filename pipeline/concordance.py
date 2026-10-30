@@ -68,6 +68,40 @@ def _explication_base(motif, annee, jour, attendu):
             f"{jour:%d/%m/%Y}. À la croissance annuelle observée par la DREES, on attendrait environ {n} à cette date.")
 
 
+def limite_psychologues(t: pd.DataFrame) -> None:
+    """Texte de la limite des psychologues écrit avec les écarts calculés (concordance_effectifs.csv), au dernier chiffre
+    de la DREES et à sa tendance prolongée, pour qu'il suive d'une année à l'autre sans être recopié (demande du 30
+    octobre 2026, audit externe, la note disait « un peu en dessous » d'un chiffre que l'on dépassait de 5,4 %)."""
+    from .lecture import nombre
+    x = t[t["professions"].str.split(" + ", regex=False).apply(lambda p: p == ["psychologue"])] if len(t) else t
+    if x.empty:
+        return
+    x = x.iloc[0]
+
+    def sens(e, court=False):
+        """« supérieur de 5,4 % » (suivi de « au ») ou « 5,4 % au-dessus de » (forme courte)."""
+        if pd.isna(e):
+            return None
+        if abs(e) < .0005:
+            return "égal à" if court else "égal"
+        v = f"{nombre(abs(e) * 100, 1)} %"
+        if court:
+            return f"{v} {'au-dessus' if e > 0 else 'en dessous'} de"
+        return f"{'supérieur' if e > 0 else 'inférieur'} de {v}"
+
+    a, e, t_ = x["annee_drees"], sens(x["ecart"]), sens(x["ecart_a_l_attendu"])
+    champ = str(x.get("champ_drees") or "").replace("Adeli", "ADELI")
+    config.LIMITES["prof:psychologue"] = dict(config.LIMITES["prof:psychologue"], texte=(
+        "Les psychologues sont inscrits au RPPS depuis la reprise du répertoire ADELI. Leur nombre est "
+        f"{e} au dernier chiffre publié par la DREES ({a}{', ' + champ if champ else ''})"
+        + (f" et {t_} à sa tendance prolongée jusqu'à la date de l'extraction" if t_ else "")
+        + ". Les deux comptages ne portent pas sur le même champ, l'écart est détaillé dans la page méthode."))
+    ec, tc = sens(x["ecart"], True), sens(x["ecart_a_l_attendu"], True)
+    config.LIMITES_COURT["prof:psychologue"] = (
+        f"Les psychologues sont inscrits au RPPS depuis la reprise d'ADELI, leur nombre est {ec} celui de la DREES "
+        f"({a})" + (f" et {tc} sa tendance prolongée" if tc else "") + ".")
+
+
 def calculer(agg, drees):
     """Renvoie {"concordance_effectifs": ..., "concordance_effectifs_dep": ...} (tables vides sans la source)."""
     if drees is None or drees.empty:
@@ -107,6 +141,7 @@ def calculer(agg, drees):
                                "rapport_max": r.max(), "dep_max": r.idxmax(), "note": NOTE_DEP})
     t = pd.DataFrame(lignes)
     td = pd.DataFrame(lignes_dep)
+    limite_psychologues(t)
     for _, x in t.iterrows():
         dd = td[td["libelle"] == x["libelle"]]
         rang = f", rang des départements {dd['rang_spearman'].iloc[0]:.3f}" if len(dd) else ""

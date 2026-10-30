@@ -641,6 +641,11 @@ COLONNES = [
     (r"^part_population_a_plus_de_(\d+)_min$", "Part des habitants à plus de {0} minutes de route de l'équipement le "
                                                "plus proche."),
     (r"^part_population_non_calculee$", "Part des habitants pour lesquels l'INSEE ne calcule pas de temps de trajet."),
+    (r"^part_population_temps_contredit$", "Psychiatrie ambulatoire seulement. Part des habitants qui vivent dans une "
+     "commune où le temps de l'INSEE dépasse 30 minutes alors qu'un CMP est à moins de 8 km à vol d'oiseau."),
+    (r"^fiable$", "Vrai quand le temps de trajet est montré. Faux pour la psychiatrie ambulatoire quand plus de 1 % des "
+     "habitants vivent dans une commune où il contredit la distance au CMP, le temps n'est alors pas montré sur le site "
+     "ni dans les rapports."),
     (r"^rho_communes$", "Corrélation de rang entre les deux indicateurs, calculée sur les communes."),
     (r"^rho_epci$", "Corrélation de rang entre les deux indicateurs, calculée sur les intercommunalités."),
     (r"^rho_densite_epci$", "Corrélation de rang entre la densité simple et l'APL, sur les intercommunalités."),

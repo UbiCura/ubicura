@@ -23,5 +23,13 @@
     noeuds.forEach(function(t){var v=t.nodeValue.replace(MOT,couper);if(v!==t.nodeValue)t.nodeValue=v})}
   window.cesure=traiter;
   function lancer(){traiter(document.querySelector("main")||document.body)}
+  // les césures invisibles ne partent ni dans un copier-coller ni dans une impression (le PDF les garderait dans son
+  // texte, qui se copierait abîmé, audit externe du 30 octobre 2026) ; elles reviennent après l'impression
+  function retirer(){var tw=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT),n;
+    while((n=tw.nextNode()))if(n.nodeValue.indexOf(SH)>=0)n.nodeValue=n.nodeValue.split(SH).join("")}
+  document.addEventListener("copy",function(e){var s=window.getSelection(),t=s?String(s):"";
+    if(t.indexOf(SH)<0||!e.clipboardData)return;e.clipboardData.setData("text/plain",t.split(SH).join(""));e.preventDefault()});
+  window.addEventListener("beforeprint",retirer);
+  window.addEventListener("afterprint",lancer);
   if("requestIdleCallback" in window)requestIdleCallback(lancer,{timeout:1200});else setTimeout(lancer,150);
 })();

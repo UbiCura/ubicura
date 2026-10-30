@@ -10,10 +10,10 @@ import pandas as pd
 from scipy import stats
 
 from . import config, indicateurs, libelles, limites, rapport_bases
-from .analyses import CLASSES_DENSITE, moyenne_territoires, tables
+from .analyses import CLASSES_DENSITE, moyenne_territoires, tables, temps_montres
 from .lecture import (DEFINITIONS, GLOSSAIRE, date_longue, de, fois, force, minuscule, noms_classes, nombre, pct,
                       phrase_correlation, phrase_gini, pluriel, un_pour)
-from .util import JOURNAL
+from .util import JOURNAL, controles_publics
 
 SM, SANTE = config.SANTE_MENTALE, config.SANTE
 PRINCIPALES = {
@@ -374,10 +374,10 @@ def _parcours(C: Contexte, famille):
     dist, sans = int(q["a_distance_seulement"]), int(q["sans_soins_seulement"])
     ecartes = []
     if dist:
-        ecartes.append(f"{nombre(dist)} n'exercent, avec un lieu déclaré, qu'en téléconsultation, des soins à "
-                       "distance déclarés au siège de la société et non rattachés au territoire des patients")
+        ecartes.append(f"{nombre(dist)} n'exerce{'nt' if dist > 1 else ''}, avec un lieu déclaré, qu'en téléconsultation, "
+                       "des soins à distance déclarés au siège de la société et non rattachés au territoire des patients")
     if sans:
-        ecartes.append(f"{nombre(sans)} n'exercent qu'à des activités sans soins à la population")
+        ecartes.append(f"{nombre(sans)} n'exerce{'nt' if sans > 1 else ''} qu'à des activités sans soins à la population")
     return ["#### Du répertoire aux densités", "",
             debut + f", {nombre(q['avec_lieu'])} ont au moins un lieu d'exercice et {nombre(q['dans_densites'])} sont "
             f"comptés dans les densités des territoires. {nombre(q['sans_lieu'])} n'ont aucun lieu fixe (remplacements, "
@@ -1022,13 +1022,13 @@ def _route(C: Contexte, famille):
     if not isinstance(ta, pd.DataFrame) or ta.empty or not ar:
         return []
     fam = {d["id"]: d["famille"] for d in ar["defs"]}
-    t = ta[(ta["niveau"] == "FR") & ta["equipement"].map(fam).eq(famille)].copy()
+    t = temps_montres(ta[(ta["niveau"] == "FR") & ta["equipement"].map(fam).eq(famille)])
     ordre = [d["id"] for d in ar["defs"]]
     t = t.set_index("equipement").reindex([i for i in ordre if i in set(t["equipement"])]).reset_index()
     if t.empty:
         return []
     v = t.set_index("equipement")
-    tete = [e for e in EQ_TETE[famille] if e in v.index]
+    tete = [e for e in EQ_TETE[famille] if e in v.index and pd.notna(v.at[e, "temps_median_min"])]
     phr = []
     if tete:
         e0 = tete[0]
@@ -1044,15 +1044,19 @@ def _route(C: Contexte, famille):
                       "part_population_a_plus_de_20_min", "part_population_a_plus_de_30_min"],
                   ["Équipement ou professionnel le plus proche", "Temps médian (min)", "Temps moyen (min)",
                    "À plus de 15 min", "À plus de 20 min", "À plus de 30 min"],
-                  {"temps_median_min": lambda x: nombre(x, 0), "temps_moyen_min": lambda x: nombre(x, 0),
-                   "part_population_a_plus_de_15_min": pct, "part_population_a_plus_de_20_min": pct,
-                   "part_population_a_plus_de_30_min": pct}), ""]
+                  {"temps_median_min": lambda x: nombre(x, 0) or "non montré",
+                   "temps_moyen_min": lambda x: nombre(x, 0) or "non montré",
+                   "part_population_a_plus_de_15_min": lambda x: pct(x) or "non montré",
+                   "part_population_a_plus_de_20_min": lambda x: pct(x) or "non montré",
+                   "part_population_a_plus_de_30_min": lambda x: pct(x) or "non montré"}), ""]
     inc = (getattr(C.agg, "lieux", None) or {}).get("incoherence_route_cmp")
     if "psychiatrie_ambulatoire" in v.index:
-        L += [(f"{nombre(inc['communes'])} communes, où vivent {nombre(inc['habitants'])} habitants dans "
-               f"{nombre(inc['departements'])} départements, sont à plus de {config.ROUTE_CMP_MINUTES} minutes d'une "
-               f"structure de psychiatrie ambulatoire d'après l'INSEE alors qu'un CMP est à moins de "
-               f"{config.ROUTE_CMP_KM} km. " if inc and inc["communes"] else "")
+        L += [(f"Dans {nombre(inc['communes'])} communes, où vivent {nombre(inc['habitants'])} habitants dans "
+               f"{nombre(inc['departements'])} départements, le temps de l'INSEE jusqu'à une structure de psychiatrie "
+               f"ambulatoire dépasse {config.ROUTE_CMP_PENTE} minutes par kilomètre jusqu'au CMP le plus proche, plus "
+               f"{config.ROUTE_CMP_MARGE} minutes, ce qu'aucune route ne justifie. "
+               + (f"La même règle appliquée aux urgences retient {pct(inc['part_habitants_temoin'], 2)} des habitants. "
+                  if "part_habitants_temoin" in inc else "") if inc and inc["communes"] else "")
               + limites.phrase_md(["route:psychiatrie_ambulatoire"]), ""]
     L += _comment_lire(
         "Ces durées sont celles d'un trajet en voiture, aux heures creuses, depuis le lieu de résidence vers "
@@ -2969,11 +2973,11 @@ def _fin(insee, famille):
           "libellés.", ""]
     for e in [e for e in JOURNAL.entrees if e.statut != "ignoré"]:
         L.append(ligne_source(e) + (f" {e.detail[0].upper()}{e.detail[1:].rstrip('.')}." if e.detail and e.statut == "ok" else
-                                    f" Statut, {e.statut}. {e.detail}" if e.statut != "ok" else ""))
+                                    " Non disponible dans cette version." if e.statut != "ok" else ""))
     L.append("")
     if insee and indicateurs.odbl(insee):
         L += [MENTION_ODBL, ""]
-    L += _plus_loin([f"- {nom}, {res}" for nom, res in JOURNAL.controles])
+    L += _plus_loin([f"- {nom}, {res}" for nom, res in controles_publics(JOURNAL.controles)])
 
     # les précautions de lecture tiennent d'un seul tenant : le glossaire qui suit commence sur une page nouvelle, et
     # leur dernière ligne pouvait tomber seule sur une page presque vide (PDF du 30 octobre 2026)

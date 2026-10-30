@@ -380,8 +380,17 @@ ODISSE = [
 ACCES_ROUTE_DATAGOUV = "67fe0fe2423db9c4a05d8ced"
 ACCES_ROUTE_MOTIF = r"donnees_(\d{4})_reg(\d{2})\.parquet"
 ACCES_ROUTE_SEUILS = (15, 20, 30)     # minutes
-# contrôle du temps vers la psychiatrie ambulatoire face à notre distance au CMP (lieux.controle_route_cmp)
-ROUTE_CMP_MINUTES, ROUTE_CMP_KM = 30, 8
+# contrôle du temps vers la psychiatrie ambulatoire face à notre distance au CMP (lieux.controle_route_cmp). Un temps
+# est contredit quand il dépasse ROUTE_CMP_PENTE minutes par km à vol d'oiseau plus ROUTE_CMP_MARGE minutes : la route
+# allonge le trajet d'un tiers à la moitié et l'on roule à 30 km/h au moins, soit 3 minutes par km au plus, la marge
+# couvrant l'étendue de la commune. Témoin, la même règle appliquée aux urgences, où l'INSEE et nos structures
+# concordent, retient 0,13 % des habitants, contre 9,1 % pour la psychiatrie ambulatoire (mesure du 30 octobre 2026,
+# règle qui remplace « plus de 30 minutes avec un CMP à moins de 8 km », trop étroite, audit externe du même jour).
+ROUTE_CMP_PENTE, ROUTE_CMP_MARGE = 3, 10
+# part des habitants d'un territoire vivant dans une commune où ce temps contredit la distance au CMP au-delà de laquelle
+# le temps du territoire n'est plus publié, gardé dans temps_acces.csv avec sa fiabilité (audit externe du 30 octobre
+# 2026, en attendant un temps de route calculé vers nos propres structures)
+ROUTE_CMP_PART_MAX = 0.01
 ACCES_ROUTE = [  # code BPE, identifiant, libellé d'affichage, famille, profession RPPS comparable
     ("D250", "psychologue_liberal", "Psychologue libéral", SANTE_MENTALE, "psychologue"),
     ("D269", "psychiatre_liberal", "Psychiatre libéral", SANTE_MENTALE, "psychiatre"),
@@ -959,7 +968,6 @@ GEOCODAGE_SCORE_MIN = 0.5
 GEOCODAGE_RECHERCHE = "https://data.geopf.fr/geocodage/search"
 # modes de prise en charge (TRE_R213) regroupés
 MODES_CONSULTATION = {"02", "20", "32", "54", "57"}
-MODES_MOBILE = {"10", "11", "43", "44", "45", "52", "53", "59"}
 MODES_HC = {"28", "34"}
 MODES_TEMPS_PARTIEL = {"29", "30", "42", "47"}
 CHAMP_PSY = "03"
@@ -1477,9 +1485,11 @@ LIMITES = {
         "sources": [SRC_RPPS]},
     "prof:psychologue": {
         "risque": "répertoire récent",
-        "texte": ("Les psychologues sont inscrits au RPPS depuis la reprise du répertoire ADELI. Leur nombre est un "
-                  "peu en dessous de la tendance des séries ADELI de la DREES, l'écart est détaillé dans la page "
-                  "méthode."),
+        # texte refait à chaque exécution avec les écarts de concordance_effectifs.csv (concordance.limite_psychologues),
+        # celui-ci ne sert que si la série de la DREES n'a pas pu être lue
+        "texte": ("Les psychologues sont inscrits au RPPS depuis la reprise du répertoire ADELI. Leur nombre diffère "
+                  "des séries ADELI de la DREES, qui ne portent pas sur le même champ, l'écart est détaillé dans la "
+                  "page méthode."),
         "sources": [SRC_ANS_BASCULE, ("DREES, la démographie des professionnels de santé", DREES_DEMOGRAPHIE_PAGE)]},
     "route": {
         "risque": "champ limité",
@@ -1491,11 +1501,15 @@ LIMITES = {
     "route_psychiatrie_ambulatoire": {
         "risque": "recensement incomplet",
         "texte": ("Le temps de route de l'INSEE vers la psychiatrie ambulatoire contredit, dans de nombreuses communes, "
-                  "la distance au CMP le plus proche (plus de 30 minutes alors qu'un CMP est à moins de 8 km). La base "
+                  "la distance au CMP le plus proche (plus de 3 minutes par kilomètre à vol d'oiseau, plus 10 minutes, "
+                  "par exemple 22 minutes pour un CMP à un peu plus d'un kilomètre). La même règle appliquée aux "
+                  "urgences ne retient presque aucune commune. La base "
                   "permanente des équipements ne compte vraisemblablement que les CMP inscrits sous leur propre "
                   "catégorie dans FINESS, alors qu'un CMP sur trois n'y figure que sous le numéro de son hôpital ou "
-                  "seulement dans le ROR. La distance au CMP le plus proche, tirée de FINESS et du ROR réunis, est plus "
-                  "sûre."),
+                  "seulement dans le ROR. Ce temps n'est donc pas montré pour un territoire dont plus de 1 % des "
+                  "habitants vivent dans une telle commune, ni pour la France entière. Le fichier des temps de trajet "
+                  "le garde avec une colonne de fiabilité. La distance au CMP le plus proche, tirée de FINESS et du ROR "
+                  "réunis, est plus sûre."),
         "sources": [SRC_INSEE_ROUTE, SRC_FINESS, SRC_ROR]},
     "sae": {
         "risque": "rattachement",
@@ -1532,15 +1546,16 @@ LIMITES_COURT = {
     "mayotte": ("À Mayotte, les densités sont surestimées d'environ un quart (population de 2017) et Mayotte est écartée "
                 "des croisements entre départements."),
     "prof:psychiatre": "Un territoire sans psychiatre déclaré peut accueillir des consultations de psychiatrie, dans les CMP.",
-    "prof:psychologue": ("Les psychologues sont inscrits au RPPS depuis la reprise d'ADELI, leur nombre est un peu en "
-                         "dessous des séries de la DREES."),
+    "prof:psychologue": ("Les psychologues sont inscrits au RPPS depuis la reprise d'ADELI, leur nombre diffère des "
+                         "séries de la DREES, sur un champ différent."),
     "lieux": "Ni FINESS ni le ROR ne sont complets, certaines structures manquent aux deux bases ou y sont mal classées.",
     "confirmation": ("Une structure à vérifier n'est pas douteuse pour autant, les listes qui servent à confirmer sont "
                      "incomplètes ou anciennes."),
     "route": ("Temps en voiture vers le libéral le plus proche, sans les délais de rendez-vous, les tarifs ni les "
               "transports en commun."),
-    "route_psychiatrie_ambulatoire": ("Le temps de l'INSEE vers la psychiatrie ambulatoire ignore vraisemblablement un "
-                                      "CMP sur trois, la distance au CMP le plus proche est plus sûre."),
+    "route_psychiatrie_ambulatoire": ("Le temps de l'INSEE vers la psychiatrie ambulatoire n'est pas montré là où il "
+                                      "contredit la distance au CMP le plus proche, sa base ignorant vraisemblablement "
+                                      "un CMP sur trois."),
     "ald": "Les ALD comptent les personnes dont la maladie a été reconnue, pas toutes les personnes malades.",
     "caf": "Les allocations versées par la MSA ne sont pas comptées, ce qui sous-estime ces chiffres surtout en zone rurale.",
     "evolution": ("Les séries de la DREES comptent chaque professionnel une seule fois, dans le département de son "

@@ -106,9 +106,19 @@ def phrase_specialites_md(cles) -> str:
     return A_SAVOIR + texte if texte else ""
 
 
+# limites dont le texte est refait à chaque exécution à partir d'un calcul (écarts aux séries de la DREES,
+# concordance.limite_psychologues), relu depuis site_data.json quand le site est refait seul
+CALCULEES = {"prof:psychologue"}
+
+
 def completer(extra: dict | None) -> None:
     """Ajoute à config.LIMITES les limites calculées à l'exécution (spécialités surtout salariées), relues depuis
-    site_data.json quand le site est reconstruit seul."""
+    site_data.json quand le site est reconstruit seul, et reprend le texte des limites refaites par un calcul."""
+    for k in CALCULEES & set(extra or {}):
+        if k in config.LIMITES and extra[k].get("texte"):
+            config.LIMITES[k] = dict(config.LIMITES[k], texte=extra[k]["texte"])
+            if extra[k].get("court"):
+                config.LIMITES_COURT[k] = extra[k]["court"]
     for k, L in (extra or {}).items():
         if k not in config.LIMITES:
             config.LIMITES[k] = {c: L[c] for c in ("risque", "texte", "sources") if c in L} | (

@@ -45,9 +45,11 @@ addEventListener("resize",tous);if(document.fonts)document.fonts.ready.then(tous
 <script>
 {% include "figures.js" %}
 </script>
-<script src="{{ racine }}cesure/hyphen.js" defer></script>
+{# pas de césure dans la page imprimée en PDF : Edge écrit les césures invisibles dans le texte du PDF, qui se copie
+   abîmé (« rapp­ ort », audit externe du 30 octobre 2026) #}
+{% if not impression %}<script src="{{ racine }}cesure/hyphen.js" defer></script>
 <script src="{{ racine }}cesure/hyphen-fr.js" defer></script>
-<script src="{{ racine }}cesure/cesure.js" defer></script>
+<script src="{{ racine }}cesure/cesure.js" defer></script>{% endif %}
 {{ compteur|default("")|safe }}
 </body>
 </html>

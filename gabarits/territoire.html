@@ -6,7 +6,7 @@
 <a class="pas-imprime" href="{{ autre_lien }}">{{ autre_titre }}</a>.
 {% if lien_region %}<a class="pas-imprime" href="{{ lien_region }}">Rapport de la région</a>.{% endif %}
 <a class="pas-imprime" href="{{ racine }}{{ lien_national }}">Rapport national</a>.
-<a class="pas-imprime" href="index.html">Tous les territoires</a>.</p>
+<a class="pas-imprime" href="{{ lien_index|default('index.html') }}">Tous les territoires</a>.</p>
 
 <div class="rapport">
   <aside class="sommaire" aria-label="Sommaire">{{ sommaire|safe }}</aside>

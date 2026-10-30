@@ -18,7 +18,7 @@ Chercheurs, observatoires, agences, associations ou simples lecteurs peuvent pro
 
 ## Comment l'envoyer
 
-Par courriel à l'adresse du projet, qui sera indiquée à la mise en ligne. Une fois le code publié, aussi en ouvrant une demande sur le dépôt, avec un modèle prêt à remplir.
+Par courriel à [{contact}](mailto:{contact}), ou en ouvrant une demande (« issue ») sur le dépôt du code, [{depot_code}]({depot_code}).
 
 ## Comment une proposition est examinée
 
