@@ -184,7 +184,9 @@ def donnees_nuage(site_data: dict) -> dict | None:
     if not all(lv in niv for lv in NIVEAUX_NUAGE) or not site_data.get("contexte"):
         return None
     d = {k: site_data.get(k) for k in CLES_NUAGE}
-    d["niveaux"] = {lv: {k: niv[lv][k] for k in ("units", "n", "route") if k in niv[lv]} for lv in NIVEAUX_NUAGE}
+    # « lieux », nombre de structures de chaque type par territoire, montré à côté de son taux (décision de Lucas du
+    # 30 octobre 2026)
+    d["niveaux"] = {lv: {k: niv[lv][k] for k in ("units", "n", "route", "lieux") if k in niv[lv]} for lv in NIVEAUX_NUAGE}
     d["correlations"] = [{k: v for k, v in r.items() if v is not None} for r in site_data.get("correlations", [])
                          if r.get("niv") in NIVEAUX_NUAGE]
     d["limites"] = site_data.get("limites") or {}

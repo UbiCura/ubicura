@@ -662,6 +662,7 @@ def _exercice_atlas(L, top) -> dict:
 def _site(agg, ref, professions, insee, R, serie, jour):
     ctx_def = [{k: d[k] for k in ("id", "label", "unite", "explication", "source", "famille", "licence", "groupe", "niveaux",
                                   "licence_id", "niveaux_codes", "agregation", "type_valeur", "page_source")}
+               | ({"non_publies": d["non_publies"]} if d.get("non_publies") else {})
                for d in indicateurs.liste(insee)]
     # lien de chaque indicateur vers la fiche de son jeu de données (page « Données sources » du site)
     for d in ctx_def:

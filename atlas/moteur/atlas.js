@@ -289,7 +289,10 @@ function selCard(){
     }
     blocs[fam]=h;h=h0;
   }
-  if(u.x){blocs.pop='';const h0=h;h='';const grp=[...new Set(ctxVisibles().filter(c=>u.x[c.i]!=null).map(c=>c.groupe||"Profil de la population"))];const ligneCtx=c=>u.x[c.i]==null?'':'<div><dt title="'+esc((c.explication||"")+(c.source?" Source, "+c.source+".":""))+'">'+esc(c.label)+'</dt><dd>'+(c.unite==="€"?fmt.format(Math.round(u.x[c.i]))+'\u202f€':(u.x[c.i]===0?"0":f1.format(u.x[c.i]))+(c.unite==="%"?"\u202f%":c.unite==="km"?"\u202fkm":c.unite==="minutes"?"\u202fmin":""))+'</dd></div>';
+  if(u.x){blocs.pop='';const h0=h;h='';// un taux non publié montre sa raison à la place du chiffre (décision de Lucas du 30 octobre 2026, « non publié, 2
+    // médecins généralistes en secteur 2, moins de 5 »), lue dans le catalogue (champ non_publies)
+    const np=c=>u.x[c.i]==null?(c.non_publies?.[lv]?.[u.c]||null):null,montre=c=>u.x[c.i]!=null||!!np(c);
+    const grp=[...new Set(ctxVisibles().filter(montre).map(c=>c.groupe||"Profil de la population"))];const ligneCtx=c=>!montre(c)?'':np(c)?'<div><dt title="'+esc((c.explication||"")+(c.source?" Source, "+c.source+".":""))+'">'+esc(insecables(c.label))+'</dt><dd class="non-publie">'+(([t0,...t1])=>esc(t0)+(t1.length?'<span class="raison">'+esc(t1.join(", "))+'</span>':''))(np(c).split(", "))+'</dd></div>':'<div><dt title="'+esc((c.explication||"")+(c.source?" Source, "+c.source+".":""))+'">'+esc(insecables(c.label))+'</dt><dd>'+htmlTaux(c,lv,i,(c.unite==="€"?fmt.format(Math.round(u.x[c.i]))+'\u202f€':(u.x[c.i]===0?"0":f1.format(u.x[c.i]))+(c.unite==="%"?"\u202f%":c.unite==="km"?"\u202fkm":c.unite==="minutes"?"\u202fmin":"")))+'</dd></div>';
   h+='<h3 class="fiche-bt">Profil de la population</h3>'+grp.map(g=>'<div class="gr pop">'+(g==="Profil de la population"?'':'<div class="gh">'+esc(g)+'</div>')+'<dl class="kv">'+ctxVisibles().filter(c=>(c.groupe||"Profil de la population")===g).map(ligneCtx).join("")+'</dl></div>').join("");blocs.pop=h;h=h0}
   // offre de la famille choisie (santé mentale puis santé), puis profil de la population, chacun en colonnes équilibrées
   h+='<div class="fiche-colonnes">'+[blocs[SM],blocs[SANTE],blocs.pop].filter(Boolean).join("")+'</div>';
@@ -310,7 +313,7 @@ function selCard(){
   EXPORT_CSV.fiche=()=>{const lignes=[["Profession","Effectif","Pour 10 000 habitants","Indice (moyenne "+MOYLAB[lv]+" = 100)"]];
     for(const pr of D.professions.filter(x=>(S.fam==="*"||famOf(x)===S.fam)&&!x.id.startsWith("esm_")&&natN(x.id)>0)){const n=unitN(lv,pr.id,i),d=unitD(lv,pr.id,i),r=refD(lv,pr.id);
       lignes.push([pr.libelle,fmt.format(n),f1.format(d),r?fmt.format(Math.round(d/r*100)):""])}
-    if(u.x){lignes.push([]);lignes.push(["Indicateur","Valeur"]);for(const cx of ctxVisibles())if(u.x[cx.i]!=null)lignes.push([cx.label+(cx.unite?" ("+cx.unite+")":""),f1.format(u.x[cx.i])])}
+    if(u.x){lignes.push([]);lignes.push(["Indicateur","Valeur","Nombre de structures"]);for(const cx of ctxVisibles())if(u.x[cx.i]!=null){const ns=nombreStructures(cx,lv,i);lignes.push([libUnite(cx),f1.format(u.x[cx.i]),ns==null?"":fmt.format(ns)])}}
     return {titre:"Profil de "+u.nm+", offre de soins comparée à la moyenne "+MOYLAB[lv],nom:nomFichier("profil_"+u.nm,"profil"),texte:lignes.map(l=>l.map(qCsv).join(";")).join("\r\n")}};
   br.innerHTML='<h2>'+esc(u.nm)+'</h2><div class="muted small">'+esc(parent)+', '+fmt.format(u.pop)+' habitants</div>'+(court?'<p class="phrase">'+esc(court.split(". ")[0].replace(/\.$/,""))+'.'+(precision?' '+esc(precision):'')+'</p>':'')+'<button class="lien" id="selVoir">Voir son profil complet sous la carte</button>';
   document.getElementById("selVoir").onclick=()=>el.scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"start"});

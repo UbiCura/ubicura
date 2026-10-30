@@ -925,7 +925,9 @@ def construire(pdf=True) -> Path:
         cit = (f"{commun['citation_auteur']} ({commun['annee_version']}). Explorer les données. {config.NOM_PROJET}, "
                f"version du {commun['date_longue']}, {commun['adresse_site'].rstrip('/')}/explorer.html")
         # empreinte du code et des données de la page, pour que les navigateurs prennent la nouvelle version
-        fichiers = ("explorer.js", "donnees.js", "donnees_outils.js", *explorer.FICHIERS_OUTILS)
+        # « Croiser deux indicateurs » compris (code du moteur et données), qui restait sinon en cache après une mise à jour
+        fichiers = ("explorer.js", "donnees.js", "donnees_outils.js", "croisements.js", "donnees_croisements.js",
+                    *explorer.FICHIERS_OUTILS)
         empreinte = hashlib.sha1(b"".join((SITE / "explorer" / f).read_bytes() for f in fichiers
                                           if (SITE / "explorer" / f).exists())).hexdigest()[:10]
         (SITE / "explorer.html").write_text(rendre(env, "explorer.html", ctx, citation=cit, version_explorer=empreinte),

@@ -108,9 +108,12 @@
 [hidden]{display:none!important}
 .explorer .tete{max-width:none}
 .outil .resultat{max-width:none;margin:0 0 14px;font-size:1rem}
-.reglages{display:grid;grid-template-columns:max-content 1fr;gap:8px 20px;margin:0 0 16px;padding:0 0 14px;border-bottom:1px solid var(--line);align-items:baseline}
+.reglages{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:8px 20px;margin:0 0 16px;padding:0 0 14px;border-bottom:1px solid var(--line);align-items:baseline}
 .reglages .lib{font-size:.8125rem;color:var(--muted)}
 .choix{display:flex;flex-wrap:wrap;gap:4px 16px}
+/* une liste soignée au libellé long (« EHPAD, pour 100 000 personnes de 80 ans et plus ») se coupe en points de suspension au
+   lieu d'élargir la page sur téléphone */
+.choix>.prof-choix{min-width:0;max-width:100%}
 .choix button{font:inherit;font-size:.9375rem;background:none;border:0;padding:2px 0;color:var(--muted);cursor:pointer;border-bottom:1px solid transparent}
 .choix button:hover{color:var(--ink)}
 .choix button[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--ink)}
@@ -167,7 +170,7 @@ td i.pastille{display:inline-block;width:10px;height:10px;border-radius:2px;marg
 .outil .a-savoir{max-width:none;margin:14px 0 0}
 .ad-notes{margin:8px 0 0}.ad-notes span{display:block}
 .ad-offre{width:100%;table-layout:fixed}.ad-offre th,.ad-offre td{white-space:normal;hyphens:none}.ad-offre th:first-child{width:34%}.ad-offre th:nth-child(2){width:15%}.ad-offre td:nth-child(2){text-align:right;padding-right:18px}
-@media (max-width:820px){.reglages{grid-template-columns:1fr}.cote,.grille-t{grid-template-columns:1fr!important}}
+@media (max-width:820px){.reglages{grid-template-columns:minmax(0,1fr)}.cote,.grille-t{grid-template-columns:1fr!important}}
 /* « Croiser deux indicateurs » (lot 2 du 29 octobre 2026), même moteur que l'atlas. Règles des questions préparées
    reprises de l'atlas, qui ne montre plus le nuage, et règles du moteur limitées à la question */
 #cbTable{min-width:640px}

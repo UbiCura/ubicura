@@ -124,6 +124,26 @@ def _ald(hors_ligne, rafraichir):
     return df[["niveau", "code", "annee", "valeur"]], meta
 
 
+def _non_publies(x: pd.DataFrame, lab: str) -> dict:
+    """Raison écrite de chaque taux de dépassement non publié, par niveau et par territoire (décision de Lucas du 30
+    octobre 2026, « non publié, 2 médecins généralistes en secteur 2, moins de 5 »), montrée à la place du chiffre."""
+    seuil = config.AMELI_SECTEURS_EFFECTIF_MIN
+    plur = lab.lower()
+    sing = " ".join(m[:-1] if m.endswith("s") else m for m in plur.split())
+    out = {}
+    for r in x[x["taux_depassement_s2"].isna() & x["niveau"].isin(["dep", "reg"])].itertuples():
+        n = getattr(r, "n_secteur_2", float("nan"))
+        if getattr(r, "trop_peu", False) and n == n:
+            n = int(n)
+            # espaces insécables, « secteur 2 » et « moins de 5 » ne se coupent pas sur téléphone
+            txt = (f"non publié, aucun {sing} en secteur 2" if n == 0 else
+                   f"non publié, {n} {sing if n == 1 else plur} en secteur 2, moins de {seuil}")
+        else:
+            txt = "non publié, montants couverts par le secret statistique"
+        out.setdefault(r.niveau, {})[r.code] = txt
+    return out
+
+
 def charger(ref, hors_ligne=False, rafraichir=False):
     """Renvoie {"contexte": {"dep", "reg"}, "defs": [...], "secteurs", "ald", "honoraires" (DataFrame)} ou None."""
     out = {"contexte": {"dep": pd.DataFrame(), "reg": pd.DataFrame()}, "defs": [], "secteurs": None, "ald": None,
@@ -164,6 +184,8 @@ def charger(ref, hors_ligne=False, rafraichir=False):
             s2 = out["secteurs"].set_index(["niveau", "code", "prof"])["secteur_2"]
             n_s2 = s2.reindex(pd.MultiIndex.from_frame(h[["niveau", "code", "prof"]])).to_numpy()
             trop_peu = ~(n_s2 >= config.AMELI_SECTEURS_EFFECTIF_MIN)
+            h["n_secteur_2"] = n_s2
+            h["trop_peu"] = trop_peu
             h.loc[trop_peu, "taux_depassement_s2"] = float("nan")
             JOURNAL.controle(f"Assurance Maladie, taux de dépassement non publiés (moins de "
                              f"{config.AMELI_SECTEURS_EFFECTIF_MIN} libéraux de secteur 2)",
@@ -176,6 +198,7 @@ def charger(ref, hors_ligne=False, rafraichir=False):
             for niv in ("dep", "reg"):
                 out["contexte"][niv][cle] = x[x["niveau"] == niv].set_index("code")["taux_depassement_s2"] * 100
             out["defs"].append({
+                "non_publies": _non_publies(x, lab),
                 "id": cle, "libelle": f"{lab} libéraux en secteur 2, dépassements rapportés aux honoraires sans dépassement",
                 "unite": "%",
                 "explication": f"Montant des dépassements facturés par les {lab.lower()} libéraux de secteur 2 du "

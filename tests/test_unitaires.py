@@ -1940,6 +1940,58 @@ def test_menu_deux_temps_explorer():
     assert ".prof-liste.deux .theme::before{content:none}" in explorer
 
 
+def test_depassements_non_publies():
+    """Un taux de dépassement non publié porte sa raison, montrée à la place du chiffre (décision de Lucas du 30 octobre
+    2026) : moins de 5 libéraux de secteur 2, avec leur nombre (2 médecins généralistes dans le Tarn-et-Garonne, dont
+    le taux de 167 % reposait sur eux), aucun, ou le secret statistique sur les montants. Chaque territoire non publié a
+    une raison, aucun territoire publié n'en a, sur les fichiers de l'Assurance Maladie en cache."""
+    from pipeline.sources import ameli_acces, referentiel
+    ref = referentiel.charger(hors_ligne=True)
+    o = ameli_acces.charger(ref, hors_ligne=True)
+    if not o or not o.get("defs"):
+        raise Ignore("fichiers de l'Assurance Maladie absents")
+    defs = {d["id"]: d for d in o["defs"]}
+    d = defs.get("taux_depassement_medecin_generaliste")
+    if d is None:
+        raise Ignore("taux de dépassement absents")
+    np_ = d["non_publies"]["dep"]
+    assert np_["82"] == "non publié, 2 médecins généralistes en secteur 2, moins de 5"
+    for iid, dd in defs.items():
+        if not iid.startswith("taux_depassement_"):
+            continue
+        v = o["contexte"]["dep"][iid]
+        vides = set(v.index[v.isna()])
+        a = set(dd["non_publies"].get("dep", {}))
+        # tout vide a sa raison ; une raison hors des territoires publiés (Mayotte, absente du contexte) est sans effet
+        assert vides <= a and not (a - vides) & set(v.index), iid
+        assert all(t.startswith("non publié, ") for t in dd["non_publies"].get("dep", {}).values())
+
+
+def test_non_publies_sans_montant():
+    """Le champ non_publies du catalogue (raison d'un taux de dépassement non publié) passe de la définition de la
+    source au catalogue, et ne contient jamais de montant : seulement le nombre de libéraux de secteur 2 (moins de 5)
+    et la raison. Avec 1 ou 2 médecins, un montant d'honoraires ou de dépassements viserait des personnes (condition
+    de la séance principale, 30 octobre 2026). Sur les fichiers de l'Assurance Maladie en cache."""
+    import re
+    from pipeline import config, indicateurs
+    from pipeline.sources import ameli_acces, referentiel
+    ref = referentiel.charger(hors_ligne=True)
+    o = ameli_acces.charger(ref, hors_ligne=True)
+    if not o or not o.get("defs"):
+        raise Ignore("fichiers de l'Assurance Maladie absents")
+    cat = [d for d in indicateurs.liste({"indicateurs": o["defs"]}) if d.get("non_publies")]
+    assert {d["id"] for d in cat} == {d["id"] for d in o["defs"] if d.get("non_publies")} and cat
+    seuil = config.AMELI_SECTEURS_EFFECTIF_MIN
+    nb = " "
+    forme = re.compile(rf"non publié, (aucun [^\d€,]+ en{nb}secteur{nb}2|[1-{seuil - 1}]{nb}[^\d€,]+ en{nb}secteur{nb}2, "
+                       rf"moins{nb}de{nb}{seuil}|montants couverts par le secret statistique)")
+    for d in cat:
+        for niv, terr in d["non_publies"].items():
+            for code, t in terr.items():
+                assert forme.fullmatch(t), (d["id"], niv, code, t)
+                assert "€" not in t and not re.search(r"\d[\d\s  ]*[.,]\d", t), t
+
+
 def test_manques_sae():
     """Territoires où FINESS et le ROR inscrivent moins de la moitié des structures que les établissements déclarent à
     la SAE (audit du 30 octobre 2026, constats 2 et 4), sur la SAE en cache et les derniers résultats : le Jura

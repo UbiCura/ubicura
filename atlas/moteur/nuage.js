@@ -54,9 +54,9 @@ function tableNuage(lv,cx,p,pts,cy){
   const val=d=>SC.tri==="nm"?d.u.nm:SC.tri==="pop"?d.u.pop:SC.tri==="x"?d.x:d.y;
   let rows=pts.filter(d=>!q||d.u.nm.toLowerCase().includes(q)).sort((a,b)=>{const A=val(a),B=val(b);return(typeof A==="string"?A.localeCompare(B,"fr"):A-B)*(SC.asc?1:-1)});
   const th=(k,t)=>'<th><button data-s="'+k+'" class="'+(SC.tri===k?"on":"")+'">'+esc(t)+(SC.tri===k?(SC.asc?" ▲":" ▼"):"")+'</button></th>';
-  const fx=v=>cx.unite==="€"?fmt.format(Math.round(v)):f1.format(v);
-  document.getElementById("scTable").innerHTML='<thead><tr>'+th("nm",lv==="dep"?"Département":"Intercommunalité")+th("pop","Habitants")+th("x",cx.label+(cx.unite?" ("+cx.unite+")":""))+th("y",cy?cy.label+(cy.unite?" ("+cy.unite+")":""):cap(pluriel(lab))+", pour 10 000 hab.")+'</tr></thead><tbody>'
-    +rows.map(d=>'<tr><td>'+esc(d.u.nm)+'</td><td>'+fmt.format(d.u.pop)+'</td><td>'+fx(d.x)+'</td><td>'+(cy?(cy.unite==="€"?fmt.format(Math.round(d.y)):f1.format(d.y)):f2.format(d.y))+'</td></tr>').join("")+'</tbody>';
+  const fx=(v,d)=>texteTaux(cx,lv,d.i,cx.unite==="€"?fmt.format(Math.round(v)):f1.format(v));
+  document.getElementById("scTable").innerHTML='<thead><tr>'+th("nm",lv==="dep"?"Département":"Intercommunalité")+th("pop","Habitants")+th("x",libUnite(cx))+th("y",cy?libUnite(cy):cap(pluriel(lab))+", pour 10 000 hab.")+'</tr></thead><tbody>'
+    +rows.map(d=>'<tr><td>'+esc(d.u.nm)+'</td><td>'+fmt.format(d.u.pop)+'</td><td>'+esc(fx(d.x,d))+'</td><td>'+(cy?esc(texteTaux(cy,lv,d.i,cy.unite==="€"?fmt.format(Math.round(d.y)):f1.format(d.y))):f2.format(d.y))+'</td></tr>').join("")+'</tbody>';
   document.querySelectorAll("#scTable th button").forEach(b=>b.onclick=()=>{const k=b.dataset.s;if(SC.tri===k)SC.asc=!SC.asc;else{SC.tri=k;SC.asc=k==="nm"}tableNuage(lv,cx,p,pts,cy)});
   // données complètes du nuage (codes, valeurs non arrondies), exportées par « Citer et exporter »
   EXPORT_CSV.scTable=()=>({titre:"Données du nuage, "+cx.label+" et "+(cy?minuscule(cy.label):pluriel(lab))+", par "+(lv==="dep"?"département":"intercommunalité"),nom:cx.id+"_"+(cy?cy.id:p)+"_"+lv,
@@ -86,14 +86,14 @@ function scatter(){
   const gG=svg.append("g");grille(gG,ys,m,w,6);
   const gy=svg.append("g").attr("transform","translate("+m.l+",0)").call(d3.axisLeft(ys).tickValues(graduations(ys,6,24)).tickFormat(nbAxe)).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
   svg.append("clipPath").attr("id","scClip").append("rect").attr("x",m.l).attr("y",m.t-6).attr("width",w-m.l-m.r).attr("height",h-m.t-m.b+6);
-  svg.append("text").attr("x",w-m.r).attr("y",h-6).attr("text-anchor","end").text(cx.label+(cx.unite?" ("+cx.unite+")":""));
+  svg.append("text").attr("x",w-m.r).attr("y",h-6).attr("text-anchor","end").text(libUnite(cx));
   const ylab=cy?cy.label+(cy.unite?" ("+cy.unite+")":""):profLab(p)+", pour 10 000 hab."+(yl?" (log)":"");
   svg.append("text").attr("x",m.l).attr("y",12).text(ylab);
   const box=document.getElementById("scatter");
   const ptsC=svg.append("g").attr("class","points").attr("clip-path","url(#scClip)").selectAll("circle").data(pts.filter(d=>!yl||d.y>0)).join("circle")
     .attr("cx",d=>(avant.get(d.u.c)||[xs(Math.max(d.x,xs.domain()[0]))])[0]).attr("cy",d=>(avant.get(d.u.c)||[0,ys(d.y)])[1]).attr("r",d=>rs(d.u.pop))
     .attr("fill",d=>S.sel&&S.sel.c===d.u.c?css("--accent"):css("--r4")).attr("fill-opacity",.55).attr("stroke",css("--panel")).attr("stroke-width",.4);
-  ptsC.append("title").text(d=>d.u.nm+"\n"+cx.label+" "+f1.format(d.x)+"\n"+(cy?cy.label:profLab(p))+" "+f1.format(d.y));
+  ptsC.append("title").text(d=>d.u.nm+"\n"+cx.label+" "+texteTaux(cx,lv,d.i,f1.format(d.x))+"\n"+(cy?cy.label+" "+texteTaux(cy,lv,d.i,f1.format(d.y)):profLab(p)+" "+f1.format(d.y)));
   // le glissement part après le dessin des autres figures de l'onglet, sinon le temps de ce dessin mange l'animation
   // (changement de profession, toutes les figures sont refaites d'un bloc)
   if(avant.size)requestAnimationFrame(()=>ptsC.transition().duration(480).ease(d3.easeCubicOut).attr("cx",d=>xs(Math.max(d.x,xs.domain()[0]))).attr("cy",d=>ys(d.y)));

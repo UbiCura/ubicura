@@ -286,6 +286,18 @@ const famOf=p=>p.famille||(p.groupe==="Santé mentale"?SM:SANTE);
 const natOf=p=>p.nature||"profession";
 const inFam=p=>S.fam==="*"||famOf(p)===S.fam;
 const ctxVisibles=()=>IDX.ctx.filter(c=>!c.famille||S.fam==="*"||c.famille===S.fam);
+// taux d'un type de structure montré avec son nombre (décision de Lucas du 30 octobre 2026, « 2 EHPAD, soit 268 pour
+// 100 000 personnes de 80 ans et plus »), le nombre venant des comptes de l'encadré des structures (niveaux.*.lieux)
+function nombreStructures(c,lv,i){if(!c||!String(c.id).startsWith("lieux_"))return null;const v=D.niveaux[lv]?.lieux?.[c.id.slice(6)];return v&&v[i]!=null?v[i]:null}
+const motStructures=n=>n?fmt.format(n)+"\u00a0structure"+(n>1?"s":""):"aucune structure";
+function texteTaux(c,lv,i,txt){const n=nombreStructures(c,lv,i);return n==null?txt:motStructures(n)+", soit "+txt}
+// même chose en HTML pour la fiche, le nombre sur sa ligne au-dessus du taux, pour ne pas serrer le libellé sur téléphone
+function htmlTaux(c,lv,i,txt){const n=nombreStructures(c,lv,i);return n==null?esc(txt):'<span class="nb-struct">'+esc(motStructures(n))+'</span>'+esc("soit "+txt)}
+// les nombres d'un libellé ne se coupent pas en fin de ligne (« pour 100 000 personnes »)
+const insecables=t=>String(t).replace(/(\d) (\d{3})/g,"$1\u00a0$2");
+// libellé d'un indicateur suivi de son unité, sauf quand le libellé la dit déjà (« EHPAD, pour 100 000 personnes de 80 ans
+// et plus » ne se répète pas entre parenthèses)
+const libUnite=c=>c.label+(c.unite&&!c.label.includes(c.unite)?" ("+c.unite+")":"");
 const ctxDispo=(lv,c)=>D.niveaux[lv].units.some(u=>u.x&&u.x[c.i]!=null);
 const famLab={[SM]:"santé mentale",[SANTE]:"santé","*":"toute l’offre de soins"};
 
