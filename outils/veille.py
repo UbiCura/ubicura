@@ -11,6 +11,8 @@ donnees\\veille\\ (hors de Git), jamais publié. Le contenu relevé est une donn
                                                      marques de Lucas, en JSON, pour l'examen
     python outils\\veille.py examen F              enregistre l'examen écrit à la séance de travail (fichier JSON F), après contrôle
     python outils\\veille.py resume                état de la veille en quelques lignes
+    python outils\\veille.py registre              reporte la veille dans le registre unique des bases
+                                                     (docs\\veille\\registre_bases.csv) et le contrôle
 
 Catalogues, interfaces lues le 29 octobre 2026.
 - data.gouv.fr, GET /api/1/datasets/?q=…, par mot clé, une fois par pertinence (bases anciennes) et une fois par date
@@ -521,6 +523,10 @@ def relever_de_la_semaine() -> int:
         return 0
     if b:
         print(texte_bilan(b))
+        try:
+            print(texte_registre(alimenter_registre()))
+        except OSError as e:
+            print(f"Registre des bases non mis à jour ({e}).")
     return 0
 
 
@@ -586,6 +592,174 @@ def controler_examen(e: dict, candidats: dict) -> list[str]:
     return erreurs
 
 
+# ---------------------------------------------------------------- registre unique des bases
+# Une ligne par base, intégrée, candidate ou écartée (chantier « Veille et intégration des bases » du 30 octobre 2026,
+# note docs/veille/README.md). La veille y ajoute les candidats retenus et y reporte les examens et
+# les marques, sans jamais changer une décision déjà prise (statut autre que « à examiner »).
+REGISTRE = RACINE / "docs" / "veille" / "registre_bases.csv"
+COLONNES_REGISTRE = ["id", "nom", "producteur", "identifiant", "adresse", "licence", "licence_verifiee", "niveau",
+                     "frequence", "derniere_maj", "domaine", "apport_site", "apport_api", "effort", "voie", "statut",
+                     "raison", "chantier", "cle_veille", "sources"]
+STATUTS = ("intégrée", "à intégrer", "à examiner", "écartée")
+VOIES = ("légère", "complète", "demande")
+# domaines de la fiche de territoire en bandes (note de présentation du 29 octobre 2026), plus « Transversal » pour
+# le socle (référentiel, contours, sources de confirmation)
+DOMAINES_FICHE = ("Santé mentale", "Santé", "Social", "Sécurité et victimes", "Cadre de vie", "Transversal")
+DOMAINE_FICHE = {"Santé mentale": "Santé mentale", "Offre de soins": "Santé", "Addictions": "Santé mentale",
+                 "Handicap et autonomie": "Social", "Victimes, violences et délinquance": "Sécurité et victimes",
+                 "Social et pauvreté": "Social", "Logement": "Cadre de vie", "Éducation": "Social",
+                 "Transports": "Cadre de vie", "Santé, autre": "Santé"}
+AVIS_STATUT = {"à intégrer": "à intégrer", "à écarter": "écartée", "à garder en réserve": "à examiner",
+               "à discuter avec Lucas": "à examiner"}
+SCORE_REGISTRE = 25                     # au-dessus, un nouveau candidat entre au registre sans attendre une marque
+LICENCES_LUES = [(r"lov2|ouverte v?2|version 2\.0|etalab-2", "Licence Ouverte 2.0"),
+                 (r"^fr-lo$|ouverte v?1|^licence ouverte$", "Licence Ouverte 1.0"),
+                 (r"odbl|open database", "ODbL 1.0"), (r"cc-by-4|cc by 4", "CC BY 4.0"),
+                 (r"notspecified|non pr|other-closed|^$", "non précisée")]
+
+
+def licence_lisible(licence: str) -> str:
+    """Licence telle que le catalogue l'écrit (lov2, odc-odbl, « Licence Ouverte v2.0 (Etalab) »), en clair."""
+    t = plat(licence).strip()
+    return next((lib for motif, lib in LICENCES_LUES if re.search(motif, t)), licence)
+
+
+def lire_registre(f: Path | None = None) -> list[dict]:
+    f = f or REGISTRE
+    if not f.exists():
+        return []
+    import csv
+    with f.open(encoding="utf-8", newline="") as h:
+        return [dict(x) for x in csv.DictReader(h, delimiter=";")]
+
+
+def ecrire_registre(lignes: list[dict], f: Path | None = None) -> None:
+    import csv
+    f = f or REGISTRE
+    tmp = f.with_suffix(".tmp")
+    with tmp.open("w", encoding="utf-8", newline="") as h:
+        w = csv.DictWriter(h, fieldnames=COLONNES_REGISTRE, delimiter=";", lineterminator="\n")
+        w.writeheader()
+        w.writerows({k: x.get(k, "") for k in COLONNES_REGISTRE} for x in lignes)
+    tmp.replace(f)
+
+
+def controler_registre(lignes: list[dict]) -> list[str]:
+    """Erreurs de forme du registre. Chaque base écartée dit pourquoi, chaque base retenue a sa licence lue sur le
+    catalogue avec la date de lecture, aucune clé de la veille n'est sur deux lignes."""
+    erreurs, ids, cles = [], set(), {}
+    for x in lignes:
+        i = x.get("id", "")
+        if set(x) != set(COLONNES_REGISTRE):
+            erreurs.append(f"{i}, colonnes {sorted(set(x) ^ set(COLONNES_REGISTRE))}")
+            continue
+        if not re.fullmatch(r"[a-z0-9_]+", i) or i in ids:
+            erreurs.append(f"identifiant {i!r} vide, mal formé ou en double")
+        ids.add(i)
+        if x["statut"] not in STATUTS:
+            erreurs.append(f"{i}, statut {x['statut']!r}")
+        if x["voie"] not in VOIES and not (x["voie"] == "" and x["statut"] in ("écartée", "à examiner")):
+            erreurs.append(f"{i}, voie {x['voie']!r}")
+        if x["effort"] not in ("", "faible", "moyen", "fort"):
+            erreurs.append(f"{i}, effort {x['effort']!r}")
+        if x["statut"] == "écartée" and not x["raison"].strip():
+            erreurs.append(f"{i}, écartée sans raison")
+        if x["statut"] in ("intégrée", "à intégrer") and x["voie"] != "demande" and not (
+                x["licence"].strip() and x["licence_verifiee"].strip()):
+            erreurs.append(f"{i}, licence ou date de vérification manquante")
+        if x["statut"] != "écartée" and x["licence"] == "non précisée" and x["statut"] != "à examiner":
+            erreurs.append(f"{i}, licence non précisée pour une base retenue")
+        if any(d.strip() not in DOMAINES_FICHE for d in x["domaine"].split(",")):
+            erreurs.append(f"{i}, domaine {x['domaine']!r}")
+        if x["adresse"] and not x["adresse"].startswith("https://"):
+            erreurs.append(f"{i}, adresse {x['adresse']!r}")
+        if not x["sources"].strip():
+            erreurs.append(f"{i}, sources manquantes")
+        for c in x["cle_veille"].split():
+            if c in cles:
+                erreurs.append(f"clé {c} sur {cles[c]} et {i}")
+            cles[c] = i
+        if any("—" in v for v in x.values()):
+            erreurs.append(f"{i}, tiret long")
+    return erreurs
+
+
+def ligne_registre(c: dict) -> dict:
+    """Nouvelle ligne « à examiner » tirée d'un candidat de la veille (métadonnées du catalogue officiel)."""
+    base = re.sub(r"[^a-z0-9]+", "_", plat(c["ident"]))[:40].strip("_")
+    releve = c.get("releve_le") or maintenant()[:10]
+    return {k: "" for k in COLONNES_REGISTRE} | {
+        "id": f"{c['source']}_{base}", "nom": c["titre"], "producteur": c["producteur"], "identifiant": c["ident"],
+        "adresse": c["adresse"] if c["adresse"].startswith("https://") else "", "licence": licence_lisible(c["licence"]),
+        "licence_verifiee": f"{releve}, catalogue {NOMS_SOURCES.get(c['source'], c['source'])} lu par la veille",
+        "niveau": c["niveau"], "derniere_maj": c["date"], "domaine": DOMAINE_FICHE.get(c.get("domaine"), "Santé"),
+        "statut": "à examiner", "raison": "relevée par la veille", "cle_veille": c["cle"],
+        "sources": f"veille du {releve}, {NOMS_SOURCES.get(c['source'], c['source'])}"}
+
+
+def alimenter_registre(ecrire: bool = True, lignes: list[dict] | None = None) -> dict:
+    """Reporte la veille dans le registre. Un candidat y entre quand il est marqué intéressant ou à discuter, quand il a
+    un examen, ou quand sa pertinence dépasse SCORE_REGISTRE (hors articles de Zenodo). Une ligne existante reçoit la
+    date de mise à jour du catalogue ; une ligne encore « à examiner » reçoit en plus l'avis de l'examen ou l'écart
+    marqué au tri. Renvoie le bilan et les lignes."""
+    cands, mq = lire_json(CANDIDATS, {}), marques()
+    lignes = lire_registre() if lignes is None else lignes
+    index = {c: x for x in lignes for c in x["cle_veille"].split()}
+    ids = {x["id"] for x in lignes}
+    bilan = {"ajoutees": 0, "mises_a_jour": 0, "examens": 0, "ecartees": 0}
+    for cle, c in cands.items():
+        x = next((index[m] for m in [cle, *c.get("membres", [])] if m in index), None)
+        ex, m = examen(cle), mq.get(cle) or {}
+        if x is None:
+            if not (ex or m.get("marque") in ("interessant", "a_discuter")
+                    or (c.get("score", 0) >= SCORE_REGISTRE and c.get("source") != "zenodo")):
+                continue
+            x = ligne_registre(c)
+            while x["id"] in ids:
+                x["id"] += "_bis"
+            ids.add(x["id"])
+            lignes.append(x)
+            index[cle] = x
+            bilan["ajoutees"] += 1
+        elif c.get("date") and c["date"] > x["derniere_maj"]:
+            x["derniere_maj"] = c["date"]
+            bilan["mises_a_jour"] += 1
+        if x["statut"] != "à examiner":
+            continue
+        if ex and ex.get("avis") in AVIS_STATUT:
+            x["statut"] = AVIS_STATUT[ex["avis"]]
+            x["effort"] = ex.get("effort", x["effort"])
+            x["apport_api"] = x["apport_api"] or "; ".join(f"{k}, {v}" for k, v in (ex.get("produits") or {}).items())
+            x["raison"] = ("examen du " + jour_fr(ex.get("ecrit_le")) + ", " + ex["avis"].replace(" avec Lucas", "")
+                           + (", " + ex["limites"] if x["statut"] == "écartée" else ""))[:300]
+            bilan["examens"] += 1
+        elif m.get("marque") == "ecarte":
+            x["statut"] = "écartée"
+            x["raison"] = ("écartée au tri de la veille" + (", " + m["note"] if m.get("note") else ""))[:300]
+            bilan["ecartees"] += 1
+    if ecrire and any(bilan.values()):
+        ecrire_registre(lignes)
+    return bilan | {"lignes": lignes}
+
+
+def texte_registre(b: dict) -> str:
+    return (f"Registre des bases, {b['ajoutees']} ajoutée(s), {b['mises_a_jour']} date(s) de mise à jour, "
+            f"{b['examens']} examen(s) reporté(s), {b['ecartees']} écartée(s) au tri.")
+
+
+def cmd_registre(_args) -> int:
+    """Reporte la veille dans le registre, puis le contrôle et le résume."""
+    b = alimenter_registre()
+    print(texte_registre(b))
+    lignes = b["lignes"]
+    erreurs = controler_registre(lignes)
+    for e in erreurs:
+        print("  erreur,", e)
+    for cle, valeurs in (("statut", STATUTS), ("voie", VOIES)):
+        print(f"  par {cle}, " + ", ".join(f"{v} {sum(1 for x in lignes if x[cle] == v)}" for v in valeurs))
+    return 20 if erreurs else 0
+
+
 def cmd_a_examiner(args) -> int:
     """Candidats à examiner par lots, classés par domaine puis par pertinence, ceux que Lucas a marqués d'abord."""
     cands, mq = lire_json(CANDIDATS, {}), marques()
@@ -629,6 +803,7 @@ def cmd_examen(args) -> int:
         return 20
     ecrire_json(fichier_examen(e["cle"]), e | {"ecrit_le": maintenant()})
     print(f"Examen de {e['cle']} enregistré, visible dans l'onglet « Veille ».")
+    print(texte_registre(alimenter_registre()))
     return 0
 
 
@@ -645,6 +820,7 @@ def cmd_relever(args) -> int:
     for d, n in b["par_domaine"].items():
         if n:
             print(f"  {d}, {n}")
+    print(texte_registre(alimenter_registre()))
     return 0
 
 
@@ -892,6 +1068,8 @@ def main() -> int:
     p.add_argument("fichier")
     p.set_defaults(f=cmd_examen)
     sous.add_parser("resume").set_defaults(f=cmd_resume)
+    sous.add_parser("registre", help="reporte la veille dans docs/veille/registre_bases.csv et le contrôle"
+                    ).set_defaults(f=cmd_registre)
     args = ap.parse_args()
     return args.f(args)
 

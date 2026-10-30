@@ -169,7 +169,8 @@ def charger(ref, hors_ligne=False, rafraichir=False):
             for niv in ("dep", "reg"):
                 out["contexte"][niv][cle] = x[x["niveau"] == niv].set_index("code")["taux_depassement_s2"] * 100
             out["defs"].append({
-                "id": cle, "libelle": f"{lab} libéraux en secteur 2, dépassements en part des honoraires", "unite": "%",
+                "id": cle, "libelle": f"{lab} libéraux en secteur 2, dépassements rapportés aux honoraires sans dépassement",
+                "unite": "%",
                 "explication": f"Montant des dépassements facturés par les {lab.lower()} libéraux de secteur 2 du "
                                f"territoire, rapporté à leurs honoraires sans dépassement, en {h['annee'].iloc[0]}, tel "
                                f"que le publie l'Assurance Maladie. Mesure les dépassements réellement facturés, en "

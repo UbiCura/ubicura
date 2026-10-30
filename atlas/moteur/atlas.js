@@ -259,14 +259,18 @@ function selCard(){
   // légende en couleur (registre, point 10), l'explication de l'indice est dans « Comment lire »
   const dv=DIV(),barreL=c=>'<svg viewBox="0 0 26 10" aria-hidden="true"><rect x="1" y="2" width="24" height="6" fill="'+c+'"/></svg>';
   h+='<div class="fiche-legende"><span>'+barreL(dv[1])+'moins dense</span><span><svg viewBox="0 0 26 10" aria-hidden="true"><line x1="13" x2="13" y1="0" y2="10" stroke="'+css("--muted")+'" stroke-width="1.5"/></svg>moyenne '+MOYLAB[lv]+' = 100</span><span>'+barreL(dv[5])+'plus dense</span><span>50 = deux fois moins, 200 = deux fois plus, '+modeLab[S.mode]+'</span></div>';
+  // dans le groupe « Salariés des établissements psychiatriques », le titre dit déjà où ils exercent : le libellé court
+  // évite des lignes de quatre lignes qui décalaient barres et valeurs (remarque de Lucas du 30 octobre 2026), le
+  // libellé entier reste dans l'infobulle
+  const nomCourt=p=>natOf(p)==="perimetre_elargi"?p.libelle.replace(/, en établissement psychiatrique$/,""):p.libelle;
   const ligne=p=>{const ind=unitD(lv,p.id,i)/refD(lv,p.id)*100,l=Math.max(-2,Math.min(2,Math.log2(Math.max(ind,1)/100)));
       const w=Math.abs(l)/2*50,left=l<0?50-w:50,c=l<0?dv[1]:dv[5];
       const nP=unitN(lv,p.id,i),dP=unitD(lv,p.id,i),bulleP=p.libelle+", "+fmt.format(nP)+" professionnel"+(nP>1?"s":"")+", "+f1.format(dP)+" pour 10 000 habitants, indice "+fmt.format(Math.round(ind))+" (moyenne "+MOYLAB[lv]+" = 100)";
       if(nP===0){let prec="";
         if(p.id==="pedopsychiatre"&&IDX.prof.has("q_psychiatrie_enfant")){const q=unitN(lv,"q_psychiatrie_enfant",i);if(q>0)prec=fmt.format(q)+" psychiatre"+(q>1?"s":"")+" qualifié"+(q>1?"s":"")+" pour l’enfant et l’adolescent y exerce"+(q>1?"nt":"")+"."}
         if(p.id==="psychiatre"){const nc=D.niveaux[lv].cmp?.[i]||0;if(nc)prec=fmt.format(nc)+" CMP, où des psychiatres peuvent consulter sans y être déclarés."}
-        return'<div class="prow zero'+(p.id===S.prof?' on':'')+'" data-p="'+p.id+'" title="'+esc(p.libelle+", aucun professionnel déclaré dans ce territoire, la densité n’est pas comparée"+(prec?". "+prec:"."))+'"><span class="lbl">'+esc(p.libelle)+'</span><span class="aucun">aucun déclaré</span><span class="v"></span>'+(prec?'<span class="prec">'+esc(prec)+'</span>':'')+'</div>'}
-      return'<div class="prow'+(p.id===S.prof?' on':'')+'" data-p="'+p.id+'" title="'+esc(bulleP)+'"><span class="lbl">'+esc(p.libelle)+'</span><svg viewBox="0 0 100 10" preserveAspectRatio="none" style="height:10px"><line x1="50" x2="50" y1="0" y2="10" stroke="'+css("--muted")+'" stroke-width=".6"/><rect x="'+left+'" width="'+w+'" y="2" height="6" fill="'+c+'"/></svg><span class="v">'+fmt.format(Math.round(ind))+'</span></div>'};
+        return'<div class="prow zero'+(p.id===S.prof?' on':'')+'" data-p="'+p.id+'" title="'+esc(p.libelle+", aucun professionnel déclaré dans ce territoire, la densité n’est pas comparée"+(prec?". "+prec:"."))+'"><span class="lbl">'+esc(nomCourt(p))+'</span><span class="aucun">aucun déclaré</span><span class="v"></span>'+(prec?'<span class="prec">'+esc(prec)+'</span>':'')+'</div>'}
+      return'<div class="prow'+(p.id===S.prof?' on':'')+'" data-p="'+p.id+'" title="'+esc(bulleP)+'"><span class="lbl">'+esc(nomCourt(p))+'</span><svg viewBox="0 0 100 10" preserveAspectRatio="none" style="height:10px"><line x1="50" x2="50" y1="0" y2="10" stroke="'+css("--muted")+'" stroke-width=".6"/><rect x="'+left+'" width="'+w+'" y="2" height="6" fill="'+c+'"/></svg><span class="v">'+fmt.format(Math.round(ind))+'</span></div>'};
   const blocs={};
   // deux blocs séparés, santé mentale puis santé
   for(const fam of [SM,SANTE]){

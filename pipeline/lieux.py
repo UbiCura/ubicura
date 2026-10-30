@@ -2032,7 +2032,10 @@ def indicateurs(L: dict, ref, ctx: dict | None = None) -> dict | None:
     lab = {t[0]: t for t in config.LIEUX_TYPES}
     pops = {"epci": ref.epci.set_index("code")["pop"], "dep": ref.deps.set_index("code")["pop"],
             "reg": ref.regs.set_index("code")["pop"]}
-    ctx = {}
+    # « sortie » et non « ctx » : le même nom écrasait le contexte de l'INSEE reçu en paramètre, et du 15 au 30 octobre
+    # 2026 les structures d'un public particulier (EHPAD, CMP pour enfants, CMPP, CAMSP...) étaient rapportées à toute la
+    # population sous un libellé qui annonçait leur public (signalé par Lucas, EHPAD de la Sologne des Étangs)
+    sortie = {}
     for niv, pop in pops.items():
         c = L["comptes"][niv].pivot_table(index="code", columns="type", values="n", fill_value=0)
         c = c.reindex(index=pop.index, columns=types).fillna(0)
@@ -2049,14 +2052,28 @@ def indicateurs(L: dict, ref, ctx: dict | None = None) -> dict | None:
         if isinstance(d, pd.DataFrame):
             dd = d[d["type"].isin(types)].pivot_table(index="code", columns="type", values="distance_mediane_km")
             t = t.join(dd.reindex(columns=types).add_prefix("dist_"), how="left")
-        ctx[niv] = t
+        sortie[niv] = t
+        if niv == "reg" and isinstance(cn, pd.DataFrame):
+            # contrôle permanent du dénominateur, valeur France de chaque type rapporté à son public
+            vals = []
+            for tp in types:
+                parts, public = lieux_profil.denominateur(tp)
+                if parts and all(p_ in cn for p_ in parts):
+                    cible = (pop.astype(float) * cn[parts].sum(axis=1).reindex(pop.index) / 100).sum()
+                    vals.append(f"{_court(lab[tp][1], tp)} {nombre(c[tp].sum() / cible * 1e5, 1)} pour 100 000 "
+                                f"{'enfants' if public.startswith('moins') else 'personnes'} de {public}")
+            JOURNAL.controle("Structures rapportées à leur public, France (attendu, ni à toute la population ni vide)",
+                             ", ".join(vals) if vals else "aucun type rapporté à son public, contexte absent")
     defs = []
     for tp in types:
         lib = lab[tp][1]
         court = _court(lib, tp)
         public = lieux_profil.denominateur(tp)[1] if ctx else ""
-        defs.append({"id": f"lieux_{tp}", "libelle": f"{court}, pour 100 000 {public or 'habitants'}",
-                     "unite": f"pour 100 000 {public}" if public else "pour 100 000 hab.",
+        # « pour 100 000 personnes de 80 ans et plus » et non « pour 100 000 80 ans et plus », qui se lisait comme
+        # « pour 100 000 habitants » (remarque de Lucas du 30 octobre 2026)
+        qui = (f"enfants de {public}" if public.startswith("moins") else f"personnes de {public}") if public else "habitants"
+        defs.append({"id": f"lieux_{tp}", "libelle": f"{court}, pour 100 000 {qui}",
+                     "unite": f"pour 100 000 {qui}" if public else "pour 100 000 hab.",
                      "explication": f"Nombre de structures du type « {lib} » recensées par FINESS et le Répertoire "
                                     "opérationnel des ressources, réunis sans double compte, rapporté "
                                     + (f"aux {public} (le recensement ne publie pas les moins de 18 ans). " if public.startswith("moins")
@@ -2072,7 +2089,7 @@ def indicateurs(L: dict, ref, ctx: dict | None = None) -> dict | None:
                                     "un temps de trajet.",
                      "source": config.SOURCE_LIEUX, "famille": "", "licence": "Licence Ouverte 2.0",
                      "niveau_origine": "commune", "groupe": config.GROUPE_DISTANCES})
-    return {"contexte": ctx, "defs": defs}
+    return {"contexte": sortie, "defs": defs}
 
 
 def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref, voisins, hors_ligne=False,

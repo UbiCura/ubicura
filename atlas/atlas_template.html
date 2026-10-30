@@ -586,8 +586,10 @@ nav.tabs button{padding:12px 0;margin-right:24px}
 .prof-liste .grp[hidden],.prof-liste button[hidden]{display:none}
 .prof-liste.deux{width:min(760px,calc(100vw - 48px));max-height:none;padding:0;overflow:hidden;display:grid;grid-template-columns:250px minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);height:min(70vh,560px)}
 .prof-liste.deux .filtre-liste{grid-column:1/-1}
-.prof-liste.deux .volet-themes{overflow:auto;padding:6px 0;border-right:1px solid var(--line)}
-.prof-liste.deux .volet-choix{overflow:auto;padding:6px 0}
+.prof-liste.deux .volet-themes{overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable;scrollbar-width:thin;padding:6px 0;border-right:1px solid var(--line)}
+.prof-liste.deux .volet-themes .theme{padding-right:18px}
+.prof-liste.deux .volet-choix{overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;padding:6px 0}
+.prof-liste.deux .volet-choix button{padding-left:22px}
 .prof-liste.deux .seuls{padding-bottom:6px;margin-bottom:6px;border-bottom:1px solid var(--line)}
 .prof-liste.deux .theme{display:flex;justify-content:space-between;align-items:baseline;gap:10px;color:var(--muted)}
 .prof-liste.deux .theme .nb{font-size:.75rem;color:var(--faint);font-variant-numeric:tabular-nums}

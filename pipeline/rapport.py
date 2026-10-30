@@ -1244,7 +1244,7 @@ def _financier(C: Contexte, famille):
                   f"{pct(v0.max())}, avec une médiane de "
                   f"{pct(v0.median())}.", "",
                   _tableau(hf.reset_index(), ["libelle", "taux_depassement_s2", "mediane", "publies"],
-                           ["Profession", "Dépassements en part des honoraires, France", "Milieu des départements",
+                           ["Profession", "Dépassements rapportés aux honoraires sans dépassement, France", "Milieu des départements",
                             "Départements où le taux est publié"],
                            {"taux_depassement_s2": pct, "mediane": pct, "publies": nombre}), ""]
             L += _comment_lire(

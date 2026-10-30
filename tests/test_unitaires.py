@@ -1940,6 +1940,33 @@ def test_menu_deux_temps_explorer():
     assert ".prof-liste.deux .theme::before{content:none}" in explorer
 
 
+def test_structures_rapportees_a_leur_public():
+    """Les structures d'un public particulier sont rapportées à ce public et non à toute la population : du 15 au 30
+    octobre 2026, une variable locale écrasait le contexte de l'INSEE et les EHPAD, CMP pour enfants, CMPP, CAMSP...
+    étaient rapportés à toute la population sous un libellé qui annonçait leur public (EHPAD de la Sologne des Étangs,
+    23,2 au lieu de 268 pour 100 000 personnes de 80 ans et plus). Recalcul sur les vraies données publiées."""
+    import numpy as np
+    from pipeline import config, lieux_profil
+    d = _dernier_resultats()
+    verifies, publics = 0, 0
+    # tous les types, rapportés à leur public ou à la population, à chaque niveau (demande de Lucas, « pour l'ensemble
+    # des CC »)
+    for niv in ("epci", "dep", "reg"):
+        n = _csv(d, f"lieux_soins_{niv}.csv", dtype={"code": str}).set_index("code")
+        c = _csv(d, f"contexte_{niv}.csv", dtype={"code": str}).set_index("code")
+        for tp in config.LIEUX_PROFIL:
+            parts, public = lieux_profil.denominateur(tp)
+            if f"lieux_{tp}" not in c or f"n_{tp}" not in n:
+                continue
+            cible = n["population"] * (c[parts].sum(axis=1).reindex(n.index) / 100 if parts else 1)
+            attendu = (n[f"n_{tp}"] / cible.where(cible > 0) * 1e5).reindex(c.index)
+            ok = np.isclose(c[f"lieux_{tp}"], attendu, rtol=1e-3, equal_nan=True) | attendu.isna()
+            assert ok.all(), f"{niv}, {tp} : {(~ok).sum()} territoires ne sont pas rapportés aux {public or 'habitants'}"
+            verifies += 1
+            publics += bool(parts)
+    assert verifies >= 30 and publics >= 15
+
+
 def test_fin_du_rapport_d_un_tenant():
     """Les précautions de lecture et la fin du glossaire tiennent d'un seul tenant à l'impression : l'annexe et le
     glossaire commencent sur une page nouvelle, et une ligne isolée tombait seule sur une page presque vide (PDF du 29
@@ -3530,6 +3557,50 @@ def test_statistiques_photographie():
     finally:
         s.DOSSIER = avant
         shutil.rmtree(tmp, ignore_errors=True)
+
+
+def test_registre_des_bases():
+    """Registre unique des bases (chantier du 30 octobre 2026), sur le registre versionné et, quand elles sont là, les
+    vraies données de la veille. Forme contrôlée (statut, voie, domaine de la fiche, raison de chaque écart, licence lue
+    avec sa date pour chaque base retenue), bases intégrées présentes, zonages classés sans être intégrés, et la veille
+    n'ajoute que des lignes « à examiner » sans toucher aux décisions déjà prises."""
+    import copy
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from outils import veille as v
+    lignes = v.lire_registre()
+    if not lignes:
+        raise Ignore("docs/veille/registre_bases.csv absent (il ne part pas avec le code public)")
+    assert not v.controler_registre(lignes), v.controler_registre(lignes)
+    par_id = {x["id"]: x for x in lignes}
+    for i in ("rpps", "finess_plus", "ror", "sae", "odisse", "ameli_secteurs"):
+        assert par_id[i]["statut"] == "intégrée", i
+    assert par_id["zonages_ps"]["statut"] == "à intégrer" and par_id["zonages_ps"]["voie"] == "complète"
+    assert all(x["raison"] for x in lignes if x["statut"] == "écartée")
+    # licences telles que les catalogues les écrivent (relevées le 29 et le 30 octobre 2026)
+    assert v.licence_lisible("lov2") == v.licence_lisible("Licence Ouverte v2.0 (Etalab)") == "Licence Ouverte 2.0"
+    assert v.licence_lisible("odc-odbl") == v.licence_lisible("Open Database License (ODbL)") == "ODbL 1.0"
+    assert v.licence_lisible("fr-lo") == "Licence Ouverte 1.0" and v.licence_lisible("notspecified") == "non précisée"
+    # une ligne réelle modifiée doit être refusée
+    x = copy.deepcopy(par_id["ameli_optam"])
+    assert v.controler_registre([dict(x, raison="")]) and v.controler_registre([dict(x, statut="peut-être")])
+    assert v.controler_registre([dict(par_id["rpps"], licence_verifiee="")])
+    assert v.controler_registre([par_id["zonages_ps"], dict(par_id["ameli_optam"], id="autre",
+                                                                    cle_veille=par_id["zonages_ps"]["cle_veille"])])
+    # alimentation par la veille, sans écrire
+    avant = copy.deepcopy(lignes)
+    b = v.alimenter_registre(ecrire=False, lignes=copy.deepcopy(lignes))
+    apres = b["lignes"]
+    assert not v.controler_registre(apres), v.controler_registre(apres)
+    for x, y in zip(avant, apres):
+        if x["statut"] != "à examiner":
+            assert {k: x[k] for k in x if k != "derniere_maj"} == {k: y[k] for k in y if k != "derniere_maj"}, x["id"]
+    assert all(y["statut"] == "à examiner" or y["raison"].startswith(("examen du", "écartée au tri"))
+               for y in apres[len(avant):])
+    cands, mq = v.lire_json(v.CANDIDATS, {}), v.marques()
+    cles = {c for y in apres for c in y["cle_veille"].split()}
+    for cle, m in mq.items():
+        if m.get("marque") == "interessant" and cle in cands:
+            assert {cle, *cands[cle].get("membres", [])} & cles, cle
 
 
 def test_veille_des_bases():
