@@ -576,6 +576,94 @@ def coherence(R: Path):
                           f"effectifs_{niv}_all.csv | {len(bloc['n'])} professions, {ecarts} effectifs différents")
 
 
+# ------------------------------------------------------------------ voie légère (descripteurs de complements/)
+def _nom_colonne(colonnes, motif) -> str | None:
+    """Colonne nommée par le descripteur, par son nom exact ou par le motif écrit, sans le code du programme."""
+    for m in (motif if isinstance(motif, list) else [motif]):
+        nu = m.strip("^$")
+        if m in colonnes or nu in colonnes:
+            return m if m in colonnes else nu
+        trouve = [c for c in colonnes if re.search(m, str(c).lower())]
+        if trouve:
+            return trouve[0]
+    return None
+
+
+def _code_territoire(s: pd.Series, niv: str) -> pd.Series:
+    s = s.astype(str).str.strip().str.upper().str.replace(r"\.0$", "", regex=True)
+    if niv == "dep":
+        s = s.where(~(s.str.len().eq(3) & s.str.startswith("0")), s.str[1:])
+        return s.where(s.str.len() != 1, s.str.zfill(2))
+    return s.str.zfill(5 if niv == "com" else 2)
+
+
+def voie_legere(R: Path, ref: dict, brouillons: bool = False):
+    """Chaque indicateur des descripteurs actifs de la voie légère (version 2, champ « etat »), refait depuis le fichier
+    d'origine en cache avec pandas seul (filtre, dernière année, secret, code du territoire, somme ou moyenne), comparé
+    au fichier publié, avec ses niveaux supérieurs quand il s'agrège et ses dérivés (rapport de deux indicateurs
+    publiés). Les brouillons ne sont contrôlés que sur les résultats d'une exécution de contrôle des brouillons."""
+    vus = 0
+    for f in sorted((RACINE / "complements").glob("*.json")):
+        d = json.loads(f.read_text(encoding="utf-8"))
+        if d.get("etat") not in ("actif", "brouillon") or (d["etat"] == "brouillon" and not brouillons):
+            continue
+        brut = config.DONNEES / "complements" / (d.get("fichier") or f"{d['id']}.csv")
+        if not brut.exists():
+            lignes.append(f"ÉCART | voie légère, {d['id']} | fichier d'origine absent du cache")
+            continue
+        enc = d.get("encodage", "utf-8-sig")
+        tete = brut.read_text(encoding=enc, errors="replace").split("\n", 1)[0]
+        sep = d.get("separateur") or max(";,\t|", key=tete.count)
+        x = pd.read_csv(brut, sep=sep, dtype=str, encoding=enc, keep_default_na=False)
+        for motif, v in (d.get("filtre") or {}).items():
+            x = x[x[_nom_colonne(x.columns, motif)].isin([str(a) for a in (v if isinstance(v, list) else [v])])]
+        cols, niv = d.get("colonnes") or {}, d["niveau"]
+        if niv == "fra":
+            continue
+        x = x.assign(_code=_code_territoire(x[_nom_colonne(x.columns, cols.get("code") or d.get("colonne_code"))], niv),
+                     _an=x[_nom_colonne(x.columns, cols["annee"])].str[:4] if cols.get("annee") else "")
+        odbl = "odbl" in str(d.get("licence", "")).lower()
+        pubs = {n: lire(R, f"contexte_{n}{'_odbl' if odbl else ''}.csv") for n in ("com", "epci", "dep", "reg")}
+        secret = {str(s) for s in d.get("secret") or []}
+        for ind in d["indicateurs"]:
+            col = _nom_colonne(x.columns, ind["colonne"])
+            v = pd.to_numeric(x[col].where(~x[col].isin(secret)).str.replace(",", ".").str.replace(" ", ""),
+                              errors="coerce")
+            y = x.assign(_v=v).dropna(subset=["_v"])
+            if cols.get("annee"):
+                y = y[y["_an"] == (y["_an"].max() if d.get("annee", "derniere") == "derniere" else str(d["annee"]))]
+            agr = ind["agregation"]
+            rec = y.groupby("_code")["_v"].sum() if agr == "somme" else y.groupby("_code")["_v"].mean()
+            pub = pubs[niv]
+            if pub is None or ind["id"] not in pub:
+                lignes.append(f"ÉCART | voie légère, {ind['id']} | absent de contexte_{niv}.csv")
+                continue
+            p = pub.set_index("code")[ind["id"]]
+            fac = (1e4 / ref["pop"][niv]) if ind.get("pour_10000_habitants") and niv in ref["pop"] else 1
+            r_ = (rec * fac).reindex(p.index)
+            comparer(f"voie légère, {ind['id']} ({niv})", p, r_, 1e-6, relatif=True)
+            vus += 1
+            if agr in ("somme", "moyenne") and niv == "dep" and pubs["reg"] is not None and ind["id"] in pubs["reg"]:
+                d2r = ref["com"].drop_duplicates("departement").set_index("departement")["region"]
+                t = pd.DataFrame({"v": rec}).assign(reg=lambda z: z.index.map(d2r), pop=lambda z: z.index.map(ref["pop"]["dep"]))
+                complets = set(d2r.index) - set(rec.index)
+                incomplets = set(d2r[d2r.index.isin(complets)])
+                t = t[~t["reg"].isin(incomplets)]
+                r2 = t.groupby("reg")["v"].sum() if agr == "somme" else \
+                    (t["v"] * t["pop"]).groupby(t["reg"]).sum() / t["pop"].groupby(t["reg"]).sum()
+                p2 = pubs["reg"].set_index("code")[ind["id"]]
+                comparer(f"voie légère, {ind['id']} (reg)", p2, r2.reindex(p2.index), 1e-6, relatif=True,
+                         vides_attendus=pd.Index(sorted(incomplets)))
+        for dv in d.get("derives") or []:
+            for n, pub in pubs.items():
+                if pub is not None and {dv["id"], dv["numerateur"], dv["denominateur"]} <= set(pub.columns):
+                    q = pub.set_index("code")
+                    comparer(f"voie légère, dérivé {dv['id']} ({n})", q[dv["id"]],
+                             q[dv["numerateur"]] / q[dv["denominateur"]] * float(dv.get("facteur", 1)), 1e-4, relatif=True)
+    lignes.append(f"info  | voie légère, {vus} indicateur(s) de descripteurs contrôlé(s)"
+                  + (" (brouillons compris)" if brouillons else ""))
+
+
 def tout(R: Path | None = None) -> list[str]:
     R = R or dernier()
     lignes.append(f"info  | résultats contrôlés, {R.name}")
@@ -596,6 +684,7 @@ def tout(R: Path | None = None) -> list[str]:
     profil(R, I, ref)
     structures(R, I, ref)
     sae(R, I, ref)
+    voie_legere(R, ref, brouillons="brouillons" in R.parts)
     return lignes
 
 

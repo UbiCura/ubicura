@@ -42,7 +42,18 @@ def main(argv=None):
     a.add_argument("--sans-pdf", action="store_true", help="ne pas imprimer les rapports en PDF")
     a.add_argument("--verifier", action="store_true",
                    help="vérifier auprès des producteurs si une source a changé, sans rien télécharger")
+    a.add_argument("--brouillons", action="store_true",
+                   help="exécution locale de contrôle avec les descripteurs en brouillon, résultats dans "
+                        "resultats/brouillons/, sans site ni journal des mises à jour, jamais publiée")
     args = a.parse_args(argv)
+    if args.brouillons:
+        # un brouillon ne doit jamais atteindre une version publiable (décision du 29 octobre 2026), d'où un dossier
+        # de résultats à part, que la publication et le site ne lisent pas
+        import os
+        from pipeline import photographies
+        os.environ["OFFRE_SOINS_BROUILLONS"] = "1"
+        config.RESULTATS = config.RESULTATS / "brouillons"
+        photographies.DOSSIER = config.RESULTATS / "historique" / "photographies"
     for d in (config.BRUT, config.INTER, config.RESULTATS):
         d.mkdir(parents=True, exist_ok=True)
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)-7s %(message)s",
@@ -98,8 +109,10 @@ def executer(args):
     diplomes = rpps.diplomes_psychologues(fichiers, ids_psy)
     fin = finess.charger(hl, rf)
     ins = insee.charger(ref, hl, rf)
-    # bases complémentaires (descripteurs versionnés dans complements/) et Assurance Maladie
-    ctx, indicateurs = complements.charger(ref, ins["contexte"] if ins else None, hl, rf)
+    # bases complémentaires (descripteurs versionnés dans complements/) et Assurance Maladie ; les descripteurs de la
+    # voie légère rangent leurs séries, repères nationaux, dérivés et questions préparées dans extras (30 octobre 2026)
+    extras = {}
+    ctx, indicateurs = complements.charger(ref, ins["contexte"] if ins else None, hl, rf, extras=extras)
     am = ameli.charger(ref, hl, rf)
     spf = odisse.charger(hl, rf, ref)
     acc = ameli_acces.charger(ref, hl, rf)
@@ -118,7 +131,7 @@ def executer(args):
             indicateurs += src["defs"]
     contexte = {"contexte": ctx, "millesimes": ins["millesimes"] if ins else {}, "indicateurs": indicateurs,
                 "ameli": am, "odisse": spf, "ameli_acces": acc, "drees_isd": isd, "sae": hop, "ald": ald, "caf": allo,
-                "age": age} if (ins or indicateurs) else None
+                "age": age, "complements": extras} if (ins or indicateurs) else None
     # temps de trajet par la route (INSEE) et accessibilité officielle (DREES), pour situer nos distances
     externes = {"acces_route": acces_route.charger(ref, hl, rf), "apl": apl.charger(ref, hl, rf)}
     if contexte:
@@ -144,6 +157,15 @@ def executer(args):
         for niv, t in src_lieux["contexte"].items():
             ctx[niv] = ctx[niv].join(t, how="left") if niv in ctx else t
         indicateurs += src_lieux["defs"]
+    # indicateurs dérivés des descripteurs, une fois toutes les sources réunies, et limites des descripteurs versées à
+    # côté de config.LIMITES pour être montrées avec la donnée
+    if extras.get("derives"):
+        indicateurs += complements.deriver(ctx, extras["derives"], indicateurs)
+    _lim_c, _court_c = complements.limites(indicateurs)
+    if _lim_c:
+        from pipeline import limites as _lim
+        _lim.completer(_lim_c)
+        config.LIMITES_COURT.update({k: v for k, v in _court_c.items() if k not in config.LIMITES_COURT})
     if lieux_res and "epci" in ctx and "revenu_median" in ctx["epci"]:
         lieux_res["escalier"] = lieux.escalier_distances(lieux_res, ref, ctx["epci"]["revenu_median"])
         lieux_res["inegalites"] = lieux.inegalites_distances(lieux_res, ref, ctx["epci"],
@@ -183,15 +205,18 @@ def executer(args):
     _limites.completer(_spec)
     JOURNAL.controle("Spécialités médicales dont moins d'un tiers des médecins exercent en libéral",
                      ", ".join(L["nom"].split(",")[0] for L in _spec.values()) or "aucune")
-    R = analyses.tout(agg, ref, ctx if contexte else None, voisins, offres, externes)
+    R = analyses.tout(agg, ref, ctx if contexte else None, voisins, offres, externes,
+                      questions=extras.get("questions", []))
     # effectifs rapprochés des séries publiées par la DREES (tableau de concordance, séries lues plus haut)
     R.update(concordance.calculer(agg, series))
     # évolution de l'offre sur dix ans, séries de la DREES et populations annuelles de l'INSEE
     R.update(evolution.calculer(series, insee_estimations.charger(hl, rf), ref))
     # ce qui a changé depuis l'exécution précédente (jeux de données, effectifs, site), avant l'écriture du journal
+    # (pas pour une exécution de contrôle des brouillons, qui ne doit rien laisser dans l'historique publié)
     try:
-        mises_a_jour.consigner(args.date or date.today().isoformat(), agg.national,
-                               dict(zip(professions["id"], professions["libelle"])))
+        if not args.brouillons:
+            mises_a_jour.consigner(args.date or date.today().isoformat(), agg.national,
+                                   dict(zip(professions["id"], professions["libelle"])))
     except Exception as e:  # noqa: BLE001
         logging.exception("journal des mises à jour")
         JOURNAL.note("Journal des mises à jour", "erreur", str(e)[:300])
@@ -200,8 +225,11 @@ def executer(args):
         lieux.masquer_distances_communes(lieux_res, ref)
     out = export.ecrire(agg, ref, professions, contexte, R, diplomes, jour=args.date)
     try:
-        dossier_site = site.construire(pdf=not args.sans_pdf)
-        logging.info("Site écrit dans %s, ouvrez %s", dossier_site, dossier_site / "index.html")
+        if args.brouillons:
+            logging.info("Exécution de contrôle des brouillons, site non construit, résultats dans %s", out)
+        else:
+            dossier_site = site.construire(pdf=not args.sans_pdf)
+            logging.info("Site écrit dans %s, ouvrez %s", dossier_site, dossier_site / "index.html")
     except Exception as e:  # noqa: BLE001
         logging.exception("site")
         JOURNAL.note("Site statique", "erreur", str(e)[:300])

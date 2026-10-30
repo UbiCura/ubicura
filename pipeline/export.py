@@ -135,6 +135,13 @@ def ecrire(agg, ref, professions, insee, R, diplomes, jour=None):
             _csv(t.assign(nom=t["code"].map(noms_dep)), out / "ald_departements.csv")
         if insee.get("caf"):
             _csv(insee["caf"]["table"], out / "allocataires_caf.csv")
+        # séries et repères nationaux des descripteurs de la voie légère (30 octobre 2026)
+        ext = insee.get("complements") or {}
+        if ext.get("series"):
+            _csv(pd.concat(ext["series"], ignore_index=True), out / "series_complements.csv")
+        if ext.get("reperes"):
+            _csv(pd.DataFrame([{k: r.get(k) for k in ("id", "libelle", "unite", "valeur", "annee", "source")}
+                               for r in ext["reperes"]]), out / "reperes_nationaux_complements.csv")
     for k, v in R.items():
         if isinstance(v, dict):
             for niv, m in v.items():
@@ -663,6 +670,8 @@ def _site(agg, ref, professions, insee, R, serie, jour):
     ctx_def = [{k: d[k] for k in ("id", "label", "unite", "explication", "source", "famille", "licence", "groupe", "niveaux",
                                   "licence_id", "niveaux_codes", "agregation", "type_valeur", "page_source")}
                | ({"non_publies": d["non_publies"]} if d.get("non_publies") else {})
+               # champs des descripteurs de la voie légère (domaine, sens...), absents des autres indicateurs
+               | {k: d[k] for k in indicateurs.CHAMPS_DESCRIPTEURS if d.get(k) not in (None, "", [], {})}
                for d in indicateurs.liste(insee)]
     # lien de chaque indicateur vers la fiche de son jeu de données (page « Données sources » du site)
     for d in ctx_def:
@@ -897,6 +906,10 @@ def _croisements_bases_site(R, professions, insee):
     eq = (ta.drop_duplicates("equipement").set_index("equipement")["libelle"].to_dict()
           if isinstance(ta, pd.DataFrame) and not ta.empty else {})
     questions = {t: (f, q) for f, d in THEMES_CROISEMENTS.items() for t, q in d.items()}
+    # questions préparées des descripteurs de la voie légère, avec leur famille d'après leurs indicateurs
+    fam_ind = {d["id"]: d.get("famille", "") for d in indicateurs.liste(insee)}
+    for xa, yb, theme, q in cr.attrs.get("questions", []):
+        questions.setdefault(theme, (fam_ind.get(yb) or fam_ind.get(xa, ""), q))
 
     def nom(cle):
         if cle.startswith("dens_lib:"):
@@ -918,7 +931,9 @@ def _croisements_bases_site(R, professions, insee):
                     "rp": _r(getattr(r, "rho_partiel_densite", None), 3),
                     "lop": _r(getattr(r, "ic95_bas_partiel", None), 3), "hip": _r(getattr(r, "ic95_haut_partiel", None), 3),
                     "n": int(r.departements),
-                    "pts": [[c, _r(a, 3), _r(b, 3)] for c, a, b in pts.get((r.mesure, r.variable), [])]})
+                    "pts": [[c, _r(a, 3), _r(b, 3)] for c, a, b in pts.get((r.mesure, r.variable), [])]}
+                   # correction de Benjamini-Hochberg, présente quand des questions préparées s'y ajoutent
+                   | ({"q": _r(r.q_bh, 4)} if _r(getattr(r, "q_bh", None), 4) is not None else {}))
     return out
 
 

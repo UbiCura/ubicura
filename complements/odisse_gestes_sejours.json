@@ -1,0 +1,115 @@
+{
+  "id": "odisse_gestes_sejours",
+  "etat": "brouillon",
+  "nom": "Gestes auto-infligés, hospitalisations par département",
+  "source": "Santé publique France, portail Odissé, d'après le PMSI-MCO",
+  "licence": "Licence Ouverte 2.0",
+  "verifie_le": "2026-10-30",
+  "adresse": "https://odisse.santepubliquefrance.fr/explore/dataset/gestes-auto-infliges-hospitalisations-departement/",
+  "portail": "odisse",
+  "jeu": "gestes-auto-infliges-hospitalisations-departement",
+  "filtre": {
+    "^classe_d_age$": "Tous",
+    "^sexe$": "Hommes et Femmes"
+  },
+  "niveau": "dep",
+  "colonnes": {
+    "code": "^num_departement$",
+    "annee": "^annee$"
+  },
+  "annee": "derniere",
+  "serie": true,
+  "methode": "Les séjours hospitaliers pour geste auto-infligé (tentative de suicide ou automutilation, codes X60 à X84 de la CIM-10 en diagnostic associé) proviennent du PMSI-MCO, publié par Santé publique France sur le portail Odissé pour chaque département de résidence depuis 2019. Le taux est standardisé sur l'âge de la population de la France en 2023. Les séjours en établissement psychiatrique ne sont pas comptés. Le rapport entre séjours et personnes hospitalisées est calculé ici à partir des deux taux standardisés de la même année.",
+  "indicateurs": [
+    {
+      "id": "sejours_gestes_auto_infliges",
+      "colonne": "^taux_standardise$",
+      "libelle": "Séjours hospitaliers pour geste auto-infligé",
+      "unite": "pour 100 000 hab., standardisé sur l'âge",
+      "agregation": "non_agregeable",
+      "domaine": "Santé mentale",
+      "groupe": "Santé mentale, besoins et recours aux soins",
+      "famille": "Santé mentale",
+      "sens": "aucun",
+      "comparabilite": "comparable",
+      "denominateur": "population",
+      "incertitude": {
+        "effectif": "nombre_de_sejours",
+        "effectif_fragile": 10
+      },
+      "bornes": [
+        0,
+        1000
+      ],
+      "explication": "Séjours en hôpital général pour une tentative de suicide ou une automutilation, rapportés à la population à structure d'âge égale. Une même personne peut compter plusieurs séjours dans l'année.",
+      "limite": {
+        "risque": "champ incomplet",
+        "court": "Hôpital général seulement, les séjours en établissement psychiatrique ne sont pas comptés.",
+        "texte": "Seuls les séjours en hôpital de médecine, chirurgie et obstétrique sont comptés. Les séjours en établissement psychiatrique relèvent d'une autre base et n'entrent pas dans l'indicateur, ce qui sous-estime les hospitalisations et peut créer des écarts entre départements qui tiennent à l'offre de soins. Le taux compte des séjours et non des personnes.",
+        "sources": [
+          {
+            "titre": "Santé publique France, Gestes auto-infligés, hospitalisations (département), description du jeu sur Odissé",
+            "url": "https://odisse.santepubliquefrance.fr/explore/dataset/gestes-auto-infliges-hospitalisations-departement/",
+            "date": "2025-12-10"
+          }
+        ]
+      }
+    },
+    {
+      "id": "sejours_gestes_auto_infliges_nombre",
+      "colonne": "^nombre_de_sejours$",
+      "libelle": "Nombre de séjours hospitaliers pour geste auto-infligé",
+      "unite": "séjours",
+      "agregation": "somme",
+      "domaine": "Santé mentale",
+      "groupe": "Santé mentale, besoins et recours aux soins",
+      "famille": "Santé mentale",
+      "sens": "aucun",
+      "comparabilite": "comparable",
+      "denominateur": "aucun",
+      "explication": "Nombre de séjours en hôpital général pour une tentative de suicide ou une automutilation, selon le département de résidence. Il sert à juger de la fragilité du taux dans les petits départements.",
+      "limite": {
+        "risque": "champ incomplet",
+        "court": "Hôpital général seulement, séjours et non personnes.",
+        "texte": "Seuls les séjours en hôpital de médecine, chirurgie et obstétrique sont comptés, une même personne pouvant être hospitalisée plusieurs fois dans l'année. Santé publique France publie quelques nombres non entiers (7 départements sur 103 en 2024, dont la Guadeloupe et la Guyane), repris tels quels.",
+        "sources": [
+          {
+            "titre": "Santé publique France, Gestes auto-infligés, hospitalisations (département), description du jeu sur Odissé",
+            "url": "https://odisse.santepubliquefrance.fr/explore/dataset/gestes-auto-infliges-hospitalisations-departement/",
+            "date": "2025-12-10"
+          }
+        ]
+      }
+    }
+  ],
+  "derives": [
+    {
+      "id": "rapport_sejours_patients_gestes",
+      "operation": "rapport",
+      "numerateur": "sejours_gestes_auto_infliges",
+      "denominateur": "hospit_gestes_auto_infliges",
+      "facteur": 1,
+      "libelle": "Séjours par personne hospitalisée pour geste auto-infligé",
+      "unite": "rapport des taux standardisés",
+      "sens": "aucun",
+      "explication": "Rapport du taux standardisé de séjours au taux standardisé de personnes hospitalisées la même année. Un rapport plus élevé indique des hospitalisations répétées plus fréquentes dans l'année. C'est une approximation, les deux taux étant standardisés sur la même population."
+    }
+  ],
+  "questions": [
+    {
+      "x": "dens:psychiatre",
+      "y": "rapport_sejours_patients_gestes",
+      "theme": "gestes_repetes",
+      "question": "Les hospitalisations répétées pour geste auto-infligé sont-elles plus fréquentes là où les psychiatres sont moins nombreux ?"
+    },
+    {
+      "x": "dist_lieu_cmp_adultes",
+      "y": "sejours_gestes_auto_infliges",
+      "theme": "gestes_distance_cmp",
+      "question": "Les départements éloignés des CMP comptent-ils plus ou moins de séjours pour geste auto-infligé ?"
+    }
+  ],
+  "controle": {
+    "couverture_min": 0.95
+  }
+}

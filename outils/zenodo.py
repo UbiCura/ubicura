@@ -154,6 +154,13 @@ def connexion() -> Zenodo:
     return Zenodo(cle)
 
 
+def date_version(etiquette: str) -> str:
+    """Date ISO d'une étiquette de version Zenodo. Une version corrective publiée le jour même d'une autre porte
+    l'étiquette « AAAA-MM-JJ (version corrigée) » (30 octobre 2026), elle reste la version de ce jour pour le site."""
+    m = re.match(r"(\d{4}-\d{2}-\d{2})", etiquette or "")
+    return m.group(1) if m else etiquette
+
+
 def version_du_depot(d: dict) -> str:
     """Champ Version du dépôt, sinon sa date de publication (champ Version laissé vide sur les premières versions du
     9 octobre 2026)."""
@@ -219,10 +226,13 @@ def derniere_version() -> str:
 
 def cmd_preparer(args) -> int:
     version = args.version or derniere_version()
+    # version corrective du jour même (une version Zenodo est désignée par sa date) : même dossier de résultats, étiquette
+    # distincte, pour que les deux versions du même jour ne se confondent ni sur Zenodo ni dans ce script
+    etiquette = f"{version} ({args.correctif})" if getattr(args, "correctif", None) else version
     z = connexion()
     e = etat_depots(z)
-    if all(version_du_depot(x["derniere"]) == version for x in e.values()):
-        print(f"La version {version} est déjà publiée sur Zenodo pour les trois dépôts, rien à préparer.")
+    if all(version_du_depot(x["derniere"]) == etiquette for x in e.values()):
+        print(f"La version {etiquette} est déjà publiée sur Zenodo pour les trois dépôts, rien à préparer.")
         return 0
     print(f"Fichiers de la version {version}, archive des données et rapports en PDF (quelques minutes).")
     from pipeline import site
@@ -232,8 +242,8 @@ def cmd_preparer(args) -> int:
     ids_donnees = {str(d["id"]) for d in z.depots() if str(d.get("conceptrecid")) == concept(DEPOTS["donnees"])}
     doi_donnees = None           # DOI de la version des données de cette version, cité par les deux rapports
     for cle, x in e.items():     # les données d'abord (ordre de DEPOTS)
-        if version_du_depot(x["derniere"]) == version:
-            print(f"- {NOMS[cle]}, version {version} déjà publiée, laissé tel quel.")
+        if version_du_depot(x["derniere"]) == etiquette:
+            print(f"- {NOMS[cle]}, version {etiquette} déjà publiée, laissé tel quel.")
             if cle == "donnees":
                 doi_donnees = x["derniere"]["metadata"].get("doi")
             continue
@@ -256,7 +266,7 @@ def cmd_preparer(args) -> int:
                 raise Arret(f"le fichier {f.name} reçu par Zenodo ne correspond pas au fichier envoyé. Lancer "
                             "python outils\\zenodo.py abandonner, puis recommencer.")
         meta = brouillon["metadata"]
-        meta.update({"version": version, "publication_date": version})
+        meta.update({"version": etiquette, "publication_date": version})
         if cle == "donnees":
             doi_donnees = (meta.get("prereserve_doi") or {}).get("doi")
         elif doi_donnees:
@@ -382,11 +392,15 @@ def cmd_constater(args) -> int:
               + ", ".join(f"{NOMS[c]} {v}" for c, v in versions.items()) + "). La version citée par le site reste "
               f"{config.VERSION_ZENODO}.")
         return 0
-    v = versions["donnees"]
+    # une version corrective du jour (« 2026-10-30 (version corrigée) ») reste la version de ce jour pour le site
+    v = date_version(versions["donnees"])
     # DOI propre à cette version pour chaque dépôt, que le site cite à la place du DOI général (audit externe du 30
     # octobre 2026), relevé même quand la version était déjà notée
     dois = {cle: x["derniere"]["metadata"].get("doi") for cle, x in e.items()}
     if all(dois.values()) and (etat.get("doi_versions") or {}).get(v) != dois:
+        # des DOI qui changent pour une version déjà citée (version corrective du même jour) : le site est à refaire
+        if (etat.get("doi_versions") or {}).get(v):
+            etat["site_a_refaire"] = True
         etat.setdefault("doi_versions", {})[v] = dois
         ecrire_etat(etat)
         print(f"DOI de la version {v} relevés, " + ", ".join(f"{NOMS[c]} {d}" for c, d in dois.items()) + ".")
@@ -457,6 +471,8 @@ def main() -> int:
     p.add_argument("--version", help="date de la version à archiver (par défaut la plus récente)")
     p.add_argument("--note", help="paragraphe « Note de version » en tête de la description (ce que la version "
                                   "corrige ou ajoute)")
+    p.add_argument("--correctif", help="étiquette d'une version corrective publiée le jour même d'une autre, par "
+                                       "exemple « version corrigée » (version 2026-10-30 (version corrigée))")
     p = sous.add_parser("annoter")
     p.add_argument("--version", required=True, help="date de la version publiée à annoter")
     p.add_argument("--texte", required=True, help="mention à ajouter, {doi} donne le DOI de la dernière version")

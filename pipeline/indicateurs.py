@@ -13,6 +13,13 @@ from . import config, licences
 from .lecture import EXPLICATIONS_CONTEXTE
 
 NIVEAUX = {"com": "communes", "epci": "intercommunalités", "dep": "départements", "reg": "régions"}
+# champs propres aux indicateurs des descripteurs de la voie légère (pipeline/sources/complements.py, version 2), transmis
+# tels quels au catalogue ; les autres indicateurs ne les portent pas (fiche en bandes, prévision, notation dans l'API)
+CHAMPS_DESCRIPTEURS = ("domaine", "sens", "comparabilite", "denominateur", "incertitude", "annee", "registre", "etat",
+                       "derive_de", "date_source")
+# règle d'agrégation écrite dans le descripteur, à la place de celle déduite de l'unité
+AGREGATION_DESCRIPTEUR = {"somme": ("somme", "effectif"), "moyenne": ("moyenne_ponderee_population", "taux"),
+                          "non_agregeable": ("non_agregeable", "autre")}
 
 # Règle d'agrégation d'un indicateur pour une zone faite de plusieurs territoires, d'après son unité (première règle qui
 # s'applique). Une moyenne pondérée par la population n'est exacte que pour un taux rapporté à toute la population, elle
@@ -63,14 +70,18 @@ def liste(contexte: dict | None) -> list[dict]:
                                                            if d.get("famille") else "Autres indicateurs")}
               # raison écrite de chaque valeur non publiée, par niveau et territoire (taux de dépassement, 30 octobre 2026)
               | ({"non_publies": d["non_publies"]} if d.get("non_publies") else {})
+              | ({k: d[k] for k in (*CHAMPS_DESCRIPTEURS, "agregation_explicite", "page_source") if k in d and d[k]}
+                 if d.get("registre") else {})
               for d in (contexte or {}).get("indicateurs", [])]
     tout = base + vuln + autres
     # licence du registre (libellé affiché tiré du registre), règle d'agrégation, page de la source
     for d in tout:
         d["licence_id"] = licences.identifiant(d["licence"], d["source"])
         d["licence"] = licences.affiche(d["licence_id"]) or d["licence"]
-        d["agregation"], d["type_valeur"] = agregation(d["unite"])
-        d["page_source"] = page_source(d["source"])
+        d["agregation"], d["type_valeur"] = (AGREGATION_DESCRIPTEUR[d.pop("agregation_explicite")]
+                                             if d.get("agregation_explicite") in AGREGATION_DESCRIPTEUR
+                                             else agregation(d["unite"]))
+        d["page_source"] = d.get("page_source") or page_source(d["source"])
     # niveaux où l'indicateur est réellement publié (au moins une valeur), pour le dictionnaire et la page méthode
     tables = (contexte or {}).get("contexte", {}) if contexte else {}
     for d in tout:

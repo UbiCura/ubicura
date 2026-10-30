@@ -66,3 +66,6 @@ RPPS secteur;;Etab. Hébergt Réadaptation;Établissement d'hébergement et de r
 RPPS secteur;;Etab. Protection Enfance;Établissement de protection de l'enfance;validé;Typographie seulement
 Assurance Maladie pathologie;;Déficience mentale;Déficience intellectuelle;validé;Source pas encore chargée, à confirmer sur le fichier réel
 Assurance Maladie pathologie;;Maladies psychiatriques;Troubles psychiques;validé;Source pas encore chargée, à confirmer sur le fichier réel
+Complément;sejours_gestes_auto_infliges;Gestes auto-infligés : Hospitalisations (Département), taux_standardise;Séjours hospitaliers pour geste auto-infligé;à revoir;voie légère, base d'essai en brouillon (30 octobre 2026)
+Complément;sejours_gestes_auto_infliges_nombre;Gestes auto-infligés : Hospitalisations (Département), nombre_de_sejours;Nombre de séjours hospitaliers pour geste auto-infligé;à revoir;voie légère, base d'essai en brouillon (30 octobre 2026)
+Complément;rapport_sejours_patients_gestes;rapport des taux standardisés de séjours et de patients (Odissé);Séjours par personne hospitalisée pour geste auto-infligé;à revoir;voie légère, indicateur dérivé de la base d'essai (30 octobre 2026)

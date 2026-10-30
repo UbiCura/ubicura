@@ -1501,6 +1501,16 @@ def test_binomiale_negative():
     assert abs(alpha - .5) < .06, alpha
     assert abs(beta[1] - .3) < .04 and abs(beta[0] + 8) < .05, beta
 
+def test_version_corrective_zenodo():
+    """Une version corrective publiée le jour même d'une autre (« AAAA-MM-JJ (version corrigée) ») reste, pour le site,
+    la version de ce jour (30 octobre 2026, une version Zenodo étant désignée par sa date)."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "outils"))
+    import zenodo
+    assert zenodo.date_version("2026-10-30 (version corrigée)") == "2026-10-30"
+    assert zenodo.date_version("2026-10-30") == "2026-10-30"
+    assert zenodo.date_version("sans numéro") == "sans numéro"
+
+
 def test_citation_zenodo():
     """Une version archivée est citée par Zenodo et son DOI, une version plus récente par l'adresse du site, avec le DOI
     de la dernière version archivée. Les fichiers déposés sur Zenodo forcent la citation d'une version archivée."""
@@ -3655,7 +3665,7 @@ def test_catalogue_enrichi():
               for m in sd["contexte"] if m["id"] not in propres]
     cat = indicateurs.liste({"contexte": tables, "indicateurs": autres})
     assert len(cat) >= len(sd["contexte"]) - 2
-    regles = {"moyenne_ponderee_population", "moyenne_ponderee_population_approchee", "non_agregeable"}
+    regles = {"moyenne_ponderee_population", "moyenne_ponderee_population_approchee", "non_agregeable", "somme"}
     for x in cat:
         assert x["licence_id"] in licences.LICENCES, x["id"]
         assert x["licence"] == licences.affiche(x["licence_id"])
@@ -3945,6 +3955,140 @@ def test_statistiques_photographie():
     finally:
         s.DOSSIER = avant
         shutil.rmtree(tmp, ignore_errors=True)
+
+
+def test_tirage_propre_a_chaque_analyse():
+    """Générateur aléatoire propre à chaque analyse (décision du 30 octobre 2026), sur les vrais indicateurs publiés par
+    département. Retirer un indicateur ne change pas les intervalles des autres croisements, l'ordre des calculs non
+    plus, et deux exécutions donnent exactement les mêmes bornes. La clé change le tirage, la graine aussi."""
+    import numpy as np
+    import pandas as pd
+    from pipeline import analyses, config, croisements_indicateurs
+    d = _dernier_resultats()
+    c = pd.read_csv(d / "contexte_dep.csv", sep=";", decimal=",", dtype={"code": str}).set_index("code")
+    o = d / "contexte_dep_odbl.csv"
+    if o.exists():
+        c = c.join(pd.read_csv(o, sep=";", decimal=",", dtype={"code": str}).set_index("code").drop(columns=["nom"],
+                                                                                                  errors="ignore"))
+    c = c.drop(columns=["nom"], errors="ignore")
+    rng = np.random.default_rng(config.GRAINE)
+    t1 = croisements_indicateurs.croiser({"dep": c}, rng).set_index(["variable_a", "variable_b"])
+    t2 = croisements_indicateurs.croiser({"dep": c}, np.random.default_rng(1)).set_index(["variable_a", "variable_b"])
+    pd.testing.assert_frame_equal(t1, t2)                       # deux exécutions, mêmes bornes
+    retire = next(v for v in config.INDICATEURS_CROISES if v in c)
+    t3 = croisements_indicateurs.croiser({"dep": c.drop(columns=[retire])}, rng).set_index(["variable_a", "variable_b"])
+    commun = t3.index
+    assert len(commun) and len(t1) > len(t3)
+    pd.testing.assert_frame_equal(t1.loc[commun, ["rho", "ic95_bas", "ic95_haut"]], t3[["rho", "ic95_bas", "ic95_haut"]])
+    # même analyse, même clé, mêmes tirages, quel que soit ce qui a été tiré avant
+    a, b = [v for v in config.INDICATEURS_CROISES if v in c][:2]
+    dd = c[[a, b]].dropna()
+    dd = dd[~dd.index.isin(config.DEPARTEMENTS_EXCLUS_CROISEMENTS)]   # mêmes données que croiser
+    x, y = dd[a], dd[b]
+    r1 = analyses.spearman_bootstrap(x, y, config.BOOTSTRAP, analyses.tirage("croisements_indicateurs", a, b))
+    g = analyses.tirage("autre analyse")
+    g.integers(0, 10, 1000)
+    r2 = analyses.spearman_bootstrap(x, y, config.BOOTSTRAP, analyses.tirage("croisements_indicateurs", a, b))
+    assert r1 == r2 and r1[2:4] == tuple(t1.loc[(a, b), ["ic95_bas", "ic95_haut"]])
+    assert analyses.tirage("x", 1).integers(0, 10 ** 9) != analyses.tirage("x", 2).integers(0, 10 ** 9)
+    assert analyses.tirage("x", 1).integers(0, 10 ** 9) == analyses.tirage("x", 1).integers(0, 10 ** 9)
+
+
+def test_voie_legere():
+    """Voie légère (note docs/veille/conception_voie_legere.md, validée le 30 octobre 2026), sur la base d'essai réelle
+    en cache (séjours pour geste auto-infligé, Odissé). Un descripteur incomplet est refusé, un brouillon n'est lu que
+    sur demande, la base entre avec tous ses champs, son contrôle et sa série, et le dérivé séjours par personne
+    hospitalisée, calculé avec les patients d'Odissé déjà intégrés, n'est jamais inférieur à 1."""
+    import copy
+    import json
+    from pipeline import config
+    from pipeline.sources import complements, odisse, referentiel
+    from pipeline.util import JOURNAL
+    dossier = Path(__file__).resolve().parent.parent / "complements"
+    d = json.loads((dossier / "odisse_gestes_sejours.json").read_text(encoding="utf-8"))
+    registre = complements.lire_registre()
+    assert not complements.verifier_descripteur(d, registre), complements.verifier_descripteur(d, registre)
+    # descripteurs incomplets, tirés du vrai
+    def refuse(**changes):
+        x = copy.deepcopy(d)
+        for k, v in changes.items():
+            if k == "ind":
+                x["indicateurs"][0].update(v)
+            elif k == "derive":
+                x["derives"][0].update(v)
+            else:
+                x[k] = v
+        return complements.verifier_descripteur(x, registre)
+    assert refuse(licence="licence inventée")
+    assert refuse(ind={"limite": dict(d["indicateurs"][0]["limite"], sources=[])})
+    assert refuse(ind={"sens": "meilleur"}) and refuse(ind={"domaine": "Divers"})
+    assert refuse(derive={"operation": "somme"}) and refuse(derive={"numerateur": "dens:psychiatre"})
+    assert refuse(etat="actif")            # libellés encore « à revoir »
+    assert refuse(methode="court")
+    assert refuse(questions=[d["questions"][0], d["questions"][0]])   # un thème par question
+    if registre is not None:
+        r2 = copy.deepcopy(registre)
+        r2["odisse_gestes_sejours"]["statut"] = "à examiner"
+        assert complements.verifier_descripteur(d, r2)
+    if not (config.DONNEES / "complements" / "odisse_gestes_sejours.csv").exists():
+        raise Ignore("fichier de la base d'essai absent du cache")
+    ref = referentiel.charger(hors_ligne=True)
+    ctx, defs = complements.charger(ref, None, hors_ligne=True, descripteurs=dossier, brouillons=False)
+    assert "sejours_gestes_auto_infliges" not in {x["id"] for x in defs}   # brouillon non lu
+    ex = {}
+    ctx, defs = complements.charger(ref, None, hors_ligne=True, descripteurs=dossier, brouillons=True, extras=ex)
+    assert not ex["refuses"], ex["refuses"]
+    x = next(x for x in defs if x["id"] == "sejours_gestes_auto_infliges")
+    for k in ("unite", "source", "licence", "domaine", "sens", "comparabilite", "denominateur", "limite", "methode",
+              "page_source", "annee", "date_source", "agregation_explicite"):
+        assert x.get(k), k
+    s = ctx["dep"]["sejours_gestes_auto_infliges"]
+    assert s.notna().sum() == len(ref.deps) and (s > 0).all()
+    assert "sejours_gestes_auto_infliges" not in ctx["reg"]          # taux standardisé, non agrégeable
+    n = ctx["dep"]["sejours_gestes_auto_infliges_nombre"]
+    assert abs(ctx["reg"]["sejours_gestes_auto_infliges_nombre"].sum() - n.sum()) < 1e-6
+    assert "non_publies" not in x          # aucune valeur sous le secret dans ce jeu
+    # un département sans valeur rend sa région incomplète, jamais une somme partielle
+    trou = n.drop(n.index[0])
+    assert complements._incomplets(trou, "dep", "reg", ref) == {ref.deps.set_index("code").at[n.index[0], "reg"]}
+    assert any(c[0] == "Complément, Séjours hospitaliers pour geste auto-infligé" for c in JOURNAL.controles)
+    serie = ex["series"][0]
+    assert serie["annee"].nunique() >= 6 and serie["annee"].max() == x["annee"]
+    assert len(ex["questions"]) == 2 and all(len(q) == 4 for q in ex["questions"])
+    # dérivé, avec les patients d'Odissé intégrés
+    spf = odisse.charger(True, False, ref)
+    if spf is None:
+        raise Ignore("indicateurs d'Odissé absents du cache")
+    for niv, t in spf["contexte"].items():
+        ctx[niv] = ctx[niv].join(t, how="left")
+    tous = defs + spf["defs"]
+    aj = complements.deriver(ctx, ex["derives"], tous)
+    if aj:
+        r = ctx["dep"]["rapport_sejours_patients_gestes"].dropna()
+        assert len(r) > 90 and (r >= 1).all(), r[r < 1]
+        assert set(aj[0]["derive_de"]) == {"sejours_gestes_auto_infliges", "hospit_gestes_auto_infliges"}
+        assert aj[0]["etat"] == "brouillon" and aj[0]["famille"] == "Santé mentale"
+    else:   # années différentes entre les deux jeux, le rapport n'est pas calculé
+        assert len({next(y["annee"] for y in tous if y["id"] == i)
+                    for i in ("sejours_gestes_auto_infliges", "hospit_gestes_auto_infliges")}) != 1
+    decale = [dict(y, annee="1999") if y["id"] == "hospit_gestes_auto_infliges" else y for y in tous]
+    assert not complements.deriver({k: v.copy() for k, v in ctx.items()}, ex["derives"], decale)
+    # catalogue unique, champs du descripteur transmis, règle d'agrégation écrite, rien de changé pour les autres
+    from pipeline import indicateurs
+    cat = {c["id"]: c for c in indicateurs.liste({"contexte": ctx, "indicateurs": tous + aj})}
+    taux, nombre = cat["sejours_gestes_auto_infliges"], cat["sejours_gestes_auto_infliges_nombre"]
+    assert taux["domaine"] == "Santé mentale" and taux["sens"] == "aucun" and taux["registre"] == "odisse_gestes_sejours"
+    assert taux["agregation"] == "non_agregeable" and nombre["agregation"] == "somme"
+    assert taux["page_source"].startswith("https://odisse.santepubliquefrance.fr/")
+    assert taux["niveaux_codes"] == ["dep"] and nombre["niveaux_codes"] == ["dep", "reg"]
+    assert taux["licence_id"] == "lo-2.0", taux["licence_id"]
+    assert not set(indicateurs.CHAMPS_DESCRIPTEURS) & set(cat["hospit_gestes_auto_infliges"])
+    # limites versées comme config.LIMITES, le dérivé reprend celles de ses deux termes
+    longues, courtes = complements.limites(tous + aj)
+    assert longues["sejours_gestes_auto_infliges"]["sources"][0][1].startswith("https://")
+    assert courtes["sejours_gestes_auto_infliges"]
+    if aj:
+        assert "rapport_sejours_patients_gestes" in longues and courtes["rapport_sejours_patients_gestes"]
 
 
 def test_registre_des_bases():

@@ -2091,7 +2091,7 @@ def _par_epci(L: dict, ref, types):
     return pop.groupby(com["epci"]).sum(), hk.groupby(com["epci"]).sum(min_count=1)
 
 
-def inegalites_distances(L: dict, ref, ctx_epci: pd.DataFrame | None, rng) -> dict | None:
+def inegalites_distances(L: dict, ref, ctx_epci: pd.DataFrame | None, rng, cle: str = "toutes") -> dict | None:
     """Inégalités de distance aux structures de soins (demande de Lucas du 12 octobre 2026).
     1. Selon le type de territoire, classes de densité de population des intercommunalités (mêmes classes que les
        professions), distance médiane des habitants, part à plus de 20 km, test de Kruskal-Wallis sur les distances
@@ -2102,7 +2102,7 @@ def inegalites_distances(L: dict, ref, ctx_epci: pd.DataFrame | None, rng) -> di
     if not L or ctx_epci is None:
         return None
     from scipy import stats
-    from .analyses import CLASSES_DENSITE, benjamini_hochberg, indice_concentration, mediane_ponderee
+    from .analyses import CLASSES_DENSITE, benjamini_hochberg, indice_concentration, mediane_ponderee, tirage
     types = _types_comparables(L)
     if not types:
         return None
@@ -2144,9 +2144,9 @@ def inegalites_distances(L: dict, ref, ctx_epci: pd.DataFrame | None, rng) -> di
             ok_t = ok & hk_e[tid].notna()
             y, w, r = hk_e.loc[ok_t, tid].to_numpy(), pop_e[ok_t].to_numpy(), rev[ok_t].to_numpy()
             ci, *_ = indice_concentration(y, w, r)
-            bs = []
+            bs, g = [], tirage("concentration_distances", cle, tid)
             for _ in range(config.BOOTSTRAP):
-                i = rng.integers(0, len(y), len(y))
+                i = g.integers(0, len(y), len(y))
                 bs.append(indice_concentration(y[i], w[i], r[i])[0])
             lo, hi = np.percentile(bs, [2.5, 97.5])
             conc.append({"type": tid, "indice_concentration": ci, "ic95_bas": lo, "ic95_haut": hi,

@@ -3,6 +3,8 @@ recensement exhaustif, les p-valeurs sont donc indicatives et toujours accompagn
 d'effet. Les tests multiples sont corrigés par Benjamini-Hochberg."""
 from __future__ import annotations
 
+import zlib
+
 import numpy as np
 import pandas as pd
 from scipy import stats
@@ -74,6 +76,16 @@ def theil(n, pop):
     s, p = n / n.sum(), pop / pop.sum()
     m = s > 0
     return float(np.sum(s[m] * np.log(s[m] / p[m])))
+
+
+def tirage(*cle) -> np.random.Generator:
+    """Générateur aléatoire propre à une analyse, semé par config.GRAINE et la clé de l'analyse (nom, niveau, mode,
+    profession, indicateur). Les tirages d'une analyse (bootstrap, permutations) ne dépendent ainsi ni de l'ordre des
+    analyses ni des colonnes présentes ailleurs : ajouter ou retirer une base ne déplace plus les intervalles des
+    autres, et deux exécutions donnent exactement les mêmes bornes (décision du 30 octobre 2026, règle de
+    reproductibilité). La clé est réduite par CRC32, stable d'une exécution et d'une machine à l'autre."""
+    h = zlib.crc32("".join(str(c) for c in cle).encode("utf-8"))
+    return np.random.default_rng([config.GRAINE, h])
 
 
 def spearman_bootstrap(x, y, B, rng):
@@ -264,7 +276,7 @@ def lisa(agg, ref, voisins, rng):
     for p in config.PROFESSIONS_PRINCIPALES:
         if p not in dens or n[p].sum() < 100:
             continue
-        r = moran_local(np.log1p(dens[p]), voisins["epci"], rng=rng)
+        r = moran_local(np.log1p(dens[p]), voisins["epci"], rng=tirage("lisa", "epci", p))
         if r.empty:
             continue
         r["q"] = benjamini_hochberg(r["p"])
@@ -487,9 +499,9 @@ def loi_inverse(agg, ref, ctx, rng):
             m = c[besoin].notna() & ~pop.index.isin(config.DEPARTEMENTS_EXCLUS_CROISEMENTS)
             y, w, r = n.loc[m, p].to_numpy(float), pop[m].to_numpy(float), c.loc[m, besoin].to_numpy(float)
             ci, *_ = indice_concentration(y, w, r)
-            bs = []
+            bs, g = [], tirage("loi_inverse", besoin, p)
             for _ in range(config.BOOTSTRAP):
-                i = rng.integers(0, len(y), len(y))
+                i = g.integers(0, len(y), len(y))
                 bs.append(indice_concentration(y[i], w[i], r[i])[0])
             lo, hi = np.percentile(bs, [2.5, 97.5])
             out.append({"prof": p, "variable": besoin, "departements": int(m.sum()), "indice_concentration": ci,
@@ -513,10 +525,12 @@ def concordance_besoins(ctx):
     return pd.DataFrame(out) if out else None
 
 
-def croisements(agg, ref, ctx, rng, route=None):
+def croisements(agg, ref, ctx, rng, route=None, questions=()):
     """Croisements départementaux (config.CROISEMENTS), corrélation de rang brute et à densité de population égale,
     avec intervalles de confiance par bootstrap. « route:équipement » désigne le temps médian par la route vers
-    l'équipement le plus proche (temps_acces, départements)."""
+    l'équipement le plus proche (temps_acces, départements). Les questions préparées des descripteurs de la voie
+    légère (questions, mêmes quadruplets que config.CROISEMENTS) passent par le même calcul ; elles ajoutent alors la
+    probabilité et sa correction de Benjamini-Hochberg sur l'ensemble des croisements (colonnes p et q_bh)."""
     if ctx is None or "dep" not in ctx:
         return None
     _n, d_all, pop = tables(agg, ref, "dep", "all")
@@ -539,22 +553,31 @@ def croisements(agg, ref, ctx, rng, route=None):
         return c[v] if v in c else None
     z = np.log(c["densite_pop"]) if "densite_pop" in c else None
     out, points = [], {}
-    for xa, yb, theme, _q in config.CROISEMENTS:
+    questions = list(questions or [])
+    for xa, yb, theme, _q in list(config.CROISEMENTS) + questions:
         x, y = serie(xa), serie(yb)
         if x is None or y is None:
+            if (xa, yb, theme, _q) in questions:
+                log.warning("question préparée %s contre %s sautée, un indicateur manque", xa, yb)
             continue
         m = x.notna() & y.notna() & ~x.index.isin(config.DEPARTEMENTS_EXCLUS_CROISEMENTS)
-        rho, p, lo, hi, k = spearman_bootstrap(x[m], y[m], config.BOOTSTRAP, rng)
+        rho, p, lo, hi, k = spearman_bootstrap(x[m], y[m], config.BOOTSTRAP, tirage("croisements", xa, yb))
         r = {"theme": theme, "mesure": xa, "variable": yb, "departements": k, "rho": rho, "ic95_bas": lo, "ic95_haut": hi}
+        if questions:
+            r["p"] = p
         points[(xa, yb)] = [(c_, float(a), float(b)) for c_, a, b in zip(x[m].index, x[m], y[m])]
         if z is not None:
-            rp, _pp, lp, hp, _k = spearman_partiel_bootstrap(x[m], y[m], z[m], config.BOOTSTRAP, rng)
+            rp, _pp, lp, hp, _k = spearman_partiel_bootstrap(x[m], y[m], z[m], config.BOOTSTRAP,
+                                                             tirage("croisements_partiel", xa, yb))
             r.update({"rho_partiel_densite": rp, "ic95_bas_partiel": lp, "ic95_haut_partiel": hp})
         out.append(r)
     if not out:
         return None
     t = pd.DataFrame(out)
+    if questions:
+        t["q_bh"] = benjamini_hochberg(t["p"].to_numpy())
     t.attrs["points"] = points   # valeurs par département, pour le nuage de l'atlas (pas écrites dans le CSV)
+    t.attrs["questions"] = questions
     return t
 
 
@@ -786,10 +809,11 @@ def substitution(agg, ref, ctx, rng):
     for a, b in config.PAIRES_SUBSTITUTION:
         if a not in dens or b not in dens:
             continue
-        rho, _p, lo, hi, nn = spearman_bootstrap(dens[a], dens[b], config.BOOTSTRAP, rng)
+        rho, _p, lo, hi, nn = spearman_bootstrap(dens[a], dens[b], config.BOOTSTRAP, tirage("substitution", a, b))
         rp = lp = hp = np.nan
         if ville is not None:
-            rp, _pp, lp, hp, _ = spearman_partiel_bootstrap(dens[a], dens[b], ville, config.BOOTSTRAP, rng)
+            rp, _pp, lp, hp, _ = spearman_partiel_bootstrap(dens[a], dens[b], ville, config.BOOTSTRAP,
+                                                            tirage("substitution_partiel", a, b))
         out.append({"prof_a": a, "prof_b": b, "rho": rho, "ic95_bas": lo, "ic95_haut": hi,
                     "rho_partiel_densite": rp, "ic95_bas_partiel": lp, "ic95_haut_partiel": hp, "territoires": nn})
     return pd.DataFrame(out)
@@ -816,7 +840,7 @@ def robustesse(agg, ref, ineg, rng):
     for p in config.PROFESSIONS_PRINCIPALES:
         if p not in n or n[p].sum() < 100:
             continue
-        lo, hi = gini_bootstrap(n[p], pop, config.BOOTSTRAP, rng)
+        lo, hi = gini_bootstrap(n[p], pop, config.BOOTSTRAP, tirage("robustesse_gini", "epci", p))
         lig = {"prof": p, "gini_epci": lorenz(n[p], pop)[0], "ic95_bas": lo, "ic95_haut": hi}
         for niv in ["com", "epci", "dep", "reg"]:
             lig[f"gini_{niv}"] = piv.at[p, niv] if p in piv.index and niv in piv.columns else np.nan
@@ -853,7 +877,7 @@ def moran_residus(R, voisins, rng):
     out = []
     for p, g in ea.groupby("prof"):
         r = np.log((g["effectif"] + .5) / (g["effectif_attendu"] + .5))
-        I, pv = moran(pd.Series(r.to_numpy(), index=g["code"]), voisins["epci"], rng=rng)
+        I, pv = moran(pd.Series(r.to_numpy(), index=g["code"]), voisins["epci"], rng=tirage("moran_residus", p))
         out.append({"prof": p, "moran_residus": I, "p_permutation": pv})
     return pd.DataFrame(out)
 
@@ -915,14 +939,16 @@ def correlations_contexte(agg, ref, ctx, rng):
                     continue
                 B = config.BOOTSTRAP if p in config.PROFESSIONS_PRINCIPALES and mode == "all" else 0
                 for v in c.columns:
-                    rho, pv, lo, hi, nn = spearman_bootstrap(c[v], dens[p], B, rng)
+                    rho, pv, lo, hi, nn = spearman_bootstrap(c[v], dens[p], B,
+                                                             tirage("correlations_contexte", niv, mode, p, v))
                     rp = pearson_pondere(c[v].to_numpy(float), np.log(dens[p].to_numpy(float) + .5),
                                          pop.to_numpy(float))
                     lig = {"niveau": niv, "mode": mode, "prof": p, "variable": v, "n": nn,
                            "rho_spearman": rho, "ic95_bas": lo, "ic95_haut": hi, "p": pv,
                            "r_pearson_pondere_log": rp}
                     if ville is not None and v != "densite_pop":
-                        rq, pq, lq, hq, _nq = spearman_partiel_bootstrap(c[v], dens[p], ville, B, rng)
+                        rq, pq, lq, hq, _nq = spearman_partiel_bootstrap(
+                            c[v], dens[p], ville, B, tirage("correlations_contexte_partiel", niv, mode, p, v))
                         lig.update({"rho_partiel_densite": rq, "ic95_bas_partiel": lq, "ic95_haut_partiel": hq,
                                     "p_partiel": pq})
                     lignes.append(lig)
@@ -960,9 +986,9 @@ def revenu(agg, ref, ctx, rng):
                     continue
                 y = n[p].to_numpy(float)
                 ci, *_ = indice_concentration(y, pop, rev)
-                bs = []
+                bs, g = [], tirage("concentration_revenu", niv, mode, p)
                 for _ in range(config.BOOTSTRAP):
-                    i = rng.integers(0, len(y), len(y))
+                    i = g.integers(0, len(y), len(y))
                     bs.append(indice_concentration(y[i], pop.to_numpy()[i], rev.to_numpy()[i])[0])
                 lo, hi = np.percentile(bs, [2.5, 97.5])
                 conc.append({"niveau": niv, "mode": mode, "prof": p, "indice_concentration": ci, "ic95_bas": lo,
@@ -1482,7 +1508,7 @@ def spatial(agg, ref, voisins, rng):
         n, dens, _pop = tables(agg, ref, niv, "all")
         for p in config.PROFESSIONS_PRINCIPALES:
             if p in dens and n[p].sum() >= 100:
-                I, pv = moran(np.log1p(dens[p]), voisins[niv], rng=rng)
+                I, pv = moran(np.log1p(dens[p]), voisins[niv], rng=tirage("moran", niv, p))
                 lignes.append({"niveau": niv, "prof": p, "moran_I": I, "p_permutation": pv})
     return pd.DataFrame(lignes)
 
@@ -1497,7 +1523,7 @@ def tension(agg, ref, offres):
     return t
 
 
-def tout(agg, ref, ctx, voisins, offres, externes=None):
+def tout(agg, ref, ctx, voisins, offres, externes=None, questions=()):
     rng = np.random.default_rng(config.GRAINE)
     R = {}
     log.info("analyse : inégalités")
@@ -1549,7 +1575,7 @@ def tout(agg, ref, ctx, voisins, offres, externes=None):
         log.info("analyse : loi inverse des soins, concordance des indicateurs de besoin, croisements")
         R["loi_inverse"] = loi_inverse(agg, ref, ctx, rng)
         R["concordance_besoins"] = concordance_besoins(ctx)
-        R["croisements"] = croisements(agg, ref, ctx, rng, R["temps_acces"])
+        R["croisements"] = croisements(agg, ref, ctx, rng, R["temps_acces"], questions)
         from . import croisements_indicateurs
         log.info("analyse : croisement des indicateurs de santé mentale entre eux, régressions multiples")
         R["croisements_indicateurs"] = croisements_indicateurs.croiser(ctx, rng)

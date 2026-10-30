@@ -211,7 +211,7 @@
 
 {% if logiciels %}
 <h2 id="logiciels">Logiciels et reproductibilité</h2>
-<p>Les calculs sont réalisés en Python {{ logiciels.python }}. Les tirages aléatoires (rééchantillonnage pour les intervalles de confiance, permutations) utilisent une graine fixe, {{ logiciels.graine }}, pour que les résultats soient identiques d'une exécution à l'autre sur les mêmes données. Chaque source est consignée avec la date annoncée par son producteur et la date de téléchargement. Le code est publié sous licence EUPL 1.2 sur le dépôt <a href="{{ depot_code }}">{{ depot_code }}</a>.</p>
+<p>Les calculs sont réalisés en Python {{ logiciels.python }}. Les tirages aléatoires (rééchantillonnage pour les intervalles de confiance, permutations) utilisent une graine fixe, {{ logiciels.graine }}, combinée à la clé de chaque analyse (indicateurs, profession, niveau), pour que les résultats soient identiques d'une exécution à l'autre sur les mêmes données et que l'ajout d'une base ne déplace pas les intervalles des autres analyses (depuis le 30 octobre 2026). Chaque source est consignée avec la date annoncée par son producteur et la date de téléchargement. Le code est publié sous licence EUPL 1.2 sur le dépôt <a href="{{ depot_code }}">{{ depot_code }}</a>.</p>
 <div class="defile"><table class="simple">
 <thead><tr><th>Bibliothèque</th><th>Version</th><th>Usage</th></tr></thead>
 <tbody>

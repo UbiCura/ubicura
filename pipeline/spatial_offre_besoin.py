@@ -17,7 +17,7 @@ import pandas as pd
 from scipy import stats
 
 from . import config
-from .analyses import benjamini_hochberg, tables
+from .analyses import benjamini_hochberg, tables, tirage
 from .util import JOURNAL, log
 
 ZONES_BIVARIEES = {"HL": "indicateur élevé, offre faible alentour", "HH": "indicateur élevé, offre élevée alentour",
@@ -61,7 +61,7 @@ def offre_besoin(agg, ref, ctx, voisins, rng) -> pd.DataFrame | None:
     out = []
     for p in [p for p in config.PROFESSIONS_QUADRANTS if p in dens]:
         for v in [v for v in config.LOI_INVERSE_BESOINS if v in c]:
-            r = moran_bivarie(c[v], np.log1p(dens[p]).reindex(c.index), voisins["dep"], rng=rng)
+            r = moran_bivarie(c[v], np.log1p(dens[p]).reindex(c.index), voisins["dep"], rng=tirage("offre_besoin", p, v))
             if r.empty:
                 continue
             r["q"] = benjamini_hochberg(r["p"].to_numpy())
@@ -237,7 +237,7 @@ def gwr_niveau_de_vie(agg, ref, ctx, voisins, rng):
             continue
         log.info("régression géographiquement pondérée, %s, %d intercommunalités", prof, len(d))
         X = d[["revenu", "densite"]].to_numpy(float)
-        r = gwr(d["y"].to_numpy(float), X, d[["cx", "cy"]].to_numpy(float), rng=rng)
+        r = gwr(d["y"].to_numpy(float), X, d[["cx", "cy"]].to_numpy(float), rng=tirage("gwr", prof))
         a_ols, b_ols = ols_aicc(d["y"].to_numpy(float), X)
         sig = np.abs(r["t"][:, 1]) > r["seuil_t"]
         coef.append(pd.DataFrame({"prof": prof, "code": d.index, "coef_niveau_de_vie": r["beta"][:, 1],

@@ -14,7 +14,7 @@ from scipy import stats
 
 from . import config
 from .lecture import minuscule
-from .analyses import benjamini_hochberg, spearman_bootstrap
+from .analyses import benjamini_hochberg, spearman_bootstrap, tirage
 from .util import JOURNAL
 
 
@@ -100,7 +100,7 @@ def croiser(ctx, rng) -> pd.DataFrame | None:
         for b in vs[i + 1:]:
             d = c[[a, b]].dropna()
             d = d[~d.index.isin(config.DEPARTEMENTS_EXCLUS_CROISEMENTS)]
-            rho, p, lo, hi, k = spearman_bootstrap(d[a], d[b], config.BOOTSTRAP, rng)
+            rho, p, lo, hi, k = spearman_bootstrap(d[a], d[b], config.BOOTSTRAP, tirage("croisements_indicateurs", a, b))
             sans = d[~d.index.isin(config.DEPS_ILE_DE_FRANCE)]
             r_sans = stats.spearmanr(sans[a], sans[b])[0] if len(sans) > 20 else np.nan
             out.append({"variable_a": a, "variable_b": b, "departements": k, "rho": rho, "ic95_bas": lo,

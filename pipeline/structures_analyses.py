@@ -89,7 +89,7 @@ def sensibilite(L: dict, ref, centres: dict | None, ctx_epci: pd.DataFrame | Non
     if ctx_epci is not None and "revenu_median" in ctx_epci:
         L_conf = dict(L, lieux=sous, distances_communes=d_tout.assign(**{t: d_conf[t].reindex(d_tout.index) for t in types}))
         i_t = (L.get("inegalites") or {}).get("concentration")
-        i_c = (lieux_mod.inegalites_distances(L_conf, ref, ctx_epci, rng) or {}).get("concentration")
+        i_c = (lieux_mod.inegalites_distances(L_conf, ref, ctx_epci, rng, cle="confirmees") or {}).get("concentration")
         if isinstance(i_t, pd.DataFrame) and isinstance(i_c, pd.DataFrame) and len(i_t) and len(i_c):
             for t in types:
                 a_, b_ = i_t[i_t["type"] == t], i_c[i_c["type"] == t]
@@ -187,7 +187,7 @@ def zones_eloignement(ctx_epci: pd.DataFrame | None, voisins: dict | None, rng=N
     la plus proche, par intercommunalité (types du registre portant « zones »), Benjamini-Hochberg par type."""
     if ctx_epci is None or not voisins or "epci" not in voisins:
         return None
-    from .analyses import benjamini_hochberg, moran, moran_local
+    from .analyses import benjamini_hochberg, moran, moran_local, tirage
     out = []
     for t in lieux_profil.types_avec("zones"):
         col = f"dist_{t}"
@@ -197,7 +197,7 @@ def zones_eloignement(ctx_epci: pd.DataFrame | None, voisins: dict | None, rng=N
         r = moran_local(v, voisins["epci"])
         if r.empty:
             continue
-        I, p = moran(v, voisins["epci"], rng=rng)
+        I, p = moran(v, voisins["epci"], rng=tirage("zones_eloignement", t))
         r["q_bh"] = benjamini_hochberg(r["p"])
         r["zone"] = np.where(r["q_bh"] < .05, r["type"].map({"HH": "eloignement_groupe", "LL": "proximite_groupee",
                                                            "HL": "eloigne_isole", "LH": "proche_isole"}),
