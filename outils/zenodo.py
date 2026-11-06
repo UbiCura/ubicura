@@ -184,6 +184,14 @@ def avec_paragraphe(description: str, titre: str, texte: str) -> str:
     return paragraphe(titre, texte) + "\n" + sans_paragraphe(description, titre)
 
 
+def lien_donnees(meta: dict, doi: str) -> list:
+    """Liens de la version d'un rapport (related_identifiers de Zenodo) : le rapport est tiré de la version des données
+    déposée avec lui (relation DataCite « isDerivedFrom »), qui remplace le lien d'une version précédente. Les autres
+    liens sont gardés (rapport Zenodo du 30 octobre 2026, partie 3.3)."""
+    autres = [r for r in (meta.get("related_identifiers") or []) if r.get("relation") != "isDerivedFrom"]
+    return autres + [{"identifier": doi, "relation": "isDerivedFrom", "resource_type": "dataset", "scheme": "doi"}]
+
+
 def doi_donnees_remplace(description: str, ids_donnees: set[str], doi: str) -> str:
     """Le lien « Les données de cette version sont archivées à part » d'un rapport pointe vers la version des données
     déposée avec lui (il pointait vers la première version, celle du 9 octobre 2026, jusqu'au 29 octobre 2026)."""
@@ -271,6 +279,7 @@ def cmd_preparer(args) -> int:
             doi_donnees = (meta.get("prereserve_doi") or {}).get("doi")
         elif doi_donnees:
             meta["description"] = doi_donnees_remplace(meta.get("description"), ids_donnees, doi_donnees)
+            meta["related_identifiers"] = lien_donnees(meta, doi_donnees)
         else:
             raise Arret("DOI de la version des données introuvable, les rapports ne peuvent pas la citer. Lancer "
                         "python outils\\zenodo.py abandonner, puis recommencer.")

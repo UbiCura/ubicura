@@ -1,0 +1,360 @@
+{% extends "base.html" %}
+{# Planche de style (direction visuelle du 30 octobre 2026), construite par outils/construire_planche.py. Page de
+   travail, non liée au site. Elle ne crée aucune règle de style : tout ce qu'elle montre vient de style.css, sauf les
+   quelques règles de mise en page de la planche elle-même, préfixées .pl-. #}
+{#- la réglette de la fiche (validation du 31 octobre 2026) : histogramme des territoires, ensemble en trait plein,
+    médiane en triangle, point au-dessus de tout, axe arrêté au 98e centile ; ses règles sont celles de .fiche -#}
+{% from "reglette.html" import reglette as reglette_commune %}
+{% macro reglette(l, taille='petite') -%}
+{%- if l.h %}<div class="fiche pl-rg">{{ reglette_commune(l, taille) }}</div>{% endif %}
+{%- endmacro %}
+{% macro tableau_lignes(lignes) -%}
+<table class="indicateurs">
+  <colgroup><col class="col-nom"><col class="col-eff"><col class="col-val"><col class="col-reg"><col class="col-pos"></colgroup>
+  <thead><tr><th scope="col">Profession</th><th scope="col">Effectif</th><th scope="col" class="v">Taux</th><th scope="col">Répartition</th><th scope="col" class="pos">Position parmi les intercommunalités</th></tr></thead>
+  <tbody>
+  {% for l in lignes %}
+  <tr>
+    <th scope="row">{{ l.nom }}</th>
+    <td class="eff">{% if l.statut == 'aucun' %}aucun{% else %}{{ l.n_txt }} inscrit{{ 's' if l.n != 1 }}{% endif %}{% if l.zero %}<span class="note">comme dans {{ l.zero }} des intercommunalités</span>{% endif %}{% if l.statut == 'petit' %}<span class="note statut">petit effectif</span>{% endif %}</td>
+    <td class="v">{% if l.statut == 'aucun' %}<span class="statut">aucun inscrit</span>{% else %}<b>{{ l.v }}</b>{% if l.statut not in ('petit', 'aucun') and l.ecart %}<span class="ec {{ l.statut if l.statut in ('haut', 'bas') else 'neutre' }}">{{ l.ecart }}</span>{% endif %}<span class="note">{{ 'pour 100 000' if l.rare else 'pour 10 000' }}</span>{% endif %}</td>
+    <td class="reg">{{ reglette(l) }}</td>
+    <td class="pos">{% if l.statut != 'aucun' %}{{ l.pos }}{% endif %}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+<p class="cle-reglette"><span><i></i>de la couleur du texte : écart dans la marge de 0,8 à 1,25 fois l'ensemble, ou que le hasard explique</span><span><i class="bas"></i><i class="haut"></i>cuivre ou canard : nettement en dessous ou au-dessus</span><span><i class="petit"></i>vide : moins de 5 inscrits</span><span>l'écart à l'ensemble suit la valeur, « 17 % sous l'ensemble »</span></p>
+{%- endmacro %}
+{% macro encadre_type(lignes, titre_niveau='h3') -%}
+<section class="encadre bloc">
+  <div class="encadre-tete bloc-tete">
+    <{{ titre_niveau }}>Professionnels de la santé mentale, {{ nom_epci }}</{{ titre_niveau }}>
+    <div class="encadre-outils"><button type="button">Citer et exporter</button></div>
+  </div>
+  <div class="grille-12 bloc-corps">
+    <p class="c-7 phrase">Avec {{ lignes[0].v }} psychologues pour 10 000 habitants, l'intercommunalité est {{ lignes[0].pos }} des intercommunalités, sous l'ensemble des intercommunalités ({{ lignes[0].rep }}) et au-dessus de l'intercommunalité médiane ({{ lignes[0].med }}).</p>
+    <div class="c-5 marge">
+      <p class="comment-lire"><b>Comment lire.</b> Chaque réglette place l'intercommunalité (point) parmi les 1 259 intercommunalités. Le trait plein est l'ensemble des intercommunalités, la somme des inscrits rapportée à la somme des habitants : pesé par la population, il est plus haut que la plupart des intercommunalités, peu peuplées. Le tireté est l'intercommunalité médiane. Survolez ou touchez une réglette pour lire ses valeurs.</p>
+      <p class="source">Source : {{ lignes[0].src }}, {{ lignes[0].an }}. <span class="licence">{{ lignes[0].lic }}.</span></p>
+      {% if lignes[0].lim %}<p class="limite"><b aria-hidden="true">!</b><span>{{ lignes[0].lim }}</span></p>{% endif %}
+    </div>
+  </div>
+  {{ tableau_lignes(lignes) }}
+</section>
+{%- endmacro %}
+{% macro legende_ecart(titre) -%}
+<div class="legende-barre" role="img" aria-label="{{ titre }} : moins de 0,5, de 0,5 à 0,8, de 0,8 à 1,25, de 1,25 à 2, 2 ou plus">
+  <span class="titre">{{ titre }}</span>
+  <span class="cases"><span style="background:var(--d0)"></span><span style="background:var(--d1)"></span><span style="background:var(--d3)"></span><span style="background:var(--d5)"></span><span style="background:var(--d6)"></span></span>
+  <span class="bornes jonctions"><span style="left:20%">0,5</span><span style="left:40%">0,8</span><span style="left:60%">1,25</span><span style="left:80%">2</span></span>
+</div>
+{%- endmacro %}
+{% macro nuancier(titre, vars, note='') -%}
+<div class="pl-nuancier">
+  <p class="pl-etiquette">{{ titre }}</p>
+  <ul>{% for v, nom in vars %}<li><i style="background:var({{ v }})"></i><span>{{ nom }}</span><span class="pl-ratio" data-var="{{ v }}"></span></li>{% endfor %}</ul>
+  {% if note %}<p class="pl-note">{{ note }}</p>{% endif %}
+</div>
+{%- endmacro %}
+{% set fonds = [('--bg', 'Fond'), ('--ink', 'Encre'), ('--muted', 'Texte secondaire'), ('--line', 'Filet'), ('--line-fort', 'Filet appuyé'), ('--action', 'Action, élément choisi'), ('--signal', 'Signal « ! »')] %}
+{% set densite = [('--r0', '1re classe'), ('--r1', '2e classe'), ('--r2', '3e classe'), ('--r3', '4e classe'), ('--r5', '5e classe')] %}
+{% set ecart = [('--d0', 'moins de 0,5 fois'), ('--d1', '0,5 à 0,8 fois'), ('--d3', '0,8 à 1,25 fois'), ('--d5', '1,25 à 2 fois'), ('--d6', '2 fois ou plus')] %}
+{% set categories = [('--c1', 'Prune'), ('--c2', 'Vert'), ('--c3', 'Olive'), ('--c4', 'Sarcelle, avec étiquette'), ('--c5', 'Violet, avec étiquette'), ('--c6', 'Lin, avec étiquette')] %}
+{% block contenu %}
+<style>
+/* mise en page de la planche seulement */
+.pl-tete p{max-width:var(--mesure)}
+.pl-section{margin:0 0 var(--e-6)}
+.pl-tete-section{margin:0 0 var(--e-4);align-items:start}
+.pl-tete-section h2{margin:0 0 var(--e-2)}
+.pl-intro{color:var(--muted);margin:0;max-width:var(--mesure)}
+.pl-etiquette,.pl-note,.pl-statuts li{text-align:left}
+.pl-tete{margin-bottom:var(--e-5);align-items:end}
+.pl-sommaire ol,.pl-ordre{margin:0;padding-left:1.4em;font-size:var(--t-note);line-height:1.6}
+.pl-sommaire a{color:var(--muted)}.pl-sommaire a:hover{color:var(--ink)}
+.pl-ordre li{text-align:left;margin:0 0 var(--e-1)}
+.pl-etiquette{font-size:var(--t-note);color:var(--muted);margin:0 0 var(--e-2)}
+.pl-note{font-size:var(--t-note);color:var(--muted);margin:var(--e-2) 0 0}
+.pl-colonnes{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));column-gap:var(--gouttiere);margin-bottom:var(--e-3)}
+.pl-colonnes span{height:48px;background:color-mix(in srgb,var(--action) 18%,transparent);display:grid;place-items:end center;font-size:var(--t-note);color:var(--muted);padding-bottom:var(--e-1)}
+.pl-bloc{background:color-mix(in srgb,var(--ink) 7%,transparent);min-height:64px;padding:var(--e-2) 12px;font-size:var(--t-note);color:var(--muted)}
+.pl-tailles > div{display:grid;grid-template-columns:9rem minmax(0,1fr);column-gap:var(--e-4);align-items:baseline;padding:var(--e-3) 0;border-top:1px solid var(--line)}
+.pl-tailles .pl-etiquette{margin:0}
+.pl-tailles .t56{font-family:var(--serif);font-size:var(--t-page);line-height:1.05}
+.pl-tailles .t32{font-family:var(--serif);font-size:var(--t-section);line-height:1.15}
+.pl-tailles .t22{font-family:var(--serif);font-size:var(--t-encadre);line-height:1.3}
+.pl-tailles .t17{font-size:var(--t-texte);max-width:var(--mesure)}
+.pl-tailles .t14{font-size:var(--t-note);max-width:var(--mesure)}
+.pl-tailles .chiffre{font-family:var(--serif);font-size:var(--t-section);color:var(--chiffre)}
+.pl-espaces{display:grid;gap:var(--e-2);max-width:640px}
+.pl-espaces div{display:grid;grid-template-columns:4rem minmax(0,1fr);column-gap:var(--e-3);align-items:center;font-size:var(--t-note);color:var(--muted)}
+.pl-espaces i{display:block;height:12px;background:var(--action)}
+.pl-nuanciers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--e-4)}
+.pl-nuancier .pl-note{text-align:left}
+.pl-nuancier ul{list-style:none;margin:0;padding:0}
+.pl-nuancier li{display:grid;grid-template-columns:20px minmax(0,1fr) auto;column-gap:var(--e-2);align-items:center;font-size:var(--t-note);padding:3px 0;margin:0}
+.pl-nuancier i{display:block;width:20px;height:20px;border-radius:1px;box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ink) 12%,transparent)}
+.pl-ratio{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pl-ratio.faible{color:var(--signal);font-weight:600}
+.pl-carte{position:relative}
+.pl-carte .pl-encart{position:absolute;font-size:var(--t-note);color:var(--muted);line-height:1.2;white-space:nowrap;transform:translateY(2px)}
+.pl-deux{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--e-4)}
+.pl-deux > div{padding:var(--e-4) var(--e-4) var(--e-3)}
+.pl-deux .pl-carte{max-width:420px}
+.pl-statuts{display:flex;flex-wrap:wrap;gap:var(--e-2) var(--e-4);list-style:none;margin:var(--e-3) 0 0;padding:0}
+.pl-statuts li{margin:0}
+.pl-serie{max-width:30rem;margin-top:var(--e-4)}
+table.simple.pl-resserre{width:auto}table.simple.pl-resserre th,table.simple.pl-resserre td{padding-right:var(--e-4)}
+.serie-bouts{display:grid;grid-template-columns:auto minmax(0,1fr) auto;column-gap:var(--e-3);align-items:center;font-size:var(--t-note);color:var(--muted);line-height:1.3;margin:0}
+.serie-bouts span:last-child{text-align:right}
+.serie-bouts svg{width:100%;height:24px;overflow:visible}.serie-bouts svg path{fill:none;stroke:var(--ink);stroke-width:1.5}
+.pl-suite{margin-top:0}.pl-suite .lecture > p:first-child{margin-top:0}
+.pl-reglette-seule{max-width:30rem;margin:var(--e-2) 0}
+.pl-carte .pl-encart{display:block}
+@media (max-width:960px){.pl-nuanciers{grid-template-columns:repeat(2,minmax(0,1fr))}.pl-deux{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:760px){.pl-tailles > div{grid-template-columns:minmax(0,1fr);row-gap:var(--e-1)}.pl-colonnes span:nth-child(n+7){display:none}.pl-colonnes{grid-template-columns:repeat(6,minmax(0,1fr))}.pl-deux > div{padding:var(--e-3) var(--marge)}.pl-deux{margin:0 calc(-1 * var(--marge))}}
+@media (max-width:560px){.pl-nuanciers{grid-template-columns:minmax(0,1fr)}}
+</style>
+
+<header class="pl-tete grille-12">
+  <div class="c-7">
+    <h1>Planche de style</h1>
+    <p class="chapeau">La direction visuelle du site sur des données réelles : une grille, cinq tailles de texte, une palette d'encre bleue et de cuivre, un encadré type sans cadre, une réglette par indicateur. Toutes les pages en dériveront.</p>
+    <p class="pl-note">Page de travail, non liée au site. Valeurs de la version du {{ date_longue }} ({{ lignes[0].an }}), lues dans le module des chiffres, le même que les fiches.</p>
+  </div>
+  <nav class="c-5 marge pl-sommaire" aria-label="Parties de la planche"><ol>
+    <li><a href="#grille">La grille</a></li><li><a href="#typographie">Cinq tailles, deux familles</a></li><li><a href="#espacements">Six espacements</a></li>
+    <li><a href="#couleurs">Les couleurs</a></li><li><a href="#encadre">L'encadré type et la ligne d'un indicateur</a></li><li><a href="#cartes">Les cartes</a></li>
+    <li><a href="#tableau">Tableau et légendes</a></li><li><a href="#texte">Le texte justifié, en deux colonnes</a></li><li><a href="#deux-fonds">Les deux fonds</a></li>
+  </ol></nav>
+</header>
+
+<section class="pl-section" id="grille">
+  <div class="grille-12 pl-tete-section">
+    <div class="c-7"><h2>La grille</h2>
+      <p class="pl-intro">Douze colonnes sur 1 200 px, des gouttières de 24 px, des marges de 32 px (16 px au téléphone). La barre du haut, les titres, les figures et les tableaux partent du même bord gauche.</p></div>
+    <aside class="c-5 marge"><p class="chiffre-cle"><span class="n">7 + 5</span>Le texte tient sept colonnes à sa mesure ; les cinq de droite portent la figure du bloc, ses notes en marge ou un chiffre clé, jamais le vide.</p></aside>
+  </div>
+  <div class="pl-colonnes" aria-hidden="true">{% for k in range(1, 13) %}<span>{{ k }}</span>{% endfor %}</div>
+  <div class="grille-12">
+    <div class="c-8 pl-bloc">8 colonnes, colonne de lecture et figures</div><div class="c-4 pl-bloc">4 colonnes, encadré latéral</div>
+    <div class="c-7 pl-bloc">7 colonnes, « En bref » de la fiche</div><div class="c-5 pl-bloc">5 colonnes, carte de situation</div>
+    <div class="c-12 pl-bloc">12 colonnes, carte ou tableau pleine largeur</div>
+  </div>
+</section>
+
+<section class="pl-section" id="typographie">
+  <div class="grille-12 pl-tete-section">
+    <div class="c-7"><h2>Cinq tailles, deux familles</h2>
+      <p class="pl-intro">Newsreader pour les titres et les grands chiffres, Work Sans à 400 et 600 pour le reste, chiffres tabulaires dans les tableaux.</p></div>
+    <aside class="c-5 marge"><p class="chiffre-cle"><span class="n">5 tailles</span>14, 17, 22, 32 et 56 px (40 au téléphone), aucune autre.</p></aside>
+  </div>
+  <div class="pl-tailles">
+    <div><p class="pl-etiquette">56 px, titre de page<br>(40 px au téléphone)</p><p class="t56">Vierzon-Sologne-Berry</p></div>
+    <div><p class="pl-etiquette">32 px, titre de section, grands chiffres</p><p class="t32">Santé mentale <span class="chiffre">81 185</span></p></div>
+    <div><p class="pl-etiquette">22 px, titre d'encadré</p><p class="t22">Psychologues pour 10 000 habitants, par intercommunalité</p></div>
+    <div><p class="pl-etiquette">17 px, texte et tableaux</p><p class="t17">La moitié des habitants vit à moins de 6,8 km d'un centre médico-psychologique pour adultes. <b>Le gras à 600</b> marque un chiffre ou un mot clé.</p></div>
+    <div><p class="pl-etiquette">14 px, légendes, sources, notes</p><p class="t14">Source : RPPS (Agence du numérique en santé), population INSEE. Licence Ouverte 2.0.</p></div>
+  </div>
+</section>
+
+<section class="pl-section" id="espacements">
+  <div class="grille-12 pl-tete-section">
+    <div class="c-7"><h2>Six espacements</h2>
+      <p class="pl-intro">Toujours plus d'espace au-dessus d'un titre qu'en dessous, 96 px entre deux sections.</p></div>
+    <aside class="c-5 marge"><p class="chiffre-cle"><span class="n">96 px</span>entre deux sections, 48 avant un titre d'encadré, 16 entre deux paragraphes.</p></aside>
+  </div>
+  <div class="pl-espaces">{% for e in [4, 8, 16, 24, 48, 96] %}<div><span>{{ e }} px</span><i style="width:{{ e * 4 }}px;max-width:100%"></i></div>{% endfor %}</div>
+</section>
+
+<section class="pl-section" id="couleurs">
+  <div class="grille-12 pl-tete-section">
+    <div class="c-7"><h2>Les couleurs</h2>
+      <p class="pl-intro">Trois palettes de données et l'ocre du signal. À côté de chaque teinte, son contraste avec le fond de la page, calculé ici : aucune classe de données sous 2:1, aucune de la couleur du fond.</p></div>
+    <aside class="c-5 marge"><p class="chiffre-cle"><span class="n">2:1</span>au moins entre une classe de données et le fond, 4,5:1 pour le texte, sur les deux fonds.</p></aside>
+  </div>
+  <div class="pl-nuanciers">
+    {{ nuancier('Fond, texte et signal', fonds) }}
+    {{ nuancier('Densités, canard', densite, 'Cinq classes de même effectif.') }}
+    {{ nuancier('Écart au repère', ecart, 'Cuivre dessous, gris au milieu, canard dessus.') }}
+    {{ nuancier('Catégories', categories, 'Zonages, secteurs, typologie. Les trois premières se distinguent aussi pour les daltonismes ; au-delà, un second codage.') }}
+  </div>
+</section>
+
+<section class="pl-section" id="encadre">
+  <div class="grille-12 pl-tete-section">
+    <div class="c-7"><h2>L'encadré type et la ligne d'un indicateur</h2>
+      <p class="pl-intro">Un filet au-dessus, le titre à gauche et « Citer et exporter » au bord de la page, la phrase de lecture et, en marge, « Comment lire » (première phrase toujours visible), la source et la limite ; puis le tableau sur toute la largeur.</p></div>
+    <aside class="c-5 marge"><ol class="pl-ordre"><li>Filet, titre, et « Citer et exporter » au bord de la page.</li><li>La phrase de lecture sur sept colonnes, ses notes en marge sur cinq.</li><li>Le tableau sur les douze colonnes, sans colonne vide, l'écart avec la valeur.</li></ol></aside>
+  </div>
+  <div class="grille-12"><div class="c-12">{{ encadre_type(lignes) }}</div></div>
+  <div class="grille-12">
+  {% if serie %}
+  <div class="c-7 pl-serie">
+    <p class="pl-etiquette">Série courte des versions publiées, sous la réglette et de sa largeur, en encre, sans couleur de jugement</p>
+    <p class="serie-bouts"><span>{{ serie.debut[1] }}<br>{{ date_version(serie.debut[0]) }}</span><svg viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><path d="{{ serie.d }}" vector-effect="non-scaling-stroke"/></svg><span>{{ serie.dernier[1] }}<br>{{ date_version(serie.dernier[0]) }}</span></p>
+    <p class="pl-note">{{ nom_epci }}, psychologues inscrits au répertoire, aux {{ serie.nb }} versions publiées.</p>
+  </div>
+  {% endif %}
+  <div class="c-5 marge">
+  <p class="pl-etiquette" style="margin-top:var(--e-4)">Statuts, écrits pareil sur les pages et dans les fichiers</p>
+  <ul class="pl-statuts">{% for s in ['aucun inscrit', 'petit effectif', 'non recensé', 'non publié', 'non diffusé', 'estimé', 'donnée du département'] %}<li class="statut">{{ s }}</li>{% endfor %}</ul>
+  </div>
+  </div>
+</section>
+
+<section class="pl-section" id="cartes">
+  <div class="grille-12 pl-tete-section">
+    <div class="c-7"><h2>Les cartes</h2>
+      <p class="pl-intro">Au national, un aplat par intercommunalité, un contour de 0,5 px dans la couleur du fond, le territoire choisi cerné. La légende est au-dessus, en barre graduée.</p></div>
+    <aside class="c-5 marge"><p class="chiffre-cle"><span class="n">3 couches</span>des aplats, des contours, des points, ces derniers à l'échelle locale seulement.</p></aside>
+  </div>
+  <div class="grille-12">
+    <figure class="c-6 encadre" style="margin:0">
+      <div class="encadre-tete"><h3>Psychologues pour 10 000 habitants</h3></div>
+      <div class="legende-barre" role="img" aria-label="Cinq classes de même effectif, de {{ bornes_densite[0] }} à {{ bornes_densite[-1] }}">
+        <span class="cases">{% for v, _ in densite %}<span style="background:var({{ v }})"></span>{% endfor %}</span>
+        <span class="bornes">{% for b in bornes_densite %}<span>{{ b }}</span>{% endfor %}</span>
+      </div>
+      <div class="pl-carte">{{ carte_densite|safe }}{% for e in encarts %}<span class="pl-encart" style="left:{{ e.x }};top:{{ e.y }}">{{ e.sigle }}</span>{% endfor %}</div>
+      <p class="source">Cinq classes de même effectif. Hachures : non publié. Cerné : {{ nom_epci }}. Outre-mer en encarts : {% for e in encarts %}{{ e.sigle }}, {{ e.nom }}{{ ' ; ' if not loop.last else '.' }}{% endfor %}</p>
+    </figure>
+    <figure class="c-6 encadre" style="margin:0">
+      <div class="encadre-tete"><h3>Rapport à l'ensemble des départements</h3></div>
+      {{ legende_ecart("Fois l'ensemble des départements") }}
+      <div class="pl-carte">{{ carte_ecart|safe }}{% for e in encarts %}<span class="pl-encart" style="left:{{ e.x }};top:{{ e.y }}">{{ e.sigle }}</span>{% endfor %}</div>
+      <p class="source">Psychologues, fois le repère de l'ensemble des départements ({{ rep_dep }} pour 10 000). Cerné : le Cher. Le gris du milieu reste plus clair que le fond sombre, et plus sombre que le fond clair.</p>
+    </figure>
+  </div>
+  <div class="grille-12" style="margin-top:var(--e-5)">
+    <figure class="c-7 encadre" style="margin:0">
+      <div class="encadre-tete"><h3>Structures de soins psychiques, {{ nom_epci }}</h3><div class="encadre-outils"><button type="button">Citer et exporter</button></div></div>
+      <ul class="legende-cat">
+        <li><i class="point" style="background:var(--action)"></i>confirmée</li><li><i class="vide"></i>à vérifier</li><li><i class="losange" style="background:var(--muted)"></i>recoupée</li><li><i class="trait"></i>intercommunalité</li>
+      </ul>
+      {{ carte_locale|safe }}
+    </figure>
+    <div class="c-5">
+      <p class="pl-etiquette">Trois couches, jamais plus de deux au national</p>
+      <ul class="legende-cat" style="display:grid;gap:var(--e-2)">
+        <li><i style="background:var(--r2)"></i>Aplats : un indicateur par territoire.</li>
+        <li><i class="trait"></i>Contours : secteurs, zonages, périmètres, sans aplat.</li>
+        <li><i class="point" style="background:var(--action)"></i>Points : structures, à l'échelle locale seulement.</li>
+        <li><i style="background:var(--nodata)"></i>Fond local : les communes, en filet fin.</li>
+      </ul>
+      <p class="pl-note">La {{ nom_epci }} ({{ pop_epci }} habitants) et ses abords : les communes en fond, les intercommunalités voisines en filet, la limite du Cher en trait plein. Les points sont ceux de la fiche du territoire ; les noms de lieux viendront avec le fond local.</p>
+    </div>
+  </div>
+</section>
+
+<section class="pl-section" id="tableau">
+  <h2>Tableau et légendes</h2>
+  <div class="grille-12">
+    <section class="c-7 encadre" style="margin:0">
+      <div class="encadre-tete"><h3>Professionnels, effectifs et taux</h3><div class="encadre-outils"><button type="button">Citer et exporter</button></div></div>
+      <p class="phrase">Le tableau simple sert aux listes et aux annexes : une ligne fine entre les rangs, les nombres à droite, les en-têtes en 14 px.</p>
+      <div class="defile"><table class="simple pl-resserre">
+        <thead><tr><th scope="col">Profession</th><th scope="col" class="n">Inscrits</th><th scope="col" class="n">Taux</th><th scope="col" class="n">Ensemble</th><th scope="col" class="n">Médiane</th></tr></thead>
+        <tbody>{% for l in lignes %}<tr><td>{{ l.nom }}{% if l.rare %}, pour 100 000{% endif %}</td><td class="n">{% if l.statut == 'aucun' %}<span class="statut">aucun</span>{% else %}{{ l.n_txt }}{% endif %}</td><td class="n">{% if l.statut == 'aucun' %}<span class="statut">aucun inscrit</span>{% else %}{{ l.v }}{% endif %}</td><td class="n">{{ l.rep }}</td><td class="n">{% if l.med_zero %}<span class="statut">aucun inscrit</span>{% else %}{{ l.med }}{% endif %}</td></tr>{% endfor %}</tbody>
+      </table></div>
+      <p class="source">{{ nom_epci }}, pour 10 000 habitants sauf mention. Ensemble des intercommunalités, intercommunalité médiane{% for l in lignes if l.med_zero %} ; {{ l.nom|lower }} : la moitié des intercommunalités n'en compte aucun{% endfor %}. Source : {{ lignes[0].src }}, {{ lignes[0].an }}.</p>
+    </section>
+    <div class="c-5 marge">
+      <p class="pl-etiquette">Légende catégorielle, trois teintes, six au plus avec un second codage</p>
+      <ul class="legende-cat" style="display:grid;gap:var(--e-1)">{% for v, nom in categories %}<li><i style="background:var({{ v }})"></i>{{ nom }}</li>{% endfor %}<li><i class="hachure"></i>non publié</li></ul>
+    </div>
+  </div>
+</section>
+
+<section class="pl-section" id="texte">
+  <div class="grille-12 pl-tete-section">
+    <div class="c-7"><h2>Le texte justifié, en deux colonnes</h2>
+      <p class="pl-intro">Le texte est justifié avec la césure du site, au plus trois lignes coupées de suite, à sa mesure dans les sept premières colonnes ; il est aligné à gauche dans toute colonne de moins de 560 px, donc au téléphone et dans la marge. La droite porte la figure ou les notes du paragraphe : un bloc n'a que deux bords droits, la fin du texte ou le bord de la page.</p></div>
+    <aside class="c-5 marge"><p class="chiffre-cle"><span class="n">36 em</span>soit environ 68 caractères en 17 px, la mesure de tout texte courant. Tableaux, sommaires, légendes, infobulles, notes et clés restent alignés à gauche.</p></aside>
+  </div>
+  <div class="grille-12">
+    <div class="c-7 lecture">
+      <p>Le repère d'une intercommunalité est le taux de l'ensemble des intercommunalités, calculé comme le sien : la somme des professionnels inscrits divisée par la somme des habitants. Ce taux pèse chaque territoire par sa population. Les grandes agglomérations, où les professionnels sont nombreux, le tirent vers le haut, si bien qu'il dépasse le taux de la plupart des intercommunalités, peu peuplées.</p>
+      <p>C'est pourquoi la réglette montre aussi l'intercommunalité médiane et la répartition de toutes les autres. Un territoire peut être sous le repère et pourtant mieux doté que la majorité des intercommunalités. La phrase de lecture le dit en mots, et la couleur ne marque un écart que s'il est à la fois grand et au-delà de ce que le hasard explique.</p>
+    </div>
+    <aside class="c-5 encadre" style="margin:0">
+      <div class="encadre-tete"><h3>À savoir</h3></div>
+      <p class="a-savoir">Les psychologues sont inscrits au répertoire depuis la reprise d'ADELI. Leur nombre est 5,4 % au-dessus de celui de la DREES pour 2024.</p>
+      <p class="source">Source : RPPS, DREES.</p>
+    </aside>
+  </div>
+  <div class="grille-12 pl-suite">
+    <div class="c-7 lecture">
+      <p>Un paragraphe et sa figure se tiennent côte à côte : le texte à sa mesure, la figure en marge, en face de la phrase qu'elle illustre. Au téléphone, la marge passe sous son paragraphe. Le filet de l'encadré ne court que sur la colonne qu'il ouvre.</p>
+    </div>
+    <div class="c-5 marge">
+      <section class="encadre">
+        <div class="encadre-tete"><h3>Psychologues, {{ nom_epci }}</h3><div class="encadre-outils"><button type="button">Citer et exporter</button></div></div>
+        <p class="phrase">Avec {{ lignes[0].v }} psychologues pour 10 000 habitants, l'intercommunalité est {{ lignes[0].pos }} des intercommunalités, sous l'ensemble ({{ lignes[0].rep }}) et au-dessus de la médiane ({{ lignes[0].med }}).</p>
+        <div class="pl-reglette-seule">{{ reglette(lignes[0], '') }}</div>
+        <p class="source">Source : {{ lignes[0].src }}, {{ lignes[0].an }}. <span class="licence">{{ lignes[0].lic }}.</span></p>
+      </section>
+    </div>
+  </div>
+</section>
+
+<section class="pl-section" id="fiche">
+  <div class="grille-12">
+    <div class="c-7"><h2>Les composants de la fiche</h2>
+      <p class="chapeau">Validés par Lucas le 31 octobre 2026 (composition B+, palette canard et cuivre, fond clair par défaut) : les chiffres clés en tuiles, sous un filet appuyé, le chiffre en 56 px ; l'écart et la position côte à côte ; l'état « non diffusé à cette échelle », hachuré, avec sa raison et son lien ; sur chaque carte, un liseré de la couleur du fond sous le contour du territoire choisi, et la petite France qui situe la carte posée à côté d'elle.</p>
+    </div>
+  </div>
+  <div class="fiche">
+    <section class="cles-fiche" aria-label="Chiffres clés, exemple">
+      <ul>
+        <li class="cle-tuile"><span class="tuile-n">{{ lignes[0].n_txt }}</span><span class="tuile-t">{{ lignes[0].nom|lower }}, soit {{ lignes[0].v }} {{ lignes[0].unite }}</span><span class="tuile-r"><span class="ec neutre">{{ lignes[0].ecart }}</span>, {{ lignes[0].pos }} des intercommunalités</span></li>
+        <li class="cle-tuile"><span class="tuile-n">{{ lignes[1].n_txt }}</span><span class="tuile-t">{{ lignes[1].nom|lower }}, soit {{ lignes[1].v }} {{ lignes[1].unite }}</span><span class="tuile-r"><span class="ec neutre">{{ lignes[1].ecart }}</span>, {{ lignes[1].pos }} des intercommunalités</span></li>
+      </ul>
+    </section>
+    <div class="non-diffuse" style="max-width:36em;margin-top:24px">
+      <p class="nd-titre">Non diffusé à l'échelle de l'intercommunalité</p>
+      <p>Ce taux n'est publié que par département : la fiche donne celui du département, situé parmi les départements.</p>
+      <a href="#fiche">Le tableau du département</a>
+    </div>
+  </div>
+</section>
+
+<section class="pl-section" id="deux-fonds">
+  <div class="grille-12 pl-tete-section">
+    <div class="c-7"><h2>Les deux fonds</h2>
+      <p class="pl-intro">Le fond sombre par défaut, le fond clair au choix. Mêmes composants, mêmes classes, contrastes contrôlés sur les deux.</p></div>
+    <aside class="c-5 marge"><p class="chiffre-cle"><span class="n">2 fonds</span>le sombre par défaut, le clair au choix, les mêmes classes sur les deux.</p></aside>
+  </div>
+  <div class="pl-deux">
+    <div class="fond-sombre">
+      <p class="pl-etiquette">Fond sombre</p>
+      {{ encadre_type(lignes[:2], 'h3') }}
+      {{ legende_ecart("Fois l'ensemble des départements") }}
+      <div class="pl-carte">{{ carte_ecart_sombre|safe }}</div>
+      {{ nuancier('Écart au repère, contraste avec le fond', ecart) }}
+    </div>
+    <div class="fond-clair">
+      <p class="pl-etiquette">Fond clair</p>
+      {{ encadre_type(lignes[:2], 'h3') }}
+      {{ legende_ecart("Fois l'ensemble des départements") }}
+      <div class="pl-carte">{{ carte_ecart_clair|safe }}</div>
+      {{ nuancier('Écart au repère, contraste avec le fond', ecart) }}
+    </div>
+  </div>
+</section>
+
+<script>
+// contraste de chaque teinte avec le fond de son bloc (WCAG), écrit à côté de la teinte
+(function(){
+  function rgb(c){var d=document.createElement("i");d.style.color=c;document.body.appendChild(d);var v=getComputedStyle(d).color;d.remove();return (v.match(/[\d.]+/g)||[]).slice(0,3).map(Number)}
+  function lum(c){return c.map(function(x){x/=255;return x<=.03928?x/12.92:Math.pow((x+.055)/1.055,2.4)}).reduce(function(s,x,i){return s+x*[.2126,.7152,.0722][i]},0)}
+  function ratio(a,b){var x=lum(a),y=lum(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)}
+  function maj(){document.querySelectorAll(".pl-ratio[data-var]").forEach(function(s){
+    var st=getComputedStyle(s),fond=rgb(st.getPropertyValue("--bg").trim()),c=rgb(st.getPropertyValue(s.dataset.var).trim());
+    var r=ratio(c,fond),decor=s.dataset.var==="--line";s.textContent=s.dataset.var==="--bg"?"":r.toFixed(1).replace(".",",")+":1"+(decor?", décor":"");
+    s.classList.toggle("faible",s.dataset.var!=="--bg"&&!decor&&r<2)})}
+  maj();window.addEventListener("theme",maj);
+})();
+</script>
+{% endblock %}

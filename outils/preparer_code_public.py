@@ -86,6 +86,44 @@ def citation_cff(version: str) -> str:
     return "\n".join(lignes) + "\n"
 
 
+def zenodo_json(version: str) -> str:
+    """Métadonnées lues par Zenodo quand une version du code publiée sur GitHub y est archivée (seul `.zenodo.json` est
+    lu si `CITATION.cff` existe aussi, aide de Zenodo lue le 30 octobre 2026, docs/rapport_zenodo_2026-10-30.md). Le
+    code est relié aux trois dépôts qu'il produit (relation DataCite « Compiles »)."""
+    import json
+    meta = {"title": f"{config.NOM_PROJET}, {config.SOUS_TITRE[0].lower() + config.SOUS_TITRE[1:]}, code source",
+            "upload_type": "software",
+            "description": ("Code source qui télécharge les bases publiques, compte l'offre de soins par territoire, la "
+                            "croise avec le profil des populations et produit les données, les rapports et le site."),
+            "creators": [{"name": ", ".join(reversed(config.AUTEUR.split(" ", 1))), "orcid": config.ORCID}],
+            "license": "EUPL-1.2",
+            "language": "fra",
+            "version": version,
+            "keywords": ["offre de soins", "santé mentale", "géographie de la santé", "RPPS", "FINESS", "France"]}
+    liens = [config.DOI_DONNEES] + list((config.DOI_RAPPORTS or {}).values())
+    meta["related_identifiers"] = [{"identifier": d, "relation": "compiles", "scheme": "doi"} for d in liens if d]
+    return json.dumps(meta, ensure_ascii=False, indent=2) + "\n"
+
+
+def dossier_refuse(dest: Path) -> str:
+    """Raison de refuser le dossier de sortie, qui est effacé avant d'être refait ; vide s'il est permis. Le 4 novembre
+    2026, « preparer_code_public.py . » a pris le dépôt de travail pour dossier de sortie et vidé les copies de travail
+    de travail des séances avant de buter sur un fichier ouvert. Sont refusés : le dépôt de travail, un dossier qui le
+    contient ou qui est dedans (sauf donnees/code_public), et un dossier non vide qui n'est pas déjà un dépôt public
+    préparé par ce script (repéré à son fichier .zenodo.json et à l'absence du fichier de règles du projet)."""
+    d, r = dest.resolve(), RACINE.resolve()
+    if d == r or d in r.parents:
+        return f"{d} est le dépôt de travail ou le contient"
+    if d == (r / "donnees" / "code_public").resolve():
+        return ""
+    if r in d.parents:
+        return f"{d} est dans le dépôt de travail"
+    if d.exists() and (not d.is_dir() or any(d.iterdir())):
+        if not d.is_dir() or not (d / ".zenodo.json").exists() or (d / f"{ASSISTANT.upper()}.md").exists():
+            return f"{d} n'est pas vide et n'est pas un dépôt public déjà préparé"
+    return ""
+
+
 def _supprimer(chemin: Path) -> None:
     if chemin.is_dir():
         shutil.rmtree(chemin, onerror=lambda f, p, e: (os.chmod(p, 0o700), f(p)))
@@ -103,6 +141,10 @@ def main() -> int:
         dest = Path(a.dossier)
     else:
         dest = RACINE / "donnees" / "code_public" if a.suivi else Path(tempfile.gettempdir()) / "ubicura_code_public"
+    refus = dossier_refuse(dest)
+    if refus:
+        print(f"Dossier refusé, rien n'est effacé ni préparé : {refus}")
+        return 20
     adresse = subprocess.run(["git", "config", "--get", "offresoins.adresseautorisee"], cwd=RACINE,
                              capture_output=True, text=True).stdout.strip()
     nom = subprocess.run(["git", "config", "--get", "offresoins.nomautorise"], cwd=RACINE,
@@ -154,6 +196,8 @@ def main() -> int:
                 problemes.append(f"{f}, ligne {ligne}, {raison} ({m.group(0)})")
     (dest / "CITATION.cff").write_text(citation_cff(version), encoding="utf-8")
     fichiers.append("CITATION.cff")
+    (dest / ".zenodo.json").write_text(zenodo_json(version), encoding="utf-8")
+    fichiers.append(".zenodo.json")
 
     # renvois vers des fichiers qui ne sont pas publiés (simple avertissement)
     absents = set()

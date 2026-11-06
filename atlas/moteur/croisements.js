@@ -48,12 +48,12 @@ function offreBesoin(){
   const to=tiersDe(dens),tb=tiersDe(ind),zones=OB.zones&&OB.zones[p]?OB.zones[p][S.bvVar]:null,zb=document.querySelector('.seg[data-k="bvMode"] [data-v="zones"]');
   zb.disabled=!zones;if(!zones&&S.bvMode==="zones"){S.bvMode="tiers";syncBar()}
   const classe=i=>{const a=to(dens[i]),b=tb(ind[i]);return a==null||b==null?null:a*3+b};
-  const couleur=i=>{if(S.bvMode==="zones"){const z=zones[L.units[i].c];return z&&ZONES_BV[z[0]]?css(ZONES_BV[z[0]][1]):css("--nodata")}const k=classe(i);return k==null?css("--nodata"):OB.palette[k]};
+  const couleur=i=>{if(S.bvMode==="zones"){const z=zones[L.units[i].c];return z&&ZONES_BV[z[0]]?css(ZONES_BV[z[0]][1]):css("--nodata")}const k=classe(i);return k==null?css("--nodata"):css("--bv"+k)};
   if(!BV)BV=mapInit("bvmap");const ix=IDX.dep;
   joinUnites(BV,"dep",geom.dep).attr("fill",f=>{const i=ix.get(keyOf("dep",f));return i==null?css("--nodata"):couleur(i)})
     .on("mouseenter",function(){const h=this.parentNode===BV.g.node()?BV.survol:BV.survolDom;h.attr("d",this.getAttribute("d")).style("display",null)})
     .on("mousemove",(ev,f)=>{const i=ix.get(keyOf("dep",f));if(i==null)return;const u=L.units[i],z=zones?zones[u.c]:null;
-      showTip(ev,'<strong>'+esc(u.nm)+'</strong><div class="tl">'+esc(profLab(p))+', '+(dens[i]==null?"non calculé":f2.format(dens[i])+' pour 10 000 hab.')+'</div><div class="tl">'+esc(cx.label)+', '+(ind[i]==null?"non disponible":f1.format(ind[i]))+'</div>'+(z&&ZONES_BV[z[0]]?'<div class="tl">'+ZONES_BV[z[0]][0]+'</div>':""))})
+      showTip(ev,'<strong>'+esc(u.nm)+'</strong><div class="tl">'+esc(profLab(p))+', '+(dens[i]==null?"non calculé":fD(dens[i])+' '+uniteP(p,true))+'</div><div class="tl">'+esc(cx.label)+', '+(ind[i]==null?"non disponible":fCtx(cx,ind[i]))+'</div>'+(z&&ZONES_BV[z[0]]?'<div class="tl">'+ZONES_BV[z[0]][0]+'</div>':""))})
     .on("mouseleave",()=>{BV.survol.style("display","none");BV.survolDom.style("display","none");hideTip()}).on("click",null);
   const n=k=>L.units.filter((u,i)=>classe(i)===k).length,pl=pluriel(profLab(p));
   let ph;
@@ -62,8 +62,8 @@ function offreBesoin(){
     ph=!nz?"Aucun département ne forme, au-delà du hasard, une zone où cet indicateur et l’offre des départements voisins s’écartent ensemble de la moyenne.":
       (hl?"Au-delà du hasard, "+hl+" département"+(hl>1?"s ont":" a")+" un indicateur élevé entouré de départements où l’offre est faible. ":"Aucun département n’a, au-delà du hasard, un indicateur élevé entouré d’une offre faible. ")+nz+" zone"+(nz>1?"s":"")+" en tout se distingue"+(nz>1?"nt":"")+" du hasard.";
     document.getElementById("bvLegende").innerHTML=Object.entries(ZONES_BV).map(([k,[t,c]])=>'<span><i style="display:inline-block;width:12px;height:12px;background:'+css(c)+';margin-right:6px"></i>'+t+'</span>').join("")+'<span><i style="display:inline-block;width:12px;height:12px;background:'+css("--nodata")+';margin-right:6px"></i>Pas de zone nette</span>'}
-  else{ph=n(2)+" départements ont à la fois un indicateur « "+minuscule(cx.label)+" » dans le tiers le plus haut et une densité de "+pl+" dans le tiers le plus bas (en rouge). "+n(6)+" sont dans la situation inverse (en bleu).";
-    document.getElementById("bvLegende").innerHTML='<div class="grille" aria-hidden="true">'+[2,1,0].map(b=>[0,1,2].map(o=>'<i style="background:'+OB.palette[o*3+b]+'"></i>').join("")).join("")+'</div><span>Vers la droite, plus de '+esc(pl)+'. Vers le haut, « '+esc(minuscule(cx.label))+' » plus élevé.</span>'}
+  else{ph=n(2)+" départements ont à la fois un indicateur « "+minuscule(cx.label)+" » dans le tiers le plus haut et une densité de "+pl+" dans le tiers le plus bas (en cuivre). "+n(6)+" sont dans la situation inverse (en canard).";
+    document.getElementById("bvLegende").innerHTML='<div class="grille" aria-hidden="true">'+[2,1,0].map(b=>[0,1,2].map(o=>'<i style="background:'+css("--bv"+(o*3+b))+'"></i>').join("")).join("")+'</div><span>Vers la droite, plus de '+esc(pl)+'. Vers le haut, « '+esc(minuscule(cx.label))+' » plus élevé.</span>'}
   document.getElementById("bvPhrase").textContent=ph+" Ces cartes décrivent des départements et ne disent rien d’une cause.";
   const sigBv=signauxCarte(BV,"dep",S.bvVar==="suicides");
   if(sigBv.length)document.getElementById("bvLegende").innerHTML+='<div class="legende-signaux">'+legendeSignaux(sigBv)+'</div>';

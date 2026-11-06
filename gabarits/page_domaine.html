@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+{# Page d'un domaine (présentation du 30 octobre 2026, maquette a-sante-mentale validée), préparée par
+   pipeline/pages_domaine.py. Au centre (santé mentale, santé), des questions reprises des rapports nationaux ; autour,
+   les indicateurs phares, la question préparée de l'atelier, les indicateurs et les bases à venir. #}
+{% block contenu %}
+<style>
+main.domaine{max-width:var(--largeur-page)}
+main.domaine h1{border:0;padding:0}
+main.domaine .chapeau{max-width:64ch}
+main.domaine .portes-offre{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--e-4);margin-top:24px}
+main.domaine .portes-offre a{display:block;padding:var(--e-3) 0 0;border:0;border-top:1px solid var(--line-fort);border-radius:0;background:none;color:var(--ink);text-decoration:none}
+main.domaine .portes-offre a:hover{border-top-color:var(--ink)}
+main.domaine .portes-offre strong{display:block;font-family:var(--serif);font-size:var(--t-encadre);font-weight:400;margin-bottom:var(--e-1)}
+main.domaine .portes-offre span{font-size:var(--t-note);color:var(--muted)}
+@media (max-width:860px){main.domaine .portes-offre{grid-template-columns:minmax(0,1fr)}}
+main.domaine .bascule{display:flex;gap:4px;margin:16px 0 0}
+main.domaine .bascule a{min-height:44px;display:inline-flex;align-items:center;padding:0 14px;border:1px solid var(--line);border-radius:4px;color:var(--ink);text-decoration:none}
+main.domaine .bascule a[aria-current="page"]{border-color:var(--r4);color:var(--r4);font-weight:600}
+main.domaine .corps-d{display:grid;grid-template-columns:15rem minmax(0,1fr);gap:24px 44px;margin-top:28px;align-items:start}
+main.domaine .sommaire-d{position:sticky;top:14px;font-size:.875rem;text-align:left}
+main.domaine .sommaire-d p{margin:0 0 6px;color:var(--muted)}
+main.domaine .sommaire-d ol{margin:0;padding-left:1.2em}
+main.domaine .sommaire-d li{margin:0 0 6px}
+main.domaine .sommaire-d .autres{display:flex;flex-direction:column;gap:6px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+main.domaine article.question{padding:0 0 30px;margin:0 0 30px;border-bottom:1px solid var(--line)}
+main.domaine article.question h2{font-size:var(--t-encadre);margin:0 0 12px;padding:0;border:0}
+main.domaine article.question > div > p:first-child{font-size:1.0625rem}
+main.domaine .faire-varier{font-size:var(--t-note)}
+main.domaine .sources-note{font-size:var(--t-note);color:var(--muted);max-width:68ch}
+/* tableaux repris des rapports, même dessin que dans les rapports (.corps de style.css) */
+main.domaine article.question table{border-collapse:collapse;width:100%;font-size:.875rem;margin:12px 0 18px}
+main.domaine article.question th,main.domaine article.question td{padding:8px 14px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums;vertical-align:top}
+main.domaine article.question th:first-child,main.domaine article.question td:first-child{padding-left:0;text-align:left}
+main.domaine article.question th:last-child,main.domaine article.question td:last-child{padding-right:0}
+main.domaine article.question thead th{border-bottom:1px solid color-mix(in srgb,var(--ink) 30%,transparent)}
+main.domaine details.preuve{margin-top:12px}
+main.domaine details.preuve > summary{cursor:pointer;min-height:40px;display:flex;align-items:center;font-size:var(--t-note);color:var(--ink)}
+main.domaine .liens-q{display:flex;flex-wrap:wrap;gap:6px 20px;font-size:.875rem;margin:10px 0 0;text-align:left}
+main.domaine .discret{color:var(--muted);font-size:.875rem;text-align:left}
+main.domaine .phares{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:24px 40px;align-items:start;margin-top:26px}
+main.domaine figure.graphique svg{width:100%;height:auto;display:block}
+main.domaine ul.inds{list-style:none;padding:0;margin:0;columns:2 22rem;column-gap:40px}
+main.domaine ul.inds li{break-inside:avoid;margin:0;padding:6px 0;border-bottom:1px solid var(--line);font-size:var(--t-note);text-align:left}
+main.domaine ul.inds .meta{display:block;font-size:var(--t-note);color:var(--muted)}
+main.domaine .sm{display:inline-block;margin-left:6px;padding:0 6px;border:1px solid var(--line);border-radius:4px;font-size:var(--t-note)}
+main.domaine h3.sous{font-size:1.0625rem;margin:22px 0 6px}
+main.domaine section.venir ul{margin:6px 0 0}
+main.domaine .reponse-d{font-family:var(--serif);font-size:var(--t-encadre);max-width:62ch;margin:18px 0 0;text-align:left}
+main.domaine section.avec-offre{margin-top:30px}
+main.domaine section.avec-offre h2{font-size:1.375rem;border:0;padding:0;margin:0 0 10px}
+main.domaine ul.liens-d{list-style:none;margin:0 0 10px;padding:0}
+main.domaine ul.liens-d li{display:grid;grid-template-columns:minmax(0,18rem) minmax(0,1fr);gap:4px 18px;padding:8px 0;border-bottom:1px solid var(--line);margin:0;text-align:left}
+main.domaine ul.liens-d .meta{display:block;font-size:var(--t-note);color:var(--muted)}
+main.domaine .pros{display:flex;flex-wrap:wrap;gap:4px 6px;align-items:flex-start}
+main.domaine .lien-d{font-size:var(--t-note);padding:2px 8px;border-radius:3px;white-space:nowrap;font-variant-numeric:tabular-nums}
+main.domaine .lien-d.pos{background:color-mix(in srgb,var(--d5) 45%,var(--panel))}main.domaine .lien-d.neg{background:color-mix(in srgb,var(--d1) 45%,var(--panel))}
+@media (max-width:640px){main.domaine ul.liens-d li{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:900px){main.domaine .corps-d,main.domaine .phares{grid-template-columns:minmax(0,1fr)}main.domaine .sommaire-d{position:static}}
+</style>
+<header class="tete">
+  <p class="discret" style="margin:0 0 var(--e-3)"><a href="../domaines.html">Les domaines</a>{% if centre %}, au centre <a href="offre-de-soins.html">l’offre de soins</a>{% endif %}</p>
+  <h1>{{ titre }}</h1>
+  <p class="chapeau">{{ chapeau }}</p>
+  {% if centre %}<div class="bascule" role="group" aria-label="Offre de soins"><a href="sante-mentale.html"{% if cle == 'sm' %} aria-current="page"{% endif %}>Santé mentale</a><a href="sante.html"{% if cle == 'sante' %} aria-current="page"{% endif %}>Santé</a></div>{% endif %}
+</header>
+
+{% if porte %}
+<div class="portes-offre">
+  <a href="sante-mentale.html"><strong>Santé mentale</strong><span>Psychologues, psychiatres, psychothérapeutes, CMP, CATTP, hôpitaux de jour et structures d’addictologie, et leurs questions.</span></a>
+  <a href="sante.html"><strong>Santé</strong><span>Médecins généralistes et spécialistes, infirmiers, autres professions de santé, urgences, maternités, maisons et centres de santé.</span></a>
+  <a href="../{{ page_atlas }}"><strong>L’atlas</strong><span>La carte de chaque profession par région, département ou intercommunalité, le profil de chaque territoire et ses structures de soins, le tableau par profession et les croisements.</span></a>
+</div>
+<p class="discret" style="max-width:62ch;margin-top:18px">Les deux familles ne s’additionnent jamais. La santé mentale n’est pas un domaine de plus, c’est un fil qui traverse l’offre, le recours aux soins et les distances, et chaque indicateur qui la concerne en porte la marque dans les sept domaines.</p>
+{% elif centre %}
+<div class="corps-d">
+  <nav class="sommaire-d" aria-label="Questions de la page">
+    <p>Sur cette page</p>
+    <ol>{% for q in questions %}<li><a href="#{{ q.id }}">{{ q.question }}</a></li>{% endfor %}</ol>
+    <div class="autres"><a href="{{ rapport }}">Le rapport national complet</a>{% if venir %}<a href="#venir">Bases à venir</a>{% endif %}<a href="../croiser.html">Croiser librement</a></div>
+  </nav>
+  <div data-citation="{{ citation }}">
+    {% for q in questions %}
+    <article class="question" id="{{ q.id }}" aria-labelledby="{{ q.id }}-t">
+      <h2 id="{{ q.id }}-t">{{ q.question }}</h2>
+      <div>{{ q.html|safe }}</div>
+      {% if q.preuve %}<details class="preuve"><summary>Les chiffres détaillés et la méthode</summary>{{ q.preuve|safe }}</details>{% endif %}
+      <p class="liens-q"><a href="{{ q.section }}">La section du rapport</a>{% if q.autre %}<a href="../{{ q.autre[0] }}">{{ q.autre[1] }}</a>{% endif %}</p>
+    </article>
+    {% endfor %}
+    {% if venir %}<section class="venir" id="venir" aria-labelledby="t-venir"><h2 id="t-venir">Bases à venir</h2><ul>{% for v in venir %}<li>{{ v }}</li>{% endfor %}</ul><p class="discret">Chacune ne sera intégrée que si ses données sont ouvertes, documentées et vérifiées. <a href="../a-venir.html">Tout ce qui est prévu</a>.</p></section>{% endif %}
+  </div>
+</div>
+{% else %}
+{# gabarit commun des domaines (audit de contrôle du 30 octobre 2026, point I4) #}
+<p class="reponse-d">
+{%- if liens_dom.fort %}Par intercommunalité et à densité de population égale, {{ liens_dom.lignes|length }} des {{ liens_dom.testes }} indicateurs de ce domaine sont liés à au moins une profession de santé au-delà du seuil retenu sur tout le site. Le lien le plus fort relie l’indicateur « {{ liens_dom.fort.l.lab|minuscule }} » et les {{ liens_dom.fort.liens[0].lab|minuscule }} ({{ liens_dom.fort.liens[0].r|nombre('ctx2') }}).
+{%- elif n_ind %}Aucun indicateur de ce domaine n’est lié aux professions de santé au-delà du seuil retenu sur tout le site, à densité de population égale.
+{%- else %}Aucun indicateur de ce domaine n’est encore publié. Les bases prévues sont plus bas, chacune ne sera intégrée que si ses données sont ouvertes, documentées et vérifiées.{% endif %}</p>
+{% if carte or variantes %}
+<div class="phares" data-citation="{{ citation }}">
+  {% if carte %}<figure class="graphique">
+    <figcaption class="small muted"><strong>Carte.</strong> <span class="leg">{{ carte_ind.lab }}{% if carte_ind.u %}, {{ carte_ind.u }}{% endif %}, par département, en cinq classes de même effectif</span></figcaption>
+    {{ carte|safe }}
+    <p class="comment-lire"><strong>Comment lire.</strong> Chaque classe réunit à peu près le même nombre de départements, de la teinte la plus claire, les valeurs les plus basses, à la plus foncée. Les teintes rangent les départements entre eux, elles ne disent pas un niveau souhaitable. Les départements hachurés n’ont pas de valeur publiée.</p>
+    <p class="discret" style="margin:6px 0 0">{% if carte_ind.fiche %}<a href="../indicateur/{{ carte_ind.fiche }}.html">La fiche de l’indicateur</a>, {% endif %}<a href="../croiser.html#x={{ carte_ind.id }}&amp;lv=epci">la même carte par intercommunalité dans Croiser</a>.</p>
+  </figure>{% else %}<div></div>{% endif %}
+  <section aria-labelledby="t-phares">
+    <h2 id="t-phares" style="font-size:1.375rem;margin:0 0 10px;border:0;padding:0">En bref</h2>
+    <ul class="inds" style="columns:auto">
+      {% for v in variantes %}<li>{% if v.fiche %}<a href="../indicateur/{{ v.fiche }}.html">{{ v.lab }}</a>{% else %}{{ v.lab }}{% endif %}<span class="meta">Par {{ v.nom[:-1] }}, la moitié entre {{ v.q1|nombre(v.genre) }} et {{ v.q3|nombre(v.genre) }}{% if v.u %}&nbsp;{{ v.u }}{% endif %}, {{ v.rep_lib|lower }} {{ v.rep|nombre(v.genre) }}{% if v.an %}, {{ v.an }}{% endif %}.</span></li>{% endfor %}
+    </ul>
+    <p class="comment-lire"><strong>Comment lire.</strong> Pour chaque indicateur, la moitié des territoires se situe entre les deux valeurs données, un quart en dessous, un quart au-dessus. Le repère est le même que sur les fiches des territoires : l’ensemble des territoires du même niveau, calculé comme eux, ou le territoire médian pour un indicateur qui ne s’additionne pas.</p>
+  </section>
+</div>
+{% endif %}
+<section class="avec-offre" aria-labelledby="t-offre-d">
+  <h2 id="t-offre-d">Ce domaine et l’offre de soins</h2>
+  {% if liens_dom.lignes %}
+  <ul class="liens-d">{% for o in liens_dom.lignes %}<li><span class="ind">{{ o.l.lab }}{% if o.niv == 'dep' %}<span class="meta">par département</span>{% endif %}</span><span class="pros">{% for x in o.liens %}<span class="lien-d {{ 'pos' if x.r > 0 else 'neg' }}">{{ x.court }} {{ x.r|nombre('ctx2') }}</span>{% endfor %}</span></li>{% endfor %}</ul>
+  {% else %}<p class="discret">{% if n_ind %}Aucun lien au-delà du seuil entre ces indicateurs et les professions de santé.{% else %}Rien à croiser tant qu’aucun indicateur n’est publié.{% endif %}</p>{% endif %}
+  <p class="comment-lire"><strong>Comment lire.</strong> Chaque nombre est la corrélation de rang entre l’indicateur et la densité de la profession, d’un territoire à l’autre, à densité de population égale. En canard, les deux montent ensemble, en cuivre, l’un monte quand l’autre baisse. Ces territoires se ressemblent sur ces deux points, cela ne dit pas pourquoi. <a href="../liens.html">La matrice des liens</a>{% if croiser %}, et la question préparée « <a href="../croiser.html#{{ croiser[1] }}">{{ croiser[0] }}</a> » dans Croiser{% endif %}.</p>
+</section>
+<section style="margin-top:32px" aria-labelledby="t-tous">
+  <h2 id="t-tous" style="font-size:1.375rem;border:0;padding:0">Tous les indicateurs du domaine</h2>
+  {% for so, liste in par_sous if liste %}
+  <h3 class="sous">{{ so }}</h3>
+  <ul class="inds">{% for i in liste %}<li>{% if i.fiche %}<a href="../indicateur/{{ i.fiche }}.html">{{ i.label }}</a>{% else %}{{ i.label }}{% endif %}{% if i.sm %}<span class="sm">santé mentale</span>{% endif %}{% if i.unite %}<span class="meta">{{ i.unite }}{% if i.source %}, {{ i.source }}{% endif %}</span>{% endif %}</li>{% endfor %}</ul>
+  {% else %}
+  <p class="discret">Aucun indicateur de ce domaine n’est encore publié.</p>
+  {% endfor %}
+</section>
+{% if venir %}<section class="venir" style="margin-top:28px" aria-labelledby="t-venir"><h2 id="t-venir" style="font-size:1.375rem;border:0;padding:0">Bases à venir</h2><ul>{% for v in venir %}<li>{{ v }}</li>{% endfor %}</ul><p class="discret">Chacune ne sera intégrée que si ses données sont ouvertes, documentées et vérifiées. <a href="../a-venir.html">Tout ce qui est prévu</a>.</p></section>{% endif %}
+{% endif %}
+{% endblock %}

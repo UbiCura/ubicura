@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+{# Comparateur de deux à quatre territoires (présentation du 30 octobre 2026, maquette c-comparer validée). Chaque
+   valeur est suivie du repère de son niveau, l'ensemble des territoires de ce niveau calculé de la même façon, avec le
+   nombre de professionnels ou de structures, la limite propre au territoire et des territoires semblables proposés.
+   Données de l'atelier (presentation/atelier_donnees.js, pipeline/atelier.py). #}
+{% block contenu %}
+<style>
+main.comparer{max-width:var(--largeur-page)}
+main.comparer [hidden]{display:none!important}
+main.comparer .seul-tel{display:none}@media (max-width:640px){main.comparer .seul-tel{display:block}}
+main.comparer .semblables button{display:inline-block}
+@media (max-width:640px){main.comparer .semblables{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}main.comparer .semblables button{margin:0}
+  /* téléphone, deux colonnes étroites, valeur, repère et position sans l'effectif, dégradé de bord (point I9 ; le
+     repère et la position restent visibles, défaut relevé à l'étape 1 du plan de reprise) */
+  main.comparer table.comp td .eff{display:none!important}main.comparer table.comp thead th{min-width:96px!important}main.comparer table.comp td{padding:8px 6px!important}}
+main.comparer h1{border:0;padding:0}
+main.comparer .chapeau{max-width:62ch}
+main.comparer .cherche{position:relative;max-width:40rem;margin-top:20px}
+main.comparer .cherche label{display:block;font-size:var(--t-note);color:var(--muted);margin-bottom:6px}
+main.comparer .cherche input{width:100%;min-height:48px;padding:0 14px;font:inherit;font-size:var(--t-texte);background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:4px}
+main.comparer .suggestions{list-style:none;margin:4px 0 0;padding:4px;position:absolute;left:0;right:0;z-index:20;background:var(--panel);border:1px solid var(--line);border-radius:4px;box-shadow:0 8px 24px rgb(0 0 0 / .25)}
+main.comparer .suggestions li{margin:0}
+main.comparer .suggestions a{display:flex;flex-wrap:wrap;gap:2px 8px;align-items:baseline;padding:10px;border-radius:4px;min-height:44px;color:var(--ink);text-decoration:none;text-align:left}
+main.comparer .suggestions a:hover{background:var(--nodata)}
+main.comparer .suggestions span{font-size:var(--t-note);color:var(--muted)}
+main.comparer .cherche-msg{min-height:1.5em;margin:8px 0 0;font-size:var(--t-note);color:var(--muted);text-align:left}
+main.comparer .puces{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 0}
+main.comparer .puce{display:inline-flex;align-items:center;gap:6px;min-height:40px;padding:0 6px 0 12px;border:1px solid var(--line);border-radius:4px;background:var(--panel);font-size:var(--t-note)}
+main.comparer .puce button{background:none;border:0;color:var(--muted);font:inherit;font-size:var(--t-texte);min-width:36px;min-height:36px;cursor:pointer;border-radius:4px}
+main.comparer .puce button:hover{color:var(--ink);background:var(--nodata)}
+main.comparer .semblables{margin:14px 0 0;font-size:var(--t-note);color:var(--muted);text-align:left}
+main.comparer .semblables button{background:none;border:0;border-bottom:1px solid var(--line);color:var(--ink);font:inherit;font-size:var(--t-note);min-height:36px;padding:0 4px;margin:0 4px;cursor:pointer}
+main.comparer .semblables button:hover{border-bottom-color:var(--accent)}
+main.comparer .outils-c{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin:20px 0 8px;font-size:var(--t-note)}
+main.comparer .outils-c button{background:none;border:0;border-bottom:1px solid var(--line);color:var(--ink);font:inherit;font-size:var(--t-note);min-height:40px;padding:0 6px;cursor:pointer}
+main.comparer .lien-copie{font-size:var(--t-note);color:var(--muted);overflow-wrap:anywhere}
+main.comparer .defile-comp{overflow-x:auto;border:1px solid var(--line);border-radius:4px;background:var(--panel)}
+main.comparer table.comp{border-collapse:separate;border-spacing:0;min-width:100%;font-size:var(--t-note);margin:0}
+main.comparer table.comp th,main.comparer table.comp td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top;text-align:right;white-space:nowrap}
+main.comparer table.comp th[scope=row]{text-align:left;white-space:normal;min-width:190px;max-width:260px;font-weight:500;font-size:var(--t-note);color:var(--ink);position:sticky;left:0;background:var(--panel);z-index:1;box-shadow:1px 0 0 var(--line)}
+main.comparer table.comp thead th{position:sticky;top:0;background:var(--panel);z-index:2;font-size:var(--t-note);color:var(--ink);font-weight:600;white-space:normal;min-width:130px;vertical-align:bottom}
+main.comparer table.comp thead th:first-child{left:0;z-index:3;text-align:left}
+main.comparer table.comp thead th .niv{display:block;font-weight:400;font-size:var(--t-note);color:var(--muted)}
+main.comparer table.comp thead th a{color:var(--ink)}
+main.comparer table.comp tr.groupe th{position:static;background:var(--bg);font-family:var(--serif);font-size:var(--t-texte);font-weight:500;padding-top:16px;box-shadow:none}
+main.comparer table.comp tr.groupe .g{position:sticky;left:12px}
+main.comparer table.comp td .v{font-variant-numeric:tabular-nums;font-size:var(--t-texte)}
+main.comparer table.comp td .eff,main.comparer table.comp td .rep,main.comparer table.comp .u{display:block;font-size:var(--t-note);color:var(--muted);font-weight:400}
+main.comparer table.comp td .np{font-size:var(--t-note);color:var(--muted);font-style:italic;white-space:normal;display:block;max-width:180px;margin-left:auto}
+main.comparer .sig{color:var(--signal);font-weight:700;margin-left:4px;cursor:help}
+main.comparer .ecart-haut{color:var(--r4)}main.comparer .ecart-bas{color:var(--d1)}
+main.comparer .vide-comp{padding:24px;color:var(--muted);margin:0}
+main.comparer .limite{display:flex;gap:10px;align-items:baseline;font-size:var(--t-note);color:var(--muted);margin:8px 0 0;text-align:left}
+main.comparer .limite b{color:var(--signal);flex:none}
+main.comparer .discret{color:var(--muted);font-size:var(--t-note);text-align:left}
+@media (max-width:640px){main.comparer table.comp th[scope=row]{min-width:132px;max-width:150px;font-size:var(--t-note)}main.comparer table.comp thead th{min-width:112px}main.comparer table.comp th,main.comparer table.comp td{padding:8px}}
+
+/* étape 4, relecture indépendante du 5 novembre 2026 : champ souligné, tableau sans cadre (filet appuyé au-dessus), fonds
+   du fond de page, puces sans boîte ; une colonne seule ne s'étire plus sur toute la largeur */
+main.comparer .cherche input{padding:0 2px;background:transparent;border:0;border-bottom:1px solid var(--line-fort);border-radius:0}
+main.comparer .cherche input:focus{outline:none;border-bottom:2px solid var(--ink)}
+main.comparer .cherche input:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+main.comparer .suggestions{background:var(--bg);border-radius:0;border-top:2px solid var(--ink);box-shadow:none}
+main.comparer .suggestions a{border-radius:0}
+main.comparer .puce{border:0;border-bottom:1px solid var(--ink);border-radius:0;background:none;padding:0 0 0 2px}
+main.comparer .puce button{border-radius:0}
+main.comparer .defile-comp{border:0;border-top:2px solid var(--ink);border-radius:0;background:none}
+main.comparer table.comp{min-width:0;width:auto}
+main.comparer table.comp th[scope=row],main.comparer table.comp thead th{background:var(--bg)}
+</style>
+<header class="tete">
+  <h1>Comparer des territoires</h1>
+  <p class="chapeau">Jusqu’à quatre territoires côte à côte, de niveaux différents. Chaque valeur est suivie du repère de son niveau, l’ensemble des territoires de ce niveau calculé de la même façon, et de sa position parmi eux.</p>
+  <div class="cherche">
+    <label for="q">Ajouter un territoire, par sa commune, son code postal ou son nom</label>
+    <input id="q" type="search" autocomplete="off" placeholder="Commune, code postal, intercommunalité, département" role="combobox" aria-controls="sugg" aria-autocomplete="list" aria-expanded="false">
+    <ul class="suggestions" id="sugg" role="listbox" hidden></ul>
+    <p class="cherche-msg" id="msg" aria-live="polite"></p>
+  </div>
+  <div class="puces" id="puces"></div>
+  <p class="semblables" id="semblables"></p>
+</header>
+<div class="outils-c">
+  <button type="button" id="copier">Copier le lien de cette comparaison</button>
+  <button type="button" id="csv">Télécharger le tableau, CSV</button>
+  <span class="lien-copie" id="lien" aria-live="polite"></span>
+</div>
+<p class="discret" id="leg-comp" style="margin:0 0 6px"></p>
+<div class="defile-comp" id="defile"></div>
+<p class="discret seul-tel" style="margin-top:6px">Sur téléphone, les valeurs seules. Les repères et les effectifs sont sur un écran plus large et dans le fichier CSV.</p>
+<div id="notes" style="max-width:55rem;margin-top:10px"></div>
+<p class="comment-lire" style="margin-top:10px;max-width:48rem"><strong>Comment lire.</strong> Repère, l’ensemble des territoires du même niveau calculé comme le territoire : somme des professionnels ou des structures rapportée à la somme des habitants concernés, distance médiane de tous les habitants pour une distance, territoire médian pour un indicateur qui ne s’additionne pas. La position dit la part des territoires du niveau dont la valeur est plus basse. Une valeur n’est en canard ou en cuivre que pour l’offre de soins, sous 0,8 fois ou au-dessus de 1,25 fois le repère et au-delà de ce que le hasard explique. Une valeur non publiée dit pourquoi. Mayotte compte dans les repères et les positions des départements, mais ses densités sont surestimées d’environ un quart (population de 2017), et elle est écartée des croisements entre départements. Sur téléphone, la première colonne reste en place quand le tableau glisse.</p>
+<script src="presentation/atelier_donnees.js"></script>
+<script src="presentation/chiffres.js"></script>
+<script src="presentation/recherche.js"></script>
+<script src="presentation/comparer.js"></script>
+<script src="presentation/glossaire.js" defer></script>
+{% endblock %}

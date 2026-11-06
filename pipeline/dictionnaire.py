@@ -6,7 +6,7 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-from . import config
+from . import config, lieux_profil
 
 NIVEAUX = {"com": "commune", "epci": "intercommunalité", "dep": "département", "reg": "région"}
 MODES = {"all": "tous modes d'exercice", "lib": "exercice libéral", "sal": "exercice salarié"}
@@ -32,7 +32,15 @@ FICHIERS = [
                                                    "structures de la même commune partagent le numéro FINESS, une ligne par "
                                                    "établissement. Cet effectif n'est attribué à aucune de ces structures."),
     (r"^lieux_soins_(epci|dep|reg)\.csv$", lambda m: f"Nombre de structures de soins de chaque type par {NIVEAUX[m.group(1)]}, "
-                                                    "et pour 100 000 habitants."),
+                                                    "et pour 100 000 personnes de leur public (enfants, personnes âgées) "
+                                                    "ou pour 100 000 habitants, mêmes taux que le site, non publiés là "
+                                                    "où les bases inscrivent moins de la moitié des structures de la SAE."),
+    (r"^temps_route_communes\.csv$", lambda m: "Temps de route en voiture des habitants de chaque commune vers la "
+                                                "structure la plus proche de chaque type, à l'échelle du distancier de "
+                                                "l'INSEE, et avec le moteur prudent de la Géoplateforme de l'IGN."),
+    (r"^temps_route_territoires\.csv$", lambda m: "Temps de route en voiture des habitants vers la structure la plus "
+                                                   "proche de chaque type, par intercommunalité, département, région et "
+                                                   "pour la France, aux deux échelles."),
     (r"^distances_lieux_(epci|dep|reg|france)\.csv$",
      lambda m: "Distance à vol d'oiseau des habitants à la structure de soins la plus proche de chaque type, "
                + (f"par {NIVEAUX[m.group(1)]}." if m.group(1) in NIVEAUX else "France entière.")),
@@ -323,6 +331,10 @@ COLONNES = [
                         "source publique, ou seulement inscrite dans les bases), vide hors liste vérifiée."),
     (r"^source_verification$", "Source qui confirme la structure."),
     (r"^adresse_source_verification$", "Adresse de la page de cette source."),
+    (r"^source_adresse_verifiee$", "Page de l'établissement ou autre source publique où l'adresse de la structure a été "
+                                   "lue, quand FINESS et le ROR ne la donnaient pas utilisable (contenus/"
+                                   "adresses_verifiees.csv)."),
+    (r"^date_adresse_verifiee$", "Date de lecture de cette source."),
     (r"^date_verification$", "Date de la vérification."),
     (r"^types$", "Types de structures vérifiés pour cet établissement."),
     (r"^sources$", "Sources consultées."),
@@ -406,7 +418,24 @@ COLONNES = [
                          "d'autres (voir declares_partage_par), l'effectif étant alors celui de l'établissement. Une "
                          "personne déclarée dans deux structures compte dans chacune, ces effectifs ne s'additionnent pas."),
     (r"^n_lieu_.+$", "Nombre de structures de ce type dans le territoire."),
-    (r"^pour_100000_lieu_.+$", "Nombre de structures de ce type pour 100 000 habitants."),
+    *[(rf"^pour_100000_{tp}$", f"Nombre de structures de ce type pour 100 000 "
+       f"{'enfants' if pub.startswith('moins') else 'personnes'} de {pub}, même règle que le site. Vide là où les bases "
+       "inscrivent moins de la moitié des structures que la SAE déclare (colonne taux_non_publies).")
+      for tp, pub in ((tp, lieux_profil.denominateur(tp)[1]) for tp in config.LIEUX_PROFIL) if pub],
+    (r"^pour_100000_lieu_.+$", "Nombre de structures de ce type pour 100 000 habitants, même règle que le site. Vide là où les "
+                               "bases inscrivent moins de la moitié des structures que la SAE déclare (colonne "
+                               "taux_non_publies)."),
+    (r"^temps_route_median_min$", "Temps de route médian des habitants, en minutes, à l'échelle du distancier de l'INSEE "
+                            "(seuils des isochrones de la Géoplateforme de l'IGN calés sur la part des habitants que l'INSEE "
+                            "publie vers les urgences), interpolé dans sa tranche de temps."),
+    (r"^temps_route_median_min_prudent$", "Temps de route médian des habitants, en minutes, avec le moteur de la Géoplateforme "
+                                    "de l'IGN tel quel, plus prudent, borne haute de la fourchette."),
+    (r"^part_route_plus_(\d+)_min$", "Part des habitants à plus de {0} minutes de route, à l'échelle du distancier de l'INSEE."),
+    (r"^part_route_plus_(\d+)_min_prudent$", "Part des habitants à plus de {0} minutes de route avec le moteur prudent de la "
+                                        "Géoplateforme de l'IGN, borne haute de la fourchette."),
+    (r"^taux_non_publies$", "Types dont le taux n'est pas publié dans ce territoire, avec la raison : moins de la moitié "
+                            "des structures que les établissements déclarent à la SAE sont inscrites dans FINESS et le "
+                            "ROR. Les nombres de structures inscrites restent publiés."),
     (r"^lieux_lieu_.+$", "Nombre de structures de ce type pour 100 000 habitants (FINESS et ROR réunis)."),
     (r"^dist_lieu_.+$", "Distance médiane des habitants à la structure la plus proche de ce type, en km, à vol d'oiseau."),
     (r"^finess_absorbes$", "Autres numéros FINESS du même lieu, enregistré plusieurs fois (sous deux entités juridiques "
@@ -564,7 +593,7 @@ COLONNES = [
                             "Ce n'est pas une mesure du besoin."),
     (r"^densite_nationale$", "Somme des effectifs des territoires du niveau rapportée à la population, pour 10 000 habitants. "
                              "Un professionnel qui exerce dans plusieurs territoires y compte une fois par territoire, "
-                             "c'est la moyenne calculée comme les territoires et non la densité de la France, dont "
+                             "c'est l'ensemble des territoires, calculé comme eux, et non la densité de la France, dont "
                              "l'effectif (chaque personne une fois) est dans effectifs_france.csv."),
     (r"^moyenne$|^mediane$|^p10$|^p90$", "Statistique de la densité pour 10 000 habitants entre territoires."),
     (r"^rapport_p90_p10$", "Rapport entre le 9e et le 1er décile des densités."),
@@ -599,7 +628,7 @@ COLONNES = [
     (r"^attendu$", "Densité attendue pour 10 000 habitants."),
     (r"^manque$", "Effectif attendu moins effectif observé."),
     (r"^rapport$", "Effectif observé divisé par l'effectif attendu (1 conforme au profil, 0,5 deux fois moins)."),
-    (r"^indice_vs_national$", "Indice de densité, 100 pour la moyenne des intercommunalités."),
+    (r"^indice_vs_national$", "Indice de densité, 100 pour l'ensemble des intercommunalités."),
     (r"^moran_I$", "Indice de Moran."),
     (r"^p_permutation$", "p-valeur par permutations."),
     (r"^diplome$", "Libellé du diplôme."),
@@ -724,7 +753,7 @@ COLONNES = [
     (r"^decile$", "Dixième de la population, de 1 (territoires les plus modestes) à 10 (les plus aisés)."),
     (r"^niveau_de_vie_(min|max)$", "Niveau de vie médian le plus bas ou le plus haut des territoires de la tranche (€)."),
     (r"^densite$", "Professionnels pour 10 000 habitants."),
-    (r"^statut$", "Position dans l'entonnoir, -2 nettement en dessous, -1 en dessous, 0 proche de la moyenne, 1 au-dessus, "
+    (r"^statut$", "Position dans l'entonnoir, -2 nettement en dessous, -1 en dessous, 0 proche de l'ensemble, 1 au-dessus, "
                   "2 nettement au-dessus."),
     (r"^effectif_au_taux_national$", "Effectif qu'aurait le territoire avec la densité nationale."),
     (r"^part_hors_95$", "Part des territoires hors des limites à 95 %."),

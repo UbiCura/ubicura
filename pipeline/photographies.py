@@ -7,12 +7,15 @@ Deux traces, pour pouvoir dire plus tard si une figure « bouge » et pourquoi.
    Des agrégats seulement, aucun nom ni identifiant. Une nouvelle exécution sur la même extraction remplace la
    photographie et le dit dans l'index.
 2. Une archive mensuelle de l'extraction brute du RPPS, sur le PC seulement (donnees/archives/rpps/, hors de Git),
-   pour pouvoir recalculer une date passée avec les règles du moment. Elle contient des noms de professionnels et ne
-   doit jamais être publiée. Sans elle, un changement de règle se confondrait avec un vrai changement.
+   pour pouvoir recalculer une date passée avec les règles du moment. Sans elle, un changement de règle se confondrait
+   avec un vrai changement. Les noms, prénoms et coordonnées de contact n'y sont pas gardés, ils ne servent à aucun
+   calcul (Lucas, 31 octobre 2026). Elle garde l'identifiant, nécessaire pour compter chaque professionnel une fois, et
+   ne doit jamais être publiée.
 """
 from __future__ import annotations
 
 import json
+import re
 import subprocess
 import zipfile
 from datetime import datetime
@@ -20,11 +23,13 @@ from datetime import datetime
 import pandas as pd
 
 from . import config
-from .util import JOURNAL, date_version, lire_meta, log
+from .util import JOURNAL, date_version, detecter_separateur, lire_meta, log, norm
 
 DOSSIER = config.RESULTATS / "historique" / "photographies"
 ARCHIVES_RPPS = config.DONNEES / "archives" / "rpps"
 NIVEAUX = ("reg", "dep", "epci")
+# colonnes retirées de l'archive (noms normalisés) ; la civilité reste, seule approximation du sexe
+COLONNES_HORS_ARCHIVE = (r"^nom d exercice$", r"^prenom d exercice$", r"^telephone", r"^telecopie", r"^adresse e mail")
 
 
 def version_programme() -> str | None:
@@ -79,8 +84,31 @@ def ecrire(agg, jour: str) -> dict | None:
     return entree
 
 
+def copier_sans_noms(source, flux) -> list[str]:
+    """Copie un fichier du RPPS dans un flux binaire sans les colonnes de COLONNES_HORS_ARCHIVE, renvoie celles retirées.
+    Le reste de chaque ligne est gardé tel quel (séparateur, fin de ligne, octets illisibles)."""
+    with open(source, encoding="utf-8-sig", errors="surrogateescape", newline="") as f:
+        entete = f.readline()
+        fin = entete[len(entete.rstrip("\r\n")):]
+        sep = detecter_separateur(entete.rstrip("\r\n"))
+        cols = entete.rstrip("\r\n").split(sep)
+        retirees = {i for i, c in enumerate(cols) if any(re.search(m, norm(c)) for m in COLONNES_HORS_ARCHIVE)}
+
+        def garder(ligne: str) -> bytes:
+            corps = ligne.rstrip("\r\n")
+            champs = corps.split(sep)
+            return (sep.join(v for i, v in enumerate(champs) if i not in retirees)
+                    + ligne[len(corps):]).encode("utf-8", "surrogateescape")
+
+        flux.write(garder(entete if fin else entete + "\n"))
+        for ligne in f:
+            flux.write(garder(ligne))
+    return [cols[i] for i in sorted(retirees)]
+
+
 def archiver_rpps(fichiers: dict) -> str | None:
-    """Archive mensuelle de l'extraction brute du RPPS (une par mois, la première vue), sur le PC seulement."""
+    """Archive mensuelle de l'extraction brute du RPPS (une par mois, la première vue), sans les noms ni les
+    coordonnées de contact, sur le PC seulement."""
     meta = lire_meta(fichiers.get("activite")) if fichiers.get("activite") else {}
     date_rpps = date_version(meta) if meta else None
     if not date_rpps:
@@ -93,14 +121,21 @@ def archiver_rpps(fichiers: dict) -> str | None:
         return deja[0].name
     cible = ARCHIVES_RPPS / f"rpps_{date_rpps}.zip"
     tmp = cible.with_suffix(".part")
-    log.info("archive de l'extraction du RPPS du %s (une fois par mois, sur le PC seulement)", date_rpps)
+    log.info("archive de l'extraction du RPPS du %s (une fois par mois, sans les noms, sur le PC seulement)", date_rpps)
+    retirees = {}
     with zipfile.ZipFile(tmp, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=6) as z:
         for chemin in fichiers.values():
-            z.write(chemin, chemin.name)
+            with z.open(chemin.name, "w", force_zip64=True) as flux:
+                retirees[chemin.name] = copier_sans_noms(chemin, flux)
             m = chemin.with_name(chemin.name + ".meta.json")
             if m.exists():
                 z.write(m, m.name)
+    noms = [n for n, r in retirees.items() if not any(re.search(r"^nom d exercice$", norm(c)) for c in r)]
+    if noms:
+        tmp.unlink()
+        raise RuntimeError("colonne des noms introuvable dans " + ", ".join(noms) + ", archive non écrite")
     tmp.replace(cible)
     JOURNAL.controle("Archive mensuelle du RPPS", f"{cible.name}, {cible.stat().st_size / 1e6:.0f} Mo, gardée sur le PC "
-                                                  "seulement (données personnelles, jamais publiées)")
+                     f"seulement, {sum(map(len, retirees.values()))} colonnes de noms et de coordonnées retirées "
+                     "(identifiants gardés, jamais publiée)")
     return cible.name

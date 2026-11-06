@@ -43,7 +43,7 @@
 {% endif %}
 {% if e.site %}
 <h4>Nouveautés et corrections</h4>
-<ul>{% for l in e.site %}<li>{{ l }}</li>{% endfor %}</ul>
+<ul>{% for l in e.site %}<li>{{ l|liens }}</li>{% endfor %}</ul>
 {% endif %}
 {% if e.indisponibles %}
 <p class="small">Sources indisponibles lors de cette mise à jour, {{ e.indisponibles|join(", ") }}. Le détail est sur la page <a href="{{ racine }}methode.html">Méthode, données et limites</a>.</p>

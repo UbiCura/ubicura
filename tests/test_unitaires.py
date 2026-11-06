@@ -377,10 +377,10 @@ def test_lecture():
     n = Lc.noms_classes({1: {"A": 60, "B": 70, "C": 75}, 2: {"A": 62, "B": 71, "C": 74}})
     assert n[1] != n[2] and "indice médian" in n[1]
     n = Lc.noms_classes({1: {"A": 41, "B": 30, "C": 45}, 2: {"A": 11, "B": 8, "C": 15}})
-    assert n[1].endswith("(environ 2,4 fois moins que la moyenne)") and n[2].endswith("(environ 9 fois moins que la moyenne)")
+    assert n[1].endswith("(environ 2,4 fois moins que l'ensemble)") and n[2].endswith("(environ 9 fois moins que l'ensemble)")
     assert Lc.ecart_moyenne(80) == "environ 20 % de moins" and Lc.ecart_moyenne(250) == "environ 2,5 fois plus"
     assert "mieux dotés pour les psychiatres" in Lc.nom_classe({"Psychologue": 30, "Psychiatre": 200, "Infirmier": 40})
-    assert Lc.nom_classe({"Psychologue": 100, "Psychiatre": 110}) == "Territoires proches de la moyenne"
+    assert Lc.nom_classe({"Psychologue": 100, "Psychiatre": 110}) == "Territoires proches de l'ensemble"
     assert "moins dotés pour les psychiatres" in Lc.nom_classe({"Psychologue": 100, "Psychiatre": 60, "Infirmier": 105})
 
 
@@ -1444,6 +1444,392 @@ def test_pdf_mots_coupes():
     assert controle_pdf.mots_coupes("pour tant", vocab | {"pourtant"}) == []
 
 
+def test_trajets_service_debit_et_reprise():
+    """Service d'isochrone de la Géoplateforme : au plus 4 appels par seconde, attente de l'en-tête Retry-After après
+    une erreur 429, puis la réponse (pipeline/trajets.py, sans réseau)."""
+    import io
+    import json
+    import urllib.error
+    from pipeline import trajets
+    temps, attentes, reponses = [0.0], [], []
+
+    def dormir(d):
+        attentes.append(d)
+        temps[0] += d
+
+    def ouvrir(url):
+        reponses.append(url)
+        if len(reponses) == 2:
+            raise urllib.error.HTTPError(url, 429, "Too Many Requests", {"Retry-After": "5"}, None)
+        return io.BytesIO(json.dumps({"geometry": {"type": "Point", "coordinates": [2, 47]},
+                                      "resourceVersion": "2026-10-30"}).encode())
+
+    s = trajets.Service(debit=4, ouvrir=ouvrir, horloge=lambda: temps[0], dormir=dormir)
+    assert s.isochrone(2.0, 47.0, 15)["resourceVersion"] == "2026-10-30"
+    assert s.isochrone(2.0, 47.0, 30)["resourceVersion"] == "2026-10-30"
+    assert "resource=bdtopo-valhalla" in reponses[0] and "direction=arrival" in reponses[0]
+    assert s.appels == 3 and s.refus == 1
+    assert 6.0 in attentes and all(abs(d - 0.25) < 1e-9 for d in attentes if d != 6.0), attentes
+    # recul progressif sur les erreurs 5xx, échec d'une isochrone après six essais, arrêt au-delà de 2 % d'erreurs
+    n = [0]
+
+    def panne(url):
+        n[0] += 1
+        if n[0] > 300:
+            raise urllib.error.HTTPError(url, 503, "Service Unavailable", {}, None)
+        return io.BytesIO(b'{"geometry": {"type": "Point", "coordinates": [2, 47]}}')
+
+    attentes.clear()
+    s = trajets.Service(debit=4, ouvrir=panne, horloge=lambda: temps[0], dormir=dormir)
+    for _ in range(300):
+        s.isochrone(2.0, 47.0, 15)
+    try:
+        s.isochrone(2.0, 47.0, 15)
+        assert False
+    except trajets.TropDErreurs:
+        assert False
+    except RuntimeError:
+        pass
+    assert s.erreurs == 6 and [d for d in attentes if d > 0.25] == [1, 2, 4, 8, 16, 32]
+    try:
+        s.isochrone(2.0, 47.0, 15)
+        assert False
+    except trajets.TropDErreurs:
+        assert s.erreurs == 7
+    assert "7 en erreur" in trajets.controle_appels({"appels": s.appels, "erreurs": s.erreurs})
+
+
+def test_trajets_tranches_et_mediane():
+    """Chaque point reçoit la plus petite borne de temps dont une isochrone le contient (l'infini au-delà de 45
+    minutes), et la médiane est interpolée dans sa tranche, comme celle de l'INSEE."""
+    import numpy as np
+    import pandas as pd
+    import shapely
+    from pipeline import trajets
+    carre = lambda r: shapely.box(-r, -r, r, r)  # noqa: E731
+    isos = {10: [carre(1)], 15: [carre(2)], 20: [carre(3)], 30: [carre(4)], 45: [carre(5)]}
+    t = trajets.tranches([0.5, 1.5, 3.5, 4.5, 9.0], [0, 0, 0, 0, 0], isos)
+    assert list(t[:4]) == [10, 15, 30, 45] and np.isinf(t[4])
+    # 100 habitants dans la tranche 0 à 10 et 100 dans 10 à 15 : la moitié est atteinte à 10 minutes
+    assert abs(trajets.mediane_tranches(np.array([10, 15]), np.array([100, 100])) - 10) < 1e-9
+    # 100 dans 10 à 15 et 300 dans 15 à 20 : la moitié (200) tombe au tiers de la tranche 15 à 20
+    assert abs(trajets.mediane_tranches(np.array([15, 20]), np.array([100, 300])) - (15 + 5 / 3)) < 1e-9
+    assert np.isnan(trajets.mediane_tranches(np.array([np.inf, 10]), np.array([3, 1])))
+    r = trajets.resumer(pd.DataFrame({"code": "A", "type": "lieu_cmp", "minutes": [10, 30, np.inf],
+                                      "pop": [50.0, 30.0, 20.0]}), ["code"]).iloc[0]
+    assert abs(r["part_plus_20_min"] - .5) < 1e-9 and abs(r["part_plus_30_min"] - .2) < 1e-9
+    assert abs(r["part_plus_45_min"] - .2) < 1e-9 and r["habitants"] == 100
+
+
+def test_trajets_cache_reprise():
+    """Une isochrone reçue est écrite dans le cache aussitôt ; un second calcul la relit sans appeler le service, et
+    une structure déplacée est redemandée."""
+    import tempfile
+    import pandas as pd
+    from pipeline import trajets
+    garde = trajets.DOSSIER
+    try:
+        trajets.DOSSIER = Path(tempfile.mkdtemp(prefix="trajets_"))
+
+        class Faux:
+            appels = 0
+
+            def isochrone(self, lon, lat, m):
+                self.appels += 1
+                d = m / 100
+                return {"geometry": {"type": "Polygon", "coordinates": [[[lon - d, lat - d], [lon + d, lat - d],
+                                                                          [lon + d, lat + d], [lon - d, lat + d],
+                                                                          [lon - d, lat - d]]]},
+                        "resourceVersion": "2026-10-30"}
+
+        s = pd.DataFrame({"id_structure": ["x1"], "lon": [2.0], "lat": [47.0]})
+        f = Faux()
+        a = trajets.isochrones(s, "lieu_cmp", f, seuils=(10, 30))
+        assert f.appels == 2 and len(a[10]) == 1 and trajets.versions_reseau("lieu_cmp") == ["2026-10-30"]
+        b = trajets.isochrones(s, "lieu_cmp", None, seuils=(10, 30))
+        assert b[30][0].equals(a[30][0])
+        trajets.isochrones(s.assign(lon=2.1), "lieu_cmp", f, seuils=(10, 30))
+        assert f.appels == 4
+    finally:
+        trajets.DOSSIER = garde
+
+
+def test_adresses_verifiees_tout_type():
+    """Adresses vérifiées sur les sources des établissements (contenus/adresses_verifiees.csv, 31 octobre 2026). Sur
+    les structures des derniers résultats et le cache du géocodage : la consultation jeunes consommateurs du lycée
+    Raynouard de Brignoles, rangée parmi les CSAPA et restée au chef-lieu sous l'adresse du siège de l'EPSYVAR, est
+    placée à son adresse avec une précision qui dit la vérification, l'autre structure de même numéro n'est pas
+    touchée, une ligne sans source n'est pas appliquée et un nom absent ne désigne rien."""
+    import pandas as pd
+    from pipeline import adresses_verifiees as av, cles_structures, config, lieux
+    from pipeline.sources import referentiel
+    l = _csv(_dernier_resultats(), "lieux_soins.csv", dtype=str)
+    if l is None:
+        raise Ignore("résultats absents")
+    x = l[(l["entite_juridique"] == "830101200") & (l["commune"] == "83023") & (l["type"] == "lieu_csapa")].copy()
+    if len(x) < 2 or not lieux.CACHE_GEO.exists():
+        raise Ignore("CSAPA de l'EPSYVAR à Brignoles ou cache du géocodage absents")
+    x = x.rename(columns={"nom": "nom_affiche", "latitude": "lat", "longitude": "lon"}).assign(
+        nom=lambda d: d["nom_affiche"], lieu=lambda d: d["id_structure"], precision="chef_lieu_gestionnaire")
+    for c in ("lat", "lon"):
+        x[c] = pd.to_numeric(x[c].str.replace(",", ".", regex=False), errors="coerce")
+    v = av.charger()
+    v = v[v["commune"] == "83023"]
+    assert len(v) >= 2 and (v["source"].str.startswith("https://")).all()
+    faux = pd.DataFrame([{**v.iloc[0].to_dict(), "source": ""},
+                         {**v.iloc[0].to_dict(), "nom": "Structure absente de Brignoles"}])
+    ref = referentiel.charger(hors_ligne=True)
+    out, r = av.appliquer(x, ref, True, pd.concat([v, faux], ignore_index=True))
+    lycee = out[out["nom_affiche"].str.contains("Rainouard")]
+    assert len(lycee) == 1 and lycee["precision"].iloc[0] == "verifiee_adresse"
+    assert lycee["adresse"].iloc[0] == "169 boulevard Bernard Long"
+    assert abs(float(lycee["lat"].iloc[0]) - 43.4) < .1 and lycee["adresse_verifiee_date"].iloc[0] == "2026-10-15"
+    assert r["sans_source"] == 1 and len(r["non_designees"]) == 1
+    # précision lue comme exacte partout (registre des clés, comptes de l'atlas, contrôle de comparer_versions)
+    for k in av.NIVEAUX.values():
+        assert k in lieux.PRECISIONS and lieux.PRECISIONS[k] in cles_structures.PRECIS
+        assert not lieux.PRECISIONS[k].startswith("centre de la commune")
+    # chaque ligne du fichier a sa source, sa date et un type connu
+    tous = av.charger()
+    types = {t[0] for t in config.LIEUX_TYPES}
+    assert tous["type"].isin(types).all() and (tous["source"].str.startswith("http")).all()
+    assert tous["date"].str.match(r"^\d{4}-\d{2}-\d{2}$").all()
+    # une adresse que le géocodage a déjà cherchée et ne trouve plus fait échouer le test (une adresse nouvelle, pas
+    # encore cherchée, le sera à la prochaine exécution en ligne)
+    from pipeline.verdicts import _adresse
+    cache = pd.read_parquet(lieux.CACHE_GEO).drop_duplicates(["voie", "commune"]).set_index(["voie", "commune"])
+    perdues = [a for a, c in zip(tous["adresse"], tous["commune"])
+               if _adresse(a, c, ref) in cache.index and pd.isna(cache.at[_adresse(a, c, ref), "lat"])]
+    assert not perdues, perdues
+    # revérification annuelle, comme les listes vérifiées des établissements
+    import datetime as dt
+    un = tous.iloc[[0]]
+    assert av.a_reverifier(un, {}, dt.date.fromisoformat(un["date"].iloc[0]) + dt.timedelta(days=366))
+    assert not av.a_reverifier(un, {}, dt.date.fromisoformat(un["date"].iloc[0]) + dt.timedelta(days=30))
+
+
+def test_commune_homonyme_du_departement():
+    """Une commune qui porte le nom de son département n'est pas lue dans le nom d'une unité enregistrée sous son
+    propre établissement (« CAMSP DOUBS », inscrit dans FINESS à Besançon, placé à Doubs jusqu'au 31 octobre 2026),
+    mais l'est pour une unité rattachée à un hôpital (« CeGIDD - Antenne Mayenne » du CH de Laval). Référentiel en
+    cache et flux FINESS historique."""
+    import pandas as pd
+    from pipeline import config, lieux
+    from pipeline.sources import referentiel
+    ref = referentiel.charger(hors_ligne=True)
+    h = lieux.departements_homonymes(ref)
+    assert {"25204", "19062", "53147"} <= h and "25056" not in h
+    noms = pd.Series({"camsp": "CAMSP DOUBS", "cegidd": "Centre Gratuit d'Information, de Dépistage et de Diagnostic "
+                                                         "(CeGIDD) - Antenne Mayenne"})
+    autres = lieux.communes_du_nom(noms, pd.Series({"camsp": "25", "cegidd": "53"}), ref)
+    assert autres.to_dict() == {"camsp": "25204", "cegidd": "53147"}   # la lecture seule du nom se trompe pour le CAMSP
+    garde = lieux.sans_departement_homonyme(autres, pd.Series({"camsp": True, "cegidd": False}), ref)
+    assert garde.to_dict() == {"cegidd": "53147"}
+    fh = config.BRUT / "finess_historique.csv"
+    if fh.exists():
+        ligne = next((r.split(";") for r in fh.open(encoding="latin-1") if r.startswith("structureet;250015500;")), None)
+        assert ligne is not None and ligne[13] + ligne[12] == "25056"   # Besançon dans FINESS
+
+
+def test_nom_qui_cite_un_pays_ou_une_voie():
+    """Le nom d'une unité enregistrée sous son propre établissement ne la place pas dans une commune qu'il ne cite que
+    comme pays (« CPTS du Pays de Gex », « Pays de la Loire » lu Loiré) ni dans celle que porte le nom de sa voie
+    (« 40 rue de Bétheny » à Reims) ; une antenne ou un site garde sa commune (« CSAPA - Mamers », « Relais Pays
+    d'Arles », « site de Chanteheux » en zone d'activités). Noms et adresses relevés dans lieux_soins.csv du
+    30 octobre 2026, échantillon tiré au hasard (graine 20261031) relu sur les sources des établissements."""
+    import pandas as pd
+    from pipeline import lieux
+    from pipeline.sources import referentiel
+    ref = referentiel.charger(hors_ligne=True)
+    cas = {"gex": ("CPTS DU PAYS DE GEX", "01", "240 RUE DE LA GARE", False),
+           "cra": ("Centre Ressources Austime des Pays de la Loire - ANGERS", "49", "4 RUE LARREY", False),
+           "betheny": ("RESIDENCE BETHENY", "51", "40 RUE DE BETHENY", False),
+           "mamers": ("CSAPA - Mamers", "72", "92 RUE MOLIERE", True),
+           "arles": ("SAMSAH INTERACTION13 - Relais Pays d'Arles - Cérébro lésés", "13", "85 RUE PIERRE BERTIER", True),
+           "chanteheux": ("ESAT EPSILON site de Chanteheux", "54", "ZONE D'AMENAGEMENT DIFFERE DE CHANTEHEUX", True)}
+    noms = pd.Series({k: v[0] for k, v in cas.items()})
+    autres = lieux.communes_du_nom(noms, pd.Series({k: v[1] for k, v in cas.items()}), ref)
+    assert set(autres.index) == set(cas), autres   # la lecture seule du nom les place toutes
+    garde = lieux.sans_pays_ni_voie(autres, pd.Series(True, index=noms.index), noms,
+                                    pd.Series({k: v[2] for k, v in cas.items()}), ref)
+    assert set(garde.index) == {k for k, v in cas.items() if v[3]}, garde
+    # rattachée à un hôpital, l'unité garde la commune de son nom
+    tous = lieux.sans_pays_ni_voie(autres, pd.Series(False, index=noms.index), noms,
+                                   pd.Series({k: v[2] for k, v in cas.items()}), ref)
+    assert len(tous) == len(autres)
+
+
+def test_plan_de_chaque_intercommunalite():
+    """Audit du 31 octobre 2026 (365 intercommunalités sans plan IGN dans la vue « Santé mentale ») : l'encadré
+    « Structures de soins de ce territoire » dessine le plan dès que le contour existe, même sans structure placée, et
+    chaque intercommunalité a son contour dans le fond de l'atlas et au moins un type placé dont le nombre est connu,
+    dans les deux vues. Un type que l'atlas ne place pas garde son nombre (jamais un 0 tiré de l'absence de points),
+    écrit « aucune » quand il est nul. Sur le fond et le site_data.json de la dernière exécution."""
+    import json
+    from pipeline import cartes, config
+    js = (config.RACINE / "atlas" / "moteur" / "structures.js").read_text(encoding="utf-8")
+    assert "filter(l=>l.pts.length)" not in js and "filter(l=>l.place)" in js
+    assert "Aucune structure de ce type n’est inscrite ici." in js and "<span class=\"muted\">aucune</span>" in js
+    assert "L[id]?.[i]" in js   # nombre compté pour un type non placé
+    # panneau de profil : « Ensemble des intercommunalités », jamais « moyenne », et pas de « soit 0 » laissé seul
+    profil = (config.RACINE / "atlas" / "moteur" / "atlas.js").read_text(encoding="utf-8")
+    assert "moyenne '+MOYLAB" not in profil and 'moyenne "+MOYLAB' not in profil and "la moyenne des territoires" not in profil
+    noyau = (config.RACINE / "atlas" / "moteur" / "noyau.js").read_text(encoding="utf-8")
+    assert "if(n===0)return AUCUNE_STRUCTURE" in noyau   # écriture du 5 novembre 2026 (unité après le taux)
+    if not cartes.FOND_ATLAS.exists():
+        raise Ignore("fond de l'atlas absent")
+    sd_f = _dernier_resultats() / "site_data.json"
+    if not sd_f.exists():
+        raise Ignore("site_data.json absent")
+    fond = json.loads(cartes.FOND_ATLAS.read_text(encoding="utf-8"))
+    contours = {g["properties"]["epci"] for g in fond["objects"]["epci"]["geometries"]}
+    sd = json.loads(sd_f.read_text(encoding="utf-8"))
+    ep = sd["niveaux"]["epci"]
+    codes = [u["c"] for u in ep["units"]]
+    assert len(codes) > 1200 and not set(codes) - contours, sorted(set(codes) - contours)[:5]
+    L = ep["lieux"]
+    places = {sd["lieux"]["types"][p[0]]["id"] for p in sd["lieux"]["pts"]}
+    for fam in (config.SANTE_MENTALE, "*"):
+        types = [t["id"] for t in sd["lieux"]["types"] if t["complet"] and t["id"] in L and t["id"] in places
+                 and (fam == "*" or t["famille"] == fam)]
+        assert types, fam
+        sans = [c for i, c in enumerate(codes) if not any(L[t][i] is not None for t in types)]
+        assert not sans, (fam, len(sans), sans[:5])
+
+
+def test_trajets_references_publiees():
+    """Seuils calés sur l'INSEE (urgences, part des habitants à plus de 30 minutes, mêmes communes), validés à
+    trajets.TOLERANCES près. La DREES (maternités, ER 1201, femmes de 15 à 44 ans en 2017) est une comparaison expliquée
+    (décision du 1er novembre 2026) : son écart, chiffré comme le donne le calcul, figure sur la page méthode et dans
+    « Comment lire » de la page « Autour d'un lieu » avec ses raisons, et ne dépasse pas 4 points. Sur le dernier calcul
+    national (python -m pipeline.trajets national)."""
+    import json
+    import pandas as pd
+    from pipeline import config, trajets
+    nat = trajets.DOSSIER / "national"
+    if not (nat / "validation.json").exists() or not (nat / "territoires.csv").exists():
+        raise Ignore("calcul national absent")
+    val = json.loads((nat / "validation.json").read_text(encoding="utf-8"))
+    tol = trajets.TOLERANCES
+    u = val["urgences_insee"]
+    assert abs(u["part_30_nous"] - u["part_30_insee"]) <= tol["urgences_insee_plus_30"], u
+    t = pd.read_csv(nat / "territoires.csv", sep=";", decimal=",", dtype={"code": str})
+    m = t[(t["niveau"] == "FR") & (t["type"] == "lieu_maternite")].iloc[0]
+    d = trajets.REPERE_DREES
+    assert abs(m["part_plus_30_min"] - d["france_plus_30"]) <= tol["maternites_drees_ecart_max"], m["part_plus_30_min"]
+    pct = lambda x: f"{x * 100:.1f}".replace(".", ",") + " %"  # noqa: E731
+    ici, drees = pct(m["part_plus_30_min"]), f"{d['france_plus_30'] * 100:.0f} %"
+    for page in ("methode.html", "zone.html"):
+        texte = (config.RACINE / "gabarits" / page).read_text(encoding="utf-8").replace(" %", " %")
+        assert ici in texte and drees in texte, (page, ici)
+        assert "15 à 44 ans" in texte and "2017" in texte and "fermées" in texte, page
+    # les pistes de l'écart, chacune avec le sens qu'elle laisse attendre (demande de Lucas du 1er novembre 2026)
+    methode = (config.RACINE / "gabarits" / "methode.html").read_text(encoding="utf-8")
+    for piste in ("Un autre champ.", "Une autre date.", "Un autre moteur de calcul.", "Les points de départ."):
+        assert piste in methode, piste
+    assert "sans qu'aucune soit établie" in methode and methode.count("laisse attendre") >= 3
+
+
+def test_sirene_stock_par_son_titre():
+    """Le stock des établissements Sirene se trouve dans les ressources du jeu de data.gouv sous ses deux titres réels
+    (« Sirene : Fichier StockEtablissement - 01 octobre 2026 (format parquet) » jusqu'en octobre 2026,
+    « stock-stocketablissement-parquet.parquet » depuis le 3 novembre 2026, titres lus sur l'API le 4 novembre),
+    jamais l'historique, les liens de succession ni les unités légales. Constat C2 et C3 du 4 novembre 2026 : sans
+    Sirene, 70 CATTP annoncés par l'enseigne d'un CMP avaient disparu, d'où l'extrait en cache gardé quand la mise à
+    jour échoue."""
+    from pipeline.sources import sirene
+    titres = [("Sirene : Fichier StockUniteLegale - 01 novembre 2026 (format parquet)", "parquet", 1),
+              ("stock-stocketablissement-csv.zip", "zip", 9),
+              ("stock-stocketablissement-parquet.parquet", "parquet", 5),
+              ("Sirene : Fichier StockEtablissementHistorique - 01 novembre 2026 (format parquet)", "parquet", 8),
+              ("Sirene : Fichier StockEtablissementLiensSuccession - 01 novembre 2026 (format parquet)", "parquet", 7)]
+    res = [{"titre": t, "format": f, "taille": n, "url": t, "maj": ""} for t, f, n in titres]
+    assert sirene.ressource_stock(res)["titre"] == "stock-stocketablissement-parquet.parquet"
+    ancien = [{"titre": "Sirene : Fichier StockEtablissement - 01 octobre 2026 (format parquet)", "format": "parquet",
+               "taille": 1, "url": "u", "maj": ""}]
+    assert sirene.ressource_stock(ancien + res[:1] + res[3:])["titre"].startswith("Sirene : Fichier StockEtablissement -")
+    assert sirene.ressource_stock(res[:2] + res[3:]) is None
+    src = (sirene.config.RACINE / "pipeline" / "sources" / "sirene.py").read_text(encoding="utf-8")
+    assert "extrait en cache gardé" in src and "if not EXTRAIT.exists():" in src
+
+
+def test_variation_brusque_par_departement():
+    """Constat C2 du 4 novembre 2026 : les CATTP de Charente passés de 10 à 0 dans la version du matin (Sirene non lu,
+    70 CATTP annoncés par l'enseigne d'un CMP disparus). Sirene relu, la version complète du 4 novembre les retrouve
+    (10 en Charente). Le contrôle de comparer_versions ne signale rien entre le 29 et le 30 octobre, et signale entre le
+    30 octobre et le 4 novembre le seul changement brusque vrai : l'EPSM de Caen a renommé et reclassé ses ateliers
+    dans FINESS le 30 octobre 2026 (catégorie 366, atelier thérapeutique, devenue 156 ou 292), réhabilitation
+    psychosociale du Calvados de 12 à 6. Sur les vraies versions en cache."""
+    import importlib.util
+    from pipeline import config
+    spec = importlib.util.spec_from_file_location("cv", config.RACINE / "outils" / "comparer_versions.py")
+    cv = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(cv)
+    R = config.RESULTATS
+    if not all((R / d / "lieux_soins_dep.csv").exists() for d in ("2026-10-29", "2026-10-30", "2026-11-04")):
+        raise Ignore("versions du 29 octobre au 4 novembre absentes")
+    b = cv.lire(R / "2026-11-04" / "lieux_soins_dep.csv")
+    assert int(b.loc[b["code"].astype(str) == "16", "n_lieu_cattp"].iloc[0]) == 10
+    v = cv.variations_lieux_departement(R / "2026-10-30", R / "2026-11-04")
+    assert v[v["type"] == "lieu_cattp"].empty, v
+    calvados = v[(v["code"].astype(str) == "14") & (v["type"] == "lieu_rehab_psy")]
+    assert len(calvados) == 1 and calvados["avant"].iloc[0] == 12 and calvados["apres"].iloc[0] == 6, v
+    assert cv.variations_lieux_departement(R / "2026-10-29", R / "2026-10-30").empty
+    # dans l'autre sens, une baisse devient une hausse et reste signalée
+    assert len(cv.variations_lieux_departement(R / "2026-11-04", R / "2026-10-30")) == len(v)
+    c = cv.Compte()
+    cv.variations_departement(R / "2026-10-30", R / "2026-11-04", c)
+    assert c.niveau == 10 and "Calvados 12 → 6" in c.lignes[0][1]
+
+
+def test_trajets_echelle_insee_et_smur():
+    """Décision de Lucas du 31 octobre 2026 : chiffre principal à l'échelle de l'INSEE (seuil T lu sur notre isochrone
+    de 1,31 × T minutes), SMUR comptés avec les urgences, publication seulement au nouveau format, colonnes distinctes
+    de celles de l'INSEE, tranches de la page « Autour d'un lieu » limitées aux types montrés."""
+    import tempfile
+    import pandas as pd
+    from pipeline import trajets, zone
+    assert trajets.SEUILS_ICI == (13, 20, 26, 36, 59) and trajets.SEUILS_INSEE == (10, 15, 20, 30, 45)
+    assert trajets.echelle_insee({13: ["a"], 20: ["b"], 26: ["c"], 36: ["d"], 59: ["e"]}) == \
+        {10: ["a"], 15: ["b"], 20: ["c"], 30: ["d"], 45: ["e"]}
+    garde = trajets.DOSSIER
+    try:
+        trajets.DOSSIER = Path(tempfile.mkdtemp(prefix="trajets_"))
+
+        class Faux:
+            def isochrone(self, lon, lat, m):
+                d = m / 100
+                return {"geometry": {"type": "Polygon", "coordinates": [[[lon - d, lat - d], [lon + d, lat - d],
+                                                                          [lon + d, lat + d], [lon - d, lat + d],
+                                                                          [lon - d, lat - d]]]},
+                        "resourceVersion": "2026-10-30"}
+
+        tout = pd.DataFrame({"id_structure": ["u1", "s1", "c1"], "type": ["lieu_urgences", "lieu_smur", "lieu_cmp_adultes"],
+                             "lon": [2.0, 3.0, 4.0], "lat": [47.0, 47.0, 47.0]})
+        u = trajets.isochrones_destinations(tout, "lieu_urgences", Faux(), (20,))
+        c = trajets.isochrones_destinations(tout, "lieu_cmp_adultes", Faux(), (20,))
+        assert len(u[20]) == 2 and len(c[20]) == 1   # urgences et SMUR réunis, pas pour les CMP
+        # publication refusée sans le moteur prudent, colonnes renommées sinon
+        nat = trajets.DOSSIER / "national"
+        nat.mkdir(parents=True)
+        out = Path(tempfile.mkdtemp(prefix="version_"))
+        pd.DataFrame({"code": ["01001"], "type": ["lieu_urgences"], "temps_median_min": [12.0]}).to_csv(
+            nat / "communes.csv", sep=";", decimal=",", index=False, encoding="utf-8-sig")
+        assert trajets.publier(out) == []
+        pd.DataFrame({"code": ["01001"], "type": ["lieu_urgences"], "temps_median_min": [12.0], "part_plus_30_min": [.1],
+                      "temps_median_min_prudent": [15.7], "part_plus_30_min_prudent": [.2]}).to_csv(
+            nat / "communes.csv", sep=";", decimal=",", index=False, encoding="utf-8-sig")
+        assert trajets.publier(out) == ["temps_route_communes.csv"]
+        cols = set(pd.read_csv(out / "temps_route_communes.csv", sep=";", nrows=0).columns)
+        assert {"temps_route_median_min", "part_route_plus_30_min", "temps_route_median_min_prudent"} <= cols
+        assert "temps_median_min" not in cols
+    finally:
+        trajets.DOSSIER = garde
+    z = zone.trajets_zone({"seuils": [10, 15, 20, 30, 45], "types": ["lieu_cmp_adultes", "lieu_csapa"],
+                           "rapport_moteur": 1.31, "communes": {"01001": [1, None]}}, {"lieu_csapa": 7})
+    assert z["calcules"] == [7] and z["communes"]["01001"] == [None] and z["seuils"][-1] == 45
+
+
 def test_rapport_territoire():
     import pandas as pd
     from pipeline import rapport_territoire as RT
@@ -1452,9 +1838,11 @@ def test_rapport_territoire():
     assert lo == 0 and abs(hi - 3.688879) < 1e-5, hi
     lo, hi = RT.ic_poisson(10, 1e4)
     assert abs(lo - 4.795389) < 1e-5 and abs(hi - 18.390356) < 1e-5, (lo, hi)
-    v = list(range(1, 9))   # quartiles 2,75 / 4,5 / 6,25
-    assert [RT.position(x, v) for x in (1, 4, 5, 8)] == ["quart le moins doté", "sous le milieu",
-                                                         "au-dessus du milieu", "quart le mieux doté"]
+    v = list(range(1, 9))   # position écrite comme sur les fiches (audit du 6 novembre 2026), plus de quarts
+    from pipeline.affichage import FINE
+    assert [RT.position(x, v) for x in (1, 4, 5, 8)] == [
+        "plus bas que tous les autres départements", f"plus bas que 57{FINE}% des départements",
+        f"plus haut que 57{FINE}% des départements", "plus haut que tous les autres départements"]
     assert RT.part(.0001) == "moins de 0,1 %" and RT.part(.25) == "25,0 %"
     # le département le plus proche de 01 est 02, les départements d'outre-mer n'ont pas de semblables
     rng = np.random.default_rng(1)
@@ -1509,6 +1897,24 @@ def test_version_corrective_zenodo():
     assert zenodo.date_version("2026-10-30 (version corrigée)") == "2026-10-30"
     assert zenodo.date_version("2026-10-30") == "2026-10-30"
     assert zenodo.date_version("sans numéro") == "sans numéro"
+
+
+def test_liens_zenodo_code_et_rapports():
+    """Le code archivé se relie aux trois dépôts qu'il produit, et chaque version d'un rapport à la version des données
+    déposée avec elle, en remplaçant le lien de la version précédente (rapport Zenodo du 30 octobre 2026, partie 3.3)."""
+    import json
+    from pipeline import config
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "outils"))
+    import zenodo, preparer_code_public
+    m = json.loads(preparer_code_public.zenodo_json("2026-10-30"))
+    assert m["upload_type"] == "software" and m["license"] == "EUPL-1.2" and m["creators"][0]["orcid"] == config.ORCID
+    assert m["creators"][0]["name"] == "Pithon, Lucas"
+    assert {r["identifier"] for r in m["related_identifiers"]} == {config.DOI_DONNEES, *config.DOI_RAPPORTS.values()}
+    ancien = {"related_identifiers": [{"identifier": "10.5281/zenodo.1", "relation": "isDerivedFrom"},
+                                      {"identifier": "10.5281/zenodo.9", "relation": "references"}]}
+    liens = zenodo.lien_donnees(ancien, "10.5281/zenodo.2")
+    assert [r["identifier"] for r in liens if r["relation"] == "isDerivedFrom"] == ["10.5281/zenodo.2"]
+    assert any(r["relation"] == "references" for r in liens)
 
 
 def test_citation_zenodo():
@@ -1883,6 +2289,39 @@ def test_css_libelle_valeur_ecart():
         for regle in re.findall(r"[^{}]*\{[^{}]*\}", css):
             if re.search(r"grid-template-columns:[^;}]*auto|justify-content:space-between", regle):
                 assert re.search(r"(^|[;{])\s*(column-)?gap:", regle), (f.name, regle.strip()[:120])
+
+
+def test_direction_visuelle_palettes():
+    """Direction visuelle du 30 octobre 2026 : aucune classe de couleur des données de la couleur du fond (contraste
+    d'au moins 2:1 sur le fond sombre et sur le fond clair), texte à 4,5:1 au moins, cinq tailles de texte en
+    variables, et les lignes de la barre du site lisibles par l'atlas sans les variables du site (valeurs de repli)."""
+    import re
+    import sys
+    from pipeline import config
+    sys.path.insert(0, str(config.RACINE / "outils"))
+    import controle_finition
+    assert controle_finition.palettes() == []
+    # un fond qui serait une classe de données est bien refusé
+    assert controle_finition.palettes(':root[data-theme="light"]{--bg:#F4F4F1;--d3:#F0F0EE}'
+                                      ':root[data-theme="dark"]{--bg:#121419}')
+    css = (config.RACINE / "gabarits" / "style.css").read_text(encoding="utf-8")
+    tailles = re.search(r":root\{(.*?)\}", css, re.S).group(1)
+    assert re.findall(r"--t-[\w-]+:([\d.]+)rem", tailles) == [".875", "1.0625", "1.375", "2", "3.5"]
+    for l in css.split("\n"):
+        if l.startswith("nav.site"):
+            assert not re.search(r"var\(--(e-\d|t-[\w-]+|marge|largeur-page|line-fort)\)", l), l[:100]
+
+
+def test_typographie_insecables():
+    """Espaces insécables du français dans le texte lu, jamais dans les balises ni les scripts."""
+    from pipeline.typographie import insecables
+    h = ('<p>Un « Comment lire » : 81 185 psychologues, 5,4 % de plus ; pourquoi ? 10 pour 10 000.</p>'
+         '<script>var a="« x » : 1";</script><a title="« t »">Source : RPPS</a>')
+    s = insecables(h)
+    assert "« Comment lire » :" in s and "81 185" in s and "5,4 %" in s
+    assert "plus ;" in s and "pourquoi ?" in s and "Source : RPPS" in s
+    assert '<script>var a="« x » : 1";</script>' in s and 'title="« t »"' in s
+    assert insecables(s) == s
 
 
 def test_fiche_territoire():
@@ -2306,6 +2745,7 @@ def test_structures_rapportees_a_leur_public():
     octobre 2026, une variable locale écrasait le contexte de l'INSEE et les EHPAD, CMP pour enfants, CMPP, CAMSP...
     étaient rapportés à toute la population sous un libellé qui annonçait leur public (EHPAD de la Sologne des Étangs,
     23,2 au lieu de 268 pour 100 000 personnes de 80 ans et plus). Recalcul sur les vraies données publiées."""
+    import json
     import numpy as np
     from pipeline import config, lieux_profil
     d = _dernier_resultats()
@@ -2324,7 +2764,12 @@ def test_structures_rapportees_a_leur_public():
             # un taux absent est permis là où la règle des manques de la SAE le retire (audit, constat 7, test_manques_sae)
             ok = np.isclose(c[f"lieux_{tp}"], attendu, rtol=1e-3, equal_nan=True) | attendu.isna() | c[f"lieux_{tp}"].isna()
             assert ok.all(), f"{niv}, {tp} : {(~ok).sum()} territoires ne sont pas rapportés aux {public or 'habitants'}"
-            assert c[f"lieux_{tp}"].notna().mean() > .8, f"{niv}, {tp} : trop de taux absents"
+            # absents permis là où la limite des manques de la SAE les retire (4 novembre 2026 : Nouvelle-Aquitaine,
+            # CATTP, après la baisse des CATTP inscrits en Charente) ; les autres restent rares
+            manq = set(((json.loads((d / "site_data.json").read_text(encoding="utf-8")).get("limites") or {})
+                        .get("manque_sae") or {}).get("territoires") or {}) if (d / "site_data.json").exists() else set()
+            autres = [k for k in c.index[c[f"lieux_{tp}"].isna()] if k not in manq and f"{niv}:{k}" not in manq]
+            assert len(autres) <= .2 * len(c), f"{niv}, {tp} : trop de taux absents hors des manques de la SAE ({len(autres)})"
             verifies += 1
             publics += bool(parts)
     assert verifies >= 30 and publics >= 15
@@ -2437,6 +2882,1021 @@ def test_accueil_leger():
         autonome = ca.construire(src, d / "autonome.html").read_text(encoding="utf-8")
         assert "window.DONNEES={" in autonome and "window.TOPO=" in autonome and '<script src="atlas_' not in autonome
         assert "if(window.DONNEES&&window.TOPO)" not in autonome and 'id="atlasChargement"' not in autonome
+
+
+def test_relecture_fiches_bplus_justesse():
+    """Défauts de justesse relevés par la relecture des fiches B+ du 31 octobre 2026, sur les vraies données.
+    M2 : l'écart est celui des valeurs pleines (v / ref − 1), et la phrase « marge » s'accorde avec la couleur ; il
+    était calculé sur les valeurs arrondies (Vierzon, psychiatres : « 46 % » pour −44,6 %).
+    M3 : aucun chiffre clé ne vaut 0 seul ; « aucun » à la place.
+    M4a : là où les bases recensent moins de la moitié des CMP de la SAE, aucun constat ne dit « aucune structure ».
+    M6 : les parts d'habitants des secteurs d'un même type ne dépassent pas 100 % (Lille, 160 % avant)."""
+    import json
+    import re
+    from pipeline import affichage as AF, constats as K, fiche_territoire as FT
+    r = _dernier_resultats()
+    if not (r / "site_data.json").exists():
+        raise Ignore("site_data.json absent")
+    sd = json.loads((r / "site_data.json").read_text(encoding="utf-8"))
+    dn = FT.Donnees(sd, r)
+    # M2, sur toutes les intercommunalités, pour les psychiatres et les psychologues
+    vus = 0
+    for prof in ("psychiatre", "psychologue"):
+        for code in dn.pos["epci"]:
+            c = dn.T.cellule(f"prof:{prof}:all", "epci", code)
+            if c and c["e"] is not None:
+                assert abs(c["e"] - (c["v"] / c["ref"] - 1)) < 1e-12, (prof, code)
+                vus += 1
+    assert vus > 500
+    c = dn.T.cellule("prof:psychiatre:all", "epci", "200090561")
+    assert c["e_mots"].startswith("45") and "sous" in c["e_mots"], c["e_mots"]
+    # la phrase « marge » suit le rapport plein : Grand Calais, 1,27 fois l'ensemble, n'est pas « dans la marge »
+    f = FT.fiche(dn, "epci", "200090751", r.name)
+    psy = next(k for k in K.constats(dn, f, "epci", "200090751", "62") if k["id"] == "prof:psychiatre:all")
+    assert "reste dans la marge" not in psy["phrases"][-1], psy["phrases"][-1]
+    # M3 et M4a, sur un échantillon fixe d'intercommunalités, dont Saint-Louis (bases incomplètes dans le Haut-Rhin)
+    for code in sorted(dn.pos["epci"])[::25] + ["200066058", "200018083"]:
+        dep = dn.unite("epci", code).get("p")
+        f = FT.fiche(dn, "epci", code, r.name)
+        assert all(str(t["n"]).strip() not in ("0", "0 km") for t in f["cles"]), (code, f["cles"])
+        for k in K.constats(dn, f, "epci", code, dep):
+            if k["id"].startswith("lieux_") and K._manque(dn, "epci", code, dep, k["nom"].split(",")[0]):
+                assert "aucune structure" not in k["titre"], (code, k["titre"])
+    f = FT.fiche(dn, "epci", "200066058", r.name)
+    cmp_ = next(k for k in K.constats(dn, f, "epci", "200066058", "68") if k["id"] == "lieux_lieu_cmp_adultes")
+    assert "non publié" in cmp_["titre"], cmp_["titre"]
+    # M6, Métropole Européenne de Lille
+    x = FT.reperes_secteurs(dn, "200093201")
+    if x["publie"]:
+        for t in ("G", "I"):
+            tot = sum(int(m.group(1)) for s in x[t] for m in [re.match(r"(\d+)", s["part"])] if m)
+            assert tot <= 101, (t, tot)
+
+
+def test_relecture_fiche_resserree_limites_et_comptages():
+    """Relecture du prototype de fiche resserrée (31 octobre 2026), sur les vraies données.
+    M1 : la limite « distance et nombre non publiés » ne se pose jamais sur une ligne, un constat ou « Pourquoi on le
+    dit » qui porte sa valeur (elle arrivait sur les CMP pour adultes de Vierzon et de la Guadeloupe) ; elle reste là
+    où la valeur est retirée.
+    M5 : une règle par comptage, rendue par le module : les domaines du contexte nomment la marge de 0,8 à 1,25 fois
+    (sans « nettement », mot réservé aux écarts colorés), l'offre compte ses lignes colorées.
+    m6 : une médiane nulle s'écrit en mots dans « Pourquoi on le dit », jamais « 0 »."""
+    import json
+    from pipeline import affichage as AF, constats as K, fiche_territoire as FT
+    r = _dernier_resultats()
+    if not (r / "site_data.json").exists():
+        raise Ignore("site_data.json absent")
+    sd = json.loads((r / "site_data.json").read_text(encoding="utf-8"))
+    dn = FT.Donnees(sd, r)
+    cat = {e["id"]: e for e in AF.catalogue(sd, r)}
+    sae = dn.limite("manque_sae")["court"].rstrip(".")
+    retenues = 0
+    echantillon = ([("epci", c) for c in sorted(dn.pos["epci"])[::40] + ["200090561", "200066058", "200018083"]]
+                   + [("dep", c) for c in sorted(dn.pos["dep"])[::5] + ["971", "68"]] + [("reg", c) for c in dn.pos["reg"]])
+    for lv, code in echantillon:
+        u = dn.unite(lv, code)
+        dep = u.get("p") if lv == "epci" else None
+        f = FT.fiche(dn, lv, code, r.name)
+        # les lignes des tableaux (structures et distances)
+        for l in [s["ligne"] for s in f["structures"]] + f["sm_dist"] + f["sante_dist"]:
+            court = ((l.get("limite") or {}).get("court") or "").rstrip(".")
+            if court == sae:
+                assert not l.get("txt") or l.get("code") == "aucun", (lv, code, l["lib"])
+                retenues += 1
+        # les constats et « Pourquoi on le dit »
+        for k in K.constats(dn, f, lv, code, dep):
+            pq = FT._pourquoi(dn, k, cat, None)
+            for t in (k.get("limite"), pq.get("limite")):
+                if t and t.rstrip(".") == sae:
+                    assert k["cel"]["v"] is None or k["cel"]["statut"] == "non_publie", (lv, code, k["id"])
+                    retenues += 1
+            if k["cel"]["kind"] in ("prof", "lieux") and k["cel"]["med"] == 0:
+                assert not any(" : 0." in p for p in pq["calcul"]), (lv, code, k["id"], pq["calcul"])
+        # M5, la règle de chaque comptage
+        for d in f["autour"]:
+            assert "nettement" not in d["synthese"], d["synthese"]
+            assert d["synthese"].startswith("Aucune base") or "marge de 0,8 à 1,25" in d["synthese"], d["synthese"]
+            haut = sum(1 for l in d["rows"] if l["e"] is not None and l["e"] + 1 > AF.PROCHE[1])
+            bas = sum(1 for l in d["rows"] if l["e"] is not None and l["e"] + 1 < AF.PROCHE[0])
+            assert (d["haut"], d["bas"]) == (haut, bas), (lv, code, d["id"])
+        c = FT.synthese_offre(f["sm_pro"], "professions")
+        coul = [l for l in f["sm_pro"] if l.get("offre") and l.get("txt") and l.get("couleur")]
+        assert c["haut"] + c["bas"] == len(coul), (lv, code)
+    # la limite reste là où les bases sont incomplètes : Saint-Louis (Haut-Rhin), CMP pour adultes non publiés
+    assert retenues > 0
+    f = FT.fiche(dn, "epci", "200066058", r.name)
+    cmp_ = next(k for k in K.constats(dn, f, "epci", "200066058", "68") if k["id"] == "lieux_lieu_cmp_adultes")
+    assert cmp_["cel"]["v"] is None and (cmp_.get("limite") or "").rstrip(".") == sae, cmp_.get("limite")
+    # Vierzon : plus de limite « non publiés » sur ses CMP pour adultes, publiés
+    f = FT.fiche(dn, "epci", "200090561", r.name)
+    for k in K.constats(dn, f, "epci", "200090561", "18"):
+        if k["id"] in ("lieux_lieu_cmp_adultes", "dist_lieu_cmp_adultes"):
+            assert not k.get("limite") and not FT._pourquoi(dn, k, cat, None)["limite"], k["id"]
+    assert FT.synthese(1, 1, 0).startswith("Sur l'indicateur du domaine, la valeur est au-dessus")
+    assert FT.synthese(0, 0, 0) == "Aucune base n'est encore intégrée dans ce domaine."
+
+
+def test_reglette_lisible():
+    """Reprise de lisibilité des réglettes (31 octobre 2026), sur les vraies données : une seule macro pour toutes les
+    pages (gabarits/reglette.html), sur une piste en retrait du bord ; le nombre de barres suit le nombre de territoires ;
+    une barre non vide garde une hauteur visible ; une distribution très étalée (densité des départements, 98e centile
+    vingt fois le 90e) arrête son axe au 90e centile, et le repère, la médiane et le point restent dans l'axe ; le
+    contrôle de finition mesure la lisibilité de chaque réglette."""
+    import json
+    import re
+    from pipeline import affichage as AF, fiche_territoire as FT
+    g = Path(__file__).resolve().parent.parent / "gabarits"
+    macro = (g / "reglette.html").read_text(encoding="utf-8")
+    assert 'class="rg-piste"' in macro and "h.nb" in macro
+    for p in ("fiche_territoire.html", "planche.html"):
+        t = (g / p).read_text(encoding="utf-8")
+        assert '{% from "reglette.html" import reglette' in t and 'class="rg-hist"' not in t, p
+    assert re.search(r"\.fiche \.rg-piste\{position:absolute;left:7px;right:7px", (g / "style.css").read_text(encoding="utf-8"))
+    assert "etiquettesReglettes" in (g / "figures.js").read_text(encoding="utf-8")
+    assert "sortie.reglettes" in (Path(__file__).resolve().parent.parent / "outils" / "controle_finition.js").read_text(encoding="utf-8")
+    assert (AF.Affichage.nb_barres(1259), AF.Affichage.nb_barres(101), AF.Affichage.nb_barres(18)) == (30, 20, 12)
+    r = _dernier_resultats()
+    if not (r / "site_data.json").exists():
+        raise Ignore("site_data.json absent")
+    sd = json.loads((r / "site_data.json").read_text(encoding="utf-8"))
+    dn = FT.Donnees(sd, r)
+    T = dn.T
+    h = T.histogramme("densite_pop", "dep", T.cellule("densite_pop", "dep", "971"))
+    assert h["centile"] == 90 and "90e centile" in h["axe"], h["axe"]
+    assert T.histogramme("prof:psychologue:all", "epci", T.cellule("prof:psychologue:all", "epci", "200090561"))["centile"] == 98
+    vus = 0
+    for lv in ("epci", "dep", "reg"):
+        for code in sorted(dn.pos[lv])[::max(1, len(dn.pos[lv]) // 15)]:
+            for ident in ("prof:psychologue:all", "prof:pedopsychiatre:all", "densite_pop", "dist_lieu_cmp_adultes"):
+                c = T.cellule(ident, lv, code)
+                h = T.histogramme(ident, lv, c) if c else None
+                if not h:
+                    continue
+                hauteurs = [float(x) for x in re.findall(r"v-([\d.]+)", h["chemin"])]
+                assert hauteurs and min(hauteurs) >= AF.Affichage.BARRE_MIN - 1e-9, (lv, code, ident)
+                assert h["chemin"].count("M") <= h["nb"] == AF.Affichage.nb_barres(len([v for v in T.serie(ident, lv).v if v is not None]))
+                for x in (h["val"], h["rep"], h["med"]):
+                    assert x is None or 0 <= x <= 100, (lv, code, ident, x)
+                vus += 1
+    assert vus > 60, vus
+
+
+def test_corrections_fiche_avant_mise_en_ligne():
+    """Corrections de la fiche de docs/corrections_avant_mise_en_ligne.md (1er novembre 2026), sur les vraies données et
+    sur la fiche rendue (Grand Avignon, Vierzon, Mayotte) :
+    M4b « aucun CMP réservé aux adultes, 1 CMP tous publics » ; M5 une intercommunalité sur plusieurs départements les
+    nomme tous ; M7 les codes des secteurs s'écartent ; m3 autant de colonnes que de tuiles ; m4 aucune unité derrière un
+    statut ; m5 la phrase sur l'ensemble deux fois au plus à l'écran ; m6 une médiane nulle en mots dans le nom
+    accessible ; m9 « tous les autres » au contact, jamais « 100 % » ; m10 aucun « moyenne » dans l'aperçu ; H3 « Citer
+    et exporter » sur chaque figure ; P1 « Comment lire » jamais replié."""
+    import json
+    import re
+    import shutil
+    import tempfile
+    from pipeline import affichage as AF, config, constats as K, fiche_territoire as FT, limites, referencement as rf
+    from pipeline import site as S
+    racine = Path(__file__).resolve().parent.parent
+    g = (racine / "gabarits" / "fiche_territoire.html").read_text(encoding="utf-8")
+    assert "function ecarter()" in g and "getBBox" in g                                   # M7
+    assert 'class="n{{ f.cles|length }}"' in g                                             # m3
+    css = (racine / "gabarits" / "style.css").read_text(encoding="utf-8")
+    assert ".fiche .cles-fiche ul.n3{grid-template-columns:repeat(3" in css
+    assert "a[href^='http']" in (racine / "gabarits" / "cesure" / "cesure.js").read_text(encoding="utf-8")   # DOI jamais coupé
+    fj = (racine / "gabarits" / "figures.js").read_text(encoding="utf-8")
+    assert "lireDeuxLignes" not in fj and 'textContent="Lire la suite"' not in fj         # P1
+    assert "moyenne" not in rf.TEXTE_APERCU                                                # m10
+    assert AF.position_txt(0.0, "dep", "", 1.0) == "plus bas que tous les autres départements"    # m9
+    assert AF.position_txt(0.0, "dep", "", .996).startswith("plus bas que 99")
+    r = _dernier_resultats()
+    fond = racine / "site" / "explorer" / "fond.js"
+    if not (r / "site_data.json").exists() or not fond.exists():
+        raise Ignore("site_data.json ou site/explorer/fond.js absent")
+    sd = json.loads((r / "site_data.json").read_text(encoding="utf-8"))
+    limites.completer(sd.get("limites"))
+    dn = FT.Donnees(sd, r)
+    # m6
+    c = dn.T.cellule("prof:pedopsychiatre:all", "epci", "200090561")
+    rg = dn.T.reglette("prof:pedopsychiatre:all", "epci", "200090561", c)
+    assert c["med"] == 0 and "sans inscrit" in rg["aria"] and "médiane 0" not in rg["aria"], rg["aria"]
+    # M5 : chaque intercommunalité sur plusieurs départements les nomme tous
+    multi = dn.departements_epci()
+    assert len(multi) > 50, len(multi)
+    for e, deps in multi.items():
+        f = FT.fiche(dn, "epci", e, r.name)
+        assert all(dn.noms["dep"].get(d, d) in f["parents_txt"] for d, _ in deps), (e, f["parents_txt"])
+    # M4b : une intercommunalité sans CMP pour adultes mais avec un CMP tous publics
+    vus = 0
+    for e in sorted(dn.pos["epci"]):
+        f = FT.fiche(dn, "epci", e, r.name)
+        st = {x["id"]: x for x in f["structures"]}
+        if (st.get("lieux_lieu_cmp_adultes") or {}).get("n") == 0 and (st.get("lieux_lieu_cmp") or {}).get("n"):
+            k = next(k for k in K.constats(dn, f, "epci", e, dn.unite("epci", e).get("p")) if k["id"] == "lieux_lieu_cmp_adultes")
+            if K._manque(dn, "epci", e, dn.unite("epci", e).get("p"), "CMP pour adultes"):
+                continue
+            assert k["titre"].startswith("Aucun CMP réservé aux adultes") and "CMP tous publics" in k["titre"], k["titre"]
+            vus += 1
+            if vus >= 5:
+                break
+    assert vus >= 1
+    # la fiche rendue
+    with tempfile.TemporaryDirectory() as d:
+        site = Path(d)
+        (site / "explorer").mkdir()
+        shutil.copy(fond, site / "explorer" / "fond.js")
+        pages = FT.construire(S._environnement(), S._commun(r, sd), r, sd, site, config.RACINE / "docs" / "veille" / "registre_bases.csv",
+                              config.ADRESSE_SITE, config.CITATION_AUTEUR, {("epci", "248400251"), ("epci", "200090561"), ("dep", "976")})
+        for p in pages:
+            h = p.read_text(encoding="utf-8")
+            corps = re.sub(r"<script.*?</script>", "", h, flags=re.S)
+            texte = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", corps)).replace(" ", " ").replace(" ", " ")
+            assert "non publié pour" not in texte, p.name                                 # m4
+            vue = re.sub(r'<section class="papier-fin.*?</section>', "", corps, flags=re.S)
+            assert vue.count(FT.AF.cle_contraire("haut", p.parent.name).split(" :")[0]) <= 2, p.name   # m5
+            # H3 : chaque figure a son « Citer et exporter » dans le bloc titré qui la porte
+            for fig in re.findall(r"<figure\b[^>]*>", corps):
+                assert "data-titre" in fig or "carte-fig" in fig, fig
+            assert corps.count('class="citer-encadre"') >= corps.count('<figure class="carte-bloc"') + 2, p.name
+            if p.stem == "248400251":                                                     # M5 rendu
+                assert re.search(r'class="tete-l2">[^<]*Vaucluse et Gard', h) and 'class="groupe-note note-deps"' in h
+
+
+def test_relecture_fiches_construites():
+    """Relecture des fiches resserrées construites (1er novembre 2026), dans les règles :
+    1. la position dit son ensemble dans la cellule, et au téléphone l'écart est sur sa ligne (mesuré dans le navigateur) ;
+    2. « mais » se décide sur ce que le lecteur voit à côté de la position, l'écart ou, sans écart, la valeur et
+       l'ensemble (distances et petits effectifs des tuiles et des Repères) ;
+    3. la carte du tableau de bord ne rétrécit jamais, elle grandit entière ; les codes de secteur restent dans le cadre ;
+    4. aucun point de structure n'en recouvre un autre ;
+    5. aucun « 0 » seul dans « Pourquoi on le dit » ; la base du taux nommée telle qu'elle est ;
+    mineurs : jamais « moyenne », « ensemble des régions » dans une fiche de région, raisons sociales en casse de titre,
+    deux indicateurs de même nom distingués dans le choix de la carte, volets réglés à la largeur réelle, barre des
+    domaines sans ascenseur, dernier mot jamais coupé, titres jamais seuls en bas de page, phares absents nommés."""
+    import json
+    import re
+    from pipeline import affichage as AF, cartes_presentation as CP, constats as K, fiche_territoire as FT, limites
+    from pipeline import bandes_fiche as BF, site as S
+    from outils import recouvrements_points as RP
+    racine = Path(__file__).resolve().parent.parent
+    g = (racine / "gabarits" / "fiche_territoire.html").read_text(encoding="utf-8")
+    css = (racine / "gabarits" / "style.css").read_text(encoding="utf-8")
+    js = (racine / "outils" / "controle_finition.js").read_text(encoding="utf-8")
+    # 2. la règle du « mais »
+    assert AF.sens_contraire_affiche("4,4", "2,6", "plus près que 52 % des départements") == "pres"
+    assert AF.sens_contraire_affiche("1,3", "2,4", "plus haut que 73 % des intercommunalités") == "haut"
+    assert AF.sens_contraire_affiche("2,6", "2,6", "plus près que 52 % des départements") is None
+    assert AF.sens_contraire_affiche("1,2", "2,6", "plus près que 91 % des intercommunalités") is None
+    assert AF.contraire(-.17, True, "10,6", "12,8", "plus haut que 71 % des intercommunalités") == "haut"
+    assert BF.mais(None, "plus près que 52 % des départements", "dist", "", None, "4,4", "2,6")
+    assert "pres" in AF.CLE_CONTRAIRE and "loin" in AF.CLE_CONTRAIRE
+    # 1. la cellule de la position, en entier ; l'écart passe à côté d'elle sous 820 px
+    assert "{{ l.pos_txt }}{% endif %}</td>" in g and "l.avant" in g and "m.avant" in g
+    assert "position sans son ensemble au téléphone" in js and "écart et position sur deux lignes" in js
+    # 3. la carte ne rétrécit plus ; les colonnes et les codes de secteur se mesurent après le chargement, sur chaque couche
+    assert "-.45 * h" not in g and "xMidYMid slice" not in g and 'addEventListener("fiche:couche", placer)' in g
+    assert "code de secteur hors du cadre" in js and 'addEventListener("load", r, { once: true })' in js
+    # 4. points : rayon selon la densité, lieux voisins regroupés, écartés de plus de deux rayons
+    assert CP.rayon_points(1, 40) == 1 and CP.rayon_points(1, 160) == .5 and CP.rayon_points(1, 10000) == .4
+    gr = CP.regrouper([(0, 0, "confirmee", True, ["a"]), (.5, 0, "confirmee", True, ["b"]), (.5, 0, "a_verifier", True, ["c"])], 1)
+    assert len(gr) == 2 and gr[0][4] == ["a", "b"]
+    # mineurs : volets, barre, césure, papier, apostrophe
+    assert 'mq.addEventListener("change", regler)' in g and "scrollbar-width:none" in css
+    assert "function finale(b)" in (racine / "gabarits" / "cesure" / "cesure.js").read_text(encoding="utf-8")
+    assert ".fiche table.matrice tr.m-section,.fiche .groupe-tete" in css
+    import inspect
+    assert "’" not in inspect.getsource(FT.construire)
+    # sur les fiches construites de l'échantillon
+    pages = {u: S.SITE / "territoire" / f"{u}.html" for u in ("epci/200090561", "epci/200093201", "epci/200018083", "dep/13",
+                                                             "dep/08", "reg/32", "epci/200000172", "epci/200046977")}
+    if not all(p.exists() for p in pages.values()):
+        raise Ignore("échantillon de fiches pas construit (outils/construire_fiches.py)")
+    for u, p in pages.items():
+        h = p.read_text(encoding="utf-8")
+        assert RP.recouvrements(h) == 0, u                                                         # 4
+        menus = " ".join(re.findall(r'<div class="menu-corps">(.*?)</div>', h, re.S))
+        texte = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", menus)).replace(" ", " ").replace(" ", " ")
+        assert not re.search(r"(^|[ .:])0 (inscrit|structure)|: 0 pour", texte), (u, re.search(r".{60}(^|[ .:])0 (inscrit|structure).{20}|.{60}: 0 pour.{10}", texte))   # 5
+        assert "public concerné" not in texte and "moyenne" not in texte.lower(), u                # 5, mineur 2
+        if u.startswith("reg/"):
+            assert "ensemble des départements <span" not in h, u                                    # mineur 3
+        assert not re.search(r'class="rep-ligne">[A-Z]{3,} [A-Z]{3,}', h), u                         # mineur 4
+        opts = re.findall(r'<select id="choix-[^"]+" class="choix-carte">(.*?)</select>', h, re.S)
+        for o in opts:
+            noms = re.findall(r">([^<]+)</option>", o)
+            assert len(noms) == len(set(noms)), (u, noms)                                         # mineur 6
+    # 2. sur les données : chaque tuile et chaque phrase des Repères dont les nombres vont en sens contraire de la
+    #    position porte « mais »
+    r = _dernier_resultats()
+    sd = json.loads((r / "site_data.json").read_text(encoding="utf-8"))
+    limites.completer(sd.get("limites"))
+    dn = FT.Donnees(sd, r)
+    vus = 0
+    for lv in ("dep", "reg"):
+        for c in sorted(dn.pos[lv]):
+            f = FT.fiche(dn, lv, c, r.name)
+            for t in f["cles"]:
+                if t.get("position") and t["rep"] and not t.get("ecart"):
+                    m = re.match(r".*?(?:: |\()([\d\s  ,]+)", t["rep"])
+                    if m and AF.sens_contraire_affiche(t["n"].replace(" km", ""), m.group(1), t["position"]):
+                        assert ", mais " + t["position"] in t["rep"], (lv, c, t)
+                        vus += 1
+    assert vus > 0
+    phares = BF.phares_absents([{"id": i} for _s, i, *_ in K.CANDIDATS if i != "ald_23"])
+    assert phares == [K.NOM_COURT["ald_23"]]
+    # 1. au téléphone, dans le navigateur : la position dit son ensemble et l'écart est sur sa ligne
+    from outils import controle_finition as CF
+    try:
+        exe = CF._navigateur()
+    except RuntimeError:
+        raise Ignore("aucun navigateur pour le contrôle au téléphone")
+    srv = CF._serveur(S.SITE)
+    try:
+        res = CF.controler(S.SITE, "territoire/epci/200090561.html", exe, srv, *CF.LARGEURS["telephone"])
+    finally:
+        srv.shutdown()
+    assert "erreur" not in res, res
+    assert not [d for d in res["defauts"] if "position sans son ensemble" in d or "deux lignes" in d], res["defauts"]
+
+
+def test_relecture_v2_fiches_construites():
+    """Deuxième relecture des fiches reconstruites (1er novembre 2026) :
+    1. « mais » ne commence jamais une cellule ni une ligne de position : l'écart, ou sans écart écrit l'ensemble, est
+       écrit devant (1 814 cellules) ;
+    2. une distance qui s'arrondit à 0 s'écrit « dans la commune d'au moins la moitié des habitants », jamais « 0 km »
+       ni « à moins de 0 km » (Nord Basse-Terre, Montluçon) ;
+    mineurs : accords (« les mêmes d'un territoire à l'autre », « L'un d'eux n'a », « toutes les autres
+    intercommunalités »), clé sous les tuiles accordée au « mais » montré, colonne de droite jamais vide, points qui ne
+    se touchent pas trait compris, apostrophes droites, capitales des noms mêlés."""
+    import re
+    from pipeline import affichage as AF, libelles
+    from pipeline import site as S
+    from outils import recouvrements_points as RP
+    racine = Path(__file__).resolve().parent.parent
+    g = (racine / "gabarits" / "fiche_territoire.html").read_text(encoding="utf-8")
+    assert AF.avant_position("45 % sous l'ensemble", True, True, "2,4", "prof") == "45 % sous l'ensemble"
+    assert AF.avant_position("", False, True, "2,6", "dist") == "ensemble 2,6 km"
+    assert AF.avant_position("", False, False, "2,6", "dist") == ""
+    assert AF.distance_nulle("0") and AF.distance_nulle("0,0") and not AF.distance_nulle("0,1")
+    assert AF.position_txt(1.0, "epci", "dist", 0.0) == "plus loin que toutes les autres intercommunalités"
+    assert AF.position_txt(1.0, "dep", "", 0.0) == "plus haut que tous les autres départements"
+    assert libelles.casse_titre("Psychiatrie INDIFFERENCIEE") == "Psychiatrie Indifférenciée"
+    assert libelles.casse_titre("EPSM Lille Métropole") == "EPSM Lille Métropole"
+    fj = (racine / "gabarits" / "figures.js").read_text(encoding="utf-8")
+    # apostrophes droites ; dans une chaîne JavaScript entre apostrophes, l'entité &#39; (une apostrophe droite y
+    # fermait la chaîne et arrêtait tout le script de la page, 1er novembre 2026)
+    assert "’" not in fj and "Copier l&#39;image" in fj and "Copier l'image" not in fj and "telles qu'affichées" not in fj
+    assert "Math.min(px / lignes.length, 32)" in g and "Les 1 autres" not in g and "Math.abs(e) > 40" in (racine / "outils" / "controle_finition.js").read_text(encoding="utf-8")
+    pages = {u: S.SITE / "territoire" / f"{u}.html" for u in ("epci/249710062", "epci/200071082", "epci/200090561", "dep/03",
+                                                             "epci/200043081", "dep/08", "epci/200018083", "reg/32", "epci/200054781")}
+    if not all(p.exists() for p in pages.values()):
+        raise Ignore("échantillon de fiches pas construit (outils/construire_fiches.py)")
+    for u, p in pages.items():
+        h = p.read_text(encoding="utf-8")
+        corps = re.sub(r"<script.*?</script>|<title>.*?</title>", "", h, flags=re.S)
+        texte = re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", corps)).replace("\u00a0", " ").replace("\u202f", " ")
+        assert not re.search(r'<td class="pos">\s*mais |<p class="m-pos">\s*mais ', h), u                    # 1
+        assert not re.search(r"(^|[.!?] )[Mm]ais ", texte), (u, re.search(r".{40}(^|[.!?] )[Mm]ais .{30}", texte))
+        # 2 ; le tableau des distances garde « 0 km » suivi de sa formule (affichage.ZERO), qui ne le laisse pas seul
+        assert not re.search(r"(?<![\d,])0 km\b(?! type présent)|à moins de 0 km", texte), (u, re.search(r".{50}(?<![\d,])0 km.{20}", texte))
+        assert "toutes les départements" not in texte and "Un n'a" not in texte and not re.search(r"Les 1 (autres|établissements)", texte), u
+        assert not re.search(r"tous les autres (intercommunalités|régions)", h), u
+        assert "INDIFFERENCIEE" not in h, u
+        assert RP.recouvrements(h) == 0, u
+    nbt = pages["epci/249710062"].read_text(encoding="utf-8")
+    assert AF.DANS_COMMUNE in nbt and "un CMP pour adultes dans la commune d'au moins la moitié des habitants" in nbt
+    ard = pages["dep/08"].read_text(encoding="utf-8")
+    import html as H
+    sans_fines = lambda t: re.sub(r"[\s  ]+", " ", t)
+    assert sans_fines(AF.cle_contraire("pres", "dep")) in sans_fines(H.unescape(ard))                    # clé des tuiles
+
+
+def test_impression_fiche_resserree():
+    """m7 (corrections du 1er novembre 2026) : sur papier, une seule taille dans la clé des tuiles et autant de colonnes
+    que de tuiles, cartes et légendes jamais coupées, la ligne type sous sa forme compacte (ses sept colonnes se
+    chevauchaient sur les 720 px de la page), la disposition du téléphone jamais appliquée à la page, aucun menu ni
+    dégradé de défilement, les détails techniques et les listes longues laissés à la version en ligne."""
+    import re
+    racine = Path(__file__).resolve().parent.parent
+    css = (racine / "gabarits" / "style.css").read_text(encoding="utf-8")
+    g = (racine / "gabarits" / "fiche_territoire.html").read_text(encoding="utf-8")
+    papier = "".join(re.findall(r"@media print\{(.*?)\n\}", css, flags=re.S))
+    for r in (".fiche .cles-fiche ul.n3{grid-template-columns:repeat(3", ".fiche .cles-fiche .cle-ensemble,.fiche .cles-fiche .tuile-r",
+              ".fiche .carte-terr,.fiche .carte-bloc,.fiche .carte-pied,.fiche .legende-situe", ".fiche details.tech,.fiche details.suite{display:none",
+              ".fiche .defile{background:none", ".fiche .carte-bloc-tete{display:none"):
+        assert r in papier, r
+    assert "table.indicateurs{display:table!important" not in css
+    assert "@media screen and (max-width:760px){\n  .fiche .tete-l1 h1" in css
+    assert '.fiche .bande.dom:not(.replie) > details.dom-corps, .fiche details.pli-tel' in g
+
+
+def test_fiche_resserree_ne_perd_rien():
+    """La fiche resserrée, validée par Lucas le 31 octobre 2026 (fiche, phrases de lecture visibles sous les douze
+    indicateurs phares, une carte par domaine au lieu des douze petites cartes), ne perd aucun titre ni aucune figure
+    de la fiche de l'étape 2 : les titres renommés passent par docs/inventaire_presentation/
+    correspondances_fiche_resserree.csv (motifs « * » pour les titres propres à un territoire) ; seule baisse décidée,
+    un tableau par fiche, les deux tableaux d'évolution devenus une colonne et la matrice « En bref » en plus.
+    Sur les pages du prototype (fiche de production et fiche resserrée, mêmes données), puis, dès qu'il existe, sur
+    l'inventaire du site construit avec la fiche resserrée (docs/inventaire_presentation/apres_*_resserree.json)."""
+    import json
+    sys.path.insert(0, str(Path(__file__).parent.parent / "outils"))
+    import inventaire_site as I
+    racine = Path(__file__).resolve().parent.parent
+    corr = I.lire_correspondances(racine / "docs" / "inventaire_presentation" / "correspondances_fiche_resserree.csv")
+    assert corr and "Évolution depuis 2016*" in corr
+    # le motif et la baisse permise se vérifient eux-mêmes
+    a = {"pages": {"x": {"titres": ["Évolution depuis 2016, Cher"], "figures": 1, "cartes": 0, "tableaux": 3}},
+         "total": {"figures": 1, "cartes": 0, "tableaux": 3}}
+    b = {"pages": {"x": {"titres": ["Professionnels de la santé mentale"], "figures": 1, "cartes": 0, "tableaux": 2}},
+         "total": {"figures": 1, "cartes": 0, "tableaux": 2}}
+    assert I.comparer(a, b, corr, {"tableaux": 1}) == []
+    assert I.comparer(a, b, corr) == ["tableaux en baisse : 3 avant, 2 après"]
+    assert I.comparer(a, b) and any("evolution depuis 2016 cher" in e for e in I.comparer(a, b))
+    pages = racine / "prototypes" / "fiche_resserree" / "pages"
+    noms = [f.stem for f in sorted(pages.glob("apres/*.html")) if (pages / "avant" / f.name).exists()]
+    if noms:
+        inv = {}
+        for cote in ("avant", "apres"):
+            p = {n: I.releve_page(pages / cote / f"{n}.html") for n in noms}
+            inv[cote] = {"pages": p, "total": {k: sum(x[k] for x in p.values()) for k in ("figures", "cartes", "tableaux")}}
+        assert I.comparer(inv["avant"], inv["apres"], corr, {"tableaux": len(noms)}) == []
+    from pipeline import config
+    dossier = config.RACINE / "docs" / "inventaire_presentation"
+    apres = sorted(dossier.glob("apres_*_resserree.json"))
+    if not apres:
+        raise Ignore("pas encore d'inventaire du site construit avec la fiche resserrée")
+    etape2 = json.loads((dossier / "apres_2026-10-31_etape2.json").read_text(encoding="utf-8"))
+    nouveau = json.loads(apres[-1].read_text(encoding="utf-8"))
+    nb_fiches = sum(1 for k in nouveau["pages"] if k.startswith("territoire/"))
+    # une fiche de région perd au plus une figure : sa silhouette vide, remplacée par la carte de ses départements
+    # (décision de Lucas du 31 octobre 2026) ; le nombre de cartes, lui, ne baisse pas
+    nb_regions = sum(1 for k in nouveau["pages"] if k.startswith("territoire/reg/"))
+    assert I.comparer(etape2, nouveau, corr, {"tableaux": nb_fiches, "figures": nb_regions}) == []
+    assert nouveau["total"]["cartes"] >= etape2["total"]["cartes"]
+
+
+def test_relecture_esthetique_fiche_resserree():
+    """Relecture esthétique de la fiche resserrée (31 octobre 2026), règles communes :
+    - réglette : hauteurs en racine carrée ; au-delà de 40 % de territoires sans inscrit, leur barre se détache à pleine
+      hauteur et l'étiquette de la médiane dit leur part (« médiane : aucun inscrit (83 %) ») ; axe plein sous les
+      barres ; une seule taille dans les tableaux (240 px, histogramme de 28 px) ;
+    - la petite France tient dans son cadre (la Corse était rognée) ;
+    - les raisons sociales du FINESS en capitales passent en casse de titre, sigles gardés ;
+    - la mesure est en pixels, pour un seul bord droit ; le contrôle de finition regarde aussi 1 024 et 883 px et
+      relève le texte justifié de moins de 560 px."""
+    import json
+    import re
+    from pipeline import affichage as AF, cartes_presentation as CP, fiche_territoire as FT, libelles
+    racine = Path(__file__).resolve().parent.parent
+    css = (racine / "gabarits" / "style.css").read_text(encoding="utf-8")
+    assert "--mesure:612px" in css and ".fiche table .rg.petite{width:240px" in css
+    assert re.search(r"\.fiche \.rg\.petite \.rg-hist\{top:16px;height:28px\}", css)
+    assert re.search(r"\.fiche \.rg-axe\{[^}]*background:var\(--hist\)", css)
+    cf = (racine / "outils" / "controle_finition.py").read_text(encoding="utf-8")
+    assert '"tablette": (883, 900)' in cf and '"ordinateur": (1280, 900)' in cf and '"telephone": (375, 812)' in cf
+    assert "justifié sur" in (racine / "outils" / "controle_finition.js").read_text(encoding="utf-8")
+    assert libelles.casse_titre("CH GEORGE SAND BOURGES") == "CH George Sand Bourges"
+    assert libelles.casse_titre("C. M. P. P. LES ANOLIS") == "CMPP les Anolis"
+    assert libelles.casse_titre("DIRECTION DES SERVICES DEPARTEMENTAUX DE L'EDUCATION NATIONALE DU CHER") == \
+        "Direction des Services Départementaux de l'Éducation Nationale du Cher"
+    assert libelles.casse_titre("Centre hospitalier") == "Centre hospitalier"
+    r = _dernier_resultats()
+    fond = racine / "site" / "explorer" / "fond.js"
+    if not (r / "site_data.json").exists() or not fond.exists():
+        raise Ignore("site_data.json ou site/explorer/fond.js absent")
+    sd = json.loads((r / "site_data.json").read_text(encoding="utf-8"))
+    from pipeline.atelier import _fond
+    # contours de France recalculés sur le vrai fond (la classe garde ceux d'un test précédent)
+    CP.Formes._boites, CP.Formes._compacts, CP.Formes._france = {}, {}, None
+    F = CP.Formes({"geo": _fond(fond, sd)})
+    svg = CP.situer(F, (300, 200, 320, 220), (310, 210))
+    x0, y0, w, h = map(float, re.search(r'viewBox="([-\d. ]+)"', svg).group(1).split())
+    F.france()
+    pts = [tuple(map(float, p)) for p in re.findall(r"(-?[\d.]+),(-?[\d.]+)", F.vus["gFR"])]
+    assert x0 <= min(p[0] for p in pts) and max(p[0] for p in pts) <= x0 + w, "petite France rognée en largeur"
+    assert y0 <= min(p[1] for p in pts) and max(p[1] for p in pts) <= y0 + h, "petite France rognée en hauteur"
+    dn = FT.Donnees(sd, r)
+    T = dn.T
+    # pédopsychiatres par intercommunalité : la plupart sans inscrit, barre détachée et part écrite
+    h = T.histogramme("prof:pedopsychiatre:all", "epci", T.cellule("prof:pedopsychiatre:all", "epci", "200090561"))
+    assert h["aucun"] and h["chemin"].startswith("M.12 18v-18.00h.76V18z"), h["chemin"][:40]
+    # la part écrite sur la barre (« aucun : 83 % ») ; figures.js la reporte dans la médiane si l'ensemble la touche
+    assert h["aucun_lab"] == "aucun : " + h["aucun"] and h["aucun"] not in h["med_txt"], (h["aucun_lab"], h["med_txt"])
+    assert 'class="rg-part" hidden' in (racine / "gabarits" / "reglette.html").read_text(encoding="utf-8")
+    # la hauteur de chaque barre croît avec son effectif, « aucun » compris (relecture esthétique, barre « aucun »)
+    for ident, lv in (("prof:pedopsychiatre:all", "epci"), ("lieux_lieu_cmpp", "epci"), ("prof:psychologue:all", "reg"),
+                      ("densite_pop", "dep"), ("prof:psychiatre:all", "dep")):
+        for code in sorted(dn.pos[lv])[::7]:
+            c = T.cellule(ident, lv, code)
+            hh = T.histogramme(ident, lv, c) if c else None
+            if not hh:
+                continue
+            hs = [float(x) for x in re.findall(r"v-([\d.]+)", hh["chemin"])]
+            assert len(hs) == len(hh["comptes"]), (ident, lv, code)
+            for (ka, ha) in zip(hh["comptes"], hs):
+                for (kb, hb) in zip(hh["comptes"], hs):
+                    assert not (ka > kb and ha < hb - 1e-9), (ident, lv, code, ka, ha, kb, hb)
+    # psychologues : pas de barre détachée, hauteurs en racine carrée (la plus haute à 18)
+    h = T.histogramme("prof:psychologue:all", "epci", T.cellule("prof:psychologue:all", "epci", "200090561"))
+    hs = [float(x) for x in re.findall(r"v-([\d.]+)", h["chemin"])]
+    assert not h["aucun"] and abs(max(hs) - 18) < .01 and min(hs) >= AF.Affichage.BARRE_MIN
+
+
+def positions_sans_ensemble(html: str) -> list[str]:
+    """Positions (« plus haut que 71 % ») qui ne disent pas leur ensemble : ni « des intercommunalités », « des
+    départements » ou « des régions » derrière elles, ni une cellule de position sous un en-tête qui le nomme
+    (« Position parmi les intercommunalités »). Texte et attributs lus par le lecteur d'écran compris."""
+    import html as H
+    import re
+    from html.parser import HTMLParser
+    pos = re.compile(r"plus (?:haut|bas|près|loin) que \d+(?:,\d+)? ?%(?! des (?:intercommunalités|départements|régions))")
+    norm = lambda t: re.sub(r"\s+", " ", H.unescape(t).replace(" ", " ").replace(" ", " ").replace("­", ""))  # noqa: E731
+
+    class P(HTMLParser):
+        def __init__(self):
+            super().__init__(convert_charrefs=True)
+            self.pile, self.fautes, self.tetes, self.tete, self.dans_pos, self.saut, self.niv = [], [], [], None, 0, 0, None
+
+        def handle_starttag(self, tag, attrs):
+            a = dict(attrs)
+            cl = (a.get("class") or "").split()
+            if tag in ("script", "style"):
+                self.saut += 1
+            for k in ("aria-label", "title", "data-phrase"):
+                if a.get(k):
+                    self.fautes += [f"{k} : {m}" for m in pos.findall(norm(a[k]))]
+            if tag == "table":
+                self.tetes.append("")
+            if tag == "th" and "pos" in cl and self.tetes:
+                self.tete = ""
+            if tag == "td" and "pos" in cl:
+                self.dans_pos += 1
+            if tag == "tr":
+                self.niv = (a.get("data-niv") or "").split(":")[0] or None
+            self.pile.append((tag, "pos" in cl))
+
+        def handle_endtag(self, tag):
+            while self.pile:
+                t, p = self.pile.pop()
+                if t == "th" and self.tete is not None and p:
+                    self.tetes[-1], self.tete = norm(self.tete), None
+                if t == "td" and p:
+                    self.dans_pos -= 1
+                if t == "table" and self.tetes:
+                    self.tetes.pop()
+                if t in ("script", "style"):
+                    self.saut -= 1
+                if t == tag:
+                    break
+
+        def handle_data(self, d):
+            if self.saut:
+                return
+            if self.tete is not None:
+                self.tete += d
+            t = norm(d)
+            m = self.dans_pos and self.tetes and re.search(r"Position parmi les (intercommunalités|départements|régions)", self.tetes[-1])
+            if m and (self.niv is None or {"epci": "intercommunalités", "dep": "départements", "reg": "régions"}[self.niv] == m.group(1)):
+                return
+            self.fautes += [f"texte : {m}" for m in pos.findall(t)]
+
+    p = P()
+    p.feed(html)
+    return p.fautes
+
+
+def test_position_dit_son_ensemble():
+    """Une position dit toujours son ensemble (remarque de Lucas du 31 octobre 2026, sur le prototype de fiche resserrée,
+    où « mais plus haut que 71 % » ne disait plus de quoi) : en entier partout, ou en forme courte dans une colonne dont
+    l'en-tête nomme l'ensemble ; une ligne d'un autre niveau l'écrit en entier. Sur la fiche de production rendue pour
+    trois territoires, et sur les pages du prototype quand elles sont construites."""
+    import json
+    import shutil
+    import tempfile
+    from jinja2 import Environment, FileSystemLoader, select_autoescape
+    from pipeline import config, fiche_territoire as FT, limites
+    from pipeline import site as S
+    assert positions_sans_ensemble("<p>plus haut que 71 % des intercommunalités</p>") == []
+    assert positions_sans_ensemble("<p>mais plus haut que 71 %</p>")
+    assert positions_sans_ensemble('<table><thead><tr><th class="pos">Position parmi les départements</th></tr></thead>'
+                                   '<tbody><tr><td class="pos">plus bas que 8 %</td></tr></tbody></table>') == []
+    assert positions_sans_ensemble('<table><thead><tr><th class="pos">Position</th></tr></thead>'
+                                   '<tbody><tr><td class="pos">plus bas que 8 %</td></tr></tbody></table>')
+    assert positions_sans_ensemble('<div aria-label="1,3, plus haut que 73 %"></div>')
+    # une ligne du département sous l'en-tête des intercommunalités écrit sa phrase entière
+    assert positions_sans_ensemble('<table><thead><tr><th class="pos">Position parmi les intercommunalités</th></tr></thead>'
+                                   '<tbody><tr data-niv="dep:18"><td class="pos">plus haut que 73 %</td></tr></tbody></table>')
+    racine = Path(__file__).resolve().parent.parent
+    proto = racine / "prototypes" / "fiche_resserree" / "pages"
+    for f in sorted(proto.glob("apres/*.html")) + sorted(proto.glob("option_repli/*.html")):
+        fautes = positions_sans_ensemble(f.read_text(encoding="utf-8"))
+        assert not fautes, (f.name, fautes[:5])
+    r = _dernier_resultats()
+    fond = racine / "site" / "explorer" / "fond.js"
+    if not (r / "site_data.json").exists() or not fond.exists():
+        raise Ignore("site_data.json ou site/explorer/fond.js absent")
+    sd = json.loads((r / "site_data.json").read_text(encoding="utf-8"))
+    limites.completer(sd.get("limites"))
+    env = Environment(loader=FileSystemLoader(str(racine / "gabarits")), autoescape=select_autoescape(["html"]))
+    with tempfile.TemporaryDirectory() as d:
+        site = Path(d)
+        (site / "explorer").mkdir()
+        shutil.copy(fond, site / "explorer" / "fond.js")
+        if (racine / "site" / "presentation" / "zone_fond").exists():
+            shutil.copytree(racine / "site" / "presentation" / "zone_fond", site / "presentation" / "zone_fond")
+        pages = FT.construire(env, S._commun(r, sd), r, sd, site, config.RACINE / "docs" / "veille" / "registre_bases.csv",
+                              config.ADRESSE_SITE, config.CITATION_AUTEUR,
+                              {("epci", "200090561"), ("dep", "971"), ("reg", "24")})
+        assert len(pages) == 3
+        for f in pages:
+            fautes = positions_sans_ensemble(f.read_text(encoding="utf-8"))
+            assert not fautes, (f.name, fautes[:5])
+
+
+def test_releve_rpps_hebdomadaire():
+    """Relève hebdomadaire du RPPS (1er novembre 2026) : photographie due au bout de six jours, jamais sous 6 Go de
+    mémoire libre, et les semaines sans photographie se voient (dates des vraies photographies d'octobre : 14, 28 et
+    29 octobre, la semaine du 19 octobre manque)."""
+    import datetime as dt
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "outils"))
+    import releve_rpps as R
+    d = dt.date(2026, 10, 29)
+    assert R.due(d, dt.date(2026, 11, 1), 8.0) == (False, "dernière photographie il y a 3 jours")
+    assert R.due(d, dt.date(2026, 11, 4), 8.0)[0] and not R.due(d, dt.date(2026, 11, 4), 4.0)[0]
+    assert R.due(None, dt.date(2026, 11, 4), 8.0)[0] and not R.due(None, dt.date(2026, 11, 4), 3.0)[0]
+    # 14 octobre (semaine du 12), 28 et 29 (semaine du 26) : il manque la semaine du 19 octobre
+    manque = R.semaines_manquantes([dt.date(2026, 10, 14), dt.date(2026, 10, 28), dt.date(2026, 10, 29)],
+                                   dt.date(2026, 11, 1))
+    assert manque == [dt.date(2026, 10, 19)], manque
+    assert R.semaines_manquantes([], dt.date(2026, 11, 1)) == []
+
+
+def test_etat_des_taches():
+    """Onglet « État » de la fenêtre du courrier (1er novembre 2026) : une ligne par tâche automatique, chacune avec un
+    état parmi trois, lue sur les vrais fichiers ; une tâche jamais passée est « en panne », une en retard « à regarder »."""
+    import datetime as dt
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "outils"))
+    import etat_taches as E
+    lignes = E.etats()
+    assert [l["tache"] for l in lignes] == ["Relève du courrier", "Statistiques", "Veille des bases",
+                                            "Mémoire du RPPS", "Archive mensuelle du RPPS", "Place sur le disque"]
+    assert all(l["etat"] in ("bien", "à regarder", "en panne") and l["detail"] for l in lignes)
+    assert E._etat("rpps", None) == "en panne" and E._etat("rpps", 3) == "bien"
+    assert E._etat("rpps", 10) == "à regarder" and E._etat("rpps", 20) == "en panne"
+
+
+def test_figures_sans_numero():
+    """Figures et tableaux titrés sans numéro (Lucas, 22 octobre et 1er novembre 2026) : aucun « Figure 3. » dans
+    les gabarits ni dans le code qui écrit les pages, ni dans les pages du site construit s'il existe."""
+    import re
+    from pipeline import config
+    # avec ou sans numéro : « <strong>Tableau.</strong> » restait seul devant un titre d'Explorer (relecture du 5 novembre)
+    motif = re.compile(r"(<strong>|\")\s*(Figure|Tableau)( \d+)?\.")
+    sources = list((config.RACINE / "gabarits").rglob("*.html")) + list((config.RACINE / "gabarits").rglob("*.js")) \
+        + list((config.RACINE / "pipeline").glob("*.py"))
+    fautes = [f.name for f in sources if motif.search(f.read_text(encoding="utf-8", errors="ignore"))]
+    assert not fautes, fautes
+    site = config.RACINE / "site"
+    if site.exists():
+        # les dossiers datés d'une version archivée sur Zenodo restent tels qu'ils ont été publiés (archives citables,
+        # décision du 28 octobre 2026) ; le référencement les réécrit à chaque construction, leur date de fichier ne
+        # dit donc pas leur âge (constaté le 4 novembre 2026 sur territoires/2026-10-30)
+        archive = config.VERSION_ZENODO
+        pages = [p for p in site.rglob("*.html") if archive not in p.relative_to(site).parts[:-1]
+                 and re.search(r"<strong>(Figure|Tableau) \d+\.</strong>", p.read_text(encoding="utf-8", errors="ignore"))]
+        assert not pages or all(p.stat().st_mtime < (config.RACINE / "pipeline" / "site.py").stat().st_mtime
+                                for p in pages), [str(p) for p in pages[:5]]
+
+
+def test_code_public_refuse_un_dossier_de_travail():
+    """4 novembre 2026 : « preparer_code_public.py . » a vidé les copies de travail des séances en prenant le dépôt de travail pour son
+    dossier de sortie. Le script refuse désormais ce dépôt, ses parents, ses sous-dossiers (sauf donnees/code_public) et
+    tout dossier non vide qui n'est pas un dépôt public déjà préparé, avant d'effacer quoi que ce soit."""
+    import importlib.util
+    import tempfile
+    from pipeline import config
+    spec = importlib.util.spec_from_file_location("pcp", config.RACINE / "outils" / "preparer_code_public.py")
+    pcp = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(pcp)
+    r = config.RACINE
+    for refuse in (r, r.parent, r / "site", r / ("." + pcp.ASSISTANT) / "worktrees", r / "docs"):
+        assert pcp.dossier_refuse(refuse), refuse
+    assert pcp.dossier_refuse(r / "donnees" / "code_public") == ""
+    with tempfile.TemporaryDirectory() as t:
+        t = Path(t)
+        assert pcp.dossier_refuse(t / "neuf") == ""
+        (t / "notes.txt").write_text("travail", encoding="utf-8")
+        assert pcp.dossier_refuse(t)
+        (t / ".zenodo.json").write_text("{}", encoding="utf-8")
+        assert pcp.dossier_refuse(t) == ""
+        (t / f"{pcp.ASSISTANT.upper()}.md").write_text("", encoding="utf-8")
+        assert pcp.dossier_refuse(t)
+
+
+def test_repere_jamais_nomme_moyenne():
+    """Règles du projet, partie 5 : le repère d'un territoire (l'ensemble des territoires du même niveau, calculé comme
+    lui) s'appelle partout « Ensemble des … », jamais « moyenne ». L'étape 4 (5 novembre 2026) a trouvé le mot dans les
+    rapports par territoire, les légendes des cartes, Explorer, l'atlas et le glossaire, des dizaines de milliers de
+    fois sur le site construit. Une vraie moyenne (silhouette moyenne, distance moyenne, en moyenne 50 euros) reste
+    permise. Contrôle sur les gabarits, les scripts et les chaînes du code (hors documentation des fonctions)."""
+    import ast
+    import re
+    from pipeline import config
+    motif = re.compile(
+        r"(?i)\b(?:la |cette )?moyenne (?:des|de ses) (?:intercommunalités|départements|régions|territoires)\b"
+        r"|\bfois (?:la|cette) moyenne\b|\bproches? de (?:la|cette) moyenne\b|\(moyenne = 100\)"
+        r"|\bindice 100 pour la moyenne\b|\b(?:sous|au-dessus de|en dessous de) la moyenne\b"
+        r"|>Moyenne ['\"+]")
+    assert motif.search("1,3 fois la moyenne") and motif.search("comparés à la moyenne des départements")
+    assert motif.search("<td class=\"muted small\">Moyenne '+MOYLAB[lv]")
+    assert not motif.search("silhouette moyenne entre 3 et 6") and not motif.search("moyenne des centres de ses communes")
+    R = config.RACINE
+    fautes = []
+    textes = [*(R / "gabarits").glob("*.html"), *(R / "gabarits").glob("*.js"), *(R / "gabarits" / "presentation").glob("*.js"),
+              R / "atlas" / "atlas_template.html", *(R / "atlas" / "moteur").glob("*.js")]
+    for f in textes:
+        for i, ligne in enumerate(f.read_text(encoding="utf-8").split("\n"), 1):
+            if motif.search(ligne) and not ligne.lstrip().startswith(("//", "/*", "*", "{#")):
+                fautes.append(f"{f.name}:{i}")
+    for f in (R / "pipeline").glob("*.py"):
+        arbre = ast.parse(f.read_text(encoding="utf-8"))
+        docs = {id(n.body[0].value) for n in ast.walk(arbre)
+                if isinstance(n, (ast.Module, ast.FunctionDef, ast.ClassDef, ast.AsyncFunctionDef)) and n.body
+                and isinstance(n.body[0], ast.Expr) and isinstance(n.body[0].value, ast.Constant)}
+        for n in ast.walk(arbre):
+            if isinstance(n, ast.Constant) and isinstance(n.value, str) and id(n) not in docs \
+                    and (motif.search(n.value) or n.value.strip() == "Moyenne"):
+                fautes.append(f"{f.name}:{n.lineno}")
+    assert not fautes, fautes
+
+
+def test_series_distinctes_et_sans_bleu():
+    """Étape 4 (5 novembre 2026), H1 et H2 : les courbes de Lorenz étaient trois tons de canard proches et l'ocre du signal
+    « ! » ; Explorer, l'atlas et les valeurs de repli des exports gardaient le bleu d'avant la palette canard. Les
+    courbes de comparaison prennent le canard puis les catégories du site, chacune avec son tracé, assez éloignées
+    deux à deux sur les deux fonds (écart de couleur CIE76 d'au moins 20) ; aucune ancienne valeur bleue ne reste."""
+    import re
+    from pipeline import config
+    R = config.RACINE
+    css = (R / "gabarits" / "style.css").read_text(encoding="utf-8")
+
+    def jetons(sel):
+        b = css[css.index(sel):]
+        return dict(re.findall(r"--([a-z0-9-]+):(#[0-9A-Fa-f]{6})", b[:b.index("}")]))
+
+    def lab(h):
+        rgb = [int(h[i:i + 2], 16) / 255 for i in (1, 3, 5)]
+        r, g, b = [((c + .055) / 1.055) ** 2.4 if c > .04045 else c / 12.92 for c in rgb]
+        x, y, z = (.4124 * r + .3576 * g + .1805 * b) / .95047, .2126 * r + .7152 * g + .0722 * b, (.0193 * r + .1192 * g + .9505 * b) / 1.08883
+        f = lambda t: t ** (1 / 3) if t > .008856 else 7.787 * t + 16 / 116  # noqa: E731
+        return 116 * f(y) - 16, 500 * (f(x) - f(y)), 200 * (f(y) - f(z))
+    js = (R / "gabarits" / "explorer_inegalites.js").read_text(encoding="utf-8")
+    cols = re.search(r"const cols = \[([^\]]+)\], tirets = \[([^\]]+)\]", js)
+    noms = re.findall(r"var\(--([a-z0-9]+)", cols.group(1))
+    assert noms == ["action", "c1", "c2", "c3"] and "accent" not in noms
+    assert len(set(cols.group(2).split(","))) == 4
+    for sel in (':root[data-theme="light"]', ':root[data-theme="dark"]'):
+        J = jetons(sel)
+        L = [lab(J[n]) for n in noms]
+        for i in range(4):
+            for j in range(i + 1, 4):
+                assert sum((a - b) ** 2 for a, b in zip(L[i], L[j])) ** .5 >= 20, (sel, noms[i], noms[j])
+    bleus = re.compile(r"(?i)#(1D4D87|78A1D6|4A77B0|3167A9|0F3562|5182C1|4C73A5|9DC7FE|77ABEC|5D8ECE|CCE4FF|97C1F7|739FD6|507CB5|9CB5DA|"
+                       r"7AA1D3|3D5A7F|95AFD6|3F74C0|163F75|6A9BE0|B5D5FF|2a78d6|3987e5)\b")
+    fichiers = [*(R / "gabarits").glob("*.html"), *(R / "gabarits").glob("*.js"), *(R / "gabarits").glob("*.css"),
+                *(R / "gabarits" / "presentation").glob("*.js"), *(R / "pipeline").glob("*.py"),
+                R / "atlas" / "atlas_template.html", *(R / "atlas" / "moteur").glob("*.js")]
+    restes = [f"{f.name}:{i}" for f in fichiers for i, l in enumerate(f.read_text(encoding="utf-8").split("\n"), 1)
+              if bleus.search(l)]
+    assert not restes, restes
+    # l'atlas prend les jetons du site, fond clair par défaut
+    sys.path.insert(0, str(R / "atlas"))
+    import construire_atlas
+    assert "/*JETONS*/" in construire_atlas.source() and "--action:#0E5A5A" in construire_atlas.jetons_du_site()
+    assert 'getItem("theme")||"light"' in construire_atlas.source()
+    # l'ocre (--accent, --signal) ne marque que les limites dans l'atlas, jamais un lien, un choix ou un repère
+    atlas = construire_atlas.source()
+    autres = [l.strip()[:80] for l in atlas.split("\n") if ("var(--accent" in l or 'css("--accent")' in l)
+              and not l.strip().startswith((".asavoir", "body .asavoir", "const VARS_COULEUR"))]
+    assert not autres, autres
+
+
+def test_barre_de_l_atlas_comme_le_site():
+    """Étape 4 (5 novembre 2026) : la barre de l'atlas repliait son menu à toutes les largeurs, les règles du bloc
+    @media de 1 000 px étant copiées sans leur condition. Chaque règle de la barre garde son bloc."""
+    import re
+    from pipeline import site
+    css = site._css_nav()
+    hors = css.split("@media")[0]
+    assert "nav.site .menu{display:none}" in hors and "nav.site .liens{display:contents}" in hors
+    assert "nav.site .liens{display:none" not in hors
+    for m in ("@media (max-width:1000px){", "@media (max-width:760px){"):
+        bloc = css[css.index(m):]
+        assert "nav.site .liens{display:none" in bloc[:bloc.index("\n}")]
+    source = (site.GABARITS / "style.css").read_text(encoding="utf-8")
+    assert len(re.findall(r"(?m)^nav\.site", css)) == len(re.findall(r"(?m)^nav\.site", source))
+
+
+def test_carte_a_deux_indicateurs_une_seule_palette():
+    """Relecture de l'étape 4 (5 novembre 2026) : la carte à deux indicateurs avait trois palettes, bleu et rouge dans
+    l'atlas et les rapports, canard et cuivre sur Croiser, dont le fond sombre dessinait les classes du fond clair (fond
+    comparé à l'ancienne couleur #15171C). Une seule palette, les jetons --bv0 à --bv8, chaque case à 2:1 du fond sur
+    les deux fonds ; config.BIVARIEE (figures des rapports) reprend celles du fond clair."""
+    import re
+    from pipeline import config
+    R = config.RACINE
+    css = (R / "gabarits" / "style.css").read_text(encoding="utf-8")
+
+    def lum(h):
+        r = [int(h[i:i + 2], 16) / 255 for i in (1, 3, 5)]
+        r = [((c + .055) / 1.055) ** 2.4 if c > .04045 else c / 12.92 for c in r]
+        return .2126 * r[0] + .7152 * r[1] + .0722 * r[2]
+    for sel, fond in ((':root[data-theme="light"]', "#F4F4F1"), (':root[data-theme="dark"]', "#121419")):
+        b = css[css.index(sel):]
+        b = b[:b.index("}")]
+        bv = [re.search(rf"--bv{k}:(#[0-9A-Fa-f]{{6}})", b).group(1) for k in range(9)]
+        assert all((max(lum(c), lum(fond)) + .05) / (min(lum(c), lum(fond)) + .05) >= 2 for c in bv), (sel, bv)
+        if "light" in sel:
+            assert [c.upper() for c in config.BIVARIEE] == [c.upper() for c in bv]
+    js = (R / "gabarits" / "presentation" / "atelier.js").read_text(encoding="utf-8")
+    assert 'jeton("--bv" + (i * 3 + j))' in js and "#15171c" not in js.lower()
+    cr = (R / "atlas" / "moteur" / "croisements.js").read_text(encoding="utf-8")
+    assert "OB.palette" not in cr and 'css("--bv"+k)' in cr and "(en rouge)" not in cr and "(en bleu)" not in cr
+
+
+def test_pages_outils_sans_double_ni_main_ferme():
+    """Relecture de l'étape 4 (5 novembre 2026) : le gabarit de Croiser fermait <main> lui-même et répétait l'infobulle
+    et le menu de choix d'un indicateur, deux fois le même id ; le premier menu, hors de <main>, perdait ses styles. Aucun
+    gabarit tiré de base.html ne ferme <main>, et les pages des outils n'ont aucun id en double."""
+    import re
+    from pipeline import config
+    R = config.RACINE
+    for f in (R / "gabarits").glob("*.html"):
+        t = f.read_text(encoding="utf-8")
+        if '{% extends "base.html" %}' in t:
+            assert "</main>" not in t, f.name
+    for nom in ("croiser.html", "explorer.html", "comparer.html", "zone.html", "domaines.html", "atlas.html"):
+        f = R / "site" / nom
+        if not f.exists():
+            continue
+        ids = re.findall(r'\bid="([^"]+)"', re.sub(r"<script[\s\S]*?</script>", "", f.read_text(encoding="utf-8")))
+        doubles = sorted({i for i in ids if ids.count(i) > 1})
+        assert not doubles, (nom, doubles[:10])
+
+
+def test_atlas_densites_dans_l_unite_des_pages():
+    """C4 du 5 novembre 2026 : l'atlas écrivait toutes les densités pour 10 000 habitants à une décimale, quand les autres
+    pages écrivent une profession rare pour 100 000 et deux décimales sous 1 (« 0,1 » pour « 0,74 »). Il lit désormais
+    l'unité de chaque profession dans ses données (D.unites, affichage.par_habitants) et arrondit comme
+    affichage.nombre ; le contrôle de cohérence de l'atlas arrête la construction en cas d'écart."""
+    import json, re
+    from pipeline import config, affichage as AF, controle_affichage as C
+    sys.path.insert(0, str(config.RACINE / "atlas"))
+    import construire_atlas
+    moteur = construire_atlas.moteur()
+    assert "const FAC=p=>(D.unites&&D.unites[p])||1e4" in moteur and "function fD(" in moteur
+    # plus aucune densité écrite « pour 10 000 » en dur, hors accessibilité (toujours pour 10 000) et uniteP
+    restes = [l for l in moteur.splitlines() if re.search(r"[Pp]our 10[  ]000 hab", l)
+              and "acces" not in l and "function uniteP" not in l and not l.lstrip().startswith("//")]
+    assert not restes, [r[:120] for r in restes]
+    assert "pour 10 000 habitants à une décimale" not in (config.RACINE / "pipeline" / "controle_affichage.py").read_text(encoding="utf-8")
+    # Explorer (inégalités) suit la même règle : unité lue dans ses données, aucune densité « pour 10 000 » en dur
+    # (relecture indépendante du 5 novembre 2026), et l'atlas n'écrit pas « nettement en dessous » dans la marge de 0,8
+    # à 1,25 fois l'ensemble, la règle de la fiche
+    ex = (config.RACINE / "gabarits" / "explorer_inegalites.js").read_text(encoding="utf-8")
+    assert "const FAC_I = p => (DI.unites && DI.unites[p]) || 1e4" in ex and "function fDI(" in ex
+    assert not [l for l in ex.splitlines() if re.search(r"[Pp]our 10 000 hab", l) and "uniteI" not in l]
+    assert '"unites": {p: AF.par_habitants(site_data, p) for p in ids}' in (config.RACINE / "pipeline" / "explorer.py").read_text(encoding="utf-8")
+    assert "rr>=.8&&rr<=1.25" in moteur
+    src = open(C.__file__, encoding="utf-8").read()
+    assert 'e.startswith("rapport")' in src and 'e.startswith(("atlas", "rapport"))' not in src
+    dates = sorted(p for p in config.RESULTATS.glob("20*") if (p / "site_data.json").exists())
+    if not dates:
+        return
+    sd = json.loads((dates[-1] / "site_data.json").read_text(encoding="utf-8"))
+    data = dict(sd)
+    construire_atlas.completer(data)
+    assert data["unites"] == {p["id"]: AF.par_habitants(sd, p["id"]) for p in sd.get("professions", [])}
+    assert 100000 in data["unites"].values() and 10000 in data["unites"].values()
+    # écriture des nombres : celle des pages (0 seul, deux décimales sous 1)
+    assert [AF.nombre(v) for v in (0.0, 0.004, 0.741, 0.996, 2.25, 1234.5)] == ["0", "0", "0,74", "1,0", "2,3", "1 235"]
+
+
+def test_meme_nombre_d_indicateurs_croiser_et_domaines():
+    """Relecture du 5 novembre 2026 : Domaines comptait 140 indicateurs d'offre de soins et 77 de santé mentale, la
+    fenêtre de Croiser 148 et 78 (les neuf évolutions dans le temps comptées comme des indicateurs, « Médecin,
+    spécialité non renseignée » comptée sur Domaines sans entrer dans Croiser). Même compte des deux côtés : catalogue
+    du portail et indicateurs de l'atelier, évolutions et modes d'exercice à part."""
+    import json, collections
+    from pipeline import config, portail, atelier
+    dates = sorted(p for p in config.RESULTATS.glob("20*") if (p / "site_data.json").exists())
+    fond = config.RACINE / "site" / "explorer" / "fond.js"
+    if not dates or not fond.exists():
+        return
+    sd = json.loads((dates[-1] / "site_data.json").read_text(encoding="utf-8"))
+    cat = portail.catalogue(sd)
+    A = atelier.donnees(sd, dates[-1], fond, config.RACINE / "docs" / "veille" / "registre_bases.csv", dates[-1].name, None)
+    compte = [i for i in A["ind"] if i["type"] not in ("venir", "evol") and (i["type"] != "prof" or i.get("mode") == "all")]
+    assert collections.Counter(i["domaine"] for i in cat) == collections.Counter(i["domb"] for i in compte)
+    assert sum(1 for i in cat if i["sm"]) == sum(1 for i in compte if i.get("sm"))
+    assert len(cat) == len(compte)
+    js = (config.RACINE / "gabarits" / "presentation" / "atelier.js").read_text(encoding="utf-8")
+    assert 'i.type !== "venir" && i.type !== "evol"' in js
+
+
+def test_domaines_decrit_la_regle_du_lien():
+    """Relecture indépendante du 5 novembre 2026 : Domaines décrivait un « lien faible » sous 0,3 quand Croiser et
+    regle_lien.py n'en retiennent aucun sous 0,3. Le texte reprend le seuil et le risque de la règle unique."""
+    from pipeline import config, regle_lien
+    h = (config.RACINE / "gabarits" / "domaines.html").read_text(encoding="utf-8")
+    seuil, alpha = f"{regle_lien.SEUIL_RHO:.1f}".replace(".", ","), f"{regle_lien.ALPHA:.2f}".replace(".", ",")
+    assert f"corrélation de {seuil} en valeur absolue" in h and f"probabilité corrigée sous {alpha}" in h
+    assert "faible sous 0,3" not in h
+
+
+def test_taux_de_structures_avec_son_unite():
+    """Remarque de Lucas du 5 novembre 2026, fiche d'un territoire de l'atlas : « Maisons de santé pluriprofessionnelles,
+    pour 100 000 habitants / 6 structures / soit 1,9 » prête à confusion. Le taux est suivi de son unité (« 6 structures,
+    soit 1,9 pour 100 000 habitants », forme décidée par Lucas le 30 octobre 2026) et le libellé ne garde que le nom."""
+    from pipeline import config
+    js = (config.RACINE / "atlas" / "moteur" / "noyau.js").read_text(encoding="utf-8")
+    assert "function nomUnite(c)" in js
+    for f in ("function texteTaux", "function htmlTaux"):
+        corps = js[js.index(f):js.index("}", js.index("const u=nomUnite(c)[1]", js.index(f)))]
+        assert "nomUnite(c)[1]" in corps and "soit " in corps and "u?" in corps, f
+    at = (config.RACINE / "atlas" / "moteur" / "atlas.js").read_text(encoding="utf-8")
+    assert 'String(c.id).startsWith("lieux_")?nomUnite(c)[0]' in at
+
+
+def test_domaines_meme_compte_au_telephone():
+    """Relecture de l'étape 4 (5 novembre 2026) : au téléphone, la liste qui remplace le schéma des domaines écrivait
+    « aucun indicateur » pour chaque domaine (comptes absents de ses données), alors que le schéma en donnait 140. Le
+    compte de chaque domaine est le même dans le schéma et dans la liste, sur la page construite."""
+    import re
+    from pipeline import config
+    f = config.RACINE / "site" / "domaines.html"
+    if not f.exists():
+        raise Ignore("site non construit")
+    h = f.read_text(encoding="utf-8")
+    # le compte est ce qui suit le nom du domaine, qui peut lui-même porter une virgule (« Revenus, emploi et pauvreté »)
+    schema = {a: n for a, n in re.findall(r'<a href="#([a-z-]+)" aria-label="[^"]*?, ((?:\d[\d   ]* indicateurs?|aucun indicateur)(?:, \d+ à venir)?)"><g class="noeud', h)}
+    liste = {a: n for a, n in re.findall(r'<li><a href="#([a-z-]+)">[^<]*</a><span>([^<]+)</span></li>', h)}
+    assert schema and liste and schema == liste, (schema, liste)
+    assert any(not n.startswith("aucun") for n in liste.values())
+
+
+def test_aucune_allusion_a_l_offre_payante():
+    """Rien de l'offre payante sur le site avant sa validation, charte du gratuit comprise (Lucas, 31 octobre 2026) :
+    les mots qui y font allusion sont refusés par le contrôle des textes publiés, sans gêner les noms ni les limites
+    qui parlent de gratuité ou de tarifs des soins."""
+    from pipeline import libelles
+    for t in ("Accès professionnel", "Ce qui restera gratuit", "la charte du gratuit", "une offre payante par API",
+              "l'API payante", "un abonnement mensuel", "la version complète", "Tout restera toujours gratuit"):
+        assert libelles.termes_proscrits(t), t
+    for t in ("Centre gratuit d'information, de dépistage et de diagnostic", "ni les délais de rendez-vous ni les tarifs",
+              "facturer au-delà du tarif de la Sécurité sociale", "API du catalogue de data.gouv.fr"):
+        assert not libelles.termes_proscrits(t), t
+
+
+def test_lieux_soins_csv_memes_taux_que_le_site():
+    """Les fichiers lieux_soins_<niveau>.csv donnent les mêmes taux que le site (audit du 30 octobre 2026 au soir, la CA
+    Colmar Agglomération avait 0,88 CMP pour adultes pour 100 000 dans le fichier, « non publié » sur les pages) :
+    chaque type rapporté à son public et vide là où les manques de la SAE le retirent, par lieux.taux_publics, la règle
+    du site. Sur les vraies données : recalcul depuis les nombres publiés, égal au site partout, et chaque case vide
+    correspond à un territoire nommé par la limite des manques de la SAE. Le fichier lui-même est comparé au site dès
+    qu'il porte la colonne taux_non_publies (exécution suivante)."""
+    import json
+    import numpy as np
+    import pandas as pd
+    from pipeline import lieux
+    d = _dernier_resultats()
+    sd = json.loads((d / "site_data.json").read_text(encoding="utf-8")) if (d / "site_data.json").exists() else {}
+    # territoires de la limite, « 09 » pour un département, « reg:76 » pour une région
+    manque = {k.split(":")[-1] for k in ((sd.get("limites") or {}).get("manque_sae") or {}).get("territoires") or {}}
+    for niv in ("epci", "dep", "reg"):
+        v = _csv(d, f"lieux_soins_{niv}.csv", dtype={"code": str}).set_index("code")
+        cn = _csv(d, f"contexte_{niv}.csv", dtype={"code": str}).set_index("code")
+        types = [c[2:] for c in v.columns if c.startswith("n_")]
+        n = v[[f"n_{t}" for t in types]].set_axis(types, axis=1)
+        t0, _ = lieux.taux_publics(n, v["population"], cn, None, niv)
+        mq = pd.DataFrame([{"niveau": niv, "type": tp, "code": c, "manque": True} for tp in types if f"lieux_{tp}" in cn
+                           for c in n.index[cn[f"lieux_{tp}"].reindex(n.index).isna() & t0[tp].notna()]],
+                          columns=["niveau", "type", "code", "manque"])
+        if manque and len(mq):
+            # une région d'outre-mer n'a qu'un département : ses cases vides viennent de la limite de ce département
+            dom = {"01": "971", "02": "972", "03": "973", "04": "974", "06": "976"} if niv == "reg" else {}
+            assert {dom.get(c, c) for c in mq["code"]} <= manque, f"{niv} : cases vides hors de la limite des manques de la SAE"
+        t1, _ = lieux.taux_publics(n, v["population"], cn, mq, niv)
+        for tp in types:
+            if f"lieux_{tp}" in cn:
+                ok = np.isclose(t1[tp], cn[f"lieux_{tp}"].reindex(n.index), rtol=1e-4, equal_nan=True)
+                assert ok.all(), f"{niv}, {tp} : {(~ok).sum()} taux différents du site"
+        # fichier écrit avec la règle du site (à partir de l'exécution qui suit cette correction)
+        if "taux_non_publies" in v:
+            for tp in types:
+                if f"lieux_{tp}" in cn:
+                    ok = np.isclose(v[f"pour_100000_{tp}"], cn[f"lieux_{tp}"].reindex(v.index), rtol=1e-4, equal_nan=True)
+                    assert ok.all(), f"{niv}, {tp} : le fichier publié diffère du site en {(~ok).sum()} territoires"
+            vide = v["taux_non_publies"].fillna("").astype(str) != ""
+            assert set(v.index[vide]) == set(mq["code"]), f"{niv} : colonne taux_non_publies incomplète"
 
 
 def test_sans_caractere_de_controle():
@@ -2698,8 +4158,11 @@ def test_explorer_addicto():
     sa région. Sur le site construit à partir des derniers résultats."""
     import json
     from pipeline import config
+    from pipeline.site import PRESENTATION
     site = config.RACINE / "site"
-    da_f, atlas_f = site / "explorer" / "donnees_outils.js", site / "index.html"   # l'atlas est la page d'accueil
+    # l'atlas est la page d'accueil, ou atlas.html quand l'accueil est le portail de la nouvelle présentation
+    da_f = site / "explorer" / "donnees_outils.js"
+    atlas_f = site / ("atlas.html" if PRESENTATION.get("accueil") == "portail" else "index.html")
     if not da_f.exists() or not atlas_f.exists():
         raise Ignore("site non construit")
     texte = da_f.read_text(encoding="utf-8")
@@ -2753,7 +4216,8 @@ def test_fenetres_repliables():
     for ident, corps in fens:
         assert '<span class="pastilles"></span>' in corps and re.search(r"<h3 id=", corps), ident
         assert 'class="fen-resume"' in corps and 'class="resultat"' in corps, ident
-        assert 'class="fen-lire-bouton"' in corps and 'class="fen-lire" hidden' in corps, ident
+        # « Comment lire » toujours visible, sans bouton qui le replie (décision de Lucas du 5 novembre 2026)
+        assert 'class="fen-lire"' in corps and 'class="fen-lire" hidden' not in corps and "fen-lire-bouton" not in corps, ident
     for b in ("p-replier", "p-agrandir"):
         assert f'class="{b}"' in js and re.search(rf'class="{b}"[^>]*aria-(label|controls)', js), b
     assert "aria-expanded" in js and 'aria-pressed' in js and "Escape" in js
@@ -3766,8 +5230,18 @@ def test_referencement():
     locs = [e.text for e in ET.parse(site / "sitemap.xml").getroot().findall("s:url/s:loc", ns)]
     assert locs and all(u.startswith(config.ADRESSE_SITE) for u in locs)
     assert not any(re.search(r"/(prototype\d*|maquettes|_[^/]*)/", u) for u in locs)
-    assert f"{config.ADRESSE_SITE.rstrip('/')}/" in locs and not any(u.endswith("/atlas.html") for u in locs)
-    for p in rf.pages_publiques(site):
+    # atlas.html : page de renvoi hors du plan quand l'atlas est l'accueil, page à part entière quand l'accueil est le
+    # portail de la nouvelle présentation
+    from pipeline.site import PRESENTATION
+    atlas_dans_plan = any(u.endswith("/atlas.html") for u in locs)
+    assert f"{config.ADRESSE_SITE.rstrip('/')}/" in locs and atlas_dans_plan == (PRESENTATION.get("accueil") == "portail")
+    # une page de travail (« _planche.html ») ne part pas en ligne et n'a pas de référencement ; toutes les autres en ont
+    assert "/XF _*.html" in (config.RACINE / "outils" / "publier.ps1").read_text(encoding="utf-8-sig")
+    assert not any(p.name.startswith("_") for p in rf.pages_publiques(site))
+    assert not any(re.search(r"/_[^/]*\.html$", u) for u in locs)
+    publiques = rf.pages_publiques(site)
+    assert len(publiques) > 1000
+    for p in publiques:
         t = p.read_text(encoding="utf-8")
         assert t.count('rel="canonical"') == 1 and t.count(rf.MARQUE) <= 1, p
     fichiers = (site / "methode-fichiers.html").read_text(encoding="utf-8")
@@ -3857,7 +5331,7 @@ def test_reseaux_suivre():
     from outils import reseaux as r
     lignes = r.lire_comptes()
     assert not r.controler_comptes(lignes), r.controler_comptes(lignes)
-    assert 20 <= len(lignes) <= 40
+    assert 20 <= len(lignes) <= 80      # deuxième liste de 22 comptes ajoutée le 5 novembre 2026
     with (r.COMPTES_A_SUIVRE.parent / "linkedin_a_suivre.csv").open(encoding="utf-8-sig", newline="") as f:
         li = list(csv.DictReader(f, delimiter=";"))
     assert li and all(re.match(r"https://(www|fr)\.linkedin\.com/(company|school)/[^/]+/?$", x["adresse"])
@@ -4224,6 +5698,955 @@ def test_identifiant_bluesky():
     publie = config.RACINE / "site" / ".well-known" / "atproto-did"
     if config.BLUESKY_DID and publie.exists():
         assert publie.read_text(encoding="ascii") == config.BLUESKY_DID
+
+
+def test_archive_rpps_sans_noms():
+    """L'archive mensuelle du RPPS ne garde ni les noms ni les coordonnées de contact (Lucas, 31 octobre 2026), sur
+    les premières lignes des trois fichiers en cache : identifiant, civilité et commune gardés, autant de lignes et le
+    même nombre de champs par ligne, aucun nom du fichier source retrouvé dans la copie."""
+    import io
+    import tempfile
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from pipeline import config, photographies
+    from pipeline.util import norm
+    for k in ("activite", "diplomes", "savoirfaire"):
+        src = config.BRUT / f"rpps_{k}.txt"
+        if not src.exists():
+            raise Ignore(f"{src.name} absent du cache")
+        with open(src, "rb") as f:
+            extrait = b"".join(f.readline() for _ in range(2000))
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / src.name
+            p.write_bytes(extrait)
+            flux = io.BytesIO()
+            retirees = photographies.copier_sans_noms(p, flux)
+        avant = extrait.decode("utf-8-sig", "replace").splitlines()
+        apres = flux.getvalue().decode("utf-8", "replace").splitlines()
+        cols_avant, cols_apres = avant[0].split("|"), apres[0].split("|")
+        assert len(apres) == len(avant)
+        assert {norm(c) for c in retirees} >= {"nom d exercice", "prenom d exercice"}
+        assert not any(norm(c) in ("nom d exercice", "prenom d exercice") or norm(c).startswith(("telephone", "adresse e mail"))
+                       for c in cols_apres)
+        assert "identifiant pp" in {norm(c) for c in cols_apres}
+        assert len(cols_apres) == len(cols_avant) - len(retirees)
+        for a, b in zip(avant[1:], apres[1:]):
+            if len(a.split("|")) == len(cols_avant):
+                assert len(b.split("|")) == len(cols_apres)
+        i_nom = cols_avant.index(retirees[[norm(c) for c in retirees].index("nom d exercice")])
+        # ligne à ligne : le nom retiré ne reste sur sa ligne que s'il y figurait déjà dans une colonne gardée (un nom
+        # de rue, « rue Murat », 4 novembre 2026), jamais à sa place
+        gardees = [j for j, c in enumerate(cols_avant) if c not in retirees]
+        vus = 0
+        for a, b in zip(avant[1:], apres[1:]):
+            ca_, cb_ = a.split("|"), b.split("|")
+            if len(ca_) != len(cols_avant) or not ca_[i_nom]:
+                continue
+            vus += 1
+            deja = sum(1 for j in gardees if ca_[j] == ca_[i_nom])
+            assert cb_.count(ca_[i_nom]) == deja, (k, ca_[i_nom])
+        assert vus > 1000, vus
+        if k == "activite":
+            assert {"code civilite", "code commune coord structure"} <= {norm(c) for c in cols_apres}
+
+
+def test_offre_hors_site_publie():
+    """Aucune page de l'offre professionnelle dans le site publié (décision de Lucas du 28 octobre 2026, rappelée le
+    30 octobre). Le contrôle reconnaît la vraie maquette de la page des professionnels, publier.ps1 écarte tous les
+    dossiers de maquettes et appelle le contrôle, et le site construit n'en contient aucune."""
+    import re
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "outils"))
+    import verifier_site_public as V
+    from pipeline import config
+    racine = config.RACINE
+    maquettes = racine / "docs" / "maquettes_presentation_2026-10-29"
+    if (maquettes / "f-professionnels.html").exists():
+        trouves = V.pages_offre(maquettes)
+        assert any(t.startswith("f-professionnels.html") for t in trouves), trouves
+    ps1 = (racine / "outils" / "publier.ps1").read_text(encoding="utf-8-sig")
+    xd = re.search(r"robocopy[^\n]*/XD ([^/\n]*)/", ps1)
+    assert xd, "copie des pages publiques introuvable dans publier.ps1"
+    assert set(V.DOSSIERS_EXCLUS) <= set(xd.group(1).split()), xd.group(1)
+    assert "verifier_site_public.py" in ps1
+    site = racine / "site"
+    if not (site / "index.html").exists():
+        raise Ignore("site non construit")
+    assert V.pages_offre(site) == [], V.pages_offre(site)
+
+
+def test_inventaire_presentation_rien_perdu():
+    """La nouvelle présentation ne perd rien du site actuel (demande de Lucas du 30 octobre 2026). L'inventaire d'avant,
+    relevé sur le site construit et dans le navigateur (atlas onglets ouverts, Explorer), est bien formé et compte les
+    encadrés de l'atlas et les analyses d'Explorer ; dès qu'un inventaire d'après existe, aucun titre ne manque (au
+    besoin sous le nom donné par le fichier de correspondances) et aucun total ne baisse. La comparaison elle-même est
+    vérifiée sur l'inventaire réel, en retirant un titre."""
+    import json
+    sys.path.insert(0, str(Path(__file__).parent.parent / "outils"))
+    import inventaire_site as I
+    from pipeline import config
+    dossier = config.RACINE / "docs" / "inventaire_presentation"
+    avant = json.loads((dossier / "avant_2026-10-30.json").read_text(encoding="utf-8"))
+    nav = avant["navigateur"]
+    atlas = next(v for k, v in nav.items() if k.startswith("index.html"))
+    explorer = next(v for k, v in nav.items() if k.startswith("explorer.html"))
+    assert atlas["figures"] >= 9 and atlas["tableaux"] >= 10 and len(atlas["titres"]) >= 30, atlas
+    assert explorer["figures"] >= 12 and explorer["tableaux"] >= 13, explorer
+    assert avant["total"]["figures"] > 3000 and avant["pages"]["rapports/2026-10-30/sante-mentale.html"]["cartes"] >= 8
+    # la comparaison voit un titre retiré et un total en baisse
+    assert I.comparer(avant, avant) == []
+    moins = json.loads(json.dumps(avant))
+    for page in list(moins["pages"].values()) + list(moins["navigateur"].values()):
+        page["titres"] = [t for t in page["titres"] if I.norm(t) != "croiser deux indicateurs"]
+    moins["total"]["cartes"] -= 1
+    ecarts = I.comparer(avant, moins)
+    assert any("croiser deux indicateurs" in e for e in ecarts) and any("cartes en baisse" in e for e in ecarts), ecarts
+    # les limites écrites sur le site d'avant sont relevées, et une limite qui disparaît est vue (31 octobre 2026)
+    ecrites = {k for p in avant["pages"].values() for k in p.get("limites", [])}
+    assert {"lieux", "caf", "suicides", "prof:pedopsychiatre", "ald", "evolution", "sae"} <= ecrites, sorted(ecrites)
+    sans = json.loads(json.dumps(avant))
+    for page in sans["pages"].values():
+        page["limites"] = [k for k in page["limites"] if k != "caf"]
+    assert "limite absente après la refonte : caf" in I.comparer(avant, sans)
+    assert I.limites_lues("Les allocations versées par la MSA ne sont pas comptées, ce qui sous-estime ces chiffres "
+                          "surtout en zone rurale.") == ["caf"]
+    apres = sorted(dossier.glob("apres_*.json"))
+    if not apres:
+        raise Ignore("pas encore d'inventaire de la nouvelle présentation")
+    corr = I.lire_correspondances(dossier / "correspondances.csv")
+    ecarts = I.comparer(avant, json.loads(apres[-1].read_text(encoding="utf-8")), corr)
+    assert ecarts == [], ecarts
+
+
+def test_limites_visibles_fiche_territoire():
+    """Règle des limites (règles du projet, parties 4 et 6 ; inventaire des limites du 31 octobre 2026) : sur la fiche d'un
+    territoire, chaque donnée qui a une limite dans config.LIMITES la montre en une ligne visible dans le tableau même
+    de la donnée, jamais seulement dans un attribut title ; la limite d'un constat est sous le constat, jamais seulement
+    dans « Pourquoi on le dit » replié ; les réserves des structures sont écrites sous leur tableau. Vérifié sur les
+    fiches construites de Vierzon et de l'Ain, à partir des vrais résultats."""
+    import html as H
+    import json
+    import re
+    import tempfile
+    from pipeline import config, fiche_territoire as FT, limites, site as S
+    r = _dernier_resultats()
+    sd = json.loads((r / "site_data.json").read_text(encoding="utf-8"))
+    limites.completer(sd.get("limites"))
+    dn = FT.Donnees(sd, r)
+
+    def texte(h):
+        t = re.sub(r"[\u00a0\u202f]", " ", H.unescape(re.sub(r"<[^>]+>", " ", h))).replace("\u00ad", "")
+        return re.sub(r"\s+", " ", t)
+    with tempfile.TemporaryDirectory() as d:
+        pages = FT.construire(S._environnement(), S._commun(r, sd), r, sd, Path(d),
+                              config.RACINE / "docs" / "veille" / "registre_bases.csv", "https://ubicura.fr", "Pithon L.",
+                              {("epci", "200090561"), ("dep", "01")})
+        assert len(pages) == 2
+        vues = set()
+        for p in pages:
+            h = p.read_text(encoding="utf-8")
+            # aucun « ! » qui ne dise sa limite qu'au survol
+            assert not re.search(r'class="sig"[^>]*title=', h)
+            for tab in re.findall(r'<table class="indicateurs.*?</table>', h, re.S):
+                lu = texte(tab)
+                for m in re.finditer(r'<tr( class="sous")?[^>]*?data-ind="([^"]+)"(?: data-niv="(\w+):(\w+)")?', tab):
+                    if m.group(1):
+                        continue
+                    ind, lv, code = m.group(2), m.group(3), m.group(4)
+                    lim = dn.limite("prof:" + ind.split(":")[1] if ind.startswith("prof:") else ind, lv, code)
+                    if not lim or lim["cle"] == "manque_sae":   # limite propre au territoire, écrite en tête de fiche
+                        continue
+                    assert texte(lim["court"]).strip() in lu, (p.name, ind, lim["court"])
+                    vues.add(lim["cle"])
+            for a in re.findall(r'<article class="constat".*?</article>', h, re.S):
+                assert 'class="limite"' not in "".join(re.findall(r'<details class="pourquoi">.*?</details>', a, re.S))
+            lu = texte(h)
+            for cle in ("lieux", "confirmation"):
+                assert texte(dn.limite(cle)["court"]).strip() in lu, cle
+            assert "n'est pas une capacité" in lu and "pas leur adresse" in lu and "moins de 18 ans" in lu
+            assert "compte une fois dans le territoire" in lu
+        # les limites relevées par l'inventaire des limites de la fiche (31 octobre 2026)
+        assert {"prof:pedopsychiatre", "suicides", "hospit_gestes_auto_infliges", "prof:orthophoniste",
+                "prof:psychomotricien", "caf", "sae", "ald"} <= vues, sorted(vues)
+
+
+def test_fiche_indicateur_quartiles_et_totaux():
+    """Fiche d'un indicateur (présentation du 30 octobre 2026) : les quartiles sont ceux de numpy sur les vraies densités
+    des intercommunalités, les graduations sont rondes et couvrent l'axe, et les totaux des psychologues reprennent les
+    fichiers publiés, la France en personnes distinctes, puis des sommes qui croissent du plus grand niveau au plus petit
+    (une personne qui exerce dans deux territoires y compte deux fois)."""
+    import json
+    import numpy as np
+    from pipeline import fiche_indicateur as FI
+    r = _dernier_resultats()
+    if not (r / "site_data.json").exists() or not (r / "effectifs_epci_all.csv").exists():
+        raise Ignore("site_data.json ou effectifs_epci_all.csv absent")
+    e = _csv(r, "effectifs_epci_all.csv")
+    d = (e["n_psychologue"] / e["population"] * 1e4).dropna().tolist()
+    v = sorted(d)
+    for q in (.25, .5, .75):
+        assert abs(FI.quantile(v, q) - float(np.percentile(v, q * 100))) < 1e-9
+    g = FI.graduations(min(v), max(v))
+    assert 3 <= len(g) <= 7 and g[0] >= min(v) - 1e-9 and g[-1] <= max(v) + 1e-9
+    pas = g[1] - g[0]
+    assert any(abs(pas / 10 ** k - m) < 1e-9 for k in range(-3, 6) for m in (1, 2, 2.5, 5))
+    assert FI.de("intercommunalités") == "d’intercommunalités" and FI.de("régions") == "de régions"
+    sd = json.loads((r / "site_data.json").read_text(encoding="utf-8"))
+    t = {x["fichier"]: x["n"] for x in FI.totaux("psychologue", r, sd["france"])}
+    assert t["effectifs_france.csv"] == sd["france"]["n"]["psychologue"][2]
+    assert t["effectifs_epci_all.csv"] == int(e["n_psychologue"].sum())
+    assert t["effectifs_reg_all.csv"] <= t["effectifs_dep_all.csv"] <= t["effectifs_epci_all.csv"] <= t.get("effectifs_com_all.csv", 10 ** 9)
+    assert FI.slug("prof:psychologue:all") == "prof-psychologue" and FI.slug("dist_lieu_cmp_adultes") == "dist-lieu-cmp-adultes"
+
+
+def test_pages_domaine_questions_dans_les_rapports():
+    """Pages par domaine (présentation du 30 octobre 2026) : chaque question reprend une section du rapport national de
+    la version, qui existe, s'ouvre sur un résultat, garde au moins une de ses figures et ses « À savoir » ; un
+    intertitre renommé dans un rapport fait échouer ce contrôle au lieu de vider la page."""
+    from pipeline import pages_domaine as P
+    r = _dernier_resultats()
+    for cle, (_, _, rapport, _, _) in P.PAGES_CENTRE.items():
+        f = r / rapport
+        if not f.exists():
+            raise Ignore(f"{rapport} absent")
+        secs = P.sections(f.read_text(encoding="utf-8"))
+        for question, intertitre, figs, _ in P.QUESTIONS[cle]:
+            assert intertitre in secs, (rapport, intertitre)
+            m = P.morceaux(secs[intertitre], figs)
+            assert m["resultat"].strip(), (rapport, intertitre)
+            assert m["figures"] and all((r / "graphiques" / f"{x}.svg").exists() for x in m["figures"]), (rapport, intertitre)
+            assert all(b.startswith(("**À savoir", '<div class="sources-note"')) for b in m["savoir"])
+            assert not any(b.startswith("**À savoir.**") for b in m["reste"])
+
+
+def test_regle_unique_du_lien():
+    """Une seule règle « lien » ou « pas de lien » sur tout le site (avis de l'auditeur du 30 octobre 2026) : mêmes
+    valeurs en Python et dans les pages, appliquée par les liens avec le profil des rapports et par la phrase de
+    l'escalier, et, sur les vraies données, le couple niveau de vie et psychologues par intercommunalité, que « Croiser »
+    disait sans lien quand l'escalier le disait « un peu plus présents », tombe du même côté pour les deux."""
+    import inspect
+    import re
+    from pipeline import regle_lien as RL, rapport
+    js = (Path(__file__).resolve().parent.parent / "gabarits" / "presentation" / "lien.js").read_text(encoding="utf-8")
+    assert float(re.search(r"SEUIL_RHO:\s*([\d.]+)", js).group(1)) == RL.SEUIL_RHO
+    assert float(re.search(r"ALPHA:\s*([\d.]+)", js).group(1)) == RL.ALPHA
+    assert RL.est_lien(0.31, 0.01) and RL.est_lien(-0.4, 0.0) and not RL.est_lien(0.29, 0.0) and not RL.est_lien(0.5, 0.06)
+    assert not RL.est_lien(None, 0.0) and not RL.est_lien(float("nan"), 0.0)
+    assert "est_lien" in inspect.getsource(rapport._phrase_revenu)
+    assert "SEUIL_RHO" in inspect.getsource(rapport) and "abs() >= .3" not in inspect.getsource(rapport)
+    r = _dernier_resultats()
+    cc = _csv(r, "correlations_contexte.csv")
+    if cc is None:
+        raise Ignore("correlations_contexte.csv absent")
+    x = cc[(cc["niveau"] == "epci") & (cc["mode"] == "all") & (cc["prof"] == "psychologue") & (cc["variable"] == "revenu_median")]
+    assert len(x) == 1 and not RL.est_lien(x["rho_spearman"].iloc[0], x["q_bh"].iloc[0])
+
+
+def test_matrice_des_liens():
+    """Matrice des liens de l'atelier (avis de l'auditeur du 30 octobre 2026), sur les vraies données : départements et
+    intercommunalités seulement, l'offre jamais en ligne, chaque case reprend le fichier publié, la densité de
+    population n'a pas de valeur partielle, et la règle unique laisse passer des liens sans les laisser tous passer."""
+    import json
+    from pipeline import liens, regle_lien as RL
+    r = _dernier_resultats()
+    if not (r / "site_data.json").exists() or not (r / "correlations_contexte.csv").exists():
+        raise Ignore("site_data.json ou correlations_contexte.csv absent")
+    sd = json.loads((r / "site_data.json").read_text(encoding="utf-8"))
+    L = liens.donnees(sd, r, r.name, None, {})
+    assert set(L["cases"]) == set(RL.NIVEAUX) and "reg" not in L["cases"]
+    assert L["seuil"] == RL.SEUIL_RHO and L["alpha"] == RL.ALPHA
+    assert all(l["dom"] != "offre" for l in L["lignes"])
+    cc = _csv(r, "correlations_contexte.csv")
+    x = cc[(cc["niveau"] == "epci") & (cc["mode"] == "all") & (cc["prof"] == "psychologue") & (cc["variable"] == "part_seuls")].iloc[0]
+    c = L["cases"]["epci"]["psychologue|part_seuls"]
+    assert abs(c[0] - x["rho_spearman"]) < 1e-3 and abs(c[4] - x["rho_partiel_densite"]) < 1e-3 and c[8] == x["n"]
+    d = L["cases"]["epci"].get("psychologue|densite_pop")
+    assert d is None or d[4] is None
+    tous = [v for niv in L["cases"].values() for v in niv.values()]
+    passent = sum(RL.est_lien(v[4], v[7]) for v in tous)
+    assert 0 < passent < len(tous)
+
+
+def test_repere_unique_fiche_comparateur_fichier():
+    """Un seul repère par indicateur et par niveau (audit de contrôle du 30 octobre 2026, point B1) : pour les CMP pour
+    adultes, les CSAPA et les psychiatres, la fiche d'un territoire, les données du comparateur et le fichier publié
+    donnent le même repère, somme des structures ou des professionnels rapportée à la somme des habitants."""
+    import json
+    from pipeline import affichage as AF, atelier, fiche_territoire as F
+    r = _dernier_resultats()
+    if not (r / "site_data.json").exists() or not (r / "lieux_soins_dep.csv").exists():
+        raise Ignore("site_data.json ou lieux_soins_dep.csv absent")
+    fond = Path(__file__).resolve().parent.parent / "site" / "explorer" / "fond.js"
+    if not fond.exists():
+        raise Ignore("site d'essai non construit (explorer/fond.js)")
+    sd = json.loads((r / "site_data.json").read_text(encoding="utf-8"))
+    dn = F.Donnees(sd, r)
+    A = atelier.donnees(sd, r, Path(__file__).resolve().parent.parent / "site" / "explorer" / "fond.js", Path(__file__).resolve().parent.parent / "docs" / "veille" / "registre_bases.csv", r.name, None)
+    pub = _csv(r, "lieux_soins_dep.csv")
+    for typ in ("lieu_cmp_adultes", "lieu_csapa"):
+        attendu = pub["n_" + typ].sum() / pub["population"].sum() * 1e5
+        fiche = dn.contexte("dep", "01", "lieux_" + typ)["ref"]
+        comp = A["ref"]["dep"]["lieux_" + typ]
+        assert abs(fiche - comp) < 1e-4 and abs(fiche - attendu) / attendu < 0.01, (typ, fiche, comp, attendu)
+    assert abs(dn.densite("dep", "01", "psychiatre")["ref"] - A["ref"]["dep"]["prof:psychiatre:all"]) < 1e-4
+    assert AF.Affichage(sd, r).serie("lieux_lieu_cmp_adultes", "dep").ref < 2.5   # et non 2,72, la moyenne simple des taux
+
+
+def test_citation_tableaux_fiche_titre_et_adresse():
+    """Citation des tableaux des fiches (audit de contrôle du 30 octobre 2026, point B5) : le titre et l'unité d'un tableau
+    ne sont jamais collés (« Professionnels de santé mentale, pour 10 000 habitants »), et l'adresse citée est celle
+    affichée en tête de fiche, sans « .html ». Une seule date du répertoire par page (point B3). Depuis l'étape 2 du plan
+    de reprise, les tableaux de la fiche sont dans l'encadré type : « Citer et exporter » cite la fiche, puis le titre de
+    l'encadré entre guillemets, à l'adresse de la fiche sans « .html », en texte, RIS et BibTeX."""
+    import re
+    racine = Path(__file__).resolve().parent.parent
+    fig = (racine / "gabarits" / "figures.js").read_text(encoding="utf-8")
+    fiche = (racine / "gabarits" / "fiche_territoire.html").read_text(encoding="utf-8")
+    # fiche resserrée (1er novembre 2026) : chaque bande et chaque groupe de lignes porte son titre de citation
+    assert 'data-adresse="https://{{ adresse_fiche }}"' in fiche and 'class="groupe" data-titre=' in fiche and 'encadre' in fiche
+    enc = fig[fig.index("function citerEncadres"):]
+    assert '", « "+bloc.dataset.titre+" »"' in enc and "TY  - DATA" in enc and "@misc{" in enc and "<iframe" in enc
+    assert ".html" not in re.search(r'adresse_fiche=adr|adr = f"([^"]*)"', (racine / "pipeline" / "fiche_territoire.py").read_text(encoding="utf-8")).group(0)
+    corps = fig[fig.index("function titreTableau"):fig.index("function celluleCsv")]
+    assert 'querySelector(".unite-tel")' in corps and '", "+ut.charAt(0).toLowerCase()' in corps
+    assert re.search(r"function adressePage\(\)\{return location\.pathname[^}]*\.replace\(/\\.html\$/,\"\"\)", fig)
+    assert "adr+adressePage()" in fig and "adr+location.pathname" not in fig
+    from pipeline import site
+    r = _dernier_resultats()
+    c = site._commun(r, {"meta": {}})
+    assert c["date_rpps"] and c["date_calcul"].startswith("Calculé le ") and "répertoire RPPS du " + c["date_rpps"] in c["date_calcul"]
+
+
+def test_affichage_arrondis():
+    """Règle d'affichage unique (pipeline/affichage.py) : une décimale, deux sous 1, aucune dès 1 000, une demie vers
+    le haut sur la valeur exacte, euros à la dizaine, zéro écrit 0, et site_data garde l'arrondi des pages."""
+    from pipeline import affichage as AF
+    assert AF.nombre(0.996) == "1,0" and AF.nombre(10.549) == "10,5" and AF.nombre(10.55) == "10,6"
+    assert AF.nombre(0.125) == "0,13" and AF.nombre(1234.5) == "1 235" and AF.nombre(0) == "0"
+    assert AF.nombre(22684, "euros") == "22 680" and AF.nombre(5.24563, "distance") == "5,2"
+    assert AF.nombre(AF.conserver(5.24563), "distance") == "5,2" and AF.ecart_txt(-0.1737) == "−17 %"
+
+
+
+# -- règle d'affichage unique (pipeline/affichage.py), plan de reprise de la présentation, étape 1 ------------------
+def _affichage():
+    import json
+    from pipeline import affichage as AF
+    r = _dernier_resultats()
+    if not (r / "site_data.json").exists() or not (r / "journal.json").exists():
+        raise Ignore("site_data.json ou journal.json absent")
+    sd = json.loads((r / "site_data.json").read_text(encoding="utf-8"))
+    return AF, AF.Affichage(sd, r), sd, r
+
+
+def _code_epci(sd, mot):
+    return next(u["c"] for u in sd["niveaux"]["epci"]["units"] if mot in u["nm"])
+
+
+def test_affichage_repere_somme_sur_somme():
+    """Le repère d'une profession est la somme des effectifs rapportée à la somme des habitants du niveau (fichier
+    effectifs_<niveau>_all.csv), celui d'une structure la somme des structures rapportée à la somme des habitants
+    concernés, seulement là où le taux est publié ; nommé « Ensemble des ... », jamais « Moyenne »."""
+    AF, T, sd, r = _affichage()
+    for lv in ("epci", "dep", "reg"):
+        e = _csv(r, f"effectifs_{lv}_all.csv")
+        attendu = e["n_psychologue"].sum() / e.loc[e["n_psychologue"].notna(), "population"].sum() * 1e4
+        S = T.serie("prof:psychologue:all", lv)
+        assert abs(S.ref - attendu) < 1e-9 * attendu and S.ref_lib() == AF.ENSEMBLE[lv], (lv, S.ref, attendu)
+    S = T.serie("lieux_lieu_cmp_adultes", "dep")
+    ok = [k for k, v in enumerate(S.v) if v is not None]
+    assert abs(S.ref - sum(S.n[k] for k in ok) / sum(S.base[k] for k in ok) * 1e5) < 1e-9
+    assert 2.0 < S.ref < 2.4   # et non 2,72, la moyenne simple des taux (audit du 30 octobre 2026, B1)
+    # moins de 15 ans au dénominateur des CMP pour enfants
+    S = T.serie("lieux_lieu_cmp_enfants", "dep")
+    k = T.pos["dep"]["01"]
+    assert abs(S.base[k] - sd["niveaux"]["dep"]["units"][k]["pop"] * T._x("dep", "part_0_14")[k] / 100) < 1
+    # indicateur qui ne s'additionne pas, territoire médian
+    S = T.serie("revenu_median", "epci")
+    import statistics
+    assert S.ref_type == "mediane_territoires" and S.ref == statistics.median(v for v in S.v if v is not None)
+    assert S.ref_lib() == "Intercommunalité médiane"
+
+
+def test_affichage_repere_distance_mediane_habitants():
+    """Le repère d'une distance est la distance médiane de tous les habitants (distances_lieux_france.csv), le même aux
+    trois niveaux ; un type recensé dans moins de 90 % des départements n'a ni repère ni valeur, il est « non recensé »."""
+    AF, T, sd, r = _affichage()
+    fr = _csv(r, "distances_lieux_france.csv").set_index("type")["distance_mediane_km"]
+    for lv in ("epci", "dep", "reg"):
+        S = T.serie("dist_lieu_cmp_adultes", lv)
+        assert S.ref_type == "mediane_habitants" and AF.nombre(S.ref, "distance") == AF.nombre(fr["lieu_cmp_adultes"], "distance")
+    assert AF.nombre(T.serie("dist_lieu_cmp_adultes", "dep").ref, "distance") == "2,6"
+    for t, comp in T.complet.items():
+        S = T.serie("dist_" + t, "dep")
+        if S is not None and not comp:
+            assert S.ref is None and all(v is None for v in S.v) and set(S.st) == {"non_recense"}
+
+
+def test_affichage_position_et_ecart():
+    """Position, part des autres territoires du niveau dont la valeur est plus basse ; écart sur les deux valeurs
+    écrites. CC Vierzon-Sologne-Berry, psychologues : 10,6 pour 10 000, plus haut que 71 % des intercommunalités,
+    ensemble des intercommunalités 12,8, écart de −17 % (audit du 30 octobre 2026, B2)."""
+    AF, T, sd, r = _affichage()
+    c = T.cellule("prof:psychologue:all", "epci", _code_epci(sd, "Vierzon"))
+    S = T.serie("prof:psychologue:all", "epci")
+    autres = [v for v in S.v if v is not None]
+    assert abs(c["pos"] - sum(1 for v in autres if v < c["v"]) / (len(autres) - 1)) < 1e-12
+    assert (c["v_txt"], c["ref_txt"], c["pos_txt"], c["e_txt"]) == ("10,6", "12,8", "plus haut que 71 % des intercommunalités", "−17 %")
+    d = T.cellule("dist_lieu_cmp_adultes", "dep", "01")
+    assert d["e"] is None and d["pos_txt"].startswith("plus loin que")
+
+
+def test_affichage_couleur_seuil_et_hasard():
+    """Cuivre ou bleu seulement hors de 0,8 à 1,25 fois le repère et au-delà du hasard (Poisson à 95 %, comme
+    l'entonnoir d'Explorer), jamais pour un petit effectif, le profil ni une distance. Vierzon reste en gris."""
+    from scipy import stats
+    AF, T, sd, r = _affichage()
+    assert T.cellule("prof:psychologue:all", "epci", _code_epci(sd, "Vierzon"))["couleur"] is None
+    assert T.cellule("prof:q_psychiatrie_enfant:all", "dep", "01")["couleur"] == "bas"
+    for ident in ("prof:psychologue:all", "prof:psychiatre:all", "lieux_lieu_cmp_adultes"):
+        for lv in ("epci", "dep"):
+            S = T.serie(ident, lv)
+            for n, v, b, col in zip(S.n, S.v, S.base, S.coul):
+                if v is None or n is None or not b or n < AF.PETIT_EFFECTIF:
+                    assert col is None
+                    continue
+                q, mu = v / S.ref, S.ref / S.fac * b
+                hasard = stats.poisson.ppf(.025, mu) <= n <= stats.poisson.ppf(.975, mu)
+                attendu = None if hasard or .8 <= q <= 1.25 else ("bas" if q < .8 else "haut")
+                assert col == attendu, (ident, lv, n, v, col, attendu)
+    assert all(c is None for c in T.serie("revenu_median", "epci").coul + T.serie("dist_lieu_cmp_adultes", "epci").coul)
+
+
+def test_affichage_unite_pour_100000():
+    """Une profession s'écrit pour 100 000 habitants quand la France en compte moins de 1 pour 10 000 (psychiatres
+    qualifiés pour l'enfant), pour 10 000 sinon, sur toutes les pages."""
+    AF, T, sd, r = _affichage()
+    fr = sd["france"]
+    for p in ("psychologue", "psychiatre", "q_psychiatrie_enfant"):
+        d = fr["n"][p][2] / fr["pop"] * 1e4
+        assert AF.par_habitants(sd, p) == (100000 if d < 1 else 10000)
+    assert T.meta("prof:q_psychiatrie_enfant:all")["unite"] == "pour 100 000 habitants"
+    assert T.meta("prof:psychologue:all")["unite"] == "pour 10 000 habitants"
+
+
+def test_affichage_statuts():
+    """Statuts écrits pareil partout : « non publié » pour la CA Colmar Agglomération (CMP pour adultes, audit du
+    30 octobre 2026), « aucun inscrit » pour un effectif nul, « petit effectif » sous 5, « donnée du département » pour
+    une valeur du département montrée sur la fiche d'une intercommunalité."""
+    AF, T, sd, r = _affichage()
+    c = T.cellule("lieux_lieu_cmp_adultes", "epci", _code_epci(sd, "Colmar"))
+    assert c["statut"] == "non_publie" and c["statut_txt"] == "non publié" and c["v_txt"] == ""
+    S = T.serie("prof:psychiatre:all", "epci")
+    for n, st in zip(S.n, S.st):
+        assert st == ("aucun" if n == 0 else "petit" if n is not None and n < 5 else None)
+    k = S.st.index("aucun")
+    z = T.cellule("prof:psychiatre:all", "epci", S.codes[k])
+    assert z["v_txt"] == "0" and z["statut_txt"] == "aucun inscrit" and z["e"] is None
+    assert T.cellule("suicides", "dep", "18", "dep")["statut_txt"] == "donnée du département"
+    assert set(AF.CODES) >= set(AF.STATUTS) and len(set(AF.CODES.values())) == len(AF.CODES)
+
+
+def test_affichage_citation_et_source():
+    """Citation d'un encadré : titre exact, unité après une virgule, adresse affichée sans « .html », DOI de la
+    version (audit du 30 octobre 2026, B5) ; ligne de source avec sa date et sa licence."""
+    from pipeline import affichage as AF
+    c = AF.citation("Pithon L.", "Professionnels de santé mentale", "Pour 10 000 habitants", "Ubi Cura",
+                    "30 octobre 2026", "https://ubicura.fr/territoire/dep/01.html", "10.5281/zenodo.1")
+    assert c == ("Pithon L. (2026). Professionnels de santé mentale, pour 10 000 habitants. Ubi Cura, version du "
+                 "30 octobre 2026, ubicura.fr/territoire/dep/01, doi:10.5281/zenodo.1.")
+    assert "mentalePour" not in c
+    assert AF.ligne_source([("RPPS", "29 octobre 2026", "Licence Ouverte 2.0")]) == "RPPS du 29 octobre 2026, Licence Ouverte 2.0."
+
+
+def test_affichage_une_seule_date_par_source():
+    """Une seule date par source, lue dans le journal des sources de la version ; le fichier de concordance donne la
+    même date du répertoire (audit du 30 octobre 2026, B3)."""
+    AF, T, sd, r = _affichage()
+    dates = AF.dates_sources(r)
+    assert dates.get("RPPS activité") and AF.date_rpps(r) == AF.date_longue(dates["RPPS activité"])
+    conc = _csv(r, "concordance_effectifs.csv")
+    assert set(conc["date_rpps"].dropna().astype(str).str[:10]) == {dates["RPPS activité"]}
+    from pipeline import fiche_territoire, site
+    assert fiche_territoire._date_rpps(r) == AF.date_rpps(r) == site._commun(r, {"meta": {}})["date_rpps"]
+
+
+def test_affichage_catalogue_complet():
+    """Chaque indicateur du catalogue porte tous les champs qui le font apparaître de lui-même (partie 4.7) : un champ
+    manquant arrête la construction du site."""
+    AF, T, sd, r = _affichage()
+    cat = AF.catalogue(sd, r)
+    assert len(cat) == len(sd["professions"]) + len(sd["contexte"])
+    assert AF.champs_manquants(cat) == {}
+    assert {e["sens"] for e in cat} <= set(AF.SENS) and {e["repere"] for e in cat} <= set(AF.NATURE_REPERE)
+
+
+def test_affichage_conserver_arrondi():
+    """site_data.json garde deux décimales, une de plus quand deux changeraient l'arrondi écrit sur les pages : aucune
+    valeur du contexte publié ne s'écrit autrement depuis site_data que depuis le fichier en pleine précision."""
+    AF, T, sd, r = _affichage()
+    ctx = _csv(r, "contexte_dep.csv")
+    for col in [c for c in ctx.columns if c.startswith(("dist_", "lieux_", "part_", "taux_"))]:
+        for v in ctx[col].dropna():
+            g = AF.genre("km" if col.startswith("dist_") else "%" if col.startswith(("part_", "taux_")) else "", col)
+            assert AF.nombre(AF.conserver(v), g) == AF.nombre(v, g), (col, v)
+
+
+def test_controle_affichage_site_construit():
+    """Contrôles bloquants de la règle d'affichage sur le site construit dans cette copie (fiche, comparateur, Croiser,
+    atlas, rapport, CSV ; chaînes de maquette ; date ; zéros ; catalogue) : aucun bloquant. Les fichiers lieux_soins
+    écrits avant la règle commune des taux restent un avertissement nommé jusqu'à l'exécution suivante."""
+    from pipeline import controle_affichage as CA
+    AF, T, sd, r = _affichage()
+    site = Path(__file__).resolve().parent.parent / "site"
+    if not (site / "presentation" / "atelier_donnees.js").exists() or not (site / "territoire").exists():
+        raise Ignore("site de la présentation non construit dans cette copie")
+    assert len(CA.echantillon(sd)) == CA.N_TERRITOIRES == 20 and len(CA.INDICATEURS) == 20
+    res = CA.controler(site, r, sd)
+    bloquants = [t for n, t in res if n == "bloquant"]
+    assert not bloquants, bloquants[:5]
+    assert all(CA.ATTENDU_AVANT_EXECUTION in t or "atlas" in t or "rapport" in t for n, t in res if n == "à regarder")
+
+
+def test_controle_affichage_lit_la_fiche_bplus():
+    """Le contrôle de cohérence lit la fiche B+ (étape 2, 31 octobre 2026) : valeur en gras sans « km », repère pris
+    dans la description de la réglette par son nom (la position manque quand la valeur n'est pas publiée), note sous un
+    zéro comptée comme son statut. Sur la fiche construite de la CC Vierzon-Sologne-Berry."""
+    from pipeline import controle_affichage as CA
+    AF, T, sd, r = _affichage()
+    site = Path(__file__).resolve().parent.parent / "site"
+    if not (site / "territoire" / "epci" / "200090561.html").exists():
+        raise Ignore("fiche de la CC Vierzon-Sologne-Berry non construite dans cette copie")
+    fiche = CA._fiche(site, "epci", "200090561")
+    for ident in ("prof:psychologue:all", "prof:psychiatre:all", "dist_lieu_cmp_adultes", "lieux_lieu_cmp_adultes"):
+        c = T.cellule(ident, "epci", "200090561")
+        assert fiche[ident]["v"] == c["v_txt"] and fiche[ident]["ref"] == c["ref_txt"], (ident, fiche[ident], c["v_txt"])
+    zeros = [l for l in fiche.values() if "v" in l and CA.ZERO.match(l["v"] or "")]
+    assert all(l["statut"] for l in zeros), zeros
+
+
+def test_constats_fiche_territoire():
+    """« En bref » de la fiche (plan de reprise, étape 2) sur les vraies données : 8 à 12 constats rangés par section
+    (offre, accès, recours, contexte), jamais par gravité ; trois phrases chacun ; aucun mot interdit ; tout mot vient des
+    modèles fermés, d'un nom d'indicateur ou du territoire ; aucun autre territoire nommé ; Vierzon n'est pas dite
+    « nettement en dessous » pour les psychologues et dit « plus haut que 71 % »."""
+    import json
+    import re
+    from pipeline import constats as K, fiche_territoire as FT
+    r = _dernier_resultats()
+    if not (r / "site_data.json").exists():
+        raise Ignore("site_data.json absent")
+    sd = json.loads((r / "site_data.json").read_text(encoding="utf-8"))
+    dn = FT.Donnees(sd, r)
+    mots_ok = set()
+    for m in list(K.MODELES.values()) + [n for _, _, a, b, _ in K.CANDIDATS for n in (a or "", b or "")] + \
+            list(K.NOM_COURT.values()) + list(K.ARTICLE.values()) + [K.SECTIONS[i][1] for i in range(len(K.SECTIONS))]:
+        mots_ok |= set(re.findall(r"[a-zàâçéèêëîïôûùüÿœæ]+", m.lower()))
+    mots_ok |= {"habitants", "par", "km", "pour", "mm", "communauté", "communes", "agglomération", "urbaine", "métropole",
+                "département", "région", "intercommunalité", "confirmé", "confirmés", "tous", "aucun", "confirmer", "du", "de", "la", "le", "d", "âge", "égal", "inscrit", "inscrits"}
+    mots_ok |= set(re.findall(r"[a-zàâçéèêëîïôûùüÿœæ]+", " ".join(K.AF.SENS_POSITION.values())))   # mots de la position
+    mots_ok |= set(re.findall(r"[a-zàâçéèêëîïôûùüÿœæ]+", " ".join(  # écart en mots et clé des sens contraires
+        [K.AF.ecart_mots(-.1), K.AF.ecart_mots(.1), K.AF.ecart_mots(0)] + list(K.AF.CLE_CONTRAIRE.values())).lower()))
+    for lv in ("epci", "dep", "reg"):   # noms des niveaux et du territoire médian, mis dans les modèles
+        mots_ok |= set(re.findall(r"[a-zàâçéèêëîïôûùüÿœæ]+", (K.AF.NIV_PLURIEL[lv] + " " + K._article_mediane(lv)).lower()))
+    ordre = [s for s, _ in K.SECTIONS]
+    for lv, code in (("epci", "200090561"), ("dep", "01"), ("reg", "84")):
+        f = FT.fiche(dn, lv, code, r.name)
+        ks = K.constats(dn, f, lv, code, dn.unite(lv, code).get("p") if lv == "epci" else None)
+        assert 8 <= len(ks) <= 12, (code, len(ks))
+        assert [ordre.index(k["section"]) for k in ks] == sorted(ordre.index(k["section"]) for k in ks)
+        nom = set(re.findall(r"[a-zàâçéèêëîïôûùüÿœæ]+", f["nom"].lower()))
+        for k in ks:
+            texte = k["titre"] + " " + " ".join(k["phrases"])
+            assert len(k["phrases"]) in (2, 3) and not K.interdits(texte), texte
+            hors = set(re.findall(r"[a-zàâçéèêëîïôûùüÿœæ]+", texte.lower())) - mots_ok - nom
+            assert not hors, (hors, texte)
+    f = FT.fiche(dn, "epci", "200090561", r.name)
+    psy = K.constats(dn, f, "epci", "200090561", "18")[0]
+    assert psy["id"] == "prof:psychologue:all" and "71" in psy["titre"] and "nettement" not in psy["titre"]
+    assert psy["cel"]["couleur"] is None
+
+
+def test_ecart_et_position_jamais_contradictoires():
+    """« 17 % sous l'ensemble » et « plus haut que 71 % » ne se suivent jamais sans explication (remarques de Lucas du
+    31 octobre 2026, relevées deux fois). Sur les vraies données, pour tous les départements et cent intercommunalités :
+    quand l'écart et la position d'un constat vont en sens contraire, le titre les relie par « mais » et la clé en mots
+    suit ; sinon le titre ne dit jamais un sens d'écart opposé à sa position ; la clé sous un tableau apparaît dès qu'une
+    ligne est contraire. La règle est vérifiée en retirant le « mais »."""
+    import json
+    from pipeline import affichage as AF, constats as K, fiche_territoire as FT
+    r = _dernier_resultats()
+    if not (r / "site_data.json").exists():
+        raise Ignore("site_data.json absent")
+    sd = json.loads((r / "site_data.json").read_text(encoding="utf-8"))
+    dn = FT.Donnees(sd, r)
+    cles = [AF.CLE_CONTRAIRE[s].split(" :")[0] for s in AF.CLE_CONTRAIRE]
+
+    def fautes(k):
+        c, t = k["cel"] or {}, k["titre"]
+        sens = K._sens(c) if c else None
+        if sens:
+            # la clé en mots suit toujours ; « mais » seulement quand le titre dit une position (le titre d'une
+            # structure, « 19 CMP pour adultes, tous confirmés », n'en dit aucune et ne peut donc pas contredire l'écart)
+            dit_position = any(p in t for p in AF.SENS_POSITION.values())
+            return [] if ((" mais " in t or not dit_position) and any(x in " ".join(k["phrases"]) for x in cles)) else [t]
+        haut, bas = AF.SENS_POSITION["haut"] in t, AF.SENS_POSITION["bas"] in t
+        dessous, dessus = ("sous l'ensemble" in t or "en dessous de l'ensemble" in t), "au-dessus de l'ensemble" in t
+        return [t] if (haut and dessous) or (bas and dessus) else []
+
+    codes = [("dep", c) for c in sorted(dn.pos["dep"])] + [("epci", c) for c in sorted(dn.pos["epci"])[::12][:100]]
+    vus, contraires = 0, 0
+    for lv, code in codes:
+        f = FT.fiche(dn, lv, code, r.name)
+        dep = dn.unite(lv, code).get("p") if lv == "epci" else None
+        for k in K.constats(dn, f, lv, code, dep):
+            assert not fautes(k), (lv, code, fautes(k))
+            vus += 1
+            contraires += " mais " in k["titre"]
+        for cle, lignes in (("sm_pro", f["sm_pro"]), ("sante_pro", f["sante_pro"])):
+            if FT.ecart_contraire(lignes):
+                assert f["contraire"][cle], (lv, code, cle)
+    assert vus > 100 and contraires > 0, (vus, contraires)
+    # la règle voit une faute : le même titre sans « mais »
+    f = FT.fiche(dn, "epci", "200090561", r.name)
+    psy = K.constats(dn, f, "epci", "200090561", "18")[0]
+    assert " mais " in psy["titre"] and not fautes(psy)
+    assert fautes(dict(psy, titre=psy["titre"].replace(", mais ", ", ")))
+
+
+def test_reperes_comparateur_et_fiche():
+    """Le repère et la médiane de chaque indicateur sont les mêmes dans le comparateur (données de l'atelier) et sur les
+    fiches (31 octobre 2026 : taux de pauvreté de l'ensemble des intercommunalités, 14 dans l'ancien comparateur,
+    moyenne simple, 16,3 sur la fiche, taux de l'ensemble pondéré par les habitants). Le contrôle voit un écart."""
+    import json
+    from pipeline import affichage as AF, config, controle_affichage as CA
+    r = _dernier_resultats()
+    site = config.RACINE / "site"
+    if not (r / "site_data.json").exists() or not (site / "presentation" / "atelier_donnees.js").exists():
+        raise Ignore("site_data.json ou atelier_donnees.js absent")
+    T = AF.Affichage(json.loads((r / "site_data.json").read_text(encoding="utf-8")), r)
+    res = CA.reperes_comparateur(site, T)
+    assert not [t for n, t in res if n == "bloquant"], res[:5]
+    if res[0][0] != "info":
+        raise Ignore("atelier_donnees.js écrit avant la règle commune")
+    A = CA._atelier(site)
+    A["aff"]["lv"]["epci"]["taux_pauvrete"]["r"] = 13.98
+    vrai = CA._atelier
+    CA._atelier = lambda s: A
+    try:
+        res = CA.reperes_comparateur(site, T)
+    finally:
+        CA._atelier = vrai
+    assert any(n == "bloquant" and "taux_pauvrete" in t and "14,0" in t and "16,3" in t for n, t in res), res[:3]
+
+
+def _fiche_vraie(lv="epci", mot="Vierzon"):
+    """Données d'affichage et fiche d'un territoire, sur les vrais résultats en cache."""
+    import json
+    from pipeline import fiche_territoire as FT, limites
+    r = _dernier_resultats()
+    if not (r / "site_data.json").exists():
+        raise Ignore("site_data.json absent")
+    sd = json.loads((r / "site_data.json").read_text(encoding="utf-8"))
+    limites.completer(sd.get("limites"))
+    dn = FT.Donnees(sd, r)
+    code = _code_epci(sd, mot) if lv == "epci" else mot
+    return FT, dn, FT.fiche(dn, lv, code, r.name), code
+
+
+def test_chiffres_cles_ecart_et_position_ensemble():
+    """Un chiffre clé de la fiche porte côte à côte l'écart à l'ensemble et la position, reliés par « mais » quand ils
+    vont en sens contraire (relecture de clarté du 31 octobre 2026, défaut 1). Vierzon, psychologues : « 17 % sous
+    l'ensemble …, mais plus haut que 71 % des intercommunalités »."""
+    from pipeline import affichage as AF
+    FT, dn, f, code = _fiche_vraie()
+    psy = f["cles"][0]
+    assert psy["ecart"] and psy["position"] and psy["ecart"] in psy["rep"] and psy["position"] in psy["rep"], psy
+    for c in f["cles"][:2]:
+        assert (", mais " in c["rep"]) == c["contraire"], c
+    d = dn.densite("epci", code, "psychologue")
+    assert psy["contraire"] == bool(AF.sens_contraire(d["e"], d["pos_txt"]))
+    # la part des structures confirmées ne se lit pas comme une proportion (« 6 … sur 10 »)
+    assert not any(" sur " in str(c["texte"]) for c in f["cles"] if "structure" in str(c["texte"]))
+    assert f["confiance_structures"].startswith(f"{f['structures_confirmees']} des {f['structures_total']} structures"), f["confiance_structures"]
+
+
+def test_lire_reglette_dit_ensemble_tire_par_les_peuples():
+    """« Lire une réglette » et l'introduction des constats disent pourquoi un territoire peut être sous l'ensemble et
+    plus haut que la plupart des autres (relecture de clarté du 31 octobre 2026)."""
+    from pipeline import affichage as AF, config
+    FT, dn, f, code = _fiche_vraie()
+    assert f["cle_ensemble"] == AF.cle_contraire("haut", "epci") and "plus peuplés" in f["cle_ensemble"]
+    g = (Path(__file__).resolve().parent.parent / "gabarits" / "fiche_territoire.html").read_text(encoding="utf-8")
+    debut = g.index("reglette-type")
+    assert "f.cle_ensemble" in g[debut:g.index("</figure>", debut)]
+    assert g.count("{{ f.cle_ensemble }}") >= 2
+
+
+def test_intervalle_annonce_seulement_ou_il_est_prevu():
+    """« Intervalle de confiance à venir » ne s'écrit que là où un intervalle est prévu : effectifs du répertoire et
+    ALD standardisées, jamais pour une mesure de recensement ni une distance (relecture du 31 octobre 2026, défaut 3)."""
+    from pipeline import affichage as AF
+    assert AF.intervalle_prevu("prof:psychologue:all", "prof") and AF.intervalle_prevu("ald_23", "ctx")
+    for ident, kind in (("densite_pop", "ctx"), ("revenu_median", "ctx"), ("taux_pauvrete", "ctx"),
+                        ("dist_lieu_cmp_adultes", "dist"), ("lieux_lieu_cmp_adultes", "lieux")):
+        assert not AF.intervalle_prevu(ident, kind), ident
+
+
+def test_limite_de_chaque_qualification_ecrite():
+    """Chaque qualification comptée à part (psychiatres de l'enfant, addictologie) a sa propre phrase de limite : sous
+    une phrase commune, la seconde ligne ne gardait que son « ! » (relecture du 31 octobre 2026, défaut 4)."""
+    FT, dn, f, code = _fiche_vraie()
+    q = {l["id"]: l["limite"]["court"] for l in f["sm_pro"] if (l.get("id") or "").startswith("prof:q_") and l.get("limite")}
+    assert len(q) == 2 and len(set(q.values())) == 2, q
+    assert set(q.values()) == set(FT.QUALIFICATIONS.values())
+
+
+def test_licence_des_recours_une_seule():
+    """La source du tableau des recours donne à chaque indicateur la licence de son catalogue, la même que sur la carte
+    du constat (ALD : Licence Ouverte 1.0), et dit à part la rediffusion sous ODbL (relecture du 31 octobre 2026,
+    défaut 5). Le gabarit ne l'écrit plus en dur."""
+    from pipeline import config
+    FT, dn, f, code = _fiche_vraie()
+    groupes = f["source_recours"].removeprefix("Sources : ").split(" ; ")
+    for i, _ in FT.RECOURS_DEP:
+        ind = dn.ctx[i][1]
+        tete = ind["source"].split(", d'après")[0]
+        assert any(tete in g and ind["licence"] in g for g in groupes), (i, groupes)
+    g = (Path(__file__).resolve().parent.parent / "gabarits" / "fiche_territoire.html").read_text(encoding="utf-8")
+    b = (Path(__file__).resolve().parent.parent / "pipeline" / "bandes_fiche.py").read_text(encoding="utf-8")
+    # fiche resserrée (1er novembre 2026) : la source du groupe « Recours aux soins » vient de bandes_fiche
+    assert "ODbL pour l'Assurance Maladie" not in g + b and 'f["source_recours"]' in b
+
+
+def test_comparaisons_nommees_ensemble_jamais_france():
+    """Une comparaison à tout le territoire s'appelle « l'ensemble des départements » (des intercommunalités...), jamais
+    « France » : colonne de l'évolution, part des structures confirmées (règle de nommage du repère ; relecture du
+    31 octobre 2026, défaut 6)."""
+    import inspect
+    from pipeline import config, fiche_territoire as FT
+    g = (Path(__file__).resolve().parent.parent / "gabarits" / "fiche_territoire.html").read_text(encoding="utf-8")
+    # fiche resserrée (1er novembre 2026) : l'évolution depuis 2016 est une colonne, son repère « ensemble des
+    # départements », « ensemble des régions » dans une fiche de région (relecture des fiches construites, mineur 3)
+    assert "en France" not in g and "ensemble des {{ 'régions' if f.niveau == 'reg' else 'départements' }}" in g
+    src = inspect.getsource(FT.construire)
+    assert 'f"En France' not in src and "Pour l'ensemble des" in src
+
+
+def test_reperes_un_etablissement_un_nom():
+    """Dans les repères de la sectorisation, un établissement est regroupé par son FINESS juridique et ne porte qu'un
+    nom, avec les secteurs adultes et infanto-juvéniles qu'il tient (relecture du 31 octobre 2026, défaut 2 :
+    « EPSM Aisne » et « EPSMDA », un seul établissement)."""
+    import json
+    from pipeline import fiche_territoire as FT
+    r = _dernier_resultats()
+    if not (r / "secteurs_psychiatrie.csv").exists() or not (r / "site_data.json").exists():
+        raise Ignore("secteurs_psychiatrie.csv absent")
+    sd = json.loads((r / "site_data.json").read_text(encoding="utf-8"))
+    dn = FT.Donnees(sd, r)
+    x = FT.reperes_secteurs(dn, _code_epci(sd, "GrandSoissons"), {})
+    if not x["publie"]:
+        raise Ignore("sectorisation de l'Aisne absente")
+    finess = [e["finess"] for e in x["etabs"]]
+    assert len(finess) == len(set(finess))
+    for t in ("G", "I"):
+        for s in x[t]:
+            assert s["etab"] == next(e["nom"] for e in x["etabs"] if e["finess"] == s["finess"])
+    e = next(e for e in x["etabs"] if e["finess"] == "020000295")
+    assert e["types"] == "adulte et infanto-juvénile", e
+    assert e["long"] == "établissement public de santé mentale départemental de l'Aisne", e
+    assert x["source"].count("2023") == 1, x["source"]
+
+
+def test_nom_avec_article_sans_redite():
+    """« l'intercommunalité GrandSoissons Agglomération », pas « la communauté d'agglomération GrandSoissons
+    Agglomération » (relecture de clarté du 31 octobre 2026)."""
+    from pipeline import fiche_territoire as FT
+    assert FT.avec_article("CA GrandSoissons Agglomération") == "l'intercommunalité GrandSoissons Agglomération"
+    assert FT.avec_article("CC Vierzon-Sologne-Berry") == "la communauté de communes Vierzon-Sologne-Berry"
+    assert FT.avec_article("CA du Beauvaisis") == "la communauté d'agglomération du Beauvaisis"
+
+
+def test_libelles_ou_ils_exercent_passent_par_la_table():
+    """Les secteurs d'activité et les catégories de « Où ils exercent » passent par la table unique des libellés : plus
+    de forme abrégée (« Asso et orga humanitaire », « Etab. de Soins et Prévention ») quand la table en a une
+    développée (relecture de clarté du 31 octobre 2026)."""
+    from pipeline import libelles as L
+    FT, dn, f, code = _fiche_vraie()
+    vus = [x["lib"] for fam in ("sm", "sante") for p in (f["exercice"].get(fam) or []) for x in p["secteurs"] + p["cat"]]
+    assert vus
+    assert all(L.affichage(v) == v for v in vus), [v for v in vus if L.affichage(v) != v]
+    assert L.affichage("Asso et orga humanitaire", "RPPS secteur") == "Association et organisation humanitaire"
+    assert "Asso et orga humanitaire" not in vus and "Etab. de Soins et Prévention" not in vus
+
+
+def test_contour_choisi_avec_son_lisere():
+    """Le contour du territoire choisi porte dessous un liseré de la couleur du fond (cartes_presentation.lisere), et le
+    contrôle de finition voit un contour qui n'en a pas (contre-vérification esthétique du 31 octobre 2026 : contour
+    perdu dans les classes foncées, 1,4 à 1,9:1)."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "outils"))
+    import controle_finition as CF
+    from pipeline import cartes_presentation as CP
+    bon = ('<svg class="carte-svg mini"><use href="#gE1" fill="none" class="choisi-lisere"/>'
+           '<use href="#gE1" fill="none" class="choisi"/></svg>')
+    assert CF.liseres(bon) == []
+    assert CF.liseres(bon.replace('class="choisi-lisere"', 'class="voisin"'))
+    import inspect
+    assert inspect.getsource(CP.mini_carte).count("lisere(") == 1 and inspect.getsource(CP.plan).count("lisere(") == 1
+
+
+def test_memes_couleurs_ecran_pdf_export():
+    """Mêmes couleurs de densité à l'écran (fond clair), dans les PDF (@media print) et dans les cartes exportées
+    (figures.js, valeurs de repli des cartes) : le PDF des fiches sortait encore en bleu d'encre après le passage au
+    canard (relecture du 31 octobre 2026)."""
+    import re
+    g = Path(__file__).resolve().parent.parent / "gabarits"
+    css = (g / "style.css").read_text(encoding="utf-8")
+
+    def jetons(bloc):
+        return dict(re.findall(r"--(r[0-5]|d[4-6]|action|chiffre):(#[0-9A-Fa-f]{6})", bloc))
+    clair = jetons(css[css.index(":root{"):css.index("}", css.index(":root{"))])
+    impr = css[css.index("@media print{"):]
+    papier = jetons(impr[:impr.index("}")])
+    assert clair and all(papier.get(k, "").upper() == v.upper() for k, v in clair.items()), (clair, papier)
+    js = (g / "figures.js").read_text(encoding="utf-8")
+    coul = dict(re.findall(r'(q[0-4]):"(#[0-9A-Fa-f]{6})"', js[js.index("var COUL="):]))
+    assert [coul[f"q{i}"].upper() for i in range(5)] == [clair[k].upper() for k in ("r0", "r1", "r2", "r3", "r5")]
+    from pipeline import cartes_presentation as CP
+    import inspect
+    for k, v in re.findall(r"var\(--(r[0-5]), (#[0-9A-Fa-f]{6})\)", inspect.getsource(CP)):
+        assert v.upper() == clair[k].upper(), (k, v)
+
+
+def test_phrase_des_professions_ecartees():
+    """Phrase de tête des tableaux de professions (voie A du 31 octobre 2026) : une ou deux lignes nommées avec leur
+    article ; au-delà, la liste sans nombre (une ligne « libéraux » n'est pas une profession de plus) ni article répété,
+    et la phrase qui énumère plus de deux lignes en tout est une phrase-liste, laissée à gauche (lignes lâches de « les
+    masseurs-kinésithérapeutes, les chirurgiens-dentistes, les »). Sur de vraies fiches de département."""
+    import json
+    import re
+    from pipeline import fiche_territoire as FT
+    ens = "de l'ensemble des départements"
+    assert FT.phrase_professions(["psychologues"], "en dessous", ens) == \
+        "les psychologues sont nettement en dessous de l'ensemble des départements."
+    assert FT.phrase_professions(["infirmiers", "pédiatres"], "au-dessus", "de l'ensemble") == \
+        "les infirmiers et les pédiatres sont nettement au-dessus de l'ensemble."
+    p = FT.phrase_professions(["médecins généralistes", "médecins généralistes libéraux", "chirurgiens-dentistes",
+                               "pédiatres"], "en dessous", ens)
+    assert p == ("nettement en dessous de l'ensemble des départements : médecins généralistes, médecins généralistes "
+                 "libéraux, chirurgiens-dentistes et pédiatres.")
+    assert FT.phrase_liste(["a"], ["b", "c"]) and not FT.phrase_liste(["a"], ["b"])
+    css = (Path(__file__).resolve().parent.parent / "gabarits" / "style.css").read_text(encoding="utf-8")
+    assert re.search(r"\.fiche p\.phrase\.phrase-liste\{text-align:left\}", css)
+    # sur les vraies données : aucun nombre de professions écrit, et chaque phrase de plus de deux lignes est marquée
+    r = _dernier_resultats()
+    if not (r / "site_data.json").exists():
+        raise Ignore("site_data.json absent")
+    sd = json.loads((r / "site_data.json").read_text(encoding="utf-8"))
+    dn = FT.Donnees(sd, r)
+    vus = listes = 0
+    for code in sorted(dn.pos["dep"])[:30]:
+        ph = FT.fiche(dn, "dep", code, r.name)["phrases"]
+        for cle in ("sm_pro", "sante_pro"):
+            t = ph.get(cle) or ""
+            if not t:
+                continue
+            vus += 1
+            assert not re.search(r"\b(trois|quatre|cinq|six|sept|huit|neuf|dix|\d+) professions sont\b", t), (code, t)
+            nommees = t.count(" : ") and len(re.findall(r",| et ", t.split(" : ")[1].split(".")[0])) + 1
+            if ph.get(cle + "_liste"):
+                listes += 1
+            elif nommees:
+                assert nommees <= 2, (code, t)
+    assert vus and listes, (vus, listes)
+
+
+def test_bornes_de_legende_distinctes():
+    """Deux bornes d'une légende de classes ne s'écrivent jamais pareil : les CMP pour adultes des régions donnaient
+    « 1,7 2,2 2,2 2,8 » (relecture de la fiche Centre-Val de Loire, 31 octobre 2026)."""
+    from pipeline.fiche_territoire import bornes_legende
+    assert bornes_legende([7.3, 9.8, 10.5, 11.6], "taux") == ["7,3", "9,8", "10,5", "11,6"]
+    t = bornes_legende([1.71, 2.16, 2.24, 2.83], "taux")
+    assert len(set(t)) == 4 and t[1] == "2,16" and t[2] == "2,24"
+
+
+def test_signe_moins_des_rapports():
+    """Un nombre négatif s'écrit avec le vrai signe moins dans les rapports (audit du 6 novembre 2026), un trait d'union
+    entre deux chiffres ou dans un mot reste tel quel."""
+    from pipeline.rapport import signe_moins
+    assert signe_moins("rho = -0,56, de -1 à +1 (-2 nettement) | -0,13 |") == "rho = −0,56, de −1 à +1 (−2 nettement) | −0,13 |"
+    assert signe_moins("15-64 ans, 2016-2024, Saint-Denis, data-variante, -x") == "15-64 ans, 2016-2024, Saint-Denis, data-variante, -x"
+    assert signe_moins("-0,5 en tête\n-3 aussi") == "−0,5 en tête\n−3 aussi"
+
+
+def test_rapport_densite_rare_dans_l_unite_des_pages():
+    """Le rapport national donne la densité d'une profession rare dans l'unité des fiches, de l'atlas et d'Explorer
+    (pour 100 000 habitants sous 1 pour 10 000 en France), avec le même arrondi (audit du 6 novembre 2026). Lit les
+    fichiers produits par l'exécution complète."""
+    import json
+    from pipeline import affichage as AF
+    d = _dernier_resultats()
+    f, s = d / "rapport_sante_mentale.md", d / "site_data.json"
+    if not f.exists() or not s.exists():
+        raise Ignore("rapport ou site_data absent")
+    sd = json.loads(s.read_text(encoding="utf-8"))
+    lab = {p["id"]: p["libelle"] for p in sd["professions"]}
+    texte = f.read_text(encoding="utf-8")
+    vus = 0
+    for p in ("pedopsychiatre", "q_psychiatrie_enfant", "q_addictologie"):
+        if p not in lab or AF.par_habitants(sd, p) != 100000:
+            continue
+        n = sd["france"]["n"][p][2]
+        attendu = AF.nombre(n / sd["france"]["pop"] * 1e5, "taux")
+        lignes = [l for l in texte.splitlines() if l.startswith(f"| {lab[p]} (pour 100 000) |")]
+        assert lignes, (p, "ligne du tableau sans la mention (pour 100 000)")
+        cases = [c.strip() for c in lignes[0].strip("|").split("|")]
+        assert cases[2] == attendu, (p, cases, attendu)
+        vus += 1
+    assert vus, "aucune profession rare dans le rapport santé mentale"
+    assert "Pédopsychiatres pour 10 000 habitants" not in texte and "Pédopsychiatres pour 10\u00a0000 habitants" not in texte
+
+
+def test_rapports_sans_pluriel_fautif():
+    """Pluriels des professions dans les rapports et leurs figures (audit du 6 novembre 2026, « Médecin généralistes »,
+    « Sage-femmes », « Chirurgien-dentistes », « Masseur-kinésithérapeutes »)."""
+    import re
+    from pipeline.lecture import pluriel
+    assert pluriel("Médecin généraliste") == "médecins généralistes" and pluriel("Sage-femme") == "sages-femmes"
+    assert pluriel("Chirurgien-dentiste") == "chirurgiens-dentistes"
+    assert pluriel("Masseur-kinésithérapeute") == "masseurs-kinésithérapeutes"
+    d = _dernier_resultats()
+    fichiers = [d / "rapport_sante_mentale.md", d / "rapport_sante.md"] + sorted((d / "graphiques").glob("*.svg"))
+    fichiers = [f for f in fichiers if f.exists()]
+    if not fichiers:
+        raise Ignore("rapports absents")
+    motif = re.compile(r"[Mm]édecin généralistes|[Ss]age-femmes|[Cc]hirurgien-dentistes|[Mm]asseur-kinésithérapeutes")
+    fautes = [(f.name, m.group(0)) for f in fichiers for m in motif.finditer(f.read_text(encoding="utf-8"))]
+    assert not fautes, fautes[:10]
+
+
+def test_rapports_vrai_signe_moins():
+    """Aucun nombre négatif écrit avec un trait d'union dans les rapports nationaux, leurs figures et un échantillon de
+    rapports par territoire (audit du 6 novembre 2026, 93 cas). Lit les fichiers de l'exécution complète."""
+    import re
+    d = _dernier_resultats()
+    fichiers = ([d / "rapport_sante_mentale.md", d / "rapport_sante.md"] + sorted((d / "territoires").glob("*.md"))[:40])
+    fichiers = [f for f in fichiers if f.exists()]
+    if not fichiers:
+        raise Ignore("rapports absents")
+    motif = re.compile(r"(?:(?<=[\s(\[|=«])|^)-\d", re.M)
+    fautes = []
+    for f in fichiers:
+        t = re.sub(r"<!--.*?-->|https?://\S+", " ", f.read_text(encoding="utf-8"))
+        fautes += [(f.name, t[max(0, m.start() - 25):m.end() + 6]) for m in motif.finditer(t)]
+    for f in sorted((d / "graphiques").glob("*.svg")):
+        fautes += [(f.name, m.group(0)) for m in re.finditer(r">-\d[^<]*<", f.read_text(encoding="utf-8"))]
+    assert not fautes, fautes[:10]
+
+
+# une décision de Lucas ou un défaut d'audit, un test (6 novembre 2026), repris ici pour que la commande du projet les lance
+sys.path.insert(0, str(Path(__file__).parent))
+from test_decisions import *  # noqa: E402,F401,F403
+from test_audit3_site import *  # noqa: E402,F401,F403
+from test_code_public import *  # noqa: E402,F401,F403
 
 
 if __name__ == "__main__":

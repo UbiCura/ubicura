@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{# Fiche d'un indicateur (présentation du 30 octobre 2026, maquette e-indicateur validée), préparée par
+   pipeline/fiche_indicateur.py. La réponse d'abord, la répartition des territoires autour du repère de leur niveau, la
+   définition et la source, puis pour une profession les totaux des fichiers et celui qu'il faut citer. #}
+{% block contenu %}
+<style>
+main.indicateur{max-width:var(--largeur-page)}
+main.indicateur h1{border:0;padding:0;margin-top:4px}
+main.indicateur .fil{font-size:.875rem;color:var(--muted);margin:0;text-align:left}
+main.indicateur .fil a{color:var(--muted)}
+main.indicateur .marque-sm{display:inline-block;margin-left:8px;padding:1px 8px;border:1px solid var(--line);border-radius:4px;font-size:.75rem;color:var(--ink)}
+main.indicateur .reponse{font-size:1.125rem;max-width:62ch;margin:14px 0 0}
+main.indicateur .reponse strong{font-family:var(--serif);font-size:1.75rem;font-weight:500;color:var(--r4);font-variant-numeric:tabular-nums}
+main.indicateur .vers{display:flex;flex-wrap:wrap;gap:6px 20px;margin:14px 0 0;font-size:.9375rem;text-align:left}
+main.indicateur .grille-i{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:28px 40px;align-items:start;margin-top:26px}
+main.indicateur figure.graphique{margin:0}
+main.indicateur figure.graphique svg{width:100%;height:auto;display:block}
+main.indicateur figcaption{font-size:.9375rem;text-align:left}
+main.indicateur h2{font-size:1.375rem;margin:0 0 10px;padding:0;border:0}
+main.indicateur dl.meta{display:grid;grid-template-columns:8.5rem minmax(0,1fr);gap:8px 16px;margin:0;font-size:.9375rem}
+main.indicateur dl.meta dt{color:var(--muted)}
+main.indicateur .carte-i figure{max-width:620px;margin:0}main.indicateur .carte-i svg{width:100%;height:auto;display:block}
+main.indicateur dl.meta dd{margin:0;text-align:left}
+main.indicateur .sect{margin-top:34px;max-width:60rem}
+main.indicateur table{font-size:.9375rem}
+main.indicateur table .v{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;padding-left:16px}
+main.indicateur tr.choisi td{font-weight:600}
+main.indicateur .hm{display:block;font-size:.75rem;color:var(--muted)}
+main.indicateur table th{text-align:left}main.indicateur table th.v{text-align:right}main.indicateur table td:not(.v)+td:not(.v),main.indicateur table td.v+td:not(.v){padding-left:20px}
+main.indicateur .limite{display:flex;gap:10px;align-items:baseline;font-size:.9375rem;margin:8px 0 0;text-align:left}
+main.indicateur .limite b{color:var(--signal);flex:none}
+main.indicateur .discret{color:var(--muted);font-size:.875rem;text-align:left}
+main.indicateur ul.fichiers{list-style:none;padding:0;margin:0}
+main.indicateur ul.fichiers li{margin:0;padding:8px 0;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline}
+main.indicateur .code{font-size:.875rem;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 12px;overflow-wrap:anywhere;text-align:left}
+@media (max-width:900px){main.indicateur .grille-i{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:480px){main.indicateur dl.meta{grid-template-columns:minmax(0,1fr);gap:2px 0}main.indicateur dl.meta dd{margin-bottom:8px}}
+</style>
+<header class="tete">
+  <p class="fil"><a href="../domaines.html#{{ f.dom.id }}">{{ f.dom.nom }}</a>{% if f.sous %}, {{ f.sous|lower }}{% endif %}{% if f.sm and (f.sous or '')|lower != 'santé mentale' %}<span class="marque-sm">santé mentale</span>{% endif %}</p>
+  <h1>{{ f.lab }}{% if f.u %}, {{ f.u }}{% endif %}</h1>
+  <p class="reponse">
+  {%- if f.prof and f.dens_fr is not none -%}
+    <strong>{{ f.dens_fr|nombre }}</strong> {{ f.lab|lower }} pour {{ f.par }} habitants en France, soit {{ f.n_fr[2]|nombre('entier') }} personnes distinctes ({{ f.an }}).
+  {%- endif %} Par {{ f.fin.nom[:-1] }}, la moitié des territoires se situe entre {{ f.fin.q1|nombre(f.g) }} et {{ f.fin.q3|nombre(f.g) }}{% if f.u %} {{ f.u }}{% endif %}, la médiane à {{ f.fin.med|nombre(f.g) }}{% if f.fin.rep_lib|lower != 'intercommunalité médiane' and f.fin.rep_lib|lower != 'département médian' and f.fin.rep_lib|lower != 'région médiane' %}, face à l’{{ f.fin.rep_lib|lower }}, {{ f.fin.rep|nombre(f.g) }}{% endif %}.</p>
+  <p class="vers"><a href="../{{ f.croiser }}">Croiser avec un autre indicateur</a>{% if f.atlas %}<a href="../{{ f.atlas }}">Sur la carte de l’atlas</a>{% endif %}<a href="../domaines.html#{{ f.dom.id }}">Les autres indicateurs du domaine</a></p>
+</header>
+
+<div class="grille-i" data-citation="{{ citation }}">
+  <figure class="graphique"{% if f.donnees_fig %} data-donnees="{{ f.donnees_fig }}" data-donnees-nom="{{ f.fichiers[0][0] }}"{% endif %}>
+    <figcaption><strong>Répartition des {{ f.fin.nom }}.</strong> <span class="leg">{{ f.lab }}, nombre {{ f.fin.de }} par classe de valeur, repère des {{ f.fin.nom }} en pointillé</span></figcaption>
+    {{ f.fin.svg|safe }}
+  </figure>
+  <section aria-labelledby="t-bref">
+    <h2 id="t-bref">En bref</h2>
+    <dl class="meta">
+      {% if f.exp %}<dt>Définition</dt><dd>{{ f.exp }}</dd>{% endif %}
+      {% if f.u %}<dt>Unité</dt><dd>{{ f.u }}</dd>{% endif %}
+      <dt>Source</dt><dd>{{ f.src }}{% if f.an %}, {{ f.an }}{% endif %}{% if f.fiche_source %}, <a href="../donnees-sources.html">fiche de la source</a>{% endif %}</dd>
+      {% if f.lic %}<dt>Licence</dt><dd>{{ f.lic }}</dd>{% endif %}
+      <dt>Niveaux</dt><dd>{% if f.prof %}France, {% endif %}{{ f.niveaux|reverse|join(', ') }}</dd>
+      <dt>Repère</dt><dd>« {{ f.fin.rep_lib }} », {{ f.nature_repere }}, le même sur la fiche de chaque territoire, le comparateur et Croiser. Tous les territoires du niveau sont comptés, Mayotte comprise.</dd>
+      <dt>Version</dt><dd>{{ date_calcul }}</dd>
+    </dl>
+  </section>
+</div>
+
+{% if f.carte %}
+<section class="sect carte-i" aria-labelledby="t-carte-i" data-citation="{{ citation }}">
+  <h2 id="t-carte-i">Sur la carte</h2>
+  <figure class="graphique"><figcaption class="small muted"><strong>Carte.</strong> <span class="leg">{{ f.lab }}{% if f.u %}, {{ f.u }}{% endif %}, par département, en cinq classes de même effectif</span></figcaption>{{ f.carte|safe }}</figure>
+  <p class="discret" style="margin-top:6px">Par intercommunalité et avec les territoires nommés, {% if f.atlas %}<a href="../{{ f.atlas }}">dans l’atlas</a> ou {% endif %}<a href="../{{ f.croiser }}">dans Croiser</a>.</p>
+</section>
+{% endif %}
+<section class="sect" aria-labelledby="t-niv">
+  <h2 id="t-niv">À chaque niveau</h2>
+  <div class="defile"><table>
+    <caption class="discret" style="text-align:left">{{ f.lab }}{% if f.u %}, {{ f.u }}{% endif %}, répartition des territoires de chaque niveau</caption>
+    <thead><tr><th scope="col">Niveau</th><th scope="col" class="v">Territoires</th><th scope="col" class="v">Premier quart</th><th scope="col" class="v">Médiane</th><th scope="col" class="v">Dernier quart</th><th scope="col" class="v">Repère</th><th scope="col" class="v">Plus bas</th><th scope="col" class="v">Plus haut</th></tr></thead>
+    <tbody>{% for n in f.par_niv %}<tr><td>{{ n.nom|capitalize }}</td><td class="v">{{ n.n|nombre('entier') }}</td><td class="v">{{ n.q1|nombre(f.g) }}</td><td class="v">{{ n.med|nombre(f.g) }}</td><td class="v">{{ n.q3|nombre(f.g) }}</td><td class="v">{{ n.rep|nombre(f.g) }}</td><td class="v">{{ n.min|nombre(f.g) }}{% if n.nzero %}<span class="note">{{ n.nzero|nombre('entier') }} territoire{{ 's' if n.nzero > 1 }} à 0</span>{% endif %}</td><td class="v">{{ n.max|nombre(f.g) }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  <p class="discret" style="margin-top:8px">La moitié des territoires se situe entre le premier et le dernier quart. Le repère est celui montré à côté d’un territoire sur sa fiche, dans le comparateur et dans Croiser.{% if f.prof %} Il diffère du chiffre de la France, le tableau suivant dit pourquoi.{% endif %}</p>
+  {% if f.modes %}<p class="discret">Les mêmes chiffres pour les {% for nm, m in f.modes if m %}<a href="../croiser.html#x={{ m.id }}">{{ nm }}</a>{{ ' et ' if not loop.last }}{% endfor %} dans l’atelier « Croiser ».</p>{% endif %}
+</section>
+
+{% if f.totaux %}
+<section class="sect" aria-labelledby="t-tot">
+  <h2 id="t-tot">Pourquoi plusieurs totaux, et lequel citer</h2>
+  <p>Une personne qui exerce dans deux communes compte dans chacune. Additionner des territoires compte donc deux fois les mêmes personnes, d’autant plus que les territoires sont petits. Chaque total est juste pour ce qu’il mesure. Pour la France, citez {{ f.n_fr[2]|nombre('entier') }}. Pour un territoire, citez sa densité face au repère de son niveau.</p>
+  <div class="defile"><table>
+    <caption class="discret" style="text-align:left">{{ f.lab }}, totaux dans les fichiers du {{ date_longue }}</caption>
+    <thead><tr><th scope="col">Ce qui est compté</th><th scope="col" class="v">Personnes</th><th scope="col" class="v">Pour {{ f.par }} hab.</th><th scope="col">Fichier</th></tr></thead>
+    <tbody>{% for t in f.totaux %}<tr{% if t.choisi %} class="choisi"{% endif %}><td>{{ t.quoi }}</td><td class="v">{{ t.n|nombre('entier') }}</td><td class="v">{{ t.dens|nombre }}</td><td>{{ t.fichier }}</td></tr>{% endfor %}</tbody>
+  </table></div>
+  {% if f.drees %}<p class="discret" style="margin-top:8px">Comparaison avec la DREES, {{ f.drees.n|nombre('entier') }} en {{ f.drees.annee }} ({{ f.drees.champ }}), écart de {{ f.drees.ecart|ecart }}{% if f.drees.attendu is not none %}, {{ f.drees.attendu|ecart }} face à ce chiffre prolongé par sa croissance annuelle{% endif %}. La page <a href="../methode-controles.html">Contrôles</a> donne l’écart de chaque profession.</p>{% endif %}
+</section>
+{% endif %}
+
+<section class="sect" aria-labelledby="t-lim">
+  <h2 id="t-lim">Limites de cet indicateur</h2>
+  {% for l in f.limites %}<p class="limite"><b aria-hidden="true">!</b><span>{{ l }}</span></p>{% else %}<p class="discret">Aucune limite propre à cet indicateur n’est signalée dans cette version. Les limites générales sont sur la page <a href="../methode.html">Méthode, données et limites</a>.</p>{% endfor %}
+</section>
+
+<section class="sect" aria-labelledby="t-dl">
+  <h2 id="t-dl">Télécharger et citer</h2>
+  <ul class="fichiers">
+    {% for nom, quoi in f.fichiers %}<li><a href="../donnees/{{ version }}/{{ nom }}">{{ nom }}</a><span class="discret">{{ quoi }}</span></li>{% endfor %}
+    <li><a href="../donnees/{{ version }}/dictionnaire.html">dictionnaire des colonnes</a><span class="discret">sens de chaque colonne</span></li>
+  </ul>
+  <p style="margin:14px 0 4px"><strong>Citer</strong></p>
+  {# DOI cliquable (règle 11, audit du 6 novembre 2026) #}
+  <p class="code">{{ citation_html|safe }}</p>
+</section>
+{% endblock %}

@@ -100,7 +100,11 @@ if ($Restaurer) {
         & $python -m pipeline.site 2>&1 | Out-Null
     }
     Ecrire "Copie des pages publiques."
-    robocopy (Join-Path $racine "site") $temp /E /XD prototype prototype2 prototype3 prototype4 maquettes /NFL /NDL /NJH /NJS /NP | Out-Null
+    # les pages de travail, dont le nom commence par « _ » (planche de style, contrôles), ne partent jamais en ligne
+    robocopy (Join-Path $racine "site") $temp /E /XD prototype prototype2 prototype3 prototype4 maquettes _maquettes /XF _*.html /NFL /NDL /NJH /NJS /NP | Out-Null
+    # aucune page de l'offre professionnelle ne part avant que l'offre soit finalisée (décision de Lucas du 28 octobre 2026)
+    $offre = & $python (Join-Path $racine "outils\verifier_site_public.py") $temp
+    if ($LASTEXITCODE -ne 0) { Ecrire "Page de l'offre dans le site, rien n'est envoyé. $offre"; Prevenir "Une page de l'offre professionnelle est dans le site. Rien n'a été mis en ligne.`n`n$offre"; exit 1 }
     $zip = Join-Path $sauvegardes ("site_" + $version + "_" + (Get-Date -Format "yyyyMMdd_HHmm") + ".zip")
     Compress-Archive -Path (Join-Path $temp "*") -DestinationPath $zip -Force
     Ecrire "Sauvegarde, $zip"

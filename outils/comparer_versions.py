@@ -33,6 +33,10 @@ POPULATION = (.01, .05)        # variation de la population totale
 LIGNES = (.20, .50)            # variation du nombre de lignes d'un fichier
 VIDES = .05                    # hausse de la part de valeurs manquantes d'un indicateur
 LIEUX = (.15, .40)             # variation du nombre de lieux de soins d'un type (FINESS et ROR, mis à jour chaque semaine)
+# variation brusque d'un type de structure dans un département (constat C2 du 4 novembre 2026, CATTP de Charente passés
+# de 10 à 0 quand Sirene n'a pas été lu) : à regarder dès que l'écart atteint 5 structures et la moitié de l'effectif,
+# ou qu'un type compté au moins 3 fois disparaît du département
+LIEUX_DEP = (5, .50, 3)
 VALEURS = .20                  # variation de la médiane des territoires d'un indicateur du catalogue (audit du 30 octobre
                                # 2026, constat 5, des taux multipliés par 7 à 194 étaient passés sans signal)
 PRINCIPALES = ["psychologue", "psychiatre", "pedopsychiatre", "psychotherapeute", "medecin_generaliste", "infirmier",
@@ -145,6 +149,8 @@ def comparer(avant: Path, apres: Path, c: Compte):
                     c.note(20 if abs(v) > LIEUX[1] else 10, f"Lieux de soins, {k}, {int(na[k])} avant, {int(nb.get(k, 0))} après ({v:+.0%})")
     elif a is not None and b is None:
         c.note(20, "Lieux de soins, fichier lieux_soins.csv disparu")
+    # 5 ter. un type de structure dans un département
+    variations_departement(avant, apres, c)
     # 5 bis. structures vérifiées à la main, une nouvelle version d'une base ne doit rien défaire en silence
     structures_verifiees(avant, apres, c)
     emplacements(avant, apres, c)
@@ -155,6 +161,37 @@ def comparer(avant: Path, apres: Path, c: Compte):
     # 7. cohérence des indicateurs et des croisements (exigence de Lucas du 12 octobre 2026, après des indicateurs
     # fantômes nés d'un ajout placé dans la mauvaise liste de config.py)
     coherence(apres, c)
+
+
+def variations_lieux_departement(avant: Path, apres: Path) -> pd.DataFrame:
+    """Types de structure dont le nombre change brusquement dans un département entre deux versions
+    (lieux_soins_dep.csv, seuils LIEUX_DEP) : colonnes code, nom, type, avant, apres."""
+    a, b = lire(avant / "lieux_soins_dep.csv"), lire(apres / "lieux_soins_dep.csv")
+    if a is None or b is None or "code" not in a or "code" not in b:
+        return pd.DataFrame(columns=["code", "nom", "type", "avant", "apres"])
+    a, b = a.set_index(a["code"].astype(str)), b.set_index(b["code"].astype(str))
+    ecart, part, disparu = LIEUX_DEP
+    lignes = []
+    for col in [c for c in a.columns if c.startswith("n_lieu_") and c in b.columns]:
+        va = pd.to_numeric(a[col], errors="coerce").fillna(0)
+        vb = pd.to_numeric(b[col], errors="coerce").reindex(va.index).fillna(0)
+        d = (vb - va).abs()
+        brusque = ((d >= ecart) & (d >= part * va.clip(lower=1))) | ((va >= disparu) & (vb == 0))
+        for code in va.index[brusque]:
+            lignes.append({"code": code, "nom": a.at[code, "nom"] if "nom" in a else code, "type": col[2:],
+                           "avant": int(va[code]), "apres": int(vb[code])})
+    return pd.DataFrame(lignes, columns=["code", "nom", "type", "avant", "apres"])
+
+
+def variations_departement(avant: Path, apres: Path, c: Compte):
+    v = variations_lieux_departement(avant, apres)
+    if v.empty:
+        c.note(0, "Structures par département et par type, aucune variation brusque")
+        return
+    exemples = "; ".join(f"{r.type} {r.nom} {r.avant} → {r.apres}" for r in
+                         v.assign(d=(v["apres"] - v["avant"]).abs()).sort_values("d", ascending=False).head(5).itertuples())
+    c.note(10, f"Structures par département et par type, {len(v)} variation(s) brusque(s) (écart d'au moins "
+               f"{LIEUX_DEP[0]} et de {LIEUX_DEP[1]:.0%}, ou type disparu), dont {exemples}")
 
 
 def catalogue(version: Path) -> dict:
@@ -245,6 +282,18 @@ def emplacements(avant: Path, apres: Path, c: Compte):
         c.note(0, f"Structures posées au centre de leur commune, {texte}")
 
 
+ADRESSES_A_REVERIFIER = "Structures de soins, adresses vérifiées à revérifier"
+
+
+def _controle(version: Path, debut: str) -> str | None:
+    """Valeur du premier contrôle du journal de la version dont le nom commence par debut."""
+    try:
+        j = json.loads((version / "journal.json").read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return None
+    return next((str(v) for n, v in j.get("controles", []) if str(n).startswith(debut)), None)
+
+
 def a_reverifier(version: Path) -> set[str] | None:
     """Établissements vérifiés à la main que le journal signale à revérifier (empreinte des inscriptions de FINESS et
     du ROR changée, vérification de plus d'un an, structure fermée depuis dans FINESS), d'après la colonne
@@ -280,6 +329,10 @@ def structures_verifiees(avant: Path, apres: Path, c: Compte):
         if len(nouveaux):
             c.note(10, f"Verdicts de la vérification à la main qui ne retrouvent plus leur structure, {len(nouveaux)} "
                        f"nouveaux ({', '.join(nouveaux['structure'].astype(str).head(5))}), voir verdicts_sans_structure.csv")
+    # adresses vérifiées sur les sources des établissements (pipeline/adresses_verifiees.py, 31 octobre 2026)
+    va, vb = _controle(avant, ADRESSES_A_REVERIFIER), _controle(apres, ADRESSES_A_REVERIFIER)
+    if vb and vb != "aucune":
+        c.note(10 if vb != va else 0, f"Adresses vérifiées à revérifier, {vb}")
     ra, rb = a_reverifier(avant), a_reverifier(apres)
     if rb:
         nouveaux = rb - (ra or set())
@@ -346,7 +399,13 @@ def verifier_site(c: Compte):
         if not (SITE / p).exists():
             c.note(20, f"Page du site absente, {p}")
     for f in SITE.rglob("*.html"):
+        # une page de redirection vers l'adresse datée (rapports par territoire, audit du 30 octobre 2026, point I13)
+        # est courte par construction ; elle doit seulement mener à une page qui existe
         if f.stat().st_size < 500:
+            t = f.read_text(encoding="utf-8", errors="ignore")
+            m = re.search(r'http-equiv="refresh" content="0; url=([^"]+)"', t)
+            if m and (f.parent / m.group(1)).exists():
+                continue
             c.note(20, f"Page du site presque vide, {f.relative_to(SITE)}")
 
 

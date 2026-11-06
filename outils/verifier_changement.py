@@ -145,6 +145,18 @@ def registre(c, version: Path, reference: Path | None = None):
             c.note(0, "Écarts déjà connus et expliqués dans la page méthode, " + fmt(connus))
 
 
+def chiffres(c, version: Path):
+    """Règle d'affichage des chiffres sur le site construit (pipeline/controle_affichage.py), les mêmes contrôles que
+    ceux qui arrêtent la construction du site."""
+    site = RACINE / "site"
+    if not (site / "presentation" / "atelier_donnees.js").exists():
+        c.note(0, "Règle d'affichage des chiffres, site de la présentation non construit, contrôle non fait")
+        return
+    from pipeline import controle_affichage
+    for niveau, texte in controle_affichage.controler(site, version):
+        c.note({"info": 0, "à regarder": 10, "bloquant": 20}[niveau], f"Règle d'affichage, {texte}")
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="Vérification d'un changement (outils/verifier_changement.py)")
     ap.add_argument("--reference", help="dossier de la version de référence (par défaut la dernière publiée)")
@@ -174,6 +186,7 @@ def main(argv=None) -> int:
         lancer(c, "Mise en page des PDF", [py, "outils/controle_pdf.py", str(RACINE / "site" / "rapports" / version.name)],
                niveau_echec=10)
     registre(c, version, reference)
+    chiffres(c, version)
 
     dossier = RACINE / "donnees" / "verifications"
     dossier.mkdir(parents=True, exist_ok=True)

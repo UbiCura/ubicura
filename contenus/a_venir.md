@@ -6,9 +6,11 @@ Les principaux ajouts prévus, sans date ferme. Chacun ne sera intégré que si 
 
 **Chaque structure à son adresse.** Les structures de soins encore placées au centre de leur commune, à Paris d'abord, situées à leur adresse exacte, et décrites à la fois par les professionnels qui y déclarent leur activité et par les moyens de leur établissement, sans jamais additionner les deux.
 
-**Temps de trajet vers chaque type de structure de soins.** Les temps par la route publiés par l'INSEE portent sur onze types d'équipements de sa base. Ils seront calculés aussi vers les structures recensées ici (CMP pour adultes et pour enfants, CATTP, hôpitaux de jour, CMPP, CAMSP, structures d'addictologie), avec la part des habitants à moins de 10, 20 et 30 minutes.
+**Temps de trajet vers chaque type de structure de soins.** Les temps par la route publiés par l'INSEE portent sur onze types d'équipements de sa base. Ils seront calculés aussi vers les structures recensées ici (CMP pour adultes et pour enfants, CATTP, hôpitaux de jour, CMPP, CAMSP, structures d'addictologie), avec la part des habitants à plus de 15, 20, 30 et 45 minutes, et rejoindront la page « Autour d'un lieu ».
 
 **Sectorisation psychiatrique dans les autres régions.** Les secteurs des Hauts-de-France sont en ligne. Ceux des autres régions s'ajouteront à mesure que les agences régionales de santé communiqueront leur arrêté.
+
+**Mon soutien psy par département.** Les séances remboursées du dispositif, par département, si l'Assurance Maladie communique ces données, demandées le 26 octobre 2026 et encore sans réponse.
 
 **Violences sexistes, sexuelles et intrafamiliales.** Victimes enregistrées par département et structures d'aide, avec la limite des plaintes écrite à chaque fois.
 
@@ -16,8 +18,8 @@ Les principaux ajouts prévus, sans date ferme. Chacun ne sera intégré que si 
 
 ## Analyses et site
 
-**D'autres analyses à régler soi-même.** Après les inégalités, les distances aux structures, la typologie et « Croiser deux indicateurs », les autres croisements de l'atlas rejoindront la page Explorer, rangés par question, avec des analyses qui tiennent compte de deux caractéristiques des territoires à la fois, comme la densité de population et le niveau de vie.
+**D'autres analyses à régler soi-même.** Après les inégalités, les distances aux structures, la typologie et la page « Croiser », les autres croisements de l'atlas rejoindront les pages de chaque domaine, rangés par question, avec des analyses qui tiennent compte de deux caractéristiques des territoires à la fois, comme la densité de population et le niveau de vie.
 
-**Pages par intercommunalité.** Une page complète pour chaque intercommunalité, sur le modèle des départements, avec le plan de ses structures de soins.
+**Rapports par intercommunalité.** Après la fiche de chaque intercommunalité, un rapport complet sur le modèle des départements, avec le plan de ses structures de soins.
 
 **Ce que dit la littérature.** Les travaux scientifiques sur chaque thème, avec leurs références.

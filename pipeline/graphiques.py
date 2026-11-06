@@ -11,15 +11,54 @@ from html import escape
 import numpy as np
 import pandas as pd
 
+from . import affichage as AF
 from . import config, lieux_profil
-from .lecture import nombre
+from .lecture import nombre as _nombre_brut
 from .util import log
 
-ENCRE, DISCRET, LIGNE = "var(--ink, #1F2430)", "var(--muted, #5F6675)", "var(--line, #D9DCE3)"
+
+def nombre(x, d=0) -> str:
+    """Nombre des figures, vrai signe moins (U+2212) pour une valeur négative (audit du 6 novembre 2026)."""
+    s = _nombre_brut(x, d)
+    return "−" + s[1:] if s.startswith("-") else s
+
+
+# unité des densités de chaque profession dans les figures, la même que les fiches, l'atlas et Explorer : pour 100 000
+# habitants pour une profession rare (affichage.unite_prof), posée par ecrire() d'après les effectifs de la France ;
+# les valeurs restent calculées pour 10 000, seules les valeurs affichées sont ramenées à l'unité
+_UNITES: dict = {}
+
+
+def fac(p) -> int:
+    return _UNITES.get(p, 10000)
+
+
+def k_unite(p) -> float:
+    """Multiplicateur d'une densité pour 10 000 vers l'unité d'affichage de la profession."""
+    return fac(p) / 1e4
+
+
+def unite(p) -> str:
+    return AF.txt_unite(fac(p))
+
+
+def dens_txt(p, v) -> str:
+    """Densité pour 10 000 écrite dans l'unité de la profession, arrondis des fiches (affichage.nombre)."""
+    return AF.nombre(None if v is None or not np.isfinite(v) else v * k_unite(p), "taux")
+
+
+def poser_unites(agg, ref) -> None:
+    nat = agg.national[agg.national["mode"] == "all"].set_index("prof")["n"]
+    pop = float(ref.communes["pop"].sum())
+    _UNITES.clear()
+    _UNITES.update({p: AF.unite_prof(float(n), pop) for p, n in nat.items()})
+
+ENCRE, DISCRET, LIGNE = "var(--ink, #1C2028)", "var(--muted, #5D6371)", "var(--line, #DCDDE0)"
 # rampe des données (bleu d'encre depuis le 23 octobre 2026, le nom VIOLET est gardé pour ne pas toucher aux appels),
-# OCRE pour les repères (moyenne, France), CUIVRE pour un territoire sous la moyenne
-VIOLET = ["var(--r5, #0F3562)", "var(--r4, #1D4D87)", "var(--r3, #3167A9)", "var(--r2, #5182C1)"]
-OCRE, OCRE_PALE, VIOLET_PALE = "var(--accent, #9A6B00)", "var(--d1, #BC6B3B)", "var(--r1, #7AA1D3)"
+# REPERE (encre) pour les repères (ensemble des territoires, France), CUIVRE pour un territoire sous l'ensemble ;
+# l'ocre est réservé au signal « ! » (direction visuelle du 31 octobre 2026, étape 4 du 5 novembre)
+VIOLET = ["var(--r5, #0D3D3B)", "var(--r4, #0E5A5A)", "var(--r3, #1C5652)", "var(--r2, #2A6B66)"]
+REPERE, OCRE_PALE, VIOLET_PALE = ENCRE, "var(--d1, #BC6B3B)", "var(--r1, #3B7E78)"
 CUIVRE = "var(--d0, #83451E)"
 PRINCIPALE = {"sm": "psychologue", "sante": "medecin_generaliste"}
 # Échelle typographique commune des figures (harmonisation, 22 octobre 2026). Trois tailles, telles qu'on les voit à
@@ -212,7 +251,7 @@ def effet_ville(R, lab, ctxlab, cle, p=None):
     f.texte(8, 14, lab.get(p, p), c=ENCRE, taille="titre", gras=True)
     legende(f.el, 8, 32, [("carre", DISCRET, "tous territoires"), ("carre", VIOLET[2], "à densité de population égale")],
             f.w, f.fs("petit"))
-    return f.svg(f"Liens entre la densité de {lab.get(p, p).lower()} et le profil des habitants, avant et après "
+    return f.svg(f"Liens entre la densité {_de_pl(lab, p)} et le profil des habitants, avant et après "
                  f"retrait de l'effet ville")
 
 
@@ -226,23 +265,27 @@ def escalier(R, lab, cle, densite_nationale, p=None):
     t = es[(es["niveau"] == "epci") & (es["prof"] == p)].sort_values("decile")
     if t.empty:
         return None
+    # barres et repère dans l'unité de la profession (pour 100 000 habitants pour une profession rare)
+    kk = k_unite(p)
+    t = t.assign(densite=t["densite"] * kk)
+    densite_nationale = densite_nationale * kk
     vmax = max(t["densite"].max(), densite_nationale) * 1.15
     f = Figure(marges=(48, 84, 16, 46))
     f.echelles(.5, 10.5, 0, vmax)
     pas = pas_rond(vmax / 4)
     f.axes(range(1, 11), np.arange(0, vmax, pas), lambda v: str(v), lambda v: nombre(v, 1 if pas < 1 else 0),
-           "Dixième de la population, du plus modeste au plus aisé", f"{lab.get(p, p)}s pour 10 000 habitants")
+           "Dixième de la population, du plus modeste au plus aisé", f"{pluriel_simple(lab.get(p, p))} {unite(p)}")
     largeur = (f.X(2) - f.X(1)) * .7
     for _, r in t.iterrows():
         x = f.X(r["decile"]) - largeur / 2
         c = OCRE_PALE if r["densite"] < densite_nationale else VIOLET[2]
         f.ajout(f'<rect x="{x:.1f}" y="{f.Y(r["densite"]):.1f}" width="{largeur:.1f}" '
                 f'height="{f.Y(0) - f.Y(r["densite"]):.1f}" fill="{c}" rx="2"/>')
-        f.texte(x + largeur / 2, f.Y(r["densite"]) - 5, nombre(r["densite"], 1), "middle", ENCRE, "petit")
-    f.ligne(f.g, f.Y(densite_nationale), f.w - f.d, f.Y(densite_nationale), OCRE, 1.5, "5 3")
-    f.texte(f.w - f.d + 6, f.Y(densite_nationale) - 3, "Moyenne", "start", OCRE)
-    f.texte(f.w - f.d + 6, f.Y(densite_nationale) + f.fs("petit") + 1, nombre(densite_nationale, 1), "start", OCRE)
-    return f.svg(f"Densité de {lab.get(p, p).lower()}s selon le niveau de vie des territoires")
+        f.texte(x + largeur / 2, f.Y(r["densite"]) - 5, AF.nombre(r["densite"], "taux"), "middle", ENCRE, "petit")
+    f.ligne(f.g, f.Y(densite_nationale), f.w - f.d, f.Y(densite_nationale), REPERE, 1.5, "5 3")
+    f.texte(f.w - f.d + 6, f.Y(densite_nationale) - 3, "Ensemble", "start", REPERE)
+    f.texte(f.w - f.d + 6, f.Y(densite_nationale) + f.fs("petit") + 1, AF.nombre(densite_nationale, "taux"), "start", REPERE)
+    return f.svg(f"Densité {_de_pl(lab, p)} selon le niveau de vie des territoires")
 
 
 # lieux montrés par l'escalier de la distance (registre, analyse « eloignement »), le premier est commenté par le rapport
@@ -276,9 +319,9 @@ def eloignement(L, tid):
                 f'height="{f.Y(0) - f.Y(r["distance_mediane_km"]):.1f}" fill="{c}" rx="2"/>')
         f.texte(x + largeur / 2, f.Y(r["distance_mediane_km"]) - 5, nombre(r["distance_mediane_km"], 1), "middle",
                 ENCRE, "petit")
-    f.ligne(f.g, f.Y(fr), f.w - f.d, f.Y(fr), OCRE, 1.5, "5 3")
-    f.texte(f.w - f.d + 6, f.Y(fr) - 3, "France", "start", OCRE)
-    f.texte(f.w - f.d + 6, f.Y(fr) + f.fs("petit") + 1, f"{nombre(fr, 1)} km", "start", OCRE)
+    f.ligne(f.g, f.Y(fr), f.w - f.d, f.Y(fr), REPERE, 1.5, "5 3")
+    f.texte(f.w - f.d + 6, f.Y(fr) - 3, "France", "start", REPERE)
+    f.texte(f.w - f.d + 6, f.Y(fr) + f.fs("petit") + 1, f"{nombre(fr, 1)} km", "start", REPERE)
     return f.svg(f"Distance des habitants à la structure la plus proche ({lib if lib[1:2].isupper() else lib[0].lower() + lib[1:]}) selon le niveau de vie "
                  f"des territoires")
 
@@ -292,7 +335,10 @@ def entonnoir(R, lab, cle, p=None):
     g = lim[(lim["niveau"] == "epci") & (lim["prof"] == p)].sort_values("population")
     if t.empty or g.empty:
         return None
-    dens = t["effectif"] / t["population"] * 1e4
+    # points, limites et repère dans l'unité de la profession (pour 100 000 habitants pour une profession rare)
+    kk = k_unite(p)
+    dens = t["effectif"] / t["population"] * 1e4 * kk
+    g = g.assign(**{c: g[c] * kk for c in ("haut_95", "bas_95", "haut_998", "bas_998") if c in g})
     ymax = max(np.quantile(dens, .98), g["haut_95"].iloc[len(g) // 3]) * 1.1
     yt, pas = graduations(ymax)
     ymax = yt[-1] + pas * .5
@@ -300,15 +346,15 @@ def entonnoir(R, lab, cle, p=None):
     f.echelles(t["population"].min(), t["population"].max(), 0, ymax, xlog=True)
     xt = [v for v in [1e3, 1e4, 1e5, 1e6, 1e7] if f.x0 <= v <= f.x1]
     f.axes(xt, yt, lambda v: nombre(v), lambda v: nombre(v, 0 if pas >= 1 else 1),
-           "Habitants (échelle logarithmique)", f"{lab.get(p, p)}s pour 10 000 habitants")
+           "Habitants (échelle logarithmique)", f"{pluriel_simple(lab.get(p, p))} {unite(p)}")
     haut = [(r["population"], r["haut_95"]) for _, r in g.iterrows()]
     bas = [(r["population"], r["bas_95"]) for _, r in g.iterrows()][::-1]
     d = "M" + "L".join(f"{f.X(x):.1f},{f.Y(y):.1f}" for x, y in haut + bas) + "Z"
     f.ajout(f'<path d="{d}" fill="{VIOLET_PALE}" opacity=".3"/>')
     for k in ("bas_998", "haut_998"):
         f.chemin(list(zip(g["population"], g[k])), DISCRET, 1, tirets="3 3")
-    taux = t["effectif"].sum() / t["population"].sum() * 1e4
-    f.ligne(f.g, f.Y(taux), f.w - f.d, f.Y(taux), OCRE, 1.5)
+    taux = t["effectif"].sum() / t["population"].sum() * 1e4 * kk
+    f.ligne(f.g, f.Y(taux), f.w - f.d, f.Y(taux), REPERE, 1.5)
     couleurs = {-2: "var(--d0, #83451E)", -1: OCRE_PALE, 0: DISCRET, 1: VIOLET[2], 2: VIOLET[0]}
     from .cartes import MAYOTTE, SIGNAL_MAYOTTE, nom, symbole_fragile
     for (_, r), v in zip(t.iterrows(), dens):
@@ -316,25 +362,28 @@ def entonnoir(R, lab, cle, p=None):
         if str(r["code"]) in MAYOTTE and v <= ymax:
             f.ajout(symbole_fragile(cx, f.Y(v), f'{nom(r["code"])}, {SIGNAL_MAYOTTE}', 4.5))
             continue
-        info = (f'<title>{escape(nom(r["code"]))}, {nombre(v, 1)} pour 10 000 habitants, '
+        # un territoire sans professionnel s'écrit « aucun inscrit », jamais « 0 pour 10 000 » (contrôle des décisions,
+        # 6 novembre 2026)
+        val = f'{AF.nombre(v, "taux")} {unite(p)}' if v else AF.STATUTS["aucun"]
+        info = (f'<title>{escape(nom(r["code"]))}, {val}, '
                 f'{nombre(r["population"])} habitants</title>')
         if v > ymax:   # territoire au-delà du cadre, signalé par un petit triangle en haut
             f.ajout(f'<path d="M{cx - 3:.1f},{f.hh + 5:.1f}L{cx + 3:.1f},{f.hh + 5:.1f}L{cx:.1f},{f.hh:.1f}Z" '
                     f'fill="{c}">{info}</path>')
         else:
-            # territoires proches de la moyenne en retrait, les écarts au hasard en avant
+            # territoires proches de l'ensemble en retrait, les écarts au hasard en avant
             f.ajout(f'<circle cx="{cx:.1f}" cy="{f.Y(v):.1f}" r="2.2" fill="{c}" '
                     f'fill-opacity="{.35 if int(r["statut"]) == 0 else .9}">{info}</circle>')
-    leg = [(-2, "nettement en dessous"), (-1, "en dessous"), (0, "proche de la moyenne"), (1, "au-dessus"),
+    leg = [(-2, "nettement en dessous"), (-1, "en dessous"), (0, "proche de l'ensemble"), (1, "au-dessus"),
            (2, "nettement au-dessus")]
     fs = f.fs("petit")
     y = legende(f.el, f.g, 14, [("point", couleurs[k], l) for k, l in leg], f.w, fs)
     legende(f.el, f.g, y, [("aire", VIOLET_PALE, "limites à 95 %"), ("trait:3 3", DISCRET, "limites à 99,8 %"),
-                           ("trait", OCRE, "moyenne des intercommunalités")], f.w, fs)
-    return f.svg(f"Diagramme en entonnoir, {lab.get(p, p).lower()}s par intercommunalité")
+                           ("trait", REPERE, "ensemble des intercommunalités")], f.w, fs)
+    return f.svg(f"Diagramme en entonnoir, {pluriel_simple(lab.get(p, p)).lower()} par intercommunalité")
 
 
-def quadrants(R, lab, ctxlab, p="psychiatre"):
+def quadrants(R, lab, ctxlab, p="psychiatre", ctxunite=None):
     qd = R.get("quadrants")
     if not isinstance(qd, pd.DataFrame) or qd.empty:
         return None
@@ -342,23 +391,37 @@ def quadrants(R, lab, ctxlab, p="psychiatre"):
     t = qd[(qd["prof"] == p) & (qd["variable"] == var)].dropna(subset=["quadrant"])
     if t.empty:
         return None
+    # densités dans l'unité de la profession (pour 100 000 habitants pour une profession rare)
+    kk = k_unite(p)
+    t = t.assign(densite=t["densite"] * kk, mediane_densite=t["mediane_densite"] * kk)
     xt, _px = graduations(t["valeur"].max() * 1.05, 5)
     yt, py = graduations(t["densite"].quantile(.98) * 1.1)
     # marge du haut agrandie pour la ligne du signal, posée au-dessus du titre de l'axe et non dans le nuage
     f = Figure(marges=(48, 16, 44 if var == "suicides" else 24, 46))
     f.echelles(0, xt[-1] + _px * .3, 0, yt[-1] + py * .4)
     f.axes(xt, yt, lambda v: nombre(v, 0), lambda v: nombre(v, 1),
-           ctxlab.get(var, var), f"{pluriel_simple(lab.get(p, p))} pour 10 000 habitants")
+           ctxlab.get(var, var), f"{pluriel_simple(lab.get(p, p))} {unite(p)}")
     mx, my = t["mediane_indicateur"].iloc[0], t["mediane_densite"].iloc[0]
-    f.ligne(f.X(mx), f.hh, f.X(mx), f.h - f.b, OCRE, 1.2, "4 3")
-    f.ligne(f.g, f.Y(my), f.w - f.d, f.Y(my), OCRE, 1.2, "4 3")
-    f.texte(f.w - f.d - 4, f.h - f.b - 6, "indicateur élevé, offre faible", "end", OCRE)
+    f.ligne(f.X(mx), f.hh, f.X(mx), f.h - f.b, REPERE, 1.2, "4 3")
+    f.ligne(f.g, f.Y(my), f.w - f.d, f.Y(my), REPERE, 1.2, "4 3")
+    f.texte(f.w - f.d - 4, f.h - f.b - 6, "indicateur élevé, offre faible", "end", REPERE)
     if var == "suicides":
         from .cartes import symbole_fragile as _sf, SIGNAL_SUICIDE
         f.ajout(_sf(f.g + 6, 12, SIGNAL_SUICIDE, 5))
         f.texte(f.g + 16, 16, SIGNAL_SUICIDE)
     from .cartes import nom, signaux, symbole_fragile
     sig = signaux(t["code"], suicide=var == "suicides")
+    # chaque nombre avec son unité, l'indicateur dans la sienne (taux de suicide pour 100 000 habitants) et la densité
+    # dans celle de la profession (audit du 6 novembre 2026, « 9,4 et 1,3 pour 10 000 habitants »)
+    u_var = ((ctxunite or {}).get(var) or "").split(",")[0].strip()
+    u_var = u_var[:-4] + "habitants" if u_var.endswith(" hab.") else u_var
+    nom_var = ctxlab.get(var, var)
+
+    def info_q(r):
+        v_txt = AF.nombre(r["valeur"], "taux") + (f" {u_var}" if u_var else "")
+        d_txt = (AF.STATUTS["aucun"] if r["densite"] == 0 else f'{AF.nombre(r["densite"], "taux")} {unite(p)}')
+        return f'{nom(r["code"])}, {nom_var.lower()} {v_txt}, {pluriel_simple(lab.get(p, p)).lower()} {d_txt}'
+
     for _, r in t.iterrows():
         if r["code"] in sig:
             f.ajout(symbole_fragile(f.X(r["valeur"]), f.Y(min(r["densite"], f.y1)),
@@ -366,8 +429,7 @@ def quadrants(R, lab, ctxlab, p="psychiatre"):
             continue
         c = "var(--d0, #83451E)" if r["quadrant"] == "besoin+offre-" else VIOLET[2]
         f.ajout(f'<circle cx="{f.X(r["valeur"]):.1f}" cy="{f.Y(min(r["densite"], f.y1)):.1f}" r="3.2" fill="{c}" '
-                f'fill-opacity=".8"><title>{escape(nom(r["code"]))}, {nombre(r["valeur"], 1)} et '
-                f'{nombre(r["densite"], 2)} pour 10 000 habitants</title></circle>')
+                f'fill-opacity=".8"><title>{escape(info_q(r))}</title></circle>')
     return f.svg(f"Départements selon l'indicateur « {ctxlab.get(var, var).lower()} » et la densité "
                  f"{'de ' if pluriel_simple(lab.get(p, p))[0] not in 'AEIOUÉ' else 'd’'}"
                  f"{pluriel_simple(lab.get(p, p)).lower()}")
@@ -384,7 +446,7 @@ def porte(R, lab, cle, p=None):
     classes = [c[2] for c in CLASSES_DENSITE if c[2] in t.index]
     groupes = [g for _m, g in config.SECTEURS_GROUPES if g in t.columns] + \
               ([config.SECTEUR_AUTRE] if config.SECTEUR_AUTRE in t.columns else [])
-    couleurs = [VIOLET[0], VIOLET[2], VIOLET_PALE, OCRE, "var(--d2, #E8A17A)", "var(--nodata, #E9E8EC)"]
+    couleurs = [VIOLET[0], VIOLET[2], VIOLET_PALE, "var(--c3, #998E3B)", "var(--d2, #E39A71)", "var(--nodata, #E6E6E9)"]
     bh, h = 30, 70 + len(classes) * 44
     f = Figure(h=h, marges=(250, 20, 56, 20))
     f.echelles(0, 1, 0, 1)
@@ -400,11 +462,11 @@ def porte(R, lab, cle, p=None):
                 if v >= .08:
                     # texte foncé sur les segments pâles ou neutres, clair sur les segments colorés
                     f.texte(f.X(x0) + 4, y + bh / 2 + 4, f"{nombre(v * 100)} %",
-                            c=ENCRE if j % len(couleurs) in (2, 4, 5) else "var(--bg, #fff)", taille="petit")
+                            c=ENCRE if j % len(couleurs) in (2, 4, 5) else "var(--bg, #F4F4F1)", taille="petit")
             x0 += v
     legende(f.el, 8, 14, [("carre", couleurs[j % len(couleurs)], g.split(" (")[0]) for j, g in enumerate(groupes)],
             f.w, f.fs("petit"))
-    return f.svg(f"Secteurs d'exercice des {lab.get(p, p).lower()}s selon la densité de population")
+    return f.svg(f"Secteurs d'exercice des {pluriel_simple(lab.get(p, p)).lower()} selon la densité de population")
 
 
 def notes_regions_manquantes(presentes: dict, noms: dict, cle=str) -> list:
@@ -460,7 +522,7 @@ def regions_intervalles(spf, ref, ids):
         f.texte(gauche - 8, y + 4, noms[c], "end", ENCRE)
         if k % 2 == 0:
             f.ajout(f'<rect x="{gauche}" y="{y - pas / 2:.1f}" width="{640 - gauche - 12}" height="{pas}" '
-                    f'fill="var(--panel, #F4F2F8)" opacity=".5"/>')
+                    f'fill="var(--panel, #FFFFFF)" opacity=".5"/>')
     for j, i in enumerate(ids):
         x = t[(t["indicateur"] == i) & t["code"].isin(regs)].set_index("code")
         x0 = gauche + j * largeur + 10
@@ -559,18 +621,27 @@ def cartes_nationales(agg, ref, lab, R):
                 continue
             fr = n[p].sum() / pop.sum() * 1e4
             rap = (d[p] / fr).to_dict()
+            # la couleur ne marque un écart qu'au-delà du hasard, la règle des fiches (décision de Lucas du 30 octobre)
+            gris = cartes.au_hasard(rap, n[p].to_dict(), pop.to_dict(), fr)
             nom = pluriel_simple(lab.get(p, p))
-            out[f"carte_dep_{cle}"] = cartes.carte_france(f["atlas_dep"], rap, f"{nom} pour 10 000 habitants, par département, "
-                                                                         f"comparés à la moyenne des départements")
-            out[f"tuiles_dep_{cle}"] = cartes.carte_tuiles(pos, rap, "Même carte en tuiles, un carré par département")
+            out[f"carte_dep_{cle}"] = cartes.carte_france(f["atlas_dep"], rap, f"{nom} {unite(p)}, par département, "
+                                                                         f"comparés à l'ensemble des départements",
+                                                          gris=gris)
+            out[f"tuiles_dep_{cle}"] = cartes.carte_tuiles(pos, rap, "Même carte en tuiles, un carré par département",
+                                                           gris=gris)
         for cle, profs in MULTIPLES.items():
             courts = {"q_psychiatrie_enfant": "Psychiatres qualifiés pour l'enfant"}
-            series = [(courts.get(p) or pluriel_simple(lab.get(p, p)), (d[p] / (n[p].sum() / pop.sum() * 1e4)).to_dict())
-                      for p in profs if p in d and n[p].sum() > 0]
+            series = []
+            for p in profs:
+                if p in d and n[p].sum() > 0:
+                    fr_p = n[p].sum() / pop.sum() * 1e4
+                    rap_p = (d[p] / fr_p).to_dict()
+                    series.append((courts.get(p) or pluriel_simple(lab.get(p, p)), rap_p,
+                                   cartes.au_hasard(rap_p, n[p].to_dict(), pop.to_dict(), fr_p)))
             if len(series) > 1:
                 out[f"multiples_{cle}"] = cartes.petits_multiples(
-                    f["atlas_dep"], series, "Professions principales côte à côte, densité par département comparée à la "
-                    "moyenne des départements, mêmes classes de couleur", colonnes=2 if len(series) <= 4 else 3)
+                    f["atlas_dep"], series, "Professions principales côte à côte, densité par département comparée à "
+                    "l'ensemble des départements, mêmes classes de couleur", colonnes=2 if len(series) <= 4 else 3)
     ta = R.get("temps_acces")
     if isinstance(ta, pd.DataFrame) and not ta.empty:
         fr = ta[ta["niveau"] == "FR"].set_index("equipement")
@@ -585,6 +656,13 @@ def cartes_nationales(agg, ref, lab, R):
 def pluriel_simple(lib):
     from .lecture import pluriel
     return pluriel(lib).capitalize()
+
+
+def _de_pl(lab, p) -> str:
+    """« de médecins généralistes », « d'infirmiers » : complément au pluriel d'une profession (audit du 6 novembre
+    2026, « Densité de médecin généralistes »)."""
+    from .lecture import de, pluriel
+    return de(pluriel(lab.get(p, p)))
 
 
 ETAPES_PARCOURS = [
@@ -635,7 +713,7 @@ def parcours(agg, lab, prof):
         der = col == "dans_densites"
         f.texte(0, y + 13, titre, c=ENCRE, gras=der)
         f.texte(f.w, y + 13, nombre(v), "end", ENCRE, gras=der)
-        f.ajout(f'<rect x="0" y="{y + 19}" width="{f.w}" height="7" rx="1.5" fill="var(--nodata, #E9E8EC)"/>')
+        f.ajout(f'<rect x="0" y="{y + 19}" width="{f.w}" height="7" rx="1.5" fill="var(--nodata, #E6E6E9)"/>')
         f.ajout(f'<rect x="0" y="{y + 19}" width="{max(f.X(v), 1):.1f}" height="7" rx="1.5" '
                 f'fill="{VIOLET[1] if der else VIOLET[2]}"><title>{escape(titre)}, {nombre(v)}</title></rect>')
         if prec is not None and prec > v:
@@ -697,9 +775,9 @@ def bivariee(ref, ctx, agg, lab, ctxlab, prof="psychiatre", var="suicides"):
 
 GWR_COULEURS = [("negatif_fort", "var(--d0, #83451E)", "lien négatif net, fort"),
                 ("negatif", "var(--d1, #BC6B3B)", "lien négatif net"),
-                ("non_net", "var(--d3, #DFE1E5)", "pas de lien net"),
-                ("positif", "var(--r3, #3167A9)", "lien positif net"),
-                ("positif_fort", "var(--r5, #0F3562)", "lien positif net, fort")]
+                ("non_net", "var(--d3, #ABAEB4)", "pas de lien net"),
+                ("positif", "var(--r3, #1C5652)", "lien positif net"),
+                ("positif_fort", "var(--r5, #0D3D3B)", "lien positif net, fort")]
 
 
 def classe_gwr(coef, net):
@@ -730,9 +808,9 @@ def gwr_carte(ref, R, lab, prof="psychologue"):
                                           "à densité de population égale", couleurs=couleurs, legende_fn=leg)
 
 
-COMBINAISON_COULEURS = {"trois": "var(--d3, #DFE1E5)", "sans_psychiatre": "var(--d1, #BC6B3B)",
-                        "generaliste_seul": "var(--d0, #83451E)", "sans_psychologue": "var(--r3, #3167A9)",
-                        "autre": "var(--nodata, #ECECEF)"}
+COMBINAISON_COULEURS = {"trois": "var(--d3, #ABAEB4)", "sans_psychiatre": "var(--d1, #BC6B3B)",
+                        "generaliste_seul": "var(--d0, #83451E)", "sans_psychologue": "var(--r3, #1C5652)",
+                        "autre": "var(--nodata, #E6E6E9)"}
 
 
 def combinaisons_carte(agg, ref):
@@ -776,6 +854,7 @@ def ecrire(out, agg, ref, professions, contexte, R):
     from .analyses import tables
     n_epci, _d, pop_epci = tables(agg, ref, "epci", "all")
     moy_epci = n_epci.sum() / pop_epci.sum() * 1e4
+    poser_unites(agg, ref)
     figures = {}
 
     def variantes(nom, fn, profs, defaut):
@@ -791,7 +870,9 @@ def ecrire(out, agg, ref, professions, contexte, R):
             elif q == defaut:
                 return
 
-    variantes("quadrants_sm", lambda q: quadrants(R, lab, ctxlab, q), ["psychiatre", "psychologue", "q_psychiatrie_enfant"],
+    ctxunite = {d["id"]: d["unite"] for d in indicateurs.liste(contexte)}
+    variantes("quadrants_sm", lambda q: quadrants(R, lab, ctxlab, q, ctxunite), ["psychiatre", "psychologue",
+                                                                               "q_psychiatrie_enfant"],
               "psychiatre")
     for cle in ("sm", "sante"):
         pr = VARIANTES[cle]

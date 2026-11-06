@@ -11,7 +11,7 @@
     <p class="fen-barre" aria-hidden="true">Atlas, par département</p>
     <figure class="une-carte fen-corps">
     <figcaption id="uneTitre">{{ apercu_titre }}</figcaption>
-    {% if apercu_classes %}<p class="une-legende"><span class="une-unite">Fois la moyenne</span>{% for c in apercu_classes %}<span><i style="background:{{ c.couleur }}"></i>{{ c.libelle }}</span>{% endfor %}</p>{% endif %}
+    {% if apercu_classes %}<p class="une-legende"><span class="une-unite">Fois l’ensemble</span>{% for c in apercu_classes %}<span><i style="background:{{ c.couleur }}"></i>{{ c.libelle }}</span>{% endfor %}</p>{% endif %}
     <a href="atlas.html" aria-label="Ouvrir l'atlas">{{ apercu|safe }}</a>
     <p class="small"><a href="atlas.html">Toutes les professions et les structures de soins dans l'atlas</a></p>
   </figure></section>{% endif %}
@@ -52,7 +52,7 @@
     <div class="terr-liste" id="terrListe" role="listbox" hidden></div></div>
     <button type="submit" value="sante-mentale">Santé mentale</button><button type="submit" value="sante">Santé</button></div>
   <p class="terr-vide" id="terrVide" hidden role="alert">Écrivez d'abord le nom d'une région ou d'un département, ou son numéro, puis choisissez Santé mentale ou Santé.</p>
-  <p class="small muted">Chaque chiffre y est comparé à la moyenne des territoires du même niveau. Les communes et les intercommunalités sont dans l'<a href="atlas.html">atlas</a>. <span id="terrIntrouvable" hidden>Ce territoire n'a pas été trouvé, la <a href="territoires/index.html">liste des territoires</a> les donne tous.</span></p>
+  <p class="small muted">Chaque chiffre y est comparé à l’ensemble des territoires du même niveau. Les communes et les intercommunalités sont dans l'<a href="atlas.html">atlas</a>. <span id="terrIntrouvable" hidden>Ce territoire n'a pas été trouvé, la <a href="territoires/index.html">liste des territoires</a> les donne tous.</span></p>
 </form>
 {% else %}<h2 id="acces-titre" class="cache">Aller aux données</h2>{% endif %}
 <ul class="entrees">
@@ -130,7 +130,7 @@
   // rapport, pipeline/site.py _fenetres), met à jour son titre et l'infobulle de chaque département
   const F={{ fenetres_json|safe }},carte=document.querySelector(".fen-carte svg"),titre=document.getElementById("uneTitre");
   if(!carte)return;
-  const suite=" pour 10 000 habitants, par département, comparés à la moyenne des départements";
+  const suite=" pour 10 000 habitants, par département, comparés à l’ensemble des départements";
   document.querySelectorAll(".fen-profs button[data-prof]").forEach(b=>b.addEventListener("click",()=>{
     const p=F.profs.find(x=>x.id===b.dataset.prof);if(!p)return;
     document.querySelectorAll(".fen-profs button[data-prof]").forEach(x=>x.setAttribute("aria-pressed",String(x===b)));

@@ -12,17 +12,19 @@ Tout est calculé à partir des tables déjà produites, sans nouveau téléchar
 dans resultats/AAAA-MM-JJ/territoires/, leurs figures dans territoires/graphiques/."""
 from __future__ import annotations
 
+import bisect
 import json
 
 import numpy as np
 import pandas as pd
 from scipy import stats
 
-from . import cartes, config, indicateurs, limites, rapport_bases
+from . import affichage as AF, cartes, config, indicateurs, limites, rapport_bases
 from .analyses import tables, temps_montres
 from .lecture import de, nombre, pct, pluriel, un_pour
 from .rapport import (EQ_PHRASE, MENTION_ODBL, PRINCIPALES, SANTE, SM, Contexte, _comment_lire, _liste,
-                      _plus_loin, _tableau, graphique, ligne_source)
+                      _aucun_accorde, _plus_loin, _tableau, entete_densite, graphique, ligne_source,
+                      signe_moins)
 from .util import JOURNAL, log
 
 CLE = {SM: "sante-mentale", SANTE: "sante"}
@@ -70,19 +72,17 @@ def part(x):
     return "moins de 0,1 %" if 0 < x < .0005 else pct(x)
 
 
-def position(v, valeurs):
-    """Position d'une valeur parmi celles des territoires comparés, en mots, sans rang."""
-    v_ = np.asarray([x for x in valeurs if pd.notna(x)], float)
-    if not len(v_) or v is None or not np.isfinite(v):
+def position(v, valeurs, lv: str = "dep", kind: str = "") -> str:
+    """Position d'une valeur parmi les territoires du même niveau, sans rang, écrite comme sur les fiches et Comparer
+    (affichage.position_txt : « plus haut que 71 % des départements », « plus bas que 85 % », « tous les autres ») ; les
+    deux parts sont celles d'affichage.Affichage, autres territoires plus bas et plus hauts (audit du 6 novembre 2026,
+    les rapports par territoire écrivaient « quart le mieux doté », « sous le milieu »)."""
+    vals = sorted(float(x) for x in valeurs if pd.notna(x))
+    if len(vals) < 2 or v is None or pd.isna(v) or not np.isfinite(v):
         return ""
-    q1, me, q3 = np.percentile(v_, [25, 50, 75])
-    if v <= q1:
-        return "quart le moins doté"
-    if v < me:
-        return "sous le milieu"
-    if v < q3:
-        return "au-dessus du milieu"
-    return "quart le mieux doté"
+    p = bisect.bisect_left(vals, float(v)) / (len(vals) - 1)
+    pb = (len(vals) - bisect.bisect_right(vals, float(v))) / (len(vals) - 1)
+    return AF.position_txt(p, lv, kind, pb)
 
 
 def semblables(ctx_dep: pd.DataFrame | None, k=NB_SEMBLABLES) -> dict:
@@ -180,18 +180,24 @@ class Base:
 
 # ---------------------------------------------------------------- sections
 def _phrase_densite(B, T, p, avec_parent=True):
+    """Densité du territoire face à sa région et à l'ensemble des territoires du niveau, écrite par la règle
+    d'affichage du site (pipeline/affichage.py) : mêmes arrondis, même unité (pour 100 000 habitants pour une
+    profession rare), même nom du repère que la fiche du territoire."""
+    from . import affichage as AF
     n, d, _pop = B.t[T["niveau"]]
     if p not in n:
         return ""
     x, dx = int(n.at[T["code"], p]), d.at[T["code"], p]
+    fr = n[p].sum() / _pop.sum() * 1e4 if _pop.sum() else None
+    fac = AF.unite_prof(fr, 1e4) / 1e4
     comp = []
     if avec_parent and T["niveau"] == "dep" and not T.get("reg_seul"):
-        comp.append(f"{nombre(B.t['reg'][1].at[T['reg'], p], 1)} dans la région")
-    comp.append(f"{nombre(B.reference(p, T['niveau']), 1)} en moyenne dans les "
+        comp.append(f"{AF.nombre(B.t['reg'][1].at[T['reg'], p] * fac)} dans la région")
+    comp.append(f"{AF.nombre(B.reference(p, T['niveau']) * fac)} pour l'ensemble des "
                 f"{'départements' if T['niveau'] == 'dep' else 'régions'}")
     lab = pluriel(B.lab[p]) if x != 1 else B.lab[p].lower()
     return (f"{nombre(x)} {lab} exercent dans {'le département' if T['niveau'] == 'dep' else 'la région'}, soit "
-            f"{nombre(dx, 1)} pour 10 000 habitants ({un_pour(dx)}), contre {_liste(comp)}.")
+            f"{AF.nombre(dx * fac)} {AF.txt_unite(int(fac * 1e4))} ({un_pour(dx)}), contre {_liste(comp)}.")
 
 
 def _sans(B, T, profs):
@@ -252,11 +258,8 @@ def _en_bref(B, T, famille):
         P.append(_phrase_densite(B, T, "psychologue"))
         ph = _phrase_densite(B, T, "psychiatre")
         if ph:
-            pos = position(B.t[T["niveau"]][1].at[T["code"], "psychiatre"], B.t[T["niveau"]][1]["psychiatre"])
-            P.append(ph + (f" Pour les psychiatres, {nom_niv} se situe dans le {pos} des "
-                           f"{'départements' if T['niveau'] == 'dep' else 'régions'}." if pos.startswith("quart") else
-                           f" Pour les psychiatres, {nom_niv} se situe {pos} des "
-                           f"{'départements' if T['niveau'] == 'dep' else 'régions'}." if pos else ""))
+            pos = position(B.t[T["niveau"]][1].at[T["code"], "psychiatre"], B.t[T["niveau"]][1]["psychiatre"], T["niveau"])
+            P.append(ph + (f" Pour les psychiatres, {nom_niv} est {pos}." if pos else ""))
         s1, s2 = _sans(B, T, ["psychiatre"]), _sans(B, T, ["psychologue", "psychiatre"])
         if np.isfinite(s1):
             fr = pct(B.C.sans("psychiatre"))
@@ -276,10 +279,9 @@ def _en_bref(B, T, famille):
             d = B.t[T["niveau"]][1]
             if p not in d or pd.isna(d.at[T["code"], p]):
                 continue
-            pos = position(d.at[T["code"], p], d[p])
-            ou = (f"dans le {pos}" if pos.startswith("quart") else pos) if pos else ""
-            moy = f"{nombre(B.reference(p, T['niveau']), 1)} en moyenne" + (f" dans les {les}" if i == 0 else "")
-            morceaux.append(f"{nombre(d.at[T['code'], p], 1)} {pluriel(B.lab[p])} ({moy}" + (f", {ou})" if ou else ")"))
+            ou = position(d.at[T["code"], p], d[p], T["niveau"])
+            moy = f"{B.C.dens_txt(p, B.reference(p, T['niveau']))} pour l'ensemble" + (f" des {les}" if i == 0 else "")
+            morceaux.append(f"{B.C.dens_txt(p, d.at[T['code'], p])} {pluriel(B.lab[p])} ({moy}" + (f", {ou})" if ou else ")"))
         if morceaux:
             P.append(f"Pour 10 000 habitants, {nom_niv} compte {_liste(morceaux)}.")
         s = _sans(B, T, ["pediatre"])
@@ -312,18 +314,22 @@ def _en_bref(B, T, famille):
             x = x.drop(config.AMELI_DEPARTEMENTS_EXCLUS + config.AMELI_REGIONS_EXCLUES, errors="ignore")
             if T["code"] in x.index and pd.notna(x[T["code"]]):
                 P.append(f"À âge égal, {nombre(x[T['code']], 1)} % des assurés sont pris en charge par l'Assurance "
-                         f"Maladie pour un trouble psychique. Le milieu des "
-                         f"{'départements' if T['niveau'] == 'dep' else 'régions'} se situe à "
+                         f"Maladie pour un trouble psychique. {LE_MEDIAN[T['niveau']]} est à "
                          f"{nombre(x.median(), 1)} %. Cette part mesure le recours aux soins, pas le besoin.")
     if famille == SM and T["niveau"] == "dep":
         v = _odisse(B, "dep").get("suicides")
         if v is not None and T["code"] in v.index and pd.notna(v.at[T["code"], "valeur"]):
             P.append(f"À âge égal, le taux de décès par suicide est de {nombre(v.at[T['code'], 'valeur'], 1)} pour "
-                     f"100 000 habitants. Le milieu des départements se situe à {nombre(v['valeur'].median(), 1)}."
+                     f"100 000 habitants. {LE_MEDIAN['dep']} est à {nombre(v['valeur'].median(), 1)}."
                      + (" " + config.LIMITES["suicides"]["territoires"][T["code"]] + " Source, "
                         + limites.sources_md(config.LIMITES["suicides"]) + "."
                         if T["code"] in config.LIMITES["suicides"].get("territoires", {}) else ""))
     return [p for p in P if p]
+
+
+# la médiane des territoires en tête de phrase, avec son article (audit du 6 novembre 2026, « Département médian est
+# à 4,5 % ») ; le nom vient d'affichage.MEDIANE, le même que les en-têtes de tableau
+LE_MEDIAN = {lv: {"dep": "Le ", "reg": "La ", "epci": "L'"}[lv] + m[0].lower() + m[1:] for lv, m in AF.MEDIANE.items()}
 
 
 def _odisse(B, niveau):
@@ -383,67 +389,75 @@ def _professions(B, T, famille, cle_fig):
     for p in profs:
         x = int(n.at[code, p])
         lib = "Pédopsychiatre (spécialité ordinale seule)" if p == "pedopsychiatre" else B.lab[p]
-        r = {"libelle": lib, "effectif": x, "densite": d.at[code, p], "france": B.reference(p, niv),
-             "position": position(d.at[code, p], d[p])}
+        r = {"prof": p, "libelle": B.C.lib_u(p, lib), "effectif": x, "densite": d.at[code, p], "france": B.reference(p, niv),
+             "position": position(d.at[code, p], d[p], niv)}
         if niv == "dep":
             r["region"] = B.t["reg"][1].at[T["reg"], p]
             r["semblables"] = d.loc[sem, p].median() if sem else np.nan
         else:
             r["regions"] = d[p].median()
         lo, hi = ic_poisson(x, pop[code])
-        ics.append(f"{B.lab[p]}, de {nombre(lo, 2)} à {nombre(hi, 2)}")
+        ics.append(f"{B.lab[p]}, de {B.C.dens_txt(p, lo)} à {B.C.dens_txt(p, hi)}" + (" pour 100 000" if B.C.fac(p) == 100000 else ""))
         lignes.append(r)
         if p in PRINCIPALES[famille][:6] or (famille == SM and p in ("psychologue", "psychiatre", "pedopsychiatre")):
             q1, q3 = np.nanpercentile(d[p], [25, 75])
             regl.append({"libelle": B.lab[p], "valeur": d.at[code, p], "reference": B.reference(p, niv), "q1": q1, "q3": q3,
+                         "fac": B.C.fac(p),
                          "tous": [(c, float(v)) for c, v in d[p].items() if c != code and pd.notna(v)]})
     T_ = pd.DataFrame(lignes)
     if T_.empty:
         return []
-    f1 = lambda v: "0" if v == 0 else (nombre(v, 2) if v < 1 else nombre(v, 1))  # noqa: E731
+    # densités dans l'unité de chaque profession, pour 100 000 habitants pour une profession rare, avec les arrondis des
+    # fiches (affichage.nombre) ; « (pour 100 000) » sous le nom de la profession
+    for col in ("densite", "region", "semblables", "france", "regions"):
+        if col in T_:
+            T_[col] = [B.C.dens_txt(p, v) if pd.notna(v) else None for p, v in zip(T_["prof"], T_[col])]
+    ent_d = entete_densite(B.C, T_["prof"])
     if niv == "dep":
         cols = ["libelle", "effectif", "densite", "region", "semblables", "france", "position"]
-        ents = ["Profession", "Effectif", "Pour 10 000 habitants", "Région", "Départements semblables (milieu)",
-                "Moyenne des départements", "Position parmi les départements"]
+        ents = ["Profession", "Effectif", ent_d, "Région", "Départements semblables (médiane)",
+                "Ensemble des départements", "Position parmi les départements"]
         if not sem:
             cols.remove("semblables")
-            ents.remove("Départements semblables (milieu)")
+            ents.remove("Départements semblables (médiane)")
         if T.get("reg_seul"):
             cols.remove("region")
             ents.remove("Région")
     else:
         cols = ["libelle", "effectif", "densite", "regions", "france", "position"]
-        ents = ["Profession", "Effectif", "Pour 10 000 habitants", "Milieu des régions", "Moyenne des régions",
+        ents = ["Profession", "Effectif", ent_d, "Région médiane", "Ensemble des régions",
                 "Position parmi les régions"]
     titre = "Les professions de santé mentale" if famille == SM else "Les professions de santé"
     L = [f"## {titre}", "",
-         _tableau(T_, cols, ents, {"effectif": nombre, "densite": f1, "region": f1, "semblables": f1, "france": f1,
-                                   "regions": f1}), ""]
+         _tableau(T_, cols, ents, {"effectif": nombre},
+                  zero={"effectif": "aucun"} | {c: AF.STATUTS["aucun"] for c in ("densite", "region", "semblables",
+                                                                                 "france", "regions")}), ""]
     L += _zero_pedopsychiatre(B, T, famille)
     if regl:
-        svg = cartes.halteres(regl, f"Écart à la moyenne des {'départements' if niv == 'dep' else 'régions'}, densité "
-                                    f"pour 10 000 habitants en indice (moyenne = 100)")
+        svg = cartes.halteres(regl, f"Écart à l'ensemble des {'départements' if niv == 'dep' else 'régions'}, densité "
+                                    f"en indice (ensemble = 100)")
         if svg:
             (B.dossier_fig / f"{cle_fig}_position.svg").write_text(svg, encoding="utf-8")
             L += graphique(f"{cle_fig}_position")
-    moy = ("La moyenne des départements rapporte l'ensemble des professionnels des départements à la population de "
-           "la France, comptés comme ici, avec les seules activités de soins qui ont un lieu d'exercice. Elle diffère "
+    moy = ("L'ensemble des départements rapporte l'ensemble des professionnels des départements à la population de "
+           "la France, comptés comme ici, avec les seules activités de soins qui ont un lieu d'exercice. Il diffère "
            "un peu du chiffre de la France entière du rapport national, qui compte aussi les remplacements, la "
            "téléconsultation et les activités sans soins à la population.") if niv == "dep" else (
-           "La moyenne des régions rapporte l'ensemble des professionnels des régions à la population de la France, "
+           "L'ensemble des régions rapporte l'ensemble des professionnels des régions à la population de la France, "
            "comptés comme ici, avec les seules activités de soins qui ont un lieu d'exercice.")
-    comp = ("Les colonnes suivantes donnent la même densité pour la région, pour le milieu de cinq départements "
-            "dont la population ressemble à celle du département, et en moyenne pour les départements. " + moy
+    comp = ("Les colonnes suivantes donnent la même densité pour la région, pour la médiane de cinq départements "
+            "dont la population ressemble à celle du département, et pour l'ensemble des départements. " + moy
             if niv == "dep" and sem else
-            "Les colonnes suivantes donnent la même densité pour la région et en moyenne pour les départements. " + moy
+            "Les colonnes suivantes donnent la même densité pour la région et pour l'ensemble des départements. " + moy
             if niv == "dep" else
-            "Les colonnes suivantes donnent la valeur du milieu parmi les régions, et la moyenne des régions. " + moy)
+            "Les colonnes suivantes donnent la région médiane et l'ensemble des régions. " + moy)
     L += _comment_lire(
         "L'effectif compte chaque personne une seule fois, même si elle exerce dans plusieurs communes du "
-        "territoire. La densité rapporte cet effectif à la population, pour 10 000 habitants. " + comp,
-        "La dernière colonne situe le territoire sans le classer. Les territoires comparés sont partagés en quatre "
-        "groupes de même taille, du quart le moins doté au quart le mieux doté. La figure compare chaque densité à "
-        "la moyenne (indice 100). Le gros point est le territoire de ce rapport, à gauche pour une densité plus faible, "
+        "territoire. La densité rapporte cet effectif à la population, pour 10 000 habitants, pour 100 000 pour une "
+        "profession rare, signalée sous son nom. " + comp,
+        "La dernière colonne situe le territoire sans le classer : « plus haut que 71 % des départements » dit "
+        "que 71 % des autres départements ont une densité plus basse. La figure compare chaque densité à "
+        "l'ensemble des territoires du même niveau (indice 100). Le gros point est le territoire de ce rapport, à gauche pour une densité plus faible, "
         "à droite pour une densité plus forte. Les petits points gris sont les autres territoires comparés, et la "
         "bande claire réunit leur moitié centrale.",
         "Les qualifications des médecins (enfant et adolescent, addictologie) se lisent à côté des spécialités et "
@@ -491,14 +505,18 @@ def _specialites(B, T) -> list[str]:
         for p in sorted(ps, key=lambda x: -B.C.nat.get(x, 0)):
             x = int(n.at[code, p])
             ref = B.reference(p, niv)
-            lignes.append(f"| {B.lab[p]} | {nombre(x)} | {nombre(d.at[code, p], 2)} | {nombre(ref, 2)} | "
-                          f"{position(d.at[code, p], d[p])} |")
+            # jamais un 0 seul (audit du 6 novembre 2026, « Chirurgien plasticien | 0 | 0 »)
+            lignes.append(f"| {B.C.lib_u(p)} | {nombre(x) if x else 'aucun'} | "
+                          f"{B.C.dens_txt(p, d.at[code, p]) if x else AF.STATUTS['aucun']} | {B.C.dens_txt(p, ref)} | "
+                          f"{position(d.at[code, p], d[p], niv)} |")
             if f"prof:{p}" in config.LIMITES:
                 cles.append(f"prof:{p}")
     if not lignes:
         return []
-    moy = "Moyenne des départements" if niv == "dep" else "Moyenne des régions"
-    corps = ["| Spécialité | Effectif | Pour 10 000 habitants | " + moy + " | Position |", "|---|---|---|---|---|"] + lignes
+    moy = "Ensemble des départements" if niv == "dep" else "Ensemble des régions"
+    ent_d = entete_densite(B.C, [p for g in config.GROUPES_SPECIALITES for p in B.C.ids(SANTE) if groupe.get(p) == g
+                                 and p in n.columns and B.C.present(p)])
+    corps = ["| Spécialité | Effectif | " + ent_d + " | " + moy + " | Position |", "|---|---|---|---|---|"] + lignes
     return (["<details>", "<summary>Les spécialités médicales, détail par spécialité</summary>", ""] + corps + [""]
             + _comment_lire("Chaque médecin est compté dans la spécialité de son inscription à l'Ordre. Les petits "
                             "effectifs varient beaucoup d'une année à l'autre, une ou deux arrivées suffisent à changer "
@@ -565,7 +583,7 @@ def _elargi(B, T):
     return [f"{qui} d'un établissement psychiatrique ou médico-psychologique "
             f"situé dans {'le département' if T['niveau'] == 'dep' else 'la région'} (CMP, hôpital de jour, "
             f"établissement spécialisé en psychiatrie...), soit {nombre(tot / pop[T['code']] * 1e4, 1)} pour 10 000 "
-            f"habitants contre {nombre(ref_niv, 1)} en moyenne dans les "
+            f"habitants contre {nombre(ref_niv, 1)} pour l'ensemble des "
             f"{'départements' if T['niveau'] == 'dep' else 'régions'}. Ce périmètre élargi se lit à côté "
             f"du tableau et ne s'y ajoute pas.", ""]
 
@@ -616,8 +634,8 @@ def _interne(B, T, famille, cle_fig):
     L = [f"## {titre}", "",
          f"Le territoire compte {nombre(len(t))} {unites if len(t) > 1 else unite}. "
          + (_phrase_sans(sans0, sans1, un, unite, B.lab[p0].lower(), B.lab[p1].lower()) if unite != "département" else
-            f"Selon les départements, la densité {de(pluriel(B.lab[p0]))} va de {nombre(t[f'd_{p0}'].min(), 1)} à "
-            f"{nombre(t[f'd_{p0}'].max(), 1)} pour 10 000 habitants."), ""]
+            f"Selon les départements, la densité {de(pluriel(B.lab[p0]))} va de {B.C.dens_txt(p0, t[f'd_{p0}'].min())} à "
+            f"{B.C.dens_txt(p0, t[f'd_{p0}'].max())} {B.C.unite(p0)}."), ""]
     # moyenne des intercommunalités entières, la même que l'atlas et Explorer : celle des parties découpées par les
     # départements compte deux fois une personne qui exerce dans deux parties (12,9 au lieu de 12,8 pour les
     # psychologues, audit externe du 30 octobre 2026)
@@ -635,9 +653,11 @@ def _interne(B, T, famille, cle_fig):
             marques = (t.loc[(t[f"n_{p}"] == 0) & (t["cmp"] > 0), "code"].tolist()
                        if p == "psychiatre" and "cmp" in t else [])
             svg = cartes.carte(g, rap_p, dict(zip(t["code"], t["etiquette"])),
-                               f"{pluriel(B.lab[p]).capitalize()} pour 10 000 habitants, par {unite}, comparés à la "
-                               f"moyenne {moy_u} de France", marques=marques, reference=ref_p,
-                               moyenne=f"moyenne {moy_u} de France",
+                               f"{pluriel(B.lab[p]).capitalize()} {B.C.unite(p)}, par {unite}, comparés à "
+                               f"l'ensemble {moy_u}", marques=marques, reference=ref_p,
+                               moyenne=f"ensemble {moy_u}", fac=B.C.fac(p),
+                               effectifs=t.set_index("code")[f"n_{p}"].to_dict(),
+                               bases=t.set_index("code")["pop"].to_dict(),
                                note_etiquettes=("Les numéros renvoient au tableau sous la carte, du territoire le plus "
                                                 "peuplé au moins peuplé." if unite != "département"
                                                 else "Les codes des départements renvoient au tableau sous la carte."))
@@ -647,19 +667,23 @@ def _interne(B, T, famille, cle_fig):
                     svg, encoding="utf-8")
                 if k == 0:
                     L += graphique(f"{cle_fig}_carte")
-    f1 = lambda v: nombre(v, 1)  # noqa: E731
-    cols = (["num"] if geoms and unite != "département" else []) + ["nom", "pop", f"n_{p0}", f"d_{p0}", f"n_{p1}", f"d_{p1}"]
+    for p in (p0, p1):
+        t[f"d_{p}_u"] = [B.C.dens_txt(p, v) for v in t[f"d_{p}"]]
+    cols = (["num"] if geoms and unite != "département" else []) + ["nom", "pop", f"n_{p0}", f"d_{p0}_u", f"n_{p1}", f"d_{p1}_u"]
     ents = (["N°"] if geoms and unite != "département" else []) + [unite.capitalize(), "Habitants", pluriel(B.lab[p0]).capitalize(),
-                                                                    "Pour 10 000 hab.", pluriel(B.lab[p1]).capitalize(), "Pour 10 000 hab."]
+                                                                    B.C.unite(p0).capitalize(), pluriel(B.lab[p1]).capitalize(), B.C.unite(p1).capitalize()]
     if unite == "département":
         cols, ents = ["etiquette"] + cols, ["Code"] + ents
     if "cmp" in t:
         cols, ents = cols + ["cmp"], ents + ["CMP (FINESS et ROR)"]
-    L += [_tableau(t, cols, ents, {"pop": nombre, f"n_{p0}": nombre, f"n_{p1}": nombre, f"d_{p0}": f1, f"d_{p1}": f1,
-                                   "cmp": nombre}), ""]
+    L += [_tableau(t, cols, ents, {"pop": nombre, f"n_{p0}": nombre, f"n_{p1}": nombre, "cmp": nombre},
+                   zero={f"n_{p0}": "aucun", f"n_{p1}": "aucun", "cmp": "aucun",
+                         f"d_{p0}_u": AF.STATUTS["aucun"], f"d_{p1}_u": AF.STATUTS["aucun"]}), ""]
     L += _comment_lire(
-        (f"La carte colore chaque {unite} selon sa densité {de(pluriel(B.lab[p0]))} comparée à la moyenne {moy_u} "
-         f"de France ({nombre(ref_u, 1)} pour 10 000 habitants). "
+        (f"La carte colore chaque {unite} selon sa densité {de(pluriel(B.lab[p0]))} comparée à l'ensemble {moy_u} "
+         f"({B.C.dens_txt(p0, ref_u)} {B.C.unite(p0)}). {un.capitalize()} {unite} reste en gris quand sa densité est entre 0,8 et "
+         f"1,25 fois l'ensemble, ou quand l'écart peut tenir au hasard : moins de 5 professionnels, ou un effectif "
+         f"que le hasard donnerait encore 95 fois sur 100 avec la densité de l'ensemble, comme sur les fiches. "
          + ("Les numéros renvoient au tableau, où les territoires sont rangés du plus peuplé au moins peuplé. "
             if unite != "département" else "Les codes renvoient au tableau. ")) if geoms else "",
         f"Un professionnel qui exerce dans plusieurs {unites} compte dans {'chacun' if unite == 'département' else 'chacune'} "
@@ -729,7 +753,8 @@ def _route(B, T, famille):
         (B.dossier_fig / f"{cle_u}.svg").write_text(svg, encoding="utf-8")
         L += graphique(cle_u)
     L += [_tableau(t, cols, ents, {"temps_median_min": m, "fr_med": m, "part_population_a_plus_de_20_min": p_,
-                                   "reg20": p_, "fr20": p_}), ""]
+                                   "reg20": p_, "fr20": p_},
+                   zero={c: "aucun habitant" for c in ("part_population_a_plus_de_20_min", "reg20", "fr20")}), ""]
     if "psychiatrie_ambulatoire" in ordre:
         L += [limites.phrase_md(["route:psychiatrie_ambulatoire"]), ""]
     L += _comment_lire(
@@ -776,10 +801,11 @@ def _financier(B, T, famille):
     avec_reg = "region" in d
     cols = ["libelle", "liberaux", "part"] + (["region"] if avec_reg else []) + ["milieu", "france"]
     ents = ["Profession", "Libéraux", "Pouvant pratiquer des dépassements"] + (["Région"] if avec_reg else []) + [
-        f"Milieu des {'départements' if niv == 'dep' else 'régions'}", "France"]
+        AF.MEDIANE[niv], AF.ENSEMBLE[niv]]
     d["part"] = d["part"].map(lambda v: pct(v) if pd.notna(v) else "non calculée")
     L = ["## Accès financier", "",
-         _tableau(d, cols, ents, {"liberaux": nombre, "region": pct, "milieu": pct, "france": pct}), ""]
+         _tableau(d, cols, ents, {"liberaux": nombre, "region": pct, "milieu": pct, "france": pct},
+                  zero={c: "aucun" for c in ("liberaux", "part", "region", "milieu", "france")}), ""]
     ald = ac.get("ald")
     phr = ""
     if famille == SANTE and ald is not None:
@@ -787,8 +813,8 @@ def _financier(B, T, famille):
         if (niv, code) in a.index and pd.notna(a[(niv, code)]):
             m = ald.loc[(ald["niveau"] == niv) & ~ald["code"].isin(config.AMELI_DEPARTEMENTS_EXCLUS + config.AMELI_REGIONS_EXCLUES), "valeur"].median()
             phr = (f"{nombre(a[(niv, code)], 1)} % des patients en affection longue durée n'ont pas déclaré de médecin "
-                   f"traitant, contre {nombre(a.get(('FR', 'FR')), 1)} % en France (milieu des "
-                   f"{'départements' if niv == 'dep' else 'régions'}, {nombre(m, 1)} %).")
+                   f"traitant, contre {nombre(a.get(('FR', 'FR')), 1)} % pour l'{AF.ENSEMBLE[niv].lower()} "
+                   f"({AF.MEDIANE[niv].lower()}, {nombre(m, 1)} %).")
     L += _comment_lire(
         "Part des libéraux en secteur 2 (avec ou sans Optam) ou non conventionnés, qui peuvent facturer au-delà du "
         "tarif de la Sécurité sociale. C'est un obstacle financier possible, pas la mesure des dépassements réels. "
@@ -831,8 +857,7 @@ def _isd(B, T, famille):
     if avec_reg:
         d["region"] = d["region"].map(lambda v: f(v) if pd.notna(v) else "non publié pour les régions")
     cols = ["libelle", "unite", "valeur"] + (["region"] if avec_reg else []) + ["milieu"]
-    ents = ["Indicateur", "Unité", "Ce territoire"] + (["Région"] if avec_reg else []) + [
-        f"Milieu des {'départements' if niv == 'dep' else 'régions'}"]
+    ents = ["Indicateur", "Unité", "Ce territoire"] + (["Région"] if avec_reg else []) + [AF.MEDIANE[niv]]
     titre = "### Protection de l'enfance" if famille == SM else "## Handicap"
     L = [titre, "", _tableau(d, cols, ents), ""]
     L += _comment_lire(
@@ -846,7 +871,7 @@ def _isd(B, T, famille):
 
 
 def _sae(B, T):
-    """Psychiatrie à l'hôpital (SAE), comparée à la région, au milieu des territoires et à la France."""
+    """Psychiatrie à l'hôpital (SAE), comparée à la région, au territoire médian et à l'ensemble des territoires."""
     sae = B.insee.get("sae")
     if not sae:
         return []
@@ -873,12 +898,14 @@ def _sae(B, T):
     d["libelle"] = d["libelle"] + " (taux " + d["unite"].astype(str) + ")"
     f = lambda v: nombre(v, 1)  # noqa: E731
     avec_reg = "region" in d
-    milieu = "départements" if niv == "dep" else "régions"
     cols = ["libelle", "nombre", "valeur"] + (["region"] if avec_reg else []) + ["milieu", "france"]
     ents = (["Indicateur et unité du taux", "Nombre déclaré par les établissements du territoire", "Taux du territoire"]
-            + (["Taux de sa région"] if avec_reg else []) + [f"Taux du milieu des {milieu}", "Taux de la France"])
+            + (["Taux de sa région"] if avec_reg else []) + [f"{AF.MEDIANE[niv]}, taux", f"{AF.ENSEMBLE[niv]}, taux"])
     L = ["## Psychiatrie à l'hôpital", "", _tableau(d, cols, ents, {"nombre": nombre, "valeur": f, "region": f, "milieu": f,
-                                                                       "france": f}), ""]
+                                                                       "france": f},
+                                                    zero={c: lambda r: _aucun_accorde(r["libelle"])
+                                                          for c in ("nombre", "valeur", "region", "milieu", "france")}),
+         ""]
     # CMP de la SAE et CMP recensés comme lieux, deux comptes différents à expliquer avec les chiffres du territoire
     cmp_txt = ""
     Lx = getattr(B.agg, "lieux", None)
@@ -900,8 +927,8 @@ def _sae(B, T):
     L += _comment_lire(
         "Le nombre est le total déclaré par les établissements autorisés en psychiatrie dont le siège est dans le "
         "territoire, en équivalents temps plein pour les personnels. Les colonnes suivantes le rapportent à la "
-        "population, dans l'unité indiquée entre parenthèses, pour le territoire, sa région, le territoire du milieu et "
-        "la France. Un territoire voisin peut accueillir une partie de ses habitants.",
+        "population, dans l'unité indiquée entre parenthèses, pour le territoire, sa région, le territoire médian et "
+        "l'ensemble des territoires, qui somme tous les établissements de France. Un territoire voisin peut accueillir une partie de ses habitants.",
         cmp_txt, f"Source, DREES, SAE {sae.get('annee', '')}, Licence Ouverte.")
     return L
 
@@ -958,7 +985,7 @@ def _distance(B, T, famille):
     return ["Le tableau suivant compte tous les professionnels, salariés compris. Il mesure la distance à vol "
             "d'oiseau jusqu'à la commune la plus proche où au moins l'un d'eux exerce.", "",
             _tableau(t, ["libelle", "t10", "f10"], ["Profession", "Habitants à plus de 10 km", "France"],
-                     {"t10": pct, "f10": pct}), ""]
+                     {"t10": pct, "f10": pct}, zero={"t10": "aucun habitant", "f10": "aucun habitant"}), ""]
 
 
 def _modes(B, T, famille):
@@ -991,7 +1018,8 @@ def _modes(B, T, famille):
     ents = (["Profession", "Part exerçant en libéral", "Ensemble des départements"]
             + (["Part de femmes", "Ensemble des départements"] if fem else []))
     L = ["## Libéral ou salarié" + (", et part des femmes" if fem else ""), "",
-         _tableau(t, cols, ents, {c: pct for c in cols[1:]}, vide="moins de 10 personnes"), ""]
+         _tableau(t, cols, ents, {c: pct for c in cols[1:]}, vide="moins de 10 personnes",
+                  zero={c: "aucun" for c in cols[1:]}), ""]
     L += _comment_lire("Une même personne peut exercer en libéral et comme salariée, elle compte alors dans les deux.",
                        "La part de femmes repose sur la civilité déclarée au répertoire. Elle n'est pas donnée quand "
                        "moins de dix personnes exercent." if fem else "")
@@ -1023,7 +1051,8 @@ def _besoins(B, T):
             if code not in x.index or pd.isna(x.at[code, "valeur"]):
                 continue
             v = x.at[code, "valeur"]
-            fourch = (f" (de {nombre(x.at[code, 'ic_bas'], 1)} à {nombre(x.at[code, 'ic_haut'], 1)})"
+            g_i = AF.genre(ind["unite"])
+            fourch = (f" (de {AF.nombre(x.at[code, 'ic_bas'], g_i)} à {AF.nombre(x.at[code, 'ic_haut'], g_i)})"
                       if pd.notna(x.at[code, "ic_bas"]) else "")
             lignes.append({"libelle": ind["libelle"], "valeur": v, "fourchette": fourch,
                            "milieu": x["valeur"].drop(config.AMELI_DEPARTEMENTS_EXCLUS, errors="ignore").median(),
@@ -1033,12 +1062,14 @@ def _besoins(B, T):
         def cellule(r):
             if pd.isna(r["valeur"]):
                 return "non calculée (secret statistique)" if str(r["source"]).startswith("Assurance") else ND_TERRITOIRE
-            return (nombre(r["valeur"], 2 if r["valeur"] < 10 else 1)
+            # arrondis de la règle unique, selon l'unité de l'indicateur, les mêmes que la fiche et la page de
+            # l'indicateur (audit du 6 novembre 2026 : « 9,40 » ici, « 9,4 » sur la fiche)
+            return (AF.nombre(r["valeur"], AF.genre(r["unite"]))
                     + (r["fourchette"] if isinstance(r.get("fourchette"), str) else ""))
         t["v"] = t.apply(cellule, axis=1)
-        t["m"] = t["milieu"].map(lambda v: nombre(v, 2 if v < 10 else 1))
+        t["m"] = [AF.nombre(v, AF.genre(u)) if pd.notna(v) else "" for v, u in zip(t["milieu"], t["unite"])]
         L += [_tableau(t, ["libelle", "unite", "v", "m", "source"],
-                       ["Indicateur", "Unité", "Ce territoire", f"Milieu des {'départements' if niv == 'dep' else 'régions'}",
+                       ["Indicateur", "Unité", "Ce territoire", AF.MEDIANE[niv],
                         "Source"]), ""]
         L += _comment_lire(
             "Les personnes prises en charge par l'Assurance Maladie mesurent le recours aux soins, pas le besoin. Leur "
@@ -1075,8 +1106,8 @@ def _quadrant(B, T):
                  f"{next(iter(o.values()))}").replace("de psychiatres et psychologues", "de psychiatres et celle de psychologues")
     else:
         offre = _liste(f"la densité {de(pluriel(B.lab[p]))} {v}" for p, v in o.items())
-    return [f"Par rapport au milieu des départements, le taux de décès par suicide est {b}, et {offre}. Cette position "
-            f"par rapport aux médianes ne dit pas que l'offre est insuffisante au sens d'une norme. Un département proche du milieu peut changer de groupe d'une année à l'autre sans "
+    return [f"Par rapport au département médian, le taux de décès par suicide est {b}, et {offre}. Cette position "
+            f"par rapport aux médianes ne dit pas que l'offre est insuffisante au sens d'une norme. Un département proche de la médiane peut changer de groupe d'une année à l'autre sans "
             f"changement réel.", ""]
 
 
@@ -1103,8 +1134,7 @@ def _vulnerabilite(B, T):
     t["milieu"] = [f(m) if a and pd.notna(m) else ("" if a else "non publié") for m, a in zip(t["milieu"], t["au_niveau"])]
     avec_reg = niv == "dep" and not T.get("reg_seul")
     cols = ["var", "unite", "valeur"] + (["region"] if avec_reg else []) + ["milieu"]
-    ents = ["Indicateur", "Unité", "Ce territoire"] + (["Région"] if avec_reg else []) + [
-        f"Milieu des {'départements' if niv == 'dep' else 'régions'}"]
+    ents = ["Indicateur", "Unité", "Ce territoire"] + (["Région"] if avec_reg else []) + [AF.MEDIANE[niv]]
     L = ["### Conditions de vie", "", _tableau(t, cols, ents, {"region": f}), ""]
     L += _comment_lire("Ces indicateurs décrivent des conditions de vie connues pour peser sur la santé mentale "
                        "(emploi, revenus, diplôme, logement, isolement). Ils ne mesurent pas le besoin de soins. Les "
@@ -1131,7 +1161,8 @@ def _ecarts(B, T, famille):
               _tableau(e, ["nom", "pop", "effectif", "effectif_attendu", "rapport"],
                        ["Intercommunalité", "Habitants", "Observés", "Attendus d'après le profil", "Rapport"],
                        {"pop": nombre, "effectif": nombre, "effectif_attendu": lambda v: nombre(v, 1),
-                        "rapport": lambda v: nombre(v, 2)}), ""]
+                        "rapport": lambda v: nombre(v, 2)},
+                       zero={"effectif": "aucun", "rapport": "aucun observé"}), ""]
     if not L:
         return []
     p, r = ex
@@ -1324,7 +1355,7 @@ def _verification_cmp(L, T):
             "sources, à vérifier, pas une erreur de l'établissement.", "",
             _tableau(e, ["nom", "ici_cmp", "sae_cmp", "statut"],
                      ["Établissement gestionnaire", "CMP recensés ici", "CMP déclarés à la SAE", "Constat"],
-                     {"ici_cmp": nombre, "sae_cmp": nombre}), "",
+                     {"ici_cmp": nombre, "sae_cmp": nombre}, zero={"ici_cmp": "aucun", "sae_cmp": "aucun"}), "",
             "Détail pour toute la France, avec la répartition entre adultes et enfants, dans "
             "concordance_cmp_etablissements.csv.", "", "</details>", ""]
     return out
@@ -1372,7 +1403,15 @@ def _lieux(B, T, famille):
         # type dont les bases inscrivent ici moins de la moitié de ce que la SAE déclare, ni taux ni distance
         # (lieux.manques_sae, audit du 30 octobre 2026)
         sans_mesure = tid in manques
-        lignes.append({"libelle": lib, "n": n, "p100k": n / pop * 1e5 if pop and not sans_mesure else None,
+        # taux pour 100 000 personnes du public du type (moins de 15 ans, 80 ans et plus), la règle du site et des
+        # fichiers lieux_soins (lieux.taux_publics), qui rapportait ici tout à la population jusqu'au 30 octobre 2026
+        from . import lieux as lieux_mod, lieux_profil
+        cn = B.ctx.get(niv) if isinstance(B.ctx, dict) else None
+        taux = lieux_mod.taux_publics(pd.DataFrame({tid: [n]}, index=[code]), pd.Series([pop], index=[code]),
+                                      cn, None, niv)[0].at[code, tid] if pop and not sans_mesure else None
+        public = lieux_profil.denominateur(tid)[1]
+        lib = lib + (f", pour 100 000 {public}" if public else "")
+        lignes.append({"libelle": lib, "n": n, "p100k": None if taux is None or pd.isna(taux) else float(taux),
                        "conf": k.get("confirmee") if etabli else None,
                        "rec": (k.get("recoupee") if tid in conf_mod.TYPES_RECOUPES else "sans objet") if etabli else None,
                        "abv": k.get("a_verifier") if etabli else None,
@@ -1382,7 +1421,9 @@ def _lieux(B, T, famille):
     if not lignes:
         return []
     t = pd.DataFrame(lignes)
-    f1 = lambda v: nombre(v, 1)  # noqa: E731
+    from . import affichage as AF
+    f1 = lambda v: AF.nombre(v, "taux")  # noqa: E731
+    fd = lambda v: AF.nombre(v, "distance")  # noqa: E731
     lieu = "le département" if niv == "dep" else "la région"
     out = ["## Structures de soins, FINESS et ROR réunis", "",
            f"FINESS et le Répertoire opérationnel des ressources (ROR), réunis sans double compte, recensent dans {lieu} "
@@ -1393,9 +1434,12 @@ def _lieux(B, T, famille):
               if t["dist"].isna().any() else ""), "",
            _tableau(t, ["libelle", "n", "conf", "rec", "abv", "p100k", "dist", "dist_fr", "p30"],
                     ["Type de structure", "Structures", "Confirmées", "Recoupées par la statistique des hôpitaux", "À vérifier",
-                     "Pour 100 000 hab.", "Distance médiane (km)", "France, distance médiane", "Habitants à plus de 30 km"],
-                    {"n": nombre, "conf": nombre, "rec": lambda v: v if isinstance(v, str) else nombre(v), "abv": nombre, "p100k": f1, "dist": f1, "dist_fr": f1,
-                     "p30": pct}, vide=""), ""]
+                     "Pour 100 000 habitants, ou personnes du public nommé", "Distance médiane (km)",
+                     "Ensemble des habitants de France, distance médiane", "Habitants à plus de 30 km"],
+                    {"n": nombre, "conf": nombre, "rec": lambda v: v if isinstance(v, str) else nombre(v), "abv": nombre, "p100k": f1, "dist": fd, "dist_fr": fd,
+                     "p30": pct}, vide="",
+                    zero={"n": "aucune", "conf": "aucune", "rec": "aucune", "abv": "aucune",
+                          "p100k": AF.AUCUNE_STRUCTURE, "p30": "aucun habitant"}), ""]
     if t["conf"].notna().any():
         out += ["Confirmées, recoupées et à vérifier refont le nombre de structures. Une structure confirmée est nommée "
                 "par une source indépendante de FINESS et du ROR (son établissement, la Haute Autorité de santé, le "
@@ -1443,10 +1487,11 @@ def rapport(B, T, famille, jour) -> str:
     from .lecture import date_longue
     cle_fig = f"{T['niveau']}-{T['code']}_{COURT[famille]}"
     sujet = "santé mentale" if famille == SM else "santé"
+    compare_a = ("sa région, à l'ensemble des départements" if T["niveau"] == "dep" else "l'ensemble des régions")
     L = [f"# Offre de soins en {sujet}, {T['nom']}, {date_longue(jour)}", "",
          f"Ce rapport décrit l'offre de soins en {sujet} dans {'le département' if T['niveau'] == 'dep' else 'la région'} "
          f"{T['nom']} ({T['code']}), à partir des répertoires publics des professionnels de santé et d'autres données "
-         f"publiques. Il compare le territoire à {'sa région, à la moyenne des départements' if T['niveau'] == 'dep' else 'la moyenne des régions'}"
+         f"publiques. Il compare le territoire à {compare_a}"
          f"{' et à des départements de profil semblable' if T['niveau'] == 'dep' and B.semblables.get(T['code']) else ''}. "
          f"Il décrit sans classer. Les détails techniques sont repliés sous « Pour aller plus loin ».", "",
          "## En bref", ""]
@@ -1483,7 +1528,7 @@ def ecrire(out, agg, ref, professions, insee, R, jour) -> str:
         for famille in (SM, SANTE):
             nom = f"{T['niveau']}-{T['code']}-{CLE[famille]}.md"
             try:
-                texte = rapport(B, T, famille, jour)
+                texte = signe_moins(rapport(B, T, famille, jour))
             except Exception as e:  # noqa: BLE001
                 erreurs += 1
                 log.exception("rapport territorial %s %s", T["code"], famille)

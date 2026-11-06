@@ -1,0 +1,657 @@
+{% extends "base.html" %}
+{# Fiche de territoire resserrée, validée par Lucas le 31 octobre 2026 (prototype et relectures dans
+   prototypes/fiche_resserree/, NOTE.md). Composition B+ et palette canard et cuivre (docs/direction_visuelle.md). Dans
+   l'ordre : la tête en deux lignes, les quatre tuiles et la phrase sur l'ensemble, une seule fois ; la barre des
+   domaines ; le tableau de bord (carte et repères condensés à gauche, « En bref » en matrice à droite) ; puis une bande
+   par domaine, toutes sur le même gabarit (titre, comptage, synthèse, « Comment lire », carte de bloc, lignes types
+   groupées par thème, autres indicateurs et détails techniques repliés) ; « Comparer » et « Confiance et citation ».
+   Bandes et matrice rangées par pipeline/bandes_fiche.py ; valeurs, repères, positions, couleurs et statuts écrits par
+   la règle d'affichage (pipeline/affichage.py), déjà mis en forme : le gabarit ne calcule ni n'arrondit rien. #}
+{%- set niv = f.niv_pluriel -%}
+{% from "reglette.html" import reglette %}
+{% macro signal(l) -%}{%- if l.limite or (l.k and l.k.limite) %} <b class="sig" aria-hidden="true">!</b>{% endif -%}{%- endmacro %}
+{% macro limite_ligne(l, ns) -%}
+{%- if l.limite -%}
+{%- set t = l.limite.court ~ ((' ' ~ l.limite.territoire) if l.limite.territoire else '') -%}
+{%- if t not in ns.vus %}<span class="lim-ligne" data-limite="{{ l.limite.cle or '' }}">{{ t }}</span>{% set _ = ns.vus.append(t) %}{% endif %}
+{%- endif -%}
+{%- if l.k and l.k.limite and l.k.limite not in ns.vus %}<span class="lim-ligne">{{ l.k.limite }}</span>{% set _ = ns.vus.append(l.k.limite) %}{% endif -%}
+{%- endmacro %}
+{#- le menu en bout de ligne : « Pourquoi on le dit », la carte de la ligne, « Copier la phrase », « Citer et exporter »,
+    « Signaler une erreur » -#}
+{% macro menu(l) -%}
+<details class="menu-ligne seul-ecran"><summary aria-label="Plus sur cette ligne : {{ l.lib }}"><span aria-hidden="true"></span></summary>
+  <div class="menu-corps">
+    {%- if l.k %}
+    <p class="menu-constat">{{ l.k.titre }}</p>
+    <p class="menu-titre">Pourquoi on le dit</p>
+    {% for c in l.k.calcul %}<p>{{ c }}</p>{% endfor %}
+    {% if l.k.attendu %}<p>{{ l.k.attendu }}</p>{% endif %}
+    <p class="source">{{ l.k.source }}</p>
+    {%- endif %}
+    <p class="menu-actions">
+      {%- if l.k and l.k.carte %}<button type="button" class="lien-outil voir-carte" data-carte="{{ l.k.carte }}">Voir sur la carte</button>{% endif %}
+      {%- if l.k %}<button type="button" class="lien-outil copier-phrase" data-phrase="{{ l.k.phrase }}">Copier la phrase</button>{% endif %}
+      <button type="button" class="lien-outil citer-encadre" aria-expanded="false">Citer et exporter</button>
+      <a class="lien-outil" href="{{ racine }}contribuer.html">Signaler une erreur</a>
+    </p>
+  </div>
+</details>
+{%- endmacro %}
+{#- la ligne type : nom, limite et étiquette du niveau ; effectif ; attendu ; valeur et écart ; réglette ; position ;
+    depuis 2016 ; menu -#}
+{% macro ligne(l, g, ns, lvt='') -%}
+{%- set dep = (l.echelle == 'dep' or l.code == 'departement') -%}
+<tr{% if l.sous %} class="sous"{% endif %}{% if l.ancre %} id="{{ l.ancre }}"{% endif %}{% if l.id %} data-ind="{{ l.id }}"{% endif %}{% if l.lv %} data-niv="{{ l.lv }}:{{ l.code or '' }}"{% endif %} data-titre="{{ l.lib }}">
+  {%- set suite = limite_ligne(l, ns)|trim -%}
+  <th scope="row"><span class="nom-ligne">{{ l.lib }}{{ signal(l) }}</span>{% if dep and f.niveau != 'dep' %}<span class="etiq">donnée du département{% if f.parent and f.niveau == 'epci' %}, {{ f.parent }}{% endif %}</span>{% endif %}{% if l.precision %}<span class="note">{{ l.precision }}.</span>{% endif %}{% if l.k and not l.phrase_visible %}<span class="lecteur">{{ l.k.phrase }}</span>{% endif %}</th>
+  {%- if g.avec_eff %}
+  <td class="eff">
+    {%- if l.s %}{% if l.s.n is none %}{% elif l.s.n == 0 %}aucune{% else %}{{ l.s.n }}, {{ l.s.conf|confirmation }}{% endif %}
+    {%- elif l.n == 0 %}aucun{% elif l.n_txt %}{{ l.n_txt }} inscrit{{ 's' if l.n != 1 }}{% endif %}
+
+    {%- if l.code == 'petit' %}<span class="note statut">petit effectif</span>{% elif l.statut and l.txt and l.echelle != 'dep' and l.code not in ('aucun', 'departement') %}<span class="note statut">{{ l.statut }}</span>{% endif %}
+    {%- if l.att %}<span class="att">attendu : environ&nbsp;{{ l.att }}</span>{% endif %}</td>
+  {%- endif %}
+  {%- if not l.txt or l.code == 'aucun' %}
+  <td class="v"><span class="statut">{{ l.statut or 'non publié' }}</span>{% if l.s and l.s.raison %}<span class="note">{{ l.s.raison }}</span>{% endif %}{% if g.unites and l.kind == 'prof' %}<span class="note">ensemble {{ 'pour 100 000' if l.fac == 100000 else 'pour 10 000' }}</span>{% endif %}</td>
+  {%- else %}
+  <td class="v"><b>{{ l.txt }}{% if l.kind == 'dist' %} km{% endif %}</b>{% if g.unites and l.kind == 'prof' %}<span class="note">{{ 'pour 100 000' if l.fac == 100000 else 'pour 10 000' }}</span>{% endif %}{% if l.note %}<span class="note">{{ l.note }}</span>{% endif %}</td>
+  {%- endif %}
+  <td class="reg">{{ reglette(l.reg, 'petite') }}</td>
+  {#- une position dit toujours son ensemble, en entier dans la cellule : au téléphone l'en-tête du tableau disparaît
+      (remarque de Lucas du 31 octobre 2026). La cellule porte aussi ce à quoi « mais » s'oppose, l'écart ou, sans
+      écart écrit, l'ensemble (affichage.avant_position) : « mais » ne commence jamais une cellule (relecture v2 des
+      fiches construites, 1er novembre 2026). -#}
+  <td class="pos">{% if l.txt and l.code != 'aucun' %}{% if l.avant %}<span class="{{ 'ec ' ~ (l.couleur or 'neutre') if l.avant_ecart else 'ens-pos' }}">{{ l.avant }}</span>{{ ', mais ' if l.mais else ', ' }}{% endif %}{{ l.pos_txt }}{% endif %}</td>
+  {%- if g.evol %}
+  <td class="evol">{% if l.evol %}<b>{{ l.evol.ici }}</b><span class="note">{% if f.evolution.ou %}au département, {% endif %}{{ l.evol.periode }}, <span class="insec">de {{ l.evol.debut }} à {{ l.evol.fin }}</span></span><span class="note">{% if f.evolution.region %}<span class="insec">région {{ l.evol.region }}</span> · {% endif %}ensemble des {{ 'régions' if f.niveau == 'reg' else 'départements' }} <span class="insec">{{ l.evol.france }}</span></span>{% endif %}</td>
+  {%- endif %}
+  <td class="outil">{% if not l.seule_drees %}{{ menu(l) }}{% endif %}</td>
+</tr>
+{#- sous la ligne, sur toute la largeur : sa définition, sa limite en une ligne, et la phrase rédigée des indicateurs
+    des tuiles -#}
+{%- if suite or l.defn or l.phrase_visible or l.zero %}
+<tr class="suite-ligne"><td colspan="9">{% if l.zero %}<span class="note">{{ 'Aucun inscrit' if (l.kind or '') == 'prof' else 'Aucune structure' }}, comme dans {{ l.zero }} des {{ niv if l.lv == f.niveau else 'départements' }}.</span>{% endif %}{% if l.defn %}<span class="note defn">{{ l.defn }}</span>{% endif %}{{ suite|safe }}{% if l.phrase_visible %}<p class="phrase-tuile">{{ l.k.phrase }}</p>{% endif %}</td></tr>
+{%- endif %}
+{%- endmacro %}
+{% macro niveau_tete(lignes) -%}
+{%- set lvs = lignes|selectattr('lv')|map(attribute='lv')|unique|list -%}
+{{ lvs[0] if lvs|length == 1 else f.niveau }}
+{%- endmacro %}
+{% macro position_parmi(lignes) -%}
+{%- set lvs = lignes|selectattr('lv')|map(attribute='lv')|unique|list -%}
+Position parmi les {{ {'epci': 'intercommunalités', 'dep': 'départements', 'reg': 'régions'}[lvs[0]] if lvs|length == 1 else niv }}
+{%- endmacro %}
+{#- une intercommunalité sur plusieurs départements : chacun nommé avec la part de ses habitants, les autres liés à leur
+    fiche ; les chiffres au département sont ceux du département de rattachement (défaut M5) -#}
+{#- les secteurs et les établissements de rattachement dans les Repères : les premiers, les autres repliés, listes
+    techniques (quinze secteurs et huit établissements laissaient la colonne de droite vide, relecture v2 du 1er
+    novembre 2026) -#}
+{% macro etab_rep(e) -%}
+<span class="rep-ligne">{{ e.nom|casse }}{% if e.long %}, {{ e.long }}{% endif %}{% if f.niveau == 'epci' %} <span class="note">secteurs {{ e.types }} : {{ e.secteurs|join(', ') }}</span>{% endif %}</span>
+{%- endmacro %}
+{% macro secteurs(L) -%}
+{%- set k = L|length if L|length <= 5 else 4 %}
+{%- for s in L[:k] %}<span class="rep-ligne"><b>{{ s.code }}</b> {{ s.communes }}{% if s.part %}, {{ s.part }} des habitants{% endif %}</span>{% endfor -%}
+{%- if L|length > k %}<details class="suite rep-suite"><summary>Les {{ L|length - k }} autres secteurs</summary>{% for s in L[k:] %}<span class="rep-ligne"><b>{{ s.code }}</b> {{ s.communes }}{% if s.part %}, {{ s.part }} des habitants{% endif %}</span>{% endfor %}</details>{% endif -%}
+{%- endmacro %}
+{% macro note_deps() -%}
+{%- if f.deps|length > 1 %}<p class="groupe-note note-deps">Le territoire s'étend sur {{ f.deps|length }} départements : {% for d in f.deps %}{% if d.rattachement %}{{ d.nom }}{% else %}<a href="{{ racine }}territoire/dep/{{ d.code }}.html">{{ d.nom }}</a>{% endif %} ({{ d.part }} des habitants){{ ', ' if loop.revindex > 2 else (' et ' if loop.revindex == 2 else '') }}{% endfor %}. Les chiffres au département sont ceux de son département de rattachement, {{ f.parent }}.</p>{% endif -%}
+{%- endmacro %}
+{#- un groupe de lignes d'une bande : son thème, sa lecture et sa source restent visibles au-dessus du tableau -#}
+{% macro groupe(g, b) -%}
+<div class="groupe" data-titre="{{ g.titre }}, {{ b.nom|lower }}">
+  <div class="groupe-tete">
+    <h3 id="{{ g.id }}">{{ g.titre }}{% if g.au_dep %} <span class="etiq">au département{% if f.parent %}, {{ f.parent }}{% endif %}</span>{% endif %}</h3>
+    <p class="groupe-lire"><b>Comment lire.</b> {{ g.lire }}</p>
+    {% if g.source %}<p class="source">{{ g.source }}</p>{% endif %}
+    {% if g.lire_evol %}<p class="groupe-evol"><b>Depuis 2016.</b> {{ g.lire_evol }}</p>{% endif %}
+    {% if g.limite %}<p class="limite"><b aria-hidden="true">!</b><span>{{ g.limite }}</span></p>{% endif %}
+  </div>
+  {% if g.nd %}<div class="non-diffuse en-ligne"><p class="nd-titre">Non diffusé à l'échelle de l'intercommunalité</p><p>{{ g.nd }}</p></div>{% endif %}
+  {% if g.note %}<p class="groupe-note">{{ g.note }}</p>{% endif %}
+  {% if g.au_dep or (g.evol and f.niveau == 'epci') %}{{ note_deps() }}{% endif %}
+  {% if g.lignes %}
+  {% if g.pli_tel %}<details class="pli-tel" open><summary class="seul-tel">Le tableau, {{ g.lignes|length }} indicateurs</summary>{% endif %}
+  <div class="defile"><table class="indicateurs ligne-type{% if not g.avec_eff %} sans-eff{% endif %}{% if g.evol %} avec-evol{% endif %}">
+    <colgroup>{% if g.avec_eff %}<col class="col-nom"><col class="col-eff">{% else %}<col class="col-nom-large">{% endif %}<col class="col-val"><col class="col-reg"><col class="col-pos">{% if g.evol %}<col class="col-evol">{% endif %}<col class="col-outil"></colgroup>
+    <thead><tr><th scope="col">{{ g.quoi }}</th>{% if g.avec_eff %}<th scope="col">{{ g.eff_titre or 'Effectif' }}</th>{% endif %}<th scope="col" class="v">{{ g.unite }}</th><th scope="col">Répartition</th><th scope="col" class="pos">{{ position_parmi(g.lignes|selectattr('lv')|list or g.lignes) }}</th>{% if g.evol %}<th scope="col" class="evol">Depuis 2016{% if f.evolution.ou %}, au département{% endif %}</th>{% endif %}<th scope="col" class="outil"><span class="lecteur">Plus</span></th></tr></thead>
+    <tbody>
+    {%- set ns = namespace(vus=[g.limite or '']) %}
+    {%- set lvt = niveau_tete(g.lignes|selectattr('lv')|list or g.lignes)|trim %}
+    {%- for l in g.lignes %}{{ ligne(l, g, ns, lvt) }}{% endfor %}
+    </tbody>
+  </table></div>
+  {% if g.pli_tel %}</details>{% endif %}
+  {% endif %}
+  {% if g.cle %}<p class="cle-reglette"><span><i></i>de la couleur du texte : écart dans la marge de 0,8 à 1,25 fois l'ensemble, ou que le hasard explique</span><span><i class="bas"></i><i class="haut"></i>cuivre ou canard : nettement en dessous ou au-dessus</span><span><i class="petit"></i>vide : moins de 5 inscrits</span><span>« dont libéraux » : en cabinet ; une personne qui exerce aussi en salariée compte dans les deux</span></p>{% endif %}
+  {% if g.contraire and g.contraire not in f.cle_tuiles %}<p class="cle-contraire">{{ g.contraire }}</p>{% endif %}
+  {% if g.reserves %}<ul class="reserves">{% for r in g.reserves %}<li><b class="sig" aria-hidden="true">!</b><span>{{ r }}</span></li>{% endfor %}</ul>{% endif %}
+</div>
+{%- endmacro %}
+{% macro barres(rows) -%}
+<ul class="barres">{% for r in rows %}<li><span class="b-lib">{{ r.lib }}</span><span class="b-n">{{ r.n }}{% if r.pc %} ({{ r.pc }}){% endif %}</span><span class="b-t"><span style="width:{{ r.l }}"></span></span></li>{% endfor %}</ul>
+{%- endmacro %}
+{#- une liste longue : ses cinq premières lignes visibles, les autres repliées ; jamais une seule ligne repliée (« Les 1
+    autres secteurs », 154 fiches, 1er novembre 2026) -#}
+{% macro liste_coupee(rows, quoi) -%}
+{%- set k = rows|length if rows|length <= 6 else 5 %}
+{{ barres(rows[:k]) }}
+{%- if rows|length > k %}<details class="suite"><summary>Les {{ rows|length - k }} autres {{ quoi }}</summary>{{ barres(rows[k:]) }}</details>{% endif %}
+{%- endmacro %}
+{% macro exercice(bloc, qui) -%}
+{%- if bloc %}
+<div class="groupe exercice" data-titre="Où ils exercent">
+  <div class="groupe-tete">
+    <h3>Où exercent {{ qui }}, {{ f.exercice.ou }}</h3>
+    <p class="groupe-lire"><b>Comment lire.</b> Secteur d'activité, structures de santé mentale, catégories et établissements d'exercice déclarés au répertoire{{ ', pour tout le département' if f.exercice.intercommunalite else '' }}, en personnes. Le secteur est attribué par le RPPS à la structure d'exercice ; une personne peut relever de plusieurs secteurs. Le personnel des structures qui dépendent d'un hôpital (CMP, CATTP, hôpitaux de jour) déclare en général l'hôpital lui-même.</p>
+    <p class="source">Sources : répertoire RPPS, FINESS. Licence Ouverte 2.0.</p>
+  </div>
+  {% if f.niveau == 'epci' %}{{ note_deps() }}{% endif %}
+  <details class="pli-tel" open><summary class="seul-tel">Les listes, par profession</summary>
+  <div class="ex-liste">
+  {% for p in bloc %}
+  <div class="ex-prof">
+    <h4>{{ p.lib }}</h4>
+    <div><p class="ex-titre">Secteur d'activité</p>{{ liste_coupee(p.secteurs, 'secteurs') }}</div>
+    <div><p class="ex-titre">Catégorie FINESS des établissements d'exercice</p>{{ liste_coupee(p.cat, 'catégories') }}
+      {% if p.cat_reste %}<p class="note">Et {{ p.cat_reste }} autres catégories, {{ p.cat_reste_n }} professionnels en tout.</p>{% endif %}
+      <p class="note">Un établissement inscrit sous une catégorie, CMP par exemple, peut être d'un autre type d'après son nom (hôpital de jour, CATTP, équipe mobile).</p></div>
+    {% if p.ex %}<div><p class="ex-titre">Dans les structures de santé mentale</p>{{ liste_coupee(p.ex, 'structures') }}
+      <p class="note">Structures enregistrées sous leur propre numéro FINESS, en personnes distinctes ; beaucoup déclarent leur hôpital de rattachement, ces nombres sont des minimums. Hôpitaux de jour et hospitalisation non comptés.</p></div>{% endif %}
+    {% if p.etab %}<div><p class="ex-titre">Établissements qui en réunissent le plus</p>
+      {% set ke = p.etab|length if p.etab|length <= 6 else 5 %}<ol class="etab">{% for e in p.etab[:ke] %}<li>{{ e.rs|casse }} <span class="note">{{ e.commune }}, {{ e.n }}</span></li>{% endfor %}</ol>
+      {% if p.etab|length > ke %}<details class="suite"><summary>Les {{ p.etab|length - ke }} établissements suivants</summary><ol class="etab" start="{{ ke + 1 }}">{% for e in p.etab[ke:] %}<li>{{ e.rs|casse }} <span class="note">{{ e.commune }}, {{ e.n }}</span></li>{% endfor %}</ol></details>{% endif %}</div>{% endif %}
+  </div>
+  {% endfor %}
+  </div>
+  </details>
+</div>
+{%- endif %}
+{%- endmacro %}
+{#- la carte de bloc : l'indicateur choisi dans le tableau, parmi les territoires d'alentour -#}
+{% macro carte_bloc(b) -%}
+<figure class="carte-bloc" data-bande="{{ b.id }}" data-titre="Carte, {{ (b.cartes[0].nom if b.cartes else b.nom)|lower }}">
+  <div class="carte-bloc-tete">
+    <label for="choix-{{ b.id }}" class="note">Carte</label>
+    <div class="encadre-outils seul-ecran"><button type="button" class="citer-encadre" aria-expanded="false">Citer et exporter</button></div>
+    <select id="choix-{{ b.id }}" class="choix-carte">{% for c in b.cartes %}<option value="{{ c.id }}">{{ c.choix }}</option>{% endfor %}</select>
+  </div>
+  {% for c in b.cartes %}
+  <div class="carte-une" data-carte="{{ c.id }}"{% if not loop.first %} hidden{% endif %}>
+    <div class="legende-situe"><div class="legende-barre" aria-hidden="true">{% if c.unite_leg %}<span class="titre">{{ c.unite_leg }}</span>{% endif %}<span class="cases">{% for q in c.cases %}<span class="{{ q|replace('--r', 'q') }}"></span>{% endfor %}</span><span class="bornes">{% for t, xx in c.bornes %}<span style="left:{{ xx }}">{{ t }}</span>{% endfor %}</span></div>{{ c.situe|safe }}</div>
+    {{ c.svg|safe }}
+    <figcaption>{{ c.nom }}, par {{ 'département' if c.lv == 'dep' else 'intercommunalité' if c.lv == 'epci' else 'région' }}, {{ 'toute la France, outre-mer en encarts' if c.france else "territoires d'alentour" }}, en classes de même effectif.</figcaption>
+  </div>
+  {% endfor %}
+  <p class="retour-ligne" hidden><button type="button" class="lien-outil">Revenir à la ligne du tableau</button></p>
+  <p class="note">Le territoire est cerné. Les classes vont de la plus basse à la plus haute, selon la légende : sur ces cartes, le canard dit seulement un niveau, pas un écart.{% if b.cartes|length > 1 %} « Voir sur la carte », en bout de ligne, change l'indicateur.{% endif %}</p>
+</figure>
+{%- endmacro %}
+{#- la bande de domaine, le même gabarit pour tous -#}
+{% macro venir_liste(v) -%}
+{%- if v %}<div class="a-venir"><p><span>À venir</span></p><ul>{% for x in v %}<li>{{ x }}</li>{% endfor %}</ul></div>{% endif -%}
+{%- endmacro %}
+{#- la bande de domaine, le même gabarit pour tous : le titre, le comptage, la synthèse et « Comment lire » toujours
+    visibles ; la santé mentale et l'offre de soins ouvertes, avec leur carte en tête ; les domaines du contexte repliés,
+    comme sur la fiche en ligne -#}
+{% macro bande(b) -%}
+<section class="bande dom encadre{% if b.vide %} vide{% endif %}{% if b.contexte %} replie{% endif %}" id="d-{{ b.id }}" aria-labelledby="t-{{ b.id }}-b" data-titre="{{ b.nom }}"{% if b.ouvert_tel %} data-ouvert-tel{% endif %}>
+  {% if b.contexte %}
+  <div class="dom-ligne">
+    <h2 id="t-{{ b.id }}-b" class="titre-bande"><span class="num-partie">{{ b.num }}</span>{{ b.nom }}</h2>
+    <div class="dom-texte">
+      <p class="compte">{{ b.compte }}</p>
+      {% if b.lire_dom %}<p class="lire-bande"><b>Comment lire.</b> {{ b.lire_dom }}</p>{% endif %}
+    </div>
+  </div>
+  {% else %}
+  <div class="bloc-tete dom-tete"><h2 id="t-{{ b.id }}-b" class="titre-bande"><span class="num-partie">{{ b.num }}</span>{{ b.nom }}</h2><div class="encadre-outils seul-ecran"><button type="button" class="citer-encadre" aria-expanded="false">Citer et exporter</button></div></div>
+  <div class="dom-haut">
+    <div class="dom-texte">
+      <p class="compte">{{ b.compte }}</p>
+      {% for p, liste in b.synthese %}{% if p %}<p class="phrase{% if liste %} phrase-liste{% endif %}">{{ p }}</p>{% endif %}{% endfor %}
+      <p class="lire-bande"><b>Comment lire.</b> Chaque ligne situe le territoire parmi les {{ f.nb_territoires|nombre('entier') }} {{ niv }}, avec la médiane et l'ensemble des {{ niv }}, calculé de la même façon ; l'ensemble est tiré par les territoires les plus peuplés, d'où le « mais » quand un territoire est sous l'ensemble et pourtant plus haut que la plupart. Un point n'est en cuivre ou en canard que si l'écart sort de 0,8 à 1,25 fois l'ensemble et dépasse ce que le hasard explique ; le comptage des écarts suit cette règle, pour les professions et les structures. Chaque personne compte une fois dans le territoire, même si elle exerce dans plusieurs de ses communes ; additionner des territoires compterait deux fois les mêmes personnes.{% if b.att %} « Attendu » : l'effectif attendu compte tenu du profil de la population ; c'est une comparaison avec des territoires semblables, pas une mesure du besoin.{% endif %}</p>
+      <p class="a-venir-ligne"><b>À venir.</b> {% if b.a_venir_ic %}L'intervalle de confiance des effectifs du répertoire et des ALD. {% endif %}L'évolution des indicateurs qui n'en ont pas encore.</p>
+    </div>
+    {% if b.cartes %}{{ carte_bloc(b) }}{% endif %}
+  </div>
+  {% endif %}
+  {% if b.groupes or b.venir %}
+  <details class="dom-corps"{% if not b.contexte %} open{% endif %}>
+    <summary class="{{ 'pli' if b.contexte else 'seul-tel' }}">{% if b.groupes %}{{ 'Le tableau' if b.contexte else 'Les tableaux' }} du domaine{% if b.contexte %}, {{ b.groupes[0].lignes|length + b.autres_n }} indicateurs{% endif %}{% else %}Les bases annoncées{% endif %}</summary>
+    {% if b.contexte %}
+    {% for g in b.groupes %}{{ groupe(g, b) }}{% endfor %}
+    {% if b.cartes %}<div class="dom-haut dom-carte">{{ carte_bloc(b) }}<div>{{ venir_liste(b.venir) }}</div></div>{% else %}{{ venir_liste(b.venir) }}{% endif %}
+    {% else %}
+    {% for g in b.groupes %}{{ groupe(g, b) }}{% endfor %}
+    {% endif %}
+    {% if b.autres_n %}
+    <details class="autres"><summary>{{ "L'autre indicateur" if b.autres_n == 1 else 'Les ' ~ b.autres_n ~ ' autres indicateurs' }} {{ 'de santé mentale' if b.id == 'sm' else 'du domaine' }}</summary>
+      {% for a in b.autres %}{{ groupe({'titre': a.nom, 'id': 'a-' ~ b.id ~ '-' ~ loop.index, 'quoi': 'Indicateur, unité et année', 'unite': 'Valeur', 'avec_eff': false, 'lire': "Valeur, ensemble et position parmi les " ~ niv ~ ", sans couleur de jugement.", 'lignes': a.rows}, b) }}{% endfor %}
+    </details>
+    <p class="seul-papier papier-autres">{{ "L'autre indicateur est" if b.autres_n == 1 else 'Les ' ~ b.autres_n ~ ' autres indicateurs sont' }} sur la fiche en ligne.</p>
+    {% endif %}
+    {{ exercice(b.exercice, b.exercice_qui) }}
+    {% if b.versions %}
+    <details class="tech"><summary>Détails techniques : historique des versions</summary>
+      <ul class="versions">{% for v in b.versions %}{% set s = v.serie %}<li><span class="v-nom">{{ v.nom }}</span>
+        {%- if not s.plat %}<svg aria-hidden="true" width="96" height="24" viewBox="0 0 96 24"><polyline points="{{ s.pts }}" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linejoin="round" stroke-linecap="round"/><circle cx="{{ s.fin_xy[0] }}" cy="{{ s.fin_xy[1] }}" r="2.5" fill="currentColor"/></svg>{% endif %}
+        <span>{% if s.debut[1] == s.fin[1] %}{{ ('aucun' if s.fin[1] == 0 else s.fin[1]|entier) }} inscrit{{ 's' if s.fin[1] > 1 }} à la version du {{ s.debut[0] }} comme à celle du {{ s.fin[0] }}{% else %}{{ ('aucun' if s.debut[1] == 0 else s.debut[1]|entier) }} inscrit{{ 's' if s.debut[1] > 1 }} à la version du {{ s.debut[0] }}, {{ ('aucun' if s.fin[1] == 0 else s.fin[1]|entier) }} à celle du {{ s.fin[0] }}{% endif %}, sur {{ s.nb }} versions publiées</span></li>{% endfor %}</ul>
+    </details>
+    {% endif %}
+  </details>
+  {% endif %}
+</section>
+{%- endmacro %}
+{% block contenu %}
+{{ formes|safe }}
+<div id="cite" hidden data-auteur="{{ citation_auteur }}" data-annee="{{ annee_version }}" data-titre="Fiche {{ f.de_nom }}" data-projet="{{ nom_projet }}" data-version="{{ date_longue }}" data-iso="{{ f.version }}" data-cle="{{ f.niveau }}_{{ f.code }}" data-adresse="https://{{ adresse_fiche }}" data-doi="{{ '' if doi_toutes else (doi_donnees or '') }}" data-doi-general="{{ doi_donnees if doi_toutes else (doi_general or '') }}"></div>
+
+{#- la tête en deux lignes : le nom et les actions, puis le niveau, le parent, la population, la version et le DOI -#}
+<header class="tete-fiche tete-courte">
+  <div class="papier-tete seul-papier"><b>{{ nom_projet }}</b><span>Fiche {{ 'd\'une' if f.niveau != 'dep' else 'd\'un' }} {{ f.nom_niveau|lower }}, version du {{ date_longue }}, {{ adresse_fiche }}</span></div>
+  <div class="tete-l1">
+    <h1>{{ f.nom }}</h1>
+    <p class="tete-outils seul-ecran">
+      <button type="button" class="lien-outil" data-epingle="{{ terr_id }}" data-nom="{{ f.nom }}" data-adresse="territoire/{{ f.niveau }}/{{ f.code }}.html" aria-pressed="false">Épingler</button>
+      <a class="lien-outil" href="#comparer">Comparer</a>
+      <a class="lien-outil" href="#citer">Citer</a>
+      <button type="button" class="lien-outil" onclick="window.print()">PDF</button>
+    </p>
+  </div>
+  <p class="tete-l2">{{ f.nom_niveau }}{% if f.parent and f.parent != f.nom %} · {{ f.parents_txt or f.parent }}{% endif %} · {{ f.population|nombre('entier') }} habitants · <span class="sans-cesure">version du {{ date_longue }}</span>{% if doi_donnees %} · <span class="sans-cesure">DOI {% if doi_toutes %}de toutes les versions {% endif %}<a href="https://doi.org/{{ doi_donnees }}">{{ doi_donnees }}</a></span>{% endif %}</p>
+  <p class="epingle-comparer seul-ecran" hidden></p>
+  <div id="ctx-commune"></div>
+  {% for l in f.limites_territoire %}<p class="limite limite-terr"><b aria-hidden="true">!</b><span>{{ l }}</span></p>{% endfor %}
+</header>
+
+{% if f.cles %}
+<section class="cles-fiche" aria-label="Chiffres clés">
+  <ul class="n{{ f.cles|length }}">{% for c in f.cles %}<li class="cle-tuile"><span class="tuile-n{{ ' tuile-mot' if c.mot }}">{{ c.n }}</span><span class="tuile-t">{{ c.texte }}</span><span class="tuile-r">
+    {%- if c.ecart %}<span class="ec {{ c.couleur or 'neutre' }}">{{ c.ecart }}</span>{{ ', mais ' if c.contraire else ', ' }}{{ c.position }}{% else %}{{ c.rep }}{% endif %}</span></li>{% endfor %}</ul>
+  <p class="cle-ensemble">{{ f.cle_tuiles }}</p>
+</section>
+{% endif %}
+
+{#- la barre des domaines, collante : chaque domaine et son nombre d'écarts nets -#}
+<nav class="barre-dom seul-ecran" aria-label="Domaines de la fiche"><div class="barre-dom-in">
+  {%- for b in bandes %}<a href="#d-{{ b.id }}" title="{{ b.nom }} : {{ b.compte }}"{% if b.vide %} class="vide"{% endif %}>{{ b.court }}{% if b.n_ecarts is not none %}<span class="n-ecarts">{% if b.n_ecarts %}{{ b.n_ecarts }} écart{{ 's' if b.n_ecarts > 1 }}{% else %}aucun écart{% endif %}</span>{% elif b.vide %}<span class="lecteur"> : aucune base encore</span>{% endif %}</a>{% endfor %}
+</div></nav>
+
+{#- le tableau de bord : la carte du territoire et ses repères, « En bref » en matrice -#}
+<section class="bord" id="bord" aria-label="Tableau de bord">
+  <div class="bord-carte">
+  {% set RG = extras.carte_region %}
+  {% if RG %}
+  <div class="carte-terr" data-titre="Ses départements">
+    <div class="bloc-tete"><h2 id="t-carte">Ses départements</h2><div class="encadre-outils seul-ecran"><button type="button" class="citer-encadre" aria-expanded="false">Citer et exporter</button></div></div>
+    <figure class="carte-fig">{{ RG.svg|safe }}</figure>
+    <div class="carte-pied">
+      <div class="pied-tete"><div class="legende-barre" aria-hidden="true"><span class="titre">Psychologues pour 10 000 habitants, par département</span><span class="cases">{% for q in RG.cases %}<span class="{{ q|replace('--r', 'q') }}"></span>{% endfor %}</span><span class="bornes">{% for t, xx in RG.bornes %}<span style="left:{{ xx }}">{{ t }}</span>{% endfor %}</span></div></div>
+      <p class="comment-lire"><b>Comment lire.</b> La région est cernée, ses départements en classes de même effectif parmi tous les départements ; le canard dit seulement un niveau, pas un écart. Chaque département mène à sa fiche, où se lisent ses structures de soins psychiques.</p>
+      <p class="source">Sources : répertoire RPPS{{ (' du ' ~ date_rpps) if date_rpps else '' }}, recensement de l'INSEE. Licence Ouverte 2.0.</p>
+      <p class="carte-nom" aria-live="polite">Au survol ou au clavier, chaque département donne son nom et sa valeur.</p>
+      <p class="liens-deps">{% for c, n in RG.deps %}<a href="../dep/{{ c }}.html">{{ n }}</a>{{ ' · ' if not loop.last }}{% endfor %}</p>
+    </div>
+  </div>
+  {% elif carte_situation %}
+  <div class="carte-terr" data-titre="Où les patients sont reçus">
+    <div class="bloc-tete">
+      <h2 id="t-carte">Où les patients sont reçus</h2>
+      <div class="encadre-outils seul-ecran"><button type="button" class="citer-encadre" aria-expanded="false">Citer et exporter</button></div>
+      {% if f.carte_couches %}
+      <div role="group" class="segmente seul-ecran" aria-label="Couche affichée sur la carte">
+        <button type="button" aria-pressed="true" data-couche="structures">Structures</button><button type="button" aria-pressed="false" data-couche="temps">Temps<span class="seg-long"> d'accès</span></button><button type="button" aria-pressed="false" data-couche="secteurs">Secteurs</button>
+      </div>
+      {% endif %}
+    </div>
+    {% if f.carte_outremer and not f.carte_points %}<p class="note note-avant">Les structures d'outre-mer ne sont pas encore placées sur la carte ; elles sont comptées dans les tableaux.</p>{% endif %}
+    <figure class="carte-fig" data-couche="structures">
+      {{ carte_situation|safe }}
+      {% if f.carte_couches and not f.reperes.publie %}
+      <div class="non-diffuse superpose" data-pour="secteurs">
+        <p class="nd-titre">Sectorisation non publiée pour ce département</p>
+        <p>Les secteurs de psychiatrie ne sont publiés, sur ce site, que pour les Hauts-de-France, d'après les arrêtés qui les fixent commune par commune.</p>
+        <a href="{{ racine }}methode-structures.html">La méthode des structures</a>
+      </div>
+      {% endif %}
+    </figure>
+    <div class="carte-pied" data-pour="structures">
+      <div class="pied-tete">{% if f.carte_points %}<ul class="legende-cat">
+        <li><i class="pt plein"></i>confirmée</li><li><i class="pt creux"></i>à vérifier</li><li><i class="pt tirete"></i>recoupée</li><li><i class="pt objet"></i>sans source de confirmation</li>{% if f.carte_points_autour %}<li><i class="pt hors"></i>hors du territoire</li>{% endif %}
+      </ul>{% elif not f.carte_outremer %}<p class="note">Aucune structure de soins psychiques n'est placée sur cette carte.</p>{% endif %}{{ (f.carte_situe or '')|safe }}</div>
+      <p class="comment-lire"><b>Comment lire.</b> Le territoire est cerné{% if f.niveau == 'epci' %}, son département est tracé d'un trait fin{% if f.carte_communes %}, les communes en fond{% endif %}{% elif f.niveau == 'dep' %}, ses intercommunalités en traits fins{% endif %}.{% if f.carte_points %} Chaque point est un lieu où des patients sont reçus ; plusieurs structures à la même adresse font un seul point, qui donne leurs noms au survol. Confirmée, d'après la liste de l'établissement, une autre source publique, la HAS ou Sirene ; « recoupée » quand la statistique annuelle des établissements confirme leur nombre, pas leur adresse.{% endif %} La petite France situe la carte.</p>
+      <p class="source">Sources : FINESS et Répertoire opérationnel des ressources{% if f.carte_communes %}, contours des communes ADMIN EXPRESS de l'IGN{% endif %}. Licence Ouverte 2.0.</p>
+      {% if limite_sae %}<p class="limite"><b aria-hidden="true">!</b><span>{{ limite_sae }}</span></p>{% endif %}
+      <p class="limite"><b aria-hidden="true">!</b><span>{{ f.reserves_structures[0] }}</span></p>
+    </div>
+    {% if f.carte_couches %}
+    <div class="carte-pied" data-pour="temps" hidden>
+      <div class="pied-tete"><div class="legende-barre" aria-hidden="true"><span class="titre">Temps de route médian des habitants, en minutes</span><span class="cases"><span class="q0"></span><span class="q1"></span><span class="q2"></span><span class="q3"></span><span class="q4"></span></span><span class="bornes">{% for t in temps_bornes %}<span style="left:{{ loop.index * 20 }}%">{{ t }}</span>{% endfor %}</span></div><ul class="legende-cat"><li><i class="hachure"></i>temps non calculé</li></ul></div>
+      <p class="comment-lire"><b>Comment lire.</b> Chaque commune porte le temps de trajet en voiture, aux heures creuses, de la moitié de ses habitants jusqu'au psychiatre libéral le plus proche. Le temps vers le CMP n'est pas montré : le temps de route vers les structures de ce site est à venir.</p>
+      <p class="source">Source : {{ src_route }}. Licence Ouverte 2.0.</p>
+      <p class="limite"><b aria-hidden="true">!</b><span>{{ lim_route }}</span></p>
+      <p class="limite"><b aria-hidden="true">!</b><span>{{ lim_route_cmp }}</span></p>
+    </div>
+    <div class="carte-pied" data-pour="secteurs" hidden>
+      {% if f.reperes.publie %}
+      <ul class="legende-cat"><li><i class="trait sect-g"></i>secteur de psychiatrie adulte, avec son code</li><li><i class="trait sect-i"></i>secteur infanto-juvénile, là où sa limite passe dans le cadre</li></ul>
+      <p class="comment-lire"><b>Comment lire.</b> Un secteur réunit les communes dont les habitants relèvent d'une même équipe de psychiatrie publique, rattachée à un établissement. Les secteurs adultes sont en trait plein, les secteurs infanto-juvéniles en tireté.</p>
+      <p class="source">Source : {{ f.reperes.source }}.</p>
+      {% else %}
+      <p class="comment-lire"><b>Comment lire.</b> Sans sectorisation publiée, la carte garde ses communes et ses contours ; les structures et les temps restent dans les deux autres couches.</p>
+      {% endif %}
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+  {#- les repères de la santé mentale, condensés sous la carte -#}
+  {% set R = f.reperes %}
+  <div class="reperes-courts" aria-labelledby="t-reperes">
+    <h3 id="t-reperes">Repères en santé mentale</h3>
+    {% if R.publie %}
+    <dl>
+      <div><dt>Secteur adulte</dt><dd>{% if R.G %}{% if f.niveau == 'epci' %}{{ secteurs(R.G) }}{% else %}{{ R.G|length }} secteur{{ 's' if R.G|length > 1 }}{% endif %}{% else %}<span class="statut">non publié</span>{% endif %}</dd></div>
+      <div><dt>Secteur infanto-juvénile</dt><dd>{% if R.I %}{% if f.niveau == 'epci' %}{{ secteurs(R.I) }}{% else %}{{ R.I|length }} secteur{{ 's' if R.I|length > 1 }}{% endif %}{% else %}<span class="statut">non publié</span>{% endif %}</dd></div>
+      <div><dt>Établissement{{ 's' if R.etabs|length > 1 }} de rattachement</dt><dd>{% set ke = R.etabs|length if R.etabs|length <= 3 else 2 %}{% for e in R.etabs[:ke] %}{{ etab_rep(e) }}{% endfor %}{% if R.etabs|length > ke %}<details class="suite rep-suite"><summary>Les {{ R.etabs|length - ke }} autres établissements</summary>{% for e in R.etabs[ke:] %}{{ etab_rep(e) }}{% endfor %}</details>{% endif %}</dd></div>
+    </dl>
+    <p class="note">La sectorisation n'est publiée, sur ce site, que pour les Hauts-de-France. Ici, d'après l'{{ R.source|minuscule }}.</p>
+    {% else %}
+    <p class="rep-np"><span class="statut">Sectorisation non publiée pour ce territoire</span> : secteur de psychiatrie adulte, secteur infanto-juvénile et établissement de rattachement. Elle n'est publiée, sur ce site, que pour les Hauts-de-France ; pour ce territoire, les secteurs restent à obtenir auprès de l'ARS.</p>
+    {% endif %}
+    <p class="rep-cmp"><b>CMP pour adultes.</b> {% if R.cmp.n %}{{ R.cmp.n }} dans le territoire, {{ R.cmp.conf }}{% elif R.cmp.n == 0 and R.cmp.tous %}Aucun CMP réservé aux adultes dans le territoire, {{ R.cmp.tous }} CMP tous publics{% elif R.cmp.n == 0 %}Aucun dans le territoire{% endif %}{% if R.cmp.dist %} ; {% if R.cmp.dist_nulle %}un CMP pour adultes dans la commune d'au moins la moitié des habitants{% else %}la moitié des habitants à moins de {{ R.cmp.dist }} km à vol d'oiseau{% endif %} ({% if R.cmp.mais %}{{ 'plus loin' if R.cmp.pos.startswith('plus près') else 'plus près' }} que l’ensemble des {{ niv }}, {{ R.cmp.ref }} km, mais {{ R.cmp.pos }}{% else %}ensemble des {{ niv }} : {{ R.cmp.ref }} km ; {{ R.cmp.pos }}{% endif %}){% endif %}. Temps de route vers le CMP : à venir.</p>
+  </div>
+  {% set k0 = constats[0] %}
+    {% if k0 and k0.reglette %}
+    <figure class="lire-reglette reglette-type" aria-labelledby="t-lire-r" data-titre="Lire une réglette">
+      <figcaption id="t-lire-r">Lire une réglette : {{ k0.nom_ind|lower if k0.nom_ind else '' }}</figcaption>
+      <div class="encadre-outils seul-ecran"><button type="button" class="citer-encadre" aria-expanded="false">Citer et exporter</button></div>
+      {{ reglette(k0.reglette, 'petite') }}
+      <ul class="legende-cat legende-reglette">
+        <li><i class="rg-l-pt"></i>le point : le territoire, {{ k0.cel.v_txt }}</li>
+        <li><i class="trait plein"></i>trait plein : l'ensemble des {{ niv }},&nbsp;{{ k0.cel.ref_txt }}</li>
+        <li><i class="triangle"></i>triangle : {{ k0.cel.med_mots }}</li>
+        <li><i class="rg-l-hist"></i>barres : répartition des {{ f.nb_territoires|nombre('entier') }} {{ niv }}</li>
+        {% if k0.reglette.h.chevron %}<li><i class="rg-l-chev"></i>chevron : l'axe s'arrête au 98ᵉ centile, ou au 90ᵉ quand la répartition est très étalée ; quelques territoires au-delà</li>{% endif %}
+        <li><i class="rg-l-sqrt"></i>la hauteur des barres suit la racine carrée du nombre de territoires ; une barre détachée à gauche compte ceux qui n'ont aucun inscrit, quand ils sont plus de 40 %</li>
+      </ul>
+      <p class="cle-contraire">{{ f.cle_ensemble }}</p>
+    </figure>
+    {% endif %}
+
+  </div>
+
+  <div class="en-bref">
+    <h2 id="t-bref">En bref</h2>
+    <p class="note">{{ nb_phares }} indicateurs phares, les mêmes d'un territoire à l'autre, dans l'ordre d'un diagnostic : l'offre, l'accès, le recours, puis le contexte. Chacun situe le territoire parmi les {{ f.nb_territoires|nombre('entier') }} {{ niv }}.{% if phares_absents %} {{ "L'un d'eux n'a" if phares_absents|length == 1 else (['Deux', 'Trois', 'Quatre', 'Cinq', 'Six', 'Sept', 'Huit', 'Neuf', 'Dix', 'Onze', 'Douze'][phares_absents|length - 2] ~ " d'entre eux n'ont") }} pas de donnée publiée pour ce territoire : {{ phares_absents|join(', ') }}.{% endif %}</p>
+    <table class="matrice">
+      <thead><tr><th scope="col">Indicateur</th><th scope="col">Valeur et position parmi les {{ niv }}</th></tr></thead>
+      {% for s in bord %}
+      <tbody><tr class="m-section"><th colspan="2" scope="colgroup">{{ s.nom }}</th></tr>
+      {% for m in s.lignes %}<tr>
+        <th scope="row"><a href="#{{ m.ancre }}">{{ m.nom }}</a><span class="note">{{ m.unite }}{% if m.dep %}, au département{% if f.niveau == 'epci' %} ({{ f.parent }}){% endif %}{% endif %}</span></th>
+        <td class="m-cel">
+          <div class="m-ligne">{{ reglette(m.reglette, 'micro') }}<span class="m-v">{% if m.v %}<b>{{ m.v }}{% if m.km %} km{% endif %}</b>{% else %}<span class="statut">{{ m.statut }}</span>{% endif %}</span></div>
+          <p class="m-pos">{% if m.ecart %}<span class="ec {{ m.couleur or 'neutre' }}">{{ m.ecart }}</span>{{ ', mais ' if m.mais else ', ' }}{% elif m.avant %}<span class="ens-pos">{{ m.avant }}</span>{{ ', mais ' if m.mais else ', ' }}{% endif %}{{ m.pos }}</p>
+        </td>
+      </tr>{% endfor %}
+      </tbody>
+      {% endfor %}
+    </table>
+    <p class="date-calc">{{ date_calcul }}.</p>
+  </div>
+</section>
+
+{#- les bandes de domaine -#}
+{% for b in bandes %}
+{% if b.contexte and loop.index0 == 2 %}
+{% set n_ind = f.autour|sum(attribute='rows', start=[])|length %}
+<p class="intro-contexte"><b>Le contexte, en sept domaines.</b> {{ n_ind|nombre('entier') }} indicateurs décrivent {{ "l'intercommunalité" if f.niveau == 'epci' else ('le département' if f.niveau == 'dep' else 'la région') }}, chacun situé parmi les {{ niv }}. Ils décrivent les habitants et leur cadre de vie, sans couleur de jugement ; les indicateurs de santé mentale de ces domaines sont dans la bande Santé mentale.</p>
+{% endif %}
+{{ bande(b) }}
+{% endfor %}
+
+<section class="bande comparer-avec seul-ecran" id="comparer" aria-labelledby="t-comparer">
+  <h2 id="t-comparer" class="titre-bande"><span class="num-partie">{{ '%02d'|format(bandes|length + 1) }}</span>Comparer avec…</h2>
+  <div class="deux">
+    <ul class="portes portes-fiche">
+      <li><span>L'ensemble des {{ niv }}.</span>Chaque valeur de cette fiche y est déjà comparée, avec la médiane et la position.</li>
+      {% for l in comparer %}<li><a href="{{ l[1] }}">{{ l[0] }}</a>{% if loop.first %} Le comparateur propose aussi les territoires semblables par la densité, le niveau de vie et l'âge.{% endif %}</li>{% endfor %}
+    </ul>
+    <ul class="portes portes-fiche">
+      {% if zone %}<li><a href="{{ zone }}">Son périmètre, commune par commune</a> Les habitants et les structures de chaque commune, et un périmètre que l'on compose soi-même.</li>{% endif %}
+      {% for l in liens_fiche %}<li><a href="{{ l[1] }}">{{ l[0] }}</a></li>{% endfor %}
+    </ul>
+  </div>
+</section>
+
+<section class="bande fin" id="confiance" aria-labelledby="t-confiance">
+  <h2 id="t-confiance" class="titre-bande"><span class="num-partie">{{ '%02d'|format(bandes|length + 2) }}</span>Confiance et citation</h2>
+  <div class="deux">
+    <div>
+    <ul class="confiance">
+      {% if f.structures_total %}<li><strong>{{ f.confiance_structures }}</strong> par une source indépendante.<br>{{ confiance_france }}</li>{% endif %}
+      {% if f.concordance.psychologues %}<li><strong>Effectifs face à la DREES.</strong> Le classement des départements concorde à {{ f.concordance.psychologues|nombre('correlation') }} pour les psychologues et {{ f.concordance.psychiatres|nombre('correlation') }} pour les psychiatres.</li>{% endif %}
+      <li><strong>Sources.</strong> {{ sources_fiche[:1]|upper }}{{ sources_fiche[1:] }} <a href="{{ racine }}donnees-sources.html">Dates de chaque base</a>, <a href="{{ racine }}methode.html">méthode et limites</a>.</li>
+    </ul>
+    {% if f.parcours.sm or f.parcours.sante %}
+    <details class="tech"><summary>Détails techniques : du répertoire aux densités, France entière</summary>
+      <ul class="confiance">
+      {% for fam in ('sm', 'sante') %}{% for p in f.parcours[fam] %}
+      <li class="parcours"><strong>{{ p.lib }}.</strong>
+        <ul class="barres">{% for e in p.etapes %}<li{% if e.der %} class="der"{% endif %}><span class="b-lib">{{ e.titre }}</span><span class="b-n">{{ e.n }}</span><span class="b-t"><span style="width:{{ e.l }}"></span></span>{% if e.det %}<span class="note">{{ e.det }}</span>{% endif %}</li>{% endfor %}</ul>
+      </li>{% endfor %}{% endfor %}
+      </ul>
+    </details>
+    {% endif %}
+    </div>
+    <div class="citer-fiche" id="citer">
+      <p class="titre-citer">Citer cette fiche</p>
+      <p class="citation" data-citation-fiche>{{ citation_fiche }}</p>
+      <p class="seul-ecran"><button type="button" class="bouton-lien citer-encadre" data-tout aria-expanded="false">Tous les formats de citation</button></p>
+      <p class="signaler seul-ecran"><b>Signaler une erreur.</b> Une valeur vous paraît fausse ? Écrivez-nous depuis la page <a href="{{ racine }}contribuer.html">Contribuer</a>, en donnant l'adresse de la fiche et la ligne concernée ; chaque correction est datée dans le journal.</p>
+    </div>
+  </div>
+</section>
+
+<section class="papier-fin seul-papier" aria-label="Lecture, limites et citation">
+  <h2>Lire, sourcer et citer cette fiche</h2>
+  <p><strong>Lecture.</strong> Chaque valeur est rapportée aux habitants du territoire et comparée à l'ensemble des {{ niv }}, la somme des effectifs rapportée à la somme des habitants. {{ f.cle_ensemble }} Pour une distance, c'est la distance médiane de tous les habitants ; pour un indicateur qui ne s'additionne pas, le territoire médian. Une valeur n'est en canard ou en cuivre que pour l'offre de soins, hors de 0,8 à 1,25 fois le repère et au-delà du hasard.</p>
+  <p><strong>Citer.</strong> {{ citation_fiche }}</p>
+</section>
+<script>
+(function () {
+  var m = /[?&]commune=(\w{5})/.exec(location.search); if (!m) return;
+  var n = /[?&]nom=([^&]+)/.exec(location.search), nm = n ? decodeURIComponent(n[1]).replace(/[<>&"]/g, "") : "Votre commune";
+  document.getElementById("ctx-commune").innerHTML = '<p class="contexte-commune"><strong>' + nm + "</strong> fait partie de {{ f.nom_article|e }}. Les chiffres sont publiés pour l'intercommunalité, la commune seule est trop petite pour la plupart des professions.</p>";
+})();
+// Au téléphone, les bandes s'ouvrent au toucher, sauf la santé mentale ; titre, comptage et synthèse restent visibles.
+// Décidé à la largeur réelle, et refait quand elle franchit 760 px : une page ouverte étroite puis élargie retrouve
+// les volets ouverts de l'ordinateur (relecture des fiches construites du 1er novembre 2026, mineur 7).
+(function () {
+  var mq = matchMedia("(max-width:760px)"),
+      ds = [].slice.call(document.querySelectorAll(".fiche .bande.dom:not([data-ouvert-tel]) > details.dom-corps, .fiche details.pli-tel"));
+  ds.forEach(function (d) { d.dataset.ouvertOrdi = d.open ? "1" : ""; });
+  function regler() { ds.forEach(function (d) { d.open = mq.matches ? false : d.dataset.ouvertOrdi === "1"; }); }
+  if (mq.matches) regler();
+  if (mq.addEventListener) mq.addEventListener("change", regler);
+})();
+// Sur papier, la fiche telle qu'elle s'ouvre sur ordinateur (domaines de l'offre et du recours, tableaux), plus ce que le
+// lecteur a ouvert ; elle se referme ensuite comme il l'avait laissée. Le reste est en ligne, à l'adresse de chaque page.
+(function () { var o = []; var p = function () { return document.querySelectorAll(".fiche .bande.dom:not(.replie) > details.dom-corps, .fiche details.pli-tel"); };
+  addEventListener("beforeprint", function () { o = []; p().forEach(function (x) { o.push(x.open); x.open = true; }); });
+  addEventListener("afterprint", function () { p().forEach(function (x, k) { x.open = !!o[k]; }); }); })();
+// Barre des domaines : le domaine lu est marqué, et la barre défile pour le montrer.
+(function () {
+  var bar = document.querySelector(".fiche .barre-dom"); if (!bar) return;
+  var liens = [].slice.call(bar.querySelectorAll("a")), cibles = liens.map(function (a) { return document.getElementById(a.getAttribute("href").slice(1)); });
+  var dernier = -1;
+  function maj() { var k = 0; cibles.forEach(function (c, i) { if (c && c.getBoundingClientRect().top < 120) k = i; });
+    if (k === dernier) return; dernier = k;
+    liens.forEach(function (a, i) { if (i === k) a.setAttribute("aria-current", "true"); else a.removeAttribute("aria-current"); });
+    var a = liens[k], inn = bar.firstElementChild; if (a && inn.scrollWidth > inn.clientWidth) inn.scrollLeft = a.offsetLeft - 16; }
+  addEventListener("scroll", maj, { passive: true }); maj();
+  // un saut vers une bande fermée l'ouvre
+  liens.forEach(function (a) { a.addEventListener("click", function () { var c = document.getElementById(a.getAttribute("href").slice(1));
+    var d = c && c.querySelector(":scope > details.dom-corps"); if (d) d.open = true; }); });
+})();
+// Carte des départements d'une région : le nom et la valeur du département survolé ou atteint au clavier.
+(function () {
+  var c = document.querySelector(".fiche .region-deps"), p = document.querySelector(".fiche .carte-nom"); if (!c || !p) return;
+  var t0 = p.textContent;
+  c.querySelectorAll("a").forEach(function (a) {
+    var dire = function () { p.textContent = a.getAttribute("aria-label") + "."; };
+    a.addEventListener("mouseenter", dire); a.addEventListener("focus", dire);
+    a.addEventListener("mouseleave", function () { p.textContent = t0; }); });
+})();
+// « Lire une réglette » : dans la colonne la plus courte du tableau de bord, pour que les deux finissent ensemble ;
+// au téléphone, sous l'introduction de « En bref », avant la première réglette (relecture esthétique, M5 et M6).
+(function () {
+  var fig = document.querySelector(".fiche .bord .lire-reglette"), g = document.querySelector(".fiche .bord-carte"),
+      d = document.querySelector(".fiche .en-bref"); if (!fig || !g || !d) return;
+  var intro = d.querySelector(":scope > .note"), date = d.querySelector(".date-calc");
+  // la carte de gauche comble l'écart qui reste en grandissant (au plus sa propre hauteur), entière : son cadre montre
+  // plus de territoire autour, aucun code de secteur ne sort du cadre. Elle ne rétrécit jamais sous sa hauteur
+  // naturelle : quand les Repères sont longs, « En bref » finit plus haut (relecture des fiches construites, 1er
+  // novembre 2026, Desvres-Samer à 217 px)
+  var carte = g.querySelector(".carte-fig svg.carte-svg");
+  function etirer(px) {
+    if (!carte) return;
+    carte.style.height = ""; carte.removeAttribute("preserveAspectRatio");
+    if (px <= 0) return;
+    var h = carte.getBoundingClientRect().height, plus = Math.min(px, h);
+    carte.style.height = (h + plus).toFixed(0) + "px";
+    carte.setAttribute("preserveAspectRatio", "xMidYMid meet");
+  }
+  // quand la colonne de gauche reste la plus haute (longues listes de secteurs), l'écart se répartit dans l'interligne
+  // des lignes de la matrice, 32 px au plus par ligne : la colonne de droite n'est jamais vide (direction visuelle,
+  // partie 2 ; relecture v2 des fiches construites, 22 fiches sectorisées)
+  var lignes = d.querySelectorAll("table.matrice tbody tr:not(.m-section)");
+  function aerer(px) { d.style.setProperty("--m-plus", (px > 0 && lignes.length ? Math.min(px / lignes.length, 32) : 0).toFixed(1) + "px"); }
+  // « Lire une réglette » essayé dans chaque colonne, l'écart compensé à chaque fois (la carte grandit, ou la matrice
+  // s'aère) : la place gardée est celle qui laisse le moins d'écart entre les deux colonnes (relecture v2, Lens-Liévin)
+  function essayer(droite) {
+    etirer(0); aerer(0);
+    if (droite) d.insertBefore(fig, date); else g.appendChild(fig);
+    var e = d.getBoundingClientRect().height - g.getBoundingClientRect().height;
+    if (e > 0) etirer(e); else aerer(-e);
+    return Math.abs(d.getBoundingClientRect().height - g.getBoundingClientRect().height);
+  }
+  function placer() {
+    etirer(0); aerer(0);
+    if (matchMedia("(max-width:1100px)").matches) { if (intro) intro.after(fig); return; }
+    var gauche = essayer(false), droite = essayer(true);
+    if (gauche <= droite) essayer(false);
+    document.documentElement.dataset.bordPlace = "1";
+  }
+  // refait au chargement complet, aux polices, à la largeur et à chaque couche de la carte (le pied de la couche
+  // « Secteurs » est plus court que celui des structures)
+  placer(); addEventListener("resize", placer); addEventListener("load", placer); addEventListener("fiche:couche", placer);
+  if (document.fonts) document.fonts.ready.then(placer);
+})();
+// Barre des domaines : un fondu au bord quand elle défile, pour que l'onglet coupé se voie.
+(function () {
+  var b = document.querySelector(".fiche .barre-dom-in"); if (!b) return;
+  function maj() { b.classList.toggle("deborde-d", b.scrollLeft + b.clientWidth < b.scrollWidth - 2);
+    b.classList.toggle("deborde-g", b.scrollLeft > 2); }
+  b.addEventListener("scroll", maj, { passive: true }); addEventListener("resize", maj); maj();
+})();
+// Carte de bloc : un seul indicateur à la fois, choisi dans la liste ou par « Voir sur la carte » en bout de ligne.
+(function () {
+  function montrer(fig, id) { fig.querySelectorAll(".carte-une").forEach(function (c) { c.hidden = c.dataset.carte !== id; });
+    var s = fig.querySelector("select"); if (s) { s.value = id; fig.dataset.titre = "Carte, " + s.options[s.selectedIndex].text.toLowerCase(); } }
+  document.querySelectorAll(".fiche .carte-bloc").forEach(function (fig) {
+    var s = fig.querySelector("select"); if (s) s.addEventListener("change", function () { montrer(fig, s.value); }); });
+  document.querySelectorAll(".fiche .voir-carte").forEach(function (b) { b.addEventListener("click", function () {
+    var fig = b.closest(".bande").querySelector(".carte-bloc"); if (!fig) return;
+    montrer(fig, b.dataset.carte); b.closest("details").open = false;
+    var tr = b.closest("tr"), r = fig.querySelector(".retour-ligne");
+    if (r && tr && tr.id) { var rb = r.querySelector("button"); r.hidden = false;
+      rb.textContent = "Revenir à la ligne « " + tr.dataset.titre + " »";
+      rb.onclick = function () { tr.scrollIntoView({ block: "center" }); var m = tr.querySelector("summary"); if (m) m.focus(); }; }
+    fig.scrollIntoView({ block: "center" }); }); });
+  // le menu en bout de ligne se ferme quand on en ouvre un autre ou qu'on clique ailleurs
+  document.addEventListener("click", function (e) { document.querySelectorAll(".fiche details.menu-ligne[open]").forEach(function (d) {
+    if (!d.contains(e.target)) d.open = false; }); });
+  document.querySelectorAll(".fiche .copier-phrase").forEach(function (b) { b.addEventListener("click", function () {
+    navigator.clipboard.writeText(b.dataset.phrase).then(function () { b.textContent = "Phrase copiée"; }, function () { b.textContent = "Copie impossible ici"; }); }); });
+})();
+// Carte du territoire : communes en fond, temps de route et secteurs, comme la fiche en ligne (gabarits/fiche_territoire.html).
+(function () {
+  var s = document.querySelector("svg.plan[data-communes]"); if (!s) return;
+  var fig = s.closest(".carte-fig"), bloc = s.closest(".carte-terr");
+  var g = s.querySelector("g.communes"), gs = s.querySelector("g.c-secteurs:not(.etiquettes)"), ge = s.querySelector("g.etiquettes");
+  var vb = s.viewBox.baseVal, x0 = -5.3, y1 = 51.2, cos = 0.6883545756937539, terr = "{{ f.code }}", niveau = "{{ f.niveau }}";
+  var BORNES = [{{ temps_bornes|join(', ') }}];
+  var k = Math.min((600 - 10) / ((9.7 - x0) * cos), (560 - 10) / (y1 - 41.2));
+  function pr(lon, lat) { return [((lon - x0) * cos * k + 65).toFixed(2), ((y1 - lat) * k + 5).toFixed(2)]; }
+  function dans(x, y) { return x >= vb.x && x <= vb.x + vb.width && y >= vb.y && y <= vb.y + vb.height; }
+  s.getAttribute("data-communes").split(" ").forEach(function (d) {
+    Promise.all([fetch("{{ racine }}presentation/zone_fond/" + d + ".json").then(function (r) { return r.json(); }),
+                 fetch("{{ racine }}presentation/couches/" + d + ".json").then(function (r) { return r.ok ? r.json() : {}; }).catch(function () { return {}; })])
+    .then(function (v) {
+      var F = v[0], C = v[1] || {}, E = C.e || {}, T = C.t || {}, ox = F.o[0], oy = F.o[1], h = "";
+      Object.keys(F.c).forEach(function (c) {
+        var ch = "", vu = false;
+        F.c[c].forEach(function (a) {
+          var x = a[0], y = a[1], p = pr(ox + x / 1e4, oy + y / 1e4), pts = [p];
+          for (var j = 2; j < a.length; j += 2) { x += a[j]; y += a[j + 1]; pts.push(pr(ox + x / 1e4, oy + y / 1e4)); }
+          if (!vu) vu = pts.some(function (q) { return dans(+q[0], +q[1]); });
+          ch += "M" + pts.join("L") + "Z";
+        });
+        if (!vu) return;
+        var t = T[c], cl = t === undefined ? "nd" : "t" + BORNES.filter(function (b) { return t >= b; }).length;
+        var de = niveau === "epci" ? E[c] === terr : niveau === "dep" && d === terr;
+        h += '<path d="' + ch + '" class="com ' + cl + (de ? " dedans" : "") + '" fill="var(--nodata, #E6E6E9)" stroke="var(--bg, #F4F4F1)" stroke-width=".8" vector-effect="non-scaling-stroke"><title>'
+          + (t === undefined ? "temps non calculé" : String(t).replace(".", ",") + " min") + "</title></path>";
+      });
+      g.insertAdjacentHTML("beforeend", h);
+      var S = C.s || {}, fs = (vb.width / 42).toFixed(2), hs = "", he = "";
+      (S.I || []).forEach(function (q) { hs += '<path d="' + q[1] + '" class="sect-i"><title>Secteur infanto-juvénile ' + q[0] + "</title></path>"; });
+      (S.G || []).forEach(function (q) { hs += '<path d="' + q[1] + '" class="sect-g"><title>Secteur adulte ' + q[0] + "</title></path>";
+        if (dans(q[2], q[3])) he += '<text x="' + q[2] + '" y="' + q[3] + '" text-anchor="middle" style="font-size:' + fs + 'px;stroke-width:' + (fs * .28).toFixed(2) + 'px">' + q[0] + "</text>"; });
+      if (gs) gs.insertAdjacentHTML("beforeend", hs);
+      if (ge) { ge.insertAdjacentHTML("beforeend", he); ge.dataset.ecarte = ""; if (fig.dataset.couche === "secteurs") ecarter(); }
+    }).catch(function () {});
+  });
+  // refait une fois les polices chargées : un code mesuré avant gardait la largeur de la police de repli
+  if (document.fonts) document.fonts.ready.then(function () { if (ge) { ge.dataset.ecarte = ""; if (fig.dataset.couche === "secteurs") ecarter(); } });
+  // codes des secteurs : un code qui déborde du cadre y est ramené (59G03 et 62G09 sortaient du cadre à Desvres-Samer,
+  // relecture du 1er novembre 2026) ; un code qui en touche un autre se décale d'une ligne, au-dessus ou au-dessous, ou
+  // s'efface faute de place (la liste des Repères donne tous les codes) ; mesuré quand la couche est montrée (défaut M7)
+  function ecarter() {
+    if (!ge || ge.dataset.ecarte === "1") return; ge.dataset.ecarte = "1";
+    // marge de 2 px à l'écran, quelle que soit la largeur de la carte (au téléphone, deux codes se touchaient au Nord)
+    var pris = [], vb = s.viewBox.baseVal, pad = 2 * vb.width / Math.max(1, s.getBoundingClientRect().width);
+    [].slice.call(ge.querySelectorAll("text")).forEach(function (t) {
+      var b = t.getBBox(), m = b.height * .2,
+          dx = Math.max(0, vb.x + m - b.x) - Math.max(0, b.x + b.width - (vb.x + vb.width - m)),
+          dy = Math.max(0, vb.y + m - b.y) - Math.max(0, b.y + b.height - (vb.y + vb.height - m));
+      if (dx) t.setAttribute("x", (+t.getAttribute("x") + dx).toFixed(2));
+      if (dy) t.setAttribute("y", (+t.getAttribute("y") + dy).toFixed(2));
+      b = t.getBBox();
+      var y0 = +t.getAttribute("y"), essais = [0, 1, -1, 2, -2], place = false;
+      for (var i = 0; i < essais.length && !place; i++) {
+        var d = essais[i] * (b.height + 2 * pad), r = { x: b.x - pad - b.height * .2, y: b.y + d - pad, w: b.width + 2 * pad + b.height * .4, h: b.height + 2 * pad };
+        if (r.y >= vb.y && r.y + r.h <= vb.y + vb.height &&
+            !pris.some(function (p) { return r.x < p.x + p.w && p.x < r.x + r.w && r.y < p.y + p.h && p.y < r.y + r.h; })) {
+          if (d) t.setAttribute("y", (y0 + d).toFixed(2)); pris.push(r); place = true; }
+      }
+      if (!place) t.remove();
+    });
+  }
+  if (!bloc) return;
+  [].slice.call(bloc.querySelectorAll("button[data-couche]")).forEach(function (b) {
+    b.addEventListener("click", function () {
+      var c = b.dataset.couche; fig.dataset.couche = c;
+      if (c === "secteurs") setTimeout(ecarter, 0);
+      bloc.querySelectorAll("button[data-couche]").forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+      bloc.querySelectorAll("[data-pour]").forEach(function (x) { x.hidden = x.dataset.pour !== c; });
+      dispatchEvent(new Event("fiche:couche"));
+    });
+  });
+})();
+</script>
+{% endblock %}

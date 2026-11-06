@@ -14,8 +14,8 @@
   <p class="couv-version">Version du {{ date_longue }}</p>
   <p class="couv-auteur">Lucas Pithon</p>
   {% if citation %}<div class="couv-citer"><p><strong>Comment citer ce rapport.</strong> {{ citation.texte|liens }}</p>
-  {% if citation.doi_rapport %}<p>DOI du rapport, <a href="https://doi.org/{{ citation.doi_rapport }}">{{ citation.doi_rapport }}</a>.</p>{% endif %}
-  {% if citation.doi_donnees %}<p>DOI des données, <a href="https://doi.org/{{ citation.doi_donnees }}">{{ citation.doi_donnees }}</a>.</p>{% endif %}</div>{% endif %}
+  {% if citation.doi_rapport %}<p>{{ 'DOI du rapport' if citation.archivee is not defined or citation.archivee else 'DOI de la dernière version archivée du rapport' }}, <a href="https://doi.org/{{ citation.doi_rapport }}">{{ citation.doi_rapport }}</a>.</p>{% endif %}
+  {% if citation.doi_donnees %}<p>{{ 'DOI des données' if citation.archivee is not defined or citation.archivee else 'DOI des données de la dernière version archivée' }}, <a href="https://doi.org/{{ citation.doi_donnees }}">{{ citation.doi_donnees }}</a>.</p>{% endif %}</div>{% endif %}
   <p class="couv-sources">Données publiques, répertoire RPPS, FINESS, INSEE, Assurance Maladie, Santé publique France, DREES, CAF, IGN. Sources et licences détaillées en fin de rapport.</p>
 </section>
 {% endif %}
@@ -28,7 +28,7 @@
   <aside class="sommaire" aria-label="Sommaire">{{ sommaire|safe }}</aside>
   <article class="corps"{% if citation %} data-citation="{{ citation.texte }}"{% endif %}>{% if not impression %}{% if citation %}<details class="citer-haut"><summary><strong>Comment citer ce rapport</strong></summary>
 <p>{{ citation.texte|liens }}</p>
-{% if citation.doi_donnees %}<p class="small">Les données de ce rapport sont archivées avec un identifiant permanent, <a href="https://doi.org/{{ citation.doi_donnees }}">doi:{{ citation.doi_donnees }}</a>. Voir aussi <a href="{{ racine }}a-propos.html#comment-citer">Comment citer</a>.</p>{% endif %}
+{% if citation.doi_donnees %}<p class="small">{% if "ersion de travail" in citation.texte or "Dernière version archivée" in citation.texte %}Ces données sont une version de travail, postérieure à la dernière version archivée, <a href="https://doi.org/{{ citation.doi_donnees }}">doi:{{ citation.doi_donnees }}</a>.{% else %}Les données de ce rapport sont archivées avec un identifiant permanent, <a href="https://doi.org/{{ citation.doi_donnees }}">doi:{{ citation.doi_donnees }}</a>.{% endif %} Voir aussi <a href="{{ racine }}a-propos.html#comment-citer">Comment citer</a>.</p>{% endif %}
 </details>{% endif %}{% endif %}{{ corps|safe }}</article>
 </div>
 {% endblock %}

@@ -196,10 +196,10 @@ DEPARTEMENTS_EXCLUS_CROISEMENTS = ["976"]
 # à part, confirmé par Lucas le 28 octobre 2026.
 ZONES_TERRESTRES = {"2A": "corse", "2B": "corse", "971": "971", "972": "972", "973": "973", "974": "974",
                     "976": "976"}
-# Carte bivariée offre et besoin (audit 4.2), palette bleu et rouge de Joshua Stevens (depuis le 23 octobre 2026, avec
-# la palette encre bleue et cuivre du site), 3 tiers de l'offre (bleu) sur 3 tiers de l'indicateur (rouge). Indice
-# offre x 3 + indicateur, du plus bas au plus haut.
-BIVARIEE = ["#e8e8e8", "#e4acac", "#c85a5a", "#b0d5df", "#ad9ea5", "#985356", "#64acbe", "#627f8c", "#574249"]
+# Carte bivariée offre et besoin (audit 4.2), 3 tiers de l'offre (canard) sur 3 tiers de l'indicateur (cuivre), les
+# couleurs du fond clair des jetons --bv0 à --bv8 de style.css (le bleu et rouge de Joshua Stevens jusqu'au 5 novembre
+# 2026). Indice offre x 3 + indicateur, du plus bas au plus haut.
+BIVARIEE = ["#ABAEB4", "#93796B", "#7E492A", "#70898B", "#605F53", "#523A20", "#3A6866", "#32483D", "#2B2C18"]  # canard et cuivre, jetons --bv0 à --bv8 de style.css (étape 4, 5 novembre 2026)
 
 # ---------------------------------------------------------------- Assurance Maladie, accès financier et médecin traitant
 GROUPE_ACCES = "Accès financier et médecin traitant"
@@ -1560,6 +1560,21 @@ LIMITES_COURT = {
     "caf": "Les allocations versées par la MSA ne sont pas comptées, ce qui sous-estime ces chiffres surtout en zone rurale.",
     "evolution": ("Les séries de la DREES comptent chaque professionnel une seule fois, dans le département de son "
                   "activité principale."),
+    # phrases courtes montrées sous la ligne de la fiche d'un territoire (inventaire des limites, 31 octobre 2026)
+    "prof:pedopsychiatre": ("La pédopsychiatrie déclarée ne concerne qu'une partie des médecins qui soignent des enfants, "
+                            "la plupart sont psychiatres, qualifiés pour l'enfant par une autre voie."),
+    "suicides": ("Suicides sous-déclarés, les décès d'intention indéterminée ne sont pas comptés et une partie des "
+                 "conclusions d'autopsie ne remontent pas."),
+    "hospit_gestes_auto_infliges": ("Séjours en hôpital de médecine, chirurgie et obstétrique seulement, pas en "
+                                    "établissement psychiatrique."),
+    "urgences_gestes_auto_infliges": ("Seules les urgences qui transmettent leurs données sont comptées, et le geste n'est "
+                                      "pas toujours identifié à l'accueil, d'où une sous-estimation probable."),
+    "prof:orthophoniste": ("Les orthophonistes soignent tous les âges, pas seulement des enfants, la densité est "
+                           "rapportée à toute la population."),
+    "prof:psychomotricien": ("Les psychomotriciens soignent aussi des adultes et des personnes âgées, la densité est "
+                             "rapportée à toute la population."),
+    "sae": ("Moyens déclarés par les établissements, rattachés au département de l'établissement, pas à celui des "
+            "patients."),
 }
 # âge des professionnels (DREES) et dépassements réellement facturés (Assurance Maladie), 28 octobre 2026
 LIMITES["age_drees"] = {

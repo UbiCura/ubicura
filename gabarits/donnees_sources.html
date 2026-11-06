@@ -19,7 +19,7 @@
 <tbody>
 <tr><th scope="row">Producteur</th><td>{{ f.producteur }}</td></tr>
 <tr><th scope="row">Licence</th><td>{{ f.licences|join(", ") or "non renseignée" }}</td></tr>
-<tr><th scope="row">Page du jeu</th><td>{% for p in f.pages %}<a href="{{ p }}">{{ p|replace("https://", "")|truncate(70, True, "…") }}</a>{% if not loop.last %}<br>{% endif %}{% else %}non renseignée{% endfor %}</td></tr>
+<tr><th scope="row">Page du jeu</th><td>{% for p in f.pages %}<a href="{{ p.split(" ")[0] }}">{{ p|replace("https://", "")|truncate(70, True, "…") }}</a>{% if not loop.last %}<br>{% endif %}{% else %}non renseignée{% endfor %}</td></tr>
 <tr><th scope="row">Version utilisée</th><td>{{ f.version or "date non annoncée par le producteur" }}{% if f.recupere %}, récupérée le {{ f.recupere }}{% endif %}</td></tr>
 <tr><th scope="row">Versions constatées</th><td>{% if f.versions %}nouvelle version repérée le {{ f.versions|join(", le ") }}{% else %}aucun changement depuis le début du suivi{% if f.suivi_depuis %}, le {{ f.suivi_depuis }}{% endif %}{% endif %}</td></tr>
 </tbody>

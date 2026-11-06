@@ -31,7 +31,9 @@ from .util import JOURNAL
 REGISTRE = config.RESULTATS / "historique" / "registre_structures.csv"
 COLS = ["id_structure", "type", "lieu", "entite_juridique", "commune", "nom", "adresse", "numeros", "unites", "latitude",
         "longitude", "precis", "premiere_version", "derniere_version"]
-PRECIS = ("adresse géocodée au numéro", "adresse géocodée à la rue", "coordonnées FINESS", "coordonnées du ROR")
+PRECIS = ("adresse géocodée au numéro", "adresse géocodée à la rue", "coordonnées FINESS", "coordonnées du ROR",
+          "adresse vérifiée sur une source de l'établissement, géocodée au numéro",
+          "adresse vérifiée sur une source de l'établissement, géocodée à la rue")
 ETAPES = ("clé interne", "numéro FINESS", "unité du ROR", "nom ou voie", "emplacement")
 
 

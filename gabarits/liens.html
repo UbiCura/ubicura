@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+{# Matrice des liens entre l'offre et les autres domaines, partie de l'atelier « Croiser » (avis de l'auditeur externe du
+   30 octobre 2026, suivi par Lucas). Matrice ordonnée d'abord, liste triée (seule forme sur téléphone), étoile autour
+   d'une profession en option. Règle unique du lien (presentation/lien.js). Données de presentation/liens_donnees.js
+   (pipeline/liens.py). #}
+{% block contenu %}
+<style>
+main.liens{max-width:1264px}  /* la grille du site, alignée sur l’en-tête (relecture du 5 novembre 2026, décalage de 12 px) */
+main.liens [hidden]{display:none!important}
+main.liens h1{border:0;padding:0}
+main.liens .chapeau{max-width:66ch}
+main.liens .avert{font-family:var(--serif);font-size:var(--t-encadre);margin:14px 0 0;max-width:60ch;text-align:left}
+main.liens .reglages{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;margin:18px 0 0;font-size:var(--t-note)}
+main.liens .grp{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+main.liens .grp > span{color:var(--muted);margin-right:4px}
+main.liens .grp button{min-height:44px;padding:0 13px;background:none;border:1px solid var(--line);border-radius:4px;color:var(--ink);font:inherit;font-size:var(--t-note);cursor:pointer}
+main.liens .grp button[aria-pressed="true"]{border-color:var(--r4);color:var(--r4);font-weight:600}
+main.liens .fen{margin-top:20px;border:1px solid var(--line);border-radius:4px;background:var(--panel)}
+main.liens .barre{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:0 8px;padding:4px 6px 4px 14px;border-bottom:1px solid var(--line);font-size:var(--t-note)}
+main.liens .barre strong{font-weight:600}
+main.liens .barre .outils-l{display:flex;flex-wrap:nowrap}
+main.liens .barre .outils-l button{background:none;border:0;border-bottom:1px solid var(--line);color:var(--ink);font:inherit;font-size:var(--t-note);min-height:40px;padding:0 8px;cursor:pointer}
+main.liens .barre .outils-l button[aria-expanded="true"],main.liens .barre .outils-l button:hover{border-bottom-color:var(--ink)}
+main.liens .panneau{margin:10px 12px 0;background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:12px 14px;font-size:var(--t-note);text-align:left}
+main.liens .panneau button{background:none;border:0;border-bottom:1px solid var(--line);color:var(--ink);font:inherit;font-size:var(--t-note);min-height:40px;padding:0 6px;margin-right:6px;cursor:pointer}
+main.liens .panneau .cit{overflow-wrap:anywhere;margin:0 0 8px}
+main.liens .leg{display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px;font-size:var(--t-note);color:var(--muted);padding:10px 14px 0}
+main.liens .leg .paire{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+main.liens .leg .ech{display:inline-flex;align-items:center;gap:0}
+main.liens .leg .ech i{display:inline-block;width:22px;height:12px}
+main.liens .corps-v{padding:10px 0 14px}
+main.liens .defile-m{overflow:auto;max-height:78vh}
+main.liens table.mat{border-collapse:separate;border-spacing:2px;font-size:var(--t-note);margin:0}
+main.liens table.mat th,main.liens table.mat td{padding:0;border:0}
+main.liens table.mat thead th{position:sticky;top:0;z-index:2;background:var(--panel);vertical-align:bottom;font-weight:600;font-size:var(--t-note);min-width:116px;max-width:156px;padding:4px;text-align:center;white-space:normal;hyphens:manual;-webkit-hyphens:manual;overflow-wrap:normal;word-break:normal}
+main.liens table.mat thead th:first-child{left:0;z-index:3;text-align:left}
+main.liens table.mat th[scope=row]{position:sticky;left:0;z-index:1;background:var(--panel);text-align:left;font-weight:400;min-width:260px;max-width:340px;padding:4px 10px 4px 0;font-size:var(--t-note)}
+main.liens table.mat tr.dom th{position:static;text-align:left;font-family:var(--serif);font-size:var(--t-texte);font-weight:500;padding:14px 0 4px}
+main.liens table.mat tr.dom th span{position:sticky;left:0}
+main.liens table.mat td{height:30px;text-align:center;font-variant-numeric:tabular-nums;border-radius:3px}
+main.liens table.mat td a{display:flex;align-items:center;justify-content:center;height:100%;min-height:30px;color:var(--ink);text-decoration:none;border-radius:3px}
+main.liens table.mat td a:hover,main.liens table.mat td a:focus-visible{outline:2px solid var(--focus);outline-offset:0}
+main.liens table.mat td.vide{background:color-mix(in srgb,var(--line) 35%,transparent)}
+main.liens table.mat td.abs{background:repeating-linear-gradient(45deg,var(--panel) 0 3px,var(--muted) 3px 4.5px);opacity:.55}
+main.liens .lecture{font-family:var(--serif);font-size:var(--t-texte);margin:0 0 12px;max-width:68ch;text-align:left}
+main.liens .leg .prudence{flex-basis:100%;color:var(--ink);font-size:var(--t-note)}
+main.liens .plus-l{margin:10px 0 0;font-size:var(--t-note);text-align:left}
+main.liens .plus-l button{background:none;border:0;border-bottom:1px solid var(--line);color:var(--ink);font:inherit;font-size:var(--t-note);min-height:40px;padding:0 4px;cursor:pointer}
+main.liens ol.liste{list-style:none;margin:0;padding:0}
+main.liens ol.liste li{display:grid;grid-template-columns:minmax(0,1fr) 9rem;gap:2px 16px;padding:10px 0;border-bottom:1px solid var(--line);margin:0;text-align:left}
+main.liens ol.liste .q{font-size:var(--t-note)}
+main.liens ol.liste .d{font-size:var(--t-note);color:var(--muted)}
+main.liens ol.liste .barre-l{grid-column:2;grid-row:1 / span 2;align-self:center;height:10px;border-radius:2px}
+main.liens ol.liste .v{font-variant-numeric:tabular-nums}
+main.liens .choix-p{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 12px}
+main.liens .choix-p button{min-height:40px;padding:0 12px;background:none;border:1px solid var(--line);border-radius:4px;color:var(--ink);font:inherit;font-size:var(--t-note);cursor:pointer}
+main.liens .choix-p button[aria-pressed="true"]{border-color:var(--r4);color:var(--r4);font-weight:600}
+main.liens #etoile{width:100%;height:auto;display:block;max-width:880px}
+main.liens .limite{display:flex;gap:10px;align-items:baseline;font-size:var(--t-note);color:var(--muted);margin:10px 0 0;text-align:left;max-width:60rem}
+main.liens .limite b{color:var(--signal);flex:none}
+main.liens .discret{color:var(--muted);font-size:var(--t-note);text-align:left}
+@media (max-width:640px){main.liens .vue-large{display:none!important}main.liens ol.liste li{grid-template-columns:minmax(0,1fr) 5rem}}
+
+/* étape 4, relecture indépendante du 5 novembre 2026 : réglages soulignés, encadré B+ (filet appuyé au-dessus, ni cadre
+   ni fond ni coins arrondis), titre et outils comme les figures du site, ocre réservé au signal « ! » */
+main.liens .grp,main.liens .choix-p{gap:0 16px}
+main.liens .grp button,main.liens .choix-p button{min-height:40px;padding:0;border:0;border-bottom:1px solid transparent;border-radius:0;color:var(--muted);font-size:var(--t-note)}
+main.liens .grp button:hover,main.liens .choix-p button:hover{color:var(--ink)}
+main.liens .grp button[aria-pressed="true"],main.liens .choix-p button[aria-pressed="true"]{border-color:transparent;border-bottom-color:var(--ink);color:var(--ink);font-weight:400}
+main.liens .fen{border:0;border-top:2px solid var(--ink);border-radius:0;background:none}
+main.liens .barre{display:block;padding:var(--e-3) 0 0;border:0}
+main.liens .barre strong{display:block;font-family:var(--serif);font-size:var(--t-encadre);font-weight:400;line-height:1.3;margin:0 0 var(--e-2)}
+main.liens .barre .outils-l{flex-wrap:wrap;gap:var(--e-1) var(--e-4);margin:0 0 var(--e-2)}
+main.liens .barre .outils-l button{border:0;padding:var(--e-1) 0;min-height:36px;color:var(--muted);text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--muted) 45%,transparent);text-underline-offset:4px}
+main.liens .barre .outils-l button[aria-expanded="true"],main.liens .barre .outils-l button:hover{color:var(--ink);text-decoration-color:currentColor}
+main.liens .panneau{margin:10px 0 0;background:none;border:0;border-left:2px solid var(--line-fort);border-radius:0;padding:4px 0 4px 12px}
+main.liens .leg{padding:10px 0 0}
+main.liens table.mat thead th,main.liens table.mat th[scope=row]{background:var(--bg)}
+</style>
+<header class="tete">
+  <p class="discret" style="margin:0"><a href="croiser.html">Croiser</a>, la vue d’ensemble</p>
+  <h1>Les liens entre l’offre et les autres domaines</h1>
+  <p class="chapeau">Pour chaque profession, les indicateurs des autres domaines qui varient avec elle d’un territoire à l’autre, au-delà du seuil retenu sur tout le site. Chaque case ouvre le nuage de points des territoires dans l’atelier.</p>
+  <div class="reglages">
+    <div class="grp" role="group" aria-label="Niveau"><span>Niveau</span><button type="button" data-niv="epci">Intercommunalités</button><button type="button" data-niv="dep">Départements</button></div>
+    <div class="grp" role="group" aria-label="Comparaison"><span>Comparaison</span><button type="button" data-mode="p" title="Corrélation partielle, à densité de population égale">À densité égale</button><button type="button" data-mode="b">Brute</button></div>
+    <div class="grp" role="group" aria-label="Professions"><button type="button" data-fam="sm">Santé mentale</button><button type="button" data-fam="sante">Santé</button></div>
+    <div class="grp vue-large" role="group" aria-label="Vue"><span>Vue</span><button type="button" data-vue="matrice">Matrice</button><button type="button" data-vue="liste">Liste</button><button type="button" data-vue="etoile">Étoile</button></div>
+  </div>
+</header>
+
+<section class="fen" aria-labelledby="t-vue">
+  <div class="barre"><strong id="t-vue">Matrice des liens</strong>
+    <div class="outils-l"><button type="button" data-panneau="citer-l" aria-expanded="false">Citer et exporter</button></div></div>
+  <div class="panneau" id="citer-l" hidden><p class="cit" id="cit-l"></p><button type="button" data-export="csv">Liens, CSV</button><button type="button" data-export="svg" class="pour-etoile">Figure, SVG</button><button type="button" data-export="png" class="pour-etoile">Figure, PNG</button><button type="button" data-export="lien">Copier le lien de cette vue</button><span class="discret" id="lien-l" aria-live="polite"></span></div>
+  <div class="leg" aria-hidden="true"><span class="paire"><span class="ech" id="ech-neg"></span>lien négatif</span><span class="paire"><span class="ech" id="ech-pos"></span>lien positif</span><span><i style="display:inline-block;width:14px;height:12px;vertical-align:middle;background:color-mix(in srgb,var(--line) 35%,transparent)"></i> sous le seuil</span><span><i style="display:inline-block;width:14px;height:12px;vertical-align:middle;background:repeating-linear-gradient(45deg,var(--panel) 0 3px,var(--muted) 3px 4.5px)"></i> absent à ce niveau</span><span class="prudence">Une case colorée dit que ces territoires se ressemblent sur ces deux points, cela ne dit pas pourquoi.</span></div>
+  <div class="corps-v" id="corps-v"></div>
+  <p class="comment-lire" id="lire-l"><strong>Comment lire.</strong> Une case colorée est un lien entre une profession et un indicateur, mesuré par la corrélation de rang entre territoires du niveau choisi. Canard, les deux montent ensemble. Cuivre, l’un monte quand l’autre baisse. Plus la teinte est foncée, plus le lien est fort. Une case grise est sous le seuil, une case hachurée signale un indicateur absent à ce niveau. Par défaut, les territoires sont comparés à densité de population égale, sinon la plupart des liens ne montreraient que l’écart entre villes et campagnes. Survoler une case donne la corrélation, son intervalle de confiance à 95 % et le nombre de territoires. Un lien décrit des territoires, pas des personnes, et ne dit ni une cause ni un besoin.</p>
+</section>
+<p class="limite"><b aria-hidden="true">!</b><span id="regle"></span></p>
+<p class="limite"><b aria-hidden="true">!</b><span>Analyse écologique entre territoires. Un lien entre territoires ne dit rien des personnes qui y vivent, et deux indicateurs liés peuvent l’être par un troisième. Pas de lien dit entre régions, trop peu nombreuses pour un intervalle utile. Mayotte est écartée. Corrélations relues dans le fichier publié correlations_contexte.csv de la version du {{ date_longue }}.</span></p>
+<script src="presentation/lien.js"></script>
+<script src="presentation/liens_donnees.js"></script>
+<script src="presentation/liens.js"></script>
+<script src="presentation/glossaire.js" defer></script>
+{% endblock %}

@@ -2,7 +2,9 @@
 // par pipeline/explorer.py (mêmes comptes que les rapports), réglages gardés dans l'adresse de la page.
 const fr = d3.formatLocale({decimal: ",", thousands: " ", grouping: [3], currency: ["", " €"]});
 const f1 = fr.format(",.1f"), f0 = fr.format(",.0f"), fp = v => (v >= 0 ? "+" : "−") + fr.format(",.1f")(Math.abs(v)) + " %";
-const fd = v => v == null ? "" : (Math.abs(v) < 10 ? fr.format(",.2f")(v) : f1(v));
+// densités écrites selon la règle unique (affichage.decimales, genre « taux ») : deux décimales sous 1, une au-delà, aucune
+// à partir de 1 000 (audit du 6 novembre 2026, « 1,68 » ici et « 1,7 » sur la fiche)
+const fd = v => v == null ? "" : (Math.abs(v) < 0.995 ? fr.format(",.2f")(v) : Math.abs(v) >= 999.95 ? f0(v) : f1(v));
 const pc = v => v < .001 && v > 0 ? "moins de 0,1 %" : fr.format(",.1f")(v * 100) + " %";
 const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
 const court = s => s.replace(/ \(.*\)/, "").replace(/,.*/, "");
@@ -28,13 +30,13 @@ function donneesFigure(id, nom, lignes) {
 function figer(svg) {
   const s = d3.select(svg), police = "Work Sans, Segoe UI, sans-serif";
   s.attr("font-family", police);
-  s.selectAll(".grillage line").attr("stroke", "var(--line, #E2E3E6)").attr("stroke-width", 1);
+  s.selectAll(".grillage line").attr("stroke", "var(--line, #DCDDE0)").attr("stroke-width", 1);
   s.selectAll(".axe text").attr("fill", "var(--muted, #5D6371)").attr("font-size", 12).attr("font-family", police);
   s.selectAll(".courbe").attr("fill", "none").attr("stroke-width", 2).attr("stroke-linejoin", "round").attr("stroke-linecap", "round");
   s.selectAll(".repere").attr("fill", "none").attr("stroke", "var(--ink, #1C2028)").attr("stroke-width", 1.5).attr("stroke-dasharray", "4 3");
   s.selectAll(".etiq").attr("fill", "var(--muted, #5D6371)").attr("font-size", 12).attr("font-family", police);
   s.selectAll(".etiq.forte").attr("fill", "var(--ink, #1C2028)");
-  s.selectAll(".territoire").attr("stroke", "var(--contour, #FFFFFF)").attr("stroke-width", .3);
+  s.selectAll(".territoire").attr("stroke", "var(--contour, #F4F4F1)").attr("stroke-width", .3);
   s.selectAll(".curseur").attr("stroke", "var(--muted, #5D6371)");
   glisser(svg);
 }
@@ -186,9 +188,9 @@ function paires() {
   liste("pV", INFOS_VP, [ETAT.pV], v => ETAT.pV = v, [], apres);
   const A = ETAT.pA, B = ETAT.pB;
   const CL = [["a", `${min(A)} mais aucun ${min(B)}`, "var(--d1, #BC6B3B)"],
-              ["b", `${min(B)} mais aucun ${min(A)}`, "var(--r3, #3167A9)"],
+              ["b", `${min(B)} mais aucun ${min(A)}`, "var(--r3, #1C5652)"],
               ["aucun", "ni l'un ni l'autre", "var(--d0, #83451E)"],
-              ["deux", "les deux professions", "var(--d3, #DFE1E5)"]];
+              ["deux", "les deux professions", "var(--d3, #ABAEB4)"]];
   const coul = Object.fromEntries(CL.map(c => [c[0], c[2]])), lib = Object.fromEntries(CL.map(c => [c[0], c[1]]));
   // totaux, toutes les intercommunalités, outre-mer compris
   const tot = {deux: [0, 0], a: [0, 0], b: [0, 0], aucun: [0, 0]}; let P = 0;
@@ -210,7 +212,7 @@ function paires() {
   const svg = d3.select(div).append("svg").attr("xmlns", "http://www.w3.org/2000/svg").attr("viewBox", `0 0 ${W} ${H}`).attr("role", "img")
     .attr("aria-label", document.getElementById("pTitreCarte").textContent);
   svg.selectAll("path").data(GEO).join("path").attr("class", "territoire").attr("d", path)
-    .attr("fill", f => coul[classeP(f.properties.epci, A, B)] || "var(--nodata, #ECECEF)")
+    .attr("fill", f => coul[classeP(f.properties.epci, A, B)] || "var(--nodata, #E6E6E9)")
     .on("mousemove", (ev, f) => { const r = DC.epci[f.properties.epci]; if (!r) return;
       montrer(ev, `<b>${r[0]}</b><div class="l"><span>Habitants</span><span>${f0(r[1])}</span></div><div class="l"><span>${NOMP(A)}, déclarés</span><span>${f0(r[IDX[A]])}</span></div><div class="l"><span>${NOMP(B)}, déclarés</span><span>${f0(r[IDX[B]])}</span></div>`); })
     .on("mouseleave", cacher);
@@ -254,11 +256,13 @@ function paires() {
 // ---------------------------------------------------------------- trajectoires
 const ARTICLE = new Proxy({}, {get: (o, k) => (DT.vars[k] || {}).article || "la variable choisie"});   // forme du nom dans une phrase, d'après le catalogue
 const nomT = p => court(DT.profs[p].libelle);
-const K_REPLI = {1: "#83451E", 2: "#C0703F", 3: "#A7ACB5", 4: "#3F74C0", 5: "#163F75"};
+const K_REPLI = {1: "#83451E", 2: "#BC6B3B", 3: "#ABAEB4", 4: "#3B7E78", 5: "#0D3D3B"};
 const couleurT = i => { const n = ETAT.tK === 3 ? [1, 3, 5][i] : i + 1; return `var(--k${n}, ${K_REPLI[n]})`; };
 // une couleur par profession dans le mode « une courbe par profession », toujours dans le même ordre, jamais recyclée
-const C_REPLI = ["#2a78d6", "#eb6834", "#1baf7a", "#6250d6", "#e87ba4", "#008300"];
+const C_REPLI = ["#B473A4", "#2E672F", "#998E3B", "#3F8C93", "#564D8F", "#8C8270"];
 const couleurP = j => `var(--c${j + 1}, ${C_REPLI[j]})`;
+// second codage des professions 4 à 6 (sarcelle, violet, lin), dont les couleurs ne se distinguent pas seules
+const tiretP = j => [null, null, null, "7 3", "2 3", "9 3 2 3"][j] || null;
 const SOURCES = {ADELI: "série tirée du répertoire ADELI, qui s'arrête en 2024 et compte les actifs occupés de moins de 62 ans, avec des effectifs plus élevés que le RPPS pour la même profession",
                  SNDS: "infirmiers libéraux ayant eu une activité remboursée dans l'année (SNDS), jusqu'en 2023",
                  "INSEE, base Tous salariés": "infirmiers salariés en poste principal au 31 décembre (base Tous salariés de l'INSEE), jusqu'en 2023"};
@@ -268,9 +272,11 @@ function nomGroupe(i) { const v = DT.vars[ETAT.tV]; if (i === 0) return v.bas; i
   return ETAT.tK === 3 ? "groupe du milieu" : ["", "deuxième groupe", "groupe du milieu", "quatrième groupe"][i]; }
 const nomGroupeLong = i => i === "tous" ? "l'ensemble des départements" : (+i === 0 || +i === ETAT.tK - 1 ? "les départements " + nomGroupe(+i) : "le " + nomGroupe(+i));
 const ANNEES = (() => { const s = new Set(); Object.values(DT.profs).forEach(p => Object.values(p.deps).forEach(d => Object.keys(d).forEach(a => s.add(+a)))); return [...s].sort(); })();
+// unité de chaque série (pipeline/explorer.py « fac »), 100 000 habitants pour une profession rare
+const FAC_T = p => DT.profs[p].fac || 1e4, uniteT = p => FAC_T(p) === 1e5 ? "pour 100 000 habitants" : "pour 10 000 habitants";
 function densite(p, g, i, a) {
   let e = 0, pop = 0; for (const [c, d] of Object.entries(DT.profs[p].deps)) if ((i === "tous" ? g[c] != null : g[c] === +i) && d[a]) { e += d[a][0]; pop += d[a][1]; }
-  return pop ? e / pop * 1e4 : null;
+  return pop ? e / pop * FAC_T(p) : null;
 }
 function enBase(pts, base) { const b = pts.find(q => q.d != null); pts.forEach(q => q.v = q.d == null || !b ? null : (base ? q.d / b.d * 100 : q.d)); return pts; }
 function dessinerPanneau(div, A, series, base, titreAria, large) {
@@ -284,7 +290,7 @@ function dessinerPanneau(div, A, series, base, titreAria, large) {
   svg.append("g").attr("class", "axe").attr("transform", `translate(0,${H - m.b + 4})`).call(d3.axisBottom(x).ticks(large ? 11 : 6).tickFormat(d3.format("d")).tickSize(0).tickPadding(8)).call(s => s.select(".domain").remove());
   svg.append("g").attr("class", "axe").attr("transform", `translate(${m.l - 6},0)`).call(d3.axisLeft(y).ticks(4).tickFormat(base ? f0 : (y.domain()[1] < 5 ? fr.format(",.1f") : f0)).tickSize(0).tickPadding(6)).call(s => s.select(".domain").remove());
   const ligne = d3.line().defined(q => q.v != null).x(q => x(q.a)).y(q => y(q.v));
-  series.forEach(s => svg.append("path").attr("class", s.repere ? "repere" : "courbe").attr("stroke", s.couleur).attr("d", ligne(s.pts)));
+  series.forEach(s => svg.append("path").attr("class", s.repere ? "repere" : "courbe").attr("stroke", s.couleur).attr("stroke-dasharray", s.tiret || null).attr("d", ligne(s.pts)));
   const fins = series.filter(s => !s.repere && s.pts.some(q => q.v != null)).map(s => { const q = [...s.pts].reverse().find(q => q.v != null); return {s, y: y(q.v), v: q.v, a: q.a}; }).sort((a, b) => a.y - b.y);
   for (let j = 1; j < fins.length; j++) if (fins[j].y - fins[j - 1].y < 15) fins[j].y = fins[j - 1].y + 15;
   fins.forEach(f => svg.append("text").attr("class", "etiq" + (f.s.fort ? " forte" : "")).attr("x", W - m.r + 8).attr("y", f.y + 4)
@@ -326,19 +332,19 @@ function trajectoires() {
       const series = d3.range(ETAT.tK).map(i => ({nom: nomGroupe(i), couleur: couleurT(i), fort: i === 0 || i === ETAT.tK - 1,
         etiquette: i === 0 || i === ETAT.tK - 1 ? nomGroupe(i) : "", pts: enBase(A.map(a => ({a, d: densite(p, g, String(i), a)})), base)}));
       const dp = ETAT.tDep && DT.profs[p].deps[ETAT.tDep];
-      if (dp) series.push({nom: NOMS[ETAT.tDep], couleur: "var(--ink, #1C2028)", repere: true, pts: enBase(A.map(a => ({a, e: dp[a] ? dp[a][0] : null, d: dp[a] ? dp[a][0] / dp[a][1] * 1e4 : null})), base)});
+      if (dp) series.push({nom: NOMS[ETAT.tDep], couleur: "var(--ink, #1C2028)", repere: true, pts: enBase(A.map(a => ({a, e: dp[a] ? dp[a][0] : null, d: dp[a] ? dp[a][0] / dp[a][1] * FAC_T(p) : null})), base)});
       const div = document.createElement("div"); grille.appendChild(div);
-      div.innerHTML = `<h3>${nomT(p)}</h3><p class="unite">${base ? `base 100 en ${series[0].pts.find(q => q.d != null).a}` : "pour 10 000 habitants"}</p>`;
+      div.innerHTML = `<h3>${nomT(p)}</h3><p class="unite">${base ? `base 100 en ${series[0].pts.find(q => q.d != null).a}` : uniteT(p)}</p>`;
       dessinerPanneau(div, A, series, base, `Évolution de la densité de ${nomT(p).toLowerCase()} par groupe de départements`, ETAT.tProfs.length === 1);
       const b = series[0].pts.filter(q => q.d != null), h = series[ETAT.tK - 1].pts.filter(q => q.d != null);
-      const txt = `de ${b[0].a} à ${b.at(-1).a}, la densité est passée de ${fd(b[0].d)} à ${fd(b.at(-1).d)} pour 10 000 habitants dans les départements ${v.bas} (${fp((b.at(-1).d / b[0].d - 1) * 100)}), et de ${fd(h[0].d)} à ${fd(h.at(-1).d)} dans les départements ${v.haut} (${fp((h.at(-1).d / h[0].d - 1) * 100)}). L'écart entre ces deux groupes est passé de ${fd(h[0].d - b[0].d)} à ${fd(h.at(-1).d - b.at(-1).d)} pour 10 000 habitants.`;
+      const txt = `de ${b[0].a} à ${b.at(-1).a}, la densité est passée de ${fd(b[0].d)} à ${fd(b.at(-1).d)} ${uniteT(p)} dans les départements ${v.bas} (${fp((b.at(-1).d / b[0].d - 1) * 100)}), et de ${fd(h[0].d)} à ${fd(h.at(-1).d)} dans les départements ${v.haut} (${fp((h.at(-1).d / h[0].d - 1) * 100)}). L'écart entre ces deux groupes est passé de ${fd(h[0].d - b[0].d)} à ${fd(h.at(-1).d - b.at(-1).d)} ${uniteT(p)}.`;
       if (j === 0) document.getElementById("tResultat").textContent = `${nomT(p)}, ${txt}`;
       else { const pl = document.createElement("p"); pl.textContent = `${nomT(p)}, ${txt}`; lect.appendChild(pl); }
-      series.filter(s => !s.repere).forEach(s => export_.push([nomT(p), s.nom, ...s.pts.map(q => q.d)]));
+      series.filter(s => !s.repere).forEach(s => export_.push([nomT(p), s.nom, FAC_T(p), ...s.pts.map(q => q.d)]));
     });
   } else {
     document.getElementById("tTitre").textContent = `Densité des ${listeNoms} depuis 2016 dans ${nomGroupeLong(ETAT.tG)}, en base 100 la première année de chaque série`;
-    const series = ETAT.tProfs.map((p, j) => ({nom: nomT(p), couleur: couleurP(j), fort: true, etiquette: nomT(p), pts: enBase(A.map(a => ({a, d: densite(p, g, ETAT.tG, a)})), true)}));
+    const series = ETAT.tProfs.map((p, j) => ({nom: nomT(p), couleur: couleurP(j), tiret: tiretP(j), fort: true, etiquette: nomT(p), pts: enBase(A.map(a => ({a, d: densite(p, g, ETAT.tG, a)})), true)}));
     document.getElementById("tLegende").innerHTML = series.map(s => `<span><i style="background:${s.couleur}"></i>${s.nom}</span>`).join("");
     grille.style.gridTemplateColumns = "1fr";
     const div = document.createElement("div"); grille.appendChild(div);
@@ -346,15 +352,15 @@ function trajectoires() {
     dessinerPanneau(div, A, series, true, `Évolution de la densité de plusieurs professions dans ${nomGroupeLong(ETAT.tG)}`, true);
     const morceaux = series.map(s => { const q = s.pts.filter(q => q.d != null); return `${s.nom.toLowerCase()} ${fp((q.at(-1).d / q[0].d - 1) * 100)} (${q[0].a} à ${q.at(-1).a})`; });
     document.getElementById("tResultat").textContent = `Dans ${nomGroupeLong(ETAT.tG)}, la densité a varié ainsi, ${morceaux.join(", ")}. Les professions sont comparées par leur variation, jamais additionnées.`;
-    series.forEach(s => export_.push([s.nom, nomGroupeLong(ETAT.tG), ...s.pts.map(q => q.d)]));
+    series.forEach(s => export_.push([s.nom, nomGroupeLong(ETAT.tG), FAC_T(ETAT.tProfs[series.indexOf(s)]), ...s.pts.map(q => q.d)]));
   }
   // limites des sources, écrites seulement pour les professions choisies
   const srcs = [...new Set(ETAT.tProfs.map(p => DT.profs[p].source))].filter(s => SOURCES[s]);
   document.getElementById("tSavoir").innerHTML = `<strong>À savoir.</strong> ` + srcs.map(s => `${cap(ETAT.tProfs.filter(p => DT.profs[p].source === s).map(p => nomT(p).toLowerCase()).join(", "))}, ${SOURCES[s]}.`).join(" ")
     + (srcs.length ? " " : "") + `La DREES compte chaque professionnel une fois, dans le département de son activité principale, ce qui diffère des comptages par lieu d'exercice du reste du site. Mayotte est exclue. Sources, DREES, démographie des professionnels de santé, INSEE, estimations de population et Filosofi.`;
-  donneesFigure("figTraj", "trajectoires.csv", [["profession", "groupe", ...A], ...export_]);
-  document.getElementById("tTable").innerHTML = `<table><caption>Densité pour 10 000 habitants${parProf ? ", " + nomGroupeLong(ETAT.tG) : ", par groupe de départements selon " + ARTICLE[ETAT.tV]}</caption><thead><tr><th>Profession</th><th>Groupe</th>${A.map(a => `<th>${a}</th>`).join("")}</tr></thead><tbody>`
-    + export_.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td>${r.slice(2).map(x => `<td>${fd(x)}</td>`).join("")}</tr>`).join("") + "</tbody></table>";
+  donneesFigure("figTraj", "trajectoires.csv", [["profession", "groupe", "pour_habitants", ...A], ...export_]);
+  document.getElementById("tTable").innerHTML = `<table><caption>Densité ${export_.some(r => r[2] === 1e5) ? "pour 10 000 habitants, pour 100 000 pour les professions rares" : "pour 10 000 habitants"}${parProf ? ", " + nomGroupeLong(ETAT.tG) : ", par groupe de départements selon " + ARTICLE[ETAT.tV]}</caption><thead><tr><th>Profession</th><th>Groupe</th>${A.map(a => `<th>${a}</th>`).join("")}</tr></thead><tbody>`
+    + export_.map(r => `<tr><td>${r[0]}${r[2] === 1e5 ? " (pour 100 000)" : ""}</td><td>${r[1]}</td>${r.slice(3).map(x => `<td>${fd(x)}</td>`).join("")}</tr>`).join("") + "</tbody></table>";
   if (window.cesure) window.cesure(document.getElementById("trajectoires"));
 }
 const dl = document.getElementById("deps");

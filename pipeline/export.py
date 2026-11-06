@@ -13,6 +13,7 @@ import pandas as pd
 from . import limites as limites_mod
 from . import (build, cartes, config, dictionnaire, graphiques, indicateurs, libelles, mises_a_jour, rapport,
                rapport_territoire)
+from .affichage import conserver
 from .analyses import professions_part_liberal, tables
 from .lecture import GLOSSAIRE, noms_classes as noms_classes_uniques
 from .util import JOURNAL, log
@@ -85,7 +86,10 @@ def ecrire(agg, ref, professions, insee, R, diplomes, jour=None):
         _csv(agg.liens.assign(nom_a=agg.liens["epci_a"].map(nom), nom_b=agg.liens["epci_b"].map(nom)),
              out / "liens_entre_intercommunalites.csv")
     _csv(agg.feminisation, out / "feminisation.csv")
-    _lieux_csv(agg, noms, lab, out)
+    _lieux_csv(agg, noms, lab, out, (insee or {}).get("contexte"))
+    # temps de route vers nos structures, calculés à part (pipeline/trajets.py), recopiés dans la version
+    from . import trajets
+    trajets.publier(out)
     if agg.particulieres:
         cat_lab = config.CATEGORIES_SECTEURS
         x = agg.particulieres["france"]
@@ -202,7 +206,7 @@ def ecrire(agg, ref, professions, insee, R, diplomes, jour=None):
     return out
 
 
-def _lieux_csv(agg, noms, lab, out: Path):
+def _lieux_csv(agg, noms, lab, out: Path, contexte: dict | None = None):
     """Structures de soins réunies de FINESS et du ROR (pipeline/lieux.py), liste, comptes par territoire, distances,
     concordance des deux bases et couverture de chaque type."""
     from . import lieux as lieux_mod
@@ -232,6 +236,7 @@ def _lieux_csv(agg, noms, lab, out: Path):
         "verification": x.get("statut_verification", pd.Series(index=x.index, dtype=object)).map(sv.STATUTS),
         "source_verification": x.get("source_verification"), "adresse_source_verification": x.get("adresse_source"),
         "date_verification": x.get("date_verification"),
+        "source_adresse_verifiee": x.get("adresse_verifiee_source"), "date_adresse_verifiee": x.get("adresse_verifiee_date"),
         "classe_confirmation": x.get("confirmation", pd.Series(index=x.index, dtype=object)).map(conf_mod.classe)
         .map(conf_mod.CLASSES),
         "confirmation": x.get("confirmation", pd.Series(index=x.index, dtype=object)).map(conf_mod.NIVEAUX),
@@ -309,19 +314,36 @@ def _lieux_csv(agg, noms, lab, out: Path):
     # un type recensé dans moins de config.LIEUX_COUVERTURE_MIN des départements donne des distances trop longues (la
     # structure existe souvent sans être inscrite sous ce type), signalé dans chaque fichier de distances (28 octobre 2026)
     complet = L["couverture"].set_index("type")["complet"]
+    controle = []
     for niv in ("epci", "dep", "reg"):
         c = L["comptes"][niv].pivot_table(index="code", columns="type", values="n", fill_value=0)
         base = noms[niv].set_index("code")[["nom", "pop"]].rename(columns={"pop": "population"})
         n = c.reindex(base.index).fillna(0)
-        taux = n.div(base["population"].where(base["population"] > 0), axis=0) * 1e5
-        w = pd.concat([base, n.add_prefix("n_"), taux.add_prefix("pour_100000_")], axis=1)
+        # mêmes taux que le site, chaque type rapporté à son public et retiré là où la SAE montre que les bases en
+        # inscrivent moins de la moitié (lieux.taux_publics, audit du 30 octobre 2026 au soir) ; les nombres restent
+        taux, retire = lieux_mod.taux_publics(n, base["population"], (contexte or {}).get(niv), L.get("manques_sae"), niv)
+        non_pub = retire.apply(lambda r: ", ".join(types.get(tp, tp) for tp in r.index[r]), axis=1)
+        non_pub = non_pub.where(non_pub == "", lieux_mod.MOTIF_NON_PUBLIE + " : " + non_pub)
+        w = pd.concat([base, n.add_prefix("n_"), taux.add_prefix("pour_100000_"),
+                       non_pub.rename("taux_non_publies")], axis=1)
         w.index.name = "code"
         _csv(w.reset_index(), out / f"lieux_soins_{niv}.csv")
+        # contrôle, les taux du fichier sont ceux du site (contexte du niveau), vides aux mêmes endroits
+        cn = (contexte or {}).get(niv)
+        ecarts = 0
+        if isinstance(cn, pd.DataFrame):
+            for tp in taux.columns:
+                if f"lieux_{tp}" in cn:
+                    a, b = taux[tp], cn[f"lieux_{tp}"].reindex(taux.index)
+                    ecarts += int((~(np.isclose(a, b, rtol=1e-9, equal_nan=True))).sum())
+        controle.append(f"{niv} {ecarts} écarts au site, {int(retire.to_numpy().sum())} taux non publiés")
         d = (L.get("distances") or {}).get(niv)
         if isinstance(d, pd.DataFrame):
             d = d.assign(libelle_type=d["type"].map(types), nom=d["code"].map(noms[niv].set_index("code")["nom"]),
                          recensement_complet=d["type"].map(complet).fillna(False).astype(bool))
             _csv(d, out / f"distances_lieux_{niv}.csv")
+    JOURNAL.controle("Structures de soins, taux des fichiers lieux_soins égaux à ceux du site (attendu, aucun écart)",
+                     "; ".join(controle))
     d = (L.get("distances") or {}).get("fr")
     if isinstance(d, pd.DataFrame):
         _csv(d.assign(libelle_type=d["type"].map(types),
@@ -696,7 +718,8 @@ def _site(agg, ref, professions, insee, R, serie, jour):
         for c in codes:
             u = {"c": c, "nm": base.at[c, "nom"], "p": parent.get(c) or "", "pop": int(pop[c])}
             if ctx is not None:
-                u["x"] = [_r(ctx.at[c, d["id"]]) if d["id"] in ctx else None for d in ctx_def]
+                # deux décimales, une de plus là où elles changeraient l'arrondi écrit sur les pages (affichage.conserver)
+                u["x"] = [conserver(ctx.at[c, d["id"]]) if d["id"] in ctx else None for d in ctx_def]
             unites.append(u)
         bloc = {"units": unites, "n": {p: {m: tab[m][p].tolist() if p in tab[m] else [0] * len(codes)
                                            for m in tab} for p in professions["id"]}}

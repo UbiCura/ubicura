@@ -9,7 +9,7 @@ import re
 import numpy as np
 import pandas as pd
 
-from . import config, limites
+from . import affichage as AF, config, limites
 from .lecture import minuscule, nombre, pct, phrase_correlations
 
 SM, SANTE = config.SANTE_MENTALE, config.SANTE
@@ -18,9 +18,9 @@ EVOLUTION_FAMILLE = {SM: ["psychiatre"],
                              "chirurgien_dentiste", "masseur_kinesitherapeute", "pharmacien"]}
 
 
-def _tableau(df, colonnes, entetes, fmt=None):
+def _tableau(df, colonnes, entetes, fmt=None, zero=None):
     from .rapport import _tableau as t
-    return t(df, colonnes, entetes, fmt)
+    return t(df, colonnes, entetes, fmt, zero=zero)
 
 
 def _comment_lire(*phrases):
@@ -31,6 +31,13 @@ def _comment_lire(*phrases):
 def _plus_loin(lignes):
     from .rapport import _plus_loin as p
     return p(lignes)
+
+
+def _dens(v) -> str:
+    """Densité écrite par la règle unique des pages (affichage.nombre, genre « taux » : deux décimales sous 1, une
+    au-delà, aucune à partir de 1 000), pour que les évolutions de la DREES s'écrivent comme les fiches (audit du
+    6 novembre 2026, « de 17,31 à 16,61 »)."""
+    return AF.nombre(v, "taux")
 
 
 def _signe(v, d=1):
@@ -75,27 +82,32 @@ def evolution(C, famille):
     for p in profs:
         fr = ev[(ev["niveau"] == "FR") & (ev["prof"] == p)].iloc[0]
         dep = ev[(ev["niveau"] == "dep") & (ev["prof"] == p)]["evolution_densite"].dropna()
-        lignes.append({"libelle": fr["libelle"], "periode": f"{int(fr['annee_debut'])} à {int(fr['annee_fin'])}",
-                       "debut": fr["densite_debut"], "fin": fr["densite_fin"], "evolution": fr["evolution_densite"],
+        # densités de la DREES (pour 10 000) dans l'unité de la profession sur les pages, pour 100 000 pour une
+        # profession rare comme les ophtalmologues (audit du 6 novembre 2026)
+        k = C.fac(p) / 1e4 if hasattr(C, "fac") else 1
+        lignes.append({"libelle": fr["libelle"] + (" (pour 100 000)" if k == 10 else ""),
+                       "periode": f"{int(fr['annee_debut'])} à {int(fr['annee_fin'])}",
+                       "debut": fr["densite_debut"] * k, "fin": fr["densite_fin"] * k, "evolution": fr["evolution_densite"],
+                       "unite": C.unite(p) if hasattr(C, "unite") else "pour 10 000 habitants",
                        "baisse": f"{int((dep < 0).sum())} sur {len(dep)}", "mediane": dep.median(),
                        "n_baisse": int((dep < 0).sum()), "n": len(dep)})
     T = pd.DataFrame(lignes)
     r = T.iloc[0]
     tete = (f"D'après les séries de la DREES, de {r['periode']}, la densité de {r['libelle'].split(',')[0].lower()} est passée de "
-            f"{nombre(r['debut'], 2)} à {nombre(r['fin'], 2)} pour 10 000 habitants en France ({_signe(r['evolution'])}). "
+            f"{_dens(r['debut'])} à {_dens(r['fin'])} {r['unite']} en France ({_signe(r['evolution'])}). "
             f"Elle a baissé dans {r['n_baisse']} départements sur {r['n']}.")
     if famille == SANTE:
         bas = T[T["evolution"] < 0]
         tete = (f"D'après les séries de la DREES, entre 2016 et 2026, la densité baisse en France pour {len(bas)} des {len(T)} professions suivies "
                 f"ici, et augmente pour les autres. Pour les médecins généralistes, elle passe de "
-                f"{nombre(T.iloc[0]['debut'], 1)} à {nombre(T.iloc[0]['fin'], 1)} pour 10 000 habitants "
+                f"{_dens(T.iloc[0]['debut'])} à {_dens(T.iloc[0]['fin'])} {T.iloc[0]['unite']} "
                 f"({_signe(T.iloc[0]['evolution'])}) et baisse dans {T.iloc[0]['n_baisse']} départements sur "
                 f"{T.iloc[0]['n']}.") if T.iloc[0]["libelle"].startswith("Médecins généralistes") else tete
     L = ["### Évolution depuis 2016", "", tete, "",
          _tableau(T, ["libelle", "periode", "debut", "fin", "evolution", "mediane", "baisse"],
                   ["Profession", "Période", "Densité au début (DREES)", "Densité à la fin (DREES)", "Évolution en France",
                    "Évolution médiane des départements", "Départements en baisse"],
-                  {"debut": lambda v: nombre(v, 2), "fin": lambda v: nombre(v, 2), "evolution": _signe,
+                  {"debut": _dens, "fin": _dens, "evolution": _signe,
                    "mediane": _signe}), "",
          '<p class="pas-imprime faire-varier"><a href="../../explorer.html#trajectoires?tProfs='
          + ("psychiatre,psychologue&fam=sm" if famille == SM else "medecin_generaliste,pediatre&fam=sante")
@@ -262,8 +274,11 @@ def territoire_evolution(B, T, famille):
             continue
         x = x.iloc[0]
         fr = ev[(ev["prof"] == p) & (ev["niveau"] == "FR")].iloc[0]
-        r = {"libelle": x["libelle"], "periode": f"{int(x['annee_debut'])} à {int(x['annee_fin'])}",
-             "debut": x["densite_debut"], "fin": x["densite_fin"], "ici": x["evolution_densite"],
+        # dans l'unité de la profession sur les pages, pour 100 000 pour une profession rare (audit du 6 novembre 2026)
+        k = B.C.fac(p) / 1e4 if hasattr(getattr(B, "C", None), "fac") else 1
+        r = {"libelle": x["libelle"] + (" (pour 100 000)" if k == 10 else ""),
+             "periode": f"{int(x['annee_debut'])} à {int(x['annee_fin'])}",
+             "debut": x["densite_debut"] * k, "fin": x["densite_fin"] * k, "ici": x["evolution_densite"],
              "france": fr["evolution_densite"]}
         if T["niveau"] == "dep" and not T.get("reg_seul"):
             rg = ev[(ev["prof"] == p) & (ev["niveau"] == "reg") & (ev["code"] == T["reg"])]
@@ -276,10 +291,12 @@ def territoire_evolution(B, T, famille):
     cols = ["libelle", "periode", "debut", "fin", "ici"] + (["region"] if avec_reg else []) + ["france"]
     ents = ["Profession", "Période", "Densité au début (DREES)", "Densité à la fin (DREES)", "Évolution ici"] + (
         ["Évolution de la région"] if avec_reg else []) + ["Évolution en France"]
-    f2 = lambda v: nombre(v, 2)  # noqa: E731
     L = ["## Évolution depuis 2016", "",
-         tb(d, cols, ents, {"debut": f2, "fin": f2, "ici": _signe, "region": _signe, "france": _signe}), ""]
-    L += cl("Professionnels pour 10 000 habitants au 1er janvier, d'après les séries de la DREES. Ces densités "
+         tb(d, cols, ents, {"debut": _dens, "fin": _dens, "ici": _signe, "region": _signe, "france": _signe},
+            zero={"debut": AF.STATUTS["aucun"], "fin": AF.STATUTS["aucun"], "ici": "stable", "region": "stable",
+                  "france": "stable"}), ""]
+    L += cl("Professionnels pour 10 000 habitants au 1er janvier, pour 100 000 pour une profession rare, d'après les "
+            "séries de la DREES. Ces densités "
             "peuvent différer de celles du début du rapport, qui comptent une personne dans chaque département où elle "
             "exerce. Une densité peut baisser alors que le nombre de "
             "professionnels augmente, si la population augmente plus vite. "
@@ -313,7 +330,7 @@ def territoire_ald(B, T, famille):
         return []
     titre = "### Affections de longue durée" if famille == SM else "## Maladies chroniques en affection de longue durée"
     L = [titre, "", tb(pd.DataFrame(lignes), ["libelle", "num", "effectif", "taux", "milieu"],
-                       ["Affection", "N° d'ALD", "Personnes", "Pour 100 000, à âge égal", "Milieu des départements"]), ""]
+                       ["Affection", "N° d'ALD", "Personnes", "Pour 100 000, à âge égal", AF.MEDIANE["dep"]]), ""]
     L += cl("Personnes du régime général dont l'affection est reconnue en affection de longue durée, effectifs arrondis "
             "à la dizaine. Le taux est calculé à âge égal pour comparer les départements.",
             limites.phrase_md(["ald_23"], T["code"]))
@@ -321,7 +338,7 @@ def territoire_ald(B, T, famille):
 
 
 def territoire_caf(B, T):
-    """Allocations de la CAF, pour le territoire, sa région et le milieu des territoires du même niveau."""
+    """Allocations de la CAF, pour le territoire, sa région et le territoire médian du même niveau."""
     from .rapport_territoire import _comment_lire as cl, _tableau as tb
     c = B.insee.get("caf")
     if not c:
@@ -345,7 +362,7 @@ def territoire_caf(B, T):
     f1 = lambda v: nombre(v, 1)  # noqa: E731
     avec_reg = "region" in d and d["region"].notna().any()
     cols = ["libelle", "unite", "valeur"] + (["region"] if avec_reg else []) + ["milieu"]
-    ents = ["Indicateur", "Unité", "Ce territoire"] + (["Région"] if avec_reg else []) + [f"Milieu des {_nom_niv(T)}"]
+    ents = ["Indicateur", "Unité", "Ce territoire"] + (["Région"] if avec_reg else []) + [AF.MEDIANE[T["niveau"]]]
     L = ["### Handicap et précarité, allocations de la CAF", "",
          tb(d, cols, ents, {"valeur": f1, "region": f1, "milieu": f1}), ""]
     L += cl("Ces allocations signalent un handicap reconnu (AAH, AEEH) ou une situation de pauvreté (RSA). Elles ne "
@@ -569,11 +586,11 @@ def offre_besoin_carte(C, insee, ctxlab, prof="psychiatre", var="suicides"):
             h = hl.assign(nom=hl["code"].map(noms), ind=hl["code"].map(ctx["dep"][var]), dens=hl["code"].map(d[prof]))
             L += ["Départements où un indicateur élevé est entouré d'une offre faible, au-delà du hasard", "",
                   _tableau(h.sort_values("nom"), ["nom", "ind", "dens"],
-                           ["Département", cap_(ctxlab.get(var, var)), f"{cap_(nom_p)} pour 10 000 habitants"],
-                           {"ind": lambda v: nombre(v, 1), "dens": lambda v: nombre(v, 2)}), ""]
+                           ["Département", cap_(ctxlab.get(var, var)), f"{cap_(nom_p)} {C.unite(prof)}"],
+                           {"ind": lambda v: nombre(v, 1), "dens": lambda v: C.dens_txt(prof, v)}), ""]
     L += _comment_lire(
-        "Chaque département reçoit une couleur selon deux tiers à la fois. En allant vers le bleu, l'offre est plus "
-        "dense. En allant vers le rouge, l'indicateur est plus élevé. Le rouge pur signale un indicateur dans le tiers le plus "
+        "Chaque département reçoit une couleur selon deux tiers à la fois. En allant vers le canard, l'offre est plus "
+        "dense. En allant vers le cuivre, l'indicateur est plus élevé. Le cuivre pur signale un indicateur dans le tiers le plus "
         "haut et une offre dans le tiers le plus bas. Les tiers comparent les départements entre eux et ne disent "
         "pas ce qui serait un bon niveau. Un indicateur de santé mentale mesure un besoin ou un recours, jamais les deux "
         "à la fois. Un rond ocre marqué « ! » signale une donnée fragile, les départements d'Île-de-France pour le "

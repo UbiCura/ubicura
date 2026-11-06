@@ -54,9 +54,9 @@ function tableNuage(lv,cx,p,pts,cy){
   const val=d=>SC.tri==="nm"?d.u.nm:SC.tri==="pop"?d.u.pop:SC.tri==="x"?d.x:d.y;
   let rows=pts.filter(d=>!q||d.u.nm.toLowerCase().includes(q)).sort((a,b)=>{const A=val(a),B=val(b);return(typeof A==="string"?A.localeCompare(B,"fr"):A-B)*(SC.asc?1:-1)});
   const th=(k,t)=>'<th><button data-s="'+k+'" class="'+(SC.tri===k?"on":"")+'">'+esc(t)+(SC.tri===k?(SC.asc?" ▲":" ▼"):"")+'</button></th>';
-  const fx=(v,d)=>texteTaux(cx,lv,d.i,cx.unite==="€"?fmt.format(Math.round(v)):f1.format(v));
-  document.getElementById("scTable").innerHTML='<thead><tr>'+th("nm",lv==="dep"?"Département":"Intercommunalité")+th("pop","Habitants")+th("x",libUnite(cx))+th("y",cy?libUnite(cy):cap(pluriel(lab))+", pour 10 000 hab.")+'</tr></thead><tbody>'
-    +rows.map(d=>'<tr><td>'+esc(d.u.nm)+'</td><td>'+fmt.format(d.u.pop)+'</td><td>'+esc(fx(d.x,d))+'</td><td>'+(cy?esc(texteTaux(cy,lv,d.i,cy.unite==="€"?fmt.format(Math.round(d.y)):f1.format(d.y))):f2.format(d.y))+'</td></tr>').join("")+'</tbody>';
+  const fx=(v,d)=>texteTaux(cx,lv,d.i,fCtx(cx,v));
+  document.getElementById("scTable").innerHTML='<thead><tr>'+th("nm",lv==="dep"?"Département":"Intercommunalité")+th("pop","Habitants")+th("x",libUnite(cx))+th("y",cy?libUnite(cy):cap(pluriel(lab))+", "+uniteP(p,true))+'</tr></thead><tbody>'
+    +rows.map(d=>'<tr><td>'+esc(d.u.nm)+'</td><td>'+fmt.format(d.u.pop)+'</td><td>'+esc(fx(d.x,d))+'</td><td>'+(cy?esc(texteTaux(cy,lv,d.i,fCtx(cy,d.y))):fD(d.y))+'</td></tr>').join("")+'</tbody>';
   document.querySelectorAll("#scTable th button").forEach(b=>b.onclick=()=>{const k=b.dataset.s;if(SC.tri===k)SC.asc=!SC.asc;else{SC.tri=k;SC.asc=k==="nm"}tableNuage(lv,cx,p,pts,cy)});
   // données complètes du nuage (codes, valeurs non arrondies), exportées par « Citer et exporter »
   EXPORT_CSV.scTable=()=>({titre:"Données du nuage, "+cx.label+" et "+(cy?minuscule(cy.label):pluriel(lab))+", par "+(lv==="dep"?"département":"intercommunalité"),nom:cx.id+"_"+(cy?cy.id:p)+"_"+lv,
@@ -87,13 +87,13 @@ function scatter(){
   const gy=svg.append("g").attr("transform","translate("+m.l+",0)").call(d3.axisLeft(ys).tickValues(graduations(ys,6,24)).tickFormat(nbAxe)).call(g=>g.selectAll("line,path").attr("stroke",css("--line")));
   svg.append("clipPath").attr("id","scClip").append("rect").attr("x",m.l).attr("y",m.t-6).attr("width",w-m.l-m.r).attr("height",h-m.t-m.b+6);
   svg.append("text").attr("x",w-m.r).attr("y",h-6).attr("text-anchor","end").text(libUnite(cx));
-  const ylab=cy?cy.label+(cy.unite?" ("+cy.unite+")":""):profLab(p)+", pour 10 000 hab."+(yl?" (log)":"");
+  const ylab=cy?cy.label+(cy.unite?" ("+cy.unite+")":""):profLab(p)+", "+uniteP(p,true)+(yl?" (log)":"");
   svg.append("text").attr("x",m.l).attr("y",12).text(ylab);
   const box=document.getElementById("scatter");
   const ptsC=svg.append("g").attr("class","points").attr("clip-path","url(#scClip)").selectAll("circle").data(pts.filter(d=>!yl||d.y>0)).join("circle")
     .attr("cx",d=>(avant.get(d.u.c)||[xs(Math.max(d.x,xs.domain()[0]))])[0]).attr("cy",d=>(avant.get(d.u.c)||[0,ys(d.y)])[1]).attr("r",d=>rs(d.u.pop))
-    .attr("fill",d=>S.sel&&S.sel.c===d.u.c?css("--accent"):css("--r4")).attr("fill-opacity",.55).attr("stroke",css("--panel")).attr("stroke-width",.4);
-  ptsC.append("title").text(d=>d.u.nm+"\n"+cx.label+" "+texteTaux(cx,lv,d.i,f1.format(d.x))+"\n"+(cy?cy.label+" "+texteTaux(cy,lv,d.i,f1.format(d.y)):profLab(p)+" "+f1.format(d.y)));
+    .attr("fill",d=>S.sel&&S.sel.c===d.u.c?css("--choisi"):css("--r4")).attr("fill-opacity",.55).attr("stroke",css("--panel")).attr("stroke-width",.4);
+  ptsC.append("title").text(d=>d.u.nm+"\n"+cx.label+" "+texteTaux(cx,lv,d.i,fCtx(cx,d.x))+"\n"+(cy?cy.label+" "+texteTaux(cy,lv,d.i,fCtx(cy,d.y)):profLab(p)+" "+fD(d.y)+" "+uniteP(p,true)));
   // le glissement part après le dessin des autres figures de l'onglet, sinon le temps de ce dessin mange l'animation
   // (changement de profession, toutes les figures sont refaites d'un bloc)
   if(avant.size)requestAnimationFrame(()=>ptsC.transition().duration(480).ease(d3.easeCubicOut).attr("cx",d=>xs(Math.max(d.x,xs.domain()[0]))).attr("cy",d=>ys(d.y)));
@@ -112,11 +112,11 @@ function scatter(){
     // Mayotte écartée des croisements entre départements, comme dans les rapports
     const pq=pts.filter(d=>!(D.meta.exclus_croisements||["976"]).includes(d.u.c));
     const mx=d3.median(pq,d=>d.x),my=d3.median(pq,d=>d.y);medX=mx;medY=Math.max(my,yl?ys.domain()[0]:0);
-    svg.append("line").attr("class","med-x").attr("x1",xs(mx)).attr("x2",xs(mx)).attr("y1",m.t).attr("y2",h-m.b).attr("stroke",css("--accent")).attr("stroke-dasharray","4 3");
-    svg.append("line").attr("class","med-y").attr("x1",m.l).attr("x2",w-m.r).attr("y1",ys(Math.max(my,yl?ys.domain()[0]:0))).attr("y2",ys(Math.max(my,yl?ys.domain()[0]:0))).attr("stroke",css("--accent")).attr("stroke-dasharray","4 3");
+    svg.append("line").attr("class","med-x").attr("x1",xs(mx)).attr("x2",xs(mx)).attr("y1",m.t).attr("y2",h-m.b).attr("stroke",css("--ink")).attr("stroke-dasharray","4 3");
+    svg.append("line").attr("class","med-y").attr("x1",m.l).attr("x2",w-m.r).attr("y1",ys(Math.max(my,yl?ys.domain()[0]:0))).attr("y2",ys(Math.max(my,yl?ys.domain()[0]:0))).attr("stroke",css("--ink")).attr("stroke-dasharray","4 3");
     const crit=pq.filter(d=>d.x>mx&&d.y<=my);
     quad=" Lignes pointillées, médianes des départements, en bas à droite un indicateur élevé et une offre faible. "+crit.length+" départements ont un indicateur au-dessus de la médiane et une densité "+deMot(pluriel(profLab(p)))+" au-dessous. Cette position par rapport aux médianes ne mesure pas une insuffisance au sens d’une norme.";
-    quadListe='<details class="plus"><summary>Liste de ces '+crit.length+' départements, par ordre alphabétique</summary><div class="scroll"><table><tr><th>Département</th><th>'+esc(cx.label)+'</th><th>'+esc(profLab(p))+', pour 10 000 hab.</th></tr>'+crit.slice().sort((a,b)=>a.u.nm.localeCompare(b.u.nm,"fr")).map(d=>'<tr><td>'+esc(d.u.nm)+'</td><td>'+f1.format(d.x)+'</td><td>'+f2.format(d.y)+'</td></tr>').join("")+'</table></div></details>';
+    quadListe='<details class="plus"><summary>Liste de ces '+crit.length+' départements, par ordre alphabétique</summary><div class="scroll"><table><tr><th>Département</th><th>'+esc(cx.label)+'</th><th>'+esc(profLab(p))+', '+uniteP(p,true)+'</th></tr>'+crit.slice().sort((a,b)=>a.u.nm.localeCompare(b.u.nm,"fr")).map(d=>'<tr><td>'+esc(d.u.nm)+'</td><td>'+f1.format(d.x)+'</td><td>'+fD(d.y)+'</td></tr>').join("")+'</table></div></details>';
   }
   // zoom du nuage (remarque de Lucas du 23 octobre 2026, l'échelle se dérèglait) : les axes et la grille se
   // recalculent au lieu d'agrandir l'image ; boutons + et −, Ctrl et molette, glisser pour se déplacer une fois zoomé

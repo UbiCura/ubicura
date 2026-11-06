@@ -32,14 +32,17 @@ GLOSSAIRE = [
      "dans sa base des équipements. La distance à la structure de soins la plus proche est mesurée ici à vol d'oiseau, depuis "
      "le centre de la commune des habitants. Ce n'est pas un temps de trajet. Pour un territoire, la valeur donnée est "
      "la médiane des habitants, la moitié d'entre eux est plus près, l'autre moitié plus loin.", ""),
-    ("densite", "Densité pour 10 000 habitants",
+    # définition valable pour toutes les professions, rares comprises (audit du 6 novembre 2026, l'atlas la donnait sous
+    # une mesure pour 100 000 habitants)
+    ("densite", "Densité pour 10 000 ou 100 000 habitants",
      "Nombre de professionnels rapporté à la population. Une densité de 5 signifie 5 professionnels pour 10 000 "
-     "habitants, soit environ un pour 2 000 habitants. C'est la mesure qui permet de comparer un petit territoire "
-     "et une grande ville.", ""),
-    ("moyenne", "Moyenne des territoires",
-     "Densité de référence à laquelle un territoire est comparé, par exemple la moyenne des départements. C'est le "
+     "habitants, soit environ un pour 2 000 habitants. Pour une profession rare, moins d'un professionnel pour 10 000 "
+     "habitants en France, la densité est donnée pour 100 000 habitants, pour garder des chiffres lisibles. C'est la "
+     "mesure qui permet de comparer un petit territoire et une grande ville.", ""),
+    ("moyenne", "Ensemble des territoires",
+     "Densité de référence à laquelle un territoire est comparé, par exemple l'ensemble des départements. C'est le "
      "nombre de professionnels de tous les départements rapporté à la population de la France, compté comme pour "
-     "chaque département, avec les seules activités de soins qui ont un lieu d'exercice. Elle diffère un peu du "
+     "chaque département, avec les seules activités de soins qui ont un lieu d'exercice. Il diffère un peu du "
      "chiffre de la France entière, qui compte chaque personne une fois, y compris les remplacements et les "
      "activités non rattachées à un territoire (téléconsultation, activités sans soins à la population).", ""),
     ("effectif", "Effectif",
@@ -78,8 +81,8 @@ GLOSSAIRE = [
      "Sur la carte de France, la Corse est rapprochée du continent, à la même échelle, pour que la carte reste "
      "lisible. Les plans des territoires et les distances gardent sa position réelle.", ""),
     ("indice100", "Indice 100",
-     "Comparaison à la moyenne des territoires du même niveau. Un indice de 150 signifie une densité supérieure de "
-     "moitié à cette moyenne, un indice de 50 une densité deux fois plus faible.", ""),
+     "Comparaison à l'ensemble des territoires du même niveau. Un indice de 150 signifie une densité supérieure de "
+     "moitié à celle de l'ensemble, un indice de 50 une densité deux fois plus faible.", ""),
     ("gini", "Indice de Gini",
      "Mesure de l'inégalité de répartition, entre 0 et 1. À 0, chaque territoire a exactement autant de "
      "professionnels que son poids dans la population. Plus on s'approche de 1, plus les professionnels sont "
@@ -117,8 +120,8 @@ GLOSSAIRE = [
      "négatif s'ils le sont dans les territoires modestes. Il va de -1 à +1.", ""),
     ("entonnoir", "Diagramme en entonnoir",
      "Dans un petit territoire, quelques arrivées ou départs font beaucoup varier la densité. Le diagramme place "
-     "chaque territoire selon sa population et sa densité, et trace autour de la moyenne des territoires des limites qui "
-     "se resserrent quand la population augmente. Entre les limites, l'écart à la moyenne peut tenir au hasard. "
+     "chaque territoire selon sa population et sa densité, et trace autour de l'ensemble des territoires des limites qui "
+     "se resserrent quand la population augmente. Entre les limites, l'écart à l'ensemble peut tenir au hasard. "
      "Sous la limite basse à 99,8 %, le territoire est nettement en dessous, ce que le hasard expliquerait au plus "
      "deux fois sur mille.", ""),
     ("q", "Significativité corrigée (q)",
@@ -175,7 +178,7 @@ GLOSSAIRE = [
      "Le temps médian est celui en dessous duquel vit la moitié des habitants.", ""),
     ("zones","Zones peu dotées et zones de concentration",
      "Un territoire peu doté n'est pas forcément un désert, ses habitants peuvent consulter juste à côté. Une zone "
-     "peu dotée réunit des territoires voisins tous en dessous de la moyenne, ce qui rend le recours de proximité "
+     "peu dotée réunit des territoires voisins tous en dessous de l'ensemble des territoires, ce qui rend le recours de proximité "
      "plus difficile. Une zone de concentration est l'inverse. Ces zones sont repérées par un calcul qui vérifie "
      "que la ressemblance entre voisins ne tient pas au hasard (indice de Moran local).", ""),
     ("ecologique", "Corrélation n'est pas causalité",
@@ -273,8 +276,13 @@ def pluriel(libelle: str) -> str:
             out.append(mot)
             continue
         parts = []
-        for p in corps.split("-"):
-            if not p or p.endswith(("s", "x")):
+        morceaux = corps.split("-")
+        for k, p in enumerate(morceaux):
+            # élément savant en -o devant un trait d'union, invariable : « oto-rhino-laryngologistes »,
+            # « gastro-entérologues » (pas « otos-rhinos- », relevé le 6 novembre 2026)
+            if k < len(morceaux) - 1 and p.endswith("o"):
+                parts.append(p)
+            elif not p or p.endswith(("s", "x")):
                 parts.append(p)
             elif p.endswith("al"):
                 parts.append(p[:-2] + "aux")
@@ -417,13 +425,13 @@ def nom_classe(indices: dict) -> str:
         return f"Territoires plutôt mieux dotés, surtout pour les {liste(haut)}" + (
             f", moins dotés pour les {liste(bas)}" if bas else "")
     if not bas and not haut:
-        return "Territoires proches de la moyenne"
+        return "Territoires proches de l'ensemble"
     morceaux = []
     if bas:
         morceaux.append(f"moins dotés pour les {liste(bas)}")
     if haut:
         morceaux.append(f"mieux dotés pour les {liste(haut)}")
-    return "Territoires proches de la moyenne, " + ", ".join(morceaux)
+    return "Territoires proches de l'ensemble, " + ", ".join(morceaux)
 
 
 def ecart_moyenne(indice: float) -> str:
@@ -446,6 +454,6 @@ def noms_classes(profils: dict) -> dict:
     noms = {k: nom_classe(v) for k, v in profils.items()}
     med = {k: float(np.median(list(v.values()))) for k, v in profils.items()}
     doubles = {nom for nom in noms.values() if list(noms.values()).count(nom) > 1}
-    out = {k: f"{nom} ({ecart_moyenne(med[k])} que la moyenne)" if nom in doubles else nom for k, nom in noms.items()}
+    out = {k: f"{nom} ({ecart_moyenne(med[k])} que l'ensemble)" if nom in doubles else nom for k, nom in noms.items()}
     encore = {nom for nom in out.values() if list(out.values()).count(nom) > 1}
     return {k: f"{nom[:-1]}, indice médian {round(med[k])})" if nom in encore else nom for k, nom in out.items()}

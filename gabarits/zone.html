@@ -1,0 +1,149 @@
+{% extends "base.html" %}
+{# Autour d'un lieu, ou sur un périmètre (présentation du 30 octobre 2026, maquette d-zone validée). Une zone à la fois,
+   tracée dans un rayon autour d'une commune ou composée commune par commune. Les temps de route (pipeline/trajets.py)
+   prendront la place prévue dans « Mesure » quand leur réutilisation sera établie. Données de presentation/zone_donnees.js
+   (pipeline/zone.py). #}
+{% block contenu %}
+<style>
+main.zone{max-width:var(--largeur-page)}
+main.zone [hidden]{display:none!important}
+main.zone h1{border:0;padding:0}
+main.zone .chapeau{max-width:64ch}
+main.zone .cherche{position:relative;max-width:40rem;margin-top:14px}
+main.zone .cherche label{display:block;font-size:.875rem;color:var(--muted);margin-bottom:6px;text-align:left}
+main.zone .cherche input{width:100%;min-height:48px;padding:0 14px;font:inherit;font-size:1.0625rem;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:4px}
+main.zone .suggestions{list-style:none;margin:4px 0 0;padding:4px;position:absolute;left:0;right:0;z-index:20;background:var(--panel);border:1px solid var(--line);border-radius:4px;box-shadow:0 8px 24px rgb(0 0 0 / .25)}
+main.zone .suggestions li{margin:0}
+main.zone .suggestions a{display:flex;flex-wrap:wrap;gap:2px 8px;align-items:baseline;padding:10px;border-radius:4px;min-height:44px;color:var(--ink);text-decoration:none;text-align:left}
+main.zone .suggestions a:hover{background:var(--nodata)}
+main.zone .suggestions span{font-size:.8125rem;color:var(--muted)}
+main.zone .cherche-msg{min-height:1.5em;margin:8px 0 0;font-size:.875rem;color:var(--muted);text-align:left}
+main.zone .reglages{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;margin:16px 0 0;font-size:.9375rem}
+main.zone .grp{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+main.zone .grp > span{color:var(--muted);margin-right:4px}
+main.zone .grp button{min-height:44px;padding:0 13px;background:none;border:1px solid var(--line);border-radius:4px;color:var(--ink);font:inherit;font-size:.9375rem;cursor:pointer}
+main.zone .grp button[aria-pressed="true"]{border-color:var(--r4);color:var(--r4);font-weight:600}
+main.zone .grp button[disabled]{color:var(--muted);cursor:not-allowed;border-style:dashed}
+main.zone .perim{margin:14px 0 0}
+main.zone .perim-liste{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0 0;padding:0;list-style:none}
+main.zone .perim-liste li{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:4px;padding:0 0 0 10px;font-size:.875rem;min-height:40px;background:var(--panel);margin:0}
+main.zone .perim-liste button{min-height:40px;min-width:40px;background:none;border:0;color:var(--muted);cursor:pointer;font:inherit;font-size:1.0625rem}
+main.zone .perim-liste button:hover{color:var(--ink)}
+main.zone .perim-act{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 0}
+main.zone .perim-act button{min-height:40px;padding:0 12px;background:none;border:1px solid var(--line);border-radius:4px;color:var(--ink);font:inherit;font-size:.875rem;cursor:pointer}
+main.zone .perim-act button:hover{border-color:var(--r4)}
+main.zone .perim-act button[disabled]{color:var(--muted);cursor:not-allowed}
+main.zone .z-grille{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px 36px;align-items:start;margin-top:22px}
+main.zone .fen{border:1px solid var(--line);border-radius:4px;background:var(--panel)}
+main.zone .barre{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:0 8px;padding:4px 6px 4px 14px;border-bottom:1px solid var(--line);font-size:.875rem}
+main.zone .barre strong{font-weight:600}
+main.zone .barre .outils-z{display:flex;flex-wrap:nowrap}
+main.zone .barre .outils-z button{background:none;border:0;border-bottom:1px solid var(--line);color:var(--ink);font:inherit;font-size:.875rem;min-height:40px;padding:0 8px;cursor:pointer}
+main.zone .barre .outils-z button[aria-expanded="true"],main.zone .barre .outils-z button:hover{border-bottom-color:var(--accent)}
+main.zone .panneau{margin:10px 12px 0;background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:12px 14px;font-size:.9375rem;text-align:left}
+main.zone .panneau[hidden]{display:none}
+main.zone .panneau button{background:none;border:0;border-bottom:1px solid var(--line);color:var(--ink);font:inherit;font-size:.875rem;min-height:40px;padding:0 6px;margin-right:6px;cursor:pointer}
+main.zone .panneau .cit{overflow-wrap:anywhere;margin:0 0 8px}
+main.zone #zc{width:100%;height:auto;display:block;touch-action:manipulation}
+main.zone #zc .fc{fill:var(--nodata);stroke:var(--line);stroke-width:.6}
+main.zone #zc .fc.dans{fill:color-mix(in srgb,var(--r1) 22%,var(--nodata))}
+main.zone #zc .fc.sel{fill:color-mix(in srgb,var(--accent) 30%,var(--nodata));stroke:color-mix(in srgb,var(--accent) 60%,var(--line))}
+main.zone #zc .nom-com{font:600 11px var(--sans);fill:var(--ink);stroke:var(--panel);stroke-width:3px;paint-order:stroke;pointer-events:none}
+main.zone #zc .cercle{fill:none;stroke:var(--r4);stroke-width:1.5;stroke-dasharray:5 4}
+main.zone #zc .lieu{fill:var(--ink)}
+main.zone #zc .st{stroke:var(--panel);stroke-width:1}
+main.zone #zc .st.c{fill:var(--r4)}main.zone #zc .st.v{fill:var(--panel);stroke:var(--r4);stroke-width:2}main.zone #zc .st.o{fill:var(--muted);stroke:var(--panel)}
+main.zone #zc .st.hors{opacity:.3}
+main.zone #zc .echelle{fill:var(--muted);font:12px var(--sans)}
+main.zone .leg-z{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.8125rem;color:var(--muted);margin:0;padding:4px 14px 12px}
+main.zone .leg-z i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
+main.zone .chiffres-z{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 28px;margin:0 0 18px}
+main.zone .chiffres-z .n{font-family:var(--serif);font-size:2.125rem;line-height:1;color:var(--r4);font-variant-numeric:tabular-nums}
+main.zone .chiffres-z p{margin:6px 0 0;font-size:.875rem;text-align:left}
+main.zone h2.dans{font-size:1.375rem;margin:0 0 12px;padding:0;border:0}
+main.zone .defile-z{overflow-x:auto}
+main.zone table.zs{width:100%;font-size:.9375rem;margin:0}
+main.zone table.zs caption{text-align:left;font-family:var(--serif);font-size:1.125rem;padding-bottom:6px}
+main.zone table.zs th,main.zone table.zs td{text-align:left;vertical-align:top}
+main.zone table.zs .v{padding-left:16px;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+main.zone table.zs thead .v{white-space:normal;min-width:5.5rem}
+main.zone table.zs td .c{display:block;font-size:.75rem;color:var(--muted)}
+main.zone table.zs tr.groupe th{font-family:var(--serif);font-weight:500;font-size:1rem;padding-top:14px}
+main.zone .sig{color:var(--signal);font-weight:700;margin-left:4px;cursor:help}
+main.zone .limite{display:flex;gap:10px;align-items:baseline;font-size:.875rem;color:var(--muted);margin:10px 0 0;text-align:left}
+main.zone .limite b{color:var(--signal);flex:none}
+main.zone .limite b.cache{visibility:hidden}
+main.zone .discret{color:var(--muted);font-size:.875rem;text-align:left}
+main.zone section.mal{margin-top:18px}
+main.zone section.mal h3{font-size:1.0625rem;margin:0 0 4px}
+main.zone ul.mal-liste{list-style:none;margin:8px 0 0;padding:0;font-size:.875rem}
+main.zone ul.mal-liste li{display:flex;justify-content:space-between;gap:16px;padding:5px 0;border-bottom:1px solid var(--line);margin:0;text-align:left}
+main.zone ul.mal-liste .v{color:var(--muted);white-space:nowrap}
+main.zone .vide-z{margin-top:22px;max-width:48rem}
+@media (min-width:901px){main.zone .z-grille > .fen{position:sticky;top:12px}}
+@media (max-width:900px){main.zone .z-grille{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:640px){main.zone #zc .nom-com{font-size:17px;stroke-width:4px}main.zone #zc .echelle{font-size:17px}}
+main.zone .perim-n{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center}
+main.zone .perim-n button{background:none;border:0;border-bottom:1px solid var(--line);color:var(--ink);font:inherit;font-size:.875rem;min-height:40px;padding:0 4px;cursor:pointer}
+@media (max-width:420px){main.zone .grp button{padding:0 10px;font-size:.875rem}main.zone .chiffres-z{grid-template-columns:1fr}main.zone table.zs{font-size:.875rem}main.zone table.zs th,main.zone table.zs td{padding:7px 5px}main.zone table.zs .v{white-space:normal}main.zone table.zs thead .v{min-width:0}main.zone .barre{padding:6px 6px 0 14px}main.zone .barre strong{flex-basis:100%;padding-top:4px}main.zone .barre .outils-z{margin-left:-8px}}
+</style>
+<header class="tete">
+  <h1>Autour d’un lieu, ou sur un périmètre</h1>
+  <p class="chapeau">Les habitants et les structures de soins dans un rayon autour d’une commune, ou sur un périmètre composé commune par commune, comme celui d’une communauté professionnelle territoriale de santé (CPTS) ou d’un contrat local de santé. Une zone à la fois, dans la dernière version des données.</p>
+  <div class="reglages">
+    <div class="grp" role="group" aria-label="Façon de tracer la zone"><button type="button" data-mode="z" aria-pressed="true">Autour d’un lieu</button><button type="button" data-mode="p" aria-pressed="false">Commune par commune</button></div>
+    <div class="grp" role="group" aria-label="Structures montrées"><button type="button" data-fam="sm" aria-pressed="true">Santé mentale</button><button type="button" data-fam="sante" aria-pressed="false">Santé</button></div>
+  </div>
+  <div class="cherche">
+    <label for="q" id="q-lab">Le lieu, une commune ou un code postal</label>
+    <input id="q" type="search" autocomplete="off" placeholder="Commune ou code postal" role="combobox" aria-controls="sugg" aria-autocomplete="list" aria-expanded="false">
+    <ul class="suggestions" id="sugg" role="listbox" hidden></ul>
+    <p class="cherche-msg" id="msg" aria-live="polite"></p>
+  </div>
+  <div class="perim" id="perim" hidden>
+    <div class="discret perim-n"><span id="perim-n"></span><button type="button" id="p-voir" aria-expanded="false" aria-controls="perim-liste" hidden></button></div>
+    <ul class="perim-liste" id="perim-liste"></ul>
+    <div class="perim-act"><button type="button" id="p-epci">Ajouter toute l’intercommunalité de la dernière commune</button><button type="button" id="p-vider">Vider le périmètre</button></div>
+  </div>
+  <div class="reglages" id="reg-zone">
+    <div class="grp" role="group" aria-label="Rayon"><span>Rayon</span><button type="button" data-r="5">5 km</button><button type="button" data-r="10">10 km</button><button type="button" data-r="20">20 km</button><button type="button" data-r="30">30 km</button></div>
+    <div class="grp" role="group" aria-label="Mesure"><span>Mesure</span><button type="button" data-mesure="vol" aria-pressed="true">À vol d’oiseau</button><button type="button" data-mesure="route" id="b-route" disabled title="Temps de route en voiture vers ces structures, en cours de calcul pour toute la France">En temps de route, à venir</button></div>
+  </div>
+</header>
+
+<p class="discret vide-z" id="vide">Choisissez une commune pour tracer une zone autour d’elle, ou passez à « Commune par commune » pour composer un périmètre. Depuis la fiche d’une intercommunalité, un lien ouvre directement son périmètre.</p>
+
+<div class="z-grille" id="grille" hidden>
+  <section class="fen" aria-labelledby="t-zc">
+    <div class="barre"><strong id="t-zc">Structures de la zone</strong>
+      <div class="outils-z"><button type="button" data-panneau="citer-z" aria-expanded="false">Citer et exporter</button></div></div>
+    <div class="panneau" id="citer-z" hidden><p class="cit" id="cit-z"></p><button type="button" data-export="png">Figure, PNG</button><button type="button" data-export="svg">Figure, SVG</button><button type="button" data-export="csv">Tableau, CSV</button><button type="button" data-export="lien">Copier le lien de cette zone</button><span class="discret" id="lien-z" aria-live="polite"></span></div>
+    <svg id="zc" viewBox="0 0 520 420" role="img" aria-labelledby="t-zc"></svg>
+    <div class="leg-z"><span><i style="background:var(--r4)"></i>confirmée</span><span><i style="background:var(--panel);border:1.5px solid var(--r4)"></i>à vérifier</span><span><i style="background:var(--muted);border-radius:0;transform:rotate(45deg);width:8px;height:8px"></i>recoupée ou sans objet</span><span id="leg-lieu"><i style="background:var(--ink)"></i>lieu choisi</span><span id="leg-com" hidden><i style="background:color-mix(in srgb,var(--accent) 30%,var(--nodata));border-radius:0;width:14px"></i>commune du périmètre</span></div>
+    <p class="comment-lire" id="lire-zc"><strong>Comment lire.</strong> Le fond montre les contours des communes, d’après ADMIN EXPRESS de l’IGN, avec le nom des plus peuplées. Les communes dont le centre de la population est dans le rayon sont teintées. Les points plus grands sont les structures de soins du type de famille choisi, en rond plein quand la structure est confirmée, en cercle vide quand elle est à vérifier, en losange gris quand elle est recoupée par la statistique des hôpitaux ou que la confirmation ne s’applique pas à son type. Le cercle en tirets est le rayon choisi. En mode « Commune par commune », les communes du périmètre sont en aplat cuivré et les structures hors du périmètre sont pâlies. Survoler un point donne son type, son nom et sa distance. En temps de route, la tranche se mesure en voiture depuis le centre de la population de la commune, d’après les zones atteignables autour de chaque structure que calcule le service d’isochrone de la Géoplateforme de l’IGN, ramenées à l’échelle du distancier de l’INSEE (Metric-OSRM), qui sert de référence aux statistiques publiques : chaque seuil est calé pour que la part des habitants au-delà reproduise celle que l’INSEE publie vers les urgences, Vers les urgences, 5,0 % des habitants sont ainsi à plus de 30 minutes, contre 5,6 % selon l’INSEE. Vers les maternités, 9,4 % le sont, contre 7 % selon la DREES. Plusieurs pistes peuvent l’expliquer, sans qu’aucune soit établie : la DREES compte les femmes de 15 à 44 ans, plus souvent citadines (7,4 % des 18 à 39 ans sont à plus de 30 minutes, contre 9,1 % de tous les habitants des mêmes carreaux) ; elle décrit 2017, et 32 maternités de métropole ont été fermées entre 2018 et 2023 ; son moteur de calcul diffère, avec d’autres vitesses à la campagne. Les points de départ, des carreaux de 200 mètres, sont les mêmes (détail sur la page méthode). Le moteur de l’IGN, plus prudent, surtout en ville, donne des temps plus longs pour le même trajet : « moins de 15 minutes » ici correspond à moins de 20 minutes avec ce moteur, « moins de 30 minutes » à moins de 36. Le vrai temps, qui dépend de la circulation et de l’heure, se situe le plus souvent dans cette fourchette.</p>
+  </section>
+  <section aria-labelledby="t-zr">
+    <h2 class="dans" id="t-zr">Dans la zone</h2>
+    <div class="chiffres-z" id="chz"></div>
+    <div class="defile-z"><table class="zs" data-cite="1"><caption id="cap-zt">Structures de soins en santé mentale</caption>
+      <thead><tr><th scope="col">Type</th><th scope="col" class="v" id="th-dans">Dans la zone</th><th scope="col" class="v" id="th-proche">La plus proche</th></tr></thead><tbody id="zt"></tbody></table></div>
+    <p class="limite" id="zlim" hidden><b aria-hidden="true">!</b><span></span></p>
+    <p class="limite" id="rlim" hidden><b aria-hidden="true">!</b><span>Temps de route en voiture, sans encombrement, depuis le centre de la population de la commune vers la structure la plus proche, à l’échelle du distancier de l’INSEE. Les urgences comptent aussi les SMUR, comme la base permanente des équipements. Les autres types restent en distance. Voir « Comment lire » pour l’écart entre moteurs.</span></p>
+    <section class="mal" id="mal" hidden aria-labelledby="t-mal">
+      <h3 id="t-mal">Types mal recensés dans les bases nationales</h3>
+      <p class="limite"><b aria-hidden="true">!</b><span>Ces types ne sont recensés que dans moins de 90&nbsp;% des départements, la structure existant souvent sans être inscrite sous ce type dans FINESS ou le ROR. Leur nombre dans la zone est un minimum, et la plus proche n’est pas donnée.</span></p>
+      <ul class="mal-liste" id="mal-liste"></ul>
+    </section>
+    <p class="limite" id="clim" hidden><b aria-hidden="true">!</b><span></span></p>
+    <p class="limite"><b aria-hidden="true">!</b><span>Distances à vol d’oiseau depuis le centre de la population de la commune, d’après les carreaux de 200&nbsp;m de l’INSEE. Les professionnels de la zone ne sont pas comptés ici, car additionner les effectifs des communes compterait deux fois un professionnel qui exerce dans deux d’entre elles. Leur nombre par intercommunalité est dans sa fiche.</span></p>
+    <p class="limite" id="plim" hidden><b aria-hidden="true" class="cache">!</b><span>Une structure compte dans le périmètre quand elle reçoit ses patients dans l’une de ses communes. La plus proche se mesure depuis le centre de la population du périmètre, moyenne des centres de ses communes pondérée par leurs habitants.</span></p>
+    <p class="discret" id="vers-fiche" style="margin-top:12px"></p>
+  </section>
+</div>
+<p class="discret" style="margin-top:18px;max-width:52rem">Les structures viennent du répertoire FINESS et du répertoire opérationnel des ressources (ROR), réunis et dédoublonnés, chacune placée dans la commune où elle reçoit ses patients. Les habitants sont ceux des populations légales reprises par le référentiel des communes. Version du {{ date_longue }}, méthode et limites sur la page <a href="methode.html">Méthode, données et limites</a>.</p>
+<script src="presentation/zone_donnees.js"></script>
+<script src="presentation/chiffres.js"></script>
+<script src="presentation/recherche.js"></script>
+<script src="presentation/zone.js"></script>
+<script src="presentation/glossaire.js" defer></script>
+{% endblock %}

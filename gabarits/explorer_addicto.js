@@ -62,7 +62,10 @@ function consommationsA() {
     .concat(notes).map(t => `<span>${t}</span>`).join(" ");
   // côte à côte sur un écran large, empilés sur un écran étroit (moins de 300 pixels par panneau)
   const w = largeur(div), pas = 22, fs = 12, sig = fs * .56;
-  const g0 = Math.min(Math.round(w * .42), Math.ceil(d3.max(codes, c => nomRegA(c).length) * sig) + 14);
+  // colonne des noms à leur largeur ; sur un écran étroit elle peut prendre plus de place, sinon « Provence-Alpes-Côte
+  // d'Azur » sortait de la figure (relecture indépendante du 5 novembre 2026, 375 pixels)
+  const besoin = Math.ceil(d3.max(codes, c => nomRegA(c).length) * sig) + 14;
+  const g0 = Math.min(Math.round(w * (w < 560 ? .58 : .42)), besoin);
   const empile = (w - g0 - 12) / inds.length < 230;
   const largP = empile ? w - g0 - 16 : (w - g0 - 12) / inds.length;
   const ent = inds.map(i => ({t: coupeA(i.lib, Math.max(12, Math.floor((largP - 16) / (fs * .58)))), u: coupeA(`${i.unite}, ${i.annee}`, Math.max(14, Math.floor((largP - 16) / (11 * .56))))}));
@@ -93,8 +96,8 @@ function consommationsA() {
     svg.append("line").attr("x1", X(med)).attr("x2", X(med)).attr("y1", haut0).attr("y2", bas0).attr("stroke", "var(--muted)").attr("stroke-dasharray", "3 3");
     codes.forEach((c, k) => { const r = ind.v[c]; if (!r) return; const y = haut0 + pas * k + pas / 2;
       const bulleTxt = `${nomRegA(c)}, ${ind.lib.toLowerCase()} ${f1(r[0])}${r[1] != null ? ` (de ${f1(r[1])} à ${f1(r[2])})` : ""}, ${ind.unite}, ${ind.annee}`;
-      if (r[1] != null && r[2] != null) svg.append("line").attr("x1", X(r[1])).attr("x2", X(r[2])).attr("y1", y).attr("y2", y).attr("stroke", "var(--r3, #3167A9)").attr("stroke-width", 2);
-      svg.append("circle").attr("cx", X(r[0])).attr("cy", y).attr("r", c === rep ? 5.5 : 4).attr("fill", "var(--r5, #0F3562)")
+      if (r[1] != null && r[2] != null) svg.append("line").attr("x1", X(r[1])).attr("x2", X(r[2])).attr("y1", y).attr("y2", y).attr("stroke", "var(--r3, #1C5652)").attr("stroke-width", 2);
+      svg.append("circle").attr("cx", X(r[0])).attr("cy", y).attr("r", c === rep ? 5.5 : 4).attr("fill", "var(--r5, #0D3D3B)")
         .attr("stroke", c === rep ? "var(--ink)" : "none").attr("stroke-width", 1.5).append("title").text(bulleTxt); });
   });
   // un clic sur une ligne repère la région, un second clic l'enlève

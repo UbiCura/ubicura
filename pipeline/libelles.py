@@ -45,11 +45,23 @@ VOCABULAIRE_A_EVITER = [
     (r"\bil en manque\b|\bmanquent environ\b", "écart à l'effectif attendu présenté comme un manque, le décrire (« environ N de moins »)"),
     # règle 13, aucun territoire désigné comme mauvais élève (séance principale, 28 octobre 2026)
     (r"\bmal dote(e|s|es)?\b", "« mal doté » désigne un mauvais élève, préférer « peu doté » ou « moins doté »"),
-    (r"\b(dans|hors de) la norme\b", "« la norme » pour un écart à la moyenne, préférer « proche de la moyenne » ou les limites à 95 %"),
+    (r"\b(dans|hors de) la norme\b", "« la norme » pour un écart à l’ensemble des territoires, préférer « proche de l’ensemble » ou les limites à 95 %"),
+    # tournures de présentation qui vantent le site au lieu de décrire (remarque de Lucas du 5 novembre 2026, « Le cœur
+    # du site » ne fait pas professionnel)
+    (r"\bc(oe| )ur du site\b|\bpierre angulaire\b|\bincontournable\b", "tournure qui vante le site, décrire ce que la page montre"),
+    # rien de l'offre payante sur le site avant qu'elle soit finalisée et validée, charte du gratuit comprise ; on peut
+    # préparer la place, sans aucun texte qui en parle (Lucas, 28 et 31 octobre 2026)
+    (r"\boffre (payante|professionnelle)\b|\bacces (pro|professionnel)\b|\bversion (complete|professionnelle|reelle)\b"
+     r"|\bservices? payants?\b|\bapi payante\b|\babonnements?\b|\bcharte du gratuit\b|\bce qui restera gratuit\b"
+     r"|\brestera(ont)? (toujours )?gratuit", "allusion à l'offre payante, interdite sur le site avant sa validation"),
 ]
 
 # Noms propres d'institutions conservés tels quels (validé par Lucas pour la MDPH).
-EXCEPTIONS = [r"maisons? departementales? des personnes handicapees"]
+EXCEPTIONS = [r"maisons? dep(artementales?)? (des )?personnes handicapees",   # forme abrégée du RPPS comprise (« GIP MAISON DEP PERSONNES HANDICAPEES »)
+              # raison sociale gardée telle quelle, nom propre de l'établissement de Clermont-Ferrand (Lucas, 6 novembre 2026)
+              r"centre (de )?reeducation (pour )?deficients visuels",
+              # nom propre du programme de prévention du suicide, cité dans la page méthode avec sa source
+              r"programme papageno"]
 
 
 @lru_cache(maxsize=1)
@@ -76,6 +88,61 @@ def affichage(libelle: str, source: str = "", code: str = "") -> str:
     if source and code and (source, str(code)) in i:
         return i[(source, str(code))]
     return i.get(("*", norm(libelle)), libelle)
+
+
+# casse de titre des raisons sociales du FINESS, écrites en capitales (relecture esthétique du 31 octobre 2026)
+SIGLES = {"CH", "CHU", "CHS", "CHR", "CHM", "EPSM", "CMP", "CMPP", "CATTP", "CSAPA", "CAARUD", "CAMSP", "EHPAD", "IME",
+          "ITEP", "DITEP", "SESSAD", "MAS", "FAM", "ESAT", "PMI", "GCS", "SMUR", "IRSA", "UC", "UGECAM", "HAD", "SSR",
+          "USLD", "ARS", "MS", "COREDAF", "GEDHIF", "CMS", "CSE", "SAMU", "MDPH", "ESMS", "CRP", "CHI"}
+PETITS_MOTS = {"de", "du", "des", "la", "le", "les", "et", "à", "en", "sur", "sous", "aux", "au", "d", "l"}
+ACCENTS = {"sante": "santé", "medical": "médical", "medicale": "médicale", "medico": "médico", "itinerant": "itinérant",
+           "departemental": "départemental", "departementaux": "départementaux", "departementale": "départementale",
+           "education": "éducation", "academie": "académie", "prevention": "prévention", "therapeutique": "thérapeutique",
+           "residences": "résidences", "residence": "résidence", "rene": "rené", "etablissement": "établissement",
+           "hopital": "hôpital", "pediatrique": "pédiatrique", "geriatrique": "gériatrique", "specialise": "spécialisé",
+           "coeur": "cœur", "societe": "société", "medecine": "médecine", "reeducation": "rééducation", "a": "à",
+           "indifferenciee": "indifférenciée", "indifferencie": "indifférencié"}
+
+
+def casse_titre(nom: str) -> str:
+    """« CH GEORGE SAND BOURGES » devient « CH George Sand Bourges », « C. M. P. P. LES ANOLIS » devient « CMPP les
+    Anolis » : sigles gardés (SIGLES, et sigles à points), petits mots en minuscules, accents des mots courants
+    rétablis (ACCENTS). Dans un nom qui n'est pas tout en capitales, seuls les mots de quatre lettres ou plus écrits en
+    capitales, hors sigles, passent en casse de titre (« Psychiatrie INDIFFERENCIEE », relecture v2 du 1er novembre)."""
+    if not nom:
+        return nom
+    if nom != nom.upper():
+        def un(m):
+            w = m.group(0)
+            if w in SIGLES:
+                return w
+            b = ACCENTS.get(w.lower(), w.lower())
+            return b if b in PETITS_MOTS else b[:1].upper() + b[1:]
+        return re.sub(r"\b[A-ZÀ-ÖØ-Ý]{4,}\b", un, nom)
+    t = re.sub(r"\s+", " ", nom).strip()
+    # sigles à points : « C. M. P. P. » ou « C.A.M.S.P. » deviennent « CMPP », « CAMSP »
+    t = re.sub(r"\b(?:[A-Z]\.\s?){2,}", lambda m: m.group(0).replace(".", "").replace(" ", "") + " ", t).strip()
+    t = re.sub(r"\s+", " ", t)
+
+    def mot(m, premier):
+        w = m.group(0)
+        if len(w) == 1 and t[m.end():m.end() + 1] in ("'", "’"):    # l', d' : article élidé
+            return w if premier else w.lower()
+        if w in SIGLES or (len(w) <= 3 and not re.search(r"[AEIOUYÉÈ]", w)):
+            return w
+        b = w.lower()
+        b = ACCENTS.get(b, b)
+        if b in PETITS_MOTS and not premier:
+            return b
+        return b[:1].upper() + b[1:]
+    sortie, premier = [], True
+    for m in re.finditer(r"[A-ZÀ-ÖØ-Ý0-9]+|[^A-ZÀ-ÖØ-Ý0-9]+", t):
+        if re.match(r"[A-ZÀ-ÖØ-Ý0-9]", m.group(0)):
+            sortie.append(mot(m, premier))
+            premier = False
+        else:
+            sortie.append(m.group(0))
+    return "".join(sortie)
 
 
 def termes_proscrits(texte: str) -> list[str]:

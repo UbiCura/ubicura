@@ -9,11 +9,48 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
+import re
+
+from . import affichage as AF
 from . import config, indicateurs, libelles, limites, rapport_bases
 from .analyses import CLASSES_DENSITE, moyenne_territoires, tables, temps_montres
 from .lecture import (DEFINITIONS, GLOSSAIRE, date_longue, de, fois, force, minuscule, noms_classes, nombre, pct,
                       phrase_correlation, phrase_gini, pluriel, un_pour)
 from .util import JOURNAL, controles_publics
+
+# vrai signe moins (U+2212) devant un nombre négatif écrit dans le texte, les tableaux et les phrases du rapport (audit
+# du 6 novembre 2026, « -0,13 » s'écrivait avec un trait d'union) ; un trait d'union entre deux chiffres (« 15-64 ans »,
+# « 2016-2024 ») ou dans un mot n'est pas touché
+_MOINS = re.compile(r"(?:(?<=[\s(\[|=«])|^)-(?=\d)", re.M)
+
+
+def signe_moins(texte: str) -> str:
+    return _MOINS.sub("−", texte)
+
+
+def _aucune(v) -> str:
+    """Un compte de territoires nul écrit en mots, jamais « 0 » seul (règle du projet, partie 4)."""
+    return "aucune" if v == 0 else nombre(v)
+
+
+def _aucun_accorde(libelle) -> str:
+    """« aucune » pour des places, des journées ou des venues, « aucun » sinon (lits, CMP, séjours)."""
+    m = str(libelle).split(" ", 1)[0].lower()
+    return "aucune" if m in ("places", "place", "journées", "venues", "entrées", "consultations", "hospitalisations",
+                             "admissions", "structures") else "aucun"
+
+
+def _aucun_habitant(v) -> str:
+    """Une part d'habitants exactement nulle écrite en mots, « aucun habitant », jamais « 0 % » seul ; une part
+    infime mais non nulle reste un pourcentage (lecture.pct écrit « moins de 0,1 % »)."""
+    return "aucun habitant" if v == 0 else pct(v)
+
+
+def entete_densite(C, profs) -> str:
+    """En-tête d'une colonne de densités de plusieurs professions, dans l'unité de chacune (comme le tableau de l'atlas)."""
+    # espaces fines insécables dans les nombres, « 100 000 » ne se coupe jamais en fin de ligne (audit du 6 novembre 2026)
+    return (f"Pour 10{AF.FINE}000 habitants, pour 100{AF.FINE}000 pour les professions rares"
+            if any(C.fac(p) == 100000 for p in profs) else f"Pour 10{AF.FINE}000 habitants")
 
 SM, SANTE = config.SANTE_MENTALE, config.SANTE
 PRINCIPALES = {
@@ -22,20 +59,30 @@ PRINCIPALES = {
             "pharmacien", "chirurgien_dentiste", "sage_femme", "pediatre"],
 }
 RETRAIT = {SM: ["psychologue", "psychiatre"], SANTE: ["medecin_generaliste", "orthophoniste"]}
+# professions des tuiles « sous la moitié de l'attendu », dont le nombre est aussi écrit dans le texte de la partie
+CLES_RETRAIT = {SM: ["psychologue", "psychiatre"], SANTE: ["medecin_generaliste", "masseur_kinesitherapeute"]}
 POP_MIN_RETRAIT = 20000
 
 
 # ---------------------------------------------------------------- outils
-def _tableau(df, colonnes, entetes, fmt=None, vide=""):
-    """Tableau Markdown. `vide` est le texte d'une case sans valeur, pour qu'aucune case ne reste blanche sans raison."""
-    fmt = fmt or {}
+# une case qui s'écrit zéro (« 0 », « 0,0 », « 0,00 », « 0 % »), à écrire en mots
+_ZERO_ECRIT = re.compile(r"0([,.]0+)?([\s  ]?%)?")
+
+
+def _tableau(df, colonnes, entetes, fmt=None, vide="", zero=None):
+    """Tableau Markdown. `vide` est le texte d'une case sans valeur, pour qu'aucune case ne reste blanche sans raison.
+    `zero` {colonne: mots} écrit en mots une case qui s'écrirait zéro (« aucun », « aucun inscrit », « aucun
+    habitant »), jamais un 0 seul (règle du projet, partie 4, audit du 6 novembre 2026)."""
+    fmt, zero = fmt or {}, zero or {}
     l = ["| " + " | ".join(entetes) + " |", "|" + "---|" * len(entetes)]
     for _, r in df.iterrows():
         cells = []
         for c in colonnes:
             v = r[c]
             f = fmt.get(c)
-            cells.append(f(v) if f and pd.notna(v) else (vide if pd.isna(v) else str(v)))
+            t = f(v) if f and pd.notna(v) else (vide if pd.isna(v) else str(v))
+            z = zero.get(c)
+            cells.append((z(r) if callable(z) else z) if z and _ZERO_ECRIT.fullmatch(t.strip()) else t)
         l.append("| " + " | ".join(cells) + " |")
     return "\n".join(l)
 
@@ -103,7 +150,7 @@ def _cle_evolution(C, prof):
     fr = ev[(ev["niveau"] == "FR") & (ev["prof"] == prof)].iloc[0]
     v = float(fr["evolution_densite"])
     return ((("+" if v > 0 else "") + pct(v).replace("-", "−")),
-            f"{fr['libelle'].split(',')[0].lower()} pour 10 000 habitants, de {int(fr['annee_debut'])} à {int(fr['annee_fin'])}")
+            f"{fr['libelle'].split(',')[0].lower()} {C.unite(prof)}, de {int(fr['annee_debut'])} à {int(fr['annee_fin'])}")
 
 
 def _cle_gini(C, p):
@@ -193,6 +240,28 @@ class Contexte:
         """Densité de la France entière, chaque personne comptée une fois, toutes activités. Chiffre national."""
         return self.nat.get(p, 0) / self.pop_fr * 1e4
 
+    # unité des densités d'une profession, la même que les fiches, l'atlas et Explorer (affichage.unite_prof : pour
+    # 100 000 habitants quand la densité de la France est sous 1 pour 10 000). Les calculs restent pour 10 000, seul
+    # l'affichage passe par ces fonctions (audit du 6 novembre 2026).
+    def fac(self, p) -> int:
+        n = self.nat.get(p) if p in self.nat.index else None
+        return AF.unite_prof(None if n is None else float(n), self.pop_fr)
+
+    def unite(self, p) -> str:
+        return AF.txt_unite(self.fac(p))
+
+    def dens(self, p, v):
+        """Densité calculée pour 10 000 habitants, ramenée à l'unité d'affichage de la profession."""
+        return None if v is None or not np.isfinite(v) else v * self.fac(p) / 1e4
+
+    def dens_txt(self, p, v) -> str:
+        return AF.nombre(self.dens(p, v), "taux")
+
+    def lib_u(self, p, lib=None) -> str:
+        """Libellé d'une ligne de tableau, « (pour 100 000) » sous le nom d'une profession rare, comme dans l'atlas."""
+        lib = lib if isinstance(lib, str) else self.lab.get(p, p)
+        return lib + (" (pour 100 000)" if self.fac(p) == 100000 else "")
+
     def moyenne(self, p, niveau, mode="all"):
         """Densité de référence pour comparer des territoires d'un niveau (com, piece, epci, dep, reg), calculée
         comme eux. Somme des effectifs des territoires rapportée à la population, donc sans les activités sans lieu
@@ -258,6 +327,14 @@ class Contexte:
         return self.pop_epci[zero].sum() / self.pop_epci.sum()
 
 
+def _indice(v) -> str:
+    """Indice d'un groupe de territoires (100 = ensemble) : « aucun » quand le groupe n'a aucun professionnel, « moins de
+    1 » plutôt qu'un 0 seul (audit du 6 novembre 2026)."""
+    if v == 0:
+        return "aucun"
+    return "moins de 1" if 0 < v < .5 else nombre(v)
+
+
 # ---------------------------------------------------------------- sections
 def _panorama(C: Contexte, famille):
     L = []
@@ -279,13 +356,15 @@ def _panorama(C: Contexte, famille):
     t = t.sort_values("effectif", ascending=False)
     if famille == SANTE:
         t = t[t["effectif"] >= 1000]
+    # densité dans l'unité de chaque profession, « (pour 100 000) » sous le nom des professions rares
+    t["libelle_u"] = [C.lib_u(p, lib) for p, lib in zip(t["prof"], t["libelle"])]
+    t["densite_u"] = [C.dens_txt(p, v) for p, v in zip(t["prof"], t["densite"])]
     titre = "Les professions de santé mentale" if famille == SM else "Les professions de santé"
     L += [f"### {titre}", "",
-          _tableau(t, ["libelle", "effectif", "densite", "un_pour", "gini", "sans"],
-                   ["Profession", "Effectif en France", "Pour 10 000 habitants", "Soit un pour", "Inégalité (Gini)",
+          _tableau(t, ["libelle_u", "effectif", "densite_u", "un_pour", "gini", "sans"],
+                   ["Profession", "Effectif en France", entete_densite(C, t["prof"]), "Soit un pour", "Inégalité (Gini)",
                     "Habitants sans ce professionnel dans leur intercommunalité"],
-                   {"effectif": nombre, "densite": lambda v: nombre(v, 1), "gini": lambda v: nombre(v, 2),
-                    "sans": pct}), ""]
+                   {"effectif": nombre, "gini": lambda v: nombre(v, 2), "sans": pct}, zero={"sans": "aucun habitant"}), ""]
     cle = "sm" if famille == SM else "sante"
     L += graphique(f"carte_dep_{cle}") + graphique(f"tuiles_dep_{cle}") + graphique(f"multiples_{cle}")
     L += graphique("lorenz_" + cle)
@@ -295,14 +374,17 @@ def _panorama(C: Contexte, famille):
         L += _comment_lire(
             f"L'effectif compte chaque personne une seule fois pour la France entière. "
             f"Par exemple, {nombre(r['effectif'])} {pluriel(r['libelle'])} pour {nombre(C.pop_fr)} habitants donnent "
-            f"une densité de {nombre(r['densite'], 1)} pour 10 000 habitants, soit {un_pour(r['densite'])}.",
+            f"une densité de {C.dens_txt(r['prof'], r['densite'])} {C.unite(r['prof'])}, soit {un_pour(r['densite'])}.",
             f"L'indice de Gini mesure l'inégalité de répartition entre intercommunalités, de 0 (répartition "
             f"proportionnelle à la population) à 1 (tous dans un seul territoire). À {nombre(r['gini'], 2)}, la "
             f"répartition des {pluriel(r['libelle'])} est {phrase_gini(r['gini'])}.",
             "La dernière colonne donne la part des habitants dont l'intercommunalité ne compte aucun professionnel "
             "de la catégorie. Cela ne veut pas dire qu'ils n'y ont pas accès, le plus proche peut exercer juste à "
             "côté.",
-            "Sur les cartes, un rond ocre marqué « ! » signale une donnée fragile, sans changer la couleur du "
+            "Sur les cartes, un département reste en gris quand sa densité est entre 0,8 et 1,25 fois l'ensemble des "
+            "départements, ou quand l'écart peut tenir au hasard : moins de 5 professionnels, ou un effectif que le "
+            "hasard donnerait encore 95 fois sur 100 avec la densité de l'ensemble, comme sur les fiches. "
+            "Un rond ocre marqué « ! » signale une donnée fragile, sans changer la couleur du "
             "territoire.", limites.phrase_md(["mayotte"] + (["prof:pedopsychiatre"] if famille == SM else [])))
     if famille == SM:
         L += _qualifications(C) + _elargi(C)
@@ -336,16 +418,18 @@ def _specialites(C: Contexte, profs) -> list[str]:
          f"Les {total} médecins spécialistes, hors généralistes, se répartissent entre les spécialités ci-dessous, "
          "rangées en spécialités médicales, chirurgicales et médico-techniques, plus la prévention et la santé publique. "
          "Chaque médecin est compté dans la spécialité de son inscription à l'Ordre, une seule fois.", ""]
+    t["libelle_u"] = [C.lib_u(p, lib) for p, lib in zip(t["prof"], t["libelle"])]
+    t["densite_u"] = [C.dens_txt(p, v) for p, v in zip(t["prof"], t["densite"])]
     for g in config.GROUPES_SPECIALITES:
         tg = t[t["groupe"] == g].sort_values("effectif", ascending=False)
         if tg.empty:
             continue
         L += [f"#### {g}", "",
-              _tableau(tg, ["libelle", "effectif", "densite", "liberal", "gini", "sans", "precision"],
-                       ["Spécialité", "Effectif en France", "Pour 10 000 habitants", "Part en libéral",
+              _tableau(tg, ["libelle_u", "effectif", "densite_u", "liberal", "gini", "sans", "precision"],
+                       ["Spécialité", "Effectif en France", entete_densite(C, tg["prof"]), "Part en libéral",
                         "Inégalité (Gini)", "Habitants sans ce spécialiste dans leur intercommunalité", "Précision"],
-                       {"effectif": nombre, "densite": lambda v: nombre(v, 1), "liberal": pct,
-                        "gini": lambda v: nombre(v, 2), "sans": pct}, vide="aucune"), ""]
+                       {"effectif": nombre, "liberal": pct, "gini": lambda v: nombre(v, 2), "sans": pct},
+                       vide="aucune"), ""]
     cles = [f"prof:{p}" for p in t.sort_values("effectif", ascending=False)["prof"] if f"prof:{p}" in config.LIMITES]
     L += _comment_lire(
         "La part en libéral est celle des médecins de la spécialité qui déclarent au moins une activité libérale, en "
@@ -372,17 +456,18 @@ def _parcours(C: Contexte, famille):
     debut = (f"Sur {nombre(ins)} {pl} inscrits au répertoire, {nombre(q['avec_activite'])} déclarent une activité"
              if ins else f"Sur {nombre(q['avec_activite'])} {pl} qui déclarent une activité")
     dist, sans = int(q["a_distance_seulement"]), int(q["sans_soins_seulement"])
-    ecartes = []
+    # des phrases simples, une par groupe écarté (audit de contrôle du 30 octobre 2026, F9)
+    phrases = [debut + f", {nombre(q['avec_lieu'])} ont au moins un lieu d'exercice et {nombre(q['dans_densites'])} sont "
+               f"comptés dans les densités des territoires.",
+               f"{nombre(q['sans_lieu'])} n'ont aucun lieu fixe (remplacements, exercice sans site)."]
     if dist:
-        ecartes.append(f"{nombre(dist)} n'exerce{'nt' if dist > 1 else ''}, avec un lieu déclaré, qu'en téléconsultation, "
-                       "des soins à distance déclarés au siège de la société et non rattachés au territoire des patients")
+        phrases.append(f"{nombre(dist)} n'exerce{'nt' if dist > 1 else ''} qu'en téléconsultation. Ces soins à distance "
+                       "sont déclarés au siège de la société et ne sont pas rattachés au territoire des patients.")
     if sans:
-        ecartes.append(f"{nombre(sans)} n'exerce{'nt' if sans > 1 else ''} qu'à des activités sans soins à la population")
+        phrases.append(f"{nombre(sans)} n'exerce{'nt' if sans > 1 else ''} qu'à des activités sans soins à la population.")
+    phrases.append("Tous restent dans l'effectif national.")
     return ["#### Du répertoire aux densités", "",
-            debut + f", {nombre(q['avec_lieu'])} ont au moins un lieu d'exercice et {nombre(q['dans_densites'])} sont "
-            f"comptés dans les densités des territoires. {nombre(q['sans_lieu'])} n'ont aucun lieu fixe (remplacements, "
-            f"exercice sans site)" + "".join(f", {e}" for e in ecartes[:-1]) + (f" et {ecartes[-1]}" if ecartes else "")
-            + ". Tous restent dans l'effectif national.", "", *graphique(f"parcours_{'sm' if famille == SM else 'sante'}"),
+            " ".join(phrases), "", *graphique(f"parcours_{'sm' if famille == SM else 'sante'}"),
             *_comment_lire("Chaque barre compte des personnes, une seule fois. Le pointillé montre ce qui est écarté à "
                            "chaque étape, avec sa raison. Seule la dernière barre entre dans les densités et les cartes.",
                            "", "Toutes les professions dans parcours_activites.csv.")]
@@ -424,7 +509,8 @@ def _sieges(C: Contexte, famille):
             _tableau(t, ["nom", "dist", "sans", "comptes", "pour100"],
                      ["Département", "Téléconsultation déclarée ici", "Activités sans soins à la population déclarées ici",
                       f"{pl[:1].upper() + pl[1:]} comptés dans la densité", "Pour 100 comptés"],
-                     {"dist": nombre, "sans": nombre, "comptes": nombre, "pour100": lambda v: nombre(v, 1)}), ""]
+                     {"dist": nombre, "sans": nombre, "comptes": nombre, "pour100": lambda v: nombre(v, 1)},
+                     zero={"dist": "aucune", "sans": "aucune", "pour100": "aucune"}), ""]
 
 
 def _hors_soins(C: Contexte, famille):
@@ -490,9 +576,11 @@ def _qualifications(C: Contexte):
     t["libelle"] = t["prof"].map(C.lab)
     t["effectif"] = t["prof"].map(C.nat)
     t["densite"] = t["prof"].map(C.densite)
+    t["libelle_u"] = [C.lib_u(p, lib) for p, lib in zip(t["prof"], t["libelle"])]
+    t["densite_u"] = [C.dens_txt(p, v) for p, v in zip(t["prof"], t["densite"])]
     L = ["#### Qualifications complémentaires des médecins", "",
-         _tableau(t, ["libelle", "effectif", "densite"], ["Qualification", "Médecins en France", "Pour 10 000 habitants"],
-                  {"effectif": nombre, "densite": lambda v: nombre(v, 2)}), ""]
+         _tableau(t, ["libelle_u", "effectif", "densite_u"], ["Qualification", "Médecins en France", entete_densite(C, t["prof"])],
+                  {"effectif": nombre}), ""]
     ex = []
     if "q_psychiatrie_enfant" in qs and C.present("pedopsychiatre"):
         ex.append(f"Par exemple, {nombre(C.nat['pedopsychiatre'])} médecins sont inscrits à l'Ordre comme "
@@ -787,21 +875,28 @@ def _public_cible(C: Contexte, famille):
     if t.empty:
         return []
     t["libelle"] = t["prof"].map(C.lab)
+    # densité par personne du public dans l'unité de la profession (pour 100 000 pour une profession rare)
+    t["libelle_u"] = [C.lib_u(p, lib) for p, lib in zip(t["prof"], t["libelle"])]
+    t["densite_u"] = [C.dens_txt(p, v) for p, v in zip(t["prof"], t["densite_nationale_cible"])]
     r = t.iloc[0]
     L = ["### L'offre rapportée au public concerné", "",
-         f"Rapportés aux habitants de {r['public']}, on compte {nombre(r['densite_nationale_cible'], 1)} "
-         f"{pluriel(r['libelle'])} pour 10 000. {pct(r['part_public_sans_professionnel']).capitalize()} d'entre eux "
+         f"Rapportés aux habitants de {r['public']}, on compte {r['densite_u']} "
+         f"{pluriel(r['libelle'])} pour {'100 000' if C.fac(r['prof']) == 100000 else '10 000'}. "
+         f"{pct(r['part_public_sans_professionnel']).capitalize()} d'entre eux "
          f"vivent dans une intercommunalité qui n'en compte aucun."
          + (" Pour ces professions, rapporter la densité au public concerné change peu le classement des territoires."
             if t["rho_classements"].min() >= .95 else
             " Rapporter la densité au public concerné modifie sensiblement le classement des territoires pour "
             + _liste(pluriel(x) for x in t.loc[t["rho_classements"] < .95, "libelle"]) + "."), "",
-         _tableau(t, ["libelle", "public", "densite_nationale_cible", "gini_population", "gini_public",
+         _tableau(t, ["libelle_u", "public", "densite_u", "gini_population", "gini_public",
                       "part_public_sans_professionnel", "rho_classements"],
-                  ["Profession", "Public concerné", "Pour 10 000 personnes du public", "Inégalité, par habitant",
+                  ["Profession", "Public concerné",
+                   f"Pour 10{AF.FINE}000 personnes du public, pour 100{AF.FINE}000 pour les professions rares"
+                   if any(C.fac(p) == 100000 for p in t["prof"]) else f"Pour 10{AF.FINE}000 personnes du public",
+                   "Inégalité, par habitant",
                    "Inégalité, par personne du public", "Public sans ce professionnel dans son intercommunalité",
                    "Ressemblance des classements"],
-                  {"densite_nationale_cible": lambda v: nombre(v, 1), "gini_population": lambda v: nombre(v, 2),
+                  {"gini_population": lambda v: nombre(v, 2),
                    "gini_public": lambda v: nombre(v, 2), "part_public_sans_professionnel": pct,
                    "rho_classements": lambda v: nombre(v, 2)}), ""]
     L += _comment_lire(
@@ -937,16 +1032,17 @@ def _composition_densite(C: Contexte):
         return []
     piv = piv.loc[classes].reset_index()
     piv["ratio"] = piv["psychologue"] / piv["psychiatre"].replace(0, np.nan)
+    piv["psychologue_u"] = [C.dens_txt("psychologue", v) for v in piv["psychologue"]]
+    piv["psychiatre_u"] = [C.dens_txt("psychiatre", v) for v in piv["psychiatre"]]
     a, b = piv.iloc[0], piv.iloc[-1]
     L = ["#### Selon la densité de population", "",
          f"Plus l'intercommunalité est dense, moins on compte de psychologues pour un psychiatre, "
          f"{nombre(a['ratio'], 1)} dans les intercommunalités très peu denses contre {nombre(b['ratio'], 1)} dans les "
          f"denses.", "",
-         _tableau(piv, ["classe", "psychologue", "psychiatre", "ratio"],
-                  ["Densité de population de l'intercommunalité", "Psychologues pour 10 000 habitants",
-                   "Psychiatres pour 10 000 habitants", "Psychologues pour un psychiatre"],
-                  {"psychologue": lambda v: nombre(v, 1), "psychiatre": lambda v: nombre(v, 2),
-                   "ratio": lambda v: nombre(v, 1)}), ""]
+         _tableau(piv, ["classe", "psychologue_u", "psychiatre_u", "ratio"],
+                  ["Densité de population de l'intercommunalité", f"Psychologues {C.unite('psychologue')}",
+                   f"Psychiatres {C.unite('psychiatre')}", "Psychologues pour un psychiatre"],
+                  {"ratio": lambda v: nombre(v, 1)}), ""]
     L += _comment_lire("Chaque ligne réunit les intercommunalités d'une même classe de densité de population. Les "
                        "densités sont celles de la classe entière, somme des professionnels rapportée à la somme des "
                        "habitants. Le rapport compare deux professions qui ne sont pas interchangeables, il ne les "
@@ -991,11 +1087,11 @@ def _zones(C: Contexte, famille):
          _tableau(T, ["libelle", "desert_n", "desert_pop", "conc_n", "conc_pop"],
                   ["Profession", "Intercommunalités en zone peu dotée", "Habitants concernés",
                    "Intercommunalités en zone de concentration", "Habitants concernés"],
-                  {"desert_n": nombre, "desert_pop": pct, "conc_n": nombre, "conc_pop": pct}), ""]
+                  {"desert_n": _aucune, "desert_pop": _aucun_habitant, "conc_n": _aucune, "conc_pop": _aucun_habitant}), ""]
     L += _comment_lire(
         "Un territoire peu doté n'est pas forcément un désert. S'il est entouré de territoires bien dotés, ses "
         "habitants peuvent consulter à côté. Une zone peu dotée réunit au contraire des territoires voisins tous en "
-        "dessous de la moyenne, ce qui rend le recours de proximité plus difficile. Une zone de concentration est "
+        "dessous de l'ensemble des territoires, ce qui rend le recours de proximité plus difficile. Une zone de concentration est "
         "l'inverse. La carte de ces zones se trouve dans l'atlas (affichage « Zones »).")
     L += _plus_loin(["Indice de Moran local (LISA) sur le logarithme de la densité, voisinage par contiguïté, poids "
                      "normalisés par ligne, p-valeur par approximation normale sous randomisation (Anselin, 1995), "
@@ -1161,7 +1257,7 @@ def _acces(C: Contexte, famille):
         "dans la commune. Les trajets réels sont plus longs.",
         "L'accessibilité tient compte à la fois de la distance et de la concurrence entre habitants pour les mêmes "
         "professionnels, y compris ceux des communes voisines. Elle s'exprime, comme une densité, en professionnels "
-        "pour 10 000 habitants. La dernière colonne indique si les intercommunalités se classent de la même façon "
+        "pour 10 000 habitants, pour 100 000 pour une profession rare. La dernière colonne indique si les intercommunalités se classent de la même façon "
         "selon la densité et selon l'accessibilité, 1 voulant dire un classement identique.")
     if isinstance(om, pd.DataFrame) and not om.empty:
         p0 = PRINC[famille]
@@ -1519,8 +1615,8 @@ def _complements_cmp(C, L):
                                  "part_double_eloignement"],
                             ["Région", "Habitants", "Sans psychiatre déclaré dans l'intercommunalité",
                              "À plus de 20 km d'un CMP pour adultes", "Les deux à la fois"],
-                            {"population": nombre, "part_sans_professionnel": pct, "part_loin_structure": pct,
-                             "part_double_eloignement": pct}), ""]
+                            {"population": nombre, "part_sans_professionnel": _aucun_habitant,
+                             "part_loin_structure": _aucun_habitant, "part_double_eloignement": _aucun_habitant}), ""]
     if isinstance(sb, pd.DataFrame) and len(sb):
         from .lecture import minuscule
         diff = sb[~sb["conclusion_identique"]]
@@ -1605,7 +1701,8 @@ def tableau_exercice(E, niveau: str, code: str, lab: dict) -> list:
             "hôpital de rattachement plutôt que la structure, ces nombres sont donc des minimums. Les hôpitaux de jour "
             "et l'hospitalisation, qui partagent le numéro FINESS de leur hôpital, ne sont pas comptés ici.", "",
             _tableau(t, ["libelle"] + types, ["Profession"] + [EXERCICE_COURTS[k] for k in types],
-                     {k: nombre for k in types}), "", "Détail par territoire dans exercice_structures.csv.", ""]
+                     {k: (lambda v: "aucun" if v == 0 else nombre(v)) for k in types}), "",
+            "Détail par territoire dans exercice_structures.csv.", ""]
 
 
 def _phrase_cmpp_camsp(x) -> str:
@@ -1746,7 +1843,7 @@ def _eloignement(C, L, famille):
         "médian de leurs habitants, puis réparties en dix groupes qui réunissent chacun environ un dixième de la "
         "population. Chaque barre donne la distance à vol d'oiseau en deçà de laquelle vit la moitié des habitants du "
         "groupe, depuis le centre de leur commune jusqu'à la structure la plus proche. Les barres cuivre dépassent la distance "
-        "médiane de la France entière, tracée en pointillés. Les dixièmes modestes réunissent à la fois des villes et des "
+        "médiane de l’ensemble des habitants, tracée en pointillés. Les dixièmes modestes réunissent à la fois des villes et des "
         "campagnes, la distance suit donc surtout le caractère urbain ou rural des territoires, que le tableau montre à "
         "part. Ni la figure ni le tableau ne disent pourquoi. " + _grande_epci(C),
         "Les autres types de structures sont proposés par les boutons au-dessus de la figure. Les intercommunalités sans niveau "
@@ -1790,7 +1887,9 @@ def _hopital(C: Contexte):
          _tableau(T.reset_index(), ["libelle", "nombre", "france", "unite", "mediane", "vmin", "vmax"],
                   ["Indicateur", "Total en France", "Taux en France", "Unité", "Médiane des départements", "Le plus bas",
                    "Le plus haut"],
-                  {"nombre": nombre, "france": f, "mediane": f, "vmin": f, "vmax": f}), ""]
+                  {"nombre": nombre, "france": f, "mediane": f, "vmin": f, "vmax": f},
+                  zero={c: lambda r: _aucun_accorde(r["libelle"]) for c in ("nombre", "france", "mediane", "vmin", "vmax")}),
+         ""]
     L += _comment_lire(
         "La SAE décrit les établissements, alors que le répertoire décrit les personnes. Elle compte des équivalents "
         "temps plein, ce qui corrige en partie une limite du répertoire, qui ne dit rien du temps de travail. Les deux "
@@ -1988,14 +2087,15 @@ def _outre_mer(C: Contexte):
     bas = [d for d in deps if pd.notna(r[d]) and r[d] < r["hexagone"] * .5]
     L = ["### Outre-mer", "",
          f"Pour les psychiatres, {len(bas)} départements d'outre-mer sur {len(deps)} ont une densité inférieure à la "
-         f"moitié de celle de l'Hexagone ({nombre(r['hexagone'], 1)} pour 10 000 habitants)." if len(deps) else "", "",
+         f"moitié de celle de l'Hexagone ({C.dens_txt('psychiatre', r['hexagone'])} {C.unite('psychiatre')})." if len(deps) else "", "",
          "| Profession | Hexagone | " + " | ".join(noms.get(d, d) for d in deps) + " |",
          "|" + "---|" * (len(deps) + 2)]
     for _, x in t.iterrows():
-        dec = 2 if x[["hexagone"] + deps].max() < 1 else 1
-        L.append(f"| {x['libelle']} | " + " | ".join(nombre(x[c], dec) if pd.notna(x[c]) else "" for c in ["hexagone"] + deps) + " |")
+        # chaque profession dans son unité, pour 100 000 habitants pour une profession rare (règle des fiches)
+        L.append(f"| {C.lib_u(x['prof'], x['libelle'])} | " + " | ".join(
+            ("aucun" if x[c] == 0 else C.dens_txt(x['prof'], x[c])) if pd.notna(x[c]) else "" for c in ["hexagone"] + deps) + " |")
     L.append("")
-    L += _comment_lire("Professionnels pour 10 000 habitants. Les départements d'outre-mer pèsent peu dans les moyennes "
+    L += _comment_lire("Professionnels pour 10 000 habitants, pour 100 000 pour les professions rares. Les départements d'outre-mer pèsent peu dans les moyennes "
                        "nationales, ce tableau les montre à part. À Mayotte, la population de référence et plusieurs "
                        "sources (recensement, Assurance Maladie) sont moins complètes, les chiffres y sont plus fragiles.")
     return L
@@ -2100,8 +2200,8 @@ def _quadrants(C: Contexte, ctxlab):
         tableaux += ["<details>", f"<summary>{pluriel(C.lab[p]).capitalize()}, liste des {len(crit)} départements, "
                      f"par ordre alphabétique</summary>", "",
                      _tableau(crit, ["nom", "valeur", "densite"],
-                              ["Département", ctxlab.get(var, var), f"{pluriel(C.lab[p]).capitalize()} pour 10 000 hab."],
-                              {"valeur": lambda v: nombre(v, 1), "densite": lambda v: nombre(v, 2)}), "", "</details>", ""]
+                              ["Département", ctxlab.get(var, var), f"{pluriel(C.lab[p]).capitalize()} {C.unite(p)}"],
+                              {"valeur": lambda v: nombre(v, 1), "densite": lambda v, p=p: C.dens_txt(p, v)}), "", "</details>", ""]
     if not phrases:
         return []
     autres = sorted(set(qd["variable"]) - {var})
@@ -2262,9 +2362,9 @@ def _croisements(C: Contexte, ctxlab, famille=SM, niveau="####", themes=None):
 
     def nom(cle):
         if cle.startswith("dens_lib:"):
-            return pluriel(C.lab.get(cle[9:], cle[9:])).capitalize() + " libéraux pour 10 000 habitants"
+            return pluriel(C.lab.get(cle[9:], cle[9:])).capitalize() + " libéraux " + C.unite(cle[9:])
         if cle.startswith("dens:"):
-            return pluriel(C.lab.get(cle[5:], cle[5:])).capitalize() + " pour 10 000 habitants"
+            return pluriel(C.lab.get(cle[5:], cle[5:])).capitalize() + " " + C.unite(cle[5:])
         if cle.startswith("route:"):
             return "Temps médian par la route, " + minuscule(eq.get(cle[6:], cle[6:]))
         v = cle[4:] if cle.startswith("ctx:") else cle
@@ -2321,7 +2421,8 @@ def _correlations(C: Contexte, famille, ctxlab):
     if not isinstance(cc, pd.DataFrame) or not len(cc):
         return []
     profs = [p for p in PRINCIPALES[famille] if C.present(p)]
-    f = cc[(cc["niveau"] == "epci") & (cc["mode"] == "all") & (cc["rho_spearman"].abs() >= .3) & (cc["q_bh"] < .05)
+    from .regle_lien import ALPHA, SEUIL_RHO, est_lien
+    f = cc[(cc["niveau"] == "epci") & (cc["mode"] == "all") & (cc["rho_spearman"].abs() >= SEUIL_RHO) & (cc["q_bh"] < ALPHA)
            & cc["prof"].isin(profs)].copy().sort_values("rho_spearman", key=abs, ascending=False)
     L = ["### Liens avec le profil des habitants", ""]
     if not len(f):
@@ -2336,7 +2437,8 @@ def _correlations(C: Contexte, famille, ctxlab):
     if partiel:
         f["rp"] = f["rho_partiel_densite"]
         g = f[f["variable"] != "densite_pop"]
-        restent = int((g["rp"].abs() >= .3).sum())
+        qp = g["q_bh_partiel"] if "q_bh_partiel" in g else pd.Series(0.0, index=g.index)
+        restent = int(sum(est_lien(x, y) for x, y in zip(g["rp"], qp)))
         L += [f"Sur {len(g)} liens au moins modérés entre ces professions et le profil des habitants, "
               f"{restent} le restent quand on compare des territoires aussi urbains l'un que l'autre. Les autres "
               f"tiennent pour l'essentiel à l'effet ville.", ""]
@@ -2358,11 +2460,11 @@ def _correlations(C: Contexte, famille, ctxlab):
                   f"densité de population. La différence vient de l'effet ville.")
     L += graphique("effet_ville_" + ("sm" if famille == SM else "sante"))
     L += _comment_lire(
-        "Le rho va de -1 à +1. De 0,3 à 0,5 en valeur absolue le lien est modéré, au-delà il est fort. La "
+        "Le rho va de −1 à +1. De 0,3 à 0,5 en valeur absolue le lien est modéré, au-delà il est fort. La "
         "fourchette indique la stabilité du résultat. La densité de population elle-même n'est pas dans le tableau, "
         "c'est elle que la dernière colonne retire.",
         DEFINITIONS["effet_ville"], ex, DEFINITIONS["ecologique"])
-    L += _plus_loin(["Corrélations de rang de Spearman entre la densité pour 10 000 habitants et chaque indicateur "
+    L += _plus_loin(["Corrélations de rang de Spearman entre la densité de professionnels et chaque indicateur "
                      "de contexte, sur les intercommunalités, tous modes d'exercice. Intervalles de confiance à 95 % "
                      f"par bootstrap ({config.BOOTSTRAP} rééchantillonnages). Seuls les liens avec |rho| ≥ 0,3 et "
                      "une q-valeur de Benjamini-Hochberg inférieure à 0,05 sont affichés. La corrélation à densité "
@@ -2378,7 +2480,21 @@ def _phrase_revenu(C, cp, densites, p):
     """Phrase de tête de l'escalier social, fondée sur l'indice de concentration et son intervalle."""
     ci, lo, hi = cp["indice_concentration"], cp["ic95_bas"], cp["ic95_haut"]
     lab = pluriel(C.lab[p])
-    if lo <= 0 <= hi:
+    # règle unique du lien (pipeline/regle_lien.py) : l'escalier, pondéré par les habitants, ne dit pas « plus
+    # présents » là où la corrélation de rang entre intercommunalités reste sous le seuil, comme « Croiser » sur la
+    # même page (avis de l'auditeur externe du 30 octobre 2026)
+    from .regle_lien import est_lien
+    cc = C.R.get("correlations_contexte")
+    r = None
+    if isinstance(cc, pd.DataFrame) and len(cc):
+        r = cc[(cc["niveau"] == "epci") & (cc["mode"] == "all") & (cc["prof"] == p) & (cc["variable"] == "revenu_median")]
+        r = r.iloc[0] if len(r) else None
+    if r is not None and not est_lien(r["rho_spearman"], r["q_bh"]):
+        tete = (f"Le niveau de vie des intercommunalités et la présence des {lab} ne sont pas liés au-delà du seuil "
+                f"retenu sur tout le site (corrélation de rang {nombre(r['rho_spearman'], 2)}). Pondéré par les "
+                f"habitants, l'écart entre territoires aisés et modestes reste "
+                f"{'à peine marqué' if abs(ci) < .05 else 'faible' if abs(ci) < .15 else 'net'}")
+    elif lo <= 0 <= hi:
         tete = f"Les {lab} ne sont ni plus ni moins présents dans les territoires aisés que dans les territoires modestes"
     else:
         ampleur = "à peine" if abs(ci) < .05 else "un peu" if abs(ci) < .15 else "nettement"
@@ -2386,8 +2502,9 @@ def _phrase_revenu(C, cp, densites, p):
                 f"{'aisés' if ci > 0 else 'modestes'} que dans les territoires {'modestes' if ci > 0 else 'aisés'}")
     hautd, basd = densites.idxmax(), densites.idxmin()
     return (f"{tete} (indice de concentration {nombre(ci, 2)}). L'écart n'est pas régulier d'une tranche à "
-            f"l'autre. La tranche la mieux dotée est la {hautd}e, avec {nombre(densites[hautd], 1)} pour 10 000 "
-            f"habitants, la moins dotée la {basd}e{'re' if basd == 1 else ''}, avec {nombre(densites[basd], 1)}."
+            f"l'autre. La tranche la mieux dotée est la {hautd}e, avec {C.dens_txt(p, densites[hautd])} "
+            f"{C.unite(p)}, la moins dotée la {basd}e{'re' if basd == 1 else ''}, avec "
+            f"{C.dens_txt(p, densites[basd])}."
             ).replace("la 1ere", "la première").replace("la 1e,", "la première,")
 
 
@@ -2414,12 +2531,15 @@ def _revenu(C: Contexte, famille):
     p0 = profs[0]
     L = ["### Offre selon le niveau de vie des territoires", "", _phrase_revenu(C, c.loc[p0], piv[p0], p0), ""]
     L += ["| Dixième de la population | Niveau de vie médian du territoire | "
-         + " | ".join(C.lab[p] for p in profs) + " |", "|" + "---|" * (len(profs) + 2)]
+         + " | ".join(C.lib_u(p) for p in profs) + " |", "|" + "---|" * (len(profs) + 2)]
     for d, r in piv.iterrows():
         nom = "1 (plus modestes)" if d == 1 else "10 (plus aisés)" if d == 10 else str(d)
         L.append(f"| {nom} | {nombre(bornes.at[d, 'niveau_de_vie_min'])} à {nombre(bornes.at[d, 'niveau_de_vie_max'])} € | "
-                 + " | ".join(nombre(v, 2 if r.max() < 1 else 1) for v in r) + " |")
-    L.append("| Indice de concentration | | " + " | ".join(nombre(c.at[p, "indice_concentration"], 2) for p in profs) + " |")
+                 + " | ".join(C.dens_txt(p, v) for p, v in r.items()) + " |")
+    # un indice qui s'écrit 0,00 dit en mots ce qu'il signifie, jamais un 0 seul (audit du 6 novembre 2026)
+    ic_txt = lambda v: (nombre(v, 2) + " (suit la population)" if nombre(v, 2).lstrip("−-") == "0,00"  # noqa: E731
+                        else nombre(v, 2))
+    L.append("| Indice de concentration | | " + " | ".join(ic_txt(c.at[p, "indice_concentration"]) for p in profs) + " |")
     fourchettes = ", ".join(f"{minuscule_pluriel(C.lab[p])} de {nombre(c.at[p, 'ic95_bas'], 2)} à "
                             f"{nombre(c.at[p, 'ic95_haut'], 2)}" for p in profs)
     L.append("")
@@ -2429,7 +2549,9 @@ def _revenu(C: Contexte, famille):
     L += _comment_lire(
         "Les intercommunalités sont classées de la plus modeste à la plus aisée selon le niveau de vie médian de "
         "leurs habitants, puis regroupées en dix tranches qui réunissent chacune un dixième de la population. "
-        "Chaque case donne le nombre de professionnels pour 10 000 habitants dans la tranche.",
+        "Chaque case donne le nombre de professionnels pour 10 000 habitants dans la tranche"
+        + (", pour 100 000 pour les professions rares, signalées sous leur nom." if any(C.fac(p) == 100000 for p in profs)
+           else "."),
         f"L'indice de concentration résume ce gradient. Il vaut 0 si les professionnels suivent la population, il "
         f"est positif s'ils sont plus présents dans les territoires aisés, négatif s'ils le sont dans les territoires "
         f"modestes. Pour les {pluriel(C.lab[p0])}, il vaut {nombre(cp['indice_concentration'], 2)}.",
@@ -2451,37 +2573,43 @@ def _entonnoir(C: Contexte, famille):
     profs = [p for p in PRINCIPALES[famille] if p in set(rs["prof"])]
     t = rs[(rs["niveau"] == "epci")].set_index("prof").reindex(profs).reset_index().dropna(subset=["part_hors_95"])
     t["libelle"] = t["prof"].map(C.lab)
+    # un 0 n'est jamais laissé seul (règle 6) : pour une profession rare, les limites sont si larges qu'aucun territoire
+    # n'en sort vers le bas, la case le dit au lieu d'un « 0 % » (audit du 6 novembre 2026)
+    rare = {p: C.fac(p) == 100000 for p in t["prof"]}
+    for col in ("part_nettement_en_dessous", "part_population_nettement_en_dessous", "part_hors_95"):
+        t[col + "_txt"] = ["aucun, effectifs trop faibles" if rare.get(p) and v == 0 else pct(v)
+                           for p, v in zip(t["prof"], t[col])]
     r0 = t.iloc[0]
     hasard = ("Les écarts entre territoires dépassent donc largement ce que le hasard produirait."
               if r0["part_hors_95"] > .1 else "Les écarts restent du même ordre que ce que le hasard produirait.")
     L = ["### Écarts qui dépassent le hasard", "",
          f"{pct(r0['part_population_nettement_en_dessous']).capitalize()} des habitants vivent dans une "
-         f"intercommunalité nettement en dessous de la moyenne des intercommunalités pour les {pluriel(r0['libelle'])}, au-delà "
+         f"intercommunalité nettement en dessous de l'ensemble des intercommunalités pour les {pluriel(r0['libelle'])}, au-delà "
          f"de ce que le hasard pourrait expliquer.", "",
-         _tableau(t, ["libelle", "part_nettement_en_dessous", "part_population_nettement_en_dessous", "part_hors_95"],
+         _tableau(t, ["libelle", "part_nettement_en_dessous_txt", "part_population_nettement_en_dessous_txt",
+                      "part_hors_95_txt"],
                   ["Profession", "Intercommunalités nettement en dessous", "Habitants concernés",
-                   "Intercommunalités hors des limites à 95 % (au-dessus ou en dessous)"],
-                  {"part_nettement_en_dessous": pct, "part_population_nettement_en_dessous": pct,
-                   "part_hors_95": pct}), ""]
+                   "Intercommunalités hors des limites à 95 % (au-dessus ou en dessous)"]), ""]
     L += graphique("entonnoir_" + ("sm" if famille == SM else "sante"))
     L += faire_varier("iFenEntonnoir", famille, "pour une autre profession ou par département")
     L += _comment_lire(
         "Dans un petit territoire, quelques arrivées ou départs suffisent à faire varier fortement la densité. Le "
         "diagramme en entonnoir de l'atlas tient compte de la taille de chaque territoire. Il trace autour de la "
-        "moyenne des intercommunalités deux limites qui se resserrent quand la population augmente. Un territoire sous la "
+        "l'ensemble des intercommunalités deux limites qui se resserrent quand la population augmente. Un territoire sous la "
         "limite la plus large est dit nettement en dessous, ce que le hasard expliquerait au plus deux fois sur "
         "mille.",
         f"Si seul le hasard jouait, environ 5 % des territoires sortiraient des limites à 95 %. Pour les "
         f"{pluriel(r0['libelle'])}, c'est {pct(r0['part_hors_95'])}. {hasard}",
         "Pour une profession rare comme la pédopsychiatrie, les limites sont si larges que presque aucun "
-        "territoire n'en sort. Cela ne signifie pas que l'offre est homogène, seulement que les effectifs sont trop "
-        "faibles pour conclure." if "pedopsychiatre" in profs else "")
-    L += _plus_loin(["Limites de Poisson à 95 % et 99,8 % autour du taux national (effectif total des "
-                     "intercommunalités rapporté à leur population), calculées pour l'effectif attendu au taux "
-                     "national. La forte proportion de territoires hors des limites traduit une surdispersion par "
+        "territoire n'en sort, et aucun vers le bas : un territoire sans pédopsychiatre reste dans les limites tant "
+        "que l'effectif attendu y est faible. Cela ne signifie pas que l'offre est homogène, seulement que les "
+        "effectifs sont trop faibles pour conclure." if "pedopsychiatre" in profs else "")
+    L += _plus_loin(["Limites de Poisson à 95 % et 99,8 % autour du taux de l'ensemble des intercommunalités (effectif "
+                     "total des intercommunalités rapporté à leur population), calculées pour l'effectif attendu à "
+                     "ce taux. La forte proportion de territoires hors des limites traduit une surdispersion par "
                      "rapport au modèle de Poisson. Les limites ne sont pas élargies pour en tenir compte, elles "
                      "repèrent donc les écarts au hasard, pas les seuls territoires exceptionnels. Statut de chaque "
-                     "territoire dans entonnoir.csv (-2 nettement en dessous, -1 en dessous, 0 proche de la moyenne, 1 "
+                     "territoire dans entonnoir.csv (-2 nettement en dessous, -1 en dessous, 0 proche de l'ensemble, 1 "
                      "au-dessus, 2 nettement au-dessus)."])
     return L
 
@@ -2496,14 +2624,15 @@ def _gradient(C: Contexte, famille):
     classes = [c[2] for c in CLASSES_DENSITE if c[2] in piv.columns]
     piv = piv[classes]
     L = ["### Écart entre territoires ruraux et urbains", "",
-         "Professionnels pour 10 000 habitants selon la densité de population de l'intercommunalité.", "",
+         "Professionnels pour 10 000 habitants selon la densité de population de l'intercommunalité"
+         + (", pour 100 000 pour les professions rares, signalées sous leur nom." if any(C.fac(p) == 100000 for p in profs)
+            else "."), "",
          "| Profession | " + " | ".join(classes) + " | Écart |", "|" + "---|" * (len(classes) + 2)]
     ecarts = {}
     for p, r in piv.iterrows():
         e = fois(r[classes[-1]], r[classes[0]])
         ecarts[p] = r[classes[-1]] / r[classes[0]] if r[classes[0]] else np.inf
-        dec = 2 if r.max() < 1 else 1
-        L.append(f"| {C.lab.get(p, p)} | " + " | ".join(nombre(v, dec) if pd.notna(v) else "" for v in r)
+        L.append(f"| {C.lib_u(p)} | " + " | ".join(C.dens_txt(p, v) if pd.notna(v) else "" for v in r)
                  + f" | {e} |")
     L.append("")
     p0 = profs[0]
@@ -2511,8 +2640,8 @@ def _gradient(C: Contexte, famille):
         r = piv.loc[p0]
         L += _comment_lire(
             f"La dernière colonne compare les territoires denses aux territoires très peu denses. Par exemple, les "
-            f"intercommunalités denses comptent {nombre(r[classes[-1]], 1)} {pluriel(C.lab[p0])} pour 10 000 "
-            f"habitants, contre {nombre(r[classes[0]], 1)} dans les très peu denses, soit "
+            f"intercommunalités denses comptent {C.dens_txt(p0, r[classes[-1]])} {pluriel(C.lab[p0])} {C.unite(p0)}, "
+            f"contre {C.dens_txt(p0, r[classes[0]])} dans les très peu denses, soit "
             f"{fois(r[classes[-1]], r[classes[0]])}.",
             "Les classes de densité sont définies ici, en attendant la grille communale de densité de "
             "l'INSEE.")
@@ -2563,7 +2692,13 @@ def _retrait(C: Contexte, famille):
               _tableau(e, ["nom", "pop", "effectif", "effectif_attendu", "rapport"],
                        ["Intercommunalité", "Habitants", "Observés", "Attendus d'après le profil", "Rapport"],
                        {"pop": nombre, "effectif": nombre, "effectif_attendu": lambda v: nombre(v, 1),
-                        "rapport": lambda v: nombre(v, 2)}), ""]
+                        "rapport": lambda v: nombre(v, 2)},
+                       zero={"effectif": "aucun", "rapport": "aucun observé"}), ""]
+    # le nombre d'intercommunalités sous la moitié de l'attendu, montré en tuile, est aussi écrit dans le texte pour
+    # chaque profession (une tuile ne montre jamais un chiffre absent du texte, test_chiffres_cles, 4 novembre 2026)
+    phrases = [_phrase_retrait(C, p) for p in CLES_RETRAIT[famille]]
+    if any(phrases):
+        L += [" ".join(x for x in phrases if x), ""]
     if exemple:
         p, r = exemple
         L += _comment_lire(
@@ -2611,7 +2746,7 @@ def _phrase_gradient(C, p):
     if a not in t or b not in t or not t[b]:
         return ""
     return (f"Les intercommunalités denses comptent {fois(t[a], t[b])} {de(pluriel(C.lab[p]))} par habitant que "
-            f"les très peu denses ({nombre(t[a], 1)} contre {nombre(t[b], 1)} pour 10 000 habitants).")
+            f"les très peu denses ({C.dens_txt(p, t[a])} contre {C.dens_txt(p, t[b])} {C.unite(p)}).")
 
 
 def _ic(r):
@@ -2770,12 +2905,12 @@ def _typologie(C: Contexte, fam="tout"):
          "| Intercommunalités | " + " | ".join(nombre(info.at[k, "territoires"]) for k in classes) + " |",
          "| Habitants | " + " | ".join(nombre(info.at[k, "population"]) for k in classes) + " |"]
     for x in piv.columns:
-        L.append(f"| {C.lab.get(x, x)} | " + " | ".join(nombre(piv_tout.at[k, x]) for k in classes) + " |")
+        L.append(f"| {C.lab.get(x, x)} | " + " | ".join(_indice(piv_tout.at[k, x]) for k in classes) + " |")
     groupe = C.prof["groupe"].to_dict()
     for g in [g for g in config.GROUPES_SPECIALITES + [config.MEDECIN_AUTRE[2]] if any(groupe.get(x) == g for x in decrites)]:
         L.append(f"| **{g}, à titre descriptif, sans servir à former les groupes** |" + " |" * len(classes))
         for x in [x for x in decrites if groupe.get(x) == g]:
-            L.append(f"| {C.lab.get(x, x)} | " + " | ".join(nombre(piv_tout.at[k, x]) for k in classes) + " |")
+            L.append(f"| {C.lab.get(x, x)} | " + " | ".join(_indice(piv_tout.at[k, x]) for k in classes) + " |")
     # lieux de soins décrits dans chaque groupe, sans servir à les former (décision de Lucas du 12 octobre 2026)
     tl = C.R.get("typologie_lieux")
     tl = tl[tl["famille"] == fam] if isinstance(tl, pd.DataFrame) and len(tl) else None
@@ -2890,7 +3025,7 @@ def ecrire(out, agg, ref, professions, insee, R, jour):
                                       _cle_acces(C, "psychiatre_liberal", "d'un psychiatre libéral")))
                  + _groupe("L'offre et le profil des habitants", intro_profil, _correlations(C, SM, ctxlab),
                            _vulnerabilite(C, ctxlab), _revenu(C, SM), rapport_bases.gwr_section(C), _retrait(C, SM),
-                           cles=_cles(_cle_retrait(C, "psychologue"), _cle_retrait(C, "psychiatre")))
+                           cles=_cles(*(_cle_retrait(C, p) for p in CLES_RETRAIT[SM])))
                  + _recours(C, insee, ctxlab) + rapport_bases.ald(C, SM) + _besoins_spf(C, insee) + _enfance_handicap(C, SM)
                  + rapport_bases.allocations(C, SM) + _quadrants(C, ctxlab) + rapport_bases.offre_besoin_carte(C, insee, ctxlab)
                  + _loi_inverse(C, ctxlab) + rapport_bases.indicateurs_entre_eux(C, ctxlab) + _croisements(C, ctxlab, SM)
@@ -2912,7 +3047,7 @@ def ecrire(out, agg, ref, professions, insee, R, jour):
                                          _cle_acces(C, "urgences", "d'un service d'urgences")))
                     + _groupe("L'offre et le profil des habitants", intro_profil, _correlations(C, SANTE, ctxlab),
                               _revenu(C, SANTE), _retrait(C, SANTE),
-                              cles=_cles(_cle_retrait(C, "medecin_generaliste"), _cle_retrait(C, "masseur_kinesitherapeute")))
+                              cles=_cles(*(_cle_retrait(C, p) for p in CLES_RETRAIT[SANTE])))
                     + _groupe("Maladies chroniques et handicap", "Ces indicateurs décrivent des personnes reconnues "
                               "malades ou en situation de handicap. Ils dépendent aussi du recours aux soins et ne "
                               "mesurent pas à eux seuls un besoin.", rapport_bases.ald(C, SANTE), _enfance_handicap(C, SANTE),
@@ -2937,7 +3072,7 @@ def ecrire(out, agg, ref, professions, insee, R, jour):
     textes = []
     for nom, (L, famille) in versions.items():
         L = L + _fin(insee, famille)
-        texte = "\n".join(L)
+        texte = signe_moins("\n".join(L))
         (out / nom).write_text(texte, encoding="utf-8")
         textes.append(texte)
     return "\n".join(textes)

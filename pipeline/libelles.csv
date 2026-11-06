@@ -69,3 +69,32 @@ Assurance Maladie pathologie;;Maladies psychiatriques;Troubles psychiques;valid�
 Complément;sejours_gestes_auto_infliges;Gestes auto-infligés : Hospitalisations (Département), taux_standardise;Séjours hospitaliers pour geste auto-infligé;à revoir;voie légère, base d'essai en brouillon (30 octobre 2026)
 Complément;sejours_gestes_auto_infliges_nombre;Gestes auto-infligés : Hospitalisations (Département), nombre_de_sejours;Nombre de séjours hospitaliers pour geste auto-infligé;à revoir;voie légère, base d'essai en brouillon (30 octobre 2026)
 Complément;rapport_sejours_patients_gestes;rapport des taux standardisés de séjours et de patients (Odissé);Séjours par personne hospitalisée pour geste auto-infligé;à revoir;voie légère, indicateur dérivé de la base d'essai (30 octobre 2026)
+RPPS secteur;;Etablissement Public de santé;Établissement public de santé;proposé;Typographie seulement, à valider
+RPPS secteur;;Etablissement scolaire & universitaire;Établissement scolaire et universitaire;proposé;Typographie seulement, à valider
+RPPS secteur;;Asso et orga humanitaire;Association et organisation humanitaire;proposé;Abréviations développées, à valider
+RPPS secteur;;Etab. de Soins et Prévention;Établissement de soins et de prévention;proposé;Abréviations développées, à valider
+RPPS secteur;;Services de Prévention et de Santé au Travail;Services de prévention et de santé au travail;proposé;Typographie seulement, à valider
+RPPS secteur;;Entreprises industrielles et tertiaires hors indus;Entreprises industrielles et tertiaires;proposé;Le libellé d'origine est tronqué, à valider
+RPPS secteur;;P.M.I Planification familiale;PMI (protection maternelle et infantile) et planification familiale;proposé;Sigle développé, à valider
+RPPS secteur;;Centre de dépistage (cancers, SIDA etc...);Centre de dépistage (cancers, sida…);proposé;Typographie seulement, à valider
+RPPS secteur;;Prév. et Soins en Entreprise;Prévention et soins en entreprise;proposé;Abréviations développées, à valider
+RPPS secteur;;Struct. Dispensatrice à dom. Oxygène usage médical;Structure dispensant de l'oxygène médical à domicile;proposé;Abréviations développées, à valider
+RPPS secteur;;Etab. Aide à la famille;Établissement d'aide à la famille;proposé;Abréviations développées, à valider
+RPPS secteur;;Ministère & Serv. déconcentrés;Ministère et services déconcentrés;proposé;Abréviations développées, à valider
+RPPS secteur;;Etab. d'enseignement;Établissement d'enseignement;proposé;Abréviations développées, à valider
+RPPS secteur;;Struct. de coop. avec autorisation de soins;Structure de coopération avec autorisation de soins;proposé;Abréviations développées, à valider
+RPPS secteur;;Struct. de coop. avec mission de coord. de soins;Structure de coopération chargée de coordonner les soins;proposé;Abréviations développées, à valider
+RPPS secteur;;Répart. Distrib. Médicament DM;Répartition et distribution de médicaments et de dispositifs médicaux;proposé;Abréviations développées, à valider
+RPPS secteur;;Fab. Exploit. Import. Méd. DM;Fabrication, exploitation et importation de médicaments et de dispositifs médicaux;proposé;Abréviations développées, à valider
+RPPS secteur;;Collectivités Territoriales;Collectivités territoriales;proposé;Typographie seulement, à valider
+RPPS secteur;;Exercice en Société;Exercice en société;proposé;Typographie seulement, à valider
+RPPS secteur;;Secteur privé PH temps plein;Secteur privé des praticiens hospitaliers à temps plein;proposé;Sigle développé, à valider
+RPPS secteur;;Autre établissement Sanitaire;Autre établissement sanitaire;proposé;Typographie seulement, à valider
+RPPS secteur;;Maison de Santé, Pôle de Santé;Maison de santé, pôle de santé;proposé;Typographie seulement, à valider
+FINESS catégorie;;Centre Hospitalier (C.H.);Centre hospitalier (CH);proposé;Typographie seulement, à valider
+FINESS catégorie;;Protection Maternelle et Infantile (P.M.I.);PMI (protection maternelle et infantile);proposé;Typographie seulement, à valider
+FINESS catégorie;;Centre de Santé;Centre de santé;proposé;Typographie seulement, à valider
+FINESS catégorie;;Etablissement de Soins Chirurgicaux;Établissement de soins chirurgicaux;proposé;Typographie seulement, à valider
+FINESS catégorie;;Etablissement de Soins Pluridisciplinaire;Établissement de soins pluridisciplinaire;proposé;Typographie seulement, à valider
+FINESS catégorie;;Etablissement de Soins Médicaux;Établissement de soins médicaux;proposé;Typographie seulement, à valider
+FINESS catégorie;;Centre Hospitalier Régional (C.H.R.);Centre hospitalier régional (CHR);proposé;Typographie seulement, à valider

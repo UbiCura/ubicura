@@ -1,0 +1,39 @@
+{
+  "title": "Ubi Cura, offre de soins et santé mentale en France, territoire par territoire, code source",
+  "upload_type": "software",
+  "description": "Code source qui télécharge les bases publiques, compte l'offre de soins par territoire, la croise avec le profil des populations et produit les données, les rapports et le site.",
+  "creators": [
+    {
+      "name": "Pithon, Lucas",
+      "orcid": "0000-0003-2400-368X"
+    }
+  ],
+  "license": "EUPL-1.2",
+  "language": "fra",
+  "version": "2026-11-06",
+  "keywords": [
+    "offre de soins",
+    "santé mentale",
+    "géographie de la santé",
+    "RPPS",
+    "FINESS",
+    "France"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "10.5281/zenodo.23264933",
+      "relation": "compiles",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.5281/zenodo.23265073",
+      "relation": "compiles",
+      "scheme": "doi"
+    },
+    {
+      "identifier": "10.5281/zenodo.23265208",
+      "relation": "compiles",
+      "scheme": "doi"
+    }
+  ]
+}

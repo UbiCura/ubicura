@@ -3,8 +3,9 @@
 // que l'atlas, données de site_data.json (pipeline/explorer.py, DI.typo). Chargé après explorer.js et
 // explorer_inegalites.js, dont il reprend les outils (formats, pluriel, tableaux, dessin à la largeur de la fenêtre).
 
-const PAL_T = d3.schemeTableau10;              // couleurs des groupes, les mêmes que dans l'atlas et les rapports
-const couleurT_ = c => PAL_T[(c - 1) % 10];
+// couleurs des groupes, les catégories du site (--c1 à --c6, une par groupe, de 3 à 6 groupes), qui suivent le thème
+const PAL_T_REPLI = ["#B473A4", "#2E672F", "#998E3B", "#3F8C93", "#564D8F", "#8C8270"];
+const couleurT_ = c => { const k = (c - 1) % 6; return `var(--c${k + 1}, ${PAL_T_REPLI[k]})`; };
 const famT = () => ETAT.fam === "sante" ? "sante" : ETAT.fam === "tout" ? "tout" : "sm";
 const libT = p => (DI.typo.libelles[p] || [p])[0];
 const groupeT = p => (DI.typo.libelles[p] || [p, "Autres médecins"])[1];
@@ -17,9 +18,9 @@ function nomClasseT(ind) { const ks = Object.keys(ind); if (!ks.length) return "
   if (haut.length >= .8 * n) { const s = ks.filter(p => ind[p] <= 100); return "Territoires mieux dotés pour presque toutes les professions" + (s.length ? ", sauf pour les " + listeT(s) : ""); }
   if (bas.length >= .5 * n) return "Territoires plutôt moins dotés, surtout pour les " + listeT(bas);
   if (haut.length >= .5 * n) return "Territoires plutôt mieux dotés, surtout pour les " + listeT(haut);
-  if (!bas.length && !haut.length) return "Territoires proches de la moyenne";
+  if (!bas.length && !haut.length) return "Territoires proches de l'ensemble";
   const m = []; if (bas.length) m.push("moins dotés pour les " + listeT(bas)); if (haut.length) m.push("mieux dotés pour les " + listeT(haut));
-  return "Territoires proches de la moyenne, " + m.join(", "); }
+  return "Territoires proches de l'ensemble, " + m.join(", "); }
 // case d'indice colorée sur l'échelle encre et cuivre de l'atlas, texte de contraste au moins 4,5
 const DIV_T = () => ["--d0", "--d1", "--d2", "--d3", "--d4", "--d5", "--d6"].map(v => getComputedStyle(document.documentElement).getPropertyValue(v).trim() || "#888");
 function lumT(f) { const c = d3.rgb(f), l = v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); }; return .2126 * l(c.r) + .7152 * l(c.g) + .0722 * l(c.b); }
@@ -41,8 +42,8 @@ function typologieE() {
   const nomC = c => T.noms[fam + "|" + c] || T.noms[c] || nomClasseT(Object.fromEntries(profs.map(p => [libT(p), get.get(c + "|" + p).indice_vs_national])));
   const r0 = c => get.get(c + "|" + profs[0]);
   const gros = classes.slice().sort((a, b) => r0(b).population - r0(a).population)[0];
-  document.getElementById("tyResultat").textContent = `On distingue ${classes.length} groupes d'intercommunalités. Le plus peuplé, « ${nomC(gros)} », réunit ${f0(r0(gros).population)} habitants.` + (A && A.silhouette < .25 ? " Les groupes sont peu séparés, ils découpent un continuum plutôt que des types bien distincts." : "");
-  document.getElementById("tyNote").textContent = `Groupes construits à partir des densités ${fam === "sm" ? "de l'offre de santé mentale" : fam === "sante" ? "des principales professions de santé" : "des principales professions, santé et santé mentale ensemble"} (${profs.map(libT).join(", ").toLowerCase()}). Indice 100 pour la moyenne des intercommunalités.`;
+  document.getElementById("tyResultat").textContent = `On distingue ${classes.length} groupes d'intercommunalités. Le plus peuplé, « ${nomC(gros)} », réunit ${habitantsT(r0(gros).population)}.` + (A && A.silhouette < .25 ? " Les groupes sont peu séparés, ils découpent un continuum plutôt que des types bien distincts." : "");
+  document.getElementById("tyNote").textContent = `Groupes construits à partir des densités ${fam === "sm" ? "de l'offre de santé mentale" : fam === "sante" ? "des principales professions de santé" : "des principales professions, santé et santé mentale ensemble"} (${profs.map(libT).join(", ").toLowerCase()}). Indice 100 pour l'ensemble des intercommunalités.`;
   document.getElementById("tyMethode").textContent = A ? `Analyse en composantes principales sur le logarithme des densités, centrées et réduites, puis classification ascendante hiérarchique (méthode de Ward) sur les mêmes données. Nombre de groupes choisi par la silhouette moyenne entre 3 et 6 (${A.classes} groupes, silhouette ${f2(A.silhouette)}). Les groupes réunissent ${Math.round(A.inertie_classes * 100)} % des différences entre intercommunalités. Une silhouette inférieure à 0,25 signale des groupes peu séparés.` : "";
   // carte, une couleur par groupe, frontières des départements
   document.getElementById("tyTitre").textContent = `Groupes d'intercommunalités de l'Hexagone et de la Corse selon le profil de leur offre (${fam === "sm" ? "santé mentale" : fam === "sante" ? "santé" : "toute l'offre"})`;
@@ -50,7 +51,7 @@ function typologieE() {
   const proj = d3.geoConicConformal().parallels([44, 49]).rotate([-3, 0]).fitSize([w, h], {type: "FeatureCollection", features: GEO}), path = d3.geoPath(proj);
   const svg = svgI(div, w, h, document.getElementById("tyTitre").textContent);
   svg.selectAll("path.territoire").data(GEO).join("path").attr("class", "territoire").attr("d", path)
-    .attr("fill", f => { const i = IDX_T[f.properties.epci], c = cl && i != null ? cl[i] : null; return c ? couleurT_(c) : "var(--nodata, #ECECEF)"; })
+    .attr("fill", f => { const i = IDX_T[f.properties.epci], c = cl && i != null ? cl[i] : null; return c ? couleurT_(c) : "var(--nodata, #E6E6E9)"; })
     .append("title").text(f => { const i = IDX_T[f.properties.epci]; if (i == null) return ""; const u = L.units[i], c = cl?.[i];
       return `${u[1]}, ${T.deps[T.parent[i]] || T.parent[i] || ""}, ${f0(u[2])} habitants${c ? `, groupe « ${nomC(c)} »` : ""}`; });
   svg.append("path").datum(DEP_T).attr("fill", "none").attr("stroke", "var(--ink, #1C2028)").attr("stroke-opacity", .45).attr("stroke-width", .6).attr("d", path);
@@ -58,9 +59,9 @@ function typologieE() {
   document.getElementById("tyLegende").innerHTML = classes.map(c => `<li><i style="background:${couleurT_(c)}"></i><span>${nomC(c)}</span><span class="n">${f0(r0(c).territoires)} intercommunalités, ${habitantsT(r0(c).population)}</span></li>`).join("");
   donneesFigure("figTy", `typologie_${fam}.csv`, [["code", "intercommunalite", "habitants", "groupe", "nom_du_groupe"],
     ...L.units.map((u, i) => [u[0], u[1], u[2], cl?.[i] ?? "", cl?.[i] ? nomC(cl[i]) : ""])]);
-  // profil de chaque groupe, indice 100 pour la moyenne des intercommunalités
+  // profil de chaque groupe, indice 100 pour l'ensemble des intercommunalités
   const dv = DIV_T(), sc = d3.scaleThreshold().domain([50, 70, 90, 110, 140, 200]).range(dv);
-  let hT = `<table><caption>Densité de chaque profession dans chaque groupe, indice 100 pour la moyenne des intercommunalités</caption><thead><tr><th>Profession</th>${classes.map(c => `<th class="ty-col"><i class="pastille" style="background:${couleurT_(c)}"></i>${nomC(c)}</th>`).join("")}</tr></thead><tbody>`;
+  let hT = `<table><caption>Densité de chaque profession dans chaque groupe, indice 100 pour l'ensemble des intercommunalités</caption><thead><tr><th>Profession</th>${classes.map(c => `<th class="ty-col"><i class="pastille" style="background:${couleurT_(c)}"></i>${nomC(c)}</th>`).join("")}</tr></thead><tbody>`;
   hT += `<tr><td class="muted small">Intercommunalités</td>${classes.map(c => `<td class="muted small">${f0(r0(c).territoires)}</td>`).join("")}</tr>`;
   hT += `<tr><td class="muted small">Habitants</td>${classes.map(c => `<td class="muted small">${f0(Math.round(r0(c).population / 1e3))} k</td>`).join("")}</tr>`;
   const ligne = p => `<tr><td>${libT(p)}</td>${classes.map(c => { const v = get.get(c + "|" + p)?.indice_vs_national; return v == null ? "<td></td>" : `<td style="${caseT(sc(v))}">${f0(Math.round(v))}</td>`; }).join("")}</tr>`;
@@ -98,7 +99,7 @@ function acpE(fam, A, cl, nomC) {
   document.getElementById("acpResultat").textContent = ph;
   donneesFigure("figAcp", `acp_${fam}.csv`, [["intercommunalite", "axe_1", "axe_2", "groupe"], ...pts.map(d => [d.u[1], d.x, d.y, d.c ?? ""])]);
   // poids de chaque profession dans les deux axes, barres de -1 à +1 autour de zéro
-  const barre = v => { const l = v < 0 ? 50 - Math.abs(v) * 50 : 50; return `<svg viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true"><line x1="50" x2="50" y1="0" y2="12" stroke="var(--muted)" stroke-width=".6"/><rect x="${l}" width="${Math.abs(v) * 50}" y="2" height="8" fill="${v < 0 ? "var(--d1, #BC6B3B)" : "var(--d5, #4A77B0)"}"/></svg>`; };
+  const barre = v => { const l = v < 0 ? 50 - Math.abs(v) * 50 : 50; return `<svg viewBox="0 0 100 12" preserveAspectRatio="none" aria-hidden="true"><line x1="50" x2="50" y1="0" y2="12" stroke="var(--muted)" stroke-width=".6"/><rect x="${l}" width="${Math.abs(v) * 50}" y="2" height="8" fill="${v < 0 ? "var(--d1, #BC6B3B)" : "var(--d5, #2A6B66)"}"/></svg>`; };
   document.getElementById("acpCharges").innerHTML = `<table><caption>Corrélation de chaque profession avec les deux premiers axes, de −1 à +1</caption><thead><tr><th>Profession</th><th>Axe 1</th><th></th><th>Axe 2</th><th></th></tr></thead><tbody>`
     + ch.map(r => `<tr><td>${libT(r.p)}</td><td>${f2(r.a)}</td><td class="barre-acp">${barre(r.a)}</td><td>${f2(r.b)}</td><td class="barre-acp">${barre(r.b)}</td></tr>`).join("") + "</tbody></table>";
   document.getElementById("acpAxes").innerHTML = `<table><caption>Part des différences entre intercommunalités résumée par chaque axe</caption><thead><tr><th>Axe</th><th>Part des différences</th></tr></thead><tbody>`

@@ -8,8 +8,8 @@ import json
 import math
 from html import escape
 
-from . import config
-from .graphiques import CHASSE, CUIVRE, DISCRET, ENCRE, LIGNE, OCRE, VIOLET, VIOLET_PALE, taille_role
+from . import affichage as AF, config
+from .graphiques import CHASSE, CUIVRE, DISCRET, ENCRE, LIGNE, VIOLET, VIOLET_PALE, taille_role
 from .lecture import nombre
 from .util import JOURNAL, log
 
@@ -26,8 +26,8 @@ MAYOTTE: set = {"976"}   # jamais « 06 », qui est aussi le code des Alpes-Mari
 
 def symbole_fragile(x, y, info, r=5.5) -> str:
     return (f'<g><title>{escape(info)}</title><circle cx="{x:.1f}" cy="{y:.1f}" r="{r}" fill="{FRAGILE}" '
-            f'stroke="var(--bg, #FFFFFF)" stroke-width="1"/><text x="{x:.1f}" y="{y + r * .55:.1f}" text-anchor="middle" '
-            f'font-size="{r * 1.5:.0f}" font-weight="700" fill="var(--bg, #FFFFFF)">!</text></g>')
+            f'stroke="var(--bg, #F4F4F1)" stroke-width="1"/><text x="{x:.1f}" y="{y + r * .55:.1f}" text-anchor="middle" '
+            f'font-size="{r * 1.5:.0f}" font-weight="700" fill="var(--bg, #F4F4F1)">!</text></g>')
 
 
 def signaux(codes, suicide=False) -> dict:
@@ -84,16 +84,16 @@ TOLERANCE = .002        # simplification des contours des rapports, en degrés (
 TOLERANCE_ATLAS = .006  # simplification plus forte pour l'atlas, qui affiche toute la France
 FOND_ATLAS = config.INTER / "fond_atlas.topojson.json"
 
-# classes de densité rapportée à la moyenne des territoires du même niveau (décision de Lucas du 5 octobre 2026),
+# classes de densité rapportée à l'ensemble des territoires du même niveau (décision de Lucas du 5 octobre 2026),
 # de la plus faible à la plus forte. Palette divergente,
-# cuivre en dessous de la moyenne, bleu au-dessus, et un gris neutre pour les territoires proches de la moyenne,
+# cuivre en dessous de l'ensemble, canard au-dessus, et un gris neutre pour les territoires proches de l'ensemble,
 # pour que la couleur soit réservée aux vrais écarts (révision du 4 octobre 2026).
 CLASSES = [(None, "var(--d0, #83451E)", "aucun professionnel"),
-           (.5, "var(--d1, #BC6B3B)", "moins de la moitié de cette moyenne"),
-           (.8, "var(--d2, #E8A17A)", "de la moitié à 0,8 fois cette moyenne"),
-           (1.25, "var(--d3, #DFE1E5)", "proche de cette moyenne (0,8 à 1,25 fois)"),
-           (2, "var(--d4, #78A1D6)", "de 1,25 à 2 fois cette moyenne"),
-           (math.inf, "var(--d6, #1D4D87)", "plus de 2 fois cette moyenne")]
+           (.5, "var(--d1, #BC6B3B)", "moins de la moitié de l'ensemble"),
+           (.8, "var(--d2, #E39A71)", "de la moitié à 0,8 fois l'ensemble"),
+           (1.25, "var(--d3, #ABAEB4)", "proche de l'ensemble (0,8 à 1,25 fois)"),
+           (2, "var(--d4, #579891)", "de 1,25 à 2 fois l'ensemble"),
+           (math.inf, "var(--d6, #0E5A5A)", "plus de 2 fois l'ensemble")]
 
 
 def _simplifier(d: dict, tol: float) -> dict:
@@ -264,12 +264,36 @@ def ecrire_fond_atlas(ref) -> bool:
     return True
 
 
-def classe(rapport):
+def classe(rapport, gris=False):
     """Indice de la classe d'une densité rapportée à la moyenne des territoires du même niveau (rapport = densité /
-    moyenne)."""
+    moyenne). gris, l'écart reste dans la marge ou peut tenir au hasard (au_hasard) : classe du milieu."""
+    if gris:
+        return GRIS
     if rapport is None or not math.isfinite(rapport) or rapport <= 0:
         return 0
     return next(i for i, (borne, _c, _l) in enumerate(CLASSES) if borne is not None and rapport < borne)
+
+
+GRIS = 3   # classe « proche de l'ensemble », gris du milieu
+GRIS_HASARD = "proche de l'ensemble, ou écart qui peut tenir au hasard"
+
+
+def au_hasard(rapports: dict, effectifs: dict, bases: dict, reference) -> set:
+    """Territoires laissés en gris parce que l'écart à l'ensemble ne dépasse pas ce que le hasard explique, ou parce
+    que l'effectif est petit (moins de 5) : la règle des fiches et de l'atlas (affichage.couleur, décision de Lucas du
+    30 octobre 2026, audit du 6 novembre : une intercommunalité à 1 psychiatre pour 1,3 attendu était colorée).
+    rapports {code: densité / reference}, effectifs {code: professionnels}, bases {code: habitants}, reference la
+    densité de l'ensemble pour 10 000 habitants."""
+    if not reference:
+        return set()
+    out = set()
+    for code, r_ in rapports.items():
+        if r_ is None or not math.isfinite(r_):
+            continue
+        n, b = effectifs.get(code), bases.get(code)
+        if n is None or not b or AF.couleur(n, r_ * reference, reference, b, 1e4) is None:
+            out.add(code)
+    return out
 
 
 def _anneaux(g):
@@ -285,12 +309,16 @@ def _anneaux(g):
 MARQUE_CMP = "aucun psychiatre déclaré, mais au moins un CMP selon FINESS"
 
 
-def libelles_classes(reference=None, unite="pour 10 000 hab."):
-    """Libellés de la légende des classes. Avec une valeur de référence, chaque classe donne aussi ses bornes en
-    valeurs réelles (remarque de Lucas du 12 octobre 2026, la légende ne parlait qu'en fois la moyenne)."""
+def libelles_classes(reference=None, unite=None, fac=10000, hasard=False):
+    """Libellés de la légende des classes. Avec une valeur de référence (pour 10 000 habitants), chaque classe donne
+    aussi ses bornes en valeurs réelles (remarque de Lucas du 12 octobre 2026, la légende ne parlait qu'en fois la
+    moyenne), dans l'unité de la profession (fac, 100 000 pour une profession rare) et avec les arrondis des pages.
+    hasard, la classe du milieu dit aussi qu'elle reçoit les écarts qui peuvent tenir au hasard."""
+    unite = unite or ("pour 100 000 hab." if fac == 100000 else "pour 10 000 hab.")
+    milieu = lambda i, lab: GRIS_HASARD if hasard and i == GRIS else lab  # noqa: E731
     if not reference:
-        return [lab for _b, _c, lab in CLASSES]
-    v = lambda r: nombre(r * reference, 1)  # noqa: E731
+        return [milieu(i, lab) for i, (_b, _c, lab) in enumerate(CLASSES)]
+    v = lambda r: AF.nombre(r * reference * fac / 1e4, "taux")  # noqa: E731
     bornes = [b for b, _c, _l in CLASSES]
     out = []
     for i, (b, _c, lab) in enumerate(CLASSES):
@@ -301,25 +329,34 @@ def libelles_classes(reference=None, unite="pour 10 000 hab."):
         elif b == math.inf:
             out.append(f"plus de {v(bornes[i - 1])} {unite}, {lab}")
         else:
-            out.append(f"de {v(bornes[i - 1])} à {v(b)} {unite}, {lab}")
+            out.append(f"de {v(bornes[i - 1])} à {v(b)} {unite}, "
+                       + ("ou écart qui peut tenir au hasard" if hasard and i == GRIS else lab))
     return out
 
 
-def info_territoire(code, r_, reference=None, unite="pour 10 000 habitants"):
-    """Texte de l'infobulle d'un territoire, sa valeur et son écart à la moyenne."""
+def info_territoire(code, r_, reference=None, fac=10000):
+    """Texte de l'infobulle d'un territoire, sa valeur et son écart à l'ensemble des territoires du même niveau. La
+    densité s'écrit dans l'unité de la profession (fac) avec les arrondis des pages (affichage.nombre), comme le
+    tableau sous la carte ; aucun professionnel s'écrit en mots (audit du 6 novembre 2026, « 0,8 » sur la carte et
+    « 0,75 » dans le tableau, « 0,0 pour 10 000 habitants, 0,0 fois l'ensemble »)."""
     if r_ is None or not math.isfinite(r_):
         return nom(code)
+    if r_ == 0:
+        return f"{nom(code)}, {AF.STATUTS['aucun']}"
     if reference:
-        return f"{nom(code)}, {nombre(r_ * reference, 1)} {unite}, {nombre(r_, 1)} fois la moyenne"
-    return f"{nom(code)}, indice {nombre(r_ * 100)} (moyenne = 100)"
+        return (f"{nom(code)}, {AF.nombre(r_ * reference * fac / 1e4, 'taux')} {AF.txt_unite(fac)}, "
+                f"{AF.ecart_mots(r_ - 1)}")
+    return f"{nom(code)}, indice {nombre(r_ * 100)} (ensemble = 100)"
 
 
 def carte(geoms: dict, rapports: dict, etiquettes: dict, titre: str, largeur=560, hauteur_max=520, legende=True,
-          marques=None, legende_marque=MARQUE_CMP, reference=None, moyenne="", note_etiquettes="") -> str:
+          marques=None, legende_marque=MARQUE_CMP, reference=None, moyenne="", note_etiquettes="", fac=10000,
+          effectifs=None, bases=None) -> str:
     """Carte choroplèthe. geoms {code: géométrie}, rapports {code: densité / densité de référence},
     etiquettes {code: texte court posé sur le territoire}. reference est la densité de référence (pour 10 000
-    habitants), moyenne son nom (« moyenne des intercommunalités de France »), note_etiquettes dit à quoi renvoient
-    les étiquettes posées sur la carte."""
+    habitants), moyenne son nom (« ensemble des intercommunalités »), note_etiquettes dit à quoi renvoient
+    les étiquettes posées sur la carte. fac, l'unité d'affichage de la profession (100 000 pour une profession rare).
+    Avec effectifs et bases (habitants), un écart qui peut tenir au hasard reste en gris (au_hasard)."""
     geoms = {k: g for k, g in geoms.items() if g is not None and not g.is_empty}
     if not geoms:
         return ""
@@ -329,24 +366,33 @@ def carte(geoms: dict, rapports: dict, etiquettes: dict, titre: str, largeur=560
     lw, lh = (x1 - x0) * k or 1e-6, (y1 - y0) or 1e-6
     marques = [c for c in (marques or []) if c in geoms]
     fs_t, fs_p = taille_role("texte", largeur), taille_role("petit", largeur)
-    entete = ([f"{moyenne[0].upper() + moyenne[1:]}, {nombre(reference, 1)} pour 10 000 habitants"] if reference and moyenne
-              else []) + ([note_etiquettes] if note_etiquettes and etiquettes else [])
-    marge, leg = 8, (22 * (len(CLASSES) + len(entete) + (1 if marques else 0)) + 12) if legende else 0
+    entete = ([f"{moyenne[0].upper() + moyenne[1:]}, {AF.nombre(reference * fac / 1e4, 'taux')} {AF.txt_unite(fac)}"]
+              if reference and moyenne else []) + ([note_etiquettes] if note_etiquettes and etiquettes else [])
+    hasard = effectifs is not None and bases is not None
+    gris = au_hasard(rapports, effectifs, bases, reference) if hasard else set()
+    # légende des seules classes possibles : avec la règle du hasard, un territoire sans professionnel (petit effectif)
+    # reste en gris, la classe « aucun professionnel » n'est gardée que si un territoire la prend
+    utilisees = {classe(rapports.get(c), c in gris) for c in geoms}
+    entrees = [(c_, lab) for i, ((_b, c_, _l), lab) in enumerate(zip(CLASSES, libelles_classes(reference, fac=fac,
+                                                                                                hasard=hasard)))
+               if not (hasard and i == 0 and 0 not in utilisees)]
+    nb_cl = len(entrees)
+    marge, leg = 8, (22 * (nb_cl + len(entete) + (1 if marques else 0)) + 12) if legende else 0
     s = min((largeur - 2 * marge) / lw, (hauteur_max - 2 * marge) / lh)
     h = lh * s + 2 * marge
     P = lambda x, y: (marge + (x - x0) * k * s, marge + (y1 - y) * s)  # noqa: E731
     el = []
     for code, g in geoms.items():
-        c = CLASSES[classe(rapports.get(code))][1]
+        c = CLASSES[classe(rapports.get(code), code in gris)][1]
         d = _trace_relatif(_anneaux(g), P)
-        info = info_territoire(code, rapports.get(code), reference)
-        el.append(f'<path d="{d}" fill="{c}" fill-rule="evenodd" stroke="var(--contour, #9AA0AC)" stroke-width=".6">'
+        info = info_territoire(code, rapports.get(code), reference, fac)
+        el.append(f'<path d="{d}" fill="{c}" fill-rule="evenodd" stroke="var(--contour, #F4F4F1)" stroke-width=".6">'
                   f'<title>{escape(info)}</title></path>')
     for code, t in etiquettes.items():
         if code in geoms:
             px, py = P(*geoms[code].representative_point().coords[0])
             el.append(f'<text x="{px:.1f}" y="{py + 4:.1f}" text-anchor="middle" font-size="{fs_p}" font-weight="600" '
-                      f'fill="{ENCRE}" stroke="var(--bg, #FFFFFF)" stroke-width="3" paint-order="stroke">{escape(str(t))}</text>')
+                      f'fill="{ENCRE}" stroke="var(--bg, #F4F4F1)" stroke-width="3" paint-order="stroke">{escape(str(t))}</text>')
     # signal d'une limite des données posé sur le territoire, sans changer sa couleur (demande de Lucas du 9 octobre)
     fragiles = signaux(geoms)
     for lab in sorted(set(fragiles.values())):
@@ -355,7 +401,7 @@ def carte(geoms: dict, rapports: dict, etiquettes: dict, titre: str, largeur=560
         leg += sum(22 + 14 * (len(lignes_signal(lab, largeur, marge)) - 1) for lab in set(fragiles.values()))
     for code in marques:
         px, py = P(*geoms[code].representative_point().coords[0])
-        el.append(f'<circle cx="{px + 13:.1f}" cy="{py - 9:.1f}" r="4.5" fill="var(--bg, #FFFFFF)" stroke="{ENCRE}" '
+        el.append(f'<circle cx="{px + 13:.1f}" cy="{py - 9:.1f}" r="4.5" fill="var(--bg, #F4F4F1)" stroke="{ENCRE}" '
                   f'stroke-width="1.6"><title>{escape(nom(code))}, {escape(legende_marque)}</title></circle>')
     if legende:
         for j, txt in enumerate(entete):
@@ -363,15 +409,15 @@ def carte(geoms: dict, rapports: dict, etiquettes: dict, titre: str, largeur=560
             el.append(f'<text x="{marge}" y="{h + 19 + 22 * j:.1f}" font-size="{fs_t}" fill="{ENCRE if gras else DISCRET}"'
                       f'{gras}>{escape(txt)}</text>')
     h0 = h + 22 * len(entete) if legende else h
-    for i, ((_b, c, _l), lab) in enumerate(zip(CLASSES, libelles_classes(reference)) if legende else []):
+    for i, (c, lab) in enumerate(entrees if legende else []):
         y = h0 + 8 + 22 * i
         el.append(f'<rect x="{marge}" y="{y:.1f}" width="16" height="14" fill="{c}" stroke="{LIGNE}"/>')
         el.append(f'<text x="{marge + 24}" y="{y + 11:.1f}" font-size="{fs_t}" fill="{DISCRET}">{escape(lab)}</text>')
     if legende and fragiles:
-        legende_signaux(el, marge, h0 + 8 + 22 * (len(CLASSES) + (1 if marques else 0)), fragiles.values(), largeur)
+        legende_signaux(el, marge, h0 + 8 + 22 * (nb_cl + (1 if marques else 0)), fragiles.values(), largeur)
     if legende and marques:
-        y = h0 + 8 + 22 * len(CLASSES)
-        el.append(f'<circle cx="{marge + 8}" cy="{y + 7:.1f}" r="4.5" fill="var(--bg, #FFFFFF)" stroke="{ENCRE}" '
+        y = h0 + 8 + 22 * nb_cl
+        el.append(f'<circle cx="{marge + 8}" cy="{y + 7:.1f}" r="4.5" fill="var(--bg, #F4F4F1)" stroke="{ENCRE}" '
                   f'stroke-width="1.6"/>')
         el.append(f'<text x="{marge + 24}" y="{y + 11:.1f}" font-size="{fs_t}" fill="{DISCRET}">{escape(legende_marque)}</text>')
     H = h + leg
@@ -381,11 +427,13 @@ def carte(geoms: dict, rapports: dict, etiquettes: dict, titre: str, largeur=560
 
 
 # ---------------------------------------------------------------- diagrammes de l'audit du 4 octobre 2026
-def _legende(el, x, y, largeur):
-    """Légende des classes, sur une ou deux lignes selon la largeur."""
+def _legende(el, x, y, largeur, hasard=False):
+    """Légende des classes, sur une ou deux lignes selon la largeur. hasard, la classe du milieu reçoit aussi les
+    écarts qui peuvent tenir au hasard (au_hasard)."""
     colonnes = 2 if largeur < 700 else 3
     pas, fs = largeur / colonnes, taille_role("petit", largeur + 16)
     for i, (_b, c, lab) in enumerate(CLASSES):
+        lab = GRIS_HASARD if hasard and i == GRIS else lab
         xx, yy = x + (i % colonnes) * pas, y + (i // colonnes) * 20
         el.append(f'<rect x="{xx:.0f}" y="{yy}" width="14" height="12" fill="{c}" stroke="{LIGNE}"/>')
         el.append(f'<text x="{xx + 20:.0f}" y="{yy + 10}" font-size="{fs}" fill="{DISCRET}">{escape(lab)}</text>')
@@ -532,8 +580,9 @@ OUTRE_MER = ["971", "972", "973", "974", "976"]
 
 
 def carte_france(geoms: dict, rapports: dict, titre: str, largeur=560, legende=True, couleurs=None,
-                 legende_fn=None, suicide=False, reduction=1.0) -> str:
-    """Carte classique des départements, Hexagone et Corse, avec l'outre-mer en médaillons sous la carte."""
+                 legende_fn=None, suicide=False, reduction=1.0, gris=None) -> str:
+    """Carte classique des départements, Hexagone et Corse, avec l'outre-mer en médaillons sous la carte. gris, les
+    départements dont l'écart peut tenir au hasard (au_hasard), laissés en gris ; None, sans cette règle."""
     metro = {k: g for k, g in geoms.items() if k not in OUTRE_MER and g is not None}
     if not metro:
         return ""
@@ -547,12 +596,13 @@ def carte_france(geoms: dict, rapports: dict, titre: str, largeur=560, legende=T
         k = math.cos(math.radians((by0 + by1) / 2))
         s = min(w / ((bx1 - bx0) * k or 1e-6), h / ((by1 - by0) or 1e-6))
         for code, g in gs.items():
-            c = (couleurs.get(code) or "var(--nodata, #E9E8EC)") if couleurs is not None else CLASSES[classe(rapports.get(code))][1]
+            c = ((couleurs.get(code) or "var(--nodata, #E6E6E9)") if couleurs is not None
+                 else CLASSES[classe(rapports.get(code), code in (gris or ()))][1])
             d = _trace_relatif(_anneaux(g), lambda x, y: (x0 + (x - bx0) * k * s, y0 + (by1 - y) * s))
             r_ = rapports.get(code) if rapports else None
-            info = nom(code) + (f", indice {nombre(r_ * 100)} (moyenne = 100)" if r_ is not None and
+            info = nom(code) + (f", indice {nombre(r_ * 100)} (ensemble = 100)" if r_ is not None and
                                 isinstance(r_, (int, float)) and math.isfinite(r_) else "")
-            el.append(f'<path data-code="{escape(code)}" d="{d}" fill="{c}" fill-rule="evenodd" stroke="var(--contour, #9AA0AC)" '
+            el.append(f'<path data-code="{escape(code)}" d="{d}" fill="{c}" fill-rule="evenodd" stroke="var(--contour, #F4F4F1)" '
                       f'stroke-width=".6"><title>{escape(info)}</title></path>')
             if code in sig:
                 proj = (x0, y0, bx0, by1, k, s)
@@ -569,7 +619,7 @@ def carte_france(geoms: dict, rapports: dict, titre: str, largeur=560, legende=T
     om = any(geoms.get(c) is not None for c in OUTRE_MER)
     debut = y + 96 if om else largeur - 4   # sans médaillons d'outre-mer, la légende suit l'Hexagone
     fin = (legende_fn(el, 8, debut, largeur - 16) if legende_fn else
-           _legende(el, 8, debut, largeur - 16) if legende else debut - 6)
+           _legende(el, 8, debut, largeur - 16, gris is not None) if legende else debut - 6)
     # contour ocre du groupe de territoires concernés et symbole en son centre, la couleur des territoires ne change pas
     from shapely.ops import unary_union
     for (lab, (x0, y0, bx0, by1, k, s)), gs in groupes.items():
@@ -587,19 +637,22 @@ def carte_france(geoms: dict, rapports: dict, titre: str, largeur=560, legende=T
 
 def petits_multiples(geoms: dict, series: list, titre: str, colonnes=2, largeur=760) -> str:
     """Même carte des départements pour plusieurs professions (audit 4.7), mêmes classes de couleur, une seule
-    légende. series, liste de (nom, {code: rapport à la moyenne})."""
+    légende. series, liste de (nom, {code: rapport à la moyenne}) ou (nom, rapports, gris) avec les départements
+    dont l'écart peut tenir au hasard (au_hasard)."""
     import re as _re
     if not series:
         return ""
     w = largeur / colonnes
     el, y, hmax = [], 0.0, 0.0
-    for i, (nom, rap) in enumerate(series):
+    hasard = any(len(s_) > 2 for s_ in series)
+    for i, (nom, rap, *g_) in enumerate(series):
         col = i % colonnes
         if col == 0 and i:
             y += hmax + 34
             hmax = 0.0
         # la carte est réduite à w - 12 dans une figure de largeur unités, son texte est agrandi d'autant
-        svg = carte_france(geoms, rap, nom, largeur=560, legende=False, reduction=largeur / (w - 12))
+        svg = carte_france(geoms, rap, nom, largeur=560, legende=False, reduction=largeur / (w - 12),
+                           gris=g_[0] if g_ else None)
         if not svg:
             continue
         vb = _re.search(r'viewBox="0 0 ([\d.]+) ([\d.]+)"', svg)
@@ -615,7 +668,7 @@ def petits_multiples(geoms: dict, series: list, titre: str, colonnes=2, largeur=
         interieur = _re.sub(r"<title>.*?</title>", "", interieur, count=1)
         el.append(f'<svg x="{x0 + 6:.0f}" y="{y + 24:.0f}" width="{w - 12:.0f}" height="{h:.0f}" '
                   f'viewBox="0 0 {lw:.0f} {lh:.0f}">{interieur}</svg>')
-    fin = _legende(el, 8, y + hmax + 40, largeur - 16)
+    fin = _legende(el, 8, y + hmax + 40, largeur - 16, hasard)
     sig = signaux(geoms)
     if sig:
         fin = legende_signaux(el, 8, fin + 4, sig.values(), largeur)
@@ -623,8 +676,8 @@ def petits_multiples(geoms: dict, series: list, titre: str, colonnes=2, largeur=
 
 
 # temps de trajet par commune (audit 4.6), du plus court au plus long, gris neutre puis cuivre de plus en plus foncé
-CLASSES_TEMPS = [(10, "var(--d3, #DFE1E5)", "moins de 10 minutes"),
-                 (20, "var(--d2, #E8A17A)", "de 10 à 20 minutes"),
+CLASSES_TEMPS = [(10, "var(--d3, #ABAEB4)", "moins de 10 minutes"),
+                 (20, "var(--d2, #E39A71)", "de 10 à 20 minutes"),
                  (30, "var(--d1, #BC6B3B)", "de 20 à 30 minutes"),
                  (math.inf, "var(--d0, #83451E)", "30 minutes et plus")]
 
@@ -647,8 +700,8 @@ def _trace_relatif(anneaux, P) -> str:
     return "".join(morceaux)
 
 
-CLASSES_DISTANCE = [(5, "var(--d3, #DFE1E5)", "moins de 5 km"),
-                    (10, "var(--d2, #E8A17A)", "de 5 à 10 km"),
+CLASSES_DISTANCE = [(5, "var(--d3, #ABAEB4)", "moins de 5 km"),
+                    (10, "var(--d2, #E39A71)", "de 5 à 10 km"),
                     (20, "var(--d1, #BC6B3B)", "de 10 à 20 km"),
                     (math.inf, "var(--d0, #83451E)", "20 km et plus")]
 
@@ -670,10 +723,10 @@ def carte_temps(geoms: dict, minutes: dict, titre: str, largeur=560, hauteur_max
     s = min((largeur - 2 * marge) / lw, (hauteur_max - 2 * marge) / lh)
     h = lh * s + 2 * marge
     P = lambda x, y: (marge + (x - x0) * k * s, marge + (y1 - y) * s)  # noqa: E731
-    el = ['<g fill-rule="evenodd" stroke="var(--contour, #9AA0AC)" stroke-width=".3">']
+    el = ['<g fill-rule="evenodd" stroke="var(--contour, #F4F4F1)" stroke-width=".3">']
     for code, g in geoms.items():
         m = minutes.get(code)
-        c = ("var(--nodata, #E9E8EC)" if m is None or not math.isfinite(m) else
+        c = ("var(--nodata, #E6E6E9)" if m is None or not math.isfinite(m) else
              next(col for borne, col, _l in classes if m < borne))
         d = _trace_relatif(_anneaux(g), P)
         if d:
@@ -710,8 +763,9 @@ def grille_tuiles(geoms: dict) -> dict:
     return pos
 
 
-def carte_tuiles(pos: dict, rapports: dict, titre: str, largeur=560, legende=True) -> str:
-    """Carte en tuiles, un carré de même taille par département, quel que soit son territoire."""
+def carte_tuiles(pos: dict, rapports: dict, titre: str, largeur=560, legende=True, gris=None) -> str:
+    """Carte en tuiles, un carré de même taille par département, quel que soit son territoire. gris, comme pour
+    carte_france."""
     if not pos:
         return ""
     colonnes = max(x for x, _y in pos.values()) + 1
@@ -720,28 +774,41 @@ def carte_tuiles(pos: dict, rapports: dict, titre: str, largeur=560, legende=Tru
     el = []
     sig = signaux(pos)
     for code, (x, y) in pos.items():
-        c = CLASSES[classe(rapports.get(code))][1]
+        k_ = classe(rapports.get(code), code in (gris or ()))
+        c = CLASSES[k_][1]
         px, py = 8 + x * cote, 8 + y * cote
         el.append(f'<rect data-code="{escape(code)}" x="{px:.1f}" y="{py:.1f}" width="{cote - 2:.1f}" '
                   f'height="{cote - 2:.1f}" rx="3" fill="{c}"><title>{escape(nom(code))}</title></rect>')
-        sombre = classe(rapports.get(code)) in (0, len(CLASSES) - 1)
+        sombre = k_ in (0, len(CLASSES) - 1)
         el.append(f'<text x="{px + (cote - 2) / 2:.1f}" y="{py + (cote - 2) / 2 + 4:.1f}" text-anchor="middle" '
-                  f'font-size="{min(taille_role("petit", largeur), cote / 3.2):.1f}" font-weight="600" fill="{"var(--bg, #fff)" if sombre else ENCRE}">'
+                  f'font-size="{min(taille_role("petit", largeur), cote / 3.2):.1f}" font-weight="600" fill="{"var(--bg, #F4F4F1)" if sombre else ENCRE}">'
                   f'{escape(code)}</text>')
         if code in sig:
             el.append(symbole_fragile(px + cote - 7, py + 5, nom(code) + ", " + sig[code], 4.5))
     el.append(f'<text x="8" y="{8 + (lignes - 1) * cote - 6:.0f}" font-size="{taille_role("petit", largeur)}" '
               f'fill="{DISCRET}">Outre-mer</text>')
-    fin = _legende(el, 8, 8 + lignes * cote + 6, largeur - 16) if legende else 8 + lignes * cote
+    fin = _legende(el, 8, 8 + lignes * cote + 6, largeur - 16, gris is not None) if legende else 8 + lignes * cote
     if legende and sig:
         fin = legende_signaux(el, 8, fin + 4, sig.values(), largeur)
     return _svg(largeur, fin + 6, titre, el)
 
 
+def _info_point(code, v, fac=None) -> str:
+    """Infobulle d'un territoire dans une figure de densités : sa densité dans l'unité de la profession, avec les
+    arrondis des pages et l'unité écrite ; aucun professionnel en mots (audit du 6 novembre 2026, « Ain, 0,0 » pour des
+    pédopsychiatres que le tableau donne pour 100 000)."""
+    if v == 0:
+        return f"{nom(code)}, {AF.STATUTS['aucun']}"
+    if fac:
+        return f"{nom(code)}, {AF.nombre(v * fac / 1e4, 'taux')} {AF.txt_unite(fac)}"
+    return f"{nom(code)}, {AF.nombre(v, 'taux')}"
+
+
 def halteres(lignes: list[dict], titre: str, largeur=640) -> str:
     """Écart d'un territoire à la moyenne des territoires du même niveau, une ligne par indicateur. Chaque dict porte
     libelle, valeur (territoire), reference (moyenne), et facultativement q1 et q3 (moitié centrale des territoires
-    comparés) et tous (valeurs des autres territoires, dessinées en petits points, audit 4.3). Échelle en indice, 100
+    comparés) et tous (valeurs des autres territoires, dessinées en petits points, audit 4.3), fac l'unité de la
+    profession (valeurs pour 10 000 habitants, écrites pour 100 000 quand fac vaut 100 000). Échelle en indice, 100
     pour la moyenne, logarithmique pour que « deux fois moins » et « deux fois plus » soient à même distance."""
     lignes = [l for l in lignes if l.get("reference") and l.get("valeur") is not None
               and math.isfinite(l["valeur"]) and l["reference"] > 0]
@@ -753,7 +820,7 @@ def halteres(lignes: list[dict], titre: str, largeur=640) -> str:
     X = lambda v: g + (min(max(math.log(max(v, 1e-6)), lo), hi) - lo) / (hi - lo) * (largeur - g - d)  # noqa: E731
     el = []
     H = 34 + h * len(lignes) + 24
-    for v, lab in [(.25, "4 fois moins"), (.5, "2 fois moins"), (1, "Moyenne"), (2, "2 fois plus"), (4, "4 fois plus")]:
+    for v, lab in [(.25, "4 fois moins"), (.5, "2 fois moins"), (1, "Ensemble"), (2, "2 fois plus"), (4, "4 fois plus")]:
         el.append(f'<line x1="{X(v):.1f}" y1="26" x2="{X(v):.1f}" y2="{H - 24}" stroke="{LIGNE}" '
                   f'stroke-width="{2 if v == 1 else 1}"/>')
         el.append(f'<text x="{X(v):.1f}" y="18" text-anchor="middle" font-size="{fs_p}" fill="{DISCRET}">{lab}</text>')
@@ -769,16 +836,16 @@ def halteres(lignes: list[dict], titre: str, largeur=640) -> str:
         if tous:
             el.append(f'<g fill="{DISCRET}" fill-opacity=".45">' + "".join(
                 f'<circle cx="{X(v / l["reference"]):.0f}" cy="{y + ((k * 7) % 5 - 2) * 2.4:.0f}" r="2">'
-                f'<title>{escape(nom(c))}, {nombre(v, 1)}</title></circle>'
+                f'<title>{escape(_info_point(c, v, l.get("fac")))}</title></circle>'
                 for k, (c, v) in enumerate(tous)) + "</g>")
         c = CUIVRE if ind < 1 else VIOLET[0]
         el.append(f'<line x1="{X(1):.1f}" y1="{y}" x2="{X(ind):.1f}" y2="{y}" stroke="{c}" stroke-width="3"/>')
-        el.append(f'<circle cx="{X(1):.1f}" cy="{y}" r="4" fill="var(--bg, #fff)" stroke="{DISCRET}" stroke-width="1.5"/>')
+        el.append(f'<circle cx="{X(1):.1f}" cy="{y}" r="4" fill="var(--bg, #F4F4F1)" stroke="{DISCRET}" stroke-width="1.5"/>')
         el.append(f'<circle cx="{X(ind):.1f}" cy="{y}" r="6" fill="{c}"/>')
         el.append(f'<text x="{largeur - d + 6}" y="{y + 4}" font-size="{fs_p}" fill="{ENCRE}">{nombre(ind * 100)}</text>')
     y = H - 10
     el.append(f'<circle cx="{g + 6}" cy="{y - 4}" r="5" fill="{CUIVRE}"/><circle cx="{g + 18}" cy="{y - 4}" r="5" fill="{VIOLET[0]}"/>'
-              f'<text x="{g + 28}" y="{y}" font-size="{fs_p}" fill="{DISCRET}">ce territoire (indice, moyenne = 100)</text>'
+              f'<text x="{g + 28}" y="{y}" font-size="{fs_p}" fill="{DISCRET}">ce territoire (indice, ensemble = 100)</text>'
               f'<circle cx="{g + 228}" cy="{y - 4}" r="2.4" fill="{DISCRET}" fill-opacity=".6"/>'
               f'<text x="{g + 236}" y="{y}" font-size="{fs_p}" fill="{DISCRET}">les autres</text>'
               f'<rect x="{g + 300}" y="{y - 9}" width="14" height="9" fill="{VIOLET_PALE}"/>'
@@ -796,7 +863,7 @@ def unites(part: float, titre: str, phrase: str, largeur=520) -> str:
           f'{escape(phrase)}</text>']
     for i in range(100):
         x, y = 12 + (i % 20) * pas, 40 + (i // 20) * (pas + 8)
-        c = OCRE if i < k else LIGNE
+        c = VIOLET[1] if i < k else LIGNE  # canard, l'ocre est réservé au signal « ! »
         el.append(f'<circle cx="{x}" cy="{y}" r="{r * .55:.1f}" fill="{c}"/>'
                   f'<path d="M{x - r},{y + r + 7} Q{x},{y + 2} {x + r},{y + r + 7} Z" fill="{c}"/>')
     return _svg(largeur, 40 + 5 * (pas + 8) + 4, titre, el)

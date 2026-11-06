@@ -1,0 +1,25 @@
+{#- La réglette, composant commun de la fiche, de la planche et des prototypes (direction visuelle, validation de Lucas
+    du 31 octobre 2026 ; reprise de lisibilité du même jour). Les valeurs viennent de affichage.Affichage.histogramme.
+    - histogramme des territoires du même niveau (nombre de barres selon le niveau, barres non vides toujours visibles) ;
+    - ensemble en trait plein, médiane en triangle sous l'axe, point du territoire au-dessus de tout ;
+    - axe arrêté au 98e centile (au 90e pour une distribution très étalée), chevron quand des territoires vont au-delà ;
+    - toutes les marques posées sur une piste en retrait du bord, pour que le point et le triangle restent entiers ;
+    - quand plus de 40 % des territoires n'ont aucun inscrit, leur barre se détache, sur la même échelle que les autres,
+      et leur part est écrite dessus (« aucun : 83 % ») ; si l'étiquette de l'ensemble la touche, figures.js la reporte
+      dans celle de la médiane, sur deux lignes au besoin (classe « deux »), et garde les étiquettes dans leur réglette.
+    Usage : {% from "reglette.html" import reglette %} … {{ reglette(r, 'petite') }} -#}
+{% macro reglette(r, taille='') -%}
+{%- if r and r.h -%}{%- set h = r.h -%}
+<div class="rg {{ r.classe }} {{ taille }}" role="img" tabindex="0" aria-label="{{ r.aria }} ; {{ r.info }} ; {{ h.axe }}">
+  <span class="rg-piste" aria-hidden="true">
+  <svg class="rg-hist" viewBox="0 0 {{ h.nb or 30 }} 18" preserveAspectRatio="none" aria-hidden="true"><path d="{{ h.chemin }}"/></svg>
+  <span class="rg-axe"></span>
+  {%- if h.chevron %}<span class="rg-chev"></span>{% endif %}
+  {%- if h.rep is not none %}<span class="rg-ens" style="left:{{ h.rep }}%"></span><span class="rg-lab haut lab-{{ h.cote_rep }}" style="left:{{ h.rep }}%">ensemble {{ h.rep_txt }}</span>{% endif %}
+  {%- if h.aucun_lab %}<span class="rg-lab haut lab-g rg-aucun" style="left:0%">{{ h.aucun_lab }}</span>{% endif %}
+  {%- if h.med is not none %}<span class="rg-med" style="left:{{ h.med }}%"></span><span class="rg-lab bas lab-{{ h.cote_med }}" style="left:{{ h.med }}%">médiane {{ h.med_txt }}{% if h.aucun %}<span class="rg-part" hidden> (aucun : {{ h.aucun }})</span>{% endif %}</span>{% endif %}
+  {%- if h.val is not none and r.classe != 'sans' %}<span class="rg-pt" style="left:{{ h.val }}%"></span>{% endif %}
+  </span>
+</div>
+{%- endif -%}
+{%- endmacro %}

@@ -11,12 +11,14 @@ from __future__ import annotations
 
 import gzip
 import json
+import re
 from datetime import datetime
 
 import pandas as pd
 
 from .. import config
-from ..util import JOURNAL, LectureLocaleImpossible, date_version, lire_meta, log, meta_path, ressources_datagouv, telecharger
+from ..util import (JOURNAL, LectureLocaleImpossible, date_version, lire_meta, log, meta_path, norm, ressources_datagouv,
+                    telecharger)
 
 DOSSIER = config.BRUT / "sirene"
 EXTRAIT = DOSSIER / "etablissements_finess.parquet"
@@ -40,12 +42,22 @@ def sirens_finess() -> dict[str, str]:
     return out
 
 
+def ressource_stock(ressources: list[dict]) -> dict | None:
+    """Stock des établissements au format parquet parmi les ressources du jeu Sirene, d'après le titre ramené à ses
+    lettres : « Sirene : Fichier StockEtablissement - 01 octobre 2026 » jusqu'en octobre 2026, puis
+    « stock-stocketablissement-parquet.parquet » (titre changé par l'INSEE le 3 novembre 2026, lecture de l'API de
+    data.gouv du 4 novembre). Jamais l'historique ni les liens de succession. La plus grosse si plusieurs."""
+    def lettres(t):
+        return re.sub(r"[^a-z]", "", norm(t))
+    cand = [r for r in ressources if r["format"] == "parquet" and "stocketablissement" in lettres(r["titre"])
+            and not re.search(r"historique|lienssuccession", lettres(r["titre"]))]
+    return max(cand, key=lambda r: r["taille"] or 0) if cand else None
+
+
 def _mettre_a_jour(rafraichir: bool):
-    res = [r for r in ressources_datagouv(config.SIRENE_JEU)
-           if r["titre"].startswith("Sirene : Fichier StockEtablissement -") and r["format"] == "parquet"]
-    if not res:
+    r = ressource_stock(ressources_datagouv(config.SIRENE_JEU))
+    if r is None:
         raise IOError("stock des établissements Sirene introuvable")
-    r = res[0]
     if EXTRAIT.exists() and lire_meta(EXTRAIT).get("maj_source") == r["maj"] and not rafraichir:
         return
     import pyarrow.dataset as ds
@@ -69,10 +81,18 @@ def _mettre_a_jour(rafraichir: bool):
 def charger(hors_ligne=False, rafraichir=False) -> dict | None:
     """Renvoie {"etablissements": DataFrame (une ligne par établissement, enseigne et adresse lisibles), "siren": dict
     numéro FINESS de l'entité juridique -> SIREN, "maj"} ou None."""
+    garde = ""
     try:
         DOSSIER.mkdir(parents=True, exist_ok=True)
         if not hors_ligne:
-            _mettre_a_jour(rafraichir)
+            try:
+                _mettre_a_jour(rafraichir)
+            except Exception as e:  # noqa: BLE001
+                # une mise à jour impossible ne retire pas Sirene de l'exécution quand un extrait est en cache : sans
+                # lui, 70 CATTP annoncés par l'enseigne d'un CMP avaient disparu le 4 novembre 2026 (10 en Charente)
+                if not EXTRAIT.exists():
+                    raise
+                garde = f"mise à jour impossible ({(str(e) or type(e).__name__)[:120]}), extrait en cache gardé ; "
         if not EXTRAIT.exists():
             raise FileNotFoundError(EXTRAIT)
     except Exception as e:  # noqa: BLE001
@@ -96,6 +116,7 @@ def charger(hors_ligne=False, rafraichir=False) -> dict | None:
     s["adresse"] = voie.str.replace(r"\b(" + "|".join(config.SIRENE_TYPES_VOIE) + r")\b",
                                     lambda m: config.SIRENE_TYPES_VOIE[m.group(1)], regex=True)
     maj = date_version(lire_meta(EXTRAIT))
-    JOURNAL.note(SOURCE, "ok", f"{len(s)} établissements de {s['siren'].nunique()} gestionnaires, dont "
+    JOURNAL.controle("Sirene, extrait en cache gardé faute de mise à jour (attendu, non)", garde.split(" ;")[0] or "non")
+    JOURNAL.note(SOURCE, "ok", garde + f"{len(s)} établissements de {s['siren'].nunique()} gestionnaires, dont "
                  f"{int((s['etatAdministratifEtablissement'] == 'A').sum())} actifs", date_donnees=maj, lignes=len(s))
     return {"etablissements": s, "siren": siren, "maj": maj}

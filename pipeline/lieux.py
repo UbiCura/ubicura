@@ -43,7 +43,10 @@ PRECISIONS = {"finess": "coordonnées FINESS", "ror": "coordonnées du ROR", "ad
               # géocodée dans la commune de la structure, où elle tomberait sur une rue homonyme
               "chef_lieu_gestionnaire": "centre de la commune, au chef-lieu (adresse du gestionnaire reprise)",
               "commune_gestionnaire": "centre de la commune (adresse du gestionnaire reprise)",
-              "rattachement": "adresse de l'établissement de rattachement, lieu exact inconnu"}
+              "rattachement": "adresse de l'établissement de rattachement, lieu exact inconnu",
+              # adresse lue sur une source de l'établissement (contenus/adresses_verifiees.csv, 31 octobre 2026)
+              "verifiee_adresse": "adresse vérifiée sur une source de l'établissement, géocodée au numéro",
+              "verifiee_rue": "adresse vérifiée sur une source de l'établissement, géocodée à la rue"}
 CACHE_GEO = config.INTER / "geocodage_lieux.parquet"
 REQUETE_GEO = "voie développée et commune, nom de rue plus long accepté, commune voisine"   # forme de la requête et de la règle
                                                                            # d'acceptation, un échec d'une autre forme
@@ -296,6 +299,52 @@ def _plus_longue(mots: list, dico: dict, d: str, doubles: set) -> str | None:
     return None
 
 
+def departements_homonymes(ref) -> set:
+    """Codes des communes qui portent le nom de leur département (Doubs, Corrèze, Mayenne, Paris)."""
+    deps = getattr(ref, "deps", None)
+    if deps is None or not len(deps):
+        return set()
+    noms = dict(zip(deps["code"], deps["nom"].map(_simple)))
+    c = ref.communes
+    return {k for k, n, d in zip(c["code"], c["nom"].map(_simple), c["dep"]) if noms.get(d) == n}
+
+
+def sans_departement_homonyme(autres: pd.Series, propre: pd.Series, ref) -> pd.Series:
+    """Communes lues dans le nom des unités (autres), sans celles qui portent le nom de leur département quand l'unité
+    est enregistrée sous son propre établissement hors hôpital (propre, booléen par unité)."""
+    if not len(autres):
+        return autres
+    p_ = propre.reindex(autres.index).fillna(False).astype(bool)
+    return autres[~(autres.isin(departements_homonymes(ref)) & p_)]
+
+
+# mots d'un nom qui annoncent un lieu de consultation détaché (« Relais Pays d'Arles », « site de Chanteheux »)
+MOTS_SITE = r"\b(?:antenne|site|relais|unite|annexe|permanence)\b"
+# type de voie en tête d'une adresse simplifiée (« route de macon », « r de caen »)
+MOTS_VOIE = r"\b(?:rue|r|route|rte|avenue|av|chemin|che|boulevard|bd|impasse|imp|allee|all|place|pl|quai|cours|faubourg|fg)\b"
+
+
+def sans_pays_ni_voie(autres: pd.Series, propre: pd.Series, noms: pd.Series, voies: pd.Series, ref) -> pd.Series:
+    """Communes lues dans le nom des unités (autres), sans celles que le nom ne cite que comme pays (« CPTS du Pays de
+    Gex », « Centre Ressources Autisme des Pays de la Loire » lu Loiré) ou que l'adresse de l'unité porte dans le nom de
+    sa voie (« 412 route de Mâcon » à Hurigny, « 40 rue de Bétheny » à Reims), quand l'unité est enregistrée sous son
+    propre établissement hors hôpital. Mesure du 31 octobre 2026 sur les 680 structures placées par leur nom hors de
+    la commune de leur établissement FINESS : 17 concernées, l'adresse de FINESS juste pour toutes celles relues."""
+    if not len(autres):
+        return autres
+    nom_com = ref.communes.set_index("code")["nom"]
+    p_ = propre.reindex(autres.index).fillna(False).astype(bool)
+    garde = []
+    for i, code in autres.items():
+        v = _simple(nom_com.get(code, ""))
+        n = _simple(noms.get(i) if isinstance(noms.get(i), str) else "")
+        a = _simple(voies.get(i) if isinstance(voies.get(i), str) else "")
+        pays = bool(re.search(rf"\bpays (?:de |des |du |d )?(?:la |l |le )?{re.escape(v)}\b", n)) and not re.search(MOTS_SITE, n)
+        voie = bool(re.search(rf"{MOTS_VOIE}.*\b{re.escape(v)}\b", a))
+        garde.append(not (p_[i] and v and (pays or voie)))
+    return autres[garde]
+
+
 def communes_du_nom(noms: pd.Series, deps: pd.Series, ref, exclure: pd.Series | None = None) -> pd.Series:
     """Commune citée dans le nom d'une unité (« CMP Munster - Psy adulte »), cherchée parmi les communes du
     département de son établissement de rattachement. La plus longue suite de mots qui est le nom d'une seule commune
@@ -427,6 +476,14 @@ def _unites_retenues(ror: dict, ref, fin: pd.DataFrame | None = None) -> pd.Data
         exclure = u.loc[copie, "finess_ror"].map(fi["nofinessej"]).map(villes).where(propre)
     autres = communes_du_nom(u.loc[copie, "nom"], dep_struct[copie], ref, exclure)
     autres = autres[autres != u.loc[autres.index, "commune"]]
+    # une commune qui porte le nom de son département (Doubs, Corrèze, Mayenne) n'est pas lue dans le nom d'une unité
+    # enregistrée sous son propre établissement, hors hôpital, dont FINESS donne déjà la commune : le nom y cite le
+    # département (« CAMSP DOUBS » de Besançon, « HAUT DOUBS SESSAD VALDAHON », cinq structures placées à Doubs
+    # jusqu'au 31 octobre 2026). Rattachée à un hôpital, l'unité peut porter le nom de la ville (« CeGIDD - Antenne
+    # Mayenne » du CH de Laval).
+    if fin is not None:
+        autres = sans_departement_homonyme(autres, propre, ref)
+        autres = sans_pays_ni_voie(autres, propre, u["nom"], u["voie"], ref)
     u.loc[autres.index, "commune"] = autres
     u.loc[autres.index, "origine_commune"] = "nom"
     reste = u["commune"].isna()
@@ -2200,6 +2257,34 @@ def typologie_lieux(affect: pd.DataFrame | None, L: dict, ref) -> pd.DataFrame |
     return pd.DataFrame(lignes) if lignes else None
 
 
+MOTIF_NON_PUBLIE = "non publié, moins de la moitié des structures de la SAE inscrites dans FINESS et le ROR"
+
+
+def taux_publics(c: pd.DataFrame, pop: pd.Series, cn: pd.DataFrame | None, mq: pd.DataFrame | None,
+                 niv: str) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Structures pour 100 000 personnes de leur public, la même règle pour le site (indicateurs) et pour les fichiers
+    lieux_soins_<niveau>.csv (export), qui rapportaient tout à la population et ne masquaient rien jusqu'au 30 octobre
+    2026 (audit du soir, CA Colmar Agglomération). c, nombres par territoire (lignes) et type (colonnes) ; pop, population
+    des territoires ; cn, contexte du niveau (parts de la population par âge, lieux_profil.denominateur), sans quoi le
+    type est rapporté à toute la population ; mq, manques de la SAE (manques_sae), qui vident le taux. Renvoie les taux
+    et un tableau vrai/faux des taux retirés par les manques."""
+    t = c.div(pop.astype(float).where(pop > 0), axis=0) * 1e5
+    # structures d'un public particulier rapportées à ce public (dénominateur du registre, 15 octobre 2026)
+    for tp in c.columns:
+        parts = lieux_profil.denominateur(tp)[0]
+        if parts and isinstance(cn, pd.DataFrame) and all(p_ in cn for p_ in parts):
+            pp = pop.astype(float) * cn[parts].sum(axis=1).reindex(pop.index) / 100
+            t[tp] = c[tp] / pp.where(pp > 0) * 1e5
+    # territoires où les bases inscrivent moins de la moitié des structures que la SAE déclare (manques_sae)
+    retire = pd.DataFrame(False, index=t.index, columns=t.columns)
+    if isinstance(mq, pd.DataFrame):
+        for r in mq[(mq["niveau"] == niv) & mq["manque"]].itertuples():
+            if r.type in t.columns and r.code in t.index:
+                t.loc[r.code, r.type] = np.nan
+                retire.loc[r.code, r.type] = True
+    return t, retire
+
+
 def indicateurs(L: dict, ref, ctx: dict | None = None) -> dict | None:
     from .lecture import minuscule
     """Structures pour 100 000 habitants et distance médiane des habitants à la structure la plus proche, par intercommunalité,
@@ -2219,20 +2304,8 @@ def indicateurs(L: dict, ref, ctx: dict | None = None) -> dict | None:
     for niv, pop in pops.items():
         c = L["comptes"][niv].pivot_table(index="code", columns="type", values="n", fill_value=0)
         c = c.reindex(index=pop.index, columns=types).fillna(0)
-        t = (c.div(pop.astype(float).where(pop > 0), axis=0) * 1e5)
-        # structures d'un public particulier rapportées à ce public (dénominateur du registre, 15 octobre 2026)
         cn = (ctx or {}).get(niv)
-        for tp in types:
-            parts = lieux_profil.denominateur(tp)[0]
-            if parts and isinstance(cn, pd.DataFrame) and all(p_ in cn for p_ in parts):
-                pp = pop.astype(float) * cn[parts].sum(axis=1).reindex(pop.index) / 100
-                t[tp] = c[tp] / pp.where(pp > 0) * 1e5
-        # territoires où les bases inscrivent moins de la moitié des structures que la SAE déclare (manques_sae)
-        mq = L.get("manques_sae")
-        if isinstance(mq, pd.DataFrame):
-            for r in mq[(mq["niveau"] == niv) & mq["manque"]].itertuples():
-                if r.type in t.columns and r.code in t.index:
-                    t.loc[r.code, r.type] = np.nan
+        t = taux_publics(c, pop, cn, L.get("manques_sae"), niv)[0]
         t = t.add_prefix("lieux_")
         d = (L.get("distances") or {}).get(niv)
         if isinstance(d, pd.DataFrame):
@@ -2438,6 +2511,9 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
     # l'addictologie (16 octobre 2026)
     lieux, roles_ms = roles_antennes(lieux, fin)
     lieux = roles_addictologie(lieux)
+    # adresses vérifiées sur les sources des établissements, tout type, après les changements de type (31 octobre 2026)
+    from . import adresses_verifiees
+    lieux, verif["adresses_verifiees"] = adresses_verifiees.appliquer(lieux, ref, hors_ligne)
     if n_cattp_cmp:
         _releve("FINESS, ROR et Sirene", "CMP dont le nom, une unité du ROR ou l'enseigne Sirene annonce aussi un CATTP "
                 "(« CMP-CATTP »), sans autre CATTP de leur gestionnaire dans la commune", n_cattp_cmp,

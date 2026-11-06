@@ -3,23 +3,19 @@
     <a class="marque" href="{{ racine }}index.html" title="{{ sous_titre }}">{{ nom_projet }}</a>
     <button class="menu" id="bouton-menu" type="button" aria-expanded="false" aria-controls="liens-site">Menu</button>
     <div class="liens" id="liens-site">
-    <a class="l{% if page == 'atlas' %} on{% endif %}" href="{{ racine }}index.html">Atlas</a>
-    <a class="l{% if page == 'explorer' %} on{% endif %}" href="{{ racine }}explorer.html">Explorer</a>
-    <a class="l{% if page == 'rapports' %} on{% endif %}" href="{{ racine }}rapports.html">Rapports nationaux</a>
-    <a class="l{% if page == 'territoires' %} on{% endif %}" href="{{ racine }}territoires/index.html">Rapports par territoire</a>
-    <a class="l{% if page == 'methode' %} on{% endif %}" href="{{ racine }}methode.html">Méthode, données et limites</a>
-    {% set pages_projet = [('apropos', 'a-propos.html', 'À propos'), ('publications', 'publications.html', 'Publications'),
-                           ('journal', 'journal.html', 'Journal des mises à jour'), ('a-venir', 'a-venir.html', 'À venir'),
-                           ('contribuer', 'contribuer.html', 'Proposer une base de données')] %}
-    <div class="projet">
-      <button class="l{% if page in pages_projet|map(attribute=0)|list %} on{% endif %}" id="bouton-projet" type="button" aria-expanded="false" aria-controls="menu-projet">Le projet <span class="fleche" aria-hidden="true">▾</span></button>
-      <div class="sous-menu" id="menu-projet" hidden>
-        {% for cle, lien, titre in pages_projet %}<a href="{{ racine }}{{ lien }}"{% if page == cle %} aria-current="page"{% endif %}>{{ titre }}</a>
-        {% endfor %}
-      </div>
+    {# menu de six entrées par tâche (direction visuelle du 30 octobre 2026), sur toutes les pages depuis la décision de
+       Lucas du 5 novembre 2026 (un seul en-tête). L'atlas, Explorer, les rapports et les pages du projet restent
+       atteignables par le pied de page et par les pages de chaque entrée ; chaque page allume l'entrée dont elle relève. #}
+    {% set entrees = [('offre', 'domaine/offre-de-soins.html', 'Offre de soins'), ('domaines', 'domaines.html', 'Domaines'),
+                      ('territoires', 'territoires/index.html', 'Territoires'), ('comparer', 'comparer.html', 'Comparer'),
+                      ('croiser', 'croiser.html', 'Croiser'), ('methode', 'methode.html', 'Méthode et données')] %}
+    {% set actif = {'atlas': 'offre', 'explorer': 'croiser', 'liens': 'croiser', 'sources': 'methode', 'rapports': 'methode'}.get(page, page) %}
+    {% for cle, lien, titre in entrees %}<a class="l{% if actif == cle %} on{% endif %}" href="{{ racine }}{{ lien }}"{% if actif == cle %} aria-current="{{ 'page' if page == cle else 'true' }}"{% endif %}>{{ titre }}</a>
+    {% endfor %}
+    <button class="theme" id="bascule-theme" type="button">Fond clair</button>
     </div>
-    <button class="theme" id="bascule-theme" type="button" aria-pressed="false">Fond clair</button>
-    </div>
+    {# territoires épinglés par le lecteur, « Ton territoire partout » (epingle.js), visibles aussi au téléphone #}
+    <span class="epingle-nav" id="epingle-nav" hidden></span>
   </div>
 </nav>
 <script>
@@ -42,7 +38,7 @@ document.addEventListener("DOMContentLoaded",function(){document.querySelectorAl
   t.addEventListener("click",function(){var o=!a.classList.contains("ouvert");a.classList.toggle("ouvert",o);t.setAttribute("aria-expanded",String(o))});
   a.addEventListener("click",function(e){if(e.target.closest("a")){a.classList.remove("ouvert");t.setAttribute("aria-expanded","false")}})})});
 (function(){var b=document.getElementById("bascule-theme"),r=document.documentElement;
-function maj(){var c=r.getAttribute("data-theme")==="light";b.textContent=c?"Fond sombre":"Fond clair";b.setAttribute("aria-pressed",String(c))}
-maj();b.addEventListener("click",function(){var t=r.getAttribute("data-theme")==="light"?"dark":"light";r.setAttribute("data-theme",t);
+function maj(){var c=r.getAttribute("data-theme")!=="dark";b.textContent=c?"Fond sombre":"Fond clair"}
+maj();b.addEventListener("click",function(){var t=r.getAttribute("data-theme")!=="dark"?"dark":(r.getAttribute("data-clair")||"light");r.setAttribute("data-theme",t);
 try{localStorage.setItem("theme",t)}catch(e){}maj();window.dispatchEvent(new Event("theme"))})})();
 </script>

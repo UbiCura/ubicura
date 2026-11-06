@@ -265,6 +265,8 @@ def cmd_relever(_args) -> int:
     statistiques.photographier_du_jour()
     from outils import veille   # veille des bases, une fois par semaine avec la relève, lecture seule
     veille.relever_de_la_semaine()
+    from outils import releve_rpps   # photographie hebdomadaire du RPPS, en fond, si elle est due (1er novembre 2026)
+    releve_rpps.lancer_en_fond()
     if not nouveaux:
         print("Aucun nouveau message.")
         return 0
@@ -845,6 +847,9 @@ def cmd_boite(args) -> int:
     # -- onglet de la veille des bases, candidats marqués par Lucas et examinés à la séance de travail (outils/veille.py)
     from outils import veille
     vei = veille.onglet(onglets, racine, c, police, petite, zone_texte, remplir)
+    # -- onglet de l'état des tâches automatiques, d'un coup d'œil (outils/etat_taches.py, 1er novembre 2026)
+    from outils import etat_taches
+    etat_taches.onglet(onglets, racine, c, police, petite)
 
     def mettre_a_jour_bilan():
         e = lire_json(ETAT, {})

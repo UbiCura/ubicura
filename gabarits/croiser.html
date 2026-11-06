@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+{# Atelier « Croiser » (présentation du 30 octobre 2026, maquette de l'atelier validée) : tout indicateur du catalogue
+   contre tout autre, à chaque niveau où les deux existent, avec la mesure du lien, sa précision et les limites des
+   deux sources. Il reprend « Croiser deux indicateurs » d'Explorer sans rien perdre (troisième indicateur en couleur,
+   en taille ou tenu égal, modes d'exercice, chemin depuis 2016, carte des deux indicateurs, correction sur les
+   croisements de la visite). Données préparées par pipeline/atelier.py, calculs dans la page (atelier.js). #}
+{% block contenu %}
+<style>
+main.croiser .tete{padding:8px 0 20px}
+main.croiser .cherche{display:flex;gap:10px;margin-top:20px;max-width:760px}
+main.croiser .cherche input{flex:1;min-height:48px;padding:0 2px;font:inherit;font-size:var(--t-texte);color:var(--ink);background:transparent;border:0;border-bottom:1px solid var(--line-fort);border-radius:0}
+main.croiser .cherche input:focus{outline:none;border-bottom:2px solid var(--ink)}
+main.croiser .cherche input:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+main.croiser #trouves{max-width:760px;margin-top:8px}
+main.croiser #trouves:empty{display:none}
+main.croiser #trouves ul{list-style:none;margin:0;padding:0;border:0;border-top:2px solid var(--ink);border-radius:0;background:none}
+main.croiser #trouves li{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--line);font-size:var(--t-note)}
+main.croiser #trouves li:last-child{border-bottom:0}
+main.croiser #trouves .paire-prop{font-weight:600}
+main.croiser #trouves .act{display:flex;gap:4px;flex:none}
+main.croiser .mini{background:none;border:1px solid var(--line-fort);border-radius:2px;color:var(--ink);font:inherit;font-size:var(--t-note);min-height:36px;padding:0 10px;cursor:pointer}
+main.croiser .mini:hover{border-color:var(--ink)}
+main.croiser .lien-permanent a{overflow-wrap:anywhere}
+main.croiser .pistes{display:flex;flex-wrap:wrap;gap:6px 18px;margin:16px 0 0;font-size:var(--t-note);align-items:baseline}
+main.croiser .pistes span{color:var(--muted);font-size:var(--t-note)}
+main.croiser .pistes button{text-align:left;background:none;border:0;padding:6px 0;min-height:36px;font:inherit;color:var(--ink);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:5px;cursor:pointer}
+main.croiser .pistes button:hover{text-decoration-color:var(--ink)}
+
+main.croiser .atelier{display:grid;grid-template-columns:300px minmax(0,1fr);gap:36px;padding:24px 0 40px;border-top:1px solid var(--line)}
+main.croiser .reglages{align-self:start;position:sticky;top:calc(var(--haut-nav,64px) + 8px);font-size:var(--t-note)}
+main.croiser .reglages h2{font-size:var(--t-texte);font-family:var(--sans);font-weight:600;margin:0 0 4px}
+main.croiser .champ{padding:12px 0;border-bottom:1px solid var(--line)}
+main.croiser .champ:last-child{border-bottom:0}
+main.croiser .champ .nom{display:block;font-size:var(--t-note);color:var(--muted);margin-bottom:6px}
+main.croiser .af-choix{width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line-fort);border-radius:0;color:var(--ink);font:inherit;font-size:var(--t-note);line-height:1.3;min-height:48px;padding:8px 28px 8px 0;cursor:pointer;position:relative}
+main.croiser .af-choix::after{content:"";position:absolute;right:6px;top:50%;width:7px;height:7px;border-right:1.5px solid var(--muted);border-bottom:1.5px solid var(--muted);transform:translateY(-70%) rotate(45deg)}
+main.croiser .af-choix:hover{border-bottom-color:var(--ink)}
+main.croiser .af-choix .dom{display:block;font-size:var(--t-note);color:var(--muted);margin-top:2px}
+main.croiser .seg{display:flex;flex-wrap:wrap;gap:0 16px}
+main.croiser .seg button{background:none;border:0;border-bottom:1px solid transparent;border-radius:0;color:var(--muted);font:inherit;font-size:var(--t-note);min-height:40px;padding:0;cursor:pointer}
+main.croiser .seg button:hover{color:var(--ink)}
+main.croiser .seg button[aria-pressed="true"]{border-bottom-color:var(--ink);color:var(--ink)}
+main.croiser .seg button:disabled{color:var(--muted);opacity:.55;cursor:not-allowed}
+main.croiser .reglages select{width:100%;min-height:44px;font:inherit;font-size:var(--t-note);color:var(--ink);background:transparent;border:0;border-bottom:1px solid var(--line-fort);border-radius:0;padding:0 2px}
+main.croiser .reglages select option{background:var(--bg);color:var(--ink)}
+main.croiser .reglages label.coche{display:flex;gap:8px;align-items:flex-start;min-height:40px;padding-top:8px;cursor:pointer}
+main.croiser .reglages label.coche input{margin-top:4px;accent-color:var(--ink)}
+main.croiser .note-niv{font-size:var(--t-note);color:var(--muted);margin:6px 0 0}
+main.croiser .reglages-tel{display:none}
+
+/* sélecteur d'indicateur en deux temps, domaine puis indicateur */
+main.croiser dialog.af-menu{border:1px solid var(--line);border-top:2px solid var(--ink);border-radius:0;background:var(--bg);color:var(--ink);padding:0;width:min(860px,calc(100vw - 32px));max-height:min(620px,calc(100vh - 64px));overflow:hidden}
+main.croiser dialog.af-menu[open]{display:flex;flex-direction:column}
+main.croiser dialog.af-menu::backdrop{background:rgba(0,0,0,.45)}
+main.croiser .menu-tete{flex:none;display:flex;gap:12px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line)}
+main.croiser .menu-tete input{flex:1;min-height:44px;padding:0 2px;font:inherit;color:var(--ink);background:transparent;border:0;border-bottom:1px solid var(--line-fort);border-radius:0}
+main.croiser .menu-tete input:focus{outline:none;border-bottom:2px solid var(--ink)}
+main.croiser .menu-corps{flex:1;min-height:0;display:grid;grid-template-columns:236px minmax(0,1fr)}
+main.croiser .menu-doms{border-right:1px solid var(--line);padding:8px;overflow:auto}
+main.croiser .menu-doms button{display:flex;justify-content:space-between;align-items:center;gap:12px;width:100%;text-align:left;background:none;border:0;border-radius:0;color:var(--ink);font:inherit;font-size:var(--t-note);min-height:44px;padding:0 10px;cursor:pointer}
+main.croiser .menu-doms button[aria-pressed="true"]{background:none;font-weight:600;box-shadow:inset 2px 0 0 var(--ink)}
+main.croiser .menu-doms .nb{color:var(--muted);font-size:var(--t-note);font-variant-numeric:tabular-nums;white-space:nowrap;flex:none}
+main.croiser .menu-liste{overflow:auto;scrollbar-gutter:stable;padding:4px 10px 14px 14px}
+main.croiser .menu-liste h3{font-family:var(--sans);font-size:var(--t-note);color:var(--muted);font-weight:600;margin:14px 0 4px}
+main.croiser .menu-liste button{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);color:var(--ink);font:inherit;font-size:var(--t-note);line-height:1.35;min-height:44px;padding:8px 4px;cursor:pointer}
+main.croiser .menu-liste button:hover{color:var(--ink);text-decoration:underline;text-underline-offset:4px}
+main.croiser .menu-liste button[disabled]{color:var(--muted);cursor:not-allowed}
+main.croiser .menu-liste .niv{display:block;font-size:var(--t-note);color:var(--muted)}
+main.croiser .menu-liste h3 span{font-weight:400;font-variant-numeric:tabular-nums}
+main.croiser .menu-filtres{flex:none;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;padding:8px 14px;border-bottom:1px solid var(--line);font-size:var(--t-note)}
+main.croiser .menu-niv{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+main.croiser .menu-niv .nom{color:var(--muted);margin-right:4px}
+main.croiser .menu-niv button{background:none;border:0;border-bottom:1px solid transparent;border-radius:0;color:var(--muted);font:inherit;font-size:var(--t-note);min-height:36px;padding:0 4px;cursor:pointer}
+main.croiser .menu-niv button[aria-pressed="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+main.croiser .menu-venir{display:flex;gap:6px;align-items:center;min-height:36px;cursor:pointer}
+main.croiser .menu-compte{flex-basis:100%;margin:0;color:var(--muted);font-size:var(--t-note)}
+main.croiser .menu-doms .dom-sm{border-bottom:1px solid var(--line);border-radius:0;margin-bottom:4px}
+main.croiser .menu-doms .nb small{font-size:var(--t-note)}
+/* sur téléphone, le menu laisse la place à la liste (domaines en rangées) */
+@media (max-width:700px){main.croiser .menu-corps{grid-template-columns:minmax(0,1fr)}main.croiser dialog.af-menu{width:calc(100vw - 16px);height:calc(100vh - 32px);max-height:none}main.croiser .menu-tete input{min-width:0;font-size:var(--t-texte)}main.croiser .menu-corps{grid-template-rows:auto minmax(0,1fr)}main.croiser .menu-doms{display:flex;flex-wrap:nowrap;gap:0 16px;overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;padding:0 10px;border-right:0;border-bottom:1px solid var(--line)}main.croiser .menu-doms button{flex:none;width:auto;white-space:nowrap;gap:6px;min-height:44px;padding:0;border-bottom:2px solid transparent}main.croiser .menu-doms button[aria-pressed="true"]{box-shadow:none;border-bottom-color:var(--ink)}main.croiser .menu-doms .dom-sm{border-bottom:2px solid transparent;margin:0}main.croiser .menu-doms .dom-sm[aria-pressed="true"]{border-bottom-color:var(--ink)}main.croiser }
+
+/* résultat et figures */
+.resultat-tete h2{font-size:var(--t-encadre);max-width:40ch}
+main.croiser #phrase{font-size:var(--t-texte);max-width:66ch;margin:12px 0 4px}
+main.croiser .mesures{display:flex;flex-wrap:wrap;gap:8px 32px;margin:14px 0 6px;font-size:var(--t-note)}
+main.croiser .mesures div{display:flex;flex-direction:column}
+main.croiser .mesures .n{font-family:var(--serif);font-size:var(--t-section);line-height:1.05;font-variant-numeric:tabular-nums;color:var(--r4)}
+main.croiser .mesures .l{font-size:var(--t-note);color:var(--muted);max-width:24ch;margin-top:4px}
+main.croiser .prudence{font-size:var(--t-note);color:var(--muted);max-width:80ch;margin:6px 0 0}
+main.croiser .figs{display:grid;grid-template-columns:1fr;gap:24px;margin-top:18px}
+@media (min-width:1500px){main.croiser .figs{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}}
+main.croiser #carte{max-width:620px;margin:0 auto}
+/* fenêtres des figures en encadré B+ (étape 4, 5 novembre 2026) : un filet appuyé au-dessus, ni cadre ni fond */
+main.croiser .af-fen{border:0;border-top:2px solid var(--ink);border-radius:0;background:none;min-width:0}
+/* titre de l'encadré puis la ligne « Comment lire », « Citer et exporter », comme les figures du site (figures.js) */
+main.croiser .af-fen .af-barre{display:block;padding:var(--e-3) 0 0;border:0}
+main.croiser .af-fen .af-barre strong{display:block;font-family:var(--serif);font-size:var(--t-encadre);font-weight:400;line-height:1.3;color:var(--ink);margin:0 0 var(--e-2)}
+main.croiser .af-fen .af-barre .af-outils{margin:0 0 var(--e-2);display:flex;flex-wrap:wrap;gap:var(--e-1) var(--e-4)}
+main.croiser .af-fen .af-barre .af-outils button{min-height:36px}
+main.croiser .af-fen .dedans{padding:10px 0 12px}
+main.croiser .af-fen .panneau{margin:10px 0 0}
+main.croiser svg.fig{width:100%;height:auto;display:block;font-family:var(--sans)}
+main.croiser svg.fig text{fill:var(--muted);font-size:12px}
+main.croiser svg.fig .axe line,main.croiser svg.fig .axe path{stroke:var(--line)}
+main.croiser svg.fig .ref{stroke:var(--muted);stroke-dasharray:4 4;stroke-width:1}
+main.croiser svg.fig .reftxt{fill:var(--muted);font-size:11px;paint-order:stroke;stroke:var(--panel);stroke-width:3px;stroke-linejoin:round}
+main.croiser svg.fig .lab{fill:var(--ink);font-size:13px}
+main.croiser svg.fig circle.pt{stroke:var(--panel);stroke-width:.8;cursor:pointer}
+main.croiser svg.fig circle.pt.sel{stroke:var(--ink);stroke-width:2.4}
+main.croiser svg.fig circle.pt.hors{opacity:.12}
+main.croiser svg.fig line.traj{stroke:var(--muted);stroke-width:1;opacity:.6}
+main.croiser svg.fig .signal{fill:var(--signal);font-weight:700;font-size:12px;pointer-events:none}
+main.croiser svg.fig path.terr{stroke:color-mix(in srgb,var(--ink) 30%,transparent);stroke-width:.45;cursor:pointer}
+main.croiser svg.fig path.terr.hors{opacity:.18}
+main.croiser svg.fig path.terr.sel{stroke:var(--ink);stroke-width:2}
+main.croiser svg.fig path.terr.vide{fill:var(--nodata)}
+main.croiser .legende-carte{display:flex;gap:18px;align-items:center;flex-wrap:wrap;font-size:var(--t-note);color:var(--muted);margin-top:8px}
+main.croiser #leg-carte{margin:0 0 8px}
+main.croiser .bivar{display:grid;grid-template-columns:repeat(3,38px);grid-template-rows:repeat(3,38px);gap:2px;grid-area:g}
+main.croiser .bivar-cadre{display:inline-grid;grid-template-areas:"y g" ". x";grid-template-columns:auto 118px;gap:4px 6px;font-size:.75rem;color:var(--muted);vertical-align:middle;margin-right:12px}
+main.croiser .bivar-x{grid-area:x;max-width:118px;line-height:1.25}
+main.croiser .bivar-y{grid-area:y;writing-mode:vertical-rl;transform:rotate(180deg);max-height:118px;line-height:1.25;text-align:left}
+main.croiser .bivar i{display:block;border-radius:2px}
+main.croiser .seq{display:flex;gap:2px;align-items:center}
+main.croiser .seq i{display:block;width:26px;height:12px;border-radius:2px}
+main.croiser .vue-carte{display:flex;gap:4px;flex-wrap:wrap;margin:0 0 6px}
+main.croiser .vue-carte button{background:none;border:0;border-bottom:1px solid var(--line);color:var(--ink);font:inherit;font-size:var(--t-note);min-height:40px;padding:0 8px;cursor:pointer}
+main.croiser .vue-carte button[aria-pressed="true"]{border-bottom:2px solid var(--ink);font-weight:600}
+main.croiser #bulle{position:fixed;z-index:30;pointer-events:none;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:8px 10px;font-size:var(--t-note);max-width:300px;box-shadow:0 6px 20px rgba(0,0,0,.3);line-height:1.4}
+main.croiser #bulle[hidden]{display:none}
+main.croiser #bulle b{display:block;font-size:var(--t-note);color:var(--ink);margin-bottom:2px}
+main.croiser #bulle .sig{color:var(--signal);font-weight:700}
+
+main.croiser .dessous{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:28px;margin-top:22px}
+main.croiser .carte-terr h3,main.croiser .histo h3,main.croiser .garde h3{font-family:var(--serif);font-size:var(--t-encadre);font-weight:400;margin:0 0 8px}
+main.croiser .carte-terr table{table-layout:fixed}
+main.croiser .carte-terr th:first-child{width:46%}
+main.croiser .carte-terr td.v,main.croiser .carte-terr th.v{width:auto}
+main.croiser .vide-txt{color:var(--muted);font-size:var(--t-note)}
+main.croiser .histo ol{margin:0;padding:0;list-style:none;font-size:var(--t-note)}
+main.croiser .histo li{border-bottom:1px solid var(--line)}
+main.croiser .histo li button{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;width:100%;text-align:left;background:none;border:0;color:var(--ink);font:inherit;font-size:var(--t-note);line-height:1.35;padding:8px 2px;min-height:44px;cursor:pointer}
+main.croiser .histo li button:hover .q{color:var(--ink);text-decoration:underline;text-underline-offset:4px}
+main.croiser .histo li[aria-current="true"] .q{font-weight:600}
+main.croiser .histo .r{font-variant-numeric:tabular-nums;color:var(--muted);text-align:right;white-space:nowrap}
+main.croiser .limites-liste{margin-top:14px}
+main.croiser .garde{margin-top:28px;padding-top:20px;border-top:1px solid var(--line)}
+main.croiser .garde ul{margin:0;padding-left:18px;max-width:90ch;font-size:var(--t-note)}
+main.croiser .garde li{margin:4px 0}
+
+@media (max-width:1100px){main.croiser .dessous{grid-template-columns:1fr}}
+@media (max-width:900px){
+  main.croiser .atelier{grid-template-columns:1fr;gap:12px}
+  main.croiser .reglages{position:static;display:none}
+  main.croiser .reglages.ouvert{display:block}
+  main.croiser .reglages-tel{display:flex;gap:8px;align-items:center;justify-content:space-between;position:sticky;top:var(--haut-nav,56px);z-index:5;background:var(--bg);padding:8px 0;border-bottom:1px solid var(--line);font-size:var(--t-note)}
+  main.croiser .reglages-tel button{background:none;border:0;border-bottom:1px solid var(--ink);border-radius:0;color:var(--ink);font:inherit;font-size:var(--t-note);min-height:44px;padding:0 2px;cursor:pointer;flex:none}
+  main.croiser .reglages-tel span{color:var(--muted);line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  main.croiser .mesures .n{font-size:26px}
+}
+
+main.croiser{max-width:1400px}
+main.croiser h1,main.croiser h2,main.croiser h3{border:0;padding:0}
+main.croiser .af-fen .af-barre .af-outils button{background:none;border:0;border-radius:0;color:var(--muted);font:inherit;font-size:var(--t-note);padding:var(--e-1) 0;cursor:pointer;text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--muted) 45%,transparent);text-underline-offset:4px}
+main.croiser .af-fen .af-barre .af-outils button[aria-expanded="true"],main.croiser .af-fen .af-barre .af-outils button:hover{color:var(--ink);text-decoration-color:currentColor}
+main.croiser .panneau{background:none;border:0;border-left:2px solid var(--line-fort);border-radius:0;padding:4px 0 4px 12px;font-size:var(--t-note);max-width:72ch;text-align:left}
+main.croiser .panneau[hidden]{display:none}
+main.croiser .limite{display:flex;gap:10px;align-items:baseline;font-size:var(--t-note);color:var(--muted);margin:8px 0 0;text-align:left}
+main.croiser .limite b{color:var(--signal);flex:none}
+main.croiser .discret{color:var(--muted);font-size:var(--t-note)}
+main.croiser .chapeau{max-width:62ch}
+main.croiser .note-escalier{font-size:var(--t-note);color:var(--muted);max-width:68ch;margin:6px 0 0;text-align:left}
+main.croiser .note-escalier[hidden]{display:none}
+main.croiser table{border-collapse:collapse;width:100%;font-size:var(--t-note);font-variant-numeric:tabular-nums}
+main.croiser th,main.croiser td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left}
+main.croiser td.v,main.croiser th.v{text-align:right;white-space:nowrap}
+</style>
+<header class="tete">
+    <h1>Croiser librement</h1>
+    <p class="chapeau">N'importe quel indicateur du site contre n'importe quel autre, à chaque niveau où les deux existent, avec la mesure du lien, sa précision et les limites des deux sources. <a href="liens.html">La matrice des liens</a> montre d’un coup ceux de chaque profession avec les autres domaines.</p>
+    <form class="cherche" id="cherche" role="search">
+      <input type="search" name="q" id="q" autocomplete="off" placeholder="Chercher un indicateur ou une question, par exemple « pauvreté psychologues »" aria-label="Chercher un indicateur ou une question">
+    </form>
+    <div id="trouves" aria-live="polite"></div>
+    <div class="pistes" id="pistes"><span>Questions préparées</span></div>
+    <div class="pistes" id="pistes2"><span>Croisements moins attendus</span></div>
+  </header>
+
+  <div class="reglages-tel"><span id="resume-tel"></span><button type="button" id="ouvrir-reglages" aria-expanded="false" aria-controls="reglages">Réglages</button></div>
+
+  <section class="atelier" aria-label="Atelier de croisement">
+    <aside class="reglages" id="reglages" aria-label="Réglages du croisement">
+      <div class="champ"><span class="nom">Axe horizontal</span><button class="af-choix" type="button" data-axe="x"></button></div>
+      <div class="champ"><span class="nom">Axe vertical</span><button class="af-choix" type="button" data-axe="y"></button></div>
+      <div class="champ"><span class="nom">Troisième indicateur, facultatif</span><button class="af-choix" type="button" data-axe="z"></button>
+        <div class="seg" id="zmode" style="margin-top:6px" role="group" aria-label="Rôle du troisième indicateur">
+          <button type="button" data-zm="c">En couleur</button><button type="button" data-zm="t">En taille</button><button type="button" data-zm="p">Tenu égal</button>
+        </div>
+      </div>
+      <div class="champ"><span class="nom">Niveau géographique</span>
+        <div class="seg" id="niveaux" role="group" aria-label="Niveau géographique"></div>
+        <p class="note-niv" id="note-niv"></p>
+      </div>
+      <div class="champ"><span class="nom">Mode d'exercice des professionnels</span>
+        <div class="seg" id="modes" role="group" aria-label="Mode d'exercice">
+          <button type="button" data-m="all">Tous</button><button type="button" data-m="lib">Libéraux</button><button type="button" data-m="sal">Salariés</button>
+        </div>
+      </div>
+      <div class="champ"><label class="nom" for="region">Territoires montrés</label><select id="region"></select></div>
+      <div class="champ" id="champ-temps"><span class="nom">Dans le temps</span>
+        <label class="coche"><input type="checkbox" id="traj"> <span id="traj-lib">Montrer le chemin depuis 2016</span></label>
+        <p class="note-niv" id="note-temps"></p>
+      </div>
+    </aside>
+
+    <div class="resultat">
+      <div class="resultat-tete">
+        <h2 id="titre"></h2>
+        <p id="phrase"></p>
+        <div class="mesures" id="mesures"></div>
+        <p class="prudence">Analyse des territoires et non des personnes. Un lien entre deux indicateurs ne dit pas que l'un explique l'autre.</p>
+        <div class="limites-liste" id="limites"></div>
+      </div>
+
+      <div class="figs">
+        <section class="af-fen" aria-labelledby="t-nuage">
+          <div class="af-barre"><strong id="t-nuage">Nuage des territoires</strong>
+            <div class="af-outils"><button type="button" data-panneau="citer" aria-expanded="false">Citer et exporter</button></div></div>
+          <div class="panneau" id="citer" hidden></div>
+          <div class="dedans"><svg class="fig" id="nuage" viewBox="0 0 560 430" role="img" aria-labelledby="t-nuage"></svg>
+            <div class="legende-carte" id="leg-nuage"></div></div>
+          <p class="comment-lire" id="lire-nuage"><strong>Comment lire.</strong> Chaque point est un territoire. Sa position donne ses deux valeurs, sa taille suit la population ou le troisième indicateur. Les deux lignes en tirets sont le repère de chaque indicateur, le même que sur la fiche des territoires : l’ensemble des territoires du même niveau calculé comme eux, ou le territoire médian pour un indicateur qui ne s’additionne pas. Survoler un point donne ses valeurs, un clic le repère aussi sur la carte.</p>
+        </section>
+        <section class="af-fen" aria-labelledby="t-carte">
+          <div class="af-barre"><strong id="t-carte">Carte</strong>
+            <div class="af-outils"><button type="button" data-panneau="citer-carte" aria-expanded="false">Citer et exporter</button></div></div>
+          <div class="panneau" id="citer-carte" hidden></div>
+          <div class="dedans">
+            <div class="vue-carte" id="vue-carte" role="group" aria-label="Ce que montre la carte">
+              <button type="button" data-v="b">Les deux</button><button type="button" data-v="x">Axe horizontal</button><button type="button" data-v="y">Axe vertical</button>
+            </div>
+            <div class="legende-carte" id="leg-carte"></div>
+            <svg class="fig" id="carte" role="img" aria-labelledby="t-carte"></svg>
+          </div>
+          <p class="comment-lire" id="lire-carte"><strong>Comment lire.</strong> La carte des deux indicateurs range chaque territoire en trois tiers pour chacun. Le canard monte avec l'axe horizontal, le cuivre avec l'axe vertical, les deux ensemble donnent la teinte sombre. Les tiers sont ceux des territoires montrés, ils ne disent pas un niveau souhaitable.</p>
+        </section>
+      </div>
+
+      <div class="dessous">
+        <section class="carte-terr" aria-live="polite" id="terr"><h3>Territoire repéré</h3><p class="vide-txt">Cliquez un point ou un territoire de la carte.</p></section>
+        <section class="histo"><h3>Vos croisements de cette visite</h3>
+          <p class="discret" style="margin:0 0 8px">La correction de Benjamini-Hochberg porte sur tous les croisements essayés, pour qu'un lien trouvé à force d'essais ne passe pas pour solide.</p>
+          <ol id="histo"></ol></section>
+      </div>
+
+      <section class="garde">
+        <h3>Ce que l'atelier ne fait pas</h3>
+        <ul>
+          <li>Il n'additionne jamais deux professions. Le rapport entre deux professions viendra comme un indicateur à part, avec son effectif minimal.</li>
+          <li>Il ne compare un territoire qu'aux territoires du même niveau, jamais au chiffre national.</li>
+          <li>Il écarte Mayotte des croisements, faute de données comparables.</li>
+          <li>Il ne propose pas de score de besoin et ne range pas les territoires du meilleur au moins bon.</li>
+        </ul>
+      </section>
+    </div>
+  </section>
+<div id="bulle" hidden></div>
+<dialog class="af-menu" id="menu" aria-label="Choisir un indicateur">
+  <div class="menu-tete"><input type="search" id="menu-q" placeholder="Chercher un indicateur" aria-label="Chercher dans tout le catalogue"><button class="mini" type="button" id="menu-fermer">Fermer</button></div>
+  <div class="menu-filtres"><div class="menu-niv" id="menu-niv" role="group" aria-label="Niveau géographique"><span class="nom">Disponible par</span><button type="button" data-nivf="" aria-pressed="true">Tous les niveaux</button><button type="button" data-nivf="epci" aria-pressed="false">Intercommunalité</button><button type="button" data-nivf="dep" aria-pressed="false">Département</button><button type="button" data-nivf="reg" aria-pressed="false">Région</button></div>
+    <label class="menu-venir"><input type="checkbox" id="menu-venir" checked> Montrer les bases à venir</label>
+    <p class="menu-compte" id="menu-compte" aria-live="polite"></p></div>
+  <div class="menu-corps"><div class="menu-doms" id="menu-doms"></div><div class="menu-liste" id="menu-liste"></div></div>
+</dialog>
+<script src="presentation/atelier_donnees.js"></script>
+<script src="presentation/chiffres.js"></script>
+<script src="presentation/lien.js"></script>
+<script src="presentation/atelier.js"></script>
+<script src="presentation/glossaire.js" defer></script>
+{% endblock %}

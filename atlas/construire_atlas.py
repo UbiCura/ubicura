@@ -130,6 +130,10 @@ def completer(data: dict) -> dict:
     # limites des données relues dans config, pour qu'une précision ajoutée paraisse sans attendre la prochaine exécution
     # (les limites calculées à l'exécution, comme celles des spécialités surtout salariées, sont gardées, et le texte des
     # limites refaites par un calcul, limites.CALCULEES, est d'abord repris de site_data)
+    # unité de chaque profession, 10 000 ou 100 000 habitants pour une profession rare, la même règle que les autres pages
+    # (pipeline/affichage.py, par_habitants ; C4 de la relecture du 5 novembre 2026)
+    from pipeline import affichage as _af
+    data["unites"] = {p["id"]: _af.par_habitants(data, p["id"]) for p in data.get("professions", [])}
     from pipeline import limites as _limites
     _limites.completer(data.get("limites"))
     data["limites"] = {**(data.get("limites") or {}),
@@ -169,6 +173,15 @@ def _fichier_externe(dossier: Path, nom: str, contenu: str) -> str:
     return f
 
 
+def jetons_du_site() -> str:
+    """Section « 1. jetons » de gabarits/style.css (couleurs des deux fonds, tailles, grille), reprise telle quelle dans
+    l'atlas, qui avait gardé sa palette bleue (étape 4, 5 novembre 2026). Une seule source des couleurs du site."""
+    css = (ICI.parent / "gabarits" / "style.css").read_text(encoding="utf-8")
+    debut = css.index("/* ---------------------------------------------------------------- 1. jetons")
+    fin = css.index("/* ---------------------------------------------------------------- 2. base")
+    return css[debut:fin]
+
+
 def construire(src: Path, dest: Path, nav: str = "", accueil: str = "", titre: str = "", externes: bool = False) -> Path:
     data = json.loads(Path(src).read_text(encoding="utf-8"))
     data.setdefault("tuiles", _tuiles())
@@ -196,6 +209,7 @@ def construire(src: Path, dest: Path, nav: str = "", accueil: str = "", titre: s
         "/*TOPOLOGY*/": "window.TOPO=" + _fond().read_text(encoding="utf-8") + ";",
         "/*DONNEES*/": "window.DONNEES=" + json.dumps(data, ensure_ascii=False, separators=(",", ":")) + ";",
         "/*POLICES*/": _polices(),
+        "/*JETONS*/": jetons_du_site(),
     }
     dest = Path(dest)
     dest.parent.mkdir(parents=True, exist_ok=True)

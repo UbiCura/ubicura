@@ -30,8 +30,8 @@ function dessinerLieux(Mx){Mx.zoomable.selectAll("g.lieux").remove();Mx.svg.sele
   const dessin=(g,data)=>g.selectAll("circle").data(data).join("circle").attr("class","lieu")
     .attr("cx",d=>projLieu(d)[0]).attr("cy",d=>projLieu(d)[1]).attr("r",d=>rayonLieu(d)/(g.node().parentNode===Mx.zoomable.node()?z:1))
     .attr("class",d=>"lieu"+(creux(d)?" creux":"")).attr("pointer-events","all")
-    .attr("fill",d=>d===LIEU_CHOISI?css("--accent"):creux(d)?"none":css("--ink")).attr("fill-opacity",d=>recoupe(d)&&d!==LIEU_CHOISI?.4:.85)
-    .attr("stroke",d=>creux(d)?(d===LIEU_CHOISI?css("--accent"):css("--ink")):css("--panel")).attr("stroke-width",d=>traitLieu(d)/(g.node().parentNode===Mx.zoomable.node()?z:1))
+    .attr("fill",d=>d===LIEU_CHOISI?css("--action"):creux(d)?"none":css("--ink")).attr("fill-opacity",d=>recoupe(d)&&d!==LIEU_CHOISI?.4:.85)
+    .attr("stroke",d=>creux(d)?(d===LIEU_CHOISI?css("--action"):css("--ink")):css("--panel")).attr("stroke-width",d=>traitLieu(d)/(g.node().parentNode===Mx.zoomable.node()?z:1))
     .attr("tabindex",0).attr("role","button").attr("aria-label",d=>LX.noms[d[3]]+", "+(LX.communes[d[4]]||"")+(d[11]!=null?", "+CONF[d[11]].lib:""))
     .on("mousemove",(ev,d)=>showTip(ev,'<div class="tt">'+esc(LX.noms[d[3]])+'</div><div class="tl">'+esc(t.lib)+", "+esc(LX.communes[d[4]]||d[4])+'</div>'+(d[11]!=null?'<div class="tl">'+symboleConf(d)+' '+esc(CONF[d[11]].lib)+'</div>':'')))
     .on("mouseleave",hideTip)
@@ -99,13 +99,20 @@ const LX_GROUPES=[["Santé mentale, adultes",["lieu_cmp_adultes","lieu_hdj_psy_a
   ["Addictologie",["lieu_csapa","lieu_caarud","lieu_addicto_hosp"]]];
 const LX_OUVERTS=new Set();  // listes ouvertes, gardées d'un territoire à l'autre
 const PUBLIC_CMP={a:"pour adultes",e:"pour enfants et adolescents",d:"pour adultes et pour enfants",n:"au public non précisé"};
+// types dont l'atlas porte les points, les autres ne sont que comptés (données allégées)
+let TYPES_PLACES=null;
+const typesPlaces=()=>TYPES_PLACES||(TYPES_PLACES=new Set([...new Set(LX.pts.map(p=>p[0]))].map(k=>LX.types[k].id)));
 function lignesStructures(lv,code){
   const champ={epci:8,dep:9,reg:10}[lv],L=D.niveaux[lv].lieux||{},ici=LX.pts.filter(p=>p[champ]===code);
   const kOf=id=>LX.types.findIndex(t=>t.id===id),cmpK=kOf("lieu_cmp");
   // public de chaque CMP, retrouvé pour les points des types enfants par le nom et l'emplacement
   const cle=p=>p[3]+","+p[1]+","+p[2],pub=new Map(ici.filter(p=>p[0]===cmpK).map(p=>[cle(p),p[12]]));
   const visibles=LX.types.filter(t=>t.complet&&L[t.id]&&(S.fam==="*"||t.famille===S.fam));
-  const ligne=(id,lib,pts,tid)=>({id,lib,pts,tid:tid||id,conf:typeConfirme(tid||id)});
+  // un type que l'atlas ne place pas point par point (config.LIEUX_ATLAS_GROUPES, EHPAD, maisons et centres de santé,
+  // SSIAD...) garde le nombre compté pour le territoire, jamais un 0 tiré de l'absence de points (audit du 31 octobre 2026)
+  const i=IDX[lv].get(code),place=typesPlaces();
+  const ligne=(id,lib,pts,tid)=>{const t=tid||id,pl=place.has(t);
+    return {id,lib,pts,tid:t,conf:typeConfirme(t),place:pl,n:pl||id==="cmp_non_precise"?pts.length:(L[id]?.[i]||0)}};
   const groupes=[],pris=new Set(["lieu_cmp"]);
   for(const [g,ids] of LX_GROUPES){const lignes=[];
     for(const id of ids){
@@ -151,17 +158,20 @@ function structuresTerritoire(){const el=document.getElementById("lieuxCard");
       +(nr?', '+accord(nr,"est recoupée","sont recoupées")+' par la statistique annuelle des établissements de santé (SAE), qui confirme le nombre et non l’adresse,':'')
       +' et '+accord(nb,"reste","restent")+' à vérifier.'
     :base.length?'La structure de ce territoire dont le niveau de confirmation est établi '+(nc?'est confirmée par une source indépendante de FINESS et du Répertoire opérationnel des ressources (ROR).':nr?'est recoupée par la statistique annuelle des établissements de santé (SAE).':'reste à vérifier.')
-    :'FINESS et le Répertoire opérationnel des ressources (ROR), réunis sans double compte, recensent ici les structures suivantes.')+'</p>';
+    :toutes.some(l=>l.n)?'FINESS et le Répertoire opérationnel des ressources (ROR), réunis sans double compte, recensent ici les structures suivantes.'
+    :'FINESS et le Répertoire opérationnel des ressources (ROR), réunis sans double compte, n’inscrivent ici aucune structure des types suivants.')+'</p>';
   if(base.length)h+='<div class="lx-legende lx-resultat">'+legendeClasses(nc,nr,nb)+'</div>';
-  const lignesPlan=groupes.flatMap(([,ls])=>ls).filter(l=>l.pts.length);
-  if(!lignesPlan.some(l=>l.id===LX_TYPE_LOCAL))LX_TYPE_LOCAL=(lignesPlan.find(l=>l.id==="lieu_cmp_adultes")||lignesPlan[0]||{}).id;
+  // plan dessiné dès que le contour existe, même sans structure placée ici (audit du 31 octobre 2026, 365
+  // intercommunalités sans plan) ; le type proposé d'abord est celui qui a des structures ici
+  const lignesPlan=groupes.flatMap(([,ls])=>ls).filter(l=>l.place);
+  if(!lignesPlan.some(l=>l.id===LX_TYPE_LOCAL))LX_TYPE_LOCAL=(lignesPlan.find(l=>l.id==="lieu_cmp_adultes"&&l.pts.length)||lignesPlan.find(l=>l.pts.length)||lignesPlan.find(l=>l.id==="lieu_cmp_adultes")||lignesPlan[0]||{}).id;
   if(LX_CHOISI_LOCAL&&!ici.includes(LX_CHOISI_LOCAL))LX_CHOISI_LOCAL=null;
-  h+='<div class="lx-corps">'+(lignesPlan.length?carteTerritoireHtml(lignesPlan):'')+'<div class="lx-gauche"><div class="scroll"><table class="lx-table"><thead><tr><th scope="col">Type de structure</th><th scope="col">Structures</th><th scope="col">Niveau de confirmation</th></tr></thead><tbody>';
+  h+='<div class="lx-corps">'+(lignesPlan.length&&formeTerritoire(lv,code)?carteTerritoireHtml(lignesPlan):'')+'<div class="lx-gauche"><div class="scroll"><table class="lx-table"><thead><tr><th scope="col">Type de structure</th><th scope="col">Nombre</th><th scope="col">Niveau de confirmation</th></tr></thead><tbody>';
   const cp=D.niveaux[lv].cmp_public,cs=D.niveaux[lv].cmp_sae?.[i];
   for(const [g,ls] of groupes){h+='<tr class="lx-groupe"><th colspan="3" scope="colgroup">'+esc(g)+'</th></tr>';
-    for(const l of ls){const n=l.pts.length,c=l.pts.filter(confirme).length,r=l.pts.filter(recoupe).length,b=l.pts.filter(creux).length,ouv=LX_OUVERTS.has(l.id);
-      h+='<tr><td>'+esc(l.lib)+(n?'<br><button type="button" class="lien lx-ouvrir" data-l="'+l.id+'" aria-expanded="'+ouv+'" aria-controls="lx-'+l.id+'">'+(ouv?"Masquer la liste":"Voir la liste")+'</button>':'')+'</td>'
-        +'<td>'+N(n)+'</td><td>'+confLigne(l,c,r,b)+'</td></tr>';
+    for(const l of ls){const n=l.n,c=l.pts.filter(confirme).length,r=l.pts.filter(recoupe).length,b=l.pts.filter(creux).length,ouv=LX_OUVERTS.has(l.id);
+      h+='<tr><td>'+esc(l.lib)+(n&&l.place?'<br><button type="button" class="lien lx-ouvrir" data-l="'+l.id+'" aria-expanded="'+ouv+'" aria-controls="lx-'+l.id+'">'+(ouv?"Masquer la liste":"Voir la liste")+'</button>':'')+'</td>'
+        +'<td>'+(n?N(n):'<span class="muted">aucune</span>')+'</td><td>'+(!n?'':l.place?confLigne(l,c,r,b):'<span class="muted">hors du plan</span>')+'</td></tr>';
       const notes=[];
       if(l.id==="lieu_cattp"){const m=l.pts.filter(p=>p[13]&2).length;
         if(m)notes.push(N(m)+(m>1?" sont au même lieu qu’un CMP, comptés à part comme lieux d’activité déclarés":" est au même lieu qu’un CMP, compté à part comme lieu d’activité déclaré"));
@@ -170,7 +180,7 @@ function structuresTerritoire(){const el=document.getElementById("lieuxCard");
       if(l.id==="lieu_cmp_adultes"||l.id==="lieu_cmp_enfants"){const d=l.pts.filter(p=>p._pub==="d").length;
         if(d)notes.push(N(d)+" accueille"+(d>1?"nt":"")+" aussi "+(l.id==="lieu_cmp_adultes"?"les enfants":"les adultes")+", compté"+(d>1?"s":"")+" dans les deux lignes")}
       if(notes.length)h+='<tr class="lx-note"><td colspan="3">'+esc(notes.join(", "))+'.</td></tr>';
-      if(n)h+='<tr class="lx-liste"'+(ouv?'':' hidden')+' id="lx-'+l.id+'"><td colspan="3"><ul>'+l.pts.slice().sort((a,b)=>(LX.communes[a[4]]||"").localeCompare(LX.communes[b[4]]||"","fr")||LX.noms[a[3]].localeCompare(LX.noms[b[3]],"fr"))
+      if(n&&l.place)h+='<tr class="lx-liste"'+(ouv?'':' hidden')+' id="lx-'+l.id+'"><td colspan="3"><ul>'+l.pts.slice().sort((a,b)=>(LX.communes[a[4]]||"").localeCompare(LX.communes[b[4]]||"","fr")||LX.noms[a[3]].localeCompare(LX.noms[b[3]],"fr"))
         .map(p=>{const tags=precisionLieu(p,l.id);return '<li><button type="button" class="lx-item" data-j="'+LX.pts.indexOf(p)+'" data-l="'+l.id+'">'+(p[11]!=null?symboleConf(p):'')+'<span class="nom">'+esc(LX.noms[p[3]])+'</span><span class="muted">, '+esc(LX.communes[p[4]]||p[4])+(p[11]!=null?', '+esc(CONF[p[11]].lib):'')+(tags.length?', '+esc(tags.join(", ")):'')+'</span></button></li>'}).join("")+'</ul></td></tr>'}}
   h+='</tbody></table></div></div></div>';
   // CMP en tout, par public, et concordance avec la SAE
@@ -179,6 +189,9 @@ function structuresTerritoire(){const el=document.getElementById("lieuxCard");
       +(v("les_deux")?', '+N(v("les_deux"))+' accueillant les deux':'')+(v("non_precise")?', '+N(v("non_precise"))+' au public non précisé (connu'+(v("non_precise")>1?"s":"")+' de FINESS seul)':'')
       +(v("antennes")?'. '+(v("antennes")>1?N(v("antennes"))+' sont des antennes ou des permanences':'L’un d’eux est une antenne ou une permanence')+' (en mairie, en CCAS ou en maison de santé, par exemple)':'')+'.'
       +(cs?' '+esc(cs[1].charAt(0).toUpperCase()+cs[1].slice(1))+' ('+N(cs[0])+' CMP déclarés à la SAE par les établissements dont le siège est ici).':'')+'</p>'}
+  const nonPlaces=toutes.filter(l=>!l.place&&l.n).map(l=>minLib(l.lib));
+  if(nonPlaces.length)h+='<p class="note">'+esc((nonPlaces.length>1?nonPlaces.slice(0,-1).join(", ")+" et "+nonPlaces.at(-1):nonPlaces[0]).replace(/^./,c=>c.toUpperCase()))
+    +' sont comptés ici sans être placés sur le plan, pour que l’atlas reste léger. Leur liste, avec l’adresse de chacun, est dans le fichier des structures de soins (lieux_soins.csv).</p>';
   h+='<p class="note">Une structure n’est pas une capacité. Les types recensés de façon incomplète (équipes mobiles, centres de crise...) restent sur la carte et ne sont pas comptés ici.</p>';
   h+='</div>';
   // constats vérifiés sur d'autres sources (sites des établissements, ARS, listes ouvertes), pour le département
@@ -218,6 +231,7 @@ function structuresTerritoire(){const el=document.getElementById("lieuxCard");
 // plein confirmée, point creux à vérifier. Un clic dans la liste repère la structure sur ce plan, la grande carte ne bouge
 // pas. Les points ne sont pas dans l'ordre de tabulation, la liste en est l'équivalent au clavier.
 let LX_TYPE_LOCAL="lieu_cmp_adultes",LX_CHOISI_LOCAL=null;
+const nbPlan=l=>l.pts.length?fmt.format(l.pts.length)+" structure"+(l.pts.length>1?"s":""):"aucune structure inscrite";
 // Plan IGN sous les structures (demande de Lucas du 28 octobre 2026), fond de la Géoplateforme (couche
 // GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2, grille PM_0_19, PNG), adresse et couche relevées le 28 octobre 2026 dans les
 // capacités du service WMTS, conditions sur https://cartes.gouv.fr/cgu. Le plan en SVG reste dessiné hors de l'écran,
@@ -227,8 +241,9 @@ let LX_TYPE_LOCAL="lieu_cmp_adultes",LX_CHOISI_LOCAL=null;
 // dossier DRG CRM:0072209), Plan IGN sous Licence Ouverte 2.0, usage commercial compris (pipeline/licences.py, ign-lo-2.0)
 const IGN_PLAN="https://data.geopf.fr/wmts?SERVICE=WMTS&REQUEST=GetTile&VERSION=1.0.0&LAYER=GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2&STYLE=normal&TILEMATRIXSET=PM_0_19&FORMAT=image/png&TILEMATRIX={z}&TILEROW={y}&TILECOL={x}";
 const IGN_MENTION='© IGN – <a href="https://cartes.gouv.fr/" target="_blank" rel="noopener">Plan IGN</a>';
-// points posés sur le fond clair du plan, mêmes couleurs dans les deux thèmes (bleu d'encre, choisi en cuivre)
-const PLAN_POINT="#1D4D87",PLAN_CHOISI="#8A5A0E";
+// points posés sur le fond clair du plan, mêmes couleurs dans les deux thèmes : canard, et la structure choisie à
+// l'encre (l'ocre est réservé au signal « ! », direction visuelle du 31 octobre 2026)
+const PLAN_POINT="#0E5A5A",PLAN_CHOISI="#1C2028";
 const planIgn=()=>!!(window.L&&window.L.map);
 let LX_PLAN=null;
 // ---------- secteurs de psychiatrie sur le plan (demande de Lucas du 29 octobre 2026), d'après les arrêtés des ARS reçus
@@ -297,7 +312,7 @@ function dessinerPlanIgn(lv,code,lignes,l){
   if(LX_CHOISI_LOCAL&&pts.includes(LX_CHOISI_LOCAL)){const ll=[LX_CHOISI_LOCAL[1]/1e4,LX_CHOISI_LOCAL[2]/1e4];if(!P.carte.getBounds().contains(ll))P.carte.panTo(ll,{animate:false})}
   dessinerSecteurs(lv,code);
   const u=D.niveaux[lv].units[IDX[lv].get(code)];
-  el.setAttribute("aria-label","Plan IGN de "+u.nm+", "+minLib(l.lib)+", "+fmt.format(l.pts.length)+" structures, point plein confirmée, point creux à vérifier")}
+  el.setAttribute("aria-label","Plan IGN de "+u.nm+", "+minLib(l.lib)+", "+nbPlan(l)+", point plein confirmée, point creux à vérifier")}
 const LX_MAILLES={};
 // contours de tous les territoires d'un niveau (le fond ne partage pas les arcs entre voisins, d'où le maillage complet)
 // filtre, territoires retenus (par leurs propriétés), pour ne tracer que les limites utiles au plan
@@ -306,7 +321,7 @@ function mailleLx(niv,filtre,cle){const k=niv+"|"+(cle||"");if(!(k in LX_MAILLES
   return LX_MAILLES[k]}
 function formeTerritoire(lv,code){const f=(geom[lv]||[]).find(x=>x.properties[lv]===code);return f||null}
 function carteTerritoireHtml(lignes){
-  const opts=lignes.map(l=>'<option value="'+l.id+'"'+(l.id===LX_TYPE_LOCAL?" selected":"")+'>'+esc(l.lib)+' ('+fmt.format(l.pts.length)+')</option>').join("");
+  const opts=lignes.map(l=>'<option value="'+l.id+'"'+(l.id===LX_TYPE_LOCAL?" selected":"")+'>'+esc(l.lib)+' ('+(l.pts.length?fmt.format(l.pts.length):"aucune")+')</option>').join("");
   return '<div class="lx-droite"><div class="lx-plan-tete"><span class="lx-choix"><label class="small muted" for="lxType">Sur le plan</label><select id="lxType">'+opts+'</select></span>'+(planIgn()?'<span class="lx-choix"><label class="small muted" for="lxSecteurs">Secteurs</label><select id="lxSecteurs"><option value="">aucun</option><option value="G">psychiatrie générale</option><option value="I">psychiatrie infanto-juvénile</option></select></span>':'')+'<div class="lx-legende small" id="lxLegende"></div></div>'+(planIgn()?'<p class="small muted lx-secteurs-note" id="lxSecteursNote"></p>':'')
     +(planIgn()?'<div id="lxPlan" class="lx-plan" role="img" aria-label="Plan IGN du territoire et de ses structures de soins"></div>':'')
     +'<svg id="lxCarte"'+(planIgn()?' class="lx-export" aria-hidden="true"':'')+' viewBox="0 0 400 340" role="img" aria-label="Plan du territoire et de ses structures de soins"></svg>'
@@ -319,7 +334,7 @@ function dessinerCarteTerritoire(lv,code,lignes){
   const dep=depOfFeat(lv,f),dom=DOMS.includes(dep);
   const proj=(dom?d3.geoMercator():d3.geoConicConformal().parallels([44,49]).rotate([-3,0])).fitExtent([[14,14],[386,326]],f),path=d3.geoPath(proj);
   const u=D.niveaux[lv].units[IDX[lv].get(code)];
-  svg.attr("aria-label","Plan de "+u.nm+", "+minLib(l.lib)+", "+fmt.format(l.pts.length)+" structures, point plein confirmée, point creux à vérifier");
+  svg.attr("aria-label","Plan de "+u.nm+", "+minLib(l.lib)+", "+nbPlan(l)+", point plein confirmée, point creux à vérifier");
   svg.append("rect").attr("width",400).attr("height",340).attr("fill",css("--nodata"));
   // territoires voisins en fond, limites des départements (et des intercommunalités pour une intercommunalité)
   const memeDep=pr=>IDX.epciDep.get(pr.epci)===dep;
@@ -340,8 +355,8 @@ function dessinerCarteTerritoire(lv,code,lignes){
   pts.sort((a,b)=>(a.p===LX_CHOISI_LOCAL)-(b.p===LX_CHOISI_LOCAL));
   svg.append("g").attr("aria-hidden","true").selectAll("circle").data(pts).join("circle")
     .attr("cx",d=>d.xy[0]).attr("cy",d=>d.xy[1]).attr("r",d=>d.p===LX_CHOISI_LOCAL?6.5:creux(d.p)?4.2:4)
-    .attr("fill",d=>d.p===LX_CHOISI_LOCAL?(creux(d.p)?"none":css("--accent")):creux(d.p)?"none":css("--ink"))
-    .attr("stroke",d=>d.p===LX_CHOISI_LOCAL?css("--accent"):creux(d.p)?css("--ink"):css("--panel"))
+    .attr("fill",d=>d.p===LX_CHOISI_LOCAL?(creux(d.p)?"none":css("--action")):creux(d.p)?"none":css("--ink"))
+    .attr("stroke",d=>d.p===LX_CHOISI_LOCAL?css("--action"):creux(d.p)?css("--ink"):css("--panel"))
     .attr("stroke-width",d=>creux(d.p)?(d.p===LX_CHOISI_LOCAL?2.4:1.6):1).attr("pointer-events","all").style("cursor","pointer")
     .on("mousemove",(ev,d)=>showTip(ev,'<div class="tt">'+esc(LX.noms[d.p[3]])+'</div><div class="tl">'+esc(LX.communes[d.p[4]]||d.p[4])+'</div>'+(d.p[11]!=null?'<div class="tl">'+symboleConf(d.p)+' '+esc(CONF[d.p[11]].lib)+'</div>':'')))
     .on("mouseleave",hideTip)
@@ -352,7 +367,7 @@ function dessinerCarteTerritoire(lv,code,lignes){
   const approx=l.pts.filter(p=>kc.has(p[6])).length,horsCadre=l.pts.length-pts.length;
   // structures au même emplacement (même immeuble, ou centre de la même commune), un seul point visible pour plusieurs
   const nEmpl=d3.rollup(l.pts,v=>v.length,p=>p[1]+","+p[2]),superposes=d3.sum([...nEmpl.values()].filter(v=>v>1));
-  document.getElementById("lxLegende").innerHTML=(l.conf?legendeClasses(nc,nr,nb):'<span>Niveau de confirmation non établi pour ce type.</span>')
+  document.getElementById("lxLegende").innerHTML=!l.pts.length?'<span>Aucune structure de ce type n’est inscrite ici.</span>':(l.conf?legendeClasses(nc,nr,nb):'<span>Niveau de confirmation non établi pour ce type.</span>')
     +(approx?'<span>'+fmt.format(approx)+(approx>1?' placées au centre de leur commune':' placée au centre de sa commune')+', adresse exacte inconnue.</span>':'')
     +(superposes?'<span>'+fmt.format(superposes)+' partagent leur emplacement avec une autre, un seul point les montre.</span>':'')
     +(horsCadre?'<span>'+fmt.format(horsCadre)+' sans emplacement connu.</span>':'');

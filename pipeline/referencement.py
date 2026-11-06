@@ -24,7 +24,7 @@ from .util import JOURNAL, log
 
 IMAGE_APERCU = "apercu.png"
 LARGEUR_APERCU, HAUTEUR_APERCU = 1200, 630   # format conseillé pour les aperçus de liens (Open Graph)
-TEXTE_APERCU = "Carte des départements de France, densité de psychiatres comparée à la moyenne des départements"
+TEXTE_APERCU = "Carte des départements de France, densité de psychiatres comparée à l'ensemble des départements"
 # dossiers du site qui ne sont jamais mis en ligne (outils/publier.ps1) ou réservés au travail
 EXCLUS = re.compile(r"^(prototype\d*|maquettes|_.*)$")
 MARQUE = "<!-- referencement -->"
@@ -36,9 +36,11 @@ def _adresse() -> str:
 
 
 def pages_publiques(site: Path) -> list[Path]:
-    """Pages HTML qui partent en ligne, hors des dossiers exclus de la publication."""
+    """Pages HTML qui partent en ligne, hors des dossiers exclus de la publication et des pages de travail, dont le nom
+    commence par « _ » (planche de style, pages de contrôle) : publier.ps1 ne les copie pas (robocopy /XF _*.html),
+    elles n'ont ni référencement ni place dans le plan du site (1er novembre 2026)."""
     return sorted(p for p in site.rglob("*.html")
-                  if not any(EXCLUS.match(x) for x in p.relative_to(site).parts[:-1]))
+                  if not p.name.startswith("_") and not any(EXCLUS.match(x) for x in p.relative_to(site).parts[:-1]))
 
 
 def _chemin(site: Path, page: Path) -> str:
@@ -139,13 +141,13 @@ def image_apercu(site: Path, carte_svg: str, exe: str | None, iso: str) -> bool:
     page = f"""<!doctype html><html lang="fr"><head><meta charset="utf-8"><link rel="stylesheet" href="{polices}">
 <style>html,body{{margin:0;width:{LARGEUR_APERCU}px;height:{HAUTEUR_APERCU}px;overflow:hidden;background:#fff}}
 body{{display:flex;align-items:center;font-family:"Work Sans",system-ui,sans-serif;color:#15171C}}
-.texte{{flex:1;padding:0 40px 0 72px}}.nom{{font:600 30px "Work Sans",sans-serif;color:#1D4D87;margin:0 0 26px}}
+.texte{{flex:1;padding:0 40px 0 72px}}.nom{{font:600 30px "Work Sans",sans-serif;color:#0E5A5A;margin:0 0 26px}}
 h1{{font:500 54px/1.12 "Newsreader",Georgia,serif;margin:0 0 26px}}p{{font-size:24px;line-height:1.4;margin:0;color:#4A4F5A}}
 .carte{{width:470px;height:{HAUTEUR_APERCU}px;display:flex;align-items:center;justify-content:center;padding-right:40px}}
 .carte svg{{height:590px;width:auto}}.leg{{font-size:17px;line-height:1.4;color:#5A606C;margin-top:30px}}</style></head><body>
 <div class="texte"><p class="nom">{config.NOM_PROJET}</p><h1>L’offre de soins en France, territoire par territoire</h1>
 <p>Professionnels et structures de santé et de santé mentale, profil des habitants. Données publiques, sourcées et
-citables.</p><p class="leg">Carte, psychiatres pour 10 000 habitants par département, comparés à la moyenne des
+citables.</p><p class="leg">Carte, psychiatres pour 10 000 habitants par département, comparés à l'ensemble des
 départements. Données du {date_longue(iso)}.</p></div><div class="carte">{carte_svg}</div></body></html>"""
     profil = tempfile.mkdtemp(prefix="profil_apercu_")
     source = Path(tempfile.mkdtemp(prefix="apercu_")) / "apercu.html"

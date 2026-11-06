@@ -113,7 +113,9 @@ function signer(){
     const cur=el.getAttribute("viewBox");if(el.dataset.vbSigne!==cur){const [x0,y0,w0,h0]=cur.split(/[ ,]+/).map(Number);const nv=[x0,y0,w0,h0+16].join(" ");el.setAttribute("viewBox",nv);el.dataset.vbSigne=nv}
     const sv=d3.select(el),vb=el.viewBox.baseVal;sv.selectAll("text.signature").remove();
     sv.append("text").attr("class","signature").attr("x",vb.x+vb.width-6).attr("y",vb.y+vb.height-4).attr("text-anchor","end")
-      .text((D.citation?.projet||"Ubi Cura")+", données du "+dateDonnees()+(D.citation?.doi?", doi:"+D.citation.doi:""))}}
+      .text((D.citation?.projet||"Ubi Cura")+", données du "+dateDonnees()+(D.citation?.doi&&D.citation.archivee!==false&&!D.citation.posterieure?", doi:"+D.citation.doi:D.citation?.doi_general?", toutes les versions doi:"+D.citation.doi_general:""));
+    // jamais coupée à gauche sur un écran étroit (audit du 6 novembre 2026) : resserrée pour tenir dans la largeur
+    const sg=el.querySelector("text.signature");try{const L=sg.getComputedTextLength(),max=vb.width-12;if(L>max){sg.setAttribute("textLength",max);sg.setAttribute("lengthAdjust","spacingAndGlyphs")}}catch(e){}}}
 // échelle typographique commune des figures (harmonisation, 22 octobre 2026), les mêmes tailles que dans les rapports
 // (graphiques.TYPO), telles qu'on les voit à l'écran quelle que soit la largeur de la figure. Chaque texte garde sa
 // taille d'origine (data-fs0), qui dit son rôle, titre, texte ou petit, et reçoit la taille qui donne ce rôle à
@@ -130,6 +132,10 @@ function normaliserTextes(svg){
     if(t.hasAttribute("data-typo-libre"))return;
     if(!t.dataset.fs0){const f=parseFloat(getComputedStyle(t).fontSize);if(!f)return;t.dataset.fs0=f}
     t.style.fontSize=(TYPO[roleTexte(+t.dataset.fs0)]*k).toFixed(2)+"px"});
+  // la signature reprend sa taille ici, après signer() : elle est resserrée de nouveau pour tenir dans la largeur
+  // (audit du 6 novembre 2026, filigrane coupé à gauche dans la carte de l'accueil à 375 px)
+  svg.querySelectorAll("text.signature").forEach(sg=>{sg.removeAttribute("textLength");sg.removeAttribute("lengthAdjust");
+    try{const L=sg.getComputedTextLength(),max=vb.width-12;if(L>max){sg.setAttribute("textLength",max);sg.setAttribute("lengthAdjust","spacingAndGlyphs")}}catch(e){}});
   const b=svg.getBoundingClientRect(),ticks=[...svg.querySelectorAll(".tick text")];
   ticks.forEach(t=>{t.style.visibility="";const r=t.getBoundingClientRect();if(!r.width)return;
     if(r.right>b.right+.5)t.setAttribute("text-anchor","end");else if(r.left<b.left-.5)t.setAttribute("text-anchor","start")});
@@ -150,7 +156,7 @@ new MutationObserver(ms=>{ms.forEach(m=>{let s=m.target.closest?m.target.closest
 // quel que soit le fond affiché (décision de Lucas), toujours en vue entière même si la carte est zoomée, à une taille
 // commune (dessin rapporté à 800 pixels, image à 1 600), texte à l'échelle typographique commune, légende puis citation
 // à la largeur de la figure. Les couleurs du fond clair sont lues en basculant le thème le temps d'un calcul, sans dessin.
-const VARS_COULEUR=["--bg","--panel","--ink","--muted","--line","--nodata","--accent","--signal","--focus","--contour","--r0","--r1","--r2","--r3","--r4","--r5","--d0","--d1","--d2","--d3","--d4","--d5","--d6"];
+const VARS_COULEUR=["--bg","--panel","--ink","--muted","--line","--nodata","--accent","--signal","--focus","--contour","--choisi","--action","--line-fort","--hist","--bv0","--bv1","--bv2","--bv3","--bv4","--bv5","--bv6","--bv7","--bv8","--r0","--r1","--r2","--r3","--r4","--r5","--d0","--d1","--d2","--d3","--d4","--d5","--d6"];
 const LARGEUR_EXPORT=800;
 function enRgb(c){const e=document.createElement("span");e.style.color=c;document.body.appendChild(e);const v=getComputedStyle(e).color;e.remove();return v}
 function couleursClaires(){const r=document.documentElement,t=r.getAttribute("data-theme"),cur=VARS_COULEUR.map(v=>enRgb(css(v)));
@@ -283,6 +289,20 @@ document.addEventListener("click",e=>{const b=e.target.closest("button.how");if(
   if(!t||!t.classList.contains("howtxt")){t=b.parentElement.nextElementSibling;while(t&&t.classList.contains("citation"))t=t.nextElementSibling}
   if(!t||!t.classList.contains("howtxt"))return;
   const open=t.classList.contains("hidden");if(open)t.innerHTML=howHtml(b.dataset.how);t.classList.toggle("hidden",!open);b.setAttribute("aria-expanded",String(open))});
+// « Comment lire » toujours visible, comme sur la fiche (règles du projet, partie 6 ; décision de Lucas du 5 novembre
+// 2026) : chaque texte est rempli et montré dès que son encadré est dessiné, le bouton qui le dépliait disparaît
+function texteHow(b){let t=b.nextElementSibling;
+  if(!t||!t.classList.contains("howtxt")){t=b.parentElement.nextElementSibling;while(t&&t.classList.contains("citation"))t=t.nextElementSibling}
+  return t&&t.classList.contains("howtxt")?t:null}
+function deplierCommentLire(){document.querySelectorAll("button.how:not([data-vu])").forEach(b=>{const t=texteHow(b);if(!t)return;b.dataset.vu="1";
+  t.innerHTML='<p class="cl-tete"><strong>Comment lire.</strong></p>'+howHtml(b.dataset.how);t.classList.remove("hidden");b.hidden=true;b.setAttribute("aria-expanded","true");
+  // le résultat en tête du bloc, l'explication juste en dessous (règles du projet, partie 6) : le texte quitte la tête de
+  // l'encadré pour suivre sa figure ou son tableau, avant les limites
+  const boite=t.closest(".panel,.mapbox,.selzone");if(!boite)return;
+  const fig=[...boite.querySelectorAll("svg.map,svg.fig,.leaflet-container,table,.hmbox,dl,.legend,.fiche-legende")].filter(x=>!t.contains(x)&&!x.closest(".howtxt")).pop();
+  const lim=boite.querySelector(".asavoir,.limites");
+  if(lim&&(!fig||fig.compareDocumentPosition(lim)&Node.DOCUMENT_POSITION_FOLLOWING))lim.before(t);else if(fig)(fig.closest(".hmbox,.scroll,.tabdonnees")||fig).after(t);else boite.appendChild(t)})}
+{let attente=0;new MutationObserver(()=>{if(!attente)attente=setTimeout(()=>{attente=0;deplierCommentLire()},0)}).observe(document.documentElement,{childList:true,subtree:true})}
 
 // ---------- familles
 const famOf=p=>p.famille||(p.groupe==="Santé mentale"?SM:SANTE);
@@ -293,14 +313,25 @@ const ctxVisibles=()=>IDX.ctx.filter(c=>!c.famille||S.fam==="*"||c.famille===S.f
 // 100 000 personnes de 80 ans et plus »), le nombre venant des comptes de l'encadré des structures (niveaux.*.lieux)
 function nombreStructures(c,lv,i){if(!c||!String(c.id).startsWith("lieux_"))return null;const v=D.niveaux[lv]?.lieux?.[c.id.slice(6)];return v&&v[i]!=null?v[i]:null}
 const motStructures=n=>n?fmt.format(n)+"\u00a0structure"+(n>1?"s":""):"aucune structure";
-function texteTaux(c,lv,i,txt){const n=nombreStructures(c,lv,i);return n==null?txt:motStructures(n)+", soit "+txt}
+// aucune structure inscrite, un statut plutôt qu'un taux de 0 laissé seul (audit du 31 octobre 2026)
+const AUCUNE_STRUCTURE="aucune structure inscrite";
+// libellé d'un taux de structures coupé en son nom et son unité (« Maisons de santé pluriprofessionnelles » et « pour
+// 100 000 habitants ») : l'unité suit le taux, jamais un « 6 structures, soit 1,9 » où l'on ne sait pas de quoi est 1,9
+// (remarque de Lucas du 5 novembre 2026)
+function nomUnite(c){const m=String(c.label||"").match(/^(.*?),\s*(pour\s.+)$/);return m?[m[1],m[2]]:[c.label,""]}
+function texteTaux(c,lv,i,txt){const n=nombreStructures(c,lv,i);if(n==null)return txt;if(n===0)return AUCUNE_STRUCTURE;
+  const u=nomUnite(c)[1];return motStructures(n)+", soit "+txt+(u?" "+u:"")}
 // même chose en HTML pour la fiche, le nombre sur sa ligne au-dessus du taux, pour ne pas serrer le libellé sur téléphone
-function htmlTaux(c,lv,i,txt){const n=nombreStructures(c,lv,i);return n==null?esc(txt):'<span class="nb-struct">'+esc(motStructures(n))+'</span>'+esc("soit "+txt)}
+function htmlTaux(c,lv,i,txt){const n=nombreStructures(c,lv,i);if(n==null)return esc(txt);if(n===0)return '<span class="nb-struct">'+AUCUNE_STRUCTURE+'</span>';
+  // l'unité sur sa propre ligne, qui peut se couper : écrite à la suite, sans coupure possible, elle écrasait le libellé
+  // à 9 px (relecture indépendante du 5 novembre 2026, IME et SESSAD de l'Ain)
+  const u=nomUnite(c)[1];return '<span class="nb-struct">'+esc(motStructures(n))+'</span>'+esc("soit "+txt)+(u?'<span class="unite-taux">'+esc(u)+'</span>':"")}
 // les nombres d'un libellé ne se coupent pas en fin de ligne (« pour 100 000 personnes »)
 const insecables=t=>String(t).replace(/(\d) (\d{3})/g,"$1\u00a0$2");
 // libellé d'un indicateur suivi de son unité, sauf quand le libellé la dit déjà (« EHPAD, pour 100 000 personnes de 80 ans
 // et plus » ne se répète pas entre parenthèses)
-const libUnite=c=>c.label+(c.unite&&!c.label.includes(c.unite)?" ("+c.unite+")":"");
+// une unité qui porte déjà une parenthèse suit le nom après une virgule : « (pour 100 000 (standardisé)) » (relecture du 5 novembre 2026)
+const libUnite=c=>c.label+(c.unite&&!c.label.includes(c.unite)?(/[()]/.test(c.unite)?", "+c.unite:" ("+c.unite+")"):"");
 const ctxDispo=(lv,c)=>D.niveaux[lv].units.some(u=>u.x&&u.x[c.i]!=null);
 const famLab={[SM]:"santé mentale",[SANTE]:"santé","*":"toute l’offre de soins"};
 
@@ -360,23 +391,46 @@ function buildSelects(){
   document.getElementById("famNote").textContent=S.fam===SM?"Psychologues, psychothérapeutes, psychiatres et pédopsychiatres, avec les qualifications complémentaires et le périmètre élargi.":S.fam===SANTE?nb+" professions de l’offre de soins générale.":"Toutes les professions, santé mentale et santé.";
 }
 const natN=(p,m)=>(D.france.n[p]||[0,0,0])[MI[m||S.mode]];
-const natD=(p,m)=>natN(p,m)/D.france.pop*1e4;
+// unité des densités, la même que sur les autres pages (pipeline/affichage.py, par_habitants, reprise dans D.unites) :
+// 100 000 habitants pour une profession rare, 10 000 sinon (C4 de la relecture, 5 novembre 2026). Toutes les densités
+// de l'atlas (unitD, refD, natD, att) sont dans cette unité ; seuls unPour et l'accessibilité restent pour 10 000.
+const FAC=p=>(D.unites&&D.unites[p])||1e4;
+// espaces insécables : « Pour 10 / 000 hab. » se coupait au téléphone (relecture indépendante du 5 novembre 2026)
+function uniteP(p,court){return(FAC(p)===1e5?"pour 100 000 ":"pour 10 000 ")+(court?"hab.":"habitants")}
+// mention de l'unité sous le nom d'une profession rare, dans les tableaux qui mêlent les deux unités
+function noteUnite(p){return FAC(p)===1e5?' <span class="unite-rare">pour 100 000</span>':""}
+// densité écrite comme sur les autres pages (affichage.nombre, genre « taux ») : 0 seul, deux décimales sous 1,
+// une décimale ensuite, aucune à partir de 1 000. Intl arrondit l'écriture décimale la plus courte, comme les fichiers et les autres pages.
+const f0=new Intl.NumberFormat("fr-FR",{maximumFractionDigits:0});
+const nbFr=s=>+s.replace(/[\s\u202f\u00a0]/g,"").replace(",",".").replace("\u2212","-");
+function fD(v){if(v==null||!isFinite(v))return"";const s2=f2.format(v);if(nbFr(s2)===0)return"0";if(Math.abs(nbFr(s2))<1)return s2;
+  const s1=f1.format(v);return Math.abs(nbFr(s1))>=1000?f0.format(v):s1}
+const natD=(p,m)=>natN(p,m)/D.france.pop*FAC(p);
+// valeur d'un indicateur de contexte écrite selon son genre, comme affichage.genre et affichage.nombre : distance et
+// part à une décimale, euros à la dizaine, minutes entières, taux comme les densités (« 1 967 » et non « 1 967,0 »,
+// relecture indépendante du 5 novembre 2026)
+function fCtx(c,v){if(v==null||!isFinite(v))return"";const u=String(c.unite||"").trim();
+  if(String(c.id).startsWith("dist_")||u==="km"||u.startsWith("%"))return f1.format(v);
+  if(u.startsWith("€")||u.endsWith("€"))return f0.format(Math.round(v/10)*10);
+  if(u.startsWith("min"))return f0.format(v);
+  return fD(v)}
 // Moyenne des territoires d'un niveau, calculée comme eux (somme de leurs effectifs rapportée à leur population).
 // C'est la référence de toutes les comparaisons de territoires (décision de Lucas du 5 octobre 2026). natD reste le
 // chiffre de la France entière, où chaque personne compte une fois, y compris les activités sans lieu.
 const MOY={},MOYLAB={com:"des communes",epci:"des intercommunalités",dep:"des départements",reg:"des régions"};
 const NIVLAB={epci:"intercommunalités",dep:"départements",reg:"régions"},UNLAB={epci:"une intercommunalité",dep:"un département",reg:"une région"};
 function refD(lv,p,m){m=m||S.mode;const k=lv+"|"+p+"|"+m;if(!(k in MOY)){const L=D.niveaux[lv],a=L.n[p];let n=0,P=0;
-  L.units.forEach((u,i)=>{P+=u.pop;if(a)n+=a[m][i]});MOY[k]=P?n/P*1e4:0}return MOY[k]}
+  L.units.forEach((u,i)=>{P+=u.pop;if(a)n+=a[m][i]});MOY[k]=P?n/P*FAC(p):0}return MOY[k]}
 function unitN(lv,p,i,m){const a=D.niveaux[lv].n[p];return a?a[m||S.mode][i]:0}
-function unitD(lv,p,i,m){const u=D.niveaux[lv].units[i];return u.pop?unitN(lv,p,i,m)/u.pop*1e4:0}
+function unitD(lv,p,i,m){const u=D.niveaux[lv].units[i];return u.pop?unitN(lv,p,i,m)/u.pop*FAC(p):0}
 const routeEq=p=>(D.route||[]).find(r=>r.prof===p);
 function trajet(lv,p,i){const e=routeEq(p),a=e&&D.niveaux[lv].route?.[e.id];return a&&a[i]?a[i]:null}
 // évolution de la densité sur dix ans (séries de la DREES), régions et départements
 const evolInfo=p=>(D.evolution||[]).find(e=>e.prof===p);
 function evol(lv,p,i){const a=D.niveaux[lv].evolution?.[p];return a&&a[i]?a[i]:null}
 const signe=v=>(v>0?"+":"")+f1.format(v*100)+" %";
-function att(lv,p,i){const A=D.niveaux[lv].attendu;return A&&A[p]?A[p][i]:null}
+// effectif attendu, enregistré pour 10 000 habitants, rendu dans l'unité de la profession
+function att(lv,p,i){const A=D.niveaux[lv].attendu;return A&&A[p]&&A[p][i]!=null?A[p][i]*FAC(p)/1e4:null}
 function val(lv,p,i){
   if(S.metric==="n")return unitN(lv,p,i);
   if(S.metric==="acces"){const a=D.niveaux[lv].acces?.[p];return a?a[i]:null}

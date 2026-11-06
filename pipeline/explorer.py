@@ -16,7 +16,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from . import cartes, config
+from . import affichage as AF, cartes, config
 from .util import JOURNAL
 
 # professions proposées, toutes celles d'une famille (santé mentale, santé), rangées par groupe comme dans l'atlas
@@ -113,7 +113,12 @@ def donnees_trajectoires(dossier: Path) -> dict | None:
     profs = {}
     for p, g in ev.groupby("prof"):
         base = {"chirurgiens": "chirurgien_general"}.get(p, p.replace("_lib", "").replace("_sal", ""))
+        # unité de la série d'après sa propre densité nationale la dernière année (affichage.unite_prof, 100 000
+        # habitants sous 1 pour 10 000), jamais d'après une profession voisine du répertoire : la série « chirurgiens »
+        # couvre toutes les spécialités chirurgicales (contre-audit du 6 novembre 2026)
+        der = g[g["annee"] == g["annee"].max()]
         profs[p] = {"libelle": g["libelle"].iloc[0], "source": g["source"].iloc[0],
+                    "fac": AF.unite_prof(der["effectif"].sum(), der["population"].sum()),
                     "groupe": prof.at[base, "groupe"] if base in prof.index else "Autres",
                     "famille": prof.at[base, "famille"] if base in prof.index else "Santé",
                     "deps": {c: {str(int(r.annee)): [int(r.effectif), int(r.population)] for r in h.itertuples()}
@@ -151,6 +156,9 @@ def donnees_inegalites(site_data: dict) -> dict | None:
     sortie = {"profs": {p["id"]: {"lib": p["libelle"], "groupe": p.get("groupe") or "Autres", "famille": p.get("famille")}
                         for p in garder},
               "france": {"pop": site_data["france"]["pop"], "n": {p: site_data["france"]["n"][p] for p in ids}},
+              # unité de chaque profession, 100 000 habitants pour une profession rare, la règle des autres pages
+              # (affichage.par_habitants ; relecture indépendante du 5 novembre 2026, comme l'atlas)
+              "unites": {p: AF.par_habitants(site_data, p) for p in ids},
               "niv": {}, "revenu": site_data.get("revenu", {}), "entonnoir": site_data.get("entonnoir", {}),
               "lieux": {k: site_data.get("lieux", {}).get(k) for k in CLES_LIEUX}}
     for lv in NIVEAUX_INEGALITES:
@@ -217,6 +225,7 @@ def ecrire(dossier: Path, site: Path, site_data: dict) -> bool:
         JOURNAL.controle("Page Explorer", "non écrite, données ou fond de carte absents")
         return False
     noms = {u["c"]: u["nm"] for u in site_data["niveaux"]["dep"]["units"] if u["c"] not in DEPARTEMENTS_EXCLUS}
+
     js = lambda x: json.dumps(x, ensure_ascii=False, separators=(",", ":"))  # noqa: E731
     (out / "donnees.js").write_text(f"const DC={js(paires)};\nconst DT={js(traj)};\nconst NOMS={js(noms)};\n",
                                     encoding="utf-8")

@@ -18,6 +18,7 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -31,7 +32,19 @@ from . import config, dictionnaire, libelles, limites, mises_a_jour
 from .lecture import nombre, date_longue
 from .util import JOURNAL, controles_publics, date_version, lire_meta, log
 
-SITE = config.RACINE / "site"
+SITE = Path(os.environ["OFFRE_SOINS_SITE"]) if os.environ.get("OFFRE_SOINS_SITE") else config.RACINE / "site"
+
+# Réglage unique de la présentation (30 octobre 2026). Les choix actuels de Lucas sont le défaut, texte justifié avec
+# césures et fond clair (validation du 31 octobre 2026, fond sombre au choix). Les options de l'audit esthétique se basculent ici, une seule fois pour tout le site.
+#   texte  "justifie" (règle 8 du registre) ou "gauche" (audit, en drapeau sur 68 caractères)
+#   fond   "light" (défaut du site depuis le 31 octobre 2026), "dark" ou "chaud" (audit, blanc cassé chaud) ; le
+#          bouton du site passe au fond sombre, puis revient au fond clair choisi par fond_clair
+#   accueil "portail" (nouvel accueil, recherche, domaines et fiches) ou "atlas" (l'atlas en première page, décision
+#          de Lucas du 28 octobre 2026, à reconfirmer en voyant le nouvel accueil)
+PRESENTATION = {"texte": "justifie", "fond": "light", "fond_clair": "light", "accueil": "portail",
+                # « moyenne » (règle actuelle) ou « position » (variante B2 de l'audit de contrôle du 30 octobre 2026,
+                # en attente de Lucas : repère nommé « Ensemble », position du territoire, couleur par quart)
+                "repere": "moyenne"}
 GABARITS = config.RACINE / "gabarits"
 RAPPORTS = {"sante-mentale": ("rapport_sante_mentale.md", "Rapport santé mentale"),
             "sante": ("rapport_sante.md", "Rapport santé")}
@@ -75,8 +88,6 @@ def md_html(texte: str, graphiques: Path | None, imprimer=False, donnees: dict |
         corps = re.sub(r"(<h([4-6])[^>]*>(?:(?!</h\2>).)*</h\2>\s*)(<table>(?:(?!</table>).)*</table>)",
                        r'<div class="ensemble">\1\3</div>', corps, flags=re.S)
 
-    numero = [0]
-
     def figure(m):
         nom = m.group(1)
         f = graphiques / f"{nom}.svg" if graphiques else None
@@ -84,7 +95,6 @@ def md_html(texte: str, graphiques: Path | None, imprimer=False, donnees: dict |
             return ""
         svg = f.read_text(encoding="utf-8")
         legende = re.search(r"<title>(.*?)</title>", svg)
-        numero[0] += 1
         # autres professions de la même figure, proposées par des boutons (pas à l'impression)
         from .graphiques import VARIANTES
         ordre = [q for l in VARIANTES.values() for q in l] + ["q_psychiatrie_enfant"]
@@ -110,7 +120,8 @@ def md_html(texte: str, graphiques: Path | None, imprimer=False, donnees: dict |
                 attr = f' data-donnees="{donnees["prefixe"]}{fichier}" data-donnees-nom="{fichier}"'
         # titre au-dessus de la figure, comme dans l'atlas, puis la figure elle-même
         return (f'<figure class="graphique{" zoomable" if zoom else ""}"{attr}>'
-                + (f'<figcaption class="small muted"><strong>Figure {numero[0]}.</strong> <span class="leg">'
+                # titre sans numéro, comme les tableaux (Lucas, 22 octobre et 1er novembre 2026)
+                + (f'<figcaption class="small muted"><span class="leg">'
                    f'{legende.group(1)}</span>.</figcaption>' if legende else "")
                 + f'<div class="fig-corps">{choix}{contenu}</div></figure>')
     corps = re.sub(r"<!--GRAPHIQUE (\S+)-->", figure, corps)
@@ -349,7 +360,9 @@ def en_colonne(page: str) -> str:
 
 
 def rendre(env, nom: str, *args, **kw) -> str:
-    html = env.get_template(nom).render(*args, **kw)
+    from .typographie import insecables
+    # espaces insécables du français dans le texte lu (direction visuelle du 30 octobre 2026)
+    html = insecables(env.get_template(nom).render(*args, **kw))
     return en_colonne(html) if nom in EN_COLONNE else html
 
 
@@ -616,7 +629,7 @@ def citation(cle: str, titre: str, date: str, iso: str | None = None, archivee: 
     else:
         texte = (f"{config.CITATION_AUTEUR} ({date[-4:]}). {titre}, version du {date}. {config.NOM_PROJET}."
                  + (f" {config.ADRESSE_SITE}" if config.ADRESSE_SITE else ""))
-    return {"texte": texte, "doi_rapport": doi_r, "doi_donnees": doi_d}
+    return {"texte": texte, "doi_rapport": doi_r, "doi_donnees": doi_d, "archivee": archivee}
 
 
 def imprimer_pdf(html: Path, pdf: Path, exe: str) -> bool:
@@ -717,7 +730,10 @@ def liens(texte: str):
     """Texte échappé dont les adresses web (DOI, pages du site) deviennent des liens cliquables. Le point final d'une
     phrase n'entre pas dans le lien."""
     from markupsafe import Markup, escape
-    return Markup(re.sub(r"(https?://[^\s<]+?)(?=[.,;)]?(?:\s|$))", r'<a href="\1">\1</a>', str(escape(texte))))
+    t = re.sub(r"(https?://[^\s<]+?)(?=[.,;)]{0,2}(?:\s|$))", r'<a href="\1">\1</a>', str(escape(texte)))
+    # un DOI écrit seul (« DOI 10.5281/zenodo.23812351 ») devient lui aussi un lien (règle 11, 6 novembre 2026)
+    t = re.sub(r"(?<![/\w.])(10\.\d{4,9}/[\w.]*\d)", r'<a href="https://doi.org/\1">\1</a>', t)
+    return Markup(t)
 
 
 def _environnement() -> Environment:
@@ -728,14 +744,21 @@ def _environnement() -> Environment:
 
 
 def _commun(dernier: Path, site_data: dict) -> dict:
-    return {"date_longue": date_longue(dernier.name), "licences": site_data["meta"].get("licences", ""),
+    # une seule date d'extraction du répertoire, lue dans un seul fichier de la version (concordance_effectifs.csv,
+    # colonne date_rpps, tirée du maj_source du fichier d'activité du RPPS), même formule sur toutes les pages
+    from .fiche_territoire import _date_rpps
+    rpps = _date_rpps(dernier)
+    return {"date_longue": date_longue(dernier.name), "date_rpps": rpps,
+            "date_calcul": f"Calculé le {date_longue(dernier.name)}" + (f", répertoire RPPS du {rpps}" if rpps else ""), "licences": site_data["meta"].get("licences", ""),
             "description": "Offre de soins et de santé mentale en France, par territoire, à partir des données publiques.",
             # citation de la page, reprise par « Citer et exporter » des tableaux et figures des pages sans citation propre
             "citation_auteur": config.CITATION_AUTEUR, "annee_version": dernier.name[:4],
             "adresse_site": config.ADRESSE_SITE.rstrip("/"),
             # empreinte de la feuille de style, pour que les navigateurs chargent la nouvelle version après une mise à jour
             "version_css": hashlib.sha1((GABARITS / "style.css").read_bytes()).hexdigest()[:10],
-            "compteur": _compteur()}
+            "compteur": _compteur(), "presentation": PRESENTATION,
+            # l'atlas a sa page quand le nouvel accueil occupe la première page (réglage PRESENTATION["accueil"])
+            "page_atlas": "atlas.html" if PRESENTATION["accueil"] == "portail" else "index.html"}
 
 
 def _compteur() -> str:
@@ -743,9 +766,15 @@ def _compteur() -> str:
     navigateur qui demande à ne pas être suivi n'est pas compté (option no_onload de GoatCounter)."""
     if not config.GOATCOUNTER:
         return ""
-    return ('<script>window.goatcounter={no_onload:navigator.doNotTrack==="1"||window.doNotTrack==="1"}</script>'
-            f'<script data-goatcounter="https://{config.GOATCOUNTER}.goatcounter.com/count" async '
-            f'src="{config.GOATCOUNTER_SCRIPT}" crossorigin="anonymous" integrity="{config.GOATCOUNTER_INTEGRITE}"></script>')
+    # chargé seulement sur l'adresse publique du site (H6 de l'étape 4, 5 novembre 2026) : une page ouverte sur le PC,
+    # en aperçu local ou par le contrôle de finition, ne demande plus rien au compteur
+    hote = json.dumps(config.ADRESSE_SITE.split("//", 1)[-1].split("/")[0])
+    return ('<script>(function(){var h=location.hostname,d=' + hote + ';if(h!==d&&h.slice(-d.length-1)!=="."+d)return;'
+            'window.goatcounter={no_onload:navigator.doNotTrack==="1"||window.doNotTrack==="1"};'
+            'var s=document.createElement("script");s.async=true;s.crossOrigin="anonymous";'
+            f's.dataset.goatcounter="https://{config.GOATCOUNTER}.goatcounter.com/count";'
+            f's.src="{config.GOATCOUNTER_SCRIPT}";s.integrity="{config.GOATCOUNTER_INTEGRITE}";'
+            'document.head.appendChild(s)})()</script>')
 
 
 def imprimer_rapport(env: Environment, ctx: dict, d: Path, cle: str, cible_pdf: Path, exe: str) -> bool:
@@ -756,8 +785,11 @@ def imprimer_rapport(env: Environment, ctx: dict, d: Path, cle: str, cible_pdf: 
     dossier = SITE / "rapports" / d.name
     dossier.mkdir(parents=True, exist_ok=True)
     tmp = dossier / f"{cle}.{cible_pdf.stem}.impression.html"
-    tmp.write_text(env.get_template("rapport.html").render(ctx, titre_rapport=t, corps=corps_imp, sommaire="", pdf=None,
-                                                           impression=True), encoding="utf-8")
+    # espaces insécables du français, comme les autres pages (« 100 000 » jamais coupé en fin de ligne, audit du
+    # 6 novembre 2026)
+    from .typographie import insecables
+    tmp.write_text(insecables(env.get_template("rapport.html").render(ctx, titre_rapport=t, corps=corps_imp, sommaire="",
+                                                                      pdf=None, impression=True)), encoding="utf-8")
     ok = imprimer_pdf(tmp, cible_pdf, exe)
     tmp.unlink(missing_ok=True)
     if ok:
@@ -899,6 +931,9 @@ def construire(pdf=True) -> Path:
                 refaire = False
             html = env.get_template("rapport.html").render(ctx, titre_rapport=t, corps=corps, sommaire=sommaire,
                                                            pdf=f"{cle}.pdf" if (cible_pdf.exists() or (exe and refaire)) else None)
+            if d == dernier:   # les versions déjà publiées restent telles quelles
+                from .typographie import insecables
+                html = insecables(html)
             (dossier / f"{cle}.html").write_text(html, encoding="utf-8")
             # le langage n'est contrôlé que sur la dernière version, les versions déjà publiées restent telles quelles
             # (archives citables, décision du 28 octobre 2026)
@@ -919,6 +954,10 @@ def construire(pdf=True) -> Path:
         citation_sante=citation("sante", "Rapport santé", date_longue(dernier.name), dernier.name)["texte"]), encoding="utf-8")
     pages.append(SITE / "rapports.html")
     pages += _territoires(env, commun, dernier)
+    # fiche de chaque territoire en tableau de bord, à adresse propre (présentation du 30 octobre 2026)
+    from . import fiche_territoire
+    pages += fiche_territoire.construire(env, commun, dernier, site_data, SITE, config.RACINE / "docs" / "veille" / "registre_bases.csv",
+                                         config.ADRESSE_SITE, config.CITATION_AUTEUR)
 
     # données à télécharger et dictionnaire des colonnes
     # seule la dernière version des données est publiée (les précédentes iront sur Zenodo). Les fichiers de plus
@@ -1032,7 +1071,8 @@ def construire(pdf=True) -> Path:
     if explorer.ecrire(dernier, SITE, site_data):
         ctx = dict(commun, racine="", page="explorer", titre="Explorer les données")
         cit = (f"{commun['citation_auteur']} ({commun['annee_version']}). Explorer les données. {config.NOM_PROJET}, "
-               f"version du {commun['date_longue']}, {commun['adresse_site'].rstrip('/')}/explorer.html")
+               f"version du {commun['date_longue']}, {commun['adresse_site'].rstrip('/')}/explorer.html"
+               + (f", doi:{doi_cite('donnees', dernier.name)}" if doi_cite("donnees", dernier.name) else ""))
         # empreinte du code et des données de la page, pour que les navigateurs prennent la nouvelle version
         # « Croiser deux indicateurs » compris (code du moteur et données), qui restait sinon en cache après une mise à jour
         fichiers = ("explorer.js", "donnees.js", "donnees_outils.js", "croisements.js", "donnees_croisements.js",
@@ -1065,7 +1105,7 @@ def construire(pdf=True) -> Path:
     sys.path.insert(0, str(config.RACINE / "atlas"))
     import construire_atlas  # noqa: E402
     nav = ("<style>" + _css_nav() + "</style>"
-           + env.get_template("nav.html").render(racine="", page="atlas") + _compteur())
+           + env.get_template("nav.html").render(racine="", page="atlas", page_atlas=commun["page_atlas"]) + _compteur())
     entete = (f'<header class="bandeau-accueil">'
               f'<h1>L’offre de soins en France, territoire par territoire</h1>'
               f'<p class="lede">Où exercent les professionnels de santé et de santé mentale, et ce qui accompagne leur '
@@ -1079,21 +1119,40 @@ def construire(pdf=True) -> Path:
               f'<a href="https://doi.org/{doi_cite("donnees")}">doi:{doi_cite("donnees")}</a></span></div></header>')
     # données, fond de carte et bibliothèques dans des fichiers à part, chargés au même endroit (page de 15 Mo qu'un
     # réseau d'entreprise n'ouvrait pas, 29 octobre 2026), l'atlas autonome de Zenodo garde tout dans la page
-    construire_atlas.construire(dernier / "site_data.json", SITE / "index.html", nav, accueil=entete,
-                                titre=f"{config.NOM_PROJET}, l’offre de soins en France, territoire par territoire",
+    construire_atlas.construire(dernier / "site_data.json", SITE / commun["page_atlas"], nav,
+                                accueil="" if PRESENTATION["accueil"] == "portail" else entete,
+                                titre=(f"Atlas de l’offre de soins, territoire par territoire · {config.NOM_PROJET}"
+                                       if PRESENTATION["accueil"] == "portail"
+                                       else f"{config.NOM_PROJET}, l’offre de soins en France, territoire par territoire"),
                                 externes=True)
     # contours des secteurs de psychiatrie, chargés par le plan de l'atlas à la demande (29 octobre 2026)
     if (dernier / "secteurs_psychiatrie.geojson").exists():
         shutil.copy(dernier / "secteurs_psychiatrie.geojson", SITE / "secteurs_psychiatrie.geojson")
-    (SITE / "atlas.html").write_text(
-        '<!doctype html>\n<html lang="fr"><head><meta charset="utf-8">'
-        '<meta name="viewport" content="width=device-width, initial-scale=1">'
-        f'<title>Atlas de l’offre de soins · {config.NOM_PROJET}</title>'
-        '<link rel="canonical" href="index.html"><meta http-equiv="refresh" content="0; url=index.html">'
-        '<script>location.replace("index.html" + location.search + location.hash)</script>'
-        '<style>body{font-family:system-ui,sans-serif;background:#121419;color:#E8E9EE;padding:40px}a{color:#9DC7FE}</style>'
-        '</head><body><p>L’atlas de l’offre de soins est désormais la première page du site. '
-        '<a href="index.html">Ouvrir l’atlas</a>.</p></body></html>\n', encoding="utf-8")
+    if PRESENTATION["accueil"] == "portail":
+        # nouvel accueil en première page, recherche, domaines et fiches (présentation du 30 octobre 2026)
+        from . import portail
+        pages += portail.construire(env, commun, dernier, site_data, SITE, GABARITS,
+                                    config.RACINE / "docs" / "veille" / "registre_bases.csv")
+    else:
+        (SITE / "atlas.html").write_text(
+            '<!doctype html>\n<html lang="fr"><head><meta charset="utf-8">'
+            '<meta name="viewport" content="width=device-width, initial-scale=1">'
+            f'<title>Atlas de l’offre de soins · {config.NOM_PROJET}</title>'
+            '<link rel="canonical" href="index.html"><meta http-equiv="refresh" content="0; url=index.html">'
+            '<script>location.replace("index.html" + location.search + location.hash)</script>'
+            '<style>body{font-family:system-ui,sans-serif;background:#F4F4F1;color:#1C2028;padding:40px}a{color:#0E5A5A}</style>'
+            '</head><body><p>L’atlas de l’offre de soins est désormais la première page du site. '
+            '<a href="index.html">Ouvrir l’atlas</a>.</p></body></html>\n', encoding="utf-8")
+
+    # règle d'affichage des chiffres (plan de reprise de la présentation, étape 1, 30 octobre 2026) : même valeur, même
+    # repère et même statut sur toutes les pages et dans les CSV, aucune chaîne de maquette, une seule date par source,
+    # aucun « 0 » sans statut, catalogue complet. Un écart arrête la construction.
+    if PRESENTATION["accueil"] == "portail":
+        from . import controle_affichage
+        for niveau, texte in controle_affichage.bloquer(SITE, dernier, site_data):
+            if niveau == "à regarder":
+                log.warning("Règle d'affichage des chiffres, à regarder : %s", texte[:300])
+        JOURNAL.controle("Site, règle d'affichage des chiffres (attendu, aucun écart bloquant)", "aucun écart bloquant")
 
     # référencement, adresse de référence et aperçu des liens sur chaque page, citation des rapports, description du
     # jeu de données, plan du site (feuille de route de la communication, phase 1, 29 octobre 2026)
@@ -1123,6 +1182,14 @@ def construire(pdf=True) -> Path:
             log.warning("mise en page PDF : %s", x)
         JOURNAL.controle("Rapports PDF, titres seuls en bas de page ou pages presque vides",
                          "aucun" if not pb_pdf else f"{len(pb_pdf)} cas")
+    # planche de style (page de travail _planche.html, jamais publiée) refaite à chaque construction : une
+    # reconstruction complète l'effaçait, et l'inventaire « ne rien perdre » la compte (4 novembre 2026)
+    try:
+        sys.path.insert(0, str(config.RACINE / "outils"))
+        import construire_planche  # noqa: E402
+        construire_planche.construire(config.RESULTATS, SITE)
+    except Exception as e:  # noqa: BLE001
+        JOURNAL.note("Planche de style", "erreur", f"{e.__class__.__name__}: {e}"[:200])
     nb_pdf = len(list((SITE / "rapports").glob("*/*.pdf")))
     JOURNAL.note("Site statique", "ok", f"{len(versions)} version(s) des rapports, {nb_pdf} PDF, dossier {SITE}")
     return SITE
@@ -1158,7 +1225,15 @@ def _territoires(env, commun, dernier) -> list[Path]:
             # le corps ne dépend de l'emplacement de la page que par le chemin des données, posé ensuite
             titre_r, corps, sommaire = md_html(texte, src / "graphiques",
                                                donnees={"prefixe": f"@RACINE@donnees/{dernier.name}/", "dossier": dernier})
-            for cible, racine in ((dossier, "../"), (date_dossier, "../../")):
+            # adresse datée, la seule citée et liée ; l'adresse stable redirige vers la dernière version (audit de
+            # contrôle du 30 octobre 2026, point I13)
+            (dossier / f"{base}-{cle}.html").write_text(
+                f'<!doctype html><html lang="fr"><head><meta charset="utf-8"><title>{titre_r}</title>'
+                f'<meta http-equiv="refresh" content="0; url={dernier.name}/{base}-{cle}.html">'
+                f'<link rel="canonical" href="{dernier.name}/{base}-{cle}.html"><meta name="robots" content="noindex"></head>'
+                f'<body><p>La dernière version de ce rapport est à <a href="{dernier.name}/{base}-{cle}.html">cette adresse datée</a>.</p></body></html>',
+                encoding="utf-8")
+            for cible, racine in ((date_dossier, "../../"),):
                 ctx = dict(commun, date_longue=date_longue(dernier.name), racine=racine, page="territoires",
                            classe_main="territoire", titre=titre_r)
                 html = env.get_template("territoire.html").render(
@@ -1169,21 +1244,22 @@ def _territoires(env, commun, dernier) -> list[Path]:
                     else None,
                     lien_national=f"rapports/{dernier.name}/{cle}.html", lien_index=f"{racine}territoires/index.html",
                     citation=citation_territoire(titre_r, date_longue(dernier.name), f"{base}-{cle}.html", dernier.name))
-                (cible / f"{base}-{cle}.html").write_text(html, encoding="utf-8")
+                from .typographie import insecables
+                (cible / f"{base}-{cle}.html").write_text(insecables(html), encoding="utf-8")
             pages.append(dossier / f"{base}-{cle}.html")
-    lien = lambda t, c: f"{t['niveau']}-{t['code']}-{c}.html" if c in t["fichiers"] else None  # noqa: E731
+    lien = lambda t, c: f"{dernier.name}/{t['niveau']}-{t['code']}-{c}.html" if c in t["fichiers"] else None  # noqa: E731
     regions = []
     for r in sorted({t["reg"] for t in index}):
         nr = next((t for t in index if t["niveau"] == "reg" and t["code"] == r), None)
         deps = [t for t in index if t["niveau"] == "dep" and t["reg"] == r]
         nom = nr["nom"] if nr else (deps[0]["nom"] if deps else r)
-        regions.append({"nom": nom,
+        regions.append({"nom": nom, "fiche": f"../territoire/reg/{r}.html" if nr else None,
                         "rapport": {"sm": lien(nr, "sante-mentale"), "sante": lien(nr, "sante")} if nr else None,
                         "deps": [{"nom": d["nom"], "code": d["code"], "sm": lien(d, "sante-mentale"),
                                   "sante": lien(d, "sante")} for d in deps]})
     from .util import norm
     regions.sort(key=lambda r: norm(r["nom"]))
-    ctx = dict(commun, racine="../", page="territoires", titre="Rapports par territoire")
+    ctx = dict(commun, racine="../", page="territoires", titre="Territoires, fiches et rapports")
     (dossier / "index.html").write_text(rendre(env, "territoires.html",
         ctx, regions=regions,
         exemple_citation=citation_territoire("Offre de soins en santé mentale, Eure", date_longue(dernier.name),
@@ -1194,18 +1270,24 @@ def _territoires(env, commun, dernier) -> list[Path]:
 
 
 def _css_nav() -> str:
-    """Styles de la barre de navigation, repris de style.css pour l'atlas (qui a ses propres styles)."""
+    """Styles de la barre de navigation, repris de style.css pour l'atlas (qui a ses propres styles), chacun dans le bloc
+    @media où il se trouve. Seul le bloc du téléphone (760 px) était reconnu : les règles du bloc de 1 000 px passaient
+    sans leur condition et l'atlas repliait son menu à toutes les largeurs (étape 4, 5 novembre 2026)."""
     css = (GABARITS / "style.css").read_text(encoding="utf-8")
-    lignes, simples, mobiles, tel = css.split("\n"), [], [], False
-    for l in lignes:
-        # au téléphone, les règles du menu sont dans le bloc @media (max-width:760px) de la fin du fichier
-        if l.strip() == "@media (max-width:760px){":
-            tel = True
-        elif l.strip() == "}":
-            tel = False
-        elif l.startswith("nav.site"):
-            (mobiles if tel else simples).append(l)
-    return "\n".join(simples) + ("\n@media (max-width:760px){" + "\n".join(mobiles) + "}" if mobiles else "")
+    simples, blocs, media, prof = [], {}, None, 0
+    for l in re.sub(r"/\*.*?\*/", "", css, flags=re.S).splitlines():
+        s = l.strip()
+        if prof == 0 and s.startswith("@media") and s.endswith("{") and s.count("{") == 1:
+            media = s
+        elif media and l.startswith("nav.site"):
+            blocs.setdefault(media, []).append(l)
+        elif prof == 0 and l.startswith("nav.site"):
+            simples.append(l)
+        prof = max(0, prof + s.count("{") - s.count("}"))
+        if prof == 0:
+            media = None
+    sortie = simples + [m + "\n" + "\n".join(r) + "\n}" for m, r in blocs.items()]
+    return "\n".join(sortie)
 
 
 DID_VALIDE = re.compile(r"did:(plc:[a-z2-7]{24}|web:[a-z0-9.-]+)")
@@ -1262,7 +1344,7 @@ def _fenetres(sd, dossier: Path) -> dict:
     effectifs sur somme des populations, puis cartes.classe), pour recolorer la carte de l'accueil sans autre calcul.
     « Version et contrôles » : la date de l'extraction RPPS, les comparaisons aux séries de la DREES, le millésime de
     population et la dernière version archivée, tirés des fichiers de la version."""
-    from .cartes import CLASSES, classe
+    from .cartes import CLASSES, au_hasard, classe
     from .lecture import pluriel, un_pour
     lab = {p["id"]: p["libelle"] for p in sd["professions"]}
     fam = {p["id"]: p["famille"] for p in sd["professions"]}
@@ -1275,8 +1357,11 @@ def _fenetres(sd, dossier: Path) -> dict:
         if not n or not nfr:
             continue
         moy = sum(n) / sum(pops) * 1e4
-        cl = {u["c"]: [classe(k / po * 1e4 / moy), round(k / po * 1e4 / moy * 100)]
-              for u, k, po in zip(dep["units"], n, pops) if po > 0}
+        # la couleur ne marque un écart qu'au-delà de la marge et du hasard, comme les cartes des rapports (audit du
+        # 6 novembre 2026)
+        rap = {u["c"]: k / po * 1e4 / moy for u, k, po in zip(dep["units"], n, pops) if po > 0}
+        gris = au_hasard(rap, {u["c"]: k for u, k in zip(dep["units"], n)}, {u["c"]: po for u, po in zip(dep["units"], pops)}, moy)
+        cl = {c: [classe(r_, c in gris), round(r_ * 100)] for c, r_ in rap.items()}
         profs.append({"id": p, "nom": pluriel(lab[p]), "famille": fam[p], "effectif": nombre(nfr),
                       "densite": un_pour(nfr / sd["france"]["pop"] * 1e4), "classes": cl})
     controles = []
