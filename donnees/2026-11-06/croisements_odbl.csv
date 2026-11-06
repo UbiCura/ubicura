@@ -1,0 +1,5 @@
+﻿theme;mesure;variable;departements;rho;ic95_bas;ic95_haut;rho_partiel_densite;ic95_bas_partiel;ic95_haut_partiel
+secteur2_revenu;ctx:revenu_median;depassements_psychiatre;95;0,446205;0,279867;0,596346;0,26164;0,0923266;0,415326
+secteur2_revenu;dens:psychiatre;depassements_psychiatre;97;0,418198;0,235647;0,558089;0,214026;-0,00343335;0,401629
+medecin_traitant;dens_lib:medecin_generaliste;ald_sans_medecin_traitant;100;-0,644394;-0,762893;-0,47633;-0,646957;-0,756701;-0,490806
+medecin_traitant;ctx:part_80p;ald_sans_medecin_traitant;100;-0,000138107;-0,200376;0,186123;-0,0376193;-0,243338;0,183484

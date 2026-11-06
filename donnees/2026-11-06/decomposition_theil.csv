@@ -1,0 +1,27 @@
+﻿prof;groupes;theil;entre;dans;part_entre
+psychologue;départements;0,119681;0,0322344;0,0874465;0,269336
+psychologue;classes de densité;0,119681;0,035387;0,0842939;0,295678
+psychiatre;départements;0,383478;0,0933574;0,29012;0,243449
+psychiatre;classes de densité;0,383478;0,120012;0,263466;0,312957
+pedopsychiatre;départements;0,717971;0,206044;0,511927;0,286981
+pedopsychiatre;classes de densité;0,717971;0,129348;0,588623;0,180158
+medecin_generaliste;départements;0,0637521;0,0153068;0,0484453;0,240099
+medecin_generaliste;classes de densité;0,0637521;0,00841583;0,0553362;0,132009
+infirmier;départements;0,125047;0,0189697;0,106077;0,1517
+infirmier;classes de densité;0,125047;0,017343;0,107704;0,138692
+masseur_kinesitherapeute;départements;0,0959387;0,0561756;0,039763;0,585537
+masseur_kinesitherapeute;classes de densité;0,0959387;0,0125872;0,0833515;0,1312
+orthophoniste;départements;0,110253;0,0553339;0,0549187;0,501883
+orthophoniste;classes de densité;0,110253;0,0250816;0,0851709;0,227492
+psychomotricien;départements;0,149023;0,0460696;0,102953;0,309145
+psychomotricien;classes de densité;0,149023;0,0223114;0,126711;0,149718
+pharmacien;départements;0,0440906;0,014718;0,0293726;0,333813
+pharmacien;classes de densité;0,0440906;0,0104249;0,0336657;0,236443
+chirurgien_dentiste;départements;0,0984437;0,043487;0,0549567;0,441745
+chirurgien_dentiste;classes de densité;0,0984437;0,0422341;0,0562096;0,429018
+sage_femme;départements;0,190513;0,0155717;0,174942;0,0817356
+sage_femme;classes de densité;0,190513;0,0352404;0,155273;0,184976
+pediatre;départements;0,405592;0,0967773;0,308815;0,238607
+pediatre;classes de densité;0,405592;0,169129;0,236463;0,416993
+ens_medecin_specialiste;départements;0,249448;0,0467581;0,20269;0,187447
+ens_medecin_specialiste;classes de densité;0,249448;0,0916092;0,157838;0,367248
