@@ -95,6 +95,8 @@ def pages_publiques(date: str) -> list[Path]:
 
 
 def controler() -> int:
+    from pipeline.util import marquer_seance
+    marquer_seance()
     R = derniers_resultats()
     date = R.name
     sd = json.loads((R / "site_data.json").read_text(encoding="utf-8"))

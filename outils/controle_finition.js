@@ -276,6 +276,49 @@
     });
     if (n) sortie.defauts.push(`colonne étroite : ${n} texte(s) bridés avant le bord de leur colonne, jusqu'à ${Math.round(ecart)} px (${ex})`);
   }
+  // 11 quater. un texte ne touche pas le bord gauche ou droit du cadre qui le contient (7 novembre 2026, « Comment
+  //     lire » de la carte d'« Autour d'un lieu », collé au filet de son encadré, vu par Lucas) : 4 px au moins entre
+  //     le texte et un bord tracé de l'un des trois éléments qui l'entourent
+  {
+    let n = 0, ex = "";
+    const trace = (st, cote) => parseFloat(st[`border${cote}Width`]) > 0 && st[`border${cote}Style`] !== "none" && !/rgba\(0, 0, 0, 0\)|transparent/.test(st[`border${cote}Color`]);
+    document.querySelectorAll("main p, main li, main .comment-lire").forEach(p => {
+      if (!vis(p) || cache(p) || !p.textContent.trim() || p.closest("table,svg,nav,.tip")) return;
+      // bords du texte lui-même, retrait intérieur compris
+      const b = p.getBoundingClientRect(), sp = getComputedStyle(p);
+      const r = {left: b.left + parseFloat(sp.paddingLeft) + parseFloat(sp.borderLeftWidth),
+                 right: b.right - parseFloat(sp.paddingRight) - parseFloat(sp.borderRightWidth)};
+      let a = p.parentElement;
+      for (let k = 0; k < 3 && a && a !== document.body; k++, a = a.parentElement) {
+        const st = getComputedStyle(a), ra = a.getBoundingClientRect();
+        const g = trace(st, "Left") ? r.left - (ra.left + parseFloat(st.borderLeftWidth)) : 99;
+        const d = trace(st, "Right") ? (ra.right - parseFloat(st.borderRightWidth)) - r.right : 99;
+        if (g < 4 || d < 4) { n++; ex = ex || nom(p); break; }
+      }
+    });
+    if (n) sortie.defauts.push(`texte collé au bord de son cadre : ${n} bloc(s) (${ex})`);
+  }
+  // 11 ter. l'infobulle d'une carte tient entière à l'écran, son tableau compris (7 novembre 2026, atlas, médecins
+  //     spécialistes : la colonne « Écart » débordait de l'infobulle et sortait de l'écran, vu par Lucas). Survol de
+  //     douze territoires répartis sur la carte, aux deux bords compris.
+  {
+    const tip = document.getElementById("tip");
+    if (tip) {
+      const terr = [...document.querySelectorAll("svg path")].filter(e => { const r = e.getBoundingClientRect(); return r.width > 3 && r.height > 3 && r.top >= 0 && r.bottom <= innerHeight; });
+      const W = document.documentElement.clientWidth, H = innerHeight, pb = [];
+      const choix = terr.length ? Array.from({length: Math.min(12, terr.length)}, (_, k) => terr[Math.floor(k * (terr.length - 1) / Math.max(1, Math.min(12, terr.length) - 1))]) : [];
+      choix.forEach(p => {
+        const b = p.getBoundingClientRect(), o = {bubbles: true, clientX: b.x + b.width / 2, clientY: b.y + b.height / 2};
+        ["mouseover", "mouseenter", "mousemove"].forEach(t => p.dispatchEvent(new MouseEvent(t, o)));
+        if (getComputedStyle(tip).opacity === "0" || !tip.textContent.trim()) return;
+        const r = tip.getBoundingClientRect();
+        if (r.left < 0 || r.right > W + 1 || r.top < 0 || r.bottom > H + 1 || tip.scrollWidth > tip.clientWidth + 1)
+          pb.push(`${Math.round(r.left)}-${Math.round(r.right)} sur ${W} px, ${Math.round(r.top)}-${Math.round(r.bottom)} sur ${H} px`);
+        ["mouseout", "mouseleave"].forEach(t => p.dispatchEvent(new MouseEvent(t, o)));
+      });
+      if (pb.length) sortie.defauts.push(`infobulle coupée par le bord de l'écran ou par sa propre largeur : ${pb.length} survol(s), ${pb[0]}`);
+    }
+  }
   // 12. tailles du texte courant, par rôle (texte, tableaux et notes), lues par outils/controle_finition.py en papier :
   //     deux tailles au plus dans les rapports imprimés (Lucas, 6 novembre 2026)
   {

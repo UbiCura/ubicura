@@ -154,10 +154,24 @@
     });
     // noms des six communes les plus peuplées de la vue, et du lieu choisi
     vue.sort(function (a, b) { return b[3] - a[3]; });
-    var noms = vue.slice(0, 6); if (!P && noms.indexOf(com) < 0) noms.push(com);
+    var noms = vue.slice(0, 6); if (!P && noms.indexOf(com) < 0) noms.unshift(com);
+    // un nom ne chevauche jamais un autre : essayé au-dessus du point, puis au-dessous, sinon laissé de côté (le
+    // lieu choisi d'abord, puis par population). Taille des noms de la feuille de style, 17 sur téléphone, 11 sinon
+    // (contrôle de mise en page du 7 novembre 2026, Rodez, Onet-le-Château et Olemps sur téléphone)
+    var fsN = matchMedia("(max-width:640px)").matches ? 17 : 11, poses = [];
+    // la mention du rayon (« 20 km »), écrite plus bas, garde sa place
+    if (!P) { var xe = W / 2 + R * sc - 4, le = (R + " km").length * fsN * 0.6 + 6; poses.push({g: xe - le - 2, d: xe + 2, h: H / 2 - 8 - fsN, bas: H / 2 - 5}); }
     noms.forEach(function (x) {
-      var X = px(x[6]), Y = Math.max(14, py(x[7]) - 9), a = X < 90 ? "start" : X > W - 90 ? "end" : "middle";
+      var X = px(x[6]), a = X < 90 ? "start" : X > W - 90 ? "end" : "middle";
       if (a === "start") X = Math.max(X, 6); if (a === "end") X = Math.min(X, W - 6);
+      var l = x[1].length * fsN * 0.6 + 6, g = a === "start" ? X : a === "end" ? X - l : X - l / 2;
+      var essais = [Math.max(fsN + 3, py(x[7]) - 9), Math.min(H - 4, py(x[7]) + fsN + 7)], Y = null;
+      essais.forEach(function (y) {
+        if (Y !== null) return;
+        var b = {g: g - 2, d: g + l + 2, h: y - fsN, bas: y + 3};
+        if (!poses.some(function (o) { return b.g < o.d && o.g < b.d && b.h < o.bas && o.h < b.bas; })) { Y = y; poses.push(b); }
+      });
+      if (Y === null) return;
       s += '<text class="nom-com" x="' + X.toFixed(1) + '" y="' + Y.toFixed(1) + '" text-anchor="' + a + '">' + esc(x[1]) + "</text>";
     });
     if (!P) {

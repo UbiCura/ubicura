@@ -33,9 +33,9 @@ def pages_types(date: str) -> list[tuple[str, bool]]:
     def premier(motif: str) -> str | None:
         f = sorted(SITE.glob(motif))
         return f[0].relative_to(SITE).as_posix() if f else None
-    pages = [("index.html", False), ("atlas.html", False), ("explorer.html", False), ("croiser.html", False),
+    pages = [("index.html", False), ("atlas.html", False), ("atlas.html#?fam=tout&prof=ens_medecin_specialiste&niv=epci", False), ("explorer.html", False), ("croiser.html", False),
              ("comparer.html", False), ("domaines.html", False), ("liens.html", False), ("methode.html", False),
-             ("zone.html", False), ("rapports.html", False), ("journal.html", False), ("donnees-sources.html", False),
+             ("zone.html", False), ("zone.html#lieu=12202&rayon=20", False), ("rapports.html", False), ("journal.html", False), ("donnees-sources.html", False),
              ("territoires/index.html", False), ("domaine/offre-de-soins.html", False),
              ("domaine/sante-mentale.html", False), ("domaine/sante.html", False),
              (premier("domaine/[a-r]*.html") or "", False), (premier("indicateur/prof-psychiatre*.html") or "", False),
@@ -46,13 +46,15 @@ def pages_types(date: str) -> list[tuple[str, bool]]:
              (f"territoires/{date}/dep-12-sante-mentale.html", True), (f"territoires/{date}/reg-76-sante.html", True)]
     vus, out = set(), []
     for p, papier in pages:
-        if p and p not in vus and (SITE / p).exists():
+        if p and p not in vus and (SITE / p.partition("#")[0]).exists():
             vus.add(p)
             out.append((p, papier))
     return out
 
 
 def controler() -> int:
+    from pipeline.util import marquer_seance
+    marquer_seance()
     date = sorted(p.name for p in config.RESULTATS.glob("20*") if (p / "site_data.json").exists())[-1]
     pages = pages_types(date)
     exe = CF._navigateur()
@@ -87,7 +89,7 @@ def controler() -> int:
                          + ", ".join(f"{t['px']} px ({t['exemple'][:50]})" for t in tt))
         defauts += [f"{page}, {nom} : {x}" for x in d]
     for page, _ in pages:
-        defauts += [f"{page} : {x}" for x in CF.liseres((SITE / page).read_text(encoding="utf-8"))]
+        defauts += [f"{page} : {x}" for x in CF.liseres((SITE / page.partition("#")[0]).read_text(encoding="utf-8"))]
     defauts = list(dict.fromkeys(defauts))
     print(f"Contrôle de mise en page ({date}), {len(pages)} types de page, {len(taches)} vues")
     for x in defauts:

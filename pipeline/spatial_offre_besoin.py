@@ -40,7 +40,7 @@ def moran_bivarie(x: pd.Series, y: pd.Series, voisins: dict, permutations=999, r
     rng = rng or np.random.default_rng(config.GRAINE)
     n, out = len(codes), []
     for i, c in enumerate(codes):
-        vs = [pos[v] for v in voisins[c] if v in pos]
+        vs = sorted(pos[v] for v in voisins[c] if v in pos)   # ordre fixe, voir tirage()
         lag = zy[vs].mean()
         I = zx[i] * lag
         autres = np.delete(np.arange(n), i)

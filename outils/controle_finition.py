@@ -123,7 +123,7 @@ def _lancer(exe: str, url: str, largeur: int, hauteur: int, *options) -> subproc
                               capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=180)
 
 
-def _cadre(tmp: Path, largeur: int, hauteur: int, recopier: str) -> Path:
+def _cadre(tmp: Path, largeur: int, hauteur: int, recopier: str, ancre: str = "") -> Path:
     """Page qui porte la page à contrôler dans un cadre de la largeur voulue : le navigateur sans fenêtre ne descend
     pas sous 500 px environ, un cadre de 375 px donne la largeur d'un téléphone. Le bloc pre d'identifiant recopier,
     écrit dans le cadre, est recopié dans la page qui le porte, seule lue par --dump-dom."""
@@ -131,7 +131,7 @@ def _cadre(tmp: Path, largeur: int, hauteur: int, recopier: str) -> Path:
     c.write_text(
         '<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;background:#fff}'
         'iframe{border:0;display:block}</style></head><body>'
-        f'<iframe id="f" src="{tmp.name}" width="{largeur}" height="{hauteur}" scrolling="no"></iframe><script>'
+        f'<iframe id="f" src="{tmp.name}{ancre}" width="{largeur}" height="{hauteur}" scrolling="no"></iframe><script>'
         'var f=document.getElementById("f");(function attendre(){try{var e=f.contentDocument&&'
         f'f.contentDocument.getElementById("{recopier}");if(e){{var p=document.createElement("pre");p.id="{recopier}";'
         'p.hidden=true;p.textContent=e.textContent;document.body.appendChild(p);return}}catch(x){}'
@@ -143,6 +143,9 @@ def controler(site: Path, page: str, exe: str, serveur, largeur: int, hauteur: i
               suffixe: str = "") -> dict:
     """Résultat du contrôle d'une page à une largeur, lu dans la page elle-même (outils/controle_finition.js). suffixe
     distingue les fichiers temporaires de deux contrôles lancés en même temps (outils/controle_mise_en_page.py)."""
+    # une page peut porter une ancre de réglages (« atlas.html#?prof=… »), ouverte telle quelle dans le cadre
+    page, _, ancre = page.partition("#")
+    ancre = "#" + ancre if ancre else ""
     src = site / page
     tmp = src.with_name(f"_finition_{src.stem}{suffixe}.html")
     papier_css = f"_papier{suffixe}.css"
@@ -159,7 +162,7 @@ def controler(site: Path, page: str, exe: str, serveur, largeur: int, hauteur: i
     elif theme:
         html = html.replace("<head>", f"<head><script>try{{localStorage.setItem('fond','{theme}')}}catch(e){{}}</script>", 1)
     tmp.write_text(html.replace("</body>", f"<script>{script}</script></body>", 1), encoding="utf-8")
-    cadre = _cadre(tmp, largeur, hauteur, "controle-finition")
+    cadre = _cadre(tmp, largeur, hauteur, "controle-finition", ancre)
     try:
         url = f"http://127.0.0.1:{serveur.server_address[1]}/{cadre.relative_to(site).as_posix()}"
         p = _lancer(exe, url, max(largeur, 600), hauteur, "--dump-dom")

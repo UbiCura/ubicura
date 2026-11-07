@@ -107,6 +107,17 @@ try {
         $sortieM = & $python outils\messagerie.py envoyer-programmes 2>&1 | ForEach-Object { "$_" }
         foreach ($l in $sortieM) { if ($l.Trim()) { Ecrire $l } }
     }
+    # pendant une séance de travail (reconstruction rapide ou contrôle depuis moins de trois heures, donnees\seance.verrou)
+    # ou avec moins de 6 Go de mémoire libre, la tâche passe son tour : le 7 novembre 2026, elle a relancé une
+    # reconstruction complète au milieu d'une séance et d'une partie de Lucas. Les messages programmés partent quand même.
+    $seance = Join-Path $racine "donnees\seance.verrou"
+    $enSeance = (Test-Path $seance) -and (((Get-Date) - (Get-Item $seance).LastWriteTime).TotalHours -lt 3)
+    $libreGo = [math]::Round((Get-CimInstance Win32_OperatingSystem).FreePhysicalMemory / 1MB, 1)
+    if (-not $Forcer -and -not $Simuler -and ($enSeance -or $libreGo -lt 6)) {
+        if ($enSeance) { Ecrire "Séance de travail en cours (donnees\seance.verrou), la mise à jour passe son tour." }
+        else { Ecrire "Seulement $libreGo Go de mémoire libre, moins de 6 Go, la mise à jour passe son tour." }
+        exit 0
+    }
     # nouvelle version archivée sur Zenodo, constatée chaque jour (code 10), sans clé rangée rien n'est fait (code 20)
     if (-not $Simuler) {
         $sortieZ = & $python outils\zenodo.py constater --discret 2>&1 | ForEach-Object { "$_" }

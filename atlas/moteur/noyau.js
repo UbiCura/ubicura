@@ -443,7 +443,15 @@ function val(lv,p,i){
 const profLab=p=>IDX.prof.get(p)?.libelle||p;
 const modeLab={all:"tous modes",lib:"en libéral",sal:"salariés"};
 const tip=document.getElementById("tip");
+// l'infobulle prend la largeur de son tableau, jamais plus que l'écran, et réduit son texte jusqu'à 11 px seulement
+// s'il le faut pour tenir entière à l'écran (7 novembre 2026 : avec les médecins spécialistes, la colonne « Écart »
+// débordait de l'infobulle et sortait de l'écran)
+function ajusterTip(W,H){tip.style.maxWidth="";tip.style.fontSize="";tip.classList.remove("serre");
+  if(tip.scrollWidth>tip.clientWidth+1)tip.style.maxWidth=Math.min(tip.scrollWidth+4,W-16)+"px";
+  for(let fs=13;fs>=11&&(tip.scrollWidth>tip.clientWidth+1||tip.offsetHeight>H-16);fs--){tip.classList.add("serre");tip.style.fontSize=fs+"px";
+    if(tip.scrollWidth>tip.clientWidth+1)tip.style.maxWidth=Math.min(tip.scrollWidth+4,W-16)+"px"}}
 function showTip(ev,html){if(tip.parentNode!==document.body)document.body.appendChild(tip);tip.innerHTML=html;tip.style.opacity=1;
+  ajusterTip(document.documentElement.clientWidth,innerHeight);
   const w=tip.offsetWidth,h=tip.offsetHeight,W=document.documentElement.clientWidth,H=innerHeight;let x=ev.clientX+14,y=ev.clientY+14;
   if(x+w>W-8)x=ev.clientX-w-14;if(x<8)x=8;if(y+h>H-8)y=ev.clientY-h-14;if(y<8)y=8;tip.style.left=x+"px";tip.style.top=y+"px"}
 function hideTip(){document.querySelectorAll(".tip").forEach(t=>t.style.opacity=0)}

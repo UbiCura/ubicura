@@ -316,3 +316,16 @@ def detecter_separateur(ligne: str) -> str:
 def premiere_ligne(chemin: Path, encodage="utf-8-sig") -> str:
     with open(chemin, encoding=encodage, errors="replace") as f:
         return f.readline().rstrip("\r\n")
+
+
+def marquer_seance() -> None:
+    """Note qu'une séance de travail reconstruit ou contrôle le site (donnees/seance.verrou, daté). La tâche planifiée
+    (outils/mise_a_jour.ps1) passe son tour pendant trois heures après la dernière marque : le 7 novembre 2026, elle a
+    relancé une reconstruction complète au milieu d'une séance."""
+    from . import config
+    try:
+        import datetime as _dt
+        (config.DONNEES / "seance.verrou").write_text(_dt.datetime.now().isoformat("T", "seconds"), encoding="utf-8")
+    except OSError:
+        pass
+

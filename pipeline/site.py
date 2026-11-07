@@ -1616,6 +1616,8 @@ if __name__ == "__main__":
     # --pages rapports,fiches : seuls ces groupes de pages sont refaits (GROUPES), en quelques minutes
     groupes = None
     if "--pages" in sys.argv:
+        from .util import marquer_seance
+        marquer_seance()
         groupes = set(sys.argv[sys.argv.index("--pages") + 1].split(","))
         inconnus = groupes - set(GROUPES)
         if inconnus:

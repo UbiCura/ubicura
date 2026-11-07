@@ -45,6 +45,9 @@ header.top{display:flex;justify-content:space-between;align-items:flex-end;gap:2
 @media (max-width:600px){.bandeau-accueil .portes .version{margin-left:0}}
 h1{font-family:var(--serif);font-weight:500;font-size:clamp(1.625rem,2.4vw,2rem);line-height:1.1;margin:0;letter-spacing:-.01em}
 .lede{color:var(--ink);max-width:none;margin:6px 0 0;font-size:var(--t-note)}
+/* sous-titre de la page, comme sur tout le site (Lucas, 7 novembre 2026, proposition 1) : Newsreader à la taille des
+   titres d'encadré, sur sept colonnes, en lignes équilibrées, sans mot coupé */
+@media screen{header > div > .lede{font-family:var(--serif);font-size:var(--t-encadre);line-height:1.4;max-width:690px;text-wrap:balance;hyphens:none;text-align:left!important;margin:var(--e-2,8px) 0 0}}
 header.top>div{flex:1 1 100%}
 .demo{margin-top:16px;padding:10px 14px;border-left:3px solid var(--line-fort);background:none;font-size:var(--t-note);max-width:var(--mesure)}
 .btn{display:inline-block;background:var(--ink);color:var(--bg);border:0;border-radius:4px;padding:8px 14px;cursor:pointer;font-weight:500;font-size:var(--t-note)}
@@ -192,6 +195,7 @@ svg [data-choisi]{stroke:var(--ink);stroke-width:2}
 .tip th{font-weight:500;opacity:.75;white-space:normal;vertical-align:bottom}
 .tip table{max-width:100%}.tip td:first-child,.tip th:first-child{padding-left:0;text-align:left}.tip tr.on td{font-weight:600}
 .tip .tl{opacity:.85;margin-top:4px}
+.tip.serre table{font-size:inherit}
 .asavoir{max-width:var(--mesure);box-sizing:border-box;border-left:3px solid var(--accent);background:color-mix(in srgb,var(--accent) 8%,transparent);padding:7px 11px;font-size:var(--t-note);margin:10px 0 0;border-radius:0 4px 4px 0}
 .asavoir a{color:inherit}
 details.asavoir{padding:5px 11px}

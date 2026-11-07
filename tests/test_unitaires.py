@@ -544,6 +544,30 @@ def test_moran_bivarie():
     assert r.at["t01", "p"] < .05 and r["p"].min() >= 1 / 200
 
 
+def test_moran_independant_de_l_ordre_des_voisins():
+    """Les indices de Moran ne dépendent pas de l'ordre où les voisins sont donnés : un ensemble de codes se parcourt
+    dans un ordre qui change d'une exécution à l'autre, et l'arrondi de la moyenne des voisins faisait basculer une
+    égalité au millième dans offre_besoin_lisa.csv (exécutions du 6 et du 7 novembre 2026)."""
+    import numpy as np
+    import pandas as pd
+    from pipeline.analyses import moran, moran_local
+    from pipeline.spatial_offre_besoin import moran_bivarie
+    codes = [f"t{i:02d}" for i in range(60)]
+    g = np.random.default_rng(7)
+    x = pd.Series(g.normal(size=60).round(1), index=codes)   # valeurs arrondies, propices aux égalités
+    y = pd.Series(g.normal(size=60).round(1), index=codes)
+    proches = {c: [codes[j] for j in (i - 3, i - 1, i + 1, i + 2) if 0 <= j < 60] for i, c in enumerate(codes)}
+    a = {c: v for c, v in proches.items()}
+    b = {c: list(reversed(v)) for c, v in proches.items()}
+    ra = moran_bivarie(x, y, a, permutations=199, rng=np.random.default_rng(3))
+    rb = moran_bivarie(x, y, b, permutations=199, rng=np.random.default_rng(3))
+    assert ra.equals(rb)
+    la = moran_local(x, a, permutations=199, rng=np.random.default_rng(3))
+    lb = moran_local(x, b, permutations=199, rng=np.random.default_rng(3))
+    assert la.equals(lb)
+    assert moran(x, a, permutations=99, rng=np.random.default_rng(3)) == moran(x, b, permutations=99, rng=np.random.default_rng(3))
+
+
 def test_gwr():
     import numpy as np
     from pipeline.spatial_offre_besoin import gwr

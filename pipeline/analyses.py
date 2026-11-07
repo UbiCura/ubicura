@@ -211,7 +211,7 @@ def moran(valeurs: pd.Series, voisins: dict, permutations=999, rng=None):
     z = x - x.mean()
     lignes, cols = [], []
     for c in codes:
-        vs = [pos[v] for v in voisins[c] if v in pos]
+        vs = sorted(pos[v] for v in voisins[c] if v in pos)   # ordre fixe, voir tirage()
         lignes += [pos[c]] * len(vs)
         cols += vs
     lignes, cols = np.array(lignes), np.array(cols)
@@ -248,7 +248,7 @@ def moran_local(valeurs: pd.Series, voisins: dict, permutations=0, rng=None):
     rng = rng or np.random.default_rng(config.GRAINE)
     out = []
     for i, c in enumerate(codes):
-        vs = [pos[v] for v in voisins[c] if v in pos]
+        vs = sorted(pos[v] for v in voisins[c] if v in pos)   # ordre fixe, voir tirage()
         lag = z[vs].mean()
         I = z[i] * lag
         if permutations:

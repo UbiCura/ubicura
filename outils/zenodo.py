@@ -246,7 +246,8 @@ def cmd_preparer(args) -> int:
     from pipeline import site
     fichiers = site.fichiers_zenodo(version, DOSSIER / version)
     etat = lire_etat()
-    etat.update({"en_preparation": version, "brouillons": {}, "date_preparation": dt.datetime.now().isoformat("T", "seconds")})
+    etat.update({"en_preparation": version, "brouillons": {}, "date_preparation": dt.datetime.now().isoformat("T", "seconds"),
+                 "remplace": getattr(args, "remplace", None)})
     ids_donnees = {str(d["id"]) for d in z.depots() if str(d.get("conceptrecid")) == concept(DEPOTS["donnees"])}
     doi_donnees = None           # DOI de la version des données de cette version, cité par les deux rapports
     for cle, x in e.items():     # les données d'abord (ordre de DEPOTS)
@@ -327,7 +328,33 @@ def cmd_publier(args) -> int:
         for cle, b in a_publier:
             z.appel("POST", f"/deposit/depositions/{b['id']}/actions/publish")
             print(f"- {NOMS[cle]}, publié.")
+        # version corrective : la version qu'elle remplace reçoit la mention qui renvoie vers elle (règle de Lucas du
+        # 7 novembre 2026), dans le même geste que la publication
+        if etat.get("remplace"):
+            annoter_remplacee(etat["remplace"], etat["en_preparation"])
     return cmd_constater(args)
+
+
+TEXTE_REMPLACEE = "Cette version est remplacée par la version du {date}, qui la corrige : {{doi}}."
+
+
+def annoter_remplacee(ancienne: str, nouvelle: str, essais: int = 6) -> None:
+    """Mention « Version remplacée » sur la version ancienne des trois dépôts, avec le DOI de la nouvelle. Zenodo met
+    parfois quelques secondes à compter la version publiée comme la dernière : nouvel essai toutes les 10 secondes."""
+    from pipeline.lecture import date_longue
+    texte = TEXTE_REMPLACEE.format(date=date_longue(nouvelle))
+    ns = argparse.Namespace(version=ancienne, texte=texte, titre="Version remplacée", oui=True)
+    for k in range(essais):
+        try:
+            cmd_annoter(ns)
+            return
+        except Arret as e:
+            if "encore la dernière" not in str(e) or k == essais - 1:
+                print(f"La publication est faite, mais la mention « Version remplacée » n'a pas pu être ajoutée à la "
+                      f"version {ancienne} ({e}). La lancer à part : python outils\\zenodo.py annoter --version "
+                      f"{ancienne} --texte \"{texte}\" --oui")
+                return
+            time.sleep(10)
 
 
 def cmd_annoter(args) -> int:
@@ -482,6 +509,8 @@ def main() -> int:
                                   "corrige ou ajoute)")
     p.add_argument("--correctif", help="étiquette d'une version corrective publiée le jour même d'une autre, par "
                                        "exemple « version corrigée » (version 2026-10-30 (version corrigée))")
+    p.add_argument("--remplace", help="date de la version publiée que celle-ci corrige ; à la publication, elle reçoit "
+                                      "la mention « Version remplacée » qui renvoie vers la nouvelle")
     p = sous.add_parser("annoter")
     p.add_argument("--version", required=True, help="date de la version publiée à annoter")
     p.add_argument("--texte", required=True, help="mention à ajouter, {doi} donne le DOI de la dernière version")
