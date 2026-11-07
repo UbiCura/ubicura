@@ -3347,7 +3347,8 @@ def test_relecture_esthetique_fiche_resserree():
     from pipeline import affichage as AF, cartes_presentation as CP, fiche_territoire as FT, libelles
     racine = Path(__file__).resolve().parent.parent
     css = (racine / "gabarits" / "style.css").read_text(encoding="utf-8")
-    assert "--mesure:612px" in css and ".fiche table .rg.petite{width:240px" in css
+    # la colonne de lecture de 612 px est retirée : le texte va jusqu'au bord des figures (Lucas, 7 novembre 2026)
+    assert "--mesure:none" in css and ".fiche table .rg.petite{width:240px" in css
     assert re.search(r"\.fiche \.rg\.petite \.rg-hist\{top:16px;height:28px\}", css)
     assert re.search(r"\.fiche \.rg-axe\{[^}]*background:var\(--hist\)", css)
     cf = (racine / "outils" / "controle_finition.py").read_text(encoding="utf-8")
@@ -3671,7 +3672,7 @@ def test_series_distinctes_et_sans_bleu():
     sys.path.insert(0, str(R / "atlas"))
     import construire_atlas
     assert "/*JETONS*/" in construire_atlas.source() and "--action:#0E5A5A" in construire_atlas.jetons_du_site()
-    assert 'getItem("theme")||"light"' in construire_atlas.source()
+    assert 'getItem("fond")||"light"' in construire_atlas.source()   # choix du fond gardé sous un nouveau nom (7 novembre 2026)
     # l'ocre (--accent, --signal) ne marque que les limites dans l'atlas, jamais un lien, un choix ou un repère
     atlas = construire_atlas.source()
     autres = [l.strip()[:80] for l in atlas.split("\n") if ("var(--accent" in l or 'css("--accent")' in l)

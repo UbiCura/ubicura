@@ -33,3 +33,17 @@ def test_code_public_sans_mention_interdite():
                 if rx.search(ligne):
                     pb.append((f, i, quoi))
     assert not pb, pb[:10]
+
+
+def test_aucune_fonction_redefinie_dans_un_module():
+    """Deux fonctions du même nom au niveau d'un module : la seconde remplace la première sans bruit (7 novembre 2026,
+    la couleur des cartes en tiers portait le nom de la carte bivariée, qui a disparu du rapport de santé mentale)."""
+    import ast
+    import collections
+    pb = []
+    for f in sorted(list((config.RACINE / "pipeline").glob("*.py")) + list((config.RACINE / "outils").glob("*.py"))):
+        arbre = ast.parse(f.read_text(encoding="utf-8"))
+        noms = collections.Counter(n.name for n in arbre.body
+                                   if isinstance(n, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)))
+        pb += [(f.name, n) for n, k in noms.items() if k > 1]
+    assert not pb, pb

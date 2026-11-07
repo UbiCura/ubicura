@@ -117,7 +117,7 @@ main.croiser svg.fig path.terr.vide{fill:var(--nodata)}
 main.croiser .legende-carte{display:flex;gap:18px;align-items:center;flex-wrap:wrap;font-size:var(--t-note);color:var(--muted);margin-top:8px}
 main.croiser #leg-carte{margin:0 0 8px}
 main.croiser .bivar{display:grid;grid-template-columns:repeat(3,38px);grid-template-rows:repeat(3,38px);gap:2px;grid-area:g}
-main.croiser .bivar-cadre{display:inline-grid;grid-template-areas:"y g" ". x";grid-template-columns:auto 118px;gap:4px 6px;font-size:.75rem;color:var(--muted);vertical-align:middle;margin-right:12px}
+main.croiser .bivar-cadre{display:inline-grid;grid-template-areas:"y g" ". x";grid-template-columns:auto 118px;gap:4px 6px;font-size:var(--t-note);color:var(--muted);vertical-align:middle;margin-right:12px}
 main.croiser .bivar-x{grid-area:x;max-width:118px;line-height:1.25}
 main.croiser .bivar-y{grid-area:y;writing-mode:vertical-rl;transform:rotate(180deg);max-height:118px;line-height:1.25;text-align:left}
 main.croiser .bivar i{display:block;border-radius:2px}
@@ -156,7 +156,7 @@ main.croiser .garde li{margin:4px 0}
   main.croiser .reglages-tel{display:flex;gap:8px;align-items:center;justify-content:space-between;position:sticky;top:var(--haut-nav,56px);z-index:5;background:var(--bg);padding:8px 0;border-bottom:1px solid var(--line);font-size:var(--t-note)}
   main.croiser .reglages-tel button{background:none;border:0;border-bottom:1px solid var(--ink);border-radius:0;color:var(--ink);font:inherit;font-size:var(--t-note);min-height:44px;padding:0 2px;cursor:pointer;flex:none}
   main.croiser .reglages-tel span{color:var(--muted);line-height:1.3;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-  main.croiser .mesures .n{font-size:26px}
+  main.croiser .mesures .n{font-size:var(--t-encadre)}
 }
 
 main.croiser{max-width:1400px}
@@ -168,7 +168,7 @@ main.croiser .panneau[hidden]{display:none}
 main.croiser .limite{display:flex;gap:10px;align-items:baseline;font-size:var(--t-note);color:var(--muted);margin:8px 0 0;text-align:left}
 main.croiser .limite b{color:var(--signal);flex:none}
 main.croiser .discret{color:var(--muted);font-size:var(--t-note)}
-main.croiser .chapeau{max-width:62ch}
+main.croiser .chapeau{}
 main.croiser .note-escalier{font-size:var(--t-note);color:var(--muted);max-width:68ch;margin:6px 0 0;text-align:left}
 main.croiser .note-escalier[hidden]{display:none}
 main.croiser table{border-collapse:collapse;width:100%;font-size:var(--t-note);font-variant-numeric:tabular-nums}

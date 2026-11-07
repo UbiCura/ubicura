@@ -128,6 +128,13 @@ def md_html(texte: str, graphiques: Path | None, imprimer=False, donnees: dict |
     # les paragraphes « Comment lire » en encadré, comme dans l'atlas
     corps = corps.replace("<p><strong>Comment lire.</strong>", '<p class="comment-lire"><strong>Comment lire.</strong>')
     corps = corps.replace("<p><strong>À savoir.</strong>", '<p class="a-savoir"><strong>À savoir.</strong>')
+    # paragraphes de références (« Sources, … », « Source, … ») : bibliographie, jamais justifiée, comme les citations
+    # (règle 8, 7 novembre 2026)
+    corps = re.sub(r"<p>(?=Sources?[ ,:]|Ce document contient des informations issues)", '<p class="references">', corps)
+    # définitions des indicateurs de contexte (« Part des… (%). Définition. Source, … ») : un glossaire, donc une liste,
+    # alignée à gauche comme toutes les listes (Lucas, 7 novembre 2026)
+    corps = re.sub(r'(<h3 id="indicateurs-de-contexte">.*?</h3>)(.*?)(?=<h[1-6]|\Z)',
+                   lambda m: m.group(1) + m.group(2).replace("<p><strong>", '<p class="glossaire"><strong>'), corps, flags=re.S)
     corps = tableaux_larges(corps)
     if imprimer:
         corps = tableaux_etroits(coupures_fichiers(annexe_technique(a_savoir_une_fois(corps))))
@@ -305,7 +312,12 @@ def tableaux_larges(corps: str) -> str:
     def classe(m):
         entete = re.search(r"<thead>.*?</thead>", m.group(0), re.S)
         n = len(re.findall(r"<th[ >]", entete.group(0))) if entete else 0
-        return m.group(0).replace("<table>", '<table class="large">', 1) if n >= 10 else m.group(0)
+        # sept colonnes ou plus : petite taille de l'échelle à l'écran, pour tenir dans la colonne sans défiler
+        # (contrôle de mise en page du 7 novembre 2026) ; dix ou plus : imprimé en plus petit, et à l'écran il défile
+        # dans son cadre, aucun mot ne se coupant dans un tableau (règle 8)
+        if n >= 10:
+            return m.group(0).replace("<table>", '<table class="large">', 1)
+        return m.group(0).replace("<table>", '<table class="serre">', 1) if n >= 7 else m.group(0)
     return re.sub(r"<table>.*?</table>", classe, corps, flags=re.S)
 
 
@@ -394,8 +406,18 @@ def _suivi_methode() -> dict:
     f = config.RESULTATS / "historique" / "photographies" / "index.json"
     idx = json.loads(f.read_text(encoding="utf-8")) if f.exists() else []
     from .lecture import date_longue
+    # semaines sans photographie entre la première et la dernière, dites au lecteur (6 novembre 2026, semaine du
+    # 19 octobre manquée, qui ne se rattrape pas : le répertoire ne publie que sa dernière extraction)
+    import datetime as _dt
+    dates = sorted(_dt.date.fromisoformat(i["date_rpps"]) for i in idx if i.get("date_rpps"))
+    vues = {d.isocalendar()[:2] for d in dates}
+    trous, d = [], (dates[0] - _dt.timedelta(days=dates[0].weekday())) if dates else None
+    while d and d <= dates[-1]:
+        if d.isocalendar()[:2] not in vues:
+            trous.append(date_longue(d.isoformat()))
+        d += _dt.timedelta(days=7)
     return {"n": len(idx), "premiere": date_longue(idx[0]["date_rpps"]) if idx else None,
-            "derniere": date_longue(idx[-1]["date_rpps"]) if idx else None}
+            "derniere": date_longue(idx[-1]["date_rpps"]) if idx else None, "trous": trous}
 
 
 # ---------------------------------------------------------------- PDF
@@ -544,7 +566,10 @@ def mention_version(iso: str, archivee: bool | None = None) -> dict:
     quand elle a le même jour que l'archive (heure de calcul des résultats) ; texte, « version du … » ou « version de
     travail du …, postérieure à la version archivée du … »."""
     if archivee is None:
-        archivee = identique_archive(iso)
+        # une version plus ancienne que la dernière archive, archivée elle aussi sur Zenodo (son DOI est relevé), se cite
+        # par son propre DOI, et non par celui de la version suivante (7 novembre 2026 : la version du 6 novembre,
+        # gardée sur le site, aurait cité le DOI de celle du 7)
+        archivee = identique_archive(iso) or (iso < config.VERSION_ZENODO and bool(doi_version("donnees", iso)))
     posterieure = not archivee and iso >= config.VERSION_ZENODO
     texte = f"version du {date_longue(iso)}"
     if posterieure:
@@ -740,6 +765,10 @@ def _environnement() -> Environment:
     env = Environment(loader=FileSystemLoader(GABARITS), autoescape=select_autoescape(["html"]))
     env.globals.update(nom_projet=config.NOM_PROJET, sous_titre=config.SOUS_TITRE)
     env.filters["liens"] = liens
+    # filtres des nombres (« nombre », « entier »), déclarés ici pour que chaque groupe de pages les trouve, même quand
+    # les fiches ne sont pas refaites (pipeline.site --pages, 7 novembre 2026)
+    from .fiche_territoire import filtres
+    filtres(env)
     return env
 
 
@@ -867,7 +896,14 @@ def fichiers_zenodo(iso: str, cible: Path) -> dict[str, list[Path]]:
 
 
 # ---------------------------------------------------------------- construction
-def construire(pdf=True) -> Path:
+# groupes de pages que pipeline.site --pages peut refaire seuls (méthode de travail, Lucas, 6 novembre 2026)
+GROUPES = ("rapports", "territoires", "fiches", "methode", "explorer", "atlas", "portail")
+
+
+def construire(pdf=True, groupes: set | None = None) -> Path:
+    """Construit le site. groupes, les seuls groupes de pages à refaire (GROUPES), par le même chemin que la construction
+    complète ; le référencement, la règle d'affichage et les contrôles de la construction sont toujours faits. None, tout."""
+    fait = lambda g: groupes is None or g in groupes  # noqa: E731
     dates = sorted(p for p in config.RESULTATS.glob("20*") if (p / "rapport_sante_mentale.md").exists())
     # seules les versions depuis la première mise en ligne sont publiées (donnees/publication.json, écrit par
     # outils/publier.ps1), les versions de travail antérieures restent sur le PC
@@ -920,9 +956,14 @@ def construire(pdf=True) -> Path:
                        citation=citation(cle, titre, date_longue(d.name), d.name),
                        titre=f"{titre}, {date_longue(d.name)}", autre_lien=f"{autre}.html",
                        autre_titre="Lire le rapport santé" if cle == "sante-mentale" else "Lire le rapport santé mentale")
+            cible_pdf = dossier / f"{cle}.pdf"
+            if not fait("rapports"):    # rapports gardés tels quels, seule leur citation est relue pour le référencement
+                v["pdf_sm" if cle == "sante-mentale" else "pdf_sante"] = cible_pdf.exists()
+                rapports_cites[f"rapports/{d.name}/{cle}.html"] = {
+                    "cle": cle, "iso": d.name, "titre": config.TITRES_DEPOTS.get(cle, titre), "pdf": cible_pdf.exists()}
+                continue
             t, corps, sommaire = md_html(texte, d / "graphiques", donnees=(
                 {"prefixe": f"../../donnees/{d.name}/", "dossier": d} if d == dernier else None))
-            cible_pdf = dossier / f"{cle}.pdf"
             refaire = d == dernier or not cible_pdf.exists()
             # une version archivée sur Zenodo garde sur le site le PDF exact qui y est déposé (outils/zenodo.py)
             depose = config.DONNEES / "zenodo" / d.name / f"{cle}.pdf"
@@ -946,25 +987,51 @@ def construire(pdf=True) -> Path:
             rapports_cites[f"rapports/{d.name}/{cle}.html"] = {
                 "cle": cle, "iso": d.name, "titre": config.TITRES_DEPOTS.get(cle, titre), "pdf": cible_pdf.exists()}
         versions.append(v)
-    ctx = dict(commun, racine="", page="rapports", titre="Rapports nationaux")
-    (SITE / "rapports.html").write_text(rendre(env, "rapports.html",
-        ctx, versions=versions,
-        citation_donnees=citation_donnees(dernier.name),
-        citation_sm=citation("sante-mentale", "Rapport santé mentale", date_longue(dernier.name), dernier.name)["texte"],
-        citation_sante=citation("sante", "Rapport santé", date_longue(dernier.name), dernier.name)["texte"]), encoding="utf-8")
-    pages.append(SITE / "rapports.html")
-    pages += _territoires(env, commun, dernier)
+    if fait("rapports"):
+        ctx = dict(commun, racine="", page="rapports", titre="Rapports nationaux")
+        (SITE / "rapports.html").write_text(rendre(env, "rapports.html",
+            ctx, versions=versions,
+            citation_donnees=citation_donnees(dernier.name),
+            citation_sm=citation("sante-mentale", "Rapport santé mentale", date_longue(dernier.name), dernier.name)["texte"],
+            citation_sante=citation("sante", "Rapport santé", date_longue(dernier.name), dernier.name)["texte"]), encoding="utf-8")
+        pages.append(SITE / "rapports.html")
+    if fait("territoires"):
+        pages += _territoires(env, commun, dernier)
     # fiche de chaque territoire en tableau de bord, à adresse propre (présentation du 30 octobre 2026)
     from . import fiche_territoire
-    pages += fiche_territoire.construire(env, commun, dernier, site_data, SITE, config.RACINE / "docs" / "veille" / "registre_bases.csv",
+    if fait("fiches"):
+        pages += fiche_territoire.construire(env, commun, dernier, site_data, SITE, config.RACINE / "docs" / "veille" / "registre_bases.csv",
                                          config.ADRESSE_SITE, config.CITATION_AUTEUR)
 
     # données à télécharger et dictionnaire des colonnes
     # seule la dernière version des données est publiée (les précédentes iront sur Zenodo). Les fichiers de plus
     # de 2 Mo sont compressés en zip, et une archive réunit tous les fichiers de la version.
+    ddir = SITE / "donnees" / dernier.name
+    tout = ddir / f"donnees_{dernier.name}.zip"
+    fiches_sources = donnees_sources(dernier, site_data)
+    if fait("methode"):
+        construire_methode(env, commun, dernier, site_data, ddir, pages, fiches_sources)
+    if fait("explorer"):
+        construire_explorer(env, commun, dernier, site_data, pages)
+    if fait("atlas"):
+        construire_atlas_site(env, commun, dernier)
+    if PRESENTATION["accueil"] == "portail":
+        if fait("portail"):
+            # nouvel accueil en première page, recherche, domaines et fiches (présentation du 30 octobre 2026)
+            from . import portail
+            pages += portail.construire(env, commun, dernier, site_data, SITE, GABARITS,
+                                        config.RACINE / "docs" / "veille" / "registre_bases.csv")
+    else:
+        (SITE / "atlas.html").write_text(ATLAS_REDIRECTION, encoding="utf-8")
+    finir(env, commun, dernier, site_data, pages, rapports_cites, tout, fiches_sources, exe, fait("rapports"),
+          len(versions), rapide=groupes is not None)
+    return SITE
+
+
+def construire_methode(env, commun, dernier, site_data, ddir, pages, fiches_sources):
+    """Données à télécharger, dictionnaire, pages de méthode, à propos, à venir, données sources, journal, publications."""
     if (SITE / "donnees").exists():
         shutil.rmtree(SITE / "donnees")
-    ddir = SITE / "donnees" / dernier.name
     ddir.mkdir(parents=True, exist_ok=True)
     import zipfile
     tout = archive_donnees(dernier, ddir / f"donnees_{dernier.name}.zip")
@@ -1066,6 +1133,24 @@ def construire(pdf=True) -> Path:
                 ctx, corps=f"<h1>{titre}</h1>" + corps), encoding="utf-8")
             pages.append(SITE / sortie)
 
+    # données sources, une fiche par jeu
+    ctx = dict(commun, racine="", page="sources", titre="Données sources")
+    (SITE / "donnees-sources.html").write_text(rendre(env, "donnees_sources.html",
+        ctx, fiches=fiches_sources), encoding="utf-8")
+    pages.append(SITE / "donnees-sources.html")
+
+    # journal des mises à jour (jeux de données modifiés, effectifs nationaux, nouveautés du site)
+    ctx = dict(commun, racine="", page="journal", titre="Journal des mises à jour")
+    (SITE / "journal.html").write_text(rendre(env, "journal.html", ctx, **journal_page()), encoding="utf-8")
+    pages.append(SITE / "journal.html")
+
+    ctx = dict(commun, racine="", page="publications", titre="Publications", contact=config.CONTACT)
+    (SITE / "publications.html").write_text(rendre(env, "publications.html", ctx), encoding="utf-8")
+
+
+
+def construire_explorer(env, commun, dernier, site_data, pages):
+    """Page Explorer, ses données et ses outils."""
     # explorer les données (décision de Lucas du 26 octobre 2026), analyses réglées par le lecteur
     from . import explorer
     if explorer.ecrire(dernier, SITE, site_data):
@@ -1083,21 +1168,9 @@ def construire(pdf=True) -> Path:
                                             encoding="utf-8")
         pages.append(SITE / "explorer.html")
 
-    # données sources, une fiche par jeu
-    ctx = dict(commun, racine="", page="sources", titre="Données sources")
-    fiches_sources = donnees_sources(dernier, site_data)
-    (SITE / "donnees-sources.html").write_text(rendre(env, "donnees_sources.html",
-        ctx, fiches=fiches_sources), encoding="utf-8")
-    pages.append(SITE / "donnees-sources.html")
 
-    # journal des mises à jour (jeux de données modifiés, effectifs nationaux, nouveautés du site)
-    ctx = dict(commun, racine="", page="journal", titre="Journal des mises à jour")
-    (SITE / "journal.html").write_text(rendre(env, "journal.html", ctx, **journal_page()), encoding="utf-8")
-    pages.append(SITE / "journal.html")
-
-    ctx = dict(commun, racine="", page="publications", titre="Publications", contact=config.CONTACT)
-    (SITE / "publications.html").write_text(rendre(env, "publications.html", ctx), encoding="utf-8")
-
+def construire_atlas_site(env, commun, dernier):
+    """Atlas, sous l'en-tête commun, et contours des secteurs de psychiatrie."""
     # l'atlas est la première page du site (décisions de Lucas du 28 octobre 2026, la page d'accueil précédente n'était
     # « pas très pro », puis une seule page plutôt qu'un accueil et un atlas presque identiques), sous un en-tête
     # purement typographique ; atlas.html renvoie vers index.html pour les liens déjà partagés, gabarits/accueil.html
@@ -1128,26 +1201,29 @@ def construire(pdf=True) -> Path:
     # contours des secteurs de psychiatrie, chargés par le plan de l'atlas à la demande (29 octobre 2026)
     if (dernier / "secteurs_psychiatrie.geojson").exists():
         shutil.copy(dernier / "secteurs_psychiatrie.geojson", SITE / "secteurs_psychiatrie.geojson")
-    if PRESENTATION["accueil"] == "portail":
-        # nouvel accueil en première page, recherche, domaines et fiches (présentation du 30 octobre 2026)
-        from . import portail
-        pages += portail.construire(env, commun, dernier, site_data, SITE, GABARITS,
-                                    config.RACINE / "docs" / "veille" / "registre_bases.csv")
-    else:
-        (SITE / "atlas.html").write_text(
-            '<!doctype html>\n<html lang="fr"><head><meta charset="utf-8">'
-            '<meta name="viewport" content="width=device-width, initial-scale=1">'
-            f'<title>Atlas de l’offre de soins · {config.NOM_PROJET}</title>'
-            '<link rel="canonical" href="index.html"><meta http-equiv="refresh" content="0; url=index.html">'
-            '<script>location.replace("index.html" + location.search + location.hash)</script>'
-            '<style>body{font-family:system-ui,sans-serif;background:#F4F4F1;color:#1C2028;padding:40px}a{color:#0E5A5A}</style>'
-            '</head><body><p>L’atlas de l’offre de soins est désormais la première page du site. '
-            '<a href="index.html">Ouvrir l’atlas</a>.</p></body></html>\n', encoding="utf-8")
 
+
+# page qui renvoie l'ancienne adresse de l'atlas vers l'accueil, quand l'atlas est la première page
+ATLAS_REDIRECTION = ('<!doctype html>' + chr(10) + '<html lang="fr"><head><meta charset="utf-8">'
+                     '<meta name="viewport" content="width=device-width, initial-scale=1">'
+                     f'<title>Atlas de l’offre de soins · {config.NOM_PROJET}</title>'
+                     '<link rel="canonical" href="index.html"><meta http-equiv="refresh" content="0; url=index.html">'
+                     '<script>location.replace("index.html" + location.search + location.hash)</script>'
+                     '<style>body{font-family:system-ui,sans-serif;background:#F4F4F1;color:#1C2028;padding:40px}a{color:#0E5A5A}</style>'
+                     '</head><body><p>L’atlas de l’offre de soins est désormais la première page du site. '
+                     '<a href="index.html">Ouvrir l’atlas</a>.</p></body></html>' + chr(10))
+
+
+def finir(env, commun, dernier, site_data, pages, rapports_cites, tout, fiches_sources, exe, rapports_faits,
+          nb_versions, rapide=False):
+    """Règle d'affichage, référencement, identifiant Bluesky, contrôles du langage et des PDF, planche de style :
+    toujours faits, que la construction soit complète ou limitée à quelques groupes de pages."""
     # règle d'affichage des chiffres (plan de reprise de la présentation, étape 1, 30 octobre 2026) : même valeur, même
     # repère et même statut sur toutes les pages et dans les CSV, aucune chaîne de maquette, une seule date par source,
     # aucun « 0 » sans statut, catalogue complet. Un écart arrête la construction.
-    if PRESENTATION["accueil"] == "portail":
+    # une reconstruction de quelques pages la laisse au contrôle complet d'avant publication (outils/controle_decisions.py,
+    # qui la refait sur tout le site) : elle prend huit minutes, l'essai d'une correction une ou deux
+    if PRESENTATION["accueil"] == "portail" and not rapide:
         from . import controle_affichage
         for niveau, texte in controle_affichage.bloquer(SITE, dernier, site_data):
             if niveau == "à regarder":
@@ -1173,7 +1249,7 @@ def construire(pdf=True) -> Path:
         log.warning("terme à proscrire dans le site : %s", x)
     JOURNAL.controle("Site, termes à proscrire dans les pages", "aucun" if not pb else f"{len(pb)} occurrence(s)")
     # mise en page des PDF de la dernière version, aucun titre seul en bas de page (outils/controle_pdf.py)
-    if exe:
+    if exe and rapports_faits:
         sys.path.insert(0, str(config.RACINE / "outils"))
         import controle_pdf  # noqa: E402
         pb_pdf = [x for f in sorted((SITE / "rapports" / dernier.name).glob("*.pdf")) if f.with_suffix(".html").exists()
@@ -1191,8 +1267,7 @@ def construire(pdf=True) -> Path:
     except Exception as e:  # noqa: BLE001
         JOURNAL.note("Planche de style", "erreur", f"{e.__class__.__name__}: {e}"[:200])
     nb_pdf = len(list((SITE / "rapports").glob("*/*.pdf")))
-    JOURNAL.note("Site statique", "ok", f"{len(versions)} version(s) des rapports, {nb_pdf} PDF, dossier {SITE}")
-    return SITE
+    JOURNAL.note("Site statique", "ok", f"{nb_versions} version(s) des rapports, {nb_pdf} PDF, dossier {SITE}")
 
 
 def _territoires(env, commun, dernier) -> list[Path]:
@@ -1538,4 +1613,11 @@ def _concordance(dossier):
 if __name__ == "__main__":
     import logging
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)-7s %(message)s")
-    print(construire(pdf="--sans-pdf" not in sys.argv))
+    # --pages rapports,fiches : seuls ces groupes de pages sont refaits (GROUPES), en quelques minutes
+    groupes = None
+    if "--pages" in sys.argv:
+        groupes = set(sys.argv[sys.argv.index("--pages") + 1].split(","))
+        inconnus = groupes - set(GROUPES)
+        if inconnus:
+            sys.exit(f"groupes inconnus {sorted(inconnus)}, groupes possibles {', '.join(GROUPES)}")
+    print(construire(pdf="--sans-pdf" not in sys.argv, groupes=groupes))

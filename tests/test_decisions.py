@@ -232,6 +232,10 @@ def test_rapports_non_archives_ne_se_disent_pas_archives():
                                  "2026-11-06")
     if not site.mention_version("2026-11-06")["archivee"]:
         assert "ersion de travail" in t["texte"]
+    else:
+        # une version archivée se cite par son propre DOI, jamais par celui d'une autre version (7 novembre 2026)
+        propre = site.doi_version("sante-mentale", "2026-11-06")
+        assert propre and propre in c["texte"], c["texte"]
 
 
 def test_evolutions_drees_avec_les_arrondis_des_pages():

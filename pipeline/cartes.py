@@ -430,10 +430,16 @@ def carte(geoms: dict, rapports: dict, etiquettes: dict, titre: str, largeur=560
 def _legende(el, x, y, largeur, hasard=False):
     """Légende des classes, sur une ou deux lignes selon la largeur. hasard, la classe du milieu reçoit aussi les
     écarts qui peuvent tenir au hasard (au_hasard)."""
+    fs = taille_role("petit", largeur + 16)
+    libs = [GRIS_HASARD if hasard and i == GRIS else lab for i, (_b, _c, lab) in enumerate(CLASSES)]
+    # autant de colonnes que la largeur en laisse au plus long libellé, jamais un libellé qui chevauche le suivant
+    # (remarque de Lucas du 6 novembre 2026 sur les PDF, « … peut tenir au hasard » sous la classe voisine)
     colonnes = 2 if largeur < 700 else 3
-    pas, fs = largeur / colonnes, taille_role("petit", largeur + 16)
-    for i, (_b, c, lab) in enumerate(CLASSES):
-        lab = GRIS_HASARD if hasard and i == GRIS else lab
+    while colonnes > 1 and 20 + max(len(t) for t in libs) * fs * .56 + 12 > largeur / colonnes:
+        colonnes -= 1
+    pas = largeur / colonnes
+    for i, (_b, c, _lab) in enumerate(CLASSES):
+        lab = libs[i]
         xx, yy = x + (i % colonnes) * pas, y + (i // colonnes) * 20
         el.append(f'<rect x="{xx:.0f}" y="{yy}" width="14" height="12" fill="{c}" stroke="{LIGNE}"/>')
         el.append(f'<text x="{xx + 20:.0f}" y="{yy + 10}" font-size="{fs}" fill="{DISCRET}">{escape(lab)}</text>')
@@ -861,9 +867,12 @@ def unites(part: float, titre: str, phrase: str, largeur=520) -> str:
     pas, r = 24, 8
     el = [f'<text x="0" y="16" font-size="{taille_role("titre", largeur)}" font-weight="600" fill="{ENCRE}">'
           f'{escape(phrase)}</text>']
+    # la phrase se lit aussi au survol de chaque personne (tout chiffre d'une figure en infobulle, 6 novembre 2026)
+    el.append(f"<g><title>{escape(phrase)}</title>")
     for i in range(100):
         x, y = 12 + (i % 20) * pas, 40 + (i // 20) * (pas + 8)
         c = VIOLET[1] if i < k else LIGNE  # canard, l'ocre est réservé au signal « ! »
         el.append(f'<circle cx="{x}" cy="{y}" r="{r * .55:.1f}" fill="{c}"/>'
                   f'<path d="M{x - r},{y + r + 7} Q{x},{y + 2} {x + r},{y + r + 7} Z" fill="{c}"/>')
+    el.append("</g>")
     return _svg(largeur, 40 + 5 * (pas + 8) + 4, titre, el)

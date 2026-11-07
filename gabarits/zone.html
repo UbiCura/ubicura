@@ -8,7 +8,7 @@
 main.zone{max-width:var(--largeur-page)}
 main.zone [hidden]{display:none!important}
 main.zone h1{border:0;padding:0}
-main.zone .chapeau{max-width:64ch}
+
 main.zone .cherche{position:relative;max-width:40rem;margin-top:14px}
 main.zone .cherche label{display:block;font-size:.875rem;color:var(--muted);margin-bottom:6px;text-align:left}
 main.zone .cherche input{width:100%;min-height:48px;padding:0 14px;font:inherit;font-size:1.0625rem;background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:4px}
@@ -16,12 +16,12 @@ main.zone .suggestions{list-style:none;margin:4px 0 0;padding:4px;position:absol
 main.zone .suggestions li{margin:0}
 main.zone .suggestions a{display:flex;flex-wrap:wrap;gap:2px 8px;align-items:baseline;padding:10px;border-radius:4px;min-height:44px;color:var(--ink);text-decoration:none;text-align:left}
 main.zone .suggestions a:hover{background:var(--nodata)}
-main.zone .suggestions span{font-size:.8125rem;color:var(--muted)}
+main.zone .suggestions span{font-size:var(--t-note);color:var(--muted)}
 main.zone .cherche-msg{min-height:1.5em;margin:8px 0 0;font-size:.875rem;color:var(--muted);text-align:left}
-main.zone .reglages{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;margin:16px 0 0;font-size:.9375rem}
+main.zone .reglages{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;margin:16px 0 0;font-size:var(--t-note)}
 main.zone .grp{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
 main.zone .grp > span{color:var(--muted);margin-right:4px}
-main.zone .grp button{min-height:44px;padding:0 13px;background:none;border:1px solid var(--line);border-radius:4px;color:var(--ink);font:inherit;font-size:.9375rem;cursor:pointer}
+main.zone .grp button{min-height:44px;padding:0 13px;background:none;border:1px solid var(--line);border-radius:4px;color:var(--ink);font:inherit;font-size:var(--t-note);cursor:pointer}
 main.zone .grp button[aria-pressed="true"]{border-color:var(--r4);color:var(--r4);font-weight:600}
 main.zone .grp button[disabled]{color:var(--muted);cursor:not-allowed;border-style:dashed}
 main.zone .perim{margin:14px 0 0}
@@ -40,7 +40,7 @@ main.zone .barre strong{font-weight:600}
 main.zone .barre .outils-z{display:flex;flex-wrap:nowrap}
 main.zone .barre .outils-z button{background:none;border:0;border-bottom:1px solid var(--line);color:var(--ink);font:inherit;font-size:.875rem;min-height:40px;padding:0 8px;cursor:pointer}
 main.zone .barre .outils-z button[aria-expanded="true"],main.zone .barre .outils-z button:hover{border-bottom-color:var(--accent)}
-main.zone .panneau{margin:10px 12px 0;background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:12px 14px;font-size:.9375rem;text-align:left}
+main.zone .panneau{margin:10px 12px 0;background:var(--bg);border:1px solid var(--line);border-radius:4px;padding:12px 14px;font-size:var(--t-note);text-align:left}
 main.zone .panneau[hidden]{display:none}
 main.zone .panneau button{background:none;border:0;border-bottom:1px solid var(--line);color:var(--ink);font:inherit;font-size:.875rem;min-height:40px;padding:0 6px;margin-right:6px;cursor:pointer}
 main.zone .panneau .cit{overflow-wrap:anywhere;margin:0 0 8px}
@@ -55,19 +55,19 @@ main.zone #zc .st{stroke:var(--panel);stroke-width:1}
 main.zone #zc .st.c{fill:var(--r4)}main.zone #zc .st.v{fill:var(--panel);stroke:var(--r4);stroke-width:2}main.zone #zc .st.o{fill:var(--muted);stroke:var(--panel)}
 main.zone #zc .st.hors{opacity:.3}
 main.zone #zc .echelle{fill:var(--muted);font:12px var(--sans)}
-main.zone .leg-z{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.8125rem;color:var(--muted);margin:0;padding:4px 14px 12px}
+main.zone .leg-z{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:var(--t-note);color:var(--muted);margin:0;padding:4px 14px 12px}
 main.zone .leg-z i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle}
 main.zone .chiffres-z{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 28px;margin:0 0 18px}
 main.zone .chiffres-z .n{font-family:var(--serif);font-size:2.125rem;line-height:1;color:var(--r4);font-variant-numeric:tabular-nums}
 main.zone .chiffres-z p{margin:6px 0 0;font-size:.875rem;text-align:left}
 main.zone h2.dans{font-size:1.375rem;margin:0 0 12px;padding:0;border:0}
 main.zone .defile-z{overflow-x:auto}
-main.zone table.zs{width:100%;font-size:.9375rem;margin:0}
-main.zone table.zs caption{text-align:left;font-family:var(--serif);font-size:1.125rem;padding-bottom:6px}
+main.zone table.zs{width:100%;font-size:var(--t-note);margin:0}
+main.zone table.zs caption{text-align:left;font-family:var(--serif);font-size:var(--t-texte);padding-bottom:6px}
 main.zone table.zs th,main.zone table.zs td{text-align:left;vertical-align:top}
 main.zone table.zs .v{padding-left:16px;text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
 main.zone table.zs thead .v{white-space:normal;min-width:5.5rem}
-main.zone table.zs td .c{display:block;font-size:.75rem;color:var(--muted)}
+main.zone table.zs td .c{display:block;font-size:var(--t-note);color:var(--muted)}
 main.zone table.zs tr.groupe th{font-family:var(--serif);font-weight:500;font-size:1rem;padding-top:14px}
 main.zone .sig{color:var(--signal);font-weight:700;margin-left:4px;cursor:help}
 main.zone .limite{display:flex;gap:10px;align-items:baseline;font-size:.875rem;color:var(--muted);margin:10px 0 0;text-align:left}
@@ -140,7 +140,7 @@ main.zone .perim-n button{background:none;border:0;border-bottom:1px solid var(-
     <p class="discret" id="vers-fiche" style="margin-top:12px"></p>
   </section>
 </div>
-<p class="discret" style="margin-top:18px;max-width:52rem">Les structures viennent du répertoire FINESS et du répertoire opérationnel des ressources (ROR), réunis et dédoublonnés, chacune placée dans la commune où elle reçoit ses patients. Les habitants sont ceux des populations légales reprises par le référentiel des communes. Version du {{ date_longue }}, méthode et limites sur la page <a href="methode.html">Méthode, données et limites</a>.</p>
+<p class="discret" style="margin-top:18px">Les structures viennent du répertoire FINESS et du répertoire opérationnel des ressources (ROR), réunis et dédoublonnés, chacune placée dans la commune où elle reçoit ses patients. Les habitants sont ceux des populations légales reprises par le référentiel des communes. Version du {{ date_longue }}, méthode et limites sur la page <a href="methode.html">Méthode, données et limites</a>.</p>
 <script src="presentation/zone_donnees.js"></script>
 <script src="presentation/chiffres.js"></script>
 <script src="presentation/recherche.js"></script>

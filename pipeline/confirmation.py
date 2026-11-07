@@ -234,6 +234,8 @@ def confirmer(lieux: pd.DataFrame, has: dict | None, sir: dict | None,
         n = niv.value_counts()
         lib = {t[0]: t[1] for t in config.LIEUX_TYPES}[tid]
         JOURNAL.controle(f"Confirmation des structures, {lib}",
-                         f"{len(g)} structures, " + ", ".join(f"{NIVEAUX[k]} {int(n.get(k, 0))}" for k in NIVEAUX)
-                         + f", établissements Sirene actifs sans correspondant {sum(1 for s_ in sans if s_['type'] == tid)}")
+                         # « : aucune » plutôt qu'un 0 collé au libellé (« de l'établissement 0 », 6 novembre 2026)
+                         f"{len(g)} structures, " + ", ".join(f"{NIVEAUX[k]} : {int(n.get(k, 0)) or 'aucune'}" for k in NIVEAUX)
+                         + f", établissements Sirene actifs sans correspondant : "
+                           f"{sum(1 for s_ in sans if s_['type'] == tid) or 'aucun'}")
     return x, pd.DataFrame(sans, columns=["type", "ej", "siret", "enseigne", "adresse", "commune", "date_creation"])

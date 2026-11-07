@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block contenu %}
 <h1>{{ titre_rapport }}</h1>
-<p class="chapeau">Version du {{ date_longue }}.
+<p class="chapeau version">Version du {{ date_longue }}.
 <button type="button" class="pas-imprime bouton-lien" onclick="window.print()">Enregistrer en PDF</button>.
 <a class="pas-imprime" href="{{ autre_lien }}">{{ autre_titre }}</a>.
 {% if lien_region %}<a class="pas-imprime" href="{{ lien_region }}">Rapport de la région</a>.{% endif %}

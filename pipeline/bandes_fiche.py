@@ -274,14 +274,14 @@ def tableau_de_bord(ctx: dict) -> list[dict]:
     return sections
 
 
-def carte_france(F, lv: str, code: str, vals: dict, bornes: list, cadre: tuple, titre: str) -> str:
+def carte_france(F, lv: str, code: str, vals: dict, bornes: list, cadre: tuple, titre: str, valeur=None) -> str:
     """Carte de bloc d'un département d'outre-mer : toute la France et ses encarts, faute de voisins à son niveau ; son
     encart, petit à cette échelle, est entouré d'un cercle qui le fait trouver."""
     bx = F.boite(lv, code)
     r = max(bx[2] - bx[0], bx[3] - bx[1]) / 2 + (cadre[2] - cadre[0]) / 40
     cercle = (f'<circle cx="{(bx[0] + bx[2]) / 2:.1f}" cy="{(bx[1] + bx[3]) / 2:.1f}" r="{r:.1f}" fill="none" '
               'stroke="var(--choisi, #1C2028)" stroke-width="2" vector-effect="non-scaling-stroke" class="reperage-encart"/>')
-    return CP.mini_carte(F, lv, code, vals, bornes, cadre, titre).replace("</svg>", cercle + "</svg>")
+    return CP.mini_carte(F, lv, code, vals, bornes, cadre, titre, valeur=valeur).replace("</svg>", cercle + "</svg>")
 
 
 def carte_region(F, code: str, deps: list, vals: dict, bornes: list, genre: str, noms: dict) -> dict:

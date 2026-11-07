@@ -12,7 +12,7 @@
   const sortie = { tailles: [], defauts: [], defilements: [], couleurs: [] };
   try { if (document.fonts) await document.fonts.ready; } catch (e) {}
   await new Promise(r => setTimeout(r, 400));
-  for (let i = 0; i < 80 && window.cesure && document.documentElement.dataset.cesure !== "prete"; i++) await new Promise(r => setTimeout(r, 100));
+  for (let i = 0; i < 300 && window.cesure && document.documentElement.dataset.cesure !== "prete"; i++) await new Promise(r => setTimeout(r, 100));
   const vis = el => {
     if (el.checkVisibility && !el.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true })) return false;
     const s = getComputedStyle(el); if (s.visibility === "hidden" || s.display === "none" || +s.opacity === 0) return false;
@@ -31,7 +31,18 @@
     const t = Math.round(parseFloat(getComputedStyle(p).fontSize));
     if (!tailles.has(t)) tailles.set(t, nom(p));
     const rg = document.createRange(); rg.selectNodeContents(n);
-    for (const r of rg.getClientRects()) if (r.width > 2 && r.height > 2) feuilles.push({ r, p, t: n.textContent.replace(/­/g, "").trim().slice(0, 30) });
+    // le texte qu'un cadre cache (résumé coupé à deux lignes, overflow hidden) n'est pas lu : seules les lignes visibles
+    // comptent (7 novembre 2026, résumés repliés de l'atlas)
+    let clip = null;
+    for (let e = p; e && e !== document.body; e = e.parentElement) {
+      const s = getComputedStyle(e);
+      if (/hidden|clip/.test(s.overflowY) || (s.webkitLineClamp && s.webkitLineClamp !== "none")) { clip = e.getBoundingClientRect(); break; }
+    }
+    for (const r of rg.getClientRects()) {
+      if (r.width <= 2 || r.height <= 2) continue;
+      if (clip && (r.top >= clip.bottom - 1 || r.bottom <= clip.top + 1)) continue;
+      feuilles.push({ r, p, t: n.textContent.replace(/­/g, "").trim().slice(0, 30) });
+    }
   }
   sortie.tailles = [...tailles.entries()].sort((a, b) => a[0] - b[0]).map(([t, ex]) => ({ px: t, exemple: ex }));
 
@@ -40,7 +51,8 @@
     if (!vis(el) || el.closest("svg") || cache(el)) return;
     const s = getComputedStyle(el);
     if (el.scrollWidth > el.clientWidth + 1 && /hidden|clip/.test(s.overflowX) && s.textOverflow !== "ellipsis") sortie.defauts.push("coupé en largeur " + nom(el));
-    if (el.scrollHeight > el.clientHeight + 1 && /hidden|clip/.test(s.overflowY) && el.clientHeight > 0) sortie.defauts.push("coupé en hauteur " + nom(el));
+    // un résumé coupé à dessein (line-clamp, points de suspension) n'est pas un texte coupé
+    if (el.scrollHeight > el.clientHeight + 1 && /hidden|clip/.test(s.overflowY) && el.clientHeight > 0 && !(s.webkitLineClamp && s.webkitLineClamp !== "none")) sortie.defauts.push("coupé en hauteur " + nom(el));
     if (el.scrollWidth > el.clientWidth + 1 && /auto|scroll/.test(s.overflowX) && el.tagName !== "BODY" && el.tagName !== "HTML") sortie.defilements.push(nom(el));
   });
   if (document.documentElement.scrollWidth > innerWidth + 1) sortie.defauts.push("la page défile en largeur : " + document.documentElement.scrollWidth + " px pour " + innerWidth);
@@ -224,6 +236,57 @@
     const t = c.innerText.replace(/\s+/g, " ").trim();
     if (/^mais /i.test(t)) sortie.defauts.push("cellule qui commence par « mais » « " + t.slice(0, 50) + " »");
   });
+  // 11. bord droit (règle 8, Lucas, 6 novembre 2026) : un paragraphe large s'arrête au même bord droit que la figure,
+  //     le tableau ou l'encadré de sa colonne, à 8 px près. Un seul défaut par page, avec le compte et un exemple.
+  {
+    const blocs = "figure,table,.encadre,.defile,.graphique";
+    let n = 0, ex = "", ecart = 0;
+    const parents = new Set([...document.querySelectorAll("main " + blocs.split(",").join(",main "))].filter(vis).map(f => f.parentElement));
+    parents.forEach(par => {
+      const figs = [...par.children].filter(e => e.matches(blocs) && vis(e) && !cache(e));
+      if (!figs.length) return;
+      const bord = Math.max(...figs.map(f => f.getBoundingClientRect().right));
+      // le sous-titre des pages est sur les sept colonnes de la grille (Lucas, 7 novembre 2026, proposition 1)
+      [...par.children].filter(e => e.matches("p,ul,ol,.comment-lire,.source,.note") && !e.matches(".chapeau:not(.version)") && vis(e) && !cache(e)).forEach(p => {
+        const r = p.getBoundingClientRect();
+        if (r.width < 300) return;                       // une phrase courte ou une colonne étroite n'est pas mesurée
+        const d = bord - r.right;
+        if (d > 8) { n++; if (d > ecart) { ecart = d; ex = nom(p); } }
+      });
+    });
+    if (n) sortie.defauts.push(`bord droit : ${n} paragraphe(s) qui s'arrêtent avant la figure de leur colonne, jusqu'à ${Math.round(ecart)} px (${ex})`);
+  }
+  // 11 bis. pas de colonne de lecture étroite (Lucas, 7 novembre 2026, capture A) : un texte courant d'une colonne large
+  //     n'est pas bridé par une largeur maximale qui l'arrête avant le bord de sa colonne, même sans figure à côté
+  //     (7 novembre 2026, chapeaux des pages de domaine bridés à 64 caractères, vus par Lucas)
+  {
+    let n = 0, ex = "", ecart = 0;
+    document.querySelectorAll("main p,main ul,main ol,main .comment-lire,main .source,main .note").forEach(p => {
+      // le sous-titre des pages est sur les sept colonnes de la grille (Lucas, 7 novembre 2026, proposition 1)
+      if (!vis(p) || cache(p) || p.matches(".chapeau") || getComputedStyle(p).maxWidth === "none") return;
+      const par = p.parentElement, sp = getComputedStyle(par), rp = par.getBoundingClientRect();
+      const droite = rp.right - parseFloat(sp.paddingRight) - parseFloat(sp.borderRightWidth);
+      const largeur = droite - rp.left - parseFloat(sp.paddingLeft) - parseFloat(sp.borderLeftWidth);
+      const r = p.getBoundingClientRect();
+      if (largeur < 560 || r.width < 300) return;     // colonne étroite ou phrase courte, laissée à sa mise en page
+      // une phrase d'une seule ligne (ligne de version d'un rapport) ne bute pas sur sa largeur maximale
+      if (r.height < 1.8 * (parseFloat(getComputedStyle(p).lineHeight) || 24)) return;
+      const d = droite - r.right;
+      if (d > 8) { n++; if (d > ecart) { ecart = d; ex = nom(p); } }
+    });
+    if (n) sortie.defauts.push(`colonne étroite : ${n} texte(s) bridés avant le bord de leur colonne, jusqu'à ${Math.round(ecart)} px (${ex})`);
+  }
+  // 12. tailles du texte courant, par rôle (texte, tableaux et notes), lues par outils/controle_finition.py en papier :
+  //     deux tailles au plus dans les rapports imprimés (Lucas, 6 novembre 2026)
+  {
+    const role = {};
+    document.querySelectorAll("main p, main li, main dd, main td, main th, main figcaption, main .source, main .note").forEach(e => {
+      if (!vis(e) || cache(e) || e.closest("svg,nav,header,footer,.sommaire,.couverture") || !e.textContent.trim()) return;
+      const t = Math.round(parseFloat(getComputedStyle(e).fontSize) * 10) / 10;
+      role[t] = role[t] || nom(e);
+    });
+    sortie.tailles_texte = Object.entries(role).map(([px, exemple]) => ({ px: +px, exemple })).sort((a, b) => a.px - b.px);
+  }
   sortie.defauts = [...new Set(sortie.defauts)].slice(0, 60);
   sortie.defilements = [...new Set(sortie.defilements)].slice(0, 20);
   const pre = document.createElement("pre"); pre.id = "controle-finition"; pre.hidden = true;

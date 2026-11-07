@@ -13,6 +13,7 @@ dans resultats/AAAA-MM-JJ/territoires/, leurs figures dans territoires/graphique
 from __future__ import annotations
 
 import bisect
+import html
 import json
 
 import numpy as np
@@ -20,6 +21,7 @@ import pandas as pd
 from scipy import stats
 
 from . import affichage as AF, cartes, config, indicateurs, limites, rapport_bases
+from . import libelles as L_
 from .analyses import tables, temps_montres
 from .lecture import de, nombre, pct, pluriel, un_pour
 from .rapport import (EQ_PHRASE, MENTION_ODBL, PRINCIPALES, SANTE, SM, Contexte, _comment_lire, _liste,
@@ -1474,12 +1476,15 @@ def _lieux(B, T, famille):
         g = x[x["type"] == tid]
         if fam != famille or g.empty:
             continue
-        noms = sorted(f"{n.replace(';', ',')} ({B.noms['com'].get(c, c)})"
+        # raisons sociales en casse de titre, comme sur les fiches (« Agence départementale Agde », et non en capitales,
+        # 7 novembre 2026) ; liste de noms alignée à gauche, jamais justifiée, comme les adresses (règle 8)
+        noms = sorted(f"{html.escape(L_.casse_titre(n).replace(';', ','))} ({html.escape(B.noms['com'].get(c, c))})"
                       for n, c in zip(g["nom_affiche"].fillna(""), g["commune"]))
         # point-virgule entre les structures, leurs noms contiennent souvent des virgules
-        liste.append(f"- **{lib}** ({nombre(len(g))}). " + "; ".join(noms) + ".")
+        liste.append(f"<li><strong>{html.escape(lib)}</strong> ({nombre(len(g))}). " + "; ".join(noms) + ".</li>")
     if liste:
-        out += ["<details>", "<summary>Liste des structures</summary>", ""] + liste + ["", "</details>", ""]
+        out += ["<details>", "<summary>Liste des structures</summary>", "", '<ul class="liste-noms">'] + liste + ["</ul>", "",
+                "</details>", ""]
     return out
 
 

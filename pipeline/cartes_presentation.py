@@ -290,16 +290,23 @@ def lisere(F: Formes, lv: str, code: str) -> str:
 
 
 def mini_carte(F: Formes, lv: str, code: str, codes_vals: dict, bornes: list, cadre: tuple, titre: str,
-               contour: tuple | None = None) -> str:
+               contour: tuple | None = None, valeur=None) -> str:
     """Petite carte d'un constat : les territoires du niveau autour de celui de la fiche, en cinq classes de même
     effectif de l'indicateur (bleu d'encre, sans jugement), le territoire cerné, la France en repère."""
     x0, y0, x1, y1 = cadre
     s = [f'<svg class="carte-svg mini" viewBox="{x0:.1f} {y0:.1f} {x1 - x0:.1f} {y1 - y0:.1f}" role="img" '
          f'aria-label="{titre}"><g class="aplats" stroke="{_v("--contour", "#F4F4F1")}" stroke-width=".5">']
     # classes q0 à q4 (bleu d'encre, style.css), nd sans valeur ; figures.js écrit les couleurs dans l'export
+    # chaque territoire donne son nom et sa valeur au survol (règle de Lucas du 6 novembre 2026 : tout chiffre d'une
+    # figure se lit aussi en infobulle) ; valeur(v) écrit le nombre avec son unité, selon la règle d'affichage
+    from . import affichage as AF
+    noms = {u["c"]: u.get("nm", u["c"]) for u in (F.A.get("units") or {}).get(lv, [])}
+    ecrire = valeur or (lambda x: AF.nombre(x, "taux"))
     for c in F.dans(lv, cadre):
         v = codes_vals.get(c)
-        s.append(F.forme(lv, c, **{"class": "nd" if v is None else f"q{PALIERS[len(bornes) + 1][sum(1 for b in bornes if v >= b)]}"}))
+        u = F.forme(lv, c, **{"class": "nd" if v is None else f"q{PALIERS[len(bornes) + 1][sum(1 for b in bornes if v >= b)]}"})
+        info = f"{noms.get(c, c)}, {'non publié' if v is None else ecrire(v)}"
+        s.append(u[:-2] + f"><title>{html.escape(info)}</title></use>")
     s.append("</g>")
     if contour:
         s.append(F.forme(*contour, fill="none", stroke=_v("--ink", "#1C2028"), stroke_width="1", stroke_opacity=".55"))

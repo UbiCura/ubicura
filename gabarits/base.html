@@ -14,7 +14,7 @@
 <meta name="theme-color" content="#F4F4F1">
 <link rel="stylesheet" href="{{ racine }}polices/polices.css">
 <link rel="stylesheet" href="{{ racine }}style.css?v={{ version_css }}">
-<script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("theme")||"{{ presentation.fond|default('light') }}")}catch(e){document.documentElement.setAttribute("data-theme","{{ presentation.fond|default('light') }}")}</script>
+<script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("fond")||"{{ presentation.fond|default('light') }}")}catch(e){document.documentElement.setAttribute("data-theme","{{ presentation.fond|default('light') }}")}</script>
 </head>
 <body>
 {% include "nav.html" %}

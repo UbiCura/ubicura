@@ -1283,6 +1283,7 @@ def construire(env, commun: dict, dernier: Path, site_data: dict, site: Path, re
             ks = K.constats(dn, f, lv, u["c"], dep if lv == "epci" else None)
             F = CP.Formes(A) if A else None
             carte = None
+            ecrit_valeur = {}   # écriture de la valeur de chaque indicateur au survol des cartes
             if F:
                 for k in ks:
                     vals, bo, g = bornes(k["id"], k["lv"])
@@ -1290,9 +1291,15 @@ def construire(env, commun: dict, dernier: Path, site_data: dict, site: Path, re
                         continue
                     cad, contour = cadre_local(F, k["lv"], k["code"], dep if k["lv"] == "epci" else None)
                     nom_ind = (cat.get(k["id"]) or {}).get("nom_court") or k["id"]
+                    u_info = ((k["cel"]["kind"] == "prof" and AF.txt_unite(k["cel"]["fac"])) or
+                              (cat.get(k["id"]) or {}).get("unite") or "").replace(" hab.", " habitants")
+                    zero = ("aucun inscrit" if k["cel"]["kind"] == "prof" else AF.AUCUNE_STRUCTURE
+                            if k["cel"]["kind"] == "lieux" else None)
+                    ecrit_valeur[k["id"]] = (lambda x, g=g, u=u_info, z=zero: z if (x == 0 and z) else
+                                             (f"{nombre(x, g)} {u}".strip() if u != "%" else f"{nombre(x, g)}{FINE}%"))
                     k["carte"] = CP.mini_carte(F, k["lv"], k["code"], vals, bo, cad,
                                                f"{nom_ind}, par {NOM_NIVEAU[k['lv']].lower()}, en cinq classes de même "
-                                               f"effectif, autour du territoire", contour)
+                                               f"effectif, autour du territoire", contour, valeur=ecrit_valeur[k["id"]])
                     n = len(bo) + 1
                     k["bornes"] = [(t, f"{100 * (j + 1) / n:.2f}%") for j, t in enumerate(bornes_legende(bo, g))]
                     k["cases"] = CP.legende_classes(bo)
@@ -1374,7 +1381,7 @@ def construire(env, commun: dict, dernier: Path, site_data: dict, site: Path, re
                         extras["cartes_france"][k["id"]] = BF.carte_france(
                             F, k["lv"], k["code"], vals, bo, cadre_fr,
                             f"{k.get('nom_ind') or k['id']}, par département, France et départements d'outre-mer, en cinq "
-                            f"classes de même effectif")
+                            f"classes de même effectif", valeur=ecrit_valeur.get(k["id"]))
             if F and lv == "reg":
                 deps_r = [d for d in deps_de_reg.get(u["c"], []) if F.boite("dep", d)]
                 vals, bo, g_ = bornes("prof:psychologue:all", "dep")

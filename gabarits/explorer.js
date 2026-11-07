@@ -292,7 +292,10 @@ function dessinerPanneau(div, A, series, base, titreAria, large) {
   const ligne = d3.line().defined(q => q.v != null).x(q => x(q.a)).y(q => y(q.v));
   series.forEach(s => svg.append("path").attr("class", s.repere ? "repere" : "courbe").attr("stroke", s.couleur).attr("stroke-dasharray", s.tiret || null).attr("d", ligne(s.pts)));
   const fins = series.filter(s => !s.repere && s.pts.some(q => q.v != null)).map(s => { const q = [...s.pts].reverse().find(q => q.v != null); return {s, y: y(q.v), v: q.v, a: q.a}; }).sort((a, b) => a.y - b.y);
-  for (let j = 1; j < fins.length; j++) if (fins[j].y - fins[j - 1].y < 15) fins[j].y = fins[j - 1].y + 15;
+  // étiquettes de fin écartées d'une ligne et demie de leur texte (12 unités, dont la boîte en fait 14,4) : à 15 unités,
+  // elles se touchaient (contrôle de mise en page du 7 novembre 2026)
+  const pasFin = 12 * 1.45;
+  for (let j = 1; j < fins.length; j++) if (fins[j].y - fins[j - 1].y < pasFin) fins[j].y = fins[j - 1].y + pasFin;
   fins.forEach(f => svg.append("text").attr("class", "etiq" + (f.s.fort ? " forte" : "")).attr("x", W - m.r + 8).attr("y", f.y + 4)
     .text(`${base ? f1(f.v) : fd(f.v)}${f.a < A.at(-1) ? ` (${f.a})` : ""}  ${f.s.etiquette || ""}`));
   const cur = svg.append("line").attr("class", "curseur").attr("y1", m.t).attr("y2", H - m.b).style("display", "none");

@@ -40,5 +40,5 @@ document.addEventListener("DOMContentLoaded",function(){document.querySelectorAl
 (function(){var b=document.getElementById("bascule-theme"),r=document.documentElement;
 function maj(){var c=r.getAttribute("data-theme")!=="dark";b.textContent=c?"Fond sombre":"Fond clair"}
 maj();b.addEventListener("click",function(){var t=r.getAttribute("data-theme")!=="dark"?"dark":(r.getAttribute("data-clair")||"light");r.setAttribute("data-theme",t);
-try{localStorage.setItem("theme",t)}catch(e){}maj();window.dispatchEvent(new Event("theme"))})})();
+try{localStorage.setItem("fond",t)}catch(e){}maj();window.dispatchEvent(new Event("theme"))})})();
 </script>

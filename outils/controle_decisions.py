@@ -291,6 +291,49 @@ def controler() -> int:
         pdf.append(("pypdf", "absent, contrôle des PDF non fait"))
     note("PDF : nombres jamais coupés en fin de ligne", pdf)
 
+    # 12. tout chiffre d'une figure se lit aussi au survol (règle de Lucas du 6 novembre 2026) : une figure de données
+    #     (role="img") dont les barres, points ou territoires n'ont pas d'infobulle est signalée
+    survol = []
+    for p, s in sources.items():
+        for m in re.finditer(r'<svg\b([^>]*role="img"[^>]*)>(.*?)</svg>', s, flags=re.S):
+            att, g = m.group(1), m.group(2)
+            if 'aria-hidden="true"' in att or "Schéma" in att:
+                continue
+            g = re.sub(r"<defs>.*?</defs>", "", g, flags=re.S)
+            marques = [x for x in re.findall(r"<(?:rect|circle|use)\b[^>]*>", g)
+                       # les territoires de contexte, sans valeur à lire (fond gris « nodata »), ne sont pas comptés
+                       if 'fill="none"' not in x and "choisi" not in x and "--nodata" not in x and 'class="nd"' not in x
+                       and not re.search(r'width="(16|92|12|0)"', x)]
+            if len(marques) < 5 or "<g><title>" in g:
+                continue
+            if g.count("<title>") < .3 * len(marques):
+                lab = re.search(r'aria-label="([^"]*)"', att)
+                survol.append((rel(p), html.unescape(lab.group(1))[:90] if lab else "figure sans nom"))
+    note("Valeurs des figures lisibles au survol", survol)
+
+    # 13. règle d'affichage des chiffres sur tout le site (pipeline/controle_affichage.py) : même valeur, même repère et
+    #     même statut sur toutes les pages et dans les CSV. Faite ici aussi, car une reconstruction de quelques pages
+    #     (pipeline.site --pages) la laisse au contrôle d'avant publication.
+    from pipeline import controle_affichage
+    regle = [("règle d'affichage", t[:200]) for n, t in controle_affichage.controler(SITE, R, sd) if n == "bloquant"]
+    note("Règle d'affichage des chiffres (même valeur, même repère, même statut partout)", regle)
+
+    # 14. ne rien perdre (registre 18) : une figure que le rapport annonce existe, et aucune figure de la version
+    #     précédente ne manque à celle-ci (7 novembre 2026 : la carte bivariée de santé mentale avait disparu sans bruit,
+    #     son échec n'était qu'un avertissement du journal et le site retire en silence un emplacement vide)
+    perdues = []
+    faites = {p.stem for p in (R / "graphiques").glob("*.svg")}
+    for md in sorted(R.glob("rapport*.md")):
+        for nom in re.findall(r"<!--GRAPHIQUE (\S+)-->", md.read_text(encoding="utf-8")):
+            if nom not in faites:
+                perdues.append((md.name, nom, "annoncée, absente"))
+    avant = [p for p in sorted((RACINE / "resultats").glob("20*")) if p.name < date and (p / "graphiques").is_dir()
+             and any((p / "graphiques").glob("*.svg"))]
+    if avant:
+        for nom in sorted({p.stem for p in (avant[-1] / "graphiques").glob("*.svg")} - faites):
+            perdues.append((avant[-1].name, nom, "présente dans la version précédente, absente ici"))
+    note("Aucune figure perdue (annoncée par le rapport, présente dans la version précédente)", perdues)
+
     # compte rendu
     total = 0
     print(f"Contrôle des décisions sur le site construit ({date}), {len(pages)} pages")

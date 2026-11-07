@@ -331,8 +331,8 @@ def territoire_ald(B, T, famille):
     titre = "### Affections de longue durée" if famille == SM else "## Maladies chroniques en affection de longue durée"
     L = [titre, "", tb(pd.DataFrame(lignes), ["libelle", "num", "effectif", "taux", "milieu"],
                        ["Affection", "N° d'ALD", "Personnes", "Pour 100 000, à âge égal", AF.MEDIANE["dep"]]), ""]
-    L += cl("Personnes du régime général dont l'affection est reconnue en affection de longue durée, effectifs arrondis "
-            "à la dizaine. Le taux est calculé à âge égal pour comparer les départements.",
+    L += cl("Personnes du régime général dont l'affection est reconnue comme affection de longue durée (ALD), effectifs "
+            "arrondis à la dizaine. Le taux est calculé à âge égal, pour comparer les départements entre eux.",
             limites.phrase_md(["ald_23"], T["code"]))
     return L
 

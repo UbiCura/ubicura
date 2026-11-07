@@ -79,6 +79,13 @@ def largeur_texte(t, fs: float) -> float:
     return len(str(t)) * fs * CHASSE
 
 
+def couleur_bivariee(i: int) -> str:
+    """Couleur de la case i des cartes en tiers, par le jeton du thème (--bv0 à --bv8 de style.css, plus claires sur le
+    fond sombre), avec la couleur du fond clair en repli pour les exports (contrôle de mise en page du 7 novembre 2026 :
+    trois cases presque de la couleur du fond sombre)."""
+    return f"var(--bv{i}, {config.BIVARIEE[i]})"
+
+
 def legende(el, x, y, items, largeur, fs, x0=None) -> float:
     """Légende en ligne, qui passe à la ligne avant le bord droit de la figure au lieu d'y couper ou d'y chevaucher un
     texte. items, (marque, couleur, texte), marque parmi point, carre, aire, trait ou « trait:5 3 » (tirets). y est la
@@ -244,10 +251,15 @@ def effet_ville(R, lab, ctxlab, cle, p=None):
     for k, (_, r) in enumerate(t.iterrows()):
         y0 = f.hh + k * (2 * bh + 9)
         f.texte(f.g - 8, y0 + bh + 3, ctxlab[r["variable"]], "end", ENCRE)
-        for j, (v, c) in enumerate([(r["rho_spearman"], DISCRET), (r["rho_partiel_densite"], VIOLET[2])]):
+        for j, (v, c, quoi) in enumerate([(r["rho_spearman"], DISCRET, "tous territoires"),
+                                          (r["rho_partiel_densite"], VIOLET[2], "à densité de population égale")]):
             if pd.notna(v):
                 x0, x1 = sorted([f.X(0), f.X(max(min(v, .8), -.8))])
-                f.ajout(f'<rect x="{x0:.1f}" y="{y0 + j * bh:.1f}" width="{x1 - x0:.1f}" height="{bh - 2}" fill="{c}"/>')
+                # la valeur au survol de chaque barre (remarque de Lucas du 6 novembre 2026, aucun chiffre ne
+                # s'affichait), corrélation de rang à deux décimales comme dans le tableau
+                f.ajout(f'<rect x="{x0:.1f}" y="{y0 + j * bh:.1f}" width="{x1 - x0:.1f}" height="{bh - 2}" fill="{c}">'
+                        f'<title>{escape(ctxlab[r["variable"]])}, {quoi}, corrélation de rang '
+                        f'{nombre(v, 2)}</title></rect>')
     f.texte(8, 14, lab.get(p, p), c=ENCRE, taille="titre", gras=True)
     legende(f.el, 8, 32, [("carre", DISCRET, "tous territoires"), ("carre", VIOLET[2], "à densité de population égale")],
             f.w, f.fs("petit"))
@@ -280,7 +292,9 @@ def escalier(R, lab, cle, densite_nationale, p=None):
         x = f.X(r["decile"]) - largeur / 2
         c = OCRE_PALE if r["densite"] < densite_nationale else VIOLET[2]
         f.ajout(f'<rect x="{x:.1f}" y="{f.Y(r["densite"]):.1f}" width="{largeur:.1f}" '
-                f'height="{f.Y(0) - f.Y(r["densite"]):.1f}" fill="{c}" rx="2"/>')
+                f'height="{f.Y(0) - f.Y(r["densite"]):.1f}" fill="{c}" rx="2">'
+                f'<title>{int(r["decile"])}e dixième de la population, {AF.nombre(r["densite"], "taux")} {unite(p)}, '
+                f'ensemble {AF.nombre(densite_nationale, "taux")}</title></rect>')
         f.texte(x + largeur / 2, f.Y(r["densite"]) - 5, AF.nombre(r["densite"], "taux"), "middle", ENCRE, "petit")
     f.ligne(f.g, f.Y(densite_nationale), f.w - f.d, f.Y(densite_nationale), REPERE, 1.5, "5 3")
     f.texte(f.w - f.d + 6, f.Y(densite_nationale) - 3, "Ensemble", "start", REPERE)
@@ -316,7 +330,9 @@ def eloignement(L, tid):
         # plus loin que la médiane de la France en ocre, comme les territoires moins dotés de l'escalier des densités
         c = OCRE_PALE if r["distance_mediane_km"] > fr else VIOLET[2]
         f.ajout(f'<rect x="{x:.1f}" y="{f.Y(r["distance_mediane_km"]):.1f}" width="{largeur:.1f}" '
-                f'height="{f.Y(0) - f.Y(r["distance_mediane_km"]):.1f}" fill="{c}" rx="2"/>')
+                f'height="{f.Y(0) - f.Y(r["distance_mediane_km"]):.1f}" fill="{c}" rx="2">'
+                f'<title>{int(r["decile"])}e dixième de la population, distance médiane '
+                f'{nombre(r["distance_mediane_km"], 1)} km, France {nombre(fr, 1)} km</title></rect>')
         f.texte(x + largeur / 2, f.Y(r["distance_mediane_km"]) - 5, nombre(r["distance_mediane_km"], 1), "middle",
                 ENCRE, "petit")
     f.ligne(f.g, f.Y(fr), f.w - f.d, f.Y(fr), REPERE, 1.5, "5 3")
@@ -359,12 +375,14 @@ def entonnoir(R, lab, cle, p=None):
     from .cartes import MAYOTTE, SIGNAL_MAYOTTE, nom, symbole_fragile
     for (_, r), v in zip(t.iterrows(), dens):
         cx, c = f.X(r["population"]), couleurs[int(r["statut"])]
-        if str(r["code"]) in MAYOTTE and v <= ymax:
-            f.ajout(symbole_fragile(cx, f.Y(v), f'{nom(r["code"])}, {SIGNAL_MAYOTTE}', 4.5))
-            continue
         # un territoire sans professionnel s'écrit « aucun inscrit », jamais « 0 pour 10 000 » (contrôle des décisions,
         # 6 novembre 2026)
         val = f'{AF.nombre(v, "taux")} {unite(p)}' if v else AF.STATUTS["aucun"]
+        if str(r["code"]) in MAYOTTE and v <= ymax:
+            # le signal porte aussi la valeur, lisible au survol comme celle des autres points (7 novembre 2026)
+            f.ajout(symbole_fragile(cx, f.Y(v), f'{nom(r["code"])}, {val}, {nombre(r["population"])} habitants, '
+                                                f'{SIGNAL_MAYOTTE}', 4.5))
+            continue
         info = (f'<title>{escape(nom(r["code"]))}, {val}, '
                 f'{nombre(r["population"])} habitants</title>')
         if v > ymax:   # territoire au-delà du cadre, signalé par un petit triangle en haut
@@ -422,14 +440,22 @@ def quadrants(R, lab, ctxlab, p="psychiatre", ctxunite=None):
         d_txt = (AF.STATUTS["aucun"] if r["densite"] == 0 else f'{AF.nombre(r["densite"], "taux")} {unite(p)}')
         return f'{nom(r["code"])}, {nom_var.lower()} {v_txt}, {pluriel_simple(lab.get(p, p)).lower()} {d_txt}'
 
+    # un territoire signalé garde son point et ses valeurs au survol ; le signal « ! » se pose à côté du point, une seule
+    # fois quand plusieurs points signalés se touchent (contrôle de mise en page du 7 novembre 2026 : les signaux de
+    # l'Île-de-France se recouvraient, sans les valeurs des départements)
+    poses = []
     for _, r in t.iterrows():
-        if r["code"] in sig:
-            f.ajout(symbole_fragile(f.X(r["valeur"]), f.Y(min(r["densite"], f.y1)),
-                                    f'{nom(r["code"])}, {sig[r["code"]]}', 5))
-            continue
+        cx, cy = f.X(r["valeur"]), f.Y(min(r["densite"], f.y1))
         c = "var(--d0, #83451E)" if r["quadrant"] == "besoin+offre-" else VIOLET[2]
-        f.ajout(f'<circle cx="{f.X(r["valeur"]):.1f}" cy="{f.Y(min(r["densite"], f.y1)):.1f}" r="3.2" fill="{c}" '
-                f'fill-opacity=".8"><title>{escape(info_q(r))}</title></circle>')
+        info = info_q(r) + (f", {sig[r['code']]}" if r["code"] in sig else "")
+        f.ajout(f'<circle cx="{cx:.1f}" cy="{cy:.1f}" r="3.2" fill="{c}" fill-opacity=".8">'
+                f'<title>{escape(info)}</title></circle>')
+        if r["code"] in sig:
+            # au-dessus du point, ou en dessous près du haut de la figure, où le titre de l'axe l'aurait touché
+            sx, sy = cx + 7, (cy - 7 if cy - 7 > f.hh + 22 else cy + 7)
+            if all((sx - a) ** 2 + (sy - b) ** 2 >= 100 for a, b in poses):
+                poses.append((sx, sy))
+                f.ajout(symbole_fragile(sx, sy, f'{nom(r["code"])}, {sig[r["code"]]}', 4.5))
     return f.svg(f"Départements selon l'indicateur « {ctxlab.get(var, var).lower()} » et la densité "
                  f"{'de ' if pluriel_simple(lab.get(p, p))[0] not in 'AEIOUÉ' else 'd’'}"
                  f"{pluriel_simple(lab.get(p, p)).lower()}")
@@ -745,10 +771,10 @@ def _legende_bivariee(nom_offre, nom_ind):
         for o in range(3):
             for b in range(3):
                 el.append(f'<rect x="{x + o * c}" y="{y0 + (2 - b) * c:.1f}" width="{c}" height="{c}" '
-                          f'fill="{config.BIVARIEE[o * 3 + b]}"/>')
+                          f'fill="{couleur_bivariee(o * 3 + b)}"/>')
         el.append(f'<text x="{x}" y="{y0 + 3 * c + fs + 4:.1f}" font-size="{fs}" fill="{DISCRET}">'
                   f'{escape(nom_offre)} →</text>')
-        el.append(f'<rect x="{x + 3 * c + 24}" y="{y0 + 2:.1f}" width="12" height="12" fill="{config.BIVARIEE[2]}"/>')
+        el.append(f'<rect x="{x + 3 * c + 24}" y="{y0 + 2:.1f}" width="12" height="12" fill="{couleur_bivariee(2)}"/>')
         el.append(f'<text x="{x + 3 * c + 42}" y="{y0 + 12:.1f}" font-size="{fs}" fill="{DISCRET}">indicateur dans le '
                   f'tiers le plus haut, offre dans le tiers le plus bas</text>')
         return y0 + 3 * c + fs + 14
@@ -766,7 +792,7 @@ def bivariee(ref, ctx, agg, lab, ctxlab, prof="psychiatre", var="suicides"):
     if not f or prof not in d:
         return None
     cl = classes_bivariees(d[prof], ctx["dep"][var].reindex(d.index))
-    couleurs = {c: config.BIVARIEE[i] for c, i in cl.items()}
+    couleurs = {c: couleur_bivariee(i) for c, i in cl.items()}
     nom = pluriel_simple(lab.get(prof, prof))
     return cartes.carte_france(f["atlas_dep"], {}, f"{nom} et {ctxlab.get(var, var).lower()}, par département, en tiers",
                                couleurs=couleurs, legende_fn=_legende_bivariee(nom.lower(), ctxlab.get(var, var).lower()),

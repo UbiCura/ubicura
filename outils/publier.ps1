@@ -92,6 +92,19 @@ if ($Restaurer) {
         Prevenir "Des écarts sont à regarder avant de publier. Rien n'a été mis en ligne.`n`nLire le compte rendu, puis relancer la publication avec -Valider (tutoriel 06).`n`n$compte"
         exit 1
     }
+    # contrôle complet du site construit, bloquant, -Valider ne le contourne pas (méthode de travail, Lucas, 6 novembre
+    # 2026) : décisions et chiffres sur toutes les pages, puis mise en page page type par page type
+    foreach ($ctrl in @(@("outils\controle_decisions.py", "Contrôle des décisions"), @("outils\controle_mise_en_page.py", "Contrôle de mise en page"))) {
+        Ecrire "$($ctrl[1])."
+        $sortieCtrl = & $python $ctrl[0] 2>&1 | ForEach-Object { "$_" }
+        $codeCtrl = $LASTEXITCODE
+        foreach ($l in $sortieCtrl) { if ($l.Trim()) { Add-Content -Path $log -Value $l -Encoding UTF8 } }
+        if ($codeCtrl -ne 0) {
+            Ecrire "$($ctrl[1]) : des défauts restent, rien n'est envoyé. Voir $log"
+            Prevenir "$($ctrl[1]) : des défauts restent sur le site construit. Rien n'a été mis en ligne.`n`nLe détail est dans $log"
+            exit 1
+        }
+    }
     if (-not $c["premiere_version"]) {
         # première mise en ligne, le site ne garde que les rapports à partir de cette version
         $c["premiere_version"] = $version
@@ -162,5 +175,21 @@ else {
     $c["versions_publiees"] = @(($vp + $version) | Sort-Object -Unique)
 }
 $c | ConvertTo-Json | Set-Content -Path $config -Encoding UTF8
-Ecrire "Site en ligne, $libelle. Il apparaît sur GitHub Pages en une ou deux minutes."
+Ecrire "Site envoyé, $libelle. GitHub Pages le déploie en une ou deux minutes."
+# le site en ligne est relu jusqu'à ce qu'il serve la nouvelle version (6 novembre 2026 : un déploiement de GitHub
+# Pages peut échouer, seul un courriel le disait), au plus dix minutes
+if (-not $Restaurer -and $c["domaine"]) {
+    $adresseVersion = "https://$($c["domaine"])/donnees/$version/dictionnaire.html"
+    $vu = $false
+    for ($i = 0; $i -lt 40 -and -not $vu; $i++) {
+        Start-Sleep -Seconds 15
+        try { $r = Invoke-WebRequest -Uri ($adresseVersion + "?v=" + (Get-Random)) -UseBasicParsing -TimeoutSec 20; $vu = ($r.StatusCode -eq 200) } catch {}
+    }
+    if ($vu) { Ecrire "Site en ligne et vérifié : $($c["domaine"]) sert la version $version. Recharger avec Ctrl + F5." }
+    else {
+        Ecrire "Le site envoyé n'est pas encore servi par $($c["domaine"]) après dix minutes. Voir l'onglet Actions du dépôt GitHub."
+        Prevenir "Le site a été envoyé, mais $($c["domaine"]) ne sert pas encore la version $version après dix minutes. Regarder l'onglet Actions du dépôt GitHub (déploiement de GitHub Pages)."
+        exit 1
+    }
+}
 exit 0

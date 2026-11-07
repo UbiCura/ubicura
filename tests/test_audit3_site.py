@@ -127,3 +127,29 @@ def test_aucun_zero_seul_dans_tous_les_tableaux_des_rapports():
             continue
         mauvais = [l for l in f.read_text(encoding="utf-8").splitlines() if l.startswith("|") and zero.search(l)]
         assert not mauvais, (f.name, mauvais[:3])
+
+
+def test_fond_clair_par_defaut_pour_les_anciens_visiteurs():
+    """Fond clair par défaut (Lucas, 31 octobre 2026) : le choix gardé sous l'ancien nom « theme », du temps où le fond
+    sombre était le réglage par défaut, n'est plus lu ; chacun repart en clair et garde ensuite son choix (« fond »)."""
+    for f in (GAB / "base.html", GAB / "nav.html", RAC / "atlas" / "atlas_template.html"):
+        t = f.read_text(encoding="utf-8")
+        assert 'Item("theme"' not in t and 'Item("fond"' in t, f
+    assert "presentation.fond|default('light')" in (GAB / "base.html").read_text(encoding="utf-8")
+
+
+def test_mise_en_page_du_7_novembre():
+    """Décisions et corrections du 7 novembre 2026 : texte jusqu'au bord des figures à l'écran (capture A), deux tailles
+    de texte dans les rapports imprimés, listes de noms, citations, références et annexes techniques alignées à gauche,
+    contrôle de mise en page enchaîné dans la mise en ligne."""
+    css = (GAB / "style.css").read_text(encoding="utf-8")
+    assert "--mesure:none" in css
+    assert "main:has(.rapport) :is(p,li,dd,blockquote,figcaption,.comment-lire,.small,.muted)" in css and "10.5pt" in css
+    assert "main li{text-align:left!important}" in css      # toutes les listes à gauche (Lucas, 7 novembre 2026)
+    for sel in ("ul.liste-noms li", ".couv-citer p", "p.references", ".accueil .ajouts li", ".grp li"):
+        assert sel in css, sel
+    pub = (RAC / "outils" / "publier.ps1").read_text(encoding="utf-8")
+    assert "outils\\controle_decisions.py" in pub and "outils\\controle_mise_en_page.py" in pub
+    assert "sert la version" in pub
+    from pipeline import site as S
+    assert "rapports" in S.GROUPES and "portail" in S.GROUPES

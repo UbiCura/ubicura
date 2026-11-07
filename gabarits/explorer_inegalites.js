@@ -117,7 +117,10 @@ function entonnoirI() {
   const y = d3.scaleLinear().domain([0, ymax]).range([h - m.b, m.t]).clamp(true);
   grilleY(svg, y, m, w, 5); axeY(svg, y, m, 5, f1);
   // graduations aux puissances de dix seulement, l'échelle logarithmique se lit ainsi sans chevauchement
-  axeX(svg, x, h, m, s => d3.axisBottom(s).tickValues(s.ticks().filter(v => /^10*$/.test(String(Math.round(v))))).tickFormat(f0));
+  // au téléphone, une puissance de dix sur deux : « 1 000 000 » et « 10 000 000 » se chevauchaient (contrôle de mise
+  // en page du 7 novembre 2026)
+  axeX(svg, x, h, m, s => { const t = s.ticks().filter(v => /^10*$/.test(String(Math.round(v))));
+    return d3.axisBottom(s).tickValues(w < 520 ? t.filter((v, k) => (t.length - 1 - k) % 2 === 0) : t).tickFormat(f0); });
   const lp = lim.filter(r => r[0] >= x.domain()[0] && r[0] <= x.domain()[1]);
   svg.append("path").datum(lp).attr("fill", "var(--r1, #3B7E78)").attr("opacity", .35).attr("d", d3.area().x(r => x(r[0])).y0(r => y(r[1])).y1(r => y(r[2])));
   [3, 4].forEach(k => svg.append("path").datum(lp).attr("fill", "none").attr("stroke", "var(--muted, #5D6371)").attr("stroke-dasharray", "3 3").attr("d", d3.line().x(r => x(r[0])).y(r => y(r[k]))));

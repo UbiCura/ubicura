@@ -27,10 +27,15 @@
     noeuds.forEach(function(t){var v=t.nodeValue.replace(MOT,couper);if(v!==t.nodeValue)t.nodeValue=v});
     var blocs=new Set();noeuds.forEach(function(t){var b=t.parentElement.closest("p,li,dd,blockquote,summary");if(b)blocs.add(b)});
     blocs.forEach(finale);blocs.forEach(limiter);blocs.forEach(espacer)}
-  // le dernier mot d'un paragraphe ne se coupe jamais : « intercommunali- / tés. » laissait quatre lettres seules sur la
-  // dernière ligne (relecture des fiches construites du 1er novembre 2026, mineur 9)
+  // le dernier mot d'un paragraphe ne se coupe pas en laissant moins de six lettres sur la dernière ligne :
+  // « intercommunali- / tés. » laissait quatre lettres seules (relecture des fiches du 1er novembre 2026, mineur 9). Une
+  // coupure plus haute reste permise (« psy- / chiatre. »), sans quoi une ligne de deux qui finit sur un mot long ne
+  // trouve aucune coupure et reste lâche (contrôle de mise en page du 7 novembre 2026, page santé mentale)
   function finale(b){var tw=document.createTreeWalker(b,NodeFilter.SHOW_TEXT),n,d=null;while((n=tw.nextNode()))if(n.nodeValue.trim())d=n;
-    if(!d)return;var v=d.nodeValue,m=v.match(/[^\s ]+[\s ]*$/);if(m&&m[0].indexOf(SH)>=0)d.nodeValue=v.slice(0,m.index)+m[0].split(SH).join("")}
+    if(!d)return;var v=d.nodeValue,m=v.match(/[^\s ]+[\s ]*$/);if(!m||m[0].indexOf(SH)<0)return;
+    var p=m[0].split(SH),out=p[0];
+    for(var i=1;i<p.length;i++){var reste=p.slice(i).join("").replace(/[^A-Za-zÀ-ÖØ-öø-ÿŒœÆæ]/g,"");out+=(reste.length>=6?SH:"")+p[i]}
+    d.nodeValue=v.slice(0,m.index)+out}
   // à l'impression seulement (le choix du papier reste à trancher) : les paragraphes d'une même famille (les constats,
   // les phrases des encadrés, de même classe et de même parent) ont un seul alignement, à gauche si la moitié au moins
   // sont trop lâches ou courts, justifiés sinon
@@ -46,24 +51,30 @@
   // l'espace entre les mots du paragraphe (REGLAGES, en em, du plus petit au plus grand), qui déplace les coupures,
   // comme le fait un compositeur : le premier qui ne laisse aucune ligne lâche est gardé. Mesuré une fois la page
   // composée, refait quand la largeur change.
-  var COLONNE_MIN=560,mesureur=document.createElement("canvas").getContext("2d"),LACHE=1.5,REGLAGES=[-.01,.01,-.02,.02,-.03,.03,-.04,-.05,-.06,-.08],BLANC=/[ \u00a0\t\n\r]+/;
+  var COLONNE_MIN=560,mesureur=document.createElement("canvas").getContext("2d"),LACHE=1.5,REGLAGES=[-.01,.01,-.02,.02,-.03,.03,-.04,-.05,-.06,-.08,-.1,-.12,-.15],APPROCHES=[-.005,.005,-.01,.01,-.015],BLANC=/[ \u00a0\t\n\r]+/;
   // une ligne lâche : dans un paragraphe dont l'espace moyen dépasse LACHE, chaque ligne au-delà ; partout, une ligne
   // au-delà de 2 fois l'espace ordinaire (la règle écrite le 31 octobre 2026)
   function laches(ls){var c=ls.slice(0,-1),moy=c.reduce(function(s,x){return s+x.x},0)/(c.length||1);
     return c.filter(function(x){return x.x>2||(moy>LACHE&&x.x>LACHE)})}
   function pire(ls){var l=laches(ls);return l.length?l.length*10+l.reduce(function(m,x){return Math.max(m,x.x)},0):0}
   function espacer(b){
-    b.style.textAlign="";b.style.wordSpacing="";delete b.dataset.lache;
+    b.style.textAlign="";b.style.wordSpacing="";b.style.letterSpacing="";delete b.dataset.lache;
     var st=getComputedStyle(b);if(st.textAlign!=="justify"){b.dataset.aligne="";return}
     // la colonne réelle décide (H4 de l'étape 4, 5 novembre 2026) : un paragraphe de moins de 560 px de large passe à
     // gauche, même quand le conteneur interrogé par la feuille de style est plus large (une colonne de grille, une
     // marge de 5 colonnes, une carte d'indicateur)
     if(b.getBoundingClientRect().width<COLONNE_MIN){b.dataset.aligne="1";b.style.textAlign="left";return}
     var ls=mesurer(b,st),gauche=ls.length<3;
-    if(!gauche&&pire(ls)){var mieux={ws:"",p:pire(ls),ls:ls};
-      for(var k=0;k<REGLAGES.length&&mieux.p;k++){b.style.wordSpacing=REGLAGES[k]+"em";var l2=mesurer(b,st);
-        if(l2.length>=3&&pire(l2)<mieux.p)mieux={ws:b.style.wordSpacing,p:pire(l2),ls:l2}}
-      b.style.wordSpacing=mieux.ws;ls=mieux.ls}
+    if(!gauche&&pire(ls)){var mieux={ws:"",w:0,lt:"",p:pire(ls),ls:ls},essai=function(w,a){
+        b.style.wordSpacing=w?w+"em":"";b.style.letterSpacing=a?a+"em":"";var l2=mesurer(b,st);
+        if(l2.length>=3&&pire(l2)<mieux.p)mieux={ws:b.style.wordSpacing,w:w,lt:b.style.letterSpacing,p:pire(l2),ls:l2}};
+      // espace entre les mots d'abord ; s'il reste une ligne lâche, l'approche des lettres d'un demi à un et demi pour
+      // cent autour du meilleur espacement trouvé, comme le fait un compositeur (7 novembre 2026). Au plus 26 mesures
+      // par paragraphe, pour que la page soit composée en moins d'une seconde ou deux.
+      for(var k=0;k<REGLAGES.length&&mieux.p;k++)essai(REGLAGES[k],0);
+      var w0=mieux.w;
+      for(var j=0;j<APPROCHES.length&&mieux.p;j++)for(var d=-.01;d<=.0101&&mieux.p;d+=.01)essai(Math.round((w0+d)*1000)/1000,APPROCHES[j]);
+      b.style.wordSpacing=mieux.ws;b.style.letterSpacing=mieux.lt;ls=mieux.ls}
     b.dataset.aligne=gauche?"1":"";b.style.textAlign=gauche?"left":"";
     if(gauche)return;
     var l=laches(ls);

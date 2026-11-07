@@ -25,6 +25,11 @@ _REGLES = [
     (re.compile(r"(?<=\d) (?=[a-zàâçéèêëîïôûùüÿœæ]{1,8}\b)"), INSECABLE),
     # le mois reste avec son année (« octobre 2026 »), comme tout mot avec l'année qui le suit
     (re.compile(r"(?<=[a-zéû]) (?=(?:19|20)\d\d\b)"), INSECABLE),
+    # pas d'espace devant une virgule ou un point (« mars 2023 , Annuaire santé », 7 novembre 2026)
+    (re.compile(r"(?<=[\w)»]) +(?=[,.](?:\s|$))"), ""),
+    # un nom de fichier long peut passer à la ligne après un trait bas (« lieux_soins_dep.csv » laissait une ligne
+    # justifiée vingt fois trop espacée) ; <wbr> ne se copie pas avec le nom
+    (re.compile(r"(?<=[a-z0-9])_(?=[a-z0-9][\w.]{3,})"), "_<wbr>"),
 ]
 
 
@@ -41,7 +46,11 @@ def insecables(html: str) -> str:
     while i < len(morceaux):
         m = morceaux[i]
         if i % 3 == 0:
-            sortie.append(texte(m))
+            t = texte(m)
+            # pas d'espace devant une virgule qui suit un lien ou une balise fermante (« (data.gouv) , FINESS »)
+            if sortie and sortie[-1].startswith("</"):
+                t = re.sub(r"^ +(?=[,.](?:\s|$))", "", t)
+            sortie.append(t)
             i += 1
         else:
             sortie.append(m)   # balise ou bloc protégé, puis le nom capturé du bloc, sauté

@@ -21,8 +21,9 @@
   --t-encadre:1.375rem;  /* 22 px, titre d'encadré */
   --t-section:2rem;      /* 32 px, titre de section, grands chiffres */
   --t-page:3.5rem;       /* 56 px, titre de page (40 px sur téléphone) */
-  --mesure:612px;        /* colonne de lecture, environ 68 caractères en 17 px (36 em), en pixels pour que les
-                           textes de 14 et de 17 px finissent au même bord (relecture esthétique du 31 octobre 2026) */
+  --mesure:none;         /* le texte va jusqu'au bord droit des figures de sa colonne, à l'écran comme dans les PDF
+                           (Lucas, 7 novembre 2026, capture A, prototypes/bord_droit/ ; remplace la colonne de lecture de
+                           612 px du 31 octobre) ; contrôlé par outils/controle_mise_en_page.py */
   /* espacements */
   --e-1:4px;--e-2:8px;--e-3:16px;--e-4:24px;--e-5:48px;--e-6:96px;
   /* grille */
@@ -1806,3 +1807,78 @@ main :is(p,li,td,dd,figcaption) a{overflow-wrap:anywhere}
 .fiche .reperes-courts details.rep-suite[open]{display:flex;flex-direction:column}
 /* un statut long dans « En bref » (« dans la commune d'au moins la moitié des habitants ») passe à la ligne, à droite */
 .fiche table.matrice .m-v .statut{white-space:normal;display:inline-block;max-width:22ch;text-align:right;line-height:1.3}
+
+/* Rapports imprimés : deux tailles de texte seulement, 10,5 points pour tout le texte (« Comment lire » et légendes
+   compris), 9 points pour les tableaux et les notes, et le texte jusqu'au bord droit, comme les figures (Lucas,
+   6 novembre 2026, sur maquette, prototypes/typo_pdf/). Placé en fin de feuille pour l'emporter sur les règles
+   d'impression plus anciennes ; contrôlé par outils/controle_mise_en_page.py (tailles du texte courant en papier). */
+@media print{
+  main:has(.rapport) :is(p,li,dd,blockquote,figcaption,.comment-lire,.small,.muted):not(.couverture *,table *,svg *){font-size:10.5pt!important}
+  main:has(.rapport) :is(table,td,th,.source,.note,.renvoi-annexe,.annexe-entree):not(.couverture *),main:has(.rapport) :is(td,th) :is(p,li,.small,.muted){font-size:9pt!important}
+  main:has(.rapport) :is(p,ul,ol,.source,.limite,.comment-lire,.note,.encadre,.encadre .phrase):not(.couverture *){max-width:none!important}
+}
+
+/* liste de noms de structures des rapports par territoire : alignée à gauche, à l'écran comme à l'impression, comme les
+   adresses (règle 8, 7 novembre 2026 : soixante lignes justifiées lâches dans le rapport de l'Occitanie) */
+ul.liste-noms li,ul.liste-noms{text-align:left!important;hyphens:manual}
+/* sommaire des questions d'Explorer : jamais justifié, comme tout sommaire (règle 8, contrôle de mise en page du
+   7 novembre 2026, onze liens justifiés sur 373 px) */
+.grp li,.grp .q{text-align:left!important}
+/* tableaux de sept colonnes ou plus à l'écran : petite taille de l'échelle et cellules resserrées, pour tenir dans la
+   colonne sans défiler (contrôle de mise en page du 7 novembre 2026) */
+@media screen{.corps table.serre,.corps table.large{font-size:var(--t-note)}
+  .corps table.serre :is(th,td),.corps table.large :is(th,td){padding-left:6px;padding-right:6px}}
+/* historique des croisements de Croiser (liste de boutons), jamais justifié (contrôle de mise en page du 7 novembre
+   2026) */
+main.croiser ol#histo li{text-align:left!important}
+/* nouveautés de l'accueil : le texte occupe une colonne de 530 px environ à côté de la date, aligné à gauche comme toute
+   colonne de moins de 560 px (règle 8 ; le script de césure mesurait la ligne entière, contrôle du 7 novembre 2026) */
+.accueil .ajouts li{text-align:left!important}
+/* citations des rapports (couverture et « Comment citer ») : jamais justifiées, comme toute citation (règle 8) ; une
+   adresse longue y laissait une ligne quatorze fois trop espacée (contrôle du 7 novembre 2026) */
+.couv-citer p,.citer-haut p{text-align:left!important}
+/* annexes techniques des rapports (« Pour aller plus loin ») : leurs listes énumèrent des contrôles, des sources et des
+   effectifs, comme un tableau ; alignées à gauche, à l'écran et à l'impression (7 novembre 2026, lignes lâches) */
+:is(.corps,main.territoire) details li{text-align:left!important}
+/* paragraphes de références des rapports (« Sources, … ») : alignés à gauche comme les citations (règle 8) */
+p.references{text-align:left!important}
+/* toutes les listes à puces alignées à gauche, à l'écran et dans les PDF ; les paragraphes restent justifiés (Lucas,
+   7 novembre 2026, sur captures, prototypes/listes/) */
+main li{text-align:left!important}
+/* rapports imprimés : un tableau se coupe entre deux lignes, son en-tête répété, plutôt que de passer entier à la page
+   suivante en laissant un titre ou deux lignes seuls ; la phrase qui l'annonce et le renvoi vers l'annexe restent avec
+   ce qui les entoure (contrôle des PDF du 7 novembre 2026, après le passage à deux tailles de texte) */
+@media print{
+  main:has(.rapport) table{break-inside:auto;page-break-inside:auto}
+  main:has(.rapport) thead{display:table-header-group}
+  main:has(.rapport) tr{break-inside:avoid;page-break-inside:avoid}
+  main:has(.rapport) p:has(+ table),main:has(.rapport) p:has(+ .defile){break-after:avoid;page-break-after:avoid}
+  main:has(.rapport) .renvoi-annexe{break-before:avoid;page-break-before:avoid}
+}
+/* rapports imprimés : un « Comment lire » ne part jamais seul sur une page, la figure ou le tableau qu'il explique le
+   suit (contrôle des PDF du 7 novembre 2026, pages presque vides) */
+@media print{
+  main:has(.rapport) :is(figure,table,.defile,p,ul):has(+ .comment-lire){break-after:avoid;page-break-after:avoid}
+}
+/* notes sous la figure de l'addictologie d'Explorer : une légende, jamais justifiée (règle 8, 7 novembre 2026) */
+#adNotes{text-align:left!important}
+/* glossaire des indicateurs de contexte des rapports : une liste de définitions, alignée à gauche (7 novembre 2026) */
+p.glossaire{text-align:left!important}
+
+/* sous-titre des pages (Lucas, 7 novembre 2026, sur capture, proposition 1) : en Newsreader, à la taille des titres
+   d'encadré, sur les sept colonnes de la grille (7 x 57 px + 6 x 24 px de gouttière = 690 px), en lignes équilibrées et
+   sans mot coupé, le même sur toutes les pages. La ligne de version des rapports et des fiches garde le texte courant.
+   À l'écran seulement, les PDF ne changent pas. */
+@media screen{
+  main .chapeau:not(.version){font-family:var(--serif);font-size:var(--t-encadre);line-height:1.4;max-width:690px;
+    text-wrap:balance;text-align:left!important;hyphens:none;color:var(--ink)}
+}
+/* plus de colonne de lecture étroite (Lucas, 7 novembre 2026, capture A) : les dernières limites des textes courants,
+   relevées par le contrôle des colonnes étroites (point 11 bis), dont les phrases et définitions sous les lignes des
+   fiches, qui s'arrêtaient à 840 px dans un tableau de 1 200 px (remarque de Lucas du même soir) */
+@media screen{
+  main.comparer .comment-lire,main.zone .vide-z,.accueil .autour-tete p,main.croiser #phrase,main.croiser .prudence,
+  main.croiser .garde ul,main.croiser .panneau,main.croiser .note-escalier,main.liens .lecture,main.domaine .sources-note,
+  .fiche table.ligne-type tr.suite-ligne .lim-ligne,.fiche table.ligne-type tr.suite-ligne .defn,
+  .fiche table.ligne-type tr.suite-ligne .note,.fiche table.ligne-type .phrase-tuile{max-width:none!important}
+}

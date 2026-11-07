@@ -119,7 +119,7 @@ def _lancer(exe: str, url: str, largeur: int, hauteur: int, *options) -> subproc
     with tempfile.TemporaryDirectory() as profil:
         return subprocess.run([exe, "--headless=new", "--disable-gpu", "--hide-scrollbars", "--no-first-run",
                                f"--user-data-dir={profil}", f"--window-size={largeur},{hauteur}",
-                               "--virtual-time-budget=15000", *options, url],
+                               "--virtual-time-budget=45000", *options, url],
                               capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=180)
 
 
@@ -139,22 +139,25 @@ def _cadre(tmp: Path, largeur: int, hauteur: int, recopier: str) -> Path:
     return c
 
 
-def controler(site: Path, page: str, exe: str, serveur, largeur: int, hauteur: int, theme: str | None = None) -> dict:
-    """Résultat du contrôle d'une page à une largeur, lu dans la page elle-même (outils/controle_finition.js)."""
+def controler(site: Path, page: str, exe: str, serveur, largeur: int, hauteur: int, theme: str | None = None,
+              suffixe: str = "") -> dict:
+    """Résultat du contrôle d'une page à une largeur, lu dans la page elle-même (outils/controle_finition.js). suffixe
+    distingue les fichiers temporaires de deux contrôles lancés en même temps (outils/controle_mise_en_page.py)."""
     src = site / page
-    tmp = src.with_name(f"_finition_{src.stem}.html")
+    tmp = src.with_name(f"_finition_{src.stem}{suffixe}.html")
+    papier_css = f"_papier{suffixe}.css"
     html = src.read_text(encoding="utf-8")
     script = (RACINE / "outils" / "controle_finition.js").read_text(encoding="utf-8")
     if theme == "papier":
         # la page telle qu'elle s'imprime : feuille de style dont les règles d'impression valent à l'écran, détails
         # ouverts comme à l'impression
         css = (site / "style.css").read_text(encoding="utf-8").replace("@media print{", "@media all{").replace("@media screen and", "@media print and")
-        (site / "_papier.css").write_text(css, encoding="utf-8")
-        html = re.sub(r'href="([./]*)style\.css[^"]*"', r'href="\1_papier.css"', html, count=1)
+        (site / papier_css).write_text(css, encoding="utf-8")
+        html = re.sub(r'href="([./]*)style\.css[^"]*"', lambda m: f'href="{m.group(1)}{papier_css}"', html, count=1)
         html = html.replace("</body>", "<script>document.querySelectorAll('details').forEach(function(d){d.open=true});"
                             "window.dispatchEvent(new Event('beforeprint'))</script></body>", 1)
     elif theme:
-        html = html.replace("<head>", f"<head><script>try{{localStorage.setItem('theme','{theme}')}}catch(e){{}}</script>", 1)
+        html = html.replace("<head>", f"<head><script>try{{localStorage.setItem('fond','{theme}')}}catch(e){{}}</script>", 1)
     tmp.write_text(html.replace("</body>", f"<script>{script}</script></body>", 1), encoding="utf-8")
     cadre = _cadre(tmp, largeur, hauteur, "controle-finition")
     try:
@@ -169,14 +172,17 @@ def controler(site: Path, page: str, exe: str, serveur, largeur: int, hauteur: i
         tmp.unlink(missing_ok=True)
         cadre.unlink(missing_ok=True)
         if theme == "papier":
-            (site / "_papier.css").unlink(missing_ok=True)
+            (site / papier_css).unlink(missing_ok=True)
 
 
 def defilements_ordinateur(r: dict, largeur: str) -> list[str]:
     """Sur ordinateur, aucun conteneur ne défile en largeur : un texte y serait coupé par son cadre sans que la page
     déborde (onglet « anté mentale » de la barre des domaines, relecture du prototype de fiche resserrée, 31 octobre
     2026, M4). Au téléphone, une barre ou un tableau peut défiler."""
-    return [f"défile en largeur sur ordinateur : {d}" for d in r.get("defilements", [])] if largeur == "ordinateur" else []
+    # un tableau de dix colonnes ou plus (classe « large ») défile dans son cadre : aucun mot ne se coupe dans un tableau
+    # (règle 8), il ne peut pas tenir dans la colonne (7 novembre 2026)
+    return [f"défile en largeur sur ordinateur : {d}" for d in r.get("defilements", [])
+            if not d.startswith("table.large")] if largeur == "ordinateur" else []
 
 
 def _rogner_png(f: Path, largeur: int) -> None:
@@ -225,7 +231,7 @@ def capture(site: Path, page: str, exe: str, serveur, largeur: int, cible: Path,
     src = site / page
     tmp = src.with_name(f"_capture_{src.stem}.html")
     html = src.read_text(encoding="utf-8").replace(
-        "<head>", f"<head><script>try{{localStorage.setItem('theme','{theme}')}}catch(e){{}}</script>", 1)
+        "<head>", f"<head><script>try{{localStorage.setItem('fond','{theme}')}}catch(e){{}}</script>", 1)
     mesure = ('<script>addEventListener("load",function(){setTimeout(function(){var p=document.createElement("pre");'
               'p.id="hauteur-page";p.hidden=true;p.textContent=document.documentElement.scrollHeight;document.body.appendChild(p)},800)})</script>')
     tmp.write_text(html.replace("</body>", mesure + "</body>", 1), encoding="utf-8")
