@@ -77,6 +77,15 @@ if ($Restaurer) {
     Expand-Archive -Path $Restaurer -DestinationPath $temp -Force
     $libelle = "restauration de " + [IO.Path]::GetFileNameWithoutExtension($Restaurer)
 } else {
+    # le site cite-t-il une version que Zenodo a publiée ? Zenodo d'abord, le site ensuite (Lucas, 6 novembre 2026)
+    $sortieZ = & $python outils\zenodo.py pret-site 2>&1 | ForEach-Object { "$_" }
+    $codeZ = $LASTEXITCODE
+    foreach ($l in $sortieZ) { if ($l.Trim()) { Add-Content -Path $log -Value $l -Encoding UTF8 } }
+    if ($codeZ -ne 0) {
+        Ecrire "Rien n'est envoyé. $($sortieZ -join ' ')"
+        Prevenir "Rien n'a été mis en ligne.`n`n$($sortieZ -join ' ')"
+        exit 1
+    }
     Ecrire "Comparaison de la version $version avec la dernière publiée."
     $sortie = & $python outils\comparer_versions.py 2>&1 | ForEach-Object { "$_" }
     $code = $LASTEXITCODE

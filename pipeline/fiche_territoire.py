@@ -12,6 +12,7 @@ le seuil des couleurs et des cartes), sans score ni classement, cinq indicateurs
 """
 import csv
 import json
+import re
 from pathlib import Path
 
 from . import affichage as AF, config, domaines as D, libelles as L
@@ -51,7 +52,28 @@ STRUCT_SM = [("lieu_cmp_adultes", "CMP pour adultes"), ("lieu_cmp_enfants", "CMP
 TYPES_ENFANTS = {"lieu_cmp_enfants", "lieu_hdj_psy_enfants", "lieu_cmpp", "lieu_camsp"}
 RECOURS_DEP = [("suicides", "Décès par suicide"), ("hospit_gestes_auto_infliges", "Hospitalisations pour geste auto-infligé"),
                ("ald_23", "Affection de longue durée, troubles psychiatriques")]
-DEJA_EN_TETE = {"suicides", "hospit_gestes_auto_infliges", "ald_23"} | {"dist_" + t for t, _ in DIST_SM + DIST_SANTE}
+DEJA_EN_TETE = ({"suicides", "hospit_gestes_auto_infliges", "ald_23"} | {"dist_" + t for t, _ in DIST_SM + DIST_SANTE}
+                | {"distp_" + t for t, _ in DIST_SM + DIST_SANTE})
+
+
+def libelle_public(lib: str) -> str:
+    """« Même distance, selon le domicile des naissances récentes », tiré du libellé d'une distance du public (population concernée)."""
+    m = re.search(r", ((?:pour les|selon le domicile des) [^,]+)", lib or "")
+    # « Même distance, » : au téléphone, la sous-ligne se lit seule, sous sa ligne mère sans retrait
+    return "Même distance, " + m.group(1) if m else lib
+
+
+def accrocher_sous_lignes(rows: list) -> list:
+    """La distance du public que sert la structure (« distp_ ») juste sous la distance de tous les habitants, en
+    sous-ligne, jamais à sa place (population concernée, 9 novembre 2026). Sans ligne mère, elle reste entière."""
+    for r in [r for r in rows if r.get("id", "").startswith("distp_")]:
+        if not any(x.get("id") == "dist_" + r["id"][6:] for x in rows):
+            continue
+        rows.remove(r)
+        i = next(i for i, x in enumerate(rows) if x.get("id") == "dist_" + r["id"][6:])
+        r["sous"], r["lib"] = True, libelle_public(r["lib"])
+        rows.insert(i + 1, r)
+    return rows
 
 
 def _f(v, d=1):
@@ -234,7 +256,14 @@ def _part_aucun(T, cel) -> str | None:
     # dont la valeur est publiée : 54 % ici et 49 % sur la réglette se contredisaient (audit du 6 novembre 2026)
     S = T.serie(cel["id"], cel["lv"])
     vals = [v for v in (S.v if S else []) if v is not None]
-    return f"{nombre(100 * sum(1 for v in vals if v == 0) / len(vals), 'entier')}{FINE}%" if vals else None
+    if not vals:
+        return None
+    part = 100 * sum(1 for v in vals if v == 0) / len(vals)
+    # « comme dans 0 % des intercommunalités » laissait un 0 trompeur (Île-de-Sein, seule sans infirmier) : moins
+    # d'un territoire sur deux cents s'écrit « moins de 1 % » (relecture indépendante du 9 novembre 2026)
+    if 0 < part < 0.5:
+        return f"moins de 1{FINE}%"
+    return f"{nombre(part, 'entier')}{FINE}%"
 
 
 def avec_article(nom: str) -> str:
@@ -253,6 +282,21 @@ def avec_article(nom: str) -> str:
                 return "l'intercommunalité " + reste
             return long + reste
     return nom
+
+
+def nom_article(lv: str, code: str, nom: str) -> str:
+    """Le territoire sujet des phrases de la fiche (constats._sujet), avec son article : « la communauté de communes
+    Vierzon-Sologne-Berry » ; une commune hors intercommunalité, dont le code commence par C, devient « la commune
+    d'Ouessant », pour que « n'est inscrit dans {territoire} » ne donne plus « inscrit dans Ouessant » (contre-audit de
+    la recherche, 8 novembre 2026). Elle touche les quatre îles sans intercommunalité (Bréhat, Sein, Ouessant, Yeu)."""
+    if lv != "epci":
+        return nom
+    if code.startswith("C"):
+        # « la commune de l'Île-de-Sein », comme ses mairies (relecture indépendante du 9 novembre 2026)
+        if nom.startswith(("L'", "L’", "Île-de-")):
+            return "la commune de l'" + (nom[2:] if nom.startswith(("L'", "L’")) else nom)
+        return ("la commune d'" if nom[:1].lower() in "aeiouyhâàéèêëîïôûùœ" else "la commune de ") + nom
+    return avec_article(nom)
 
 
 _LIAISON: dict = {}
@@ -291,7 +335,7 @@ def fiche(dn: Donnees, lv: str, code: str, version: str) -> dict:
     elif lv == "dep":
         parent_nom = u.get("p")
     f = {"niveau": lv, "code": code, "nom": u["nm"], "nom_niveau": NOM_NIVEAU[lv], "parent": parent_nom,
-         "population": u["pop"], "niv_pluriel": NIV_PLURIEL[lv], "nom_article": avec_article(u["nm"]) if lv == "epci" else u["nm"], "de_nom": de_nom(lv, code, u["nm"]), "nb_territoires": len(dn.niv[lv]["units"]), "version": version}
+         "population": u["pop"], "niv_pluriel": NIV_PLURIEL[lv], "nom_article": nom_article(lv, code, u["nm"]), "de_nom": de_nom(lv, code, u["nm"]), "nb_territoires": len(dn.niv[lv]["units"]), "version": version}
     # une intercommunalité sur plusieurs départements les nomme tous, avec la part de ses habitants dans chacun ; les
     # chiffres publiés au département sont ceux de son département de rattachement (défaut M5)
     f["deps"], f["parents_txt"] = [], parent_nom
@@ -325,6 +369,12 @@ def fiche(dn: Donnees, lv: str, code: str, version: str) -> dict:
             sans = dv is None or dv["v"] is None
             out.append(_ligne(lib, dv, couleur=False, limite=lim if sans and lim and lim.get("territoire") else None,
                               ident="dist_" + t, T=dn.T))
+            # population concernée, en sous-ligne (brouillon tant que Lucas n'a pas validé la présentation)
+            dp = dn.contexte(lv, code, "distp_" + t)
+            if dp is not None and ("distp_" + t) in dn.ctx:
+                sl = _ligne(libelle_public(dn.ctx["distp_" + t][1].get("label") or ""), dp, couleur=False,
+                            ident="distp_" + t, T=dn.T, sous=True)
+                out.append(sl)
         return out
 
     f["sm_pro"] = profs(PROFS_SM)
@@ -589,7 +639,7 @@ def _sante_mentale_autres(dn, lv, code, dep):
                        limite=dn.limite(ind_id, lv, code), ident=ind_id, T=dn.T)
         ligne["id"], ligne["echelle"], ligne["defn"] = ind_id, echelle, ind.get("explication")
         par.setdefault(D.classer(ind)[0], []).append(ligne)
-    return [{"nom": d["nom"], "rows": par[d["id"]]} for d in D.DOMAINES if d["id"] in par]
+    return [{"nom": d["nom"], "rows": accrocher_sous_lignes(par[d["id"]])} for d in D.DOMAINES if d["id"] in par]
 
 
 def _domaines(dn: Donnees, lv, code, dep):
@@ -607,12 +657,17 @@ def _domaines(dn: Donnees, lv, code, dep):
         ligne = _ligne(libelle(ind, dn.sd), r, couleur=False, limite=dn.limite(ind_id, lv, code), ident=ind_id, T=dn.T)
         ligne["id"], ligne["echelle"], ligne["defn"] = ind_id, echelle, ind.get("explication")
         lignes.setdefault(dom, []).append(ligne)
+    for rows in lignes.values():
+        accrocher_sous_lignes(rows)
     sortie = []
     for d in D.DOMAINES:
         if d.get("centre"):
             continue
         rows = lignes.get(d["id"], [])
         phares = [r for i in d.get("phares", []) for r in rows if r["id"] == i]
+        # une sous-ligne suit sa ligne parmi les phares (population concernée)
+        phares = [x for p in phares for x in [p] + [r for r in rows if r.get("sous") and r["id"].startswith("distp_")
+                                                     and r["id"][6:] == p["id"][5:]]]
         autres = [r for r in rows if r not in phares]
         haut = sum(1 for r in rows if r["e"] is not None and r["e"] + 1 > AF.PROCHE[1])
         bas = sum(1 for r in rows if r["e"] is not None and r["e"] + 1 < AF.PROCHE[0])

@@ -206,6 +206,13 @@ def facettes(texte: str) -> list[dict]:
         b = a + len(texte[debut:fin].encode("utf-8"))
         sortie.append({"index": {"byteStart": a, "byteEnd": b},
                        "features": [{"$type": "app.bsky.richtext.facet#link", "uri": uri}]})
+    # étiquettes (« #OpenData », « #SantéMentale ») cliquables comme dans l'application, facette #tag sans le « # »
+    # (premier message du 9 novembre 2026)
+    for m in re.finditer(r"(?<![\w#])#([^\W\d_][\w-]{0,63})", texte):
+        a = len(texte[:m.start()].encode("utf-8"))
+        b = a + len(m.group(0).encode("utf-8"))
+        sortie.append({"index": {"byteStart": a, "byteEnd": b},
+                       "features": [{"$type": "app.bsky.richtext.facet#tag", "tag": m.group(1)}]})
     return sortie
 
 

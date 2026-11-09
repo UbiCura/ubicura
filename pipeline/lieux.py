@@ -2100,6 +2100,84 @@ def controle_route_cmp(ar, L: dict, ref) -> dict | None:
     return r
 
 
+def population_concernee_visible() -> bool:
+    """Les chiffres de la population concernée entrent au catalogue (fiches, atlas, Explorer) seulement dans une
+    exécution en brouillon, jamais publiée, tant que Lucas n'a pas validé leur présentation sur maquette
+    (config.POPULATION_CONCERNEE_PUBLIEE, rien de visible sans maquette validée)."""
+    return bool(config.POPULATION_CONCERNEE_PUBLIEE) or config.RESULTATS.name == "brouillons"
+
+
+def public_du_type(tid: str) -> str | None:
+    """Clé du public que sert un type de structure (config.PUBLICS_CONCERNES), une seule définition : le dénominateur
+    du registre (densités publiées) d'abord, puis config.PUBLIC_DES_LIEUX ; None pour un type qui sert tous les
+    habitants ou qui est écarté (config.PUBLIC_EXCLUS)."""
+    if tid in config.PUBLIC_EXCLUS:
+        return None
+    parts = tuple(lieux_profil.denominateur(tid)[0])
+    if parts:
+        return config.PUBLIC_DU_DENOMINATEUR.get(parts)
+    return config.PUBLIC_DES_LIEUX.get(tid)
+
+
+def population_concernee(L: dict, ref, publics: pd.DataFrame | None) -> pd.DataFrame | None:
+    """Distance à la structure la plus proche et nombre de structures, pour tous les habitants et pour le public que
+    sert la structure (config.PUBLIC_DES_LIEUX : femmes de 15 à 39 ans pour une maternité, moins de 15 ans pour un
+    CAMSP...). Par territoire (intercommunalité, département, région, France) et par type : distance médiane et part à
+    plus de 30 km, pondérées par les habitants (population du référentiel, comme les distances publiées) puis par le
+    public (INSEE, communes). Un nombre de structures ou une distance dit où elles sont, pas si elles suffisent.
+    Relecture indépendante du 9 novembre 2026 : seuls les types recensés presque partout (L["couverture"]) ; une
+    distance retirée du site (structures déclarées à la SAE et absentes des bases) l'est ici aussi ; Mayotte, sans
+    recensement, sort des deux pondérations ; les densités restent celles du registre (taux_publics), calculées une
+    seule fois."""
+    if not L or publics is None or L.get("distances_communes") is None:
+        return None
+    from .analyses import mediane_ponderee
+    dist = L["distances_communes"]
+    com = ref.communes.set_index("code").reindex(dist.index)
+    pub = publics.reindex(dist.index)
+    # communes sans recensement (Mayotte) hors des deux pondérations, pour comparer le même champ
+    champ = pub["pop"].notna().to_numpy() if "pop" in pub else np.ones(len(dist), bool)
+    tous = np.where(champ, com["pop"].astype(float).fillna(0).to_numpy(), 0.0)
+    pub = pub.fillna(0)
+    complets = set(L["couverture"].loc[L["couverture"]["complet"], "type"]) if "couverture" in L else set(dist.columns)
+    publies = L.get("distances") or {}
+    lignes = []
+    for niv in ("epci", "dep", "reg", "fr"):
+        grp = pd.Series("FR", index=dist.index) if niv == "fr" else com[niv]
+        # distances que le site laisse vides (masquer_manques), laissées vides ici aussi
+        pub_niv = publies.get(niv)
+        vides = (set(map(tuple, pub_niv.loc[pub_niv["distance_mediane_km"].isna(), ["code", "type"]].to_numpy()))
+                 if isinstance(pub_niv, pd.DataFrame) else set())
+        for tid in dist.columns:
+            cle = public_du_type(tid)
+            if not cle or tid not in complets or cle not in pub:
+                continue
+            d_all = dist[tid].to_numpy(float)
+            for code, idx in grp.groupby(grp).groups.items():
+                m = dist.index.get_indexer(idx)
+                d, wt, wp = d_all[m], tous[m], pub[cle].to_numpy(float)[m]
+                if wt.sum() <= 0 or wp.sum() <= 0:
+                    continue
+                vide = (code, tid) in vides
+                lignes.append({"niveau": niv, "code": code, "type": tid, "public": cle,
+                               "libelle_public": config.PUBLICS_CONCERNES[cle][1],
+                               "distance_mediane_km": np.nan if vide else mediane_ponderee(d, wt),
+                               "distance_mediane_km_public": np.nan if vide else mediane_ponderee(d, wp),
+                               "part_plus_30_km": np.nan if vide else float(wt[d > 30].sum() / wt.sum()),
+                               "part_plus_30_km_public": np.nan if vide else float(wp[d > 30].sum() / wp.sum()),
+                               "communes": int((wt > 0).sum()), "population": float(wt.sum()),
+                               "population_public": float(wp.sum())})
+    out = pd.DataFrame(lignes)
+    if not out.empty:
+        fr = out[(out["niveau"] == "fr") & (out["type"] == "lieu_maternite")]
+        if len(fr):
+            r = fr.iloc[0]
+            JOURNAL.controle("Population concernée, maternité la plus proche, France entière hors Mayotte (distance "
+                             "médiane, tous les habitants et naissances récentes)",
+                             f"{nombre(r['distance_mediane_km'], 1)} km et {nombre(r['distance_mediane_km_public'], 1)} km")
+    return out
+
+
 def escalier_distances(L: dict, ref, revenu_epci: pd.Series | None) -> pd.DataFrame | None:
     """Distance des habitants à la structure la plus proche selon le niveau de vie de leur intercommunalité. Les
     intercommunalités sont classées par revenu médian et réparties en dix groupes d'environ un dixième des habitants
@@ -2311,6 +2389,13 @@ def indicateurs(L: dict, ref, ctx: dict | None = None) -> dict | None:
         if isinstance(d, pd.DataFrame):
             dd = d[d["type"].isin(types)].pivot_table(index="code", columns="type", values="distance_mediane_km")
             t = t.join(dd.reindex(columns=types).add_prefix("dist_"), how="left")
+        # même distance, médiane du public que sert la structure (femmes de 15 à 39 ans pour une maternité)
+        pc = L.get("population_concernee")
+        if population_concernee_visible() and isinstance(pc, pd.DataFrame) and not pc.empty:
+            tp_pub = [tp for tp in types if public_du_type(tp)]
+            dp = pc[(pc["niveau"] == niv) & pc["type"].isin(tp_pub)].pivot_table(
+                index="code", columns="type", values="distance_mediane_km_public")
+            t = t.join(dp.reindex(columns=tp_pub).add_prefix("distp_"), how="left")
         sortie[niv] = t
         if niv == "reg" and isinstance(cn, pd.DataFrame):
             # contrôle permanent du dénominateur, valeur France de chaque type rapporté à son public
@@ -2348,6 +2433,22 @@ def indicateurs(L: dict, ref, ctx: dict | None = None) -> dict | None:
                                     "un temps de trajet.",
                      "source": config.SOURCE_LIEUX, "famille": "", "licence": "Licence Ouverte 2.0",
                      "niveau_origine": "commune", "groupe": config.GROUPE_DISTANCES})
+        cle = public_du_type(tp)
+        if cle and population_concernee_visible() and isinstance(L.get("population_concernee"), pd.DataFrame):
+            qui = config.PUBLICS_CONCERNES[cle][1]
+            defs.append({"id": f"distp_{tp}", "libelle": f"Distance à la structure la plus proche, {minuscule(court)}, "
+                                                          + (f"selon le domicile des {qui}" if cle == "naissances"
+                                                             else f"pour les {qui}"),
+                         "unite": "km",
+                         "explication": f"Distance à vol d'oiseau entre le centre de la commune et la structure la plus "
+                                        f"proche du type « {lib} », médiane calculée, dans le territoire, sur "
+                                        + ("les enfants nés entre les deux derniers recensements, comptés au domicile de "
+                                           "leur mère," if cle == "naissances" else f"les {qui},")
+                                        + " et non sur tous ses habitants (INSEE). Paris, Lyon et Marseille "
+                                        "comptent pour un point, Mayotte n'a pas de recensement. Ce n'est pas un temps de "
+                                        "trajet, et une structure proche ne dit pas qu'elle suffit.",
+                         "source": config.SOURCE_LIEUX, "famille": "", "licence": "Licence Ouverte 2.0",
+                         "niveau_origine": "commune", "groupe": config.GROUPE_DISTANCES})
     return {"contexte": sortie, "defs": defs}
 
 

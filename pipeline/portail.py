@@ -56,17 +56,27 @@ def recherche(site_data: dict, dernier: Path, brut: Path, fiches: dict | None = 
     epci_de = {}
     for l in _lire(dernier / "accessibilite_communes.csv"):
         epci_de.setdefault(l["code"], l["epci"])
-    communes = []
+    communes, arrondissements = [], []
     ref = brut / "ref_communes.json"
     if ref.exists():
-        for c in json.loads(ref.read_text(encoding="utf-8")):
+        lus = json.loads(ref.read_text(encoding="utf-8"))
+        for c in lus:
             if c.get("type") != "commune-actuelle" or not epci_de.get(c["code"]):
                 continue
             cps = c.get("codesPostaux") or []
             communes.append([c["code"], c["nom"], " ".join(cps), int(c.get("population") or 0), epci_de[c["code"]]])
+        # les 45 arrondissements municipaux de Paris, Lyon et Marseille (type « arrondissement-municipal » du
+        # référentiel, avec le code de leur commune) : « Paris 15e » ou « psychiatres Lyon 3e » ne trouvaient rien
+        # (contre-audit de la recherche, 8 novembre 2026). Ils mènent à la fiche de leur commune, comme elle : [code, nom,
+        # codes postaux, habitants, intercommunalité de la commune, code de la commune]. À part des communes, pour que
+        # la recherche de l'accueil (recherche.js) reste telle quelle.
+        for c in lus:
+            if c.get("type") == "arrondissement-municipal" and epci_de.get(c.get("commune")):
+                arrondissements.append([c["code"], c["nom"], " ".join(c.get("codesPostaux") or []),
+                                        int(c.get("population") or 0), epci_de[c["commune"]], c["commune"]])
     inds = [[i["id"], i["label"], D.PAR_ID[i["domaine"]]["nom"], i["domaine"], (fiches or {}).get(i["id"], "")]
             for i in catalogue(site_data) if i.get("label")]
-    return {"territoires": terr, "communes": communes, "indicateurs": inds}
+    return {"territoires": terr, "communes": communes, "arrondissements": arrondissements, "indicateurs": inds}
 
 
 def pages_recherche(site: Path) -> list[list[str]]:

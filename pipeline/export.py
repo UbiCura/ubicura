@@ -509,6 +509,12 @@ def _lieux_points(agg, ref):
             # distance médiane des habitants et part à plus de 20 et 30 km, France entière, par type
             "fr": {r.type: [_r(r.distance_mediane_km, 1), _r(r.part_plus_20_km, 4), _r(r.part_plus_30_km, 4)]
                    for r in ((L.get("distances") or {}).get("fr", pd.DataFrame(columns=["type"]))).itertuples()},
+            # médiane France du public que sert la structure (population concernée, en brouillon jusqu'à validation)
+            "fr_public": ({r.type: [_r(r.distance_mediane_km_public, 1), None, _r(r.part_plus_30_km_public, 4)]
+                           for r in L["population_concernee"][L["population_concernee"]["niveau"] == "fr"].itertuples()}
+                          if lieux_mod.population_concernee_visible()
+                          and isinstance(L.get("population_concernee"), pd.DataFrame)
+                          and not L["population_concernee"].empty else {}),
             "communes": ref.communes[ref.communes["code"].isin(set(x["commune"]))].set_index("code")["nom"].to_dict(),
             "champs": ["type", "lat", "lon", "nom", "commune", "provenance", "precision", "declares", "epci", "dep", "reg",
                        "confirmation", "public", "signaux", "partage"],
@@ -835,7 +841,7 @@ def _site(agg, ref, professions, insee, R, serie, jour):
     if isinstance(cc, pd.DataFrame) and len(cc):
         # pour les lieux de soins, l'atlas ne garde que le mode « tous modes » (atlas plus léger), les autres modes
         # restent dans correlations_contexte.csv
-        lieux_v = cc["variable"].astype(str).str.startswith(("lieux_", "dist_"))
+        lieux_v = cc["variable"].astype(str).str.startswith(("lieux_", "dist_", "distp_"))
         cc = cc[~lieux_v | (cc["mode"] == "all")]
         corr = [{"niv": r["niveau"], "mode": r["mode"], "prof": r["prof"], "var": r["variable"],
                  "rho": _r(r["rho_spearman"], 3), "lo": _r(r["ic95_bas"], 3), "hi": _r(r["ic95_haut"], 3),

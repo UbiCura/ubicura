@@ -8,7 +8,7 @@
   if (!bouton || !panneau) return;
   var champ = document.getElementById("q-tete"), sortie = document.getElementById("res-tete"), etat = document.getElementById("etat-tete");
   var racine = document.documentElement.getAttribute("data-racine") || "";
-  var D = null, idx = null, epci = {}, enCours = null, minuterie = null, demande = 0, META = null;
+  var D = null, idx = null, epci = {}, comNom = {}, comPop = {}, enCours = null, minuterie = null, demande = 0, META = null;
   var NIV = { reg: "région", dep: "département", epci: "intercommunalité" };
   // mots d'usage ramenés au vocabulaire du site : des variantes séparées par « | », chacune de un ou plusieurs mots, tous
   // exigés (« hlm » vaut « logement social », jamais « logement » seul)
@@ -38,7 +38,12 @@
       D = d; idx = [];
       ["reg", "dep", "epci"].forEach(function (lv) { d.territoires[lv].forEach(function (u) {
         idx.push({ g: "terr", t: lv, c: u[0], nm: u[1], m: mots(u[1]), pop: u[2], p: u[3] }); if (lv === "epci") epci[u[0]] = u; }); });
-      d.communes.forEach(function (k) { idx.push({ g: "terr", t: "com", c: k[0], nm: k[1], m: mots(k[1]), cp: k[2], pop: k[3], epci: k[4] }); });
+      d.communes.forEach(function (k) { idx.push({ g: "terr", t: "com", c: k[0], nm: k[1], m: mots(k[1]), cp: k[2], pop: k[3], epci: k[4] }); comNom[k[0]] = k[1]; comPop[k[0]] = k[3]; });
+      // les arrondissements de Paris, Lyon et Marseille, trouvés comme une commune (« Paris 15e », « Lyon 3 »,
+      // « Marseille 8ème »), qui mènent à la fiche de leur commune (contre-audit du 8 novembre 2026) ; « arrondissement »
+      // en minuscule, comme on l'écrit (« Paris 15e arrondissement »)
+      (d.arrondissements || []).forEach(function (k) { var nm = k[1].replace(/ Arrondissement$/, " arrondissement");
+        idx.push({ g: "terr", t: "com", c: k[0], nm: nm, m: mots(nm + " " + rangs(nm).join(" ")), cp: k[2], pop: k[3], epci: k[4], pc: k[5] }); });
       d.indicateurs.forEach(function (i, k) { idx.push({ g: "ind", c: i[0], nm: i[1], m: mots(i[1] + " " + i[2]), mn: motsCherches(i[1].split(", pour ")[0].replace("à la structure la plus proche,", "")), rang: k, dom: i[2], fiche: i[4] || "" }); });
       (d.pages || []).forEach(function (p) { idx.push({ g: p[2] === "question" ? "q" : "page", nm: p[0], url: p[1], genre: p[2], prec: p[3], m: mots(p[0] + " " + p[3]) }); });
     });
@@ -79,7 +84,15 @@
   // intercommunalité (« Rodez Agglomération », « Grand Paris »)
   function formes(nm) {
     var n = base(nm).replace(/\s+/g, " ").trim(), s = n.replace(/^(la|le|les|l) /, "");
-    return [n, s, s.replace(/^(ca|cc|cu|ct|ept|cte|cs|metropole|communaute (de communes|d agglomeration|urbaine))( (du|de la|de|des|d))? /, "")];
+    var r = rangs(nm), v = /^(.+) \d+(er|e) arrondissement$/.exec(n);
+    // un arrondissement : « paris 15 », « paris 15e », « paris 15eme », avec ou sans « arrondissement »
+    var arr = v ? r.reduce(function (a, x) { return a.concat([v[1] + " " + x, v[1] + " " + x + " arrondissement"]); }, []) : [];
+    return [n, s, s.replace(/^(ca|cc|cu|ct|ept|cte|cs|metropole|communaute (de communes|d agglomeration|urbaine))( (du|de la|de|des|d))? /, "")].concat(arr);
+  }
+  // le rang d'un arrondissement sous ses formes d'usage : « 15 », « 15e », « 15eme », et « 1er », « 1ere » pour le premier
+  function rangs(nm) {
+    var v = /(\d+)(er|e) [Aa]rrondissement$/.exec(nm); if (!v) return [];
+    return [v[1], v[1] + "e", v[1] + "eme"].concat(v[1] === "1" ? ["1er", "1ere"] : []);
   }
   function trouver(q) {
     var V = etendre(q), res = { terr: [], ind: [], q: [], page: [] };
@@ -91,6 +104,8 @@
     });
     var RANG = { dep: 0, reg: 1, epci: 2, com: 3 };
     res.terr.sort(function (a, b) { return (b.pop || 0) - (a.pop || 0) || RANG[a.t] - RANG[b.t]; });
+    // « 75015 » : l'arrondissement dont c'est le code postal avant la commune de Paris (relecture du 9 novembre 2026)
+    if (cp) res.terr.sort(function (a, b) { return (b.pc ? 1 : 0) - (a.pc ? 1 : 0); });
     // l'indicateur dont le nom commence par la recherche d'abord, puis le plus court (« Psychiatre » avant « Psychiatre,
     // en établissement psychiatrique »)
     var qb = motsCherches(q).join(" ");
@@ -111,14 +126,19 @@
         // « Lille », jamais « de vie » pour « Croix-de-Vie »)
         var lieu = base(essais[i][1]).trim().replace(/\s+/g, " ").replace(/^(a|au|aux|en|dans|de|du|des|d|pour|sur) /, "");
         var lieux = [lieu, lieu.replace(/^(la|le|les|l) /, "")];
-        // le nom entier d'abord, puis sans article, puis sans sigle : « Lyon » est la commune, pas la Métropole de Lyon
-        function niveau(e) { var f = formes(e.nm); for (var z = 0; z < f.length; z++) if (lieux.indexOf(f[z]) >= 0) return z; return 9; }
+        // le nom entier d'abord, puis sans article, puis sans sigle : « Lyon » est la commune, pas la Métropole de Lyon ;
+        // -1 quand aucune forme ne va (un arrondissement a plus de neuf formes, « lyon 1er » est la dixième)
+        function niveau(e) { var f = formes(e.nm); for (var z = 0; z < f.length; z++) if (lieux.indexOf(f[z]) >= 0) return z; return -1; }
         var ok = lieu.length < 3 ? [] : rt.map(function (e, z) { return { e: e, n: /^\d{5}$/.test(lieu) ? 0 : niveau(e), z: z }; })
-          .filter(function (x) { return x.n < 9; }).sort(function (x, y) { return x.n - y.n || x.z - y.z; }).map(function (x) { return x.e; });
+          .filter(function (x) { return x.n >= 0; }).sort(function (x, y) { return x.n - y.n || x.z - y.z; }).map(function (x) { return x.e; });
         var t = ok[0];
         if (!t) continue;
-        // Paris par son code postal répond comme « Paris » : le département, dont la commune porte le nom et le code
-        if (t.t === "com") { var dp = idx.filter(function (e) { return e.t === "dep" && t.c.indexOf(e.c) === 0 && base(e.nm) === base(t.nm); })[0]; if (dp) t = dp; }
+        // Paris par son code postal répond comme « Paris » : le département, dont la commune porte le nom et le code ;
+        // un arrondissement de Paris aussi, et la réponse le nomme (« à Paris, dont Paris 15e arrondissement fait partie »)
+        if (t.t === "com") { var nc = t.pc ? comNom[t.pc] || t.nm : t.nm, cc = t.pc || t.c;
+          var dp = idx.filter(function (e) { return e.t === "dep" && cc.indexOf(e.c) === 0 && base(e.nm) === base(nc); })[0];
+          // la commune reste connue (com), pour le lien « Autour de Paris » de la réponse
+          if (dp) t = { g: dp.g, t: dp.t, c: dp.c, nm: dp.nm, m: dp.m, pop: dp.pop, p: dp.p, via: t.pc ? t.nm : null, com: t }; }
         return { ind: ri, terr: t, homonymes: ok.filter(function (e) { return e !== t && e.nm === t.nm && e.pop !== t.pop; }) };
       }
     }
@@ -142,16 +162,33 @@
     if (/^Les /.test(nm)) return "Autour des " + nm.slice(4);
     return /^[AEIOUYÉÈÊÎÔÂH]/i.test(nm) ? "Autour d'" + nm : "Autour de " + nm;
   }
+  // une commune hors intercommunalité (code en C : Ouessant, Sein, Bréhat, Yeu) a sa propre fiche, qu'elle ne « fait
+  // pas partie » d'elle-même (contre-audit du 8 novembre 2026, « à Ouessant, dont Ouessant fait partie »)
+  function seule(e) { return e.t === "com" && /^C/.test(e.epci || ""); }
+  // une commune ou un arrondissement (relecture indépendante du 9 novembre 2026) : Paris, commune et département à la
+  // fois, mène à la fiche du département comme la réponse directe ; un arrondissement de Lyon ou de Marseille, à
+  // l'intercommunalité avec sa commune et son nom (« Lyon 3e arrondissement est dans la commune de Lyon ») ; une
+  // commune de plus de 100 000 habitants n'y est pas dite « trop petite »
+  function lienCommune(e) {
+    var cc = e.pc || e.c, ep = epci[e.epci];
+    if (cc === "75056") return racine + "territoire/dep/75.html";
+    if (!ep) return null;
+    if (seule(e)) return racine + "territoire/epci/" + ep[0] + ".html";
+    return racine + "territoire/epci/" + ep[0] + ".html?commune=" + cc + "&nom=" + encodeURIComponent(e.pc ? comNom[e.pc] || e.nm : e.nm) +
+      (e.pc ? "&arr=" + encodeURIComponent(e.nm) : "") + ((comPop[cc] || e.pop || 0) > 100000 ? "&grande=1" : "");
+  }
   function adresse(e) {
-    if (e.t === "com") { var ep = epci[e.epci]; return ep ? racine + "territoire/epci/" + ep[0] + ".html?commune=" + e.c + "&nom=" + encodeURIComponent(e.nm) : null; }
+    if (e.t === "com") return lienCommune(e);
     if (e.g === "terr") return racine + "territoire/" + e.t + "/" + e.c + ".html";
     if (e.g === "ind") return e.fiche ? racine + "indicateur/" + e.fiche + ".html" : racine + "indicateurs.html";
     return racine + e.url;
   }
   function ligne(e) {
     var s = "";
-    if (e.t === "com") { var ep = epci[e.epci]; s = "commune" + (ep ? ", dans " + ep[1] : ""); }
-    else if (e.g === "terr") s = NIV[e.t] + (e.p ? ", " + e.p : "");
+    // « 75015, à Paris » pour un arrondissement ; « commune sans intercommunalité » pour Ouessant ou l'Île-d'Yeu
+    if (e.t === "com" && e.pc) s = e.cp.split(" ")[0] + ", à " + (comNom[e.pc] || "");
+    else if (e.t === "com") { var ep = epci[e.epci]; s = seule(e) ? "commune sans intercommunalité" : "commune" + (ep ? ", dans " + ep[1] : ""); }
+    else if (e.g === "terr") s = (e.t === "epci" && /^C/.test(e.c) ? "commune sans intercommunalité" : NIV[e.t]) + (e.p ? ", " + e.p : "");
     else if (e.g === "ind") s = "indicateur, " + e.dom.toLowerCase();
     else s = e.prec;
     var a = adresse(e);
@@ -178,7 +215,7 @@
     }).then(function (x) {
       var j = x[0], M = x[1][ind.c] || [ind.nm.toLowerCase(), ""], R = x[2], jd = R ? R[0] : null;
       if (numero !== demande || !j) return;
-      var lieu = (j.dans || "dans " + j.nom) + (t.t === "com" ? ", dont " + t.nm + " fait partie" : "");
+      var lieu = (j.dans || "dans " + j.nom) + (t.t === "com" && !seule(t) ? ", dont " + t.nm + " fait partie" : t.via ? ", dont " + t.via + " fait partie" : "");
       var src = jd || j, v = src.ind[ind.c];
       var bloc = document.createElement("div"); bloc.className = "reponse";
       var ou = !jd ? lieu : (jd.dans || "dans " + jd.nom) + (R[1] === "dep" ? ", département de rattachement " : ", région ") +
@@ -212,10 +249,12 @@
           '<span class="s">Chiffres calculés comme ceux des fiches, ' + esc(((jd || j).pop || 0).toLocaleString("fr-FR")) + " habitants.</span>";
       }
       var fl = jd ? R[1] : lv, fc = jd ? R[2] : code, fj = jd || j;
+      var tc = t.t === "com" ? t : t.com || null;
       var l = document.createElement("span"); l.className = "l";
       l.innerHTML = '<a href="' + esc(racine + "territoire/" + fl + "/" + fc + ".html") + '">Fiche ' + esc(fj.de || "de " + fj.nom) + "</a>" +
         '<a href="' + esc(adresse(ind)) + '">' + esc(ind.nm) + " : carte et définition</a>" +
-        (t.t === "com" ? '<a href="' + esc(racine + "zone.html#lieu=" + t.c + "&rayon=10") + '">' + esc(autour(t.nm)) + "</a>" : "");
+        // autour d'un arrondissement : autour de sa commune, la seule que connaît la page « Autour d'un lieu »
+        (tc ? '<a href="' + esc(racine + "zone.html#lieu=" + (tc.pc || tc.c) + "&rayon=10") + '">' + esc(autour(tc.pc ? comNom[tc.pc] || tc.nm : tc.nm)) + "</a>" : "");
       bloc.appendChild(l);
       // une seule apostrophe dans la réponse et ses liens, la droite, comme le reste du texte des fiches
       bloc.innerHTML = bloc.innerHTML.replace(/’/g, "'");

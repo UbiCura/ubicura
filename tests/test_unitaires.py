@@ -1377,6 +1377,51 @@ def test_doi_version_et_taille():
         config.DONNEES = ancien
 
 
+def test_doi_reserves_et_publication_du_site():
+    """Version en préparation : le site cite les DOI réservés de ses brouillons, et zenodo.py pret-site refuse la mise
+    en ligne tant que Zenodo ne l'a pas publiée ; une fois publiée avec ces DOI, le site n'est pas à refaire
+    (ordre de publication demandé par Lucas le 6 novembre 2026)."""
+    import json
+    import tempfile
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "outils"))
+    from pipeline import config, site
+    import zenodo
+    ancien = config.DONNEES
+    try:
+        config.DONNEES = Path(tempfile.mkdtemp(prefix="zenodo_"))
+        reserves = {"donnees": "10.5281/zenodo.11", "sante-mentale": "10.5281/zenodo.12", "sante": "10.5281/zenodo.13"}
+        etat = {"version_archivee": "2026-11-07", "en_preparation": "2026-11-09",
+                "doi_versions": {"2026-11-07": {"donnees": "10.5281/zenodo.1"}},
+                "brouillons": {c: {"id": 1, "doi": d} for c, d in reserves.items()}}
+        (config.DONNEES / "zenodo.json").write_text(json.dumps(etat), encoding="utf-8")
+        assert site.doi_version("sante", "2026-11-09") == "10.5281/zenodo.13"
+        assert site.doi_version("donnees", "2026-11-07") == "10.5281/zenodo.1"      # version publiée, son DOI relevé
+        assert site.doi_version("donnees", "2026-11-08") is None
+        # correctif du même jour : le DOI réservé passe avant celui de la version corrigée, relevé à la même date
+        meme_jour = dict(etat, doi_versions={"2026-11-09": {"sante": "10.5281/zenodo.5"}})
+        (config.DONNEES / "zenodo.json").write_text(json.dumps(meme_jour), encoding="utf-8")
+        assert site.doi_version("sante", "2026-11-09") == "10.5281/zenodo.13"
+        (config.DONNEES / "zenodo.json").write_text(json.dumps(etat), encoding="utf-8")
+        f = config.DONNEES / "site_citation.json"
+        assert zenodo.cmd_pret_site(None) == 1                                        # rien de noté, refus
+        f.write_text(json.dumps({"version": "2026-11-09", "dois": reserves, "reservee": True, "melange": False}),
+                     encoding="utf-8")
+        assert zenodo.cmd_pret_site(None) == 1                                        # Zenodo pas encore publié
+        # après la publication : constater relève les DOI publiés, ceux du site sont les mêmes
+        etat.pop("en_preparation"); etat.pop("brouillons")
+        etat.update({"version_archivee": "2026-11-09", "doi_versions": {"2026-11-09": reserves}})
+        (config.DONNEES / "zenodo.json").write_text(json.dumps(etat), encoding="utf-8")
+        assert zenodo.site_cite("2026-11-09", reserves) and zenodo.cmd_pret_site(None) == 0
+        assert not zenodo.site_cite("2026-11-09", dict(reserves, sante="10.5281/zenodo.99"))
+        f.write_text(json.dumps({"version": "2026-11-07", "dois": {}, "reservee": False, "melange": False}),
+                     encoding="utf-8")
+        assert zenodo.cmd_pret_site(None) == 1                                        # site d'une version ancienne
+        f.write_text(json.dumps({"version": "2026-11-09", "dois": reserves, "melange": True}), encoding="utf-8")
+        assert zenodo.cmd_pret_site(None) == 1                                        # citations mélangées
+    finally:
+        config.DONNEES = ancien
+
+
 def test_limite_psychologues_calculee():
     """La limite des psychologues est écrite avec les écarts de concordance_effectifs.csv, sens et valeurs compris, et
     relue depuis site_data quand le site est refait seul (demande du 30 octobre 2026, audit externe)."""
@@ -5345,6 +5390,21 @@ def test_reseaux_messages():
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+def test_reseaux_etiquettes():
+    """Les étiquettes d'un message Bluesky sont cliquables (facette #tag, sans le « # »), leurs positions comptées en
+    octets UTF-8 comme celles des liens, et ni un nombre (« #1 »), ni un « # » au milieu d'un mot n'en font une."""
+    sys.path.insert(0, str(config.RACINE / "outils"))
+    import reseaux as RS
+    t = "Où sont les CMP ?\n\n#OpenData #SantéMentale le n°#1 a#b\nubicura.fr"
+    f = RS.facettes(t)
+    tags = [x["features"][0]["tag"] for x in f if x["features"][0]["$type"].endswith("#tag")]
+    assert tags == ["OpenData", "SantéMentale"], tags
+    b = t.encode("utf-8")
+    for x in f:
+        seg = b[x["index"]["byteStart"]:x["index"]["byteEnd"]].decode("utf-8")
+        assert seg in ("#OpenData", "#SantéMentale", "ubicura.fr"), seg
+
+
 def test_reseaux_file_d_attente():
     """File d'attente de la série Bluesky (demande de Lucas du 8 novembre 2026), sans rien publier : la série se charge
     dans l'ordre de ses dates sans le fil ; un message programmé ne part jamais si ses chiffres viennent d'une version
@@ -6737,6 +6797,106 @@ def test_rapports_vrai_signe_moins():
     for f in sorted((d / "graphiques").glob("*.svg")):
         fautes += [(f.name, m.group(0)) for m in re.finditer(r">-\d[^<]*<", f.read_text(encoding="utf-8"))]
     assert not fautes, fautes[:10]
+
+
+def test_sieges_declarants_hors_des_territoires():
+    """Remarque de Lucas du 9 novembre 2026 (infirmiers de Rodez « très au-dessus », « peut-être ailleurs ») : une
+    structure sans FINESS qui déclare à son siège plus d'un professionnel pour cinq habitants ne situe pas leur
+    exercice. Sur le répertoire en cache, la règle ne retient que l'association ASALEE à Brioux-sur-Boutonne (ses
+    infirmiers exercent dans des cabinets de toute la France), jamais un hôpital déclaré sur son site, et ses
+    activités sortent des territoires sans quitter l'effectif national."""
+    import pandas as pd
+    from pipeline.sources import referentiel, rpps
+    f = config.INTER / "rpps_activites.parquet"
+    if not f.exists():
+        raise Ignore("activités du répertoire absentes du cache, lancer run.py")
+    a = pd.read_parquet(f)
+    ref = referentiel.charger(hors_ligne=True)
+    asalee = a[a["rs"].astype(str).str.contains("ASALEE") & (a["prof"].astype(str) == "infirmier")]
+    if not rpps.sieges(a, ref).empty or not (asalee["com"] == "79057").any():
+        # cache écrit par une exécution qui applique déjà la règle (run.py enregistre les activités après elle) : le
+        # siège est remis dans sa commune pour refaire la règle sur le répertoire réel. ASALEE déclare aussi une
+        # centaine d'infirmiers à Paris, sous le seuil, qui restent dans leur commune.
+        assert asalee["com"].isna().sum() > 1000
+        a = a.copy()
+        a.loc[asalee.index[asalee["com"].isna()], "com"] = "79057"
+    s = rpps.sieges(a, ref)
+    assert set(s.loc[s["attendu"], "com"]) == {"79057"} and s.loc[s["attendu"], "rs"].str.contains("ASALEE").all()
+    # aucun hôpital ni clinique parmi les candidats, même déclarés sans FINESS (CH de la région de Saint-Omer)
+    assert not s["rs"].str.contains(rpps.SOINS).any(), s.to_dict("records")
+    b = rpps.retirer_sieges(a, ref)
+    assert len(b) == len(a) and b["id"].nunique() == a["id"].nunique()   # l'effectif national ne change pas
+    restants = b[(b["com"] == "79057") & (b["prof"] == "infirmier")]["id"].nunique()
+    assert restants < 50, restants
+    # seules les activités du siège reconnu changent de commune
+    change = a["com"].astype(object).where(a["com"].notna(), "") != b["com"].astype(object).where(b["com"].notna(), "")
+    assert a.loc[change, "rs"].astype(str).str.contains("ASALEE").all() and change.sum() > 1000
+
+
+def test_population_concernee_reglages():
+    """Population concernée (remarque de Lucas du 9 novembre 2026, relecture indépendante du même jour) : une seule
+    définition du public d'un type (le dénominateur du registre des structures d'abord, puis config.PUBLIC_DES_LIEUX),
+    les EHPAD écartés, chaque public lu dans le dossier complet de l'INSEE en cache pour les communes, et rien de publié
+    avant la validation de la présentation par Lucas."""
+    from pipeline import lieux as LI, lieux_profil as LP
+    assert not config.POPULATION_CONCERNEE_PUBLIEE
+    types = {t[0] for t in config.LIEUX_TYPES}
+    assert set(config.PUBLIC_DES_LIEUX) <= types, set(config.PUBLIC_DES_LIEUX) - types
+    assert set(config.PUBLIC_DES_LIEUX.values()) <= set(config.PUBLICS_CONCERNES)
+    for tid in types:
+        parts = tuple(LP.denominateur(tid)[0])
+        if parts:
+            # un type qui a un dénominateur au registre n'en reçoit pas un second
+            assert tid not in config.PUBLIC_DES_LIEUX, tid
+            assert tid in config.PUBLIC_EXCLUS or LI.public_du_type(tid) == config.PUBLIC_DU_DENOMINATEUR[parts], tid
+    assert LI.public_du_type("lieu_ehpad") is None and LI.public_du_type("lieu_maternite") == "naissances"
+    variables = {v for vs, _l in config.PUBLICS_CONCERNES.values() for v in vs}
+    assert variables <= set(config.INSEE_MESURES), variables - set(config.INSEE_MESURES)
+    chemin = config.BRUT / "insee_dossier_complet.parquet"
+    if not chemin.exists():
+        raise Ignore("dossier complet de l'INSEE absent du cache")
+    import pyarrow.dataset as ds
+    import pyarrow.compute as pc
+    mesures = {config.INSEE_MESURES[v] for v in variables}
+    t = ds.dataset(chemin).to_table(columns=["ID_TAB", "TAB_MEASURE", "GEO"],
+                                    filter=(pc.field("GEO_OBJECT") == "COM") & pc.field("ID_TAB").isin(sorted({m[0] for m in mesures}))).to_pandas()
+    for tab, motif in mesures:
+        n = t.loc[(t["ID_TAB"] == tab) & t["TAB_MEASURE"].str.match(motif), "GEO"].nunique()
+        assert n > 34000, (tab, motif, n)
+
+
+def test_population_concernee_brouillon():
+    """Chiffres de la population concernée de la dernière exécution en brouillon (run.py --brouillons) : seuls les
+    types recensés presque partout ; une distance laissée vide par le site l'est aussi ; la distance de tous les
+    habitants (hors Mayotte, sans recensement) suit celle publiée de la même exécution ; chaque part est comprise entre
+    0 et 1 ; environ 4,4 millions de naissances récentes. Mesure du 9 novembre 2026 : la maternité la plus proche est
+    plus près du domicile des naissances que de l'ensemble des habitants."""
+    dossiers = sorted((config.RESULTATS / "brouillons").glob("20*/population_concernee.csv"))
+    if not dossiers:
+        raise Ignore("aucune exécution en brouillon avec la population concernée, lancer run.py --hors-ligne --brouillons")
+    import pandas as pd
+    f = dossiers[-1]
+    p = pd.read_csv(f, sep=";", decimal=",", dtype={"code": str})
+    if "pour_100000_public" in p:
+        raise Ignore("brouillon antérieur à la relecture du 9 novembre 2026, relancer run.py --hors-ligne --brouillons")
+    ok = p["distance_mediane_km"].notna()
+    assert ((p.loc[ok, "part_plus_30_km"].between(0, 1)) & (p.loc[ok, "part_plus_30_km_public"].between(0, 1))).all()
+    publie = pd.read_csv(f.parent / "distances_lieux_france.csv", sep=";", decimal=",").set_index("type")
+    incomplets = set(publie.index[publie["recensement_complet"].astype(str) == "False"])
+    assert not set(p["type"]) & incomplets, set(p["type"]) & incomplets
+    assert "lieu_ehpad" not in set(p["type"])
+    fr = p[p["niveau"] == "fr"].set_index("type")
+    pub = fr.loc["lieu_maternite"]
+    assert 3.5e6 < pub["population_public"] < 5.5e6, pub["population_public"]
+    assert pub["distance_mediane_km_public"] < pub["distance_mediane_km"]
+    for t_ in fr.index:
+        if t_ in publie.index and pd.notna(publie.at[t_, "distance_mediane_km"]):
+            assert abs(fr.at[t_, "distance_mediane_km"] - publie.at[t_, "distance_mediane_km"]) < 0.15, t_
+    for niv, fich in (("dep", "distances_lieux_dep.csv"), ("epci", "distances_lieux_epci.csv")):
+        d = pd.read_csv(f.parent / fich, sep=";", decimal=",", dtype={"code": str})
+        vides = set(map(tuple, d.loc[d["distance_mediane_km"].isna(), ["code", "type"]].to_numpy()))
+        x = p[(p["niveau"] == niv) & p["distance_mediane_km_public"].notna()]
+        assert not set(zip(x["code"], x["type"])) & vides, niv
 
 
 # une décision de Lucas ou un défaut d'audit, un test (6 novembre 2026), repris ici pour que la commande du projet les lance

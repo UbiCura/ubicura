@@ -131,11 +131,12 @@ def etat_depots(z: Zenodo) -> dict:
 
 
 def lire_etat() -> dict:
-    return json.loads(ETAT.read_text(encoding="utf-8")) if ETAT.exists() else {}
+    e = config.DONNEES / "zenodo.json"          # relu à chaque appel (les tests changent config.DONNEES)
+    return json.loads(e.read_text(encoding="utf-8")) if e.exists() else {}
 
 
 def ecrire_etat(etat: dict) -> None:
-    ETAT.write_text(json.dumps(etat, ensure_ascii=False, indent=2), encoding="utf-8")
+    (config.DONNEES / "zenodo.json").write_text(json.dumps(etat, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 def md5(f: Path) -> str:
@@ -242,19 +243,15 @@ def cmd_preparer(args) -> int:
     if all(version_du_depot(x["derniere"]) == etiquette for x in e.values()):
         print(f"La version {etiquette} est déjà publiée sur Zenodo pour les trois dépôts, rien à préparer.")
         return 0
-    print(f"Fichiers de la version {version}, archive des données et rapports en PDF (quelques minutes).")
-    from pipeline import site
-    fichiers = site.fichiers_zenodo(version, DOSSIER / version)
     etat = lire_etat()
     etat.update({"en_preparation": version, "brouillons": {}, "date_preparation": dt.datetime.now().isoformat("T", "seconds"),
                  "remplace": getattr(args, "remplace", None)})
-    ids_donnees = {str(d["id"]) for d in z.depots() if str(d.get("conceptrecid")) == concept(DEPOTS["donnees"])}
-    doi_donnees = None           # DOI de la version des données de cette version, cité par les deux rapports
-    for cle, x in e.items():     # les données d'abord (ordre de DEPOTS)
+    # 1. les brouillons d'abord, pour connaître leurs DOI réservés : les rapports déposés citent ainsi leur propre
+    # version, et le site se construit une seule fois avec ces DOI, avant la publication (Lucas, 6 novembre 2026)
+    brouillons = {}
+    for cle, x in e.items():
         if version_du_depot(x["derniere"]) == etiquette:
-            print(f"- {NOMS[cle]}, version {etiquette} déjà publiée, laissé tel quel.")
-            if cle == "donnees":
-                doi_donnees = x["derniere"]["metadata"].get("doi")
+            etat["brouillons"][cle] = {"doi": x["derniere"]["metadata"].get("doi"), "publie": True}
             continue
         # le brouillon de nouvelle version, repris s'il existe déjà, sinon créé à partir de la dernière version publiée
         if x["brouillon"]:
@@ -264,6 +261,25 @@ def cmd_preparer(args) -> int:
             brouillon = z.appel("GET", r["links"]["latest_draft"]).json()
         if brouillon.get("submitted"):
             raise Arret(f"Zenodo n'a pas créé de brouillon pour le dépôt {NOMS[cle]}, rien n'a été modifié")
+        doi = (brouillon["metadata"].get("prereserve_doi") or {}).get("doi")
+        if not doi:
+            raise Arret(f"Zenodo n'a pas réservé de DOI pour le brouillon du dépôt {NOMS[cle]}. Lancer "
+                        "python outils\\zenodo.py abandonner, puis recommencer.")
+        brouillons[cle] = brouillon
+        etat["brouillons"][cle] = {"id": brouillon["id"], "doi": doi}
+    ecrire_etat(etat)
+    # 2. les fichiers, qui citent ces DOI
+    print(f"Fichiers de la version {version}, archive des données et rapports en PDF (quelques minutes).")
+    from pipeline import site
+    fichiers = site.fichiers_zenodo(version, DOSSIER / version)
+    # 3. l'envoi
+    ids_donnees = {str(d["id"]) for d in z.depots() if str(d.get("conceptrecid")) == concept(DEPOTS["donnees"])}
+    doi_donnees = etat["brouillons"]["donnees"]["doi"]   # DOI de la version des données, cité par les deux rapports
+    for cle in e:                # les données d'abord (ordre de DEPOTS)
+        if cle not in brouillons:
+            print(f"- {NOMS[cle]}, version {etiquette} déjà publiée, laissé tel quel.")
+            continue
+        brouillon = brouillons[cle]
         bid = brouillon["id"]
         # les fichiers repris de la version précédente sont retirés, puis les nouveaux sont envoyés
         for f in z.appel("GET", f"/deposit/depositions/{bid}/files").json():
@@ -277,7 +293,7 @@ def cmd_preparer(args) -> int:
         meta = brouillon["metadata"]
         meta.update({"version": etiquette, "publication_date": version})
         if cle == "donnees":
-            doi_donnees = (meta.get("prereserve_doi") or {}).get("doi")
+            pass
         elif doi_donnees:
             meta["description"] = doi_donnees_remplace(meta.get("description"), ids_donnees, doi_donnees)
             meta["related_identifiers"] = lien_donnees(meta, doi_donnees)
@@ -291,7 +307,8 @@ def cmd_preparer(args) -> int:
         z.appel("PUT", f"/deposit/depositions/{bid}", json={"metadata": meta})
         # adresse donnée par Zenodo lui-même (le brouillon n'est visible que du titulaire du compte, connecté)
         lien = brouillon["links"].get("latest_draft_html") or brouillon["links"].get("html") or f"https://zenodo.org/deposit/{bid}"
-        etat["brouillons"][cle] = {"id": bid, "lien": lien, "fichiers": sorted(f.name for f in fichiers[cle]),
+        etat["brouillons"][cle] = {"id": bid, "doi": etat["brouillons"][cle]["doi"], "lien": lien,
+                                   "fichiers": sorted(f.name for f in fichiers[cle]),
                                    "md5": {f.name: md5(f) for f in fichiers[cle]}}
         print(f"- {NOMS[cle]}, brouillon prêt, " + ", ".join(f"{f.name} ({f.stat().st_size / 1e6:.1f} Mo)"
                                                                for f in fichiers[cle]) + f", {lien}")
@@ -309,12 +326,18 @@ def cmd_publier(args) -> int:
     z = connexion()
     a_publier = []
     for cle, b in brouillons.items():
+        if b.get("publie"):
+            print(f"- {NOMS[cle]}, déjà publié.")
+            continue
         d = z.appel("GET", f"/deposit/depositions/{b['id']}").json()
         if d.get("submitted"):
             print(f"- {NOMS[cle]}, déjà publié.")
             continue
         noms = sorted(f["filename"] for f in z.appel("GET", f"/deposit/depositions/{b['id']}/files").json())
-        attendus = b.get("fichiers") or [b["fichier"]]
+        attendus = b.get("fichiers") or ([b["fichier"]] if b.get("fichier") else None)
+        if not attendus:
+            raise Arret(f"le brouillon du dépôt {NOMS[cle]} n'a pas reçu ses fichiers (préparation interrompue). "
+                        "Relancer python outils\\zenodo.py preparer. Rien n'a été publié.")
         if noms != attendus:
             raise Arret(f"le brouillon du dépôt {NOMS[cle]} ne contient pas exactement les fichiers attendus "
                         f"({', '.join(attendus)}), mais {', '.join(noms) or 'aucun fichier'}. Rien n'a été publié.")
@@ -453,15 +476,64 @@ def cmd_constater(args) -> int:
         if not getattr(args, "discret", False):
             print(f"Version archivée citée par le site, {v}, déjà à jour.")
         return 0
+    # un site construit avec les DOI réservés de cette version les cite déjà : il n'est pas à refaire
+    deja = site_cite(v, dois)
     etat.update({"version_archivee": v, "date_constat": dt.datetime.now().isoformat("T", "seconds"),
-                 "site_a_refaire": True})
+                 "site_a_refaire": not deja})
     if etat.get("en_preparation") == v:
         etat.pop("en_preparation", None)
         etat.pop("brouillons", None)
     ecrire_etat(etat)
+    if deja:
+        print(f"La version {v} est archivée sur Zenodo pour les trois dépôts. Le site construit la cite déjà par ses "
+              "DOI, il peut être publié tel quel.")
+        return 0
     print(f"La version {v} est archivée sur Zenodo pour les trois dépôts. Le site la citera par son DOI après sa "
           "prochaine reconstruction (python -m pipeline.site, puis publication).")
     return 10
+
+
+def citation_du_site() -> dict:
+    """Version et DOI que cite le site construit (donnees/site_citation.json, écrit par pipeline.site)."""
+    try:
+        return json.loads((config.DONNEES / "site_citation.json").read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        return {}
+
+
+def site_cite(version: str, dois: dict) -> bool:
+    c = citation_du_site()
+    return c.get("version") == version and c.get("dois") == dois and not c.get("melange")
+
+
+def cmd_pret_site(_args) -> int:
+    """Avant la mise en ligne (publier.ps1) : 1 quand le site cite des DOI réservés que Zenodo n'a pas encore publiés,
+    ou des citations de deux versions, ou une autre version que la dernière archivée. Sans connexion à Zenodo."""
+    c, etat = citation_du_site(), lire_etat()
+    if not c:
+        print("La version citée par le site n'est pas notée. Le reconstruire : python -m pipeline.site")
+        return 1
+    if c.get("melange"):
+        print("Le site cite deux versions de Zenodo (reconstruction partielle après un changement de version). Le "
+              "reconstruire en entier : python -m pipeline.site")
+        return 1
+    if c.get("reservee") and etat.get("en_preparation") == c.get("version"):
+        from pipeline.lecture import date_longue
+        print(f"Le site cite les DOI réservés de la version du {date_longue(c['version'])}, que Zenodo n'a pas encore "
+              "publiée. Publier "
+              "d'abord Zenodo : python outils\\zenodo.py publier")
+        return 1
+    archivee = etat.get("version_archivee", config.VERSION_ZENODO)
+    publies = (etat.get("doi_versions") or {}).get(archivee)
+    if c.get("version") != archivee or (publies and c.get("dois") != publies):
+        from pipeline.lecture import date_longue
+        print(f"Le site cite la version du {date_longue(c.get('version') or archivee)} de Zenodo, la dernière archivée "
+              f"est celle du {date_longue(archivee)}. "
+              "Le reconstruire : python -m pipeline.site")
+        return 1
+    from pipeline.lecture import date_longue
+    print(f"Le site cite la version archivée du {date_longue(archivee)}, avec ses DOI.")
+    return 0
 
 
 def cmd_site_refait(_args) -> int:
@@ -523,6 +595,7 @@ def main() -> int:
     p.add_argument("--discret", action="store_true", help="pour la tâche planifiée, code 20 sans erreur si Zenodo "
                                                           "n'est pas joignable ou si aucune clé n'est rangée")
     sous.add_parser("site-refait")
+    sous.add_parser("pret-site")
     p = sous.add_parser("rappel")
     p.add_argument("--jours", type=int, default=JOURS_RAPPEL, help="âge de la dernière version archivée qui déclenche "
                                                                     "le rappel")
@@ -531,7 +604,7 @@ def main() -> int:
     try:
         return {"cle": cmd_cle, "verifier": cmd_verifier, "preparer": cmd_preparer, "publier": cmd_publier,
                 "abandonner": cmd_abandonner, "annoter": cmd_annoter, "constater": cmd_constater,
-                "rappel": cmd_rappel, "site-refait": cmd_site_refait}[args.commande](args)
+                "rappel": cmd_rappel, "site-refait": cmd_site_refait, "pret-site": cmd_pret_site}[args.commande](args)
     except Arret as e:
         print(f"Arrêt, {e}")
         return 1

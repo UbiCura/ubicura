@@ -67,6 +67,13 @@ INSEE_MESURES = {
     "pop6579": ("POP_T1", r"^POP_AGE_Y65T79$"),
     "pop80p": ("POP_T1", r"^POP_AGE_Y_GE80$"),
     "superf": ("POP_T2", r"^SUP$"),
+    # femmes de 15 à 39 ans, public des maternités (population concernée, 9 novembre 2026) ; le dossier complet publie
+    # les femmes par tranches 15-24, 25-39, 40-54 ans, pas 15-49 ans
+    "f1524": ("POP_T4", r"^POP_SEX_F_AGE_Y15T24$"),
+    "f2539": ("POP_T4", r"^POP_SEX_F_AGE_Y25T39$"),
+    # naissances cumulées entre les deux derniers recensements, au domicile de la mère : public des maternités et de la
+    # PMI (relecture indépendante du 9 novembre 2026, meilleur public disponible à la commune)
+    "naissances": ("POP_T3", r"^BRTH$"),
     "med": ("REV_T1", r"^MED_SL$"),
     "tp60": ("REV_T1", r"^PR_MD60$"),
     "chom": ("EMP_T4", r"^POP_EMPSTA_ENQ_2_AGE_Y15T64$"),
@@ -830,6 +837,38 @@ PUBLICS_CIBLES = {
     # (LIMITES["prof:orthophoniste"] et ["prof:psychomotricien"])
     "geriatre": (["part_65_79", "part_80p"], "65 ans et plus"),
 }
+
+# Population concernée (remarque de Lucas du 9 novembre 2026, chantier accepté le même jour) : une structure ou une
+# profession qui sert un public précis se mesure aussi sur ce public. « Pour la moitié des habitants, la maternité la
+# plus proche est à moins de 5,5 km » compte tous les habitants, alors que les femmes en âge d'avoir un enfant vivent
+# plus souvent en ville. Publics lus dans le dossier complet de l'INSEE (communes), additionnés par tranche d'âge.
+PUBLICS_CONCERNES = {
+    "naissances": (["naissances"], "naissances récentes"),
+    "femmes_15_39": (["f1524", "f2539"], "femmes de 15 à 39 ans"),
+    "moins_15": (["pop0014"], "moins de 15 ans"),
+    "plus_65": (["pop6579", "pop80p"], "65 ans et plus"),
+    "plus_80": (["pop80p"], "80 ans et plus"),
+}
+# Une seule définition du public d'un type (un chiffre calculé en un seul endroit, relecture indépendante du 9 novembre 2026) : un type
+# qui a déjà un dénominateur au registre des structures (config.LIEUX_PROFIL, densités publiées) garde ce public, lu par
+# lieux_profil ; PUBLIC_DES_LIEUX ne nomme que les types qui n'en ont pas. Les naissances récentes (cumulées entre les
+# deux derniers recensements, au domicile de la mère) servent pour la naissance et la petite enfance : la médiane des
+# femmes de 15 à 39 ans comptait les étudiantes, plus urbaines, et les moins de 15 ans éloignaient la PMI de 2 km.
+PUBLIC_DES_LIEUX = {
+    "lieu_maternite": "naissances", "lieu_neonatalogie": "naissances", "lieu_perinatal_proximite": "naissances",
+    "lieu_pmi": "naissances", "lieu_hc_psy_enfants": "moins_15", "lieu_itep": "moins_15",
+    "lieu_polyhandicap_enfants": "moins_15", "lieu_tnd": "moins_15", "lieu_geriatrie": "plus_65",
+    "lieu_alzheimer": "plus_65",
+}
+# parts de contexte du registre (lieux_profil.denominateur) et public de même définition, communes de l'INSEE
+PUBLIC_DU_DENOMINATEUR = {("part_0_14",): "moins_15", ("part_80p",): "plus_80", ("part_65_79", "part_80p"): "plus_65"}
+# types écartés, avec la raison : les résidents d'un EHPAD sont comptés dans la commune de l'EHPAD, la distance des
+# 80 ans et plus y serait en partie produite par la mesure elle-même (9,9 % de 80 ans et plus dans les communes de 500
+# à 3 000 habitants qui ont un EHPAD, 5,1 % dans les autres, relecture du 9 novembre 2026)
+PUBLIC_EXCLUS = {"lieu_ehpad": "résidents comptés dans la commune de l'établissement"}
+# chiffres de la population concernée écrits en brouillon seulement (resultats/brouillons/), jusqu'à la validation par
+# Lucas de leur présentation sur une maquette (règle du projet : rien de visible sans maquette validée)
+POPULATION_CONCERNEE_PUBLIEE = False
 
 # Professions croisées avec les indicateurs de besoin en santé mentale (quadrants offre et besoin)
 PROFESSIONS_QUADRANTS = ["psychiatre", "psychologue", "q_psychiatrie_enfant", "medecin_generaliste"]
@@ -1713,9 +1752,18 @@ DOI_RAPPORTS = {"sante-mentale": "10.5281/zenodo.23265073", "sante": "10.5281/ze
 # adresse, avec le DOI général à côté. À mettre à jour à chaque nouvelle version publiée sur Zenodo (tutoriels 05 et 07).
 VERSION_ZENODO = "2026-10-09"
 # les versions suivantes sont constatées sur Zenodo par outils/zenodo.py (tutoriel 07), qui l'écrit dans donnees/zenodo.json
+# Une version dont les brouillons sont prêts, avec leurs DOI réservés pour les trois dépôts, est citée par ces DOI : le
+# site se construit une seule fois avant la publication de Zenodo (ordre de publication demandé par Lucas le 6 novembre
+# 2026). publier.ps1 refuse d'envoyer ce site tant que Zenodo n'a pas publié la version (zenodo.py pret-site).
+VERSION_RESERVEE = None
 if (DONNEES / "zenodo.json").exists():
     import json as _json
-    VERSION_ZENODO = _json.loads((DONNEES / "zenodo.json").read_text(encoding="utf-8")).get("version_archivee") or VERSION_ZENODO
+    _etat_zenodo = _json.loads((DONNEES / "zenodo.json").read_text(encoding="utf-8"))
+    VERSION_ZENODO = _etat_zenodo.get("version_archivee") or VERSION_ZENODO
+    _br = _etat_zenodo.get("brouillons") or {}
+    if (_etat_zenodo.get("en_preparation") and _etat_zenodo["en_preparation"] >= VERSION_ZENODO
+            and all((_br.get(c) or {}).get("doi") for c in ("donnees", "sante-mentale", "sante"))):
+        VERSION_RESERVEE = VERSION_ZENODO = _etat_zenodo["en_preparation"]
 # titres des dépôts Zenodo, descriptifs et sans le nom du site (décision de Lucas du 9 octobre 2026), repris par les
 # citations
 TITRES_DEPOTS = {"donnees": "Offre de soins et santé mentale en France par territoire, données agrégées",

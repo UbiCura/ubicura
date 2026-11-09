@@ -60,7 +60,7 @@ def donnees(sd: dict, dernier: Path, version: str, doi: str | None, fiches: dict
         for v in ids:
             c = ctx[v]
             # les distances aux structures sont de l'offre comparée à l'offre, rangées à part (point I5)
-            dist = v.startswith("dist_")
+            dist = v.startswith(("dist_", "distp_"))
             lab = c["label"].replace("Distance à la structure la plus proche, ", "Distance, ") if dist else c["label"]
             lignes.append({"id": v, "lab": lab, "long": c["label"], "u": c.get("unite") or "",
                            "dom": "distances" if dist else d["id"], "sm": D.sante_mentale(c), "fiche": fiches.get(v, "")})

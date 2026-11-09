@@ -158,6 +158,65 @@ def _inscrits(ins, act):
 META_LUE: dict = {}
 
 
+SIEGE_MIN = 100      # personnes d'une même profession déclarées par une structure sans numéro FINESS...
+SIEGE_PART = 0.2     # ... et plus d'une pour cinq habitants de la commune
+# sièges reconnus, (commune, profession) et un mot de la raison sociale : seuls ceux-là sortent des territoires. Un
+# autre candidat reste dans sa commune et est signalé, à regarder avant d'être ajouté ici : des hôpitaux déclarent
+# aussi des soignants sans FINESS (relecture indépendante du 9 novembre 2026, CH de la région de Saint-Omer)
+SIEGES_ATTENDUS = {("79057", "infirmier"): "ASALEE"}
+SOINS = re.compile(r"\b(?:CH|CHU|CHR|CHS|CHI|HOPITAL|HÔPITAL|HOSPITALI\w*|CLINIQUE|CENTRE HOSPITALIER|EPSM|GHU|GHT)\b", re.I)
+
+
+def sieges(act: pd.DataFrame, ref) -> pd.DataFrame:
+    """Sièges déclarants : une structure sans numéro FINESS qui déclare dans une commune au moins SIEGE_MIN personnes
+    d'une même profession, plus d'une pour cinq habitants. Remarque de Lucas du 9 novembre 2026 (« Rodez, un nombre
+    d'infirmiers très au-dessus, peut-être ailleurs ») : l'association ASALEE déclare 1 409 infirmiers à son siège de
+    Brioux-sur-Boutonne (1 440 habitants), alors qu'ils exercent dans des cabinets de médecine générale de toute la
+    France, et la CC Mellois en Poitou comptait 336 infirmiers pour 10 000 habitants, la plus forte densité du pays. Les
+    hôpitaux et cliniques (raison sociale) n'en sont jamais. Renvoie (com, rs, prof, n, population, attendu)."""
+    a = act[act["com"].notna()]
+    fin = a["finess"].astype(str).str.strip() if "finess" in a else pd.Series("", index=a.index)
+    a = a[fin.isin(["", "nan", "None", "<NA>"])]
+    g = a.groupby([a["com"].astype(str), a["rs"].astype(str), a["prof"].astype(str)])["id"].nunique()
+    g = g[g >= SIEGE_MIN].rename("n").reset_index()
+    pop = ref.communes.set_index("code")["pop"].astype(float)
+    g["population"] = g["com"].map(pop)
+    g = g[(g["n"] > SIEGE_PART * g["population"].fillna(0)) & ~g["rs"].str.contains(SOINS)].reset_index(drop=True)
+    g["attendu"] = [mot.upper() in rs.upper() if (mot := SIEGES_ATTENDUS.get((c, pr))) else False
+                    for c, rs, pr in zip(g["com"], g["rs"], g["prof"])]
+    return g
+
+
+def retirer_sieges(act: pd.DataFrame, ref) -> pd.DataFrame:
+    """Les activités déclarées à un siège (sieges) n'ont pas de lieu d'exercice connu : elles restent dans l'effectif
+    national, jamais dans un territoire, comme les activités sans lieu fixe (build.parcours, « sans_lieu »)."""
+    s = sieges(act, ref)
+    for r in s[~s["attendu"]].itertuples():
+        JOURNAL.note("Répertoire RPPS", f"siège déclarant possible, laissé dans sa commune, à regarder : {r.rs}, "
+                     f"{r.prof}, {entier_fr(int(r.n))} personnes déclarées à {nom_commune(ref, r.com)}")
+    s = s[s["attendu"]]
+    if s.empty:
+        JOURNAL.controle("Sièges déclarants retirés des territoires (structure sans FINESS, au moins 100 personnes d'une "
+                         "profession, plus d'une pour cinq habitants)", "aucun")
+        return act
+    cle = set(zip(s["com"], s["rs"], s["prof"]))
+    fin = act["finess"].astype(str).str.strip() if "finess" in act else pd.Series("", index=act.index)
+    m = pd.Series([k in cle for k in zip(act["com"].astype(str), act["rs"].astype(str), act["prof"].astype(str))],
+                  index=act.index) & fin.isin(["", "nan", "None", "<NA>"])
+    act = act.copy()
+    act["com"] = act["com"].astype(object).where(~m, None)
+    JOURNAL.controle("Sièges déclarants retirés des territoires (structure sans FINESS, au moins 100 personnes d'une "
+                     "profession, plus d'une pour cinq habitants), comptés au national seulement",
+                     "; ".join(f"{r.rs}, {r.prof}, {entier_fr(int(r.n))} personnes déclarées à {nom_commune(ref, r.com)}"
+                               for r in s.itertuples()))
+    return act
+
+
+def nom_commune(ref, code: str) -> str:
+    n = ref.communes.set_index("code")["nom"].get(code) if "nom" in ref.communes else None
+    return f"{n} ({code[:2]})" if n else code
+
+
 def lire_activites(fichiers: dict, ref) -> tuple[pd.DataFrame, pd.DataFrame]:
     chemin = fichiers["activite"]
     META_LUE.clear()
@@ -297,6 +356,7 @@ def lire_activites(fichiers: dict, ref) -> tuple[pd.DataFrame, pd.DataFrame]:
     professions = (professions[professions["id"].isin(vus)]
                    .assign(_o=lambda d: d["famille"].map(ordre_famille))
                    .sort_values(["_o", "nature", "groupe", "libelle"]).drop(columns="_o").reset_index(drop=True))
+    act = retirer_sieges(act, ref)
     act = act.drop(columns=["prof_lib", "sf_activite", "avec_structure"])
     for c in ["mode", "secteur", "prof", "com"]:
         act[c] = act[c].astype("category")

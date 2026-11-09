@@ -1650,6 +1650,9 @@ main :is(p,li,td,dd,figcaption) a{overflow-wrap:anywhere}
   .fiche table.indicateurs.ligne-type tr.sous{padding-left:16px}
   .fiche table.indicateurs.ligne-type tbody th,.fiche table.indicateurs.ligne-type tbody td{padding:0}
   .fiche table.indicateurs.ligne-type tbody tr:not(.suite-ligne){padding:10px 0 8px}
+  /* une sous-ligne (« dont libéraux », « Même distance, … ») garde son retrait, que la règle précédente annulait
+     (relecture indépendante du 9 novembre 2026) */
+  .fiche table.indicateurs.ligne-type tbody tr.sous{padding-left:16px}
 }
 @media print{
   .fiche .barre-dom,.fiche details.menu-ligne{display:none}
@@ -1760,6 +1763,12 @@ main :is(p,li,td,dd,figcaption) a{overflow-wrap:anywhere}
 @container (max-width:820px){
   .fiche table.indicateurs.ligne-type tbody tr{grid-template-columns:minmax(0,1fr) minmax(0,1.6fr)}
   .fiche table.indicateurs.ligne-type td.outil{justify-self:end}
+  /* le nom de la ligne sur toute la largeur, le menu « … » posé à sa droite : réduit à la première des deux colonnes,
+     il tenait sur 127 px sur 343 (relecture du 9 novembre 2026, contrôle 9 bis de la mise en page) */
+  .fiche table.indicateurs.ligne-type tbody th{grid-column:1/-1;grid-row:1;padding-right:44px}
+  .fiche table.indicateurs.ligne-type td.outil{grid-column:2;grid-row:1;position:relative;z-index:1}
+  /* menu ouvert au premier plan : à z-index 1, son panneau passait sous la réglette et les lignes suivantes */
+  .fiche table.indicateurs.ligne-type td.outil:has(details[open]){z-index:10}
   .fiche table.indicateurs.ligne-type td.eff{min-width:0}
 }
 /* une seule taille de réglette dans les tableaux (240 px) : la colonne de la réglette en a la place partout */
@@ -1868,11 +1877,12 @@ main li{text-align:left!important}
   main:has(.rapport) tr{break-inside:avoid;page-break-inside:avoid}
   main:has(.rapport) p:has(+ table),main:has(.rapport) p:has(+ .defile){break-after:avoid;page-break-after:avoid}
   main:has(.rapport) .renvoi-annexe{break-before:avoid;page-break-before:avoid}
+  main:has(.rapport) .garde-renvoi{break-inside:avoid;page-break-inside:avoid}
 }
 /* rapports imprimés : un « Comment lire » ne part jamais seul sur une page, la figure ou le tableau qu'il explique le
    suit (contrôle des PDF du 7 novembre 2026, pages presque vides) */
 @media print{
-  main:has(.rapport) :is(figure,table,.defile,p,ul):has(+ .comment-lire){break-after:avoid;page-break-after:avoid}
+  main:has(.rapport) :is(figure,table,.defile,p,ul):has(+ :is(.comment-lire,.garde-renvoi:has(> .comment-lire:first-child))){break-after:avoid;page-break-after:avoid}
 }
 /* notes sous la figure de l'addictologie d'Explorer : une légende, jamais justifiée (règle 8, 7 novembre 2026) */
 #adNotes{text-align:left!important}

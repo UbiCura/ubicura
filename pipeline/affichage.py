@@ -94,7 +94,7 @@ SENS = {"offre": "offre de soins, comparée au repère avec une couleur",
 def genre(unite: str | None, ident: str = "") -> str:
     """Genre d'arrondi d'un indicateur d'après son unité : taux (densités et taux), part, distance, euros."""
     u = (unite or "").strip()
-    if ident.startswith("dist_") or u == "km":
+    if ident.startswith(("dist_", "distp_")) or u == "km":
         return "distance"
     if u.startswith("€") or u.endswith("€"):
         return "euros"
@@ -391,7 +391,7 @@ SOURCES_JOURNAL = [
     (r"^prof:", "RPPS activité"),
     # mêmes classeurs de la DREES que la série des effectifs (même page, même date)
     (r"^age60_", "DREES, démographie des professionnels de santé"),
-    (r"^(lieux_|dist_)", "FINESS (Finess+)"),
+    (r"^(lieux_|dist_|distp_)", "FINESS (Finess+)"),
     (r"INSEE, dossier complet", "INSEE dossier complet"),
     (r"CépiDc|suicide", "Santé publique France, décès par suicide"),
 ]
@@ -458,6 +458,8 @@ class Affichage:
         self.complet = {t["id"]: bool(t.get("complet")) for t in types}
         self.lib_type = {t["id"]: t.get("lib") for t in types}
         self.fr_dist = {k: (v[0] if isinstance(v, list) and v else None) for k, v in ((sd.get("lieux") or {}).get("fr") or {}).items()}
+        self.fr_distp = {k: (v[0] if isinstance(v, list) and v else None)
+                         for k, v in ((sd.get("lieux") or {}).get("fr_public") or {}).items()}
         self.parts = {t: lieux_profil.denominateur(t)[0] for t in self.complet}
         lim = (sd.get("limites") or {}).get("manque_sae") or {}
         self.manques = set((lim.get("territoires") or {}).keys())
@@ -480,7 +482,7 @@ class Affichage:
         c = self.ctx[ident][1]
         if ident.startswith("lieux_"):
             kind, sens, rep = "lieux", "offre", "somme"
-        elif ident.startswith("dist_"):
+        elif ident.startswith(("dist_", "distp_")):
             kind, sens, rep = "dist", "acces", "mediane_habitants"
         else:
             kind, sens = "ctx", "contexte"
@@ -579,10 +581,12 @@ class Affichage:
                 elif k is not None and k < PETIT_EFFECTIF:
                     S.st[i] = "petit"
         elif m["kind"] == "dist":
-            typ = ident[5:]
+            # « distp_ » : médiane du public que sert la structure, comparée à la médiane du même public en France
+            public = ident.startswith("distp_")
+            typ = ident.split("_", 1)[1]
             S.v = self._x(lv, ident)
             comp = self.complet.get(typ, True)
-            S.ref = self.fr_dist.get(typ) if comp else None
+            S.ref = (self.fr_distp if public else self.fr_dist).get(typ) if comp else None
             for i, v in enumerate(S.v):
                 if not comp:
                     S.st[i] = "non_recense"

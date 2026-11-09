@@ -165,6 +165,10 @@ def annexe_technique(corps: str) -> str:
     corps2 = re.sub(r"<details[^>]*>(.*?)</details>", deplace, corps, flags=re.S)
     if not entrees:
         return corps
+    # le renvoi reste sur la page du paragraphe qui le précède : seul en haut d'une page, il la laissait presque vide
+    # (rapport santé du 9 novembre 2026, page 46). Le paragraphe et le renvoi forment un bloc insécable.
+    corps2 = re.sub(r'(<p(?: [^>]*)?>(?:(?!</?p[ >]).)*?</p>)\s*(<p class="renvoi-annexe">.*?</p>)',
+                    r'<div class="garde-renvoi">\1\2</div>', corps2, flags=re.S)
     return (corps2 + '<h2 class="annexe" id="annexe-technique">Annexe technique</h2><p>Les détails de méthode, les '
             "contrôles de solidité et les listes complètes de chaque analyse, dans l'ordre du rapport. Chaque section y "
             "renvoie par son numéro.</p>" + "".join(entrees))
@@ -502,7 +506,14 @@ def doi_version(cle: str, version: str | None = None) -> str | None:
         e = json.loads((config.DONNEES / "zenodo.json").read_text(encoding="utf-8"))
     except Exception:  # noqa: BLE001
         return None
-    return ((e.get("doi_versions") or {}).get(version or config.VERSION_ZENODO) or {}).get(cle)
+    v = version or config.VERSION_ZENODO
+    # version en préparation : DOI réservé de son brouillon (config.VERSION_RESERVEE), avant tout DOI relevé, qui serait
+    # celui de la version qu'elle corrige le même jour (--correctif)
+    if v == e.get("en_preparation"):
+        reserve = ((e.get("brouillons") or {}).get(cle) or {}).get("doi")
+        if reserve:
+            return reserve
+    return ((e.get("doi_versions") or {}).get(v) or {}).get(cle)
 
 
 def doi_cite(cle: str, version: str | None = None) -> str | None:
@@ -1025,7 +1036,33 @@ def construire(pdf=True, groupes: set | None = None) -> Path:
         (SITE / "atlas.html").write_text(ATLAS_REDIRECTION, encoding="utf-8")
     finir(env, commun, dernier, site_data, pages, rapports_cites, tout, fiches_sources, exe, fait("rapports"),
           len(versions), rapide=groupes is not None)
+    noter_citation(groupes is None)
     return SITE
+
+
+CITATION_SITE = config.DONNEES / "site_citation.json"
+
+
+def noter_citation(complet: bool) -> None:
+    """Version Zenodo et DOI que cite le site construit, relus par zenodo.py pret-site avant toute mise en ligne et par
+    zenodo.py constater après la publication de Zenodo (un site construit avec les DOI réservés n'est pas à refaire).
+    Une reconstruction partielle ne change que quelques pages : elle note seulement si les citations se mélangent."""
+    if SITE != config.RACINE / "site":
+        return                               # site d'essai ou de maquette, rien à noter
+    dois = {c: doi_version(c, config.VERSION_ZENODO) for c in ("donnees", "sante-mentale", "sante")}
+    try:
+        avant = json.loads(CITATION_SITE.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        avant = {}
+    if complet:
+        etat = {"version": config.VERSION_ZENODO, "dois": dois, "reservee": bool(config.VERSION_RESERVEE),
+                "melange": False}
+    else:
+        etat = dict(avant, melange=bool(avant.get("melange")) or avant.get("dois") != dois)
+    CITATION_SITE.write_text(json.dumps(etat, ensure_ascii=False, indent=1), encoding="utf-8")
+    if etat.get("melange"):
+        log.warning("Le site cite deux versions de Zenodo (reconstruction partielle après un changement de version "
+                    "archivée), une construction complète est nécessaire avant la mise en ligne")
 
 
 def construire_methode(env, commun, dernier, site_data, ddir, pages, fiches_sources):

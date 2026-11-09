@@ -424,3 +424,141 @@ def test_mediane_jamais_arrondie_sous_sa_valeur_apres_moins_de():
     for f in ("rapport.py", "constats.py", "fiche_territoire.py", "affichage.py"):
         py = (config.RACINE / "pipeline" / f).read_text(encoding="utf-8")
         assert not re.search(r"moins de \{nombre\([^}]*median[^}]*, 0\)", py), f
+
+
+# l'article de chacun des 101 départements dans la réponse de la recherche, relu un par un le 9 novembre 2026 : « en »
+# devant un nom féminin qui commence par une consonne, « dans la » devant un nom simple d'une syllabe (Larousse, article
+# « en », reponses.DANS_LA)
+DANS_DEPARTEMENTS = {
+    "01": "dans l’Ain", "02": "dans l’Aisne", "03": "dans l’Allier", "04": "dans les Alpes-de-Haute-Provence",
+    "05": "dans les Hautes-Alpes", "06": "dans les Alpes-Maritimes", "07": "en Ardèche", "08": "dans les Ardennes",
+    "09": "en Ariège", "10": "dans l’Aube", "11": "dans l’Aude", "12": "dans l’Aveyron",
+    "13": "dans les Bouches-du-Rhône", "14": "dans le Calvados", "15": "dans le Cantal", "16": "en Charente",
+    "17": "en Charente-Maritime", "18": "dans le Cher", "19": "en Corrèze", "21": "en Côte-d'Or",
+    "22": "dans les Côtes-d'Armor", "23": "dans la Creuse", "24": "en Dordogne", "25": "dans le Doubs",
+    "26": "dans la Drôme", "27": "dans l’Eure", "28": "en Eure-et-Loir", "29": "dans le Finistère",
+    "2A": "en Corse-du-Sud", "2B": "en Haute-Corse", "30": "dans le Gard", "31": "en Haute-Garonne",
+    "32": "dans le Gers", "33": "en Gironde", "34": "dans l’Hérault", "35": "en Ille-et-Vilaine", "36": "dans l’Indre",
+    "37": "en Indre-et-Loire", "38": "en Isère", "39": "dans le Jura", "40": "dans les Landes",
+    "41": "dans le Loir-et-Cher", "42": "dans la Loire", "43": "en Haute-Loire", "44": "en Loire-Atlantique",
+    "45": "dans le Loiret", "46": "dans le Lot", "47": "dans le Lot-et-Garonne", "48": "en Lozère",
+    "49": "en Maine-et-Loire", "50": "dans la Manche", "51": "dans la Marne", "52": "en Haute-Marne",
+    "53": "en Mayenne", "54": "en Meurthe-et-Moselle", "55": "dans la Meuse", "56": "dans le Morbihan",
+    "57": "en Moselle", "58": "dans la Nièvre", "59": "dans le Nord", "60": "dans l’Oise", "61": "dans l’Orne",
+    "62": "dans le Pas-de-Calais", "63": "dans le Puy-de-Dôme", "64": "dans les Pyrénées-Atlantiques",
+    "65": "dans les Hautes-Pyrénées", "66": "dans les Pyrénées-Orientales", "67": "dans le Bas-Rhin",
+    "68": "dans le Haut-Rhin", "69": "dans le Rhône", "70": "en Haute-Saône", "71": "en Saône-et-Loire",
+    "72": "dans la Sarthe", "73": "en Savoie", "74": "en Haute-Savoie", "75": "à Paris", "76": "en Seine-Maritime",
+    "77": "en Seine-et-Marne", "78": "dans les Yvelines", "79": "dans les Deux-Sèvres", "80": "dans la Somme",
+    "81": "dans le Tarn", "82": "dans le Tarn-et-Garonne", "83": "dans le Var", "84": "dans le Vaucluse",
+    "85": "en Vendée", "86": "dans la Vienne", "87": "en Haute-Vienne", "88": "dans les Vosges", "89": "dans l’Yonne",
+    "90": "dans le Territoire de Belfort", "91": "en Essonne", "92": "dans les Hauts-de-Seine",
+    "93": "en Seine-Saint-Denis", "94": "dans le Val-de-Marne", "95": "dans le Val-d'Oise", "971": "en Guadeloupe",
+    "972": "en Martinique", "973": "en Guyane", "974": "à La Réunion", "976": "à Mayotte"}
+
+
+def test_dans_chaque_departement():
+    """Contre-audit de la recherche du 8 novembre 2026 : « dans la Lozère », « dans la Seine-Saint-Denis ». La réponse
+    écrit « en Lozère », « en Seine-Saint-Denis », « en Nouvelle-Aquitaine », mais « dans la Manche », pour chacun des
+    101 départements (liste relue un par un), dans le code et dans les fichiers du site construit."""
+    from pipeline import reponses as R
+    assert len(DANS_DEPARTEMENTS) == 101
+    noms = {r["code"]: r["nom"] for r in json.loads((config.BRUT / "ref_departements.json").read_text(encoding="utf-8"))}
+    faux = {c: R.dans("dep", c, noms[c]) for c, d in DANS_DEPARTEMENTS.items() if R.dans("dep", c, noms[c]) != d}
+    assert not faux, faux
+    assert R.dans("reg", "75", "Nouvelle-Aquitaine") == "en Nouvelle-Aquitaine"
+    assert R.dans("reg", "24", "Centre-Val de Loire") == "en Centre-Val de Loire"
+    # communes sans intercommunalité (relecture indépendante du 9 novembre 2026)
+    assert R.dans("epci", "C85113", "L'Île-d'Yeu") == "à l'Île-d'Yeu" and R.dans("epci", "C29083", "Île-de-Sein") == "à l'Île-de-Sein"
+    assert set(R.DANS_LA) == {c for c, d in DANS_DEPARTEMENTS.items() if d.startswith("dans la ")}
+    dossier = SITE / "territoire" / "dep"
+    if dossier.exists():
+        lus = {f.stem: json.loads(f.read_text(encoding="utf-8")).get("dans") for f in dossier.glob("*.json")}
+        if any(v and v.startswith("en Lozère") for v in lus.values()):   # site reconstruit depuis la correction
+            assert {c: v for c, v in lus.items() if v != DANS_DEPARTEMENTS.get(c)} == {}
+
+
+def test_pluriel_des_rapports_comme_celui_des_reponses():
+    """Contre-audit de la recherche du 8 novembre 2026 : le pluriel des rapports (lecture.pluriel) arrêtait l'accord à
+    « et » (« chirurgiens thoraciques et cardiovasculaire »). Il suit la règle de la recherche (reponses.pluriel_nom)
+    pour toutes les professions du dernier site construit."""
+    from pipeline.lecture import pluriel
+    from pipeline.reponses import pluriel_nom
+    assert pluriel("Chirurgien thoracique et cardiovasculaire") == "chirurgiens thoraciques et cardiovasculaires"
+    assert pluriel("Chirurgien viscéral et digestif") == "chirurgiens viscéraux et digestifs"
+    assert pluriel("Oto-rhino-laryngologiste (ORL)") == "oto-rhino-laryngologistes (ORL)"
+    assert pluriel("Médecin, spécialité non renseignée") == "médecins, spécialité non renseignée"
+    assert pluriel("Technicien de laboratoire") == "techniciens de laboratoire"
+    ds = sorted(d for d in config.RESULTATS.glob("20*") if (d / "site_data.json").exists())
+    if not ds:
+        return
+    sd = json.loads((ds[-1] / "site_data.json").read_text(encoding="utf-8"))
+    p = sd.get("professions") or {}
+    libs = {x["libelle"] for x in (p.values() if isinstance(p, dict) else p) if isinstance(x, dict) and x.get("libelle")}
+    assert libs
+    faux = {l: (pluriel(l), pluriel_nom(l)) for l in libs if pluriel(l) != pluriel_nom(l)}
+    assert not faux, faux
+
+
+def test_arrondissements_dans_la_recherche():
+    """Contre-audit de la recherche du 8 novembre 2026 : « Paris 15e », « Lyon 3e », « Marseille 8e » ne trouvaient
+    rien. Les 45 arrondissements municipaux du référentiel sont dans l'index de la recherche, avec la commune et
+    l'intercommunalité de leur commune, et chercher.js les trouve sous leurs formes d'usage (essais du navigateur :
+    outils/controle_recherche.py)."""
+    from pipeline import portail as P
+    ref = json.loads((config.BRUT / "ref_communes.json").read_text(encoding="utf-8"))
+    attendus = {c["code"]: c["commune"] for c in ref if c.get("type") == "arrondissement-municipal"}
+    assert len(attendus) == 45 and set(attendus.values()) == {"75056", "69123", "13055"}
+    js = (GAB / "presentation" / "chercher.js").read_text(encoding="utf-8")
+    assert "d.arrondissements" in js and "function rangs(" in js
+    # la recherche de l'accueil, du comparateur et de « Autour d'un lieu » aussi ; un arrondissement choisi vaut sa
+    # commune, la seule que connaissent ces pages
+    acc = (GAB / "presentation" / "recherche.js").read_text(encoding="utf-8")
+    assert "d.arrondissements" in acc and "function formes(" in acc and "choisir(cible(commune(courant[0]))" in acc
+    assert '"arrondissements": arrondissements' in (config.RACINE / "pipeline" / "portail.py").read_text(encoding="utf-8")
+    rj = SITE / "presentation" / "recherche.json"
+    if rj.exists():
+        d = json.loads(rj.read_text(encoding="utf-8"))
+        if "arrondissements" in d:   # site reconstruit depuis la correction
+            assert {a[0]: a[5] for a in d["arrondissements"]} == attendus
+            epci = {c[0]: c[4] for c in d["communes"]}
+            assert all(a[4] == epci[a[5]] for a in d["arrondissements"])
+    assert P.recherche  # la fonction qui les écrit
+
+
+def test_recherche_suit_le_catalogue():
+    """Lucas, 9 novembre 2026 : la recherche de l'en-tête s'adapte aux bases et variables ajoutées. L'index est fabriqué
+    depuis le catalogue unique (portail.catalogue) ; sur le site construit, ses indicateurs sont exactement ceux de
+    presentation/catalogue.json, chacun a sa réponse directe, et chaque thème et question d'Explorer y est
+    (outils/controle_recherche.catalogue_recherche)."""
+    import sys
+    sys.path.insert(0, str(config.RACINE / "outils"))
+    import controle_recherche as CR
+    py = (config.RACINE / "pipeline" / "portail.py").read_text(encoding="utf-8")
+    assert "for i in catalogue(site_data) if i.get(\"label\")" in py and "for th in TH.THEMES:" in py
+    pb = CR.catalogue_recherche()
+    assert not pb, pb[:10]
+
+
+def test_commune_hors_intercommunalite_ecrite_avec_son_article():
+    """Contre-audit de la recherche du 8 novembre 2026 : la fiche d'Ouessant écrivait « Aucun psychiatre n'est inscrit
+    dans Ouessant ». Une commune hors intercommunalité (code en C) est sujet des phrases sous la forme « la commune
+    d'Ouessant » ; la recherche écrit « à Ouessant », sans « dont Ouessant fait partie »."""
+    from pipeline import fiche_territoire as FT
+    from pipeline import reponses as R
+    assert FT.nom_article("epci", "C29155", "Ouessant") == "la commune d'Ouessant"
+    assert FT.nom_article("epci", "C85113", "L'Île-d'Yeu") == "la commune de l'Île-d'Yeu"
+    assert FT.nom_article("epci", "C22016", "Île-de-Bréhat") == "la commune de l'Île-de-Bréhat"
+    assert FT.nom_article("epci", "C29083", "Île-de-Sein") == "la commune de l'Île-de-Sein"
+    assert FT.nom_article("epci", "241200187", "CA Rodez Agglomération") == FT.avec_article("CA Rodez Agglomération")
+    assert FT.nom_article("dep", "12", "Aveyron") == "Aveyron"
+    assert R.dans("epci", "C29155", "Ouessant") == "à Ouessant"
+    assert "function seule(" in (GAB / "presentation" / "chercher.js").read_text(encoding="utf-8")
+    # arrivée par la recherche de l'accueil ou « Autour d'un lieu » (?commune=29155) : pas de « fait partie de » sur sa
+    # propre fiche
+    assert '(f.code[:1] == "C")|tojson' in (GAB / "fiche_territoire.html").read_text(encoding="utf-8")
+    for f in sorted((SITE / "territoire" / "epci").glob("C*.html")) if (SITE / "territoire" / "epci").exists() else []:
+        t = _texte(f)
+        nom = json.loads(f.with_suffix(".json").read_text(encoding="utf-8"))["nom"] if f.with_suffix(".json").exists() else None
+        if nom and FT.nom_article("epci", f.stem, nom) in t:   # fiche reconstruite depuis la correction
+            assert not re.search(r"\b(dans|Pour) " + re.escape(nom) + r"\b", t), f.name

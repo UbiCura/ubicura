@@ -30,16 +30,50 @@ from .fiche_territoire import NIV_PLURIEL, Donnees, _part_aucun, de_nom
 # « à La Réunion », « à Paris » (audit indépendant du 8 novembre 2026, « dans Bretagne »)
 A_ILE_VILLE = {("reg", "04"), ("dep", "974"), ("reg", "06"), ("dep", "976"), ("dep", "75")}
 EN_OUTRE_MER = {("reg", "01"), ("dep", "971"), ("reg", "02"), ("dep", "972"), ("reg", "03"), ("dep", "973")}
+# département au nom féminin qui commence par une consonne (« de la » du typeLiaison 3 de l'INSEE) : « en Lozère »,
+# « en Corrèze », « en Côte-d'Or », « en Seine-Saint-Denis », et non « dans la Lozère » (contre-audit du 8 novembre
+# 2026). Sauf un nom simple d'une seule syllabe sonore, où l'usage garde « dans la » : Larousse, article « en »,
+# rubrique Difficultés, emploi (https://www.larousse.fr/dictionnaires/francais/en/29043, lu le 9 novembre 2026), cite
+# « dans la Creuse, dans la Drôme, dans la Loire, dans la Meuse, dans la Nièvre, dans la Sarthe, dans la Somme, dans la
+# Vienne », face à « en Charente, en Corrèze, en Dordogne, en Moselle, en Savoie, en Vendée ». La Manche et la Marne,
+# d'une syllabe aussi, suivent la même règle (« dans la Manche »). Les noms composés prennent « en » (« en Haute-Garonne »,
+# « en Loire-Atlantique ») par choix d'usage administratif courant, alors que Larousse recommande « dans la » devant eux
+# (relecture indépendante du 9 novembre 2026). Devant une voyelle, « dans l'Eure », « dans l'Oise » comme Larousse, sauf
+# quatre départements où l'État écrit « en » (« en Isère », isere.gouv.fr ; EN_ELISION). Les 101 départements sont vérifiés un par un
+# (tests/test_decisions.py, test_dans_chaque_departement). La seule région dans ce cas suit la règle : « en
+# Nouvelle-Aquitaine ».
+DANS_LA = {"23": "Creuse", "26": "Drôme", "42": "Loire", "50": "Manche", "51": "Marne", "55": "Meuse", "58": "Nièvre",
+           "72": "Sarthe", "80": "Somme", "86": "Vienne"}
+EN_ELISION = {"07": "Ardèche", "09": "Ariège", "38": "Isère", "91": "Essonne"}
+# « en Centre-Val de Loire », l'usage officiel de la région, et non « dans le Centre-Val de Loire »
+EN_REGION = {"24": "Centre-Val de Loire"}
+
+
+def commune_seule(nom: str) -> str:
+    """Le nom d'une commune sans intercommunalité après « à » ou « de » : « l'Île-d'Yeu » (et non « L'Île-d'Yeu »),
+    « l'Île-de-Sein », « l'Île-de-Bréhat » comme l'écrivent leurs mairies, « Ouessant »."""
+    if nom.startswith(("L'", "L’")):
+        return "l'" + nom[2:]
+    if nom.startswith("Île-de-"):
+        return "l'" + nom
+    return nom
 
 
 def dans(lv: str, code: str, nom: str) -> str:
     """« dans l'Aveyron », « dans les Yvelines », « dans la CA Rodez Agglomération », « en Bretagne », « à Mayotte » :
     l'article des titres de fiche (fiche_territoire.de_nom, typeLiaison de l'INSEE), tourné avec « dans »."""
-    if (lv, code) in A_ILE_VILLE or (lv == "epci" and code.startswith("C")):
-        return "à " + nom   # une île, une ville, une commune hors intercommunalité (« à Ouessant »)
+    if lv == "epci" and code.startswith("C"):
+        return "à " + commune_seule(nom)   # une commune hors intercommunalité (« à Ouessant », « à l'Île-d'Yeu »)
+    if (lv, code) in A_ILE_VILLE:
+        return "à " + nom   # une île, une ville (« à Mayotte », « à La Réunion », « à Paris »)
+    if (lv == "dep" and code in EN_ELISION) or (lv == "reg" and code in EN_REGION):
+        return "en " + nom
     if (lv, code) in EN_OUTRE_MER:
         return "en " + nom   # « en Guadeloupe », « en Guyane »
     d = de_nom(lv, code, nom)
+    if (lv == "reg" or lv == "dep" and code not in DANS_LA) and d.startswith("de la "):
+        # « en Lozère », « en Seine-Saint-Denis », « en Nouvelle-Aquitaine », mais « dans la Manche » (DANS_LA)
+        return "en " + nom
     for de, da in (("de la ", "dans la "), ("de l’", "dans l’"), ("de l'", "dans l’"), ("du ", "dans le "),
                    ("des ", "dans les ")):
         if d.startswith(de):

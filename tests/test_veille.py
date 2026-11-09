@@ -151,7 +151,10 @@ def test_veille_reponses_de_lucas():
     cands, lignes = _donnees()
     if cands is None:
         return
-    x = next((y for y in lignes if y["decision"] and y["statut"] == "à examiner"), None)
+    # une ligne à laquelle Lucas n'a pas encore répondu : celle d'Idéo, acceptée le 9 novembre 2026, gardait sa réponse
+    # et faisait échouer l'essai du refus
+    x = next((y for y in lignes if y["decision"] and y["statut"] == "à examiner"
+              and "par Lucas le" not in y["raison"]), None)
     if x is None:
         print("  aucune ligne en attente de décision, test sans objet")
         return

@@ -12,6 +12,7 @@ import logging
 import sys
 import time
 from datetime import date
+from pathlib import Path
 
 import numpy as np
 
@@ -151,6 +152,13 @@ def executer(args):
             _lim.completer(_manques["limites"])
             config.LIMITES_ALIAS.update(_manques["alias"])
             config.LIMITES_COURT.update({k: L["court"] for k, L in _manques["limites"].items() if L.get("court")})
+    if lieux_res and ins and ins.get("publics") is not None:
+        # population concernée (chantier du 9 novembre 2026), avant les indicateurs des structures, qui en reprennent les distances
+        try:
+            lieux_res["population_concernee"] = lieux.population_concernee(lieux_res, ref, ins["publics"])
+        except Exception as e:  # noqa: BLE001
+            logging.exception("population concernée")
+            JOURNAL.note("Population concernée", "erreur", str(e)[:300])
     # lieux pour 100 000 habitants et distances, ajoutés aux indicateurs de contexte pour être croisés
     src_lieux = lieux.indicateurs(lieux_res, ref, ctx) if contexte else None
     if src_lieux:
@@ -224,6 +232,10 @@ def executer(args):
         # distances des communes des départements sans mesure, retirées une fois faites les analyses nationales
         lieux.masquer_distances_communes(lieux_res, ref)
     out = export.ecrire(agg, ref, professions, contexte, R, diplomes, jour=args.date)
+    # en brouillon tant que Lucas n'a pas validé la présentation (config.POPULATION_CONCERNEE_PUBLIEE)
+    pc_ = (lieux_res or {}).get("population_concernee")
+    if pc_ is not None and not pc_.empty and (args.brouillons or config.POPULATION_CONCERNEE_PUBLIEE):
+        pc_.to_csv(Path(out) / "population_concernee.csv", sep=";", decimal=",", index=False, encoding="utf-8-sig")
     try:
         if args.brouillons:
             logging.info("Exécution de contrôle des brouillons, site non construit, résultats dans %s", out)

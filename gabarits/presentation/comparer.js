@@ -112,7 +112,8 @@
     if (unite(cible.t, cible.c) < 0) { $("msg").textContent = "Les comparaisons entre territoires écartent " + cible.nm + ", faute de données comparables. Sa fiche reste ouverte."; return; }
     if (S.t.length >= 4) { $("msg").textContent = "Quatre territoires au plus. Retirez-en un pour en ajouter un autre."; return; }
     S.t.push({ t: cible.t, c: cible.c, nm: cible.nm });
-    if (cible.commune) $("msg").textContent = cible.commune.nm + " fait partie de " + cible.nm + ", ajoutée à la comparaison, la commune seule étant trop petite pour la plupart des professions.";
+    if (cible.commune) $("msg").textContent = cible.commune.nm + " fait partie de " + cible.nm + ", ajoutée à la comparaison" +
+      ((cible.commune.pop || 0) > 100000 ? ", les chiffres étant publiés pour l'intercommunalité." : ", la commune seule étant trop petite pour la plupart des professions.");
     rendre();
   });
   lire(); rendre();

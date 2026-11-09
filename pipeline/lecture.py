@@ -265,18 +265,31 @@ _MOTS_LIAISON = {"de", "du", "des", "d", "en", "pour", "a", "au", "aux", "l", "l
 
 
 def pluriel(libelle: str) -> str:
-    """Pluriel d'un libellé de profession, en minuscules. « Médecin généraliste » devient
-    « médecins généralistes ». Seuls les mots placés avant la première préposition s'accordent."""
-    out, fige = [], False
-    for mot in libelle.lower().split(" "):
+    """Pluriel d'un libellé de profession, en minuscules sauf les sigles (« médecins ORL »). « Médecin généraliste »
+    devient « médecins généralistes ». Les mots s'accordent jusqu'à la première préposition ; « et » n'arrête pas
+    l'accord (« chirurgiens thoraciques et cardiovasculaires », pas « … et cardiovasculaire »), rien ne s'accorde après
+    une virgule (« médecins, spécialités non renseignées ») ni entre parenthèses (« médecins spécialistes (toutes
+    spécialités) »). Même règle que la phrase des réponses de la recherche (reponses.pluriel_nom, contre-audit du
+    8 novembre 2026), un test vérifie que les deux donnent le même pluriel pour toutes les professions du catalogue."""
+    out, fige, paren = [], False, False
+    for mot in libelle.split(" "):
         m = re.match(r"^(.*?)([,.;]*)$", mot)
         corps, ponct = m.group(1), m.group(2)
-        if fige or not corps or corps.split("'")[0] in _MOTS_LIAISON or corps.startswith("("):
-            fige = True
-            out.append(mot)
+        if paren or corps.startswith("("):
+            paren = not corps.endswith(")")
+            out.append((corps if corps.strip("()").isupper() else corps.lower()) + ponct)
+            continue
+        sigle = corps.strip("()").isupper() and len(corps.strip("()")) > 1
+        bas = corps if sigle else corps.lower()
+        if fige or not bas or sigle or (bas.split("'")[0] in _MOTS_LIAISON and bas != "et"):
+            fige = fige or (bool(bas) and not sigle)
+            out.append(bas + ponct)
+            continue
+        if bas == "et":
+            out.append(bas + ponct)
             continue
         parts = []
-        morceaux = corps.split("-")
+        morceaux = bas.split("-")
         for k, p in enumerate(morceaux):
             # élément savant en -o devant un trait d'union, invariable : « oto-rhino-laryngologistes »,
             # « gastro-entérologues » (pas « otos-rhinos- », relevé le 6 novembre 2026)
@@ -289,6 +302,8 @@ def pluriel(libelle: str) -> str:
             else:
                 parts.append(p + "s")
         out.append("-".join(parts) + ponct)
+        if "," in ponct:
+            fige = True
     return " ".join(out)
 
 

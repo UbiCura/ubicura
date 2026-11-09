@@ -162,8 +162,11 @@ def _article_mediane(lv: str) -> str:
 
 
 def _pc(p) -> str:
-    """« 71 % », arrondi comme la position de la règle d'affichage (affichage.position_txt)."""
-    return f"{int(Decimal(p * 100).quantize(Decimal(1), rounding=ROUND_HALF_UP))}{AF.FINE}%"
+    """« 71 % », arrondi comme la position de la règle d'affichage (affichage.position_txt). Une part non nulle qui
+    s'arrondirait à 0 s'écrit « moins de 1 % » : « C'est le cas de 0 % des intercommunalités » laissait un 0 trompeur
+    (Île-de-Sein, relecture indépendante du 9 novembre 2026)."""
+    v = int(Decimal(p * 100).quantize(Decimal(1), rounding=ROUND_HALF_UP))
+    return f"moins de 1{AF.FINE}%" if v == 0 and p > 0 else f"{v}{AF.FINE}%"
 
 
 def _confirmation(n: int, conf: dict) -> str:

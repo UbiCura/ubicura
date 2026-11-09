@@ -217,7 +217,40 @@
       const ec = [...c.closest("tr").querySelectorAll(".ec")].filter(vis);
       if (ec.some(x => !c.contains(x))) sortie.defauts.push("écart et position sur deux lignes « " + t.slice(0, 50) + " »");
     });
+    // 9 bis. le nom de la ligne prend la largeur que lui laissent la valeur et le menu : la réglette, étendue sur les
+    //        deux colonnes, élargissait la seconde et le nom tenait sur 127 px sur 343 (relecture du 9 novembre 2026)
+    tb.querySelectorAll("tbody tr").forEach(tr => {
+      const n = tr.querySelector("th"), v = tr.querySelector("td.v"), o = tr.querySelector("td.outil");
+      if (!n || !vis(n) || !v) return;
+      const rg = document.createRange(); rg.selectNodeContents(v);   // largeur du contenu de la valeur, pas de sa cellule
+      const libre = tr.getBoundingClientRect().width - Math.max(rg.getBoundingClientRect().width, o ? o.getBoundingClientRect().width : 0);
+      if (n.getBoundingClientRect().width < libre - 60)
+        sortie.defauts.push("nom de ligne serré sur " + Math.round(n.getBoundingClientRect().width) + " px au téléphone « " + n.innerText.trim().slice(0, 40) + " »");
+      // le menu « … » reste au-dessus du nom qui s'étend sous lui, donc cliquable (même relecture) ; ouvert, son panneau
+      // passe au premier plan (il glissait sous la réglette et les lignes suivantes, contrôle 9 ter plus bas)
+      const b = o && vis(o) ? o.getBoundingClientRect() : null;
+      if (b && b.top >= 0 && b.bottom <= innerHeight) {
+        const x = document.elementFromPoint(b.left + b.width / 2, b.top + b.height / 2);
+        if (x && !o.contains(x)) sortie.defauts.push("menu de ligne caché sous « " + n.innerText.trim().slice(0, 40) + " »");
+      }
+    });
   });
+  // 9 ter. menus « … » des lignes ouverts un à un (douze au plus) : tout leur panneau est au premier plan, rien ne le
+  //        raye ni ne le recouvre (régression du 9 novembre 2026, relevée par la relecture indépendante)
+  for (const d of [...document.querySelectorAll("table.ligne-type details.menu-ligne")].filter(vis).slice(0, 12)) {
+    d.scrollIntoView({ block: "center" });
+    d.open = true;
+    await new Promise(r => setTimeout(r, 60));
+    const c = d.querySelector(".menu-corps");
+    if (c && vis(c)) {
+      const b = c.getBoundingClientRect();
+      const pts = [[.1, .2], [.5, .5], [.9, .8], [.3, .9]].map(([fx, fy]) => [b.left + fx * b.width, b.top + fy * b.height])
+        .filter(([x, y]) => y > 0 && y < innerHeight && x > 0 && x < innerWidth);
+      if (pts.some(([x, y]) => { const e = document.elementFromPoint(x, y); return e && !c.contains(e); }))
+        sortie.defauts.push("menu de ligne ouvert recouvert « " + (d.closest("tr").querySelector("th") || d).innerText.trim().slice(0, 40) + " »");
+    }
+    d.open = false;
+  }
   // 6. justifié étroit : un paragraphe justifié de moins de 560 px, mesuré sur lui-même et non sur sa colonne
   //    (rivières dans les « Comment lire » bornés par la mesure, relecture esthétique du 31 octobre 2026)
   document.querySelectorAll("main p,main li,main dd").forEach(b => {

@@ -84,7 +84,7 @@ def classer(ind: dict) -> tuple[str, str]:
         return "offre", "Âge et évolution des professionnels"
     if i.startswith("lieux_"):
         return "offre", "Structures de soins"
-    if i.startswith("dist_"):
+    if i.startswith(("dist_", "distp_")):
         return "mobilite", "Distance aux structures"
     if i.startswith(("route_", "temps_")) or g.startswith("Temps de trajet"):
         return "mobilite", "Temps de trajet et transports"
@@ -116,7 +116,7 @@ def sante_mentale(ind: dict) -> bool:
     i, g = ind["id"], ind.get("groupe", "")
     if ind.get("famille") == "Santé mentale":
         return True
-    if i.startswith(("lieux_lieu_", "dist_lieu_")):
+    if i.startswith(("lieux_lieu_", "dist_lieu_", "distp_lieu_")):
         return any(t in i for t in TYPES_SANTE_MENTALE)
     if i in ("ald_23", "ald_15"):
         return True

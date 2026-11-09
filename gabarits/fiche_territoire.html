@@ -474,9 +474,15 @@ Position parmi les {{ {'epci': 'intercommunalités', 'dep': 'départements', 're
 </section>
 <script>
 (function () {
-  var m = /[?&]commune=(\w{5})/.exec(location.search); if (!m) return;
+  // une commune hors intercommunalité (code en C, Ouessant) est elle-même le territoire de la fiche : pas de « fait partie de »
+  var m = /[?&]commune=(\w{5})/.exec(location.search); if (!m || {{ (f.code[:1] == "C")|tojson }}) return;
   var n = /[?&]nom=([^&]+)/.exec(location.search), nm = n ? decodeURIComponent(n[1]).replace(/[<>&"]/g, "") : "Votre commune";
-  document.getElementById("ctx-commune").innerHTML = '<p class="contexte-commune"><strong>' + nm + "</strong> fait partie de {{ f.nom_article|e }}. Les chiffres sont publiés pour l'intercommunalité, la commune seule est trop petite pour la plupart des professions.</p>";
+  // un arrondissement de Lyon ou de Marseille est dans sa commune ; une grande commune n'est pas « trop petite »
+  // (relecture indépendante du 9 novembre 2026)
+  var a = /[?&]arr=([^&]+)/.exec(location.search), arr = a ? decodeURIComponent(a[1]).replace(/[<>&"]/g, "") : "";
+  var grande = /[?&]grande=1/.test(location.search);
+  document.getElementById("ctx-commune").innerHTML = '<p class="contexte-commune">' + (arr ? "<strong>" + arr + "</strong> est dans la commune de " + nm + ", qui fait" : "<strong>" + nm + "</strong> fait") +
+    " partie de {{ f.nom_article|e }}. Les chiffres sont publiés pour l'intercommunalité" + (grande ? "." : ", la commune seule est trop petite pour la plupart des professions.") + "</p>";
 })();
 // Au téléphone, les bandes s'ouvrent au toucher, sauf la santé mentale ; titre, comptage et synthèse restent visibles.
 // Décidé à la largeur réelle, et refait quand elle franchit 760 px : une page ouverte étroite puis élargie retrouve

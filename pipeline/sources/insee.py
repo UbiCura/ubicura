@@ -12,6 +12,7 @@ import numpy as np
 import pandas as pd
 
 from .. import config
+from ..lecture import nombre
 from ..util import JOURNAL, date_version, get_texte, lire_meta, log, telecharger
 
 NON_ADDITIFS = {"med", "tp60", "salaire", "minima_sociaux"}
@@ -248,4 +249,13 @@ def charger(ref, hors_ligne=False, rafraichir=False) -> dict | None:
             par_k.setdefault(k, []).append(f"{n} {niveaux_fr.get(niv, niv)}")
         JOURNAL.controle("Valeurs officielles manquantes remplacées par la moyenne des communes pondérée par la population",
                          ", ".join(f"{noms.get(k, k)} ({', '.join(v)})" for k, v in par_k.items()))
-    return {"contexte": ctx, "millesimes": millesimes}
+    # effectifs de chaque population concernée par commune (config.PUBLICS_CONCERNES), pour les distances et les
+    # nombres de structures rapportés au public que sert la structure (chantier du 9 novembre 2026)
+    publics = pd.DataFrame({"pop": com_g["pop"]})
+    for cle, (variables, _lib) in config.PUBLICS_CONCERNES.items():
+        if all(v in com_g for v in variables):
+            publics[cle] = sum(com_g[v] for v in variables)
+    JOURNAL.controle("Populations concernées, France entière (INSEE, communes)",
+                     ", ".join(f"{config.PUBLICS_CONCERNES[c][1]} {nombre(int(publics[c].sum()))}"
+                               for c in publics.columns if c != "pop"))
+    return {"contexte": ctx, "millesimes": millesimes, "publics": publics}

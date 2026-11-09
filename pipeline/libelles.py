@@ -64,6 +64,10 @@ VOCABULAIRE_A_EVITER = [
 EXCEPTIONS = [r"maisons? dep(artementales?)? (des )?personnes handicapees",   # forme abrégée du RPPS comprise (« GIP MAISON DEP PERSONNES HANDICAPEES »)
               # raison sociale gardée telle quelle, nom propre de l'établissement de Clermont-Ferrand (Lucas, 6 novembre 2026)
               r"centre (de )?reeducation (pour )?deficients visuels",
+              # raisons sociales déclarées au répertoire RPPS, gardées telles quelles comme noms propres (même règle) :
+              # le service de Valence et le foyer de Lèves (Eure-et-Loir)
+              r"sve deficients visuels saaas",
+              r"foyer de vie pour adultes handicapes leves",
               # nom propre du programme de prévention du suicide, cité dans la page méthode avec sa source
               r"programme papageno"]
 
