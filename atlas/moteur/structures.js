@@ -151,7 +151,7 @@ function structuresTerritoire(){const el=document.getElementById("lieuxCard");
   let h='<h2 tabindex="-1">Structures de soins de ce territoire <button class="how" data-how="lieux,confirmation">Comment lire</button></h2><div class="howtxt hidden"></div>';
   h+='<div data-export="structures">';
   // l'encadré repensé (demande de Lucas du 28 octobre 2026) : le résultat d'abord, en une phrase et une légende en
-  // couleur, puis le plan sur toute la largeur, puis la liste par type, le détail de chaque type à un clic
+  // couleur, puis le plan sur toute la largeur, puis la liste par type, le détail de chaque type ouvert par un bouton
   const accord=(k,s,p)=>N(k)+' '+(k>1?p:s);
   h+='<p class="phrase">'+(base.length>1?'Sur les '+N(base.length)+' structures de ce territoire dont le niveau de confirmation est établi, '
       +accord(nc,"est confirmée","sont confirmées")+' par une source indépendante de FINESS et du Répertoire opérationnel des ressources (ROR)'

@@ -24,6 +24,19 @@ NOMS = {"reg": ("région", "régions"), "dep": ("département", "départements")
 ORDRE = ("epci", "dep", "reg")
 
 
+
+
+def titre_indicateur(lab: str, u: str | None) -> str:
+    """Nom de l'indicateur suivi de son unité, sauf si le nom la porte déjà (« pour 100 000 habitants », « % », « km »)."""
+    if not u:
+        return lab
+    n = lambda s: re.sub(r"[\u00a0\u202f\s]+", " ", s).lower()   # noqa: E731
+    l_, u_ = n(lab), n(u)
+    deja = (re.search(r"pour 1[0 ]*0 hab", u_) and re.search(r"pour 1[0 ]*0 hab", l_)) or \
+           (u_.strip().startswith("%") and "%" in l_) or (u_.strip() == "km" and re.search(r"\bkm\b", l_)) or \
+           (len(u_.strip()) > 3 and u_.strip() in l_)   # « pour 100 000 enfants de moins de 15 ans » (audit du 8 novembre 2026)
+    return lab if deja else f"{lab}, {u}"
+
 def slug(ind_id: str) -> str:
     return ind_id.replace("prof:", "prof-").replace(":all", "").replace(":", "-").replace("_", "-")
 
@@ -217,8 +230,11 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
         from .cartes_presentation import choroplethe
         f["carte"] = choroplethe(A, "dep", e["id"], f["lab"], f["u"]) if "dep" in niveaux else None
         f["donnees_fig"] = f"../donnees/{version}/{f['fichiers'][0][0]}" if f["fichiers"] else ""
-        cit = f"{commun['citation_auteur']} ({commun['annee_version']}). {f['lab']}, {f['u']}. {config.NOM_PROJET}, version du {commun['date_longue']}" + ((f", toutes les versions doi:{doi}" if doi == config.DOI_DONNEES else f", doi:{doi}") if doi else "")
-        html = gabarit.render(dict(commun, racine="../", page="domaines", titre=f"{f['lab']}, {f['u']}" if f["u"] else f["lab"],
+        # titre de la page : le nom et l'unité, sans répéter une unité que le nom porte déjà (« CSAPA, pour 100 000
+        # habitants, pour 100 000 hab. » sur dix pages de structures, relevé le 8 novembre 2026)
+        f["titre"] = titre_indicateur(f["lab"], f["u"])
+        cit = f"{commun['citation_auteur']} ({commun['annee_version']}). {f['titre']}. {config.NOM_PROJET}, version du {commun['date_longue']}" + ((f", toutes les versions doi:{doi}" if doi == config.DOI_DONNEES else f", doi:{doi}") if doi else "")
+        html = gabarit.render(dict(commun, racine="../", page="indicateur", titre=f["titre"],
                                    classe_main="indicateur", f=f, version=version, doi=doi, citation=cit,
                                    # DOI cliquable dans la citation (règle 11), le lien posé ici et non dans le gabarit,
                                    # qui l'échapperait (contre-audit du 6 novembre 2026)
@@ -228,5 +244,6 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
                                    description=f"Fiche de l'indicateur {f['lab']}, définition, source, répartition des territoires et limites."))
         (dossier / f"{f['slug']}.html").write_text(html, encoding="utf-8")
         pages.append(dossier / f"{f['slug']}.html")
-        index[e["id"].replace(":all", "")] = f["slug"]
+        # suffixe retiré, jamais remplacé : « prof:allergologue:all » devenait « profergologue » (8 novembre 2026)
+        index[e["id"].removesuffix(":all")] = f["slug"]
     return pages, index

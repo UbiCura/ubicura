@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{# Page d'un thème transversal (navigation, étape 2, validée par Lucas le 8 novembre 2026, prototypes/nav_etape2/) :
+   les indicateurs du thème par domaine, et ses questions reprises des pages de l'offre (même figure, même « Comment
+   lire », même renvoi au rapport). Construite par pages_domaine.construire_themes. #}
+{% block contenu %}
+<header class="tete">
+  <p class="discret" style="margin:0 0 var(--e-3)"><a href="../domaines.html">Les domaines</a>, thèmes transversaux</p>
+  <h1>{{ th.nom }}</h1>
+  <p class="chapeau">{{ th.chapeau }}</p>
+  <p class="th-compte">{{ n }} indicateurs, dans {{ n_domaines }} domaine{{ 's' if n_domaines > 1 }} · <a class="sans-coupure" href="../indicateurs.html#th={{ th.nom|urlencode }}">tous dans le catalogue</a></p>
+</header>
+
+<div class="th-grille" data-citation="{{ citation }}">
+  <div>
+    {% for g in groupes %}
+    <section class="th-bloc" aria-labelledby="g{{ loop.index }}">
+      <h2 id="g{{ loop.index }}">{{ g.titre }}</h2>
+      <ul class="th-liste">{% for x in g.indicateurs %}<li><a href="../{{ x.page }}">{{ x.nom }}</a><span>{{ x.source }}{% if x.date %}, {{ x.date }}{% endif %} · {{ x.niveaux|join(', ') }}</span></li>{% endfor %}</ul>
+    </section>
+    {% endfor %}
+  </div>
+  <aside>
+    <section class="th-bloc" aria-labelledby="t-q">
+      <h2 id="t-q">Questions</h2>
+      <ul class="th-liste">
+        {% for q in questions %}<li><a href="#{{ q.id }}">{{ q.question }}</a><span>sur cette page, avec sa figure</span></li>{% endfor %}
+        {% for h, t in th.explorer %}<li><a href="../{{ h }}">{{ t }}</a><span>Explorer, figure que l’on règle soi-même</span></li>{% endfor %}
+        <li><a href="../croiser.html">Croiser librement deux indicateurs</a><span>tout indicateur du thème contre tout autre</span></li>
+      </ul>
+    </section>
+  </aside>
+</div>
+
+{% for q in questions %}
+<article class="question th-question" id="{{ q.id }}" aria-labelledby="{{ q.id }}-t">
+  <h2 id="{{ q.id }}-t">{{ q.question }}</h2>
+  <div>{{ q.html|safe }}</div>
+  <p class="liens-q"><a href="{{ q.section }}">La section du rapport</a></p>
+</article>
+{% endfor %}
+{% endblock %}

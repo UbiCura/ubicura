@@ -844,7 +844,7 @@ def cmd_boite(args) -> int:
     # -- onglet des statistiques, écho du projet en lecture seule (outils/statistiques.py, tutoriel 13)
     from outils import statistiques
     stats = statistiques.onglet(onglets, racine, c, police, petite)
-    # -- onglet de la veille des bases, candidats marqués par Lucas et examinés à la séance de travail (outils/veille.py)
+    # -- onglet de la veille des bases, point de la semaine validé d'un clic (outils/veille.py, refonte du 8 novembre 2026)
     from outils import veille
     vei = veille.onglet(onglets, racine, c, police, petite, zone_texte, remplir)
     # -- onglet de l'état des tâches automatiques, d'un coup d'œil (outils/etat_taches.py, 1er novembre 2026)

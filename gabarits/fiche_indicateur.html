@@ -38,7 +38,7 @@ main.indicateur .code{font-size:.875rem;background:var(--panel);border:1px solid
 </style>
 <header class="tete">
   <p class="fil"><a href="../domaines.html#{{ f.dom.id }}">{{ f.dom.nom }}</a>{% if f.sous %}, {{ f.sous|lower }}{% endif %}{% if f.sm and (f.sous or '')|lower != 'santé mentale' %}<span class="marque-sm">santé mentale</span>{% endif %}</p>
-  <h1>{{ f.lab }}{% if f.u %}, {{ f.u }}{% endif %}</h1>
+  <h1>{{ f.titre }}</h1>
   <p class="reponse">
   {%- if f.prof and f.dens_fr is not none -%}
     <strong>{{ f.dens_fr|nombre }}</strong> {{ f.lab|lower }} pour {{ f.par }} habitants en France, soit {{ f.n_fr[2]|nombre('entier') }} personnes distinctes ({{ f.an }}).
@@ -60,7 +60,9 @@ main.indicateur .code{font-size:.875rem;background:var(--panel);border:1px solid
       {% if f.lic %}<dt>Licence</dt><dd>{{ f.lic }}</dd>{% endif %}
       <dt>Niveaux</dt><dd>{% if f.prof %}France, {% endif %}{{ f.niveaux|reverse|join(', ') }}</dd>
       <dt>Repère</dt><dd>« {{ f.fin.rep_lib }} », {{ f.nature_repere }}, le même sur la fiche de chaque territoire, le comparateur et Croiser. Tous les territoires du niveau sont comptés, Mayotte comprise.</dd>
-      <dt>Version</dt><dd>{{ date_calcul }}</dd>
+      {#- la date du répertoire RPPS seulement pour un indicateur qui en vient : la source et l'année de chaque indicateur sont
+          écrites juste au-dessus (audit de la navigation du 8 novembre 2026, « logements suroccupés » de l'INSEE datés du RPPS) #}
+      <dt>Version</dt><dd>Calculé le {{ date_longue }}{% if f.prof and date_rpps %}, répertoire RPPS du {{ date_rpps }}{% endif %}</dd>
     </dl>
   </section>
 </div>
@@ -68,14 +70,14 @@ main.indicateur .code{font-size:.875rem;background:var(--panel);border:1px solid
 {% if f.carte %}
 <section class="sect carte-i" aria-labelledby="t-carte-i" data-citation="{{ citation }}">
   <h2 id="t-carte-i">Sur la carte</h2>
-  <figure class="graphique"><figcaption class="small muted"><strong>Carte.</strong> <span class="leg">{{ f.lab }}{% if f.u %}, {{ f.u }}{% endif %}, par département, en cinq classes de même effectif</span></figcaption>{{ f.carte|safe }}</figure>
+  <figure class="graphique"><figcaption class="small muted"><strong>Carte.</strong> <span class="leg">{{ f.titre }}, par département, en cinq classes de même effectif</span></figcaption>{{ f.carte|safe }}</figure>
   <p class="discret" style="margin-top:6px">Par intercommunalité et avec les territoires nommés, {% if f.atlas %}<a href="../{{ f.atlas }}">dans l’atlas</a> ou {% endif %}<a href="../{{ f.croiser }}">dans Croiser</a>.</p>
 </section>
 {% endif %}
 <section class="sect" aria-labelledby="t-niv">
   <h2 id="t-niv">À chaque niveau</h2>
   <div class="defile"><table>
-    <caption class="discret" style="text-align:left">{{ f.lab }}{% if f.u %}, {{ f.u }}{% endif %}, répartition des territoires de chaque niveau</caption>
+    <caption class="discret" style="text-align:left">{{ f.titre }}, répartition des territoires de chaque niveau</caption>
     <thead><tr><th scope="col">Niveau</th><th scope="col" class="v">Territoires</th><th scope="col" class="v">Premier quart</th><th scope="col" class="v">Médiane</th><th scope="col" class="v">Dernier quart</th><th scope="col" class="v">Repère</th><th scope="col" class="v">Plus bas</th><th scope="col" class="v">Plus haut</th></tr></thead>
     <tbody>{% for n in f.par_niv %}<tr><td>{{ n.nom|capitalize }}</td><td class="v">{{ n.n|nombre('entier') }}</td><td class="v">{{ n.q1|nombre(f.g) }}</td><td class="v">{{ n.med|nombre(f.g) }}</td><td class="v">{{ n.q3|nombre(f.g) }}</td><td class="v">{{ n.rep|nombre(f.g) }}</td><td class="v">{{ n.min|nombre(f.g) }}{% if n.nzero %}<span class="note">{{ n.nzero|nombre('entier') }} territoire{{ 's' if n.nzero > 1 }} à 0</span>{% endif %}</td><td class="v">{{ n.max|nombre(f.g) }}</td></tr>{% endfor %}</tbody>
   </table></div>

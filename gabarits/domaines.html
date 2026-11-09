@@ -9,6 +9,8 @@
 <header class="tete">
   <h1>L’offre de soins au centre, sept domaines autour</h1>
   <p class="chapeau">Chaque base entre dans un domaine, et chaque domaine dit ce qu’il éclaire de l’accès aux soins. La santé mentale n’est pas un domaine de plus. C’est l’entrée du site, qui traverse l’offre, le recours aux soins et les distances.</p>
+  {#- le catalogue de tous les indicateurs et les thèmes transversaux (navigation, étape 2, 8 novembre 2026) #}
+  <p class="outils-ligne"><a href="indicateurs.html">Tous les indicateurs</a>, avec la recherche et les filtres. Par thème : {% for t in themes if not t.a_venir %}<a href="{{ t.page or 'theme/' ~ t.slug ~ '.html' }}">{{ t.nom|lower if not loop.first else t.nom }}</a>{{ ', ' if not loop.last else '.' }}{% endfor %}</p>
 </header>
 
 {# « Citer et exporter » comme toute figure du site (H3 de l'étape 4, 5 novembre 2026), par figures.js #}
@@ -59,14 +61,16 @@
 {% for d in domaines %}
 <section class="dom" id="{{ d.id }}" aria-labelledby="t-{{ d.id }}">
   <div>
-    <h2 id="t-{{ d.id }}">{{ d.nom }}</h2>
+    {#- le titre du domaine mène à sa page (remarque de Lucas du 8 novembre 2026 : le lien en dernière ligne se voyait peu) #}
+    <h2 id="t-{{ d.id }}"><a class="vers-dom" href="domaine/{{ 'offre-de-soins' if d.centre else d.id }}.html">{{ d.nom }}<span aria-hidden="true"> →</span></a></h2>
     <p class="pourquoi">{{ d.pourquoi }}</p>
-    <p class="vers-page">{% if d.centre %}<a href="domaine/sante-mentale.html">La page Santé mentale</a> et <a href="domaine/sante.html">la page Santé</a>, leurs questions et leurs figures{% else %}<a href="domaine/{{ d.id }}.html">La page du domaine</a>, ses indicateurs phares et leur répartition{% endif %}</p>
+    {% if d.centre %}<p class="vers-page"><a href="domaine/sante-mentale.html">La page Santé mentale</a> et <a href="domaine/sante.html">la page Santé</a>, leurs questions et leurs figures</p>{% endif %}
     <p class="compte">{% if d.indicateurs %}<b>{{ d.indicateurs|length }}</b> indicateur{{ 's publiés' if d.indicateurs|length > 1 else ' publié' }}{% else %}Aucun indicateur publié{% endif %}{% set n_sm = d.indicateurs|selectattr('sm')|list|length %}{% if n_sm %}, dont {{ n_sm }} de santé mentale{% endif %}{% if d.venir_liste %}, {{ d.venir_liste|length }} base{{ 's' if d.venir_liste|length > 1 }} à venir{% endif %}.</p>
   </div>
   <div>
     <ul class="sous">{% for so, liste in d.par_sous %}<li><b>{{ so }}</b> <span>{% if liste %}{{ liste|length }} indicateur{{ 's' if liste|length > 1 }}{% else %}à venir{% endif %}</span></li>{% endfor %}</ul>
     {% if d.indicateurs or d.venir_liste %}
+    {% if d.indicateurs %}<p class="vers-catalogue"><a href="indicateurs.html#dom={{ d.nom|urlencode }}">Ses indicateurs dans le catalogue</a>, avec la recherche et les filtres</p>{% endif %}
     <details><summary>La liste</summary>
       <ul class="liste-ind">
         {% for so, liste in d.par_sous if liste %}<li class="sous-titre">{{ so }}</li>

@@ -4,12 +4,14 @@
 <h1>Territoires</h1>
 <div class="cherche-fiche accueil">
   <div class="cherche">
-    <label for="q">La fiche d'une commune, d'une intercommunalité, d'un département ou d'une région</label>
+    <label for="q">Votre commune, pour la fiche de son intercommunalité, ou un département, une région</label>
     <input id="q" type="search" autocomplete="off" placeholder="Commune, code postal ou territoire" role="combobox" aria-controls="sugg" aria-autocomplete="list" aria-expanded="false">
     <ul class="suggestions" id="sugg" role="listbox" hidden></ul>
     <p class="cherche-msg" id="msg" aria-live="polite"></p>
   </div>
 </div>
+{#- les deux outils voisins de la fiche, sous la recherche (audit de la navigation, étape 1 validée le 8 novembre 2026) #}
+<p class="outils-ligne"><a href="../zone.html">Autour d’un lieu</a> : les habitants et les structures de soins dans un rayon autour d’une commune, ou sur un périmètre composé commune par commune. <a href="../comparer.html">Comparer</a> deux à quatre territoires.</p>
 <p class="chapeau">Chaque territoire a sa fiche en tableau de bord, imprimable, et chaque région et chaque département ses deux rapports. Pour chaque région et chaque département, l'offre de soins en santé mentale et l'offre de soins générale. Effectifs et densités par profession, répartition dans le territoire, temps de trajet, évolution depuis 2016, indicateurs de besoin et de recours aux soins, comparés à la région, à l’ensemble des départements et à des départements de profil comparable. Chaque chiffre renvoie à sa source.</p>
 <p class="small muted">{{ date_calcul|default('Données du ' ~ date_longue) }}. Pour les régions d'outre-mer, qui ne comptent qu'un département, le rapport départemental tient lieu de rapport régional. Chaque rapport s'enregistre en PDF.</p>
 <p class="small muted">Pour citer un rapport par territoire, indiquez l'auteur, le titre du rapport, sa version et l'adresse de la page, par exemple « {{ exemple_citation|liens }} ». Chaque rapport donne sa citation en tête de page.</p>

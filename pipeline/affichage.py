@@ -855,6 +855,7 @@ def catalogue(sd: dict, dernier: Path | None = None) -> list[dict]:
     les champs dont les gabarits, les exports et l'API ont besoin. Un champ manquant bloque la construction
     (controle_affichage.catalogue)."""
     from . import domaines as D
+    from . import themes as TH
     from .fiche_territoire import annee_indicateur
     T = Affichage(sd, dernier)
     srcs = dates_sources(dernier) if dernier else {}
@@ -880,7 +881,9 @@ def catalogue(sd: dict, dernier: Path | None = None) -> list[dict]:
                     "niveau_fin": niv[0] if niv else None, "niveaux": niv,
                     "annees": [f"répertoire RPPS du {rpps}"] if rpps else [], "source": "RPPS, Agence du numérique en santé",
                     "date": srcs.get("RPPS activité"), "licence": "Licence Ouverte 2.0", "diffusion": "ouverte",
-                    "limite": limite("prof:" + p["id"], "prof"), "couche": "aplats", "phrase": PHRASE[m["sens"]]})
+                    "limite": limite("prof:" + p["id"], "prof"), "couche": "aplats", "phrase": PHRASE[m["sens"]],
+                    # thèmes transversaux et marque sensible (pipeline/themes_indicateurs.csv, 8 novembre 2026)
+                    "themes": TH.themes_de("prof:" + p["id"]), "sensible": TH.sensible("prof:" + p["id"])})
     for c in sd.get("contexte", []):
         m = T.meta(c["id"])
         nom_src = source_journal(c, srcs)
@@ -907,7 +910,8 @@ def catalogue(sd: dict, dernier: Path | None = None) -> list[dict]:
                     "annees": [str(an)] if an else [], "source": c.get("source"), "date": srcs.get(nom_src) if nom_src else None,
                     "licence": c.get("licence"),
                     "diffusion": "fichiers _odbl, hors de l'offre payante" if odbl else "ouverte",
-                    "limite": limite(c["id"], m["kind"]), "couche": "aplats", "phrase": PHRASE[m["sens"]]})
+                    "limite": limite(c["id"], m["kind"]), "couche": "aplats", "phrase": PHRASE[m["sens"]],
+                    "themes": TH.themes_de(c["id"]), "sensible": TH.sensible(c["id"])})
     return out
 
 

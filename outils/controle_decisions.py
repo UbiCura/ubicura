@@ -26,9 +26,10 @@ from pipeline.affichage import nombre, unite_prof  # noqa: E402
 from pipeline.libelles import termes_proscrits  # noqa: E402
 
 SITE = RACINE / "site"
-MENU = ["Offre de soins", "Domaines", "Territoires", "Comparer", "Croiser", "Méthode et données"]
+# menu à sept entrées depuis le 8 novembre 2026 (Explorer entre Comparer et Croiser, version A validée sur captures)
+MENU = ["Offre de soins", "Domaines", "Territoires", "Comparer", "Explorer", "Croiser", "Méthode et données"]
 # entrée du menu allumée selon la page (gabarits/nav.html)
-MENU_ATTENDU = {"comparer.html": "Comparer", "croiser.html": "Croiser", "liens.html": "Croiser", "explorer.html": "Croiser",
+MENU_ATTENDU = {"comparer.html": "Comparer", "croiser.html": "Croiser", "liens.html": "Croiser", "explorer.html": "Explorer",
                 "domaines.html": "Domaines", "methode.html": "Méthode et données", "domaine/offre-de-soins.html": "Offre de soins",
                 # les deux pages centre (santé mentale, santé) relèvent de l'offre de soins (pipeline/pages_domaine.py)
                 "domaine/sante-mentale.html": "Offre de soins", "domaine/sante.html": "Offre de soins",
@@ -147,7 +148,7 @@ def controler() -> int:
                                             "Domaines" if rel(p).startswith(("domaine/", "indicateur/")) else None)
         if att and on != [att]:
             menus.append((rel(p), f"allumé {on}, attendu {att}"))
-    note("Menu à six entrées et entrée allumée", menus)
+    note("Menu à sept entrées et entrée allumée", menus)
 
     # 3. mots de programme visibles et code HTML brut affiché au lecteur
     brut = []
@@ -335,6 +336,69 @@ def controler() -> int:
         for nom in sorted({p.stem for p in (avant[-1] / "graphiques").glob("*.svg")} - faites):
             perdues.append((avant[-1].name, nom, "présente dans la version précédente, absente ici"))
     note("Aucune figure perdue (annoncée par le rapport, présente dans la version précédente)", perdues)
+
+    # 15. navigation (audit du 8 novembre 2026, étape 1 validée par Lucas) : chaque fiche relie le territoire qui la
+    #     contient et ceux qu'elle contient, propose « Autour d'un lieu » ; chaque page a au pied « Autour d'un lieu » et
+    #     « Télécharger les données » ; plus d'ancien nom « Données sources »
+    nav = []
+    for p, s in sources.items():
+        r = rel(p)
+        m = re.match(r"territoire/(reg|dep|epci)/([^/]+)\.html$", r)
+        if m:
+            lv = m.group(1)
+            tete = re.search(r'<p class="tete-l2">(.*?)</p>', s, flags=re.S)
+            tete = tete.group(1) if tete else ""
+            if lv in ("dep", "epci") and 'href="../reg/' not in tete:
+                nav.append((r, "pas de lien vers la région"))
+            if lv == "epci" and 'href="../dep/' not in tete:
+                nav.append((r, "pas de lien vers le département"))
+            if lv in ("reg", "dep") and 'id="territoires-inclus"' not in s:
+                nav.append((r, "pas de liste des territoires contenus"))
+            if "zone.html" not in (re.search(r'<p class="tete-outils.*?</p>', s, flags=re.S) or [""])[0]:
+                nav.append((r, "pas d'« Autour d'un lieu » en tête de fiche"))
+        pied = re.search(r'<p class="pied-liens">.*?</p>', s, flags=re.S)
+        if pied and not ("zone.html" in pied.group(0) and "methode-fichiers.html" in pied.group(0)):
+            nav.append((r, "pied de page sans « Autour d'un lieu » ou « Télécharger les données »"))
+        if "Données sources" in textes[p]:
+            nav.append((r, "ancien nom « Données sources »"))
+    note("Navigation : liens entre niveaux, « Autour d'un lieu », pied de page", nav)
+
+    # 16. une unité n'est jamais répétée dans un titre (« CSAPA, pour 100 000 habitants, pour 100 000 hab. », dix pages
+    #     d'indicateur, relevé par la relecture du 8 novembre 2026)
+    double = []
+    for p, s in sources.items():
+        for h in re.findall(r"<h1[^>]*>(.*?)</h1>", s, flags=re.S):
+            t = re.sub(r"\s+", " ", html.unescape(re.sub(r"<[^>]+>", "", h)).replace(" ", " ").replace(" ", " "))
+            if len(re.findall(r"pour 1[0 ]*0 hab", t)) > 1 or t.count("%") > 1:
+                double.append((rel(p), t))
+    note("Aucune unité répétée dans un titre", double)
+
+    # 17. catalogue des indicateurs complet (navigation, étape 2) : chaque page d'indicateur y figure, chaque entrée mène
+    #     à une page qui existe (8 novembre 2026 : « prof:allergologue:all » perdait son lien, 216 sur 217)
+    cat_pb = []
+    f_cat = SITE / "presentation" / "catalogue.json"
+    if f_cat.exists():
+        C = json.loads(f_cat.read_text(encoding="utf-8"))
+        dans = {x["page"] for x in C}
+        cat_pb += [(p, "page d'indicateur absente du catalogue") for p in sorted(rel(q) for q in (SITE / "indicateur").glob("*.html")) if p not in dans]
+        cat_pb += [(x["page"], "entrée du catalogue sans page") for x in C if not (SITE / x["page"]).exists()]
+    else:
+        cat_pb.append(("presentation/catalogue.json", "absent"))
+    note("Catalogue des indicateurs complet", cat_pb)
+
+    # 16 bis. une unité jamais écrite deux fois de suite, dans tout texte lu et dans le catalogue (« EHPAD, pour 100 000
+    #     personnes de 80 ans et plus, pour 100 000 personnes de 80 ans et plus », audit indépendant du 8 novembre 2026)
+    rep = re.compile(r"(pour [^,;.]{6,}), \1\b")
+    deux = [(rel(p), m.group(0)[:80]) for p in pages if (m := rep.search(textes[p]))]
+    if f_cat.exists():
+        deux += [("presentation/catalogue.json", x["nom"]) for x in json.loads(f_cat.read_text(encoding="utf-8")) if rep.search(x["nom"])]
+    note("Aucune unité écrite deux fois de suite", deux)
+
+    # 18. recherche de l'en-tête et réponses directes (outils/controle_recherche.py) : articles, « aucun » sans position,
+    #     département de rattachement, pluriels, codes postaux, et requêtes types essayées dans le navigateur
+    sys.path.insert(0, str(RACINE / "outils"))
+    import controle_recherche
+    note("Recherche de l'en-tête et réponses directes", controle_recherche.controler())
 
     # compte rendu
     total = 0

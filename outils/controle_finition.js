@@ -298,6 +298,36 @@
     });
     if (n) sortie.defauts.push(`texte collé au bord de son cadre : ${n} bloc(s) (${ex})`);
   }
+  // 11 quinquies. l'atlas mène à la fiche du territoire choisi (promesse de l'accueil, demande de Lucas du 2 novembre
+  //     2026 ; l'encadré ne menait qu'aux rapports, relevé par l'audit de la navigation du 8 novembre)
+  if (/atlas\.html$/.test(location.pathname.replace(/_finition_atlas[^/]*\.html$/, "atlas.html")) && document.getElementById("tip")) {
+    const t = [...document.querySelectorAll("svg path")].find(e => { const r = e.getBoundingClientRect(); return r.width > 8 && r.height > 8 && r.top >= 0 && r.bottom <= innerHeight; });
+    if (t) {
+      const b = t.getBoundingClientRect();
+      t.dispatchEvent(new MouseEvent("click", {bubbles: true, clientX: b.x + b.width / 2, clientY: b.y + b.height / 2}));
+      if (!document.querySelector('a.lien-fiche[href*="territoire/"]')) sortie.defauts.push("atlas : l'encadré du territoire choisi ne mène pas à sa fiche complète");
+    }
+  }
+  // 11 sexies. une valeur n'est jamais barrée par un trait de repère en pointillé (règle 17 ; 17 valeurs des figures en
+  //     escalier l'étaient, relevé le 8 novembre 2026)
+  {
+    let n = 0, ex = "";
+    document.querySelectorAll("main svg").forEach(svg => {
+      if (!vis(svg)) return;
+      const traits = [...svg.querySelectorAll("line[stroke-dasharray], path[stroke-dasharray]")].map(l => l.getBoundingClientRect())
+        .filter(r => r.height <= 2 && r.width > 20);
+      if (!traits.length) return;
+      svg.querySelectorAll("text").forEach(t => {
+        if (!t.textContent.trim() || getComputedStyle(t).display === "none") return;
+        const r = t.getBoundingClientRect();
+        if (!r.width) return;
+        // boîte du texte resserrée sur les chiffres (le haut et le bas de la boîte sont vides)
+        const h = r.top + r.height * .25, b = r.bottom - r.height * .2;
+        if (traits.some(l => l.top >= h && l.top <= b && l.left < r.right - 1 && l.right > r.left + 1)) { n++; ex = ex || `« ${t.textContent.trim()} »`; }
+      });
+    });
+    if (n) sortie.defauts.push(`valeur barrée par un trait de repère : ${n} texte(s) (${ex})`);
+  }
   // 11 ter. l'infobulle d'une carte tient entière à l'écran, son tableau compris (7 novembre 2026, atlas, médecins
   //     spécialistes : la colonne « Écart » débordait de l'infobulle et sortait de l'écran, vu par Lucas). Survol de
   //     douze territoires répartis sur la carte, aux deux bords compris.

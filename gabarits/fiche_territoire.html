@@ -257,11 +257,15 @@ Position parmi les {{ {'epci': 'intercommunalités', 'dep': 'départements', 're
     <p class="tete-outils seul-ecran">
       <button type="button" class="lien-outil" data-epingle="{{ terr_id }}" data-nom="{{ f.nom }}" data-adresse="territoire/{{ f.niveau }}/{{ f.code }}.html" aria-pressed="false">Épingler</button>
       <a class="lien-outil" href="#comparer">Comparer</a>
+      {#- « Autour d'un lieu » proposé depuis toutes les fiches (audit de la navigation, étape 1 validée le 8 novembre 2026) #}
+      <a class="lien-outil" href="{{ zone or racine ~ 'zone.html' }}">Autour d’un lieu</a>
       <a class="lien-outil" href="#citer">Citer</a>
       <button type="button" class="lien-outil" onclick="window.print()">PDF</button>
     </p>
   </div>
-  <p class="tete-l2">{{ f.nom_niveau }}{% if f.parent and f.parent != f.nom %} · {{ f.parents_txt or f.parent }}{% endif %} · {{ f.population|nombre('entier') }} habitants · <span class="sans-cesure">version du {{ date_longue }}</span>{% if doi_donnees %} · <span class="sans-cesure">DOI {% if doi_toutes %}de toutes les versions {% endif %}<a href="https://doi.org/{{ doi_donnees }}">{{ doi_donnees }}</a></span>{% endif %}</p>
+  {#- le territoire qui contient celui-ci, en lien vers sa fiche, et le nombre de ceux qu'il contient, en lien vers leur liste
+     en bas de fiche (étape 1 de l'audit de la navigation, validée le 8 novembre 2026) #}
+  <p class="tete-l2">{{ f.nom_niveau }}{% if niveaux.parents_html %} · {{ niveaux.parents_html|safe }}{% elif f.parent and f.parent != f.nom %} · {{ f.parents_txt or f.parent }}{% endif %}{% if niveaux.enfants %} · <a href="#territoires-inclus">{{ niveaux.enfants|length }} {{ niveaux.enfants_mot }}</a>{% endif %} · {{ f.population|nombre('entier') }} habitants · <span class="sans-cesure">version du {{ date_longue }}</span>{% if doi_donnees %} · <span class="sans-cesure">DOI {% if doi_toutes %}de toutes les versions {% endif %}<a href="https://doi.org/{{ doi_donnees }}">{{ doi_donnees }}</a></span>{% endif %}</p>
   <p class="epingle-comparer seul-ecran" hidden></p>
   <div id="ctx-commune"></div>
   {% for l in f.limites_territoire %}<p class="limite limite-terr"><b aria-hidden="true">!</b><span>{{ l }}</span></p>{% endfor %}
@@ -421,7 +425,7 @@ Position parmi les {{ {'epci': 'intercommunalités', 'dep': 'départements', 're
       {% for l in comparer %}<li><a href="{{ l[1] }}">{{ l[0] }}</a>{% if loop.first %} Le comparateur propose aussi les territoires semblables par la densité, le niveau de vie et l'âge.{% endif %}</li>{% endfor %}
     </ul>
     <ul class="portes portes-fiche">
-      {% if zone %}<li><a href="{{ zone }}">Son périmètre, commune par commune</a> Les habitants et les structures de chaque commune, et un périmètre que l'on compose soi-même.</li>{% endif %}
+      {% if zone %}<li><a href="{{ zone }}">Autour d’un lieu</a> Les habitants et les structures de soins de chaque commune de l’intercommunalité, ou dans un rayon autour de l’une d’elles, et un périmètre que l’on compose soi-même.</li>{% endif %}
       {% for l in liens_fiche %}<li><a href="{{ l[1] }}">{{ l[0] }}</a></li>{% endfor %}
     </ul>
   </div>
@@ -455,6 +459,13 @@ Position parmi les {{ {'epci': 'intercommunalités', 'dep': 'départements', 're
     </div>
   </div>
 </section>
+
+{% if niveaux.enfants %}
+<section class="territoires-inclus seul-ecran" id="territoires-inclus" aria-labelledby="t-inclus">
+  <h2 id="t-inclus">{{ niveaux.enfants_titre }}</h2>
+  <ul>{% for c, n in niveaux.enfants %}<li><a href="../{{ niveaux.enfants_niveau }}/{{ c }}.html">{{ n }}</a></li>{% endfor %}</ul>
+</section>
+{% endif %}
 
 <section class="papier-fin seul-papier" aria-label="Lecture, limites et citation">
   <h2>Lire, sourcer et citer cette fiche</h2>

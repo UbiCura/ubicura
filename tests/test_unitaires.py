@@ -3141,7 +3141,10 @@ def test_corrections_fiche_avant_mise_en_ligne():
                 assert "data-titre" in fig or "carte-fig" in fig, fig
             assert corps.count('class="citer-encadre"') >= corps.count('<figure class="carte-bloc"') + 2, p.name
             if p.stem == "248400251":                                                     # M5 rendu
-                assert re.search(r'class="tete-l2">[^<]*Vaucluse et Gard', h) and 'class="groupe-note note-deps"' in h
+                # les départements sont des liens vers leur fiche depuis l'étape 1 de la navigation (8 novembre 2026)
+                tete = re.sub(r"<[^>]+>", "", re.search(r'class="tete-l2">(.*?)</p>', h, flags=re.S).group(1))
+                assert "Vaucluse et Gard" in tete and 'class="groupe-note note-deps"' in h
+                assert 'href="../dep/84.html"' in h and 'href="../dep/30.html"' in h
 
 
 def test_relecture_fiches_construites():
@@ -5342,6 +5345,75 @@ def test_reseaux_messages():
         shutil.rmtree(tmp, ignore_errors=True)
 
 
+def test_reseaux_file_d_attente():
+    """File d'attente de la série Bluesky (demande de Lucas du 8 novembre 2026), sans rien publier : la série se charge
+    dans l'ordre de ses dates sans le fil ; un message programmé ne part jamais si ses chiffres viennent d'une version
+    plus ancienne que celle en ligne, ni plus de six heures après son heure ; il revient à relire avec son motif ; un
+    message non publié se remplace, un message publié jamais ; la semaine se programme à partir des dates proposées."""
+    import argparse
+    import datetime as dt
+    import json
+    import shutil
+    import tempfile
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from outils import reseaux as r
+    serie = Path(__file__).resolve().parent.parent / "docs" / "communication" / "bluesky_2026-11" / "messages"
+    if not serie.exists():
+        raise Ignore("série Bluesky absente")
+    avant = (r.MESSAGES, r.FIGURES, r.JOURNAL_PUBLICATIONS, r.PUBLICATION)
+    tmp = Path(tempfile.mkdtemp(prefix="reseaux_file_"))
+
+    def interdit(_m):
+        raise AssertionError("message publié alors qu'il devait revenir à relire")
+    try:
+        r.MESSAGES, r.FIGURES, r.JOURNAL_PUBLICATIONS = tmp / "messages", tmp / "figures", tmp / "journal.csv"
+        r.PUBLICATION = tmp / "publication.json"
+        assert r.cmd_ajouter_serie(argparse.Namespace(dossier=str(serie))) == 0
+        ms = r.messages()
+        assert ms and not any(m["id"].startswith("fil-") for m in ms)
+        assert all(m["statut"] == "a_relire" for m in ms)
+        dates = [m.get("envoi_prevu") or "9999" for m in ms]
+        assert dates == sorted(dates)
+        # une seconde fois, rien n'est ajouté deux fois
+        assert r.cmd_ajouter_serie(argparse.Namespace(dossier=str(serie))) == 0 and len(r.messages()) == len(ms)
+        m = ms[0]
+        # chiffres d'une version plus ancienne que celle en ligne : retour à relire
+        r.ecrire_json(r.PUBLICATION, {"version": "2099-01-01"})
+        r.programmer(m, dt.datetime.now() - dt.timedelta(minutes=5))
+        assert r.publier_programmes({"linkedin": interdit, "bluesky": interdit}) == 0
+        m = r.lire_json(r.MESSAGES / f"{m['id']}.json")
+        assert m["statut"] == "a_relire" and "version" in m["retour"]
+        # plus de six heures après l'heure prévue : retour à relire
+        r.ecrire_json(r.PUBLICATION, {"version": m["donnees"]})
+        r.programmer(m, dt.datetime.now() - dt.timedelta(hours=7))
+        assert "retour" not in r.lire_json(r.MESSAGES / f"{m['id']}.json")
+        assert r.publier_programmes({"linkedin": interdit, "bluesky": interdit}) == 0
+        m = r.lire_json(r.MESSAGES / f"{m['id']}.json")
+        assert m["statut"] == "a_relire" and "heure" in m["retour"]
+        # remplacement d'un message non publié, refus pour un message publié
+        neuf = json.loads((serie / f"{m['id']}.json").read_text(encoding="utf-8"))
+        neuf["bluesky"] = neuf["bluesky"].replace("\n", " Nouvelle version.\n", 1)
+        r.remplacer(neuf)
+        m = r.lire_json(r.MESSAGES / f"{m['id']}.json")
+        assert "Nouvelle version." in m["bluesky"] and m["statut"] == "a_relire" and m["cree_le"] == ms[0]["cree_le"]
+        m["publications"] = {"bluesky": {"le": "x", "adresse": "x"}}
+        r.enregistrer(m)
+        try:
+            r.remplacer(neuf)
+            raise AssertionError("message publié remplacé")
+        except r.Arret:
+            pass
+        # la semaine : les messages à relire dont la date tombe dans les sept jours, dans l'ordre
+        debut = min(r.lire_date(x["envoi_prevu"]) for x in r.messages() if x.get("envoi_prevu")) - dt.timedelta(minutes=1)
+        sem = r.programmables(debut, debut + dt.timedelta(days=7))
+        assert sem and all(debut < r.lire_date(x["envoi_prevu"]) <= debut + dt.timedelta(days=7) for x in sem)
+        assert [x["envoi_prevu"] for x in sem] == sorted(x["envoi_prevu"] for x in sem)
+        assert not r.JOURNAL_PUBLICATIONS.exists()
+    finally:
+        r.MESSAGES, r.FIGURES, r.JOURNAL_PUBLICATIONS, r.PUBLICATION = avant
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
 def test_reseaux_suivre():
     """Abonnements Bluesky du compte du projet (demande de Lucas du 29 octobre 2026), sans rien envoyer, sur la vraie
     liste vérifiée (docs/reseaux/comptes_a_suivre.csv). Liste sans erreur, seuls les comptes cochés sont suivis, cinq
@@ -6672,6 +6744,7 @@ sys.path.insert(0, str(Path(__file__).parent))
 from test_decisions import *  # noqa: E402,F401,F403
 from test_audit3_site import *  # noqa: E402,F401,F403
 from test_code_public import *  # noqa: E402,F401,F403
+from test_veille import *  # noqa: E402,F401,F403
 
 
 if __name__ == "__main__":

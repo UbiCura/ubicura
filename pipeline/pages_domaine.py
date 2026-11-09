@@ -187,7 +187,7 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
                  if (d == "offre" or (cle == "sm" and d == "recours")) and bool(sm_mot.search(n)) == (cle == "sm")]
         cit = f"{commun['citation_auteur']} ({commun['annee_version']}). {titre}, questions et figures. Ubi Cura, version du {commun['date_longue']}" + (f", doi:{doi}" if doi else "")
         html = env.get_template("page_domaine.html").render(dict(
-            commun, racine="../", page="offre", titre=titre, classe_main="domaine", centre=True, cle=cle, chapeau=chapeau,
+            commun, racine="../", page="offre_famille", titre=titre, classe_main="domaine", centre=True, cle=cle, chapeau=chapeau,
             questions=qs, venir=venir, citation=cit, rapport=f"../rapports/{dernier.name}/{page_rapport}.html",
             description=f"{titre}, les questions principales, chacune avec son résultat, sa figure et sa méthode."))
         (dossier / f"{nom_page}.html").write_text(html, encoding="utf-8")
@@ -250,7 +250,7 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
                 break
         cit = f"{commun['citation_auteur']} ({commun['annee_version']}). {d['nom']}. Ubi Cura, version du {commun['date_longue']}" + (f", doi:{doi}" if doi else "")
         html = env.get_template("page_domaine.html").render(dict(
-            commun, racine="../", page="domaines", titre=d["nom"], classe_main="domaine", centre=False, d=d,
+            commun, racine="../", page="domaine", titre=d["nom"], classe_main="domaine", centre=False, d=d,
             chapeau=d["pourquoi"], variantes=variantes, croiser=d.get("croiser"), liens_dom=liens_dom, carte=carte,
             carte_ind=carte_ind, n_ind=len(mes),
             par_sous=[(so, [i for i in mes if i["sous"] == so]) for so in d["sous"]], venir=venir.get(d["id"], []),
@@ -258,3 +258,60 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
         (dossier / f"{d['id']}.html").write_text(html, encoding="utf-8")
         pages.append(dossier / f"{d['id']}.html")
     return pages
+
+
+def construire_themes(env, commun: dict, sd: dict, dernier: Path, site: Path, A: dict, fiches: dict,
+                      doi: str | None) -> list[Path]:
+    """Pages des thèmes transversaux (navigation, étape 2, validée par Lucas le 8 novembre 2026) : les indicateurs du
+    thème, rangés par domaine, et ses questions, reprises des pages santé mentale et santé avec la même figure, le même
+    « Comment lire » et le même renvoi au rapport (pages_domaine.QUESTIONS). Les étiquettes viennent du catalogue unique
+    (pipeline/themes_indicateurs.csv), si bien qu'une base ajoutée prend place d'elle-même."""
+    from . import themes as TH
+    from .page_indicateurs import donnees as catalogue_page
+    from .site import _ancre, md_html
+    C = catalogue_page(sd, dernier, A, fiches)
+    dossier = site / "theme"
+    dossier.mkdir(parents=True, exist_ok=True)
+    graphiques = dernier / "graphiques"
+    donnees = {"prefixe": f"../donnees/{dernier.name}/", "dossier": dernier}
+    textes = {}
+    for cle, (nom_page, titre, rapport, page_rapport, chapeau) in PAGES_CENTRE.items():
+        f = dernier / rapport
+        if f.exists():
+            textes[cle] = (sections(f.read_text(encoding="utf-8")), page_rapport)
+    pages = []
+    for th in TH.THEMES:
+        if th.get("a_venir") or th.get("page"):
+            continue
+        E = [x for x in C if th["nom"] in x["themes"]]
+        groupes = []
+        # un groupe par domaine, sous le nom du domaine, dans l'ordre des domaines : autant de groupes que de domaines
+        # annoncés (audit indépendant du 8 novembre 2026, « 4 domaines » pour trois groupes aux noms différents)
+        for d in D.DOMAINES:
+            L = [x for x in E if x["domaine_id"] == d["id"]]
+            if L:
+                groupes.append({"titre": d["nom"], "indicateurs": L})
+        qs = []
+        for k, (cle, intertitre, question) in enumerate(th.get("questions", [])):
+            if cle not in textes or intertitre not in textes[cle][0]:
+                continue
+            secs, page_rapport = textes[cle]
+            figs = next((q[2] for q in QUESTIONS[cle] if q[1] == intertitre), [])
+            m = morceaux(secs[intertitre], figs)
+            haut = "\n\n".join([m["resultat"]] + [f"<!--GRAPHIQUE {x}-->" for x in m["figures"]] + m["varier"]
+                               + ([m["lire"]] if m["lire"] else []) + m["savoir"])
+            html = _rendre(md_html, haut, graphiques, donnees).replace('href="../../', 'href="../')
+            question = re.sub(r"-(?!\u2060)(?=(?:t-)?(?:ils?|elles?|on)|t-)", "-\u2060", question)
+            qs.append({"id": f"q{k + 1}", "question": question, "html": html,
+                       "section": f"../rapports/{dernier.name}/{page_rapport}.html#{_ancre(intertitre, '-')}"})
+        cit = (f"{commun['citation_auteur']} ({commun['annee_version']}). {th['nom']}, indicateurs et questions. Ubi Cura, "
+               f"version du {commun['date_longue']}" + (f", doi:{doi}" if doi else ""))
+        html = env.get_template("page_theme.html").render(dict(
+            commun, racine="../", page="theme", titre=th["nom"], classe_main="domaine theme", th=th, groupes=groupes,
+            n=len(E), n_domaines=len({x["domaine_id"] for x in E}), questions=qs, citation=cit,
+            description=f"{th['nom']} : les indicateurs de plusieurs domaines réunis autour d’une même question, et leurs figures."))
+        nom = TH.slug(th["id"]) + ".html"
+        (dossier / nom).write_text(html, encoding="utf-8")
+        pages.append(dossier / nom)
+    return pages
+

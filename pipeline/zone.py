@@ -85,7 +85,7 @@ def donnees(dernier: Path, brut: Path, inter: Path, version: str, doi: str | Non
             continue
         x, y, p = cen.get(c["code"], (None, None, 0))
         n_pop += p
-        communes.append([c["code"], c["nom"], " ".join(c.get("codesPostaux", [])[:3]), c.get("population") or 0,
+        communes.append([c["code"], c["nom"], " ".join(c.get("codesPostaux", [])), c.get("population") or 0,
                          epci.get(c["code"], ""), c["departement"], x, y])
     structures = []
     for l in lieux:

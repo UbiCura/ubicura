@@ -1,9 +1,9 @@
 {% extends "base.html" %}
 {# Accueil de la présentation du 30 octobre 2026 (maquette a-accueil validée après les trois audits externes) :
-   la recherche d'un territoire ou d'un indicateur, quatre portes, trois chiffres datés, la santé mentale d'abord,
+   la recherche d'un territoire ou d'un indicateur, la colonne d'outils (8 novembre 2026), trois chiffres datés, la santé mentale d'abord,
    puis les sept domaines autour de l'offre et les derniers ajouts. Valeurs préparées par pipeline/portail.py. #}
 {% block contenu %}
-<header class="tete">
+<header class="tete avec-outils">
   <h1>L’offre de soins en France, territoire par territoire</h1>
   <p class="chapeau">Où exercent les professionnels de santé et de santé mentale, où sont les structures de soins, et qui vit autour. Les données viennent des bases publiques, chaque chiffre est sourcé et citable. Un projet de recherche indépendant, ouvert à tous.</p>
   <div class="cherche">
@@ -13,6 +13,17 @@
     <p class="cherche-msg" id="msg" aria-live="polite"></p>
   </div>
   <p class="date-calc"><a href="donnees-sources.html">Sources et dates de chaque base</a></p>
+  {# colonne d'outils (navigation, étape 3, validée par Lucas le 8 novembre 2026, prototypes/outils_cote/ variante 1) :
+     à droite du titre sur ordinateur, sous la recherche au téléphone ; les quatre portes de l'accueil y sont passées #}
+  <nav class="outils" aria-label="Outils">
+    <p class="outils-titre">Outils</p>
+    <a class="phare" href="zone.html"><strong>Autour d’un lieu</strong><span>Les habitants et les structures de soins dans un rayon de 5 à 30 km autour d’une commune, ou sur un périmètre comme celui d’une CPTS.</span></a>
+    <a href="territoires/index.html"><strong>Mon territoire</strong><span>La fiche d’une intercommunalité, d’un département ou d’une région, imprimable, et ses rapports.</span></a>
+    <a href="comparer.html"><strong>Comparer</strong><span>Deux à quatre territoires côte à côte, avec des territoires semblables proposés.</span></a>
+    <a href="explorer.html"><strong>Explorer</strong><span>Les questions des rapports, en figures que l’on règle soi-même, avec leur méthode et leurs limites.</span></a>
+    <a href="croiser.html"><strong>Croiser</strong><span>Tout indicateur contre tout autre, avec la mesure du lien.</span></a>
+    <a href="methode-fichiers.html"><strong>Télécharger les données</strong><span>Les fichiers, leur dictionnaire, leur licence et leur archive.</span></a>
+  </nav>
 </header>
 
 <section class="carte-accueil" aria-labelledby="t-carte-acc">
@@ -28,12 +39,6 @@ addEventListener("message",function(e){if(e.origin===location.origin&&e.source==
 addEventListener("theme",function(){try{f.contentWindow.postMessage({ubicura:"theme"},location.origin)}catch(e){}})})();
 </script>
 
-<section class="portes" aria-label="Par où commencer">
-  <a href="territoires/index.html"><strong>Mon territoire</strong><span>La fiche d’une intercommunalité, d’un département ou d’une région, imprimable, et les rapports par territoire.</span></a>
-  <a href="comparer.html"><strong>Comparer</strong><span>Deux à quatre territoires côte à côte, avec des territoires semblables proposés.</span></a>
-  <a href="explorer.html"><strong>Une question</strong><span>Les analyses réglables, la preuve en figure, la méthode à un clic.</span></a>
-  <a href="methode-fichiers.html"><strong>Les données</strong><span>Les fichiers, leur dictionnaire, leur licence et leur archive.</span></a>
-</section>
 
 {% if nationaux %}
 <section class="nationaux" aria-labelledby="t-nat">

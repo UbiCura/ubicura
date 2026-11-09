@@ -41,7 +41,9 @@ def test_offre_de_soins_mene_a_l_atlas():
     assert '<a href="../{{ page_atlas }}"><strong>L’atlas</strong>' in p
     py = (config.RACINE / "pipeline" / "pages_domaine.py").read_text(encoding="utf-8")
     assert 'page="domaines", titre=centre["nom"]' not in py and 'page="offre", titre=centre["nom"]' in py
-    assert 'page="offre", titre=titre, classe_main="domaine", centre=True' in py
+    # les pages des deux familles ont leur propre clé, qui allume l'entrée « Offre de soins » (nav.html, 8 novembre 2026)
+    assert 'page="offre_famille", titre=titre, classe_main="domaine", centre=True' in py
+    assert "'offre_famille': 'offre'" in (GAB / "nav.html").read_text(encoding="utf-8")
 
 
 def test_comment_lire_jamais_replie_derriere_un_bouton():
@@ -387,3 +389,38 @@ def test_rapports_par_territoire_mediane_avec_article_et_unite_insecable():
     for f in _apres_audit3(sorted((_resultats_du_jour() / "territoires").glob("*.md"))):
         t = f.read_text(encoding="utf-8")
         assert not re.search(r"(^|\. )(Département médian|Région médiane|Intercommunalité médiane) est", t, re.M), f.name
+
+
+def test_etiquettes_de_theme_completes():
+    """Chaque indicateur du catalogue unique a sa ligne dans pipeline/themes_indicateurs.csv (thèmes et marque sensible),
+    aucun thème inconnu, aucun indicateur sensible proposé d'office avec la santé mentale (décision de Lucas du
+    8 novembre 2026, navigation, étape 2 ; liste à cocher d'une nouvelle base, étape 9 quater)."""
+    import json
+    from pipeline import affichage as AF, config, themes as TH
+    dernier = sorted(p for p in config.RESULTATS.glob("20*") if (p / "site_data.json").exists())[-1]
+    sd = json.loads((dernier / "site_data.json").read_text(encoding="utf-8"))
+    pb = TH.controler([e["id"] for e in AF.catalogue(sd, dernier)])
+    assert not pb, pb[:10]
+
+
+
+def test_aucun_caractere_de_controle_dans_les_gabarits_et_l_atlas():
+    """Défaut vu à l'œil le 8 novembre 2026 : la flèche de « Autour d'un lieu » (colonne Outils de l'accueil) s'affichait
+    en carré, l'échappement CSS \2192 ayant été lu comme un caractère de contrôle. Aucun gabarit, style ou script de
+    l'atlas n'en contient."""
+    fichiers = [f for d in (GAB, config.RACINE / "atlas" / "moteur") for f in d.rglob("*")
+                if f.is_file() and f.suffix in (".css", ".html", ".js")]
+    assert fichiers
+    pb = [f"{f.relative_to(config.RACINE)}:{i}" for f in fichiers
+          for i, l in enumerate(f.read_text(encoding="utf-8").splitlines(), 1)
+          if re.search(r"[\x00-\x08\x0b\x0c\x0e-\x1f\x7f]", l)]
+    assert not pb, "caractère de contrôle : " + ", ".join(pb[:10])
+
+
+def test_mediane_jamais_arrondie_sous_sa_valeur_apres_moins_de():
+    """Relecture indépendante du 8 novembre 2026 : « la moitié des habitants vit à moins de 2 minutes » pour une médiane de
+    2,3 minutes. Une médiane écrite après « moins de » garde sa décimale, jamais arrondie à l'unité inférieure."""
+    import re
+    for f in ("rapport.py", "constats.py", "fiche_territoire.py", "affichage.py"):
+        py = (config.RACINE / "pipeline" / f).read_text(encoding="utf-8")
+        assert not re.search(r"moins de \{nombre\([^}]*median[^}]*, 0\)", py), f

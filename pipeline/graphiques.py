@@ -295,7 +295,16 @@ def escalier(R, lab, cle, densite_nationale, p=None):
                 f'height="{f.Y(0) - f.Y(r["densite"]):.1f}" fill="{c}" rx="2">'
                 f'<title>{int(r["decile"])}e dixième de la population, {AF.nombre(r["densite"], "taux")} {unite(p)}, '
                 f'ensemble {AF.nombre(densite_nationale, "taux")}</title></rect>')
-        f.texte(x + largeur / 2, f.Y(r["densite"]) - 5, AF.nombre(r["densite"], "taux"), "middle", ENCRE, "petit")
+        # la valeur au-dessus de sa barre, sauf si le pointillé « Ensemble » la barrerait (règle 17, « 12,2 » barré dans
+        # l'escalier de santé mentale, relevé le 8 novembre 2026) : elle passe alors dans la barre, ou au-dessus du trait
+        y_val, y_rep, fs = f.Y(r["densite"]) - 5, f.Y(densite_nationale), f.fs("petit")
+        if y_val - fs - 2 <= y_rep <= y_val + 3:
+            if f.Y(0) - f.Y(r["densite"]) > 2 * fs + 6:
+                f.texte(x + largeur / 2, f.Y(r["densite"]) + fs + 3, AF.nombre(r["densite"], "taux"), "middle",
+                        ENCRE if c == OCRE_PALE else "#FFFFFF", "petit")
+                continue
+            y_val = y_rep - 4
+        f.texte(x + largeur / 2, y_val, AF.nombre(r["densite"], "taux"), "middle", ENCRE, "petit")
     f.ligne(f.g, f.Y(densite_nationale), f.w - f.d, f.Y(densite_nationale), REPERE, 1.5, "5 3")
     f.texte(f.w - f.d + 6, f.Y(densite_nationale) - 3, "Ensemble", "start", REPERE)
     f.texte(f.w - f.d + 6, f.Y(densite_nationale) + f.fs("petit") + 1, AF.nombre(densite_nationale, "taux"), "start", REPERE)

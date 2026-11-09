@@ -787,7 +787,7 @@ def _besoins_spf(C: Contexte, insee):
                   ["Indicateur", "Unité", "Année", "Comparaison entre", "Médiane", "Le plus bas", "Le plus haut", "Source"],
                   {"mediane": lambda v: nombre(v, 1)}), ""]
     L += _comment_lire(
-        "Le nombre de personnes soignées pour un trouble psychique dépend en partie du nombre de soignants. Là où ils "
+        "Le nombre de personnes soignées pour un trouble psychique peut dépendre en partie du nombre de soignants. Là où ils "
         "sont plus nombreux, plus de personnes sont repérées et suivies. Les décès par suicide, les gestes "
         "auto-infligés et les réponses à une enquête dépendent beaucoup moins du nombre de soignants. Ils donnent donc "
         "un second regard sur les besoins, à lire avec le premier. Les passages aux urgences sont une part de l'activité des urgences et non un taux rapporté à la population. "
@@ -1128,7 +1128,9 @@ def _route(C: Contexte, famille):
     phr = []
     if tete:
         e0 = tete[0]
-        phr.append(f"Par la route, la moitié des habitants vit à moins de {nombre(v.at[e0, 'temps_median_min'], 0)} "
+        # la médiane à une décimale : arrondie à l'unité, 2,3 minutes devenait « moins de 2 minutes », ce qui est faux
+        # (relecture indépendante du 8 novembre 2026)
+        phr.append(f"Par la route, la moitié des habitants vit à moins de {nombre(v.at[e0, 'temps_median_min'], 1)} "
                    f"minutes {EQ_PHRASE[e0]}.")
         reste = [f"{pct(v.at[e, 'part_population_a_plus_de_20_min'])} à plus de 20 minutes {EQ_PHRASE[e]}"
                  for e in tete[1:]]
@@ -2322,7 +2324,7 @@ COMMENT_CROISEMENTS = {
                  "corrélation négative indiquerait qu'ils sont plus nombreux là où les psychiatres manquent, sans dire "
                  "que l'un compense l'autre, une structure n'étant pas une capacité.",
     "lieux_addicto": "Les personnes prises en charge pour une addiction (Assurance Maladie) mesurent le recours aux "
-                     "soins, pas le besoin, et dépendent en partie de l'offre elle-même. Les CSAPA et les CAARUD sont "
+                     "soins, pas le besoin, et peuvent dépendre en partie de l'offre elle-même. Les CSAPA et les CAARUD sont "
                      "comptés pour 100 000 habitants, lieux d'accueil compris. Les addictologues sont les médecins "
                      "qualifiés en addictologie déclarés au RPPS.",
     "lieux_enfants": "Les CMP pour enfants, les CMPP et les CAMSP sont comptés pour 100 000 habitants, FINESS et ROR "

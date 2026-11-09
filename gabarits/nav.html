@@ -1,6 +1,9 @@
 <nav class="site" aria-label="Navigation du site">
   <div class="in">
     <a class="marque" href="{{ racine }}index.html" title="{{ sous_titre }}">{{ nom_projet }}</a>
+    {#- recherche de l'en-tête, la même sur toutes les pages et au téléphone, hors du menu replié (navigation, étape 2,
+        validée par Lucas le 8 novembre 2026) #}
+    <button class="chercher" id="bouton-chercher" type="button" aria-expanded="false" aria-controls="panneau-chercher">Chercher</button>
     <button class="menu" id="bouton-menu" type="button" aria-expanded="false" aria-controls="liens-site">Menu</button>
     <div class="liens" id="liens-site">
     {# menu de six entrées par tâche (direction visuelle du 30 octobre 2026), sur toutes les pages depuis la décision de
@@ -8,8 +11,10 @@
        atteignables par le pied de page et par les pages de chaque entrée ; chaque page allume l'entrée dont elle relève. #}
     {% set entrees = [('offre', 'domaine/offre-de-soins.html', 'Offre de soins'), ('domaines', 'domaines.html', 'Domaines'),
                       ('territoires', 'territoires/index.html', 'Territoires'), ('comparer', 'comparer.html', 'Comparer'),
+                      ('explorer', 'explorer.html', 'Explorer'),
                       ('croiser', 'croiser.html', 'Croiser'), ('methode', 'methode.html', 'Méthode et données')] %}
-    {% set actif = {'atlas': 'offre', 'explorer': 'croiser', 'liens': 'croiser', 'sources': 'methode', 'rapports': 'methode'}.get(page, page) %}
+    {#- septième entrée « Explorer », entre Comparer et Croiser (Lucas, 8 novembre 2026, version A sur captures) #}
+    {% set actif = {'atlas': 'offre', 'liens': 'croiser', 'sources': 'methode', 'rapports': 'methode', 'domaine': 'domaines', 'theme': 'domaines', 'indicateurs': 'domaines', 'indicateur': 'domaines', 'offre_famille': 'offre'}.get(page, page) %}
     {% for cle, lien, titre in entrees %}<a class="l{% if actif == cle %} on{% endif %}" href="{{ racine }}{{ lien }}"{% if actif == cle %} aria-current="{{ 'page' if page == cle else 'true' }}"{% endif %}>{{ titre }}</a>
     {% endfor %}
     <button class="theme" id="bascule-theme" type="button">Fond clair</button>
@@ -18,6 +23,14 @@
     <span class="epingle-nav" id="epingle-nav" hidden></span>
   </div>
 </nav>
+<div class="panneau-recherche" id="panneau-chercher" role="search" hidden>
+  <label class="visuel-cache" for="q-tete">Chercher un territoire, une commune, un indicateur, une question ou un outil</label>
+  <input id="q-tete" type="search" autocomplete="off" placeholder="Une commune, un territoire, un indicateur, une question">
+  <p class="aide-recherche">Par exemple « psychiatres Rodez », « CMP », « logement », « niveau de vie ».</p>
+  <p class="visuel-cache" id="etat-tete" role="status"></p>
+  <div id="res-tete"></div>
+</div>
+<script src="{{ racine }}presentation/chercher.js" defer></script>
 <script>
 // menu « Le projet », ouvert au clic ou au clavier, fermé par Échap ou par un clic ailleurs
 (function(){var b=document.getElementById("bouton-projet"),m=document.getElementById("menu-projet");if(!b||!m)return;

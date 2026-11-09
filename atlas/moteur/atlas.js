@@ -7,7 +7,7 @@
 // ce que permet chaque analyse, sans en citer un résultat particulier, chaque encadré étant un outil à régler
 // (remarque de Lucas du 22 octobre 2026, la phrase de résultat n'était qu'un exemple parmi les croisements possibles)
 const RESUMES={
-  "Corrélations par groupe d’indicateurs":"Voir d’un coup d’œil quels indicateurs vont avec la présence de chaque profession, groupe par groupe.",
+  "Corrélations par groupe d’indicateurs":"Les indicateurs qui varient avec la présence de chaque profession, groupe par groupe.",
   "Besoins, recours et conditions de vie, croisés entre eux":"Comparer entre eux, par département, les indicateurs de besoin, de recours aux soins et de conditions de vie.",
   "À autres indicateurs égaux":"Mesurer ce qui reste du lien entre deux indicateurs quand les autres sont tenus égaux (régression multiple).",
   "Addictologie":"L’offre en addictologie, le recours aux soins et les consommations d’alcool et de tabac, réunis au même endroit.",
@@ -227,7 +227,8 @@ function selCard(){
   el.classList.remove("hidden");
   const lv=S.sel.lv,i=IDX[lv].get(S.sel.c),u=D.niveaux[lv].units[i];
   const parent=lv==="epci"?(IDX.depName.get(u.p)||u.p):lv==="reg"?"Région":u.p;
-  let h='<div class="selhead"><div class="sel-titre"><h2>'+esc(u.nm)+' <button class="how" data-how="indice100,attendu,entonnoir">Comment lire</button></h2><div class="howtxt hidden"></div><div class="sel-sous"><span class="muted">'+esc(parent)+', '+fmt.format(u.pop)+' habitants</span>'+[["sante-mentale","Rapport santé mentale"],["sante","Rapport santé"]].filter(([k])=>(D.rapports_territoires||[]).includes(lv+"-"+S.sel.c+"-"+k)).map(([k,l])=>'<a class="lien-rapport" href="'+(D.rapports_dossier||"territoires")+'/'+lv+'-'+S.sel.c+'-'+k+'.html">'+l+'</a>').join("")+'</div></div><div class="pastilles"><button id="selReplier" type="button" aria-controls="selCorps" aria-expanded="'+!S.selReplie+'" aria-label="'+(S.selReplie?"Déplier":"Replier")+' la fiche « '+esc(u.nm)+' »">'+(S.selReplie?ICONE_FEN.plus:ICONE_FEN.moins)+'</button></div></div>';
+  // lien vers la fiche complète du territoire choisi, promis par l'accueil et demandé par Lucas le 2 novembre 2026 (relevé par l'audit de la navigation du 8 novembre : l'encadré ne menait qu'aux rapports)
+  let h='<div class="selhead"><div class="sel-titre"><h2>'+esc(u.nm)+' <button class="how" data-how="indice100,attendu,entonnoir">Comment lire</button></h2><div class="howtxt hidden"></div><div class="sel-sous"><span class="muted">'+esc(parent)+', '+fmt.format(u.pop)+' habitants</span>'+'<a class="lien-rapport lien-fiche" href="'+(D.rapports_dossier||"territoires").replace(/territoires$/,"")+'territoire/'+lv+'/'+S.sel.c+'.html">Fiche complète</a>'+[["sante-mentale","Rapport santé mentale"],["sante","Rapport santé"]].filter(([k])=>(D.rapports_territoires||[]).includes(lv+"-"+S.sel.c+"-"+k)).map(([k,l])=>'<a class="lien-rapport" href="'+(D.rapports_dossier||"territoires")+'/'+lv+'-'+S.sel.c+'-'+k+'.html">'+l+'</a>').join("")+'</div></div><div class="pastilles"><button id="selReplier" type="button" aria-controls="selCorps" aria-expanded="'+!S.selReplie+'" aria-label="'+(S.selReplie?"Déplier":"Replier")+' la fiche « '+esc(u.nm)+' »">'+(S.selReplie?ICONE_FEN.plus:ICONE_FEN.moins)+'</button></div></div>';
   const finTete=h.length;
   let court="",precision="";
   // phrase sur la profession affichée

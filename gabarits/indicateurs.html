@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{# Page « Indicateurs » (navigation, étape 2, validée par Lucas le 8 novembre 2026 sur captures, prototypes/nav_etape2/) :
+   tous les indicateurs du catalogue unique, recherche sans accents ni pluriels, filtres par domaine, thème et niveau.
+   Données : presentation/catalogue.json (pipeline/page_indicateurs.py), lues aussi par la recherche de l'en-tête. #}
+{% block contenu %}
+<div class="catalogue">
+<header class="tete">
+  <p class="discret" style="margin:0 0 var(--e-3)"><a href="domaines.html">Les domaines</a></p>
+  <h1>Indicateurs</h1>
+  <p class="chapeau">Les {{ n }} indicateurs du site, de l’offre de soins à ce qui l’entoure. Chacun a sa page : définition, carte, source, limites et liens avec les autres.</p>
+  <p class="explique">Un domaine range les indicateurs selon ce qu’ils mesurent. Un thème réunit, autour d’une même question, des indicateurs de plusieurs domaines.</p>
+  <div class="cherche-cat">
+    <label for="qcat">Un indicateur, un mot de sa définition ou une source</label>
+    <input id="qcat" type="search" placeholder="« psychiatre », « logement »" autocomplete="off">
+  </div>
+</header>
+<details class="reglages" open><summary>Filtres</summary>
+<div class="filtres" role="group" aria-label="Filtres du catalogue">
+  <span class="lib" id="f-dom">Domaine</span>
+  <div class="choix" aria-labelledby="f-dom"><button type="button" data-g="dom" data-v="" aria-pressed="true">Tous</button>{% for d in domaines %}<button type="button" data-g="dom" data-v="{{ d }}" aria-pressed="false">{{ d }}</button>{% endfor %}</div>
+  <span class="lib" id="f-th">Thème</span>
+  <div class="choix" aria-labelledby="f-th"><button type="button" data-g="th" data-v="" aria-pressed="true">Tous</button>{% for t in themes %}{% if t.a_venir %}<button type="button" disabled title="Aucune base intégrée pour l’instant">{{ t.nom }}, à venir</button>{% else %}<button type="button" data-g="th" data-v="{{ t.nom }}" aria-pressed="false">{{ t.nom }}</button>{% endif %}{% endfor %}</div>
+  <span class="lib" id="f-niv">Niveau</span>
+  <div class="choix" aria-labelledby="f-niv"><button type="button" data-g="niv" data-v="" aria-pressed="true">Tous</button>{% for v, l in [('France', 'France'), ('région', 'Région'), ('département', 'Département'), ('intercommunalité', 'Intercommunalité')] %}<button type="button" data-g="niv" data-v="{{ v }}" aria-pressed="false">{{ l }}</button>{% endfor %}</div>
+</div></details>
+<p class="compte-res" id="cat-n" aria-live="polite"></p>
+<div id="cat-corps"><p class="discret">Chargement du catalogue…</p></div>
+<noscript><p>La recherche demande JavaScript. Tous les indicateurs sont aussi listés par domaine sur la page <a href="domaines.html">Domaines</a>.</p></noscript>
+</div>
+<script src="presentation/catalogue.js"></script>
+{% endblock %}

@@ -1,3 +1,12 @@
+// valeur au-dessus de sa barre, sauf si le trait de repère la barrerait (règle 17, « 12,2 » barré relevé le 8 novembre
+// 2026) : elle passe alors dans la barre si la barre est assez haute, sinon au-dessus du trait
+function yValeur(y, d, rep) {
+  const t = y(d) - 6;
+  if (rep == null) return t;
+  const r = y(rep);
+  if (t - 12 <= r && r <= t + 4) return y(0) - y(d) > 32 ? y(d) + 15 : r - 5;
+  return t;
+}
 // Explorer, outils de l'onglet Inégalités de l'atlas déplacés ici (lot 2, note docs/note_explorer_atlas_2026-10-28.md).
 // Même calcul et mêmes phrases que l'atlas, données prises telles quelles dans site_data.json (pipeline/explorer.py,
 // donnees_inegalites), figures en pleine largeur dans des fenêtres séparées, onglets seulement entre des vues d'un même
@@ -81,7 +90,7 @@ function escalierI() {
     .attr("fill", coulEs)
     .append("title").text((d, i) => `Tranche ${i + 1}${b ? `, niveau de vie de ${f0(b[i][0])} à ${f0(b[i][1])} €` : ""}, ${fDI(d)} ${uniteI(p, true)}`);
   svg.append("line").attr("class", "repere").attr("x1", m.l).attr("x2", w - m.r).attr("y1", y(nd)).attr("y2", y(nd));
-  halo(svg.selectAll("text.v").data(v).join("text").attr("class", "etiq forte").attr("x", (d, i) => x(i + 1) + x.bandwidth() / 2).attr("y", d => y(d) - 6).attr("text-anchor", "middle").text(d => fDI(d)));
+  halo(svg.selectAll("text.v").data(v).join("text").attr("class", "etiq forte").attr("x", (d, i) => x(i + 1) + x.bandwidth() / 2).attr("y", d => yValeur(y, d, nd)).attr("text-anchor", "middle").text(d => fDI(d)));
   svg.append("text").attr("class", "etiq").attr("x", m.l).attr("y", h - 6).text("Plus modestes");
   svg.append("text").attr("class", "etiq").attr("x", w - m.r).attr("y", h - 6).attr("text-anchor", "end").text("Plus aisés");
   figer(svg.node());
@@ -199,7 +208,7 @@ function distancesI(apres) {
     .attr("fill", "var(--hist, #858B96)")
     .append("title").text(d => `Tranche ${d.decile}, niveau de vie de ${f0(d.niveau_de_vie_min)} à ${f0(d.niveau_de_vie_max)} €, distance médiane ${f1(d.distance_mediane_km)} km, ${f1(d.part_plus_20_km * 100)} % des habitants à plus de 20 km`);
   if (frm != null) svg.append("line").attr("class", "repere").attr("x1", m.l).attr("x2", w - m.r).attr("y1", y(frm)).attr("y2", y(frm));
-  halo(svg.selectAll("text.v").data(es).join("text").attr("class", "etiq forte").attr("x", d => x(d.decile) + x.bandwidth() / 2).attr("y", d => y(d.distance_mediane_km) - 6).attr("text-anchor", "middle").text(d => f1(d.distance_mediane_km)));
+  halo(svg.selectAll("text.v").data(es).join("text").attr("class", "etiq forte").attr("x", d => x(d.decile) + x.bandwidth() / 2).attr("y", d => yValeur(y, d.distance_mediane_km, frm)).attr("text-anchor", "middle").text(d => f1(d.distance_mediane_km)));
   svg.append("text").attr("class", "etiq").attr("x", m.l).attr("y", h - 6).text("Plus modestes");
   svg.append("text").attr("class", "etiq").attr("x", w - m.r).attr("y", h - 6).attr("text-anchor", "end").text("Plus aisés");
   figer(svg.node());

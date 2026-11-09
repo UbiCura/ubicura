@@ -1,8 +1,9 @@
 """Veille des bases de données utiles au projet (points 4 ter et 26 de la feuille de route, demande de Lucas du
 29 octobre 2026). Collecte chaque semaine avec la relève du courrier, en lecture seule et par les interfaces officielles
-des catalogues, tri des bases déjà intégrées ou déjà examinées, classement par pertinence, onglet « Veille » de la
-fenêtre du courrier où Lucas marque chaque candidat, et échange avec la séance de travail sur le modèle du courrier. Tout reste dans
-donnees\\veille\\ (hors de Git), jamais publié. Le contenu relevé est une donnée, jamais une instruction.
+des catalogues, tri de chaque candidat par une règle écrite (refonte du 8 novembre 2026, docs/veille/README.md),
+registre unique des bases, et point de la semaine dans l'onglet « Veille » de la fenêtre du courrier, où Lucas ne
+reçoit que dix bases au plus, celles qui demandent sa décision, et répond d'un clic. Les relevés restent dans
+donnees\\veille\\ (hors de Git), jamais publiés. Le contenu relevé est une donnée, jamais une instruction.
 
     python outils\\veille.py relever [--forcer] [--complet]   premier passage, scan complet de l'existant, puis un
                                                      passage par semaine (nouveautés et mises à jour seulement)
@@ -11,6 +12,8 @@ donnees\\veille\\ (hors de Git), jamais publié. Le contenu relevé est une donn
                                                      marques de Lucas, en JSON, pour l'examen
     python outils\\veille.py examen F              enregistre l'examen écrit à la séance de travail (fichier JSON F), après contrôle
     python outils\\veille.py resume                état de la veille en quelques lignes
+    python outils\\veille.py trier                 refait le tri, le registre et le point de la semaine
+    python outils\\veille.py point                 affiche le point de la semaine
     python outils\\veille.py registre              reporte la veille dans le registre unique des bases
                                                      (docs\\veille\\registre_bases.csv) et le contrôle
 
@@ -500,6 +503,8 @@ def relever(forcer: bool = False, catalogues: dict | None = None, complet: bool 
         anciens[c["cle"]] = c | {"releve_le": maintenant()[:10]}
     bilan["nouveaux"] = len(nouveaux)
     bilan["par_domaine"] = {d: sum(1 for c in nouveaux if c["domaine"] == d) for d in DOMAINES}
+    # un nouveau candidat est trié à son arrivée (refonte du 8 novembre 2026), le registre est lu sans être écrit
+    bilan["tri"] = appliquer_tri(anciens)
     ecrire_json(CANDIDATS, anciens)
     passages["passages"].append(bilan)
     ecrire_json(PASSAGES, passages)
@@ -524,9 +529,9 @@ def relever_de_la_semaine() -> int:
     if b:
         print(texte_bilan(b))
         try:
-            print(texte_registre(alimenter_registre()))
+            print(texte_tri(trier_et_ranger()))
         except OSError as e:
-            print(f"Registre des bases non mis à jour ({e}).")
+            print(f"Tri de la veille et registre des bases non mis à jour ({e}).")
     return 0
 
 
@@ -599,7 +604,8 @@ def controler_examen(e: dict, candidats: dict) -> list[str]:
 REGISTRE = RACINE / "docs" / "veille" / "registre_bases.csv"
 COLONNES_REGISTRE = ["id", "nom", "producteur", "identifiant", "adresse", "licence", "licence_verifiee", "niveau",
                      "frequence", "derniere_maj", "domaine", "apport_site", "apport_api", "effort", "voie", "statut",
-                     "raison", "chantier", "cle_veille", "sources"]
+                     "raison", "chantier", "cle_veille", "sources", "pertinence", "theme", "decision",
+                     "recommandation"]
 STATUTS = ("intégrée", "à intégrer", "à examiner", "écartée")
 VOIES = ("légère", "complète", "demande")
 # domaines de la fiche de territoire en bandes (note de présentation du 29 octobre 2026), plus « Transversal » pour
@@ -630,7 +636,10 @@ def lire_registre(f: Path | None = None) -> list[dict]:
         return []
     import csv
     with f.open(encoding="utf-8", newline="") as h:
-        return [dict(x) for x in csv.DictReader(h, delimiter=";")]
+        # colonnes ajoutées le 8 novembre 2026 (pertinence, thème, décision, recommandation), vides dans un fichier
+        # plus ancien
+        return [{k: "" for k in COLONNES_REGISTRE} | {k: v for k, v in x.items() if k is not None}
+                for x in csv.DictReader(h, delimiter=";")]
 
 
 def ecrire_registre(lignes: list[dict], f: Path | None = None) -> None:
@@ -681,7 +690,19 @@ def controler_registre(lignes: list[dict]) -> list[str]:
             cles[c] = i
         if any("—" in v for v in x.values()):
             erreurs.append(f"{i}, tiret long")
+        if x["pertinence"] not in ("", "forte", "moyenne", "faible"):
+            erreurs.append(f"{i}, pertinence {x['pertinence']!r}")
+        if any(t not in THEMES_CONNUS for t in x["theme"].split()):
+            erreurs.append(f"{i}, thème {x['theme']!r}")
+        if x["decision"] not in DECISIONS_LUCAS or bool(x["decision"]) != bool(x["recommandation"].strip()):
+            erreurs.append(f"{i}, décision {x['decision']!r} sans recommandation, ou l'inverse")
     return erreurs
+
+
+# thèmes transversaux du site (pipeline/themes.py, décision de Lucas du 8 novembre 2026), lus sans être modifiés
+THEMES_CONNUS = ("sante_mentale", "addictologie", "geographie_sociale", "grand_age", "victimologie")
+DECISIONS_LUCAS = ("", "licence", "juridique", "sensible", "libellés")
+GROUPES_REGISTRE = ("odisse",)          # catalogues dont les jeux d'un même thème partagent une ligne du registre
 
 
 def ligne_registre(c: dict) -> dict:
@@ -694,38 +715,95 @@ def ligne_registre(c: dict) -> dict:
         "licence_verifiee": f"{releve}, catalogue {NOMS_SOURCES.get(c['source'], c['source'])} lu par la veille",
         "niveau": c["niveau"], "derniere_maj": c["date"], "domaine": DOMAINE_FICHE.get(c.get("domaine"), "Santé"),
         "statut": "à examiner", "raison": "relevée par la veille", "cle_veille": c["cle"],
-        "sources": f"veille du {releve}, {NOMS_SOURCES.get(c['source'], c['source'])}"}
+        "sources": f"veille du {releve}, {NOMS_SOURCES.get(c['source'], c['source'])}",
+        "pertinence": niveau_de_pertinence(c.get("score", 0)), "theme": theme_propose(c)}
 
 
-def alimenter_registre(ecrire: bool = True, lignes: list[dict] | None = None) -> dict:
-    """Reporte la veille dans le registre. Un candidat y entre quand il est marqué intéressant ou à discuter, quand il a
-    un examen, ou quand sa pertinence dépasse SCORE_REGISTRE (hors articles de Zenodo). Une ligne existante reçoit la
-    date de mise à jour du catalogue ; une ligne encore « à examiner » reçoit en plus l'avis de l'examen ou l'écart
-    marqué au tri. Renvoie le bilan et les lignes."""
-    cands, mq = lire_json(CANDIDATS, {}), marques()
+def cles_de_groupe(c: dict) -> tuple[str, str]:
+    """Texte avant et après « : » d'un titre d'Odissé (« Cancer », « Incidence hospitalière »), niveau retiré."""
+    if c["source"] not in GROUPES_REGISTRE or " : " not in c["titre"]:
+        return "", ""
+    avant, apres = c["titre"].split(" : ", 1)
+    return avant.strip(), re.sub(r"\s*\([^)]*\)\s*$", "", apres).strip()
+
+
+def theme_de_groupe(c: dict, retenus: list[dict]) -> str:
+    """Nom du groupe d'un jeu d'Odissé parmi les retenus : le thème avant « : » s'il est partagé (« Cancer »,
+    « Périnatalité »), sinon la mesure après « : » si elle est partagée (« Incidence hospitalière »), sinon rien."""
+    avant, apres = cles_de_groupe(c)
+    if not avant:
+        return ""
+    autres = [cles_de_groupe(x) for x in retenus if x["cle"] != c["cle"] and x["source"] == c["source"]]
+    if any(a == avant for a, _ in autres):
+        return avant
+    if any(b == apres for _, b in autres):
+        return apres
+    return ""
+
+
+def alimenter_registre(ecrire: bool = True, lignes: list[dict] | None = None, cands: dict | None = None) -> dict:
+    """Reporte le tri de la veille dans le registre. Un candidat « au registre » sans ligne en reçoit une, « à
+    examiner », avec sa pertinence, son thème proposé et, s'il en faut une, la décision attendue de Lucas et la
+    recommandation ; les jeux d'un même thème d'Odissé partagent une ligne. Une ligne existante reçoit la date de mise
+    à jour du catalogue. Une ligne encore « à examiner » reçoit en plus l'avis de son examen, l'écart marqué par Lucas,
+    sa réponse au point de la semaine, ou l'écart du tri quand elle avait été ajoutée par la veille sans examen.
+    Aucune autre ligne ne change. Renvoie le bilan et les lignes."""
+    cands = lire_json(CANDIDATS, {}) if cands is None else cands
+    mq, dec = marques(), decisions()
     lignes = lire_registre() if lignes is None else lignes
+    if any("tri" not in c for c in cands.values()):
+        appliquer_tri(cands, lignes, mq)
     index = {c: x for x in lignes for c in x["cle_veille"].split()}
-    ids = {x["id"] for x in lignes}
-    bilan = {"ajoutees": 0, "mises_a_jour": 0, "examens": 0, "ecartees": 0}
-    for cle, c in cands.items():
+    par_id = {x["id"]: x for x in lignes}
+    groupes = {(x["cle_veille"].split(":")[0], x["nom"].split(" : ")[0]): x for x in lignes
+               if "regroupés par thème" in x["sources"] and x["statut"] == "à examiner"}
+    retenus = [c for c in cands.values() if (c.get("tri") or {}).get("statut") == "au registre"]
+    bilan = {"ajoutees": 0, "regroupes": 0, "mises_a_jour": 0, "examens": 0, "ecartees": 0, "decisions": 0,
+             "reponses": 0}
+    for cle, c in sorted(cands.items(), key=lambda kv: (-kv[1].get("score", 0), kv[0])):
         x = next((index[m] for m in [cle, *c.get("membres", [])] if m in index), None)
-        ex, m = examen(cle), mq.get(cle) or {}
         if x is None:
-            if not (ex or m.get("marque") in ("interessant", "a_discuter")
-                    or (c.get("score", 0) >= SCORE_REGISTRE and c.get("source") != "zenodo")):
+            if (c.get("tri") or {}).get("statut") != "au registre":
                 continue
-            x = ligne_registre(c)
-            while x["id"] in ids:
-                x["id"] += "_bis"
-            ids.add(x["id"])
-            lignes.append(x)
+            g = theme_de_groupe(c, retenus)
+            avant, apres = cles_de_groupe(c)
+            partie = apres if g == avant else avant
+            x = groupes.get((c["source"], g)) if g else None
+            if x is not None:
+                x["cle_veille"] += " " + cle
+                x["identifiant"] += ", " + c["ident"]
+                x["nom"] += "; " + partie
+                x["niveau"] = ", ".join(dict.fromkeys(re.split(r",\s*", x["niveau"] + ", " + c["niveau"])))
+                x["derniere_maj"] = max(x["derniere_maj"], c["date"])
+                if RANG_PERTINENCE[niveau_de_pertinence(c["score"])] < RANG_PERTINENCE.get(x["pertinence"], 3):
+                    x["pertinence"] = niveau_de_pertinence(c["score"])
+                x["theme"] = " ".join(dict.fromkeys((x["theme"] + " " + theme_propose(c)).split()))
+                bilan["regroupes"] += 1
+            else:
+                x = ligne_registre(c)
+                if g:
+                    x["nom"] = f"{g} : {partie}"
+                    x["id"] = "odisse_" + re.sub(r"[^a-z0-9]+", "_", plat(g)).strip("_")[:40]
+                    x["sources"] += ", jeux regroupés par thème"
+                    groupes[(c["source"], g)] = x
+                if c["tri"]["raison"] and c["tri"]["regle"] == "retenu" and c["tri"]["raison"] != REGLES_TRI["retenu"]:
+                    x["raison"] += ", " + c["tri"]["raison"]
+                while x["id"] in par_id:
+                    x["id"] += "_bis"
+                par_id[x["id"]] = x
+                lignes.append(x)
+                bilan["ajoutees"] += 1
             index[cle] = x
-            bilan["ajoutees"] += 1
         elif c.get("date") and c["date"] > x["derniere_maj"]:
             x["derniere_maj"] = c["date"]
             bilan["mises_a_jour"] += 1
         if x["statut"] != "à examiner":
             continue
+        if not x["pertinence"]:
+            x["pertinence"] = niveau_de_pertinence(c.get("score", 0))
+        if not x["theme"]:
+            x["theme"] = theme_propose(c)
+        ex, m = examen(cle), mq.get(cle) or {}
         if ex and ex.get("avis") in AVIS_STATUT:
             x["statut"] = AVIS_STATUT[ex["avis"]]
             x["effort"] = ex.get("effort", x["effort"])
@@ -737,19 +815,45 @@ def alimenter_registre(ecrire: bool = True, lignes: list[dict] | None = None) ->
             x["statut"] = "écartée"
             x["raison"] = ("écartée au tri de la veille" + (", " + m["note"] if m.get("note") else ""))[:300]
             bilan["ecartees"] += 1
+        elif x["raison"].startswith("relevée par la veille") and not m.get("marque"):
+            regle, raison, _ligne = regle_individuelle(c, par_id)
+            if regle != "retenu":
+                x["statut"] = "écartée"
+                x["raison"] = f"écartée au tri de la veille, {raison}"[:300]
+                bilan["ecartees"] += 1
+            elif not x["decision"] and x["id"] not in dec:
+                x["decision"], x["recommandation"] = decision_pour_lucas(c)
+                bilan["decisions"] += bool(x["decision"])
+    # réponses de Lucas au point de la semaine, d'un clic dans l'onglet « Veille »
+    for i, r in dec.items():
+        x = par_id.get(i)
+        if not x or x["statut"] != "à examiner" or r["reponse"] == "plus_tard" or "Lucas le" in x["raison"]:
+            continue
+        jour = jour_fr(r["le"])
+        if r["reponse"] == "refus":
+            x["statut"] = "écartée"
+            x["raison"] = f"écartée par Lucas le {jour}, au point de la semaine ({x['decision'] or 'décision'})"
+        else:
+            x["raison"] = f"recommandation acceptée par Lucas le {jour} ({x['decision']}), {x['raison']}"[:300]
+        x["sources"] += f", réponse de Lucas du {jour} dans l'onglet Veille"
+        bilan["reponses"] += 1
     if ecrire and any(bilan.values()):
         ecrire_registre(lignes)
     return bilan | {"lignes": lignes}
 
 
 def texte_registre(b: dict) -> str:
-    return (f"Registre des bases, {b['ajoutees']} ajoutée(s), {b['mises_a_jour']} date(s) de mise à jour, "
-            f"{b['examens']} examen(s) reporté(s), {b['ecartees']} écartée(s) au tri.")
+    return (f"Registre des bases, {b['ajoutees']} ajoutée(s), {b.get('regroupes', 0)} jeu(x) ajouté(s) à une ligne "
+            f"regroupée, {b['mises_a_jour']} date(s) de mise à jour, "
+            f"{b['examens']} examen(s) reporté(s), {b['ecartees']} écartée(s) au tri, "
+            f"{b.get('reponses', 0)} réponse(s) de Lucas reportée(s).")
 
 
 def cmd_registre(_args) -> int:
-    """Reporte la veille dans le registre, puis le contrôle et le résume."""
-    b = alimenter_registre()
+    """Trie les candidats, reporte le tri dans le registre, puis le contrôle et le résume."""
+    t = trier_et_ranger()
+    b = t["registre"]
+    print(texte_tri(t))
     print(texte_registre(b))
     lignes = b["lignes"]
     erreurs = controler_registre(lignes)
@@ -768,7 +872,7 @@ def cmd_a_examiner(args) -> int:
         if examen(cle) and not args.tous:
             continue
         m = mq.get(cle) or {}
-        if m.get("marque") == "ecarte" and not args.tous:
+        if ((c.get("tri") or {}).get("statut") == "écarté" or m.get("marque") == "ecarte") and not args.tous:
             continue
         if args.domaine and plat(args.domaine) not in plat(c.get("domaine", "")):
             continue
@@ -802,8 +906,8 @@ def cmd_examen(args) -> int:
         print("Examen refusé, " + " ; ".join(erreurs))
         return 20
     ecrire_json(fichier_examen(e["cle"]), e | {"ecrit_le": maintenant()})
-    print(f"Examen de {e['cle']} enregistré, visible dans l'onglet « Veille ».")
-    print(texte_registre(alimenter_registre()))
+    print(f"Examen de {e['cle']} enregistré et reporté au registre.")
+    print(texte_registre(trier_et_ranger()["registre"]))
     return 0
 
 
@@ -820,7 +924,9 @@ def cmd_relever(args) -> int:
     for d, n in b["par_domaine"].items():
         if n:
             print(f"  {d}, {n}")
-    print(texte_registre(alimenter_registre()))
+    t = trier_et_ranger()
+    print(texte_tri(t))
+    print(texte_registre(t["registre"]))
     return 0
 
 
@@ -830,17 +936,452 @@ def cmd_resume(_args) -> int:
     if not p:
         print("Aucun passage de veille encore.")
         return 0
+    tri = [c.get("tri") or {} for c in cands.values()]
     print(f"Dernier passage le {p[-1]['date'][:10]}, {len(cands)} candidats, "
+          f"{sum(1 for x in tri if x.get('statut') == 'au registre')} au registre, "
+          f"{sum(1 for x in tri if x.get('statut') == 'écarté')} écartés, {sum(1 for x in tri if not x)} sans tri, "
           f"{sum(1 for c in cands if examen(c))} examinés, "
           + ", ".join(f"{sum(1 for m in mq.values() if m.get('marque') == k)} {v}" for k, v in MARQUES_PERMISES.items())
-          + ".")
+          + " par Lucas.")
+    point = lire_json(POINT, {})
+    if point:
+        print(f"Point de la semaine du {jour_fr(point['semaine_du'])}, {len(point['lignes'])} base(s), "
+              f"{sum(1 for x in point['lignes'] if x['id'] in decisions())} répondue(s).")
     return 0
+
+
+def cmd_trier(_args) -> int:
+    """Refait le tri de tous les candidats, le reporte au registre et refait le point de la semaine."""
+    t = trier_et_ranger()
+    print(texte_tri(t))
+    print(texte_registre(t["registre"]))
+    for g, n in t["par_regle"].items():
+        if n:
+            print(f"  {REGLES_TRI[g]}, {n}")
+    return 0
+
+
+def cmd_point(_args) -> int:
+    """Le point de la semaine, une ligne par base, avec la décision attendue et la recommandation."""
+    point = lire_json(POINT, {})
+    dec = decisions()
+    if not point:
+        print("Pas encore de point de la semaine, il se fait à la relève (ou par veille.py trier).")
+        return 0
+    print(f"Point de la semaine du {jour_fr(point['semaine_du'])}, {len(point['lignes'])} base(s).")
+    for x in point["lignes"]:
+        r = dec.get(x["id"])
+        print(f"- {x['nom'][:90]} ({x['producteur']}), {x['decision']}. {x['recommandation']}"
+              + (f" Réponse, {REPONSES[r['reponse']]}." if r else ""))
+    return 0
+
+
+# ---------------------------------------------------------------- tri des candidats
+# Refonte du 8 novembre 2026 (remarque de Lucas du 7 novembre, « je ne peux pas tout traiter »). La séance fait le tri,
+# Lucas ne reçoit plus qu'un point par semaine. Chaque candidat reçoit un statut, « au registre » ou « écarté », et la
+# règle qui l'a décidé. Les règles s'appliquent dans l'ordre, la première qui s'applique décide. Elles sont écrites
+# dans docs/veille/README.md. Le tri est reproductible, il ne dépend que des métadonnées relevées, du registre et des
+# marques de Lucas, et il est refait à chaque relève.
+STATUTS_TRI = ("au registre", "écarté")
+REGLES_TRI = {
+    "marque": "marque de Lucas dans l'onglet « Veille »",
+    "registre": "déjà au registre",
+    "retire": "jeu retiré ou archivé par son producteur",
+    "regle_projet": "écarté par une règle du projet (données nominatives, site interdit, moyens des suicides)",
+    "article": "article ou étude ponctuelle, pas une base par territoire",
+    "hors_domaine": "hors des domaines du site",
+    "rattache": "autre table ou déclinaison d'une base déjà au registre",
+    "local": "couverture d'une seule collectivité",
+    "tiers": "copie ou compilation par un tiers, la source officielle est préférée",
+    "licence": "licence fermée ou non précisée au catalogue",
+    "ancien": "plus mis à jour depuis le 1er janvier 2020",
+    "sans_niveau": "France entière seulement, sans déclinaison par territoire",
+    "declinaison": "déclinaison ou doublon d'un autre candidat",
+    "retenu": "retenu, rangé au registre « à examiner »",
+}
+# mots du titre des jeux hors des domaines du site, par motif (titre sans accents ni majuscules) ; un titre qui parle
+# de santé mentale n'est jamais écarté par ces mots (enquête CoviPrev sur la santé mentale pendant l'épidémie)
+HORS_DOMAINE = [
+    ("maladies infectieuses et surveillance des épidémies",
+     ["antibiotique", "vaccin", "covid", "grippe", "bronchiolite", "bronchite", "asthme", "allergie", "gastro",
+      "dengue", "chikungunya", "legionell", "rougeole", "infection", "virus", "epidemie", "tuberculose", "hepatite",
+      "vih", "si-dep", "depistage (a compter", "variants", "lyme", "tiques", "sos medecins", "pneumopathie", "ira ",
+      "donnees de laboratoires", "confinement"]),
+    ("environnement et expositions professionnelles",
+     ["pesticide", "phytopharmaceutique", "exposition professionnelle", "expositions professionnelles", "noyade",
+      "saturnisme", "changement climatique", "canicule", "pollen", "agro-ecologie", "vegetal",
+      "maladies a caractere professionnel"]),
+    ("médicaments et produits de santé", ["medicament", "ucd", "logiciels d'aide", "autotests", "preservatifs"]),
+    ("tourisme, sport et loisirs", ["touristique", "tourisme", "sport", "loisirs", "plages", "defibrillateur",
+                                   "wc publics", "depart 18", "cheques-vacances"]),
+    ("ressources humaines d'une administration ou d'une entreprise",
+     ["agents", "bilan social", "rsu ", "effectif gere", "travailleurs en situation de handicap"]),
+    ("économie, aménagement et programmes publics",
+     ["prix a la consommation", "comptes regionaux", "franchises douanieres", "permis de construire",
+      "certificats d'economie", "fibre optique", "tres haut debit", "territoires d'industrie",
+      "avenir montagnes", "incubateur", "perimetres de massifs", "fabrique a projets", "appel a manifestation",
+      "gaz a effet de serre", "cur de ville", "coeur de ville", "enquete mobilite certifiee", "debits de tabac", "versement mobilite", "commercialisation des logements",
+      "droit d'auteur", "spoliations", "revolutions de", "seminaire", "interventions regionales",
+      "projets de recherche", "terrorisme", "intelligence artificielle", "inventaire des bases", "idoc",
+      "mutuelle sante - points", "satisfaction", "confiance envers", "developpement durable", "vtc",
+      "mobilite active", "mobilite partagee", "plan de mobilite", "plans de mobilite", "lieux de mobilite",
+      "autorites organisatrices", "chambre particuliere", "cataracte", "etude de faisabilite"]),
+    ("figure ou extrait d'une publication, pas une base",
+     ["^graphique", "^datastory", "^graf dyn", "^datadrees", "[panorama statistique]", "chiffres cles",
+      "premiers chiffres"]),
+]
+SANTE_MENTALE_TITRE = re.compile(r"sante mentale|psych|suicid|depress|anxi|gestes auto|bien-etre")
+# producteurs nationaux et officiels (data.gouv.fr) ; ailleurs, un jeu vient d'une collectivité ou d'un tiers
+OFFICIELS = ["ministere", "ministeres", "sante publique france", "caisse nationale", "institut national",
+             "haute autorite", "agence nationale de la cohesion", "agence du numerique", "agence technique",
+             "drees", "cerema", "ademe", "atout france", "acceslibre", "office national", "observatoire francais",
+             "cour des comptes", "premier ministre", "etalab", "service a competence nationale",
+             "plateforme des donnees de sante", "atlasante", "ecolab", "bureau ", "sdes", "service statistique"]
+COLLECTIVITE = re.compile(r"\b(ville|commune|mairie|departement|departemental|region|metropole|metropolitain|"
+                          r"communaute|agglomeration|agglo|ccas|centre communal|syndicat|conseil|ddt|grand |"
+                          r"saint|sainte|la |le |les |ressourcerie|occitanie|vendee|loire|seine|lyon|paris|"
+                          r"marseille|toulouse|bordeaux|rennes|brest|orleans|lorient|troyes|mulhouse|poitiers|"
+                          r"valence|chamonix|cannes|soissons|garches|sucy|fleury|meudon|issy|antibes|levallois|"
+                          r"plaintel|lanester|digne|nogent|agen|beziers|transdev|jvmalin|zenbus|tlp|chr|chu|sig-)\b")
+# autres tables ou déclinaisons d'une base déjà au registre : (source ou None, motif du titre aplati, ligne)
+RATTACHEMENTS = [
+    ("caf", r"\[qpv\]", "caf_communes_qpv"),
+    ("caf", r".", "caf"),
+    ("insee", r"dossier complet|principaux indicateurs|donnees detaillees", "insee_dossier_complet"),
+    (None, r"recensement de la population", "insee_dossier_complet"),
+    (None, r"denombrement des equipements|base permanente des equipements", "insee_bpe"),
+    (None, r"revenus localises|filosofi|niveau de vie, taux de pauvrete|niveau de vie median", "filosofi_2023"),
+    (None, r"\brpls\b|logements locatifs des bailleurs sociaux", "rpls"),
+    (None, r"open damir", "open_damir_psychologues"),
+    (None, r"statistique annuelle des etablissements|\bsae\b", "sae"),
+    (None, r"zonages des professionnels de sante", "zonages_ps"),
+    (None, r"\bgtfs\b|horaires theoriques|offre theorique|transports en commun|reseaux? de transport|"
+           r"donnees mobilite|stations de transports", "gtfs"),
+    (None, r"^isd ", "drees_isd"),
+    (None, r"affection longue duree sans medecin traitant", "ameli_ald_sans_mt"),
+    (None, r"donnees carroyees|carroyage", "insee_carreaux"),
+    (None, r"indicateurs de pauvrete et de niveau de vie", "filosofi_2023"),
+    (None, r"accessibilite potentielle localisee", "apl"),
+    (None, r"certification des etablissements", "has_certification"),
+    (None, r"delinquance enregistree|crimes et delits enregistres|statistiques de la delinquance|"
+           r"^delinquance a ", "ssmsi_delinquance"),
+    (None, r"projections des effectifs de medecins", "projections_medecins"),
+    (None, r"projections des effectifs d'infirm|demographie des infirmiers a l'horizon", "projections_infirmieres"),
+    (None, r"demographie des medecins \(rpps\)|demographie des professionnels de sante", "drees_demographie"),
+    (None, r"maisons de sante pluri|\bmsp\b", "finess_plus"),
+    (None, r"accidents? corporels|accidentologie", "accidents_circulation"),
+    ("odisse", r"^ma region", "ma_region_sante_mentale"),
+]
+COURT_TRI = {"marque": "par Lucas", "retire": "retirés", "regle_projet": "par une règle du projet",
+             "article": "articles", "hors_domaine": "hors domaine", "rattache": "déjà au registre sous une autre table",
+             "local": "locaux", "tiers": "publiés par un tiers", "licence": "pour la licence", "ancien": "anciens",
+             "sans_niveau": "sans niveau territorial", "declinaison": "déclinaisons"}
+SEUIL_ANCIEN = "2020-01-01"
+
+
+def finesse(niveau: str) -> int:
+    """Rang du niveau géographique le plus fin d'un candidat, du point (6) à la France seule (0)."""
+    n = plat(niveau)
+    for rang, mots in ((6, ("points", "adresse", "etablissement")), (5, ("iris", "carreau")), (4, ("commune",)),
+                       (3, ("intercommunal", "epci", "canton")), (2, ("departement", "infradepartemental")),
+                       (1, ("region",))):
+        if any(m in n for m in mots):
+            return rang
+    return 0
+
+
+def famille_large(titre: str) -> str:
+    """Titre réduit pour réunir les déclinaisons d'un même jeu : niveau entre crochets ou parenthèses, « détail
+    région », « par commune », millésimes et éditions retirés."""
+    t = plat(titre)
+    t = re.sub(r"\[[^\]]*\]|\([^)]*\)", " ", t)
+    t = re.sub(r"-?\s*detail r[eé]gion|par (commune|epci|canton|departement|region)s?|recueil|edition|"
+               r"\b(19|20)\d\d\b|annee en cours|annee precedente|\bv\d\b", " ", t)
+    return re.sub(r"[^a-z0-9]+", " ", t).strip()
+
+
+def theme_propose(c: dict) -> str:
+    """Thèmes transversaux proposés (identifiants de pipeline/themes.py), d'après le titre et le domaine."""
+    t = plat(c.get("titre", ""))
+    themes = []
+    for tid, motif in (("sante_mentale", r"sante mentale|psych|suicid|depress|anxi|gestes auto|bien-etre|enabee|"
+                                          r"post-partum"),
+                       ("addictologie", r"addict|alcool|tabac|tabag|vapot|drogue|stupefi|cannabis"),
+                       ("grand_age", r"personnes agees|\bapa\b|ehpa|autonomie|65 ans|senior|vieilliss|retraite|"
+                                     r"grand age|chutes|aide a domicile|fragilite"),
+                       ("victimologie", r"victim|violenc|delinquance|crimes|insecurite|gendarmerie"),
+                       ("geographie_sociale", r"pauvrete|revenu|niveau de vie|minima|rsa\b|allocataires|"
+                                              r"logement social|logements sociaux|precarite|menages|scolarisation|education|chomage|emploi|qpv|"
+                                              r"sans-domicile|action sociale|protection de l'enfance")):
+        if re.search(motif, t):
+            themes.append(tid)
+    if not themes:
+        # le domaine « Santé mentale » d'un candidat vient souvent de sa seule description (indicateurs du Baromètre),
+        # il ne suffit pas à proposer le thème
+        themes = {"Addictions": ["addictologie"],
+                  "Victimes, violences et délinquance": ["victimologie"],
+                  "Social et pauvreté": ["geographie_sociale"]}.get(c.get("domaine"), [])
+    return " ".join(themes)
+
+
+def niveau_de_pertinence(score: int) -> str:
+    return "forte" if score >= 20 else "moyenne" if score >= 12 else "faible"
+
+
+def regle_individuelle(c: dict, lignes_par_id: dict) -> tuple[str, str, str]:
+    """Première règle d'écart qui s'applique à un candidat seul, (règle, raison, ligne du registre), ou « retenu »."""
+    t, p = plat(c["titre"]), plat(c.get("producteur", ""))
+    lic = plat(c.get("licence", "")).strip()
+    if (c["source"] == "datagouv" and p == "deleted") or re.search(r"to-delete|\[archive\]|^old ", t):
+        return "retire", "jeu retiré ou archivé par son producteur sur data.gouv.fr", ""
+    if interdit(c.get("adresse", ""), c.get("producteur", ""), c["titre"]):
+        return "regle_projet", "renvoie à un site dont l'aspiration est interdite (règles du projet)", ""
+    if "moyens utilises" in t:
+        return ("regle_projet", "moyens utilisés pour les suicides et les gestes auto-infligés, jamais montrés par "
+                "territoire (décision du 30 octobre 2026)", "odisse_moyens" if "odisse_moyens" in lignes_par_id else "")
+    if re.search(r"annuaire|transparence|accredites|liste des professionnels|liste des praticiens|gynandco|"
+                 r"effecteurs|professionnels de sante (a|sur|de la|du|dans)\b|base des professionnels|"
+                 r"medecins generalistes et infirmiers a|^medecins generalistes$", t):
+        return "regle_projet", "annuaire ou liste de personnes nommées, le projet ne publie que des agrégats", ""
+    if c["source"] == "zenodo":
+        return "article", "dépôt d'article ou d'étude ponctuelle sur Zenodo, pas une base suivie par territoire", ""
+    if "cour des comptes" in p and "cour_des_comptes_odbl" in lignes_par_id:
+        return ("rattache", "données d'un rapport de la Cour des comptes, ligne cour_des_comptes_odbl du registre "
+                f"({lignes_par_id['cour_des_comptes_odbl']['raison'].lower()})", "cour_des_comptes_odbl")
+    for source, motif, ligne in RATTACHEMENTS:
+        if (source is None or c["source"] == source) and ligne in lignes_par_id and re.search(motif, t):
+            x = lignes_par_id[ligne]
+            return ("rattache", f"autre table ou déclinaison de « {x['nom']} », ligne {ligne} du registre "
+                    f"({x['statut']})", ligne)
+    if not SANTE_MENTALE_TITRE.search(t):
+        for raison, mots in HORS_DOMAINE:
+            # un motif vaut en début de mot (« sport » pas dans « transports », « tiques » pas dans « statistiques »),
+            # et en début de titre s'il commence par « ^ » (« Graphique 1 », pas « géographique »)
+            m = next((x for x in mots if (t.startswith(x[1:]) if x.startswith("^") else
+                                          re.search(r"(?<![a-z0-9])" + re.escape(x), t))), None)
+            if m:
+                return "hors_domaine", f"hors des domaines du site, {raison} (« {m.strip(' ^')} » dans le titre)", ""
+    if c["source"] == "datagouv" and not any(o in p for o in OFFICIELS):
+        if COLLECTIVITE.search(p) or any("jeu local" in r for r in c.get("raisons", [])):
+            return "local", f"jeu d'une seule collectivité ({c['producteur']}), sans couverture nationale", ""
+        return ("tiers", f"publié par un tiers ({c['producteur'] or 'producteur non nommé'}), la source officielle "
+                "est préférée", "")
+    if any("jeu local" in r for r in c.get("raisons", [])):
+        return "local", f"jeu d'une seule collectivité ({c['producteur']}), sans couverture nationale", ""
+    if lic in ("", "non precisee", "notspecified", "other-at", "other-closed", "none"):
+        return ("licence", f"licence {'non précisée' if lic in ('', 'non precisee', 'notspecified', 'none') else lic}"
+                " au catalogue, à revoir si le producteur la précise", "")
+    if c.get("date") and c["date"] < SEUIL_ANCIEN:
+        return "ancien", f"plus mis à jour depuis le {jour_fr(c['date'])}, le site suit des séries vivantes", ""
+    contexte = plat(" ".join((c.get("niveau", ""), c["titre"], c.get("description", "")[:800])))
+    if not re.search(r"commune|iris|intercommunal|epci|departement|region|territoire|points|carreau|canton|"
+                     r"zone d'emploi|bassin de vie|qpv|etablissement", contexte):
+        if SANTE_MENTALE_TITRE.search(t):
+            return "retenu", "repère national en santé mentale", ""
+        return "sans_niveau", "France entière seulement, aucune déclinaison par territoire au catalogue", ""
+    return "retenu", "", ""
+
+
+def trier(cands: dict, lignes: list[dict], mq: dict | None = None) -> dict:
+    """Tri de tous les candidats, {clé: {statut, regle, raison, registre}}. Les marques de Lucas priment, puis le
+    registre, puis les règles d'un candidat seul, puis les déclinaisons entre candidats retenus."""
+    mq = mq or {}
+    par_id = {x["id"]: x for x in lignes}
+    index = {c: x for x in lignes for c in x["cle_veille"].split()}
+    tri = {}
+    for cle, c in cands.items():
+        m = (mq.get(cle) or {}).get("marque")
+        x = next((index[k] for k in [cle, *c.get("membres", [])] if k in index), None)
+        if m == "ecarte" and not x:
+            note = (mq[cle].get("note") or "").strip()
+            tri[cle] = ("marque", "écarté par Lucas" + (f", {note}" if note else ""), "")
+        elif x:
+            raison = f"ligne {x['id']} du registre ({x['statut']})"
+            if x["statut"] == "écartée" and x["raison"]:
+                raison += f", {x['raison']}"
+            tri[cle] = ("registre", raison, x["id"])
+        elif m in ("interessant", "a_discuter"):
+            tri[cle] = ("retenu", f"marqué « {MARQUES_PERMISES[m]} » par Lucas", "")
+        else:
+            tri[cle] = regle_individuelle(c, par_id)
+    # déclinaisons : parmi les candidats d'une même famille, un seul est gardé, de préférence celui déjà au registre,
+    # sinon le plus récent, puis le plus fin, puis le plus pertinent
+    familles = {}
+    for cle, c in cands.items():
+        if tri[cle][0] in ("retenu", "registre"):
+            familles.setdefault(famille_large(c["titre"]), []).append(cle)
+    for groupe in familles.values():
+        if len(groupe) < 2:
+            continue
+        groupe.sort(key=lambda k: (tri[k][0] != "registre", -int((cands[k].get("date") or "0")[:4]),
+                                   -finesse(cands[k].get("niveau", "")), -cands[k]["score"], k))
+        tete = groupe[0]
+        for k in groupe[1:]:
+            if tri[k][0] == "retenu" and not (mq.get(k) or {}).get("marque"):
+                tri[k] = ("declinaison", f"déclinaison de « {cands[tete]['titre']} » ({tete}), gardé à sa place",
+                          tri[tete][2])
+    sortie = {}
+    for cle, (regle, raison, ligne) in tri.items():
+        ecarte = regle not in ("retenu", "registre") or (
+            regle == "registre" and par_id[ligne]["statut"] == "écartée")
+        sortie[cle] = {"statut": "écarté" if ecarte else "au registre", "regle": regle,
+                       "raison": raison or REGLES_TRI[regle], "registre": ligne}
+    return sortie
+
+
+# ce qui demande la décision de Lucas (licence, juridique, indicateur sensible, libellés), avec la recommandation
+def decision_pour_lucas(c: dict) -> tuple[str, str]:
+    t, lic, p = plat(c["titre"]), plat(c.get("licence", "")), plat(c.get("producteur", ""))
+    if "odbl" in lic and "caisse nationale de l'assurance maladie" not in p:
+        return ("licence", "Licence ODbL, qui impose de repartager la base à l'identique. Recommandation : publier "
+                "ses chiffres dans les fichiers gratuits suffixés _odbl, comme l'Assurance Maladie, et la tenir hors "
+                "de l'API payante.")
+    if "-sa" in lic:
+        return ("licence", "Licence avec partage à l'identique (CC BY-SA). Recommandation : la traiter comme l'ODbL, "
+                "fichiers gratuits seulement, hors de l'API payante.")
+    if re.search(r"victim|violenc|delinquance|crimes|insecurite", t):
+        return ("sensible", "Indicateur sensible. Recommandation : l'intégrer avec la marque « sensible » du "
+                "catalogue, jamais proposé d'office avec la santé mentale, présenté du côté des personnes victimes.")
+    if re.search(r"snds|health data hub|plateforme des donnees de sante", t + " " + p):
+        return ("juridique", "Données du Système national des données de santé, accès sur autorisation. "
+                "Recommandation : ne pas l'intégrer, la garder comme piste de demande d'accès.")
+    if finesse(c.get("niveau", "")) >= 4 and re.search(r"patients|hospitalis|deces|suicid|pathologie|maladie", t):
+        return ("juridique", "Données de santé à une échelle fine, où les effectifs sont petits. Recommandation : "
+                "publier seulement les valeurs que le producteur diffuse, jamais un effectif recalculé sous son seuil "
+                "de secret.")
+    # un terme daté que la table du projet sait remplacer (« préférer... ») ne demande pas de décision, seulement un
+    # terme péjoratif sans remplacement écrit
+    try:
+        from pipeline import libelles
+        termes = [x for x in libelles.termes_proscrits(c["titre"]) if "préférer" not in x]
+    except Exception:   # noqa: BLE001, la table des libellés est lue sans être une condition du tri
+        termes = []
+    if termes:
+        return ("libellés", f"Le titre du producteur emploie un terme daté ({termes[0].split(',')[0]}). "
+                "Recommandation : reprendre ses libellés avec la table du projet (pipeline/libelles.csv) avant "
+                "toute mise en ligne.")
+    return "", ""
+
+
+def appliquer_tri(cands: dict, lignes: list[dict] | None = None, mq: dict | None = None) -> dict:
+    """Pose le résultat du tri sur chaque candidat (champ « tri »), en gardant la date d'un tri inchangé. Renvoie le
+    décompte par statut et par règle."""
+    lignes = lire_registre() if lignes is None else lignes
+    resultat = trier(cands, lignes, marques() if mq is None else mq)
+    jour = maintenant()[:10]
+    for cle, r in resultat.items():
+        avant = cands[cle].get("tri") or {}
+        if {k: avant.get(k) for k in r} != r:
+            r = r | {"le": jour}
+        else:
+            r = r | {"le": avant.get("le", jour)}
+        cands[cle]["tri"] = r
+    return {"par_statut": {s: sum(1 for r in resultat.values() if r["statut"] == s) for s in STATUTS_TRI},
+            "par_regle": {g: sum(1 for r in resultat.values() if r["regle"] == g) for g in REGLES_TRI}}
+
+
+TRI_CSV = RACINE / "docs" / "veille" / "tri_candidats.csv"
+COLONNES_TRI = ["cle", "titre", "producteur", "catalogue", "statut", "regle", "raison", "registre", "pertinence",
+                "trie_le"]
+
+
+def ecrire_tri_csv(cands: dict, f: Path | None = None) -> None:
+    """Le tri de chaque candidat, lisible sans la fenêtre du courrier (versionné à côté du registre)."""
+    import csv
+    f = f or TRI_CSV
+    lignes = sorted(cands.values(), key=lambda c: (c["tri"]["statut"] != "au registre", c["tri"]["regle"],
+                                                   -c["score"], c["cle"]))
+    tmp = f.with_suffix(".tmp")
+    with tmp.open("w", encoding="utf-8", newline="") as h:
+        w = csv.DictWriter(h, fieldnames=COLONNES_TRI, delimiter=";", lineterminator="\n")
+        w.writeheader()
+        for c in lignes:
+            w.writerow({"cle": c["cle"], "titre": c["titre"].replace("—", ","), "producteur": c["producteur"],
+                        "catalogue": NOMS_SOURCES.get(c["source"], c["source"]), "statut": c["tri"]["statut"],
+                        "regle": c["tri"]["regle"], "raison": c["tri"]["raison"].replace("—", ","),
+                        "registre": c["tri"]["registre"], "pertinence": c["score"], "trie_le": c["tri"]["le"]})
+    tmp.replace(f)
+
+
+# ---------------------------------------------------------------- point de la semaine pour Lucas
+DECISIONS = DOSSIER / "decisions.json"
+POINT = DOSSIER / "point_semaine.json"
+POINT_MAX = 10
+REPONSES = {"accord": "d'accord", "refus": "non", "plus_tard": "plus tard"}
+JOURS_PLUS_TARD = 28
+RANG_PERTINENCE = {"forte": 0, "moyenne": 1, "faible": 2, "": 3}
+ORDRE_DOMAINES = {d: i for i, d in enumerate(("Santé mentale", "Santé", "Social", "Sécurité et victimes",
+                                              "Cadre de vie", "Transversal"))}
+
+
+def decisions() -> dict:
+    return lire_json(DECISIONS, {})
+
+
+def repondre(ligne: str, reponse: str, recommandation: str = "") -> None:
+    """Réponse de Lucas à une ligne du point de la semaine, d'un clic dans l'onglet « Veille »."""
+    if reponse not in REPONSES:
+        raise ValueError(reponse)
+    d = decisions()
+    d[ligne] = {"reponse": reponse, "le": maintenant(), "recommandation": recommandation}
+    ecrire_json(DECISIONS, d)
+
+
+def point_de_la_semaine(lignes: list[dict], dec: dict | None = None, jour: dt.date | None = None) -> list[dict]:
+    """Au plus dix lignes du registre qui attendent une décision de Lucas, les plus pertinentes d'abord. Une ligne
+    répondue « plus tard » revient après quatre semaines."""
+    dec = decisions() if dec is None else dec
+    jour = jour or dt.date.today()
+
+    def attend(x):
+        r = dec.get(x["id"])
+        if not r:
+            return True
+        return r["reponse"] == "plus_tard" and (jour - dt.date.fromisoformat(r["le"][:10])).days >= JOURS_PLUS_TARD
+    retenues = [x for x in lignes if x["statut"] == "à examiner" and x.get("decision") and attend(x)]
+    retenues.sort(key=lambda x: (RANG_PERTINENCE.get(x.get("pertinence", ""), 3),
+                                 ORDRE_DOMAINES.get(x["domaine"].split(",")[0].strip(), 9), x["nom"]))
+    return retenues[:POINT_MAX]
+
+
+def ecrire_point(lignes: list[dict]) -> dict:
+    point = {"semaine_du": maintenant()[:10],
+             "lignes": [{k: x[k] for k in ("id", "nom", "producteur", "adresse", "licence", "niveau", "domaine",
+                                            "pertinence", "theme", "decision", "recommandation")}
+                        for x in point_de_la_semaine(lignes)]}
+    ecrire_json(POINT, point)
+    return point
+
+
+def trier_et_ranger(ecrire: bool = True) -> dict:
+    """Le tri complet : tri des candidats, registre alimenté, tri refait (les retenus ont alors leur ligne), tri écrit
+    dans docs/veille/tri_candidats.csv, point de la semaine. Appelé par la relève de chaque semaine."""
+    cands = lire_json(CANDIDATS, {})
+    appliquer_tri(cands)
+    b = alimenter_registre(ecrire=ecrire, cands=cands)
+    bilan = appliquer_tri(cands, b["lignes"])
+    if ecrire:
+        ecrire_json(CANDIDATS, cands)
+        ecrire_tri_csv(cands)
+        bilan["point"] = ecrire_point(b["lignes"])
+    else:
+        bilan["point"] = {"lignes": point_de_la_semaine(b["lignes"])}
+    return bilan | {"registre": b}
+
+
+def texte_tri(b: dict) -> str:
+    regles = ", ".join(f"{n} {COURT_TRI[g]}" for g, n in b["par_regle"].items() if n and g not in ("retenu", "registre"))
+    return (f"Tri de la veille, {b['par_statut']['au registre']} candidat(s) au registre, "
+            f"{b['par_statut']['écarté']} écarté(s) ({regles}). Point de la semaine, "
+            f"{len(b['point']['lignes'])} base(s) pour Lucas.")
 
 
 # ---------------------------------------------------------------- onglet de la fenêtre du courrier
 def onglet(onglets, racine, c: dict, police, petite, zone_texte, remplir) -> dict:
-    """Onglet « Veille », candidats, marque et note de Lucas, examen à côté. Renvoie
-    {page, garder, rafraichir}."""
+    """Onglet « Veille » (refonte du 8 novembre 2026), le point de la semaine. Au plus dix bases qui demandent une
+    décision de Lucas (licence, juridique, indicateur sensible, libellés), chacune avec la recommandation, validée d'un
+    clic. Le reste du tri se lit dans le registre, sans action. Renvoie {page, garder, rafraichir}."""
+    import os
     import tkinter as tk
     import webbrowser
     from tkinter import ttk
@@ -849,29 +1390,16 @@ def onglet(onglets, racine, c: dict, police, petite, zone_texte, remplir) -> dic
     onglets.add(page, text="Veille")
     tete = ttk.Frame(page)
     tete.pack(fill="x", pady=(0, 8))
-    etat_l = ttk.Label(tete, style="Discret.TLabel", wraplength=860, justify="left")
+    etat_l = ttk.Label(tete, style="Discret.TLabel", wraplength=820, justify="left")
     etat_l.pack(side="left", fill="x", expand=True)
-    filtres = {"Ce passage": "passage", "À examiner": "a_examiner", "Intéressants": "interessant",
-               "À discuter": "a_discuter", "Écartés": "ecarte", "Tous": "tous"} | {
-        f"Domaine, {d}": "domaine:" + d for d in DOMAINES}
-    choix_filtre = tk.StringVar(value="Ce passage")
     gauche = ttk.Frame(page)
     gauche.pack(side="left", fill="both", expand=False)
-    ligne_f = ttk.Frame(gauche)
-    ligne_f.pack(fill="x", pady=(0, 4))
-    ttk.Label(ligne_f, text="Montrer", style="Discret.TLabel").pack(side="left", padx=(0, 6))
-    menu = ttk.Combobox(ligne_f, textvariable=choix_filtre, values=list(filtres), state="readonly", width=40)
-    menu.pack(side="left")
-    liste = ttk.Treeview(gauche, columns=("score", "titre", "domaine", "source", "marque"), show="headings",
-                         selectmode="browse", height=22)
-    for col, lib, larg, anc in (("score", "Pertinence", 76, "e"), ("titre", "Base", 280, "w"),
-                                ("domaine", "Domaine", 130, "w"), ("source", "Catalogue", 84, "w"),
-                                ("marque", "Marque", 84, "w")):
+    liste = ttk.Treeview(gauche, columns=("question", "base", "reponse"), show="headings", selectmode="browse",
+                         height=12)
+    for col, lib, larg, anc in (("question", "Question", 90, "w"), ("base", "Base", 320, "w"),
+                                ("reponse", "Ta réponse", 90, "w")):
         liste.heading(col, text=lib, anchor=anc)
-        liste.column(col, width=larg, anchor=anc, stretch=col == "titre")
-    defil = ttk.Scrollbar(gauche, orient="vertical", command=liste.yview)
-    liste.configure(yscrollcommand=defil.set)
-    defil.pack(side="right", fill="y")
+        liste.column(col, width=larg, anchor=anc, stretch=col == "base")
     liste.pack(side="left", fill="both", expand=True)
 
     droite = ttk.Frame(page, padding=(16, 0, 0, 0))
@@ -880,175 +1408,128 @@ def onglet(onglets, racine, c: dict, police, petite, zone_texte, remplir) -> dic
                        justify="left", wraplength=560)
     titre_l.pack(fill="x")
     meta_l = tk.Label(droite, bg=c["fond"], fg=c["discret"], font=petite, anchor="w", justify="left", wraplength=560)
-    meta_l.pack(fill="x", pady=(2, 0))
-    raisons_l = tk.Label(droite, bg=c["fond"], fg=c["bleu"], font=petite, anchor="w", justify="left", wraplength=560)
-    raisons_l.pack(fill="x", pady=(2, 4))
-    droite.bind("<Configure>", lambda e: [x.configure(wraplength=max(300, e.width - 24))
-                                          for x in (titre_l, meta_l, raisons_l)])
+    meta_l.pack(fill="x", pady=(2, 4))
+    droite.bind("<Configure>", lambda e: [x.configure(wraplength=max(300, e.width - 24)) for x in (titre_l, meta_l)])
     bouton_page = ttk.Button(droite, text="Ouvrir la page de la base")
     bouton_page.pack(anchor="w")
+    ttk.Label(droite, text="Ce qui demande ta décision, et ce que je recommande",
+              style="Discret.TLabel").pack(anchor="w", pady=(10, 2))
+    cadre_r, reco = zone_texte(droite, True)
+    reco.configure(height=5)
+    cadre_r.pack(fill="x")
+    ligne_b = ttk.Frame(droite)
+    ligne_b.pack(fill="x", pady=(8, 2))
+    reponse_l = tk.Label(droite, bg=c["fond"], fg=c["bleu"], font=petite, anchor="w", justify="left")
+    reponse_l.pack(fill="x", pady=(2, 4))
     ttk.Label(droite, text="Description donnée par le catalogue", style="Discret.TLabel").pack(anchor="w", pady=(8, 2))
     cadre_d, desc = zone_texte(droite, True)
-    desc.configure(height=4)
-    cadre_d.pack(fill="x")
-    ligne_m = ttk.Frame(droite)
-    ligne_m.pack(fill="x", pady=(8, 2))
-    ttk.Label(ligne_m, text="Ta marque", style="Discret.TLabel").pack(side="left", padx=(0, 8))
-    marque_v = tk.StringVar(value="")
-    for k, lib in (("interessant", "Intéressant"), ("a_discuter", "À discuter"), ("ecarte", "Écarté"),
-                   ("", "Sans marque")):
-        ttk.Radiobutton(ligne_m, text=lib, value=k, variable=marque_v).pack(side="left", padx=(0, 10))
-    ttk.Label(droite, text="Ta note (libre, lue à l'examen)", style="Discret.TLabel").pack(anchor="w", pady=(4, 2))
-    cadre_n, note = zone_texte(droite, False)
-    note.configure(height=2)
-    cadre_n.pack(fill="x")
-    ttk.Label(droite, text="Examen", style="Discret.TLabel").pack(anchor="w", pady=(8, 2))
-    cadre_e, exam = zone_texte(droite, True)
-    exam.configure(height=9)
-    cadre_e.pack(fill="both", expand=True)
-    etat = {"cle": None, "charge": False}
+    desc.configure(height=8)
+    cadre_d.pack(fill="both", expand=True)
+    etat = {"id": None, "point": {}}
 
-    def libelle_marque(cle, mq):
-        return MARQUES_PERMISES.get((mq.get(cle) or {}).get("marque"), "")
-
-    def garder():
-        cle = etat["cle"]
-        if not cle or etat["charge"]:   # pendant l'affichage d'un candidat, rien n'est écrit
-            return
-        texte = note.get("1.0", "end").strip()
-        avant = marques().get(cle) or {}
-        if (avant.get("marque") or "") != marque_v.get() or (avant.get("note") or "") != texte:
-            marquer(cle, marque_v.get() or None, texte)
-            if liste.exists(cle):
-                liste.set(cle, "marque", MARQUES_PERMISES.get(marque_v.get(), ""))
-
-    def texte_examen(e):
-        if not e:
-            return "Pas encore d'examen. il se rédige à partir de la commande veille.py a-examiner."
-        lignes = [f"Avis, {e['avis']}. Effort {e['effort']}."]
-        if e.get("apport"):
-            lignes += ["", e["apport"]]
-        lignes += ["", f"Données à en sortir. {e.get('donnees', '')}", "",
-                   f"Croisements avec les bases déjà intégrées. {e.get('croisements', '')}"]
-        if e.get("figures"):
-            lignes += ["", "Figures et analyses."] + [f"  · {x}" for x in e["figures"]]
-        if e.get("produits"):
-            lignes += ["", "Apport à l'offre professionnelle."] + [f"  {k}, {v}" for k, v in e["produits"].items()]
-        lignes += ["", f"Licence. {e['licence']}", "", f"Limites. {e['limites']}"]
-        if e.get("liste"):
-            lignes += ["", "Liste à cocher pour une nouvelle base (règles du projet)."] + [
-                f"  ({k}) {v}" for k, v in sorted(e["liste"].items(), key=lambda kv: (len(kv[0]), kv[0]))]
-        if e.get("sources"):
-            lignes += ["", "Sources."] + [f"  {x}" for x in e["sources"]]
-        lignes += ["", f"Écrit le {e.get('ecrit_le', '')[:10]}."]
-        return "\n".join(lignes)
+    def ligne_du_point(i):
+        return next((x for x in etat["point"].get("lignes", []) if x["id"] == i), None)
 
     def afficher(_e=None):
-        garder()
         sel = liste.selection()
-        cand = lire_json(CANDIDATS, {}).get(sel[0]) if sel else None
-        etat["cle"] = cand["cle"] if cand else None
-        etat["charge"] = True
-        try:
-            montrer(cand)
-        finally:
-            etat["charge"] = False
-
-    def montrer(cand):
-        for t in (desc, note, exam):
-            remplir(t, "")
-        marque_v.set("")
-        if not cand:
-            titre_l.configure(text="")
+        x = ligne_du_point(sel[0]) if sel else None
+        etat["id"] = x["id"] if x else None
+        for z in (reco, desc):
+            remplir(z, "")
+        for w in ligne_b.winfo_children():
+            w.state(["disabled"] if not x else ["!disabled"])
+        if not x:
+            titre_l.configure(text="Rien ne demande ta décision cette semaine." if not etat["point"].get("lignes")
+                              else "")
             meta_l.configure(text="")
-            raisons_l.configure(text="")
+            reponse_l.configure(text="")
             return
-        titre_l.configure(text=cand["titre"])
-        lic = cand["licence"] if plat(cand["licence"]).startswith("licence") else f"Licence {cand['licence']}"
-        meta_l.configure(text=f"{NOMS_SOURCES[cand['source']]}, {cand['producteur']}. {lic}. "
-                              f"Niveau géographique {cand['niveau']}. Mis à jour le {jour_fr(cand['date'])}"
-                              f", relevé le {jour_fr(cand.get('releve_le'))}"
-                              + (f", changé depuis le {jour_fr(cand['mis_a_jour_le'])}" if cand.get("mis_a_jour_le")
-                                 else "") + ".")
-        aussi = "; ".join(f"{NOMS_SOURCES[a['source']]}, {a['titre']}" for a in cand.get("aussi") or [])
-        if aussi:
-            meta_l.configure(text=meta_l.cget("text") + f" Aussi présent sous la forme {aussi}.")
-        raisons_l.configure(text=f"Pertinence {cand['score']}, " + "; ".join(cand["raisons"]) + ".")
-        bouton_page.configure(command=lambda a=cand["adresse"]: webbrowser.open(a))
-        remplir(desc, cand["description"] or "Aucune description.")
-        m = marques().get(cand["cle"]) or {}
-        marque_v.set(m.get("marque") or "")
-        remplir(note, m.get("note") or "")
-        remplir(exam, texte_examen(examen(cand["cle"])))
+        titre_l.configure(text=x["nom"])
+        themes = ", ".join(THEMES_NOMS.get(t, t) for t in x["theme"].split()) or "aucun"
+        meta_l.configure(text=f"{x['producteur']}. {x['licence'] or 'Licence non précisée'}. Niveau géographique "
+                              f"{x['niveau'] or 'non précisé'}. Domaine {x['domaine']}, thème proposé {themes}, "
+                              f"pertinence {x['pertinence'] or 'non notée'}.")
+        bouton_page.configure(command=lambda a=x["adresse"]: a and webbrowser.open(a))
+        remplir(reco, x["recommandation"])
+        r = decisions().get(x["id"])
+        reponse_l.configure(text=(f"Tu as répondu « {REPONSES[r['reponse']]} » le {jour_fr(r['le'])}."
+                                  if r else "Pas encore de réponse."))
+        registre = {y["id"]: y for y in lire_registre()}
+        cles = (registre.get(x["id"]) or {}).get("cle_veille", "").split()
+        cands = lire_json(CANDIDATS, {})
+        remplir(desc, "\n\n".join(f"{cands[k]['titre']}. {cands[k]['description'] or 'Aucune description.'}"
+                                  for k in cles if k in cands) or "Aucune description.")
+
+    def repondre_clic(reponse):
+        x = ligne_du_point(etat["id"])
+        if not x:
+            return
+        repondre(x["id"], reponse, x["recommandation"])
+        try:
+            alimenter_registre()   # la réponse est reportée au registre tout de suite
+        except OSError:
+            pass
+        rafraichir(x["id"])
+
+    for k, lib in (("accord", "D'accord avec la recommandation"), ("refus", "Non, écarter la base"),
+                   ("plus_tard", "Plus tard")):
+        ttk.Button(ligne_b, text=lib, command=lambda k=k: repondre_clic(k)).pack(side="left", padx=(0, 8))
 
     def rafraichir(choisi=None):
-        cands, mq = lire_json(CANDIDATS, {}), marques()
-        p = lire_json(PASSAGES, {"passages": []})["passages"]
-        dernier = p[-1] if p else None
-        f = filtres[choix_filtre.get()]
-        jour = dernier["date"][:10] if dernier else ""
-
-        def garde(cle, cand):
-            m = (mq.get(cle) or {}).get("marque")
-            if f == "passage":
-                return cand.get("releve_le") == jour or cand.get("mis_a_jour_le") == jour
-            if f == "a_examiner":
-                return not examen(cle) and m != "ecarte"
-            if f == "tous":
-                return True
-            if f.startswith("domaine:"):
-                return cand.get("domaine") == f.split(":", 1)[1]
-            return m == f
-        ordre = list(DOMAINES)
-        lignes = sorted(((k, v) for k, v in cands.items() if garde(k, v)),
-                        key=lambda kv: (ordre.index(kv[1].get("domaine", "Santé, autre")), -kv[1]["score"],
-                                        kv[1]["titre"]))
+        etat["point"] = lire_json(POINT, {})
+        dec = decisions()
+        cands = lire_json(CANDIDATS, {})
+        tri = [x.get("tri") or {} for x in cands.values()]
         liste.delete(*liste.get_children())
-        for k, v in lignes:
-            liste.insert("", "end", iid=k, values=(v["score"], v["titre"], v.get("domaine", ""),
-                                                   NOMS_SOURCES[v["source"]], libelle_marque(k, mq)))
-        if dernier:
-            du_jour = [x for x in p if x["date"][:10] == jour]
-            complet = next((x for x in p if x.get("type") == "complet"), None)
-            etat_l.configure(text=(f"Scan complet de l'existant le {jour_fr(complet['date'])}. " if complet else "")
-                                  + f"Dernier passage le {dt.date.fromisoformat(jour):%d/%m/%Y}, "
-                                  f"{sum(x['nouveaux'] for x in du_jour)} nouveau(x), "
-                                  f"{sum(x['mis_a_jour'] for x in du_jour)} mis à jour, {len(cands)} candidats en tout, "
-                                  f"{sum(1 for k in cands if examen(k))} examiné(s). Prochain passage avec la "
-                                  f"relève à partir du "
-                                  f"{dt.date.fromisoformat(jour) + dt.timedelta(days=JOURS_ENTRE_PASSAGES):%d/%m}.")
-        else:
-            etat_l.configure(text="Aucun passage encore. Il a lieu chaque semaine avec la relève du courrier.")
+        for x in etat["point"].get("lignes", []):
+            r = dec.get(x["id"])
+            liste.insert("", "end", iid=x["id"], values=(x["decision"], x["nom"],
+                                                         REPONSES[r["reponse"]] if r else ""))
+        p = lire_json(PASSAGES, {"passages": []})["passages"]
+        n = len(etat["point"].get("lignes", []))
+        attente = sum(1 for x in etat["point"].get("lignes", []) if x["id"] not in dec)
+        etat_l.configure(text=(f"Point de la semaine du {jour_fr(etat['point']['semaine_du'])}, {n} base(s) pour toi"
+                               f", {attente} sans réponse. " if etat["point"] else "Pas encore de point de la semaine. ")
+                         + (f"Tri des {len(cands)} candidats relevés : "
+                            f"{sum(1 for x in tri if x.get('statut') == 'au registre')} rangés au registre, "
+                            f"{sum(1 for x in tri if x.get('statut') == 'écarté')} écartés avec leur raison. "
+                            "Ils se lisent dans le registre, sans rien à faire de ta part. " if cands else "")
+                         + (f"Dernière relève le {jour_fr(p[-1]['date'])}." if p else ""))
         enfants = liste.get_children()
         if enfants:
             liste.selection_set(choisi if choisi in enfants else enfants[0])
             liste.see(liste.selection()[0])
         else:
-            etat["cle"] = None
             afficher()
 
-    def changer_filtre(_e=None):
-        garder()
-        rafraichir()
-
     def lancer():
-        garder()
         racine.config(cursor="watch")
         racine.update()
         try:
             relever(forcer=True)
+            trier_et_ranger()
         except OSError:
             pass
         finally:
             racine.config(cursor="")
-        rafraichir()
+        rafraichir(etat["id"])
+
+    def ouvrir_registre():
+        try:
+            os.startfile(REGISTRE)   # noqa: S606, le registre s'ouvre dans le tableur de Windows
+        except OSError:
+            pass
 
     ttk.Button(tete, text="Lancer la veille maintenant", command=lancer).pack(side="right")
-    menu.bind("<<ComboboxSelected>>", changer_filtre)
+    ttk.Button(tete, text="Ouvrir le registre", command=ouvrir_registre).pack(side="right", padx=(0, 8))
     liste.bind("<<TreeviewSelect>>", afficher)
-    marque_v.trace_add("write", lambda *_: garder())
     rafraichir()
-    return {"page": page, "garder": garder, "rafraichir": lambda: rafraichir(etat["cle"])}
+    # les réponses sont écrites au clic, rien à garder à la fermeture
+    return {"page": page, "garder": lambda: None, "rafraichir": lambda: rafraichir(etat["id"])}
+
+
+THEMES_NOMS = {"sante_mentale": "santé mentale", "addictologie": "addictologie",
+               "geographie_sociale": "géographie sociale", "grand_age": "grand âge", "victimologie": "victimologie"}
 
 
 def main() -> int:
@@ -1068,6 +1549,9 @@ def main() -> int:
     p.add_argument("fichier")
     p.set_defaults(f=cmd_examen)
     sous.add_parser("resume").set_defaults(f=cmd_resume)
+    sous.add_parser("trier", help="refait le tri des candidats, le registre et le point de la semaine"
+                    ).set_defaults(f=cmd_trier)
+    sous.add_parser("point", help="affiche le point de la semaine").set_defaults(f=cmd_point)
     sous.add_parser("registre", help="reporte la veille dans docs/veille/registre_bases.csv et le contrôle"
                     ).set_defaults(f=cmd_registre)
     args = ap.parse_args()

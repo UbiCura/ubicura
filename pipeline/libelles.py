@@ -49,6 +49,10 @@ VOCABULAIRE_A_EVITER = [
     # tournures de présentation qui vantent le site au lieu de décrire (remarque de Lucas du 5 novembre 2026, « Le cœur
     # du site » ne fait pas professionnel)
     (r"\bc(oe| )ur du site\b|\bpierre angulaire\b|\bincontournable\b", "tournure qui vante le site, décrire ce que la page montre"),
+    # slogans et tournures familières (remarque de Lucas du 8 novembre 2026 sur « la preuve en figure, la méthode à un
+    # clic ») : une phrase simple qui décrit ce que l'on trouve
+    (r"\b(a|en) (un|quelques) clics?\b|\bla preuve en figure\b|\bd.un coup( d.oeil)?\b|\bdecouvrez\b|\bplongez\b",
+     "slogan ou tournure familière, écrire une phrase simple qui décrit ce que l'on trouve"),
     # rien de l'offre payante sur le site avant qu'elle soit finalisée et validée, charte du gratuit comprise ; on peut
     # préparer la place, sans aucun texte qui en parle (Lucas, 28 et 31 octobre 2026)
     (r"\boffre (payante|professionnelle)\b|\bacces (pro|professionnel)\b|\bversion (complete|professionnelle|reelle)\b"

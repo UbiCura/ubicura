@@ -1262,6 +1262,7 @@ def construire(env, commun: dict, dernier: Path, site_data: dict, site: Path, re
             if seulement is not None and (lv, u["c"]) not in seulement:
                 continue
             f = fiche(dn, lv, u["c"], dernier.name)
+            niveaux = liens_niveaux(lv, u, f, dn, reg_code, deps_de_reg, epcis_de_dep)
             lim_sae = dn.limite("manque_sae", lv, u["c"])
             dep = u.get("p") if lv == "epci" else (u["c"] if lv == "dep" else None)
             if lv == "epci" and not (lim_sae and lim_sae.get("territoire")) and dep:
@@ -1400,7 +1401,7 @@ def construire(env, commun: dict, dernier: Path, site_data: dict, site: Path, re
                                   description=f"Fiche {f['de_nom']}, professionnels, structures de soins psychiques et profil "
                                               f"des habitants, situés parmi les {f['niv_pluriel']}.",
                                   liens_fiche=liens, comparer=comparer, confiance_france=confiance_ensemble(lv), sources_fiche=sources,
-                                  zone=f"../../zone.html#epci={u['c']}" if lv == "epci" else None,
+                                  zone=f"../../zone.html#epci={u['c']}" if lv == "epci" else None, niveaux=niveaux,
                                   limite_sae=(lim_sae or {}).get("territoire"), venir=venir, limites_papier=limites_papier,
                                   doi_donnees=doi, doi_toutes=doi == config.DOI_DONNEES, terr_id=comp, adresse_fiche=adr, menu_six=True, temps_bornes=TEMPS_BORNES,
                                   src_route=config.SRC_INSEE_ROUTE[0], lim_route=config.LIMITES_COURT.get("route"),
@@ -1413,6 +1414,64 @@ def construire(env, commun: dict, dernier: Path, site_data: dict, site: Path, re
             (dossier / f"{u['c']}.html").write_text(insecables(html), encoding="utf-8")
             pages.append(dossier / f"{u['c']}.html")
     return pages
+
+
+def _cle_nom(nom: str) -> str:
+    import unicodedata
+    return unicodedata.normalize("NFKD", nom).encode("ascii", "ignore").decode().lower()
+
+
+def liens_niveaux(lv: str, u: dict, f: dict, dn, reg_code: dict, deps_de_reg: dict, epcis_de_dep: dict) -> dict:
+    """Le territoire qui contient celui-ci, en lien vers sa fiche, et la liste de ceux qu'il contient (étape 1 de l'audit
+    de la navigation, validée par Lucas le 8 novembre 2026 : aucune fiche ne reliait sa région, son département ni ses
+    intercommunalités). Une intercommunalité sur plusieurs départements les relie tous, et la région de son département
+    de rattachement."""
+    from html import escape
+
+    def lien(niv, code, nom):
+        return f'<a href="../{niv}/{escape(code)}.html">{escape(nom)}</a>'
+
+    parents, enfants, mot, titre, niv_enf = [], [], "", "", ""
+    if lv == "epci":
+        deps = [(d["code"], d["nom"]) for d in f.get("deps") or []] or ([(u.get("p"), dn.noms["dep"][u.get("p")])]
+                                                                       if u.get("p") in dn.noms["dep"] else [])
+        if deps:
+            noms = [lien("dep", c, n) for c, n in deps]
+            parents.append(", ".join(noms[:-1]) + " et " + noms[-1] if len(noms) > 1 else noms[0])
+            # la région de chacun de ses départements, celle du rattachement d'abord (Grand Avignon : Provence-Alpes-
+            # Côte d'Azur et Occitanie, audit indépendant du 8 novembre 2026)
+            regs = []
+            for c, _n in [(u.get("p"), None)] + deps:
+                r_nom = dn.unite("dep", c).get("p") if c in dn.pos["dep"] else None
+                if r_nom in reg_code and r_nom not in regs:
+                    regs.append(r_nom)
+            liens_r = [lien("reg", reg_code[r], r) if r not in [n for _, n in deps] else
+                       # outre-mer : la région porte le nom de son unique département (« région Guadeloupe »)
+                       f'<a href="../reg/{escape(reg_code[r])}.html">région {escape(r)}</a>' for r in regs]
+            if liens_r:
+                parents.append(", ".join(liens_r[:-1]) + " et " + liens_r[-1] if len(liens_r) > 1 else liens_r[0])
+    elif lv == "dep":
+        r_nom = u.get("p")
+        if r_nom in reg_code:
+            # outre-mer : la région porte le nom de son unique département (« région Guadeloupe »)
+            parents.append(lien("reg", reg_code[r_nom], r_nom) if r_nom != u["nm"] else
+                           f'<a href="../reg/{escape(reg_code[r_nom])}.html">région {escape(r_nom)}</a>')
+        # les intercommunalités rattachées au département, et celles qui s'étendent sur lui depuis un autre (la
+        # Métropole du Grand Paris pour les Hauts-de-Seine, la Seine-Saint-Denis et le Val-de-Marne)
+        codes = set(epcis_de_dep.get(u["c"], [])) | {e for e, ds in dn.departements_epci().items()
+                                                     if u["c"] in [d for d, _ in ds]}
+        enfants = sorted(((c, dn.noms["epci"][c]) for c in codes if c in dn.noms["epci"]), key=lambda x: _cle_nom(x[1]))
+        mot = "intercommunalité" if len(enfants) == 1 else "intercommunalités"
+        titre = (f"L’intercommunalité {f['de_nom']}" if len(enfants) == 1 else f"Les intercommunalités {f['de_nom']}")
+        niv_enf = "epci"
+    else:
+        enfants = sorted(((c, dn.noms["dep"][c]) for c in deps_de_reg.get(u["c"], []) if c in dn.noms["dep"]),
+                         key=lambda x: _cle_nom(x[1]))
+        mot = "département" if len(enfants) == 1 else "départements"
+        titre = f"Le département {f['de_nom']}" if len(enfants) == 1 else f"Les départements {f['de_nom']}"
+        niv_enf = "dep"
+    return {"parents_html": " · ".join(parents), "enfants": enfants, "enfants_mot": mot, "enfants_titre": titre,
+            "enfants_niveau": niv_enf}
 
 
 def _semblables(dernier: Path) -> dict:

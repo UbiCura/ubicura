@@ -93,7 +93,7 @@ main.domaine .lien-d.pos{background:color-mix(in srgb,var(--d5) 45%,var(--panel)
 {% else %}
 {# gabarit commun des domaines (audit de contrôle du 30 octobre 2026, point I4) #}
 <p class="reponse-d">
-{%- if liens_dom.fort %}Par intercommunalité et à densité de population égale, {{ liens_dom.lignes|length }} des {{ liens_dom.testes }} indicateurs de ce domaine sont liés à au moins une profession de santé au-delà du seuil retenu sur tout le site. Le lien le plus fort relie l’indicateur « {{ liens_dom.fort.l.lab|minuscule }} » et les {{ liens_dom.fort.liens[0].lab|minuscule }} ({{ liens_dom.fort.liens[0].r|nombre('ctx2') }}).
+{%- if liens_dom.fort %}Par intercommunalité et à densité de population égale, {{ liens_dom.lignes|length }} des {{ liens_dom.testes }} indicateurs de ce domaine publiés par intercommunalité sont liés à au moins une profession de santé au-delà du seuil retenu sur tout le site. Le lien le plus fort relie l’indicateur « {{ liens_dom.fort.l.lab|minuscule }} » et les {{ liens_dom.fort.liens[0].lab|minuscule }} ({{ liens_dom.fort.liens[0].r|nombre('ctx2') }}).
 {%- elif n_ind %}Aucun indicateur de ce domaine n’est lié aux professions de santé au-delà du seuil retenu sur tout le site, à densité de population égale.
 {%- else %}Aucun indicateur de ce domaine n’est encore publié. Les bases prévues sont plus bas, chacune ne sera intégrée que si ses données sont ouvertes, documentées et vérifiées.{% endif %}</p>
 {% if carte or variantes %}

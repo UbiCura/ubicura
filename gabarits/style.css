@@ -1077,6 +1077,20 @@ a.vers-repliee{opacity:.7}
 .accueil .carte-accueil iframe{display:block;width:100%;height:1100px;border:0;background:transparent}
 .accueil .carte-accueil .vers-atlas{margin:var(--e-3) 0 0;font-size:var(--t-note)}
 @media (max-width:760px){.accueil .carte-accueil iframe{height:900px}}
+/* colonne d'outils de l'accueil (navigation, étape 3, Lucas, 8 novembre 2026, prototypes/outils_cote/ variante 1) : sur les
+   cinq colonnes laissées libres à droite du titre, sous la recherche au téléphone */
+.accueil .tete.avec-outils{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);column-gap:48px;align-items:start}
+.accueil .tete.avec-outils > :not(.outils){grid-column:1}
+.accueil .tete.avec-outils > .outils{grid-column:2;grid-row:1 / span 6;margin-top:var(--e-2)}
+.accueil .outils .outils-titre{font-size:var(--t-note);color:var(--muted);margin:0 0 4px;letter-spacing:.04em;text-align:left}
+.accueil .outils a{display:block;padding:12px 0 14px;border-top:1px solid var(--line);color:var(--ink);text-decoration:none}
+.accueil .outils a:first-of-type{border-top:1px solid var(--line-fort)}
+.accueil .outils a:hover strong{text-decoration:underline;text-underline-offset:4px}
+.accueil .outils strong{display:block;font-family:var(--serif);font-weight:400;font-size:var(--t-encadre);line-height:1.25}
+.accueil .outils span{display:block;font-size:var(--t-note);color:var(--muted);margin-top:2px;text-align:left}
+.accueil .outils a.phare strong::after{content:" \2192";font-family:var(--sans)}
+@media (max-width:860px){.accueil .tete.avec-outils{grid-template-columns:minmax(0,1fr)}
+  .accueil .tete.avec-outils > .outils{grid-column:1;grid-row:auto;margin-top:var(--e-4)}}
 .accueil .portes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--e-4);padding:var(--e-4) 0 28px}
 .accueil .portes a{display:block;padding:var(--e-3) 0 0;border:0;border-top:1px solid var(--line-fort);border-radius:0;background:none;color:var(--ink);text-decoration:none;min-height:44px}
 .accueil .portes a:hover{border-top-color:var(--ink)}
@@ -1882,3 +1896,85 @@ p.glossaire{text-align:left!important}
   .fiche table.ligne-type tr.suite-ligne .lim-ligne,.fiche table.ligne-type tr.suite-ligne .defn,
   .fiche table.ligne-type tr.suite-ligne .note,.fiche table.ligne-type .phrase-tuile{max-width:none!important}
 }
+
+/* audit de la navigation, étape 1 validée par Lucas le 8 novembre 2026 : territoires contenus dans celui de la fiche,
+   en bas de fiche, et outils voisins sous la recherche de la page Territoires */
+.fiche .territoires-inclus{margin:48px 0 0;padding-top:16px;border-top:1px solid var(--line-fort);scroll-margin-top:96px}
+.fiche .territoires-inclus h2{font-family:var(--serif);font-weight:400;font-size:var(--t-encadre);margin:0 0 12px}
+.fiche .territoires-inclus ul{columns:3 240px;column-gap:24px;list-style:none;margin:0;padding:0;font-size:var(--t-note);text-align:left}
+.fiche .territoires-inclus li{padding:3px 0;break-inside:avoid}
+.outils-ligne{margin:0 0 20px;text-align:left}
+.fiche .tete-l2 a{white-space:nowrap}
+
+/* page « Indicateurs » (navigation, étape 2, validée par Lucas le 8 novembre 2026, prototypes/nav_etape2/) */
+.catalogue .explique{font-size:var(--t-note);color:var(--muted);margin:0 0 24px;text-align:left}
+.catalogue .cherche-cat label{display:block;font-size:var(--t-note);color:var(--muted);margin-bottom:6px}
+.catalogue .cherche-cat input{width:100%;max-width:690px;font:inherit;font-size:var(--t-texte);padding:12px 14px;border:1px solid var(--line-fort);border-radius:2px;background:var(--bg);color:var(--ink)}
+.catalogue details.reglages{margin:20px 0 8px}
+.catalogue details.reglages>summary{font-size:var(--t-note);color:var(--muted);cursor:pointer}
+.catalogue .filtres{display:grid;grid-template-columns:120px minmax(0,1fr);gap:10px 16px;font-size:var(--t-note);margin-top:10px}
+.catalogue .filtres .lib{color:var(--muted);padding-top:4px}
+.catalogue .filtres .choix{display:flex;flex-wrap:wrap;gap:4px 18px}
+.catalogue .filtres button{font:inherit;background:none;border:0;padding:4px 0;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;gap:6px;min-height:32px}
+.catalogue .filtres button::before{content:"";width:8px;height:8px;border-radius:50%;border:1.5px solid currentColor;flex:none}
+.catalogue .filtres button[aria-pressed="true"]{color:var(--ink);font-weight:600}
+.catalogue .filtres button[aria-pressed="true"]::before{background:currentColor}
+.catalogue .filtres button[disabled]{opacity:.6;cursor:default}
+.catalogue .compte-res{margin:18px 0 6px;font-size:var(--t-note);color:var(--muted);text-align:left}
+.catalogue h2.cat-dom{font-family:var(--serif);font-weight:400;font-size:var(--t-encadre);margin:36px 0 8px}
+.catalogue table.cat-t{width:100%;border-collapse:collapse;font-size:var(--t-note);table-layout:fixed}
+.catalogue table.cat-t col.c-nom{width:30%}.catalogue table.cat-t col.c-def{width:38%}.catalogue table.cat-t col.c-src{width:18%}.catalogue table.cat-t col.c-niv{width:14%}
+.catalogue table.cat-t th{text-align:left;font-weight:500;color:var(--muted);padding:8px 12px 8px 0;border-bottom:1px solid var(--line-fort)}
+.catalogue table.cat-t td{padding:9px 12px 9px 0;border-bottom:1px solid var(--line);vertical-align:top;text-align:left;hyphens:none;overflow-wrap:normal}
+.catalogue table.cat-t td.nom{font-size:var(--t-texte)}
+.catalogue .eti{display:block;font-size:var(--t-note);color:var(--chiffre);margin-top:2px}
+.catalogue td.def{color:var(--muted)}
+.catalogue tr.groupe td{font-weight:600;color:var(--ink);padding-top:16px}
+.catalogue tr.groupe td span{font-weight:400;color:var(--muted)}
+@media (max-width:760px){
+ .catalogue .filtres{grid-template-columns:minmax(0,1fr)}
+ .catalogue table.cat-t,.catalogue table.cat-t tbody,.catalogue table.cat-t tr,.catalogue table.cat-t td{display:block;width:auto}
+ .catalogue table.cat-t thead,.catalogue table.cat-t colgroup{display:none}
+ .catalogue table.cat-t tr{padding:10px 0;border-bottom:1px solid var(--line)}
+ .catalogue table.cat-t td{border:0;padding:2px 0}
+}
+/* titres de la page Domaines en lien vers la page du domaine (8 novembre 2026) */
+.dom h2 a.vers-dom{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line-fort)}
+.dom h2 a.vers-dom:hover{border-bottom-color:var(--ink)}
+.dom h2 a.vers-dom span{font-family:var(--sans)}
+.dom .vers-catalogue{font-size:var(--t-note);margin:0 0 8px;text-align:left}
+/* pages de thème (navigation, étape 2, 8 novembre 2026) */
+main.theme .th-compte{font-size:var(--t-note);color:var(--muted);margin:0 0 24px;text-align:left}
+main.theme .sans-coupure{white-space:nowrap}
+main.theme .th-grille{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:48px;align-items:start}
+main.theme .th-bloc{padding-top:14px;border-top:1px solid var(--line-fort);margin-bottom:32px}
+main.theme .th-bloc h2{font-family:var(--serif);font-weight:400;font-size:var(--t-encadre);margin:0 0 10px}
+main.theme .th-liste{list-style:none;margin:0;padding:0;text-align:left}
+main.theme .th-liste li{padding:8px 0;border-bottom:1px solid var(--line)}
+main.theme .th-liste li span{display:block;font-size:var(--t-note);color:var(--muted)}
+main.theme .th-question{padding-top:16px;border-top:1px solid var(--line-fort);margin:16px 0 40px}
+@media (max-width:900px){main.theme .th-grille{grid-template-columns:minmax(0,1fr);gap:0}}
+
+/* recherche de l'en-tête (navigation, étape 2, validée par Lucas le 8 novembre 2026, prototypes/nav_etape2/) */
+nav.site .chercher{font:inherit;font-size:var(--t-note,.875rem);background:none;border:0;border-bottom:1px solid var(--line-fort,#5A606C);color:var(--ink);padding:4px 0;cursor:pointer;min-height:32px}
+nav.site .chercher::before{content:"";display:inline-block;width:9px;height:9px;border:1.5px solid currentColor;border-radius:50%;margin-right:7px;vertical-align:-1px}
+nav.site .chercher[aria-expanded="true"]{border-bottom-color:var(--ink)}
+.visuel-cache{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* lien « Aller au contenu », visible seulement au clavier (audit du 8 novembre 2026) */
+.aller-contenu:focus{position:fixed;left:8px;top:8px;width:auto;height:auto;clip:auto;z-index:1000;padding:8px 12px;background:var(--panel,#fff);color:var(--ink,#1C2028);border:2px solid var(--focus,#1C2028);white-space:normal}
+.panneau-recherche{max-width:var(--largeur-page,1264px);margin:0 auto;padding:0 var(--marge,32px) 28px}
+.panneau-recherche input{width:100%;font:inherit;font-size:var(--t-texte);padding:12px 14px;border:1px solid var(--ink);border-radius:2px;background:var(--bg);color:var(--ink)}
+.panneau-recherche .aide-recherche{font-size:var(--t-note);color:var(--muted);margin:6px 0 0;text-align:left}
+.panneau-recherche .groupes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;margin-top:18px}
+.panneau-recherche h3{font-family:var(--sans);font-size:var(--t-note);font-weight:500;color:var(--muted);margin:0 0 6px;padding-bottom:6px;border-bottom:1px solid var(--line-fort)}
+.panneau-recherche ul{list-style:none;margin:0;padding:0;text-align:left}
+.panneau-recherche li{padding:7px 0;border-bottom:1px solid var(--line)}
+.panneau-recherche li span{display:block;color:var(--muted);font-size:var(--t-note)}
+.panneau-recherche .vide{font-size:var(--t-note);color:var(--muted);margin:14px 0 0;text-align:left}
+.panneau-recherche .reponse{margin-top:18px;padding:14px 0 16px;border-top:2px solid var(--ink);border-bottom:1px solid var(--line-fort);display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:24px;align-items:start;text-align:left}
+.panneau-recherche .reponse .n{font-family:var(--serif);font-size:var(--t-section);line-height:1;grid-row:1 / span 4}
+.panneau-recherche .reponse .t{font-size:var(--t-texte);line-height:1.4}
+.panneau-recherche .reponse .r,.panneau-recherche .reponse .s{font-size:var(--t-note);color:var(--muted);margin-top:4px}
+.panneau-recherche .reponse .l{font-size:var(--t-note);display:flex;gap:6px 18px;flex-wrap:wrap;margin-top:8px}
+@media (max-width:1000px){.panneau-recherche .groupes{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:640px){.panneau-recherche .groupes{grid-template-columns:minmax(0,1fr)}.panneau-recherche{padding:0 16px 24px}}

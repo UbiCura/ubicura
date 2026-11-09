@@ -139,6 +139,18 @@ def _cadre(tmp: Path, largeur: int, hauteur: int, recopier: str, ancre: str = ""
     return c
 
 
+def _effacer(f: Path) -> None:
+    """Efface une page temporaire. Edge la tient parfois encore un instant après sa fermeture (WinError 32, contrôle
+    du 8 novembre 2026) : on réessaie, puis on la laisse, son nom commence par « _ » et elle n'est jamais publiée."""
+    import time
+    for k in range(10):
+        try:
+            f.unlink(missing_ok=True)
+            return
+        except PermissionError:
+            time.sleep(0.5 * (k + 1))
+
+
 def controler(site: Path, page: str, exe: str, serveur, largeur: int, hauteur: int, theme: str | None = None,
               suffixe: str = "") -> dict:
     """Résultat du contrôle d'une page à une largeur, lu dans la page elle-même (outils/controle_finition.js). suffixe
@@ -172,10 +184,8 @@ def controler(site: Path, page: str, exe: str, serveur, largeur: int, hauteur: i
         import html as h
         return json.loads(h.unescape(m[-1]))
     finally:
-        tmp.unlink(missing_ok=True)
-        cadre.unlink(missing_ok=True)
-        if theme == "papier":
-            (site / papier_css).unlink(missing_ok=True)
+        for f in (tmp, cadre) + ((site / papier_css,) if theme == "papier" else ()):
+            _effacer(f)
 
 
 def defilements_ordinateur(r: dict, largeur: str) -> list[str]:

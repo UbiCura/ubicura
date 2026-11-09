@@ -17,13 +17,14 @@
 <script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("fond")||"{{ presentation.fond|default('light') }}")}catch(e){document.documentElement.setAttribute("data-theme","{{ presentation.fond|default('light') }}")}</script>
 </head>
 <body>
+<a class="visuel-cache aller-contenu" href="#contenu">Aller au contenu</a>
 {% include "nav.html" %}
-<main class="{{ classe_main|default('') }}" data-citation-page="{{ citation_auteur }} ({{ annee_version }}). {{ titre }}. {{ nom_projet }}, version du {{ date_longue }}" data-adresse="{{ adresse_site }}">
+<main id="contenu" class="{{ classe_main|default('') }}" data-citation-page="{{ citation_auteur }} ({{ annee_version }}). {{ titre }}. {{ nom_projet }}, version du {{ date_longue }}" data-adresse="{{ adresse_site }}">
 {% block contenu %}{% endblock %}
 <footer>
   {{ date_calcul|default('Données du ' ~ date_longue) }}. Sources, répertoire RPPS, FINESS, Répertoire opérationnel des ressources, INSEE (dont Sirene), Assurance Maladie, CAF, Santé publique France, DREES, HAS, IGN (voir <a href="{{ racine }}methode.html">Méthode, données et limites</a>).
   {{ licences }}
-  <p class="pied-liens"><a href="{{ racine }}{{ page_atlas|default('atlas.html') }}">Atlas</a> <a href="{{ racine }}explorer.html">Explorer</a> <a href="{{ racine }}rapports.html">Rapports</a> <a href="{{ racine }}publications.html">Publications</a> <a href="{{ racine }}donnees-sources.html">Données sources</a> <a href="{{ racine }}journal.html">Journal des mises à jour</a> <a href="{{ racine }}a-venir.html">À venir</a> <a href="{{ racine }}contribuer.html">Proposer une base de données</a> <a href="{{ racine }}a-propos.html">À propos</a></p>
+  <p class="pied-liens"><a href="{{ racine }}{{ page_atlas|default('atlas.html') }}">Atlas</a> <a href="{{ racine }}explorer.html">Explorer</a> <a href="{{ racine }}rapports.html">Rapports</a> <a href="{{ racine }}publications.html">Publications</a> <a href="{{ racine }}zone.html">Autour d’un lieu</a> <a href="{{ racine }}methode-fichiers.html">Télécharger les données</a> <a href="{{ racine }}donnees-sources.html">Sources des données</a> <a href="{{ racine }}journal.html">Journal des mises à jour</a> <a href="{{ racine }}a-venir.html">À venir</a> <a href="{{ racine }}contribuer.html">Proposer une base de données</a> <a href="{{ racine }}a-propos.html">À propos</a></p>
 </footer>
 </main>
 <script>

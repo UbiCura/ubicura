@@ -1134,7 +1134,7 @@ def construire_methode(env, commun, dernier, site_data, ddir, pages, fiches_sour
             pages.append(SITE / sortie)
 
     # données sources, une fiche par jeu
-    ctx = dict(commun, racine="", page="sources", titre="Données sources")
+    ctx = dict(commun, racine="", page="sources", titre="Sources des données")
     (SITE / "donnees-sources.html").write_text(rendre(env, "donnees_sources.html",
         ctx, fiches=fiches_sources), encoding="utf-8")
     pages.append(SITE / "donnees-sources.html")
@@ -1350,13 +1350,17 @@ def _css_nav() -> str:
     sans leur condition et l'atlas repliait son menu à toutes les largeurs (étape 4, 5 novembre 2026)."""
     css = (GABARITS / "style.css").read_text(encoding="utf-8")
     simples, blocs, media, prof = [], {}, None, 0
+    # la barre et le panneau de la recherche de l'en-tête (navigation, étape 2, 8 novembre 2026)
+    pref = ("nav.site", ".panneau-recherche", ".visuel-cache")
     for l in re.sub(r"/\*.*?\*/", "", css, flags=re.S).splitlines():
         s = l.strip()
-        if prof == 0 and s.startswith("@media") and s.endswith("{") and s.count("{") == 1:
+        if prof == 0 and s.startswith("@media") and s.count("{") == s.count("}") and any(x in s for x in pref):
+            simples.append(l)   # bloc @media d'une seule ligne, repris entier
+        elif prof == 0 and s.startswith("@media") and s.endswith("{") and s.count("{") == 1:
             media = s
-        elif media and l.startswith("nav.site"):
+        elif media and l.startswith(pref):
             blocs.setdefault(media, []).append(l)
-        elif prof == 0 and l.startswith("nav.site"):
+        elif prof == 0 and l.startswith(pref):
             simples.append(l)
         prof = max(0, prof + s.count("{") - s.count("}"))
         if prof == 0:

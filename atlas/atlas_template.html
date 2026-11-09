@@ -744,11 +744,14 @@ html.vue-accueil{overflow:hidden}html.vue-accueil body{background:transparent;ma
 /* dans le cadre de l'accueil, la colonne à côté de la carte s'allonge au lieu de défiler : jamais deux barres de défilement */
 .vue-accueil .grid.carte>.side>.dedans{position:static}.vue-accueil .grid.carte .defile{overflow:visible;max-height:none}
 @media (max-width:760px){.vue-accueil .grid.carte>.mapbox{order:-1}.vue-accueil .grid.carte.carte-ouverte>.voir-carte{display:none}}
+/* lien « Aller au contenu », visible seulement au clavier (audit du 8 novembre 2026) */
+.aller-contenu:focus{position:fixed;left:8px;top:8px;width:auto;height:auto;clip:auto;z-index:1000;padding:8px 12px;background:var(--panel,#fff);color:var(--ink,#1C2028);border:2px solid var(--focus,#1C2028);white-space:normal}
 </style>
 </head>
 <body>
+<a class="visuel-cache aller-contenu" href="#contenu">Aller au contenu</a>
 <!--NAV-->
-<div class="wrap">
+<div class="wrap" role="main" id="contenu">
 <header class="top">
   <div>
     <h1>Atlas de l’offre de soins</h1>
@@ -908,7 +911,7 @@ html.vue-accueil{overflow:hidden}html.vue-accueil body{background:transparent;ma
 </section>
 </div>
 <!-- pied de page commun du site, l'atlas n'en avait pas (audit du 6 novembre 2026) : les mêmes liens que base.html -->
-<footer class="pied-atlas"><p>Sources, répertoire RPPS, FINESS, Répertoire opérationnel des ressources, INSEE, Assurance Maladie, CAF, Santé publique France, DREES, HAS, IGN (voir <a href="methode.html">Méthode, données et limites</a>).</p><p class="pied-liens"><a href="atlas.html">Atlas</a> <a href="explorer.html">Explorer</a> <a href="rapports.html">Rapports</a> <a href="publications.html">Publications</a> <a href="donnees-sources.html">Données sources</a> <a href="journal.html">Journal des mises à jour</a> <a href="a-venir.html">À venir</a> <a href="contribuer.html">Proposer une base de données</a> <a href="a-propos.html">À propos</a></p></footer>
+<footer class="pied-atlas"><p>Sources, répertoire RPPS, FINESS, Répertoire opérationnel des ressources, INSEE, Assurance Maladie, CAF, Santé publique France, DREES, HAS, IGN (voir <a href="methode.html">Méthode, données et limites</a>).</p><p class="pied-liens"><a href="atlas.html">Atlas</a> <a href="explorer.html">Explorer</a> <a href="rapports.html">Rapports</a> <a href="publications.html">Publications</a> <a href="zone.html">Autour d’un lieu</a> <a href="methode-fichiers.html">Télécharger les données</a> <a href="donnees-sources.html">Sources des données</a> <a href="journal.html">Journal des mises à jour</a> <a href="a-venir.html">À venir</a> <a href="contribuer.html">Proposer une base de données</a> <a href="a-propos.html">À propos</a></p></footer>
 
 <script>/*D3*/</script>
 <script>/*TOPO*/</script>

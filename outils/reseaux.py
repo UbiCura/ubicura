@@ -9,6 +9,10 @@ donnees\\messagerie\\reseaux\\ (hors de Git).
     python outils\\reseaux.py linkedin-autoriser     autorisation de publier au nom de Lucas, valable 60 jours
     python outils\\reseaux.py verifier               état de chaque compte, sans rien publier
     python outils\\reseaux.py ajouter F              ajoute le message du fichier JSON F, après contrôle
+    python outils\\reseaux.py ajouter-serie D         ajoute à la file, dans l'ordre de leurs dates, les messages du
+                                                    dossier D (sauf le fil fil-*.json, posté à la main)
+    python outils\\reseaux.py remplacer F            remplace un message pas encore publié par celui du fichier F
+                                                    (série refaite après une édition) ; il revient à relire
     python outils\\reseaux.py apercu ID              ce qui serait envoyé à chaque réseau, sans rien envoyer
     python outils\\reseaux.py publier-programmes     publie les messages programmés par Lucas dont l'heure est passée
     python outils\\reseaux.py suivre [--essai]       abonne le compte Bluesky du projet aux comptes cochés par Lucas
@@ -64,6 +68,11 @@ DOSSIER = config.DONNEES / "messagerie" / "reseaux"
 MESSAGES, FIGURES = DOSSIER / "messages", DOSSIER / "figures"
 JOURNAL_PUBLICATIONS = DOSSIER / "journal_publications.csv"
 ETAT = DOSSIER / "etat.json"
+# version des chiffres en ligne, tenue par la chaîne de publication (outils/publier.ps1)
+PUBLICATION = config.DONNEES / "publication.json"
+# un message programmé qui n'est pas parti dans ce délai revient à relire (ordinateur éteint, réseau coupé) : un message
+# de 9 h 30 ne part pas au milieu de la nuit sans que Lucas l'ait revu (note du 8 novembre 2026)
+DELAI_DEPART = 6
 RESEAUX = {"linkedin": "LinkedIn", "bluesky": "Bluesky"}
 STATUTS = ("a_relire", "plus_tard", "programme", "publie", "ecarte")
 CHAMPS = {"id", "titre", "motif", "linkedin", "bluesky", "lien", "figure", "alt", "sources", "reseaux", "envoi_prevu",
@@ -220,7 +229,7 @@ def controler_message(m: dict) -> list[str]:
     if not re.fullmatch(r"[a-z0-9][a-z0-9-]{2,80}", str(m.get("id", ""))):
         erreurs.append("id en minuscules, chiffres et tirets")
     inconnus = set(m) - CHAMPS - {"statut", "cree_le", "modifie_le", "programme_le", "empreinte_validee",
-                                  "publications", "valide_le"}
+                                  "publications", "valide_le", "retour", "remplace_le"}
     if inconnus:
         erreurs.append(f"champs inconnus {sorted(inconnus)}")
     for champ in ("titre", "motif", "lien", "alt"):
@@ -485,26 +494,78 @@ def valider(m: dict) -> None:
 def programmer(m: dict, quand: dt.datetime) -> str:
     """Programme la publication, seulement depuis le bouton « Publier » de la fenêtre et sa confirmation."""
     valider(m)
+    m.pop("retour", None)
     m.update(statut="programme", envoi_prevu=quand.strftime("%Y-%m-%dT%H:%M"), programme_le=maintenant())
     enregistrer(m)
     return f"Publication programmée le {quand.strftime('%d/%m/%Y à %H:%M')}."
 
 
-def publier_programmes(publieurs=None) -> int:
-    """Publie les messages programmés dont l'heure est passée. Un message changé depuis le clic (texte, réseaux,
-    texte de remplacement, figure) n'est jamais publié, il revient à relire. Codes 0 rien à faire ou tout publié,
-    20 au moins un échec (le message reste programmé et sera retenté)."""
+def version_en_ligne() -> str | None:
+    """Version des chiffres du site en ligne (« 2026-11-07 »), lue dans donnees/publication.json."""
+    return (lire_json(PUBLICATION) or {}).get("version")
+
+
+def retour(m: dict, motif: str) -> None:
+    """Remet un message programmé à relire, sans publication, avec le motif montré dans l'onglet « Réseaux »."""
+    m.update(statut="a_relire", modifie_le=maintenant(), retour=motif)
+    enregistrer(m)
+    print(f"{m['id']} remis à relire sans publication, {motif}.")
+
+
+def programmables(debut: dt.datetime, fin: dt.datetime) -> list[dict]:
+    """Messages à relire dont la date proposée tombe entre debut et fin, sans erreur, dans l'ordre des dates : ceux que
+    le bouton « Programmer les sept prochains jours » propose de valider ensemble."""
+    out = []
+    for m in messages():
+        q = lire_date(m.get("envoi_prevu"))
+        if m.get("statut") == "a_relire" and q and debut < q <= fin and not controler_message(m):
+            out.append((q, m))
+    return [m for _q, m in sorted(out, key=lambda x: x[0])]
+
+
+def remplacer(m_neuf: dict) -> str:
+    """Remplace un message pas encore publié (série refaite après une édition) : textes, figure, texte de
+    remplacement, sources, réseaux, date et version. Il revient à relire et toute programmation est annulée. Un message
+    déjà publié, même sur un seul réseau, se corrige par un nouveau message."""
+    erreurs = controler_message(m_neuf)
+    if erreurs:
+        raise Arret("message refusé, " + " ; ".join(erreurs))
+    ancien = lire_json(MESSAGES / f"{m_neuf['id']}.json")
+    if not ancien:
+        raise Arret(f"aucun message {m_neuf['id']} à remplacer, l'ajouter d'abord.")
+    if ancien.get("publications") or ancien.get("statut") == "publie":
+        raise Arret(f"le message {m_neuf['id']} est déjà publié, il se corrige par un nouveau message.")
+    FIGURES.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(chemin_figure(m_neuf), FIGURES / f"{m_neuf['id']}.png")
+    m = {"sources": [], **m_neuf, "figure": f"{m_neuf['id']}.png", "statut": "a_relire", "cree_le": ancien.get("cree_le"),
+         "modifie_le": maintenant(), "remplace_le": maintenant(), "publications": {}}
+    enregistrer(m)
+    return f"Message {m['id']} remplacé, à relire dans l'onglet « Réseaux » de la fenêtre du courrier."
+
+
+def publier_programmes(publieurs=None, maintenant_=None) -> int:
+    """Publie les messages programmés dont l'heure est passée. Ne publie jamais et remet à relire :
+    - un message changé depuis le clic (texte, réseaux, texte de remplacement, figure) ;
+    - un message dont les chiffres viennent d'une version plus ancienne que celle en ligne (champ « donnees ») ;
+    - un message qui n'est pas parti dans les six heures suivant son heure.
+    Codes 0 rien à faire ou tout publié, 20 au moins un échec (le message reste programmé et sera retenté)."""
     code = 0
+    ici = maintenant_ or dt.datetime.now()
+    en_ligne = version_en_ligne()
     for m in messages():
         if m.get("statut") != "programme":
             continue
         quand = lire_date(m.get("envoi_prevu"))
-        if quand is None or quand > dt.datetime.now():
+        if quand is None or quand > ici:
             continue
         if m.get("empreinte_validee") != empreinte(m):
-            m.update(statut="a_relire", modifie_le=maintenant())
-            enregistrer(m)
-            print(f"{m['id']} modifié depuis la programmation, remis à relire sans publication.")
+            retour(m, "modifié depuis la programmation")
+            continue
+        if m.get("donnees") and en_ligne and m["donnees"] < en_ligne:
+            retour(m, f"chiffres de la version du {m['donnees']}, plus ancienne que celle en ligne ({en_ligne})")
+            continue
+        if ici - quand > dt.timedelta(hours=DELAI_DEPART):
+            retour(m, f"non parti à l'heure (prévu le {quand.strftime('%d/%m/%Y à %H:%M')})")
             continue
         try:
             print(publier(m, publieurs))
@@ -855,6 +916,33 @@ def cmd_ajouter(args) -> int:
     return 0
 
 
+def cmd_ajouter_serie(args) -> int:
+    """Charge une série préparée dans la file, dans l'ordre de ses dates, sans rien publier ni programmer. Le fil de
+    présentation (fil-*.json) se poste à la main, en réponses enchaînées."""
+    fichiers = [f for f in Path(args.dossier).glob("*.json") if not f.name.startswith("fil-")]
+    ms = sorted(((json.loads(f.read_text(encoding="utf-8")), f) for f in fichiers),
+                key=lambda x: (x[0].get("envoi_prevu") or "9999", x[0].get("id", "")))
+    ajoutes, deja, refus = 0, 0, []
+    for m, f in ms:
+        if (MESSAGES / f"{m.get('id')}.json").exists():
+            deja += 1
+            continue
+        try:
+            cmd_ajouter(argparse.Namespace(fichier=str(f)))
+            ajoutes += 1
+        except Arret as e:
+            refus.append(f"{f.name} : {e}")
+    print(f"{ajoutes} message(s) ajouté(s) à la file, {deja} déjà présent(s), {len(refus)} refusé(s).")
+    for x in refus:
+        print("  " + x)
+    return 20 if refus else 0
+
+
+def cmd_remplacer(args) -> int:
+    print(remplacer(json.loads(Path(args.fichier).read_text(encoding="utf-8"))))
+    return 0
+
+
 def cmd_apercu(args) -> int:
     m = lire_json(MESSAGES / f"{args.id}.json") or lire_json(Path(args.id))
     if not m:
@@ -1173,6 +1261,8 @@ def onglet(onglets, racine, c: dict, police, petite, zone_texte, remplir) -> dic
             texte += f"\nDéjà publié sur {', '.join(deja)}, ce réseau ne le recevra pas une seconde fois."
         if m.get("statut") == "plus_tard":
             texte += "\nGardé pour plus tard."
+        if m.get("statut") == "a_relire" and m.get("retour"):
+            texte += f"\nRevenu à relire sans publication : {m['retour']}."
         if m.get("statut") == "programme":
             texte += f"\nPublication programmée le {date_affichee(m).replace(' ', ' à ')}, validée par ton clic."
         elif m.get("envoi_prevu"):
@@ -1195,7 +1285,8 @@ def onglet(onglets, racine, c: dict, police, petite, zone_texte, remplir) -> dic
         liste.delete(*liste.get_children())
         for m in a_relire():
             tete = ("◷ " if m["statut"] == "plus_tard" else
-                    f"⏲ {date_affichee(m)} " if m["statut"] == "programme" else "")
+                    f"⏲ {date_affichee(m)} " if m["statut"] == "programme" else
+                    f"{date_affichee(m)[:5]} " if m.get("envoi_prevu") else "")
             liste.insert("", "end", iid=m["id"], values=(tete + m["titre"],))
         enfants = liste.get_children()
         if enfants:
@@ -1276,6 +1367,36 @@ def onglet(onglets, racine, c: dict, police, petite, zone_texte, remplir) -> dic
         messagebox.showinfo("Message publié", texte, parent=racine)
 
     ttk.Button(boutons, text="Publier", style="Envoyer.TButton", command=cliquer_publier).pack(side="left")
+    def programmer_semaine():
+        """Valide d'un clic les messages à relire des sept prochains jours, chacun à sa date proposée, après une
+        confirmation qui les liste tous (demande de Lucas du 8 novembre 2026, 75 messages)."""
+        garder()
+        ici = dt.datetime.now()
+        ms = programmables(ici, ici + dt.timedelta(days=7))
+        if not ms:
+            messagebox.showinfo("Rien à programmer", "Aucun message à relire n'est prévu dans les sept prochains "
+                                "jours.", parent=racine)
+            return
+        relies = etat_comptes()
+        absents = sorted({relies[r][1] for m in ms for r in m["reseaux"] if not relies[r][0]})
+        if absents:
+            messagebox.showerror("Compte non relié", "Rien n'est programmé.\n\n" + "\n".join(absents), parent=racine)
+            return
+        liste_txt = "\n".join(f"{lire_date(m['envoi_prevu']).strftime('%d/%m %H:%M')}  {m['titre']}" for m in ms)
+        if not messagebox.askyesno("Programmer ces messages ?",
+                                   f"Programmer ces {len(ms)} message(s), chacun à sa date ?\n\n{liste_txt}\n\n"
+                                   "Relis-les d'abord dans la liste. Un changement du texte, de la figure ou des "
+                                   "réseaux avant l'heure annule la programmation de ce message.", icon="question",
+                                   default="no", parent=racine):
+            return
+        for m in ms:
+            programmer(m, lire_date(m["envoi_prevu"]))
+        etat["courant"] = None
+        rafraichir()
+        messagebox.showinfo("Messages programmés", f"{len(ms)} message(s) programmé(s).", parent=racine)
+
+    ttk.Button(boutons, text="Programmer les sept prochains jours", command=programmer_semaine).pack(
+        side="left", padx=(10, 0))
     ttk.Button(boutons, text="Garder pour plus tard", command=lambda: changer_statut("plus_tard")).pack(
         side="left", padx=(10, 0))
     ttk.Button(boutons, text="Écarter", command=lambda: changer_statut("ecarte")).pack(side="left", padx=(10, 0))
@@ -1308,6 +1429,12 @@ def main() -> int:
     p = sous.add_parser("ajouter")
     p.add_argument("fichier")
     p.set_defaults(f=cmd_ajouter)
+    p = sous.add_parser("ajouter-serie")
+    p.add_argument("dossier")
+    p.set_defaults(f=cmd_ajouter_serie)
+    p = sous.add_parser("remplacer")
+    p.add_argument("fichier")
+    p.set_defaults(f=cmd_remplacer)
     p = sous.add_parser("apercu")
     p.add_argument("id")
     p.set_defaults(f=cmd_apercu)

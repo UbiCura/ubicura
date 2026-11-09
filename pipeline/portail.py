@@ -10,6 +10,7 @@ import shutil
 from pathlib import Path
 
 from . import config, domaines as D
+from . import themes as TH
 from .fiche_territoire import FINE, annee_source, nombre
 
 NIVEAUX = ("reg", "dep", "epci")
@@ -62,10 +63,47 @@ def recherche(site_data: dict, dernier: Path, brut: Path, fiches: dict | None = 
             if c.get("type") != "commune-actuelle" or not epci_de.get(c["code"]):
                 continue
             cps = c.get("codesPostaux") or []
-            communes.append([c["code"], c["nom"], " ".join(cps[:3]), int(c.get("population") or 0), epci_de[c["code"]]])
+            communes.append([c["code"], c["nom"], " ".join(cps), int(c.get("population") or 0), epci_de[c["code"]]])
     inds = [[i["id"], i["label"], D.PAR_ID[i["domaine"]]["nom"], i["domaine"], (fiches or {}).get(i["id"], "")]
             for i in catalogue(site_data) if i.get("label")]
     return {"territoires": terr, "communes": communes, "indicateurs": inds}
+
+
+def pages_recherche(site: Path) -> list[list[str]]:
+    """Pages, outils, thèmes et questions que la recherche de l'en-tête propose (navigation, étape 2, 8 novembre 2026) :
+    [titre, adresse depuis la racine, genre, précision]. Les questions d'Explorer sont lues sur sa page construite, celles
+    des pages de l'offre sur pages_domaine.QUESTIONS, les thèmes sur themes.THEMES : rien n'est recopié à la main."""
+    import re
+    from . import pages_domaine as PD, themes as TH
+    out = [["Autour d’un lieu", "zone.html", "outil", "les habitants et les structures de soins dans un rayon autour d’une commune"],
+           ["Comparer des territoires", "comparer.html", "outil", "deux à quatre territoires côte à côte"],
+           ["Croiser deux indicateurs", "croiser.html", "outil", "tout indicateur contre tout autre"],
+           ["Explorer", "explorer.html", "outil", "les questions des rapports en figures réglables"],
+           ["Atlas", "atlas.html", "outil", "la carte de chaque profession et le profil de chaque territoire"],
+           ["Indicateurs", "indicateurs.html", "page", "tous les indicateurs, avec la recherche et les filtres"],
+           ["Territoires", "territoires/index.html", "page", "les fiches et les rapports de chaque territoire"],
+           ["Rapports nationaux", "rapports.html", "page", "santé mentale et santé, archivés avec leur DOI"],
+           ["Télécharger les données", "methode-fichiers.html", "page", "les fichiers, leur dictionnaire et leur licence"],
+           ["Sources des données", "donnees-sources.html", "page", "chaque jeu de données, son producteur et sa date"],
+           ["Méthode et données", "methode.html", "page", "d’où viennent les chiffres et ce qu’ils ne disent pas"]]
+    for th in TH.THEMES:
+        if not th.get("a_venir"):
+            out.append([th["nom"], th.get("page") or f"theme/{TH.slug(th['id'])}.html", "thème", "indicateurs de plusieurs domaines"])
+    ex = site / "explorer.html"
+    if ex.exists():
+        # chaque question d'Explorer, avec l'ancre de sa section ou, à défaut, celle de sa première fenêtre (« Les
+        # départements modestes rattrapent-ils leur retard depuis 2016 ? », les trajectoires, n'avait pas d'ancre)
+        for sec in re.findall(r"<section[^>]*class=\"question\"[\s\S]*?(?=<section[^>]*class=\"question\"|$)", ex.read_text(encoding="utf-8")):
+            h2 = re.search(r"<h2[^>]*>(.*?)</h2>", sec, flags=re.S)
+            ancre = re.search(r'<section[^>]*id="([^"]+)"', sec) or re.search(r'<article[^>]*id="([^"]+)"', sec)
+            if h2 and ancre:
+                out.append([re.sub(r"<[^>]+>", "", h2.group(1)).strip(), f"explorer.html#{ancre.group(1)}", "question",
+                            "Explorer, figure réglable"])
+    for cle, page in (("sm", "domaine/sante-mentale.html"), ("sante", "domaine/sante.html")):
+        for k, q in enumerate(PD.QUESTIONS[cle]):
+            out.append([q[0].replace("\u2060", ""), f"{page}#q{k + 1}", "question",
+                        "santé mentale" if cle == "sm" else "santé"])
+    return out
 
 
 def glossaire(site_data: dict, sigles: Path) -> dict:
@@ -149,13 +187,22 @@ def construire(env, commun: dict, dernier: Path, site_data: dict, site: Path, ga
     from . import fiche_indicateur
     p_ind, fiches = fiche_indicateur.construire(env, commun, A, site_data, dernier, site, doi_cite("donnees", dernier.name))
     pages += p_ind
-    (dossier / "recherche.json").write_text(json.dumps(recherche(site_data, dernier, config.BRUT, fiches), ensure_ascii=False,
-                                                       separators=(",", ":")), encoding="utf-8")
+    donnees_r = recherche(site_data, dernier, config.BRUT, fiches)
+    donnees_r["pages"] = pages_recherche(site)
+    (dossier / "recherche.json").write_text(json.dumps(donnees_r, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
+    # réponses directes de la recherche de l'en-tête, un fichier par territoire, chiffres de la règle d'affichage unique
+    from . import reponses
+    reponses.ecrire(site_data, dernier, site)
     for i in cat:
         i["fiche"] = fiches.get(i["id"], "")
+    # page « Indicateurs », fabriquée depuis le catalogue unique (navigation, étape 2, 8 novembre 2026)
+    from . import page_indicateurs
+    pages += page_indicateurs.construire(env, commun, site_data, dernier, site, A, fiches)
     # pages par domaine, la santé mentale et la santé au centre, les sept domaines autour
     from . import pages_domaine
     pages += pages_domaine.construire(env, commun, A, site_data, dernier, site, registre, doi_cite("donnees", dernier.name), fiches)
+    # pages des thèmes transversaux (navigation, étape 2, 8 novembre 2026)
+    pages += pages_domaine.construire_themes(env, commun, site_data, dernier, site, A, fiches, doi_cite("donnees", dernier.name))
     ctx = dict(commun, racine="", page="accueil", tuiles=tuiles, nationaux=chiffres_nationaux(site_data, dernier),
                part_sans_psychiatre=(nombre(part * 100, "distance") + FINE + "%") if part else None,
                n_sm=nsm, n_total=len(cat), ajouts=derniers_ajouts(config.RACINE / "contenus" / "journal_resume.csv"),
@@ -173,6 +220,7 @@ def construire(env, commun: dict, dernier: Path, site_data: dict, site: Path, ga
     (site / "domaines.html").write_text(env.get_template("domaines.html").render(
         dict(commun, racine="", page="domaines", titre="L’offre de soins au centre, sept domaines autour",
              classe_main="domaines", domaines=doms, schema=schema(tuiles), n_sm=nsm,
+             themes=[dict(x, slug=TH.slug(x["id"])) for x in TH.THEMES],
              doi=doi_cite("donnees", dernier.name))), encoding="utf-8")
     pages.append(site / "domaines.html")
     (site / "croiser.html").write_text(env.get_template("croiser.html").render(
