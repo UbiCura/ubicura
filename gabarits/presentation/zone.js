@@ -145,8 +145,10 @@
       });
     });
     if (!P) s += '<circle class="cercle" cx="' + W / 2 + '" cy="' + H / 2 + '" r="' + (R * sc).toFixed(1) + '"/>';
+    var places = [];   // points posés, qu'aucun nom ne doit couvrir (relecture du 11 novembre 2026, Rodez et Olemps)
     pts.forEach(function (p) {
       var st = p[0], X = px(st[2]), Y = py(st[3]); if (X < 0 || X > W || Y < 0 || Y > H) return;
+      places.push({g: X - 6, d: X + 6, h: Y - 6, bas: Y + 6});
       var hors = P && !dans[st[5]] ? " hors" : "", t = "<title>" + esc(Z.types[st[0]]) + ", " + esc(st[1]) + ", " + Chiffres.fmt(p[1], "distance") + " km" + (st[6] ? ", placée au centre de sa commune" : "") + "</title>";
       if (st[4] === "c") s += '<circle class="st c' + hors + '" cx="' + X.toFixed(1) + '" cy="' + Y.toFixed(1) + '" r="5">' + t + "</circle>";
       else if (st[4] === "v") s += '<circle class="st v' + hors + '" cx="' + X.toFixed(1) + '" cy="' + Y.toFixed(1) + '" r="4.5">' + t + "</circle>";
@@ -158,18 +160,21 @@
     // un nom ne chevauche jamais un autre : essayé au-dessus du point, puis au-dessous, sinon laissé de côté (le
     // lieu choisi d'abord, puis par population). Taille des noms de la feuille de style, 17 sur téléphone, 11 sinon
     // (contrôle de mise en page du 7 novembre 2026, Rodez, Onet-le-Château et Olemps sur téléphone)
-    var fsN = matchMedia("(max-width:640px)").matches ? 17 : 11, poses = [];
+    var fsN = matchMedia("(max-width:640px)").matches ? 17 : 11, poses = places.slice();
+    var repere = !P ? {g: W / 2 - 7, d: W / 2 + 7, h: H / 2 - 7, bas: H / 2 + 7} : null;
     // la mention du rayon (« 20 km »), écrite plus bas, garde sa place
     if (!P) { var xe = W / 2 + R * sc - 4, le = (R + " km").length * fsN * 0.6 + 6; poses.push({g: xe - le - 2, d: xe + 2, h: H / 2 - 8 - fsN, bas: H / 2 - 5}); }
     noms.forEach(function (x) {
       var X = px(x[6]), a = X < 90 ? "start" : X > W - 90 ? "end" : "middle";
       if (a === "start") X = Math.max(X, 6); if (a === "end") X = Math.min(X, W - 6);
       var l = x[1].length * fsN * 0.6 + 6, g = a === "start" ? X : a === "end" ? X - l : X - l / 2;
-      var essais = [Math.max(fsN + 3, py(x[7]) - 9), Math.min(H - 4, py(x[7]) + fsN + 7)], Y = null;
+      var y0 = py(x[7]), essais = [y0 - 9, y0 + fsN + 7, y0 - 9 - fsN - 6, y0 + 2 * fsN + 13, y0 - 9 - 2 * (fsN + 6)]
+        .map(function (y) { return Math.min(H - 4, Math.max(fsN + 3, y)); }), Y = null;
+      var autres = x === com || !repere ? poses : poses.concat([repere]);
       essais.forEach(function (y) {
         if (Y !== null) return;
         var b = {g: g - 2, d: g + l + 2, h: y - fsN, bas: y + 3};
-        if (!poses.some(function (o) { return b.g < o.d && o.g < b.d && b.h < o.bas && o.h < b.bas; })) { Y = y; poses.push(b); }
+        if (!autres.some(function (o) { return b.g < o.d && o.g < b.d && b.h < o.bas && o.h < b.bas; })) { Y = y; poses.push(b); }
       });
       if (Y === null) return;
       s += '<text class="nom-com" x="' + X.toFixed(1) + '" y="' + Y.toFixed(1) + '" text-anchor="' + a + '">' + esc(x[1]) + "</text>";

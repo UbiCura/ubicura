@@ -20,7 +20,7 @@
 {#- le menu en bout de ligne : « Pourquoi on le dit », la carte de la ligne, « Copier la phrase », « Citer et exporter »,
     « Signaler une erreur » -#}
 {% macro menu(l) -%}
-<details class="menu-ligne seul-ecran"><summary aria-label="Plus sur cette ligne : {{ l.lib }}"><span aria-hidden="true"></span></summary>
+<details class="menu-ligne seul-ecran"><summary aria-label="Plus sur cette ligne : {{ l.titre or l.lib }}"><span aria-hidden="true"></span></summary>
   <div class="menu-corps">
     {%- if l.k %}
     <p class="menu-constat">{{ l.k.titre }}</p>
@@ -42,7 +42,7 @@
     depuis 2016 ; menu -#}
 {% macro ligne(l, g, ns, lvt='') -%}
 {%- set dep = (l.echelle == 'dep' or l.code == 'departement') -%}
-<tr{% if l.sous %} class="sous"{% endif %}{% if l.ancre %} id="{{ l.ancre }}"{% endif %}{% if l.id %} data-ind="{{ l.id }}"{% endif %}{% if l.lv %} data-niv="{{ l.lv }}:{{ l.code or '' }}"{% endif %} data-titre="{{ l.lib }}">
+<tr{% if l.sous %} class="sous"{% endif %}{% if l.ancre %} id="{{ l.ancre }}"{% endif %}{% if l.id %} data-ind="{{ l.id }}"{% endif %}{% if l.lv %} data-niv="{{ l.lv }}:{{ l.code or '' }}"{% endif %} data-titre="{{ l.titre or l.lib }}">
   {%- set suite = limite_ligne(l, ns)|trim -%}
   <th scope="row"><span class="nom-ligne">{{ l.lib }}{{ signal(l) }}</span>{% if dep and f.niveau != 'dep' %}<span class="etiq">donnée du département{% if f.parent and f.niveau == 'epci' %}, {{ f.parent }}{% endif %}</span>{% endif %}{% if l.precision %}<span class="note">{{ l.precision }}.</span>{% endif %}{% if l.k and not l.phrase_visible %}<span class="lecteur">{{ l.k.phrase }}</span>{% endif %}</th>
   {%- if g.avec_eff %}
@@ -72,7 +72,7 @@
 {#- sous la ligne, sur toute la largeur : sa définition, sa limite en une ligne, et la phrase rédigée des indicateurs
     des tuiles -#}
 {%- if suite or l.defn or l.phrase_visible or l.zero %}
-<tr class="suite-ligne"><td colspan="9">{% if l.zero %}<span class="note">{{ 'Aucun inscrit' if (l.kind or '') == 'prof' else 'Aucune structure' }}, comme dans {{ l.zero }} des {{ niv if l.lv == f.niveau else 'départements' }}.</span>{% endif %}{% if l.defn %}<span class="note defn">{{ l.defn }}</span>{% endif %}{{ suite|safe }}{% if l.phrase_visible %}<p class="phrase-tuile">{{ l.k.phrase }}</p>{% endif %}</td></tr>
+<tr class="suite-ligne"><td colspan="{{ 5 + (1 if g.avec_eff else 0) + (1 if g.evol else 0) }}">{% if l.zero %}<span class="note">{{ 'Aucun inscrit' if (l.kind or '') == 'prof' else 'Aucune structure' }}, comme dans {{ l.zero }} des {{ niv if l.lv == f.niveau else 'départements' }}.</span>{% endif %}{% if l.defn %}<span class="note defn">{{ l.defn }}</span>{% endif %}{{ suite|safe }}{% if l.phrase_visible %}<p class="phrase-tuile">{{ l.k.phrase }}</p>{% endif %}</td></tr>
 {%- endif %}
 {%- endmacro %}
 {% macro niveau_tete(lignes) -%}
@@ -104,7 +104,7 @@ Position parmi les {{ {'epci': 'intercommunalités', 'dep': 'départements', 're
 <div class="groupe" data-titre="{{ g.titre }}, {{ b.nom|lower }}">
   <div class="groupe-tete">
     <h3 id="{{ g.id }}">{{ g.titre }}{% if g.au_dep %} <span class="etiq">au département{% if f.parent %}, {{ f.parent }}{% endif %}</span>{% endif %}</h3>
-    <p class="groupe-lire"><b>Comment lire.</b> {{ g.lire }}</p>
+    <p class="groupe-lire"><b>Comment lire.</b> {{ g.lire or ("Valeur, ensemble et position parmi les " ~ f.niv_pluriel ~ ", sans couleur de jugement.") }}</p>
     {% if g.source %}<p class="source">{{ g.source }}</p>{% endif %}
     {% if g.lire_evol %}<p class="groupe-evol"><b>Depuis 2016.</b> {{ g.lire_evol }}</p>{% endif %}
     {% if g.limite %}<p class="limite"><b aria-hidden="true">!</b><span>{{ g.limite }}</span></p>{% endif %}
@@ -220,7 +220,7 @@ Position parmi les {{ {'epci': 'intercommunalités', 'dep': 'départements', 're
   {% endif %}
   {% if b.groupes or b.venir %}
   <details class="dom-corps"{% if not b.contexte %} open{% endif %}>
-    <summary class="{{ 'pli' if b.contexte else 'seul-tel' }}">{% if b.groupes %}{{ 'Le tableau' if b.contexte else 'Les tableaux' }} du domaine{% if b.contexte %}, {{ b.groupes[0].lignes|length + b.autres_n }} indicateurs{% endif %}{% else %}Les bases annoncées{% endif %}</summary>
+    <summary class="{{ 'pli' if b.contexte else 'seul-tel' }}">{% if b.groupes %}{{ 'Le tableau' if b.contexte else 'Les tableaux' }} du domaine{% if b.contexte %}, {{ b.groupes[0].lignes|rejectattr('sous')|list|length + b.autres_n }} indicateurs{% endif %}{% else %}Les bases annoncées{% endif %}</summary>
     {% if b.contexte %}
     {% for g in b.groupes %}{{ groupe(g, b) }}{% endfor %}
     {% if b.cartes %}<div class="dom-haut dom-carte">{{ carte_bloc(b) }}<div>{{ venir_liste(b.venir) }}</div></div>{% else %}{{ venir_liste(b.venir) }}{% endif %}
@@ -326,7 +326,7 @@ Position parmi les {{ {'epci': 'intercommunalités', 'dep': 'départements', 're
       <div class="pied-tete">{% if f.carte_points %}<ul class="legende-cat">
         <li><i class="pt plein"></i>confirmée</li><li><i class="pt creux"></i>à vérifier</li><li><i class="pt tirete"></i>recoupée</li><li><i class="pt objet"></i>sans source de confirmation</li>{% if f.carte_points_autour %}<li><i class="pt hors"></i>hors du territoire</li>{% endif %}
       </ul>{% elif not f.carte_outremer %}<p class="note">Aucune structure de soins psychiques n'est placée sur cette carte.</p>{% endif %}{{ (f.carte_situe or '')|safe }}</div>
-      <p class="comment-lire"><b>Comment lire.</b> Le territoire est cerné{% if f.niveau == 'epci' %}, son département est tracé d'un trait fin{% if f.carte_communes %}, les communes en fond{% endif %}{% elif f.niveau == 'dep' %}, ses intercommunalités en traits fins{% endif %}.{% if f.carte_points %} Chaque point est un lieu où des patients sont reçus ; plusieurs structures à la même adresse font un seul point, qui donne leurs noms au survol. Confirmée, d'après la liste de l'établissement, une autre source publique, la HAS ou Sirene ; « recoupée » quand la statistique annuelle des établissements confirme leur nombre, pas leur adresse.{% endif %} La petite France situe la carte.</p>
+      <p class="comment-lire"><b>Comment lire.</b> Le territoire est cerné{% if f.niveau == 'epci' %}, son département est tracé d'un trait fin{% if f.carte_communes %}, les communes en fond{% endif %}{% elif f.niveau == 'dep' %}, ses intercommunalités en traits fins{% endif %}.{% if f.carte_points %} Chaque point est un lieu où des patients sont reçus ; plusieurs structures à la même adresse font un seul point, qui donne leurs noms au survol. Confirmée, d'après la liste de l'établissement, une autre source publique, la HAS ou Sirene ; « recoupée » quand la statistique annuelle des établissements confirme leur nombre, pas leur adresse.{% endif %}{% if f.carte_situe %} La petite France situe la carte.{% endif %}</p>
       <p class="source">Sources : FINESS et Répertoire opérationnel des ressources{% if f.carte_communes %}, contours des communes ADMIN EXPRESS de l'IGN{% endif %}. Licence Ouverte 2.0.</p>
       {% if limite_sae %}<p class="limite"><b aria-hidden="true">!</b><span>{{ limite_sae }}</span></p>{% endif %}
       <p class="limite"><b aria-hidden="true">!</b><span>{{ f.reserves_structures[0] }}</span></p>
@@ -411,7 +411,7 @@ Position parmi les {{ {'epci': 'intercommunalités', 'dep': 'départements', 're
 {#- les bandes de domaine -#}
 {% for b in bandes %}
 {% if b.contexte and loop.index0 == 2 %}
-{% set n_ind = f.autour|sum(attribute='rows', start=[])|length %}
+{% set n_ind = f.autour|sum(attribute='rows', start=[])|rejectattr('sous')|list|length %}
 <p class="intro-contexte"><b>Le contexte, en sept domaines.</b> {{ n_ind|nombre('entier') }} indicateurs décrivent {{ "l'intercommunalité" if f.niveau == 'epci' else ('le département' if f.niveau == 'dep' else 'la région') }}, chacun situé parmi les {{ niv }}. Ils décrivent les habitants et leur cadre de vie, sans couleur de jugement ; les indicateurs de santé mentale de ces domaines sont dans la bande Santé mentale.</p>
 {% endif %}
 {{ bande(b) }}

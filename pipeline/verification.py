@@ -112,6 +112,7 @@ def _ameli():
     yield config.BRUT / "ameli_secteurs_conventionnels.csv", _modifie(config.AMELI_SECTEURS_API), {}
     yield config.BRUT / "ameli_ald_sans_medecin_traitant.csv", _modifie(config.AMELI_ALD_API), {}
     yield config.BRUT / "ameli_honoraires.csv", _modifie(config.AMELI_HONORAIRES_API), {}
+    yield config.BRUT / "ameli_patientele.csv", _modifie(config.AMELI_PATIENTELE_API), {}
 
 
 def _ald():

@@ -6,7 +6,8 @@ licence, les niveaux, l'année, les limites, et pour une profession les différe
 citer. Valeurs relues dans les données de l'atelier (pipeline/atelier.py), elles-mêmes relues dans site_data.json, et
 dans les fichiers publiés de la version. Aucun calcul statistique nouveau, seulement des quartiles et des sommes.
 Repère, médiane et répartition viennent de la règle d'affichage unique (pipeline/affichage.py), les mêmes que la fiche
-d'un territoire, le comparateur et Croiser, sur tous les territoires du niveau, Mayotte comprise.
+d'un territoire, le comparateur et Croiser, sur tous les territoires du niveau qui ont une valeur (Mayotte comprise,
+sauf quand elle n'en a pas : population concernée, Assurance Maladie).
 """
 import csv
 import html as _html
@@ -19,6 +20,7 @@ from . import affichage as AF
 from .affichage import FINE, nombre
 from .lecture import pluriel
 from .affichage import par_habitants
+from .typographie import insecables  # espaces insécables du français, comme les autres pages (10 novembre 2026)
 
 NOMS = {"reg": ("région", "régions"), "dep": ("département", "départements"), "epci": ("intercommunalité", "intercommunalités")}
 ORDRE = ("epci", "dep", "reg")
@@ -186,6 +188,24 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
             continue
         g = T.serie(e["id"], par_niv[0]["lv"]).genre
         nature = AF.NATURE_REPERE[T.serie(e["id"], par_niv[0]["lv"]).ref_type]
+        # distance du public que sert la structure (population concernée) : le repère est la médiane de ce public, et
+        # Mayotte, sans recensement, est hors champ (contre-relecture du 10 novembre 2026, la page disait l'inverse)
+        public = e["id"].startswith("distp_")
+        if public:
+            nature = "distance médiane de ce même public dans les territoires du niveau"
+        # Mayotte comptée ou non dans le repère, lu dans les valeurs du niveau de la fiche : la patientèle des libéraux,
+        # sans Mayotte, était dite « Mayotte comprise » (relecture indépendante du 11 novembre 2026, 2.3)
+        hors_mayotte = None
+        lv0, code_m = next(((lv, c) for lv, c in (("dep", "976"), ("reg", "06"))
+                            if any(n["lv"] == lv for n in par_niv)), (None, None))
+        if code_m:
+            S0 = T.serie(e["id"], lv0)
+            k = S0.codes.index(code_m) if code_m in S0.codes else None
+            x = S0.v[k] if k is not None else None
+            if x is None or x != x:
+                hors_mayotte = ("qui n'a pas de recensement" if public else
+                                "dont le régime d'assurance maladie n'est pas comparable"
+                                if "Assurance Maladie" in (e.get("src") or "") else "sans donnée pour cet indicateur")
         fin = par_niv[0]
         limites = []
         li = _limite(sd, ("prof:" + e["prof"]) if prof else e["id"])
@@ -193,7 +213,7 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
             limites.append(li.get("texte") or li.get("court"))
         if prof:
             limites.append("Une densité de personnes ne dit ni le temps de travail, ni les délais de rendez-vous, ni le reste à charge.")
-        if mayotte.get("texte"):
+        if mayotte.get("texte") and not public:
             limites.append(mayotte["texte"])
         c = ctx.get(e["id"], {})
         # espaces insécables dans les nombres des titres (« pour 10 000 habitants » ne se coupe pas, F3)
@@ -203,7 +223,7 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
              "exp": e.get("exp") or "", "src": e.get("src") or "", "lic": e.get("lic") or "", "an": e.get("an") or "",
              "niveaux": [NOMS[lv][1] for lv in niveaux], "par_niv": par_niv, "fin": fin, "limites": limites,
              "agregation": c.get("agregation"), "fiche_source": c.get("fiche"), "grp": e.get("grp"), "g": g,
-             "nature_repere": nature}
+             "nature_repere": nature, "hors_mayotte": hors_mayotte}
         if prof:
             pid = e["prof"]
             f["n_fr"] = (sd["france"]["n"].get(pid) or [None] * 3)
@@ -242,7 +262,7 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
                                        f"doi:{doi}", f'<a href="https://doi.org/{doi}">doi:{doi}</a>') if doi
                                    else _html.escape(cit, quote=False),
                                    description=f"Fiche de l'indicateur {f['lab']}, définition, source, répartition des territoires et limites."))
-        (dossier / f"{f['slug']}.html").write_text(html, encoding="utf-8")
+        (dossier / f"{f['slug']}.html").write_text(insecables(html), encoding="utf-8")
         pages.append(dossier / f"{f['slug']}.html")
         # suffixe retiré, jamais remplacé : « prof:allergologue:all » devenait « profergologue » (8 novembre 2026)
         index[e["id"].removesuffix(":all")] = f["slug"]

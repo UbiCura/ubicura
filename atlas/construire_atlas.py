@@ -254,7 +254,9 @@ def construire(src: Path, dest: Path, nav: str = "", accueil: str = "", titre: s
                'bulle:"#cbPlot,#indPlot,#regPlot,#lorenz,#escalier,#funnel,#acpPlan,#effetVille"};')
     html = html.replace("</body>", "<script>" + reglage + fig + "</script>\n</body>", 1)
     dest.parent.mkdir(parents=True, exist_ok=True)
-    dest.write_text(html, encoding="utf-8")
+    # espaces insécables du français, comme les pages du site (contre-relecture du 10 novembre 2026)
+    from pipeline.typographie import insecables
+    dest.write_text(insecables(html), encoding="utf-8")
     return dest
 
 

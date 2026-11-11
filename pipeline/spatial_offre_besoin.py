@@ -17,7 +17,7 @@ import pandas as pd
 from scipy import stats
 
 from . import config
-from .analyses import benjamini_hochberg, tables, tirage
+from .analyses import benjamini_hochberg, p_permutations, tables, tirage
 from .util import JOURNAL, log
 
 ZONES_BIVARIEES = {"HL": "indicateur élevé, offre faible alentour", "HH": "indicateur élevé, offre élevée alentour",
@@ -46,7 +46,7 @@ def moran_bivarie(x: pd.Series, y: pd.Series, voisins: dict, permutations=999, r
         autres = np.delete(np.arange(n), i)
         tirages = np.array([rng.choice(autres, size=len(vs), replace=False) for _ in range(permutations)])
         sim = zx[i] * zy[tirages].mean(axis=1)
-        p = (np.sum(np.abs(sim) >= abs(I)) + 1) / (permutations + 1)
+        p = p_permutations(sim, I)
         out.append((c, I, p, ("H" if zx[i] > 0 else "L") + ("H" if lag > 0 else "L")))
     return pd.DataFrame(out, columns=["code", "I", "p", "type"])
 

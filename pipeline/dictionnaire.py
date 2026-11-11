@@ -575,6 +575,13 @@ COLONNES = [
     (r"^depassements_moyens$", "Dépassements moyens par libéral de la spécialité, en euros, vide sous secret statistique."),
     (r"^taux_depassement_s2$", "Dépassements des libéraux de secteur 2 en part de leurs honoraires sans dépassement, "
                                "tel que publié, vide sous secret statistique ou sans libéral de secteur 2."),
+    (r"^file_active$", "File active moyenne, nombre moyen de patients différents vus dans l'année par un libéral de la "
+                       "profession dont le cabinet principal est dans le territoire (Assurance Maladie), vide sous "
+                       "secret statistique (moins de 5 libéraux) ou sans libéral."),
+    (r"^patients_mt$", "Nombre moyen de patients qui ont déclaré le libéral comme médecin traitant (généralistes et "
+                       "pédiatres seulement), vide sinon."),
+    (r"^secret$", "Vrai quand l'Assurance Maladie ne publie pas la valeur, moins de 5 libéraux (secret statistique)."),
+    (r"^aucun$", "Vrai quand le territoire ne compte aucun libéral de la profession."),
     (r"^plus_60$", "Professionnels de 60 ans et plus (DREES)."),
     (r"^somme_tranches$", "Somme des tranches d'âge, contrôle face à l'effectif publié."),
     (r"^part_60$", "Part des professionnels de 60 ans et plus."),
@@ -792,6 +799,22 @@ def ecrire(out: Path, indicateurs=None):
         if p.name == "porte_offre.csv":
             local.update({"groupe": "Grand secteur d'exercice (libéral, hôpital public, privé, médico-social...).",
                           "classe": "Classe de densité de population de l'intercommunalité, ou Ensemble."})
+        if p.name == "population_concernee.csv":
+            desc = ("Distance à la structure de soins la plus proche, pour tous les habitants et pour le public que sert "
+                    "la structure (mères des enfants nés entre les deux derniers recensements pour la naissance et la "
+                    "petite enfance, moins de 15 ans pour l'enfance), par intercommunalité, département, région et pour "
+                    "la France, hors Mayotte, qui n'a pas de recensement.")
+            local.update({
+                "type": "Type de structure (identifiant du site, lieu_maternite, lieu_cmpp...).",
+                "public": "Identifiant du public concerné (naissances, moins_15...).",
+                "libelle_public": "Nom du public concerné, avec la période pour les naissances.",
+                "distance_mediane_km_public": "Distance médiane à vol d'oiseau du public concerné à la structure la plus "
+                                              "proche, en km, depuis le centre de sa commune (INSEE, communes).",
+                "part_plus_30_km_public": "Part du public concerné à plus de 30 km de la structure la plus proche.",
+                "part_plus_30_km": "Part des habitants à plus de 30 km de la structure la plus proche.",
+                "communes": "Nombre de communes du territoire qui comptent des habitants.",
+                "population_public": "Effectif du public concerné dans le territoire (INSEE, communes ; naissances "
+                                     "cumulées sur la période pour les mères)."})
         if p.name == "secteurs_psychiatrie.csv":
             local.update({"commune": "Code de la commune actuelle (code officiel géographique) rattachée au secteur.",
                           "type": "Type de secteur dans l'arrêté (G psychiatrie générale, I psychiatrie infanto-juvénile)."})

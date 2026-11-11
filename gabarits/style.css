@@ -1091,6 +1091,13 @@ a.vers-repliee{opacity:.7}
 .accueil .outils a.phare strong::after{content:" \2192";font-family:var(--sans)}
 @media (max-width:860px){.accueil .tete.avec-outils{grid-template-columns:minmax(0,1fr)}
   .accueil .tete.avec-outils > .outils{grid-column:1;grid-row:auto;margin-top:var(--e-4)}}
+/* sous-titre de l'accueil, dans la colonne de gauche de l'en-tête : justifié seulement quand elle fait au moins 560 px
+   ((largeur de l'en-tête - 48) x 7 / 12, soit un en-tête de 1 008 px), à gauche en dessous, comme dans toute colonne
+   étroite (règle 8 ; 523 px à 1 024 px d'écran, 10 novembre 2026) */
+.accueil .tete.avec-outils{container:tete-accueil / inline-size}
+@media screen and (min-width:861px){@container tete-accueil (max-width:1007px){
+  .accueil .tete.avec-outils > .chapeau{text-wrap:balance;text-align:left!important;hyphens:none;-webkit-hyphens:none}
+  .accueil .tete.avec-outils > :not(.outils) p{text-align:left}}}
 .accueil .portes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--e-4);padding:var(--e-4) 0 28px}
 .accueil .portes a{display:block;padding:var(--e-3) 0 0;border:0;border-top:1px solid var(--line-fort);border-radius:0;background:none;color:var(--ink);text-decoration:none;min-height:44px}
 .accueil .portes a:hover{border-top-color:var(--ink)}
@@ -1178,9 +1185,10 @@ a.vers-repliee{opacity:.7}
 @media (max-width:860px){.domaines .regles,.domaines .dom{grid-template-columns:1fr}}
 @media (max-width:640px){.domaines .modele svg{display:none}.domaines .liste-tel{display:block;list-style:none;margin:0;padding:0}.domaines .liste-tel li{padding:10px 0;border-bottom:1px solid var(--line);margin:0}.domaines .liste-tel span{display:block;font-size:var(--t-note);color:var(--muted)}}
 
-/* menu replié derrière « Menu » dès 1 000 px : entre 760 et 1 000 px, ses six entrées et « Fond sombre » passaient
-   sous le nom du site (défaut m8, 883 px) */
-@media (max-width:1000px){
+/* menu replié derrière « Menu » dès 1 120 px : entre 760 et 1 000 px, ses six entrées et « Fond sombre » passaient
+   sous le nom du site (défaut m8, 883 px) ; avec Explorer (8 novembre 2026), « Fond sombre » passait à la ligne
+   jusqu'à 1 100 px environ (vu le 10 novembre 2026 à 1 024 px, contrôle « en-tête sur une seule ligne ») */
+@media (max-width:1120px){
 nav.site .menu{display:inline-flex;align-items:center;min-height:36px;background:none;border:0;border-bottom:1px solid var(--line-fort,#5A606C);border-radius:0;color:var(--ink);font:inherit;font-size:var(--t-note,.875rem);padding:0;cursor:pointer}
 nav.site .liens{display:none;flex-basis:100%;flex-direction:column;align-items:flex-start;gap:var(--e-1,4px);padding:var(--e-2,8px) 0 var(--e-2,8px)}
 nav.site.ouvert .liens{display:flex}
@@ -1548,6 +1556,11 @@ main :is(p,li,td,dd,figcaption) a{overflow-wrap:anywhere}
 .fiche table.ligne-type tr:has(+ tr.suite-ligne) > *{border-bottom:0;padding-bottom:2px}
 .fiche table.ligne-type tr.suite-ligne td{padding:0 0 10px;font-size:var(--t-note);line-height:1.45}
 .fiche table.ligne-type tr.sous + tr.suite-ligne td{padding-left:24px}
+/* « Même distance, … » (population concernée, maquette) : la sous-ligne se lit comme une précision de sa ligne, valeur
+   en graisse ordinaire, sans filet entre la ligne, sa définition et elle (relecture indépendante du 10 novembre 2026) */
+.fiche table.ligne-type tr.sous[data-ind^="distp_"] td.v b{font-weight:400}
+.fiche table.ligne-type tr.suite-ligne:has(+ tr.sous[data-ind^="distp_"]) > *,
+.fiche table.ligne-type tr:not(.suite-ligne):has(+ tr.sous[data-ind^="distp_"]) > *{border-bottom:0}
 .fiche table.ligne-type tr.suite-ligne .lim-ligne,.fiche table.ligne-type tr.suite-ligne .defn{display:block;max-width:none}
 .fiche table.ligne-type tr.suite-ligne .lim-ligne::before{content:"! ";color:var(--signal);font-weight:600}
 .fiche table.ligne-type .phrase-tuile{margin:2px 0 0;font-size:var(--t-note);color:var(--muted);line-height:1.5;max-width:60em}
@@ -1653,6 +1666,10 @@ main :is(p,li,td,dd,figcaption) a{overflow-wrap:anywhere}
   /* une sous-ligne (« dont libéraux », « Même distance, … ») garde son retrait, que la règle précédente annulait
      (relecture indépendante du 9 novembre 2026) */
   .fiche table.indicateurs.ligne-type tbody tr.sous{padding-left:16px}
+  /* la note d'une sous-ligne commence au même retrait que son libellé (16 px, et non 24, relecture du 10 novembre) */
+  .fiche table.indicateurs.ligne-type tr.sous + tr.suite-ligne td{padding-left:16px}
+  .fiche table.indicateurs.ligne-type tr.suite-ligne:has(+ tr.sous[data-ind^="distp_"]),
+  .fiche table.indicateurs.ligne-type tr:not(.suite-ligne):has(+ tr.sous[data-ind^="distp_"]){border-bottom:0}
 }
 @media print{
   .fiche .barre-dom,.fiche details.menu-ligne{display:none}
@@ -1890,12 +1907,18 @@ main li{text-align:left!important}
 p.glossaire{text-align:left!important}
 
 /* sous-titre des pages (Lucas, 7 novembre 2026, sur capture, proposition 1) : en Newsreader, à la taille des titres
-   d'encadré, sur les sept colonnes de la grille (7 x 57 px + 6 x 24 px de gouttière = 690 px), en lignes équilibrées et
-   sans mot coupé, le même sur toutes les pages. La ligne de version des rapports et des fiches garde le texte courant.
-   À l'écran seulement, les PDF ne changent pas. */
+   d'encadré, sur les sept colonnes de la grille (7 x 57 px + 6 x 24 px de gouttière = 690 px), le même sur toutes les
+   pages. Justifié avec césures sur ordinateur, comme le texte courant (Lucas, 10 novembre 2026, sur captures,
+   prototypes/sous_titre_domaine/B3_justifie_cesures_*) ; les lignes ne sont plus équilibrées, ce qui, justifié, creusait
+   de grands blancs. Au téléphone, aligné à gauche en lignes équilibrées et sans mot coupé, comme avant. La ligne de
+   version des rapports et des fiches garde le texte courant. À l'écran seulement, les PDF ne changent pas. */
 @media screen{
   main .chapeau:not(.version){font-family:var(--serif);font-size:var(--t-encadre);line-height:1.4;max-width:690px;
-    text-wrap:balance;text-align:left!important;hyphens:none;color:var(--ink)}
+    text-wrap:balance;text-align:left!important;hyphens:none;-webkit-hyphens:none;color:var(--ink)}
+  /* justifié dans une colonne d'au moins 560 px seulement, comme le texte courant (accueil à 1 024 px : 523 px) */
+  @container (min-width:560px){
+    main .chapeau:not(.version){text-wrap:wrap;text-align:justify!important;hyphens:auto;-webkit-hyphens:auto}
+  }
 }
 /* plus de colonne de lecture étroite (Lucas, 7 novembre 2026, capture A) : les dernières limites des textes courants,
    relevées par le contrôle des colonnes étroites (point 11 bis), dont les phrases et définitions sous les lignes des
@@ -1988,3 +2011,12 @@ nav.site .chercher[aria-expanded="true"]{border-bottom-color:var(--ink)}
 .panneau-recherche .reponse .l{font-size:var(--t-note);display:flex;gap:6px 18px;flex-wrap:wrap;margin-top:8px}
 @media (max-width:1000px){.panneau-recherche .groupes{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:640px){.panneau-recherche .groupes{grid-template-columns:minmax(0,1fr)}.panneau-recherche{padding:0 16px 24px}}
+
+/* légende des cartes en classes, en texte sous la figure au téléphone (relecture du 11 novembre 2026, 2.7) : la
+   légende dessinée, réduite avec la carte, tombait à 6 px ; elle reste dans la figure pour l'export */
+.leg-classes{display:none}
+@media (max-width:640px){svg .leg-svg{display:none}
+  .leg-classes{display:flex;flex-wrap:wrap;gap:6px 14px;list-style:none;margin:8px 0 0;padding:0;font-size:var(--t-note);color:var(--muted);font-variant-numeric:tabular-nums;text-align:left}
+  .leg-classes li{display:flex;align-items:center;gap:6px;margin:0}
+  .leg-classes i{display:inline-block;width:14px;height:12px;flex:none}
+  .leg-classes i.hachure{background:repeating-linear-gradient(45deg,var(--muted) 0 1px,var(--nodata) 1px 3.5px)}}

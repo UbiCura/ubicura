@@ -21,7 +21,8 @@ Règles (docs/comparaison_et_feuille_de_route_2026-10-30.md, parties 3.2 et 3.5,
   - densité de population, somme des habitants rapportée à la somme des surfaces ;
   - indicateur qui ne s'additionne pas (médiane, taux standardisé, taux d'une sous-population inconnue par territoire),
     la médiane des territoires, nommée « Intercommunalité médiane » (« Département médian », « Région médiane »).
-  Tous les territoires du niveau sont comptés, Mayotte comprise, pour le repère, la médiane et la position.
+  Tous les territoires du niveau qui ont une valeur sont comptés pour le repère, la médiane et la position : Mayotte
+  l'est, sauf pour la population concernée (sans recensement) et l'Assurance Maladie (régime non comparable).
 - Couleur, seulement pour l'offre (professions et structures) : cuivre ou bleu si l'écart dépasse ce que le hasard
   explique et si le territoire est sous 0,8 fois ou au-dessus de 1,25 fois le repère, gris sinon. Le hasard est jugé
   comme dans le diagramme en entonnoir d'Explorer (analyses.limites_entonnoir) : si seul le hasard jouait, l'effectif
@@ -102,6 +103,8 @@ def genre(unite: str | None, ident: str = "") -> str:
         return "part"
     if u.startswith(("minute", "min")):
         return "minutes"
+    if u.startswith("patients"):            # patientèle moyenne des libéraux, un nombre de personnes
+        return "entier"
     return "taux"
 
 

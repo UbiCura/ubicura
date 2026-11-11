@@ -15,6 +15,7 @@ from pathlib import Path
 
 from . import domaines as D
 from .fiche_indicateur import NOMS, de, repartition
+from .typographie import insecables  # espaces insécables du français, comme les autres pages (10 novembre 2026)
 
 # questions du centre : titre de la question, intertitre du rapport, figures reprises de la section, autre page utile ;
 # « -⁠ils », gardé sur une ligne au téléphone par un gluon invisible (audit du 6 novembre 2026)
@@ -75,8 +76,14 @@ def decouper_savoir(bloc: str) -> list[str]:
     import re as _re
     texte = bloc.replace("**À savoir.**", "").strip()
     phrases = [x.strip() for x in _re.split(r"(?<=[.])\s+(?=[A-ZÀÂÉÈÊÎÔÛÇ0-9])", texte) if x.strip()]
-    mayotte = [x for x in phrases if "Mayotte" in x]
+    # les phrases de la limite Mayotte restent ensemble, même celles qui ne disent pas « Mayotte » (« Le recensement
+    # exhaustif mené fin 2025 en compte 323 153… » passait seul dans l'autre encadré), et les sources ne paraissent qu'en
+    # note (relecture indépendante du 11 novembre 2026, 2.1)
+    from . import config as _config
+    lim = (_config.LIMITES.get("mayotte") or {}).get("texte") or ""
+    de_mayotte = {x.strip() for x in _re.split(r"(?<=[.])\s+(?=[A-ZÀÂÉÈÊÎÔÛÇ0-9])", lim) if x.strip()}
     sources = [x for x in phrases if x.startswith("Sources")]
+    mayotte = [x for x in phrases if x not in sources and ("Mayotte" in x or x in de_mayotte)]
     reste = [x for x in phrases if x not in mayotte and x not in sources]
     out = []
     if reste:
@@ -190,7 +197,7 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
             commun, racine="../", page="offre_famille", titre=titre, classe_main="domaine", centre=True, cle=cle, chapeau=chapeau,
             questions=qs, venir=venir, citation=cit, rapport=f"../rapports/{dernier.name}/{page_rapport}.html",
             description=f"{titre}, les questions principales, chacune avec son résultat, sa figure et sa méthode."))
-        (dossier / f"{nom_page}.html").write_text(html, encoding="utf-8")
+        (dossier / f"{nom_page}.html").write_text(insecables(html), encoding="utf-8")
         pages.append(dossier / f"{nom_page}.html")
 
     # l'entrée « Offre de soins », qui mène aux deux familles sans jamais les additionner (audit de contrôle du
@@ -200,7 +207,7 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
         commun, racine="../", page="offre", titre=centre["nom"], classe_main="domaine", centre=False, porte=True,
         d=centre, chapeau=centre["pourquoi"], citation=None,
         description="L'offre de soins, en santé mentale et en santé, au centre des sept domaines du site."))
-    (dossier / "offre-de-soins.html").write_text(html, encoding="utf-8")
+    (dossier / "offre-de-soins.html").write_text(insecables(html), encoding="utf-8")
     pages.append(dossier / "offre-de-soins.html")
 
     # matrice des liens, une fois pour les sept domaines
@@ -255,7 +262,7 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
             carte_ind=carte_ind, n_ind=len(mes),
             par_sous=[(so, [i for i in mes if i["sous"] == so]) for so in d["sous"]], venir=venir.get(d["id"], []),
             citation=cit, description=f"{d['nom']}, ses indicateurs autour de l'offre de soins, leur répartition et les bases à venir."))
-        (dossier / f"{d['id']}.html").write_text(html, encoding="utf-8")
+        (dossier / f"{d['id']}.html").write_text(insecables(html), encoding="utf-8")
         pages.append(dossier / f"{d['id']}.html")
     return pages
 
@@ -311,7 +318,7 @@ def construire_themes(env, commun: dict, sd: dict, dernier: Path, site: Path, A:
             n=len(E), n_domaines=len({x["domaine_id"] for x in E}), questions=qs, citation=cit,
             description=f"{th['nom']} : les indicateurs de plusieurs domaines réunis autour d’une même question, et leurs figures."))
         nom = TH.slug(th["id"]) + ".html"
-        (dossier / nom).write_text(html, encoding="utf-8")
+        (dossier / nom).write_text(insecables(html), encoding="utf-8")
         pages.append(dossier / nom)
     return pages
 

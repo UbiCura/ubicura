@@ -37,7 +37,18 @@ main.domaine details.preuve{margin-top:12px}
 main.domaine details.preuve > summary{cursor:pointer;min-height:40px;display:flex;align-items:center;font-size:var(--t-note);color:var(--ink)}
 main.domaine .liens-q{display:flex;flex-wrap:wrap;gap:6px 20px;font-size:.875rem;margin:10px 0 0;text-align:left}
 main.domaine .discret{color:var(--muted);font-size:.875rem;text-align:left}
-main.domaine .phares{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:24px 40px;align-items:start;margin-top:26px}
+/* sept colonnes de la grille commune du site (Lucas, 10 novembre 2026, sur captures, A1 à sept colonnes) : le sous-titre,
+   la phrase qui le suit et son filet s'arrêtent au bord droit de la carte. Les indicateurs phares prennent les colonnes et
+   la gouttière du site ; ils avaient les leurs (7fr et 5fr, 40 px), et la carte finissait 13 px avant le sous-titre. */
+main.domaine{--sept-d:calc((100% - 11 * var(--gouttiere)) * 7 / 12 + 6 * var(--gouttiere))}
+main.domaine .phares{display:grid;grid-template-columns:minmax(0,var(--sept-d)) minmax(0,1fr);gap:24px var(--gouttiere);align-items:start;margin-top:26px}
+@media (min-width:901px){main.domaine header.tete:has(~ .reponse-d) .chapeau,main.domaine .reponse-d{max-width:var(--sept-d)}
+  /* sept colonnes de moins de 560 px (page de moins de 977 px, 541 px à 1 024 px d'écran) : à gauche, comme dans toute
+     colonne étroite (règle 8, 10 novembre 2026) */
+  @container (max-width:976px){
+    main.domaine header.tete:has(~ .reponse-d) .chapeau{text-wrap:balance;text-align:left!important;hyphens:none;-webkit-hyphens:none}
+    main.domaine .reponse-d{text-align:left}}}
+@media (max-width:900px){main.domaine .reponse-d{max-width:690px}}
 main.domaine figure.graphique svg{width:100%;height:auto;display:block}
 main.domaine ul.inds{list-style:none;padding:0;margin:0;columns:2 22rem;column-gap:40px}
 main.domaine ul.inds li{break-inside:avoid;margin:0;padding:6px 0;border-bottom:1px solid var(--line);font-size:var(--t-note);text-align:left}
@@ -45,7 +56,8 @@ main.domaine ul.inds .meta{display:block;font-size:var(--t-note);color:var(--mut
 main.domaine .sm{display:inline-block;margin-left:6px;padding:0 6px;border:1px solid var(--line);border-radius:4px;font-size:var(--t-note)}
 main.domaine h3.sous{font-size:1.0625rem;margin:22px 0 6px}
 main.domaine section.venir ul{margin:6px 0 0}
-main.domaine .reponse-d{font-family:var(--serif);font-size:var(--t-encadre);margin:18px 0 0;text-align:left}
+main.domaine .reponse-d{font-family:var(--sans);font-size:var(--t-texte);line-height:1.6;margin:var(--e-3) 0 0;padding-top:var(--e-3);border-top:1px solid var(--line);text-align:justify;hyphens:auto}
+@media (max-width:560px){main.domaine .reponse-d{text-align:left}}
 main.domaine section.avec-offre{margin-top:30px}
 main.domaine section.avec-offre h2{font-size:1.375rem;border:0;padding:0;margin:0 0 10px}
 main.domaine ul.liens-d{list-style:none;margin:0 0 10px;padding:0}
@@ -117,8 +129,10 @@ main.domaine .lien-d.pos{background:color-mix(in srgb,var(--d5) 45%,var(--panel)
   <h2 id="t-offre-d">Ce domaine et l’offre de soins</h2>
   {% if liens_dom.lignes %}
   <ul class="liens-d">{% for o in liens_dom.lignes %}<li><span class="ind">{{ o.l.lab }}{% if o.niv == 'dep' %}<span class="meta">par département</span>{% endif %}</span><span class="pros">{% for x in o.liens %}<span class="lien-d {{ 'pos' if x.r > 0 else 'neg' }}">{{ x.court }} {{ x.r|nombre('ctx2') }}</span>{% endfor %}</span></li>{% endfor %}</ul>
-  {% else %}<p class="discret">{% if n_ind %}Aucun lien au-delà du seuil entre ces indicateurs et les professions de santé.{% else %}Rien à croiser tant qu’aucun indicateur n’est publié.{% endif %}</p>{% endif %}
+  {# le « Comment lire » explique la liste : sans liste, il n'explique rien et reste seul sur toute la largeur sous la
+     phrase à sept colonnes (10 novembre 2026, vu sur la page Violences) ; le lien vers la matrice demeure #}
   <p class="comment-lire"><strong>Comment lire.</strong> Chaque nombre est la corrélation de rang entre l’indicateur et la densité de la profession, d’un territoire à l’autre, à densité de population égale. En canard, les deux montent ensemble, en cuivre, l’un monte quand l’autre baisse. Ces territoires se ressemblent sur ces deux points, cela ne dit pas pourquoi. <a href="../liens.html">La matrice des liens</a>{% if croiser %}, et la question préparée « <a href="../croiser.html#{{ croiser[1] }}">{{ croiser[0] }}</a> » dans Croiser{% endif %}.</p>
+  {% else %}<p class="discret">{% if n_ind %}Aucun lien au-delà du seuil entre ces indicateurs et les professions de santé.{% else %}Rien à croiser tant qu’aucun indicateur n’est publié.{% endif %} Les liens des autres domaines sont dans <a href="../liens.html">la matrice des liens</a>{% if croiser %}, et la question préparée « <a href="../croiser.html#{{ croiser[1] }}">{{ croiser[0] }}</a> » dans Croiser{% endif %}.</p>{% endif %}
 </section>
 <section style="margin-top:32px" aria-labelledby="t-tous">
   <h2 id="t-tous" style="font-size:1.375rem;border:0;padding:0">Tous les indicateurs du domaine</h2>
@@ -126,7 +140,7 @@ main.domaine .lien-d.pos{background:color-mix(in srgb,var(--d5) 45%,var(--panel)
   <h3 class="sous">{{ so }}</h3>
   <ul class="inds">{% for i in liste %}<li>{% if i.fiche %}<a href="../indicateur/{{ i.fiche }}.html">{{ i.label }}</a>{% else %}{{ i.label }}{% endif %}{% if i.sm %}<span class="sm">santé mentale</span>{% endif %}{% if i.unite %}<span class="meta">{{ i.unite }}{% if i.source %}, {{ i.source }}{% endif %}</span>{% endif %}</li>{% endfor %}</ul>
   {% else %}
-  <p class="discret">Aucun indicateur de ce domaine n’est encore publié.</p>
+  <p class="discret">Les indicateurs paraîtront ici, avec leur fiche, à mesure que les bases ci-dessous seront intégrées.</p>
   {% endfor %}
 </section>
 {% if venir %}<section class="venir" style="margin-top:28px" aria-labelledby="t-venir"><h2 id="t-venir" style="font-size:1.375rem;border:0;padding:0">Bases à venir</h2><ul>{% for v in venir %}<li>{{ v }}</li>{% endfor %}</ul><p class="discret">Chacune ne sera intégrée que si ses données sont ouvertes, documentées et vérifiées. <a href="../a-venir.html">Tout ce qui est prévu</a>.</p></section>{% endif %}

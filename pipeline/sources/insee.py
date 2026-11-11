@@ -105,7 +105,18 @@ def _lire_long(chemin):
     df = pd.DataFrame(colonnes)
     df.index.names = ["objet", "code"]
     millesimes = {k: int(a) for k, (_t, _m, a) in choix.items()}
-    return df.reset_index(), choix, millesimes
+    periodes = {cle: per for cle, (tab, ms, an) in choix.items() if tab == "POP_T3"
+                and (per := periode_cumul(rep, tab, ms, an))}
+    return df.reset_index(), choix, millesimes, periodes
+
+
+def periode_cumul(rep, tab, mesures, an):
+    """Années couvertes par un cumul entre deux recensements (POP_T3, naissances) : du 1er janvier du recensement
+    précédent au 1er janvier du dernier, soit 2017 à 2022 pour 2023. Mesure du 10 novembre 2026 : 4 415 466 naissances
+    hors Mayotte dans le fichier, cohérent avec les naissances annuelles de l'INSEE de 2017 à 2022 (environ 0,2 %
+    d'écart, 1,6 et 1,9 % pour les fenêtres décalées d'un an)."""
+    avant = rep[(rep["ID_TAB"] == tab) & rep["TAB_MEASURE"].isin(mesures) & (rep["TIME_PERIOD"] < an)]["TIME_PERIOD"]
+    return (int(avant.max()), int(an) - 1) if len(avant) else None
 
 
 def _colonnes(chemin):
@@ -147,7 +158,7 @@ def charger(ref, hors_ligne=False, rafraichir=False) -> dict | None:
     try:
         chemin = _telecharger(hors_ligne, rafraichir)
         if _format_long(chemin):
-            df, choix, millesimes = _lire_long(chemin)
+            df, choix, millesimes, periodes = _lire_long(chemin)
             manquantes = sorted(set(config.INSEE_MESURES) - set(choix))
             format_lu = "format long"
         else:
@@ -155,6 +166,7 @@ def charger(ref, hors_ligne=False, rafraichir=False) -> dict | None:
             c_geo = next((c for c in cols if c.upper() in ("CODGEO", "CODE_GEO", "GEO")), cols[0])
             c_niv = next((c for c in cols if re.match(r"(?i)^niv", c)), None)
             choix, millesimes = _choisir_variables(cols)
+            periodes = {}
             if "pop" not in choix:
                 raise RuntimeError("variable de population introuvable dans le dossier complet")
             manquantes = sorted(set(config.INSEE_VARIABLES) - set(choix))
@@ -255,7 +267,12 @@ def charger(ref, hors_ligne=False, rafraichir=False) -> dict | None:
     for cle, (variables, _lib) in config.PUBLICS_CONCERNES.items():
         if all(v in com_g for v in variables):
             publics[cle] = sum(com_g[v] for v in variables)
+    if periodes.get("naissances") and "naissances" in publics:
+        d, f = periodes["naissances"]
+        JOURNAL.controle("Naissances cumulées entre les deux derniers recensements, période déduite et total des communes",
+                         f"de {d} à {f}, {nombre(int(publics['naissances'].sum()))} naissances (attendu, la somme des "
+                         "naissances annuelles de l'INSEE sur ces années, hors Mayotte)")
     JOURNAL.controle("Populations concernées, France entière (INSEE, communes)",
                      ", ".join(f"{config.PUBLICS_CONCERNES[c][1]} {nombre(int(publics[c].sum()))}"
                                for c in publics.columns if c != "pop"))
-    return {"contexte": ctx, "millesimes": millesimes, "publics": publics}
+    return {"contexte": ctx, "millesimes": millesimes, "periodes": periodes, "publics": publics}

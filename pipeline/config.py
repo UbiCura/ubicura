@@ -231,6 +231,25 @@ AMELI_SECTEURS_PROFESSIONS = [
     ("Ophtalmologues", "ophtalmologue", "Ophtalmologues", SANTE),
 ]
 AMELI_SECTEURS_EFFECTIF_MIN = 5   # en dessous, la part n'est pas calculée pour le département (trop instable)
+# Patientèle des libéraux par territoire, jeu « patientele » de data.ameli.fr, vérifié le 10 novembre 2026 par l'API
+# (ODbL, données labellisées par l'Autorité de la statistique publique, années 2016 à 2025, mise à jour du 12 octobre
+# 2026). File active moyenne, nombre moyen de patients différents vus dans l'année par un libéral dont le cabinet
+# principal est dans le territoire ; patientèle « médecin traitant » moyenne des généralistes et des pédiatres. Méthode
+# lue le 10 novembre 2026 sur https://data.ameli.fr/pages/data-professionnels-sante-liberaux-methode/
+AMELI_PATIENTELE_API = "https://data.ameli.fr/api/explore/v2.1/catalog/datasets/patientele"
+AMELI_PATIENTELE_PROFESSIONS = [
+    ("Psychiatres", "psychiatre", "Psychiatres", SANTE_MENTALE),
+    ("Médecins généralistes (hors médecins à expertise particulière - MEP)", "medecin_generaliste",
+     "Médecins généralistes", SANTE),
+    ("Pédiatres", "pediatre", "Pédiatres", SANTE),
+    ("Gynécologues médicaux et obstétriciens", "gynecologue", "Gynécologues", SANTE),
+    ("Ophtalmologues", "ophtalmologue", "Ophtalmologues", SANTE),
+    ("Infirmiers", "infirmier", "Infirmiers", SANTE),
+    ("Masseurs-kinésithérapeutes", "masseur_kinesitherapeute", "Masseurs-kinésithérapeutes", SANTE),
+    ("Orthophonistes", "orthophoniste", "Orthophonistes", SANTE),
+    ("Sages-femmes", "sage_femme", "Sages-femmes", SANTE),
+    ("Ensemble des chirurgiens-dentistes", "chirurgien_dentiste", "Chirurgiens-dentistes", SANTE),
+]
 
 # ---------------------------------------------------------------- DREES, SAE, psychiatrie hospitalière
 # Bases statistiques de la SAE, jeu 708 du portail de la DREES, vérifié le 4 octobre 2026 (Licence Ouverte, une
@@ -271,11 +290,11 @@ GROUPE_ENFANCE_HANDICAP = "Protection de l'enfance et handicap"
 # jeu, identifiant DREES, identifiant ici, libellé, unité, facteur (proportion en %), famille, explication
 DREES_ISD = [
     ("596_enfance-et-jeunesse-en-danger", "ase_tx_mesures_0_20", "ase_mesures", "Mesures d'aide sociale à l'enfance",
-     "% des 0-20 ans", 100, SANTE_MENTALE,
+     "% des jeunes de 0 à 20 ans", 100, SANTE_MENTALE,
      "Enfants et jeunes de 0 à 20 ans qui font l'objet d'une mesure de l'aide sociale à l'enfance (placement ou "
      "action éducative). Repère de situations de vulnérabilité, à rapprocher de l'offre en psychiatrie de l'enfant."),
     ("596_enfance-et-jeunesse-en-danger", "ase_tx_mesures_placement_0_20", "ase_placements",
-     "Enfants accueillis à l'aide sociale à l'enfance", "% des 0-20 ans", 100, SANTE_MENTALE,
+     "Enfants accueillis à l'aide sociale à l'enfance", "% des jeunes de 0 à 20 ans", 100, SANTE_MENTALE,
      "Enfants et jeunes de 0 à 20 ans confiés à l'aide sociale à l'enfance et accueillis hors de leur famille."),
     ("627_personnes-en-situation-de-handicap", "ph_tx_benef_pch_actp_1000hab_m60", "handicap_compensation",
      "Bénéficiaires d'une prestation de compensation du handicap, moins de 60 ans", "pour 1 000 habitants", 1, SANTE,
@@ -843,7 +862,7 @@ PUBLICS_CIBLES = {
 # plus proche est à moins de 5,5 km » compte tous les habitants, alors que les femmes en âge d'avoir un enfant vivent
 # plus souvent en ville. Publics lus dans le dossier complet de l'INSEE (communes), additionnés par tranche d'âge.
 PUBLICS_CONCERNES = {
-    "naissances": (["naissances"], "naissances récentes"),
+    "naissances": (["naissances"], "enfants nés entre les deux derniers recensements"),
     "femmes_15_39": (["f1524", "f2539"], "femmes de 15 à 39 ans"),
     "moins_15": (["pop0014"], "moins de 15 ans"),
     "plus_65": (["pop6579", "pop80p"], "65 ans et plus"),
@@ -866,9 +885,10 @@ PUBLIC_DU_DENOMINATEUR = {("part_0_14",): "moins_15", ("part_80p",): "plus_80", 
 # 80 ans et plus y serait en partie produite par la mesure elle-même (9,9 % de 80 ans et plus dans les communes de 500
 # à 3 000 habitants qui ont un EHPAD, 5,1 % dans les autres, relecture du 9 novembre 2026)
 PUBLIC_EXCLUS = {"lieu_ehpad": "résidents comptés dans la commune de l'établissement"}
-# chiffres de la population concernée écrits en brouillon seulement (resultats/brouillons/), jusqu'à la validation par
-# Lucas de leur présentation sur une maquette (règle du projet : rien de visible sans maquette validée)
-POPULATION_CONCERNEE_PUBLIEE = False
+# chiffres de la population concernée : écrits en brouillon seulement jusqu'à la validation par Lucas de leur
+# présentation sur maquette, donnée le 10 novembre 2026 (« Oui, je valide la maquette », captures de
+# prototypes/population_concernee/) ; publiés à partir de l'édition suivante, mise en ligne par Lucas
+POPULATION_CONCERNEE_PUBLIEE = True
 
 # Professions croisées avec les indicateurs de besoin en santé mentale (quadrants offre et besoin)
 PROFESSIONS_QUADRANTS = ["psychiatre", "psychologue", "q_psychiatrie_enfant", "medecin_generaliste"]
@@ -1634,9 +1654,20 @@ LIMITES["taux_depassement"] = {
 LIMITES_COURT["age_drees"] = ("Âge d'après la DREES, au lieu d'activité principale, psychologues et autres professions "
                               "d'Adeli absents.")
 LIMITES_COURT["taux_depassement"] = "Libéraux de secteur 2 seulement, taux non publié sous secret statistique."
+LIMITES["file_active"] = {
+    "risque": "champ partiel",
+    "texte": ("Moyenne des seuls libéraux, comptés au département de leur cabinet principal, quel que soit le domicile "
+              "de leurs patients. Elle dit la charge d'un libéral, pas l'accès des habitants, et ne compte ni l'activité "
+              "salariée ni celle des cabinets secondaires. Non publiée sous 5 libéraux (secret statistique)."),
+    "sources": [("Assurance Maladie, professionnels de santé libéraux, patientèle par territoire",
+                 "https://data.ameli.fr/explore/dataset/patientele/"),
+                ("Assurance Maladie, méthode des données sur les professionnels de santé libéraux",
+                 "https://data.ameli.fr/pages/data-professionnels-sante-liberaux-methode/")]}
+LIMITES_COURT["file_active"] = "Libéraux seulement, au cabinet principal, non publiée sous 5 libéraux."
 LIMITES_ALIAS = {"route:psychiatrie_ambulatoire": "route_psychiatrie_ambulatoire",
                  "sae_": "sae", "ald_": "ald", "caf_": "caf", "evol:": "evolution", "lieu_": "lieux", "lieux:": "lieux",
-                 "age60_": "age_drees", "taux_depassement_": "taux_depassement"}
+                 "age60_": "age_drees", "taux_depassement_": "taux_depassement",
+                 "file_active_": "file_active", "patients_mt_": "file_active"}
 
 LOI_INVERSE_BESOINS = ["suicides", "hospit_gestes_auto_infliges", "pec_troubles_psy"]
 LOI_INVERSE_PROFESSIONS = ["psychiatre", "psychologue", "q_psychiatrie_enfant", "medecin_generaliste"]
@@ -1678,6 +1709,14 @@ CROISEMENTS = [
     ("dens_lib:medecin_generaliste", "ald_sans_medecin_traitant", "medecin_traitant",
      "Les patients sans médecin traitant sont-ils plus nombreux là où les généralistes libéraux manquent ?"),
     ("ctx:part_80p", "ald_sans_medecin_traitant", "medecin_traitant", ""),
+    # patientèle des libéraux (Assurance Maladie, 10 novembre 2026) : là où ils sont rares, chacun voit-il plus de
+    # patients ? Densité libérale du répertoire, patientèle au cabinet principal
+    ("dens_lib:medecin_generaliste", "file_active_medecin_generaliste", "charge_liberaux",
+     "Là où les libéraux sont moins nombreux, chacun voit-il plus de patients ?"),
+    ("dens_lib:psychiatre", "file_active_psychiatre", "charge_liberaux", ""),
+    ("dens_lib:infirmier", "file_active_infirmier", "charge_liberaux", ""),
+    ("dens_lib:masseur_kinesitherapeute", "file_active_masseur_kinesitherapeute", "charge_liberaux", ""),
+    ("dens_lib:chirurgien_dentiste", "file_active_chirurgien_dentiste", "charge_liberaux", ""),
     # lieux de soins, FINESS et ROR réunis (version 2, 12 octobre 2026)
     ("dens_lib:psychiatre", "lieux_lieu_cmp_adultes", "lieux_psy",
      "Les CMP, CATTP et hôpitaux de jour sont-ils plus nombreux là où les psychiatres manquent ?"),
@@ -1808,6 +1847,8 @@ SOURCES_SUIVIES = [
      r"^Assurance Maladie, (secteurs|effectifs de libéraux)", "Part des libéraux pouvant pratiquer des dépassements d'honoraires."),
     (r"^ameli_honoraires", "Montants des honoraires des libéraux par territoire", "Assurance Maladie",
      r"^Assurance Maladie, montants des honoraires", "Dépassements d'honoraires réellement facturés par les libéraux de secteur 2."),
+    (r"^ameli_patientele", "Patientèle des libéraux par territoire", "Assurance Maladie",
+     r"^Assurance Maladie, patientèle", "Patients vus dans l'année par un libéral, en moyenne, dix professions, depuis 2016."),
     (r"^ameli_ald_sans", "Patients en affection longue durée sans médecin traitant", "Assurance Maladie",
      r"^Assurance Maladie, (affection longue durée sans|patients en affection)",
      "Part des patients en affection longue durée sans médecin traitant, par département."),

@@ -259,6 +259,13 @@ def construire(env, commun: dict, dernier: Path, site_data: dict, site: Path, ga
              description="Les habitants et les structures de soins dans un rayon autour d'une commune, ou sur un périmètre composé commune par commune.")),
         encoding="utf-8")
     pages.append(site / "zone.html")
+    # espaces insécables du français sur les pages écrites ici, comme les autres pages (contre-relecture du 10 novembre
+    # 2026 : « psychiatres Rodez » de l'en-tête pouvait laisser un guillemet seul en bout de ligne) ; sans effet sur
+    # une page déjà passée
+    from .typographie import insecables
+    for p in pages:
+        if p.suffix == ".html" and p.exists():
+            p.write_text(insecables(p.read_text(encoding="utf-8")), encoding="utf-8")
     return pages
 
 

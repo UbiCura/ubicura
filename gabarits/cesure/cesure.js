@@ -7,6 +7,26 @@
 // de suite (hyphenate-limit-lines, que les navigateurs n'appliquent pas à une césure posée par script) : une fois la
 // page composée, la quatrième coupure d'affilée est retirée.
 // Une adresse ou un DOI n'est jamais coupé (« 10.5281/zeno-do » dans l'en-tête de la fiche, 1er novembre 2026).
+// Espaces insécables du français dans le texte écrit par les scripts après le chargement (Indicateurs, Explorer,
+// atlas, Croiser, Comparer, Chercher), mêmes règles que pipeline/typographie.py pour les pages : « pour 10 / 000 » et
+// un guillemet seul se coupaient en fin de ligne au téléphone (relecture indépendante du 11 novembre 2026, 2.4). Ni les
+// figures (svg), ni les scripts, ni les champs de saisie ne sont touchés.
+(function(){
+  var NB="\u00a0",FI="\u202f",HORS="script,style,code,pre,textarea,svg,input,select,option";
+  var R=[[/«[ \u00a0\u202f]+/g,"«"+NB],[/[ \u00a0\u202f]+»/g,NB+"»"],
+    [/(\S) +(?=[;!?](?:\s|$))/g,"$1"+FI],[/([\w\)»%]) +(?=:(?:\s|$))/g,"$1"+FI],
+    [/(\d) +(?=(?:%|‰|€|km|px|h|min|ans?|pour)\b|%|‰|€)/g,"$1"+NB],[/(\d) (?=\d{3}\b)/g,"$1"+FI],
+    [/(\d) (?=[a-zàâçéèêëîïôûùüÿœæ]{1,8}(?![a-zàâçéèêëîïôûùüÿœæ]))/g,"$1"+NB],[/([a-zéû]) (?=(?:19|20)\d\d\b)/g,"$1"+NB]];
+  function fixer(t){var v=t.nodeValue;if(!v||v.indexOf(" ")<0)return;var p=t.parentElement;if(!p||p.closest(HORS))return;
+    var w=v;for(var i=0;i<R.length;i++)w=w.replace(R[i][0],R[i][1]);if(w!==v)t.nodeValue=w}
+  function traiter(n){if(!n)return;if(n.nodeType===3){fixer(n);return}if(n.nodeType!==1||n.closest&&n.closest(HORS))return;
+    var tw=document.createTreeWalker(n,NodeFilter.SHOW_TEXT),x,l=[];while((x=tw.nextNode()))l.push(x);l.forEach(fixer)}
+  window.insecables=traiter;
+  function lancer(){traiter(document.body);
+    new MutationObserver(function(ms){ms.forEach(function(m){if(m.type==="characterData")fixer(m.target);
+      else m.addedNodes.forEach(traiter)})}).observe(document.body,{childList:true,subtree:true,characterData:true})}
+  if(document.body)lancer();else document.addEventListener("DOMContentLoaded",lancer);
+})();
 (function(){
   if(!window.createHyphenator||!window.hyphenationPatternsFr)return;
   var SH="­",couperBrut=createHyphenator(hyphenationPatternsFr,{hyphenChar:SH,minWordLength:6});

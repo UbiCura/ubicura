@@ -1998,7 +1998,7 @@ def _exercice(C: Contexte, famille):
     L = ["### Exercice sur plusieurs communes et part des femmes", "",
          f"{pct(r['part_plusieurs_communes']).capitalize()} des {pluriel(r['libelle'])} déclarent exercer dans au "
          f"moins deux communes, et {pct(r['part_plusieurs_epci'])} dans au moins deux intercommunalités."
-         + (f" {pct(r['femmes']).capitalize()} sont des femmes." if "femmes" in t and pd.notna(r.get("femmes")) else ""), "",
+         + (f" La part des femmes est de {pct(r['femmes'])}." if "femmes" in t and pd.notna(r.get("femmes")) else ""), "",
          _tableau(t, ["libelle", "personnes", "part_plusieurs_communes", "part_plusieurs_epci"]
                   + (["femmes"] if "femmes" in t else []),
                   ["Profession", "Personnes avec un lieu d'exercice", "Dans deux communes ou plus",
@@ -2306,7 +2306,8 @@ THEMES_CROISEMENTS = {
                                 "libéraux manquent, ou là où la population est âgée ?",
             "lieux_urgences": "Les départements éloignés des urgences comptent-ils plus ou moins de passages pour "
                               "geste auto-infligé ?",
-            "lieux_maternite": "Les départements où les maternités sont loin ont-ils moins d'enfants ?"}}
+            "lieux_maternite": "Les départements où les maternités sont loin ont-ils moins d'enfants ?",
+            "charge_liberaux": "Là où les libéraux sont moins nombreux, chacun voit-il plus de patients ?"}}
 COMMENT_CROISEMENTS = {
     "hopital_liberal": "Une corrélation négative entre psychiatres libéraux et psychiatrie hospitalière indiquerait "
                        "que l'hôpital compense là où les libéraux manquent, une corrélation positive que les deux "
@@ -2338,6 +2339,11 @@ COMMENT_CROISEMENTS = {
                       "elle-même, un lien ne dit donc pas que les gestes y sont plus ou moins fréquents.",
     "lieux_maternite": "Ce croisement décrit la répartition des maternités, souvent regroupées dans les villes, au "
                        "regard de la part des enfants, et ne dit rien du besoin.",
+    "charge_liberaux": "La patientèle est le nombre moyen de patients différents vus dans l'année par un libéral, compté "
+                       "au département de son cabinet principal, quel que soit le domicile des patients (Assurance "
+                       "Maladie). La densité est celle des libéraux du répertoire RPPS. Une corrélation négative dirait "
+                       "que chaque libéral voit plus de patients là où ils sont rares, sans dire si ces patients "
+                       "sont aussi bien suivis.",
     "medecin_traitant": "La part des patients sans médecin traitant porte sur les personnes en affection de longue "
                         "durée, tous âges confondus. Les données ne la donnent pas par âge, ce croisement ne dit donc "
                         "pas si les plus âgés sont plus touchés que les autres.",
@@ -2596,7 +2602,7 @@ def _entonnoir(C: Contexte, famille):
     L += faire_varier("iFenEntonnoir", famille, "pour une autre profession ou par département")
     L += _comment_lire(
         "Dans un petit territoire, quelques arrivées ou départs suffisent à faire varier fortement la densité. Le "
-        "diagramme en entonnoir de l'atlas tient compte de la taille de chaque territoire. Il trace autour de la "
+        "diagramme en entonnoir de l'atlas tient compte de la taille de chaque territoire. Il trace autour de "
         "l'ensemble des intercommunalités deux limites qui se resserrent quand la population augmente. Un territoire sous la "
         "limite la plus large est dit nettement en dessous, ce que le hasard expliquerait au plus deux fois sur "
         "mille.",
@@ -2864,7 +2870,7 @@ def _croisement(C: Contexte):
 
 
 def _typologie(C: Contexte, fam="tout"):
-    """Profils d'offre des intercommunalités (CAH de Ward), avec le résumé de l'ACP, pour une famille."""
+    """Profils d'offre des intercommunalités (k-moyennes), avec le résumé de l'ACP, pour une famille."""
     tp, q, ch, ine = (C.R.get(k) for k in ("typologie_profils", "typologie_qualite", "acp_charges", "acp_inertie"))
     if not isinstance(tp, pd.DataFrame) or not len(tp) or "famille" not in tp:
         return []
@@ -2940,11 +2946,15 @@ def _typologie(C: Contexte, fam="tout"):
         ("Les structures de soins et les distances, en bas du tableau, décrivent les groupes sans servir à les former, une structure "
          "n'étant pas une capacité. Détail dans typologie_lieux.csv." if tl is not None and len(tl) else ""))
     L += _plus_loin([
-        "Analyse en composantes principales sur le logarithme des densités, centrées et réduites, puis classification "
-        "ascendante hiérarchique (méthode de Ward) sur les mêmes données. Nombre de groupes choisi par la silhouette "
+        "Analyse en composantes principales sur le logarithme des densités, centrées et réduites, puis k-moyennes "
+        "sur les mêmes données (50 départs, graine fixe). Nombre de groupes choisi par la silhouette "
         f"moyenne entre 3 et 6 ({int(qq['classes'])} groupes, silhouette {nombre(qq['silhouette'], 2)}, groupes qui "
         f"réunissent {pct(qq['part_inertie_classes'])} des différences). Une silhouette inférieure à 0,25 signale des "
-        f"groupes peu séparés. Part des différences résumée par les axes, "
+        "groupes peu séparés. "
+        + (f"Stabilité des groupes, calcul refait sur 100 tirages des intercommunalités, indice de Jaccard de "
+           f"{nombre(qq['stabilite_min'], 2)} à {nombre(qq['stabilite_max'], 2)} (au-dessus de 0,75, groupe stable, "
+           "Hennig, 2007). " if "stabilite_min" in qq and qq["stabilite_min"] == qq["stabilite_min"] else "")
+        + "Part des différences résumée par les axes, "
         + ", ".join(f"axe {i + 1} {pct(v)}" for i, v in enumerate(part[:4]))
         + ". Corrélation des professions avec les axes 1 et 2, "
         + ", ".join(f"{C.lab.get(x, x).lower()} {nombre(c.at[x, 1], 2)} et {nombre(c.at[x, 2], 2)}" for x in c.index)

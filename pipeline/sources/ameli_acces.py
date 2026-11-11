@@ -22,6 +22,7 @@ from ..util import JOURNAL, get_json, lire_meta, telecharger
 SOURCE_SECTEURS = "Assurance Maladie, effectifs de libéraux par secteur conventionnel (data.ameli.fr, licence ODbL)"
 SOURCE_ALD = "Assurance Maladie, patients en affection longue durée sans médecin traitant (data.ameli.fr, licence ODbL)"
 SOURCE_HONORAIRES = "Assurance Maladie, montants des honoraires des libéraux par territoire (data.ameli.fr, licence ODbL)"
+SOURCE_PATIENTELE = "Assurance Maladie, patientèle des libéraux par territoire (data.ameli.fr, licence ODbL)"
 PAGE = "https://data.ameli.fr/explore/dataset/{}/"
 
 
@@ -108,6 +109,35 @@ def _honoraires(hors_ligne, rafraichir):
     return df.drop(columns=["region", "departement"]), meta
 
 
+def _patientele(hors_ligne, rafraichir):
+    """File active moyenne et patientèle « médecin traitant » moyenne des libéraux, toutes les années publiées (2016 et
+    suivantes), pour l'historique. NS (moins de 5 libéraux, secret statistique) et NC (non calculé) deviennent des
+    valeurs manquantes, jamais des 0."""
+    dest = config.BRUT / "ameli_patientele.csv"
+    profs = ",".join(f'"{p}"' for p, *_ in config.AMELI_PATIENTELE_PROFESSIONS)
+    meta = _export(config.AMELI_PATIENTELE_API, dest,
+                   "annee,profession_sante,region,departement,nombre_patients_uniques,nombre_patients_medecin_traitant",
+                   f"profession_sante in ({profs})", hors_ligne, rafraichir)
+    df = pd.read_csv(dest, sep=";", dtype=str)
+    df["annee"] = df["annee"].str[:4]
+    df["file_active"] = _nombre(df["nombre_patients_uniques"])
+    df["patients_mt"] = _nombre(df["nombre_patients_medecin_traitant"])
+    df["secret"] = df["nombre_patients_uniques"].astype(str).str.strip().eq("NS")
+    # 0 patient : aucun libéral de la profession dans le territoire (effectif nul dans le jeu des secteurs, vérifié le
+    # 10 novembre 2026 pour les pédiatres des Hautes-Alpes et de Mayotte), écrit « aucun », jamais un faux 0
+    df["aucun"] = df["file_active"].eq(0)
+    df.loc[df["aucun"], ["file_active", "patients_mt"]] = float("nan")
+    df["niveau"] = "dep"
+    df.loc[df["departement"] == "999", "niveau"] = "reg"
+    df.loc[(df["departement"] == "999") & (df["region"] == "99"), "niveau"] = "FR"
+    df["code"] = df["departement"].where(df["niveau"] == "dep", df["region"]).str.zfill(2)
+    df.loc[df["niveau"] == "FR", "code"] = "FR"
+    ids = {p: i for p, i, _lab, _fam in config.AMELI_PATIENTELE_PROFESSIONS}
+    df["prof"] = df["profession_sante"].map(ids)
+    return (df[["annee", "niveau", "code", "prof", "file_active", "patients_mt", "secret", "aucun"]]
+            .sort_values(["prof", "niveau", "code", "annee"]).reset_index(drop=True), meta)
+
+
 def _ald(hors_ligne, rafraichir):
     dest = config.BRUT / "ameli_ald_sans_medecin_traitant.csv"
     annee = None if hors_ligne else _derniere_annee(config.AMELI_ALD_API)
@@ -147,7 +177,7 @@ def _non_publies(x: pd.DataFrame, lab: str) -> dict:
 def charger(ref, hors_ligne=False, rafraichir=False):
     """Renvoie {"contexte": {"dep", "reg"}, "defs": [...], "secteurs", "ald", "honoraires" (DataFrame)} ou None."""
     out = {"contexte": {"dep": pd.DataFrame(), "reg": pd.DataFrame()}, "defs": [], "secteurs": None, "ald": None,
-           "honoraires": None}
+           "honoraires": None, "patientele": None}
     try:
         t, meta = _secteurs(hors_ligne, rafraichir)
         out["secteurs"] = t
@@ -221,6 +251,59 @@ def charger(ref, hors_ligne=False, rafraichir=False):
                          f"{int(dep['taux_depassement_s2'].isna().sum())} sur {len(dep)} couples département et profession")
     except Exception as e:  # noqa: BLE001
         JOURNAL.note("Assurance Maladie, montants des honoraires", "erreur", str(e)[:300])
+    try:
+        pt, meta = _patientele(hors_ligne, rafraichir)
+        out["patientele"] = pt
+        an = pt["annee"].max()
+        d = pt[pt["annee"] == an]
+        for p, iid, lab, fam in config.AMELI_PATIENTELE_PROFESSIONS:
+            x = d[d["prof"] == iid]
+            # article, singulier et accord (« une sage-femme libérale », « un masseur-kinésithérapeute libéral »)
+            un, sing, lib, libs = {"sage_femme": ("une", "sage-femme", "libérale", "libérales"),
+                                   "masseur_kinesitherapeute": ("un", "masseur-kinésithérapeute", "libéral", "libéraux"),
+                                   "chirurgien_dentiste": ("un", "chirurgien-dentiste", "libéral", "libéraux")}.get(
+                iid, ("un", " ".join(m[:-1] if m.endswith("s") else m for m in lab.lower().split()), "libéral",
+                      "libéraux"))
+            cle = f"file_active_{iid}"
+            for niv in ("dep", "reg"):
+                out["contexte"][niv][cle] = x[x["niveau"] == niv].set_index("code")["file_active"]
+            ns = {niv: {**{c: f"non publié, moins de 5 {lab.lower()} {libs} (secret statistique)"
+                           for c in x.loc[(x["niveau"] == niv) & x["secret"], "code"]},
+                        **{c: f"non publié, {'aucune' if un == 'une' else 'aucun'} {sing} {lib}" for c in x.loc[(x["niveau"] == niv) & x["aucun"], "code"]}}
+                  for niv in ("dep", "reg")}
+            out["defs"].append({
+                "non_publies": {k: v for k, v in ns.items() if v},
+                "id": cle, "libelle": f"Patientèle d'{un} {sing} {lib}",
+                "unite": "patients vus dans l'année, en moyenne",
+                "explication": f"Nombre moyen de patients différents vus au moins une fois en {an} par {un} {sing} "
+                               f"{lib} dont le cabinet principal est dans le territoire (file active), quel que soit "
+                               f"le domicile des patients. Elle décrit la charge d'un libéral, pas l'accès des habitants.",
+                "source": SOURCE_PATIENTELE, "famille": fam, "licence": config.AMELI_LICENCE, "niveau_origine": "dep",
+                "groupe": config.GROUPE_ACCES})
+            if iid in ("medecin_generaliste", "pediatre") and x["patients_mt"].notna().any():
+                cle = f"patients_mt_{iid}"
+                for niv in ("dep", "reg"):
+                    out["contexte"][niv][cle] = x[x["niveau"] == niv].set_index("code")["patients_mt"]
+                out["defs"].append({
+                    "non_publies": {k: v for k, v in ns.items() if v},
+                    "id": cle, "libelle": f"Patients qui ont choisi un {sing} libéral comme médecin traitant",
+                    "unite": "patients, en moyenne",
+                    "explication": f"Nombre moyen de patients qui ont déclaré un {sing} libéral du territoire comme "
+                                   f"médecin traitant, en {an}, qu'il les ait vus ou non dans l'année.",
+                    "source": SOURCE_PATIENTELE, "famille": fam, "licence": config.AMELI_LICENCE,
+                    "niveau_origine": "dep", "groupe": config.GROUPE_ACCES})
+        fr = d[(d["niveau"] == "FR") & (d["prof"] == "psychiatre")]
+        dd = d[d["niveau"] == "dep"]
+        JOURNAL.note("Assurance Maladie, patientèle des libéraux", "ok",
+                     f"années {pt['annee'].min()} à {an}, {dd['code'].nunique()} départements, file active moyenne "
+                     f"d'un psychiatre libéral en France "
+                     + (f"{int(fr['file_active'].iloc[0])} patients" if len(fr) and fr['file_active'].notna().all()
+                        else "non publiée"),
+                     url=PAGE.format("patientele"), date_donnees=(meta.get("maj_source") or "")[:10])
+        JOURNAL.controle("Assurance Maladie, file active des libéraux non publiée (moins de 5 libéraux)",
+                         f"{int(dd['file_active'].isna().sum())} sur {len(dd)} couples département et profession en {an}")
+    except Exception as e:  # noqa: BLE001
+        JOURNAL.note("Assurance Maladie, patientèle des libéraux", "erreur", str(e)[:300])
     try:
         a, meta = _ald(hors_ligne, rafraichir)
         out["ald"] = a

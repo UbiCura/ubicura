@@ -129,6 +129,8 @@ def ecrire(agg, ref, professions, insee, R, diplomes, jour=None):
             _csv(insee["ameli_acces"]["secteurs"], out / "secteurs_conventionnels_odbl.csv")
         if insee.get("ameli_acces") and insee["ameli_acces"].get("honoraires") is not None:
             _csv(insee["ameli_acces"]["honoraires"], out / "honoraires_odbl.csv")
+        if insee.get("ameli_acces") and insee["ameli_acces"].get("patientele") is not None:
+            _csv(insee["ameli_acces"]["patientele"], out / "patientele_liberaux_odbl.csv")
         if insee.get("age"):
             _csv(insee["age"]["table"], out / "age_professionnels.csv")
         if insee.get("sae"):
@@ -698,6 +700,8 @@ def _site(agg, ref, professions, insee, R, serie, jour):
     ctx_def = [{k: d[k] for k in ("id", "label", "unite", "explication", "source", "famille", "licence", "groupe", "niveaux",
                                   "licence_id", "niveaux_codes", "agregation", "type_valeur", "page_source")}
                | ({"non_publies": d["non_publies"]} if d.get("non_publies") else {})
+               # définition courte d'une sous-ligne de fiche (population concernée, 10 novembre 2026)
+               | {k: d[k] for k in ("explication_courte", "explication_courte_niveaux") if d.get(k)}
                # champs des descripteurs de la voie légère (domaine, sens...), absents des autres indicateurs
                | {k: d[k] for k in indicateurs.CHAMPS_DESCRIPTEURS if d.get(k) not in (None, "", [], {})}
                for d in indicateurs.liste(insee)]

@@ -2119,10 +2119,19 @@ def public_du_type(tid: str) -> str | None:
     return config.PUBLIC_DES_LIEUX.get(tid)
 
 
+def libelle_du_public(cle: str, periode=None) -> str:
+    """Nom d'un public concerné dans les fichiers, le même que sur les fiches (« mères des enfants nés de 2017 à
+    2022 », contre-relecture du 10 novembre 2026)."""
+    if cle == "naissances":
+        return ("mères des enfants nés " + (f"de {periode[0]} à {periode[1]}" if periode
+                                             else "entre les deux derniers recensements"))
+    return config.PUBLICS_CONCERNES[cle][1]
+
+
 def population_concernee(L: dict, ref, publics: pd.DataFrame | None) -> pd.DataFrame | None:
     """Distance à la structure la plus proche et nombre de structures, pour tous les habitants et pour le public que
-    sert la structure (config.PUBLIC_DES_LIEUX : femmes de 15 à 39 ans pour une maternité, moins de 15 ans pour un
-    CAMSP...). Par territoire (intercommunalité, département, région, France) et par type : distance médiane et part à
+    sert la structure (config.PUBLIC_DES_LIEUX : naissances, au domicile de la mère, pour une maternité, moins de
+    15 ans pour un CAMSP...). Par territoire (intercommunalité, département, région, France) et par type : distance médiane et part à
     plus de 30 km, pondérées par les habitants (population du référentiel, comme les distances publiées) puis par le
     public (INSEE, communes). Un nombre de structures ou une distance dit où elles sont, pas si elles suffisent.
     Relecture indépendante du 9 novembre 2026 : seuls les types recensés presque partout (L["couverture"]) ; une
@@ -2160,7 +2169,7 @@ def population_concernee(L: dict, ref, publics: pd.DataFrame | None) -> pd.DataF
                     continue
                 vide = (code, tid) in vides
                 lignes.append({"niveau": niv, "code": code, "type": tid, "public": cle,
-                               "libelle_public": config.PUBLICS_CONCERNES[cle][1],
+                               "libelle_public": libelle_du_public(cle, L.get("periode_naissances")),
                                "distance_mediane_km": np.nan if vide else mediane_ponderee(d, wt),
                                "distance_mediane_km_public": np.nan if vide else mediane_ponderee(d, wp),
                                "part_plus_30_km": np.nan if vide else float(wt[d > 30].sum() / wt.sum()),
@@ -2173,7 +2182,7 @@ def population_concernee(L: dict, ref, publics: pd.DataFrame | None) -> pd.DataF
         if len(fr):
             r = fr.iloc[0]
             JOURNAL.controle("Population concernée, maternité la plus proche, France entière hors Mayotte (distance "
-                             "médiane, tous les habitants et naissances récentes)",
+                             "médiane, tous les habitants et domicile des mères des enfants nés entre les deux derniers recensements)",
                              f"{nombre(r['distance_mediane_km'], 1)} km et {nombre(r['distance_mediane_km_public'], 1)} km")
     return out
 
@@ -2389,7 +2398,7 @@ def indicateurs(L: dict, ref, ctx: dict | None = None) -> dict | None:
         if isinstance(d, pd.DataFrame):
             dd = d[d["type"].isin(types)].pivot_table(index="code", columns="type", values="distance_mediane_km")
             t = t.join(dd.reindex(columns=types).add_prefix("dist_"), how="left")
-        # même distance, médiane du public que sert la structure (femmes de 15 à 39 ans pour une maternité)
+        # même distance, médiane du public que sert la structure (naissances, au domicile de la mère, pour une maternité)
         pc = L.get("population_concernee")
         if population_concernee_visible() and isinstance(pc, pd.DataFrame) and not pc.empty:
             tp_pub = [tp for tp in types if public_du_type(tp)]
@@ -2434,20 +2443,67 @@ def indicateurs(L: dict, ref, ctx: dict | None = None) -> dict | None:
                      "source": config.SOURCE_LIEUX, "famille": "", "licence": "Licence Ouverte 2.0",
                      "niveau_origine": "commune", "groupe": config.GROUPE_DISTANCES})
         cle = public_du_type(tp)
-        if cle and population_concernee_visible() and isinstance(L.get("population_concernee"), pd.DataFrame):
-            qui = config.PUBLICS_CONCERNES[cle][1]
+        pc = L.get("population_concernee")
+        if cle and population_concernee_visible() and isinstance(pc, pd.DataFrame):
+            variables, qui = config.PUBLICS_CONCERNES[cle]
+            an = (L.get("millesimes_insee") or {}).get(variables[0]) or L.get("millesime_naissances")
+            per = L.get("periode_naissances")
+            # part des territoires où la distance du public égale exactement celle de tous les habitants, au niveau de la
+            # fiche qui la montre (relecture du 10 novembre 2026 : 64 % des intercommunalités mais 14 % des départements
+            # pour une maternité, la part des intercommunalités lue sur une fiche de département trompait)
+            noms_niv = {"epci": "intercommunalités", "dep": "départements", "reg": "régions"}
+            egales = {}
+            for niv in noms_niv:
+                x = pc[(pc["niveau"] == niv) & (pc["type"] == tp)].dropna(
+                    subset=["distance_mediane_km", "distance_mediane_km_public"])
+                if len(x):
+                    egales[niv] = ((x["distance_mediane_km"] - x["distance_mediane_km_public"]).abs() < 1e-6).mean()
+
+            def part(niv):
+                e = egales.get(niv)
+                return (f" ; même valeur que pour tous les habitants dans {nombre(100 * e, 0)}\u202f% des {noms_niv[niv]}"
+                        if e is not None and e > 0.05 else "")
+            # « naissances récentes » ne se comprenait pas, même avec sa définition (Lucas, 10 novembre 2026) : le public
+            # se nomme par ce qu'il est, les mères des enfants nés pendant une période dite en années. Les naissances
+            # viennent de l'état civil, publiées dans la série historique du recensement (DS_RP_SERIE_HISTORIQUE).
+            gens = ("enfants de " if qui.startswith("moins") else "personnes de ") + qui
+            if cle == "naissances":
+                annees = f"de {per[0]} à {per[1]}" if per else "entre les deux derniers recensements"
+                src = f" (INSEE, état civil, publié avec le recensement de {an})" if an else " (INSEE, état civil)"
+                pour = f"depuis le domicile des mères (enfants nés {annees})"
+                depuis = (f"depuis la commune où vivait la mère de chaque enfant né {annees}{src}. Ces communes "
+                          "approchent mieux le lieu de vie des futures mères que celles de tous les habitants.")
+            else:
+                src = f" (INSEE, recensement de {an})" if an else " (INSEE)"
+                pour = f"pour les {gens}"
+                depuis = f"depuis la commune des {gens}{src}, et non depuis celle de tous les habitants."
+            # la définition complète, au catalogue, se lit seule (page de l'indicateur, Explorer) et garde toutes ses
+            # limites ; la courte se lit sous sa ligne mère, sur la fiche, avec la part du niveau de la fiche, et garde
+            # « à vol d'oiseau » et « pas un temps de trajet », que la ligne mère ne dit pas toujours (bande santé mentale)
+            # la complète se lit à tous les niveaux (page de l'indicateur, Explorer, API) : elle donne les trois parts
+            vus = [f"{nombre(100 * egales[n], 0)} % des {noms_niv[n]}" for n in noms_niv
+                   if egales.get(n) is not None and egales[n] > 0.05]
+            toutes_parts = (" Même valeur que pour tous les habitants dans " + (", ".join(vus[:-1]) + " et " + vus[-1]
+                            if len(vus) > 1 else vus[0]) + ".") if vus else ""
+            courtes = {niv: "Distance médiane à vol d'oiseau, comptée " + depuis
+                       + " Ensemble et position sur ce même public, hors Mayotte" + part(niv)
+                       + ". Ce n'est pas un temps de trajet." for niv in noms_niv}
             defs.append({"id": f"distp_{tp}", "libelle": f"Distance à la structure la plus proche, {minuscule(court)}, "
-                                                          + (f"selon le domicile des {qui}" if cle == "naissances"
-                                                             else f"pour les {qui}"),
+                                                          f"{pour}",
                          "unite": "km",
-                         "explication": f"Distance à vol d'oiseau entre le centre de la commune et la structure la plus "
-                                        f"proche du type « {lib} », médiane calculée, dans le territoire, sur "
-                                        + ("les enfants nés entre les deux derniers recensements, comptés au domicile de "
-                                           "leur mère," if cle == "naissances" else f"les {qui},")
-                                        + " et non sur tous ses habitants (INSEE). Paris, Lyon et Marseille "
-                                        "comptent pour un point, Mayotte n'a pas de recensement. Ce n'est pas un temps de "
-                                        "trajet, et une structure proche ne dit pas qu'elle suffit.",
-                         "source": config.SOURCE_LIEUX, "famille": "", "licence": "Licence Ouverte 2.0",
+                         "explication": f"Distance médiane à vol d'oiseau entre le centre de la commune et la structure "
+                                        f"la plus proche du type « {lib} », comptée " + depuis
+                                        + " La valeur, l'ensemble, la médiane et la position portent sur ce public, "
+                                        "parmi les territoires hors Mayotte, qui n'a pas de recensement ; Paris, Lyon et "
+                                        "Marseille comptent pour un point." + toutes_parts
+                                        + " Ce n'est pas un temps de trajet, et une structure proche ne dit pas "
+                                        "qu'elle suffit.",
+                         "explication_courte": courtes["dep"],
+                         "explication_courte_niveaux": courtes,
+                         # l'INSEE pondère le calcul : sa source est nommée avec celle des structures
+                         "source": config.SOURCE_LIEUX + (" ; INSEE, état civil et recensement" if cle == "naissances"
+                                                          else " ; INSEE, recensement"),
+                         "famille": "", "licence": "Licence Ouverte 2.0",
                          "niveau_origine": "commune", "groupe": config.GROUPE_DISTANCES})
     return {"contexte": sortie, "defs": defs}
 

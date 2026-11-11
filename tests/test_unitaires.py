@@ -544,6 +544,61 @@ def test_moran_bivarie():
     assert r.at["t01", "p"] < .05 and r["p"].min() >= 1 / 200
 
 
+def test_typologie_stable_et_insensible_a_un_territoire():
+    """Typologie des intercommunalités (10 novembre 2026) : la classification de Ward se défaisait au rééchantillonnage,
+    et la correction du seul siège d'ASALEE en avait refait la partition. Sur les vraies densités publiées, les
+    groupes des k-moyennes se retrouvent sur des tirages des territoires (Jaccard d'au moins 0,75 pour chacun), le
+    calcul est reproductible, et retirer l'intercommunalité la plus extrême ne change presque rien."""
+    import numpy as np
+    import pandas as pd
+    from pipeline import analyses, config
+    t = pd.read_csv(_dernier_resultats() / "effectifs_epci_all.csv", sep=";", decimal=",")
+    t.columns = [c.lstrip("﻿") for c in t.columns]
+    t = t[t["population"] > 0]
+    for fam in ("sm", "sante"):
+        profs = [p for p in analyses.TYPOLOGIE_FAMILLES[fam] if f"n_{p}" in t and t[f"n_{p}"].sum() >= 100]
+        Z = np.log1p((t[[f"n_{p}" for p in profs]].div(t["population"], axis=0) * 1e4).to_numpy(float))
+        Z = (Z - Z.mean(0)) / Z.std(0)
+        lab, k, sil, r2, stab = analyses.partition_typologie(Z, analyses.tirage("typologie", fam))
+        assert min(stab) >= .75, (fam, stab)
+        lab2, *_r = analyses.partition_typologie(Z, analyses.tirage("typologie", fam))
+        assert (lab == lab2).all()
+        j = int(np.abs(Z).max(1).argmax())
+        m = np.ones(len(Z), bool)
+        m[j] = False
+        lb = analyses.kmoyennes(Z[m], analyses.tirage("typologie", fam), k)
+        accord = pd.crosstab(lab[m], lb).max(axis=1).sum() / m.sum()
+        assert accord > .97, (fam, accord)
+
+
+def test_patientele_des_liberaux():
+    """Patientèle des libéraux (data.ameli.fr, 10 novembre 2026) sur le fichier en cache : une valeur par profession et
+    par département, jamais un 0 (« aucun » libéral, ou non publié sous secret statistique, avec sa raison écrite), des
+    nombres entiers de patients, la file active d'un généraliste plus forte que celle d'un psychiatre, et des
+    libellés accordés (« d'une sage-femme libérale »)."""
+    from pipeline import config
+    from pipeline.affichage import genre
+    from pipeline.sources import ameli_acces
+    if not (config.BRUT / "ameli_patientele.csv").exists():
+        raise Ignore("patientèle des libéraux absente du cache")
+    o = ameli_acces.charger(None, hors_ligne=True)
+    pt = o["patientele"]
+    assert pt is not None and pt["annee"].nunique() >= 10
+    c = o["contexte"]["dep"]
+    cols = [x for x in c if x.startswith("file_active_")]
+    assert len(cols) == len(config.AMELI_PATIENTELE_PROFESSIONS)
+    assert (c[cols].min() > 0).all()
+    assert c["file_active_medecin_generaliste"].median() > 2 * c["file_active_psychiatre"].median()
+    defs = {d["id"]: d for d in o["defs"]}
+    assert defs["file_active_sage_femme"]["libelle"] == "Patientèle d'une sage-femme libérale"
+    assert defs["file_active_masseur_kinesitherapeute"]["libelle"] == "Patientèle d'un masseur-kinésithérapeute libéral"
+    assert genre(defs["file_active_psychiatre"]["unite"]) == "entier"
+    d = pt[pt["annee"] == pt["annee"].max()]
+    for iid in ("pediatre", "psychiatre"):
+        manquants = set(d.loc[(d["niveau"] == "dep") & (d["prof"] == iid) & d["file_active"].isna(), "code"])
+        assert manquants == set(defs[f"file_active_{iid}"]["non_publies"].get("dep", {})), iid
+
+
 def test_moran_independant_de_l_ordre_des_voisins():
     """Les indices de Moran ne dépendent pas de l'ordre où les voisins sont donnés : un ensemble de codes se parcourt
     dans un ordre qui change d'une exécution à l'autre, et l'arrondi de la moyenne des voisins faisait basculer une
@@ -566,6 +621,31 @@ def test_moran_independant_de_l_ordre_des_voisins():
     lb = moran_local(x, b, permutations=199, rng=np.random.default_rng(3))
     assert la.equals(lb)
     assert moran(x, a, permutations=99, rng=np.random.default_rng(3)) == moran(x, b, permutations=99, rng=np.random.default_rng(3))
+
+
+def test_p_permutations_insensible_au_dernier_chiffre():
+    """Un tirage qui retombe sur la configuration observée compte toujours comme « au moins aussi extrême », même quand
+    le calcul diffère au dernier chiffre : la même donnée donnait p = 0,994 puis 0,995 dans offre_besoin_lisa.csv
+    (Doubs, psychiatrie de l'enfant, exécutions des 7 et 9 novembre 2026, I identique à sept chiffres)."""
+    import numpy as np
+    import pandas as pd
+    from pipeline.analyses import moran_local, p_permutations
+    from pipeline.spatial_offre_besoin import moran_bivarie
+    obs = 0.0012962
+    assert p_permutations([obs * (1 - 1e-15), -obs * (1 + 1e-15), obs / 2], obs) == 3 / 4
+    assert p_permutations([obs * 0.99], obs) == 1 / 2
+    codes = [f"t{i:02d}" for i in range(60)]
+    g = np.random.default_rng(7)
+    x = pd.Series(g.normal(size=60).round(1), index=codes)
+    y = pd.Series(g.normal(size=60).round(1), index=codes)
+    vois = {c: [codes[j] for j in (i - 1, i + 1) if 0 <= j < 60] for i, c in enumerate(codes)}
+    bruit = 1 + g.uniform(-1e-15, 1e-15, 60)                  # dernier chiffre seulement
+    ra = moran_bivarie(x, y, vois, permutations=199, rng=np.random.default_rng(3))
+    rb = moran_bivarie(x * bruit, y * bruit[::-1], vois, permutations=199, rng=np.random.default_rng(3))
+    assert (ra["p"].to_numpy() == rb["p"].to_numpy()).all()
+    la = moran_local(x, vois, permutations=199, rng=np.random.default_rng(3))
+    lb = moran_local(x * bruit, vois, permutations=199, rng=np.random.default_rng(3))
+    assert (la["p"].to_numpy() == lb["p"].to_numpy()).all()
 
 
 def test_gwr():
@@ -2632,7 +2712,9 @@ def test_non_publies_sans_montant():
     seuil = config.AMELI_SECTEURS_EFFECTIF_MIN
     nb = " "
     forme = re.compile(rf"non publié, (aucun [^\d€,]+ en{nb}secteur{nb}2|[1-{seuil - 1}]{nb}[^\d€,]+ en{nb}secteur{nb}2, "
-                       rf"moins{nb}de{nb}{seuil}|montants couverts par le secret statistique)")
+                       rf"moins{nb}de{nb}{seuil}|montants couverts par le secret statistique|"
+                       # patientèle des libéraux (10 novembre 2026) : moins de 5 libéraux, ou aucun
+                       rf"moins{nb}de{nb}5 [^\d€,]+ \(secret statistique\)|aucune? [^\d€,]+)")
     for d in cat:
         for niv, terr in d["non_publies"].items():
             for code, t in terr.items():
@@ -3912,6 +3994,9 @@ def test_domaines_meme_compte_au_telephone():
     # le compte est ce qui suit le nom du domaine, qui peut lui-même porter une virgule (« Revenus, emploi et pauvreté »)
     schema = {a: n for a, n in re.findall(r'<a href="#([a-z-]+)" aria-label="[^"]*?, ((?:\d[\d   ]* indicateurs?|aucun indicateur)(?:, \d+ à venir)?)"><g class="noeud', h)}
     liste = {a: n for a, n in re.findall(r'<li><a href="#([a-z-]+)">[^<]*</a><span>([^<]+)</span></li>', h)}
+    # le texte lu porte les espaces insécables du français (typographie.insecables), pas l'attribut aria-label
+    esp = lambda d: {k: re.sub(r"[  ]", " ", v) for k, v in d.items()}  # noqa: E731
+    schema, liste = esp(schema), esp(liste)
     assert schema and liste and schema == liste, (schema, liste)
     assert any(not n.startswith("aucun") for n in liste.values())
 
@@ -5488,7 +5573,7 @@ def test_reseaux_suivre():
     from outils import reseaux as r
     lignes = r.lire_comptes()
     assert not r.controler_comptes(lignes), r.controler_comptes(lignes)
-    assert 20 <= len(lignes) <= 80      # deuxième liste de 22 comptes ajoutée le 5 novembre 2026
+    assert 20 <= len(lignes) <= 150     # 83 comptes ajoutés le 11 novembre 2026, cochés par Lucas
     with (r.COMPTES_A_SUIVRE.parent / "linkedin_a_suivre.csv").open(encoding="utf-8-sig", newline="") as f:
         li = list(csv.DictReader(f, delimiter=";"))
     assert li and all(re.match(r"https://(www|fr)\.linkedin\.com/(company|school)/[^/]+/?$", x["adresse"])
@@ -6837,9 +6922,9 @@ def test_population_concernee_reglages():
     """Population concernée (remarque de Lucas du 9 novembre 2026, relecture indépendante du même jour) : une seule
     définition du public d'un type (le dénominateur du registre des structures d'abord, puis config.PUBLIC_DES_LIEUX),
     les EHPAD écartés, chaque public lu dans le dossier complet de l'INSEE en cache pour les communes, et rien de publié
-    avant la validation de la présentation par Lucas."""
+    avant la validation de la présentation par Lucas (donnée le 10 novembre 2026, sur maquette)."""
     from pipeline import lieux as LI, lieux_profil as LP
-    assert not config.POPULATION_CONCERNEE_PUBLIEE
+    assert config.POPULATION_CONCERNEE_PUBLIEE
     types = {t[0] for t in config.LIEUX_TYPES}
     assert set(config.PUBLIC_DES_LIEUX) <= types, set(config.PUBLIC_DES_LIEUX) - types
     assert set(config.PUBLIC_DES_LIEUX.values()) <= set(config.PUBLICS_CONCERNES)
@@ -6863,6 +6948,149 @@ def test_population_concernee_reglages():
     for tab, motif in mesures:
         n = t.loc[(t["ID_TAB"] == tab) & t["TAB_MEASURE"].str.match(motif), "GEO"].nunique()
         assert n > 34000, (tab, motif, n)
+
+
+def test_sous_ligne_population_concernee():
+    """Sous-ligne « Même distance, … » (relecture indépendante du 10 novembre 2026) : libellé court à l'écran, titre
+    complet pour la citation et le menu, définition gardée, « comme pour tous les habitants » quand elle répète sa
+    ligne ; elle n'est comptée ni parmi les indicateurs du domaine ni dans la marge."""
+    from pipeline import fiche_territoire as FT
+    mere = {"id": "dist_lieu_cmpp", "lib": "CMPP", "txt": "7,1", "v": 7.1, "e": 0.3}
+    sl = {"id": "distp_lieu_cmpp", "lib": "Distance à la structure la plus proche, CMPP, pour les moins de 15 ans",
+          "txt": "7,1", "v": 7.1, "e": 0.3}
+    rows = FT.accrocher_sous_lignes([sl, mere])
+    assert [r["id"] for r in rows] == ["dist_lieu_cmpp", "distp_lieu_cmpp"]
+    assert sl["sous"] and sl["lib"] == "Même distance, pour les moins de 15 ans"
+    assert sl["titre"] == "Distance à la structure la plus proche, CMPP, pour les moins de 15 ans"
+    assert sl["note"] == "comme pour tous les habitants : même commune médiane"
+    autre = FT.preciser_sous_ligne({"txt": "4,1", "v": 4.1}, {"txt": "5,5", "v": 5.5}, "Distance à la structure la plus proche, "
+                                   "maternités, depuis le domicile des mères (enfants nés de 2017 à 2022)", "définition")
+    assert autre["lib"] == "Même distance, depuis le domicile des mères (enfants nés de 2017 à 2022)" and autre["defn"] == "définition"
+    assert "note" not in autre
+    zero = FT.preciser_sous_ligne({"txt": "0", "note": "type présent dans la commune d'au moins la moitié des habitants"},
+                                  {"txt": "0", "v": 0.0}, "Distance à la structure la plus proche, maternités, depuis le domicile "
+                                  "des mères (enfants nés de 2017 à 2022)")
+    assert zero["note"] == "type présent dans la commune de domicile d'au moins la moitié de ces mères", zero["note"]
+    # sous sa ligne mère, la définition courte remplace la longue (Lucas, 10 novembre 2026)
+    courte = {"id": "distp_lieu_pmi", "lib": "Distance à la structure la plus proche, PMI, depuis le domicile des mères "
+              "(enfants nés de 2017 à 2022)", "txt": "4,5", "v": 4.5, "defn": "longue", "defn_court": "courte"}
+    FT.accrocher_sous_lignes([{"id": "dist_lieu_pmi", "lib": "PMI", "txt": "7,1", "v": 7.1}, courte])
+    assert courte["defn"] == "courte" and "defn_court" not in courte
+    seule = {"id": "distp_lieu_x", "lib": "Distance, X, pour les enfants de moins de 15 ans", "defn": "longue",
+             "defn_court": "courte"}
+    FT.accrocher_sous_lignes([seule])
+    assert seule["defn"] == "longue", "sans ligne mère, la définition complète reste"
+    assert "rejectattr('sous')" in (config.RACINE / "gabarits" / "fiche_territoire.html").read_text(encoding="utf-8")
+
+
+def test_periode_naissances_insee():
+    """Naissances cumulées entre deux recensements (INSEE, POP_T3/BRTH) : la période est lue dans le fichier, du
+    recensement précédent à l'année qui précède le dernier (2017 à 2022 pour 2023, mesure du 10 novembre 2026), et
+    absente s'il n'y a pas de recensement précédent ; le total national est celui des naissances annuelles de ces
+    années, environ 4,4 millions hors Mayotte."""
+    f = config.BRUT / "insee_dossier_complet.parquet"
+    if not f.exists():
+        raise Ignore("dossier complet de l'INSEE absent du cache")
+    import pyarrow.compute as pc
+    import pyarrow.dataset as ds
+    from pipeline.sources import insee
+    d = ds.dataset(f)
+    rep = d.to_table(columns=["ID_TAB", "TAB_MEASURE", "TIME_PERIOD"],
+                     filter=(pc.field("GEO_OBJECT") == "EPCI") & (pc.field("ID_TAB") == "POP_T3")).to_pandas()
+    rep = rep.drop_duplicates()
+    an = rep.loc[rep["TAB_MEASURE"] == "BRTH", "TIME_PERIOD"].max()
+    per = insee.periode_cumul(rep, "POP_T3", ["BRTH"], an)
+    assert per is not None and per[1] == int(an) - 1 and per[0] < per[1], per
+    if int(an) == 2023:
+        assert per == (2017, 2022), per
+    assert insee.periode_cumul(rep, "POP_T3", ["BRTH"], rep["TIME_PERIOD"].min()) is None
+    n = d.to_table(columns=["GEO", "OBS_VALUE"], filter=(pc.field("GEO_OBJECT") == "DEP") & (pc.field("TAB_MEASURE") == "BRTH")
+                   & (pc.field("TIME_PERIOD") == an)).to_pandas().drop_duplicates()["OBS_VALUE"].sum()
+    # six années de naissances, de 720 000 à 770 000 par an hors Mayotte de 2017 à 2022
+    assert 6 * 700_000 < n < 6 * 780_000, n
+
+
+def test_reponse_domaine_texte_courant():
+    """Pages de domaine : la phrase de réponse sous le sous-titre est en texte courant (Work Sans, justifiée), séparée
+    du sous-titre par un filet fin (Lucas, 10 novembre 2026, sur captures, proposition A1) : deux paragraphes en
+    Newsreader de même taille ne se distinguaient pas."""
+    import re
+    g = (config.RACINE / "gabarits" / "page_domaine.html").read_text(encoding="utf-8")
+    m = re.search(r"main\.domaine \.reponse-d\{(font-family[^}]*)\}", g)
+    assert m, "style de .reponse-d introuvable"
+    st = m.group(1)
+    for attendu in ("font-family:var(--sans)", "font-size:var(--t-texte)", "border-top:1px solid var(--line)",
+                    "text-align:justify"):
+        assert attendu in st, (attendu, st)
+    assert re.search(r"max-width:560px\)\{main\.domaine \.reponse-d\{text-align:left\}", g)
+    # sur les sept colonnes de la grille commune, comme le sous-titre et la carte (Lucas, 10 novembre 2026, sur
+    # captures) : les indicateurs phares n'ont plus leurs propres colonnes (7fr et 5fr à 40 px, 13 px d'écart)
+    assert "--sept-d:calc((100% - 11 * var(--gouttiere)) * 7 / 12 + 6 * var(--gouttiere))" in g
+    assert re.search(r"main\.domaine \.phares\{[^}]*grid-template-columns:minmax\(0,var\(--sept-d\)\)", g)
+    assert "minmax(0,7fr) minmax(0,5fr)" not in g
+    assert re.search(r"min-width:901px\)\{main\.domaine header\.tete:has\(~ \.reponse-d\) \.chapeau,"
+                     r"main\.domaine \.reponse-d\{max-width:var\(--sept-d\)\}", g)
+    # sept colonnes de moins de 560 px (page de moins de 977 px) : sous-titre et phrase à gauche (règle 8)
+    assert re.search(r"@container \(max-width:976px\)\{\s*main\.domaine header\.tete:has\(~ \.reponse-d\) \.chapeau\{"
+                     r"[^}]*text-align:left!important", g)
+    js = (config.RACINE / "outils" / "controle_finition.js").read_text(encoding="utf-8")
+    assert "sous-titre, phrase et carte de la page de domaine" in js
+    # le « Comment lire » des liens avec l'offre de soins n'accompagne que leur liste ; sans liste, le lien vers la
+    # matrice reste (10 novembre 2026, page Violences)
+    bloc = g[g.index('id="t-offre-d"'):]
+    bloc = bloc[:bloc.index("</section>")]
+    assert bloc.index('class="comment-lire"') < bloc.index("{% else %}"), "Comment lire hors de la liste"
+    assert 'href="../liens.html">la matrice des liens</a>' in bloc[bloc.index("{% else %}"):]
+
+
+def test_sous_titre_justifie_cesures():
+    """Sous-titre des pages, à l'écran : justifié avec césures sur ordinateur, comme le texte courant (Lucas, 10 novembre
+    2026, sur captures, B3), sans lignes équilibrées, qui, justifiées, creusaient de grands blancs ; au téléphone, aligné
+    à gauche en lignes équilibrées et sans mot coupé. Le script de césure ne traite que le texte justifié."""
+    import re
+    css = (config.RACINE / "gabarits" / "style.css").read_text(encoding="utf-8")
+    m = re.search(r"@media screen\{\s*main \.chapeau:not\(\.version\)\{([^}]*)\}", css)
+    assert m, "règle du sous-titre introuvable"
+    assert "text-align:left!important" in m.group(1) and "hyphens:none" in m.group(1), m.group(1)
+    # justifié dans une colonne d'au moins 560 px seulement (règle 8 : à gauche dans toute colonne plus étroite)
+    t = re.search(r"@container \(min-width:560px\)\{\s*main \.chapeau:not\(\.version\)\{([^}]*)\}", css)
+    assert t, "justification du sous-titre introuvable"
+    assert "text-align:justify!important" in t.group(1) and "hyphens:auto" in t.group(1), t.group(1)
+    assert "text-wrap:wrap" in t.group(1), t.group(1)
+    js = (config.RACINE / "gabarits" / "cesure" / "cesure.js").read_text(encoding="utf-8")
+    assert 'textAlign==="justify"' in js
+
+
+def test_entete_une_ligne_largeurs_controlees():
+    """L'en-tête du site tient sur une ligne : menu replié derrière « Menu » sous 1 120 px depuis Explorer (« Fond
+    sombre » à la ligne entre 1 000 et 1 100 px, 10 novembre 2026), contrôle permanent dans le script de finition, et
+    contrôle de mise en page aux quatre largeurs, 1 024 et 883 px compris."""
+    import re
+    sys.path.insert(0, str(config.RACINE / "outils"))
+    import controle_mise_en_page as M
+    css =(config.RACINE / "gabarits" / "style.css").read_text(encoding="utf-8")
+    assert re.search(r"@media \(max-width:1120px\)\{\s*nav\.site \.menu\{display:inline-flex", css)
+    js = (config.RACINE / "outils" / "controle_finition.js").read_text(encoding="utf-8")
+    assert "en-tête du site sur plusieurs lignes" in js
+    assert {w for w, _ in M.LARGEURS.values()} >= {1280, 1024, 883, 375}
+
+
+def test_fond_carte_dossier_neuf():
+    """Fond de carte des fiches et de l'atelier : celui d'Explorer dans le site, ou sa source quand le site est construit
+    dans un dossier neuf ou en partie (brouillon du 10 novembre 2026, fiches sans carte) ; le contrôle des décisions
+    repère une fiche sans sa carte."""
+    import tempfile
+    from pipeline import atelier, cartes
+    with tempfile.TemporaryDirectory() as d:
+        assert atelier.fond_carte(Path(d)) == cartes.FOND_ATLAS
+        (Path(d) / "explorer").mkdir()
+        (Path(d) / "explorer" / "fond.js").write_text("window.TOPO={};", encoding="utf-8")
+        assert atelier.fond_carte(Path(d)) == Path(d) / "explorer" / "fond.js"
+    assert cartes.FOND_ATLAS.exists()
+    src = (config.RACINE / "pipeline" / "fiche_territoire.py").read_text(encoding="utf-8")
+    assert "fond_carte(site)" in src and 'site / "explorer" / "fond.js"' not in src
+    ctl = (config.RACINE / "outils" / "controle_decisions.py").read_text(encoding="utf-8")
+    assert "Chaque fiche de territoire garde sa carte" in ctl and chr(8) not in ctl
 
 
 def test_population_concernee_brouillon():
@@ -6897,6 +7125,28 @@ def test_population_concernee_brouillon():
         vides = set(map(tuple, d.loc[d["distance_mediane_km"].isna(), ["code", "type"]].to_numpy()))
         x = p[(p["niveau"] == niv) & p["distance_mediane_km_public"].notna()]
         assert not set(zip(x["code"], x["type"])) & vides, niv
+    # parts « même valeur que pour tous les habitants dans X % des … » des définitions, recalculées par niveau depuis
+    # le fichier (contre-relecture du 10 novembre 2026 : une part fausse ou d'un autre niveau tromperait)
+    import json
+    import re
+    sd = f.parent / "site_data.json"
+    if sd.exists():
+        defs = {d["id"]: d for d in json.loads(sd.read_text(encoding="utf-8")).get("contexte", [])
+                if d["id"].startswith("distp_")}
+        noms = {"epci": "intercommunalités", "dep": "départements", "reg": "régions"}
+        vus = 0
+        for i, d in defs.items():
+            for niv, texte in (d.get("explication_courte_niveaux") or {}).items():
+                m = re.search(r"dans (\d+) % des " + noms[niv], texte)
+                x = p[(p["niveau"] == niv) & (p["type"] == i[6:])].dropna(
+                    subset=["distance_mediane_km", "distance_mediane_km_public"])
+                e = ((x["distance_mediane_km"] - x["distance_mediane_km_public"]).abs() < 1e-6).mean()
+                if m:
+                    assert abs(int(m.group(1)) - 100 * e) <= 0.5 + 1e-9, (i, niv, m.group(1), e)
+                    vus += 1
+                else:
+                    assert e <= 0.05, (i, niv, e)
+        assert not defs or vus, "aucune part lue dans les définitions des sous-lignes"
 
 
 # une décision de Lucas ou un défaut d'audit, un test (6 novembre 2026), repris ici pour que la commande du projet les lance
@@ -6905,6 +7155,174 @@ from test_decisions import *  # noqa: E402,F401,F403
 from test_audit3_site import *  # noqa: E402,F401,F403
 from test_code_public import *  # noqa: E402,F401,F403
 from test_veille import *  # noqa: E402,F401,F403
+
+
+def test_reseaux_republier():
+    """Republication des producteurs de données (décision de Lucas du 11 novembre 2026), sans rien envoyer : liste
+    fermée de producteurs, annonce de données chiffrée avec un lien, sujet que le site reprend, rien de plus de sept
+    jours ; jamais les moyens de suicide, une réaction politique, un appel ou une opinion ; une republication par
+    semaine au plus, la plus récente ; l'essai n'envoie ni n'écrit rien ; arrêt, retrait et journal lisible."""
+    import datetime as dt
+    import shutil
+    import tempfile
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from outils import reseaux as r
+    ici = dt.datetime(2026, 11, 11, 10, 0, tzinfo=dt.timezone.utc)
+    drees = next(d for d, n in r.PRODUCTEURS.items() if n == "DREES")
+    spf = next(d for d, n in r.PRODUCTEURS.items() if n == "Santé publique France")
+    # les producteurs sont ceux de la liste vérifiée, avec le même DID
+    suivis = {x["did"]: x for x in r.lire_comptes()}
+    assert set(r.PRODUCTEURS) <= set(suivis) and len(r.PRODUCTEURS) == 5
+    lien = [{"index": {"byteStart": 0, "byteEnd": 5}, "features": [{"$type": "app.bsky.richtext.facet#link",
+                                                                      "uri": "https://swll.to/abc"}]}]
+
+    def message(texte, auteur=drees, jours=1, n=1, **rec):
+        quand = (ici - dt.timedelta(days=jours)).isoformat().replace("+00:00", "Z")
+        return {"post": {"uri": f"at://{auteur}/app.bsky.feed.post/{n}", "cid": f"cid{n}",
+                         "author": {"did": auteur, "handle": "x.bsky.social"},
+                         "record": {"text": texte, "createdAt": quand, "facets": lien, **rec}}}
+    bon = ("La Drees publie des données sur les médecins, les kinésithérapeutes et les pharmaciens en 2026, "
+           "par département.")
+    assert r.juger_republication(message(bon), ici)[0]
+    refus = {
+        "suicide": "La Drees publie des données : hausse des hospitalisations pour tentatives de suicide en 2025.",
+        "politique": "La Drees publie des données sur les médecins en 2026 pour le projet de loi de financement.",
+        "appel": "La Drees recrute un stagiaire pour son étude 2027 sur les médecins.",
+        "opinion": "Baromètre d'opinion : 6 enquêtés sur 10 pensent que les médecins manquent, en 2026.",
+        "hors du site": "L'Insee publie des données : le PIB régional progresse de 1,2 % en 2024.",
+        "sans chiffre": "La Drees publie une étude sur les médecins.",
+        "épidémie": "Santé publique France publie les données de la grippe, 12 % de hausse en 2026.",
+    }
+    for cle, texte in refus.items():
+        assert not r.juger_republication(message(texte), ici)[0], cle
+    # le nom de Santé publique France ne fait pas un sujet de santé
+    assert not r.juger_republication(message("Santé publique France publie les chiffres 2026 du sport.", spf), ici)[0]
+    assert not r.juger_republication(message(bon, jours=8), ici)[0]                       # plus de sept jours
+    assert not r.juger_republication(message(bon, auteur="did:plc:" + "c" * 24), ici)[0]  # hors de la liste
+    assert not r.juger_republication(message(bon, reply={"root": {}, "parent": {}}), ici)[0]
+    assert not r.juger_republication(dict(message(bon), reason={"$type": "repost"}), ici)[0]
+    sans_lien = message(bon)
+    sans_lien["post"]["record"].pop("facets")
+    assert not r.juger_republication(sans_lien, ici)[0]
+    rec = r.enregistrement_republication("at://x/app.bsky.feed.post/1", "cid1", ici)
+    assert set(rec) == {"$type", "subject", "createdAt"} and rec["$type"] == "app.bsky.feed.repost"
+    assert set(rec["subject"]) == {"uri", "cid"}
+    avant = (r.JOURNAL_REPUBLICATIONS, r.ETAT, r.session_bluesky)
+    tmp = Path(tempfile.mkdtemp(prefix="republier_"))
+    try:
+        r.JOURNAL_REPUBLICATIONS, r.ETAT = tmp / "journal.csv", tmp / "etat.json"
+        r.session_bluesky = lambda *a: {"did": "did:plc:" + "a" * 24, "jeton": "", "serveur": "", "handle": ""}
+        fils = {drees: [message(bon, jours=3, n=1), message(bon.replace("2026", "2025"), jours=1, n=2),
+                        message(refus["suicide"], jours=0, n=3)]}
+        lire = lambda did: fils.get(did, [])
+        envoyes, effaces = [], []
+
+        def ecrivain(_s, collection, record):
+            assert collection == "app.bsky.feed.repost"
+            envoyes.append(record["subject"]["uri"])
+            return f"at://did:plc:{'a' * 24}/app.bsky.feed.repost/{len(envoyes)}"
+        jamais = lambda _moi, _uri: False
+        # essai : rien n'est envoyé ni écrit
+        assert r.republier(essai=True, lire=lire, deja=jamais, ecrivain=ecrivain, ici=ici) == 0
+        assert not envoyes and not r.JOURNAL_REPUBLICATIONS.exists() and not r.ETAT.exists()
+        # en vrai : le plus récent qui passe les règles, jamais le message sur le suicide
+        assert r.republier(discret=True, lire=lire, deja=jamais, ecrivain=ecrivain, ici=ici) == 0
+        assert envoyes == [f"at://{drees}/app.bsky.feed.post/2"]
+        j = r.journal_republications()
+        assert [x["etat"] for x in j] == ["republie"] and j[0]["regle"] and j[0]["enregistrement"]
+        # une par semaine au plus, même relu plus tard dans la semaine
+        assert r.republier(discret=True, lire=lire, deja=jamais, ecrivain=ecrivain, ici=ici + dt.timedelta(days=6)) == 0
+        assert len(envoyes) == 1
+        # la semaine suivante, un message déjà republié n'est jamais repris
+        fils[drees] = [message(bon, jours=0, n=2)]
+        assert r.republier(discret=True, lire=lire, deja=jamais, ecrivain=ecrivain, ici=ici + dt.timedelta(days=8)) == 0
+        assert len(envoyes) == 1
+        # retrait de la dernière republication
+        print(r.annuler_republication(effaceur=lambda _s, uri, col: effaces.append((uri, col))))
+        assert effaces == [(j[0]["enregistrement"], "app.bsky.feed.repost")]
+        assert r.journal_republications()[-1]["etat"] == "annule"
+        # arrêt par Lucas : plus rien
+        r.ecrire_json(r.ETAT, {"republication_arretee": True})
+        fils[drees] = [message(bon, jours=0, n=9)]
+        assert r.republier(discret=True, lire=lire, deja=jamais, ecrivain=ecrivain, ici=ici + dt.timedelta(days=20)) == 0
+        assert len(envoyes) == 1
+    finally:
+        r.JOURNAL_REPUBLICATIONS, r.ETAT, r.session_bluesky = avant
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def test_reseaux_version_pas_encore_en_ligne():
+    """Un message dont les chiffres viennent d'une version plus récente que celle en ligne (brouillon, édition en
+    préparation) ne part pas : il revient à relire avec son motif (11 novembre 2026)."""
+    import argparse
+    import datetime as dt
+    import shutil
+    import tempfile
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from outils import reseaux as r
+    hs = Path(__file__).resolve().parent.parent / "docs" / "communication" / "bluesky_2026-11" / "hors_serie"
+    f = hs / "hs-population-maternite.json"
+    if not f.exists():
+        raise Ignore("hors-série de la population concernée absent")
+    avant = (r.MESSAGES, r.FIGURES, r.JOURNAL_PUBLICATIONS, r.PUBLICATION)
+    tmp = Path(tempfile.mkdtemp(prefix="reseaux_version_"))
+
+    def interdit(_m):
+        raise AssertionError("message publié avec des chiffres pas encore en ligne")
+    try:
+        r.MESSAGES, r.FIGURES, r.JOURNAL_PUBLICATIONS = tmp / "messages", tmp / "figures", tmp / "journal.csv"
+        r.PUBLICATION = tmp / "publication.json"
+        assert r.cmd_ajouter(argparse.Namespace(fichier=str(f))) == 0
+        m = r.messages()[0]
+        r.ecrire_json(r.PUBLICATION, {"version": "2026-11-09"})
+        assert m["donnees"] > "2026-11-09"
+        r.programmer(m, dt.datetime.now() - dt.timedelta(minutes=5))
+        assert r.publier_programmes({"linkedin": interdit, "bluesky": interdit}) == 0
+        m = r.lire_json(r.MESSAGES / f"{m['id']}.json")
+        assert m["statut"] == "a_relire" and "pas encore en ligne" in m["retour"]
+        assert not r.JOURNAL_PUBLICATIONS.exists()
+    finally:
+        r.MESSAGES, r.FIGURES, r.JOURNAL_PUBLICATIONS, r.PUBLICATION = avant
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def test_reseaux_ne_plus_suivre():
+    """Retrait d'un abonnement fait par l'outil (11 novembre 2026) : l'enregistrement du journal est effacé, le compte
+    est décoché et n'est jamais repris ; un compte que l'outil n'a pas suivi est refusé."""
+    import shutil
+    import tempfile
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from outils import reseaux as r
+    lignes = r.lire_comptes()
+    avant = (r.COMPTES_A_SUIVRE, r.JOURNAL_ABONNEMENTS, r.session_bluesky)
+    tmp = Path(tempfile.mkdtemp(prefix="ne_plus_suivre_"))
+    try:
+        r.COMPTES_A_SUIVRE, r.JOURNAL_ABONNEMENTS = tmp / "comptes.csv", tmp / "journal.csv"
+        moi = "did:plc:" + "a" * 24
+        r.session_bluesky = lambda *a: {"did": moi, "jeton": "", "serveur": "", "handle": ""}
+        r.ecrire_comptes([dict(x, valide="2026-11-11") for x in lignes])
+        c = lignes[0]
+        r.journaliser_abonnement(c, "suivi", f"at://{moi}/app.bsky.graph.follow/1")
+        effaces = []
+        print(r.ne_plus_suivre("@" + c["identifiant"], effaceur=lambda _s, uri, col: effaces.append((uri, col))))
+        assert effaces == [(f"at://{moi}/app.bsky.graph.follow/1", "app.bsky.graph.follow")]
+        assert next(x for x in r.lire_comptes() if x["did"] == c["did"])["valide"] == ""
+        assert r.journal_abonnements()[-1]["etat"] == "retire"
+        try:
+            r.ne_plus_suivre(lignes[1]["identifiant"], effaceur=lambda *a: None)
+            raise AssertionError("retrait d'un compte que l'outil n'a pas suivi")
+        except r.Arret:
+            pass
+        # l'enregistrement d'un autre compte ou d'une autre collection n'est jamais effacé
+        try:
+            r.effacer_bluesky({"did": moi, "jeton": "", "serveur": ""}, "at://did:plc:autre/app.bsky.graph.follow/1",
+                              "app.bsky.graph.follow")
+            raise AssertionError("effacement hors du compte du projet")
+        except r.Arret:
+            pass
+    finally:
+        r.COMPTES_A_SUIVRE, r.JOURNAL_ABONNEMENTS, r.session_bluesky = avant
+        shutil.rmtree(tmp, ignore_errors=True)
 
 
 if __name__ == "__main__":

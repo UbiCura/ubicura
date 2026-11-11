@@ -65,7 +65,7 @@ class _Texte(HTMLParser):
 def texte(s: str) -> str:
     # les scripts sont retirés avant la lecture : leurs chaînes contiennent des balises (« <title> ») que l'analyseur
     # prendrait pour du texte
-    s = re.sub(r"<script[^>]*>.*?</script\s*>|<style[^>]*>.*?</style\s*>", " ", s, flags=re.S | re.I)
+    s = re.sub(r"<script\b[^>]*>.*?</script\s*>|<style\b[^>]*>.*?</style\s*>", " ", s, flags=re.S | re.I)
     t = _Texte()
     t.feed(s)
     return re.sub(r"\s+", " ", " ".join(t.morceaux)).replace("­", "")
@@ -166,6 +166,92 @@ def controler() -> int:
             m = re.search(r".{0,50}(<(a|span|div|p|strong|b|i)[\s>]|</(a|span|div|p)>|&lt;|&gt;).{0,50}", t)
             brut.append((rel(p), "code HTML visible : " + m.group(0)))
     note("Mots du programme ou code HTML visibles (undefined, NaN, None, balises)", brut)
+
+    # 3 bis. intitulé laissé sans texte (« Comment lire. » vide dans les groupes d'indicateurs phares des fiches,
+    # vu le 10 novembre 2026 sur les captures de la population concernée)
+    vides = []
+    for p, s in sources.items():
+        for m in re.finditer(r"<b>([^<]{2,40}\.)</b>(?:\s|&nbsp;)*</(p|span|div|li)>", s):
+            vides.append((rel(p), m.group(1)))
+    note("Aucun intitulé sans texte (« Comment lire. » vide)", vides)
+
+    # 3 ter. guillemets français tenus par une espace insécable dans le texte lu : les pages de domaine, d'indicateur
+    # et la page Indicateurs s'écrivaient sans la règle des insécables (relecture du 10 novembre 2026, « » et les
+    # infirmiers » rejeté en début de ligne sur téléphone)
+    from pipeline.typographie import _PROTEGES
+    guill = []
+    for p, s in sources.items():
+        morceaux = _PROTEGES.split(s)
+        lu = " ".join(morceaux[i] for i in range(0, len(morceaux), 3))
+        m = re.search(r".{0,30}(« | »).{0,30}", lu)
+        if m:
+            guill.append((rel(p), m.group(0).strip()))
+    note("Guillemets français tenus par une espace insécable", guill)
+
+    # 3 quater. une sous-ligne de population concernée garde ses limites là où elle se lit : son tableau dit « à vol
+    # d'oiseau » et « pas un temps de trajet » (relecture du 10 novembre 2026, bande santé mentale sans ces limites)
+    lim_sous = []
+    for p, s in sources.items():
+        for t in re.findall(r"<table\b.*?</table>", s, flags=re.S):
+            if 'data-ind="distp_' in t and not (re.search(r"vol d(?:'|&#39;|’)oiseau", t) and "temps de trajet" in t):
+                lim_sous.append((rel(p), "tableau avec une sous-ligne de population concernée sans ses limites"))
+    note("Limites des sous-lignes de population concernée dites dans leur tableau", lim_sous)
+
+    # 3 quinquies. chaque fiche de territoire garde sa carte (« Où les patients sont reçus », « Ses départements ») :
+    # construites dans un dossier neuf, les fiches du brouillon du 10 novembre 2026 l'avaient perdue sans bruit, le fond
+    # de carte d'Explorer n'y étant pas encore écrit (ne rien perdre, règle 18)
+    sans_carte = [(rel(p), "fiche sans sa carte") for p, s in sources.items()
+                  if re.match(r"territoire/(dep|reg|epci)/[^/_][^/]*\.html$", rel(p))
+                  and not re.search(r'class="carte-svg plan\b', s)]
+    note("Chaque fiche de territoire garde sa carte", sans_carte)
+
+    # 3 sexies. relecture indépendante du 11 novembre 2026 : la limite Mayotte d'un seul tenant et ses sources une seule
+    # fois (2.1) ; « la l'ensemble » (2.2) ; la petite France annoncée seulement si elle est dessinée (2.6)
+    savoir, articles, petite = [], [], []
+    for p, s in sources.items():
+        r = rel(p)
+        for b in re.findall(r"<(?:p|div)\b[^>]*>(.*?)</(?:p|div)>", s, flags=re.S):
+            if "recensement exhaustif mené fin 2025" in b and "À Mayotte" not in b:
+                savoir.append((r, "phrase de la limite Mayotte séparée de son sujet"))
+        if r.startswith("domaine/"):
+            src = [texte(x).strip() for x in re.findall(r"<p\b[^>]*>\s*(Sources\b.*?)</p>", s, flags=re.S)]
+            vus = set()
+            for x in src:
+                if x and x in vus:
+                    savoir.append((r, "paragraphe de sources écrit deux fois : " + x[:60]))
+                vus.add(x)
+        for m in re.finditer(r"\b(?:[Dd]e la|[Ll]a|[Ll]e|[Dd]u) l['’][a-zàâçéèêëîïôûùüÿœæ]", textes[p]):
+            articles.append((r, textes[p][max(0, m.start() - 30):m.end() + 20]))
+        if re.match(r"territoire/", r) and "La petite France situe la carte" in textes[p] and 'class="situer"' not in s:
+            petite.append((r, "petite France annoncée, absente"))
+    note("Limite Mayotte d'un seul tenant, sources une seule fois", savoir)
+    note("Aucun article devant l'article élidé (« de la l'ensemble »)", articles)
+    note("Petite France annoncée seulement si elle est dessinée", petite)
+
+    # 3 septies. le repère d'une page d'indicateur dit si Mayotte y est comptée, d'après les valeurs mêmes (relecture du
+    # 11 novembre 2026, 2.3 : « Mayotte comprise » sous une patientèle calculée sans elle)
+    from pipeline import affichage as AF_, fiche_indicateur as FI_
+    T_ = AF_.Affichage(sd, R)
+    pages_ind = {rel(p): s for p, s in sources.items() if rel(p).startswith("indicateur/")}
+    mayotte_rep = []
+    for e in AF_.catalogue(sd, R):
+        f = f"indicateur/{FI_.slug(e['id'])}.html"
+        s = pages_ind.get(f)
+        if not s or "Mayotte" not in s:
+            continue
+        for lv, code in (("dep", "976"), ("reg", "06")):
+            S_ = T_.serie(e["id"], lv)
+            if S_ is None or S_.med is None:
+                continue
+            k = S_.codes.index(code) if code in S_.codes else None
+            a_valeur = k is not None and S_.v[k] is not None and S_.v[k] == S_.v[k]
+            dit = texte(s)
+            if a_valeur and "sauf Mayotte" in dit:
+                mayotte_rep.append((f, "dit « sauf Mayotte », qui a une valeur"))
+            if not a_valeur and "Mayotte comprise" in dit:
+                mayotte_rep.append((f, "dit « Mayotte comprise », qui n'a pas de valeur"))
+            break
+    note("Repère des pages d'indicateur : Mayotte dite comptée seulement si elle l'est", mayotte_rep)
 
     # 4. DOI écrit sans lien, DOI général présenté comme celui d'une version archivée
     dois = []

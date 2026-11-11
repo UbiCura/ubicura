@@ -200,7 +200,7 @@ def bandes(ctx: dict) -> list[dict]:
                     "groupes": [{"titre": "Indicateurs phares", "id": f"t-{d['id']}", "quoi": "Indicateur, unité et année",
                                  "unite": "Valeur", "avec_eff": False, "lignes": [ligne(l) for l in d["phares"]]}] if d["rows"] else [],
                     "autres": [{"nom": "Autres indicateurs du domaine", "rows": d["autres"]}] if d["autres"] else [],
-                    "autres_n": len(d["autres"]), "venir": ctx["venir"].get(d["id"]) or []})
+                    "autres_n": sum(1 for r in d["autres"] if not r.get("sous")), "venir": ctx["venir"].get(d["id"]) or []})
     # cartes de bloc : les petites cartes des constats de la bande, une seule montrée à la fois
     for b in out:
         ids = [l.get("id") for g in b["groupes"] for l in g["lignes"]]

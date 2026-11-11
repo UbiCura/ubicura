@@ -57,10 +57,42 @@ DEJA_EN_TETE = ({"suicides", "hospit_gestes_auto_infliges", "ald_23"} | {"dist_"
 
 
 def libelle_public(lib: str) -> str:
-    """« Même distance, selon le domicile des naissances récentes », tiré du libellé d'une distance du public (population concernée)."""
-    m = re.search(r", ((?:pour les|selon le domicile des) [^,]+)", lib or "")
+    """« Même distance, depuis le domicile des mères (enfants nés de 2017 à 2022) », tiré du libellé d'une distance du public (population concernée)."""
+    m = re.search(r", ((?:pour les|selon le domicile des|depuis le domicile des) [^,]+)", lib or "")
     # « Même distance, » : au téléphone, la sous-ligne se lit seule, sous sa ligne mère sans retrait
     return "Même distance, " + m.group(1) if m else lib
+
+
+def courte(ind: dict, lv: str) -> str | None:
+    """Définition courte d'une sous-ligne, au niveau de la fiche (la part des territoires à distances égales n'est pas
+    la même pour les intercommunalités et les départements, relecture du 10 novembre 2026)."""
+    return (ind.get("explication_courte_niveaux") or {}).get(lv) or ind.get("explication_courte")
+
+
+def preciser_sous_ligne(r: dict, mere: dict | None, lib_complet: str, defn: str | None = None) -> dict:
+    """Une sous-ligne de distance du public : son libellé court à l'écran, son titre complet pour la citation et le nom
+    accessible de son menu (cinq « Même distance, pour les moins de 15 ans » sur une fiche se confondaient), sa
+    définition, et « comme pour tous les habitants » quand elle répète sa ligne (relecture du 10 novembre 2026)."""
+    r["sous"], r["lib"], r["titre"] = True, libelle_public(lib_complet), lib_complet
+    # sous sa ligne mère, la définition courte (décision de Lucas du 10 novembre 2026, la longue se répétait sous chaque
+    # sous-ligne) ; elle redit « à vol d'oiseau » et « pas un temps de trajet », que la mère ne porte pas toujours
+    court = r.pop("defn_court", None)
+    if defn or court:
+        r["defn"] = defn or court
+    # une note propre à la valeur (« type présent dans la commune… » d'un 0 km) passe avant : un 0 n'est jamais seul ;
+    # elle porte sur le public de la sous-ligne, pas sur tous les habitants
+    if r.get("note"):
+        qui = ("ces mères" if "des mères" in (lib_complet or "") else "ces enfants" if "enfants" in (lib_complet or "")
+               else "ces personnes")
+        r["note"] = r["note"].replace("dans la commune d'au moins la moitié des habitants",
+                                      f"dans la commune de domicile d'au moins la moitié de {qui}")
+    # égalité vraie, et non au dixième affiché (10,51 et 10,47 km s'écrivent tous deux 10,5 ; relecture du 10 novembre)
+    v, vm = r.get("v"), (mere or {}).get("v")
+    if v is not None and vm is not None and abs(float(v) - float(vm)) < 1e-6 and r.get("txt") and not r.get("note"):
+        # la médiane tombe dans la même commune (toujours dans un territoire d'une seule commune, comme Paris) : la
+        # note le dit, sinon l'égalité semblait un résultat (relecture du 10 novembre 2026)
+        r["note"] = "comme pour tous les habitants : même commune médiane"
+    return r
 
 
 def accrocher_sous_lignes(rows: list) -> list:
@@ -71,7 +103,7 @@ def accrocher_sous_lignes(rows: list) -> list:
             continue
         rows.remove(r)
         i = next(i for i, x in enumerate(rows) if x.get("id") == "dist_" + r["id"][6:])
-        r["sous"], r["lib"] = True, libelle_public(r["lib"])
+        preciser_sous_ligne(r, rows[i], r["lib"])
         rows.insert(i + 1, r)
     return rows
 
@@ -372,9 +404,10 @@ def fiche(dn: Donnees, lv: str, code: str, version: str) -> dict:
             # population concernée, en sous-ligne (brouillon tant que Lucas n'a pas validé la présentation)
             dp = dn.contexte(lv, code, "distp_" + t)
             if dp is not None and ("distp_" + t) in dn.ctx:
-                sl = _ligne(libelle_public(dn.ctx["distp_" + t][1].get("label") or ""), dp, couleur=False,
-                            ident="distp_" + t, T=dn.T, sous=True)
-                out.append(sl)
+                ind = dn.ctx["distp_" + t][1]
+                sl = _ligne("", dp, couleur=False, ident="distp_" + t, T=dn.T, sous=True)
+                out.append(preciser_sous_ligne(sl, out[-1], ind.get("label") or "",
+                                               courte(ind, lv) or ind.get("explication")))
         return out
 
     f["sm_pro"] = profs(PROFS_SM)
@@ -514,7 +547,7 @@ def fiche(dn: Donnees, lv: str, code: str, version: str) -> dict:
     f["parcours"] = _parcours(dn)
     f["secteurs_psy"] = _secteurs_psy(dn, lv, code, dep)
     f["sm_autres"] = _sante_mentale_autres(dn, lv, code, dep)
-    f["sm_autres_n"] = sum(len(x["rows"]) for x in f["sm_autres"])
+    f["sm_autres_n"] = sum(1 for x in f["sm_autres"] for r in x["rows"] if not r.get("sous"))
     return f
 
 
@@ -638,6 +671,8 @@ def _sante_mentale_autres(dn, lv, code, dep):
         ligne = _ligne(libelle(ind, dn.sd), r, couleur=False,
                        limite=dn.limite(ind_id, lv, code), ident=ind_id, T=dn.T)
         ligne["id"], ligne["echelle"], ligne["defn"] = ind_id, echelle, ind.get("explication")
+        if courte(ind, lv):
+            ligne["defn_court"] = courte(ind, lv)
         par.setdefault(D.classer(ind)[0], []).append(ligne)
     return [{"nom": d["nom"], "rows": accrocher_sous_lignes(par[d["id"]])} for d in D.DOMAINES if d["id"] in par]
 
@@ -656,6 +691,8 @@ def _domaines(dn: Donnees, lv, code, dep):
             continue
         ligne = _ligne(libelle(ind, dn.sd), r, couleur=False, limite=dn.limite(ind_id, lv, code), ident=ind_id, T=dn.T)
         ligne["id"], ligne["echelle"], ligne["defn"] = ind_id, echelle, ind.get("explication")
+        if courte(ind, lv):
+            ligne["defn_court"] = courte(ind, lv)
         lignes.setdefault(dom, []).append(ligne)
     for rows in lignes.values():
         accrocher_sous_lignes(rows)
@@ -669,10 +706,13 @@ def _domaines(dn: Donnees, lv, code, dep):
         phares = [x for p in phares for x in [p] + [r for r in rows if r.get("sous") and r["id"].startswith("distp_")
                                                      and r["id"][6:] == p["id"][5:]]]
         autres = [r for r in rows if r not in phares]
-        haut = sum(1 for r in rows if r["e"] is not None and r["e"] + 1 > AF.PROCHE[1])
-        bas = sum(1 for r in rows if r["e"] is not None and r["e"] + 1 < AF.PROCHE[0])
+        # une sous-ligne (population concernée) n'est pas un indicateur de plus : ni dans le compte, ni dans la marge
+        # (relecture du 10 novembre 2026, 8 indicateurs annoncés pour 5 dans les Distances de l'Aveyron)
+        meres = [r for r in rows if not r.get("sous")]
+        haut = sum(1 for r in meres if r["e"] is not None and r["e"] + 1 > AF.PROCHE[1])
+        bas = sum(1 for r in meres if r["e"] is not None and r["e"] + 1 < AF.PROCHE[0])
         sortie.append({"id": d["id"], "nom": d["nom"], "rows": rows, "phares": phares or rows[:5],
-                       "autres": autres if phares else rows[5:], "synthese": synthese(len(rows), haut, bas),
+                       "autres": autres if phares else rows[5:], "synthese": synthese(len(meres), haut, bas),
                        "haut": haut, "bas": bas,
                        "croiser": d.get("croiser"), "lire": _lire_domaine(d, rows)})
     return sortie
@@ -1213,12 +1253,15 @@ def construire(env, commun: dict, dernier: Path, site_data: dict, site: Path, re
     from . import constats as K
     from . import bandes_fiche as BF
     from .libelles import casse_titre
-    from .atelier import ENCARTS, _fond
+    from .atelier import ENCARTS, _fond, fond_carte
     # fond de l'atelier et structures de soins psychiques projetées, pour la carte de situation et le plan (métropole ;
     # les départements d'outre-mer sont en encarts à une autre échelle et n'ont que les aplats)
     A, points_dep = None, {}
-    f_fond = site / "explorer" / "fond.js"
-    if f_fond.exists():
+    f_fond = fond_carte(site)
+    if f_fond is None:
+        from .util import JOURNAL
+        JOURNAL.note("Fiches des territoires", "erreur", "fond de carte de l'atlas introuvable, fiches sans carte de situation ni plan")
+    else:
         A = {"geo": _fond(f_fond, site_data), "units": {lv: site_data["niveaux"][lv]["units"] for lv in NIVEAUX}}
         proj, sm = CP.projection(), {t for t, _ in STRUCT_SM}
         ip, noms_types, noms_lieux = dn.ip, dict(STRUCT_SM), (site_data.get("lieux") or {}).get("noms", [])

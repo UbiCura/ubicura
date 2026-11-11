@@ -88,6 +88,17 @@ def tirage(*cle) -> np.random.Generator:
     return np.random.default_rng([config.GRAINE, h])
 
 
+def p_permutations(sim, obs) -> float:
+    """P-valeur par permutations, (nombre de tirages au moins aussi extrêmes que l'observé + 1) / (tirages + 1). Un tirage
+    qui retombe sur la même configuration que l'observée donne mathématiquement la même valeur, mais au dernier chiffre
+    du calcul près, qui varie avec l'ordre des sommes d'une exécution à l'autre : ces égalités comptent toujours comme
+    « au moins aussi extrêmes » (tolérance relative d'un milliardième). Sans elle, la même donnée donnait p = 0,994 un
+    jour et 0,995 le lendemain (exécutions des 6, 7 et 9 novembre 2026)."""
+    sim = np.abs(np.asarray(sim, float))
+    seuil = abs(float(obs)) * (1 - 1e-9) - 1e-15
+    return float((np.sum(sim >= seuil) + 1) / (len(sim) + 1))
+
+
 def spearman_bootstrap(x, y, B, rng):
     x, y = np.asarray(x, float), np.asarray(y, float)
     m = ~(np.isnan(x) | np.isnan(y))
@@ -224,7 +235,7 @@ def moran(valeurs: pd.Series, voisins: dict, permutations=999, rng=None):
     I = stat(z)
     rng = rng or np.random.default_rng(config.GRAINE)
     sim = np.array([stat(rng.permutation(z)) for _ in range(permutations)])
-    p = (np.sum(np.abs(sim - sim.mean()) >= abs(I - sim.mean())) + 1) / (permutations + 1)
+    p = p_permutations(sim - sim.mean(), I - sim.mean())
     return float(I), float(p)
 
 
@@ -254,7 +265,7 @@ def moran_local(valeurs: pd.Series, voisins: dict, permutations=0, rng=None):
         if permutations:
             tirages = rng.choice(np.delete(np.arange(n), i), size=(permutations, len(vs)))
             sim = z[i] * z[tirages].mean(axis=1)
-            p, zi = (np.sum(np.abs(sim) >= abs(I)) + 1) / (permutations + 1), np.nan
+            p, zi = p_permutations(sim, I), np.nan
         else:
             w2 = 1 / len(vs)   # somme des poids au carré, poids égaux à 1 / nombre de voisins
             esp = -1 / (n - 1)
@@ -1447,6 +1458,61 @@ def cah_ward(Z, kmin=3, kmax=6):
     return np.array([ordre[c] for c in lab]), k, sil, 1 - intra / total
 
 
+def kmoyennes(Z, rng, k: int, departs: int = 50) -> np.ndarray:
+    """Partition en k-moyennes de meilleure inertie sur departs départs (initialisation k-means++), classes 0 à k-1."""
+    from scipy.cluster.vq import kmeans2
+    Z = np.asarray(Z, float)
+    meilleur = None
+    for _ in range(departs):
+        c, lab = kmeans2(Z, k, minit="++", seed=rng)
+        if len(set(lab)) < k:
+            continue
+        inertie = sum(((Z[lab == j] - c[j]) ** 2).sum() for j in range(k))
+        if meilleur is None or inertie < meilleur[0]:
+            meilleur = (inertie, lab)
+    return meilleur[1]
+
+
+def stabilite_groupes(Z, lab, rng, k: int, tirages: int = 100) -> list[float]:
+    """Stabilité de chaque groupe au rééchantillonnage des territoires (Hennig 2007) : indice de Jaccard moyen entre
+    le groupe et son meilleur correspondant dans la partition refaite sur un tirage avec remise. Au-dessus de 0,75 le
+    groupe est stable, sous 0,5 il se dissout."""
+    Z, lab = np.asarray(Z, float), np.asarray(lab)
+    res = {c: [] for c in sorted(set(lab))}
+    for _ in range(tirages):
+        i = np.unique(rng.integers(0, len(Z), len(Z)))
+        lb = kmoyennes(Z[i], rng, k, departs=10)
+        for c in res:
+            A = set(np.flatnonzero(lab[i] == c))
+            res[c].append(max(len(A & set(np.flatnonzero(lb == d))) / len(A | set(np.flatnonzero(lb == d)))
+                              for d in set(lb)) if A else np.nan)
+    return [float(np.nanmean(v)) for v in res.values()]
+
+
+def partition_typologie(Z, rng, kmin=3, kmax=6):
+    """Groupes de la typologie : k-moyennes (50 départs, tirage propre à la famille), nombre de groupes choisi par la
+    silhouette moyenne entre kmin et kmax. Remplace la classification de Ward le 10 novembre 2026 : ses groupes se
+    défaisaient au rééchantillonnage (Jaccard de 0,56 à 0,71) et la correction d'un seul territoire, le siège
+    d'ASALEE, en avait refait la partition ; les k-moyennes donnent des groupes stables (Jaccard de 0,94 à 0,98) que
+    cette correction ne change pas. Renvoie (classes de 1 à k, k, silhouette, part de l'inertie, stabilité par
+    groupe), classes numérotées de la plus peuplée à la moins peuplée."""
+    Z = np.asarray(Z, float)
+    D = cdist(Z, Z)
+    meilleur = None
+    for k in range(kmin, kmax + 1):
+        lab = kmoyennes(Z, rng, k)
+        sil = silhouette(D, lab)
+        if meilleur is None or sil > meilleur[2]:
+            meilleur = (lab, k, sil)
+    lab, k, sil = meilleur
+    total = ((Z - Z.mean(0)) ** 2).sum()
+    intra = sum(((Z[lab == c] - Z[lab == c].mean(0)) ** 2).sum() for c in set(lab))
+    ordre = {c: i + 1 for i, c in enumerate(pd.Series(lab).value_counts().index)}
+    lab = np.array([ordre[c] for c in lab])
+    stab = stabilite_groupes(Z, lab, rng, k)
+    return lab, k, sil, 1 - intra / total, stab
+
+
 TYPOLOGIE_FAMILLES = {
     "sm": ["psychologue", "psychiatre", "q_psychiatrie_enfant", "psychotherapeute"],
     "sante": ["medecin_generaliste", "infirmier", "masseur_kinesitherapeute", "orthophoniste", "psychomotricien",
@@ -1461,8 +1527,8 @@ TYPOLOGIE_DECRITES = {f: [pid for _m, pid, _l, _g, fam in config.SPECIALITES_MED
 
 def typologie(agg, ref, rng=None):
     """Profils d'offre des intercommunalités, une typologie par famille (santé mentale, santé, ensemble).
-    ACP sur le logarithme des densités centrées et réduites, puis classification ascendante hiérarchique (Ward)
-    sur les mêmes données. Renvoie (affectations, profils, inertie des axes, charges, qualité)."""
+    ACP sur le logarithme des densités centrées et réduites, puis k-moyennes sur les mêmes données
+    (partition_typologie). Renvoie (affectations, profils, inertie des axes, charges, qualité)."""
     n, dens, pop = tables(agg, ref, "epci", "all")
     affect, profils, inertie, charges, qualite = [], [], [], [], []
     for fam, liste in TYPOLOGIE_FAMILLES.items():
@@ -1472,7 +1538,7 @@ def typologie(agg, ref, rng=None):
         Z = np.log1p(dens[profs].to_numpy())
         Z = (Z - Z.mean(0)) / np.where(Z.std(0) == 0, 1, Z.std(0))
         vp, part, coords, ch = acp(Z)
-        lab, k, sil, r2 = cah_ward(Z)
+        lab, k, sil, r2, stab = partition_typologie(Z, tirage("typologie", fam))
         affect.append(pd.DataFrame({"famille": fam, "code": dens.index, "classe": lab,
                                     "axe1": coords[:, 0], "axe2": coords[:, 1]}))
         decrites = [p for p in TYPOLOGIE_DECRITES.get(fam, []) if p in dens and p not in profs and n[p].sum() > 0]
@@ -1489,10 +1555,12 @@ def typologie(agg, ref, rng=None):
         charges += [{"famille": fam, "prof": p, "axe": a + 1, "correlation": ch[j, a]}
                     for j, p in enumerate(profs) for a in range(min(3, len(profs)))]
         qualite.append({"famille": fam, "classes": k, "silhouette": sil, "part_inertie_classes": r2,
-                        "part_inertie_axes_1_2": part[:2].sum(), "variables": len(profs)})
+                        "part_inertie_axes_1_2": part[:2].sum(), "variables": len(profs),
+                        "stabilite_min": min(stab), "stabilite_max": max(stab)})
         nom = {"sm": "santé mentale", "sante": "santé", "tout": "ensemble"}[fam]
         JOURNAL.controle(f"Typologie des EPCI, {nom}",
-                         f"{k} classes, silhouette moyenne {sil:.2f}, classes {r2:.0%} de l'inertie, "
+                         f"{k} classes, silhouette moyenne {sil:.2f}, stabilité des groupes de {min(stab):.2f} à "
+                         f"{max(stab):.2f} (attendu, au moins 0,75), classes {r2:.0%} de l'inertie, "
                          f"axes 1 et 2 de l'ACP {part[:2].sum():.0%}")
     if not affect:
         return None, None, None, None, None

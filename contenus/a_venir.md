@@ -10,6 +10,8 @@ Les principaux ajouts prévus, sans date ferme. Chacun ne sera intégré que si 
 
 **Sectorisation psychiatrique dans les autres régions.** Les secteurs des Hauts-de-France sont en ligne. Ceux des autres régions s'ajouteront à mesure que les agences régionales de santé communiqueront leur arrêté.
 
+**La patientèle des libéraux.** Le nombre moyen de patients vus dans l'année par un psychiatre, un généraliste et huit autres professions libérales, par département et par région depuis 2016, d'après l'Assurance Maladie.
+
 **Mon soutien psy par département.** Les séances remboursées du dispositif, par département, si l'Assurance Maladie communique ces données, demandées le 26 octobre 2026 et encore sans réponse.
 
 **Violences sexistes, sexuelles et intrafamiliales.** Victimes enregistrées par département et structures d'aide, avec la limite des plaintes écrite à chaque fois.

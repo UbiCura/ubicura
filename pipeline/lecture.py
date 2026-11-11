@@ -139,12 +139,13 @@ GLOSSAIRE = [
      "conforme à ce profil, 0,5 deux fois moins que prévu, 2 deux fois plus. Ce n'est pas une mesure du besoin de "
      "soins, seulement une comparaison avec des territoires semblables (modèle de régression de Poisson).", ""),
     ("gradient", "Gradient urbain et rural",
-     "Comparaison des densités de professionnels entre territoires classés selon leur densité de population, "
+     "Comparaison des densités de professionnels entre des territoires classés selon leur densité de population, "
      "des plus ruraux aux plus urbains.", ""),
     ("typologie", "Typologie",
      "Regroupement statistique des intercommunalités qui ont un profil d'offre semblable, séparément pour la "
-     "santé mentale, pour la santé et pour l'ensemble (classification ascendante hiérarchique, méthode de Ward). Le "
-     "nombre de groupes est choisi pour qu'ils soient le plus distincts possible. Le nom de chaque groupe résume ses "
+     "santé mentale, pour la santé et pour l'ensemble (méthode des k-moyennes). Le "
+     "nombre de groupes est choisi pour qu'ils soient le plus distincts possible, et chaque groupe doit se retrouver "
+     "quand on refait le calcul sur un tirage des territoires. Le nom de chaque groupe résume ses "
      "indices.", ""),
     ("regression_multiple", "Régression multiple",
      "Méthode qui décrit le lien entre un indicateur et plusieurs autres à la fois. Chaque coefficient dit de combien "

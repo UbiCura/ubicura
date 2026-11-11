@@ -94,6 +94,8 @@ def classer(ind: dict) -> tuple[str, str]:
         return "offre", "Psychiatrie à l'hôpital"
     if i.startswith(("depassements_", "taux_depassement_")):
         return "offre", "Accès financier"
+    if i.startswith(("file_active_", "patients_mt_")):
+        return "offre", "Activité des libéraux"
     if i == "ald_sans_medecin_traitant":
         return "recours", "Médecin traitant"
     if i in _REV:

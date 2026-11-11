@@ -31,7 +31,7 @@ AGREGATION = [
     (r"^km$", "non_agregeable", "distance médiane"),
     (r"hab\./km", "non_agregeable", "densité"),
     (r"^€$", "non_agregeable", "montant médian ou moyen"),
-    (r"moins de|ans et plus|élèves|passages|0-20 ans|adultes", "non_agregeable", "taux rapporté à une sous-population"),
+    (r"moins de|ans et plus|élèves|passages|0-20 ans|0 à 20 ans|adultes", "non_agregeable", "taux rapporté à une sous-population"),
     (r"pour 1[0 ]*000 hab|pour 100 000 hab|pour 1 000 habitants|pour 100 000 habitants", "moyenne_ponderee_population", "taux"),
     (r"^%$", "moyenne_ponderee_population_approchee", "part"),
 ]
@@ -70,6 +70,8 @@ def liste(contexte: dict | None) -> list[dict]:
                                                            if d.get("famille") else "Autres indicateurs")}
               # raison écrite de chaque valeur non publiée, par niveau et territoire (taux de dépassement, 30 octobre 2026)
               | ({"non_publies": d["non_publies"]} if d.get("non_publies") else {})
+              # définition courte d'une sous-ligne de fiche, lue sous sa ligne mère (population concernée, 10 novembre 2026)
+              | {k: d[k] for k in ("explication_courte", "explication_courte_niveaux") if d.get(k)}
               | ({k: d[k] for k in (*CHAMPS_DESCRIPTEURS, "agregation_explicite", "page_source") if k in d and d[k]}
                  if d.get("registre") else {})
               for d in (contexte or {}).get("indicateurs", [])]

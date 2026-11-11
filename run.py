@@ -155,6 +155,9 @@ def executer(args):
     if lieux_res and ins and ins.get("publics") is not None:
         # population concernée (chantier du 9 novembre 2026), avant les indicateurs des structures, qui en reprennent les distances
         try:
+            lieux_res["millesime_naissances"] = (ins.get("millesimes") or {}).get("naissances")
+            lieux_res["periode_naissances"] = (ins.get("periodes") or {}).get("naissances")
+            lieux_res["millesimes_insee"] = ins.get("millesimes") or {}
             lieux_res["population_concernee"] = lieux.population_concernee(lieux_res, ref, ins["publics"])
         except Exception as e:  # noqa: BLE001
             logging.exception("population concernée")

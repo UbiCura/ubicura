@@ -11,6 +11,7 @@ from pathlib import Path
 from . import affichage as AF
 from . import domaines as D
 from . import themes as TH
+from .typographie import insecables  # espaces insécables du français, comme les autres pages (10 novembre 2026)
 
 NOM_NIVEAU = {"fr": "France", "reg": "région", "dep": "département", "epci": "intercommunalité"}
 
@@ -73,5 +74,5 @@ def construire(env, commun: dict, sd: dict, dernier: Path, site: Path, A: dict, 
         commun, racine="", page="indicateurs", titre="Indicateurs", n=len(C), domaines=domaines, themes=themes,
         description=f"Les {len(C)} indicateurs du site, cherchables et filtrables par domaine, thème et niveau, chacun "
                     "avec sa page : définition, carte, source et limites."))
-    (site / "indicateurs.html").write_text(html, encoding="utf-8")
+    (site / "indicateurs.html").write_text(insecables(html), encoding="utf-8")
     return [site / "indicateurs.html"]

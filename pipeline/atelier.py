@@ -214,6 +214,17 @@ ENCARTS = {"971": (6, 380, 76, 70), "972": (6, 456, 76, 50), "973": (6, 512, 76,
 DEP_REG_DROM = {"01": "971", "02": "972", "03": "973", "04": "974", "06": "976"}
 
 
+def fond_carte(site: Path) -> Path | None:
+    """Fond de carte de l'atlas : celui d'Explorer dans le site (explorer/fond.js), ou à défaut sa source
+    (cartes.FOND_ATLAS), même contenu. Explorer ne l'écrit qu'à sa construction : un site construit dans un dossier
+    neuf, ou en partie, perdait sans bruit les cartes de toutes les fiches (brouillon du 10 novembre 2026)."""
+    from .cartes import FOND_ATLAS
+    for f in (site / "explorer" / "fond.js", FOND_ATLAS):
+        if f.exists():
+            return f
+    return None
+
+
 def _fond(fond: Path, sd: dict) -> dict:
     f = fond.read_text(encoding="utf-8")
     topo = json.JSONDecoder().raw_decode(f, f.index("{"))[0]
@@ -291,7 +302,10 @@ def _fond(fond: Path, sd: dict) -> dict:
 def construire(site_data: dict, dernier: Path, site: Path, registre: Path, version: str, doi: str | None) -> dict:
     """Écrit presentation/atelier_donnees.js, chargé par la page croiser.html seulement, et rend les données, reprises
     par les fiches des indicateurs."""
-    A = donnees(site_data, dernier, site / "explorer" / "fond.js", registre, version, doi)
+    fond = fond_carte(site)
+    if fond is None:
+        raise FileNotFoundError("fond de carte de l'atlas introuvable (explorer/fond.js et cartes.FOND_ATLAS)")
+    A = donnees(site_data, dernier, fond, registre, version, doi)
     f = site / "presentation" / "atelier_donnees.js"
     f.parent.mkdir(parents=True, exist_ok=True)
     f.write_text("const A=" + json.dumps(A, ensure_ascii=False, separators=(",", ":")) + ";\n", encoding="utf-8")

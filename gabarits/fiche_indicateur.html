@@ -59,7 +59,7 @@ main.indicateur .code{font-size:.875rem;background:var(--panel);border:1px solid
       <dt>Source</dt><dd>{{ f.src }}{% if f.an %}, {{ f.an }}{% endif %}{% if f.fiche_source %}, <a href="../donnees-sources.html">fiche de la source</a>{% endif %}</dd>
       {% if f.lic %}<dt>Licence</dt><dd>{{ f.lic }}</dd>{% endif %}
       <dt>Niveaux</dt><dd>{% if f.prof %}France, {% endif %}{{ f.niveaux|reverse|join(', ') }}</dd>
-      <dt>Repère</dt><dd>« {{ f.fin.rep_lib }} », {{ f.nature_repere }}, le même sur la fiche de chaque territoire, le comparateur et Croiser. Tous les territoires du niveau sont comptés, Mayotte comprise.</dd>
+      <dt>Repère</dt><dd>« {{ f.fin.rep_lib }} », {{ f.nature_repere }}, le même sur la fiche de chaque territoire, le comparateur et Croiser. {% if f.hors_mayotte %}Tous les territoires du niveau sont comptés, sauf Mayotte, {{ f.hors_mayotte }}.{% else %}Tous les territoires du niveau sont comptés, Mayotte comprise.{% endif %}</dd>
       {#- la date du répertoire RPPS seulement pour un indicateur qui en vient : la source et l'année de chaque indicateur sont
           écrites juste au-dessus (audit de la navigation du 8 novembre 2026, « logements suroccupés » de l'INSEE datés du RPPS) #}
       <dt>Version</dt><dd>Calculé le {{ date_longue }}{% if f.prof and date_rpps %}, répertoire RPPS du {{ date_rpps }}{% endif %}</dd>

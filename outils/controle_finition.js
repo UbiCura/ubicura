@@ -280,7 +280,7 @@
       if (!figs.length) return;
       const bord = Math.max(...figs.map(f => f.getBoundingClientRect().right));
       // le sous-titre des pages est sur les sept colonnes de la grille (Lucas, 7 novembre 2026, proposition 1)
-      [...par.children].filter(e => e.matches("p,ul,ol,.comment-lire,.source,.note") && !e.matches(".chapeau:not(.version)") && vis(e) && !cache(e)).forEach(p => {
+      [...par.children].filter(e => e.matches("p,ul,ol,.comment-lire,.source,.note") && !e.matches(".chapeau:not(.version),.reponse-d") && vis(e) && !cache(e)).forEach(p => {
         const r = p.getBoundingClientRect();
         if (r.width < 300) return;                       // une phrase courte ou une colonne étroite n'est pas mesurée
         const d = bord - r.right;
@@ -295,8 +295,9 @@
   {
     let n = 0, ex = "", ecart = 0;
     document.querySelectorAll("main p,main ul,main ol,main .comment-lire,main .source,main .note").forEach(p => {
-      // le sous-titre des pages est sur les sept colonnes de la grille (Lucas, 7 novembre 2026, proposition 1)
-      if (!vis(p) || cache(p) || p.matches(".chapeau") || getComputedStyle(p).maxWidth === "none") return;
+      // le sous-titre des pages est sur les sept colonnes de la grille (Lucas, 7 novembre 2026, proposition 1), et la
+      // phrase qui le suit sur les pages de domaine aussi (Lucas, 10 novembre 2026, sur captures)
+      if (!vis(p) || cache(p) || p.matches(".chapeau,.reponse-d") || getComputedStyle(p).maxWidth === "none") return;
       const par = p.parentElement, sp = getComputedStyle(par), rp = par.getBoundingClientRect();
       const droite = rp.right - parseFloat(sp.paddingRight) - parseFloat(sp.borderRightWidth);
       const largeur = droite - rp.left - parseFloat(sp.paddingLeft) - parseFloat(sp.borderLeftWidth);
@@ -308,6 +309,68 @@
       if (d > 8) { n++; if (d > ecart) { ecart = d; ex = nom(p); } }
     });
     if (n) sortie.defauts.push(`colonne étroite : ${n} texte(s) bridés avant le bord de leur colonne, jusqu'à ${Math.round(ecart)} px (${ex})`);
+  }
+  // 11 bis b. l'en-tête du site tient sur une seule ligne, menu déplié ou replié derrière « Menu » (10 novembre 2026 :
+  //     avec Explorer, « Fond sombre » passait à la ligne entre 1 000 et 1 100 px)
+  {
+    const nav = document.querySelector("nav.site .in");
+    if (nav && !document.querySelector("nav.site.ouvert")) {
+      const items = [...nav.querySelectorAll(":scope > *, :scope > .liens > *")]
+        .filter(e => getComputedStyle(e).display !== "contents" && vis(e) && e.getBoundingClientRect().width > 0);
+      const milieux = items.map(e => { const r = e.getBoundingClientRect(); return r.top + r.height / 2; });
+      if (milieux.length > 1 && Math.max(...milieux) - Math.min(...milieux) > 12)
+        sortie.defauts.push("en-tête du site sur plusieurs lignes (" + items.map(e => (e.textContent || "").trim().slice(0, 14)).filter(Boolean).slice(-2).join(", ") + ")");
+    }
+  }
+  // 11 bis c. relecture indépendante du 11 novembre 2026 : texte écrit par les scripts sans espace insécable (2.4) ;
+  //     nom de commune posé sur un point d'« Autour d'un lieu » (2.5) ; texte de figure illisible au téléphone (2.7)
+  {
+    if (document.readyState !== "complete") await new Promise(r => addEventListener("load", r, { once: true }));
+    await new Promise(r => setTimeout(r, 400));
+    const tw = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    let n = 0, ex = "", x;
+    while ((x = tw.nextNode())) {
+      const p = x.parentElement;
+      if (!p || p.closest("script,style,code,pre,textarea,svg,input,select,option,#controle-finition") || !vis(p)) continue;
+      const m = x.nodeValue.match(/\d \d{3}(?!\d)|« |[^\s] »|\d (?:%|€)/);
+      if (m) { n++; ex = ex || "« " + x.nodeValue.trim().slice(0, 50) + " »"; }
+    }
+    if (n) sortie.defauts.push(`espace ordinaire là où il faut une insécable : ${n} texte(s) (${ex})`);
+    const noms = [...document.querySelectorAll("#zc text.nom-com")], pts = [...document.querySelectorAll("#zc .st")];
+    noms.forEach(t => {
+      const a = t.getBoundingClientRect();
+      const k = pts.filter(q => { const b = q.getBoundingClientRect(); return a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom; }).length;
+      if (k) sortie.defauts.push(`nom « ${t.textContent} » posé sur ${k} point(s) de la carte`);
+    });
+    // le lieu choisi garde son nom sur sa carte (revérification de l'audit, 11 novembre 2026 : Rodez n'était plus nommé)
+    const lieu = document.querySelector("#zc circle.lieu title");
+    if (lieu && !noms.some(t => t.textContent.trim() === lieu.textContent.trim()))
+      sortie.defauts.push(`lieu choisi « ${lieu.textContent.trim()} » sans son nom sur la carte`);
+    // la case « non publié » de la légende en texte garde sa hachure (un fond url(#motif) restait vide)
+    document.querySelectorAll(".leg-classes i").forEach(i => {
+      if (vis(i) && getComputedStyle(i).backgroundImage === "none" && getComputedStyle(i).backgroundColor === "rgba(0, 0, 0, 0)")
+        sortie.defauts.push("case de légende sans couleur ni hachure");
+    });
+    if (innerWidth <= 640) {
+      let m2 = 0, ex2 = "";
+      document.querySelectorAll('main figure svg[aria-label*="en cinq classes"] text').forEach(t => {
+        if (!vis(t) || !t.textContent.trim()) return;
+        const h = t.getBoundingClientRect().height;
+        if (h > 0 && h < 9) { m2++; ex2 = ex2 || "« " + t.textContent.trim().slice(0, 30) + " »"; }
+      });
+      if (m2) sortie.defauts.push(`légende de carte de moins de 9 px au téléphone : ${m2} (${ex2})`);
+    }
+  }
+  // 11 ter. sur les pages de domaine, le sous-titre, la phrase qui le suit et la colonne de la carte finissent au même bord
+  //     droit, celui des sept colonnes de la grille (Lucas, 10 novembre 2026, sur captures : 13 px d'écart avant)
+  if (innerWidth > 900) {
+    const els = ["main.domaine header.tete .chapeau", "main.domaine .reponse-d", "main.domaine .phares > :first-child"]
+      .map(s => document.querySelector(s)).filter(e => e && vis(e));
+    if (els.length === 3) {
+      const bords = els.map(e => e.getBoundingClientRect().right);
+      const e = Math.max(...bords) - Math.min(...bords);
+      if (e > 2) sortie.defauts.push("sous-titre, phrase et carte de la page de domaine qui finissent à " + Math.round(e) + " px l'un de l'autre");
+    }
   }
   // 11 quater. un texte ne touche pas le bord gauche ou droit du cadre qui le contient (7 novembre 2026, « Comment
   //     lire » de la carte d'« Autour d'un lieu », collé au filet de son encadré, vu par Lucas) : 4 px au moins entre
@@ -334,7 +397,11 @@
   // 11 quinquies. l'atlas mène à la fiche du territoire choisi (promesse de l'accueil, demande de Lucas du 2 novembre
   //     2026 ; l'encadré ne menait qu'aux rapports, relevé par l'audit de la navigation du 8 novembre)
   if (/atlas\.html$/.test(location.pathname.replace(/_finition_atlas[^/]*\.html$/, "atlas.html")) && document.getElementById("tip")) {
-    const t = [...document.querySelectorAll("svg path")].find(e => { const r = e.getBoundingClientRect(); return r.width > 8 && r.height > 8 && r.top >= 0 && r.bottom <= innerHeight; });
+    // un territoire de la carte elle-même, amenée à l'écran : à 883 px, la carte commence sous le premier écran et le
+    // contrôle cliquait une case de légende (10 novembre 2026)
+    const carte = document.querySelector("svg#map");
+    if (carte) { carte.scrollIntoView({block: "center"}); await new Promise(r => setTimeout(r, 200)); }
+    const t = [...document.querySelectorAll(carte ? "svg#map path" : "svg path")].find(e => { const r = e.getBoundingClientRect(); return r.width > 8 && r.height > 8 && r.top >= 0 && r.bottom <= innerHeight; });
     if (t) {
       const b = t.getBoundingClientRect();
       t.dispatchEvent(new MouseEvent("click", {bubbles: true, clientX: b.x + b.width / 2, clientY: b.y + b.height / 2}));

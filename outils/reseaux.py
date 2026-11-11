@@ -18,6 +18,13 @@ donnees\\messagerie\\reseaux\\ (hors de Git).
     python outils\\reseaux.py suivre [--essai]       abonne le compte Bluesky du projet aux comptes cochés par Lucas
                                                     dans docs\\reseaux\\comptes_a_suivre.csv, cinq par jour au plus
                                                     (aussi lancé par messagerie.py envoyer-programmes)
+    python outils\\reseaux.py ne-plus-suivre ID      retire un abonnement fait par l'outil, et décoche le compte
+    python outils\\reseaux.py republier [--essai]    republie au plus un message par semaine d'un producteur de
+                                                    données (DREES, Insee, Santé publique France, IRDES, Assurance
+                                                    Maladie) qui annonce une donnée reprise par le site, sur règles
+                                                    écrites (décision de Lucas du 11 novembre 2026, aussi lancé par
+                                                    messagerie.py envoyer-programmes) ; --arreter, --reprendre
+    python outils\\reseaux.py annuler-republication [ADRESSE]   retire la dernière republication (ou celle donnée)
 
 Interfaces officielles seulement, jamais d'automate qui pilote un compte, jamais le mot de passe principal d'un compte.
 Les identifiants sont saisis par Lucas et rangés dans le gestionnaire d'identifiants de Windows (outils/identifiants.py),
@@ -42,7 +49,8 @@ Fichiers de donnees\\messagerie\\reseaux\\
     messages\\<id>.json          message (a_relire, plus_tard, programme, publie, ecarte), une version par réseau
     figures\\<id>.png            figure du message, copiée à l'ajout ; une figure changée annule la validation
     journal_publications.csv    date, réseau, message, adresse publique et texte de chaque publication
-    journal_abonnements.csv     date, état (suivi, deja_suivi) et compte de chaque abonnement sur Bluesky
+    journal_abonnements.csv     date, état (suivi, deja_suivi, retire) et compte de chaque abonnement sur Bluesky
+    journal_republications.csv  date, état (republie, deja_republie, annule), producteur, message, règle retenue
     etat.json                   autorisation LinkedIn (date d'expiration), sans aucun secret
 """
 from __future__ import annotations
@@ -553,7 +561,8 @@ def remplacer(m_neuf: dict) -> str:
 def publier_programmes(publieurs=None, maintenant_=None) -> int:
     """Publie les messages programmés dont l'heure est passée. Ne publie jamais et remet à relire :
     - un message changé depuis le clic (texte, réseaux, texte de remplacement, figure) ;
-    - un message dont les chiffres viennent d'une version plus ancienne que celle en ligne (champ « donnees ») ;
+    - un message dont les chiffres viennent d'une version plus ancienne que celle en ligne (champ « donnees »), ou
+      d'une version plus récente, pas encore en ligne (brouillon, édition en préparation) ;
     - un message qui n'est pas parti dans les six heures suivant son heure.
     Codes 0 rien à faire ou tout publié, 20 au moins un échec (le message reste programmé et sera retenté)."""
     code = 0
@@ -570,6 +579,10 @@ def publier_programmes(publieurs=None, maintenant_=None) -> int:
             continue
         if m.get("donnees") and en_ligne and m["donnees"] < en_ligne:
             retour(m, f"chiffres de la version du {m['donnees']}, plus ancienne que celle en ligne ({en_ligne})")
+            continue
+        # chiffres d'un brouillon ou d'une édition pas encore publiée : ils ne sont pas encore sur la page liée
+        if m.get("donnees") and en_ligne and m["donnees"] > en_ligne:
+            retour(m, f"chiffres de la version du {m['donnees']}, pas encore en ligne (en ligne, {en_ligne})")
             continue
         if ici - quand > dt.timedelta(hours=DELAI_DEPART):
             retour(m, f"non parti à l'heure (prévu le {quand.strftime('%d/%m/%Y à %H:%M')})")
@@ -748,8 +761,9 @@ def suivre(essai: bool = False, discret: bool = False, resoudre=None, deja=None,
 
 def etat_suivis() -> dict:
     """Pour la fenêtre, {did: texte de l'état} des comptes déjà traités."""
-    return {j["did"]: ("suivi le " if j["etat"] == "suivi" else "déjà suivi, constaté le ") +
-            f"{j['date'][8:10]}/{j['date'][5:7]}" for j in journal_abonnements()}
+    noms = {"suivi": "suivi le ", "retire": "retiré le ", "deja_suivi": "déjà suivi, constaté le "}
+    return {j["did"]: noms.get(j["etat"], "traité le ") + f"{j['date'][8:10]}/{j['date'][5:7]}"
+            for j in journal_abonnements()}
 
 
 def etat_comptes() -> dict:
@@ -974,13 +988,352 @@ def cmd_suivre(args) -> int:
     return suivre(essai=args.essai)
 
 
+def cmd_republier(args) -> int:
+    if args.arreter or args.reprendre:
+        etat = lire_json(ETAT, {}) or {}
+        etat["republication_arretee"] = bool(args.arreter)
+        ecrire_json(ETAT, etat)
+        print("Republications arrêtées, rien ne sera plus republié." if args.arreter
+              else "Republications reprises, au plus une par semaine.")
+        return 0
+    return republier(essai=args.essai)
+
+
+def cmd_annuler_republication(args) -> int:
+    print(annuler_republication(args.message))
+    return 0
+
+
+def cmd_ne_plus_suivre(args) -> int:
+    print(ne_plus_suivre(args.identifiant))
+    return 0
+
+
 def suivre_discret() -> int:
-    """Pour envoyer-programmes (tâche planifiée), n'écrit que ce qui a été fait ou a échoué."""
+    """Pour envoyer-programmes (tâche planifiée et mise à jour quotidienne), n'écrit que ce qui a été fait ou a
+    échoué : les abonnements du jour, puis la republication de la semaine (décision de Lucas du 11 novembre 2026)."""
+    code = 0
     try:
-        return suivre(discret=True)
+        code = suivre(discret=True)
     except Arret as e:
         print(f"Abonnements Bluesky, {e}")
+        code = 20
+    try:
+        code = max(code, republier(discret=True))
+    except Arret as e:
+        print(f"Republication Bluesky, {e}")
+        code = 20
+    return code
+
+
+# ---------------------------------------------------------------- republication des producteurs de données
+# Décision de Lucas du 11 novembre 2026 (« Oui mais tu pourras automatiser pour moi ? ») : au plus une fois par
+# semaine, l'outil republie sur le compte du projet un message d'un producteur de données que le site reprend, quand
+# il annonce une publication de données, jamais une prise de position. Règles écrites ci-dessous, toutes à la fois ;
+# un doute écarte le message. Lexique app.bsky.feed.repost (dépôt bluesky-social/bsky,
+# lexicons/app/bsky/feed/repost.json, subject en référence forte uri et cid, createdAt obligatoires), messages lus par
+# app.bsky.feed.getAuthorFeed sur l'API publique. Journal lisible par Lucas, retrait par « annuler-republication ».
+COLLECTION_REPUBLICATION = "app.bsky.feed.repost"
+JOURNAL_REPUBLICATIONS = DOSSIER / "journal_republications.csv"
+# liste fermée, DID relus dans docs/reseaux/comptes_a_suivre.csv (vérifiés le 29 octobre 2026)
+PRODUCTEURS = {
+    "did:plc:ecmselj7dr55hxg55of4pzzn": "DREES",
+    "did:plc:d2nphdtqd3m6g2un4ujg5sru": "Insee",
+    "did:plc:fy5ieppmkl5x64yjrapxygc3": "Santé publique France",
+    "did:plc:s5imkrctnielunsvsd5h32k7": "IRDES",
+    "did:plc:nzajhad56k42bnwwem2hwyrr": "Assurance Maladie",
+}
+REPUBLICATION_JOURS = 7          # au plus une republication sur sept jours glissants, rien de plus vieux que 7 jours
+REPUBLICATION_LECTURE_HEURES = 6  # les producteurs ne sont relus qu'une fois toutes les six heures
+_I = re.IGNORECASE
+# une annonce de données : un verbe ou un mot de publication, et au moins un chiffre
+REGLE_ANNONCE = re.compile(
+    r"\b(publie|publient|publié|publiée|publiés|publiées|diffuse|actualise|met à disposition|nouvelles? données|"
+    r"données|statistiques|étude|enquête|résultats|chiffres|bulletin|BEH|Études et résultats|Insee Première|"
+    r"Insee Focus|Insee Résultats|Questions d.économie de la santé|QES|Graphique du mois|panorama|"
+    r"tableau de bord|indicateurs?)\b", _I)
+# un sujet que le site reprend : offre de soins, santé, santé mentale, population, pauvreté et aide sociale. Les mots
+# des territoires (région, département) et du revenu seuls ne suffisent pas : l'Insee les emploie pour le PIB ou
+# l'endettement, que le site ne reprend pas (essai du 11 novembre 2026 sur les messages réels des producteurs).
+REGLE_SUJET = re.compile(
+    r"santé|soins?\b|médecins?|psychiatr|psycholog|hôpita|hospitali|établissements? de santé|"
+    r"professions? (de santé|paramédica|médica)|professionnels? de santé|démograph|population|naissances?|décès|"
+    r"mortalité|espérance de vie|accès aux soins|accessibilité|pathologie|maladies? chroniques?|"
+    r"affections? de longue|\bALD\b|pauvreté|minima sociaux|\bRSA\b|\bAAH\b|handicap|autonomie|EHPAD|"
+    r"personnes âgées|urgences|maternités?|périnat|infirmi|pharmacien|dentistes?|kinésithérap|sages?-femmes?|"
+    r"aide sociale|protection maternelle|\bPMI\b|addict|alcool", _I)
+# ce qui écarte le message, quel que soit le reste
+EXCLUSIONS = {
+    "moyens de suicide et gestes auto-infligés (jamais, partie 3 des règles du projet)":
+        r"suicid|automutil|auto-?agress|gestes? auto|intoxications? volontaires?|pendaison|défenestr|"
+        r"armes? à feu|médicaments? létal",
+    "violences et sujets sensibles": r"violences?|agressions?|\bviols?\b|féminicide|délinquance|crimin|victimes?",
+    "réaction politique ou débat public": r"élections?|électora|ministre|gouvernement|projet de loi|PLFSS|"
+                                          r"loi de financement|réforme|Parlement|Assemblée nationale|Sénat|"
+                                          r"partis? politiques?|grève|mouvements? sociaux|manifestation|"
+                                          r"au service des débats",
+    "opinion ou proposition": r"opinion|pensent que|selon vous|tribune|point de vue|propositions?|nous défendons|"
+                              r"plaidoyer|il faut",
+    # « inscrits » et « dépistage » sont des données, pas des appels : motifs bornés (essai du 11 novembre 2026)
+    "appel, événement ou recrutement": r"recrut|stagiaire|\bstages?\b|concours|candidat|\binscri(?:ption|vez|re)|"
+                                       r"webinaire|séminaire|"
+                                       r"colloque|workshop|rencontres|save the date|journée (mondiale|nationale|"
+                                       r"internationale)|en direct|suivez|participez|participer|rejoignez|abonnez|"
+                                       r"newsletter|podcast|vidéo|quiz|félicitations|lauréat|challenge|appel à|"
+                                       r"forum|salon\b",
+    "campagne ou conseil de prévention": r"campagne|conseils?|astuces?|#?mois ?sans|vaccin|dépistage|téléservice|"
+                                         r"mobilis|"
+                                         r"appli|compte ?ameli|#FIERSDEPROTEGER",
+    "veille ou lettre, pas une donnée": r"veille|lettre d.information|bibliographi|revue de presse|"
+                                        r"actualité #?sant|rapport d.activité|interview|entretien avec",
+    # surveillance des épidémies et de l'environnement : Santé publique France en publie chaque semaine, le site ne
+    # les reprend pas (essai du 11 novembre 2026 sur sept mois de messages réels)
+    "surveillance épidémique ou environnementale, hors du site": r"chikungun|dengue|zika|arbovir|grippe|covid|"
+                                                                 r"bronchiolite|infections? respiratoires?|VIH|"
+                                                                 r"hépatites?|zona|varicelle|incendie|feux? de forêt|"
+                                                                 r"canicule|chlordécone|pollution|légionell|"
+                                                                 r"rougeole|méningit",
+}
+_EXCLUSIONS = {k: re.compile(v, _I) for k, v in EXCLUSIONS.items()}
+
+
+def lire_instant(t: str) -> dt.datetime:
+    """Date ISO de Bluesky (« 2026-11-09T10:00:05.123Z »), en datetime avec fuseau."""
+    t = re.sub(r"\.(\d{6})\d+", r".\1", str(t).replace("Z", "+00:00"))
+    d = dt.datetime.fromisoformat(t)
+    return d if d.tzinfo else d.replace(tzinfo=dt.timezone.utc)
+
+
+def liens_message(rec: dict) -> list[str]:
+    """Adresses des liens d'un message : facettes de lien et carte de lien (embed external)."""
+    out = [x.get("uri") for f in rec.get("facets") or [] for x in f.get("features") or []
+           if str(x.get("$type", "")).endswith("#link") and x.get("uri")]
+    e = rec.get("embed") or {}
+    for bloc in (e, e.get("media") or {}):
+        if "external" in bloc and bloc["external"].get("uri"):
+            out.append(bloc["external"]["uri"])
+    return out
+
+
+def juger_republication(item: dict, ici: dt.datetime | None = None) -> tuple[bool, str]:
+    """(retenu, raison) pour un élément du fil d'un producteur (app.bsky.feed.getAuthorFeed). Toutes les règles
+    doivent passer : auteur de la liste fermée, message propre (ni réponse, ni citation, ni republication), de moins de
+    sept jours, sans étiquette de modération, avec un lien, une annonce de données chiffrée sur un sujet que le site
+    reprend, et aucune exclusion."""
+    ici = ici or dt.datetime.now(dt.timezone.utc)
+    p = item.get("post") or {}
+    rec = p.get("record") or {}
+    texte = str(rec.get("text") or "")
+    if item.get("reason"):
+        return False, "republication d'un autre message"
+    if (p.get("author") or {}).get("did") not in PRODUCTEURS:
+        return False, "auteur hors de la liste des producteurs"
+    if rec.get("reply"):
+        return False, "réponse à un autre message"
+    if "record" in str((rec.get("embed") or {}).get("$type", "")):
+        return False, "citation d'un autre message"
+    if p.get("labels"):
+        return False, "message étiqueté par la modération"
+    if not (p.get("uri") and p.get("cid")):
+        return False, "message sans adresse"
+    age = ici - lire_instant(rec.get("createdAt") or p.get("indexedAt"))
+    if age > dt.timedelta(days=REPUBLICATION_JOURS) or age < dt.timedelta(0):
+        return False, f"message de plus de {REPUBLICATION_JOURS} jours"
+    for motif, regle in _EXCLUSIONS.items():
+        if regle.search(texte):
+            return False, f"écarté, {motif} (« {regle.search(texte).group(0)} »)"
+    if not liens_message(rec):
+        return False, "aucun lien vers la publication"
+    if not (REGLE_ANNONCE.search(texte) and re.search(r"\d", texte)):
+        return False, "pas une annonce de données chiffrée"
+    # le nom des producteurs (« Santé publique France ») ne fait pas le sujet
+    sujet = re.sub(r"Santé publique France|Assurance Maladie|Questions d.économie de la santé", " ", texte, flags=_I)
+    if not REGLE_SUJET.search(sujet):
+        return False, "sujet que le site ne reprend pas"
+    return True, (f"annonce de données de {PRODUCTEURS[p['author']['did']]} (« {REGLE_ANNONCE.search(texte).group(0)} »,"
+                  f" sujet « {REGLE_SUJET.search(sujet).group(0)} »)")
+
+
+def journal_republications() -> list[dict]:
+    if not JOURNAL_REPUBLICATIONS.exists():
+        return []
+    with JOURNAL_REPUBLICATIONS.open(encoding="utf-8-sig", newline="") as f:
+        return list(csv.DictReader(f, delimiter=";"))
+
+
+def journaliser_republication(etat: str, producteur: str, message: str, adresse: str, extrait: str, regle: str,
+                              enregistrement: str = "") -> None:
+    neuf = not JOURNAL_REPUBLICATIONS.exists()
+    JOURNAL_REPUBLICATIONS.parent.mkdir(parents=True, exist_ok=True)
+    with JOURNAL_REPUBLICATIONS.open("a", encoding="utf-8-sig" if neuf else "utf-8", newline="") as f:
+        w = csv.writer(f, delimiter=";")
+        if neuf:
+            w.writerow(["date", "etat", "producteur", "message", "adresse", "extrait", "regle", "enregistrement"])
+        w.writerow([maintenant(), etat, producteur, message, adresse, extrait, regle, enregistrement])
+
+
+def fil_public(did: str, n: int = 30) -> list[dict]:
+    """Derniers messages d'un compte, sans réponses, lus sur l'API publique (aucun secret)."""
+    requests = _http()
+    try:
+        r = requests.get(f"{BLUESKY_PUBLIC}/xrpc/app.bsky.feed.getAuthorFeed",
+                         params={"actor": did, "limit": n, "filter": "posts_no_replies"}, timeout=30)
+    except requests.RequestException as e:
+        raise Arret(f"Bluesky ne répond pas ({e.__class__.__name__}). Réessayer plus tard.") from e
+    if r.status_code != 200:
+        raise _erreur_http("Bluesky", r)
+    return r.json().get("feed", [])
+
+
+def deja_republie(moi: str, uri: str) -> bool:
+    """Vrai si le compte du projet a déjà republié ce message (à la main dans Bluesky compris)."""
+    requests = _http()
+    try:
+        r = requests.get(f"{BLUESKY_PUBLIC}/xrpc/app.bsky.feed.getRepostedBy", params={"uri": uri, "limit": 100},
+                         timeout=30)
+    except requests.RequestException as e:
+        raise Arret(f"Bluesky ne répond pas ({e.__class__.__name__}). Réessayer plus tard.") from e
+    return r.status_code == 200 and any(x.get("did") == moi for x in r.json().get("repostedBy", []))
+
+
+def enregistrement_republication(uri: str, cid: str, quand: dt.datetime) -> dict:
+    return {"$type": COLLECTION_REPUBLICATION, "subject": {"uri": uri, "cid": cid},
+            "createdAt": quand.astimezone(dt.timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")}
+
+
+def ecrire_bluesky(s: dict, collection: str, record: dict) -> str:
+    """Un enregistrement dans le dépôt du compte du projet, renvoie son adresse at://."""
+    requests = _http()
+    try:
+        r = requests.post(f"{s['serveur']}/xrpc/com.atproto.repo.createRecord", timeout=60,
+                          headers={"Authorization": f"Bearer {s['jeton']}"},
+                          json={"repo": s["did"], "collection": collection, "record": record})
+    except requests.RequestException as e:
+        raise Arret(f"Bluesky ne répond pas ({e.__class__.__name__}). Réessayer plus tard.") from e
+    if r.status_code != 200:
+        raise _erreur_http("Bluesky", r)
+    return r.json()["uri"]
+
+
+def effacer_bluesky(s: dict, uri: str, collection: str) -> None:
+    """Retire un enregistrement du compte du projet (abonnement ou republication), par son adresse at://."""
+    repo, col, cle = (uri.removeprefix("at://").split("/") + ["", "", ""])[:3]
+    if col != collection or repo != s["did"]:
+        raise Arret(f"{uri} n'est pas un enregistrement {collection} du compte du projet, rien n'est retiré.")
+    requests = _http()
+    try:
+        r = requests.post(f"{s['serveur']}/xrpc/com.atproto.repo.deleteRecord", timeout=60,
+                          headers={"Authorization": f"Bearer {s['jeton']}"},
+                          json={"repo": s["did"], "collection": collection, "rkey": cle})
+    except requests.RequestException as e:
+        raise Arret(f"Bluesky ne répond pas ({e.__class__.__name__}). Réessayer plus tard.") from e
+    if r.status_code != 200:
+        raise _erreur_http("Bluesky", r)
+
+
+def republication_active() -> bool:
+    return not (lire_json(ETAT, {}) or {}).get("republication_arretee")
+
+
+def republier(essai: bool = False, discret: bool = False, lire=None, deja=None, ecrivain=None,
+              ici: dt.datetime | None = None) -> int:
+    """Republie au plus un message par semaine d'un producteur de données (PRODUCTEURS), choisi par
+    juger_republication : le plus récent qui passe toutes les règles et n'a jamais été republié. Rien si une
+    republication a eu lieu dans les sept derniers jours, si Lucas l'a arrêtée (« republier --arreter »), ou si les
+    producteurs ont été relus il y a moins de six heures. Avec essai, rien n'est envoyé ni écrit : la liste des messages
+    lus et la raison de chaque choix sont affichées. Codes 0 rien à faire ou fait, 20 échec."""
+    lire, deja, ecrivain = lire or fil_public, deja or deja_republie, ecrivain or ecrire_bluesky
+    ici = ici or dt.datetime.now(dt.timezone.utc)
+    if not republication_active() and not essai:
+        return 0
+    journal = journal_republications()
+    faites = [j for j in journal if j["etat"] == "republie"]
+    # une republication retirée compte quand même dans la semaine : elle a été vue
+    recente = [j for j in faites if ici - lire_instant(j["date"]) < dt.timedelta(days=REPUBLICATION_JOURS)]
+    if recente and not essai:
+        return 0
+    etat = lire_json(ETAT, {}) or {}
+    derniere = etat.get("republication_lue_le")
+    if (not essai and derniere
+            and ici - lire_instant(derniere) < dt.timedelta(hours=REPUBLICATION_LECTURE_HEURES)):
+        return 0
+    deja_vus = {j["message"] for j in journal}
+    candidats = []
+    for did, nom in PRODUCTEURS.items():
+        for item in lire(did):
+            ok, raison = juger_republication(item, ici)
+            uri = (item.get("post") or {}).get("uri", "")
+            if essai:
+                texte = str(((item.get("post") or {}).get("record") or {}).get("text") or "")
+                print(f"{'RETENU ' if ok else 'écarté'} {nom:22s} {texte[:70].replace(chr(10), ' ')!r}, {raison}")
+            if ok and uri not in deja_vus:
+                candidats.append((lire_instant(item["post"]["record"]["createdAt"]), nom, item, raison))
+    if not essai:
+        etat["republication_lue_le"] = ici.isoformat(timespec="seconds")
+        ecrire_json(ETAT, etat)
+    if not candidats:
+        if not discret:
+            print("Aucun message de producteur à republier cette semaine.")
+        return 0
+    _q, nom, item, raison = max(candidats, key=lambda x: x[0])
+    p = item["post"]
+    adresse = f"https://bsky.app/profile/{p['author'].get('handle') or p['author']['did']}/post/{p['uri'].rsplit('/', 1)[-1]}"
+    extrait = str(p["record"].get("text") or "")[:200].replace("\n", " ")
+    if essai:
+        print(f"Serait republié (essai, rien n'est envoyé) : {nom}, {adresse}")
+        if recente:
+            print(f"(en vrai, rien cette semaine : déjà une republication le {recente[-1]['date'][:10]})")
+        return 0
+    s = session_bluesky()
+    if deja(s["did"], p["uri"]):
+        journaliser_republication("deja_republie", nom, p["uri"], adresse, extrait, raison)
+        return 0
+    try:
+        enreg = ecrivain(s, COLLECTION_REPUBLICATION, enregistrement_republication(p["uri"], p["cid"], dt.datetime.now()))
+    except Arret as e:
+        print(f"Republication Bluesky non faite, nouvel essai au prochain passage ({e}).")
+        etat.pop("republication_lue_le", None)
+        ecrire_json(ETAT, etat)
         return 20
+    journaliser_republication("republie", nom, p["uri"], adresse, extrait, raison, enreg)
+    print(f"Bluesky, republication d'un message de {nom} ({adresse}). Pour la retirer : "
+          "reseaux.py annuler-republication")
+    return 0
+
+
+def annuler_republication(message: str | None = None, effaceur=None) -> str:
+    """Retire de Bluesky la dernière republication (ou celle du message donné, adresse at:// ou bsky.app)."""
+    effaceur = effaceur or effacer_bluesky
+    faites = [j for j in journal_republications() if j["etat"] == "republie"]
+    annulees = {j["message"] for j in journal_republications() if j["etat"] == "annule"}
+    faites = [j for j in faites if j["message"] not in annulees
+              and (not message or message in (j["message"], j["adresse"]))]
+    if not faites:
+        raise Arret("aucune republication à retirer dans le journal.")
+    j = faites[-1]
+    effaceur(session_bluesky(), j["enregistrement"], COLLECTION_REPUBLICATION)
+    journaliser_republication("annule", j["producteur"], j["message"], j["adresse"], j["extrait"],
+                              "retirée à la demande de Lucas", j["enregistrement"])
+    return f"Republication retirée de Bluesky ({j['producteur']}, {j['adresse']})."
+
+
+def ne_plus_suivre(identifiant: str, effaceur=None) -> str:
+    """Retire un abonnement fait par l'outil et décoche le compte dans la liste : il ne sera jamais repris."""
+    effaceur = effaceur or effacer_bluesky
+    ident = identifiant.strip().lstrip("@")
+    j = [x for x in journal_abonnements() if x["identifiant"] == ident and x["etat"] == "suivi" and x["enregistrement"]]
+    if not j:
+        raise Arret(f"aucun abonnement de l'outil à @{ident} dans le journal (un abonnement fait à la main se retire "
+                    "dans l'application Bluesky).")
+    c = j[-1]
+    effaceur(session_bluesky(), c["enregistrement"], COLLECTION_SUIVI)
+    journaliser_abonnement(c, "retire", c["enregistrement"])
+    lignes = lire_comptes()
+    for x in lignes:
+        if x["did"] == c["did"]:
+            x["valide"] = ""
+    ecrire_comptes(lignes)
+    return f"Abonnement à {c['nom']} (@{ident}) retiré, compte décoché dans la liste."
 
 
 # ---------------------------------------------------------------- choix des comptes à suivre
@@ -1449,6 +1802,17 @@ def main() -> int:
     p = sous.add_parser("suivre")
     p.add_argument("--essai", action="store_true", help="dit ce qui serait fait, sans rien envoyer")
     p.set_defaults(f=cmd_suivre)
+    p = sous.add_parser("ne-plus-suivre")
+    p.add_argument("identifiant")
+    p.set_defaults(f=cmd_ne_plus_suivre)
+    p = sous.add_parser("republier")
+    p.add_argument("--essai", action="store_true", help="dit ce qui serait republié et pourquoi, sans rien envoyer")
+    p.add_argument("--arreter", action="store_true", help="arrête toute republication")
+    p.add_argument("--reprendre", action="store_true", help="reprend les republications")
+    p.set_defaults(f=cmd_republier)
+    p = sous.add_parser("annuler-republication")
+    p.add_argument("message", nargs="?", help="adresse du message republié, la dernière republication sinon")
+    p.set_defaults(f=cmd_annuler_republication)
     args = ap.parse_args()
     try:
         return args.f(args)

@@ -874,7 +874,8 @@ def html_autonome(iso: str, cle: str, cible: Path, archivee: bool = True) -> Pat
                   lambda m: "<style>" + (GABARITS / "style.css").read_text(encoding="utf-8") + "</style>", html)
     if "<link rel=\"stylesheet\"" in html:
         raise RuntimeError("feuille de style non intégrée dans le rapport HTML autonome")
-    cible.write_text(html, encoding="utf-8")
+    from .typographie import insecables
+    cible.write_text(insecables(html), encoding="utf-8")
     return cible
 
 
@@ -1145,6 +1146,9 @@ def construire_methode(env, commun, dernier, site_data, ddir, pages, fiches_sour
             dict(ctx, titre=titre_page), vue=cle, pages_methode=pages_methode, titre_page=titre_page,
             chapeau_page=chapeaux[cle], **contenu), encoding="utf-8")
         pages.append(SITE / fichier)
+        # espaces insécables du français, comme les autres pages (contre-relecture du 10 novembre 2026)
+        from .typographie import insecables
+        (SITE / fichier).write_text(insecables((SITE / fichier).read_text(encoding="utf-8")), encoding="utf-8")
 
     # à propos, texte versionné dans contenus/a_propos.md
     src = config.RACINE / "contenus" / "a_propos.md"

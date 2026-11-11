@@ -73,6 +73,7 @@ def choroplethe(A: dict, lv: str, ind: str, titre: str, unite: str, largeur=660)
                  f'<title>{html.escape(info(c))}</title></path>')
     y = A["H"] + 8
     lim = [tri[0]] + bornes + [tri[-1]]
+    s.append('<g class="leg-svg">')
     for k in range(5):
         x = 70 + k * 96
         s.append(f'<rect x="{x}" y="{y}" width="92" height="12" fill="{CLASSES[k]}"/>')
@@ -80,7 +81,12 @@ def choroplethe(A: dict, lv: str, ind: str, titre: str, unite: str, largeur=660)
                  f'{AF.nombre(lim[k], g) or "0"} à {AF.nombre(lim[k + 1], g)}</text>')
     s.append(f'<rect x="{70 + 5 * 96 + 8}" y="{y}" width="16" height="12" fill="{VIDE}"/><text x="{70 + 5 * 96 + 28}" y="{y + 11}" '
              f'font-size="12" fill="var(--muted, #5D6371)" font-family="Work Sans, sans-serif">non publié</text>')
-    s.append("</svg>")
+    s.append("</g></svg>")
+    # au téléphone, la figure réduite rendait la légende illisible (6 px, relecture du 11 novembre 2026, 2.7) : la
+    # même légende en texte, à la taille des notes, sous la carte ; la légende dessinée reste pour l'export
+    s.append('<ul class="leg-classes" aria-hidden="true">' + "".join(
+        f'<li><i style="background:{CLASSES[k]}"></i>{AF.nombre(lim[k], g) or "0"} à {AF.nombre(lim[k + 1], g)}</li>'
+        for k in range(5)) + '<li><i class="hachure"></i>non publié</li></ul>')
     return "".join(s)
 
 

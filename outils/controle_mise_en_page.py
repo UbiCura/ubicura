@@ -1,6 +1,6 @@
 """Contrôle de mise en page du site construit, page type par page type (méthode de travail, Lucas, 6 novembre 2026).
 
-Chaque type de page est ouvert dans Edge sans fenêtre, à 1 280 px et à 375 px, puis tel qu'il s'imprime pour les pages
+Chaque type de page est ouvert dans Edge sans fenêtre, à 1 280, 1 024, 883 et 375 px, puis tel qu'il s'imprime pour les pages
 qui ont un PDF (rapports nationaux, rapports par territoire, fiches). Le contrôle de finition (outils/controle_finition.js)
 y relève les chevauchements, y compris dans les figures, les textes coupés, les pages qui défilent en largeur, le texte
 qui ne va pas jusqu'au bord droit de la figure de sa colonne, les couleurs trop proches du fond, les réglettes illisibles.
@@ -22,7 +22,9 @@ import controle_finition as CF  # noqa: E402
 from pipeline import config  # noqa: E402
 
 SITE = RACINE / "site"
-LARGEURS = {"ordinateur": (1280, 900), "telephone": (375, 812)}
+# quatre largeurs, celles du contrôle de finition : 1 024 et 883 px ajoutés le 10 novembre 2026 (« Fond sombre » à la
+# ligne entre 1 000 et 1 100 px, sous-titre de l'accueil justifié dans 523 px, vus hors des deux largeurs contrôlées)
+LARGEURS = dict(CF.LARGEURS)
 TAILLES_PAPIER_MAX = 2      # texte courant et tableaux, dans les rapports imprimés
 FILS = 3                    # navigateurs ouverts à la fois
 
