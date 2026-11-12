@@ -318,11 +318,44 @@ def premiere_ligne(chemin: Path, encodage="utf-8-sig") -> str:
         return f.readline().rstrip("\r\n")
 
 
+def tache_planifiee_en_cours() -> int | None:
+    """Numéro du processus de la tâche planifiée (outils/mise_a_jour.ps1) s'il tourne encore, sinon None. Le verrou
+    seul ne suffit pas (un arrêt brutal le laisse en place) : le processus qu'il nomme doit être vivant."""
+    from . import config
+    v = config.DONNEES / "mise_a_jour.verrou"
+    try:
+        pid = int(v.read_text(encoding="utf-8-sig").strip())
+    except (OSError, ValueError):
+        return None
+    import sys
+    if sys.platform != "win32":
+        return None
+    import ctypes
+    k = ctypes.windll.kernel32
+    h = k.OpenProcess(0x1000, False, pid)  # PROCESS_QUERY_LIMITED_INFORMATION, sans aucun droit d'agir sur lui
+    if not h:
+        return None
+    try:
+        code = ctypes.c_ulong()
+        vivant = k.GetExitCodeProcess(h, ctypes.byref(code)) and code.value == 259  # STILL_ACTIVE
+    finally:
+        k.CloseHandle(h)
+    return pid if vivant else None
+
+
 def marquer_seance() -> None:
     """Note qu'une séance de travail reconstruit ou contrôle le site (donnees/seance.verrou, daté). La tâche planifiée
     (outils/mise_a_jour.ps1) passe son tour pendant trois heures après la dernière marque : le 7 novembre 2026, elle a
-    relancé une reconstruction complète au milieu d'une séance."""
+    relancé une reconstruction complète au milieu d'une séance.
+
+    L'inverse aussi : si la tâche planifiée tourne déjà (donnees/mise_a_jour.verrou, processus vivant), la séance ne
+    lance rien de lourd et s'arrête ici (le 12 novembre 2026, une reconstruction et des contrôles de séance ont croisé
+    l'exécution de 8 h 23, et leurs résultats n'étaient pas valables)."""
     from . import config
+    tache = tache_planifiee_en_cours()
+    if tache:
+        raise RuntimeError(f"la tâche planifiée tourne (processus {tache}, donnees/mise_a_jour.verrou) : attendre sa fin "
+                           "avant toute reconstruction ou tout contrôle")
     try:
         import datetime as _dt
         (config.DONNEES / "seance.verrou").write_text(_dt.datetime.now().isoformat("T", "seconds"), encoding="utf-8")

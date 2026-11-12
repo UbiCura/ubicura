@@ -19,7 +19,10 @@ _REGLES = [
     (re.compile(r"(?<=\S) +(?=[;!?](?:\s|$|<|&))"), FINE),
     (re.compile(r"(?<=[\w\)»%]) +(?=:(?:\s|$))"), FINE),
     (re.compile(r"(?<=\d) +(?=(?:%|‰|€|km|px|h|min|ans?|pour)\b|%|‰|€)"), INSECABLE),
-    (re.compile(r"(?<=\d) (?=\d{3}\b)"), FINE),
+    # l'espace des gabarits \u00e9crite en entit\u00e9 (\u00ab 10&nbsp;000 \u00bb, Explorer) devient la m\u00eame espace fine
+    (re.compile(r"(?<=\d)(?:[ \u00a0]|&nbsp;|&#160;)(?=\d{3}\b)"), FINE),
+    # une unité qui suit une virgule reste avec ce qui la précède (« dermatologues, % », audit du 11 novembre 2026)
+    (re.compile(r"(?<=,) (?=(?:%|‰|€|km)(?:\s|$|<|\)))"), INSECABLE),
     # un nombre ne finit jamais une ligne : il reste avec le nom court qui le suit (« 29 octobre », « 11 versions »),
     # huit lettres au plus, pour que le texte justifié du téléphone ne creuse pas de blancs (« 10 000 habitants »)
     (re.compile(r"(?<=\d) (?=[a-zàâçéèêëîïôûùüÿœæ]{1,8}\b)"), INSECABLE),
@@ -30,6 +33,11 @@ _REGLES = [
     # un nom de fichier long peut passer à la ligne après un trait bas (« lieux_soins_dep.csv » laissait une ligne
     # justifiée vingt fois trop espacée) ; <wbr> ne se copie pas avec le nom
     (re.compile(r"(?<=[a-z0-9])_(?=[a-z0-9][\w.]{3,})"), "_<wbr>"),
+    # une adresse écrite en clair peut passer à la ligne après chaque barre oblique (« who.int/publications/i/item/… »
+    # laissait une ligne justifiée 3,25 fois trop espacée sur la page Méthode, 12 novembre 2026)
+    # seulement les adresses longues (30 signes et plus), jamais un DOI, que les contrôles et les lecteurs recopient
+    (re.compile(r"\b[\w-]+(?:\.[\w-]+)*\.[a-z]{2,}(?:/[\w.%~=?&-]+)+/?"),
+     lambda m: m.group(0) if len(m.group(0)) < 30 or m.group(0).startswith("doi.org") else m.group(0).replace("/", "/<wbr>")),
 ]
 
 

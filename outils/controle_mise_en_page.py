@@ -36,7 +36,7 @@ def pages_types(date: str) -> list[tuple[str, bool]]:
         f = sorted(SITE.glob(motif))
         return f[0].relative_to(SITE).as_posix() if f else None
     pages = [("index.html", False), ("atlas.html", False), ("atlas.html#?fam=tout&prof=ens_medecin_specialiste&niv=epci", False), ("explorer.html", False), ("croiser.html", False),
-             ("comparer.html", False), ("domaines.html", False), ("liens.html", False), ("methode.html", False),
+             ("comparer.html", False), ("comparer.html#t=dep:12,dep:81,epci:241200187", False), ("domaines.html", False), ("liens.html", False), ("methode.html", False),
              ("zone.html", False), ("zone.html#lieu=12202&rayon=20", False), ("rapports.html", False), ("journal.html", False), ("donnees-sources.html", False),
              ("territoires/index.html", False), ("domaine/offre-de-soins.html", False),
              ("domaine/sante-mentale.html", False), ("domaine/sante.html", False),

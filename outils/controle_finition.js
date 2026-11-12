@@ -327,15 +327,71 @@
   {
     if (document.readyState !== "complete") await new Promise(r => addEventListener("load", r, { once: true }));
     await new Promise(r => setTimeout(r, 400));
+    // la fenêtre « Croiser deux indicateurs » d'Explorer ne se charge qu'à l'approche de l'écran
+    const fen = document.getElementById("cxFenNuage");
+    if (fen) { fen.scrollIntoView({block: "center"}); await new Promise(r => setTimeout(r, 2500)); }
     const tw = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-    let n = 0, ex = "", x;
+    let n = 0, ex = "", x, abs = "";
     while ((x = tw.nextNode())) {
       const p = x.parentElement;
       if (!p || p.closest("script,style,code,pre,textarea,svg,input,select,option,#controle-finition") || !vis(p)) continue;
+      // message de repli d'une donnée ou d'une explication absente (« Explication absente de ce fichier de données »
+      // sous le nuage de points d'Explorer, vu par Lucas le 11 novembre 2026)
+      if (/absentes? de ce fichier/.test(x.nodeValue)) abs = abs || x.nodeValue.trim().slice(0, 60);
       const m = x.nodeValue.match(/\d \d{3}(?!\d)|« |[^\s] »|\d (?:%|€)/);
       if (m) { n++; ex = ex || "« " + x.nodeValue.trim().slice(0, 50) + " »"; }
     }
     if (n) sortie.defauts.push(`espace ordinaire là où il faut une insécable : ${n} texte(s) (${ex})`);
+    if (abs) sortie.defauts.push(`message de donnée absente affiché : « ${abs} »`);
+    // audit du 12 novembre 2026 : une colonne de tableau réduite à quelques lettres (« publi / que / Franc / e »), et, dans
+    // Comparer au téléphone, la valeur du premier territoire hors de l'écran
+    let etroites = 0, ex3 = "";
+    document.querySelectorAll("main td").forEach(td => {
+      if (!vis(td) || td.closest(".encadre-outils,.outils-figure")) return;
+      // innerText, le texte visible : un menu de ligne fermé (« Plus sur cette ligne ») n'est pas une colonne écrasée
+      const w = td.getBoundingClientRect().width, t = td.innerText.replace(/\s+/g, " ").trim();
+      if (w > 0 && w < 56 && t.length > 15 && /[a-zà-ÿ]{6,}/i.test(t)) { etroites++; ex3 = ex3 || "« " + t.slice(0, 40) + " »"; }
+    });
+    if (etroites) sortie.defauts.push(`colonne de tableau de moins de 56 px pour un texte long : ${etroites} cellule(s) (${ex3})`);
+    document.querySelectorAll("table.comp tbody tr").forEach((tr, i) => {
+      if (i > 12) return;
+      const td = tr.querySelector("td"); if (!td || !vis(td)) return;
+      const tw2 = document.createTreeWalker(td, NodeFilter.SHOW_TEXT); let x2;
+      while ((x2 = tw2.nextNode()) && !x2.nodeValue.trim()) {}
+      if (!x2) return;
+      const rg = document.createRange(); rg.selectNodeContents(x2); const b = rg.getBoundingClientRect();
+      if (b.width && b.left > innerWidth - 8) sortie.defauts.push("Comparer : valeur du premier territoire hors de l'écran « " + x2.nodeValue.trim().slice(0, 20) + " »");
+    });
+    let larges = 0;
+    const tw3 = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT); let x3;
+    while ((x3 = tw3.nextNode())) {
+      const p = x3.parentElement;
+      if (!p || p.closest("script,style,code,pre,textarea,svg,input,select,option") || !vis(p)) continue;
+      if (/\d\u00a0\d{3}(?!\d)/.test(x3.nodeValue)) larges++;
+    }
+    if (larges) sortie.defauts.push(`séparateur des milliers large au lieu de l'espace fine : ${larges} texte(s)`);
+    // figures lisibles au téléphone (Lucas, 12 novembre 2026) : une figure dont le texte tombe sous 9 px a son bouton
+    // « Agrandir la figure », et la figure agrandie se lit à 9 px au moins
+    if (innerWidth <= 640) {
+      await new Promise(r => setTimeout(r, 900));
+      const petit = s => { let m = Infinity; s.querySelectorAll("text").forEach(t => { if (!t.textContent.trim()) return; const h = t.getBoundingClientRect().height; if (h > 0 && h < m) m = h; }); return m; };
+      let sans = 0, ex4 = "", premier = null;
+      document.querySelectorAll("main svg, .panel svg").forEach(s => {
+        if (s.ownerSVGElement || s.closest(".fig-plein,nav,button,.leg-classes") || !vis(s) || s.getBoundingClientRect().width < 200) return;
+        if (petit(s) >= 9) return;
+        const h = s.closest("figure") || s.parentElement, b = h.querySelector(":scope > .fig-agrandir");
+        if (!b) { sans++; ex4 = ex4 || (s.getAttribute("aria-label") || (h.querySelector("figcaption") || {}).textContent || "").trim().slice(0, 50); }
+        else if (!premier) premier = b;
+      });
+      if (sans) sortie.defauts.push(`figure illisible au téléphone sans bouton « Agrandir » : ${sans} (« ${ex4} »)`);
+      if (premier) {
+        premier.click(); await new Promise(r => setTimeout(r, 200));
+        const o = document.querySelector(".fig-plein svg");
+        if (!o) sortie.defauts.push("le bouton « Agrandir la figure » n'ouvre rien");
+        else if (petit(o) < 9) sortie.defauts.push(`figure agrandie encore illisible : texte de ${Math.round(petit(o) * 10) / 10} px`);
+        const f = document.querySelector(".fig-plein-fermer"); if (f) f.click();
+      }
+    }
     const noms = [...document.querySelectorAll("#zc text.nom-com")], pts = [...document.querySelectorAll("#zc .st")];
     noms.forEach(t => {
       const a = t.getBoundingClientRect();

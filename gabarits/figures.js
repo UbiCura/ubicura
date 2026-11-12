@@ -370,3 +370,56 @@
   window.fenetres={toutes:function(replie){fens.forEach(function(f){poser(f,replie)})}};
   document.querySelectorAll("[data-fenetres]").forEach(function(b){b.onclick=function(){window.fenetres.toutes(b.dataset.fenetres==="replier")}});
 })();
+// Figures lisibles au téléphone (décision de Lucas du 12 novembre 2026, sur captures, prototypes/figures_telephone/) :
+// une figure dont le texte tomberait sous 9 px reçoit, sous son titre, un bouton « Agrandir la figure » qui l'ouvre en
+// plein écran, dessinée assez grand pour que son plus petit texte fasse au moins 11 px ; elle glisse si le téléphone
+// reste droit, et tient mieux s'il est tourné. Le style est posé ici, pour valoir aussi dans l'atlas.
+(function(){
+  var MIN=9,CIBLE=11,TEL="(max-width:640px)";
+  var st=document.createElement("style");
+  st.textContent=".fig-agrandir{display:none}@media "+TEL+"{.fig-agrandir{display:inline-block;margin:6px 0 10px;font:inherit;"+
+    "font-size:var(--t-note,.875rem);color:var(--ink);background:none;border:0;border-bottom:1px solid var(--line-fort);padding:4px 0;"+
+    "min-height:32px;cursor:pointer}}.fig-plein{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column}"+
+    ".fig-plein-tete{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line)}"+
+    ".fig-plein-tete p{margin:0;font-size:var(--t-note,.875rem);color:var(--muted);text-align:left}"+
+    ".fig-plein-fermer{font:inherit;font-size:var(--t-note,.875rem);background:none;border:0;border-bottom:1px solid var(--line-fort);"+
+    "padding:2px 0;color:var(--ink);cursor:pointer;flex:none;min-height:32px}"+
+    ".fig-plein-corps{flex:1;overflow:auto;padding:12px 16px}.fig-plein-corps svg{display:block;max-width:none!important}"+
+    "html.fig-plein-ouvert body{overflow:hidden}@media print{.fig-agrandir,.fig-plein{display:none!important}}";
+  document.head.appendChild(st);
+  function plusPetit(s){var m=Infinity;s.querySelectorAll("text").forEach(function(t){if(!t.textContent.trim())return;
+    var h=t.getBoundingClientRect().height;if(h>0&&h<m)m=h});return m}
+  function ouvrir(s,titre,bouton){
+    var w0=s.getBoundingClientRect().width,m=plusPetit(s),k=(m>0&&m<Infinity)?CIBLE/m:2;
+    var w=Math.min(Math.max(w0*k,innerWidth-32),1600);
+    var d=document.createElement("div");d.className="fig-plein";d.setAttribute("role","dialog");d.setAttribute("aria-modal","true");
+    d.setAttribute("aria-label",titre||"Figure agrandie");
+    var tete=document.createElement("div");tete.className="fig-plein-tete";var p=document.createElement("p");p.textContent=titre||"";
+    var fe=document.createElement("button");fe.type="button";fe.className="fig-plein-fermer";fe.textContent="Fermer";
+    tete.appendChild(p);tete.appendChild(fe);
+    var c=s.cloneNode(true);c.removeAttribute("width");c.removeAttribute("height");c.style.width=w+"px";c.style.height="auto";
+    var corps=document.createElement("div");corps.className="fig-plein-corps";corps.appendChild(c);
+    d.appendChild(tete);d.appendChild(corps);document.body.appendChild(d);document.documentElement.classList.add("fig-plein-ouvert");
+    function esc(e){if(e.key==="Escape")fermer()}
+    function fermer(){d.remove();document.documentElement.classList.remove("fig-plein-ouvert");document.removeEventListener("keydown",esc);bouton.focus()}
+    fe.onclick=fermer;document.addEventListener("keydown",esc);fe.focus()}
+  function preparer(){
+    if(!matchMedia(TEL).matches)return;
+    document.querySelectorAll("main svg, .panel svg").forEach(function(s){
+      if(s.ownerSVGElement||s.dataset.agrandir||s.closest(".fig-plein,nav,button,.leg-classes"))return;
+      if(s.getBoundingClientRect().width<200||plusPetit(s)>=MIN)return;
+      var h=s.closest("figure")||s.parentElement;s.dataset.agrandir="1";
+      if(h.querySelector(":scope > .fig-agrandir"))return;
+      var cap=h.querySelector(":scope > figcaption");
+      var titre=cap?cap.textContent.replace(/\s+/g," ").trim():(s.getAttribute("aria-label")||"");
+      var b=document.createElement("button");b.type="button";b.className="fig-agrandir";b.textContent="Agrandir la figure";
+      b.onclick=function(){ouvrir(h.querySelector(".variante:not([hidden]) svg")||s,titre,b)};
+      if(cap)cap.after(b);else h.insertBefore(b,h.firstChild)})}
+  var minuterie=null;function plusTard(){clearTimeout(minuterie);minuterie=setTimeout(preparer,400)}
+  if(document.readyState==="complete")plusTard();else addEventListener("load",plusTard);
+  addEventListener("resize",plusTard);
+  // figures dessinées après le chargement (atlas, Explorer, variantes)
+  new MutationObserver(function(ms){if(ms.some(function(m){return m.addedNodes.length}))plusTard()})
+    .observe(document.documentElement,{childList:true,subtree:true});
+  window.agrandirFigures=preparer;
+})();

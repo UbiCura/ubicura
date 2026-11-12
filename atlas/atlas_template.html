@@ -130,9 +130,10 @@ svg.map rect.t.sel{stroke:var(--choisi);stroke-width:3}
 svg.map text.tc{font-size:18px;font-weight:500;pointer-events:none;font-variant-numeric:tabular-nums}
 svg.map text.om{font-size:16px}
 .vuebar{position:absolute;top:10px;right:10px;z-index:2}
-.zoombar{position:absolute;top:48px;right:10px;z-index:2;display:flex;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:var(--panel)}
-.zoombar button{background:none;border:0;padding:4px 10px;cursor:pointer;color:var(--ink);font-size:var(--t-note);min-width:32px}
-.zoombar button+button{border-left:1px solid var(--line)}
+/* zoom sans boîte, en signes soulignés d'un filet, comme les figures (Lucas, 12 novembre 2026, « B, en signes ») */
+.zoombar{position:absolute;top:48px;right:10px;z-index:2;display:flex;gap:14px;padding:2px 6px;background:color-mix(in srgb,var(--bg) 85%,transparent)}
+.zoombar button{background:none;border:0;border-bottom:1px solid var(--line-fort);border-radius:0;padding:0 2px 2px;cursor:pointer;color:var(--ink);font-size:1.0625rem;min-width:22px;min-height:28px}
+.zoombar button+button{border-left:0}
 .zoombar button:hover{background:color-mix(in srgb,var(--ink) 8%,transparent)}
 svg.map.zoome{cursor:grab}svg.map.zoome:active{cursor:grabbing}
 .vuebar .seg{background:var(--panel)}

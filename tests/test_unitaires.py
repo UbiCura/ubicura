@@ -2783,7 +2783,8 @@ def test_site_sans_trace_de_programme():
     for f in pages:
         t = re.sub(r"<(script|style)[\s\S]*?</\1>", " ", f.read_text(encoding="utf-8", errors="replace"))
         # adresses, avec ou sans protocole (le texte d'un lien peut être l'adresse sans « https:// »)
-        t = re.sub(r"https?://\S+|\b[\w-]+(?:\.[\w-]+)+/\S*", " ", re.sub(r"<[^>]+>", " ", t))
+        # <wbr> (coupure permise dans une adresse longue, typographie.py) ne sépare pas l'adresse en morceaux
+        t = re.sub(r"https?://\S+|\b[\w-]+(?:\.[\w-]+)+/\S*", " ", re.sub(r"<[^>]+>", " ", t.replace("<wbr>", "")))
         for m in motif.finditer(t):
             trouves.setdefault(m.group(0), set()).add(f.name)
     assert not trouves, {k: sorted(v)[:3] for k, v in trouves.items()}
@@ -4203,6 +4204,10 @@ def test_photographies():
     assert list(ph.columns) == ["niveau", "code", "prof", "mode", "n"] and (ph["n"] > 0).all()
     assert set(ph["niveau"]) == set(photographies.NIVEAUX)
     d = _dernier_resultats()
+    if dern.get("execution") and d.name != dern["execution"]:
+        # la photographie vient d'une exécution plus récente que la version du site (12 novembre 2026 : version du
+        # 11 republiée, exécution du 12 mise de côté) ; elle se compare aux résultats de sa propre exécution
+        raise Ignore(f"photographie de l'exécution du {dern['execution']}, résultats du {d.name}")
     for niv in ("epci", "dep"):
         e = _csv(d, f"effectifs_{niv}_all.csv", dtype={"code": str})
         if e is None:
@@ -4823,6 +4828,10 @@ def test_empreinte_meme_calcul():
     e = _csv(d, "etablissements_verifies.csv", dtype=str)
     if e is None or "raison_reverification" not in e:
         raise Ignore("résultats antérieurs à la raison de revérification")
+    if sv.BASES.stat().st_mtime > (d / "etablissements_verifies.csv").stat().st_mtime:
+        # inscriptions plus récentes que la version du site (12 novembre 2026 : version du 11 republiée après une
+        # exécution du 12 qui a refait le cache) ; les empreintes se comparent dans une même exécution
+        raise Ignore("inscriptions en cache plus récentes que les résultats")
     ref = referentiel.charger(True)
     b = b.assign(dep=b["commune"].map(ref.communes.set_index("code")["dep"]))
     etab, _s = sv.charger()
@@ -7073,6 +7082,95 @@ def test_entete_une_ligne_largeurs_controlees():
     js = (config.RACINE / "outils" / "controle_finition.js").read_text(encoding="utf-8")
     assert "en-tête du site sur plusieurs lignes" in js
     assert {w for w, _ in M.LARGEURS.values()} >= {1280, 1024, 883, 375}
+
+
+def test_atlas_comment_lire_toutes_les_cles():
+    """Chaque « Comment lire » de l'atlas renvoie à des définitions qui existent dans le glossaire : le bloc
+    Addictologie affichait « Explication absente de ce fichier de données » (clé « addictions » absente, vu par Lucas le
+    11 novembre 2026)."""
+    import glob
+    import re
+    from pipeline import lecture
+    src = (config.RACINE / "atlas" / "atlas_template.html").read_text(encoding="utf-8")
+    src += "".join(Path(f).read_text(encoding="utf-8") for f in glob.glob(str(config.RACINE / "atlas" / "moteur" / "*.js")))
+    cles = {c for m in re.findall(r'data-how=\\?"([a-z_0-9,]+)', src) for c in m.split(",")}
+    assert len(cles) > 20, cles
+    connues = {g[0] for g in lecture.GLOSSAIRE} | {"libelles"}
+    assert not cles - connues, cles - connues
+
+
+def test_explorer_croisements_glossaire():
+    """La fenêtre de croisement d'Explorer reprend le moteur de l'atlas sans son initialisation : elle remplit elle-même le
+    glossaire avant son « Comment lire », qui sinon écrivait « Explication absente de ce fichier de données » (vu par
+    Lucas le 11 novembre 2026) ; les données d'Explorer portent ce glossaire."""
+    src = (config.RACINE / "gabarits" / "explorer_croisements.js").read_text(encoding="utf-8")
+    assert "GL = new Map((D.meta.glossaire" in src and src.index("GL = new Map") < src.index('howHtml("correlation')
+    f = config.RACINE / "site" / "explorer" / "donnees_croisements.js"
+    if f.exists():
+        assert '"glossaire"' in f.read_text(encoding="utf-8")
+    js = (config.RACINE / "outils" / "controle_finition.js").read_text(encoding="utf-8")
+    assert "message de donnée absente affiché" in js
+
+
+def test_audit_fable_defauts_publies():
+    """Audit Fable du 12 novembre 2026, défauts publiés : chaque limite a un nom lisible ; un lien d'une cellule ne la
+    laisse plus rétrécir à une lettre ; Comparer s'aligne à gauche au téléphone ; un seul séparateur des milliers ; le
+    titre du tableau des niveaux hors de la zone qui glisse ; et leurs contrôles."""
+    import re
+    from pipeline import limites as LI, typographie as TY
+    for l in LI.tableau():
+        assert "_" not in l["cle"] and l["cle"][:1].isupper(), l["cle"]
+    css = (config.RACINE / "gabarits" / "style.css").read_text(encoding="utf-8")
+    assert "main :is(p,li,dd,figcaption) a{overflow-wrap:anywhere}" in css and "main td a{overflow-wrap:break-word}" in css
+    assert "text-align:left!important}}" in (config.RACINE / "gabarits" / "comparer.html").read_text(encoding="utf-8")
+    assert TY.texte("81 274 et 256\u00a0518") == "81\u202f274\u00a0et 256\u202f518"
+    assert TY.texte("dermatologues, %") == "dermatologues,\u00a0%"
+    g = (config.RACINE / "gabarits" / "fiche_indicateur.html").read_text(encoding="utf-8")
+    assert '<table aria-labelledby="leg-niv">' in g and "<caption" not in g[g.index('id="t-niv"'):g.index('id="t-niv"') + 600]
+    js = (config.RACINE / "outils" / "controle_finition.js").read_text(encoding="utf-8")
+    assert "colonne de tableau de moins de 56 px" in js and "Comparer : valeur du premier territoire" in js
+    ctl = (config.RACINE / "outils" / "controle_decisions.py").read_text(encoding="utf-8")
+    assert "Chaque limite de la page Méthode a un nom lisible" in ctl and "Séparateur des milliers" in ctl
+
+
+def test_figures_telephone_agrandir_et_zoom():
+    """Figures lisibles au téléphone (Lucas, 12 novembre 2026, « Bouton Agrandir, plein écran ») et zoom sans boîte
+    (« B, en signes ») : le bouton et son plein écran dans le script commun des figures, le zoom souligné d'un filet sur
+    les figures et dans l'atlas, et le contrôle de mise en page qui les vérifie."""
+    f = (config.RACINE / "gabarits" / "figures.js").read_text(encoding="utf-8")
+    assert "Agrandir la figure" in f and "fig-plein" in f and "MIN=9,CIBLE=11" in f
+    css = (config.RACINE / "gabarits" / "style.css").read_text(encoding="utf-8")
+    assert "border-bottom:1px solid var(--line-fort);border-radius:0;background:none;color:var(--ink);cursor:pointer}" in css
+    assert ".zoom-boutons button{font:inherit;font-size:var(--t-note);width:28px" not in css
+    at = (config.RACINE / "atlas" / "atlas_template.html").read_text(encoding="utf-8")
+    assert ".zoombar button+button{border-left:0}" in at
+    js = (config.RACINE / "outils" / "controle_finition.js").read_text(encoding="utf-8")
+    assert "figure illisible au téléphone sans bouton" in js and "figure agrandie encore illisible" in js
+
+
+def test_seance_refuse_pendant_la_tache_planifiee():
+    """Le 12 novembre 2026, une reconstruction de séance a croisé l'exécution planifiée de 8 h 23 : une séance ne lance
+    plus rien de lourd tant que le processus nommé par donnees/mise_a_jour.verrou est vivant ; un verrou laissé par un
+    arrêt brutal ne bloque pas. Et la tâche ne s'arrête plus quand un producteur publie pendant qu'elle tourne."""
+    import os
+    from pipeline import util
+    v = config.DONNEES / "mise_a_jour.verrou"
+    if v.exists():
+        return  # la vraie tâche tourne : ne pas toucher à son verrou
+    try:
+        v.write_text(str(os.getpid()), encoding="utf-8")
+        assert util.tache_planifiee_en_cours() == os.getpid()
+        try:
+            util.marquer_seance()
+            raise AssertionError("marquer_seance aurait dû refuser")
+        except RuntimeError as e:
+            assert "tâche planifiée tourne" in str(e)
+        v.write_text("999999", encoding="utf-8")
+        assert util.tache_planifiee_en_cours() is None
+    finally:
+        v.unlink(missing_ok=True)
+    ps = (config.RACINE / "outils" / "mise_a_jour.ps1").read_text(encoding="utf-8")
+    assert "function PublieesPendant" in ps and "(PublieesPendant $debut)" in ps
 
 
 def test_fond_carte_dossier_neuf():

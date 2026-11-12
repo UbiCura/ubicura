@@ -228,6 +228,30 @@ def controler() -> int:
     note("Aucun article devant l'article élidé (« de la l'ensemble »)", articles)
     note("Petite France annoncée seulement si elle est dessinée", petite)
 
+    # 3 octies. audit du 12 novembre 2026 : chaque limite de la page Méthode a un nom lisible (« file_active »,
+    # « addictions » s'affichaient) ; un seul séparateur des milliers, l'espace fine insécable, dans tout le texte lu
+    noms_lim, milliers = [], []
+    v_site = max((d.name for d in (SITE / "rapports").iterdir() if re.fullmatch(r"\d{4}-\d{2}-\d{2}", d.name)), default="")
+    for p, s in sources.items():
+        r = rel(p)
+        for t in re.findall(r'<table class="simple limites">(.*?)</table>', s, flags=re.S):
+            for c in re.findall(r"<tr><td>(.*?)</td>", t, flags=re.S):
+                c = texte(c).strip()
+                if "_" in c or not c[:1].isupper():
+                    noms_lim.append((r, c))
+        # sur le texte brut : textes[p] ram\u00e8ne toute espace (fine comprise) \u00e0 l'espace ordinaire, et ne peut donc pas
+        # distinguer les s\u00e9parateurs (faux d\u00e9faut sur 1 635 pages le 12 novembre 2026) ; une balise devient \x00 pour ne
+        # pas souder deux cellules voisines
+        if re.match(r"rapports/(\d{4}-\d{2}-\d{2})/", r) and r.split("/")[1] != v_site:
+            continue  # rapports des versions passées, archivés tels qu'ils ont été publiés
+        brut = html.unescape(re.sub(r"<[^>]+>", "\x00", re.sub(
+            r"<script\b[^>]*>.*?</script\s*>|<style\b[^>]*>.*?</style\s*>", "\x00", s, flags=re.S | re.I)))
+        n = len(re.findall(r"\d[ \u00a0]\d{3}(?!\d)", brut))
+        if n:
+            milliers.append((r, f"{n} nombre(s) à espace ordinaire ou large"))
+    note("Chaque limite de la page Méthode a un nom lisible", noms_lim)
+    note("Séparateur des milliers : l'espace fine insécable seulement", milliers)
+
     # 3 septies. le repère d'une page d'indicateur dit si Mayotte y est comptée, d'après les valeurs mêmes (relecture du
     # 11 novembre 2026, 2.3 : « Mayotte comprise » sous une patientèle calculée sans elle)
     from pipeline import affichage as AF_, fiche_indicateur as FI_

@@ -76,8 +76,9 @@ main.indicateur .code{font-size:.875rem;background:var(--panel);border:1px solid
 {% endif %}
 <section class="sect" aria-labelledby="t-niv">
   <h2 id="t-niv">À chaque niveau</h2>
-  <div class="defile"><table>
-    <caption class="discret" style="text-align:left">{{ f.titre }}, répartition des territoires de chaque niveau</caption>
+  {# le titre hors de la zone qui glisse : dedans, il se coupait au téléphone (audit du 12 novembre 2026) #}
+  <p class="discret" id="leg-niv" style="text-align:left;margin:0 0 6px">{{ f.titre }}, répartition des territoires de chaque niveau</p>
+  <div class="defile"><table aria-labelledby="leg-niv">
     <thead><tr><th scope="col">Niveau</th><th scope="col" class="v">Territoires</th><th scope="col" class="v">Premier quart</th><th scope="col" class="v">Médiane</th><th scope="col" class="v">Dernier quart</th><th scope="col" class="v">Repère</th><th scope="col" class="v">Plus bas</th><th scope="col" class="v">Plus haut</th></tr></thead>
     <tbody>{% for n in f.par_niv %}<tr><td>{{ n.nom|capitalize }}</td><td class="v">{{ n.n|nombre('entier') }}</td><td class="v">{{ n.q1|nombre(f.g) }}</td><td class="v">{{ n.med|nombre(f.g) }}</td><td class="v">{{ n.q3|nombre(f.g) }}</td><td class="v">{{ n.rep|nombre(f.g) }}</td><td class="v">{{ n.min|nombre(f.g) }}{% if n.nzero %}<span class="note">{{ n.nzero|nombre('entier') }} territoire{{ 's' if n.nzero > 1 }} à 0</span>{% endif %}</td><td class="v">{{ n.max|nombre(f.g) }}</td></tr>{% endfor %}</tbody>
   </table></div>

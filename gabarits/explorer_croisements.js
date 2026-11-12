@@ -67,6 +67,9 @@ function finitions() {
 document.getElementById("prof").addEventListener("change", e => { S.prof = e.target.value; apresCx(); });
 // le nuage écoute déjà ses deux listes (nuage.js), l'adresse suit le choix
 for (const id of ["xvar", "yvar"]) document.getElementById(id).addEventListener("change", () => setTimeout(() => { finitions(); ecrireAdresse(ANCRE_CX); }, 0));
+// le glossaire du noyau n'est rempli que par l'initialisation de l'atlas, qu'Explorer ne lance pas : sans lui, le
+// « Comment lire » du nuage écrivait « Explication absente de ce fichier de données » (vu par Lucas le 11 novembre 2026)
+GL = new Map((D.meta.glossaire || []).map(g => [g.id, g]));
 document.querySelector("#" + ANCRE_CX + " .fen-lire").innerHTML = '<div class="comment-lire">' + howHtml("correlation,force,effet_ville,ecologique") + "</div>";
 
 depuisEtat();

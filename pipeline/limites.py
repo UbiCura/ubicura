@@ -54,7 +54,12 @@ NOMS = {"age_drees": "Âge des professionnels", "taux_depassement": "Dépassemen
         "mayotte": "Mayotte", "prof:medecin_travail": "Médecins du travail",
         "prof:medecin_sante_publique": "Médecins de santé publique", "prof:orthophoniste": "Orthophonistes, tous les âges",
         "prof:psychomotricien": "Psychomotriciens, tous les âges",
-        "lieux": "Structures de soins, FINESS et ROR réunis"}
+        "lieux": "Structures de soins, FINESS et ROR réunis",
+        # noms qui manquaient : la page Méthode montrait « file_active », « addictions », « confirmation » (audit du
+        # 12 novembre 2026)
+        "file_active": "Patientèle des libéraux (file active)", "addictions": "Addictologie",
+        "confirmation": "Confirmation des structures de soins",
+        "route_psychiatrie_ambulatoire": "Temps de route vers la psychiatrie ambulatoire"}
 
 
 def specialites_salariees(national, professions) -> dict:

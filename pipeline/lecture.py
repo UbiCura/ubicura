@@ -187,6 +187,14 @@ GLOSSAIRE = [
      "comptent plus de psychologues, cela ne dit ni que les personnes aisées consultent davantage, ni que le "
      "revenu attire les psychologues. D'autres facteurs, comme la présence d'une université ou d'un hôpital, "
      "peuvent expliquer les deux.", ""),
+    ("addictions", "Addictologie",
+     "La figure place chaque région selon la part des adultes qui déclarent consommer de l'alcool ou du tabac, et selon "
+     "les décès attribuables au tabac, chacun avec sa fourchette, d'après Santé publique France. Ces chiffres ne sont "
+     "publiés que par région et ne sont pas rapportés aux départements. Le tableau donne l'offre en France : les CSAPA "
+     "(centres de soins, d'accompagnement et de prévention en addictologie), les CAARUD (centres d'accueil et "
+     "d'accompagnement à la réduction des risques pour usagers de drogues) et les équipes hospitalières de liaison et de "
+     "soins en addictologie (ELSA). Une consommation plus fréquente ne dit pas, à elle seule, quelle offre serait "
+     "nécessaire, et ces chiffres décrivent des régions, pas des personnes.", ""),
     ("rpps", "Ce que mesure le RPPS",
      "Le répertoire national des professionnels de santé enregistre des lieux d'exercice déclarés. Il ne dit rien "
      "du temps de travail, des délais d'attente ni du nombre de patients reçus. Deux territoires avec la même "

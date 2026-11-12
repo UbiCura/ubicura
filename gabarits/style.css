@@ -394,8 +394,9 @@ button.citer-fig:hover,button.lire-fig:hover,button.citer-fig[aria-expanded="tru
 .graphique.zoomable .choix-variante{padding-right:110px}
 figure.zoomable .fig-corps{position:relative}
 figure.zoomable svg{cursor:grab;touch-action:none}
-.zoom-boutons{position:absolute;top:var(--e-2);right:0;display:flex;gap:var(--e-1);z-index:2}
-.zoom-boutons button{font:inherit;font-size:var(--t-note);width:28px;height:28px;border:1px solid var(--line-fort);background:var(--bg);color:var(--ink);border-radius:2px;cursor:pointer}
+/* zoom sans boîte, en signes soulignés d'un filet (Lucas, 12 novembre 2026, sur captures, « B, en signes ») */
+.zoom-boutons{position:absolute;top:var(--e-2);right:0;display:flex;gap:14px;z-index:2}
+.zoom-boutons button{font:inherit;font-size:1.0625rem;min-width:22px;min-height:28px;padding:0 2px 2px;border:0;border-bottom:1px solid var(--line-fort);border-radius:0;background:none;color:var(--ink);cursor:pointer}
 svg [data-choisi]{stroke:var(--choisi);stroke-width:2}
 figure.graphique svg [data-info]{cursor:pointer}
 /* légende en texte d'une carte dont la légende dessinée devient illisible sur téléphone */
@@ -1434,7 +1435,10 @@ h2{margin-top:var(--e-5)}
 .fiche .tete-l2 a{color:inherit}
 .fiche .tete-l2 .sans-cesure{hyphens:none;-webkit-hyphens:none}   /* « ver-sion » coupé au téléphone (audit du 6 novembre 2026) */
 /* une adresse longue (doi.org, data.gouv) passe à la ligne plutôt que de déborder au téléphone (audit du 6 novembre 2026) */
-main :is(p,li,td,dd,figcaption) a{overflow-wrap:anywhere}
+main :is(p,li,dd,figcaption) a{overflow-wrap:anywhere}
+/* dans un tableau, « anywhere » laissait la colonne rétrécir jusqu'à une lettre (« publi / que / Franc / e »,
+   page Méthode à 1 024 px, audit du 12 novembre 2026) : la cellule garde la largeur de son plus long mot */
+main td a{overflow-wrap:break-word}
 .fiche .cles-fiche{margin-top:20px}
 .fiche .cle-ensemble{font-size:var(--t-note);color:var(--muted);line-height:1.5;margin:14px 0 0;max-width:var(--mesure)}
 

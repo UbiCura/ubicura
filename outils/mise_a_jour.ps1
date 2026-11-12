@@ -82,6 +82,21 @@ function Verifier {
     return $code
 }
 
+function PublieesPendant([datetime]$depuis) {
+    # jeux encore signalés après la chaîne, si TOUS ont une version du producteur postérieure à son lancement ; sinon rien
+    $v = Get-Content (Join-Path $racine "donnees\verification.json") -Raw -Encoding UTF8 | ConvertFrom-Json
+    $noms = @()
+    foreach ($j in $v.jeux) {
+        foreach ($f in $j.fichiers) {
+            if ($f.statut -ne "nouvelle version") { continue }
+            try { $d = [datetime]::Parse($f.version_producteur, [Globalization.CultureInfo]::InvariantCulture) } catch { return @() }
+            if ($d.ToLocalTime() -lt $depuis) { return @() }
+            $noms += "$($j.jeu) ($($f.version_producteur))"
+        }
+    }
+    return $noms
+}
+
 function Enregistrer([hashtable]$changements) {
     $etat = @{}
     if (Test-Path $etatFichier) {
@@ -188,6 +203,12 @@ try {
     if ($apres -eq 0) {
         Ecrire "Contrôle réussi, toutes les sources sont à jour."
         Enregistrer @{ derniere_verification = (Get-Date -Format s); derniere_mise_a_jour = (Get-Date -Format s); dernier_resultat = "mis à jour" }
+    } elseif ($apres -eq 10 -and (PublieesPendant $debut)) {
+        # le producteur a publié pendant l'exécution (HAS le 12 novembre 2026, 8 h 53 pour une chaîne lancée à 8 h 23) :
+        # rien n'a manqué, la nouvelle version sera reprise au prochain passage, et la suite (contrôle indépendant,
+        # version prête) se fait quand même
+        Ecrire ("Contrôle réussi. Source publiée par son producteur pendant l'exécution, reprise au prochain passage : " + ((PublieesPendant $debut) -join ", ") + ".")
+        Enregistrer @{ derniere_mise_a_jour = (Get-Date -Format s); dernier_resultat = "mis à jour" }
     } elseif ($apres -eq 10) {
         Ecrire "Attention, une source signalée n'a pas été reprise. Voir donnees\verification.json et donnees\execution.log."
         Enregistrer @{ derniere_mise_a_jour = (Get-Date -Format s); dernier_resultat = "mise à jour partielle" }

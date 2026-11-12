@@ -12,7 +12,10 @@ main.comparer .semblables button{display:inline-block}
 @media (max-width:640px){main.comparer .semblables{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}main.comparer .semblables button{margin:0}
   /* téléphone, deux colonnes étroites, valeur, repère et position sans l'effectif, dégradé de bord (point I9 ; le
      repère et la position restent visibles, défaut relevé à l'étape 1 du plan de reprise) */
-  main.comparer table.comp td .eff{display:none!important}main.comparer table.comp thead th{min-width:96px!important}main.comparer table.comp td{padding:8px 6px!important}}
+  main.comparer table.comp td .eff{display:none!important}main.comparer table.comp thead th{min-width:96px!important}main.comparer table.comp td{padding:8px 6px!important}
+  /* alignées à droite dans des colonnes plus larges que l'écran, la valeur et le nom du territoire restaient hors de
+     la vue (audit du 12 novembre 2026) */
+  main.comparer table.comp td,main.comparer table.comp thead th{text-align:left!important}}
 main.comparer h1{border:0;padding:0}
 main.comparer .chapeau{}
 main.comparer .cherche{position:relative;max-width:40rem;margin-top:20px}

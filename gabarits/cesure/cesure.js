@@ -15,7 +15,7 @@
   var NB="\u00a0",FI="\u202f",HORS="script,style,code,pre,textarea,svg,input,select,option";
   var R=[[/«[ \u00a0\u202f]+/g,"«"+NB],[/[ \u00a0\u202f]+»/g,NB+"»"],
     [/(\S) +(?=[;!?](?:\s|$))/g,"$1"+FI],[/([\w\)»%]) +(?=:(?:\s|$))/g,"$1"+FI],
-    [/(\d) +(?=(?:%|‰|€|km|px|h|min|ans?|pour)\b|%|‰|€)/g,"$1"+NB],[/(\d) (?=\d{3}\b)/g,"$1"+FI],
+    [/(\d) +(?=(?:%|‰|€|km|px|h|min|ans?|pour)\b|%|‰|€)/g,"$1"+NB],[/(\d)[ \u00a0](?=\d{3}\b)/g,"$1"+FI],[/, (?=(?:%|‰|€|km)(?:\s|$|\)))/g,","+NB],
     [/(\d) (?=[a-zàâçéèêëîïôûùüÿœæ]{1,8}(?![a-zàâçéèêëîïôûùüÿœæ]))/g,"$1"+NB],[/([a-zéû]) (?=(?:19|20)\d\d\b)/g,"$1"+NB]];
   function fixer(t){var v=t.nodeValue;if(!v||v.indexOf(" ")<0)return;var p=t.parentElement;if(!p||p.closest(HORS))return;
     var w=v;for(var i=0;i<R.length;i++)w=w.replace(R[i][0],R[i][1]);if(w!==v)t.nodeValue=w}
