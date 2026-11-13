@@ -250,6 +250,20 @@ def controler() -> int:
         if n:
             milliers.append((r, f"{n} nombre(s) à espace ordinaire ou large"))
     note("Chaque limite de la page Méthode a un nom lisible", noms_lim)
+    # un lien qui porte le titre d'une partie de la page mais mène ailleurs, alors que le sommaire mène à cette partie
+    # sous le même intitulé (thème Addictologie, deux « De l'offre aux consommations en addictologie », audit du
+    # 12 novembre 2026, point 22) ; les liens d'action répétés sous chaque figure ne sont pas concernés
+    homonymes = []
+    for p, s in sources.items():
+        m = re.search(r"<main\b.*?</main>", s, flags=re.S)
+        corps = m.group(0) if m else ""
+        titres = {texte(t).strip() for t in re.findall(r"<h[23]\b[^>]*>(.*?)</h[23]>", corps, flags=re.S)
+                  if "<a " not in t}   # un titre qui est lui-même un lien n'a pas d'homonyme
+        for h, t in re.findall(r'<a\b[^>]*href="([^"]*)"[^>]*>(.*?)</a>', corps, flags=re.S):
+            t = texte(t).strip()
+            if t in titres and len(t) >= 12 and not h.startswith("#") and h.split("#")[0] != p.name:
+                homonymes.append((rel(p), t[:60]))   # un onglet vers la page elle-même n'est pas un homonyme
+    note("Un lien au titre d'une partie de la page mène à cette partie", homonymes)
     note("Séparateur des milliers : l'espace fine insécable seulement", milliers)
 
     # 3 septies. le repère d'une page d'indicateur dit si Mayotte y est comptée, d'après les valeurs mêmes (relecture du
@@ -337,7 +351,46 @@ def controler() -> int:
             c = cellules(l)
             if re.match(r"(rapports|territoires)/", rel(p)) and any(re.fullmatch(r"0", v) for v in c[1:]):
                 zeros.append((rel(p), " | ".join(c)[:120]))
+            # toutes les pages : une cellule « 0 » porte son infobulle, ou la ligne son signe ou son abréviation (même
+            # règle que controle_finition.js, qui ne voit qu'une page par type ; quartiles à 0 des pages d'indicateur,
+            # 13 novembre 2026)
+            elif "<abbr" not in l and 'class="sig' not in l:
+                for attrs, v in re.findall(r"<td\b([^>]*)>(.*?)</td>", l, flags=re.S):
+                    if "title=" not in attrs and html.unescape(re.sub(r"<[^>]+>", "", v)).strip() == "0":
+                        zeros.append((rel(p), " | ".join(c)[:120]))
+                        break
     note("Aucun 0 laissé seul", zeros)
+
+    # noms des fichiers à télécharger sur une ligne : aucun point de coupure dans leur tableau, qu'Edge suit malgré
+    # white-space: nowrap (audit du 13 novembre 2026, R3)
+    coupes = []
+    for p, s in sources.items():
+        for t in re.findall(r'<table class="[^"]*\bfichiers\b[^"]*">.*?</table>', s, flags=re.S):
+            if "<wbr" in t:
+                coupes.append((rel(p), str(t.count("<wbr"))))
+    note("Noms des fichiers à télécharger jamais coupés", coupes)
+
+    # un groupe de mots répété aussitôt après une virgule, la reprise en majuscule (« publie vers les urgences, Vers les
+    # urgences, 5,0 % », audit du 13 novembre 2026, R5), dans les paragraphes seulement (les listes de tableaux se
+    # répètent par nature)
+    repete, rx_rep = [], re.compile(r"\b(\w+(?:['’ ]\w+){1,4}), (\1)\b", re.I)
+    for p, s in sources.items():
+        for par in re.findall(r"<p\b[^>]*>(.*?)</p>", s, flags=re.S):
+            x = html.unescape(re.sub(r"<[^>]+>", "", par))
+            for m in rx_rep.finditer(x):
+                if m.group(2)[0].isupper() and m.group(1)[0].islower():
+                    repete.append((rel(p), x[max(0, m.start() - 40):m.end() + 20]))
+    note("Aucun groupe de mots répété deux fois de suite", repete)
+
+    # « 1er », jamais « 1e », dans les ordinaux que le site écrit (infobulles des dixièmes, audit du 13 novembre
+    # 2026, R8) ; une raison sociale (« SSR Gériatrique 1e Lagache ») reste telle quelle
+    premier = []
+    for p, s in sources.items():
+        for x in [textes[p]] + re.findall(r"<title>([^<]*)</title>", s) + re.findall(r'(?:title|aria-label)="([^"]*)"', s):
+            if re.search(r"(?<![\w,])1e (?:dixième|décile|quart|quartile|centile|tranche|groupe|rang|classe)", html.unescape(x)):
+                premier.append((rel(p), x[:120]))
+                break
+    note("« 1er », jamais « 1e »", premier)
 
     # 9. un même chiffre sur la fiche et dans le rapport du département (effectif et densité, toutes les professions
     #    des deux tableaux, tous les départements)

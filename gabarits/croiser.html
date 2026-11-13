@@ -82,7 +82,10 @@ main.croiser .menu-doms .nb small{font-size:var(--t-note)}
 /* résultat et figures */
 .resultat-tete h2{font-size:var(--t-encadre);max-width:40ch}
 main.croiser #phrase{font-size:var(--t-texte);max-width:66ch;margin:12px 0 4px}
-main.croiser .mesures{display:flex;flex-wrap:wrap;gap:8px 32px;margin:14px 0 6px;font-size:var(--t-note)}
+/* quatre chiffres sur une ligne, ou deux par deux, jamais trois puis un seul (« 97 départements dans le calcul » seul sur
+   sa ligne à 1 280 px, audit du 12 novembre 2026, point 15) */
+main.croiser .mesures{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 32px;margin:14px 0 6px;font-size:var(--t-note)}
+@media (min-width:1200px){main.croiser .mesures{grid-template-columns:repeat(4,minmax(0,1fr))}}
 main.croiser .mesures div{display:flex;flex-direction:column}
 main.croiser .mesures .n{font-family:var(--serif);font-size:var(--t-section);line-height:1.05;font-variant-numeric:tabular-nums;color:var(--r4)}
 main.croiser .mesures .l{font-size:var(--t-note);color:var(--muted);max-width:24ch;margin-top:4px}

@@ -24,6 +24,26 @@ def _code(s: pd.Series, niveau: str) -> pd.Series:
     return s.str.zfill(2)
 
 
+def _sans_accents(t: str) -> str:
+    """Nom de région comparable : sans accents, casse, article de tête ni ponctuation (« Ile-de-France » comme
+    « Île-de-France », « Réunion » comme « La Réunion »)."""
+    import re
+    import unicodedata
+    t = unicodedata.normalize("NFKD", str(t)).encode("ascii", "ignore").decode().lower().strip()
+    t = re.sub(r"^(la|le|les|l')\s*", "", t)
+    return re.sub(r"[^a-z0-9]", "", t)
+
+
+def codes_regions_par_nom(noms: pd.Series, ref) -> tuple[pd.Series, list[str]]:
+    """Certains jeux du Baromètre 2024 nomment la région au lieu de donner son code (12 novembre 2026). Renvoie les
+    codes et la liste des noms non reconnus ; la ligne « Tous », la France entière, est écartée sans être une erreur."""
+    table = {_sans_accents(n): c for c, n in zip(ref.regs["code"], ref.regs["nom"])}
+    cles = noms.map(_sans_accents)
+    codes = cles.map(table)
+    inconnus = sorted(set(noms[codes.isna() & (cles != "tous")]))
+    return codes, inconnus
+
+
 def _telecharger(ind, hors_ligne, rafraichir):
     dest = config.BRUT / f"odisse_{slug(ind['id'])}.csv"
     if hors_ligne:
@@ -55,7 +75,18 @@ def charger(hors_ligne=False, rafraichir=False, ref=None):
             df = df[df["_v"].notna()]
             annee = df["_annee"].max()
             d = df[df["_annee"] == annee].copy()
-            d["_code"] = _code(d[ind["code"]], ind["niveau"])
+            if ind.get("code_par_nom"):
+                if ref is None:
+                    raise ValueError("référentiel nécessaire pour lire les régions par leur nom")
+                codes, inconnus = codes_regions_par_nom(d[ind["code"]], ref)
+                JOURNAL.controle(f"Santé publique France, {ind['libelle'].lower()}, régions lues par leur nom",
+                                 f"{int(codes.notna().sum())} régions reconnues"
+                                 + (f", noms non reconnus {inconnus}" if inconnus else ", aucun nom inconnu"))
+                if inconnus:
+                    raise ValueError(f"régions non reconnues {inconnus}")
+                d = d[codes.notna()].assign(_code=codes[codes.notna()])
+            else:
+                d["_code"] = _code(d[ind["code"]], ind["niveau"])
             d = d.drop_duplicates("_code")
             if ind["niveau"] in connus:
                 d = d[d["_code"].isin(connus[ind["niveau"]])]

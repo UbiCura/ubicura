@@ -340,15 +340,57 @@ ODISSE = [
      "explication": "Part des passages aux urgences motivés par une tentative de suicide, une automutilation ou une "
                     "intoxication médicamenteuse volontaire, parmi l'ensemble des passages. Ce n'est pas un taux "
                     "rapporté à la population, il dépend aussi de l'usage des urgences dans le département."},
-    {"dataset": "sante-mentale-episodes-depressifs-caracterises-dans-les-12-derniers-mois_reg", "niveau": "reg",
-     "code": "reg", "where": 'sexe="Hommes et Femmes"', "valeur": "taux_depisodes_depressifs_12_derniers_mois",
-     "ic_bas": "borne_inferieure_de_lintervalle_de_confiance_du_taux_depisodes_depressifs_au_cours_des_12_derniers_m",
-     "ic_haut": "borne_superieure_de_lintervalle_de_confiance_du_taux_depisodes_depressifs_au_cours_des_12_derniers_m",
+    # Baromètre 2024 (jeux vérifiés par l'API d'Odissé le 12 novembre 2026, modifiés le 11 décembre 2025, Licence
+    # Ouverte 2.0, 18 à 79 ans, France hexagonale et quatre DROM, hors Mayotte ; libellés validés par Lucas le
+    # 12 novembre 2026, docs/chantier_spf_sante_mentale.md). L'épisode dépressif passe à la série 2024, qui remplace
+    # l'ancienne (accord de Lucas du même jour).
+    {"dataset": "episodes-depressifs-indicateurs-du-barometre-de-sante-publique-france-2024-detail-region",
+     "niveau": "reg", "code": "nouvelles_regions",
+     "where": 'indicateur="Episode dépressif caractérisé" and sexe="Tous" and classe_d_age="Tous"',
+     "valeur": "estimation", "ic_bas": "ic_inf", "ic_haut": "ic_sup",
      "id": "episode_depressif_declare", "libelle": "Adultes déclarant un épisode dépressif dans l'année",
      "unite": "% des adultes", "source": ODISSE_SOURCE + ", Baromètre de Santé publique France",
-     "explication": "Part des adultes interrogés dont les réponses correspondent à un épisode dépressif "
+     "explication": "Part des adultes de 18 à 79 ans dont les réponses correspondent à un épisode dépressif "
                     "caractérisé au cours des 12 derniers mois. Mesure déclarée par les personnes elles-mêmes, "
-                    "indépendante du recours aux soins. Disponible seulement par région."},
+                    "indépendante du recours aux soins. Disponible seulement par région, hors Mayotte."},
+    {"dataset": "trouble-anxieux-generalise-indicateurs-du-barometre-2024", "niveau": "reg",
+     "code": "nouvelles_regions", "code_par_nom": True,
+     "where": ('indicateur="Trouble anxieux généralisé" and sexe="Tous" and classe_d_age="Tous" and pcs="Tous" '
+               'and diplome="Tous" and type_de_menage="Tous" and situation_professionnelle="Tous" '
+               'and situation_financiere_percue="Tous"'),
+     "valeur": "estimation", "ic_bas": "ic_inf", "ic_haut": "ic_sup",
+     "id": "trouble_anxieux_generalise", "libelle": "Adultes présentant un trouble anxieux généralisé, d'après leurs réponses",
+     "unite": "% des adultes", "source": ODISSE_SOURCE + ", Baromètre de Santé publique France",
+     "explication": "Part des adultes de 18 à 79 ans dont les réponses au questionnaire correspondent à un trouble "
+                    "anxieux généralisé au cours des 12 derniers mois. Ce n'est pas un diagnostic posé par un "
+                    "médecin. Mesure déclarée, indépendante du recours aux soins. Disponible seulement par région, "
+                    "hors Mayotte."},
+    # échelle lue dans le rapport « Baromètre de Santé publique France : résultats de l'édition 2024 », partie
+    # Bien-être, p. 94 (santepubliquefrance.fr, spf00006371.pdf, lu le 12 novembre 2026) : échelle de Cantril, « Sur une
+    # échelle allant de 0 à 10, où 0 représente la pire vie possible et 10 la meilleure vie possible »
+    {"dataset": "bien-etre-indicateurs-du-barometre-2024", "niveau": "reg",
+     "code": "nouvelles_regions", "code_par_nom": True,
+     "where": ('indicateur="Score moyen de satisfaction de vie actuelle" and sexe="Tous" and classe_d_age="Tous" '
+               'and pcs="Tous" and diplome="Tous" and type_de_menage="Tous" and situation_professionnelle="Tous" '
+               'and situation_financiere_percue="Tous"'),
+     "valeur": "estimation", "ic_bas": "ic_inf", "ic_haut": "ic_sup",
+     "id": "satisfaction_vie", "libelle": "Satisfaction de la vie actuelle, score moyen",
+     # libellé validé par Lucas le 12 novembre 2026 ; l'unité se lit après un nombre (« entre 7,1 et 7,2 sur 10 »)
+     # et après le libellé sans répéter « score » (audit du 13 novembre 2026, R6)
+     "unite": "sur 10", "source": ODISSE_SOURCE + ", Baromètre de Santé publique France",
+     "explication": "Note moyenne que les adultes de 18 à 79 ans donnent à leur vie actuelle, de 0, la pire vie "
+                    "possible, à 10, la meilleure. Plus le score est haut, plus la satisfaction déclarée est grande. "
+                    "Disponible seulement par région, hors Mayotte."},
+    # périnatalité, jeu vérifié par l'API d'Odissé le 12 novembre 2026 (modifié le 20 juillet 2026, SNDS, domicile des
+    # femmes, taux bruts, publié à partir de 2023, non calculé pour Mayotte)
+    {"dataset": "perinatalite-post-partum-departement", "niveau": "dep", "code": "dep",
+     "where": "tx_epnp is not null", "valeur": "tx_epnp",
+     "id": "entretien_postnatal_precoce", "libelle": "Femmes ayant eu un entretien postnatal précoce",
+     "unite": "% des femmes ayant accouché", "source": ODISSE_SOURCE + ", d'après le SNDS",
+     "explication": "Part des femmes ayant accouché en maternité qui ont eu au moins un entretien postnatal précoce "
+                    "dans les 8 mois suivant l'accouchement, selon leur domicile. Cet entretien sert notamment à "
+                    "repérer une dépression du post-partum. C'est un recours aux soins, qui "
+                    "dépend aussi de l'offre de sages-femmes et de médecins. Non calculé pour Mayotte."},
     {"dataset": "conduites-suicidaires-indicateurs-du-barometre-de-sante-publique-france-2024-detail-region",
      "niveau": "reg", "code": "nouvelles_regions",
      "where": 'indicateur="Pensées suicidaires au cours des 12 derniers mois" and classe_d_age="Tous" and sexe="Tous"',
@@ -1388,7 +1430,39 @@ LIEUX_ATLAS_GROUPES = {G_PSY, G_PSY_A, G_PSY_E, G_ENF, G_ADD, G_URG, G_PERI, G_H
 SRC_INSEE_MAYOTTE = ("INSEE, au 1er janvier 2026 la population de Mayotte est de 323 153 habitants",
                      "https://www.insee.fr/fr/information/9022279")
 SRC_CAF_EPCI = ("CAF, allocataires par prestation et par intercommunalité", "https://data.caf.fr/explore/dataset/s_ben_epci_f/")
+_BAROMETRE_TEXTE = ("Mesure déclarée, tirée d'une enquête par internet ou par téléphone auprès de 34 940 adultes de 18 à "
+                    "79 ans, ce n'est pas un diagnostic. Elle n'est publiée que par région, hors Mayotte, avec un "
+                    "intervalle de confiance à 95 % souvent large dans les petites régions et en outre-mer.")
+_ODISSE_JEU = "https://odisse.santepubliquefrance.fr/explore/dataset/"
 LIMITES = {
+    # Baromètre de Santé publique France 2024, santé mentale (description officielle des jeux d'Odissé, lue par l'API
+    # le 12 novembre 2026 : 34 940 répondants, 18-79 ans, hors Mayotte, intervalles à 95 %)
+    "episode_depressif_declare": {
+        # changement de série dit là où la donnée est montrée (audit du 13 novembre 2026, R2) ; Santé publique France
+        # ne publie pas de comparaison des deux éditions, le site n'en fait donc pas
+        "risque": "mesure déclarée", "texte": _BAROMETRE_TEXTE + (
+            " Cette série, de l'édition 2024 sur 17 régions, remplace depuis le 13 novembre 2026 celle de l'édition "
+            "2021, qui ne portait que sur les 12 régions de l'Hexagone hors Corse. Le site ne compare pas les deux éditions. Un écart entre elles "
+            "ne se lit pas comme une évolution."),
+        "sources": [("Santé publique France, Baromètre 2024, épisodes dépressifs par région", _ODISSE_JEU
+                     + "episodes-depressifs-indicateurs-du-barometre-de-sante-publique-france-2024-detail-region/")]},
+    "trouble_anxieux_generalise": {
+        "risque": "mesure déclarée", "texte": _BAROMETRE_TEXTE,
+        "sources": [("Santé publique France, Baromètre 2024, trouble anxieux généralisé", _ODISSE_JEU
+                     + "trouble-anxieux-generalise-indicateurs-du-barometre-2024/")]},
+    "satisfaction_vie": {
+        # une note de satisfaction n'appelle pas « ce n'est pas un diagnostic » (audit du 13 novembre 2026)
+        "risque": "mesure déclarée", "texte": _BAROMETRE_TEXTE.replace(
+            "Mesure déclarée, tirée", "Note moyenne déclarée, tirée").replace(", ce n'est pas un diagnostic", ""),
+        "sources": [("Santé publique France, Baromètre 2024, bien-être", _ODISSE_JEU
+                     + "bien-etre-indicateurs-du-barometre-2024/")]},
+    "entretien_postnatal_precoce": {
+        "risque": "recours aux soins",
+        "texte": ("C'est un recours aux soins, qui dépend aussi de l'offre de sages-femmes et de médecins, et non un "
+                  "besoin. Taux bruts, selon le domicile des femmes, parmi celles qui ont accouché en maternité et dont "
+                  "l'identifiant est retrouvé dans le SNDS. Publié à partir de 2023, non calculé pour Mayotte."),
+        "sources": [("Santé publique France, périnatalité, post-partum par département", _ODISSE_JEU
+                     + "perinatalite-post-partum-departement/")]},
     "suicides": {
         "risque": "sous-déclaration",
         "texte": ("Les décès par suicide sont sous-déclarés. Les décès de cause inconnue ou d'intention indéterminée "
@@ -1664,6 +1738,16 @@ LIMITES["file_active"] = {
                 ("Assurance Maladie, méthode des données sur les professionnels de santé libéraux",
                  "https://data.ameli.fr/pages/data-professionnels-sante-liberaux-methode/")]}
 LIMITES_COURT["file_active"] = "Libéraux seulement, au cabinet principal, non publiée sous 5 libéraux."
+# limites en une ligne des indicateurs de Santé publique France : la première phrase seule perdait « hors Mayotte » et
+# l'intervalle de confiance, et pour l'épisode dépressif le changement de série (audit du 13 novembre 2026)
+_BAROMETRE_COURT = "Mesure déclarée d'une enquête, par région seulement, hors Mayotte, intervalle de confiance souvent large."
+for _k, _c in {"episode_depressif_declare": _BAROMETRE_COURT[:-1] + ", série 2024 qui ne se compare pas à celle de 2021.",
+               "trouble_anxieux_generalise": _BAROMETRE_COURT,
+               "satisfaction_vie": _BAROMETRE_COURT.replace("Mesure déclarée", "Note déclarée"),
+               "pensees_suicidaires_declarees": _BAROMETRE_COURT, "tentative_suicide_vie_declaree": _BAROMETRE_COURT,
+               "entretien_postnatal_precoce": "Recours aux soins et non besoin, publié depuis 2023, non calculé pour Mayotte."}.items():
+    if _k in LIMITES:
+        LIMITES_COURT[_k] = LIMITES[_k]["court"] = _c
 LIMITES_ALIAS = {"route:psychiatrie_ambulatoire": "route_psychiatrie_ambulatoire",
                  "sae_": "sae", "ald_": "ald", "caf_": "caf", "evol:": "evolution", "lieu_": "lieux", "lieux:": "lieux",
                  "age60_": "age_drees", "taux_depassement_": "taux_depassement",

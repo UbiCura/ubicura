@@ -100,12 +100,21 @@ def repartition(vals: list, repere: float | None, nom_niv: str, unite: str, g: s
     sx = lambda x: ml + (x - lo) / (hi - lo) * (W - ml - mr)
     sy = lambda n: H - mb - n / top * (H - mb - mt)
     s = [f'<svg viewBox="0 0 {W} {H}" role="img" aria-label="Nombre {de(nom_niv)} par classe de valeur, repère en pointillé">']
+    # bornes des classes écrites avec assez de décimales pour se distinguer (« 6,6 à 6,6 » sinon, audit du 13 novembre
+    # 2026, R7) ; une classe vide se dit « aucun département », jamais « 0 département »
+    ecrire = lambda x: nombre(x, g)  # noqa: E731
+    if g not in ("entier", "euros") and any(nombre(lo + k * pas, g) == nombre(lo + (k + 1) * pas, g) for k in range(nb)):
+        d = 2 if all(f"{lo + k * pas:.2f}" != f"{lo + (k + 1) * pas:.2f}" for k in range(nb)) else 3
+        ecrire = lambda x: f"{x:.{d}f}".replace(".", ",")  # noqa: E731
+    sing = nom_niv[:-1]
+    aucun = "aucune" if sing.startswith(("région", "intercommunalité")) else "aucun"
     for k, n in enumerate(h):
         x0 = lo + k * pas
         bord = " et moins" if k == 0 and v[0] < lo else " et plus" if k == nb - 1 and v[-1] > hi else ""
+        compte = f"{aucun} {sing}" if n == 0 else f"{n} {nom_niv if n > 1 else sing}"
         s.append(f'<rect x="{sx(x0) + 1:.1f}" y="{sy(n):.1f}" width="{max(1, sx(x0 + pas) - sx(x0) - 2):.1f}" '
-                 f'height="{H - mb - sy(n):.1f}" fill="var(--r2, #2A6B66)"><title>{nombre(x0, g)} à {nombre(x0 + pas, g)}{bord}, '
-                 f'{n} {nom_niv if n > 1 else nom_niv[:-1]}</title></rect>')
+                 f'height="{H - mb - sy(n):.1f}" fill="var(--r2, #2A6B66)"><title>{ecrire(x0)} à {ecrire(x0 + pas)}{bord}, '
+                 f'{compte}</title></rect>')
     for x in graduations(lo, hi):
         s.append(f'<text x="{sx(x):.1f}" y="{H - 22}" text-anchor="middle" font-size="14" fill="var(--muted, #5D6371)" '
                  f'font-family="Work Sans, sans-serif">{nombre(x, 'entier') if x == int(x) else nombre(x)}</text>')
@@ -122,8 +131,27 @@ def repartition(vals: list, repere: float | None, nom_niv: str, unite: str, g: s
                  f'text-anchor="{"start" if sx(repere) < W / 2 else "end"}" font-size="14" fill="var(--ink, #1C2028)" '
                  f'font-family="Work Sans, sans-serif">repère {nombre(repere, g)}</text>')
     s.append("</svg>")
-    return {"svg": "".join(s), "n": len(v), "q1": quantile(v, .25), "med": quantile(v, .5), "q3": quantile(v, .75),
-            "min": v[0], "max": v[-1], "nzero": sum(1 for x in v if x == 0)}
+    r = {"svg": "".join(s), "n": len(v), "q1": quantile(v, .25), "med": quantile(v, .5), "q3": quantile(v, .75),
+         "min": v[0], "max": v[-1], "nzero": sum(1 for x in v if x == 0)}
+    r["infobulles"] = infobulles_zero(r, g)
+    return r
+
+
+def infobulles_zero(r: dict, g: str) -> dict:
+    """Infobulle de chaque valeur du tableau « À chaque niveau » écrite « 0 », jamais un 0 seul (règle des chiffres ;
+    13 novembre 2026). Une distance arrondie à 0 a la formule des distances (« dans la commune d'au moins la moitié des
+    habitants »), un 0 vrai le nombre de territoires à 0, un petit nombre arrondi le dit."""
+    out = {}
+    for k in ("q1", "med", "q3", "min", "max"):
+        if r[k] is None or nombre(r[k], g) != "0":
+            continue
+        if g == "distance":
+            out[k] = AF.DANS_COMMUNE[0].upper() + AF.DANS_COMMUNE[1:]
+        elif r[k] == 0 and r["nzero"]:
+            out[k] = f"{nombre(r['nzero'], 'entier')} territoire{'s' if r['nzero'] > 1 else ''} à 0 sur {nombre(r['n'], 'entier')}"
+        else:
+            out[k] = "Valeur arrondie à 0, plus grande que 0"
+    return out
 
 
 def totaux(pid: str, dernier: Path, france: dict) -> list[dict]:
@@ -213,7 +241,9 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
             limites.append(li.get("texte") or li.get("court"))
         if prof:
             limites.append("Une densité de personnes ne dit ni le temps de travail, ni les délais de rendez-vous, ni le reste à charge.")
-        if mayotte.get("texte") and not public:
+        # la limite de Mayotte (densités surestimées, croisements) n'a pas lieu d'être là où Mayotte n'a aucune valeur
+        # (indicateurs de Santé publique France, audit du 13 novembre 2026)
+        if mayotte.get("texte") and not public and not (hors_mayotte and code_m):
             limites.append(mayotte["texte"])
         c = ctx.get(e["id"], {})
         # espaces insécables dans les nombres des titres (« pour 10 000 habitants » ne se coupe pas, F3)

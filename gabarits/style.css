@@ -1439,6 +1439,10 @@ main :is(p,li,dd,figcaption) a{overflow-wrap:anywhere}
 /* dans un tableau, « anywhere » laissait la colonne rétrécir jusqu'à une lettre (« publi / que / Franc / e »,
    page Méthode à 1 024 px, audit du 12 novembre 2026) : la cellule garde la largeur de son plus long mot */
 main td a{overflow-wrap:break-word}
+/* fichiers à télécharger : le nom d'un fichier et sa taille sur une ligne (« activites_ / particulieres_ / dep.csv »,
+   « 6,7 / Mo », audit du 12 novembre 2026, point 19) ; au téléphone le nom peut passer à la ligne après un trait bas */
+main table.fichiers td:first-child a,main table.fichiers td:last-child{white-space:nowrap}
+@media (max-width:640px){main table.fichiers td:first-child a{white-space:normal}}
 .fiche .cles-fiche{margin-top:20px}
 .fiche .cle-ensemble{font-size:var(--t-note);color:var(--muted);line-height:1.5;margin:14px 0 0;max-width:var(--mesure)}
 

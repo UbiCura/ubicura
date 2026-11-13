@@ -529,7 +529,7 @@ def retour(m: dict, motif: str) -> None:
 
 def programmables(debut: dt.datetime, fin: dt.datetime) -> list[dict]:
     """Messages à relire dont la date proposée tombe entre debut et fin, sans erreur, dans l'ordre des dates : ceux que
-    le bouton « Programmer les sept prochains jours » propose de valider ensemble."""
+    les boutons « Programmer les sept (trente) prochains jours » proposent de valider ensemble."""
     out = []
     for m in messages():
         q = lire_date(m.get("envoi_prevu"))
@@ -1089,7 +1089,7 @@ EXCLUSIONS = {
     # surveillance des épidémies et de l'environnement : Santé publique France en publie chaque semaine, le site ne
     # les reprend pas (essai du 11 novembre 2026 sur sept mois de messages réels)
     "surveillance épidémique ou environnementale, hors du site": r"chikungun|dengue|zika|arbovir|grippe|covid|"
-                                                                 r"bronchiolite|infections? respiratoires?|VIH|"
+                                                                 r"bronchiolite|infections? respiratoires?|\bVIH\b|"
                                                                  r"hépatites?|zona|varicelle|incendie|feux? de forêt|"
                                                                  r"canicule|chlordécone|pollution|légionell|"
                                                                  r"rougeole|méningit",
@@ -1727,15 +1727,16 @@ def onglet(onglets, racine, c: dict, police, petite, zone_texte, remplir) -> dic
         messagebox.showinfo("Message publié", texte, parent=racine)
 
     ttk.Button(boutons, text="Publier", style="Envoyer.TButton", command=cliquer_publier).pack(side="left")
-    def programmer_semaine():
-        """Valide d'un clic les messages à relire des sept prochains jours, chacun à sa date proposée, après une
-        confirmation qui les liste tous (demande de Lucas du 8 novembre 2026, 75 messages)."""
+    def programmer_periode(jours: int, periode: str):
+        """Valide d'un clic les messages à relire de la période, chacun à sa date proposée, après une confirmation
+        qui les liste tous (demande de Lucas du 8 novembre 2026 pour la semaine, du 13 novembre 2026 pour le mois).
+        Un message programmé dont les chiffres ne sont plus ceux du site en ligne revient à relire sans partir."""
         garder()
         ici = dt.datetime.now()
-        ms = programmables(ici, ici + dt.timedelta(days=7))
+        ms = programmables(ici, ici + dt.timedelta(days=jours))
         if not ms:
-            messagebox.showinfo("Rien à programmer", "Aucun message à relire n'est prévu dans les sept prochains "
-                                "jours.", parent=racine)
+            messagebox.showinfo("Rien à programmer", f"Aucun message à relire n'est prévu dans les {periode}.",
+                                parent=racine)
             return
         relies = etat_comptes()
         absents = sorted({relies[r][1] for m in ms for r in m["reseaux"] if not relies[r][0]})
@@ -1755,8 +1756,13 @@ def onglet(onglets, racine, c: dict, police, petite, zone_texte, remplir) -> dic
         rafraichir()
         messagebox.showinfo("Messages programmés", f"{len(ms)} message(s) programmé(s).", parent=racine)
 
-    ttk.Button(boutons, text="Programmer les sept prochains jours", command=programmer_semaine).pack(
-        side="left", padx=(10, 0))
+    # programmation groupée sur une ligne à part, pour que la rangée des boutons ne déborde pas de la fenêtre
+    boutons_lot = ttk.Frame(droite)
+    boutons_lot.grid(row=8, column=0, columnspan=2, sticky="ew", pady=(8, 0))
+    ttk.Button(boutons_lot, text="Programmer les sept prochains jours",
+               command=lambda: programmer_periode(7, "sept prochains jours")).pack(side="left")
+    ttk.Button(boutons_lot, text="Programmer les trente prochains jours",
+               command=lambda: programmer_periode(30, "trente prochains jours")).pack(side="left", padx=(10, 0))
     ttk.Button(boutons, text="Garder pour plus tard", command=lambda: changer_statut("plus_tard")).pack(
         side="left", padx=(10, 0))
     ttk.Button(boutons, text="Écarter", command=lambda: changer_statut("ecarte")).pack(side="left", padx=(10, 0))

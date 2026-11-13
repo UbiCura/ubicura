@@ -236,3 +236,6 @@ file_active_psychiatre;Patientèle d'un psychiatre libéral, patients vus dans l
 file_active_sage_femme;Patientèle d'une sage-femme libérale, patients vus dans l'année, en moyenne;;
 patients_mt_medecin_generaliste;Patients qui ont choisi un médecin généraliste libéral comme médecin traitant, patients, en moyenne;;
 patients_mt_pediatre;Patients qui ont choisi un pédiatre libéral comme médecin traitant, patients, en moyenne;;
+trouble_anxieux_generalise;Adultes présentant un trouble anxieux généralisé, d'après leurs réponses;sante_mentale;
+satisfaction_vie;Satisfaction de la vie actuelle, score moyen;sante_mentale;
+entretien_postnatal_precoce;Femmes ayant eu un entretien postnatal précoce;sante_mentale;

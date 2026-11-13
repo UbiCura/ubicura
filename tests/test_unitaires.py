@@ -6334,14 +6334,19 @@ def test_affichage_repere_distance_mediane_habitants():
 
 def test_affichage_position_et_ecart():
     """Position, part des autres territoires du niveau dont la valeur est plus basse ; écart sur les deux valeurs
-    écrites. CC Vierzon-Sologne-Berry, psychologues : 10,6 pour 10 000, plus haut que 71 % des intercommunalités,
-    ensemble des intercommunalités 12,8, écart de −17 % (audit du 30 octobre 2026, B2)."""
+    pleines, arrondi à l'écriture (relecture du 31 octobre 2026). CC Vierzon-Sologne-Berry, psychologues (audit du
+    30 octobre 2026, B2) : les chiffres attendus se recalculent depuis la série, car ils suivent chaque extraction du
+    répertoire (−17 % sur celle du 4 novembre, −18 % sur celle du 9 : 10,557 face à 12,804)."""
     AF, T, sd, r = _affichage()
     c = T.cellule("prof:psychologue:all", "epci", _code_epci(sd, "Vierzon"))
     S = T.serie("prof:psychologue:all", "epci")
     autres = [v for v in S.v if v is not None]
-    assert abs(c["pos"] - sum(1 for v in autres if v < c["v"]) / (len(autres) - 1)) < 1e-12
-    assert (c["v_txt"], c["ref_txt"], c["pos_txt"], c["e_txt"]) == ("10,6", "12,8", "plus haut que 71 % des intercommunalités", "−17 %")
+    pos = sum(1 for v in autres if v < c["v"]) / (len(autres) - 1)
+    assert abs(c["pos"] - pos) < 1e-12
+    assert c["pos_txt"] == f"plus haut que {round(100 * pos)} % des intercommunalités", c["pos_txt"]
+    e = c["v"] / S.ref - 1
+    assert e < 0 and abs(c["e"] - e) < 1e-12 and c["e_txt"] == f"−{round(-100 * e)} %", c["e_txt"]
+    assert c["v_txt"] == f"{c['v']:.1f}".replace(".", ",") and c["ref_txt"] == f"{S.ref:.1f}".replace(".", ",")
     d = T.cellule("dist_lieu_cmp_adultes", "dep", "01")
     assert d["e"] is None and d["pos_txt"].startswith("plus loin que")
 
@@ -7148,6 +7153,79 @@ def test_figures_telephone_agrandir_et_zoom():
     assert "figure illisible au téléphone sans bouton" in js and "figure agrandie encore illisible" in js
 
 
+def test_odisse_regions_par_nom_et_barometre_2024():
+    """Santé publique France, Baromètre 2024 (12 novembre 2026) : les jeux du trouble anxieux généralisé et du
+    bien-être nomment la région ; chaque nom se retrouve dans le référentiel (« Ile-de-France », « Réunion »), la
+    ligne « Tous », la France, est écartée, et un nom inconnu est signalé. Sur les fichiers en cache : 17 régions,
+    hors Mayotte, valeurs plausibles, intervalles encadrant la valeur, entretien postnatal par département."""
+    import pandas as pd
+    from pipeline.sources import odisse, referentiel
+    ref = referentiel.charger(True)
+    codes, inconnus = odisse.codes_regions_par_nom(pd.Series(["Ile-de-France", "Réunion", "Tous", "Provence-Alpes-Côte d'Azur",
+                                                              "Atlantide"]), ref)
+    assert list(codes[:2]) == ["11", "04"] and pd.isna(codes[2]) and codes[3] == "93" and inconnus == ["Atlantide"]
+    ids = {"episode_depressif_declare", "trouble_anxieux_generalise", "satisfaction_vie", "entretien_postnatal_precoce"}
+    jeux = [i for i in config.ODISSE if i["id"] in ids]
+    assert len(jeux) == 4
+    if not all((config.BRUT / f"odisse_{i['id']}.csv").exists() for i in jeux):
+        raise Ignore("jeux du Baromètre 2024 absents du cache")
+    garde = config.ODISSE
+    try:
+        config.ODISSE = jeux
+        t = odisse.charger(True, False, ref)["table"]
+    finally:
+        config.ODISSE = garde
+    bornes = {"episode_depressif_declare": (5, 30), "trouble_anxieux_generalise": (1, 15), "satisfaction_vie": (5, 9),
+              "entretien_postnatal_precoce": (1, 80)}
+    for i, (lo, hi) in bornes.items():
+        x = t[t.indicateur == i]
+        assert len(x) == (100 if i == "entretien_postnatal_precoce" else 17), (i, len(x))
+        assert ("976" if i == "entretien_postnatal_precoce" else "06") not in set(x.code), i   # Mayotte
+        assert x.valeur.between(lo, hi).all(), (i, x.valeur.min(), x.valeur.max())
+        if i != "entretien_postnatal_precoce":
+            assert ((x.ic_bas <= x.valeur) & (x.valeur <= x.ic_haut)).all(), i
+    for i in ids:
+        assert i in config.LIMITES, i
+        from pipeline.limites import NOMS
+        assert i in NOMS, i
+
+
+def test_explorer_bande_hasard_lissee_et_coupee():
+    """Audit final du 30 octobre 2026, F7 : la bande « ce que le hasard pourrait produire » de l'entonnoir d'Explorer
+    s'aplatissait en haut du cadre et faisait des marches. Elle est lissée (courbe B-spline) et coupée au bord du cadre
+    par un masque, sans échelle bornée ; les statuts restent calculés sur les limites exactes.
+    Audit du 13 novembre 2026 : le lissage faisait sortir de la bande des points colorés comme « dans le hasard ». La
+    bande suit désormais les limites exactes, calculées à chaque pixel et à la population de chaque territoire, sans
+    lissage (test_explorer_entonnoir_bande_exacte) ; elle reste coupée au bord du cadre."""
+    js = (config.RACINE / "gabarits" / "explorer_inegalites.js").read_text(encoding="utf-8")
+    corps = js[js.index("function entonnoirI"):]
+    corps = corps[:corps.index("\nfunction ", 10)] if "\nfunction " in corps[10:] else corps
+    assert 'append("clipPath")' in corps and 'attr("clip-path"' in corps
+    assert "y.copy().clamp(false)" in corps and "d3.curveBasis" not in corps
+    assert "px += 1) bornes.push(borne(x.invert(px)))" in corps
+
+
+def test_outils_imports_resolus():
+    """Chaque « from pipeline… import … » des outils et de run.py désigne un module ou un nom qui existe, même dans une
+    fonction qu'aucun test n'appelle : la relève hebdomadaire du RPPS a échoué en silence du 1er au 12 novembre 2026 sur
+    « from pipeline import finess », et aucune photographie n'a été prise par elle."""
+    import ast
+    import importlib
+    fichiers = sorted((config.RACINE / "outils").glob("*.py")) + [config.RACINE / "run.py"]
+    manque = []
+    for f in fichiers:
+        for n in ast.walk(ast.parse(f.read_text(encoding="utf-8"))):
+            if isinstance(n, ast.ImportFrom) and n.module and n.module.split(".")[0] == "pipeline" and not n.level:
+                m = importlib.import_module(n.module)
+                for a in n.names:
+                    if a.name != "*" and not hasattr(m, a.name):
+                        try:
+                            importlib.import_module(f"{n.module}.{a.name}")
+                        except ImportError:
+                            manque.append(f"{f.name}:{n.lineno} {n.module}.{a.name}")
+    assert not manque, manque
+
+
 def test_seance_refuse_pendant_la_tache_planifiee():
     """Le 12 novembre 2026, une reconstruction de séance a croisé l'exécution planifiée de 8 h 23 : une séance ne lance
     plus rien de lourd tant que le processus nommé par donnees/mise_a_jour.verrou est vivant ; un verrou laissé par un
@@ -7421,6 +7499,193 @@ def test_reseaux_ne_plus_suivre():
     finally:
         r.COMPTES_A_SUIVRE, r.JOURNAL_ABONNEMENTS, r.session_bluesky = avant
         shutil.rmtree(tmp, ignore_errors=True)
+
+
+# ---------------------------------------------------------------- audit indépendant du 13 novembre 2026
+def test_nombre_meme_arrondi_rapport_et_fiche():
+    """C1 : le rapport (lecture.nombre) et les fiches (affichage.nombre) arrondissent pareil, demie vers le haut sur
+    l'écriture décimale (7,25 s'écrivait 7,2 dans le rapport et 7,3 sur la fiche)."""
+    from pipeline import affichage as AF
+    from pipeline.lecture import nombre
+    for v in (7.25, 10.45, 2.675, 0.125, 6.55, 15.05, 1.005, 12.35, 99.95):
+        d = AF.decimales(v, "taux")
+        assert nombre(v, d) == AF.nombre(v, "taux").replace("\u202f", "\u00a0"), (v, nombre(v, d), AF.nombre(v, "taux"))
+    assert nombre(-0.04, 1) == "0,0" and nombre(1500) == "1\u00a0500"
+
+
+def test_quartiles_reglette_et_page_indicateur():
+    """C2 : les quartiles de la réglette des fiches (nom accessible) sont ceux du tableau « À chaque niveau » des pages
+    d'indicateur (une seule définition, l'interpolation linéaire)."""
+    from pipeline import fiche_indicateur as FI
+    AF, T, sd, r = _affichage()
+    n = 0
+    ids = ["prof:psychologue:all", "prof:psychiatre:all", "episode_depressif_declare", "satisfaction_vie",
+           "trouble_anxieux_generalise", "taux_pauvrete", "lieux_lieu_cmp_adultes", "dist_lieu_cmp_adultes"]
+    for ident in ids:
+        for lv in ("reg", "dep", "epci"):
+            S = T.serie(ident, lv)
+            e = T.echelle(ident, lv) if S is not None else None
+            if S is None or e is None:
+                continue
+            v = sorted(x for x in S.v if x is not None)
+            assert abs(e["q1"] - FI.quantile(v, .25)) < 1e-9 and abs(e["q3"] - FI.quantile(v, .75)) < 1e-9, (ident, lv)
+            n += 1
+    assert n >= 10, n
+
+
+def test_rapport_lignes_du_barometre_nommees():
+    """C3 : le « Comment lire » du tableau de Santé publique France nomme les lignes du Baromètre, jamais « les trois
+    dernières lignes », et ne range pas l'entretien postnatal, par département, parmi elles."""
+    import re
+    racine = Path(__file__).resolve().parents[1]
+    src = (racine / "pipeline" / "rapport.py").read_text(encoding="utf-8")
+    assert "Les trois dernières lignes viennent d'une enquête" not in src
+    md = _dernier_resultats() / "rapport_sante_mentale.md"
+    if not md.exists():
+        raise Ignore("rapport santé mentale absent")
+    t = md.read_text(encoding="utf-8")
+    titre = "#### Suicide, gestes auto-infligés et santé déclarée"
+    if titre not in t:
+        raise Ignore("tableau de Santé publique France absent")
+    bloc = t[t.index(titre):][:6000]
+    m = re.search(r"Les lignes (.*?) viennent d'une enquête, le Baromètre", bloc, flags=re.S)
+    if m is None and "Les trois dernières lignes" in bloc:
+        raise Ignore("rapport construit avant la correction, refaire l'exécution")
+    assert m, "phrase du Baromètre absente"
+    assert "postnatal" not in m.group(1), m.group(1)[:200]
+
+
+def test_a_venir_sans_base_deja_integree():
+    """R1 : une base « à intégrer » du registre n'est jamais un jeu déjà lu par le programme, et la page « À venir »
+    ne nomme aucun indicateur déjà publié."""
+    import csv
+    from pipeline import limites
+    racine = Path(__file__).resolve().parents[1]
+    src_config = (racine / "pipeline" / "config.py").read_text(encoding="utf-8")
+    with open(racine / "docs" / "veille" / "registre_bases.csv", encoding="utf-8-sig") as f:
+        for l in csv.DictReader(f, delimiter=";"):
+            if l["statut"] == "à intégrer" and len(l["identifiant"] or "") > 12:
+                for ident in l["identifiant"].split(", "):
+                    assert f'"{ident}"' not in src_config, (l["id"], ident)
+    a_venir = (racine / "contenus" / "a_venir.md").read_text(encoding="utf-8").lower()
+    for k in ("episode_depressif_declare", "trouble_anxieux_generalise", "satisfaction_vie", "entretien_postnatal_precoce"):
+        nom = limites.NOMS.get(k, "").split(" (")[0].lower()
+        assert nom and nom not in a_venir, (k, nom)
+    for mot in ("trouble anxieux", "satisfaction de vie", "postnatal"):
+        assert mot not in a_venir, mot
+
+
+def test_limites_courtes_sante_publique_france():
+    """Croiser et les fiches gardent « hors Mayotte » et l'incertitude du Baromètre dans la limite en une ligne, et le
+    changement de série de l'épisode dépressif."""
+    from pipeline import config
+    for k in ("episode_depressif_declare", "trouble_anxieux_generalise", "satisfaction_vie"):
+        c = config.LIMITES_COURT[k]
+        assert "Mayotte" in c and "intervalle de confiance" in c and config.LIMITES[k]["court"] == c, k
+    assert "2021" in config.LIMITES_COURT["episode_depressif_declare"]
+    assert "2021" in config.LIMITES["episode_depressif_declare"]["texte"]
+    assert "diagnostic" not in config.LIMITES["satisfaction_vie"]["texte"]
+
+
+def test_histogramme_indicateur_sans_zero_ni_classe_degeneree():
+    """R7 : une classe vide se dit « aucune région », et deux bornes d'une classe ne s'écrivent jamais pareil."""
+    import re
+    from pipeline import fiche_indicateur as FI
+    v = [7.06, 7.08, 7.1, 7.12, 7.15, 7.18, 7.2, 7.21, 7.25, 6.5, 6.55, 6.9, 7.0, 7.05, 7.22, 7.24, 7.11]
+    s = FI.repartition(v, 7.1, "régions", "sur 10")["svg"]
+    titres = re.findall(r"<title>([^<]*)</title>", s)
+    assert titres and not any(re.search(r"(?<![\d,])0 région", x) for x in titres), titres[:3]
+    for x in titres:
+        m = re.match(r"([\d,]+) à ([\d,]+)", x)
+        assert m and m.group(1) != m.group(2), x
+    assert any(x.endswith("aucune région") for x in titres)
+
+
+def test_parts_entieres_jamais_zero_seul():
+    """R7 : 7 pharmaciens sur 76 195 ne s'écrivent pas « 0 % »."""
+    from pipeline.site import _part_entiere
+    assert _part_entiere(7 / 76195) == "moins de 1\u00a0%"
+    assert _part_entiere(0.0) == "0\u00a0%" and _part_entiere(.123) == "12\u00a0%"
+
+
+def test_explorer_entonnoir_bande_exacte():
+    """K1 : la bande de l'entonnoir suit les limites de Poisson exactes, à la population de chaque territoire, sans
+    lissage qui la détache des couleurs ; la page se contrôle elle-même (data-ecarts). La loi de Poisson écrite en
+    JavaScript, reprise ici ligne pour ligne, donne les quantiles de scipy."""
+    import math
+    from scipy import stats
+    racine = Path(__file__).resolve().parents[1]
+    js = (racine / "gabarits" / "explorer_inegalites.js").read_text(encoding="utf-8")
+    i = js.index("function entonnoirI()")
+    corps = js[i:js.index("\nfunction ", i + 10)]
+    assert "curveBasis" not in corps and "ppfPoissonI" in corps and "data-ecarts" in corps
+    assert "pts.forEach(d => { if (d.x >= x.domain()[0]" in corps
+
+    def ppf(q, mu):
+        k = max(0, math.floor(mu - 12 * math.sqrt(mu) - 10))
+        c = 0.0
+        while True:
+            c += math.exp(-mu + k * math.log(mu) - math.lgamma(k + 1))
+            if c >= q * (1 - 1e-12) or k > mu + 50 * math.sqrt(mu) + 100:
+                return k
+            k += 1
+    for mu in (0.3, 2.4, 9.7, 36.57, 150.2, 1234.5, 22000.0):
+        for q in (.001, .025, .975, .999):
+            assert ppf(q, mu) == int(stats.poisson.ppf(q, mu)), (mu, q, ppf(q, mu), stats.poisson.ppf(q, mu))
+
+
+def test_un_pour_insecable_et_premier_dixieme():
+    """« 840 habitants » ne se coupe pas dans la colonne « Soit un pour » ; « 1er dixième », jamais « 1e »."""
+    racine = Path(__file__).resolve().parents[1]
+    src = (racine / "pipeline" / "rapport.py").read_text(encoding="utf-8")
+    assert '.replace(" habitants", " habitants")' in src or '.replace(" habitants", "\\u00a0habitants")' in src
+    g = (racine / "pipeline" / "graphiques.py").read_text(encoding="utf-8")
+    assert "}e dixième" not in g and '"1er" if int(r["decile"]) == 1' in g
+
+
+def test_code_compile_partout():
+    """Chaque module du programme et des outils se compile : une apostrophe mal placée dans le rapport n'était vue qu'au
+    lancement de l'exécution complète (13 novembre 2026)."""
+    import py_compile
+    racine = Path(__file__).resolve().parents[1]
+    for f in sorted(list((racine / "pipeline").rglob("*.py")) + list((racine / "outils").glob("*.py")) + [racine / "run.py"]):
+        py_compile.compile(str(f), doraise=True, cfile=str(Path(__import__("tempfile").gettempdir()) / "ubicura_compile.pyc"))
+
+
+def test_code_sans_caractere_de_controle():
+    """Aucun caractère de contrôle dans le code : la limite de mot d'une expression, écrite par un script, était
+    devenue un retour arrière invisible, et la règle ne trouvait plus rien (tableau des fichiers, questions, filtre
+    de Bluesky, 13 novembre 2026)."""
+    import re
+    racine = Path(__file__).resolve().parents[1]
+    fautes = []
+    for d, motif in (("pipeline", "*.py"), ("outils", "*.py"), ("gabarits", "*.js"), ("gabarits", "*.html"), ("tests", "*.py")):
+        for f in (racine / d).rglob(motif):
+            if "__pycache__" in f.parts:
+                continue
+            for i, l in enumerate(f.read_text(encoding="utf-8").splitlines(), 1):
+                if re.search(r"[\x00-\x08\x0b\x0c\x0e-\x1f]", l):
+                    # seule exception, voulue : le séparateur de la graine de chaque analyse (analyses.py), qu'on ne
+                    # change pas sans changer les intervalles publiés
+                    if not (f.name == "analyses.py" and "zlib.crc32(" in l):
+                        fautes.append(f"{f.relative_to(racine)}:{i}")
+    assert not fautes, fautes[:10]
+
+
+def test_limites_relues_a_la_construction_du_site():
+    """Une limite corrigée dans le catalogue paraît à la construction du site suivante, sans refaire les calculs : la
+    page de l'épisode dépressif dit les 12 régions de la série 2021 (13 novembre 2026)."""
+    import html as H
+    import re
+    racine = Path(__file__).resolve().parents[1]
+    assert "for k, L in config.LIMITES.items():" in (racine / "pipeline" / "site.py").read_text(encoding="utf-8")
+    page = racine / "site" / "indicateur" / "episode-depressif-declare.html"
+    if not page.exists():
+        raise Ignore("site non construit")
+    t = H.unescape(re.sub(r"<[^>]+>", " ", page.read_text(encoding="utf-8"))).replace(" ", " ").replace(" ", " ")
+    if "remplace depuis" not in t:
+        raise Ignore("site construit avant le changement de série")
+    assert "12 régions de l'Hexagone hors Corse" in t and "13 régions" not in t
 
 
 if __name__ == "__main__":

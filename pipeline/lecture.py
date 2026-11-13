@@ -253,6 +253,11 @@ def nombre(x, d=0) -> str:
     virgule décimale."""
     if x is None or (isinstance(x, float) and not math.isfinite(x)):
         return ""
+    # même arrondi que les fiches et les pages en JavaScript (affichage._arr, demie vers le haut sur l'écriture décimale
+    # la plus courte) : 7,25 s'écrivait 7,2 dans le rapport et 7,3 sur la fiche (audit du 13 novembre 2026, C1)
+    if d >= 0 and isinstance(x, (int, float, np.integer, np.floating)) and not isinstance(x, bool):
+        from decimal import ROUND_HALF_UP, Decimal
+        x = float(Decimal(repr(float(x))).quantize(Decimal(1).scaleb(-d), rounding=ROUND_HALF_UP))
     s = f"{x:,.{d}f}".replace(",", " ").replace(".", ",")
     # pas de « -0,00 » pour une valeur qui s'arrondit à zéro
     return s[1:] if s.startswith("-") and not s.strip("-0,") else s

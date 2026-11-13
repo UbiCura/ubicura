@@ -682,8 +682,11 @@ class Affichage:
                     n[min(23, max(0, int(24 * (v - bas) / (haut - bas))))] += 1
                 m = max(n)
                 d = "M0 16" + "".join(f"V{16 - 15 * k / m:.1f}H{(i + 1) * 100 / 24:.2f}" for i, k in enumerate(n)) + "V16Z"
-                e = {"bas": bas, "haut": haut, "q1": statistics.quantiles(vals, n=4)[0],
-                     "q3": statistics.quantiles(vals, n=4)[2], "distrib": d.replace(".00", "")}
+                # quartiles par interpolation linéaire, la définition des pages d'indicateur, de pandas et de d3 : la
+                # méthode « exclusive » par défaut de statistics donnait d'autres quarts sur les fiches (audit du
+                # 13 novembre 2026, C2)
+                q = statistics.quantiles(vals, n=4, method="inclusive")
+                e = {"bas": bas, "haut": haut, "q1": q[0], "q3": q[2], "distrib": d.replace(".00", "")}
         self._cache[cle] = e
         return e
 
@@ -703,8 +706,9 @@ class Affichage:
                 # une médiane nulle se dit en mots, jamais « 0 » (défaut m6)
                 (cel["med_mots"] if cel["med"] == 0 and cel["kind"] in ("prof", "lieux")
                  else f"{cel['med_lib'].lower()} {cel['med_txt']}") if cel["ref_type"] != "mediane_territoires" else ""]
-        info = (f"{cel['ref_lib'].lower()} {cel['ref_txt']} ; {cel['med_mots']} ; la moitié des {NIV_PLURIEL[lv]} "
-                f"entre {nombre(e['q1'], g)} et {nombre(e['q3'], g)}")
+        # le repère et la médiane sont déjà dans « aria » : les redire faisait lire trois fois « région médiane 15,5 »
+        # (audit du 13 novembre 2026)
+        info = f"la moitié des {NIV_PLURIEL[lv]} entre {nombre(e['q1'], g)} et {nombre(e['q3'], g)}"
         r = {"info": info, "q1": pc(e["q1"]), "q3": pc(e["q3"]), "rep": pc(cel["ref"]), "med": pc(cel["med"]),
              "val": pc(cel["v"]) if cel["v"] is not None and st != "aucun" else "0%", "distrib": e["distrib"],
              "classe": classe, "hors": cel["v"] is not None and cel["v"] > e["haut"],

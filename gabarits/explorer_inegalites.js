@@ -4,7 +4,9 @@ function yValeur(y, d, rep) {
   const t = y(d) - 6;
   if (rep == null) return t;
   const r = y(rep);
-  if (t - 12 <= r && r <= t + 4) return y(0) - y(d) > 32 ? y(d) + 15 : r - 5;
+  // marge portée de 12 à 16 px : une étiquette en gras avec son halo dépasse 12 px de haut, et la ligne de repère la
+  // traversait encore (« 12,2 », « 11,5 », audit du 12 novembre 2026, point 21)
+  if (t - 16 <= r && r <= t + 4) return y(0) - y(d) > 36 ? y(d) + 15 : r - 5;
   return t;
 }
 // Explorer, outils de l'onglet Inégalités de l'atlas déplacés ici (lot 2, note docs/note_explorer_atlas_2026-10-28.md).
@@ -40,6 +42,17 @@ const nbI = s => +s.replace(/[\s\u202f\u00a0]/g, "").replace(",", ".").replace("
 function fDI(v) { if (v == null || !isFinite(v)) return ""; const s2 = fI2.format(v); if (nbI(s2) === 0) return "0"; if (Math.abs(nbI(s2)) < 1) return s2; const s1 = fI1.format(v); return Math.abs(nbI(s1)) >= 1000 ? fI0.format(v) : s1; }
 function refI(lv, p, m = "all") { const k = lv + "|" + p + "|" + m; if (!(k in MOY_I)) { const L = DI.niv[lv], a = L.n[p];
   let n = 0, P = 0; L.units.forEach((u, i) => { P += u[2]; if (a) n += a[m][i]; }); MOY_I[k] = P ? n / P * FAC_I(p) : 0; } return MOY_I[k]; }
+// loi de Poisson exacte, comme scipy.stats.poisson.ppf : plus petit k dont la probabilité cumulée atteint q. Somme des
+// probabilités en logarithmes depuis loin sous la moyenne, si bien qu'un grand effectif ne déborde pas (Lanczos)
+function lgammaI(z) { const g = [676.5203681218851, -1259.1392167224028, 771.32342877765313, -176.61502916214059, 12.507343278686905, -0.13857109526572012, 9.9843695780195716e-6, 1.5056327351493116e-7];
+  if (z < .5) return Math.log(Math.PI / Math.abs(Math.sin(Math.PI * z))) - lgammaI(1 - z);
+  z -= 1; let a = .99999999999980993; const t = z + 7.5; g.forEach((c, k) => { a += c / (z + k + 1); });
+  return .5 * Math.log(2 * Math.PI) + (z + .5) * Math.log(t) - t + Math.log(a); }
+function ppfPoissonI(q, mu) { if (!(mu > 0)) return 0;
+  let k = Math.max(0, Math.floor(mu - 12 * Math.sqrt(mu) - 10)), c = 0;
+  for (;; k++) { c += Math.exp(-mu + k * Math.log(mu) - lgammaI(k + 1)); if (c >= q * (1 - 1e-12) || k > mu + 50 * Math.sqrt(mu) + 100) return k; } }
+function statutPoissonI(n, mu) { const b95 = ppfPoissonI(.025, mu), h95 = ppfPoissonI(.975, mu), b998 = ppfPoissonI(.001, mu), h998 = ppfPoissonI(.999, mu);
+  return n < b998 ? -2 : n < b95 ? -1 : n > h998 ? 2 : n > h95 ? 1 : 0; }
 const nI = (lv, p, i, m = "all") => DI.niv[lv].n[p] ? DI.niv[lv].n[p][m][i] : 0;
 const dI = (lv, p, i, m = "all") => { const pop = DI.niv[lv].units[i][2]; return pop ? nI(lv, p, i, m) / pop * FAC_I(p) : 0; };
 const natNI = (p, m) => (DI.france.n[p] || [0, 0, 0])[MI[m]];
@@ -124,15 +137,37 @@ function entonnoirI() {
   const x = d3.scaleLog().domain(d3.extent(pts, d => d.x)).nice().range([m.l, w - m.r]);
   const ymax = Math.max(d3.quantile(pts.map(d => d.y).sort(d3.ascending), .98) || 1, d3.max(lim, r => r[2]) * .5 || 1) * 1.1;
   const y = d3.scaleLinear().domain([0, ymax]).range([h - m.b, m.t]).clamp(true);
-  grilleY(svg, y, m, w, 5); axeY(svg, y, m, 5, f1);
+  grilleY(svg, y, m, w, 5); axeY(svg, y, m, 5, v => Number.isInteger(v) ? f0(v) : f1(v));
   // graduations aux puissances de dix seulement, l'échelle logarithmique se lit ainsi sans chevauchement
   // au téléphone, une puissance de dix sur deux : « 1 000 000 » et « 10 000 000 » se chevauchaient (contrôle de mise
   // en page du 7 novembre 2026)
   axeX(svg, x, h, m, s => { const t = s.ticks().filter(v => /^10*$/.test(String(Math.round(v))));
     return d3.axisBottom(s).tickValues(w < 520 ? t.filter((v, k) => (t.length - 1 - k) % 2 === 0) : t).tickFormat(f0); });
-  const lp = lim.filter(r => r[0] >= x.domain()[0] && r[0] <= x.domain()[1]);
-  svg.append("path").datum(lp).attr("fill", "var(--r1, #3B7E78)").attr("opacity", .35).attr("d", d3.area().x(r => x(r[0])).y0(r => y(r[1])).y1(r => y(r[2])));
-  [3, 4].forEach(k => svg.append("path").datum(lp).attr("fill", "none").attr("stroke", "var(--muted, #5D6371)").attr("stroke-dasharray", "3 3").attr("d", d3.line().x(r => x(r[0])).y(r => y(r[k]))));
+  // une graduation qui sortirait du cadre s'aligne sur son bord (« 10 000 000 » touchait le bord du téléphone, audit du
+  // 13 novembre 2026, R4)
+  svg.selectAll(".axe .tick text").each(function () { const b = this.getBBox(), tx = this.parentNode.transform.baseVal.consolidate()?.matrix.e ?? 0;
+    if (tx + b.x + b.width > w - 2) d3.select(this).attr("text-anchor", "end").attr("x", w - 2 - tx);
+    else if (tx + b.x < 2) d3.select(this).attr("text-anchor", "start").attr("x", 2 - tx); });
+  // audit du 13 novembre 2026 (K1) : la bande lissée de F7 ne passait plus par les limites qui donnent la couleur, et
+  // 38 intercommunalités grises en sortaient. La bande est maintenant calculée à chaque pixel avec les mêmes limites de
+  // Poisson exactes que le statut de chaque territoire (analyses.limites_entonnoir, taux de l'ensemble du niveau) ; ses
+  // marches sont celles des petits effectifs, vraies. Coupée au bord du cadre, comme avant.
+  // échantillons à chaque pixel et à la population exacte de chaque territoire, pour que la bande passe par sa limite
+  const taux = refI(lv, p, "all") / FAC_I(p), borne = pop => { const mu = pop * taux;
+    return [x(pop), ...[.025, .975, .001, .999].map(q => ppfPoissonI(q, mu) / pop * FAC_I(p))]; };
+  const bornes = [];
+  for (let px = m.l; px <= w - m.r; px += 1) bornes.push(borne(x.invert(px)));
+  pts.forEach(d => { if (d.x >= x.domain()[0] && d.x <= x.domain()[1]) bornes.push(borne(d.x)); });
+  bornes.sort((a, b) => a[0] - b[0]);
+  const yl = y.copy().clamp(false), clipId = "clipEnt" + Math.random().toString(36).slice(2, 8);
+  svg.append("clipPath").attr("id", clipId).append("rect").attr("x", m.l).attr("y", m.t).attr("width", w - m.l - m.r).attr("height", h - m.t - m.b);
+  const bande = svg.append("g").attr("clip-path", `url(#${clipId})`);
+  bande.append("path").datum(bornes).attr("class", "bande95").attr("fill", "var(--r1, #3B7E78)").attr("opacity", .35).attr("d", d3.area().x(r => r[0]).y0(r => yl(r[1])).y1(r => yl(r[2])));
+  [3, 4].forEach(k => bande.append("path").datum(bornes).attr("fill", "none").attr("stroke", "var(--muted, #5D6371)").attr("stroke-dasharray", "3 3").attr("d", d3.line().x(r => r[0]).y(r => yl(r[k]))));
+  // contrôle dans la page : le statut publié de chaque territoire doit être celui que donnent ces limites à sa population
+  // (controle_finition.js lit data-ecarts, qui doit valoir 0)
+  const ecarts = pts.filter(d => d.s != null && statutPoissonI(nI(lv, p, d.i), d.x * taux) !== d.s).length;
+  svg.attr("data-ecarts", ecarts);
   svg.append("line").attr("class", "repere").attr("x1", m.l).attr("x2", w - m.r).attr("y1", y(nd)).attr("y2", y(nd));
   svg.append("g").selectAll("circle").data(pts).join("circle").attr("cx", d => x(d.x)).attr("cy", d => y(d.y)).attr("r", 2.6)
     .attr("fill", d => COUL_STATUT(d.s)).attr("fill-opacity", .8).append("title").text(d => `${d.u[1]}, ${f0(d.x)} hab., ${fDI(d.y)} ${uniteI(p, true)}, ${STATUT_I[String(d.s)] || "statut non calculé"}`);

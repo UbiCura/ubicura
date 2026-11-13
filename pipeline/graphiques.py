@@ -293,7 +293,7 @@ def escalier(R, lab, cle, densite_nationale, p=None):
         c = OCRE_PALE if r["densite"] < densite_nationale else VIOLET[2]
         f.ajout(f'<rect x="{x:.1f}" y="{f.Y(r["densite"]):.1f}" width="{largeur:.1f}" '
                 f'height="{f.Y(0) - f.Y(r["densite"]):.1f}" fill="{c}" rx="2">'
-                f'<title>{int(r["decile"])}e dixième de la population, {AF.nombre(r["densite"], "taux")} {unite(p)}, '
+                f'<title>{"1er" if int(r["decile"]) == 1 else str(int(r["decile"])) + "e"} dixième de la population, {AF.nombre(r["densite"], "taux")} {unite(p)}, '
                 f'ensemble {AF.nombre(densite_nationale, "taux")}</title></rect>')
         # la valeur au-dessus de sa barre, sauf si le pointillé « Ensemble » la barrerait (règle 17, « 12,2 » barré dans
         # l'escalier de santé mentale, relevé le 8 novembre 2026) : elle passe alors dans la barre, ou au-dessus du trait
@@ -340,7 +340,7 @@ def eloignement(L, tid):
         c = OCRE_PALE if r["distance_mediane_km"] > fr else VIOLET[2]
         f.ajout(f'<rect x="{x:.1f}" y="{f.Y(r["distance_mediane_km"]):.1f}" width="{largeur:.1f}" '
                 f'height="{f.Y(0) - f.Y(r["distance_mediane_km"]):.1f}" fill="{c}" rx="2">'
-                f'<title>{int(r["decile"])}e dixième de la population, distance médiane '
+                f'<title>{"1er" if int(r["decile"]) == 1 else str(int(r["decile"])) + "e"} dixième de la population, distance médiane '
                 f'{nombre(r["distance_mediane_km"], 1)} km, France {nombre(fr, 1)} km</title></rect>')
         f.texte(x + largeur / 2, f.Y(r["distance_mediane_km"]) - 5, nombre(r["distance_mediane_km"], 1), "middle",
                 ENCRE, "petit")

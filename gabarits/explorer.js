@@ -38,7 +38,23 @@ function figer(svg) {
   s.selectAll(".etiq.forte").attr("fill", "var(--ink, #1C2028)");
   s.selectAll(".territoire").attr("stroke", "var(--contour, #F4F4F1)").attr("stroke-width", .3);
   s.selectAll(".curseur").attr("stroke", "var(--muted, #5D6371)");
+  dansLeCadre(svg);
   glisser(svg);
+}
+
+// toute étiquette reste dans le cadre de sa figure : décalée vers l'intérieur de ce qui dépasse (« 100 % » de la
+// courbe de concentration et une étiquette des petites courbes d'évolution débordaient de 2 px, contrôle de mise en
+// page du 13 novembre 2026)
+function dansLeCadre(svg) {
+  const c = svg.getBoundingClientRect(), vb = svg.viewBox && svg.viewBox.baseVal;
+  if (!c.width || !vb || !vb.width) return;
+  const k = vb.width / c.width;
+  svg.querySelectorAll("text").forEach(t => {
+    const r = t.getBoundingClientRect();
+    if (!r.width) return;
+    const dx = r.right > c.right - 1 ? (c.right - 1 - r.right) : r.left < c.left + 1 ? (c.left + 1 - r.left) : 0;
+    if (dx) t.setAttribute("dx", (parseFloat(t.getAttribute("dx")) || 0) + dx * k);
+  });
 }
 
 // quand un réglage redessine une figure de mêmes dimensions, chaque élément glisse de son ancienne place à la nouvelle

@@ -76,6 +76,11 @@
       if (Math.min(a.right, b.right) - Math.max(a.left, b.left) > 0 && Math.min(a.bottom, b.bottom) - Math.max(a.top, b.top) > 1)
         sortie.defauts.push("figure, chevauchement « " + ts[i].t.textContent.trim().slice(0, 25) + " » / « " + ts[j].t.textContent.trim().slice(0, 25) + " »");
     }
+    // une étiquette reste dans le cadre de sa figure (« 10 000 000 » de l'entonnoir au téléphone, audit du 13 novembre 2026)
+    const cadre = svg.getBoundingClientRect();
+    ts.forEach(o => { if (cadre.width > 0 && (o.r.right > cadre.right + 1 || o.r.left < cadre.left - 1)) sortie.defauts.push("figure, étiquette hors du cadre « " + o.t.textContent.trim().slice(0, 25) + " »"); });
+    // entonnoir d'Explorer : le statut publié de chaque territoire suit la bande dessinée (audit du 13 novembre 2026, K1)
+    if (svg.hasAttribute("data-ecarts") && svg.getAttribute("data-ecarts") !== "0") sortie.defauts.push("entonnoir, " + svg.getAttribute("data-ecarts") + " territoire(s) dont la couleur contredit la bande");
   });
 
   // 3. couleurs des données contre le fond, sur les deux fonds
@@ -353,6 +358,29 @@
       if (w > 0 && w < 56 && t.length > 15 && /[a-zà-ÿ]{6,}/i.test(t)) { etroites++; ex3 = ex3 || "« " + t.slice(0, 40) + " »"; }
     });
     if (etroites) sortie.defauts.push(`colonne de tableau de moins de 56 px pour un texte long : ${etroites} cellule(s) (${ex3})`);
+    // un « 0 » écrit par le script dans une cellule, sans infobulle ni signal (règle 6 ; « CAARUD : 0 » dans Autour
+    // d'un lieu, audit du 12 novembre 2026, point 18)
+    let zeros = 0, ex5 = "";
+    document.querySelectorAll("main td").forEach(td => {
+      if (!vis(td) || td.innerText.trim() !== "0") return;
+      const ligne = td.closest("tr");
+      if (td.querySelector("[title],abbr,.sig") || td.hasAttribute("title") || (ligne && ligne.querySelector(".sig,[title]"))) return;
+      zeros++; ex5 = ex5 || ((ligne && ligne.cells[0]) ? ligne.cells[0].innerText.trim().slice(0, 40) : "");
+    });
+    if (zeros) sortie.defauts.push(`« 0 » laissé seul dans un tableau : ${zeros} cellule(s) (« ${ex5} »)`);
+    // une étiquette de valeur traversée par la ligne de repère horizontale (exigence 17, audit du 12 novembre 2026, 21)
+    let barrees = 0, ex6 = "";
+    document.querySelectorAll("main svg line.repere").forEach(l => {
+      const b = l.getBoundingClientRect();
+      if (!vis(l) || b.height > 1.5 || b.width < 20) return;
+      const yl = b.top + b.height / 2;
+      l.ownerSVGElement.querySelectorAll("text.etiq").forEach(t => {
+        const r = t.getBoundingClientRect();
+        if (!t.textContent.trim() || r.width === 0) return;
+        if (r.top + 2 < yl && yl < r.bottom - 2 && r.right > b.left && r.left < b.right) { barrees++; ex6 = ex6 || t.textContent.trim().slice(0, 20); }
+      });
+    });
+    if (barrees) sortie.defauts.push(`étiquette traversée par la ligne de repère : ${barrees} (« ${ex6} »)`);
     document.querySelectorAll("table.comp tbody tr").forEach((tr, i) => {
       if (i > 12) return;
       const td = tr.querySelector("td"); if (!td || !vis(td)) return;

@@ -18,7 +18,7 @@ _REGLES = [
     (re.compile(r"[   ]+»"), INSECABLE + "»"),
     (re.compile(r"(?<=\S) +(?=[;!?](?:\s|$|<|&))"), FINE),
     (re.compile(r"(?<=[\w\)»%]) +(?=:(?:\s|$))"), FINE),
-    (re.compile(r"(?<=\d) +(?=(?:%|‰|€|km|px|h|min|ans?|pour)\b|%|‰|€)"), INSECABLE),
+    (re.compile(r"(?<=\d) +(?=(?:%|‰|€|km|px|h|min|ans?|pour|Ko|Mo|Go)\b|%|‰|€)"), INSECABLE),
     # l'espace des gabarits \u00e9crite en entit\u00e9 (\u00ab 10&nbsp;000 \u00bb, Explorer) devient la m\u00eame espace fine
     (re.compile(r"(?<=\d)(?:[ \u00a0]|&nbsp;|&#160;)(?=\d{3}\b)"), FINE),
     # une unité qui suit une virgule reste avec ce qui la précède (« dermatologues, % », audit du 11 novembre 2026)

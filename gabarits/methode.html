@@ -119,7 +119,7 @@
 <div class="defile"><table class="simple">
 <thead><tr><th>Type de structure</th><th>Structures</th><th>Dans les deux bases</th><th>FINESS seul</th><th>ROR seul</th><th>Hors des deux bases (sources de l'établissement, nom d'un CMP)</th><th>Départements où il est recensé</th><th>Comparé entre territoires</th></tr></thead>
 <tbody>
-{% for r in lieux.couverture %}<tr><td>{{ r.libelle }}</td><td>{{ r.n }}</td><td>{{ r.deux }}</td><td>{{ r.finess }}</td><td>{{ r.ror }}</td><td>{{ r.sources }}</td><td>{{ r.part }}</td><td>{{ r.compare }}</td></tr>
+{% for r in lieux.couverture %}<tr><td>{{ r.libelle }}</td><td>{{ r.n|aucun }}</td><td>{{ r.deux|aucun }}</td><td>{{ r.finess|aucun }}</td><td>{{ r.ror|aucun }}</td><td>{{ r.sources|aucun }}</td><td>{{ r.part }}</td><td>{{ r.compare }}</td></tr>
 {% endfor %}</tbody></table></div>
 {% if lieux.sae %}
 <h3 id="lieux-sae">Les CMP confrontés à la SAE</h3>
@@ -127,7 +127,7 @@
 <div class="defile"><table class="simple">
 <thead><tr><th>Région</th><th>CMP recensés ici (structures distinctes)</th><th>Adultes</th><th>Enfants et adolescents</th><th>Public non précisé</th><th>Unités de CMP déclarées au ROR</th><th>CMP déclarés à la SAE</th><th>SAE, adultes</th><th>SAE, enfants</th><th>Écart avec la SAE</th></tr></thead>
 <tbody>
-{% for r in lieux.sae %}<tr><td>{{ r.nom }}</td><td>{{ r.cmp }}</td><td>{{ r.adultes }}</td><td>{{ r.enfants }}</td><td>{{ r.np }}</td><td>{{ r.ur }}</td><td>{{ r.sae }}</td><td>{{ r.sae_a }}</td><td>{{ r.sae_e }}</td><td>{{ r.ecart }}</td></tr>
+{% for r in lieux.sae %}<tr><td>{{ r.nom }}</td><td>{{ r.cmp|aucun('aucun') }}</td><td>{{ r.adultes|aucun('aucun') }}</td><td>{{ r.enfants|aucun('aucun') }}</td><td>{{ r.np|aucun('aucun') }}</td><td>{{ r.ur|aucun }}</td><td>{{ r.sae|aucun('aucun') }}</td><td>{{ r.sae_a|aucun('aucun') }}</td><td>{{ r.sae_e|aucun('aucun') }}</td><td>{{ r.ecart }}</td></tr>
 {% endfor %}</tbody></table></div>
 <p>Un CMP qui accueille adultes et enfants compte dans les deux colonnes. Détail par département dans concordance_cmp_sae.csv et cmp_par_public.csv.</p>
 {% endif %}
@@ -138,7 +138,7 @@
 <div class="defile"><table class="simple filtrable">
 <thead><tr><th>Établissement gestionnaire</th><th>Département du siège</th><th>CMP déclarés à la SAE (adultes et enfants)</th><th>CMP recensés ici (adultes et enfants)</th><th>Unités de CMP au ROR</th><th>Constat</th></tr></thead>
 <tbody>
-{% for r in lieux.etab %}<tr><td>{{ r.nom }}</td><td>{{ r.dep }}</td><td>{{ r.sae }}</td><td>{{ r.ici }}</td><td>{{ r.ror }}</td><td>{{ r.statut }}</td></tr>
+{% for r in lieux.etab %}<tr><td>{{ r.nom }}</td><td>{{ r.dep }}</td><td>{{ r.sae|aucun('aucun') }}</td><td>{{ r.ici|aucun('aucun') }}</td><td>{{ r.ror|aucun }}</td><td>{{ r.statut }}</td></tr>
 {% endfor %}</tbody></table></div></details>
 <p>Détail pour tous les établissements dans concordance_cmp_etablissements.csv.</p>
 {% endif %}
@@ -149,7 +149,7 @@
 <div class="defile"><table class="simple">
 <thead><tr><th>Niveau</th>{% for t in lieux.confirmation.types %}<th>{{ t }}</th>{% endfor %}</tr></thead>
 <tbody>
-{% for c in lieux.confirmation.niveaux %}<tr><td>{{ c.niveau }}</td>{% for v in c.n %}<td>{{ v }}</td>{% endfor %}</tr>
+{% for c in lieux.confirmation.niveaux %}<tr><td>{{ c.niveau }}</td>{% for v in c.n %}<td>{{ v|aucun }}</td>{% endfor %}</tr>
 {% endfor %}</tbody></table></div>
 {% endif %}
 {% if lieux.liste_verifiee %}
@@ -159,7 +159,7 @@
 <div class="defile"><table class="simple filtrable">
 <thead><tr><th>Établissement</th><th>Département</th><th>Types vérifiés</th><th>Confirmées par l'établissement</th><th>Confirmées par une autre source</th><th>Bases seules</th><th>Inscriptions non retenues</th><th>Sources</th><th>Date</th></tr></thead>
 <tbody>
-{% for e in lieux.liste_verifiee.etablissements %}<tr><td>{{ e.etablissement }}</td><td>{{ e.departement }}</td><td>{{ e.types }}</td><td>{{ e.etab }}</td><td>{{ e.publique }}</td><td>{{ e.bases }}</td><td>{{ e.non_retenues }}</td><td>{{ e.sources }}</td><td>{{ e.date }}{% if e.a_reverifier %}, à revérifier{% endif %}</td></tr>
+{% for e in lieux.liste_verifiee.etablissements %}<tr><td>{{ e.etablissement }}</td><td>{{ e.departement }}</td><td>{{ e.types }}</td><td>{{ e.etab|aucun }}</td><td>{{ e.publique|aucun }}</td><td>{{ e.bases|aucun }}</td><td>{{ e.non_retenues|aucun }}</td><td>{{ e.sources }}</td><td>{{ e.date }}{% if e.a_reverifier %}, à revérifier{% endif %}</td></tr>
 {% endfor %}</tbody></table></div>
 </details>
 {% endif %}
@@ -243,9 +243,9 @@
 <h2 id="telecharger">Données à télécharger</h2>
 <p><a href="{{ archive.lien }}">Télécharger toutes les données de la version</a> (archive zip, {{ archive.taille }}).</p>
 <p>Fichiers CSV de la version du {{ date_longue }}, séparateur point-virgule et virgule décimale, pour s'ouvrir directement dans un tableur. Les plus gros sont compressés en zip. Le <a href="{{ lien_dictionnaire }}">dictionnaire des colonnes</a> décrit chaque fichier et chaque colonne.</p>
-<table class="simple filtrable"><thead><tr><th>Fichier</th><th>Contenu</th><th>Taille</th></tr></thead><tbody>
+<div class="defile"><table class="simple filtrable fichiers"><thead><tr><th>Fichier</th><th>Contenu</th><th>Taille</th></tr></thead><tbody>
 {% for f in fichiers %}<tr><td><a href="{{ f.lien }}">{{ f.nom }}</a></td><td>{{ f.description }}</td><td>{{ f.taille }}</td></tr>{% endfor %}
-</tbody></table>
+</tbody></table></div>
 {% endif %}
 </div>
 </div>

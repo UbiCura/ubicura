@@ -185,7 +185,7 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
             html, preuve = (h.replace('href="../../', 'href="../') for h in (html, preuve))
             # pronom inversé jamais séparé de son verbe en fin de ligne (« trouve-t-on », « exercent-ils »), par un gluon
             # invisible après chaque trait d'union (contre-audit du 6 novembre 2026)
-            question = re.sub(r"-(?!⁠)(?=(?:t-)?(?:ils?|elles?|on)|t-)", "-⁠", question)
+            question = re.sub(r"-(?!⁠)(?=(?:t-)?(?:ils?|elles?|on)\b|t-)", "-⁠", question)
             qs.append({"id": f"q{k + 1}", "question": question, "html": html, "preuve": preuve, "autre": autre,
                        "section": f"../rapports/{dernier.name}/{page_rapport}.html#{_ancre(intertitre, '-')}"})
         # bases à venir de l'offre (et du recours pour la santé mentale), rangées selon qu'elles parlent de santé mentale

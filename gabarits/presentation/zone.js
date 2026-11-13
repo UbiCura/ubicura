@@ -103,11 +103,12 @@
     $("zt").innerHTML = ks.filter(function (k) { return !INCOMPLET[k]; }).map(function (k) {
       var t = parType[k], sig = masque[k] ? ' <b class="sig" title="Moins de la moitié des structures déclarées à la SAE sont inscrites dans les bases, ' + masque[k].map(function (d) { return esc(Z.departements[d] || d); }).join(", ") + '">!</b>' : "";
       var inc = INCOMPLET[k], sigI = inc ? ' <b class="sig" title="Type recensé dans moins de 90&nbsp;% des départements, la structure existe souvent sans être inscrite sous ce type">!</b>' : "";
-      var conf = t.n && AVEC_CONF[k] ? '<span class="c">' + (t.conf ? fr0.format(t.conf) + " " + pl(t.conf, "confirmée") : "aucune confirmée") + "</span>" : "";
+      // le nombre reste avec son mot (« 2 / confirmées » sur deux lignes au téléphone, audit du 12 novembre 2026, point 18)
+      var conf = t.n && AVEC_CONF[k] ? '<span class="c">' + (t.conf ? "dont&nbsp;" + fr0.format(t.conf) + "&nbsp;" + pl(t.conf, "confirmée") : "aucune confirmée") + "</span>" : "";
       var proche = inc ? '<span class="c">non donnée</span>' : t.proche == null ? "aucune en France" : Chiffres.fmt(t.proche, "distance") + "&nbsp;km";
       var kr = route ? Z.trajets.calcules.indexOf(k) : -1;
       if (route && kr >= 0 && !inc) { var tr = route[kr]; proche = tr == null ? "plus de " + Z.trajets.seuils[Z.trajets.seuils.length - 1] + "&nbsp;min" : "moins de " + Z.trajets.seuils[tr] + "&nbsp;min"; }
-      return "<tr><td>" + esc(Z.types[k]) + sig + sigI + '</td><td class="v">' + (inc && t.n ? "au moins " : "") + fr0.format(t.n) + conf + '</td><td class="v"' + (inc ? "" : ' title="' + esc(t.nomProche) + '"') + ">" + proche + "</td></tr>";
+      return "<tr><td>" + esc(Z.types[k]) + sig + sigI + '</td><td class="v">' + (inc && t.n ? "au moins " : "") + (t.n ? fr0.format(t.n) : "aucune") + conf + '</td><td class="v"' + (inc ? "" : ' title="' + esc(t.nomProche) + '"') + ">" + proche + "</td></tr>";
     }).join("");
     var zl = $("zlim"), mk = Object.keys(masque), dm = Object.keys(deps).filter(function (d) { return (Z.masques[d] || []).some(function (k) { return garde[k]; }); });
     zl.hidden = !mk.length;

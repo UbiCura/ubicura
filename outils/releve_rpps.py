@@ -73,8 +73,10 @@ def photographier(forcer: bool = False) -> str:
     if not ok:
         return f"Relève du RPPS : rien à faire ({raison})."
     import run
-    from pipeline import build, finess, photographies, referentiel
-    from pipeline.sources import rpps
+    # finess et referentiel sont dans pipeline.sources : l'import d'origine (1er novembre 2026) échouait à chaque relève,
+    # et aucune photographie hebdomadaire n'a été prise par cette voie (constat du 12 novembre 2026)
+    from pipeline import build, photographies
+    from pipeline.sources import finess, referentiel, rpps
     with run.verrou_execution():
         ref = referentiel.charger(True, False)
         fichiers = rpps.telecharger_tout(False, False)

@@ -65,7 +65,7 @@
       fiches construites, 1er novembre 2026). -#}
   <td class="pos">{% if l.txt and l.code != 'aucun' %}{% if l.avant %}<span class="{{ 'ec ' ~ (l.couleur or 'neutre') if l.avant_ecart else 'ens-pos' }}">{{ l.avant }}</span>{{ ', mais ' if l.mais else ', ' }}{% endif %}{{ l.pos_txt }}{% endif %}</td>
   {%- if g.evol %}
-  <td class="evol">{% if l.evol %}<b>{{ l.evol.ici }}</b><span class="note">{% if f.evolution.ou %}au département, {% endif %}{{ l.evol.periode }}, <span class="insec">de {{ l.evol.debut }} à {{ l.evol.fin }}</span></span><span class="note">{% if f.evolution.region %}<span class="insec">région {{ l.evol.region }}</span> · {% endif %}ensemble des {{ 'régions' if f.niveau == 'reg' else 'départements' }} <span class="insec">{{ l.evol.france }}</span></span>{% endif %}</td>
+  <td class="evol">{% if l.evol %}<b>{{ l.evol.ici }}</b><span class="note">{% if f.evolution.ou %}au département, {% endif %}{{ l.evol.periode }}, {# deux densités qui s'écrivent pareil ne se lisent pas « de 8,4 à 8,4 » à côté de « −0,1 % » (audit du 13 novembre 2026) #}<span class="insec">{% if l.evol.debut == l.evol.fin %}autour de {{ l.evol.debut }}{% else %}de {{ l.evol.debut }} à {{ l.evol.fin }}{% endif %}</span></span><span class="note">{% if f.evolution.region %}<span class="insec">région {{ l.evol.region }}</span> · {% endif %}ensemble des {{ 'régions' if f.niveau == 'reg' else 'départements' }} <span class="insec">{{ l.evol.france }}</span></span>{% endif %}</td>
   {%- endif %}
   <td class="outil">{% if not l.seule_drees %}{{ menu(l) }}{% endif %}</td>
 </tr>

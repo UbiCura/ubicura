@@ -219,6 +219,13 @@ def coupures_fichiers(corps: str) -> str:
     return "".join(morceaux)
 
 
+def sans_coupure_fichiers(page: str) -> str:
+    """Aucun point de coupure dans le tableau des fichiers à télécharger : Edge coupait les noms à leurs <wbr> malgré
+    white-space: nowrap (audit du 13 novembre 2026, R3). Au téléphone, le tableau glisse plutôt que de couper un nom."""
+    return re.sub(r'<table class="[^"]*\bfichiers\b[^"]*">.*?</table>', lambda m: m.group(0).replace("<wbr>", ""),
+                  page, flags=re.S)
+
+
 def tableaux_etroits(corps: str) -> str:
     """Tableau de trois colonnes ou moins, à sa largeur naturelle à l'impression au lieu d'être étiré."""
     def classe(m):
@@ -776,6 +783,9 @@ def _environnement() -> Environment:
     env = Environment(loader=FileSystemLoader(GABARITS), autoescape=select_autoescape(["html"]))
     env.globals.update(nom_projet=config.NOM_PROJET, sous_titre=config.SOUS_TITRE)
     env.filters["liens"] = liens
+    # un compte nul s'écrit en mots dans les tableaux (« aucune structure »), jamais « 0 » seul (règle des chiffres ;
+    # contrôle étendu à toutes les pages le 13 novembre 2026)
+    env.filters["aucun"] = lambda v, mot="aucune": mot if str(v).strip() == "0" else v
     # filtres des nombres (« nombre », « entier »), déclarés ici pour que chaque groupe de pages les trouve, même quand
     # les fiches ne sont pas refaites (pipeline.site --pages, 7 novembre 2026)
     from .fiche_territoire import filtres
@@ -946,6 +956,13 @@ def construire(pdf=True, groupes: set | None = None) -> Path:
     shutil.copytree(GABARITS / "cesure", SITE / "cesure", dirs_exist_ok=True)
     env = _environnement()
     site_data = json.loads((dernier / "site_data.json").read_text(encoding="utf-8"))
+    # textes des limites relus dans le catalogue à chaque construction, pour qu'une limite corrigée paraisse sans refaire
+    # les calculs ; les territoires concernés, calculés à l'exécution, sont gardés (13 novembre 2026)
+    from . import limites as _lim
+    for k, L in config.LIMITES.items():
+        e = site_data.setdefault("limites", {}).setdefault(k, {})
+        e.update(risque=L["risque"], texte=L["texte"], sources=L["sources"], nom=_lim.NOMS.get(k, k),
+                 court=config.LIMITES_COURT.get(k, ""))
     # limites calculées à l'exécution (spécialités surtout salariées), reprises pour la page méthode
     limites.completer(site_data.get("limites"))
     commun = _commun(dernier, site_data)
@@ -1148,7 +1165,8 @@ def construire_methode(env, commun, dernier, site_data, ddir, pages, fiches_sour
         pages.append(SITE / fichier)
         # espaces insécables du français, comme les autres pages (contre-relecture du 10 novembre 2026)
         from .typographie import insecables
-        (SITE / fichier).write_text(insecables((SITE / fichier).read_text(encoding="utf-8")), encoding="utf-8")
+        (SITE / fichier).write_text(sans_coupure_fichiers(insecables((SITE / fichier).read_text(encoding="utf-8"))),
+                                    encoding="utf-8")
 
     # à propos, texte versionné dans contenus/a_propos.md
     src = config.RACINE / "contenus" / "a_propos.md"
@@ -1514,8 +1532,17 @@ def _inscrits(dossier):
         return f"{int(float(v)):,}".replace(",", "\u00a0")
     return [{"libelle": r["libelle_rpps"], "inscrits": nb(r["inscrits"]), "avec": nb(r["avec_activite"]),
              "sans": nb(r["sans_activite_declaree"]),
-             "part": f"{float(r['part_sans_activite_declaree'].replace(',', '.')):.0%}".replace("%", "\u00a0%")}
+             # une part non nulle qui s'arrondit \u00e0 0 % s'\u00e9crit \u00ab moins de 1 % \u00bb (7 pharmaciens sur 76 195, audit du
+             # 13 novembre 2026, R7)
+             "part": _part_entiere(float(r['part_sans_activite_declaree'].replace(',', '.')))}
             for r in lignes]
+
+
+def _part_entiere(x: float) -> str:
+    """Part en pour cent entier, \u00ab moins de 1 % \u00bb quand elle n'est pas nulle mais s'arrondit \u00e0 0."""
+    if 0 < x < .005:
+        return "moins de 1\u00a0%"
+    return f"{x:.0%}".replace("%", "\u00a0%")
 
 
 # bibliothèques dont dépendent les calculs, avec leur rôle (versions lues à chaque construction du site)

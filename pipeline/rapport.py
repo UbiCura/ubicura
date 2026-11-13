@@ -350,7 +350,8 @@ def _panorama(C: Contexte, famille):
     t["libelle"] = t["prof"].map(C.lab)
     t["effectif"] = t["prof"].map(C.nat)
     t["densite"] = t["prof"].map(C.densite)
-    t["un_pour"] = t["densite"].map(lambda d: un_pour(d).replace("un pour ", ""))
+    # « 840 habitants » d'un seul tenant : la colonne étroite le coupait en deux lignes (audit du 13 novembre 2026)
+    t["un_pour"] = t["densite"].map(lambda d: un_pour(d).replace("un pour ", "").replace(" habitants", " habitants"))
     t["gini"] = t["prof"].map(C.ineg["gini"])
     t["sans"] = t["prof"].map(C.ineg["part_population_sans_professionnel"])
     t = t.sort_values("effectif", ascending=False)
@@ -779,6 +780,7 @@ def _besoins_spf(C: Contexte, insee):
         return []
     T = pd.DataFrame(lignes)
     s = next((l for l in lignes if l["libelle"].startswith("Décès par suicide")), lignes[0])
+    baro = [l["libelle"] for l in lignes if "Baromètre" in l["source"]]
     L = ["#### Suicide, gestes auto-infligés et santé déclarée", "",
          f"En {s['annee']}, à structure d'âge égale, le taux de décès par suicide va de {nombre(s['vmin'], 1)} à "
          f"{nombre(s['vmax'], 1)} pour 100 000 habitants selon les départements, avec une médiane de "
@@ -792,10 +794,14 @@ def _besoins_spf(C: Contexte, insee):
         "auto-infligés et les réponses à une enquête dépendent beaucoup moins du nombre de soignants. Ils donnent donc "
         "un second regard sur les besoins, à lire avec le premier. Les passages aux urgences sont une part de l'activité des urgences et non un taux rapporté à la population. "
         "Mayotte, dont les données sont moins complètes, n'est pas retenue pour désigner les valeurs extrêmes.",
-        "Les trois dernières lignes viennent d'une enquête, le Baromètre de Santé publique France. Elles mesurent ce "
-        "que les personnes déclarent, avec une marge d'incertitude (intervalle de confiance à 95 %) donnée entre "
-        "parenthèses. Elles n'existent que par "
-        "région et ne sont jamais attribuées aux départements.",
+        # les lignes du Baromètre sont nommées d'après leur source, jamais « les trois dernières » (audit du 13 novembre
+        # 2026, C3 : l'entretien postnatal, par département, s'y trouvait compté)
+        (f"{'La ligne' if len(baro) == 1 else 'Les lignes'} {_liste('« ' + b + ' »' for b in baro)} "
+         f"{'vient' if len(baro) == 1 else 'viennent'} d'une enquête, le Baromètre de Santé publique France. "
+         f"{'Elle mesure' if len(baro) == 1 else 'Elles mesurent'} ce que les personnes déclarent, avec une marge "
+         f"d'incertitude (intervalle de confiance à 95 %) donnée entre parenthèses, et "
+         f"{"n'existe" if len(baro) == 1 else "n'existent"} que par région, sans jamais être "
+         f"{'attribuée' if len(baro) == 1 else 'attribuées'} aux départements.") if baro else "",
         limites.phrase_md(["suicides", "hospit_gestes_auto_infliges", "urgences_gestes_auto_infliges"]))
     cc = C.R.get("correlations_contexte")
     if isinstance(cc, pd.DataFrame) and len(cc):

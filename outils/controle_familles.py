@@ -272,6 +272,12 @@ def odisse(R: Path):
         b = b[b["_an"] == b["_an"].max()]
         # codes à trois caractères dans certains fichiers (« 001 », « 02A »), ramenés au code du département
         b[code] = b[code].str.strip().map(lambda c: c[1:] if len(c) == 3 and c.startswith("0") else c)
+        # jeux du Baromètre 2024 qui nomment la région (« Bretagne ») : même correspondance que le pipeline, la ligne
+        # « Tous » (France) écartée (12 novembre 2026)
+        if niv == "reg" and b[code].str.contains(r"[a-z]{3}", regex=True).any():
+            from pipeline.sources import odisse as _od, referentiel as _ref
+            codes, _inc = _od.codes_regions_par_nom(b[code], _ref.charger(True))
+            b = b[codes.notna()].assign(**{code: codes[codes.notna()]})
         r = pd.to_numeric(b.set_index(code)[val].str.replace(",", "."), errors="coerce")
         comparer(f"Santé publique France, {iid}, {'départements' if niv == 'dep' else 'régions'}", pub[iid],
                  r.reindex(pub.index), .051)

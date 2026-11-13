@@ -59,7 +59,12 @@ NOMS = {"age_drees": "Âge des professionnels", "taux_depassement": "Dépassemen
         # 12 novembre 2026)
         "file_active": "Patientèle des libéraux (file active)", "addictions": "Addictologie",
         "confirmation": "Confirmation des structures de soins",
-        "route_psychiatrie_ambulatoire": "Temps de route vers la psychiatrie ambulatoire"}
+        "route_psychiatrie_ambulatoire": "Temps de route vers la psychiatrie ambulatoire",
+        # Santé publique France, santé mentale (12 novembre 2026)
+        "episode_depressif_declare": "Épisode dépressif déclaré (Baromètre 2024)",
+        "trouble_anxieux_generalise": "Trouble anxieux généralisé (Baromètre 2024)",
+        "satisfaction_vie": "Satisfaction de la vie actuelle (Baromètre 2024)",
+        "entretien_postnatal_precoce": "Entretien postnatal précoce"}
 
 
 def specialites_salariees(national, professions) -> dict:

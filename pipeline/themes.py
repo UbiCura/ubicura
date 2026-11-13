@@ -23,7 +23,9 @@ THEMES = [
      "chapeau": "L’offre de soins en addictologie, les consommations et le recours aux soins qui s’y rapportent, et "
                 "ce qui les entoure. Les consommations ne sont publiées que par région.",
      "questions": [("sm", "Consommations d'alcool et de tabac, par région", "De l’offre aux consommations en addictologie")],
-     "explorer": [("explorer.html#qAddicto", "De l’offre aux consommations en addictologie")]},
+     # un autre nom que la question de la page, pour que deux liens ne portent pas le même intitulé vers deux endroits
+     # (audit du 12 novembre 2026, point 22)
+     "explorer": [("explorer.html#qAddicto", "La même question, à régler soi-même dans Explorer")]},
     {"id": "geographie_sociale", "nom": "Géographie sociale",
      "chapeau": "Le niveau de vie, l’emploi, la formation, le logement et les familles des habitants, et la façon dont "
                 "l’offre de soins se répartit selon eux.",
