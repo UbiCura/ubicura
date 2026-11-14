@@ -1,0 +1,167 @@
+﻿prof;personnes;sans_autre_lieu_de_soins;categorie;part_profession;libelle;categorie_libelle
+medecin_generaliste;4355;1627;a_distance;0,0418356;Médecin généraliste;Soins à distance (téléconsultation)
+ens_medecin_specialiste;722;192;a_distance;0,00491662;Médecin spécialiste (toutes spécialités);Soins à distance (téléconsultation)
+psychiatre;271;76;a_distance;0,0172293;Psychiatre;Soins à distance (téléconsultation)
+urgentiste;144;16;a_distance;0,0446927;Médecin urgentiste;Soins à distance (téléconsultation)
+gynecologue;83;29;a_distance;0,00992111;Gynécologue;Soins à distance (téléconsultation)
+pediatre;79;28;a_distance;0,00803499;Pédiatre;Soins à distance (téléconsultation)
+ophtalmologue;53;12;a_distance;0,00837547;Ophtalmologue;Soins à distance (téléconsultation)
+q_addictologie;38;11;a_distance;0,0346715;Médecin qualifié en addictologie;Soins à distance (téléconsultation)
+dermatologue;28;17;a_distance;0,00738007;Dermatologue;Soins à distance (téléconsultation)
+q_psychiatrie_enfant;21;6;a_distance;0,0102489;Psychiatre qualifié pour l'enfant et l'adolescent (toutes voies);Soins à distance (téléconsultation)
+pedopsychiatre;14;3;a_distance;0,0189445;Pédopsychiatre;Soins à distance (téléconsultation)
+endocrinologue;13;3;a_distance;0,0052867;Endocrinologue;Soins à distance (téléconsultation)
+geriatre;9;3;a_distance;0,00248071;Gériatre;Soins à distance (téléconsultation)
+gastro_enterologue;6;1;a_distance;0,00144613;Gastro-entérologue;Soins à distance (téléconsultation)
+orthoptiste;5;2;a_distance;0,000697545;Orthoptiste;Soins à distance (téléconsultation)
+chirurgien_general;3;0;a_distance;0,0014549;Chirurgien général;Soins à distance (téléconsultation)
+medecin_sante_publique;3;0;a_distance;0,00185989;Médecin de santé publique;Soins à distance (téléconsultation)
+medecin_vasculaire;3;0;a_distance;0,00188442;Médecin vasculaire;Soins à distance (téléconsultation)
+pneumologue;3;2;a_distance;0,000841987;Pneumologue;Soins à distance (téléconsultation)
+cardiologue;2;0;a_distance;0,000250219;Cardiologue;Soins à distance (téléconsultation)
+orl;2;1;a_distance;0,000657678;Oto-rhino-laryngologiste (ORL);Soins à distance (téléconsultation)
+sage_femme;2;1;a_distance;7,39372e-05;Sage-femme;Soins à distance (téléconsultation)
+allergologue;1;1;a_distance;0,0021097;Allergologue;Soins à distance (téléconsultation)
+infectiologue;1;0;a_distance;0,00195695;Infectiologue;Soins à distance (téléconsultation)
+interniste;1;0;a_distance;0,000325309;Médecin interniste;Soins à distance (téléconsultation)
+medecin_autre;1;0;a_distance;0,0017331;Médecin, autre spécialité;Soins à distance (téléconsultation)
+medecin_mpr;1;0;a_distance;0,000362976;Médecin de médecine physique et de réadaptation;Soins à distance (téléconsultation)
+psychologue;1;1;a_distance;1,22909e-05;Psychologue;Soins à distance (téléconsultation)
+reanimateur;1;0;a_distance;0,000824402;Médecin réanimateur;Soins à distance (téléconsultation)
+infirmier;24659;0;public_particulier;0,0445638;Infirmier;Public particulier
+ens_medecin_specialiste;5378;0;public_particulier;0,0366227;Médecin spécialiste (toutes spécialités);Public particulier
+technicien_labo;4361;0;public_particulier;0,0771995;Technicien de laboratoire;Public particulier
+psychologue;3282;0;public_particulier;0,0403387;Psychologue;Public particulier
+medecin_travail;3228;0;public_particulier;0,65891;Médecin du travail;Public particulier
+medecin_generaliste;3089;0;public_particulier;0,029674;Médecin généraliste;Public particulier
+assistant_de_service_social;2397;0;public_particulier;0,0927416;Assistant de service social;Public particulier
+masseur_kinesitherapeute;1141;0;public_particulier;0,0100901;Masseur-kinésithérapeute;Public particulier
+pharmacien;790;0;public_particulier;0,0103691;Pharmacien;Public particulier
+chirurgien_dentiste;710;0;public_particulier;0,0140524;Chirurgien-dentiste;Public particulier
+manipulateur_erm;256;0;public_particulier;0,00718314;Manipulateur en électroradiologie;Public particulier
+psychotherapeute;251;0;public_particulier;0,0134794;Psychothérapeute;Public particulier
+dieteticien;218;0;public_particulier;0,0120957;Diététicien;Public particulier
+biologiste;180;0;public_particulier;0,0572701;Biologiste médical;Public particulier
+sage_femme;151;0;public_particulier;0,00558226;Sage-femme;Public particulier
+ergotherapeute;149;0;public_particulier;0,00828975;Ergothérapeute;Public particulier
+anesthesiste;147;0;public_particulier;0,0108736;Anesthésiste-réanimateur;Public particulier
+psychiatre;112;0;public_particulier;0,00712061;Psychiatre;Public particulier
+medecin_sante_publique;107;0;public_particulier;0,066336;Médecin de santé publique;Public particulier
+osteopathe;100;0;public_particulier;0,00242884;Ostéopathe;Public particulier
+pedicure_podologue;99;0;public_particulier;0,00661234;Pédicure-podologue;Public particulier
+psychomotricien;89;0;public_particulier;0,00474515;Psychomotricien;Public particulier
+interniste;77;0;public_particulier;0,0250488;Médecin interniste;Public particulier
+radiologue;64;0;public_particulier;0,00634669;Radiologue;Public particulier
+cardiologue;62;0;public_particulier;0,00775679;Cardiologue;Public particulier
+medecin_mpr;55;0;public_particulier;0,0199637;Médecin de médecine physique et de réadaptation;Public particulier
+chirurgien_general;51;0;public_particulier;0,0247333;Chirurgien général;Public particulier
+chirurgien_orthopediste;46;0;public_particulier;0,0104025;Chirurgien orthopédiste;Public particulier
+pediatre;46;0;public_particulier;0,0046786;Pédiatre;Public particulier
+ophtalmologue;45;0;public_particulier;0,00711125;Ophtalmologue;Public particulier
+q_addictologie;44;0;public_particulier;0,040146;Médecin qualifié en addictologie;Public particulier
+gastro_enterologue;36;0;public_particulier;0,00867679;Gastro-entérologue;Public particulier
+orthophoniste;35;0;public_particulier;0,00111281;Orthophoniste;Public particulier
+pneumologue;35;0;public_particulier;0,00982318;Pneumologue;Public particulier
+rhumatologue;34;0;public_particulier;0,0128399;Rhumatologue;Public particulier
+urgentiste;34;0;public_particulier;0,0105525;Médecin urgentiste;Public particulier
+geriatre;33;0;public_particulier;0,00909592;Gériatre;Public particulier
+orthoptiste;33;0;public_particulier;0,00460379;Orthoptiste;Public particulier
+assistant_dentaire;30;0;public_particulier;0,00267165;Assistant dentaire;Public particulier
+chirurgien_visceral;29;0;public_particulier;0,0169096;Chirurgien viscéral et digestif;Public particulier
+physicien_medical;29;0;public_particulier;0,0361146;Physicien médical;Public particulier
+dermatologue;28;0;public_particulier;0,00738007;Dermatologue;Public particulier
+gynecologue;27;0;public_particulier;0,00322735;Gynécologue;Public particulier
+hematologue;27;0;public_particulier;0,0225;Hématologue;Public particulier
+appareilleur;26;0;public_particulier;0,00594422;Appareilleur;Public particulier
+orl;24;0;public_particulier;0,00789214;Oto-rhino-laryngologiste (ORL);Public particulier
+neurologue;19;0;public_particulier;0,00527778;Neurologue;Public particulier
+oncologue;18;0;public_particulier;0,00967222;Oncologue médical;Public particulier
+endocrinologue;17;0;public_particulier;0,00691338;Endocrinologue;Public particulier
+chiropracteur;16;0;public_particulier;0,00813421;Chiropracteur;Public particulier
+neurochirurgien;15;0;public_particulier;0,0198413;Neurochirurgien;Public particulier
+opticien_lunetier;14;0;public_particulier;0,000334968;Opticien-lunetier;Public particulier
+q_psychiatrie_enfant;14;0;public_particulier;0,0068326;Psychiatre qualifié pour l'enfant et l'adolescent (toutes voies);Public particulier
+medecin_autre;13;0;public_particulier;0,0225303;Médecin, autre spécialité;Public particulier
+anatomopathologiste;10;0;public_particulier;0,00564016;Anatomopathologiste;Public particulier
+chirurgien_maxillo_facial;9;0;public_particulier;0,00854701;Chirurgien maxillo-facial et stomatologue;Public particulier
+urologue;9;0;public_particulier;0,00467775;Urologue;Public particulier
+chirurgien_thoracique;8;0;public_particulier;0,0117647;Chirurgien thoracique et cardiovasculaire;Public particulier
+chirurgien_plasticien;7;0;public_particulier;0,00594732;Chirurgien plasticien;Public particulier
+medecin_nucleaire;7;0;public_particulier;0,00747065;Médecin nucléaire;Public particulier
+reanimateur;7;0;public_particulier;0,00577082;Médecin réanimateur;Public particulier
+medecin_vasculaire;6;0;public_particulier;0,00376884;Médecin vasculaire;Public particulier
+nephrologue;6;0;public_particulier;0,00258398;Néphrologue;Public particulier
+radiotherapeute;6;0;public_particulier;0,00502934;Radiothérapeute;Public particulier
+chirurgien_pediatrique;5;0;public_particulier;0,0106157;Chirurgien pédiatrique;Public particulier
+infectiologue;4;0;public_particulier;0,00782779;Infectiologue;Public particulier
+chirurgien_vasculaire;3;0;public_particulier;0,00395778;Chirurgien vasculaire;Public particulier
+medecin_non_precise;3;0;public_particulier;0,75;Médecin, spécialité non renseignée;Public particulier
+pedopsychiatre;3;0;public_particulier;0,00405954;Pédopsychiatre;Public particulier
+pharmacien;5282;5214;sans_soins;0,0693285;Pharmacien;Sans soins à la population
+infirmier;4795;4104;sans_soins;0,00866553;Infirmier;Sans soins à la population
+medecin_generaliste;4390;3546;sans_soins;0,0421718;Médecin généraliste;Sans soins à la population
+ens_medecin_specialiste;950;787;sans_soins;0,00646923;Médecin spécialiste (toutes spécialités);Sans soins à la population
+assistant_de_service_social;552;538;sans_soins;0,0213573;Assistant de service social;Sans soins à la population
+masseur_kinesitherapeute;546;494;sans_soins;0,0048284;Masseur-kinésithérapeute;Sans soins à la population
+medecin_travail;441;393;sans_soins;0,0900184;Médecin du travail;Sans soins à la population
+psychologue;429;326;sans_soins;0,0052728;Psychologue;Sans soins à la population
+medecin_sante_publique;360;329;sans_soins;0,223187;Médecin de santé publique;Sans soins à la population
+chirurgien_dentiste;213;178;sans_soins;0,00421573;Chirurgien-dentiste;Sans soins à la population
+technicien_labo;207;198;sans_soins;0,00366437;Technicien de laboratoire;Sans soins à la population
+interniste;189;183;sans_soins;0,0614834;Médecin interniste;Sans soins à la population
+psychiatre;102;56;sans_soins;0,00648484;Psychiatre;Sans soins à la population
+pediatre;76;48;sans_soins;0,00772986;Pédiatre;Sans soins à la population
+biologiste;66;60;sans_soins;0,020999;Biologiste médical;Sans soins à la population
+manipulateur_erm;65;62;sans_soins;0,00182384;Manipulateur en électroradiologie;Sans soins à la population
+dieteticien;62;52;sans_soins;0,00344005;Diététicien;Sans soins à la population
+opticien_lunetier;55;35;sans_soins;0,00131595;Opticien-lunetier;Sans soins à la population
+anesthesiste;35;26;sans_soins;0,00258895;Anesthésiste-réanimateur;Sans soins à la population
+appareilleur;35;29;sans_soins;0,00800183;Appareilleur;Sans soins à la population
+assistant_dentaire;32;31;sans_soins;0,00284976;Assistant dentaire;Sans soins à la population
+orthoptiste;31;15;sans_soins;0,00432478;Orthoptiste;Sans soins à la population
+psychotherapeute;31;20;sans_soins;0,00166479;Psychothérapeute;Sans soins à la population
+psychomotricien;30;21;sans_soins;0,00159949;Psychomotricien;Sans soins à la population
+ergotherapeute;29;25;sans_soins;0,00161344;Ergothérapeute;Sans soins à la population
+medecin_mpr;25;15;sans_soins;0,00907441;Médecin de médecine physique et de réadaptation;Sans soins à la population
+q_addictologie;23;13;sans_soins;0,0209854;Médecin qualifié en addictologie;Sans soins à la population
+cardiologue;22;13;sans_soins;0,00275241;Cardiologue;Sans soins à la population
+geriatre;21;14;sans_soins;0,00578831;Gériatre;Sans soins à la population
+physicien_medical;21;21;sans_soins;0,0261519;Physicien médical;Sans soins à la population
+rhumatologue;21;13;sans_soins;0,00793051;Rhumatologue;Sans soins à la population
+dermatologue;20;13;sans_soins;0,00527148;Dermatologue;Sans soins à la population
+gynecologue;20;14;sans_soins;0,00239063;Gynécologue;Sans soins à la population
+audioprothesiste;19;4;sans_soins;0,00298273;Audioprothésiste;Sans soins à la population
+gastro_enterologue;19;16;sans_soins;0,00457942;Gastro-entérologue;Sans soins à la population
+pneumologue;19;12;sans_soins;0,00533258;Pneumologue;Sans soins à la population
+neurologue;18;14;sans_soins;0,005;Neurologue;Sans soins à la population
+endocrinologue;17;13;sans_soins;0,00691338;Endocrinologue;Sans soins à la population
+nephrologue;15;11;sans_soins;0,00645995;Néphrologue;Sans soins à la population
+radiologue;15;10;sans_soins;0,0014875;Radiologue;Sans soins à la population
+chirurgien_general;14;12;sans_soins;0,00678952;Chirurgien général;Sans soins à la population
+hematologue;14;11;sans_soins;0,0116667;Hématologue;Sans soins à la population
+anatomopathologiste;13;12;sans_soins;0,00733221;Anatomopathologiste;Sans soins à la population
+q_psychiatrie_enfant;13;6;sans_soins;0,00634456;Psychiatre qualifié pour l'enfant et l'adolescent (toutes voies);Sans soins à la population
+chirurgien_visceral;12;10;sans_soins;0,00699708;Chirurgien viscéral et digestif;Sans soins à la population
+orthophoniste;12;6;sans_soins;0,000381534;Orthophoniste;Sans soins à la population
+medecin_autre;11;9;sans_soins;0,0190641;Médecin, autre spécialité;Sans soins à la population
+urgentiste;11;7;sans_soins;0,00341403;Médecin urgentiste;Sans soins à la population
+oncologue;9;9;sans_soins;0,00483611;Oncologue médical;Sans soins à la population
+orl;7;5;sans_soins;0,00230187;Oto-rhino-laryngologiste (ORL);Sans soins à la population
+chirurgien_orthopediste;6;5;sans_soins;0,00135685;Chirurgien orthopédiste;Sans soins à la population
+ophtalmologue;6;4;sans_soins;0,000948167;Ophtalmologue;Sans soins à la population
+reanimateur;6;4;sans_soins;0,00494641;Médecin réanimateur;Sans soins à la population
+urologue;6;6;sans_soins;0,0031185;Urologue;Sans soins à la population
+chirurgien_pediatrique;4;4;sans_soins;0,00849257;Chirurgien pédiatrique;Sans soins à la population
+infectiologue;4;4;sans_soins;0,00782779;Infectiologue;Sans soins à la population
+neurochirurgien;4;3;sans_soins;0,00529101;Neurochirurgien;Sans soins à la population
+osteopathe;4;4;sans_soins;9,71534e-05;Ostéopathe;Sans soins à la population
+pedopsychiatre;4;3;sans_soins;0,00541272;Pédopsychiatre;Sans soins à la population
+radiotherapeute;4;2;sans_soins;0,00335289;Radiothérapeute;Sans soins à la population
+chirurgien_plasticien;3;3;sans_soins;0,00254885;Chirurgien plasticien;Sans soins à la population
+allergologue;2;0;sans_soins;0,00421941;Allergologue;Sans soins à la population
+sage_femme;2;1;sans_soins;7,39372e-05;Sage-femme;Sans soins à la population
+chirurgien_thoracique;1;1;sans_soins;0,00147059;Chirurgien thoracique et cardiovasculaire;Sans soins à la population
+chirurgien_vasculaire;1;1;sans_soins;0,00131926;Chirurgien vasculaire;Sans soins à la population
+medecin_non_precise;1;1;sans_soins;0,25;Médecin, spécialité non renseignée;Sans soins à la population
+medecin_nucleaire;1;0;sans_soins;0,00106724;Médecin nucléaire;Sans soins à la population
+medecin_vasculaire;1;1;sans_soins;0,000628141;Médecin vasculaire;Sans soins à la population

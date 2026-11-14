@@ -1,0 +1,869 @@
+<!doctype html>
+<html lang="fr" data-texte="justifie" data-clair="light" data-racine="">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>L’offre de soins au centre, sept domaines autour · Ubi Cura</title>
+<meta name="description" content="Offre de soins et de santé mentale en France, par territoire, à partir des données publiques.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%227%22%20fill%3D%22%230E5A5A%22/%3E%3Crect%20x%3D%227%22%20y%3D%2217%22%20width%3D%224.5%22%20height%3D%228%22%20rx%3D%221%22%20fill%3D%22%23B39BCB%22/%3E%3Crect%20x%3D%2213.75%22%20y%3D%2212%22%20width%3D%224.5%22%20height%3D%2213%22%20rx%3D%221%22%20fill%3D%22%23D4C3EA%22/%3E%3Crect%20x%3D%2220.5%22%20y%3D%227%22%20width%3D%224.5%22%20height%3D%2218%22%20rx%3D%221%22%20fill%3D%22%23FFFFFF%22/%3E%3C/svg%3E">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:site_name" content="Ubi Cura">
+<meta property="og:title" content="L’offre de soins au centre, sept domaines autour">
+<meta property="og:description" content="Offre de soins et de santé mentale en France, par territoire, à partir des données publiques.">
+<meta name="theme-color" content="#F4F4F1">
+<link rel="stylesheet" href="polices/polices.css">
+<link rel="stylesheet" href="style.css?v=6857364dfe">
+<script>try{document.documentElement.setAttribute("data-theme",localStorage.getItem("fond")||"light")}catch(e){document.documentElement.setAttribute("data-theme","light")}</script>
+<!-- referencement --><link rel="canonical" href="https://ubicura.fr/domaines.html"><meta property="og:url" content="https://ubicura.fr/domaines.html"><meta property="og:image" content="https://ubicura.fr/apercu.png"><meta property="og:image:width" content="1200"><meta property="og:image:height" content="630"><meta property="og:image:alt" content="Carte des départements de France, densité de psychiatres comparée à l&#x27;ensemble des départements"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:image:alt" content="Carte des départements de France, densité de psychiatres comparée à l&#x27;ensemble des départements">
+</head>
+<body>
+<a class="visuel-cache aller-contenu" href="#contenu">Aller au contenu</a>
+<nav class="site" aria-label="Navigation du site">
+  <div class="in">
+    <a class="marque" href="index.html" title="Offre de soins et santé mentale en France, territoire par territoire">Ubi Cura</a>
+    <button class="chercher" id="bouton-chercher" type="button" aria-expanded="false" aria-controls="panneau-chercher">Chercher</button>
+    <button class="menu" id="bouton-menu" type="button" aria-expanded="false" aria-controls="liens-site">Menu</button>
+    <div class="liens" id="liens-site">
+    
+    
+    
+    <a class="l" href="domaine/offre-de-soins.html">Offre de soins</a>
+    <a class="l on" href="domaines.html" aria-current="page">Domaines</a>
+    <a class="l" href="territoires/index.html">Territoires</a>
+    <a class="l" href="comparer.html">Comparer</a>
+    <a class="l" href="explorer.html">Explorer</a>
+    <a class="l" href="croiser.html">Croiser</a>
+    <a class="l" href="methode.html">Méthode et données</a>
+    
+    <button class="theme" id="bascule-theme" type="button">Fond clair</button>
+    </div>
+    
+    <span class="epingle-nav" id="epingle-nav" hidden></span>
+  </div>
+</nav>
+<div class="panneau-recherche" id="panneau-chercher" role="search" hidden>
+  <label class="visuel-cache" for="q-tete">Chercher un territoire, une commune, un indicateur, une question ou un outil</label>
+  <input id="q-tete" type="search" autocomplete="off" placeholder="Une commune, un territoire, un indicateur, une question">
+  <p class="aide-recherche">Par exemple « psychiatres Rodez », « CMP », « logement », « niveau de vie ».</p>
+  <p class="visuel-cache" id="etat-tete" role="status"></p>
+  <div id="res-tete"></div>
+</div>
+<script src="presentation/chercher.js" defer></script>
+<script>
+// menu « Le projet », ouvert au clic ou au clavier, fermé par Échap ou par un clic ailleurs
+(function(){var b=document.getElementById("bouton-projet"),m=document.getElementById("menu-projet");if(!b||!m)return;
+function ouvrir(o,focus){m.hidden=!o;b.setAttribute("aria-expanded",String(o));if(o&&focus){var a=m.querySelector("a");if(a)a.focus()}}
+b.addEventListener("click",function(){ouvrir(m.hidden,false)});
+b.addEventListener("keydown",function(e){if(e.key==="ArrowDown"){e.preventDefault();ouvrir(true,true)}});
+m.addEventListener("keydown",function(e){var l=[].slice.call(m.querySelectorAll("a")),i=l.indexOf(document.activeElement);
+  if(e.key==="ArrowDown"){e.preventDefault();l[(i+1)%l.length].focus()}else if(e.key==="ArrowUp"){e.preventDefault();l[(i-1+l.length)%l.length].focus()}});
+document.addEventListener("keydown",function(e){if(e.key==="Escape"&&!m.hidden){ouvrir(false);b.focus()}});
+document.addEventListener("click",function(e){if(!m.hidden&&!b.parentNode.contains(e.target))ouvrir(false)})})();
+// téléphone, liens du site repliés derrière « Menu » (audit du 22 octobre 2026) ; sommaire d'une page replié derrière
+// « Sommaire », ouvert au clic, refermé quand on choisit une section
+(function(){var b=document.getElementById("bouton-menu"),n=b&&b.closest("nav.site");if(!b)return;
+b.addEventListener("click",function(){var o=!n.classList.contains("ouvert");n.classList.toggle("ouvert",o);b.setAttribute("aria-expanded",String(o))})})();
+document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll("aside.sommaire").forEach(function(a){
+  if(!a.querySelector("ul"))return;var t=document.createElement("button");t.type="button";t.className="bouton-sommaire";
+  t.setAttribute("aria-expanded","false");t.textContent="Sommaire";a.insertBefore(t,a.firstChild);
+  t.addEventListener("click",function(){var o=!a.classList.contains("ouvert");a.classList.toggle("ouvert",o);t.setAttribute("aria-expanded",String(o))});
+  a.addEventListener("click",function(e){if(e.target.closest("a")){a.classList.remove("ouvert");t.setAttribute("aria-expanded","false")}})})});
+(function(){var b=document.getElementById("bascule-theme"),r=document.documentElement;
+function maj(){var c=r.getAttribute("data-theme")!=="dark";b.textContent=c?"Fond sombre":"Fond clair"}
+maj();b.addEventListener("click",function(){var t=r.getAttribute("data-theme")!=="dark"?"dark":(r.getAttribute("data-clair")||"light");r.setAttribute("data-theme",t);
+try{localStorage.setItem("fond",t)}catch(e){}maj();window.dispatchEvent(new Event("theme"))})})();
+</script>
+<main id="contenu" class="domaines" data-citation-page="Pithon L. (2026). L’offre de soins au centre, sept domaines autour. Ubi Cura, version du 13 novembre 2026" data-adresse="https://ubicura.fr">
+
+<header class="tete">
+  <h1>L’offre de soins au centre, sept domaines autour</h1>
+  <p class="chapeau">Chaque base entre dans un domaine, et chaque domaine dit ce qu’il éclaire de l’accès aux soins. La santé mentale n’est pas un domaine de plus. C’est l’entrée du site, qui traverse l’offre, le recours aux soins et les distances.</p>
+  <p class="outils-ligne"><a href="indicateurs.html">Tous les indicateurs</a>, avec la recherche et les filtres. Par thème : <a href="domaine/sante-mentale.html">Santé mentale</a>, <a href="theme/addictologie.html">addictologie</a>, <a href="theme/geographie-sociale.html">géographie sociale</a>, <a href="theme/grand-age.html">grand âge</a>.</p>
+</header>
+
+
+<figure class="modele graphique" aria-labelledby="leg-modele" data-citation="Pithon L. (2026). Les domaines du site. Ubi Cura, version du 13 novembre 2026, doi:10.5281/zenodo.24202104">
+  <figcaption id="leg-modele"><span class="leg">Les domaines du site et leurs indicateurs</span><span class="note">Le nombre sous chaque domaine compte ses indicateurs publiés et les bases décidées qui viendront. <span class="sur-schema"><span class="ech" aria-hidden="true"></span>L’anneau marque la santé mentale, l’entrée du site, dont les 85 indicateurs sont présents dans plusieurs domaines.</span><span class="sur-tel">La santé mentale, l’entrée du site, réunit 85 indicateurs présents dans plusieurs domaines.</span></span></figcaption>
+  <svg viewBox="0 0 980 520" role="img" aria-label="Schéma du modèle, l’offre de soins au centre, entourée de sept domaines, la santé mentale en anneau qui les traverse">
+    <ellipse class="anneau" cx="490" cy="266" rx="400" ry="200"></ellipse>
+    <line class="lien" x1="490" y1="266" x2="663.6" y2="85.8"></line><line class="lien" x1="490" y1="266" x2="880.0" y2="221.5"></line><line class="lien" x1="490" y1="266" x2="802.7" y2="390.7"></line><line class="lien" x1="490" y1="266" x2="490.0" y2="466.0"></line><line class="lien" x1="490" y1="266" x2="177.3" y2="390.7"></line><line class="lien" x1="490" y1="266" x2="100.0" y2="221.5"></line><line class="lien" x1="490" y1="266" x2="316.4" y2="85.8"></line>
+    
+    <a href="#recours" aria-label="État de santé et recours aux soins, 35 indicateurs, 5 à venir"><g class="noeud">
+      <rect x="565.6" y="48.8" width="196" height="74" rx="4"></rect>
+      <text class="nom" x="663.6" y="71.8" text-anchor="middle">État de santé et</text>
+      <text class="nom" x="663.6" y="91.8" text-anchor="middle">recours aux soins</text>
+      <text class="nb" x="663.6" y="111.8" text-anchor="middle">35 indicateurs, 5 à venir</text></g></a>
+    
+    <a href="#population" aria-label="Population et logement, 9 indicateurs"><g class="noeud">
+      <rect x="782.0" y="184.5" width="196" height="74" rx="4"></rect>
+      <text class="nom" x="880.0" y="207.5" text-anchor="middle">Population et</text>
+      <text class="nom" x="880.0" y="227.5" text-anchor="middle">logement</text>
+      <text class="nb" x="880.0" y="247.5" text-anchor="middle">9 indicateurs</text></g></a>
+    
+    <a href="#revenus" aria-label="Revenus, emploi et pauvreté, 12 indicateurs"><g class="noeud">
+      <rect x="704.7" y="353.7" width="196" height="74" rx="4"></rect>
+      <text class="nom" x="802.7" y="376.7" text-anchor="middle">Revenus, emploi et</text>
+      <text class="nom" x="802.7" y="396.7" text-anchor="middle">pauvreté</text>
+      <text class="nb" x="802.7" y="416.7" text-anchor="middle">12 indicateurs</text></g></a>
+    
+    <a href="#enfance" aria-label="Enfance, éducation et familles, 8 indicateurs"><g class="noeud">
+      <rect x="392.0" y="429.0" width="196" height="74" rx="4"></rect>
+      <text class="nom" x="490.0" y="452.0" text-anchor="middle">Enfance, éducation</text>
+      <text class="nom" x="490.0" y="472.0" text-anchor="middle">et familles</text>
+      <text class="nb" x="490.0" y="492.0" text-anchor="middle">8 indicateurs</text></g></a>
+    
+    <a href="#mobilite" aria-label="Distances et mobilité, 24 indicateurs"><g class="noeud">
+      <rect x="79.30000000000001" y="353.7" width="196" height="74" rx="4"></rect>
+      <text class="nom" x="177.3" y="376.7" text-anchor="middle">Distances et</text>
+      <text class="nom" x="177.3" y="396.7" text-anchor="middle">mobilité</text>
+      <text class="nb" x="177.3" y="416.7" text-anchor="middle">24 indicateurs</text></g></a>
+    
+    <a href="#violences" aria-label="Violences et victimes, aucun indicateur, 5 à venir"><g class="noeud">
+      <rect x="2.0" y="184.5" width="196" height="74" rx="4"></rect>
+      <text class="nom" x="100.0" y="207.5" text-anchor="middle">Violences et</text>
+      <text class="nom" x="100.0" y="227.5" text-anchor="middle">victimes</text>
+      <text class="nb" x="100.0" y="247.5" text-anchor="middle">aucun indicateur, 5 à venir</text></g></a>
+    
+    <a href="#environnement" aria-label="Environnement et cadre de vie, aucun indicateur"><g class="noeud">
+      <rect x="218.39999999999998" y="48.8" width="196" height="74" rx="4"></rect>
+      <text class="nom" x="316.4" y="71.8" text-anchor="middle">Environnement et</text>
+      <text class="nom" x="316.4" y="91.8" text-anchor="middle">cadre de vie</text>
+      <text class="nb" x="316.4" y="111.8" text-anchor="middle">aucun indicateur</text></g></a>
+    
+    <a href="#offre" aria-label="Offre de soins, 151 indicateurs, 8 à venir"><g class="noeud centre">
+      <rect x="372" y="224" width="236" height="84" rx="4"></rect>
+      <text class="nom" x="490" y="262" text-anchor="middle">Offre de soins</text>
+      <text class="nb" x="490" y="286" text-anchor="middle">151 indicateurs, 8 à venir</text></g></a>
+  </svg>
+  <ul class="liste-tel"><li><a href="#offre">Offre de soins</a><span>151 indicateurs, 8 à venir</span></li><li><a href="#recours">État de santé et recours aux soins</a><span>35 indicateurs, 5 à venir</span></li><li><a href="#population">Population et logement</a><span>9 indicateurs</span></li><li><a href="#revenus">Revenus, emploi et pauvreté</a><span>12 indicateurs</span></li><li><a href="#enfance">Enfance, éducation et familles</a><span>8 indicateurs</span></li><li><a href="#mobilite">Distances et mobilité</a><span>24 indicateurs</span></li><li><a href="#violences">Violences et victimes</a><span>aucun indicateur, 5 à venir</span></li><li><a href="#environnement">Environnement et cadre de vie</a><span>aucun indicateur</span></li></ul>
+</figure>
+
+<section class="regles" aria-label="Règles communes à tous les domaines">
+  <div>
+    <h2>Ce qu’une base doit remplir pour entrer</h2>
+    <ol>
+      <li>Données publiques, sous licence ouverte, ou avec l’accord écrit du producteur.</li>
+      <li>Un producteur identifié, une documentation et un accès stable, sans manipulation à la main.</li>
+      <li>Elle répond à une question d’accès aux soins, écrite avant l’intégration.</li>
+      <li>Elle existe au moins par département pour toute la France.</li>
+    </ol>
+    <p class="discret">Une base qui ne remplit pas les deux derniers points reste au catalogue, sans entrer dans les croisements. Les deux premiers reprennent les critères de la page <a href="contribuer.html">Proposer une base de données</a>.</p>
+  </div>
+  <div>
+    <h2>Une seule règle pour dire qu’il y a un lien</h2>
+    <p>Dans toutes les pages, le lien entre deux indicateurs se mesure de la même façon.</p>
+    <ul>
+      <li>Corrélation de rang entre territoires, brute puis à densité de population égale, avec son intervalle à 95 %.</li>
+      <li>Un lien n’est retenu qu’à partir d’une corrélation de 0,3 en valeur absolue, avec une probabilité corrigée sous 0,05. Il est dit modéré jusqu’à 0,5, fort au-delà. Sous 0,3, la page dit qu’il n’y a pas de lien au sens du site.</li>
+      <li>Correction de Benjamini-Hochberg sur l’ensemble des croisements d’une page.</li>
+      <li>Une phrase rappelle que le lien décrit des territoires, pas des personnes, et ne dit rien d’une cause.</li>
+    </ul>
+    <p class="discret">L’escalier social et l’indice de concentration répondent à une autre question, la répartition de l’offre selon le niveau de vie des habitants. Quand les deux mesures divergent, la page dit pourquoi.</p>
+  </div>
+</section>
+
+
+<section class="dom" id="offre" aria-labelledby="t-offre">
+  <div>
+    <h2 id="t-offre"><a class="vers-dom" href="domaine/offre-de-soins.html">Offre de soins<span aria-hidden="true"> →</span></a></h2>
+    <p class="pourquoi">Qui exerce, où, dans quelles structures, à quelles conditions de tarif, et comment cette offre a changé depuis 2016.</p>
+    <p class="vers-page"><a href="domaine/sante-mentale.html">La page Santé mentale</a> et <a href="domaine/sante.html">la page Santé</a>, leurs questions et leurs figures</p>
+    <p class="compte"><b>151</b> indicateurs publiés, dont 42 de santé mentale, 8 bases à venir.</p>
+  </div>
+  <div>
+    <ul class="sous"><li><b>Professionnels</b> <span>86 indicateurs</span></li><li><b>Structures de soins</b> <span>17 indicateurs</span></li><li><b>Psychiatrie à l&#39;hôpital</b> <span>6 indicateurs</span></li><li><b>Âge et évolution des professionnels</b> <span>20 indicateurs</span></li><li><b>Accès financier</b> <span>10 indicateurs</span></li></ul>
+    
+    <p class="vers-catalogue"><a href="indicateurs.html#dom=Offre%20de%20soins">Ses indicateurs dans le catalogue</a>, avec la recherche et les filtres</p>
+    <details><summary>La liste</summary>
+      <ul class="liste-ind">
+        <li class="sous-titre">Professionnels</li>
+          <li><a href="indicateur/prof-psychiatre.html">Psychiatre</a><span class="sm">santé mentale</span></li><li><a href="indicateur/prof-pedopsychiatre.html">Pédopsychiatre</a><span class="sm">santé mentale</span></li><li><a href="indicateur/prof-psychologue.html">Psychologue</a><span class="sm">santé mentale</span></li><li><a href="indicateur/prof-psychotherapeute.html">Psychothérapeute</a><span class="sm">santé mentale</span></li><li><a href="indicateur/prof-q-addictologie.html">Médecin qualifié en addictologie</a><span class="sm">santé mentale</span></li><li><a href="indicateur/prof-q-psychiatrie-enfant.html">Psychiatre qualifié pour l&#39;enfant et l&#39;adolescent (toutes voies)</a><span class="sm">santé mentale</span></li><li><a href="indicateur/prof-ens-medecin-specialiste.html">Médecin spécialiste (toutes spécialités)</a></li><li><a href="indicateur/prof-appareilleur.html">Appareilleur</a></li><li><a href="indicateur/prof-audioprothesiste.html">Audioprothésiste</a></li><li><a href="indicateur/prof-opticien-lunetier.html">Opticien-lunetier</a></li><li><a href="indicateur/prof-assistant-de-service-social.html">Assistant de service social</a></li><li><a href="indicateur/prof-medecin-autre.html">Médecin, autre spécialité</a></li><li><a href="indicateur/prof-manipulateur-erm.html">Manipulateur en électroradiologie</a></li><li><a href="indicateur/prof-physicien-medical.html">Physicien médical</a></li><li><a href="indicateur/prof-technicien-labo.html">Technicien de laboratoire</a></li><li><a href="indicateur/prof-assistant-dentaire.html">Assistant dentaire</a></li><li><a href="indicateur/prof-chirurgien-dentiste.html">Chirurgien-dentiste</a></li><li><a href="indicateur/prof-infirmier.html">Infirmier</a></li><li><a href="indicateur/prof-medecin-generaliste.html">Médecin généraliste</a></li><li><a href="indicateur/prof-pharmacien.html">Pharmacien</a></li><li><a href="indicateur/prof-sage-femme.html">Sage-femme</a></li><li><a href="indicateur/prof-medecin-sante-publique.html">Médecin de santé publique</a></li><li><a href="indicateur/prof-medecin-travail.html">Médecin du travail</a></li><li><a href="indicateur/prof-chiropracteur.html">Chiropracteur</a></li><li><a href="indicateur/prof-dieteticien.html">Diététicien</a></li><li><a href="indicateur/prof-ergotherapeute.html">Ergothérapeute</a></li><li><a href="indicateur/prof-masseur-kinesitherapeute.html">Masseur-kinésithérapeute</a></li><li><a href="indicateur/prof-orthophoniste.html">Orthophoniste</a></li><li><a href="indicateur/prof-orthoptiste.html">Orthoptiste</a></li><li><a href="indicateur/prof-osteopathe.html">Ostéopathe</a></li><li><a href="indicateur/prof-psychomotricien.html">Psychomotricien</a></li><li><a href="indicateur/prof-pedicure-podologue.html">Pédicure-podologue</a></li><li><a href="indicateur/prof-chirurgien-general.html">Chirurgien général</a></li><li><a href="indicateur/prof-chirurgien-maxillo-facial.html">Chirurgien maxillo-facial et stomatologue</a></li><li><a href="indicateur/prof-chirurgien-orthopediste.html">Chirurgien orthopédiste</a></li><li><a href="indicateur/prof-chirurgien-plasticien.html">Chirurgien plasticien</a></li><li><a href="indicateur/prof-chirurgien-pediatrique.html">Chirurgien pédiatrique</a></li><li><a href="indicateur/prof-chirurgien-thoracique.html">Chirurgien thoracique et cardiovasculaire</a></li><li><a href="indicateur/prof-chirurgien-vasculaire.html">Chirurgien vasculaire</a></li><li><a href="indicateur/prof-chirurgien-visceral.html">Chirurgien viscéral et digestif</a></li><li><a href="indicateur/prof-gynecologue.html">Gynécologue</a></li><li><a href="indicateur/prof-neurochirurgien.html">Neurochirurgien</a></li><li><a href="indicateur/prof-ophtalmologue.html">Ophtalmologue</a></li><li><a href="indicateur/prof-orl.html">Oto-rhino-laryngologiste (ORL)</a></li><li><a href="indicateur/prof-urologue.html">Urologue</a></li><li><a href="indicateur/prof-allergologue.html">Allergologue</a></li><li><a href="indicateur/prof-cardiologue.html">Cardiologue</a></li><li><a href="indicateur/prof-dermatologue.html">Dermatologue</a></li><li><a href="indicateur/prof-endocrinologue.html">Endocrinologue</a></li><li><a href="indicateur/prof-gastro-enterologue.html">Gastro-entérologue</a></li><li><a href="indicateur/prof-geriatre.html">Gériatre</a></li><li><a href="indicateur/prof-hematologue.html">Hématologue</a></li><li><a href="indicateur/prof-infectiologue.html">Infectiologue</a></li><li><a href="indicateur/prof-medecin-mpr.html">Médecin de médecine physique et de réadaptation</a></li><li><a href="indicateur/prof-interniste.html">Médecin interniste</a></li><li><a href="indicateur/prof-reanimateur.html">Médecin réanimateur</a></li><li><a href="indicateur/prof-urgentiste.html">Médecin urgentiste</a></li><li><a href="indicateur/prof-medecin-vasculaire.html">Médecin vasculaire</a></li><li><a href="indicateur/prof-neurologue.html">Neurologue</a></li><li><a href="indicateur/prof-nephrologue.html">Néphrologue</a></li><li><a href="indicateur/prof-oncologue.html">Oncologue médical</a></li><li><a href="indicateur/prof-pneumologue.html">Pneumologue</a></li><li><a href="indicateur/prof-pediatre.html">Pédiatre</a></li><li><a href="indicateur/prof-rhumatologue.html">Rhumatologue</a></li><li><a href="indicateur/prof-anatomopathologiste.html">Anatomopathologiste</a></li><li><a href="indicateur/prof-anesthesiste.html">Anesthésiste-réanimateur</a></li><li><a href="indicateur/prof-biologiste.html">Biologiste médical</a></li><li><a href="indicateur/prof-medecin-nucleaire.html">Médecin nucléaire</a></li><li><a href="indicateur/prof-radiologue.html">Radiologue</a></li><li><a href="indicateur/prof-radiotherapeute.html">Radiothérapeute</a></li><li><a href="indicateur/prof-esm-assistant-de-service-social.html">Assistant de service social, en établissement psychiatrique</a><span class="sm">santé mentale</span></li><li><a href="indicateur/prof-esm-dieteticien.html">Diététicien, en établissement psychiatrique</a><span class="sm">santé mentale</span></li><li><a href="indicateur/prof-esm-ergotherapeute.html">Ergothérapeute, en établissement psychiatrique</a><span class="sm">santé mentale</span></li><li><a href="indicateur/prof-esm-infirmier.html">Infirmier, en établissement psychiatrique</a><span class="sm">santé mentale</span></li><li><a href="indicateur/prof-esm-manipulateur-erm.html">Manipulateur en électroradiologie, en établissement psychiatrique</a><span class="sm">santé mentale</span></li><li><a href="indicateur/prof-esm-masseur-kinesitherapeute.html">Masseur-kinésithérapeute, en établissement psychiatrique</a><span class="sm">santé mentale</span></li><li><a href="indicateur/prof-esm-medecin-autre.html">Médecin, autre spécialité, en établissement psychiatrique</a><span class="sm">santé mentale</span></li><li><a href="indicateur/prof-esm-medecin-generaliste.html">Médecin généraliste, en établissement psychiatrique</a><span class="sm">santé mentale</span></li><li><a href="indicateur/prof-esm-orthophoniste.html">Orthophoniste, en établissement psychiatrique</a><span class="sm">santé mentale</span></li><li><a href="indicateur/prof-esm-pediatre.html">Pédiatre, en établissement psychiatrique</a><span class="sm">santé mentale</span></li><li><a href="indicateur/prof-esm-pedopsychiatre.html">Pédopsychiatre, en établissement psychiatrique</a><span class="sm">santé mentale</span></li><li><a href="indicateur/prof-esm-pharmacien.html">Pharmacien, en établissement psychiatrique</a><span class="sm">santé mentale</span></li><li><a href="indicateur/prof-esm-psychiatre.html">Psychiatre, en établissement psychiatrique</a><span class="sm">santé mentale</span></li><li><a href="indicateur/prof-esm-psychologue.html">Psychologue, en établissement psychiatrique</a><span class="sm">santé mentale</span></li><li><a href="indicateur/prof-esm-psychomotricien.html">Psychomotricien, en établissement psychiatrique</a><span class="sm">santé mentale</span></li><li><a href="indicateur/prof-esm-psychotherapeute.html">Psychothérapeute, en établissement psychiatrique</a><span class="sm">santé mentale</span></li>
+        <li class="sous-titre">Structures de soins</li>
+          <li><a href="indicateur/lieux-lieu-cmp-adultes.html">CMP pour adultes, pour 100 000 habitants</a><span class="sm">santé mentale</span><span class="meta">pour 100 000 hab., ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/lieux-lieu-cmp-enfants.html">CMP pour enfants et adolescents, pour 100 000 enfants de moins de 15 ans</a><span class="sm">santé mentale</span><span class="meta">pour 100 000 enfants de moins de 15 ans, ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/lieux-lieu-cattp.html">CATTP, pour 100 000 habitants</a><span class="sm">santé mentale</span><span class="meta">pour 100 000 hab., ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/lieux-lieu-hdj-psy-adultes.html">Hôpitaux de jour en psychiatrie (adultes), pour 100 000 habitants</a><span class="sm">santé mentale</span><span class="meta">pour 100 000 hab., ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/lieux-lieu-hdj-psy-enfants.html">Hôpitaux de jour en psychiatrie (enfants et adolescents), pour 100 000 enfants de moins de 15 ans</a><span class="sm">santé mentale</span><span class="meta">pour 100 000 enfants de moins de 15 ans, ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/lieux-lieu-hc-psy-adultes.html">Hospitalisation complète en psychiatrie, pour 100 000 habitants</a><span class="sm">santé mentale</span><span class="meta">pour 100 000 hab., ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/lieux-lieu-cmpp.html">CMPP, pour 100 000 enfants de moins de 15 ans</a><span class="sm">santé mentale</span><span class="meta">pour 100 000 enfants de moins de 15 ans, ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/lieux-lieu-camsp.html">CAMSP, pour 100 000 enfants de moins de 15 ans</a><span class="sm">santé mentale</span><span class="meta">pour 100 000 enfants de moins de 15 ans, ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/lieux-lieu-csapa.html">CSAPA, pour 100 000 habitants</a><span class="sm">santé mentale</span><span class="meta">pour 100 000 hab., ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/lieux-lieu-caarud.html">CAARUD, pour 100 000 habitants</a><span class="sm">santé mentale</span><span class="meta">pour 100 000 hab., ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/lieux-lieu-urgences.html">Services d&#39;urgences, pour 100 000 habitants</a><span class="meta">pour 100 000 hab., ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/lieux-lieu-maternite.html">Maternités, pour 100 000 habitants</a><span class="meta">pour 100 000 hab., ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/lieux-lieu-ehpad.html">EHPAD, pour 100 000 personnes de 80 ans et plus</a><span class="meta">pour 100 000 personnes de 80 ans et plus, ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/lieux-lieu-ime.html">Instituts médico-éducatifs (IME), pour 100 000 enfants de moins de 15 ans</a><span class="meta">pour 100 000 enfants de moins de 15 ans, ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/lieux-lieu-sessad.html">Services d&#39;éducation spéciale et de soins à domicile (SESSAD), pour 100 000 enfants de moins de 15 ans</a><span class="meta">pour 100 000 enfants de moins de 15 ans, ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/lieux-lieu-msp.html">Maisons de santé pluriprofessionnelles, pour 100 000 habitants</a><span class="meta">pour 100 000 hab., ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/lieux-lieu-centre-sante.html">Centres de santé, pour 100 000 habitants</a><span class="meta">pour 100 000 hab., ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li>
+        <li class="sous-titre">Psychiatrie à l&#39;hôpital</li>
+          <li><a href="indicateur/sae-lits-psy.html">Lits d&#39;hospitalisation à temps plein en psychiatrie</a><span class="sm">santé mentale</span><span class="meta">pour 100 000 habitants, DREES, Statistique annuelle des établissements de santé (SAE), bordereau psychiatrie</span></li><li><a href="indicateur/sae-places-jour-psy.html">Places d&#39;hospitalisation de jour ou de nuit en psychiatrie</a><span class="sm">santé mentale</span><span class="meta">pour 100 000 habitants, DREES, Statistique annuelle des établissements de santé (SAE), bordereau psychiatrie</span></li><li><a href="indicateur/sae-cmp.html">Centres médico-psychologiques (CMP)</a><span class="sm">santé mentale</span><span class="meta">pour 100 000 habitants, DREES, Statistique annuelle des établissements de santé (SAE), bordereau psychiatrie</span></li><li><a href="indicateur/sae-etp-psychiatres.html">Psychiatres salariés en psychiatrie hospitalière, en temps plein</a><span class="sm">santé mentale</span><span class="meta">ETP pour 100 000 habitants, DREES, Statistique annuelle des établissements de santé (SAE), bordereau psychiatrie</span></li><li><a href="indicateur/sae-etp-psychologues.html">Psychologues en psychiatrie hospitalière, en temps plein</a><span class="sm">santé mentale</span><span class="meta">ETP pour 100 000 habitants, DREES, Statistique annuelle des établissements de santé (SAE), bordereau psychiatrie</span></li><li><a href="indicateur/sae-infanto.html">Lits et places en psychiatrie de l&#39;enfant et de l&#39;adolescent</a><span class="sm">santé mentale</span><span class="meta">pour 100 000 moins de 15 ans, DREES, Statistique annuelle des établissements de santé (SAE), bordereau psychiatrie</span></li>
+        <li class="sous-titre">Âge et évolution des professionnels</li>
+          <li><a href="indicateur/age60-medecins.html">Part des 60 ans et plus, médecins, toutes spécialités</a><span class="meta">%, DREES, démographie des professionnels de santé</span></li><li><a href="indicateur/age60-medecin-generaliste.html">Part des 60 ans et plus, médecins généralistes</a><span class="meta">%, DREES, démographie des professionnels de santé</span></li><li><a href="indicateur/age60-psychiatre.html">Part des 60 ans et plus, psychiatres, dont psychiatres de l&#39;enfant</a><span class="sm">santé mentale</span><span class="meta">%, DREES, démographie des professionnels de santé</span></li><li><a href="indicateur/age60-pediatre.html">Part des 60 ans et plus, pédiatres</a><span class="meta">%, DREES, démographie des professionnels de santé</span></li><li><a href="indicateur/age60-gynecologue.html">Part des 60 ans et plus, gynécologues</a><span class="meta">%, DREES, démographie des professionnels de santé</span></li><li><a href="indicateur/age60-ophtalmologue.html">Part des 60 ans et plus, ophtalmologues</a><span class="meta">%, DREES, démographie des professionnels de santé</span></li><li><a href="indicateur/age60-cardiologue.html">Part des 60 ans et plus, cardiologues</a><span class="meta">%, DREES, démographie des professionnels de santé</span></li><li><a href="indicateur/age60-dermatologue.html">Part des 60 ans et plus, dermatologues</a><span class="meta">%, DREES, démographie des professionnels de santé</span></li><li><a href="indicateur/age60-ens-medecin-specialiste.html">Part des 60 ans et plus, médecins spécialistes, hors généralistes</a><span class="meta">%, DREES, démographie des professionnels de santé</span></li><li><a href="indicateur/age60-anesthesiste.html">Part des 60 ans et plus, anesthésistes-réanimateurs et médecins réanimateurs</a><span class="meta">%, DREES, démographie des professionnels de santé</span></li><li><a href="indicateur/age60-orl.html">Part des 60 ans et plus, oto-rhino-laryngologistes</a><span class="meta">%, DREES, démographie des professionnels de santé</span></li><li><a href="indicateur/age60-gastro-enterologue.html">Part des 60 ans et plus, gastro-entérologues</a><span class="meta">%, DREES, démographie des professionnels de santé</span></li><li><a href="indicateur/age60-pneumologue.html">Part des 60 ans et plus, pneumologues</a><span class="meta">%, DREES, démographie des professionnels de santé</span></li><li><a href="indicateur/age60-chirurgiens.html">Part des 60 ans et plus, chirurgiens (hors orl, ophtalmologie et gynécologie)</a><span class="meta">%, DREES, démographie des professionnels de santé</span></li><li><a href="indicateur/age60-chirurgien-dentiste.html">Part des 60 ans et plus, chirurgiens-dentistes</a><span class="meta">%, DREES, démographie des professionnels de santé</span></li><li><a href="indicateur/age60-masseur-kinesitherapeute.html">Part des 60 ans et plus, masseurs-kinésithérapeutes</a><span class="meta">%, DREES, démographie des professionnels de santé</span></li><li><a href="indicateur/age60-sage-femme.html">Part des 60 ans et plus, sages-femmes</a><span class="meta">%, DREES, démographie des professionnels de santé</span></li><li><a href="indicateur/age60-pharmacien.html">Part des 60 ans et plus, pharmaciens</a><span class="meta">%, DREES, démographie des professionnels de santé</span></li><li><a href="indicateur/age60-pedicure-podologue.html">Part des 60 ans et plus, pédicures-podologues</a><span class="meta">%, DREES, démographie des professionnels de santé</span></li><li><a href="indicateur/age60-infirmier-liberal.html">Part des 60 ans et plus, infirmiers libéraux</a><span class="meta">%, DREES, démographie des professionnels de santé</span></li>
+        <li class="sous-titre">Accès financier</li>
+          <li><a href="indicateur/depassements-psychiatre.html">Psychiatres libéraux pouvant pratiquer des dépassements d&#39;honoraires</a><span class="sm">santé mentale</span><span class="meta">%, Assurance Maladie, effectifs de libéraux par secteur conventionnel (data.ameli.fr, licence ODbL)</span></li><li><a href="indicateur/depassements-pediatre.html">Pédiatres libéraux pouvant pratiquer des dépassements d&#39;honoraires</a><span class="meta">%, Assurance Maladie, effectifs de libéraux par secteur conventionnel (data.ameli.fr, licence ODbL)</span></li><li><a href="indicateur/depassements-medecin-generaliste.html">Médecins généralistes libéraux pouvant pratiquer des dépassements d&#39;honoraires</a><span class="meta">%, Assurance Maladie, effectifs de libéraux par secteur conventionnel (data.ameli.fr, licence ODbL)</span></li><li><a href="indicateur/depassements-gynecologue.html">Gynécologues libéraux pouvant pratiquer des dépassements d&#39;honoraires</a><span class="meta">%, Assurance Maladie, effectifs de libéraux par secteur conventionnel (data.ameli.fr, licence ODbL)</span></li><li><a href="indicateur/depassements-ophtalmologue.html">Ophtalmologues libéraux pouvant pratiquer des dépassements d&#39;honoraires</a><span class="meta">%, Assurance Maladie, effectifs de libéraux par secteur conventionnel (data.ameli.fr, licence ODbL)</span></li><li><a href="indicateur/taux-depassement-psychiatre.html">Psychiatres libéraux en secteur 2, dépassements rapportés aux honoraires sans dépassement</a><span class="sm">santé mentale</span><span class="meta">%, Assurance Maladie, montants des honoraires des libéraux par territoire (data.ameli.fr, licence ODbL)</span></li><li><a href="indicateur/taux-depassement-pediatre.html">Pédiatres libéraux en secteur 2, dépassements rapportés aux honoraires sans dépassement</a><span class="meta">%, Assurance Maladie, montants des honoraires des libéraux par territoire (data.ameli.fr, licence ODbL)</span></li><li><a href="indicateur/taux-depassement-medecin-generaliste.html">Médecins généralistes libéraux en secteur 2, dépassements rapportés aux honoraires sans dépassement</a><span class="meta">%, Assurance Maladie, montants des honoraires des libéraux par territoire (data.ameli.fr, licence ODbL)</span></li><li><a href="indicateur/taux-depassement-gynecologue.html">Gynécologues libéraux en secteur 2, dépassements rapportés aux honoraires sans dépassement</a><span class="meta">%, Assurance Maladie, montants des honoraires des libéraux par territoire (data.ameli.fr, licence ODbL)</span></li><li><a href="indicateur/taux-depassement-ophtalmologue.html">Ophtalmologues libéraux en secteur 2, dépassements rapportés aux honoraires sans dépassement</a><span class="meta">%, Assurance Maladie, montants des honoraires des libéraux par territoire (data.ameli.fr, licence ODbL)</span></li>
+        
+        <li class="sous-titre">À venir</li><li>Zonages des professionnels de santé libéraux</li><li>Accès aux soins, primo-installations et installations en zone sous-dotée des généralistes</li><li>Professionnels de santé libéraux, effectif par tranche d&#39;âge et sexe</li><li>L&#39;offre de soins hospitaliers en psychiatrie, évolutions de 2008 à 2019</li><li>Base ARES, agrégats régionaux sur les établissements de santé</li><li>Liste des maternités de France</li><li>Mon soutien psy par département, données demandées à l&#39;Assurance Maladie le 26 octobre 2026, en attente de réponse</li><li>Sectorisation psychiatrique des autres régions</li>
+      </ul>
+    </details>
+    
+  </div>
+</section>
+
+<section class="dom" id="recours" aria-labelledby="t-recours">
+  <div>
+    <h2 id="t-recours"><a class="vers-dom" href="domaine/recours.html">État de santé et recours aux soins<span aria-hidden="true"> →</span></a></h2>
+    <p class="pourquoi">L&#39;état de santé des habitants et les soins qu&#39;ils reçoivent, approchés par les affections de longue durée, les gestes suicidaires, les consommations et les traitements. Un recours dépend aussi de l&#39;offre disponible, il ne mesure pas à lui seul un besoin de soins.</p>
+    
+    <p class="compte"><b>35</b> indicateurs publiés, dont 27 de santé mentale, 5 bases à venir.</p>
+  </div>
+  <div>
+    <ul class="sous"><li><b>Santé mentale</b> <span>24 indicateurs</span></li><li><b>Addictions</b> <span>3 indicateurs</span></li><li><b>Maladies chroniques</b> <span>7 indicateurs</span></li><li><b>Médecin traitant</b> <span>1 indicateur</span></li></ul>
+    
+    <p class="vers-catalogue"><a href="indicateurs.html#dom=%C3%89tat%20de%20sant%C3%A9%20et%20recours%20aux%20soins">Ses indicateurs dans le catalogue</a>, avec la recherche et les filtres</p>
+    <details><summary>La liste</summary>
+      <ul class="liste-ind">
+        <li class="sous-titre">Santé mentale</li>
+          <li><a href="indicateur/pec-troubles-psy.html">Personnes prises en charge pour troubles psychiques</a><span class="sm">santé mentale</span><span class="meta">% standardisé sur l&#39;âge, Assurance Maladie, cartographie des pathologies (data.ameli.fr, licence ODbL)</span></li><li><a href="indicateur/pec-psychotiques.html">Personnes prises en charge pour troubles psychotiques</a><span class="sm">santé mentale</span><span class="meta">% standardisé sur l&#39;âge, Assurance Maladie, cartographie des pathologies (data.ameli.fr, licence ODbL)</span></li><li><a href="indicateur/pec-humeur.html">Personnes prises en charge pour troubles névrotiques et de l&#39;humeur</a><span class="sm">santé mentale</span><span class="meta">% standardisé sur l&#39;âge, Assurance Maladie, cartographie des pathologies (data.ameli.fr, licence ODbL)</span></li><li><a href="indicateur/pec-deficience.html">Personnes prises en charge pour déficience intellectuelle</a><span class="sm">santé mentale</span><span class="meta">% standardisé sur l&#39;âge, Assurance Maladie, cartographie des pathologies (data.ameli.fr, licence ODbL)</span></li><li><a href="indicateur/pec-addictions.html">Personnes prises en charge pour troubles addictifs</a><span class="sm">santé mentale</span><span class="meta">% standardisé sur l&#39;âge, Assurance Maladie, cartographie des pathologies (data.ameli.fr, licence ODbL)</span></li><li><a href="indicateur/pec-enfance.html">Personnes prises en charge pour troubles débutant dans l&#39;enfance</a><span class="sm">santé mentale</span><span class="meta">% standardisé sur l&#39;âge, Assurance Maladie, cartographie des pathologies (data.ameli.fr, licence ODbL)</span></li><li><a href="indicateur/pec-autres-psy.html">Personnes prises en charge pour d&#39;autres troubles psychiques</a><span class="sm">santé mentale</span><span class="meta">% standardisé sur l&#39;âge, Assurance Maladie, cartographie des pathologies (data.ameli.fr, licence ODbL)</span></li><li><a href="indicateur/psychotropes.html">Personnes sous traitement psychotrope sans trouble psychique repéré</a><span class="sm">santé mentale</span><span class="meta">% standardisé sur l&#39;âge, Assurance Maladie, cartographie des pathologies (data.ameli.fr, licence ODbL)</span></li><li><a href="indicateur/antidepresseurs.html">Personnes sous antidépresseurs ou thymorégulateurs, sans trouble repéré</a><span class="sm">santé mentale</span><span class="meta">% standardisé sur l&#39;âge, Assurance Maladie, cartographie des pathologies (data.ameli.fr, licence ODbL)</span></li><li><a href="indicateur/anxiolytiques.html">Personnes sous anxiolytiques, sans trouble repéré</a><span class="sm">santé mentale</span><span class="meta">% standardisé sur l&#39;âge, Assurance Maladie, cartographie des pathologies (data.ameli.fr, licence ODbL)</span></li><li><a href="indicateur/hypnotiques.html">Personnes sous hypnotiques, sans trouble repéré</a><span class="sm">santé mentale</span><span class="meta">% standardisé sur l&#39;âge, Assurance Maladie, cartographie des pathologies (data.ameli.fr, licence ODbL)</span></li><li><a href="indicateur/neuroleptiques.html">Personnes sous neuroleptiques, sans trouble repéré</a><span class="sm">santé mentale</span><span class="meta">% standardisé sur l&#39;âge, Assurance Maladie, cartographie des pathologies (data.ameli.fr, licence ODbL)</span></li><li><a href="indicateur/suicides.html">Décès par suicide</a><span class="sm">santé mentale</span><span class="meta">pour 100 000 hab., standardisé sur l&#39;âge, Santé publique France, portail Odissé, d&#39;après le CépiDc (Inserm)</span></li><li><a href="indicateur/hospit-gestes-auto-infliges.html">Personnes hospitalisées pour geste auto-infligé</a><span class="sm">santé mentale</span><span class="meta">pour 100 000 hab., standardisé sur l&#39;âge, Santé publique France, portail Odissé, d&#39;après le PMSI-MCO</span></li><li><a href="indicateur/urgences-gestes-auto-infliges.html">Passages aux urgences pour geste auto-infligé</a><span class="sm">santé mentale</span><span class="meta">pour 100 000 passages aux urgences, Santé publique France, portail Odissé, d&#39;après le réseau OSCOUR</span></li><li><a href="indicateur/episode-depressif-declare.html">Adultes déclarant un épisode dépressif dans l&#39;année</a><span class="sm">santé mentale</span><span class="meta">% des adultes, Santé publique France, portail Odissé, Baromètre de Santé publique France</span></li><li><a href="indicateur/trouble-anxieux-generalise.html">Adultes présentant un trouble anxieux généralisé, d&#39;après leurs réponses</a><span class="sm">santé mentale</span><span class="meta">% des adultes, Santé publique France, portail Odissé, Baromètre de Santé publique France</span></li><li><a href="indicateur/satisfaction-vie.html">Satisfaction de la vie actuelle, score moyen</a><span class="sm">santé mentale</span><span class="meta">sur 10, Santé publique France, portail Odissé, Baromètre de Santé publique France</span></li><li><a href="indicateur/entretien-postnatal-precoce.html">Femmes ayant eu un entretien postnatal précoce</a><span class="sm">santé mentale</span><span class="meta">% des femmes ayant accouché, Santé publique France, portail Odissé, d&#39;après le SNDS</span></li><li><a href="indicateur/pensees-suicidaires-declarees.html">Adultes déclarant des pensées suicidaires dans l&#39;année</a><span class="sm">santé mentale</span><span class="meta">% des adultes, Santé publique France, portail Odissé, Baromètre de Santé publique France</span></li><li><a href="indicateur/tentative-suicide-vie-declaree.html">Adultes déclarant une tentative de suicide au cours de la vie</a><span class="sm">santé mentale</span><span class="meta">% des adultes, Santé publique France, portail Odissé, Baromètre de Santé publique France</span></li><li><a href="indicateur/sae-file-active.html">Patients suivis en psychiatrie hospitalière (file active)</a><span class="sm">santé mentale</span><span class="meta">pour 1 000 habitants, DREES, Statistique annuelle des établissements de santé (SAE), bordereau psychiatrie</span></li><li><a href="indicateur/ald-23.html">Affections psychiatriques de longue durée (ALD 23)</a><span class="sm">santé mentale</span><span class="meta">pour 100 000 (standardisé), Assurance Maladie, affections de longue durée</span></li><li><a href="indicateur/ald-15.html">Maladie d&#39;Alzheimer et autres démences (ALD 15)</a><span class="sm">santé mentale</span><span class="meta">pour 100 000 (standardisé), Assurance Maladie, affections de longue durée</span></li>
+        <li class="sous-titre">Addictions</li>
+          <li><a href="indicateur/alcool-depassement-reperes.html">Adultes qui dépassent les repères de consommation d&#39;alcool</a><span class="sm">santé mentale</span><span class="meta">% des adultes, Santé publique France, portail Odissé, Baromètre de Santé publique France</span></li><li><a href="indicateur/tabac-quotidien.html">Adultes qui fument chaque jour</a><span class="sm">santé mentale</span><span class="meta">% des adultes, Santé publique France, portail Odissé, Baromètre de Santé publique France</span></li><li><a href="indicateur/deces-attribuables-tabac.html">Décès attribuables au tabac</a><span class="sm">santé mentale</span><span class="meta">pour 100 000 hab., standardisé sur l&#39;âge, Santé publique France, portail Odissé, d&#39;après le CépiDc (Inserm)</span></li>
+        <li class="sous-titre">Maladies chroniques</li>
+          <li><a href="indicateur/ald-8.html">Diabète (ALD 8)</a><span class="meta">pour 100 000 (standardisé), Assurance Maladie, affections de longue durée</span></li><li><a href="indicateur/ald-30.html">Cancers (tumeurs malignes) (ALD 30)</a><span class="meta">pour 100 000 (standardisé), Assurance Maladie, affections de longue durée</span></li><li><a href="indicateur/ald-5.html">Maladies cardiaques graves (ALD 5)</a><span class="meta">pour 100 000 (standardisé), Assurance Maladie, affections de longue durée</span></li><li><a href="indicateur/ald-13.html">Maladie coronaire (ALD 13)</a><span class="meta">pour 100 000 (standardisé), Assurance Maladie, affections de longue durée</span></li><li><a href="indicateur/ald-1.html">Accident vasculaire cérébral invalidant (ALD 1)</a><span class="meta">pour 100 000 (standardisé), Assurance Maladie, affections de longue durée</span></li><li><a href="indicateur/ald-14.html">Insuffisance respiratoire chronique grave (ALD 14)</a><span class="meta">pour 100 000 (standardisé), Assurance Maladie, affections de longue durée</span></li><li><a href="indicateur/ald-16.html">Maladie de Parkinson (ALD 16)</a><span class="meta">pour 100 000 (standardisé), Assurance Maladie, affections de longue durée</span></li>
+        <li class="sous-titre">Médecin traitant</li>
+          <li><a href="indicateur/ald-sans-medecin-traitant.html">Patients en affection longue durée sans médecin traitant</a><span class="meta">%, Assurance Maladie, patients en affection longue durée sans médecin traitant (data.ameli.fr, licence ODbL)</span></li>
+        
+        <li class="sous-titre">À venir</li><li>Suicides et patients hospitalisés pour geste auto-infligé par territoire de PTSM</li><li>Gestes auto-infligés, hospitalisations</li><li>Patients hospitalisés pour gestes auto-infligés depuis 2012, hôpital général et psychiatrie</li><li>Troubles probables de santé mentale des enfants du CP au CM2, Enabee 2022</li><li>Open DAMIR, séances et bilans de psychologue remboursés</li>
+      </ul>
+    </details>
+    
+  </div>
+</section>
+
+<section class="dom" id="population" aria-labelledby="t-population">
+  <div>
+    <h2 id="t-population"><a class="vers-dom" href="domaine/population.html">Population et logement<span aria-hidden="true"> →</span></a></h2>
+    <p class="pourquoi">L&#39;âge, la composition des ménages et le logement décrivent qui vit sur le territoire, et donc quelle offre y est attendue.</p>
+    
+    <p class="compte"><b>9</b> indicateurs publiés.</p>
+  </div>
+  <div>
+    <ul class="sous"><li><b>Âges</b> <span>4 indicateurs</span></li><li><b>Ménages</b> <span>2 indicateurs</span></li><li><b>Logement</b> <span>2 indicateurs</span></li><li><b>Densité</b> <span>1 indicateur</span></li></ul>
+    
+    <p class="vers-catalogue"><a href="indicateurs.html#dom=Population%20et%20logement">Ses indicateurs dans le catalogue</a>, avec la recherche et les filtres</p>
+    <details><summary>La liste</summary>
+      <ul class="liste-ind">
+        <li class="sous-titre">Âges</li>
+          <li><a href="indicateur/part-0-14.html">Part des moins de 15 ans</a><span class="meta">%, INSEE, dossier complet (recensement de la population, Filosofi)</span></li><li><a href="indicateur/part-15-24.html">Part des 15-24 ans</a><span class="meta">%, INSEE, dossier complet (recensement de la population, Filosofi)</span></li><li><a href="indicateur/part-65-79.html">Part des 65-79 ans</a><span class="meta">%, INSEE, dossier complet (recensement de la population, Filosofi)</span></li><li><a href="indicateur/part-80p.html">Part des 80 ans et plus</a><span class="meta">%, INSEE, dossier complet (recensement de la population, Filosofi)</span></li>
+        <li class="sous-titre">Ménages</li>
+          <li><a href="indicateur/part-seuls.html">Part des 15 ans et plus vivant seuls</a><span class="meta">%, INSEE, dossier complet (recensement de la population, Filosofi)</span></li><li><a href="indicateur/part-80p-seuls.html">Part des 80 ans et plus vivant seuls</a><span class="meta">%, INSEE, dossier complet (recensement de la population, Filosofi)</span></li>
+        <li class="sous-titre">Logement</li>
+          <li><a href="indicateur/part-logements-suroccupes.html">Part des logements suroccupés</a><span class="meta">%, INSEE, dossier complet (recensement de la population, Filosofi)</span></li><li><a href="indicateur/part-logement-social.html">Part des ménages locataires d&#39;un logement social</a><span class="meta">%, INSEE, dossier complet (recensement de la population, Filosofi)</span></li>
+        <li class="sous-titre">Densité</li>
+          <li><a href="indicateur/densite-pop.html">Densité de population</a><span class="meta">hab./km², INSEE, dossier complet (recensement de la population, Filosofi)</span></li>
+        
+        
+      </ul>
+    </details>
+    
+  </div>
+</section>
+
+<section class="dom" id="revenus" aria-labelledby="t-revenus">
+  <div>
+    <h2 id="t-revenus"><a class="vers-dom" href="domaine/revenus.html">Revenus, emploi et pauvreté<span aria-hidden="true"> →</span></a></h2>
+    <p class="pourquoi">Le revenu pèse sur le reste à charge. Pour plusieurs professions, les libéraux sont plus nombreux dans les territoires aisés, ce qui ne dit pas pourquoi.</p>
+    
+    <p class="compte"><b>12</b> indicateurs publiés.</p>
+  </div>
+  <div>
+    <ul class="sous"><li><b>Revenus et pauvreté</b> <span>3 indicateurs</span></li><li><b>Emploi</b> <span>5 indicateurs</span></li><li><b>Prestations sociales</b> <span>4 indicateurs</span></li></ul>
+    
+    <p class="vers-catalogue"><a href="indicateurs.html#dom=Revenus%2C%20emploi%20et%20pauvret%C3%A9">Ses indicateurs dans le catalogue</a>, avec la recherche et les filtres</p>
+    <details><summary>La liste</summary>
+      <ul class="liste-ind">
+        <li class="sous-titre">Revenus et pauvreté</li>
+          <li><a href="indicateur/revenu-median.html">Niveau de vie médian</a><span class="meta">€, INSEE, dossier complet (recensement de la population, Filosofi)</span></li><li><a href="indicateur/taux-pauvrete.html">Taux de pauvreté</a><span class="meta">%, INSEE, dossier complet (recensement de la population, Filosofi)</span></li><li><a href="indicateur/salaire-moyen.html">Salaire net mensuel moyen</a><span class="meta">€, INSEE, dossier complet (recensement de la population, Filosofi)</span></li>
+        <li class="sous-titre">Emploi</li>
+          <li><a href="indicateur/taux-chomage.html">Taux de chômage des 15-64 ans</a><span class="meta">%, INSEE, dossier complet (recensement de la population, Filosofi)</span></li><li><a href="indicateur/part-cadres.html">Part des cadres parmi les 15 ans et plus</a><span class="meta">%, INSEE, dossier complet (recensement de la population, Filosofi)</span></li><li><a href="indicateur/part-ouvriers.html">Part des ouvriers parmi les 15 ans et plus</a><span class="meta">%, INSEE, dossier complet (recensement de la population, Filosofi)</span></li><li><a href="indicateur/taux-emploi.html">Taux d&#39;emploi des 15-64 ans</a><span class="meta">%, INSEE, dossier complet (recensement de la population, Filosofi)</span></li><li><a href="indicateur/part-emplois-precaires.html">Part des emplois à durée limitée</a><span class="meta">%, INSEE, dossier complet (recensement de la population, Filosofi)</span></li>
+        <li class="sous-titre">Prestations sociales</li>
+          <li><a href="indicateur/part-minima-sociaux.html">Part des minima sociaux dans le revenu disponible</a><span class="meta">%, INSEE, dossier complet (recensement de la population, Filosofi)</span></li><li><a href="indicateur/handicap-compensation.html">Bénéficiaires d&#39;une prestation de compensation du handicap, moins de 60 ans</a><span class="meta">pour 1 000 habitants, DREES, indicateurs sociaux départementaux, personnes en situation de handicap</span></li><li><a href="indicateur/caf-aah.html">Bénéficiaires de l&#39;AAH</a><span class="meta">pour 1 000 habitants, CAF, allocataires par prestation</span></li><li><a href="indicateur/caf-rsa.html">Population couverte par le RSA</a><span class="meta">%, CAF, allocataires par prestation</span></li>
+        
+        
+      </ul>
+    </details>
+    
+  </div>
+</section>
+
+<section class="dom" id="enfance" aria-labelledby="t-enfance">
+  <div>
+    <h2 id="t-enfance"><a class="vers-dom" href="domaine/enfance.html">Enfance, éducation et familles<span aria-hidden="true"> →</span></a></h2>
+    <p class="pourquoi">Les familles, la protection de l&#39;enfance et le handicap de l&#39;enfant éclairent l&#39;offre pour l&#39;enfant, CMP pour enfants, CMPP, CAMSP et psychiatres qualifiés pour l&#39;enfant.</p>
+    
+    <p class="compte"><b>8</b> indicateurs publiés, dont 2 de santé mentale.</p>
+  </div>
+  <div>
+    <ul class="sous"><li><b>Familles</b> <span>1 indicateur</span></li><li><b>Protection de l&#39;enfance</b> <span>2 indicateurs</span></li><li><b>Handicap de l&#39;enfant</b> <span>4 indicateurs</span></li><li><b>Formation</b> <span>1 indicateur</span></li></ul>
+    
+    <p class="vers-catalogue"><a href="indicateurs.html#dom=Enfance%2C%20%C3%A9ducation%20et%20familles">Ses indicateurs dans le catalogue</a>, avec la recherche et les filtres</p>
+    <details><summary>La liste</summary>
+      <ul class="liste-ind">
+        <li class="sous-titre">Familles</li>
+          <li><a href="indicateur/part-monoparentales.html">Part des familles monoparentales</a><span class="meta">%, INSEE, dossier complet (recensement de la population, Filosofi)</span></li>
+        <li class="sous-titre">Protection de l&#39;enfance</li>
+          <li><a href="indicateur/ase-mesures.html">Mesures d&#39;aide sociale à l&#39;enfance</a><span class="sm">santé mentale</span><span class="meta">% des jeunes de 0 à 20 ans, DREES, indicateurs sociaux départementaux, protection de l&#39;enfance</span></li><li><a href="indicateur/ase-placements.html">Enfants accueillis à l&#39;aide sociale à l&#39;enfance</a><span class="sm">santé mentale</span><span class="meta">% des jeunes de 0 à 20 ans, DREES, indicateurs sociaux départementaux, protection de l&#39;enfance</span></li>
+        <li class="sous-titre">Handicap de l&#39;enfant</li>
+          <li><a href="indicateur/handicap-places-enfants.html">Places en établissement pour enfants en situation de handicap</a><span class="meta">pour 1 000 moins de 20 ans, DREES, indicateurs sociaux départementaux, personnes en situation de handicap</span></li><li><a href="indicateur/handicap-places-sessad.html">Places en SESSAD</a><span class="meta">pour 1 000 moins de 20 ans, DREES, indicateurs sociaux départementaux, personnes en situation de handicap</span></li><li><a href="indicateur/eleves-handicap.html">Élèves en situation de handicap</a><span class="meta">pour 1 000 élèves, DREES, indicateurs sociaux départementaux, personnes en situation de handicap</span></li><li><a href="indicateur/caf-aeeh.html">Bénéficiaires de l&#39;AEEH</a><span class="meta">pour 1 000 habitants, CAF, allocataires par prestation</span></li>
+        <li class="sous-titre">Formation</li>
+          <li><a href="indicateur/part-sans-diplome.html">Part des personnes sans diplôme</a><span class="meta">%, INSEE, dossier complet (recensement de la population, Filosofi)</span></li>
+        
+        
+      </ul>
+    </details>
+    
+  </div>
+</section>
+
+<section class="dom" id="mobilite" aria-labelledby="t-mobilite">
+  <div>
+    <h2 id="t-mobilite"><a class="vers-dom" href="domaine/mobilite.html">Distances et mobilité<span aria-hidden="true"> →</span></a></h2>
+    <p class="pourquoi">Une structure n&#39;est accessible que si l&#39;on peut s&#39;y rendre. Distances depuis le lieu de vie, puis temps de route et transports en commun.</p>
+    
+    <p class="compte"><b>24</b> indicateurs publiés, dont 14 de santé mentale.</p>
+  </div>
+  <div>
+    <ul class="sous"><li><b>Distance aux structures</b> <span>24 indicateurs</span></li><li><b>Temps de trajet et transports</b> <span>à venir</span></li></ul>
+    
+    <p class="vers-catalogue"><a href="indicateurs.html#dom=Distances%20et%20mobilit%C3%A9">Ses indicateurs dans le catalogue</a>, avec la recherche et les filtres</p>
+    <details><summary>La liste</summary>
+      <ul class="liste-ind">
+        <li class="sous-titre">Distance aux structures</li>
+          <li><a href="indicateur/dist-lieu-cmp-adultes.html">Distance à la structure la plus proche, CMP pour adultes</a><span class="sm">santé mentale</span><span class="meta">km, ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/dist-lieu-cmp-enfants.html">Distance à la structure la plus proche, CMP pour enfants et adolescents</a><span class="sm">santé mentale</span><span class="meta">km, ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/distp-lieu-cmp-enfants.html">Distance à la structure la plus proche, CMP pour enfants et adolescents, pour les enfants de moins de 15 ans</a><span class="sm">santé mentale</span><span class="meta">km, ANS, offres de santé (ROR) et FINESS, réunis sans double compte ; INSEE, recensement</span></li><li><a href="indicateur/dist-lieu-cattp.html">Distance à la structure la plus proche, CATTP</a><span class="sm">santé mentale</span><span class="meta">km, ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/dist-lieu-hdj-psy-adultes.html">Distance à la structure la plus proche, hôpitaux de jour en psychiatrie (adultes)</a><span class="sm">santé mentale</span><span class="meta">km, ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/dist-lieu-hdj-psy-enfants.html">Distance à la structure la plus proche, hôpitaux de jour en psychiatrie (enfants et adolescents)</a><span class="sm">santé mentale</span><span class="meta">km, ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/distp-lieu-hdj-psy-enfants.html">Distance à la structure la plus proche, hôpitaux de jour en psychiatrie (enfants et adolescents), pour les enfants de moins de 15 ans</a><span class="sm">santé mentale</span><span class="meta">km, ANS, offres de santé (ROR) et FINESS, réunis sans double compte ; INSEE, recensement</span></li><li><a href="indicateur/dist-lieu-hc-psy-adultes.html">Distance à la structure la plus proche, hospitalisation complète en psychiatrie</a><span class="sm">santé mentale</span><span class="meta">km, ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/dist-lieu-cmpp.html">Distance à la structure la plus proche, CMPP</a><span class="sm">santé mentale</span><span class="meta">km, ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/distp-lieu-cmpp.html">Distance à la structure la plus proche, CMPP, pour les enfants de moins de 15 ans</a><span class="sm">santé mentale</span><span class="meta">km, ANS, offres de santé (ROR) et FINESS, réunis sans double compte ; INSEE, recensement</span></li><li><a href="indicateur/dist-lieu-camsp.html">Distance à la structure la plus proche, CAMSP</a><span class="sm">santé mentale</span><span class="meta">km, ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/distp-lieu-camsp.html">Distance à la structure la plus proche, CAMSP, pour les enfants de moins de 15 ans</a><span class="sm">santé mentale</span><span class="meta">km, ANS, offres de santé (ROR) et FINESS, réunis sans double compte ; INSEE, recensement</span></li><li><a href="indicateur/dist-lieu-csapa.html">Distance à la structure la plus proche, CSAPA</a><span class="sm">santé mentale</span><span class="meta">km, ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/dist-lieu-caarud.html">Distance à la structure la plus proche, CAARUD</a><span class="sm">santé mentale</span><span class="meta">km, ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/dist-lieu-urgences.html">Distance à la structure la plus proche, services d&#39;urgences</a><span class="meta">km, ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/dist-lieu-maternite.html">Distance à la structure la plus proche, maternités</a><span class="meta">km, ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/distp-lieu-maternite.html">Distance à la structure la plus proche, maternités, depuis le domicile des mères (enfants nés de 2017 à 2022)</a><span class="meta">km, ANS, offres de santé (ROR) et FINESS, réunis sans double compte ; INSEE, état civil et recensement</span></li><li><a href="indicateur/dist-lieu-ehpad.html">Distance à la structure la plus proche, EHPAD</a><span class="meta">km, ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/dist-lieu-ime.html">Distance à la structure la plus proche, instituts médico-éducatifs (IME)</a><span class="meta">km, ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/distp-lieu-ime.html">Distance à la structure la plus proche, instituts médico-éducatifs (IME), pour les enfants de moins de 15 ans</a><span class="meta">km, ANS, offres de santé (ROR) et FINESS, réunis sans double compte ; INSEE, recensement</span></li><li><a href="indicateur/dist-lieu-sessad.html">Distance à la structure la plus proche, services d&#39;éducation spéciale et de soins à domicile (SESSAD)</a><span class="meta">km, ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/distp-lieu-sessad.html">Distance à la structure la plus proche, services d&#39;éducation spéciale et de soins à domicile (SESSAD), pour les enfants de moins de 15 ans</a><span class="meta">km, ANS, offres de santé (ROR) et FINESS, réunis sans double compte ; INSEE, recensement</span></li><li><a href="indicateur/dist-lieu-msp.html">Distance à la structure la plus proche, maisons de santé pluriprofessionnelles</a><span class="meta">km, ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li><li><a href="indicateur/dist-lieu-centre-sante.html">Distance à la structure la plus proche, centres de santé</a><span class="meta">km, ANS, offres de santé (ROR) et FINESS, réunis sans double compte</span></li>
+        
+        
+      </ul>
+    </details>
+    
+  </div>
+</section>
+
+<section class="dom" id="violences" aria-labelledby="t-violences">
+  <div>
+    <h2 id="t-violences"><a class="vers-dom" href="domaine/violences.html">Violences et victimes<span aria-hidden="true"> →</span></a></h2>
+    <p class="pourquoi">Les violences subies, intrafamiliales et sexuelles d&#39;abord, et l&#39;aide aux victimes, à mettre en regard de l&#39;offre de soins psychiques.</p>
+    
+    <p class="compte">Aucun indicateur publié, 5 bases à venir.</p>
+  </div>
+  <div>
+    <ul class="sous"><li><b>Violences enregistrées</b> <span>à venir</span></li><li><b>Aide aux victimes</b> <span>à venir</span></li></ul>
+    
+    
+    <details><summary>La liste</summary>
+      <ul class="liste-ind">
+        
+        <li class="sous-titre">À venir</li><li>Bases statistiques communale, départementale et régionale de la délinquance enregistrée</li><li>Base des séries chronologiques du SSMSI</li><li>Victimation et sentiment d&#39;insécurité, enquêtes Cadre de vie et sécurité</li><li>Caractéristiques des victimes enregistrées et des mis en cause</li><li>Structures d&#39;aide aux victimes, annuaire de l&#39;administration</li>
+      </ul>
+    </details>
+    
+  </div>
+</section>
+
+<section class="dom" id="environnement" aria-labelledby="t-environnement">
+  <div>
+    <h2 id="t-environnement"><a class="vers-dom" href="domaine/environnement.html">Environnement et cadre de vie<span aria-hidden="true"> →</span></a></h2>
+    <p class="pourquoi">Chaleur, espaces verts, urbanisation et sécurité routière décrivent le cadre dans lequel vivent les habitants.</p>
+    
+    <p class="compte">Aucun indicateur publié.</p>
+  </div>
+  <div>
+    <ul class="sous"><li><b>Occupation du sol</b> <span>à venir</span></li><li><b>Chaleur et espaces verts</b> <span>à venir</span></li><li><b>Sécurité routière</b> <span>à venir</span></li></ul>
+    
+  </div>
+</section>
+
+<script src="presentation/glossaire.js" defer></script>
+
+<footer>
+  Calculé le 13 novembre 2026, répertoire RPPS du 9 novembre 2026. Sources, répertoire RPPS, FINESS, Répertoire opérationnel des ressources, INSEE (dont Sirene), Assurance Maladie, CAF, Santé publique France, DREES, HAS, IGN (voir <a href="methode.html">Méthode, données et limites</a>).
+  Résultats sous Licence Ouverte 2.0, en citant la source et la date de la version, sauf les indicateurs tirés des bases de l&#39;Assurance Maladie (Cnam, data.ameli.fr, cartographie des pathologies, secteurs conventionnels, patients sans médecin traitant) et ce qui en dérive, diffusés sous licence ODbL 1.0 (partage à l&#39;identique). Les fichiers suffixés _odbl et les données intégrées à l&#39;atlas, qui contiennent ces indicateurs, sont sous ODbL. Les rapports et les cartes qui les affichent contiennent des informations issues de cette base sous ODbL.
+  <p class="pied-liens"><a href="atlas.html">Atlas</a> <a href="explorer.html">Explorer</a> <a href="rapports.html">Rapports</a> <a href="publications.html">Publications</a> <a href="zone.html">Autour d’un lieu</a> <a href="methode-fichiers.html">Télécharger les données</a> <a href="donnees-sources.html">Sources des données</a> <a href="journal.html">Journal des mises à jour</a> <a href="a-venir.html">À venir</a> <a href="contribuer.html">Proposer une base de données</a> <a href="a-propos.html">À propos</a></p>
+</footer>
+</main>
+<script>
+// tableaux plus larges que la colonne de texte, fondu à droite et phrase d'indication tant qu'il reste des colonnes
+(function(){function cadre(t){t.classList.remove("defile");if(t.offsetWidth>t.parentElement.clientWidth+2)t.classList.add("defile")}
+function maj(t){var d=t.scrollWidth>t.clientWidth+2;t.classList.toggle("deborde-d",d&&t.scrollLeft+t.clientWidth<t.scrollWidth-2);
+var n=t.nextElementSibling;if(!(n&&n.classList.contains("indice-defil"))){if(!d)return;n=document.createElement("p");n.className="indice-defil";n.textContent="Faites défiler le tableau vers la droite pour voir les autres colonnes.";t.after(n)}n.hidden=!d}
+// figures, choix de la profession (rapports, 9 octobre 2026)
+document.querySelectorAll("figure.graphique").forEach(function(fig){
+  var leg=fig.querySelector(".leg");
+  fig.querySelectorAll(".choix-variante button").forEach(function(b,i,tous){b.addEventListener("click",function(){
+    var vs=fig.querySelectorAll(".variante");vs.forEach(function(v,j){v.hidden=j!==i});
+    tous.forEach(function(x,j){x.setAttribute("aria-pressed",String(j===i))});
+    var t=vs[i].querySelector("title");if(leg&&t)leg.textContent=t.textContent})})});
+var ts=document.querySelectorAll(".corps table,.methode > table.simple");ts.forEach(function(t){cadre(t);maj(t);t.addEventListener("scroll",function(){maj(t)},{passive:true})});
+function tous(){ts.forEach(function(t){cadre(t);maj(t)})}
+addEventListener("resize",tous);if(document.fonts)document.fonts.ready.then(tous)})();
+</script>
+<script>
+// Graphiques interactifs, communs aux rapports et à l'atlas (demande de Lucas du 9 octobre 2026).
+// Infobulle au survol de chaque point ou zone qui porte un titre, clic pour la garder, zoom à la molette et par
+// boutons, déplacement à la souris quand le graphique est zoomé. La page n'est pas bloquée, une molette qui
+// arrive pendant le défilement de la page continue de faire défiler la page.
+// Réglage, window.FIGURES = {zoom: "sélecteur des svg zoomables", bulle: "sélecteur des svg à infobulles"}.
+(function(){
+  var R=window.FIGURES||{zoom:"figure.zoomable svg",bulle:"figure.graphique svg"};
+  var bulle=document.createElement("div");bulle.className="bulle-fig";bulle.setAttribute("role","status");
+  document.addEventListener("DOMContentLoaded",function(){document.body.appendChild(bulle)});
+  if(document.body)document.body.appendChild(bulle);
+  var epingle=null,dernierDefil=0;
+  addEventListener("scroll",function(){dernierDefil=Date.now();if(!epingle)cacher()},{passive:true});
+  function svgDe(el,sel){var s=el&&el.closest&&el.closest("svg");while(s&&s.ownerSVGElement)s=s.ownerSVGElement;return s&&s.matches(sel)?s:null}
+  // texte de l'élément survolé, pris dans son titre (déplacé dans data-info pour éviter la bulle du navigateur)
+  function info(el,s){
+    for(var e=el;e&&e!==s;e=e.parentNode){
+      if(e.dataset&&e.dataset.info)return [e,e.dataset.info];
+      var t=e.querySelector&&e.querySelector(":scope > title");
+      if(t&&e!==s){e.dataset.info=t.textContent;t.remove();return [e,e.dataset.info]}}
+    return null}
+  function montrer(x,y,txt){bulle.textContent=txt;bulle.style.opacity=1;var w=bulle.offsetWidth,h=bulle.offsetHeight;
+    bulle.style.left=Math.max(8,Math.min(x+14,innerWidth-w-8))+"px";bulle.style.top=Math.max(8,y-h-12<8?y+16:y-h-12)+"px"}
+  function cacher(){bulle.style.opacity=0}
+  document.addEventListener("pointermove",function(ev){
+    if(epingle)return;var s=svgDe(ev.target,R.bulle);if(!s){cacher();return}
+    var i=info(ev.target,s);if(i)montrer(ev.clientX,ev.clientY,i[1]);else cacher()});
+  document.addEventListener("click",function(ev){
+    var s=svgDe(ev.target,R.bulle);
+    if(epingle){epingle.removeAttribute("data-choisi");epingle=null}
+    if(!s){cacher();return}
+    var i=info(ev.target,s);if(!i){cacher();return}
+    epingle=i[0];epingle.setAttribute("data-choisi","");montrer(ev.clientX,ev.clientY,i[1])});
+  document.addEventListener("keydown",function(ev){if(ev.key==="Escape"&&epingle){epingle.removeAttribute("data-choisi");epingle=null;cacher()}});
+
+  // zoom, le cadrage d'origine est repris chaque fois que la page redessine le graphique
+  function cadre(s){var v=s.getAttribute("viewBox");if(!v)return null;if(s.dataset.vbz!==v)s.dataset.vb0=v;return v.split(/[ ,]+/).map(Number)}
+  function zoomer(s,k,cx,cy){var b=cadre(s);if(!b)return;var o=s.dataset.vb0.split(/[ ,]+/).map(Number);
+    var w=Math.min(o[2],b[2]*k),h=Math.min(o[3],b[3]*k);if(w<o[2]/12)return;
+    if(cx==null){cx=b[0]+b[2]/2;cy=b[1]+b[3]/2}
+    var x=cx-(cx-b[0])*w/b[2],y=cy-(cy-b[1])*h/b[3];
+    x=Math.max(o[0],Math.min(x,o[0]+o[2]-w));y=Math.max(o[1],Math.min(y,o[1]+o[3]-h));
+    var v=[x,y,w,h].map(function(n){return +n.toFixed(2)}).join(" ");s.setAttribute("viewBox",v);s.dataset.vbz=v;boutons(s)}
+  function entier(s){return !s.dataset.vb0||s.getAttribute("viewBox")===s.dataset.vb0}
+  function boutons(s){
+    var hote=s.closest(".fig-corps")||s.closest("figure");
+    if(!hote){
+      // hors d'une figure (atlas), les boutons vont sur une ligne à eux juste au-dessus du graphique, sans recouvrir le
+      // titre du panneau ni le bouton Citer
+      hote=s.parentNode;
+      if(hote&&!hote.classList.contains("fig-zoom")){var enveloppe=document.createElement("div");enveloppe.className="fig-zoom";
+        hote.insertBefore(enveloppe,s);enveloppe.appendChild(s);hote=enveloppe}
+    }
+    if(!hote||hote.querySelector(":scope > .zoom-boutons"))return;
+    var bz=document.createElement("div");bz.className="zoom-boutons";
+    bz.innerHTML='<button type="button" aria-label="Zoomer">+</button><button type="button" aria-label="Dézoomer">−</button><button type="button" aria-label="Revenir à la vue entière">⟲</button>';
+    if(getComputedStyle(hote).position==="static")hote.style.position="relative";
+    hote.insertBefore(bz,hote.firstChild);
+    var cible=function(){var v=hote.querySelector(".variante:not([hidden]) svg");return v||s};
+    var b=bz.querySelectorAll("button");
+    b[0].onclick=function(){zoomer(cible(),.6)};b[1].onclick=function(){zoomer(cible(),1/.6)};
+    b[2].onclick=function(){var c=cible();cadre(c);if(c.dataset.vb0){c.setAttribute("viewBox",c.dataset.vb0);c.dataset.vbz=c.dataset.vb0}}}
+  document.querySelectorAll(R.zoom).forEach(boutons);
+  document.addEventListener("pointerover",function(ev){var s=svgDe(ev.target,R.zoom);if(s)boutons(s)});
+  // la molette seule fait toujours défiler la page ; le zoom à la molette demande Ctrl (ou ⌘), sinon le curseur restait
+  // pris dans la figure (remarque de Lucas du 23 octobre 2026) ; les boutons + et − restent le moyen ordinaire
+  document.addEventListener("wheel",function(ev){
+    if(!(ev.ctrlKey||ev.metaKey))return;
+    var s=svgDe(ev.target,R.zoom);if(!s)return;
+    if(Date.now()-dernierDefil<450)return;                       // la page défile, on la laisse défiler
+    if(ev.deltaY>0&&entier(s))return;                           // vue entière, molette vers le bas, la page défile
+    ev.preventDefault();var p=s.createSVGPoint();p.x=ev.clientX;p.y=ev.clientY;
+    var q=p.matrixTransform(s.getScreenCTM().inverse());zoomer(s,ev.deltaY<0?.8:1.25,q.x,q.y)},{passive:false});
+  var dep=null;
+  document.addEventListener("pointerdown",function(ev){var s=svgDe(ev.target,R.zoom);if(!s||entier(s))return;
+    var b=cadre(s);dep={x:ev.clientX,y:ev.clientY,b:b,s:s,k:b[2]/s.getBoundingClientRect().width,bouge:false}});
+  addEventListener("pointermove",function(ev){if(!dep)return;var o=dep.s.dataset.vb0.split(/[ ,]+/).map(Number),b=dep.b;
+    if(Math.abs(ev.clientX-dep.x)+Math.abs(ev.clientY-dep.y)>3)dep.bouge=true;if(!dep.bouge)return;
+    var x=Math.max(o[0],Math.min(b[0]-(ev.clientX-dep.x)*dep.k,o[0]+o[2]-b[2])),y=Math.max(o[1],Math.min(b[1]-(ev.clientY-dep.y)*dep.k,o[1]+o[3]-b[3]));
+    var v=[x,y,b[2],b[3]].map(function(n){return +n.toFixed(2)}).join(" ");dep.s.setAttribute("viewBox",v);dep.s.dataset.vbz=v});
+  addEventListener("pointerup",function(){dep=null});
+
+  // figures des rapports, même modèle que l'atlas (10 octobre 2026). Sous le titre de la figure, une ligne
+  // « Citer et exporter » ouvre la citation du rapport suivie de la légende, l'image (copie, PNG, SVG, avec
+  // la citation dessous) et les données de la figure. La citation du rapport est donnée par la page (data-citation).
+  function citerFigures(){
+    var porte=document.querySelector("[data-citation]");if(!porte)return;var base=porte.dataset.citation;
+    document.querySelectorAll("figure.graphique").forEach(function(f){
+      if(f.dataset.cite)return;f.dataset.cite="1";
+      var cap=f.querySelector("figcaption");
+      var ligne=document.createElement("div");ligne.className="outils-figure";
+      var bc=document.createElement("button");bc.type="button";bc.className="citer-fig";bc.textContent="Citer et exporter";bc.setAttribute("aria-expanded","false");ligne.appendChild(bc);
+      if(cap)cap.after(ligne);else f.insertBefore(ligne,f.firstChild);
+      var boite=document.createElement("div");boite.className="citation-fig";boite.hidden=true;ligne.after(boite);
+      bc.onclick=function(){var ouvert=boite.hidden;bc.setAttribute("aria-expanded",String(ouvert));boite.hidden=!ouvert;if(!ouvert)return;
+        // la légende suit la profession choisie, la citation est donc refaite à chaque ouverture
+        // figures titrées sans numéro (1er novembre 2026) : la citation reprend la légende seule
+        var leg=cap&&cap.querySelector(".leg");
+        var ref=leg?leg.textContent.trim():"Figure";
+        var texte=base.replace(/\s*$/,"")+(/[.]$/.test(base.trim())?" ":". ")+ref+".";
+        var nom=(ref.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,80)||"figure").toLowerCase();
+        boite.innerHTML='<p></p><div class="citation-actions"><button type="button" data-a="cit">Copier la citation</button></div>'
+          +'<ul class="exports"><li><span class="nom"><span class="genre">Image</span> de la figure</span><span class="citation-actions"><button type="button" data-a="img">Copier l&#39;image</button><button type="button" data-a="png">PNG</button><button type="button" data-a="svg">SVG</button></span></li>'
+          +(f.dataset.donnees?'<li><span class="nom"><span class="genre">Données</span> de la figure, '+f.dataset.donneesNom+'</span><span class="citation-actions"><a class="bouton" download href="'+f.dataset.donnees+'">CSV</a></span></li>':'')
+          +'</ul><p class="small muted">Chaque fichier porte la citation du rapport, merci de la joindre à toute reprise.</p>';
+        boite.querySelector("p").textContent=texte;
+        boite.querySelectorAll("button").forEach(function(b){b.onclick=function(){var a=b.dataset.a;
+          if(a==="cit"){navigator.clipboard.writeText(texte).then(function(){b.textContent="Citation copiée"},function(){b.textContent="Copie impossible ici"});return}
+          var src=f.querySelector(".variante:not([hidden]) svg")||f.querySelector("svg");if(!src)return;
+          var svg=imageCitee(src,texte);
+          if(a==="svg"){enregistrer(new Blob([svg],{type:"image/svg+xml"}),nom+".svg");b.textContent="Enregistré";return}
+          var img=new Image(),url=URL.createObjectURL(new Blob([svg],{type:"image/svg+xml"}));
+          img.onload=function(){var c=document.createElement("canvas");c.width=img.width;c.height=img.height;c.getContext("2d").drawImage(img,0,0);URL.revokeObjectURL(url);
+            c.toBlob(function(png){if(!png)return;
+              if(a==="png"){enregistrer(png,nom+".png");b.textContent="Enregistré";return}
+              navigator.clipboard.write([new ClipboardItem({"image/png":png})]).then(function(){b.textContent="Image copiée"},function(){b.textContent="Copie impossible ici, utilisez PNG"})})};img.src=url}})}})}
+  // cartes des fiches : les contours sont écrits une fois par page et repris par <use> ; l'export les remet en place,
+  // avec les couleurs du fond clair des classes de même effectif et le motif des territoires sans valeur
+  var COUL={q0:"#579891",q1:"#3B7E78",q2:"#2A6B66",q3:"#1C5652",q4:"#0D3D3B"};
+  function deplier(c){
+    var ns="http://www.w3.org/2000/svg";
+    c.querySelectorAll("use").forEach(function(u){
+      var o=document.getElementById((u.getAttribute("href")||u.getAttribute("xlink:href")||"").slice(1));if(!o){u.remove();return}
+      var p=o.cloneNode(true);p.removeAttribute("id");
+      [].forEach.call(u.attributes,function(a){if(a.name!=="href"&&a.name!=="xlink:href")p.setAttribute(a.name,a.value)});
+      var k=(u.getAttribute("class")||"").split(" ").filter(function(x){return COUL[x]||x==="nd"})[0];
+      if(k)p.setAttribute("fill",k==="nd"?"url(#hachure)":COUL[k]);
+      if(u.parentNode)u.parentNode.replaceChild(p,u)});
+    if(c.querySelector('[fill="url(#hachure)"]')&&!c.querySelector("#hachure")){var h=document.getElementById("hachure");
+      if(h){var d=document.createElementNS(ns,"defs");d.appendChild(h.cloneNode(true));c.insertBefore(d,c.firstChild)}}}
+  window.deplierCarte=deplier;
+  function imageCitee(src,texte){
+    var ns="http://www.w3.org/2000/svg",c=src.cloneNode(true),vb=(src.dataset.vb0||src.getAttribute("viewBox")||"0 0 600 400").split(/[ ,]+/).map(Number);
+    deplier(c);
+    // taille commune des exports (harmonisation, 22 octobre 2026), dessin rapporté à 800 pixels, image à 1 600, citation
+    // au petit corps de l'échelle typographique (11,5 pixels à cette largeur), couleurs du fond clair (valeurs de repli
+    // des variables, seules lues dans un fichier SVG isolé)
+    var fs=11.5*vb[2]/800,par=Math.max(40,Math.floor((vb[2]-16)/(fs*.55))),lignes=[];
+    texte.split(" ").forEach(function(m){var l=lignes.length?lignes[lignes.length-1]:null;if(l!=null&&(l+" "+m).length<=par)lignes[lignes.length-1]=l+" "+m;else lignes.push(m)});
+    var hc=fs*1.4*lignes.length+fs;c.setAttribute("xmlns",ns);c.setAttribute("viewBox",[vb[0],vb[1],vb[2],vb[3]+hc].join(" "));
+    c.setAttribute("width",1600);c.setAttribute("height",Math.round((vb[3]+hc)*1600/vb[2]));
+    var fond=document.createElementNS(ns,"rect");fond.setAttribute("x",vb[0]);fond.setAttribute("y",vb[1]);fond.setAttribute("width",vb[2]);fond.setAttribute("height",vb[3]+hc);fond.setAttribute("fill","#FFFFFF");c.insertBefore(fond,c.firstChild);
+    lignes.forEach(function(l,i){var t=document.createElementNS(ns,"text");t.setAttribute("x",vb[0]+8);t.setAttribute("y",vb[1]+vb[3]+fs*1.4*(i+1));t.setAttribute("font-size",fs);t.setAttribute("fill","#5F6675");t.setAttribute("font-family","Work Sans, Segoe UI, sans-serif");t.textContent=l;c.appendChild(t)});
+    return new XMLSerializer().serializeToString(c)}
+  function enregistrer(blob,nom){var a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=nom;document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(a.href)},1000)}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",citerFigures);else citerFigures();
+
+  // tableaux des rapports et des pages, citables et exportables comme les figures (version 2, point 1, 22 octobre 2026).
+  // La citation est celle du rapport (data-citation) ou de la page (data-citation-page et son adresse), suivie du titre
+  // du tableau, tiré de sa légende ou de l'intertitre qui le précède (décision de Lucas, titre sans numéro). Le CSV
+  // reprend les lignes affichées, au format des fichiers du site (point-virgule, virgule décimale, nombres sans
+  // séparateur de milliers), avec la citation en dernière ligne.
+  // adresse citée, la même que celle affichée en tête des pages (sans « .html », que GitHub Pages sert aussi)
+  function adressePage(){return location.pathname.replace(/\/index\.html$/,"/").replace(/\.html$/,"")}
+  function titreTableau(t){
+    // titre seul, puis l'unité après une virgule (« Professionnels de santé mentale, pour 10 000 habitants »), jamais
+    // collés (audit de contrôle du 30 octobre 2026, point B5)
+    if(t.caption&&t.caption.textContent.trim()){var cap=t.caption.cloneNode(true),u=cap.querySelector(".unite-tel");[].forEach.call(cap.querySelectorAll(".outils-figure"),function(o){o.remove()});
+      var ut=u?u.textContent.replace(/\s+/g," ").trim():"";if(u)u.remove();var ti=cap.textContent.replace(/\s+/g," ").trim();
+      return ut?ti+", "+ut.charAt(0).toLowerCase()+ut.slice(1):ti}
+    for(var e=t.closest(".defile")||t;e&&e.tagName!=="MAIN";e=e.parentElement){
+      for(var p=e.previousElementSibling;p;p=p.previousElementSibling){
+        if(/^H[2-5]$/.test(p.tagName))return p.textContent.replace(/\s+/g," ").trim();
+        var h=p.querySelectorAll&&p.querySelectorAll("h2,h3,h4,h5");if(h&&h.length)return h[h.length-1].textContent.replace(/\s+/g," ").trim()}
+      if(e.tagName==="DETAILS"){var s=e.querySelector("summary");if(s)return s.textContent.trim()}}
+    return "Tableau"}
+  function celluleCsv(c){
+    // une adresse raccourcie à l'écran est écrite en entier dans le fichier
+    if(c.querySelectorAll){var lien=[].filter.call(c.querySelectorAll("a[href^='http']"),function(a){return /…$/.test(a.textContent.trim())});
+      if(lien.length){c=c.cloneNode(true);[].forEach.call(c.querySelectorAll("a[href^='http']"),function(a){if(/…$/.test(a.textContent.trim()))a.textContent=a.href})}}
+    var v=c.textContent.replace(/[\s  ]+/g," ").trim();
+    if(/^[−-]?\d{1,3}( \d{3})+(,\d+)?$/.test(v))v=v.replace(/ /g,"");
+    v=v.replace(/^−(?=\d)/,"-");
+    return /[;"\n]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+  function tableauCsv(t){
+    return "﻿"+[].filter.call(t.querySelectorAll("tr"),function(tr){return !tr.hidden&&tr.style.display!=="none"})
+      .map(function(tr){return [].map.call(tr.children,celluleCsv).join(";")}).join("\r\n")}
+  function citerTableaux(){
+    var main=document.querySelector("main");if(!main)return;
+    var porte=document.querySelector("[data-citation]"),base;
+    if(porte)base=porte.dataset.citation.replace(/\s*$/,"");
+    else{base=(main.dataset.citationPage||"").replace(/\s*$/,"");if(!base)return;
+      var adr=main.dataset.adresse;base+=(adr?", "+adr+adressePage():"")+"."}
+    main.querySelectorAll("table").forEach(function(t){
+      if(t.dataset.cite||t.closest(".citation-fig,.sommaire,details.versions,nav,figure,.encadre"))return;t.dataset.cite="1";
+      var bloc=t.closest(".defile")||t;
+      var ligne=document.createElement("div");ligne.className="outils-figure outils-tableau";
+      var bc=document.createElement("button");bc.type="button";bc.className="citer-fig";bc.textContent="Citer et exporter";bc.setAttribute("aria-expanded","false");ligne.appendChild(bc);
+      // dans les fiches, le bouton se place à droite du titre du tableau, comme dans Croiser (audit de contrôle du
+      // 30 octobre 2026, point I8)
+      var dansTitre=!!(t.caption&&t.closest("main.fiche"));
+      if(dansTitre){ligne.classList.add("dans-titre");t.caption.appendChild(ligne)}else bloc.before(ligne);
+      var boite=document.createElement("div");boite.className="citation-fig";boite.hidden=true;if(dansTitre)bloc.before(boite);else ligne.after(boite);
+      bc.onclick=function(){var ouvert=boite.hidden;bc.setAttribute("aria-expanded",String(ouvert));boite.hidden=!ouvert;if(!ouvert)return;
+        var titre=titreTableau(t),texte=base+(/[.]$/.test(base)?" ":". ")+"Tableau, « "+titre+" ».";
+        var nom=(titre.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,80)||"tableau").toLowerCase();
+        boite.innerHTML='<p></p><div class="citation-actions"><button type="button" data-a="cit">Copier la citation</button></div>'
+          +'<ul class="exports"><li><span class="nom"><span class="genre">Données</span> du tableau, telles qu&#39;affichées</span><span class="citation-actions"><button type="button" data-a="csv">CSV</button></span></li></ul>'
+          +'<p class="small muted">Le fichier porte la citation de la page, merci de la joindre à toute reprise.</p>';
+        boite.querySelector("p").textContent=texte;
+        boite.querySelectorAll("button").forEach(function(b){b.onclick=function(){
+          if(b.dataset.a==="cit"){navigator.clipboard.writeText(texte).then(function(){b.textContent="Citation copiée"},function(){b.textContent="Copie impossible ici"});return}
+          enregistrer(new Blob([tableauCsv(t)+"\r\n\r\n"+celluleCsv({textContent:texte})],{type:"text/csv;charset=utf-8"}),nom+".csv");b.textContent="Enregistré"}})}})}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",citerTableaux);else citerTableaux();
+
+  // « Citer et exporter » de l'encadré type (fiche d'un territoire, plan de reprise, étape 2, 30 octobre 2026). Le bouton
+  // .citer-encadre ouvre, sous le titre de son bloc [data-titre] : la citation en texte, en RIS et en BibTeX, l'image de
+  // sa carte (PNG, SVG), les données de son tableau (CSV), le code d'intégration et l'adresse de la version (DOI des
+  // données de la version quand Zenodo l'a archivée). Les éléments de la citation sont donnés par la page (#cite).
+  function citerEncadres(){
+    var C=document.getElementById("cite");if(!C)return;var d=C.dataset;
+    var auteurBib=d.auteur.replace(/^(\S+)\s+(.+)$/,"$1, $2"),jour=new Date().toISOString().slice(0,10);
+    document.querySelectorAll(".citer-encadre").forEach(function(b){
+      if(b.dataset.pret)return;b.dataset.pret="1";
+      var bloc=b.hasAttribute("data-tout")?null:b.closest("[data-titre]");
+      var tete=bloc?(bloc.querySelector(".encadre-tete")||b.parentNode):b.parentNode;
+      var boite=document.createElement("div");boite.className="citation-fig";boite.hidden=true;tete.after(boite);
+      b.onclick=function(){var ouvert=boite.hidden;b.setAttribute("aria-expanded",String(ouvert));boite.hidden=!ouvert;if(!ouvert)return;
+        var h=bloc&&(bloc.id?bloc:bloc.querySelector("[id]")),ancre=h?h.id:"";
+        var titre=d.titre+(bloc?", « "+bloc.dataset.titre+" »":""),url=d.adresse+(ancre?"#"+ancre:"");
+        var texte=d.auteur+" ("+d.annee+"). "+titre+". "+d.projet+", version du "+d.version+", "+url.replace(/^https:\/\//,"")+(d.doi?", doi:"+d.doi:d.doiGeneral?", toutes les versions doi:"+d.doiGeneral:"")+".";
+        var ris=["TY  - DATA","AU  - "+auteurBib,"PY  - "+d.annee,"TI  - "+titre,"PB  - "+d.projet,"ET  - version du "+d.version,"UR  - "+url]
+          .concat(d.doi?["DO  - "+d.doi]:[]).concat(["Y2  - "+jour,"LA  - fr","ER  - "]).join("\r\n");
+        var cle=("ubicura_"+d.cle+"_"+d.iso).replace(/[^A-Za-z0-9_]+/g,"_");
+        var bib="@misc{"+cle+",\n  author = {"+auteurBib+"},\n  title = {"+titre+"},\n  year = {"+d.annee+"},\n  publisher = {"+d.projet+"},\n  version = {version du "+d.version+"},\n  url = {"+url+"},\n"+(d.doi?"  doi = {"+d.doi+"},\n":"")+"  urldate = {"+jour+"},\n  language = {french}\n}";
+        var integ='<iframe src="'+url+'" title="'+titre.replace(/"/g,"&quot;")+'" width="100%" height="560" loading="lazy" style="border:0"></iframe>\n<p>'+texte.replace(/</g,"&lt;")+"</p>";
+        // la carte exportée est celle qui est montrée (carte de bloc de la fiche : une carte par indicateur choisi)
+        var svgs=bloc?[].slice.call(bloc.querySelectorAll("svg.carte-svg")):[],svg=svgs.filter(function(x){return x.getBoundingClientRect().width>0})[0]||svgs[0],tab=bloc&&bloc.querySelector("table");
+        var nom=(titre.normalize("NFD").replace(/[̀-ͯ]/g,"").replace(/[^A-Za-z0-9]+/g,"_").replace(/^_|_$/g,"").slice(0,80)||"ubicura").toLowerCase();
+        boite.innerHTML='<p class="cit"></p><div class="citation-actions"><button type="button" data-a="cit">Copier la citation</button><button type="button" data-a="ris">RIS</button><button type="button" data-a="bib">BibTeX</button></div>'
+          +'<ul class="exports">'
+          +(svg?'<li><span class="nom"><span class="genre">Image</span> de la carte</span><span class="citation-actions"><button type="button" data-a="png">PNG</button><button type="button" data-a="svg">SVG</button></span></li>':"")
+          +(tab?'<li><span class="nom"><span class="genre">Données</span> du tableau, telles qu&#39;affichées</span><span class="citation-actions"><button type="button" data-a="csv">CSV</button></span></li>':"")
+          +'<li><span class="nom"><span class="genre">Intégrer</span> dans une page, ouverte sur ce bloc</span><span class="citation-actions"><button type="button" data-a="int">Copier le code</button></span></li>'
+          +'<li><span class="nom"><span class="genre">Adresse</span> <a href="'+url+'">'+url.replace(/^https:\/\//,"")+"</a>"+(d.doi?', version archivée <a href="https://doi.org/'+d.doi+'">doi:'+d.doi+"</a>":"")+(d.doiGeneral?(d.doi?', voir aussi toutes les versions':', toutes les versions')+' <a href="https://doi.org/'+d.doiGeneral+'">doi:'+d.doiGeneral+"</a>":"")+"</span></li>"
+          +'</ul><p class="small muted">Chaque fichier porte la citation, merci de la joindre à toute reprise.</p>';
+        boite.querySelector("p.cit").textContent=texte;
+        if(!bloc){var pre=document.createElement("pre");pre.textContent=ris+"\n\n"+bib;boite.querySelector(".citation-actions").after(pre)}
+        boite.querySelectorAll("button").forEach(function(x){x.onclick=function(){var a=x.dataset.a;
+          var copier=function(s,ok){navigator.clipboard.writeText(s).then(function(){x.textContent=ok},function(){x.textContent="Copie impossible ici"})};
+          if(a==="cit")return copier(texte,"Citation copiée");
+          if(a==="int")return copier(integ,"Code copié");
+          if(a==="ris"){enregistrer(new Blob([ris],{type:"application/x-research-info-systems"}),nom+".ris");x.textContent="Enregistré";return}
+          if(a==="bib"){enregistrer(new Blob([bib],{type:"application/x-bibtex"}),nom+".bib");x.textContent="Enregistré";return}
+          if(a==="csv"){enregistrer(new Blob([tableauCsv(tab)+"\r\n\r\n"+celluleCsv({textContent:texte})],{type:"text/csv;charset=utf-8"}),nom+".csv");x.textContent="Enregistré";return}
+          var image=imageCitee(svg,texte);
+          if(a==="svg"){enregistrer(new Blob([image],{type:"image/svg+xml"}),nom+".svg");x.textContent="Enregistré";return}
+          var img=new Image(),u=URL.createObjectURL(new Blob([image],{type:"image/svg+xml"}));
+          img.onload=function(){var cv=document.createElement("canvas");cv.width=img.width;cv.height=img.height;cv.getContext("2d").drawImage(img,0,0);URL.revokeObjectURL(u);
+            cv.toBlob(function(png){if(png){enregistrer(png,nom+".png");x.textContent="Enregistré"}})};img.src=u}})}})
+    // « Citer cette fiche », en fin de page : tous les formats montrés d'emblée
+    document.querySelectorAll(".citer-encadre[data-ouvert]").forEach(function(b){if(b.getAttribute("aria-expanded")!=="true")b.click()})}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",citerEncadres);else citerEncadres();
+
+  // Réglettes : chaque étiquette (ensemble, médiane) reste dans sa réglette ; près d'un bord, elle glisse vers
+  // l'intérieur au lieu de sortir de sa cellule (« médiane : aucune structure » au téléphone ; reprise de lisibilité
+  // du 31 octobre 2026). Refait quand la largeur change ou qu'un repli s'ouvre.
+  function etiquettesReglettes(){
+    // la part des territoires sans inscrit : sur sa barre, ou dans l'étiquette de la médiane si celle de l'ensemble la touche
+    document.querySelectorAll(".rg").forEach(function(rg){var z=rg.querySelector(".rg-aucun"),p=rg.querySelector(".rg-part");
+      if(!z||!p||!rg.getBoundingClientRect().width)return;z.hidden=false;p.hidden=true;rg.classList.remove("deux");
+      var a=z.getBoundingClientRect(),e=rg.querySelector(".rg-lab.haut:not(.rg-aucun)"),b=e&&e.getBoundingClientRect();
+      if(b&&Math.min(a.right,b.right)-Math.max(a.left,b.left)>-6){z.hidden=true;p.hidden=false;rg.classList.add("deux")}});
+    document.querySelectorAll(".rg").forEach(function(rg){var R=rg.getBoundingClientRect();if(!R.width)return;
+      rg.querySelectorAll(".rg-lab").forEach(function(l){l.style.marginLeft="";var a=l.getBoundingClientRect(),d=0;
+        if(a.left<R.left)d=R.left-a.left;else if(a.right>R.right)d=R.right-a.right;
+        if(d)l.style.marginLeft=d.toFixed(1)+"px"})})}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",etiquettesReglettes);else etiquettesReglettes();
+  addEventListener("load",etiquettesReglettes);addEventListener("resize",etiquettesReglettes);
+  document.addEventListener("toggle",function(){requestAnimationFrame(etiquettesReglettes)},true);
+  if(document.fonts)document.fonts.ready.then(etiquettesReglettes);
+
+  // « Comment lire » des encadrés : toujours entier, jamais replié derrière « Lire la suite » (règles du projet, partie 6 : ce
+  // qui explique reste visible ; défaut P1 relevé par le prototype de la fiche resserrée, 1er novembre 2026)
+
+  // « Comment lire » des rapports et des pages de domaine : toujours affiché sous sa figure ou son tableau, sans bouton
+  // (décision de Lucas du 5 novembre 2026 ; le repli au clic du 22 octobre est retiré, audit du 6 novembre 2026)
+
+  // longs tableaux de consultation (pages de la méthode), un champ filtre les lignes à mesure qu'on tape
+  function filtres(){
+    document.querySelectorAll("table.filtrable").forEach(function(t){
+      if(t.dataset.filtre)return;t.dataset.filtre="1";var bloc=t.closest(".defile")||t;
+      var l=document.createElement("label");l.className="filtre-tableau";l.innerHTML='<span>Filtrer le tableau</span><input type="search" autocomplete="off">';
+      var ligne=bloc.previousElementSibling&&bloc.previousElementSibling.classList.contains("citation-fig")?bloc.previousElementSibling:bloc;ligne.before(l);
+      var n=document.createElement("span");n.className="small muted";l.appendChild(n);
+      var champ=l.querySelector("input"),lignes=[].slice.call(t.tBodies[0]?t.tBodies[0].rows:[]);
+      var norm=function(x){return x.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase()};
+      champ.addEventListener("input",function(){var q=norm(champ.value.trim()),k=0;
+        lignes.forEach(function(r){var ok=!q||norm(r.textContent).indexOf(q)>=0;r.hidden=!ok;if(ok)k++});
+        n.textContent=q?k+" ligne"+(k>1?"s":"")+" sur "+lignes.length:""})})}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",filtres);else filtres();
+})();
+
+// Figures qui apparaissent en douceur quand on arrive dessus (refonte du 23 octobre 2026). La classe posée sur la racine
+// n'existe qu'avec le script, si bien qu'une figure reste visible quand il ne tourne pas ; impression exclue.
+(function(){
+  if(!("IntersectionObserver" in window)||matchMedia("print").matches)return;
+  const cibles=document.querySelectorAll("figure.graphique,.une-carte");if(!cibles.length)return;
+  document.documentElement.classList.add("revele");
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("vu");io.unobserve(e.target)}}),{rootMargin:"0px 0px -8% 0px"});
+  cibles.forEach(c=>io.observe(c));
+  addEventListener("beforeprint",()=>cibles.forEach(c=>c.classList.add("vu")));
+})();
+// en-tête qui se resserre en barre flottante dès qu'on descend (essai du 23 octobre 2026, d'après reactbits.dev)
+// classe « resserree » et non « defile », que .defile{overflow-x:auto} des tableaux rognait (liste « Le projet » cachée)
+(function(){var n=document.querySelector("nav.site");if(!n)return;
+  var f=function(){n.classList.toggle("resserree",(window.scrollY||0)>12)};f();addEventListener("scroll",f,{passive:true})})();
+// fenêtres repliables façon macOS (demandes de Lucas des 23 et 28 octobre 2026), pour tout élément .fenetre.repliable
+// qui porte une barre .fen-tete et un corps .fen-corps. Deux boutons sobres à droite de la barre, comme sous Windows
+// (choix de Lucas du 28 octobre 2026, les trois pastilles en couleur à gauche faisaient trop), replier ou déplier, et
+// agrandir à la largeur de l'écran (Échap pour revenir). Double clic sur la barre, replier. Une fenêtre
+// repliée garde son titre et sa phrase de résultat (copie de son .resultat). État gardé dans le navigateur du lecteur,
+// commodité seulement, jamais dans l'adresse, pour qu'un lien partagé ouvre toujours la fenêtre qu'il vise.
+(function(){
+  var fens=[].slice.call(document.querySelectorAll(".fenetre.repliable"));if(!fens.length)return;
+  var CLE="fenetres-repliees:"+location.pathname,etat={};
+  try{etat=JSON.parse(localStorage.getItem(CLE)||"{}")}catch(e){}
+  function garder(){try{localStorage.setItem(CLE,JSON.stringify(etat))}catch(e){}}
+  function titre(f){var h=f.querySelector(".fen-tete h2,.fen-tete h3");return h?h.textContent.trim():"cette fenêtre"}
+  // symboles dessinés au trait, de la couleur du texte, nets à toutes les tailles
+  var svg=function(d){return '<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="'+d+'" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'};
+  var ICONE={moins:svg("M3 7h8"),plus:svg("M3 7h8M7 3v8"),agrandir:svg("M8.5 2.5h3v3M11.5 2.5L8 6M5.5 11.5h-3v-3M2.5 11.5L6 8"),
+    reduire:svg("M11.5 2.5L8 6M8 3v3h3M2.5 11.5L6 8M6 11V8H3")};
+  function poser(f,replie,memo){
+    f.classList.toggle("repliee",replie);var b=f.querySelector(".p-replier");
+    b.setAttribute("aria-expanded",String(!replie));b.innerHTML=replie?ICONE.plus:ICONE.moins;
+    b.setAttribute("aria-label",(replie?"Déplier":"Replier")+" la fenêtre « "+titre(f)+" »");
+    if(replie&&f.classList.contains("agrandie"))agrandir(f,false);
+    if(memo!==false){if(replie)etat[f.id]=1;else delete etat[f.id];garder()}
+    document.querySelectorAll('a[href^="#'+f.id+'"]').forEach(function(a){a.classList.toggle("vers-repliee",replie)});
+    if(!replie)dispatchEvent(new CustomEvent("fenetre",{detail:f}))}
+  function agrandir(f,oui){
+    f.classList.remove("agrandie");f.style.removeProperty("--deborde-g");f.style.removeProperty("--deborde-d");
+    if(oui){var r=f.getBoundingClientRect(),w=document.documentElement.clientWidth;
+      f.style.setProperty("--deborde-g",Math.max(0,r.left-16)+"px");f.style.setProperty("--deborde-d",Math.max(0,w-r.right-16)+"px");
+      f.classList.add("agrandie")}
+    var b=f.querySelector(".p-agrandir");b.setAttribute("aria-pressed",String(oui));b.innerHTML=oui?ICONE.reduire:ICONE.agrandir;
+    b.setAttribute("aria-label",(oui?"Rendre à la fenêtre « ":"Agrandir la fenêtre « ")+titre(f)+(oui?" » sa largeur":" » à la largeur de l'écran"));
+    dispatchEvent(new CustomEvent("fenetre",{detail:f}))}
+  function resume(f){var r=f.querySelector(".fen-corps .resultat"),c=f.querySelector(".fen-resume");if(r&&c)c.textContent=r.textContent.replace(/­/g,"")}
+  fens.forEach(function(f){
+    var corps=f.querySelector(".fen-corps"),tete=f.querySelector(".fen-tete"),p=tete&&tete.querySelector(".pastilles");if(!corps||!p)return;
+    corps.id=corps.id||f.id+"-corps";var t=titre(f);
+    p.innerHTML='<button type="button" class="p-agrandir" aria-pressed="false" aria-label="Agrandir la fenêtre « '+t+' » à la largeur de l&#39;écran">'+ICONE.agrandir+'</button>'
+      +'<button type="button" class="p-replier" aria-controls="'+corps.id+'"></button>';
+    p.querySelector(".p-replier").onclick=function(){poser(f,!f.classList.contains("repliee"))};
+    p.querySelector(".p-agrandir").onclick=function(){if(f.classList.contains("repliee"))poser(f,false);agrandir(f,!f.classList.contains("agrandie"))};
+    tete.addEventListener("dblclick",function(e){if(!e.target.closest("button,a,input,select"))poser(f,!f.classList.contains("repliee"))});
+    var r=corps.querySelector(".resultat");if(r){resume(f);new MutationObserver(function(){resume(f)}).observe(r,{childList:true,characterData:true,subtree:true})}
+    // « Comment lire » de la barre, ouvre la note de lecture rangée en tête du corps
+    var bl=tete.querySelector(".fen-lire-bouton"),nl=f.querySelector(".fen-lire");
+    // toujours visible, comme sur la fiche (règles du projet, partie 6 ; décision de Lucas du 5 novembre 2026) : la note
+    // est montrée et le bouton qui la dépliait disparaît
+    if(nl){nl.hidden=false;var figs=corps.querySelectorAll("figure");if(figs.length)figs[figs.length-1].after(nl)}if(bl)bl.remove();   // sous la dernière figure, le résultat d'abord
+    poser(f,!!etat[f.id],false)});
+  // un lien vers une fenêtre repliée la déplie, l'adresse d'une vue partagée aussi (#paires?pA=…)
+  function viser(){var id=decodeURIComponent((location.hash||"").slice(1).split("?")[0]);if(!id)return;
+    var f=document.getElementById(id);if(f&&f.classList.contains("repliee"))poser(f,false)}
+  viser();addEventListener("hashchange",viser);
+  // le navigateur ne trouve pas l'ancre d'une vue partagée (#iFenEntonnoir?iProf=…), la page y descend donc elle-même,
+  // une fois les figures dessinées pour que la position soit juste
+  // (sans quoi le navigateur remet la page à la position qu'il avait gardée)
+  if((location.hash||"").indexOf("?")>=0&&"scrollRestoration" in history)history.scrollRestoration="manual";
+  addEventListener("load",function(){var h=location.hash||"";if(h.indexOf("?")<0)return;
+    var el=document.getElementById(decodeURIComponent(h.slice(1).split("?")[0]));
+    if(el)setTimeout(function(){el.scrollIntoView({block:"start"})},0)});
+  document.addEventListener("click",function(e){var a=e.target.closest&&e.target.closest('a[href^="#"]');if(!a)return;
+    var f=document.getElementById(a.getAttribute("href").slice(1).split("?")[0]);if(f&&f.classList.contains("repliee"))poser(f,false)});
+  document.addEventListener("keydown",function(e){if(e.key==="Escape")fens.forEach(function(f){if(f.classList.contains("agrandie"))agrandir(f,false)})});
+  addEventListener("resize",function(){fens.forEach(function(f){if(f.classList.contains("agrandie"))agrandir(f,true)})});
+  window.fenetres={toutes:function(replie){fens.forEach(function(f){poser(f,replie)})}};
+  document.querySelectorAll("[data-fenetres]").forEach(function(b){b.onclick=function(){window.fenetres.toutes(b.dataset.fenetres==="replier")}});
+})();
+// Figures lisibles au téléphone (décision de Lucas du 12 novembre 2026, sur captures, prototypes/figures_telephone/) :
+// une figure dont le texte tomberait sous 9 px reçoit, sous son titre, un bouton « Agrandir la figure » qui l'ouvre en
+// plein écran, dessinée assez grand pour que son plus petit texte fasse au moins 11 px ; elle glisse si le téléphone
+// reste droit, et tient mieux s'il est tourné. Le style est posé ici, pour valoir aussi dans l'atlas.
+(function(){
+  var MIN=9,CIBLE=11,TEL="(max-width:640px)";
+  var st=document.createElement("style");
+  st.textContent=".fig-agrandir{display:none}@media "+TEL+"{.fig-agrandir{display:inline-block;margin:6px 0 10px;font:inherit;"+
+    "font-size:var(--t-note,.875rem);color:var(--ink);background:none;border:0;border-bottom:1px solid var(--line-fort);padding:4px 0;"+
+    "min-height:32px;cursor:pointer}}.fig-plein{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column}"+
+    ".fig-plein-tete{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:10px 16px;border-bottom:1px solid var(--line)}"+
+    ".fig-plein-tete p{margin:0;font-size:var(--t-note,.875rem);color:var(--muted);text-align:left}"+
+    ".fig-plein-fermer{font:inherit;font-size:var(--t-note,.875rem);background:none;border:0;border-bottom:1px solid var(--line-fort);"+
+    "padding:2px 0;color:var(--ink);cursor:pointer;flex:none;min-height:32px}"+
+    ".fig-plein-corps{flex:1;overflow:auto;padding:12px 16px}.fig-plein-corps svg{display:block;max-width:none!important}"+
+    "html.fig-plein-ouvert body{overflow:hidden}@media print{.fig-agrandir,.fig-plein{display:none!important}}";
+  document.head.appendChild(st);
+  function plusPetit(s){var m=Infinity;s.querySelectorAll("text").forEach(function(t){if(!t.textContent.trim())return;
+    var h=t.getBoundingClientRect().height;if(h>0&&h<m)m=h});return m}
+  function ouvrir(s,titre,bouton){
+    var w0=s.getBoundingClientRect().width,m=plusPetit(s),k=(m>0&&m<Infinity)?CIBLE/m:2;
+    var w=Math.min(Math.max(w0*k,innerWidth-32),1600);
+    var d=document.createElement("div");d.className="fig-plein";d.setAttribute("role","dialog");d.setAttribute("aria-modal","true");
+    d.setAttribute("aria-label",titre||"Figure agrandie");
+    var tete=document.createElement("div");tete.className="fig-plein-tete";var p=document.createElement("p");p.textContent=titre||"";
+    var fe=document.createElement("button");fe.type="button";fe.className="fig-plein-fermer";fe.textContent="Fermer";
+    tete.appendChild(p);tete.appendChild(fe);
+    var c=s.cloneNode(true);c.removeAttribute("width");c.removeAttribute("height");c.style.width=w+"px";c.style.height="auto";
+    var corps=document.createElement("div");corps.className="fig-plein-corps";corps.appendChild(c);
+    d.appendChild(tete);d.appendChild(corps);document.body.appendChild(d);document.documentElement.classList.add("fig-plein-ouvert");
+    function esc(e){if(e.key==="Escape")fermer()}
+    function fermer(){d.remove();document.documentElement.classList.remove("fig-plein-ouvert");document.removeEventListener("keydown",esc);bouton.focus()}
+    fe.onclick=fermer;document.addEventListener("keydown",esc);fe.focus()}
+  function preparer(){
+    if(!matchMedia(TEL).matches)return;
+    document.querySelectorAll("main svg, .panel svg").forEach(function(s){
+      if(s.ownerSVGElement||s.dataset.agrandir||s.closest(".fig-plein,nav,button,.leg-classes"))return;
+      if(s.getBoundingClientRect().width<200||plusPetit(s)>=MIN)return;
+      var h=s.closest("figure")||s.parentElement;s.dataset.agrandir="1";
+      if(h.querySelector(":scope > .fig-agrandir"))return;
+      var cap=h.querySelector(":scope > figcaption");
+      var titre=cap?cap.textContent.replace(/\s+/g," ").trim():(s.getAttribute("aria-label")||"");
+      var b=document.createElement("button");b.type="button";b.className="fig-agrandir";b.textContent="Agrandir la figure";
+      b.onclick=function(){ouvrir(h.querySelector(".variante:not([hidden]) svg")||s,titre,b)};
+      if(cap)cap.after(b);else h.insertBefore(b,h.firstChild)})}
+  var minuterie=null;function plusTard(){clearTimeout(minuterie);minuterie=setTimeout(preparer,400)}
+  if(document.readyState==="complete")plusTard();else addEventListener("load",plusTard);
+  addEventListener("resize",plusTard);
+  // figures dessinées après le chargement (atlas, Explorer, variantes)
+  new MutationObserver(function(ms){if(ms.some(function(m){return m.addedNodes.length}))plusTard()})
+    .observe(document.documentElement,{childList:true,subtree:true});
+  window.agrandirFigures=preparer;
+})();
+// « Ton territoire partout » (plan de reprise de la présentation, étape 2, idée 2, 30 octobre 2026). Le lecteur épingle
+// un territoire depuis sa fiche, ou deux pour les comparer. Ils restent dans l'en-tête de chaque page, sont cernés sur
+// chaque carte qui porte leurs contours (<use href="#gE200090561"> des fiches, data-t="epci:200090561" des autres cartes)
+// et marqués dans les figures qui portent data-t. L'état est gardé dans le navigateur du lecteur, sans compte, ou donné
+// par l'adresse (?epingle=epci:200090561,dep:18), si bien qu'un lien partagé ouvre la même lecture.
+(function(){
+  var CLE="territoires-epingles",LETTRE={epci:"E",dep:"D",reg:"R"},racine=document.documentElement.getAttribute("data-racine")||"";
+  function lire(){try{var v=JSON.parse(localStorage.getItem(CLE)||"[]");return Array.isArray(v)?v.filter(function(x){return x&&/^(epci|dep|reg):\w+$/.test(x.t)}).slice(0,2):[]}catch(e){return []}}
+  function ecrire(v){try{localStorage.setItem(CLE,JSON.stringify(v.slice(0,2)))}catch(e){}}
+  function esc(s){return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+  function fiche(t){var p=t.split(":");return racine+"territoire/"+p[0]+"/"+p[1]+".html"}
+  var ep=lire();
+  // adresse partagée : elle remplace les territoires épinglés, les noms viennent de l'index de recherche du site
+  var m=/[?&]epingle=([^&#]+)/.exec(location.search);
+  if(m){var ts=decodeURIComponent(m[1]).split(",").filter(function(x){return /^(epci|dep|reg):\w+$/.test(x)}).slice(0,2);
+    if(ts.length){var connus={};ep.forEach(function(x){connus[x.t]=x.nm});ep=ts.map(function(t){return {t:t,nm:connus[t]||t}});ecrire(ep);
+      if(ep.some(function(x){return x.nm===x.t}))fetch(racine+"presentation/recherche.json").then(function(r){return r.json()}).then(function(R){
+        ep.forEach(function(x){var p=x.t.split(":"),l=(R.territoires||{})[p[0]]||[];for(var i=0;i<l.length;i++)if(l[i][0]===p[1]){x.nm=l[i][1];break}});ecrire(ep);maj()}).catch(function(){})}}
+  function marquer(){
+    document.querySelectorAll(".epingle,.epingle-2").forEach(function(e){e.classList.remove("epingle","epingle-2")});
+    ep.forEach(function(x,i){var p=x.t.split(":"),cl=i?"epingle-2":"epingle";
+      document.querySelectorAll('svg use[href="#g'+LETTRE[p[0]]+p[1]+'"]:not(.choisi),[data-t="'+x.t+'"]').forEach(function(e){e.classList.add(cl)})})}
+  function nav(){
+    var n=document.getElementById("epingle-nav");if(!n)return;n.hidden=!ep.length;if(!ep.length){n.innerHTML="";return}
+    var h=(ep.length>1?"Mes territoires":"Mon territoire")+" "+ep.map(function(x,i){return '<a href="'+fiche(x.t)+'">'+esc(x.nm)+'</a><button type="button" data-retirer="'+i+'" aria-label="Ne plus épingler '+esc(x.nm)+'">×</button>'}).join(" ");
+    if(ep.length>1)h+=' <a href="'+racine+"comparer.html#t="+ep.map(function(x){return x.t}).join(",")+'">Comparer</a>';
+    n.innerHTML=h;
+    n.querySelectorAll("[data-retirer]").forEach(function(b){b.onclick=function(){ep.splice(+b.dataset.retirer,1);ecrire(ep);maj()}})}
+  function boutons(){
+    document.querySelectorAll("[data-epingle]").forEach(function(b){
+      var t=b.dataset.epingle,oui=ep.some(function(x){return x.t===t});
+      b.setAttribute("aria-pressed",String(oui));b.textContent=oui?"Territoire épinglé":"Épingler ce territoire";
+      b.onclick=function(){var i=ep.findIndex(function(x){return x.t===t});
+        if(i>=0)ep.splice(i,1);else{ep.unshift({t:t,nm:b.dataset.nom});ep=ep.slice(0,2)}ecrire(ep);maj()}});
+    // sur une fiche, un autre territoire épinglé propose la comparaison des deux
+    var c=document.querySelector(".epingle-comparer"),moi=document.querySelector("[data-epingle]");
+    if(c&&moi){var autre=ep.filter(function(x){return x.t!==moi.dataset.epingle})[0];c.hidden=!autre;
+      if(autre)c.innerHTML='Vous avez aussi épinglé <a href="'+fiche(autre.t)+'">'+esc(autre.nm)+'</a>, <a href="'+racine+"comparer.html#t="+moi.dataset.epingle+","+autre.t+'">comparer les deux territoires</a>.'}}
+  function maj(){nav();boutons();marquer()}
+  if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",maj);else maj();
+  addEventListener("storage",function(e){if(e.key===CLE){ep=lire();maj()}});
+  window.epingle={territoires:function(){return ep.slice()},marquer:marquer};
+})();
+</script>
+
+<script src="cesure/hyphen.js" defer></script>
+<script src="cesure/hyphen-fr.js" defer></script>
+<script src="cesure/cesure.js" defer></script>
+<script>(function(){var h=location.hostname,d="ubicura.fr";if(h!==d&&h.slice(-d.length-1)!=="."+d)return;window.goatcounter={no_onload:navigator.doNotTrack==="1"||window.doNotTrack==="1"};var s=document.createElement("script");s.async=true;s.crossOrigin="anonymous";s.dataset.goatcounter="https://ubicura.goatcounter.com/count";s.src="https://gc.zgo.at/count.v5.js";s.integrity="sha384-atnOLvQb9t+jTSipvd75X2yginT4PjVbqDdlJAmxMm+wYElFmeR6EmLP5bYeoRVQ";document.head.appendChild(s)})()</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+﻿variable_a;variable_b;rho;departements
+suicides;hospit_gestes_auto_infliges;0,658301;100
+suicides;urgences_gestes_auto_infliges;0,359906;100
+suicides;ase_mesures;0,561593;98
+hospit_gestes_auto_infliges;urgences_gestes_auto_infliges;0,37941;100
+hospit_gestes_auto_infliges;ase_mesures;0,501902;98
+urgences_gestes_auto_infliges;ase_mesures;0,354635;98

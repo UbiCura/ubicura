@@ -1,0 +1,10 @@
+﻿theme;mesure;variable;departements;rho;ic95_bas;ic95_haut;rho_partiel_densite;ic95_bas_partiel;ic95_haut_partiel
+secteur2_revenu;ctx:revenu_median;depassements_psychiatre;95;0,446205;0,279867;0,596346;0,26164;0,0923266;0,415326
+secteur2_revenu;dens:psychiatre;depassements_psychiatre;97;0,420197;0,23974;0,558686;0,218185;0,00222064;0,405957
+medecin_traitant;dens_lib:medecin_generaliste;ald_sans_medecin_traitant;100;-0,643937;-0,762122;-0,475749;-0,646496;-0,754819;-0,49219
+medecin_traitant;ctx:part_80p;ald_sans_medecin_traitant;100;-0,000138107;-0,200376;0,186123;-0,0376193;-0,243338;0,183484
+charge_liberaux;dens_lib:medecin_generaliste;file_active_medecin_generaliste;100;-0,51126;-0,654065;-0,334516;-0,587107;-0,710946;-0,447098
+charge_liberaux;dens_lib:psychiatre;file_active_psychiatre;97;-0,38911;-0,559611;-0,206187;-0,354639;-0,539253;-0,171916
+charge_liberaux;dens_lib:infirmier;file_active_infirmier;100;-0,532763;-0,682713;-0,356347;-0,739038;-0,849244;-0,581325
+charge_liberaux;dens_lib:masseur_kinesitherapeute;file_active_masseur_kinesitherapeute;100;-0,596113;-0,724608;-0,443634;-0,63456;-0,753613;-0,493176
+charge_liberaux;dens_lib:chirurgien_dentiste;file_active_chirurgien_dentiste;100;-0,680688;-0,787396;-0,536996;-0,662135;-0,782875;-0,505976

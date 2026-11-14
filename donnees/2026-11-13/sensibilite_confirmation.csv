@@ -1,0 +1,49 @@
+﻿type;libelle_type;mesure;toutes;confirmees;conclusion_identique
+lieu_cmp_adultes;CMP pour adultes;Nombre de structures, France;1511;1417;True
+lieu_cmp_adultes;CMP pour adultes;Distance médiane des habitants (km), France;2,56429;2,67927;True
+lieu_cmp_adultes;CMP pour adultes;Part des habitants à plus de 20 km;0,016477;0,026443;True
+lieu_cmp_adultes;CMP pour adultes;Classement des départements, structures pour 100 000 habitants (corrélation de rang entre les deux versions);1;0,959056;True
+lieu_cmp_adultes;CMP pour adultes;Classement des départements, distance médiane des habitants (corrélation de rang entre les deux versions);1;0,957948;True
+lieu_cmp_enfants;CMP pour enfants et adolescents;Nombre de structures, France;1188;1085;True
+lieu_cmp_enfants;CMP pour enfants et adolescents;Distance médiane des habitants (km), France;3,16377;3,60673;True
+lieu_cmp_enfants;CMP pour enfants et adolescents;Part des habitants à plus de 20 km;0,052191;0,0749006;False
+lieu_cmp_enfants;CMP pour enfants et adolescents;Classement des départements, structures pour 100 000 habitants (corrélation de rang entre les deux versions);1;0,896807;False
+lieu_cmp_enfants;CMP pour enfants et adolescents;Classement des départements, distance médiane des habitants (corrélation de rang entre les deux versions);1;0,949235;True
+lieu_cattp;CATTP, accueil thérapeutique à temps partiel;Nombre de structures, France;1586;911;True
+lieu_cattp;CATTP, accueil thérapeutique à temps partiel;Distance médiane des habitants (km), France;3,25916;6,3129;False
+lieu_cattp;CATTP, accueil thérapeutique à temps partiel;Part des habitants à plus de 20 km;0,0746661;0,220256;False
+lieu_cattp;CATTP, accueil thérapeutique à temps partiel;Classement des départements, structures pour 100 000 habitants (corrélation de rang entre les deux versions);1;0,580568;False
+lieu_cattp;CATTP, accueil thérapeutique à temps partiel;Classement des départements, distance médiane des habitants (corrélation de rang entre les deux versions);1;0,728907;False
+lieu_hdj_psy_adultes;Hôpitaux de jour en psychiatrie, adultes;Nombre de structures, France;1071;520;True
+lieu_hdj_psy_adultes;Hôpitaux de jour en psychiatrie, adultes;Distance médiane des habitants (km), France;3,78989;7,9963;False
+lieu_hdj_psy_adultes;Hôpitaux de jour en psychiatrie, adultes;Part des habitants à plus de 20 km;0,0823143;0,255406;False
+lieu_hdj_psy_adultes;Hôpitaux de jour en psychiatrie, adultes;Classement des départements, structures pour 100 000 habitants (corrélation de rang entre les deux versions);1;0,543983;False
+lieu_hdj_psy_adultes;Hôpitaux de jour en psychiatrie, adultes;Classement des départements, distance médiane des habitants (corrélation de rang entre les deux versions);1;0,690367;False
+lieu_hdj_psy_enfants;Hôpitaux de jour en psychiatrie, enfants et adolescents;Nombre de structures, France;658;334;True
+lieu_hdj_psy_enfants;Hôpitaux de jour en psychiatrie, enfants et adolescents;Distance médiane des habitants (km), France;5,40834;10,7868;False
+lieu_hdj_psy_enfants;Hôpitaux de jour en psychiatrie, enfants et adolescents;Part des habitants à plus de 20 km;0,127222;0,31624;False
+lieu_hdj_psy_enfants;Hôpitaux de jour en psychiatrie, enfants et adolescents;Classement des départements, structures pour 100 000 habitants (corrélation de rang entre les deux versions);1;0,590189;False
+lieu_hdj_psy_enfants;Hôpitaux de jour en psychiatrie, enfants et adolescents;Classement des départements, distance médiane des habitants (corrélation de rang entre les deux versions);1;0,598267;False
+lieu_cmpp;CMPP, centres médico-psycho-pédagogiques;Nombre de structures, France;535;449;True
+lieu_cmpp;CMPP, centres médico-psycho-pédagogiques;Distance médiane des habitants (km), France;6,31761;8,14643;False
+lieu_cmpp;CMPP, centres médico-psycho-pédagogiques;Part des habitants à plus de 20 km;0,187532;0,249615;False
+lieu_cmpp;CMPP, centres médico-psycho-pédagogiques;Classement des départements, structures pour 100 000 habitants (corrélation de rang entre les deux versions);1;0,901357;True
+lieu_cmpp;CMPP, centres médico-psycho-pédagogiques;Classement des départements, distance médiane des habitants (corrélation de rang entre les deux versions);1;0,887129;False
+lieu_camsp;CAMSP, centres d'action médico-sociale précoce;Nombre de structures, France;401;322;True
+lieu_camsp;CAMSP, centres d'action médico-sociale précoce;Distance médiane des habitants (km), France;6,3289;8,80301;False
+lieu_camsp;CAMSP, centres d'action médico-sociale précoce;Part des habitants à plus de 20 km;0,165128;0,276296;False
+lieu_camsp;CAMSP, centres d'action médico-sociale précoce;Classement des départements, structures pour 100 000 habitants (corrélation de rang entre les deux versions);1;0,731592;False
+lieu_camsp;CAMSP, centres d'action médico-sociale précoce;Classement des départements, distance médiane des habitants (corrélation de rang entre les deux versions);1;0,793111;False
+lieu_csapa;CSAPA, soins et prévention en addictologie;Nombre de structures, France;582;499;True
+lieu_csapa;CSAPA, soins et prévention en addictologie;Distance médiane des habitants (km), France;5,8193;6,58662;True
+lieu_csapa;CSAPA, soins et prévention en addictologie;Part des habitants à plus de 20 km;0,159992;0,196183;False
+lieu_csapa;CSAPA, soins et prévention en addictologie;Classement des départements, structures pour 100 000 habitants (corrélation de rang entre les deux versions);1;0,827306;False
+lieu_csapa;CSAPA, soins et prévention en addictologie;Classement des départements, distance médiane des habitants (corrélation de rang entre les deux versions);1;0,942178;True
+lieu_cmp_adultes;CMP pour adultes;Éloignement selon le niveau de vie (indice de concentration);-0,0835708;-0,0959746;False
+lieu_cmp_enfants;CMP pour enfants et adolescents;Éloignement selon le niveau de vie (indice de concentration);-0,100985;-0,103799;True
+lieu_cattp;CATTP, accueil thérapeutique à temps partiel;Éloignement selon le niveau de vie (indice de concentration);-0,159081;-0,133968;True
+lieu_hdj_psy_adultes;Hôpitaux de jour en psychiatrie, adultes;Éloignement selon le niveau de vie (indice de concentration);-0,124144;-0,148065;True
+lieu_hdj_psy_enfants;Hôpitaux de jour en psychiatrie, enfants et adolescents;Éloignement selon le niveau de vie (indice de concentration);-0,138025;-0,17282;True
+lieu_cmpp;CMPP, centres médico-psycho-pédagogiques;Éloignement selon le niveau de vie (indice de concentration);-0,113427;-0,0860295;False
+lieu_camsp;CAMSP, centres d'action médico-sociale précoce;Éloignement selon le niveau de vie (indice de concentration);-0,108772;-0,0821409;False
+lieu_csapa;CSAPA, soins et prévention en addictologie;Éloignement selon le niveau de vie (indice de concentration);-0,128121;-0,118726;True

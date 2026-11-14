@@ -1,0 +1,5 @@
+﻿prof;variable;departements;indice_concentration;ic95_bas;ic95_haut
+psychiatre;pec_troubles_psy;100;0,0150149;-0,0335609;0,0626793
+psychologue;pec_troubles_psy;100;-0,00588604;-0,0402725;0,0286742
+q_psychiatrie_enfant;pec_troubles_psy;100;0,0209851;-0,0499648;0,0852228
+medecin_generaliste;pec_troubles_psy;100;0,0499029;0,0254505;0,0724697

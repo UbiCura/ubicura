@@ -1,0 +1,61 @@
+﻿type;part_departements;complet;libelle_type
+lieu_cmp;1;True;CMP, tous publics
+lieu_cmp_adultes;1;True;CMP pour adultes
+lieu_cmp_enfants;1;True;CMP pour enfants et adolescents
+lieu_consult_psy;0,86;False;Consultations de psychiatrie hors CMP
+lieu_cattp;0,95;True;CATTP, accueil thérapeutique à temps partiel
+lieu_hdj_psy_adultes;1;True;Hôpitaux de jour en psychiatrie, adultes
+lieu_hdj_psy_enfants;0,99;True;Hôpitaux de jour en psychiatrie, enfants et adolescents
+lieu_hc_psy_adultes;1;True;Hospitalisation complète en psychiatrie, adultes
+lieu_hc_psy_enfants;0,95;True;Hospitalisation complète en psychiatrie, enfants et adolescents
+lieu_crise_psy;0,56;False;Urgences psychiatriques, centres de crise et d'accueil permanent
+lieu_mobile_psy;0,8;False;Équipes mobiles de psychiatrie
+lieu_rehab_psy;0,88;False;Réhabilitation psychosociale, appartements et accueil familial thérapeutiques
+lieu_psychotrauma;0,62;False;Psychotraumatisme et urgences médico-psychologiques
+lieu_cmpp;0,97;True;CMPP, centres médico-psycho-pédagogiques
+lieu_camsp;1;True;CAMSP, centres d'action médico-sociale précoce
+lieu_mda;0,06;False;Maisons des adolescents
+lieu_bapu;0,16;False;BAPU, aide psychologique universitaire
+lieu_tnd;0,88;False;Repérage et diagnostic des troubles du neurodéveloppement
+lieu_csapa;1;True;CSAPA, soins et prévention en addictologie
+lieu_caarud;0,96;True;CAARUD, réduction des risques
+lieu_addicto_hosp;0,91;True;Addictologie à l'hôpital
+lieu_urgences;1;True;Services d'urgences
+lieu_smur;0,44;False;SMUR, interventions d'urgence
+lieu_soins_non_programmes;0,82;False;Soins non programmés
+lieu_maternite;1;True;Maternités
+lieu_neonatalogie;0,55;False;Néonatalogie
+lieu_perinatal_proximite;0,13;False;Centres périnatals de proximité
+lieu_pmi;0,91;True;PMI, protection maternelle et infantile
+lieu_sante_sexuelle;0,79;False;Centres de santé sexuelle
+lieu_pediatrie;0,68;False;Pédiatrie à l'hôpital
+lieu_medecine;0,88;False;Médecine polyvalente à l'hôpital
+lieu_geriatrie;0,75;False;Gériatrie à l'hôpital
+lieu_cardiologie;0,85;False;Cardiologie à l'hôpital
+lieu_neurologie;0,72;False;Neurologie à l'hôpital
+lieu_cancerologie;0,82;False;Cancérologie et radiothérapie
+lieu_reanimation;0,79;False;Réanimation et soins intensifs
+lieu_chirurgie;0,84;False;Chirurgie à l'hôpital
+lieu_dialyse;1;True;Dialyse
+lieu_soins_palliatifs;0,71;False;Soins palliatifs
+lieu_douleur;0,41;False;Structures douleur chronique
+lieu_smr;1;True;Soins médicaux et de réadaptation
+lieu_had;0,95;True;Hospitalisation à domicile
+lieu_ssiad;1;True;Soins infirmiers à domicile (SSIAD)
+lieu_ehpad;1;True;EHPAD
+lieu_residence_autonomie;1;True;Résidences autonomie
+lieu_usld;1;True;Soins de longue durée (USLD)
+lieu_alzheimer;1;True;Équipes spécialisées Alzheimer, accueil de jour et répit
+lieu_ime;1;True;Instituts médico-éducatifs (IME)
+lieu_itep;1;True;Instituts thérapeutiques, éducatifs et pédagogiques (ITEP)
+lieu_sessad;1;True;Services d'éducation spéciale et de soins à domicile (SESSAD)
+lieu_polyhandicap_enfants;0,96;True;Établissements pour enfants en situation de polyhandicap, de handicap moteur ou sensoriel
+lieu_mas_fam;1;True;Maisons d'accueil spécialisées et foyers d'accueil médicalisés
+lieu_foyers_handicap;1;True;Foyers de vie et d'hébergement pour adultes en situation de handicap
+lieu_esat;1;True;Établissements et services d'accompagnement par le travail (ESAT)
+lieu_accompagnement_handicap;1;True;Services d'accompagnement à domicile pour adultes en situation de handicap
+lieu_precarite;1;True;Soins pour personnes en situation de précarité (PASS, LHSS, LAM, ACT)
+lieu_depistage;0,92;True;Dépistage, vaccination et lutte antituberculeuse
+lieu_msp;1;True;Maisons de santé pluriprofessionnelles
+lieu_centre_sante;1;True;Centres de santé
+lieu_cpts;0,75;False;Communautés professionnelles territoriales de santé (CPTS)

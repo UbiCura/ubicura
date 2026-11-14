@@ -1,0 +1,1081 @@
+﻿niveau;code;prof;libelle;annee_debut;annee_fin;effectif_debut;effectif_fin;densite_debut;densite_fin;evolution_densite
+FR;FR;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;41583;48688;6,24345;7,04786;0,128841
+dep;01;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;332;363;5,2003;5,19455;-0,0011062
+dep;02;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;226;232;4,21535;4,49619;0,0666224
+dep;03;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;189;175;5,56891;5,29852;-0,0485543
+dep;04;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;113;101;6,95107;5,92591;-0,147482
+dep;05;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;92;108;6,51987;7,40289;0,135434
+dep;06;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;1198;1432;11,0547;12,4024;0,12191
+dep;07;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;166;168;5,10523;4,96815;-0,02685
+dep;08;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;136;114;4,93879;4,3608;-0,117031
+dep;09;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;91;99;5,94511;6,29967;0,0596397
+dep;10;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;164;149;5,30899;4,83851;-0,0886193
+dep;11;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;226;261;6,14089;6,83552;0,113116
+dep;12;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;170;162;6,09981;5,8193;-0,0459874
+dep;13;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;1719;2167;8,51109;10,2248;0,201344
+dep;14;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;318;427;4,58425;5,94273;0,296336
+dep;15;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;78;74;5,3436;5,14579;-0,037019
+dep;16;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;178;161;5,03838;4,56486;-0,0939823
+dep;17;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;375;440;5,83938;6,41013;0,09774
+dep;18;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;155;135;5,04705;4,57195;-0,094135
+dep;19;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;134;122;5,54785;5,04743;-0,0902001
+dep;21;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;291;315;5,45748;5,80662;0,0639748
+dep;22;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;348;346;5,81014;5,60279;-0,0356882
+dep;23;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;44;39;3,68195;3,39299;-0,0784804
+dep;24;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;209;201;5,03871;4,77058;-0,0532124
+dep;25;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;288;346;5,3477;6,32983;0,183654
+dep;26;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;307;353;6,04324;6,68032;0,105421
+dep;27;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;214;263;3,54995;4,35671;0,227258
+dep;28;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;182;218;4,19423;5,03235;0,199826
+dep;29;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;574;661;6,31985;6,99219;0,106385
+dep;2A;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;131;135;8,48979;7,70777;-0,0921133
+dep;2B;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;116;123;6,58522;6,4571;-0,019456
+dep;30;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;516;581;6,95412;7,38568;0,0620585
+dep;31;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;1188;1511;8,81186;9,94332;0,128402
+dep;32;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;121;123;6,34624;6,39001;0,00689638
+dep;33;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;1157;1475;7,38505;8,49696;0,150563
+dep;34;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;978;1219;8,63591;9,63796;0,116033
+dep;35;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;668;821;6,35114;7,15026;0,125822
+dep;36;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;89;79;3,98201;3,71394;-0,0673207
+dep;37;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;302;340;4,98167;5,44629;0,0932673
+dep;38;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;782;801;6,24146;6,08514;-0,0250451
+dep;39;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;137;140;5,25877;5,4592;0,038112
+dep;40;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;250;302;6,17269;6,7641;0,0958107
+dep;41;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;151;161;4,53768;4,92507;0,085371
+dep;42;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;416;436;5,45934;5,60846;0,0273148
+dep;43;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;107;121;4,70663;5,27527;0,120818
+dep;44;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;914;1031;6,6191;6,77157;0,0230339
+dep;45;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;279;362;4,13744;5,19428;0,255432
+dep;46;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;105;99;6,05721;5,57608;-0,0794313
+dep;47;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;188;165;5,64848;4,91746;-0,129418
+dep;48;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;37;31;4,84154;4,05536;-0,162381
+dep;49;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;391;438;4,8216;5,19246;0,0769172
+dep;50;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;189;209;3,79242;4,1955;0,106284
+dep;51;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;369;440;6,46367;7,89959;0,222152
+dep;52;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;84;80;4,71688;4,85664;0,0296304
+dep;53;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;123;94;3,99756;3,09568;-0,225607
+dep;54;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;532;531;7,24972;7,28344;0,00465075
+dep;55;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;89;84;4,70762;4,74295;0,00750364
+dep;56;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;453;539;6,05981;6,74629;0,113283
+dep;57;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;635;671;6,07498;6,39202;0,0521883
+dep;58;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;101;93;4,82882;4,6617;-0,0346079
+dep;59;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;1430;1719;5,49214;6,5779;0,197695
+dep;60;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;348;455;4,22565;5,50324;0,302343
+dep;61;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;108;100;3,78538;3,68258;-0,0271587
+dep;62;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;656;735;4,46039;5,07271;0,13728
+dep;63;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;506;541;7,77624;8,14413;0,0473096
+dep;64;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;582;661;8,63519;9,14149;0,0586315
+dep;65;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;162;193;7,1106;8,3074;0,168313
+dep;66;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;327;419;6,89337;8,22646;0,193388
+dep;67;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;978;1080;8,72119;9,19644;0,0544945
+dep;68;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;491;523;6,43729;6,78227;0,0535908
+dep;69;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;1288;1665;7,01562;8,59569;0,225222
+dep;70;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;95;85;4,00435;3,67758;-0,0816027
+dep;71;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;269;286;4,84665;5,21931;0,0768914
+dep;72;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;230;227;4,05243;4,01746;-0,00862776
+dep;73;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;282;340;6,56301;7,47003;0,138202
+dep;74;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;565;712;7,05002;8,05266;0,142218
+dep;75;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;3064;3375;13,9888;16,4827;0,17828
+dep;76;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;518;677;4,12501;5,36522;0,300656
+dep;77;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;611;800;4,37158;5,3259;0,218301
+dep;78;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;861;1051;6,01338;6,93996;0,154087
+dep;79;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;153;151;4,0828;4,02894;-0,0131904
+dep;80;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;176;274;3,07293;4,88622;0,590086
+dep;81;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;237;272;6,13278;6,75728;0,10183
+dep;82;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;139;148;5,41073;5,52435;0,0209986
+dep;83;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;793;1008;7,51074;8,77564;0,168412
+dep;84;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;416;405;7,44167;6,98971;-0,0607339
+dep;85;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;355;404;5,29379;5,53068;0,0447482
+dep;86;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;192;191;4,40297;4,37543;-0,00625661
+dep;87;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;185;174;4,93362;4,67276;-0,0528747
+dep;88;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;200;208;5,41066;5,91255;0,0927606
+dep;89;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;132;145;3,87615;4,39642;0,134222
+dep;90;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;76;90;5,27452;6,42462;0,21805
+dep;91;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;648;851;5,03367;6,23516;0,23869
+dep;92;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;1268;1615;7,90885;9,63659;0,218457
+dep;93;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;804;995;5,00417;5,69986;0,139022
+dep;94;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;863;1122;6,26201;7,79708;0,245139
+dep;95;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;574;842;4,69751;6,45218;0,37353
+dep;971;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;175;275;4,44038;7,18793;0,618762
+dep;972;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;174;259;4,62176;7,21814;0,561774
+dep;973;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;73;79;2,71021;2,64609;-0,023659
+dep;974;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;451;645;5,28769;7,08025;0,339005
+dep;976;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;13;24;0,539448;0,709622;0,31546
+reg;01;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;175;275;4,44038;7,18793;0,618762
+reg;02;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;174;259;4,62176;7,21814;0,561774
+reg;03;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;73;79;2,71021;2,64609;-0,023659
+reg;04;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;451;645;5,28769;7,08025;0,339005
+reg;06;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;13;24;0,539448;0,709622;0,31546
+reg;11;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;8693;10651;7,17414;8,45686;0,178798
+reg;24;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;1158;1295;4,49209;5,00138;0,113375
+reg;27;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;1389;1500;4,92844;5,36856;0,0893038
+reg;28;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;1347;1676;4,03786;4,99743;0,237644
+reg;32;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;2836;3415;4,72126;5,72433;0,212458
+reg;44;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;3678;3880;6,62084;6,99821;0,056998
+reg;52;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;2013;2194;5,38576;5,5331;0,0273571
+reg;53;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;2043;2367;6,17868;6,74348;0,09141
+reg;75;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;3647;4082;6,14428;6,5398;0,0643718
+reg;76;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;4297;5118;7,39786;8,19275;0,107448
+reg;84;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;5018;5749;6,33835;6,92384;0,0923736
+reg;93;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;4331;5221;8,62418;9,81692;0,138302
+reg;94;chirurgien_dentiste;Chirurgiens-dentistes;2016;2026;247;258;7,47454;7,0562;-0,0559693
+FR;FR;gynecologue;Gynécologues;2016;2026;7839;8017;1,17698;1,1605;-0,0139979
+dep;01;gynecologue;Gynécologues;2016;2026;31;28;0,48557;0,400681;-0,174823
+dep;02;gynecologue;Gynécologues;2016;2026;45;38;0,839339;0,736444;-0,122591
+dep;03;gynecologue;Gynécologues;2016;2026;31;27;0,91342;0,817486;-0,105027
+dep;04;gynecologue;Gynécologues;2016;2026;15;14;0,922708;0,821413;-0,10978
+dep;05;gynecologue;Gynécologues;2016;2026;12;14;0,850418;0,959634;0,128425
+dep;06;gynecologue;Gynécologues;2016;2026;185;205;1,70711;1,77548;0,0400497
+dep;07;gynecologue;Gynécologues;2016;2026;25;29;0,768859;0,857597;0,115415
+dep;08;gynecologue;Gynécologues;2016;2026;21;16;0,762608;0,612042;-0,197435
+dep;09;gynecologue;Gynécologues;2016;2026;13;8;0,849301;0,509065;-0,400608
+dep;10;gynecologue;Gynécologues;2016;2026;28;25;0,906413;0,811831;-0,104348
+dep;11;gynecologue;Gynécologues;2016;2026;24;30;0,65213;0,785692;0,20481
+dep;12;gynecologue;Gynécologues;2016;2026;18;20;0,645863;0,718432;0,11236
+dep;13;gynecologue;Gynécologues;2016;2026;321;355;1,58933;1,67503;0,0539201
+dep;14;gynecologue;Gynécologues;2016;2026;79;85;1,13886;1,18298;0,0387439
+dep;15;gynecologue;Gynécologues;2016;2026;13;8;0,8906;0,556301;-0,375364
+dep;16;gynecologue;Gynécologues;2016;2026;38;22;1,07561;0,62377;-0,420078
+dep;17;gynecologue;Gynécologues;2016;2026;67;67;1,0433;0,976087;-0,0644261
+dep;18;gynecologue;Gynécologues;2016;2026;24;18;0,781479;0,609593;-0,21995
+dep;19;gynecologue;Gynécologues;2016;2026;24;24;0,993645;0,992938;-0,000711605
+dep;21;gynecologue;Gynécologues;2016;2026;62;73;1,16276;1,34566;0,157297
+dep;22;gynecologue;Gynécologues;2016;2026;51;44;0,851486;0,712493;-0,163236
+dep;23;gynecologue;Gynécologues;2016;2026;5;7;0,418403;0,608998;0,455528
+dep;24;gynecologue;Gynécologues;2016;2026;24;26;0,578607;0,617091;0,0665099
+dep;25;gynecologue;Gynécologues;2016;2026;49;52;0,909852;0,951304;0,045559
+dep;26;gynecologue;Gynécologues;2016;2026;52;47;1,02361;0,889447;-0,131068
+dep;27;gynecologue;Gynécologues;2016;2026;28;31;0,46448;0,513528;0,105599
+dep;28;gynecologue;Gynécologues;2016;2026;37;32;0,852674;0,738694;-0,133674
+dep;29;gynecologue;Gynécologues;2016;2026;81;85;0,891826;0,899147;0,00820954
+dep;2A;gynecologue;Gynécologues;2016;2026;9;23;0,583268;1,31318;1,25141
+dep;2B;gynecologue;Gynécologues;2016;2026;16;14;0,908306;0,734954;-0,190852
+dep;30;gynecologue;Gynécologues;2016;2026;67;78;0,902958;0,991538;0,0980998
+dep;31;gynecologue;Gynécologues;2016;2026;207;221;1,5354;1,45432;-0,0528085
+dep;32;gynecologue;Gynécologues;2016;2026;12;10;0,629379;0,519513;-0,174563
+dep;33;gynecologue;Gynécologues;2016;2026;257;252;1,64041;1,45168;-0,115049
+dep;34;gynecologue;Gynécologues;2016;2026;139;159;1,22739;1,25712;0,0242229
+dep;35;gynecologue;Gynécologues;2016;2026;108;137;1,02683;1,19316;0,161984
+dep;36;gynecologue;Gynécologues;2016;2026;14;17;0,626384;0,799203;0,275899
+dep;37;gynecologue;Gynécologues;2016;2026;71;69;1,17119;1,10528;-0,0562757
+dep;38;gynecologue;Gynécologues;2016;2026;146;130;1,16529;0,987601;-0,152481
+dep;39;gynecologue;Gynécologues;2016;2026;16;14;0,614163;0,54592;-0,111117
+dep;40;gynecologue;Gynécologues;2016;2026;32;33;0,790104;0,739123;-0,0645242
+dep;41;gynecologue;Gynécologues;2016;2026;27;25;0,811374;0,764762;-0,0574476
+dep;42;gynecologue;Gynécologues;2016;2026;74;73;0,971132;0,939031;-0,0330555
+dep;43;gynecologue;Gynécologues;2016;2026;9;11;0,395885;0,47957;0,211389
+dep;44;gynecologue;Gynécologues;2016;2026;148;154;1,0718;1,01147;-0,0562943
+dep;45;gynecologue;Gynécologues;2016;2026;63;60;0,934261;0,86093;-0,0784909
+dep;46;gynecologue;Gynécologues;2016;2026;11;6;0,634565;0,337944;-0,46744
+dep;47;gynecologue;Gynécologues;2016;2026;26;18;0,781173;0,53645;-0,313276
+dep;48;gynecologue;Gynécologues;2016;2026;7;6;0,915967;0,784909;-0,143081
+dep;49;gynecologue;Gynécologues;2016;2026;75;72;0,924859;0,853556;-0,0770967
+dep;50;gynecologue;Gynécologues;2016;2026;48;32;0,963155;0,642373;-0,333054
+dep;51;gynecologue;Gynécologues;2016;2026;63;70;1,10355;1,25675;0,138824
+dep;52;gynecologue;Gynécologues;2016;2026;17;16;0,954606;0,971328;0,0175171
+dep;53;gynecologue;Gynécologues;2016;2026;16;15;0,520007;0,493991;-0,0500298
+dep;54;gynecologue;Gynécologues;2016;2026;101;80;1,37636;1,09732;-0,202738
+dep;55;gynecologue;Gynécologues;2016;2026;17;12;0,899209;0,677564;-0,246489
+dep;56;gynecologue;Gynécologues;2016;2026;70;75;0,936395;0,938723;0,0024861
+dep;57;gynecologue;Gynécologues;2016;2026;94;75;0,899288;0,714459;-0,205529
+dep;58;gynecologue;Gynécologues;2016;2026;16;10;0,764961;0,501258;-0,344727
+dep;59;gynecologue;Gynécologues;2016;2026;339;349;1,30198;1,33548;0,0257277
+dep;60;gynecologue;Gynécologues;2016;2026;64;45;0,777131;0,544277;-0,299633
+dep;61;gynecologue;Gynécologues;2016;2026;27;23;0,946346;0,846993;-0,104986
+dep;62;gynecologue;Gynécologues;2016;2026;131;116;0,890717;0,800591;-0,101184
+dep;63;gynecologue;Gynécologues;2016;2026;80;83;1,22945;1,24947;0,0162871
+dep;64;gynecologue;Gynécologues;2016;2026;71;102;1,05343;1,41064;0,339085
+dep;65;gynecologue;Gynécologues;2016;2026;16;18;0,702281;0,774783;0,103238
+dep;66;gynecologue;Gynécologues;2016;2026;40;50;0,843225;0,981678;0,164194
+dep;67;gynecologue;Gynécologues;2016;2026;167;179;1,4892;1,52423;0,0235192
+dep;68;gynecologue;Gynécologues;2016;2026;84;84;1,10129;1,08931;-0,0108737
+dep;69;gynecologue;Gynécologues;2016;2026;296;295;1,61229;1,52296;-0,0554029
+dep;70;gynecologue;Gynécologues;2016;2026;13;13;0,547964;0,562454;0,026444
+dep;71;gynecologue;Gynécologues;2016;2026;41;52;0,738708;0,948966;0,284629
+dep;72;gynecologue;Gynécologues;2016;2026;41;40;0,722389;0,707923;-0,0200253
+dep;73;gynecologue;Gynécologues;2016;2026;45;49;1,04729;1,07656;0,027953
+dep;74;gynecologue;Gynécologues;2016;2026;83;102;1,03567;1,15361;0,113883
+dep;75;gynecologue;Gynécologues;2016;2026;825;902;3,76656;4,40515;0,169542
+dep;76;gynecologue;Gynécologues;2016;2026;133;128;1,05912;1,0144;-0,0422289
+dep;77;gynecologue;Gynécologues;2016;2026;119;129;0,85142;0,858801;0,00866912
+dep;78;gynecologue;Gynécologues;2016;2026;180;172;1,25715;1,13575;-0,0965691
+dep;79;gynecologue;Gynécologues;2016;2026;23;24;0,613754;0,640362;0,043353
+dep;80;gynecologue;Gynécologues;2016;2026;59;48;1,03013;0,85598;-0,169056
+dep;81;gynecologue;Gynécologues;2016;2026;36;31;0,931561;0,770131;-0,17329
+dep;82;gynecologue;Gynécologues;2016;2026;23;18;0,8953;0,67188;-0,249548
+dep;83;gynecologue;Gynécologues;2016;2026;114;108;1,07973;0,940247;-0,129182
+dep;84;gynecologue;Gynécologues;2016;2026;72;75;1,28798;1,29439;0,00497607
+dep;85;gynecologue;Gynécologues;2016;2026;45;48;0,671044;0,65711;-0,020764
+dep;86;gynecologue;Gynécologues;2016;2026;36;31;0,825557;0,710148;-0,139796
+dep;87;gynecologue;Gynécologues;2016;2026;34;40;0,90672;1,0742;0,184707
+dep;88;gynecologue;Gynécologues;2016;2026;36;25;0,973918;0,710643;-0,270325
+dep;89;gynecologue;Gynécologues;2016;2026;17;14;0,499201;0,424482;-0,149678
+dep;90;gynecologue;Gynécologues;2016;2026;19;16;1,31863;1,14216;-0,133831
+dep;91;gynecologue;Gynécologues;2016;2026;131;109;1,01761;0,798628;-0,215192
+dep;92;gynecologue;Gynécologues;2016;2026;307;339;1,91484;2,02279;0,0563755
+dep;93;gynecologue;Gynécologues;2016;2026;163;155;1,01453;0,887918;-0,124796
+dep;94;gynecologue;Gynécologues;2016;2026;189;185;1,3714;1,28561;-0,0625554
+dep;95;gynecologue;Gynécologues;2016;2026;128;112;1,04753;0,858247;-0,180694
+dep;971;gynecologue;Gynécologues;2016;2026;51;55;1,29405;1,43759;0,110915
+dep;972;gynecologue;Gynécologues;2016;2026;35;42;0,929664;1,17051;0,259067
+dep;973;gynecologue;Gynécologues;2016;2026;32;48;1,18804;1,60775;0,353283
+dep;974;gynecologue;Gynécologues;2016;2026;106;156;1,24278;1,71243;0,3779
+dep;976;gynecologue;Gynécologues;2016;2026;9;10;0,373464;0,295676;-0,208288
+reg;01;gynecologue;Gynécologues;2016;2026;51;55;1,29405;1,43759;0,110915
+reg;02;gynecologue;Gynécologues;2016;2026;35;42;0,929664;1,17051;0,259067
+reg;03;gynecologue;Gynécologues;2016;2026;32;48;1,18804;1,60775;0,353283
+reg;04;gynecologue;Gynécologues;2016;2026;106;156;1,24278;1,71243;0,3779
+reg;06;gynecologue;Gynécologues;2016;2026;9;10;0,373464;0,295676;-0,208288
+reg;11;gynecologue;Gynécologues;2016;2026;2042;2103;1,68522;1,66978;-0,00916264
+reg;24;gynecologue;Gynécologues;2016;2026;236;221;0,915486;0,853517;-0,0676895
+reg;27;gynecologue;Gynécologues;2016;2026;233;244;0,826728;0,873286;0,0563161
+reg;28;gynecologue;Gynécologues;2016;2026;315;299;0,944265;0,891546;-0,0558307
+reg;32;gynecologue;Gynécologues;2016;2026;638;596;1,06212;0,999034;-0,059394
+reg;44;gynecologue;Gynécologues;2016;2026;628;582;1,13048;1,04973;-0,0714239
+reg;52;gynecologue;Gynécologues;2016;2026;325;329;0,869535;0,829713;-0,0457962
+reg;53;gynecologue;Gynécologues;2016;2026;310;341;0,937539;0,971494;0,036217
+reg;75;gynecologue;Gynécologues;2016;2026;637;646;1,07318;1,03496;-0,0356178
+reg;76;gynecologue;Gynécologues;2016;2026;613;655;1,05536;1,04851;-0,00649676
+reg;84;gynecologue;Gynécologues;2016;2026;885;882;1,11786;1,06224;-0,0497566
+reg;93;gynecologue;Gynécologues;2016;2026;719;771;1,43172;1,44969;0,0125522
+reg;94;gynecologue;Gynécologues;2016;2026;25;37;0,756533;1,01194;0,337596
+FR;FR;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;84446;111377;12,6464;16,1224;0,274859
+dep;01;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;545;698;8,47128;9,98841;0,17909
+dep;02;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;356;380;6,66055;7,36444;0,10568
+dep;03;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;416;476;12,3081;14,412;0,170931
+dep;04;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;297;339;18,1191;19,8899;0,09773
+dep;05;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;352;532;24,9144;36,4661;0,463657
+dep;06;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;2029;2581;18,7296;22,3537;0,193493
+dep;07;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;319;524;9,79393;15,4959;0,582194
+dep;08;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;288;355;10,5271;13,5797;0,289971
+dep;09;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;244;346;15,9318;22,017;0,381957
+dep;10;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;303;337;9,77356;10,9435;0,119702
+dep;11;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;516;682;13,9362;17,8614;0,281659
+dep;12;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;379;520;13,5742;18,6792;0,376083
+dep;13;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;3830;4895;18,9214;23,0965;0,220655
+dep;14;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;654;973;9,4236;13,5416;0,436991
+dep;15;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;158;177;10,8858;12,3082;0,130661
+dep;16;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;254;338;7,20905;9,58338;0,329354
+dep;17;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;866;1203;13,4409;17,5259;0,303922
+dep;18;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;215;245;7,06642;8,29724;0,174179
+dep;19;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;226;359;9,35957;14,8527;0,586899
+dep;21;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;783;1033;14,6679;19,042;0,298212
+dep;22;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;674;787;11,2556;12,7439;0,13223
+dep;23;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;117;135;9,86193;11,745;0,190938
+dep;24;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;345;457;8,34127;10,8466;0,300348
+dep;25;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;561;765;10,4069;13,9951;0,344799
+dep;26;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;644;853;12,5891;16,1425;0,28226
+dep;27;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;411;517;6,82902;8,56432;0,254107
+dep;28;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;273;307;6,30146;7,08685;0,124636
+dep;29;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;1363;1735;14,994;18,3532;0,224032
+dep;2A;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;272;416;17,2974;23,7513;0,373116
+dep;2B;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;291;433;16,3769;22,7311;0,387995
+dep;30;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;986;1480;13,2495;18,8138;0,41996
+dep;31;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;2458;3387;18,0381;22,2886;0,235639
+dep;32;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;236;329;12,3501;17,092;0,38395
+dep;33;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;2469;3419;15,5932;19,6957;0,263094
+dep;34;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;2577;3632;22,5087;28,7162;0,275784
+dep;35;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;1470;2064;13,8653;17,9758;0,296458
+dep;36;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;169;198;7,60467;9,30836;0,224033
+dep;37;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;675;848;11,1292;13,5837;0,220542
+dep;38;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;2074;2601;16,477;19,7596;0,199222
+dep;39;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;245;336;9,41627;13,1021;0,391429
+dep;40;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;743;1175;18,2356;26,3173;0,443178
+dep;41;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;242;313;7,29102;9,57482;0,313234
+dep;42;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;984;1221;12,8975;15,7063;0,21778
+dep;43;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;218;307;9,59157;13,3844;0,395431
+dep;44;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;1906;2533;13,664;16,6366;0,217555
+dep;45;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;635;800;9,36433;11,4791;0,225828
+dep;46;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;224;273;12,8863;15,3765;0,193242
+dep;47;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;310;414;9,31373;12,3384;0,32475
+dep;48;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;97;129;12,663;16,8755;0,332663
+dep;49;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;850;1098;10,4488;13,0167;0,245767
+dep;50;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;465;614;9,35834;12,3255;0,317064
+dep;51;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;563;715;9,89638;12,8368;0,297124
+dep;52;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;126;129;7,17376;7,83133;0,0916624
+dep;53;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;212;263;6,89554;8,66132;0,256075
+dep;54;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;953;1094;12,9928;15,0058;0,154929
+dep;55;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;138;156;7,37231;8,80833;0,194787
+dep;56;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;1057;1465;14,0771;18,3364;0,302565
+dep;57;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;1012;1298;9,69793;12,3649;0,275004
+dep;58;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;206;202;9,94295;10,1254;0,0183513
+dep;59;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;3835;4744;14,7253;18,1533;0,232798
+dep;60;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;611;600;7,41052;7,25703;-0,0207137
+dep;61;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;223;268;7,86951;9,86931;0,254119
+dep;62;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;1806;2169;12,3023;14,9697;0,216818
+dep;63;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;903;1187;13,8128;17,8689;0,29365
+dep;64;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;1350;2253;19,9318;31,1585;0,563255
+dep;65;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;364;589;15,9279;25,3526;0,591714
+dep;66;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;1069;1651;22,5313;32,415;0,438668
+dep;67;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;1728;2690;15,3524;22,906;0,492014
+dep;68;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;809;1064;10,5886;13,798;0,303098
+dep;69;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;2880;3589;15,624;18,5285;0,1859
+dep;70;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;175;258;7,39461;11,1625;0,509553
+dep;71;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;554;648;10,0073;11,8256;0,181693
+dep;72;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;477;534;8,42003;9,45078;0,122415
+dep;73;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;815;1201;18,9019;26,3868;0,395987
+dep;74;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;1309;1767;16,2133;19,9846;0,232604
+dep;75;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;3796;4919;17,3529;24,0232;0,38439
+dep;76;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;1113;1455;8,87292;11,5309;0,299555
+dep;77;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;1071;1318;7,62822;8,77442;0,150257
+dep;78;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;1287;1645;8,94828;10,8623;0,213894
+dep;79;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;279;306;7,4529;8,16462;0,0954954
+dep;80;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;529;679;9,24109;12,1085;0,310293
+dep;81;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;497;684;12,8129;16,9926;0,326206
+dep;82;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;310;426;11,9993;15,9012;0,325177
+dep;83;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;1896;2673;17,9081;23,2711;0,299476
+dep;84;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;797;944;14,2454;16,2921;0,143673
+dep;85;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;701;930;10,3814;12,7315;0,226379
+dep;86;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;356;484;8,14877;11,0875;0,360631
+dep;87;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;468;634;12,4991;17,026;0,362177
+dep;88;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;334;405;9,08416;11,5124;0,267307
+dep;89;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;241;311;7,12404;9,42956;0,323624
+dep;90;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;111;129;7,78281;9,20863;0,183201
+dep;91;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;1118;1185;8,62568;8,68234;0,00656857
+dep;92;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;1929;2439;11,9865;14,5533;0,214141
+dep;93;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;1043;1214;6,42593;6,9544;0,0822403
+dep;94;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;1468;1682;10,5769;11,6887;0,105109
+dep;95;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;1108;1182;9,01826;9,05757;0,00435845
+dep;971;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;536;966;13,7347;25,2492;0,838356
+dep;972;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;504;974;13,5268;27,1447;1,00674
+dep;973;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;136;168;5,06141;5,62712;0,11177
+dep;974;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;1625;2446;19,0357;26,8501;0,41051
+dep;976;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;4;76;0,159909;2,24714;13,0526
+reg;01;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;536;966;13,7347;25,2492;0,838356
+reg;02;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;504;974;13,5268;27,1447;1,00674
+reg;03;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;136;168;5,06141;5,62712;0,11177
+reg;04;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;1625;2446;19,0357;26,8501;0,41051
+reg;06;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;4;76;0,159909;2,24714;13,0526
+reg;11;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;12820;15584;10,5299;12,3737;0,175099
+reg;24;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;2209;2711;8,57447;10,4701;0,221074
+reg;27;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;2876;3682;10,2297;13,178;0,288214
+reg;28;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;2866;3827;8,60537;11,4112;0,326054
+reg;32;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;7137;8572;11,8874;14,3687;0,208726
+reg;44;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;6254;8243;11,2693;14,8676;0,3193
+reg;52;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;4146;5358;11,0336;13,5125;0,224661
+reg;53;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;4564;6051;13,7515;17,239;0,253608
+reg;75;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;7783;11177;13,0653;17,9067;0,370552
+reg;76;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;9957;14128;17,0348;22,6157;0,327619
+reg;84;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;11265;14601;14,1729;17,5848;0,240738
+reg;93;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;9201;11964;18,289;22,4956;0,230007
+reg;94;masseur_kinesitherapeute;Masseurs-kinésithérapeutes;2017;2026;563;849;16,8091;23,2198;0,381385
+FR;FR;medecin_generaliste;Médecins généralistes;2016;2026;101798;100970;15,2844;14,616;-0,0437318
+dep;01;medecin_generaliste;Médecins généralistes;2016;2026;677;662;10,6042;9,47325;-0,106653
+dep;02;medecin_generaliste;Médecins généralistes;2016;2026;611;542;11,3964;10,504;-0,0783007
+dep;03;medecin_generaliste;Médecins généralistes;2016;2026;481;435;14,1727;13,1706;-0,0707085
+dep;04;medecin_generaliste;Médecins généralistes;2016;2026;301;287;18,5157;16,839;-0,0905559
+dep;05;medecin_generaliste;Médecins généralistes;2016;2026;331;430;23,4574;29,4745;0,256512
+dep;06;medecin_generaliste;Médecins généralistes;2016;2026;2009;1947;18,5383;16,8627;-0,0903842
+dep;07;medecin_generaliste;Médecins généralistes;2016;2026;414;428;12,7323;12,657;-0,00591847
+dep;08;medecin_generaliste;Médecins généralistes;2016;2026;366;315;13,2912;12,0496;-0,0934143
+dep;09;medecin_generaliste;Médecins généralistes;2016;2026;258;281;16,8554;17,8809;0,0608428
+dep;10;medecin_generaliste;Médecins généralistes;2016;2026;389;341;12,5927;11,0734;-0,120649
+dep;11;medecin_generaliste;Médecins généralistes;2016;2026;558;548;15,162;14,352;-0,0534256
+dep;12;medecin_generaliste;Médecins généralistes;2016;2026;408;397;14,6396;14,2609;-0,0258668
+dep;13;medecin_generaliste;Médecins généralistes;2016;2026;3707;3790;18,3541;17,8827;-0,0256814
+dep;14;medecin_generaliste;Médecins généralistes;2016;2026;1161;1262;16,7368;17,5638;0,0494066
+dep;15;medecin_generaliste;Médecins généralistes;2016;2026;242;229;16,5789;15,9241;-0,0394926
+dep;16;medecin_generaliste;Médecins généralistes;2016;2026;497;441;14,0678;12,5038;-0,111182
+dep;17;medecin_generaliste;Médecins généralistes;2016;2026;1072;1281;16,6929;18,6622;0,117976
+dep;18;medecin_generaliste;Médecins généralistes;2016;2026;340;296;11,071;10,0244;-0,0945297
+dep;19;medecin_generaliste;Médecins généralistes;2016;2026;373;337;15,4429;13,9425;-0,0971577
+dep;21;medecin_generaliste;Médecins généralistes;2016;2026;862;895;16,1661;16,4982;0,0205389
+dep;22;medecin_generaliste;Médecins généralistes;2016;2026;860;900;14,3584;14,5737;0,0149968
+dep;23;medecin_generaliste;Médecins généralistes;2016;2026;178;214;14,8951;18,6179;0,249932
+dep;24;medecin_generaliste;Médecins généralistes;2016;2026;576;551;13,8866;13,0776;-0,0582581
+dep;25;medecin_generaliste;Médecins généralistes;2016;2026;905;902;16,8044;16,5015;-0,0180277
+dep;26;medecin_generaliste;Médecins généralistes;2016;2026;754;805;14,8423;15,2342;0,0263979
+dep;27;medecin_generaliste;Médecins généralistes;2016;2026;628;549;10,4176;9,09442;-0,127016
+dep;28;medecin_generaliste;Médecins généralistes;2016;2026;462;357;10,6469;8,24105;-0,225967
+dep;29;medecin_generaliste;Médecins généralistes;2016;2026;1502;1784;16,5373;18,8715;0,141148
+dep;2A;medecin_generaliste;Médecins généralistes;2016;2026;246;278;15,9427;15,8723;-0,00441378
+dep;2B;medecin_generaliste;Médecins généralistes;2016;2026;259;298;14,7032;15,644;0,0639873
+dep;30;medecin_generaliste;Médecins généralistes;2016;2026;1113;1036;14,9999;13,1697;-0,122016
+dep;31;medecin_generaliste;Médecins généralistes;2016;2026;2345;2370;17,3938;15,5961;-0,103353
+dep;32;medecin_generaliste;Médecins généralistes;2016;2026;287;263;15,0527;13,6632;-0,0923072
+dep;33;medecin_generaliste;Médecins généralistes;2016;2026;2752;3107;17,5658;17,8983;0,0189301
+dep;34;medecin_generaliste;Médecins généralistes;2016;2026;2089;2173;18,4462;17,1807;-0,068606
+dep;35;medecin_generaliste;Médecins généralistes;2016;2026;1636;1846;15,5546;16,0772;0,0335978
+dep;36;medecin_generaliste;Médecins généralistes;2016;2026;277;224;12,3935;10,5307;-0,150304
+dep;37;medecin_generaliste;Médecins généralistes;2016;2026;981;990;16,1822;15,8583;-0,0200124
+dep;38;medecin_generaliste;Médecins généralistes;2016;2026;1967;1966;15,6994;14,9356;-0,0486553
+dep;39;medecin_generaliste;Médecins généralistes;2016;2026;392;379;15,047;14,7788;-0,0178227
+dep;40;medecin_generaliste;Médecins généralistes;2016;2026;649;799;16,0243;17,8957;0,116788
+dep;41;medecin_generaliste;Médecins généralistes;2016;2026;415;387;12,4711;11,8385;-0,0507248
+dep;42;medecin_generaliste;Médecins généralistes;2016;2026;1216;1220;15,9581;15,6934;-0,0165854
+dep;43;medecin_generaliste;Médecins généralistes;2016;2026;310;358;13,636;15,6078;0,144603
+dep;44;medecin_generaliste;Médecins généralistes;2016;2026;2212;2440;16,0191;16,0258;0,00041978
+dep;45;medecin_generaliste;Médecins généralistes;2016;2026;776;688;11,5077;9,87199;-0,142142
+dep;46;medecin_generaliste;Médecins généralistes;2016;2026;283;274;16,3256;15,4328;-0,0546896
+dep;47;medecin_generaliste;Médecins généralistes;2016;2026;439;389;13,1898;11,5933;-0,121041
+dep;48;medecin_generaliste;Médecins généralistes;2016;2026;116;119;15,1789;15,5674;0,0255937
+dep;49;medecin_generaliste;Médecins généralistes;2016;2026;1228;1356;15,143;16,0753;0,0615643
+dep;50;medecin_generaliste;Médecins généralistes;2016;2026;694;655;13,9256;13,1486;-0,0558
+dep;51;medecin_generaliste;Médecins généralistes;2016;2026;881;911;15,4322;16,3557;0,0598427
+dep;52;medecin_generaliste;Médecins généralistes;2016;2026;254;211;14,2629;12,8094;-0,101911
+dep;53;medecin_generaliste;Médecins généralistes;2016;2026;345;322;11,2127;10,6043;-0,0542519
+dep;54;medecin_generaliste;Médecins généralistes;2016;2026;1277;1244;17,4021;17,0633;-0,0194681
+dep;55;medecin_generaliste;Médecins généralistes;2016;2026;262;217;13,8584;12,2526;-0,115871
+dep;56;medecin_generaliste;Médecins généralistes;2016;2026;1151;1479;15,397;18,5116;0,202287
+dep;57;medecin_generaliste;Médecins généralistes;2016;2026;1372;1303;13,1258;12,4125;-0,0543401
+dep;58;medecin_generaliste;Médecins généralistes;2016;2026;260;243;12,4306;12,1806;-0,020115
+dep;59;medecin_generaliste;Médecins généralistes;2016;2026;4298;4051;16,5071;15,5015;-0,0609209
+dep;60;medecin_generaliste;Médecins généralistes;2016;2026;968;833;11,7541;10,0752;-0,142838
+dep;61;medecin_generaliste;Médecins généralistes;2016;2026;385;341;13,4942;12,5576;-0,0694078
+dep;62;medecin_generaliste;Médecins généralistes;2016;2026;2045;1848;13,9047;12,7542;-0,0827394
+dep;63;medecin_generaliste;Médecins généralistes;2016;2026;1018;1073;15,6447;16,1528;0,0324767
+dep;64;medecin_generaliste;Médecins généralistes;2016;2026;1223;1489;18,1458;20,5926;0,13484
+dep;65;medecin_generaliste;Médecins généralistes;2016;2026;448;465;19,6639;20,0152;0,0178686
+dep;66;medecin_generaliste;Médecins généralistes;2016;2026;860;802;18,1293;15,7461;-0,131457
+dep;67;medecin_generaliste;Médecins généralistes;2016;2026;1904;2008;16,9787;17,0986;0,00706195
+dep;68;medecin_generaliste;Médecins généralistes;2016;2026;1060;1013;13,8972;13,1366;-0,0547312
+dep;69;medecin_generaliste;Médecins généralistes;2016;2026;3178;3217;17,3103;16,608;-0,0405696
+dep;70;medecin_generaliste;Médecins généralistes;2016;2026;343;306;14,4578;13,2393;-0,0842803
+dep;71;medecin_generaliste;Médecins généralistes;2016;2026;714;695;12,8643;12,6833;-0,014073
+dep;72;medecin_generaliste;Médecins généralistes;2016;2026;683;625;12,0339;11,0613;-0,0808253
+dep;73;medecin_generaliste;Médecins généralistes;2016;2026;807;988;18,7814;21,707;0,155774
+dep;74;medecin_generaliste;Médecins généralistes;2016;2026;1195;1359;14,9111;15,3702;0,0307869
+dep;75;medecin_generaliste;Médecins généralistes;2016;2026;5410;5040;24,6995;24,6142;-0,00345553
+dep;76;medecin_generaliste;Médecins généralistes;2016;2026;1870;1795;14,8914;14,2253;-0,0447298
+dep;77;medecin_generaliste;Médecins généralistes;2016;2026;1462;1305;10,4603;8,68787;-0,169444
+dep;78;medecin_generaliste;Médecins généralistes;2016;2026;1794;1537;12,5296;10,1491;-0,18999
+dep;79;medecin_generaliste;Médecins généralistes;2016;2026;520;470;13,8762;12,5404;-0,0962624
+dep;80;medecin_generaliste;Médecins généralistes;2016;2026;969;929;16,9186;16,5668;-0,0207926
+dep;81;medecin_generaliste;Médecins généralistes;2016;2026;577;548;14,9309;13,6139;-0,088202
+dep;82;medecin_generaliste;Médecins généralistes;2016;2026;355;320;13,8188;11,9445;-0,13563
+dep;83;medecin_generaliste;Médecins généralistes;2016;2026;1720;1720;16,2906;14,9743;-0,0808029
+dep;84;medecin_generaliste;Médecins généralistes;2016;2026;893;800;15,9746;13,8068;-0,135698
+dep;85;medecin_generaliste;Médecins généralistes;2016;2026;826;903;12,3174;12,3619;0,00361312
+dep;86;medecin_generaliste;Médecins généralistes;2016;2026;700;674;16,0525;15,44;-0,0381575
+dep;87;medecin_generaliste;Médecins généralistes;2016;2026;734;619;19,5745;16,6232;-0,150772
+dep;88;medecin_generaliste;Médecins généralistes;2016;2026;535;528;14,4735;15,0088;0,0369835
+dep;89;medecin_generaliste;Médecins généralistes;2016;2026;422;342;12,3919;10,3695;-0,163207
+dep;90;medecin_generaliste;Médecins généralistes;2016;2026;205;196;14,2273;13,9914;-0,0165817
+dep;91;medecin_generaliste;Médecins généralistes;2016;2026;1547;1275;12,0171;9,34175;-0,22263
+dep;92;medecin_generaliste;Médecins généralistes;2016;2026;2593;2257;16,1732;13,4674;-0,167305
+dep;93;medecin_generaliste;Médecins généralistes;2016;2026;1930;1682;12,0125;9,63534;-0,19789
+dep;94;medecin_generaliste;Médecins généralistes;2016;2026;1922;1747;13,9462;12,1404;-0,129487
+dep;95;medecin_generaliste;Médecins généralistes;2016;2026;1417;1195;11,5965;9,15719;-0,210347
+dep;971;medecin_generaliste;Médecins généralistes;2016;2026;527;600;13,3719;15,6827;0,172814
+dep;972;medecin_generaliste;Médecins généralistes;2016;2026;491;552;13,0419;15,3838;0,179574
+dep;973;medecin_generaliste;Médecins généralistes;2016;2026;356;308;13,2169;10,3164;-0,219455
+dep;974;medecin_generaliste;Médecins généralistes;2016;2026;1372;1620;16,0858;17,7829;0,105503
+dep;976;medecin_generaliste;Médecins généralistes;2016;2026;116;144;4,81354;4,25773;-0,115467
+reg;01;medecin_generaliste;Médecins généralistes;2016;2026;527;600;13,3719;15,6827;0,172814
+reg;02;medecin_generaliste;Médecins généralistes;2016;2026;491;552;13,0419;15,3838;0,179574
+reg;03;medecin_generaliste;Médecins généralistes;2016;2026;356;308;13,2169;10,3164;-0,219455
+reg;04;medecin_generaliste;Médecins généralistes;2016;2026;1372;1620;16,0858;17,7829;0,105503
+reg;06;medecin_generaliste;Médecins généralistes;2016;2026;116;144;4,81354;4,25773;-0,115467
+reg;11;medecin_generaliste;Médecins généralistes;2016;2026;18075;16038;14,9169;12,7341;-0,146329
+reg;24;medecin_generaliste;Médecins généralistes;2016;2026;3251;2942;12,6112;11,3622;-0,099039
+reg;27;medecin_generaliste;Médecins généralistes;2016;2026;4103;3958;14,5582;14,1659;-0,026952
+reg;28;medecin_generaliste;Médecins généralistes;2016;2026;4738;4602;14,2029;13,7221;-0,0338584
+reg;32;medecin_generaliste;Médecins généralistes;2016;2026;8891;8203;14,8014;13,7501;-0,0710245
+reg;44;medecin_generaliste;Médecins généralistes;2016;2026;8300;8091;14,941;14,5934;-0,0232616
+reg;52;medecin_generaliste;Médecins généralistes;2016;2026;5294;5646;14,164;14,2388;0,0052765
+reg;53;medecin_generaliste;Médecins généralistes;2016;2026;5149;6009;15,5722;17,1194;0,0993535
+reg;75;medecin_generaliste;Médecins généralistes;2016;2026;9713;10371;16,364;16,6154;0,0153677
+reg;76;medecin_generaliste;Médecins généralistes;2016;2026;9697;9596;16,6947;15,361;-0,0798867
+reg;84;medecin_generaliste;Médecins généralistes;2016;2026;12259;12740;15,4846;15,3435;-0,0091135
+reg;93;medecin_generaliste;Médecins généralistes;2016;2026;8961;8974;17,8437;16,8736;-0,0543694
+reg;94;medecin_generaliste;Médecins généralistes;2016;2026;505;576;15,282;15,7534;0,0308476
+FR;FR;ophtalmologue;Ophtalmologues;2016;2026;5880;6111;0,882848;0,884601;0,00198578
+dep;01;ophtalmologue;Ophtalmologues;2016;2026;25;27;0,391589;0,386371;-0,0133241
+dep;02;ophtalmologue;Ophtalmologues;2016;2026;28;32;0,522256;0,620163;0,187471
+dep;03;ophtalmologue;Ophtalmologues;2016;2026;31;23;0,91342;0,696377;-0,237616
+dep;04;ophtalmologue;Ophtalmologues;2016;2026;9;7;0,553625;0,410707;-0,25815
+dep;05;ophtalmologue;Ophtalmologues;2016;2026;13;13;0,921287;0,891088;-0,0327783
+dep;06;ophtalmologue;Ophtalmologues;2016;2026;153;192;1,41182;1,66289;0,177828
+dep;07;ophtalmologue;Ophtalmologues;2016;2026;15;14;0,461316;0,414013;-0,102539
+dep;08;ophtalmologue;Ophtalmologues;2016;2026;10;11;0,363146;0,420779;0,158703
+dep;09;ophtalmologue;Ophtalmologues;2016;2026;7;6;0,457316;0,381798;-0,165132
+dep;10;ophtalmologue;Ophtalmologues;2016;2026;18;21;0,582694;0,681938;0,170319
+dep;11;ophtalmologue;Ophtalmologues;2016;2026;24;23;0,65213;0,602364;-0,0763126
+dep;12;ophtalmologue;Ophtalmologues;2016;2026;23;19;0,825269;0,68251;-0,172984
+dep;13;ophtalmologue;Ophtalmologues;2016;2026;253;272;1,25265;1,2834;0,024549
+dep;14;ophtalmologue;Ophtalmologues;2016;2026;65;47;0,937033;0,654118;-0,301926
+dep;15;ophtalmologue;Ophtalmologues;2016;2026;10;9;0,685077;0,625839;-0,0864694
+dep;16;ophtalmologue;Ophtalmologues;2016;2026;34;21;0,962388;0,595417;-0,381313
+dep;17;ophtalmologue;Ophtalmologues;2016;2026;47;50;0,731869;0,728423;-0,00470865
+dep;18;ophtalmologue;Ophtalmologues;2016;2026;13;12;0,423301;0,406395;-0,039938
+dep;19;ophtalmologue;Ophtalmologues;2016;2026;13;15;0,538224;0,620586;0,153025
+dep;21;ophtalmologue;Ophtalmologues;2016;2026;39;35;0,731415;0,64518;-0,117901
+dep;22;ophtalmologue;Ophtalmologues;2016;2026;37;34;0,617745;0,550563;-0,108754
+dep;23;ophtalmologue;Ophtalmologues;2016;2026;7;4;0,585764;0,347999;-0,405907
+dep;24;ophtalmologue;Ophtalmologues;2016;2026;32;29;0,771477;0,688293;-0,107823
+dep;25;ophtalmologue;Ophtalmologues;2016;2026;34;39;0,631326;0,713478;0,130126
+dep;26;ophtalmologue;Ophtalmologues;2016;2026;37;49;0,728338;0,927296;0,273168
+dep;27;ophtalmologue;Ophtalmologues;2016;2026;32;35;0,530834;0,57979;0,0922244
+dep;28;ophtalmologue;Ophtalmologues;2016;2026;23;27;0,530041;0,623273;0,175897
+dep;29;ophtalmologue;Ophtalmologues;2016;2026;73;74;0,803744;0,782787;-0,0260745
+dep;2A;ophtalmologue;Ophtalmologues;2016;2026;14;15;0,907306;0,856419;-0,056086
+dep;2B;ophtalmologue;Ophtalmologues;2016;2026;14;15;0,794768;0,787451;-0,00920643
+dep;30;ophtalmologue;Ophtalmologues;2016;2026;66;70;0,889481;0,889841;0,000405591
+dep;31;ophtalmologue;Ophtalmologues;2016;2026;149;154;1,10519;1,01342;-0,0830402
+dep;32;ophtalmologue;Ophtalmologues;2016;2026;13;14;0,681828;0,727318;0,0667182
+dep;33;ophtalmologue;Ophtalmologues;2016;2026;161;179;1,02765;1,03116;0,00341068
+dep;34;ophtalmologue;Ophtalmologues;2016;2026;129;158;1,13909;1,24922;0,096679
+dep;35;ophtalmologue;Ophtalmologues;2016;2026;98;92;0,931755;0,801247;-0,140066
+dep;36;ophtalmologue;Ophtalmologues;2016;2026;10;26;0,447417;1,22231;1,73192
+dep;37;ophtalmologue;Ophtalmologues;2016;2026;52;69;0,85777;1,10528;0,288547
+dep;38;ophtalmologue;Ophtalmologues;2016;2026;108;105;0,861992;0,797678;-0,0746111
+dep;39;ophtalmologue;Ophtalmologues;2016;2026;19;23;0,729319;0,896868;0,229733
+dep;40;ophtalmologue;Ophtalmologues;2016;2026;32;54;0,790104;1,20947;0,530779
+dep;41;ophtalmologue;Ophtalmologues;2016;2026;24;26;0,721221;0,795353;0,102786
+dep;42;ophtalmologue;Ophtalmologues;2016;2026;54;57;0,708664;0,733216;0,0346453
+dep;43;ophtalmologue;Ophtalmologues;2016;2026;14;12;0,61582;0,523168;-0,150454
+dep;44;ophtalmologue;Ophtalmologues;2016;2026;125;127;0,905238;0,834131;-0,0785511
+dep;45;ophtalmologue;Ophtalmologues;2016;2026;38;42;0,563522;0,602651;0,0694356
+dep;46;ophtalmologue;Ophtalmologues;2016;2026;9;18;0,51919;1,01383;0,952722
+dep;47;ophtalmologue;Ophtalmologues;2016;2026;29;16;0,871308;0,476845;-0,452725
+dep;48;ophtalmologue;Ophtalmologues;2016;2026;2;5;0,261705;0,654091;1,49935
+dep;49;ophtalmologue;Ophtalmologues;2016;2026;68;68;0,838539;0,806136;-0,0386424
+dep;50;ophtalmologue;Ophtalmologues;2016;2026;24;26;0,481578;0,521928;0,0837878
+dep;51;ophtalmologue;Ophtalmologues;2016;2026;44;52;0,770736;0,933588;0,211294
+dep;52;ophtalmologue;Ophtalmologues;2016;2026;8;8;0,449226;0,485664;0,0811119
+dep;53;ophtalmologue;Ophtalmologues;2016;2026;16;17;0,520007;0,559857;0,0766329
+dep;54;ophtalmologue;Ophtalmologues;2016;2026;67;69;0,913029;0,946436;0,0365888
+dep;55;ophtalmologue;Ophtalmologues;2016;2026;12;3;0,634736;0,169391;-0,733131
+dep;56;ophtalmologue;Ophtalmologues;2016;2026;59;64;0,789247;0,801043;0,0149464
+dep;57;ophtalmologue;Ophtalmologues;2016;2026;62;70;0,593148;0,666828;0,124219
+dep;58;ophtalmologue;Ophtalmologues;2016;2026;16;11;0,764961;0,551384;-0,2792
+dep;59;ophtalmologue;Ophtalmologues;2016;2026;224;188;0,860307;0,719398;-0,163788
+dep;60;ophtalmologue;Ophtalmologues;2016;2026;46;54;0,558563;0,653132;0,169308
+dep;61;ophtalmologue;Ophtalmologues;2016;2026;17;16;0,595847;0,589212;-0,0111355
+dep;62;ophtalmologue;Ophtalmologues;2016;2026;65;97;0,441959;0,66946;0,514755
+dep;63;ophtalmologue;Ophtalmologues;2016;2026;67;58;1,02966;0,873123;-0,152028
+dep;64;ophtalmologue;Ophtalmologues;2016;2026;62;57;0,9199;0,788298;-0,143062
+dep;65;ophtalmologue;Ophtalmologues;2016;2026;16;16;0,702281;0,688696;-0,0193438
+dep;66;ophtalmologue;Ophtalmologues;2016;2026;48;55;1,01187;1,07985;0,0671778
+dep;67;ophtalmologue;Ophtalmologues;2016;2026;112;120;0,998745;1,02183;0,0231107
+dep;68;ophtalmologue;Ophtalmologues;2016;2026;58;65;0,760413;0,842921;0,108504
+dep;69;ophtalmologue;Ophtalmologues;2016;2026;225;224;1,22555;1,15642;-0,0564133
+dep;70;ophtalmologue;Ophtalmologues;2016;2026;9;7;0,379359;0,30286;-0,201655
+dep;71;ophtalmologue;Ophtalmologues;2016;2026;34;34;0,612587;0,620478;0,0128804
+dep;72;ophtalmologue;Ophtalmologues;2016;2026;37;30;0,651912;0,530942;-0,185562
+dep;73;ophtalmologue;Ophtalmologues;2016;2026;38;35;0,884377;0,768974;-0,130491
+dep;74;ophtalmologue;Ophtalmologues;2016;2026;47;71;0,586462;0,803004;0,369234
+dep;75;ophtalmologue;Ophtalmologues;2016;2026;667;679;3,04521;3,31607;0,0889485
+dep;76;ophtalmologue;Ophtalmologues;2016;2026;89;90;0,708737;0,713249;0,00636583
+dep;77;ophtalmologue;Ophtalmologues;2016;2026;75;87;0,536609;0,579191;0,0793542
+dep;78;ophtalmologue;Ophtalmologues;2016;2026;132;143;0,921911;0,944257;0,0242386
+dep;79;ophtalmologue;Ophtalmologues;2016;2026;19;19;0,507014;0,506953;-0,000120068
+dep;80;ophtalmologue;Ophtalmologues;2016;2026;46;42;0,803151;0,748982;-0,0674455
+dep;81;ophtalmologue;Ophtalmologues;2016;2026;24;33;0,621041;0,819817;0,320069
+dep;82;ophtalmologue;Ophtalmologues;2016;2026;19;10;0,739596;0,373267;-0,49531
+dep;83;ophtalmologue;Ophtalmologues;2016;2026;129;133;1,2218;1,1579;-0,0523007
+dep;84;ophtalmologue;Ophtalmologues;2016;2026;41;56;0,733434;0,966479;0,317744
+dep;85;ophtalmologue;Ophtalmologues;2016;2026;27;35;0,402626;0,479143;0,190044
+dep;86;ophtalmologue;Ophtalmologues;2016;2026;37;31;0,84849;0,710148;-0,163045
+dep;87;ophtalmologue;Ophtalmologues;2016;2026;22;20;0,586701;0,537099;-0,0845445
+dep;88;ophtalmologue;Ophtalmologues;2016;2026;20;19;0,541066;0,540089;-0,00180518
+dep;89;ophtalmologue;Ophtalmologues;2016;2026;18;15;0,528566;0,454802;-0,139555
+dep;90;ophtalmologue;Ophtalmologues;2016;2026;10;22;0,694016;1,57046;1,26287
+dep;91;ophtalmologue;Ophtalmologues;2016;2026;90;70;0,699121;0,512881;-0,266393
+dep;92;ophtalmologue;Ophtalmologues;2016;2026;196;195;1,2225;1,16355;-0,0482223
+dep;93;ophtalmologue;Ophtalmologues;2016;2026;105;96;0,65353;0,549936;-0,158514
+dep;94;ophtalmologue;Ophtalmologues;2016;2026;141;127;1,02311;0,882557;-0,137378
+dep;95;ophtalmologue;Ophtalmologues;2016;2026;99;97;0,810198;0,743303;-0,0825666
+dep;971;ophtalmologue;Ophtalmologues;2016;2026;33;32;0,83733;0,836413;-0,00109447
+dep;972;ophtalmologue;Ophtalmologues;2016;2026;35;43;0,929664;1,19838;0,289045
+dep;973;ophtalmologue;Ophtalmologues;2016;2026;6;12;0,222757;0,401937;0,804377
+dep;974;ophtalmologue;Ophtalmologues;2016;2026;53;69;0,621392;0,757422;0,218912
+dep;976;ophtalmologue;Ophtalmologues;2016;2026;1;4;0,041496;0,11827;1,85016
+reg;01;ophtalmologue;Ophtalmologues;2016;2026;33;32;0,83733;0,836413;-0,00109447
+reg;02;ophtalmologue;Ophtalmologues;2016;2026;35;43;0,929664;1,19838;0,289045
+reg;03;ophtalmologue;Ophtalmologues;2016;2026;6;12;0,222757;0,401937;0,804377
+reg;04;ophtalmologue;Ophtalmologues;2016;2026;53;69;0,621392;0,757422;0,218912
+reg;06;ophtalmologue;Ophtalmologues;2016;2026;1;4;0,041496;0,11827;1,85016
+reg;11;ophtalmologue;Ophtalmologues;2016;2026;1505;1494;1,24204;1,18623;-0,044935
+reg;24;ophtalmologue;Ophtalmologues;2016;2026;160;202;0,620668;0,780138;0,256932
+reg;27;ophtalmologue;Ophtalmologues;2016;2026;179;186;0,635126;0,665702;0,0481415
+reg;28;ophtalmologue;Ophtalmologues;2016;2026;227;214;0,68047;0,638096;-0,0622715
+reg;32;ophtalmologue;Ophtalmologues;2016;2026;409;413;0,680887;0,692284;0,0167377
+reg;44;ophtalmologue;Ophtalmologues;2016;2026;411;438;0,739849;0,790005;0,0677915
+reg;52;ophtalmologue;Ophtalmologues;2016;2026;273;277;0,730409;0,698573;-0,0435865
+reg;53;ophtalmologue;Ophtalmologues;2016;2026;267;264;0,807493;0,752124;-0,068569
+reg;75;ophtalmologue;Ophtalmologues;2016;2026;495;495;0,833951;0,793043;-0,0490534
+reg;76;ophtalmologue;Ophtalmologues;2016;2026;529;581;0,910744;0,930048;0,0211956
+reg;84;ophtalmologue;Ophtalmologues;2016;2026;671;684;0,847555;0,82378;-0,0280518
+reg;93;ophtalmologue;Ophtalmologues;2016;2026;598;673;1,19078;1,26543;0,0626881
+reg;94;ophtalmologue;Ophtalmologues;2016;2026;28;30;0,847317;0,820488;-0,0316628
+FR;FR;pediatre;Pédiatres;2016;2026;8236;9848;1,23659;1,42555;0,152812
+dep;01;pediatre;Pédiatres;2016;2026;31;26;0,48557;0,372061;-0,233764
+dep;02;pediatre;Pédiatres;2016;2026;49;45;0,913947;0,872105;-0,045782
+dep;03;pediatre;Pédiatres;2016;2026;16;26;0,471442;0,787208;0,669787
+dep;04;pediatre;Pédiatres;2016;2026;9;15;0,553625;0,880085;0,589679
+dep;05;pediatre;Pédiatres;2016;2026;13;11;0,921287;0,753998;-0,181582
+dep;06;pediatre;Pédiatres;2016;2026;172;222;1,58715;1,92271;0,211425
+dep;07;pediatre;Pédiatres;2016;2026;21;20;0,645842;0,591447;-0,084224
+dep;08;pediatre;Pédiatres;2016;2026;20;17;0,726293;0,650295;-0,104639
+dep;09;pediatre;Pédiatres;2016;2026;11;11;0,71864;0,699964;-0,0259877
+dep;10;pediatre;Pédiatres;2016;2026;19;21;0,615066;0,681938;0,108723
+dep;11;pediatre;Pédiatres;2016;2026;27;24;0,733646;0,628554;-0,143246
+dep;12;pediatre;Pédiatres;2016;2026;19;14;0,681744;0,502902;-0,262329
+dep;13;pediatre;Pédiatres;2016;2026;367;446;1,81709;2,1044;0,158119
+dep;14;pediatre;Pédiatres;2016;2026;101;124;1,456;1,72576;0,185269
+dep;15;pediatre;Pédiatres;2016;2026;8;9;0,548062;0,625839;0,141913
+dep;16;pediatre;Pédiatres;2016;2026;16;16;0,452888;0,453651;0,00168418
+dep;17;pediatre;Pédiatres;2016;2026;51;63;0,794156;0,917813;0,155709
+dep;18;pediatre;Pédiatres;2016;2026;17;12;0,553548;0,406395;-0,265835
+dep;19;pediatre;Pédiatres;2016;2026;16;19;0,66243;0,786076;0,186655
+dep;21;pediatre;Pédiatres;2016;2026;73;95;1,36906;1,7512;0,27913
+dep;22;pediatre;Pédiatres;2016;2026;39;48;0,651136;0,777265;0,193706
+dep;23;pediatre;Pédiatres;2016;2026;7;4;0,585764;0,347999;-0,405907
+dep;24;pediatre;Pédiatres;2016;2026;24;23;0,578607;0,545888;-0,0565489
+dep;25;pediatre;Pédiatres;2016;2026;72;78;1,33693;1,42696;0,0673415
+dep;26;pediatre;Pédiatres;2016;2026;52;53;1,02361;1,00299;-0,0201406
+dep;27;pediatre;Pédiatres;2016;2026;18;19;0,298594;0,314743;0,0540833
+dep;28;pediatre;Pédiatres;2016;2026;32;37;0,737448;0,854115;0,158204
+dep;29;pediatre;Pédiatres;2016;2026;95;119;1,04597;1,25881;0,203484
+dep;2A;pediatre;Pédiatres;2016;2026;15;12;0,972113;0,685135;-0,295211
+dep;2B;pediatre;Pédiatres;2016;2026;13;18;0,737999;0,944941;0,28041
+dep;30;pediatre;Pédiatres;2016;2026;69;76;0,929912;0,966114;0,0389305
+dep;31;pediatre;Pédiatres;2016;2026;230;274;1,706;1,80309;0,0569114
+dep;32;pediatre;Pédiatres;2016;2026;13;14;0,681828;0,727318;0,0667182
+dep;33;pediatre;Pédiatres;2016;2026;191;281;1,21914;1,61874;0,327775
+dep;34;pediatre;Pédiatres;2016;2026;181;242;1,59826;1,91336;0,197151
+dep;35;pediatre;Pédiatres;2016;2026;130;172;1,236;1,49798;0,21196
+dep;36;pediatre;Pédiatres;2016;2026;6;5;0,26845;0,23506;-0,124383
+dep;37;pediatre;Pédiatres;2016;2026;112;129;1,8475;2,06639;0,118474
+dep;38;pediatre;Pédiatres;2016;2026;153;201;1,22116;1,52698;0,250442
+dep;39;pediatre;Pédiatres;2016;2026;13;16;0,499008;0,623908;0,250298
+dep;40;pediatre;Pédiatres;2016;2026;29;30;0,716032;0,67193;-0,0615917
+dep;41;pediatre;Pédiatres;2016;2026;23;25;0,69117;0,764762;0,106475
+dep;42;pediatre;Pédiatres;2016;2026;86;94;1,12861;1,20916;0,0713708
+dep;43;pediatre;Pédiatres;2016;2026;7;6;0,30791;0,261584;-0,150454
+dep;44;pediatre;Pédiatres;2016;2026;152;215;1,10077;1,41211;0,28284
+dep;45;pediatre;Pédiatres;2016;2026;62;62;0,919431;0,889627;-0,0324154
+dep;46;pediatre;Pédiatres;2016;2026;10;10;0,576878;0,563241;-0,0236392
+dep;47;pediatre;Pédiatres;2016;2026;20;18;0,600902;0,53645;-0,107258
+dep;48;pediatre;Pédiatres;2016;2026;4;6;0,523409;0,784909;0,499608
+dep;49;pediatre;Pédiatres;2016;2026;84;122;1,03584;1,4463;0,396258
+dep;50;pediatre;Pédiatres;2016;2026;33;44;0,662169;0,883263;0,333893
+dep;51;pediatre;Pédiatres;2016;2026;66;96;1,1561;1,72355;0,490824
+dep;52;pediatre;Pédiatres;2016;2026;16;8;0,898452;0,485664;-0,459444
+dep;53;pediatre;Pédiatres;2016;2026;10;16;0,325005;0,526924;0,621282
+dep;54;pediatre;Pédiatres;2016;2026;134;152;1,82606;2,0849;0,14175
+dep;55;pediatre;Pédiatres;2016;2026;12;7;0,634736;0,395246;-0,377307
+dep;56;pediatre;Pédiatres;2016;2026;57;84;0,762493;1,05137;0,378858
+dep;57;pediatre;Pédiatres;2016;2026;81;90;0,774919;0,85735;0,106375
+dep;58;pediatre;Pédiatres;2016;2026;12;8;0,573721;0,401007;-0,301042
+dep;59;pediatre;Pédiatres;2016;2026;330;375;1,26742;1,43497;0,132201
+dep;60;pediatre;Pédiatres;2016;2026;70;73;0,849987;0,882938;0,0387666
+dep;61;pediatre;Pédiatres;2016;2026;23;27;0,806146;0,994296;0,233394
+dep;62;pediatre;Pédiatres;2016;2026;106;122;0,720733;0,842001;0,168256
+dep;63;pediatre;Pédiatres;2016;2026;86;115;1,32165;1,73119;0,309869
+dep;64;pediatre;Pédiatres;2016;2026;67;115;0,994086;1,59043;0,599887
+dep;65;pediatre;Pédiatres;2016;2026;19;16;0,833959;0,688696;-0,174184
+dep;66;pediatre;Pédiatres;2016;2026;45;52;0,948629;1,02095;0,0762327
+dep;67;pediatre;Pédiatres;2016;2026;171;198;1,52487;1,68601;0,105678
+dep;68;pediatre;Pédiatres;2016;2026;76;83;0,996404;1,07635;0,0802301
+dep;69;pediatre;Pédiatres;2016;2026;349;429;1,90097;2,21475;0,16506
+dep;70;pediatre;Pédiatres;2016;2026;11;11;0,463662;0,475923;0,026444
+dep;71;pediatre;Pédiatres;2016;2026;31;41;0,558535;0,748223;0,339616
+dep;72;pediatre;Pédiatres;2016;2026;38;48;0,669532;0,849508;0,268809
+dep;73;pediatre;Pédiatres;2016;2026;52;74;1,2102;1,62583;0,343439
+dep;74;pediatre;Pédiatres;2016;2026;68;110;0,848498;1,24409;0,466227
+dep;75;pediatre;Pédiatres;2016;2026;945;1127;4,31442;5,504;0,27572
+dep;76;pediatre;Pédiatres;2016;2026;165;168;1,31395;1,3314;0,0132782
+dep;77;pediatre;Pédiatres;2016;2026;127;140;0,908658;0,932032;0,0257235
+dep;78;pediatre;Pédiatres;2016;2026;205;206;1,43176;1,36026;-0,0499371
+dep;79;pediatre;Pédiatres;2016;2026;18;21;0,480329;0,560317;0,166527
+dep;80;pediatre;Pédiatres;2016;2026;67;89;1,16981;1,58713;0,356744
+dep;81;pediatre;Pédiatres;2016;2026;34;30;0,879808;0,745288;-0,152897
+dep;82;pediatre;Pédiatres;2016;2026;20;18;0,778522;0,67188;-0,13698
+dep;83;pediatre;Pédiatres;2016;2026;106;111;1,00396;0,966365;-0,0374446
+dep;84;pediatre;Pédiatres;2016;2026;52;51;0,930209;0,880186;-0,0537764
+dep;85;pediatre;Pédiatres;2016;2026;21;32;0,313154;0,438074;0,398909
+dep;86;pediatre;Pédiatres;2016;2026;55;63;1,26127;1,4432;0,144248
+dep;87;pediatre;Pédiatres;2016;2026;29;45;0,773379;1,20847;0,562588
+dep;88;pediatre;Pédiatres;2016;2026;30;23;0,811598;0,653792;-0,194439
+dep;89;pediatre;Pédiatres;2016;2026;22;22;0,646025;0,667043;0,0325335
+dep;90;pediatre;Pédiatres;2016;2026;13;20;0,90222;1,42769;0,582424
+dep;91;pediatre;Pédiatres;2016;2026;133;145;1,03315;1,0624;0,0283111
+dep;92;pediatre;Pédiatres;2016;2026;350;388;2,18304;2,31517;0,0605244
+dep;93;pediatre;Pédiatres;2016;2026;189;203;1,17635;1,16289;-0,0114485
+dep;94;pediatre;Pédiatres;2016;2026;279;344;2,02445;2,39055;0,180837
+dep;95;pediatre;Pédiatres;2016;2026;136;156;1,113;1,19542;0,074048
+dep;971;pediatre;Pédiatres;2016;2026;44;59;1,11644;1,54214;0,381299
+dep;972;pediatre;Pédiatres;2016;2026;45;43;1,19528;1,19838;0,0025906
+dep;973;pediatre;Pédiatres;2016;2026;26;71;0,96528;2,37813;1,46367
+dep;974;pediatre;Pédiatres;2016;2026;150;206;1,75866;2,26129;0,285805
+dep;976;pediatre;Pédiatres;2016;2026;14;28;0,580944;0,827893;0,425082
+reg;01;pediatre;Pédiatres;2016;2026;44;59;1,11644;1,54214;0,381299
+reg;02;pediatre;Pédiatres;2016;2026;45;43;1,19528;1,19838;0,0025906
+reg;03;pediatre;Pédiatres;2016;2026;26;71;0,96528;2,37813;1,46367
+reg;04;pediatre;Pédiatres;2016;2026;150;206;1,75866;2,26129;0,285805
+reg;06;pediatre;Pédiatres;2016;2026;14;28;0,580944;0,827893;0,425082
+reg;11;pediatre;Pédiatres;2016;2026;2364;2709;1,95096;2,15094;0,102505
+reg;24;pediatre;Pédiatres;2016;2026;252;270;0,977553;1,04276;0,0667031
+reg;27;pediatre;Pédiatres;2016;2026;247;291;0,876403;1,0415;0,188382
+reg;28;pediatre;Pédiatres;2016;2026;340;382;1,01921;1,13903;0,117567
+reg;32;pediatre;Pédiatres;2016;2026;622;704;1,03548;1,18007;0,139631
+reg;44;pediatre;Pédiatres;2016;2026;625;695;1,12507;1,25355;0,114189
+reg;52;pediatre;Pédiatres;2016;2026;305;433;0,816025;1,09199;0,338187
+reg;53;pediatre;Pédiatres;2016;2026;321;423;0,970807;1,20511;0,241348
+reg;75;pediatre;Pédiatres;2016;2026;523;698;0,881124;1,11827;0,269141
+reg;76;pediatre;Pédiatres;2016;2026;682;787;1,17415;1,25981;0,0729484
+reg;84;pediatre;Pédiatres;2016;2026;929;1163;1,17344;1,40067;0,19364
+reg;93;pediatre;Pédiatres;2016;2026;719;856;1,43172;1,60952;0,124182
+reg;94;pediatre;Pédiatres;2016;2026;28;30;0,847317;0,820488;-0,0316628
+FR;FR;pharmacien;Pharmaciens;2016;2026;74484;75334;11,1833;10,905;-0,0248877
+dep;01;pharmacien;Pharmaciens;2016;2026;547;559;8,56796;7,99931;-0,066369
+dep;02;pharmacien;Pharmaciens;2016;2026;512;487;9,54982;9,43811;-0,0116969
+dep;03;pharmacien;Pharmaciens;2016;2026;408;373;12,0218;11,2934;-0,0605873
+dep;04;pharmacien;Pharmaciens;2016;2026;193;199;11,8722;11,6758;-0,0165407
+dep;05;pharmacien;Pharmaciens;2016;2026;173;204;12,2602;13,9832;0,140539
+dep;06;pharmacien;Pharmaciens;2016;2026;1399;1399;12,9094;12,1166;-0,0614185
+dep;07;pharmacien;Pharmaciens;2016;2026;350;330;10,764;9,75887;-0,0933817
+dep;08;pharmacien;Pharmaciens;2016;2026;277;280;10,0592;10,7107;0,0647745
+dep;09;pharmacien;Pharmaciens;2016;2026;169;161;11,0409;10,2449;-0,0720948
+dep;10;pharmacien;Pharmaciens;2016;2026;305;273;9,87343;8,86519;-0,102116
+dep;11;pharmacien;Pharmaciens;2016;2026;444;430;12,0644;11,2616;-0,0665439
+dep;12;pharmacien;Pharmaciens;2016;2026;348;326;12,4867;11,7104;-0,0621651
+dep;13;pharmacien;Pharmaciens;2016;2026;2756;2990;13,6455;14,108;0,0338947
+dep;14;pharmacien;Pharmaciens;2016;2026;770;875;11,1002;12,1777;0,0970691
+dep;15;pharmacien;Pharmaciens;2016;2026;192;166;13,1535;11,5432;-0,122418
+dep;16;pharmacien;Pharmaciens;2016;2026;384;332;10,8693;9,41326;-0,133961
+dep;17;pharmacien;Pharmaciens;2016;2026;703;735;10,9469;10,7078;-0,0218396
+dep;18;pharmacien;Pharmaciens;2016;2026;285;235;9,28006;7,95857;-0,142401
+dep;19;pharmacien;Pharmaciens;2016;2026;305;271;12,6276;11,2119;-0,112108
+dep;21;pharmacien;Pharmaciens;2016;2026;699;753;13,1092;13,8806;0,0588431
+dep;22;pharmacien;Pharmaciens;2016;2026;626;574;10,4516;9,29479;-0,11068
+dep;23;pharmacien;Pharmaciens;2016;2026;152;130;12,7195;11,31;-0,110814
+dep;24;pharmacien;Pharmaciens;2016;2026;419;373;10,1015;8,85288;-0,12361
+dep;25;pharmacien;Pharmaciens;2016;2026;627;645;11,6424;11,7998;0,0135227
+dep;26;pharmacien;Pharmaciens;2016;2026;536;573;10,5511;10,8437;0,0277348
+dep;27;pharmacien;Pharmaciens;2016;2026;642;659;10,6499;10,9166;0,025048
+dep;28;pharmacien;Pharmaciens;2016;2026;472;453;10,8774;10,4571;-0,0386325
+dep;29;pharmacien;Pharmaciens;2016;2026;912;878;10,0413;9,28766;-0,0750536
+dep;2A;pharmacien;Pharmaciens;2016;2026;177;209;11,4709;11,9328;0,0402607
+dep;2B;pharmacien;Pharmaciens;2016;2026;209;212;11,8648;11,1293;-0,0619855
+dep;30;pharmacien;Pharmaciens;2016;2026;897;852;12,0889;10,8306;-0,10408
+dep;31;pharmacien;Pharmaciens;2016;2026;1606;1708;11,9123;11,2397;-0,0564647
+dep;32;pharmacien;Pharmaciens;2016;2026;225;193;11,8009;10,0266;-0,15035
+dep;33;pharmacien;Pharmaciens;2016;2026;1917;2055;12,2361;11,8381;-0,0325216
+dep;34;pharmacien;Pharmaciens;2016;2026;1593;1700;14,0665;13,441;-0,0444679
+dep;35;pharmacien;Pharmaciens;2016;2026;1084;1153;10,3063;10,0417;-0,0256765
+dep;36;pharmacien;Pharmaciens;2016;2026;232;198;10,3801;9,30836;-0,103248
+dep;37;pharmacien;Pharmaciens;2016;2026;745;802;12,2892;12,8468;0,0453759
+dep;38;pharmacien;Pharmaciens;2016;2026;1436;1406;11,4613;10,6813;-0,0680564
+dep;39;pharmacien;Pharmaciens;2016;2026;274;275;10,5175;10,7234;0,0195743
+dep;40;pharmacien;Pharmaciens;2016;2026;401;463;9,90099;10,3701;0,0473823
+dep;41;pharmacien;Pharmaciens;2016;2026;347;306;10,4277;9,36069;-0,102321
+dep;42;pharmacien;Pharmaciens;2016;2026;744;707;9,76382;9,09445;-0,0685557
+dep;43;pharmacien;Pharmaciens;2016;2026;243;234;10,6889;10,2018;-0,0455721
+dep;44;pharmacien;Pharmaciens;2016;2026;1441;1488;10,4356;9,77312;-0,0634812
+dep;45;pharmacien;Pharmaciens;2016;2026;705;662;10,4548;9,49892;-0,0914312
+dep;46;pharmacien;Pharmaciens;2016;2026;182;165;10,4992;9,29347;-0,114838
+dep;47;pharmacien;Pharmaciens;2016;2026;389;341;11,6875;10,1628;-0,130463
+dep;48;pharmacien;Pharmaciens;2016;2026;92;88;12,0384;11,512;-0,0437285
+dep;49;pharmacien;Pharmaciens;2016;2026;829;863;10,2228;10,2308;0,000786047
+dep;50;pharmacien;Pharmaciens;2016;2026;482;482;9,67168;9,67574;0,00041955
+dep;51;pharmacien;Pharmaciens;2016;2026;673;698;11,7888;12,5316;0,0630148
+dep;52;pharmacien;Pharmaciens;2016;2026;189;146;10,613;8,86336;-0,164855
+dep;53;pharmacien;Pharmaciens;2016;2026;264;255;8,58012;8,39785;-0,0212428
+dep;54;pharmacien;Pharmaciens;2016;2026;913;920;12,4417;12,6191;0,0142599
+dep;55;pharmacien;Pharmaciens;2016;2026;179;154;9,46814;8,69541;-0,0816145
+dep;56;pharmacien;Pharmaciens;2016;2026;775;816;10,3672;10,2133;-0,0148472
+dep;57;pharmacien;Pharmaciens;2016;2026;944;976;9,03115;9,29749;0,0294909
+dep;58;pharmacien;Pharmaciens;2016;2026;251;223;12,0003;11,1781;-0,0685205
+dep;59;pharmacien;Pharmaciens;2016;2026;2945;3099;11,3107;11,8586;0,0484377
+dep;60;pharmacien;Pharmaciens;2016;2026;743;742;9,022;8,97452;-0,00526304
+dep;61;pharmacien;Pharmaciens;2016;2026;268;251;9,39336;9,24327;-0,0159783
+dep;62;pharmacien;Pharmaciens;2016;2026;1561;1536;10,6138;10,6009;-0,00121415
+dep;63;pharmacien;Pharmaciens;2016;2026;863;895;13,2626;13,4732;0,0158757
+dep;64;pharmacien;Pharmaciens;2016;2026;805;869;11,9439;12,0181;0,0062137
+dep;65;pharmacien;Pharmaciens;2016;2026;304;245;13,3433;10,5457;-0,209668
+dep;66;pharmacien;Pharmaciens;2016;2026;555;521;11,6998;10,2291;-0,125701
+dep;67;pharmacien;Pharmaciens;2016;2026;1210;1394;10,79;11,8702;0,100112
+dep;68;pharmacien;Pharmaciens;2016;2026;746;799;9,78049;10,3614;0,0593994
+dep;69;pharmacien;Pharmaciens;2016;2026;2656;2825;14,467;14,5843;0,00810712
+dep;70;pharmacien;Pharmaciens;2016;2026;238;232;10,032;10,0376;0,000567253
+dep;71;pharmacien;Pharmaciens;2016;2026;586;558;10,5581;10,1831;-0,0355166
+dep;72;pharmacien;Pharmaciens;2016;2026;485;441;8,54534;7,80485;-0,0866535
+dep;73;pharmacien;Pharmaciens;2016;2026;507;567;11,7995;12,4574;0,055759
+dep;74;pharmacien;Pharmaciens;2016;2026;860;930;10,731;10,5182;-0,0198291
+dep;75;pharmacien;Pharmaciens;2016;2026;4014;4008;18,326;19,5741;0,0681045
+dep;76;pharmacien;Pharmaciens;2016;2026;1346;1361;10,7187;10,7859;0,00627445
+dep;77;pharmacien;Pharmaciens;2016;2026;1128;1072;8,0706;7,1367;-0,115716
+dep;78;pharmacien;Pharmaciens;2016;2026;1434;1315;10,0153;8,6832;-0,133007
+dep;79;pharmacien;Pharmaciens;2016;2026;382;340;10,1937;9,0718;-0,110055
+dep;80;pharmacien;Pharmaciens;2016;2026;671;689;11,7155;12,2869;0,0487681
+dep;81;pharmacien;Pharmaciens;2016;2026;436;405;11,2822;10,0614;-0,10821
+dep;82;pharmacien;Pharmaciens;2016;2026;226;217;8,7973;8,09989;-0,0792759
+dep;83;pharmacien;Pharmaciens;2016;2026;1288;1248;12,199;10,8651;-0,109349
+dep;84;pharmacien;Pharmaciens;2016;2026;641;600;11,4666;10,3551;-0,0969326
+dep;85;pharmacien;Pharmaciens;2016;2026;618;654;9,21567;8,95313;-0,0284886
+dep;86;pharmacien;Pharmaciens;2016;2026;527;496;12,0852;11,3624;-0,0598153
+dep;87;pharmacien;Pharmaciens;2016;2026;545;568;14,5342;15,2536;0,0494984
+dep;88;pharmacien;Pharmaciens;2016;2026;359;341;9,71213;9,69317;-0,00195152
+dep;89;pharmacien;Pharmaciens;2016;2026;343;265;10,0721;8,03483;-0,20227
+dep;90;pharmacien;Pharmaciens;2016;2026;155;145;10,7572;10,3508;-0,0377844
+dep;91;pharmacien;Pharmaciens;2016;2026;1249;1150;9,70225;8,4259;-0,131553
+dep;92;pharmacien;Pharmaciens;2016;2026;2350;2682;14,6576;16,0033;0,0918121
+dep;93;pharmacien;Pharmaciens;2016;2026;1187;1167;7,388;6,68516;-0,0951321
+dep;94;pharmacien;Pharmaciens;2016;2026;1552;1479;11,2615;10,278;-0,0873334
+dep;95;pharmacien;Pharmaciens;2016;2026;1008;878;8,24929;6,72804;-0,18441
+dep;971;pharmacien;Pharmaciens;2016;2026;373;443;9,46436;11,5791;0,223442
+dep;972;pharmacien;Pharmaciens;2016;2026;352;362;9,34977;10,0887;0,0790302
+dep;973;pharmacien;Pharmaciens;2016;2026;136;144;5,04916;4,82325;-0,0447415
+dep;974;pharmacien;Pharmaciens;2016;2026;725;886;8,50017;9,72574;0,144181
+dep;976;pharmacien;Pharmaciens;2016;2026;64;102;2,65574;3,0159;0,135612
+reg;01;pharmacien;Pharmaciens;2016;2026;373;443;9,46436;11,5791;0,223442
+reg;02;pharmacien;Pharmaciens;2016;2026;352;362;9,34977;10,0887;0,0790302
+reg;03;pharmacien;Pharmaciens;2016;2026;136;144;5,04916;4,82325;-0,0447415
+reg;04;pharmacien;Pharmaciens;2016;2026;725;886;8,50017;9,72574;0,144181
+reg;06;pharmacien;Pharmaciens;2016;2026;64;102;2,65574;3,0159;0,135612
+reg;11;pharmacien;Pharmaciens;2016;2026;13922;13751;11,4895;10,9183;-0,0497202
+reg;24;pharmacien;Pharmaciens;2016;2026;2786;2656;10,8074;10,2577;-0,0508666
+reg;27;pharmacien;Pharmaciens;2016;2026;3173;3096;11,2584;11,0807;-0,015783
+reg;28;pharmacien;Pharmaciens;2016;2026;3508;3628;10,5158;10,8178;0,0287194
+reg;32;pharmacien;Pharmaciens;2016;2026;6432;6553;10,7077;10,9843;0,0258321
+reg;44;pharmacien;Pharmaciens;2016;2026;5795;5981;10,4317;10,7877;0,0341285
+reg;52;pharmacien;Pharmaciens;2016;2026;3637;3701;9,73076;9,33364;-0,0408106
+reg;53;pharmacien;Pharmaciens;2016;2026;3397;3421;10,2736;9,74628;-0,0513291
+reg;75;pharmacien;Pharmaciens;2016;2026;6929;6973;11,6736;11,1715;-0,0430148
+reg;76;pharmacien;Pharmaciens;2016;2026;7077;7011;12,184;11,223;-0,0788736
+reg;84;pharmacien;Pharmaciens;2016;2026;9342;9565;11,8001;11,5197;-0,0237644
+reg;93;pharmacien;Pharmaciens;2016;2026;6450;6640;12,8437;12,485;-0,0279238
+reg;94;pharmacien;Pharmaciens;2016;2026;386;421;11,6809;11,5142;-0,0142696
+FR;FR;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;15136;16198;2,27258;2,34475;0,0317557
+dep;01;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;71;60;1,11211;0,858602;-0,227953
+dep;02;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;65;55;1,21238;1,06591;-0,120815
+dep;03;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;51;51;1,50272;1,54414;0,0275614
+dep;04;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;25;27;1,53785;1,58415;0,0301118
+dep;05;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;19;34;1,3465;2,33054;0,730818
+dep;06;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;350;398;3,22966;3,44702;0,0673012
+dep;07;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;49;41;1,50696;1,21247;-0,195425
+dep;08;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;25;21;0,907866;0,803305;-0,115172
+dep;09;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;23;27;1,50261;1,71809;0,143406
+dep;10;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;31;30;1,00353;0,974197;-0,0292286
+dep;11;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;56;65;1,52164;1,70233;0,118752
+dep;12;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;48;43;1,7223;1,54463;-0,103159
+dep;13;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;691;786;3,42127;3,70865;0,0839989
+dep;14;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;148;162;2,13355;2,25462;0,0567444
+dep;15;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;15;19;1,02762;1,32122;0,28571
+dep;16;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;49;50;1,38697;1,41766;0,0221267
+dep;17;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;94;112;1,46374;1,63167;0,114726
+dep;18;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;38;35;1,23734;1,18532;-0,0420434
+dep;19;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;30;32;1,24206;1,32392;0,0659076
+dep;21;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;119;149;2,23175;2,74662;0,230703
+dep;22;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;84;94;1,40245;1,52214;0,0853484
+dep;23;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;22;14;1,84097;1,218;-0,338396
+dep;24;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;54;48;1,30187;1,13924;-0,124915
+dep;25;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;112;132;2,07966;2,41485;0,161174
+dep;26;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;85;79;1,67321;1,49503;-0,10649
+dep;27;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;67;78;1,11143;1,2921;0,162555
+dep;28;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;46;47;1,06008;1,08496;0,0234656
+dep;29;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;205;208;2,25709;2,20027;-0,0251757
+dep;2A;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;29;45;1,87942;2,56926;0,367048
+dep;2B;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;28;41;1,58954;2,15237;0,354085
+dep;30;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;136;145;1,83287;1,84324;0,00565982
+dep;31;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;376;461;2,78894;3,03367;0,0877496
+dep;32;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;33;24;1,73079;1,24683;-0,279619
+dep;33;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;524;608;3,34465;3,50248;0,0471861
+dep;34;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;316;363;2,79033;2,87004;0,0285649
+dep;35;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;215;267;2,04416;2,32536;0,137564
+dep;36;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;26;22;1,16328;1,03426;-0,110912
+dep;37;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;150;187;2,47434;2,99546;0,210611
+dep;38;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;288;273;2,29865;2,07396;-0,0977458
+dep;39;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;38;42;1,45864;1,63776;0,1228
+dep;40;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;50;66;1,23454;1,47825;0,197409
+dep;41;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;56;47;1,68285;1,43775;-0,145644
+dep;42;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;134;148;1,75854;1,90379;0,0825982
+dep;43;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;28;41;1,23164;1,78749;0,451307
+dep;44;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;295;359;2,13636;2,3579;0,103697
+dep;45;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;91;84;1,34949;1,2053;-0,106845
+dep;46;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;37;28;2,13445;1,57707;-0,261132
+dep;47;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;48;43;1,44216;1,28152;-0,111391
+dep;48;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;13;13;1,70108;1,70064;-0,000261636
+dep;49;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;161;187;1,98537;2,21687;0,116608
+dep;50;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;62;62;1,24408;1,2446;0,00041955
+dep;51;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;117;142;2,04946;2,54941;0,243946
+dep;52;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;24;19;1,34768;1,15345;-0,14412
+dep;53;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;33;30;1,07252;0,987983;-0,0788168
+dep;54;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;165;202;2,2485;2,77073;0,232252
+dep;55;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;15;17;0,79342;0,959883;0,209804
+dep;56;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;119;143;1,59187;1,78983;0,124357
+dep;57;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;145;166;1,3872;1,58133;0,139947
+dep;58;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;29;22;1,38649;1,10277;-0,204634
+dep;59;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;499;566;1,91649;2,16585;0,130114
+dep;60;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;120;94;1,45712;1,13693;-0,219739
+dep;61;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;33;30;1,15664;1,10477;-0,0448468
+dep;62;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;168;176;1,14229;1,21469;0,0633775
+dep;63;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;163;205;2,50499;3,08604;0,231954
+dep;64;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;164;201;2,43328;2,77979;0,142401
+dep;65;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;39;45;1,71181;1,93696;0,131526
+dep;66;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;97;93;2,04482;1,82592;-0,107051
+dep;67;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;280;336;2,49686;2,86112;0,145884
+dep;68;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;134;118;1,75682;1,53023;-0,128978
+dep;69;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;684;759;3,72569;3,9184;0,0517245
+dep;70;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;40;35;1,68604;1,5143;-0,101862
+dep;71;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;76;89;1,36931;1,62419;0,186136
+dep;72;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;75;65;1,32144;1,15038;-0,129456
+dep;73;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;87;88;2,02476;1,93342;-0,0451105
+dep;74;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;143;153;1,78434;1,73042;-0,0302211
+dep;75;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;2115;2184;9,65609;10,6661;0,104602
+dep;76;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;224;272;1,78379;2,1556;0,208438
+dep;77;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;207;174;1,48104;1,15838;-0,217859
+dep;78;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;386;299;2,69589;1,97436;-0,267643
+dep;79;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;45;44;1,20082;1,174;-0,0223396
+dep;80;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;104;116;1,81582;2,06862;0,139219
+dep;81;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;75;77;1,94075;1,91291;-0,0143486
+dep;82;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;37;30;1,44027;1,1198;-0,222505
+dep;83;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;201;226;1,90373;1,96755;0,0335251
+dep;84;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;142;118;2,54019;2,03651;-0,198284
+dep;85;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;62;66;0,924549;0,903527;-0,0227383
+dep;86;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;93;111;2,13269;2,54279;0,192291
+dep;87;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;107;107;2,8535;2,87348;0,00700108
+dep;88;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;44;42;1,19034;1,19388;0,00297088
+dep;89;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;51;45;1,4976;1,36441;-0,088941
+dep;90;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;21;24;1,45743;1,71323;0,175515
+dep;91;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;265;223;2,05852;1,63389;-0,20628
+dep;92;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;417;412;2,60094;2,45837;-0,0548121
+dep;93;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;349;308;2,17221;1,76438;-0,187749
+dep;94;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;432;432;3,13463;3,00208;-0,0422863
+dep;95;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;239;220;1,95593;1,68584;-0,138088
+dep;971;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;53;68;1,3448;1,77738;0,321665
+dep;972;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;61;79;1,62027;2,20167;0,358829
+dep;973;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;12;30;0,445514;1,00484;1,25547
+dep;974;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;132;238;1,54762;2,61256;0,688115
+dep;976;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;7;6;0,290472;0,177406;-0,389251
+reg;01;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;53;68;1,3448;1,77738;0,321665
+reg;02;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;61;79;1,62027;2,20167;0,358829
+reg;03;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;12;30;0,445514;1,00484;1,25547
+reg;04;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;132;238;1,54762;2,61256;0,688115
+reg;06;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;7;6;0,290472;0,177406;-0,389251
+reg;11;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;4410;4252;3,63948;3,37608;-0,0723727
+reg;24;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;407;422;1,57883;1,62979;0,032282
+reg;27;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;486;538;1,72442;1,92553;0,116622
+reg;28;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;534;604;1,60075;1,80098;0,125084
+reg;32;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;956;1007;1,59151;1,68796;0,0606052
+reg;44;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;980;1093;1,76412;1,9714;0,117502
+reg;52;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;626;707;1,67486;1,783;0,0645687
+reg;53;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;623;712;1,88415;2,02846;0,0765891
+reg;75;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;1280;1436;2,15648;2,30062;0,0668432
+reg;76;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;1286;1414;2,21402;2,26349;0,0223436
+reg;84;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;1798;1917;2,27109;2,30875;0,0165809
+reg;93;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;1428;1589;2,84353;2,98776;0,0507215
+reg;94;psychiatre;Psychiatres, y compris psychiatres de l'enfant;2016;2026;57;86;1,72489;2,35207;0,3636
+FR;FR;sage_femme;Sages-femmes;2016;2026;22298;26426;3,34792;3,82531;0,142594
+dep;01;sage_femme;Sages-femmes;2016;2026;159;213;2,4905;3,04804;0,223864
+dep;02;sage_femme;Sages-femmes;2016;2026;149;155;2,77915;3,00392;0,0808778
+dep;03;sage_femme;Sages-femmes;2016;2026;121;121;3,56528;3,66355;0,0275614
+dep;04;sage_femme;Sages-femmes;2016;2026;49;63;3,01418;3,69636;0,226324
+dep;05;sage_femme;Sages-femmes;2016;2026;66;80;4,6773;5,48362;0,17239
+dep;06;sage_femme;Sages-femmes;2016;2026;324;413;2,98975;3,57694;0,196402
+dep;07;sage_femme;Sages-femmes;2016;2026;107;106;3,29072;3,13467;-0,0474217
+dep;08;sage_femme;Sages-femmes;2016;2026;69;92;2,50571;3,51924;0,404488
+dep;09;sage_femme;Sages-femmes;2016;2026;52;65;3,39721;4,13615;0,217515
+dep;10;sage_femme;Sages-femmes;2016;2026;94;108;3,04296;3,50711;0,152533
+dep;11;sage_femme;Sages-femmes;2016;2026;119;124;3,23348;3,24753;0,00434549
+dep;12;sage_femme;Sages-femmes;2016;2026;102;120;3,65989;4,31059;0,177793
+dep;13;sage_femme;Sages-femmes;2016;2026;703;874;3,48069;4,12387;0,184787
+dep;14;sage_femme;Sages-femmes;2016;2026;259;285;3,73372;3,96646;0,0623357
+dep;15;sage_femme;Sages-femmes;2016;2026;43;55;2,94583;3,82457;0,298299
+dep;16;sage_femme;Sages-femmes;2016;2026;87;117;2,46258;3,31732;0,347093
+dep;17;sage_femme;Sages-femmes;2016;2026;184;224;2,86519;3,26334;0,138959
+dep;18;sage_femme;Sages-femmes;2016;2026;72;73;2,34444;2,47224;0,0545126
+dep;19;sage_femme;Sages-femmes;2016;2026;88;88;3,64336;3,64077;-0,000711605
+dep;21;sage_femme;Sages-femmes;2016;2026;200;224;3,75085;4,12915;0,100859
+dep;22;sage_femme;Sages-femmes;2016;2026;171;211;2,85498;3,41673;0,19676
+dep;23;sage_femme;Sages-femmes;2016;2026;22;25;1,84097;2,17499;0,181435
+dep;24;sage_femme;Sages-femmes;2016;2026;88;118;2,12156;2,80064;0,320086
+dep;25;sage_femme;Sages-femmes;2016;2026;247;225;4,5864;4,11622;-0,102516
+dep;26;sage_femme;Sages-femmes;2016;2026;196;252;3,85822;4,76895;0,236049
+dep;27;sage_femme;Sages-femmes;2016;2026;102;120;1,69203;1,98785;0,17483
+dep;28;sage_femme;Sages-femmes;2016;2026;131;122;3,01893;2,81627;-0,0671286
+dep;29;sage_femme;Sages-femmes;2016;2026;275;363;3,0278;3,83989;0,268209
+dep;2A;sage_femme;Sages-femmes;2016;2026;52;59;3,36999;3,36858;-0,000419316
+dep;2B;sage_femme;Sages-femmes;2016;2026;45;65;2,55461;3,41229;0,335737
+dep;30;sage_femme;Sages-femmes;2016;2026;264;293;3,55792;3,72462;0,046853
+dep;31;sage_femme;Sages-femmes;2016;2026;494;648;3,66419;4,26424;0,163761
+dep;32;sage_femme;Sages-femmes;2016;2026;35;53;1,83569;2,75342;0,499936
+dep;33;sage_femme;Sages-femmes;2016;2026;541;692;3,45316;3,98637;0,154411
+dep;34;sage_femme;Sages-femmes;2016;2026;428;515;3,77931;4,07182;0,0773966
+dep;35;sage_femme;Sages-femmes;2016;2026;398;530;3,78406;4,61588;0,219821
+dep;36;sage_femme;Sages-femmes;2016;2026;53;55;2,37131;2,58566;0,0903905
+dep;37;sage_femme;Sages-femmes;2016;2026;209;257;3,44758;4,11676;0,194101
+dep;38;sage_femme;Sages-femmes;2016;2026;478;578;3,81511;4,39103;0,150956
+dep;39;sage_femme;Sages-femmes;2016;2026;87;92;3,33951;3,58747;0,0742499
+dep;40;sage_femme;Sages-femmes;2016;2026;103;142;2,54315;3,18047;0,250604
+dep;41;sage_femme;Sages-femmes;2016;2026;90;108;2,70458;3,30377;0,221548
+dep;42;sage_femme;Sages-femmes;2016;2026;304;330;3,98952;4,24494;0,0640224
+dep;43;sage_femme;Sages-femmes;2016;2026;52;61;2,28733;2,65944;0,16268
+dep;44;sage_femme;Sages-femmes;2016;2026;466;632;3,37473;4,15095;0,23001
+dep;45;sage_femme;Sages-femmes;2016;2026;206;240;3,05488;3,44372;0,127283
+dep;46;sage_femme;Sages-femmes;2016;2026;40;48;2,30751;2,70356;0,171633
+dep;47;sage_femme;Sages-femmes;2016;2026;96;111;2,88433;3,30811;0,146925
+dep;48;sage_femme;Sages-femmes;2016;2026;28;25;3,66387;3,27045;-0,107376
+dep;49;sage_femme;Sages-femmes;2016;2026;296;332;3,65011;3,93584;0,0782795
+dep;50;sage_femme;Sages-femmes;2016;2026;143;170;2,8694;3,41261;0,18931
+dep;51;sage_femme;Sages-femmes;2016;2026;189;229;3,31066;4,11138;0,24186
+dep;52;sage_femme;Sages-femmes;2016;2026;63;58;3,53766;3,52106;-0,00469061
+dep;53;sage_femme;Sages-femmes;2016;2026;81;109;2,63254;3,58967;0,363579
+dep;54;sage_femme;Sages-femmes;2016;2026;337;362;4,5924;4,96536;0,0812121
+dep;55;sage_femme;Sages-femmes;2016;2026;58;56;3,06789;3,16197;0,0306646
+dep;56;sage_femme;Sages-femmes;2016;2026;245;318;3,27738;3,98018;0,21444
+dep;57;sage_femme;Sages-femmes;2016;2026;381;415;3,64499;3,95334;0,0845955
+dep;58;sage_femme;Sages-femmes;2016;2026;61;57;2,91641;2,85717;-0,0203134
+dep;59;sage_femme;Sages-femmes;2016;2026;867;1082;3,32985;4,14037;0,24341
+dep;60;sage_femme;Sages-femmes;2016;2026;199;240;2,41639;2,90281;0,2013
+dep;61;sage_femme;Sages-femmes;2016;2026;85;76;2,97924;2,79876;-0,0605787
+dep;62;sage_femme;Sages-femmes;2016;2026;385;474;2,61776;3,27138;0,249688
+dep;63;sage_femme;Sages-femmes;2016;2026;248;308;3,81128;4,63659;0,216543
+dep;64;sage_femme;Sages-femmes;2016;2026;214;275;3,17514;3,80319;0,197803
+dep;65;sage_femme;Sages-femmes;2016;2026;55;70;2,41409;3,01305;0,248108
+dep;66;sage_femme;Sages-femmes;2016;2026;134;158;2,82481;3,1021;0,0981651
+dep;67;sage_femme;Sages-femmes;2016;2026;469;535;4,18225;4,55565;0,0892821
+dep;68;sage_femme;Sages-femmes;2016;2026;257;288;3,36942;3,73479;0,108437
+dep;69;sage_femme;Sages-femmes;2016;2026;855;979;4,65711;5,05416;0,0852577
+dep;70;sage_femme;Sages-femmes;2016;2026;49;62;2,0654;2,68247;0,298766
+dep;71;sage_femme;Sages-femmes;2016;2026;180;202;3,24311;3,68637;0,136677
+dep;72;sage_femme;Sages-femmes;2016;2026;145;181;2,55479;3,20335;0,253861
+dep;73;sage_femme;Sages-femmes;2016;2026;181;204;4,21243;4,48202;0,0639992
+dep;74;sage_femme;Sages-femmes;2016;2026;316;412;3,94302;4,65968;0,181755
+dep;75;sage_femme;Sages-femmes;2016;2026;873;1095;3,98571;5,34772;0,341724
+dep;76;sage_femme;Sages-femmes;2016;2026;493;547;3,92593;4,33497;0,10419
+dep;77;sage_femme;Sages-femmes;2016;2026;299;349;2,13928;2,32342;0,086076
+dep;78;sage_femme;Sages-femmes;2016;2026;438;489;3,05907;3,22896;0,0555378
+dep;79;sage_femme;Sages-femmes;2016;2026;96;116;2,56176;3,09508;0,208188
+dep;80;sage_femme;Sages-femmes;2016;2026;174;228;3,03801;4,0659;0,338346
+dep;81;sage_femme;Sages-femmes;2016;2026;131;154;3,38985;3,82581;0,128608
+dep;82;sage_femme;Sages-femmes;2016;2026;70;66;2,72483;2,46356;-0,0958841
+dep;83;sage_femme;Sages-femmes;2016;2026;307;384;2,90769;3,3431;0,149745
+dep;84;sage_femme;Sages-femmes;2016;2026;225;254;4,02494;4,38367;0,0891261
+dep;85;sage_femme;Sages-femmes;2016;2026;202;236;3,01224;3,23079;0,0725542
+dep;86;sage_femme;Sages-femmes;2016;2026;158;181;3,62328;4,14635;0,144362
+dep;87;sage_femme;Sages-femmes;2016;2026;140;155;3,73355;4,16252;0,114894
+dep;88;sage_femme;Sages-femmes;2016;2026;132;151;3,57103;4,29228;0,201973
+dep;89;sage_femme;Sages-femmes;2016;2026;107;102;3,14203;3,09265;-0,0157157
+dep;90;sage_femme;Sages-femmes;2016;2026;55;81;3,81709;5,78216;0,514811
+dep;91;sage_femme;Sages-femmes;2016;2026;321;354;2,49353;2,59371;0,0401749
+dep;92;sage_femme;Sages-femmes;2016;2026;570;672;3,55524;4,00978;0,12785
+dep;93;sage_femme;Sages-femmes;2016;2026;437;436;2,71993;2,49763;-0,0817306
+dep;94;sage_femme;Sages-femmes;2016;2026;371;444;2,69201;3,08547;0,146159
+dep;95;sage_femme;Sages-femmes;2016;2026;344;390;2,81523;2,98854;0,061559
+dep;971;sage_femme;Sages-femmes;2016;2026;180;208;4,56725;5,43669;0,190362
+dep;972;sage_femme;Sages-femmes;2016;2026;172;197;4,56864;5,49025;0,201726
+dep;973;sage_femme;Sages-femmes;2016;2026;187;219;6,94259;7,33536;0,0565738
+dep;974;sage_femme;Sages-femmes;2016;2026;431;557;5,05321;6,11426;0,209977
+dep;976;sage_femme;Sages-femmes;2016;2026;144;139;5,97543;4,1099;-0,3122
+reg;01;sage_femme;Sages-femmes;2016;2026;180;208;4,56725;5,43669;0,190362
+reg;02;sage_femme;Sages-femmes;2016;2026;172;197;4,56864;5,49025;0,201726
+reg;03;sage_femme;Sages-femmes;2016;2026;187;219;6,94259;7,33536;0,0565738
+reg;04;sage_femme;Sages-femmes;2016;2026;431;557;5,05321;6,11426;0,209977
+reg;06;sage_femme;Sages-femmes;2016;2026;144;139;5,97543;4,1099;-0,3122
+reg;11;sage_femme;Sages-femmes;2016;2026;3653;4229;3,01474;3,35781;0,113799
+reg;24;sage_femme;Sages-femmes;2016;2026;761;855;2,95205;3,30207;0,118566
+reg;27;sage_femme;Sages-femmes;2016;2026;986;1045;3,49852;3,7401;0,0690533
+reg;28;sage_femme;Sages-femmes;2016;2026;1082;1198;3,24347;3,57215;0,101333
+reg;32;sage_femme;Sages-femmes;2016;2026;1774;2179;2,95329;3,65251;0,236761
+reg;44;sage_femme;Sages-femmes;2016;2026;2049;2294;3,68845;4,1376;0,121775
+reg;52;sage_femme;Sages-femmes;2016;2026;1190;1490;3,18383;3,75767;0,180233
+reg;53;sage_femme;Sages-femmes;2016;2026;1089;1422;3,29348;4,05122;0,23007
+reg;75;sage_femme;Sages-femmes;2016;2026;1817;2244;3,06119;3,59513;0,174422
+reg;76;sage_femme;Sages-femmes;2016;2026;1952;2339;3,36063;3,7442;0,114138
+reg;84;sage_femme;Sages-femmes;2016;2026;3060;3619;3,86515;4,35857;0,127656
+reg;93;sage_femme;Sages-femmes;2016;2026;1674;2068;3,33338;3,88841;0,166506
+reg;94;sage_femme;Sages-femmes;2016;2026;97;124;2,93535;3,39135;0,155349

@@ -1,0 +1,69 @@
+﻿type;classe;population;distance_mediane_km;part_plus_20_km;kruskal_H;p;epsilon2;intercommunalites;q_bh;libelle_type
+lieu_cmp_adultes;Très peu dense (moins de 25 hab./km²);2236815;13,1072;0,194584;338,948;3,68778e-73;0,29397;1154;5,22435e-73;CMP pour adultes
+lieu_cmp_adultes;Peu dense (25 à 100);14520383;8,73393;0,0386902;338,948;3,68778e-73;0,29397;1154;5,22435e-73;CMP pour adultes
+lieu_cmp_adultes;Intermédiaire (100 à 300);17262489;4,87535;0,0046517;338,948;3,68778e-73;0,29397;1154;5,22435e-73;CMP pour adultes
+lieu_cmp_adultes;Dense (plus de 300);34074593;1,22436;0,00143418;338,948;3,68778e-73;0,29397;1154;5,22435e-73;CMP pour adultes
+lieu_cmp_enfants;Très peu dense (moins de 25 hab./km²);2236815;17,5565;0,414658;388,753;6,04407e-84;0,331983;1172;9,34084e-84;CMP pour enfants et adolescents
+lieu_cmp_enfants;Peu dense (25 à 100);14520383;10,3652;0,10867;388,753;6,04407e-84;0,331983;1172;9,34084e-84;CMP pour enfants et adolescents
+lieu_cmp_enfants;Intermédiaire (100 à 300);17262489;5,61012;0,0259376;388,753;6,04407e-84;0,331983;1172;9,34084e-84;CMP pour enfants et adolescents
+lieu_cmp_enfants;Dense (plus de 300);34074593;1,52993;0,0178608;388,753;6,04407e-84;0,331983;1172;9,34084e-84;CMP pour enfants et adolescents
+lieu_cattp;Très peu dense (moins de 25 hab./km²);2236815;17,6345;0,421736;313,762;1,04466e-67;0,298821;1051;1,36609e-67;CATTP, accueil thérapeutique à temps partiel
+lieu_cattp;Peu dense (25 à 100);14520383;10,4325;0,145976;313,762;1,04466e-67;0,298821;1051;1,36609e-67;CATTP, accueil thérapeutique à temps partiel
+lieu_cattp;Intermédiaire (100 à 300);17262489;6,02044;0,070307;313,762;1,04466e-67;0,298821;1051;1,36609e-67;CATTP, accueil thérapeutique à temps partiel
+lieu_cattp;Dense (plus de 300);34074593;1,38443;0,0167374;313,762;1,04466e-67;0,298821;1051;1,36609e-67;CATTP, accueil thérapeutique à temps partiel
+lieu_hdj_psy_adultes;Très peu dense (moins de 25 hab./km²);2236815;21,1435;0,543786;471,373;7,62315e-102;0,376196;1254;4,31978e-101;Hôpitaux de jour en psychiatrie, adultes
+lieu_hdj_psy_adultes;Peu dense (25 à 100);14520383;13,4572;0,218321;471,373;7,62315e-102;0,376196;1254;4,31978e-101;Hôpitaux de jour en psychiatrie, adultes
+lieu_hdj_psy_adultes;Intermédiaire (100 à 300);17262489;6,6629;0,0488428;471,373;7,62315e-102;0,376196;1254;4,31978e-101;Hôpitaux de jour en psychiatrie, adultes
+lieu_hdj_psy_adultes;Dense (plus de 300);34074593;1,73095;0,00411236;471,373;7,62315e-102;0,376196;1254;4,31978e-101;Hôpitaux de jour en psychiatrie, adultes
+lieu_hdj_psy_enfants;Très peu dense (moins de 25 hab./km²);2236815;25,0854;0,657604;454,339;3,74278e-98;0,363471;1251;1,06046e-97;Hôpitaux de jour en psychiatrie, enfants et adolescents
+lieu_hdj_psy_enfants;Peu dense (25 à 100);14520383;16,1143;0,338117;454,339;3,74278e-98;0,363471;1251;1,06046e-97;Hôpitaux de jour en psychiatrie, enfants et adolescents
+lieu_hdj_psy_enfants;Intermédiaire (100 à 300);17262489;8,35639;0,0934878;454,339;3,74278e-98;0,363471;1251;1,06046e-97;Hôpitaux de jour en psychiatrie, enfants et adolescents
+lieu_hdj_psy_enfants;Dense (plus de 300);34074593;2,40264;0,0130544;454,339;3,74278e-98;0,363471;1251;1,06046e-97;Hôpitaux de jour en psychiatrie, enfants et adolescents
+lieu_hc_psy_adultes;Très peu dense (moins de 25 hab./km²);2236815;24,6025;0,656711;434,73;6,63167e-94;0,346951;1254;1,61055e-93;Hospitalisation complète en psychiatrie, adultes
+lieu_hc_psy_adultes;Peu dense (25 à 100);14520383;18,2019;0,433978;434,73;6,63167e-94;0,346951;1254;1,61055e-93;Hospitalisation complète en psychiatrie, adultes
+lieu_hc_psy_adultes;Intermédiaire (100 à 300);17262489;9,31756;0,131481;434,73;6,63167e-94;0,346951;1254;1,61055e-93;Hospitalisation complète en psychiatrie, adultes
+lieu_hc_psy_adultes;Dense (plus de 300);34074593;2,54246;0,00832835;434,73;6,63167e-94;0,346951;1254;1,61055e-93;Hospitalisation complète en psychiatrie, adultes
+lieu_cmpp;Très peu dense (moins de 25 hab./km²);2236815;22,8582;0,583068;253,068;1,4196e-54;0,20197;1254;1,50832e-54;CMPP, centres médico-psycho-pédagogiques
+lieu_cmpp;Peu dense (25 à 100);14520383;17,7848;0,422924;253,068;1,4196e-54;0,20197;1254;1,50832e-54;CMPP, centres médico-psycho-pédagogiques
+lieu_cmpp;Intermédiaire (100 à 300);17262489;11,2735;0,234456;253,068;1,4196e-54;0,20197;1254;1,50832e-54;CMPP, centres médico-psycho-pédagogiques
+lieu_cmpp;Dense (plus de 300);34074593;2,33517;0,0387372;253,068;1,4196e-54;0,20197;1254;1,50832e-54;CMPP, centres médico-psycho-pédagogiques
+lieu_camsp;Très peu dense (moins de 25 hab./km²);2236815;25,3588;0,663421;393,473;5,74005e-85;0,314025;1254;9,75808e-85;CAMSP, centres d'action médico-sociale précoce
+lieu_camsp;Peu dense (25 à 100);14520383;19,435;0,474101;393,473;5,74005e-85;0,314025;1254;9,75808e-85;CAMSP, centres d'action médico-sociale précoce
+lieu_camsp;Intermédiaire (100 à 300);17262489;10,0874;0,154389;393,473;5,74005e-85;0,314025;1254;9,75808e-85;CAMSP, centres d'action médico-sociale précoce
+lieu_camsp;Dense (plus de 300);34074593;3,07418;0,00743751;393,473;5,74005e-85;0,314025;1254;9,75808e-85;CAMSP, centres d'action médico-sociale précoce
+lieu_csapa;Très peu dense (moins de 25 hab./km²);2236815;27,7461;0,730209;467,283;5,86701e-101;0,372931;1254;2,49348e-100;CSAPA, soins et prévention en addictologie
+lieu_csapa;Peu dense (25 à 100);14520383;18,1044;0,426428;467,283;5,86701e-101;0,372931;1254;2,49348e-100;CSAPA, soins et prévention en addictologie
+lieu_csapa;Intermédiaire (100 à 300);17262489;9,656;0,144255;467,283;5,86701e-101;0,372931;1254;2,49348e-100;CSAPA, soins et prévention en addictologie
+lieu_csapa;Dense (plus de 300);34074593;2,1392;0,018038;467,283;5,86701e-101;0,372931;1254;2,49348e-100;CSAPA, soins et prévention en addictologie
+lieu_caarud;Très peu dense (moins de 25 hab./km²);2236815;37,6365;0,87128;305,952;5,12228e-66;0,244176;1254;6,21991e-66;CAARUD, réduction des risques
+lieu_caarud;Peu dense (25 à 100);14520383;29,5165;0,76268;305,952;5,12228e-66;0,244176;1254;6,21991e-66;CAARUD, réduction des risques
+lieu_caarud;Intermédiaire (100 à 300);17262489;18,5355;0,462559;305,952;5,12228e-66;0,244176;1254;6,21991e-66;CAARUD, réduction des risques
+lieu_caarud;Dense (plus de 300);34074593;4,50273;0,0915834;305,952;5,12228e-66;0,244176;1254;6,21991e-66;CAARUD, réduction des risques
+lieu_urgences;Très peu dense (moins de 25 hab./km²);2236815;19,9143;0,498147;424,461;1,11256e-91;0,338756;1254;2,10149e-91;Services d'urgences
+lieu_urgences;Peu dense (25 à 100);14520383;14,2344;0,230953;424,461;1,11256e-91;0,338756;1254;2,10149e-91;Services d'urgences
+lieu_urgences;Intermédiaire (100 à 300);17262489;7,61859;0,0539974;424,461;1,11256e-91;0,338756;1254;2,10149e-91;Services d'urgences
+lieu_urgences;Dense (plus de 300);34074593;2,15045;0,00440865;424,461;1,11256e-91;0,338756;1254;2,10149e-91;Services d'urgences
+lieu_maternite;Très peu dense (moins de 25 hab./km²);2236815;25,7408;0,698713;494,819;6,33206e-107;0,394907;1254;1,07645e-105;Maternités
+lieu_maternite;Peu dense (25 à 100);14520383;17,3898;0,384082;494,819;6,33206e-107;0,394907;1254;1,07645e-105;Maternités
+lieu_maternite;Intermédiaire (100 à 300);17262489;9,06119;0,0945062;494,819;6,33206e-107;0,394907;1254;1,07645e-105;Maternités
+lieu_maternite;Dense (plus de 300);34074593;2,48831;0,00508866;494,819;6,33206e-107;0,394907;1254;1,07645e-105;Maternités
+lieu_ehpad;Très peu dense (moins de 25 hab./km²);2236815;4,41913;0,0272928;304,975;8,33548e-66;0,243396;1254;9,44688e-66;EHPAD
+lieu_ehpad;Peu dense (25 à 100);14520383;2,64937;0,000554737;304,975;8,33548e-66;0,243396;1254;9,44688e-66;EHPAD
+lieu_ehpad;Intermédiaire (100 à 300);17262489;1,11178;7,89573e-05;304,975;8,33548e-66;0,243396;1254;9,44688e-66;EHPAD
+lieu_ehpad;Dense (plus de 300);34074593;0,641658;3,83277e-05;304,975;8,33548e-66;0,243396;1254;9,44688e-66;EHPAD
+lieu_ime;Très peu dense (moins de 25 hab./km²);2236815;16,4465;0,354385;457,32;8,45847e-99;0,36498;1254;2,87588e-98;Instituts médico-éducatifs (IME)
+lieu_ime;Peu dense (25 à 100);14520383;10,149;0,0927603;457,32;8,45847e-99;0,36498;1254;2,87588e-98;Instituts médico-éducatifs (IME)
+lieu_ime;Intermédiaire (100 à 300);17262489;5,22854;0,014439;457,32;8,45847e-99;0,36498;1254;2,87588e-98;Instituts médico-éducatifs (IME)
+lieu_ime;Dense (plus de 300);34074593;1,57895;0,00033189;457,32;8,45847e-99;0,36498;1254;2,87588e-98;Instituts médico-éducatifs (IME)
+lieu_sessad;Très peu dense (moins de 25 hab./km²);2236815;17,2452;0,380333;487,94;1,95957e-105;0,389417;1254;1,66563e-104;Services d'éducation spéciale et de soins à domicile (SESSAD)
+lieu_sessad;Peu dense (25 à 100);14520383;10,0593;0,09119;487,94;1,95957e-105;0,389417;1254;1,66563e-104;Services d'éducation spéciale et de soins à domicile (SESSAD)
+lieu_sessad;Intermédiaire (100 à 300);17262489;4,74395;0,0184928;487,94;1,95957e-105;0,389417;1254;1,66563e-104;Services d'éducation spéciale et de soins à domicile (SESSAD)
+lieu_sessad;Dense (plus de 300);34074593;1,4406;0,00024147;487,94;1,95957e-105;0,389417;1254;1,66563e-104;Services d'éducation spéciale et de soins à domicile (SESSAD)
+lieu_msp;Très peu dense (moins de 25 hab./km²);2236815;7,36792;0,0692945;207,326;1,10179e-44;0,165464;1254;1,10179e-44;Maisons de santé pluriprofessionnelles
+lieu_msp;Peu dense (25 à 100);14520383;5,30768;0,00980504;207,326;1,10179e-44;0,165464;1254;1,10179e-44;Maisons de santé pluriprofessionnelles
+lieu_msp;Intermédiaire (100 à 300);17262489;3,74652;0,00149231;207,326;1,10179e-44;0,165464;1254;1,10179e-44;Maisons de santé pluriprofessionnelles
+lieu_msp;Dense (plus de 300);34074593;1,29502;4,6046e-05;207,326;1,10179e-44;0,165464;1254;1,10179e-44;Maisons de santé pluriprofessionnelles
+lieu_centre_sante;Très peu dense (moins de 25 hab./km²);2236815;14,3226;0,280706;426,986;3,15791e-92;0,340771;1254;6,71056e-92;Centres de santé
+lieu_centre_sante;Peu dense (25 à 100);14520383;9,43321;0,0782477;426,986;3,15791e-92;0,340771;1254;6,71056e-92;Centres de santé
+lieu_centre_sante;Intermédiaire (100 à 300);17262489;4,70392;0,0200079;426,986;3,15791e-92;0,340771;1254;6,71056e-92;Centres de santé
+lieu_centre_sante;Dense (plus de 300);34074593;0,580554;0,000328808;426,986;3,15791e-92;0,340771;1254;6,71056e-92;Centres de santé

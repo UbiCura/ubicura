@@ -1,0 +1,61 @@
+﻿code;type;distance_mediane_km;part_plus_20_km;part_plus_30_km;libelle_type;recensement_complet
+FR;lieu_accompagnement_handicap;3,37917;0,0495302;0,00876471;Services d'accompagnement à domicile pour adultes en situation de handicap;True
+FR;lieu_addicto_hosp;14,2723;0,383558;0,229724;Addictologie à l'hôpital;True
+FR;lieu_alzheimer;4,73682;0,108262;0,0348224;Équipes spécialisées Alzheimer, accueil de jour et répit;True
+FR;lieu_bapu;72,8628;0,742334;0,688113;BAPU, aide psychologique universitaire;False
+FR;lieu_caarud;12,0373;0,353096;0,204674;CAARUD, réduction des risques;True
+FR;lieu_camsp;6,3289;0,165128;0,0621195;CAMSP, centres d'action médico-sociale précoce;True
+FR;lieu_cancerologie;8,72655;0,301094;0,200525;Cancérologie et radiothérapie;False
+FR;lieu_cardiologie;9,00159;0,296278;0,192548;Cardiologie à l'hôpital;False
+FR;lieu_cattp;3,25916;0,0746661;0,0332334;CATTP, accueil thérapeutique à temps partiel;True
+FR;lieu_centre_sante;1,96617;0,0310262;0,00478711;Centres de santé;True
+FR;lieu_chirurgie;7,01513;0,247926;0,161116;Chirurgie à l'hôpital;False
+FR;lieu_cmp;1,8104;0,0108451;0,00152604;CMP, tous publics;True
+FR;lieu_cmp_adultes;2,56429;0,016477;0,00237662;CMP pour adultes;True
+FR;lieu_cmp_enfants;3,16377;0,052191;0,0109878;CMP pour enfants et adolescents;True
+FR;lieu_cmpp;6,31761;0,187532;0,0829286;CMPP, centres médico-psycho-pédagogiques;True
+FR;lieu_consult_psy;8,84419;0,296844;0,186835;Consultations de psychiatrie hors CMP;False
+FR;lieu_cpts;9,77772;0,315784;0,224721;Communautés professionnelles territoriales de santé (CPTS);False
+FR;lieu_crise_psy;19,0386;0,488027;0,392897;Urgences psychiatriques, centres de crise et d'accueil permanent;False
+FR;lieu_csapa;5,8193;0,159992;0,0498262;CSAPA, soins et prévention en addictologie;True
+FR;lieu_depistage;7,35935;0,209306;0,0932233;Dépistage, vaccination et lutte antituberculeuse;True
+FR;lieu_dialyse;4,44583;0,0848016;0,0195732;Dialyse;True
+FR;lieu_douleur;31,5363;0,58741;0,510067;Structures douleur chronique;False
+FR;lieu_ehpad;0,801121;0,00105007;0,000799581;EHPAD;True
+FR;lieu_esat;3,20917;0,0226501;0,00396951;Établissements et services d'accompagnement par le travail (ESAT);True
+FR;lieu_foyers_handicap;2,38355;0,0185645;0,00638568;Foyers de vie et d'hébergement pour adultes en situation de handicap;True
+FR;lieu_geriatrie;10,9504;0,3512;0,250608;Gériatrie à l'hôpital;False
+FR;lieu_had;8,69913;0,209174;0,0804399;Hospitalisation à domicile;True
+FR;lieu_hc_psy_adultes;5,42757;0,151215;0,0485662;Hospitalisation complète en psychiatrie, adultes;True
+FR;lieu_hc_psy_enfants;11,7753;0,349383;0,212093;Hospitalisation complète en psychiatrie, enfants et adolescents;True
+FR;lieu_hdj_psy_adultes;3,78989;0,0823143;0,0210905;Hôpitaux de jour en psychiatrie, adultes;True
+FR;lieu_hdj_psy_enfants;5,40834;0,127222;0,0450052;Hôpitaux de jour en psychiatrie, enfants et adolescents;True
+FR;lieu_ime;3,08044;0,0351155;0,00547212;Instituts médico-éducatifs (IME);True
+FR;lieu_itep;6,80824;0,152472;0,048976;Instituts thérapeutiques, éducatifs et pédagogiques (ITEP);True
+FR;lieu_mas_fam;3,43699;0,0302275;0,00587266;Maisons d'accueil spécialisées et foyers d'accueil médicalisés;True
+FR;lieu_maternite;5,49382;0,131036;0,0319048;Maternités;True
+FR;lieu_mda;147,848;0,973167;0,963869;Maisons des adolescents;False
+FR;lieu_medecine;6,2857;0,192671;0,13757;Médecine polyvalente à l'hôpital;False
+FR;lieu_mobile_psy;11,0093;0,335357;0,223484;Équipes mobiles de psychiatrie;False
+FR;lieu_msp;2,13379;0,00475052;0,00156961;Maisons de santé pluriprofessionnelles;True
+FR;lieu_neonatalogie;20,7972;0,50776;0,422298;Néonatalogie;False
+FR;lieu_neurologie;12,5953;0,380831;0,276635;Neurologie à l'hôpital;False
+FR;lieu_pediatrie;12,8564;0,387603;0,279432;Pédiatrie à l'hôpital;False
+FR;lieu_perinatal_proximite;114,315;0,964706;0,926456;Centres périnatals de proximité;False
+FR;lieu_pmi;6,99851;0,299117;0,188576;PMI, protection maternelle et infantile;True
+FR;lieu_polyhandicap_enfants;7,42365;0,236784;0,107201;Établissements pour enfants en situation de polyhandicap, de handicap moteur ou sensoriel;True
+FR;lieu_precarite;5,70751;0,159719;0,0493697;Soins pour personnes en situation de précarité (PASS, LHSS, LAM, ACT);True
+FR;lieu_psychotrauma;24,807;0,552605;0,446508;Psychotraumatisme et urgences médico-psychologiques;False
+FR;lieu_reanimation;10,8193;0,347517;0,228322;Réanimation et soins intensifs;False
+FR;lieu_rehab_psy;9,72306;0,31263;0,188696;Réhabilitation psychosociale, appartements et accueil familial thérapeutiques;False
+FR;lieu_residence_autonomie;1,97695;0,0227892;0,00549338;Résidences autonomie;True
+FR;lieu_sante_sexuelle;8,04498;0,283786;0,187646;Centres de santé sexuelle;False
+FR;lieu_sessad;2,61;0,0366098;0,0047483;Services d'éducation spéciale et de soins à domicile (SESSAD);True
+FR;lieu_smr;2,8366;0,0206454;0,00281801;Soins médicaux et de réadaptation;True
+FR;lieu_smur;25,1485;0,532986;0,478994;SMUR, interventions d'urgence;False
+FR;lieu_soins_non_programmes;8,96771;0,275025;0,194848;Soins non programmés;False
+FR;lieu_soins_palliatifs;10,4778;0,336625;0,22905;Soins palliatifs;False
+FR;lieu_ssiad;2,82246;0,0238389;0,00327572;Soins infirmiers à domicile (SSIAD);True
+FR;lieu_tnd;16,7303;0,442642;0,293743;Repérage et diagnostic des troubles du neurodéveloppement;False
+FR;lieu_urgences;4,68302;0,0812008;0,012894;Services d'urgences;True
+FR;lieu_usld;5,77081;0,103885;0,0265832;Soins de longue durée (USLD);True
