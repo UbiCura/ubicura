@@ -265,7 +265,7 @@ def tuiles_domaines(cat: list[dict], venir: dict) -> list[dict]:
 
 
 # ---------------------------------------------------------------- page Domaines
-# Sous-thèmes dépliables (maquette validée par Lucas le 14 novembre 2026, prototypes/entrees/v2_domaines/) : chaque
+# Sous-thèmes dépliables (maquette validée le 14 novembre 2026, prototypes/entrees/v2_domaines/) : chaque
 # sous-thème se déplie là où il est nommé et montre ses indicateurs, chacun lié à sa page ; les professions principales
 # d'abord, les autres repliées ; « À venir » en dernier, lu dans le registre des bases. Tout vient du catalogue.
 

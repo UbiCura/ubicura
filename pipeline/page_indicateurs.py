@@ -1,4 +1,4 @@
-"""Page « Indicateurs » (navigation, étape 2, décision de Lucas du 8 novembre 2026) : tous les indicateurs du site,
+"""Page « Indicateurs » (navigation, étape 2, décision du 8 novembre 2026) : tous les indicateurs du site,
 cherchables sans accents ni pluriels et filtrables par domaine, thème et niveau, chacun vers sa page. Fabriquée depuis le
 catalogue unique (affichage.catalogue), si bien qu'une base ajoutée y paraît d'elle-même avec ses étiquettes de thème
 (pipeline/themes_indicateurs.csv). Les données (presentation/catalogue.json) servent aussi à la recherche de l'en-tête."""

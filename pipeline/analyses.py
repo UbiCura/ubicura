@@ -22,7 +22,7 @@ def moyenne_territoires(effectifs, prof, population, mode="all"):
     """Densité de référence d'un niveau de territoires pour 10 000 habitants. Somme des effectifs des territoires
     (code, prof, mode, n) rapportée à la population totale, c'est-à-dire la moyenne des densités des territoires
     pondérée par leur population. Les territoires sont comparés à elle, et non au chiffre national, qui compte en
-    plus les activités sans lieu et celles non rattachées à un territoire (téléconsultation, sans soins) (décision de Lucas du 5 octobre 2026)."""
+    plus les activités sans lieu et celles non rattachées à un territoire (téléconsultation, sans soins) (décision du 5 octobre 2026)."""
     if effectifs is None or not population:
         return float("nan")
     n = effectifs.loc[(effectifs["prof"] == prof) & (effectifs["mode"] == mode), "n"].sum()
@@ -1070,7 +1070,7 @@ COMBINAISON_CLASSES = [  # présence (au moins un professionnel déclaré) de g�
 
 
 def classe_combinaison(generaliste: bool, psychologue: bool, psychiatre: bool) -> str:
-    """Classe de COMBINAISON_CLASSES d'un territoire selon la présence des trois professions (demande de Lucas du
+    """Classe de COMBINAISON_CLASSES d'un territoire selon la présence des trois professions (demande du
     23 octobre 2026, carte des combinaisons). Présence et absence seulement, jamais d'addition des professions."""
     if generaliste and psychologue and psychiatre:
         return "trois"
@@ -1095,7 +1095,7 @@ def combinaison_par_territoire(agg, ref, niv="epci") -> pd.Series:
 def part_liberal(n_lib, n_all, minimum=None) -> np.ndarray:
     """Part des professionnels d'un territoire qui déclarent une activité libérale (une personne qui exerce aussi en
     salariée compte comme libérale), NaN quand le territoire compte moins de config.PART_LIBERAL_EFFECTIF_MIN
-    professionnels de la profession (demande de Lucas du 23 octobre 2026, indicateur de « Croiser deux
+    professionnels de la profession (demande du 23 octobre 2026, indicateur de « Croiser deux
     indicateurs »)."""
     minimum = config.PART_LIBERAL_EFFECTIF_MIN if minimum is None else minimum
     lib, tot = np.asarray(n_lib, dtype=float), np.asarray(n_all, dtype=float)
@@ -1520,7 +1520,7 @@ TYPOLOGIE_FAMILLES = {
     "tout": None,   # professions principales des deux familles
 }
 # Professions décrites dans le profil de chaque groupe sans servir à former les groupes (version 2, 11 octobre 2026,
-# demande de Lucas), toutes les spécialités médicales pour la santé et l'ensemble.
+# demande), toutes les spécialités médicales pour la santé et l'ensemble.
 TYPOLOGIE_DECRITES = {f: [pid for _m, pid, _l, _g, fam in config.SPECIALITES_MEDECINS if fam == config.SANTE]
                       + [config.MEDECIN_AUTRE[0]] for f in ("sante", "tout")}
 

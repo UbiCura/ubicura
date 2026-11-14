@@ -31,7 +31,7 @@ class Agregats:
 def cmp_et_psychiatres(act: pd.DataFrame, finess: pd.DataFrame | None, ref, lieux_res=None) -> pd.DataFrame | None:
     """Centres médico-psychologiques (CMP) actifs de FINESS par intercommunalité, et nombre d'entre eux où au moins un
     psychiatre déclare une activité au répertoire (numéro FINESS de l'établissement). Sert à nuancer « aucun
-    psychiatre ne déclare exercer » (question de Lucas du 9 octobre 2026). Depuis le 12 octobre 2026, les CMP sont
+    psychiatre ne déclare exercer » (question du 9 octobre 2026). Depuis le 12 octobre 2026, les CMP sont
     ceux de FINESS et du ROR réunis sans double compte (pipeline/lieux.py), FINESS seul étant très incomplet pour les
     CMP rattachés à leur hôpital (aucun en Martinique). FINESS seul ne sert plus qu'en repli."""
     if lieux_res:

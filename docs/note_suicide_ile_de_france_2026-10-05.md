@@ -1,6 +1,6 @@
 # Suicides et gestes auto-infligés en Île-de-France, vérification du 5 octobre 2026
 
-Question de Lucas. « Les données sur le suicide et les gestes auto-infligés en région parisienne ont l'air faibles, est-ce juste ? »
+Question. « Les données sur le suicide et les gestes auto-infligés en région parisienne ont l'air faibles, est-ce juste ? »
 
 ## Ce que disent nos données
 Taux de décès par suicide standardisé sur l'âge, pour 100 000 habitants (Santé publique France, Odissé, année 2023). Médiane des départements 13,9.

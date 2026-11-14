@@ -299,7 +299,7 @@ def _lieux_csv(agg, noms, lab, out: Path, contexte: dict | None = None):
         _csv(pd.DataFrame(ver.get("gardees") or [], columns=["ej", "etablissement", "type", "nom", "commune",
                                                              "nom_commune", "finess", "provenance", "raison"]),
              out / "structures_gardees_a_verifier.csv")
-        # aucun nom de personne dans les textes de vérification publiés (règle de Lucas du 15 octobre 2026, son nom
+        # aucun nom de personne dans les textes de vérification publiés (règle du 15 octobre 2026, son nom
         # ne figure que dans les citations et les mentions légales)
         prenom = config.AUTEUR.split()[0]
         textes = pd.concat([t[c].astype(str) for c in ("examen", "source_verification") if c in t]
@@ -404,7 +404,7 @@ def _lieux_csv(agg, noms, lab, out: Path, contexte: dict | None = None):
     rl = L.get("relecture")
     if isinstance(rl, pd.DataFrame) and len(rl):
         _csv(rl, out / "relecture_structures.csv")
-    # sectorisation psychiatrique des arrêtés des ARS reçus, publiée seulement après l'accord de Lucas
+    # sectorisation psychiatrique des arrêtés des ARS reçus, publiée seulement après l'accord
     # (sectorisation.PUBLIER), table par commune et contours des secteurs pour le plan de l'atlas
     from . import sectorisation as secto
     sc = L.get("sectorisation") or {}
@@ -556,7 +556,7 @@ def _publics_cmp(x: pd.DataFrame) -> tuple[dict, set]:
 
 def _cattp_meme_lieu_cmp(x: pd.DataFrame) -> set:
     """Index des CATTP à l'adresse d'un CMP (même adresse normalisée, même commune, même gestionnaire quand les deux en
-    ont un). Ils restent comptés à part, un CATTP étant le lieu d'activité déclaré, et sont signalés (décision de Lucas
+    ont un). Ils restent comptés à part, un CATTP étant le lieu d'activité déclaré, et sont signalés (décision
     du 16 octobre 2026). Un CATTP annoncé par le nom d'un CMP compte aussi comme tel."""
     from .util import norm
     if "adresse" not in x:
@@ -710,7 +710,7 @@ def _site(agg, ref, professions, insee, R, serie, jour):
         jeu = mises_a_jour.jeu_de_source(d.get("source") or "")
         d["fiche"] = mises_a_jour.ancre(jeu) if jeu else None
     niveaux = {}
-    # régions ajoutées le 7 octobre 2026 (carte et tableau de l'atlas par région, demande de Lucas)
+    # régions ajoutées le 7 octobre 2026 (carte et tableau de l'atlas par région, demande)
     reg_de_dep = ref.deps.set_index("code")["reg"]
     for niv in ["reg", "dep", "epci"]:
         base = {"epci": ref.epci, "dep": ref.deps, "reg": ref.regs}[niv].set_index("code")
@@ -927,7 +927,7 @@ def _site(agg, ref, professions, insee, R, serie, jour):
 
 def _croisements_bases_site(R, professions, insee):
     """Croisements entre bases par département (config.CROISEMENTS), avec leur question, leurs corrélations et la
-    valeur de chaque département, pour l'onglet Croisements de l'atlas (demande de Lucas du 9 octobre 2026)."""
+    valeur de chaque département, pour l'onglet Croisements de l'atlas (demande du 9 octobre 2026)."""
     from .lecture import pluriel
     from .rapport import THEMES_CROISEMENTS
     cr = R.get("croisements")

@@ -1,4 +1,4 @@
-"""Verdicts de la vérification à la main des CMP (contenus/verdicts_verification.csv, décisions de Lucas du 15 octobre 2026).
+"""Verdicts de la vérification à la main des CMP (contenus/verdicts_verification.csv, décisions du 15 octobre 2026).
 
 Chaque verdict porte la clé de la structure dans la liste de vérification (outils/structures_verifiees.py
 a-verifier), formée du gestionnaire, du premier numéro FINESS, du nom de la commune et du début du nom simplifié.

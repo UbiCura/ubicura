@@ -7,7 +7,7 @@ indicateur, domaines) appellent cellule() ; les pages en JavaScript (comparateur
 déjà arrondies, avec leur couleur, leur statut et leur position, dans les données de l'atelier (publier()), et les
 écrivent avec presentation/chiffres.js, qui applique les mêmes décimales.
 
-Règles (docs/comparaison_et_feuille_de_route_2026-10-30.md, parties 3.2 et 3.5, décisions de Lucas du 30 octobre 2026).
+Règles (docs/comparaison_et_feuille_de_route_2026-10-30.md, parties 3.2 et 3.5, décisions du 30 octobre 2026).
 - Unité, fixée par indicateur : une profession pour 10 000 habitants si la France en compte au moins 1 pour 10 000,
   sinon pour 100 000 ; les structures pour 100 000 personnes de leur public.
 - Repère, le taux de l'ensemble des territoires du même niveau calculé comme le territoire, nommé « Ensemble des
@@ -190,7 +190,7 @@ CLE_CONTRAIRE = {
 
 def sens_contraire(e, pos_txt: str) -> str | None:
     """« haut » quand le territoire est sous l'ensemble et pourtant plus haut que la plupart des territoires, « bas »
-    dans l'autre sens, None sinon (remarques de Lucas du 31 octobre 2026 : « 17 % sous l'ensemble » à côté de « plus
+    dans l'autre sens, None sinon (remarques du 31 octobre 2026 : « 17 % sous l'ensemble » à côté de « plus
     haut que 71 % » se lisait comme une contradiction, sur la fiche comme dans les constats). Un écart qui s'arrondit à
     0 % n'est pas contraire."""
     if e is None or not pos_txt or not ecart_mots(e) or ecart_mots(e).startswith("au niveau"):
@@ -727,7 +727,7 @@ class Affichage:
         return 30 if n >= 200 else 20 if n >= 60 else 12
 
     def histogramme(self, ident: str, lv: str, cel: dict) -> dict | None:
-        """Réglette de la direction visuelle (validation de Lucas du 31 octobre 2026) : histogramme des territoires du
+        """Réglette de la direction visuelle (validation du 31 octobre 2026) : histogramme des territoires du
         même niveau, axe arrêté au 98e centile (chevron quand des territoires vont au-delà) mais élargi pour que le
         repère, la médiane et le point du territoire restent visibles ; positions en pour cent de la largeur ;
         étiquettes du repère et de la médiane attachées à leur marque, alignées à gauche ou à droite près des bords.

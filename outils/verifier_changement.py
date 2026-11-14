@@ -1,4 +1,4 @@
-"""Vérification d'un changement, avant de le présenter à Lucas ou de le publier (demande de Lucas du 11 octobre 2026).
+"""Vérification d'un changement, avant de le présenter à l'auteur ou de le publier (demande du 11 octobre 2026).
 
 Deux couches. Ce script fait la première, les contrôles qui se calculent. La seconde est la relecture critique avec
 la grille docs/grille_relecture.md (esprit et objectif du projet, incertitudes, risques de mauvaise lecture).
@@ -203,7 +203,7 @@ def main(argv=None) -> int:
     texte += ["## Relecture critique", "",
               "Les contrôles calculés ne suffisent pas. Relire le changement avec la grille docs/grille_relecture.md "
               "(esprit et objectif du projet, incertitudes, risques de mauvaise lecture) et en faire un court compte "
-              "rendu pour Lucas.", ""]
+              "rendu pour l'auteur.", ""]
     sortie.write_text("\n".join(texte), encoding="utf-8")
     print("\n".join(texte))
     print(f"Compte rendu, {sortie}")

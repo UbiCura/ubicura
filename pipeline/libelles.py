@@ -3,7 +3,7 @@
 Les nomenclatures officielles (FINESS, secteurs RPPS, Assurance Maladie) contiennent des formulations
 datées ou stigmatisantes. Les données brutes et intermédiaires gardent le libellé d'origine, pour la
 traçabilité et les appariements. Tout ce qu'un lecteur voit passe par la table libelles.csv, validée
-par Lucas, qui associe chaque libellé d'origine à un libellé d'affichage. Les sigles d'usage
+par l'auteur, qui associe chaque libellé d'origine à un libellé d'affichage. Les sigles d'usage
 (EHPAD, IME, CMP...) restent toujours visibles pour que les structures soient identifiables."""
 from __future__ import annotations
 
@@ -34,35 +34,35 @@ TERMES_PROSCRITS = [
     (r"\bagees dependantes\b", "personnes âgées dépendantes, préférer « en perte d'autonomie »"),
     (r"\bdebiles?\b|\barrieres? mentaux\b|\balienes\b|\binfirmes\b", "terme péjoratif ou daté"),
 ]
-# Vocabulaire à éviter sur le site et dans les rapports (consigne de Lucas du 4 octobre 2026), pour ne pas
+# Vocabulaire à éviter sur le site et dans les rapports (consigne du 4 octobre 2026), pour ne pas
 # présenter les contenus comme « automatiques » ou « générés ». Vérifié avec les termes à proscrire.
 VOCABULAIRE_A_EVITER = [
     (r"\bautomatique(s|ment)?\b", "vocabulaire « automatique » à éviter sur le site"),
     (r"\bgenere(e|s|es)? automatiquement\b|\bproduit automatiquement\b", "vocabulaire « généré » à éviter sur le site"),
     # consigne du 4 octobre 2026, ne pas mettre en avant l'outil qui télécharge ou calcule
     (r"\b(le|du|par le|au) programme\b", "« le programme » mis en avant, préférer une formulation centrée sur les données"),
-    # remarque de Lucas du 28 octobre 2026, l'écart à l'effectif attendu n'est ni un manque ni un écart à une norme
+    # remarque du 28 octobre 2026, l'écart à l'effectif attendu n'est ni un manque ni un écart à une norme
     (r"\bil en manque\b|\bmanquent environ\b", "écart à l'effectif attendu présenté comme un manque, le décrire (« environ N de moins »)"),
     # règle 13, aucun territoire désigné comme mauvais élève (séance principale, 28 octobre 2026)
     (r"\bmal dote(e|s|es)?\b", "« mal doté » désigne un mauvais élève, préférer « peu doté » ou « moins doté »"),
     (r"\b(dans|hors de) la norme\b", "« la norme » pour un écart à l’ensemble des territoires, préférer « proche de l’ensemble » ou les limites à 95 %"),
-    # tournures de présentation qui vantent le site au lieu de décrire (remarque de Lucas du 5 novembre 2026, « Le cœur
+    # tournures de présentation qui vantent le site au lieu de décrire (remarque du 5 novembre 2026, « Le cœur
     # du site » ne fait pas professionnel)
     (r"\bc(oe| )ur du site\b|\bpierre angulaire\b|\bincontournable\b", "tournure qui vante le site, décrire ce que la page montre"),
-    # slogans et tournures familières (remarque de Lucas du 8 novembre 2026 sur « la preuve en figure, la méthode à un
+    # slogans et tournures familières (remarque du 8 novembre 2026 sur « la preuve en figure, la méthode à un
     # clic ») : une phrase simple qui décrit ce que l'on trouve
     (r"\b(a|en) (un|quelques) clics?\b|\bla preuve en figure\b|\bd.un coup( d.oeil)?\b|\bdecouvrez\b|\bplongez\b",
      "slogan ou tournure familière, écrire une phrase simple qui décrit ce que l'on trouve"),
     # rien de l'offre payante sur le site avant qu'elle soit finalisée et validée, charte du gratuit comprise ; on peut
-    # préparer la place, sans aucun texte qui en parle (Lucas, 28 et 31 octobre 2026)
+    # préparer la place, sans aucun texte qui en parle (28 et 31 octobre 2026)
     (r"\boffre (payante|professionnelle)\b|\bacces (pro|professionnel)\b|\bversion (complete|professionnelle|reelle)\b"
      r"|\bservices? payants?\b|\bapi payante\b|\babonnements?\b|\bcharte du gratuit\b|\bce qui restera gratuit\b"
      r"|\brestera(ont)? (toujours )?gratuit", "allusion à l'offre payante, interdite sur le site avant sa validation"),
 ]
 
-# Noms propres d'institutions conservés tels quels (validé par Lucas pour la MDPH).
+# Noms propres d'institutions conservés tels quels (validé pour la MDPH).
 EXCEPTIONS = [r"maisons? dep(artementales?)? (des )?personnes handicapees",   # forme abrégée du RPPS comprise (« GIP MAISON DEP PERSONNES HANDICAPEES »)
-              # raison sociale gardée telle quelle, nom propre de l'établissement de Clermont-Ferrand (Lucas, 6 novembre 2026)
+              # raison sociale gardée telle quelle, nom propre de l'établissement de Clermont-Ferrand (6 novembre 2026)
               r"centre (de )?reeducation (pour )?deficients visuels",
               # raisons sociales déclarées au répertoire RPPS, gardées telles quelles comme noms propres (même règle) :
               # le service de Valence et le foyer de Lèves (Eure-et-Loir)

@@ -10,7 +10,7 @@ const REG_DOM={"01":"971","02":"972","03":"973","04":"974","06":"976"};
 const depOfFeat=(lv,f)=>lv==="dep"?f.properties.dep:lv==="reg"?(REG_DOM[f.properties.reg]||""):(IDX.epciDep?.get(f.properties.epci)||"");
 // Sur la carte nationale seulement, la Corse est rapprochée du continent de 1,3 degré de longitude, à la même échelle
 // (pratique courante des cartes de France). À sa place exacte, elle tenait le coin sud-est du cadre, collée au bord, et
-// repoussait la France vers la gauche (remarque de Lucas du 28 octobre 2026). Les plans des territoires, les distances
+// repoussait la France vers la gauche (remarque du 28 octobre 2026). Les plans des territoires, les distances
 // et les exports de données gardent les coordonnées réelles.
 const CORSE=["2A","2B"],DLON_CORSE=1.3;
 const estCorse=(lv,f)=>lv==="reg"?f.properties.reg==="94":CORSE.includes(depOfFeat(lv,f));

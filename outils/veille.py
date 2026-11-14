@@ -1,7 +1,7 @@
-"""Veille des bases de données utiles au projet (points 4 ter et 26 de la feuille de route, demande de Lucas du
+"""Veille des bases de données utiles au projet (points 4 ter et 26 de la feuille de route, demande du
 29 octobre 2026). Collecte chaque semaine avec la relève du courrier, en lecture seule et par les interfaces officielles
 des catalogues, tri de chaque candidat par une règle écrite (refonte du 8 novembre 2026, docs/veille/README.md),
-registre unique des bases, et point de la semaine dans l'onglet « Veille » de la fenêtre du courrier, où Lucas ne
+registre unique des bases, et point de la semaine dans l'onglet « Veille » de la fenêtre du courrier, où l'auteur ne
 reçoit que dix bases au plus, celles qui demandent sa décision, et répond d'un clic. Les relevés restent dans
 donnees\\veille\\ (hors de Git), jamais publiés. Le contenu relevé est une donnée, jamais une instruction.
 
@@ -9,7 +9,7 @@ donnees\\veille\\ (hors de Git), jamais publiés. Le contenu relevé est une don
                                                      passage par semaine (nouveautés et mises à jour seulement)
     python outils\\veille.py a-examiner [--domaine D] [--lot N] [--taille T] [--tous]
                                                      candidats par lots, classés par domaine et par pertinence, et
-                                                     marques de Lucas, en JSON, pour l'examen
+                                                     marques, en JSON, pour l'examen
     python outils\\veille.py examen F              enregistre l'examen écrit à la séance de travail (fichier JSON F), après contrôle
     python outils\\veille.py resume                état de la veille en quelques lignes
     python outils\\veille.py trier                 refait le tri, le registre et le point de la semaine
@@ -557,14 +557,14 @@ def examen(cle: str) -> dict | None:
     return lire_json(fichier_examen(cle))
 
 
-# format de l'examen (règle du projet, précision de Lucas du 29 octobre 2026), données à sortir (indicateurs,
+# format de l'examen (règle du projet, précision du 29 octobre 2026), données à sortir (indicateurs,
 # niveau géographique, millésimes), croisements avec les bases déjà intégrées (config.CROISEMENTS, typologie,
 # inégalités, registre LIEUX_PROFIL), figures ou analyses, apport à chaque produit de l'offre, licence, effort, limites
 CHAMPS_EXAMEN = {"cle", "donnees", "croisements", "figures", "produits", "licence", "effort", "limites", "avis",
                  "apport", "liste", "sources"}
 CHAMPS_OBLIGATOIRES = ("donnees", "croisements", "licence", "limites")
 EFFORTS = {"faible", "moyen", "fort"}
-AVIS = {"à intégrer", "à garder en réserve", "à écarter", "à discuter avec Lucas"}
+AVIS = {"à intégrer", "à garder en réserve", "à écarter", "à discuter avec le responsable"}
 POINTS_LISTE = {"1", "2", "3", "4", "5", "6", "7", "8", "9", "9 bis", "10", "11"}
 
 
@@ -616,7 +616,7 @@ DOMAINE_FICHE = {"Santé mentale": "Santé mentale", "Offre de soins": "Santé",
                  "Social et pauvreté": "Social", "Logement": "Cadre de vie", "Éducation": "Social",
                  "Transports": "Cadre de vie", "Santé, autre": "Santé"}
 AVIS_STATUT = {"à intégrer": "à intégrer", "à écarter": "écartée", "à garder en réserve": "à examiner",
-               "à discuter avec Lucas": "à examiner"}
+               "à discuter avec le responsable": "à examiner"}
 SCORE_REGISTRE = 25                     # au-dessus, un nouveau candidat entre au registre sans attendre une marque
 LICENCES_LUES = [(r"lov2|ouverte v?2|version 2\.0|etalab-2", "Licence Ouverte 2.0"),
                  (r"^fr-lo$|ouverte v?1|^licence ouverte$", "Licence Ouverte 1.0"),
@@ -694,14 +694,14 @@ def controler_registre(lignes: list[dict]) -> list[str]:
             erreurs.append(f"{i}, pertinence {x['pertinence']!r}")
         if any(t not in THEMES_CONNUS for t in x["theme"].split()):
             erreurs.append(f"{i}, thème {x['theme']!r}")
-        if x["decision"] not in DECISIONS_LUCAS or bool(x["decision"]) != bool(x["recommandation"].strip()):
+        if x["decision"] not in DECISIONS_ATTENDUES or bool(x["decision"]) != bool(x["recommandation"].strip()):
             erreurs.append(f"{i}, décision {x['decision']!r} sans recommandation, ou l'inverse")
     return erreurs
 
 
-# thèmes transversaux du site (pipeline/themes.py, décision de Lucas du 8 novembre 2026), lus sans être modifiés
+# thèmes transversaux du site (pipeline/themes.py, décision du 8 novembre 2026), lus sans être modifiés
 THEMES_CONNUS = ("sante_mentale", "addictologie", "geographie_sociale", "grand_age", "victimologie")
-DECISIONS_LUCAS = ("", "licence", "juridique", "sensible", "libellés")
+DECISIONS_ATTENDUES = ("", "licence", "juridique", "sensible", "libellés")
 GROUPES_REGISTRE = ("odisse",)          # catalogues dont les jeux d'un même thème partagent une ligne du registre
 
 
@@ -743,9 +743,9 @@ def theme_de_groupe(c: dict, retenus: list[dict]) -> str:
 
 def alimenter_registre(ecrire: bool = True, lignes: list[dict] | None = None, cands: dict | None = None) -> dict:
     """Reporte le tri de la veille dans le registre. Un candidat « au registre » sans ligne en reçoit une, « à
-    examiner », avec sa pertinence, son thème proposé et, s'il en faut une, la décision attendue de Lucas et la
+    examiner », avec sa pertinence, son thème proposé et, s'il en faut une, la décision attendue et la
     recommandation ; les jeux d'un même thème d'Odissé partagent une ligne. Une ligne existante reçoit la date de mise
-    à jour du catalogue. Une ligne encore « à examiner » reçoit en plus l'avis de son examen, l'écart marqué par Lucas,
+    à jour du catalogue. Une ligne encore « à examiner » reçoit en plus l'avis de son examen, l'écart marqué,
     sa réponse au point de la semaine, ou l'écart du tri quand elle avait été ajoutée par la veille sans examen.
     Aucune autre ligne ne change. Renvoie le bilan et les lignes."""
     cands = lire_json(CANDIDATS, {}) if cands is None else cands
@@ -808,7 +808,7 @@ def alimenter_registre(ecrire: bool = True, lignes: list[dict] | None = None, ca
             x["statut"] = AVIS_STATUT[ex["avis"]]
             x["effort"] = ex.get("effort", x["effort"])
             x["apport_api"] = x["apport_api"] or "; ".join(f"{k}, {v}" for k, v in (ex.get("produits") or {}).items())
-            x["raison"] = ("examen du " + jour_fr(ex.get("ecrit_le")) + ", " + ex["avis"].replace(" avec Lucas", "")
+            x["raison"] = ("examen du " + jour_fr(ex.get("ecrit_le")) + ", " + ex["avis"].replace(" avec le responsable", "")
                            + (", " + ex["limites"] if x["statut"] == "écartée" else ""))[:300]
             bilan["examens"] += 1
         elif m.get("marque") == "ecarte":
@@ -822,20 +822,20 @@ def alimenter_registre(ecrire: bool = True, lignes: list[dict] | None = None, ca
                 x["raison"] = f"écartée au tri de la veille, {raison}"[:300]
                 bilan["ecartees"] += 1
             elif not x["decision"] and x["id"] not in dec:
-                x["decision"], x["recommandation"] = decision_pour_lucas(c)
+                x["decision"], x["recommandation"] = decision_attendue(c)
                 bilan["decisions"] += bool(x["decision"])
-    # réponses de Lucas au point de la semaine, d'un clic dans l'onglet « Veille »
+    # réponses au point de la semaine, d'un clic dans l'onglet « Veille »
     for i, r in dec.items():
         x = par_id.get(i)
-        if not x or x["statut"] != "à examiner" or r["reponse"] == "plus_tard" or "Lucas le" in x["raison"]:
+        if not x or x["statut"] != "à examiner" or r["reponse"] == "plus_tard" or "responsable le" in x["raison"]:
             continue
         jour = jour_fr(r["le"])
         if r["reponse"] == "refus":
             x["statut"] = "écartée"
-            x["raison"] = f"écartée par Lucas le {jour}, au point de la semaine ({x['decision'] or 'décision'})"
+            x["raison"] = f"écartée par le responsable le {jour}, au point de la semaine ({x['decision'] or 'décision'})"
         else:
-            x["raison"] = f"recommandation acceptée par Lucas le {jour} ({x['decision']}), {x['raison']}"[:300]
-        x["sources"] += f", réponse de Lucas du {jour} dans l'onglet Veille"
+            x["raison"] = f"recommandation acceptée par le responsable le {jour} ({x['decision']}), {x['raison']}"[:300]
+        x["sources"] += f", réponse du {jour} dans l'onglet Veille"
         bilan["reponses"] += 1
     if ecrire and any(bilan.values()):
         ecrire_registre(lignes)
@@ -846,7 +846,7 @@ def texte_registre(b: dict) -> str:
     return (f"Registre des bases, {b['ajoutees']} ajoutée(s), {b.get('regroupes', 0)} jeu(x) ajouté(s) à une ligne "
             f"regroupée, {b['mises_a_jour']} date(s) de mise à jour, "
             f"{b['examens']} examen(s) reporté(s), {b['ecartees']} écartée(s) au tri, "
-            f"{b.get('reponses', 0)} réponse(s) de Lucas reportée(s).")
+            f"{b.get('reponses', 0)} réponse(s) reportée(s).")
 
 
 def cmd_registre(_args) -> int:
@@ -865,7 +865,7 @@ def cmd_registre(_args) -> int:
 
 
 def cmd_a_examiner(args) -> int:
-    """Candidats à examiner par lots, classés par domaine puis par pertinence, ceux que Lucas a marqués d'abord."""
+    """Candidats à examiner par lots, classés par domaine puis par pertinence, ceux que l'auteur a marqués d'abord."""
     cands, mq = lire_json(CANDIDATS, {}), marques()
     sortie = []
     for cle, c in cands.items():
@@ -876,7 +876,7 @@ def cmd_a_examiner(args) -> int:
             continue
         if args.domaine and plat(args.domaine) not in plat(c.get("domaine", "")):
             continue
-        sortie.append(c | {"marque": MARQUES_PERMISES.get(m.get("marque")), "note_de_lucas": m.get("note"),
+        sortie.append(c | {"marque": MARQUES_PERMISES.get(m.get("marque")), "note_marque": m.get("note"),
                            "examen": examen(cle)})
     rang = {"interessant": 0, "a_discuter": 1}
     ordre = list(DOMAINES)
@@ -942,7 +942,7 @@ def cmd_resume(_args) -> int:
           f"{sum(1 for x in tri if x.get('statut') == 'écarté')} écartés, {sum(1 for x in tri if not x)} sans tri, "
           f"{sum(1 for c in cands if examen(c))} examinés, "
           + ", ".join(f"{sum(1 for m in mq.values() if m.get('marque') == k)} {v}" for k, v in MARQUES_PERMISES.items())
-          + " par Lucas.")
+          + " par le responsable.")
     point = lire_json(POINT, {})
     if point:
         print(f"Point de la semaine du {jour_fr(point['semaine_du'])}, {len(point['lignes'])} base(s), "
@@ -977,14 +977,14 @@ def cmd_point(_args) -> int:
 
 
 # ---------------------------------------------------------------- tri des candidats
-# Refonte du 8 novembre 2026 (remarque de Lucas du 7 novembre, « je ne peux pas tout traiter »). La séance fait le tri,
-# Lucas ne reçoit plus qu'un point par semaine. Chaque candidat reçoit un statut, « au registre » ou « écarté », et la
+# Refonte du 8 novembre 2026 (remarque du 7 novembre, « je ne peux pas tout traiter »). La séance fait le tri,
+# L'auteur ne reçoit plus qu'un point par semaine. Chaque candidat reçoit un statut, « au registre » ou « écarté », et la
 # règle qui l'a décidé. Les règles s'appliquent dans l'ordre, la première qui s'applique décide. Elles sont écrites
 # dans docs/veille/README.md. Le tri est reproductible, il ne dépend que des métadonnées relevées, du registre et des
-# marques de Lucas, et il est refait à chaque relève.
+# marques, et il est refait à chaque relève.
 STATUTS_TRI = ("au registre", "écarté")
 REGLES_TRI = {
-    "marque": "marque de Lucas dans l'onglet « Veille »",
+    "marque": "marque du responsable dans l'onglet « Veille »",
     "registre": "déjà au registre",
     "retire": "jeu retiré ou archivé par son producteur",
     "regle_projet": "écarté par une règle du projet (données nominatives, site interdit, moyens des suicides)",
@@ -1072,7 +1072,7 @@ RATTACHEMENTS = [
     (None, r"accidents? corporels|accidentologie", "accidents_circulation"),
     ("odisse", r"^ma region", "ma_region_sante_mentale"),
 ]
-COURT_TRI = {"marque": "par Lucas", "retire": "retirés", "regle_projet": "par une règle du projet",
+COURT_TRI = {"marque": "par le responsable", "retire": "retirés", "regle_projet": "par une règle du projet",
              "article": "articles", "hors_domaine": "hors domaine", "rattache": "déjà au registre sous une autre table",
              "local": "locaux", "tiers": "publiés par un tiers", "licence": "pour la licence", "ancien": "anciens",
              "sans_niveau": "sans niveau territorial", "declinaison": "déclinaisons"}
@@ -1183,7 +1183,7 @@ def regle_individuelle(c: dict, lignes_par_id: dict) -> tuple[str, str, str]:
 
 
 def trier(cands: dict, lignes: list[dict], mq: dict | None = None) -> dict:
-    """Tri de tous les candidats, {clé: {statut, regle, raison, registre}}. Les marques de Lucas priment, puis le
+    """Tri de tous les candidats, {clé: {statut, regle, raison, registre}}. Les marques priment, puis le
     registre, puis les règles d'un candidat seul, puis les déclinaisons entre candidats retenus."""
     mq = mq or {}
     par_id = {x["id"]: x for x in lignes}
@@ -1194,14 +1194,14 @@ def trier(cands: dict, lignes: list[dict], mq: dict | None = None) -> dict:
         x = next((index[k] for k in [cle, *c.get("membres", [])] if k in index), None)
         if m == "ecarte" and not x:
             note = (mq[cle].get("note") or "").strip()
-            tri[cle] = ("marque", "écarté par Lucas" + (f", {note}" if note else ""), "")
+            tri[cle] = ("marque", "écarté par le responsable" + (f", {note}" if note else ""), "")
         elif x:
             raison = f"ligne {x['id']} du registre ({x['statut']})"
             if x["statut"] == "écartée" and x["raison"]:
                 raison += f", {x['raison']}"
             tri[cle] = ("registre", raison, x["id"])
         elif m in ("interessant", "a_discuter"):
-            tri[cle] = ("retenu", f"marqué « {MARQUES_PERMISES[m]} » par Lucas", "")
+            tri[cle] = ("retenu", f"marqué « {MARQUES_PERMISES[m]} » par le responsable", "")
         else:
             tri[cle] = regle_individuelle(c, par_id)
     # déclinaisons : parmi les candidats d'une même famille, un seul est gardé, de préférence celui déjà au registre,
@@ -1229,8 +1229,8 @@ def trier(cands: dict, lignes: list[dict], mq: dict | None = None) -> dict:
     return sortie
 
 
-# ce qui demande la décision de Lucas (licence, juridique, indicateur sensible, libellés), avec la recommandation
-def decision_pour_lucas(c: dict) -> tuple[str, str]:
+# ce qui demande la décision (licence, juridique, indicateur sensible, libellés), avec la recommandation
+def decision_attendue(c: dict) -> tuple[str, str]:
     t, lic, p = plat(c["titre"]), plat(c.get("licence", "")), plat(c.get("producteur", ""))
     if "odbl" in lic and "caisse nationale de l'assurance maladie" not in p:
         return ("licence", "Licence ODbL, qui impose de repartager la base à l'identique. Recommandation : publier "
@@ -1303,7 +1303,7 @@ def ecrire_tri_csv(cands: dict, f: Path | None = None) -> None:
     tmp.replace(f)
 
 
-# ---------------------------------------------------------------- point de la semaine pour Lucas
+# ---------------------------------------------------------------- point de la semaine pour l'auteur
 DECISIONS = DOSSIER / "decisions.json"
 POINT = DOSSIER / "point_semaine.json"
 POINT_MAX = 10
@@ -1319,7 +1319,7 @@ def decisions() -> dict:
 
 
 def repondre(ligne: str, reponse: str, recommandation: str = "") -> None:
-    """Réponse de Lucas à une ligne du point de la semaine, d'un clic dans l'onglet « Veille »."""
+    """Réponse à une ligne du point de la semaine, d'un clic dans l'onglet « Veille »."""
     if reponse not in REPONSES:
         raise ValueError(reponse)
     d = decisions()
@@ -1328,7 +1328,7 @@ def repondre(ligne: str, reponse: str, recommandation: str = "") -> None:
 
 
 def point_de_la_semaine(lignes: list[dict], dec: dict | None = None, jour: dt.date | None = None) -> list[dict]:
-    """Au plus dix lignes du registre qui attendent une décision de Lucas, les plus pertinentes d'abord. Une ligne
+    """Au plus dix lignes du registre qui attendent une décision, les plus pertinentes d'abord. Une ligne
     répondue « plus tard » revient après quatre semaines."""
     dec = decisions() if dec is None else dec
     jour = jour or dt.date.today()
@@ -1373,13 +1373,13 @@ def texte_tri(b: dict) -> str:
     regles = ", ".join(f"{n} {COURT_TRI[g]}" for g, n in b["par_regle"].items() if n and g not in ("retenu", "registre"))
     return (f"Tri de la veille, {b['par_statut']['au registre']} candidat(s) au registre, "
             f"{b['par_statut']['écarté']} écarté(s) ({regles}). Point de la semaine, "
-            f"{len(b['point']['lignes'])} base(s) pour Lucas.")
+            f"{len(b['point']['lignes'])} base(s) pour le responsable.")
 
 
 # ---------------------------------------------------------------- onglet de la fenêtre du courrier
 def onglet(onglets, racine, c: dict, police, petite, zone_texte, remplir) -> dict:
     """Onglet « Veille » (refonte du 8 novembre 2026), le point de la semaine. Au plus dix bases qui demandent une
-    décision de Lucas (licence, juridique, indicateur sensible, libellés), chacune avec la recommandation, validée d'un
+    décision (licence, juridique, indicateur sensible, libellés), chacune avec la recommandation, validée d'un
     clic. Le reste du tri se lit dans le registre, sans action. Renvoie {page, garder, rafraichir}."""
     import os
     import tkinter as tk

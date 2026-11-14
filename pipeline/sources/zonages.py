@@ -1,6 +1,6 @@
 """Zonages des professionnels de santé libéraux arrêtés par les ARS (fichier national d'Atlasanté, réseau des ARS,
 Licence Ouverte 2.0), en brouillon : lus, contrôlés et écrits dans donnees/intermediaire/zonages, jamais publiés tant
-que PUBLIER est faux (décision de Lucas du 30 octobre 2026, intégration en brouillon jusqu'à la fiche de territoire en
+que PUBLIER est faux (décision du 30 octobre 2026, intégration en brouillon jusqu'à la fiche de territoire en
 bandes). Note de faisabilité docs/note_zonages_2026-10-30.md.
 
 Jeu data.gouv.fr 69bd265e2545e17d2d65fd37, « Zonages des professionnels de santé libéraux », lu par l'API de data.gouv le
@@ -8,7 +8,7 @@ Jeu data.gouv.fr 69bd265e2545e17d2d65fd37, « Zonages des professionnels de sant
 Paris, Lyon et Marseille), quartiers prioritaires de la ville et grands quartiers de La Réunion, où le zonage des
 médecins est fait par grand quartier. Six professions, chacune avec la catégorie de zonage de la commune et la date de
 l'arrêté de l'ARS. Les catégories gardent le vocabulaire officiel, expliqué, et ne sont jamais appliquées à un
-territoire nommé dans une phrase (décision de Lucas du 30 octobre 2026).
+territoire nommé dans une phrase (décision du 30 octobre 2026).
 
 La part de la population d'un territoire dans chaque catégorie se calcule sur les communes du référentiel. Une commune
 découpée (arrondissements, grands quartiers de La Réunion pour les médecins) a une part par catégorie, d'après la

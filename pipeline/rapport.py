@@ -117,7 +117,7 @@ def _groupe(titre, intro, *sections, abaisser=True, cles=None):
 
 
 # ---------------------------------------------------------------- chiffres clés en tête de partie
-# Audit du 22 octobre 2026, lot 2, décision de Lucas. Trois ou quatre chiffres repris des analyses de la partie, mêmes
+# Audit du 22 octobre 2026, lot 2, décision. Trois ou quatre chiffres repris des analyses de la partie, mêmes
 # calculs que le texte, chacun avec son unité, aucun nom de territoire ni classement.
 
 def _cles(*items):
@@ -266,7 +266,7 @@ class Contexte:
         """Densité de référence pour comparer des territoires d'un niveau (com, piece, epci, dep, reg), calculée
         comme eux. Somme des effectifs des territoires rapportée à la population, donc sans les activités sans lieu
         ni les activités non rattachées à un territoire, et une personne compte dans chaque territoire où elle exerce
-        (décision de Lucas du 5 octobre 2026). C'est la moyenne des territoires pondérée par leur population."""
+        (décision du 5 octobre 2026). C'est la moyenne des territoires pondérée par leur population."""
         cle = (p, niveau, mode)
         if cle not in self._moyennes:
             self._moyennes[cle] = moyenne_territoires(self.agg.effectifs.get(niveau), p, self.pop_fr, mode)
@@ -716,7 +716,7 @@ def offre_addicto(x, n_add) -> list:
 
 
 def _addictologie(C: Contexte, insee, ctxlab):
-    """Partie « Addictologie » du rapport santé mentale (accord de Lucas du 22 octobre 2026), offre, recours et
+    """Partie « Addictologie » du rapport santé mentale (accord du 22 octobre 2026), offre, recours et
     consommations au même endroit, puis le croisement d'addictologie. Une seule place pour chaque contenu, les lignes
     CSAPA et CAARUD du tableau général des structures y renvoient."""
     L = getattr(C.agg, "lieux", None) or {}
@@ -1027,7 +1027,7 @@ def _composition(C: Contexte):
 
 def _composition_densite(C: Contexte):
     """Psychologues pour un psychiatre selon la classe de densité de population des intercommunalités (demande de
-    Lucas du 23 octobre 2026), rapport des densités agrégées de chaque classe, jamais une somme des professions."""
+    l'auteur du 23 octobre 2026), rapport des densités agrégées de chaque classe, jamais une somme des professions."""
     cd = C.R.get("classes_densite")
     if not isinstance(cd, pd.DataFrame) or cd.empty:
         return []
@@ -1461,7 +1461,7 @@ def _lieux(C: Contexte, famille):
         if g.empty:
             continue
         complet = bool(couv.at[tid, "complet"]) if tid in couv.index else False
-        # trois classes de confirmation montrées au lecteur (décision de Lucas du 21 octobre 2026), la provenance
+        # trois classes de confirmation montrées au lecteur (décision du 21 octobre 2026), la provenance
         # (FINESS, ROR, les deux) et le détail par source restent dans la page méthode et lieux_soins.csv
         from . import confirmation as conf_mod
         etabli = "confirmation" in g and g["confirmation"].notna().any()
@@ -1714,7 +1714,7 @@ def tableau_exercice(E, niveau: str, code: str, lab: dict) -> list:
 
 
 def _phrase_cmpp_camsp(x) -> str:
-    """CMPP et CAMSP comptés en sites d'accueil, avec les structures principales (décision de Lucas du 16 octobre
+    """CMPP et CAMSP comptés en sites d'accueil, avec les structures principales (décision du 16 octobre
     2026, une antenne n'est pas une structure de plus)."""
     from . import lieux as lieux_mod
     parts = []
@@ -2925,7 +2925,7 @@ def _typologie(C: Contexte, fam="tout"):
         L.append(f"| **{g}, à titre descriptif, sans servir à former les groupes** |" + " |" * len(classes))
         for x in [x for x in decrites if groupe.get(x) == g]:
             L.append(f"| {C.lab.get(x, x)} | " + " | ".join(_indice(piv_tout.at[k, x]) for k in classes) + " |")
-    # lieux de soins décrits dans chaque groupe, sans servir à les former (décision de Lucas du 12 octobre 2026)
+    # lieux de soins décrits dans chaque groupe, sans servir à les former (décision du 12 octobre 2026)
     tl = C.R.get("typologie_lieux")
     tl = tl[tl["famille"] == fam] if isinstance(tl, pd.DataFrame) and len(tl) else None
     if tl is not None and len(tl):
@@ -3011,7 +3011,7 @@ def graphique(nom):
 
 def faire_varier(fenetre: str, famille: str, texte: str) -> list[str]:
     """Lien « Faire varier cette figure » vers la fenêtre d'Explorer qui refait la figure avec d'autres réglages
-    (décision de Lucas du 26 octobre 2026), réglé sur la famille du rapport, absent des PDF."""
+    (décision du 26 octobre 2026), réglé sur la famille du rapport, absent des PDF."""
     fam = "sm" if famille == SM else "sante"
     return [f'<p class="pas-imprime faire-varier"><a href="../../explorer.html#{fenetre}?fam={fam}">Faire varier cette '
             f"figure</a>, {texte}, dans Explorer.</p>", ""]
@@ -3024,7 +3024,7 @@ def ecrire(out, agg, ref, professions, insee, R, jour):
     C.externes = insee or {}
     ctxlab = indicateurs.libelles(insee)
     # chaque rapport suit le même ordre, l'offre, sa répartition, l'offre et le profil des habitants, l'offre et les
-    # besoins, puis les profils d'intercommunalités (relecture du 8 octobre 2026, demande de Lucas)
+    # besoins, puis les profils d'intercommunalités (relecture du 8 octobre 2026, demande)
     intro_offre = "Combien de professionnels exercent, comment l'offre évolue et dans quels cadres elle s'exerce."
     intro_repart = "Comment l'offre se répartit entre les territoires, et à quelle distance des habitants."
     intro_profil = ("Ce qui accompagne la présence des professionnels dans les territoires. Ces liens décrivent des "

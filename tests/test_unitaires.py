@@ -1460,7 +1460,7 @@ def test_doi_version_et_taille():
 def test_doi_reserves_et_publication_du_site():
     """Version en préparation : le site cite les DOI réservés de ses brouillons, et zenodo.py pret-site refuse la mise
     en ligne tant que Zenodo ne l'a pas publiée ; une fois publiée avec ces DOI, le site n'est pas à refaire
-    (ordre de publication demandé par Lucas le 6 novembre 2026)."""
+    (ordre de publication demandé le 6 novembre 2026)."""
     import json
     import tempfile
     sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "outils"))
@@ -1872,7 +1872,7 @@ def test_trajets_references_publiees():
         texte = (config.RACINE / "gabarits" / page).read_text(encoding="utf-8").replace(" %", " %")
         assert ici in texte and drees in texte, (page, ici)
         assert "15 à 44 ans" in texte and "2017" in texte and "fermées" in texte, page
-    # les pistes de l'écart, chacune avec le sens qu'elle laisse attendre (demande de Lucas du 1er novembre 2026)
+    # les pistes de l'écart, chacune avec le sens qu'elle laisse attendre (demande du 1er novembre 2026)
     methode = (config.RACINE / "gabarits" / "methode.html").read_text(encoding="utf-8")
     for piste in ("Un autre champ.", "Une autre date.", "Un autre moteur de calcul.", "Les points de départ."):
         assert piste in methode, piste
@@ -1932,7 +1932,7 @@ def test_variation_brusque_par_departement():
 
 
 def test_trajets_echelle_insee_et_smur():
-    """Décision de Lucas du 31 octobre 2026 : chiffre principal à l'échelle de l'INSEE (seuil T lu sur notre isochrone
+    """Décision du 31 octobre 2026 : chiffre principal à l'échelle de l'INSEE (seuil T lu sur notre isochrone
     de 1,31 × T minutes), SMUR comptés avec les urgences, publication seulement au nouveau format, colonnes distinctes
     de celles de l'INSEE, tranches de la page « Autour d'un lieu » limitées aux types montrés."""
     import tempfile
@@ -2430,7 +2430,7 @@ def test_addicto_odisse():
 
 def test_css_libelle_valeur_ecart():
     """Une ligne qui met un libellé et sa valeur face à face (grille « 1fr auto » ou flex « space-between ») a toujours
-    un écart, sinon un libellé qui passe à la ligne vient toucher le nombre (remarque de Lucas du 22 octobre 2026)."""
+    un écart, sinon un libellé qui passe à la ligne vient toucher le nombre (remarque du 22 octobre 2026)."""
     import re
     from pipeline import config
     for f in (config.RACINE / "gabarits" / "style.css", config.RACINE / "atlas" / "atlas_template.html"):
@@ -2474,7 +2474,7 @@ def test_typographie_insecables():
 
 
 def test_fiche_territoire():
-    """Fiche d'un territoire de l'atlas (remarques de Lucas du 28 octobre 2026) : une fenêtre comme les autres encadrés,
+    """Fiche d'un territoire de l'atlas (remarques du 28 octobre 2026) : une fenêtre comme les autres encadrés,
     une légende en couleur et non un paragraphe, des groupes en colonnes équilibrées et non une colonne courte à côté
     d'une longue, aucun indice 0 laissé seul pour une profession absente, aucune mention encadrée, pas de titre
     « Profil de la population » répété sous le titre du même nom."""
@@ -2496,7 +2496,7 @@ def test_fiche_territoire():
 
 def test_ecart_attendu_sans_manque_ni_norme():
     """L'écart à l'effectif attendu est décrit, jamais présenté comme un manque, et un écart à la moyenne n'est pas un
-    écart à une norme (remarque de Lucas du 28 octobre 2026) : contrôlé dans l'atlas, Explorer et le code des rapports,
+    écart à une norme (remarque du 28 octobre 2026) : contrôlé dans l'atlas, Explorer et le code des rapports,
     et par le vocabulaire à éviter de pipeline.libelles pour tout texte publié."""
     import re
     from pipeline import config, libelles
@@ -2517,7 +2517,7 @@ def test_ecart_attendu_sans_manque_ni_norme():
 
 
 def test_carte_corse_et_plan_des_structures():
-    """Carte nationale et encadré des structures (remarques de Lucas du 28 octobre 2026) : la Corse est rapprochée du
+    """Carte nationale et encadré des structures (remarques du 28 octobre 2026) : la Corse est rapprochée du
     continent par un même décalage pour ses contours et ses structures, le cadrage en tient compte, le lecteur en est
     averti ; les commandes de la carte sont dans sa barre de titre, en mots et en symboles au trait, chacune avec son nom
     accessible ; l'encadré des structures donne le résultat d'abord (phrase et légende en couleur), puis le plan sur
@@ -2642,7 +2642,7 @@ def test_moteur_atlas_modules():
 
 def test_meme_largeur_atlas_explorer():
     """L'atlas (première page) et les autres pages du site, Explorer compris, ont la même largeur de contenu
-    (décision du 22 octobre 2026, remarque de Lucas du 28 octobre 2026 sur l'atlas plus large qu'Explorer)."""
+    (décision du 22 octobre 2026, remarque du 28 octobre 2026 sur l'atlas plus large qu'Explorer)."""
     import re
     from pipeline import config
     css = (config.RACINE / "gabarits" / "style.css").read_text(encoding="utf-8")
@@ -2657,7 +2657,7 @@ def test_meme_largeur_atlas_explorer():
 def test_menu_deux_temps_explorer():
     """Le menu en deux temps des indicateurs (thèmes puis indicateurs, noyau.js) garde dans Explorer la mise en page
     de l'atlas : sans elle les indicateurs se rangeaient sous les thèmes, hors de vue, et « Croiser deux indicateurs »
-    ne permettait plus de choisir (bug signalé par Lucas le 29 octobre 2026). Un thème n'y est pas une case à cocher."""
+    ne permettait plus de choisir (bug signalé le 29 octobre 2026). Un thème n'y est pas une case à cocher."""
     import re
     from pipeline import config
     regles = re.findall(r"(?m)^\.prof-liste\.deux[^\n]*", _atlas())
@@ -2669,7 +2669,7 @@ def test_menu_deux_temps_explorer():
 
 
 def test_depassements_non_publies():
-    """Un taux de dépassement non publié porte sa raison, montrée à la place du chiffre (décision de Lucas du 30 octobre
+    """Un taux de dépassement non publié porte sa raison, montrée à la place du chiffre (décision du 30 octobre
     2026) : moins de 5 libéraux de secteur 2, avec leur nombre (2 médecins généralistes dans le Tarn-et-Garonne, dont
     le taux de 167 % reposait sur eux), aucun, ou le secret statistique sur les montants. Chaque territoire non publié a
     une raison, aucun territoire publié n'en a, sur les fichiers de l'Assurance Maladie en cache."""
@@ -2902,7 +2902,7 @@ def test_structures_rapportees_a_leur_public():
     from pipeline import config, lieux_profil
     d = _dernier_resultats()
     verifies, publics = 0, 0
-    # tous les types, rapportés à leur public ou à la population, à chaque niveau (demande de Lucas, « pour l'ensemble
+    # tous les types, rapportés à leur public ou à la population, à chaque niveau (demande, « pour l'ensemble
     # des CC »)
     for niv in ("epci", "dep", "reg"):
         n = _csv(d, f"lieux_soins_{niv}.csv", dtype={"code": str}).set_index("code")
@@ -2996,7 +2996,7 @@ def test_plan_ign_structures():
 
 
 def test_accueil_leger():
-    """Page d'accueil allégée (demande de Lucas du 29 octobre 2026, index.html de 15 Mo qu'un réseau d'entreprise
+    """Page d'accueil allégée (demande du 29 octobre 2026, index.html de 15 Mo qu'un réseau d'entreprise
     n'ouvrait pas). Avec externes, données, fond et bibliothèques partent dans des fichiers à empreinte appelés dans le
     même ordre, avant le moteur, la page pèse moins d'un mégaoctet, le moteur ne démarre qu'avec ses données et un
     message dit pourquoi l'atlas manque si un fichier est bloqué. Les anciennes versions sont retirées. Sans externes, la
@@ -3201,6 +3201,7 @@ def test_corrections_fiche_avant_mise_en_ligne():
     statut ; m5 la phrase sur l'ensemble deux fois au plus à l'écran ; m6 une médiane nulle en mots dans le nom
     accessible ; m9 « tous les autres » au contact, jamais « 100 % » ; m10 aucun « moyenne » dans l'aperçu ; H3 « Citer
     et exporter » sur chaque figure ; P1 « Comment lire » jamais replié."""
+    import json
     import json
     import re
     import shutil
@@ -3444,7 +3445,7 @@ def test_impression_fiche_resserree():
 
 
 def test_fiche_resserree_ne_perd_rien():
-    """La fiche resserrée, validée par Lucas le 31 octobre 2026 (fiche, phrases de lecture visibles sous les douze
+    """La fiche resserrée, validée le 31 octobre 2026 (fiche, phrases de lecture visibles sous les douze
     indicateurs phares, une carte par domaine au lieu des douze petites cartes), ne perd aucun titre ni aucune figure
     de la fiche de l'étape 2 : les titres renommés passent par docs/inventaire_presentation/
     correspondances_fiche_resserree.csv (motifs « * » pour les titres propres à un territoire) ; seule baisse décidée,
@@ -3482,7 +3483,7 @@ def test_fiche_resserree_ne_perd_rien():
     nouveau = json.loads(apres[-1].read_text(encoding="utf-8"))
     nb_fiches = sum(1 for k in nouveau["pages"] if k.startswith("territoire/"))
     # une fiche de région perd au plus une figure : sa silhouette vide, remplacée par la carte de ses départements
-    # (décision de Lucas du 31 octobre 2026) ; le nombre de cartes, lui, ne baisse pas
+    # (décision du 31 octobre 2026) ; le nombre de cartes, lui, ne baisse pas
     nb_regions = sum(1 for k in nouveau["pages"] if k.startswith("territoire/reg/"))
     assert I.comparer(etape2, nouveau, corr, {"tableaux": nb_fiches, "figures": nb_regions}) == []
     assert nouveau["total"]["cartes"] >= etape2["total"]["cartes"]
@@ -3502,7 +3503,7 @@ def test_relecture_esthetique_fiche_resserree():
     from pipeline import affichage as AF, cartes_presentation as CP, fiche_territoire as FT, libelles
     racine = Path(__file__).resolve().parent.parent
     css = (racine / "gabarits" / "style.css").read_text(encoding="utf-8")
-    # la colonne de lecture de 612 px est retirée : le texte va jusqu'au bord des figures (Lucas, 7 novembre 2026)
+    # la colonne de lecture de 612 px est retirée : le texte va jusqu'au bord des figures (7 novembre 2026)
     assert "--mesure:none" in css and ".fiche table .rg.petite{width:240px" in css
     assert re.search(r"\.fiche \.rg\.petite \.rg-hist\{top:16px;height:28px\}", css)
     assert re.search(r"\.fiche \.rg-axe\{[^}]*background:var\(--hist\)", css)
@@ -3620,7 +3621,7 @@ def positions_sans_ensemble(html: str) -> list[str]:
 
 
 def test_position_dit_son_ensemble():
-    """Une position dit toujours son ensemble (remarque de Lucas du 31 octobre 2026, sur le prototype de fiche resserrée,
+    """Une position dit toujours son ensemble (remarque du 31 octobre 2026, sur le prototype de fiche resserrée,
     où « mais plus haut que 71 % » ne disait plus de quoi) : en entier partout, ou en forme courte dans une colonne dont
     l'en-tête nomme l'ensemble ; une ligne d'un autre niveau l'écrit en entier. Sur la fiche de production rendue pour
     trois territoires, et sur les pages du prototype quand elles sont construites."""
@@ -3700,7 +3701,7 @@ def test_etat_des_taches():
 
 
 def test_figures_sans_numero():
-    """Figures et tableaux titrés sans numéro (Lucas, 22 octobre et 1er novembre 2026) : aucun « Figure 3. » dans
+    """Figures et tableaux titrés sans numéro (22 octobre et 1er novembre 2026) : aucun « Figure 3. » dans
     les gabarits ni dans le code qui écrit les pages, ni dans les pages du site construit s'il existe."""
     import re
     from pipeline import config
@@ -3969,9 +3970,9 @@ def test_domaines_decrit_la_regle_du_lien():
 
 
 def test_taux_de_structures_avec_son_unite():
-    """Remarque de Lucas du 5 novembre 2026, fiche d'un territoire de l'atlas : « Maisons de santé pluriprofessionnelles,
+    """Remarque du 5 novembre 2026, fiche d'un territoire de l'atlas : « Maisons de santé pluriprofessionnelles,
     pour 100 000 habitants / 6 structures / soit 1,9 » prête à confusion. Le taux est suivi de son unité (« 6 structures,
-    soit 1,9 pour 100 000 habitants », forme décidée par Lucas le 30 octobre 2026) et le libellé ne garde que le nom."""
+    soit 1,9 pour 100 000 habitants », forme décidée le 30 octobre 2026) et le libellé ne garde que le nom."""
     from pipeline import config
     js = (config.RACINE / "atlas" / "moteur" / "noyau.js").read_text(encoding="utf-8")
     assert "function nomUnite(c)" in js
@@ -4003,7 +4004,7 @@ def test_domaines_meme_compte_au_telephone():
 
 
 def test_aucune_allusion_a_l_offre_payante():
-    """Rien de l'offre payante sur le site avant sa validation, charte du gratuit comprise (Lucas, 31 octobre 2026) :
+    """Rien de l'offre payante sur le site avant sa validation, charte du gratuit comprise (31 octobre 2026) :
     les mots qui y font allusion sont refusés par le contrôle des textes publiés, sans gêner les noms ni les limites
     qui parlent de gratuité ou de tarifs des soins."""
     from pipeline import libelles
@@ -4074,7 +4075,7 @@ def test_sans_caractere_de_controle():
 
 def test_fond_des_cellules():
     """Dans un tableau, toutes les cellules ont le fond de la fenêtre qui le contient, colonnes figées comprises, seul
-    le survol d'une ligne peut l'éclaircir (défaut signalé par Lucas le 28 octobre 2026, première colonne plus claire
+    le survol d'une ligne peut l'éclaircir (défaut signalé le 28 octobre 2026, première colonne plus claire
     dans le tableau d'accès aux structures de l'atlas). Une cellule figée prend donc le fond de son conteneur
     (--fond-cellule), et aucune règle à l'écran ne colore une ligne sur deux."""
     import re
@@ -4092,7 +4093,7 @@ def test_fond_des_cellules():
 def test_classe_barre_resserree_sans_conflit():
     """La classe que prend la barre du site quand on descend n'a aucune règle à elle seule hors de nav.site, sinon la
     barre hérite d'un réglage d'autres éléments (overflow-x:auto de .defile cachait la liste « Le projet », remarque de
-    Lucas du 28 octobre 2026)."""
+    l'auteur du 28 octobre 2026)."""
     import re
     from pipeline import config
     js = (config.RACINE / "gabarits" / "figures.js").read_text(encoding="utf-8")
@@ -4316,7 +4317,7 @@ def test_explorer_inegalites():
 
 
 def test_explorer_addicto():
-    """L'addictologie est une question d'Explorer (choix de Lucas du 29 octobre 2026, option C) : ses données et sa
+    """L'addictologie est une question d'Explorer (choix du 29 octobre 2026, option C) : ses données et sa
     limite sont écrites pour la page, l'atlas ne les porte plus, et la fiche d'un territoire de l'atlas y renvoie avec
     sa région. Sur le site construit à partir des derniers résultats."""
     import json
@@ -4342,7 +4343,7 @@ def test_explorer_addicto():
 
 def test_explorer_catalogue():
     """Explorer lit ses variables dans le catalogue des indicateurs (site_data.json, contexte), un seul catalogue pour
-    le site, l'atlas, Explorer et l'API (décision de Lucas du 28 octobre 2026). Tout indicateur du catalogue publié par
+    le site, l'atlas, Explorer et l'API (décision du 28 octobre 2026). Tout indicateur du catalogue publié par
     intercommunalité est proposé pour les dixièmes, tout indicateur publié par département pour les trajectoires, rangé
     dans son thème, et aucune liste d'indicateurs n'est écrite à la main dans le code de la page."""
     import json
@@ -4369,7 +4370,7 @@ def test_fenetres_repliables():
     """Fenêtres repliables d'Explorer (note du 28 octobre 2026). Chaque fenêtre a un identifiant, une barre avec la
     place des pastilles et un titre, un corps avec sa phrase de résultat, que la fenêtre repliée recopie. Une figure
     posée dans une fenêtre n'a pas de second cadre. Les deux boutons de la barre (replier, agrandir) sont de vrais
-    boutons avec un nom accessible, placés à droite du titre (choix de Lucas du 28 octobre 2026)."""
+    boutons avec un nom accessible, placés à droite du titre (choix du 28 octobre 2026)."""
     import re
     from pipeline import config
     g = config.RACINE / "gabarits"
@@ -4379,7 +4380,7 @@ def test_fenetres_repliables():
     for ident, corps in fens:
         assert '<span class="pastilles"></span>' in corps and re.search(r"<h3 id=", corps), ident
         assert 'class="fen-resume"' in corps and 'class="resultat"' in corps, ident
-        # « Comment lire » toujours visible, sans bouton qui le replie (décision de Lucas du 5 novembre 2026)
+        # « Comment lire » toujours visible, sans bouton qui le replie (décision du 5 novembre 2026)
         assert 'class="fen-lire"' in corps and 'class="fen-lire" hidden' not in corps and "fen-lire-bouton" not in corps, ident
     for b in ("p-replier", "p-agrandir"):
         assert f'class="{b}"' in js and re.search(rf'class="{b}"[^>]*aria-(label|controls)', js), b
@@ -4494,7 +4495,7 @@ def test_api_serveur():
     import api_serveur
     m = {"version": A_["version"].name, "date_rpps": None, "licence": "essai"}
     c = TestClient(api_serveur.creer_app(A_["tables"], m, {"cle-test": {"palier": "essai"}, "cle-g": {"palier": "gratuit"}}))
-    # petite porte gratuite (décision de Lucas du 28 octobre 2026), territoires standards ouverts, le reste payant
+    # petite porte gratuite (décision du 28 octobre 2026), territoires standards ouverts, le reste payant
     g = {"X-Cle": "cle-g"}
     assert c.get("/v0/territoires/dep/78", headers=g).status_code == 200
     assert c.get("/v0/rapport?niveau=dep&code=78&format=html", headers=g).status_code == 200
@@ -4759,7 +4760,7 @@ def test_rue_au_nom_plus_long():
 
 
 def test_commune_voisine_meme_code_postal():
-    """Adresse trouvée dans une commune voisine du même code postal (décision de Lucas du 29 octobre 2026) : seulement
+    """Adresse trouvée dans une commune voisine du même code postal (décision du 29 octobre 2026) : seulement
     pour une rue à nom propre, jamais « Le Bourg », « Route nationale » ni « Place de l'Église », et seulement entre
     communes qui partagent un code postal d'après le référentiel (La Fère et Mayot, 02800). Le fichier des structures
     publie la commune d'inscription, décrite au dictionnaire."""
@@ -5062,7 +5063,7 @@ def test_sectorisation_hauts_de_france():
 
 
 def test_couche_secteurs_atlas():
-    """Couche « secteurs de psychiatrie » du plan de l'atlas (demande de Lucas du 29 octobre 2026), faite sur l'arrêté
+    """Couche « secteurs de psychiatrie » du plan de l'atlas (demande du 29 octobre 2026), faite sur l'arrêté
     des Hauts-de-France en cache : chaque secteur de chaque type a un seul contour, avec son établissement responsable,
     sa teinte, la source courte et la date de l'arrêté ; une ville partagée entre secteurs est un objet à part qui cite
     ses secteurs ; la limite de Saint-Quentin n'est portée que par les secteurs du CH de Saint-Quentin et de l'EPSM de
@@ -5246,7 +5247,7 @@ def test_envoi_programme():
 
 
 def test_registre_licences():
-    """Registre des licences (demande de Lucas du 28 octobre 2026). Chaque licence vérifiée porte son adresse officielle et
+    """Registre des licences (demande du 28 octobre 2026). Chaque licence vérifiée porte son adresse officielle et
     sa date de lecture, une licence non vérifiée n'entre jamais dans l'offre payante, chaque source suivie et chaque
     indicateur publié trouvent leur licence, les affections de longue durée sont en Licence Ouverte 1.0 (data.gouv)."""
     import json
@@ -5500,7 +5501,7 @@ def test_reseaux_etiquettes():
 
 
 def test_reseaux_file_d_attente():
-    """File d'attente de la série Bluesky (demande de Lucas du 8 novembre 2026), sans rien publier : la série se charge
+    """File d'attente de la série Bluesky (demande du 8 novembre 2026), sans rien publier : la série se charge
     dans l'ordre de ses dates sans le fil ; un message programmé ne part jamais si ses chiffres viennent d'une version
     plus ancienne que celle en ligne, ni plus de six heures après son heure ; il revient à relire avec son motif ; un
     message non publié se remplace, un message publié jamais ; la semaine se programme à partir des dates proposées."""
@@ -5570,7 +5571,7 @@ def test_reseaux_file_d_attente():
 
 
 def test_reseaux_suivre():
-    """Abonnements Bluesky du compte du projet (demande de Lucas du 29 octobre 2026), sans rien envoyer, sur la vraie
+    """Abonnements Bluesky du compte du projet (demande du 29 octobre 2026), sans rien envoyer, sur la vraie
     liste vérifiée (docs/reseaux/comptes_a_suivre.csv). Liste sans erreur, seuls les comptes cochés sont suivis, cinq
     par jour au plus, jamais deux fois le même, un identifiant qui mène à un autre compte est refusé, un compte déjà
     suivi est noté sans nouvel abonnement, l'essai n'envoie rien, et l'enregistrement est un abonnement et rien d'autre."""
@@ -5583,7 +5584,7 @@ def test_reseaux_suivre():
     from outils import reseaux as r
     lignes = r.lire_comptes()
     assert not r.controler_comptes(lignes), r.controler_comptes(lignes)
-    assert 20 <= len(lignes) <= 150     # 83 comptes ajoutés le 11 novembre 2026, cochés par Lucas
+    assert 20 <= len(lignes) <= 150     # 83 comptes ajoutés le 11 novembre 2026, cochés
     with (r.COMPTES_A_SUIVRE.parent / "linkedin_a_suivre.csv").open(encoding="utf-8-sig", newline="") as f:
         li = list(csv.DictReader(f, delimiter=";"))
     assert li and all(re.match(r"https://(www|fr)\.linkedin\.com/(company|school)/[^/]+/?$", x["adresse"])
@@ -5634,7 +5635,7 @@ def test_reseaux_suivre():
 
 
 def test_statistiques_photographie():
-    """Onglet « Statistiques » (demande de Lucas du 29 octobre 2026), photographie du jour sur les vraies sources
+    """Onglet « Statistiques » (demande du 29 octobre 2026), photographie du jour sur les vraies sources
     publiques, dans un dossier temporaire. Une seule par jour sans forcer, une source en échec n'arrête pas les autres,
     Zenodo toutes versions au moins égal à la dernière version, aucun jeton écrit dans la photographie, séries d'un
     point par jour."""
@@ -5862,7 +5863,7 @@ def test_registre_des_bases():
 
 
 def test_veille_des_bases():
-    """Veille des bases (demande de Lucas du 29 octobre 2026), sur les vrais titres et le vrai catalogue de data.ameli,
+    """Veille des bases (demande du 29 octobre 2026), sur les vrais titres et le vrai catalogue de data.ameli,
     dans un dossier temporaire. Bases intégrées reconnues et retirées, déclinaisons géographiques réunies, documents
     administratifs et thèmes hors du projet sous le seuil, un passage par semaine, jamais deux fois le même candidat,
     marques et examens contrôlés."""
@@ -5953,7 +5954,7 @@ def test_identifiant_bluesky():
 
 
 def test_archive_rpps_sans_noms():
-    """L'archive mensuelle du RPPS ne garde ni les noms ni les coordonnées de contact (Lucas, 31 octobre 2026), sur
+    """L'archive mensuelle du RPPS ne garde ni les noms ni les coordonnées de contact (31 octobre 2026), sur
     les premières lignes des trois fichiers en cache : identifiant, civilité et commune gardés, autant de lignes et le
     même nombre de champs par ligne, aucun nom du fichier source retrouvé dans la copie."""
     import io
@@ -6002,7 +6003,7 @@ def test_archive_rpps_sans_noms():
 
 
 def test_offre_hors_site_publie():
-    """Aucune page de l'offre professionnelle dans le site publié (décision de Lucas du 28 octobre 2026, rappelée le
+    """Aucune page de l'offre professionnelle dans le site publié (décision du 28 octobre 2026, rappelée le
     30 octobre). Le contrôle reconnaît la vraie maquette de la page des professionnels, publier.ps1 écarte tous les
     dossiers de maquettes et appelle le contrôle, et le site construit n'en contient aucune."""
     import re
@@ -6026,7 +6027,7 @@ def test_offre_hors_site_publie():
 
 
 def test_inventaire_presentation_rien_perdu():
-    """La nouvelle présentation ne perd rien du site actuel (demande de Lucas du 30 octobre 2026). L'inventaire d'avant,
+    """La nouvelle présentation ne perd rien du site actuel (demande du 30 octobre 2026). L'inventaire d'avant,
     relevé sur le site construit et dans le navigateur (atlas onglets ouverts, Explorer), est bien formé et compte les
     encadrés de l'atlas et les analyses d'Explorer ; dès qu'un inventaire d'après existe, aucun titre ne manque (au
     besoin sous le nom donné par le fichier de correspondances) et aucun total ne baisse. La comparaison elle-même est
@@ -6615,7 +6616,7 @@ def test_constats_fiche_territoire():
 
 
 def test_ecart_et_position_jamais_contradictoires():
-    """« 17 % sous l'ensemble » et « plus haut que 71 % » ne se suivent jamais sans explication (remarques de Lucas du
+    """« 17 % sous l'ensemble » et « plus haut que 71 % » ne se suivent jamais sans explication (remarques du
     31 octobre 2026, relevées deux fois). Sur les vraies données, pour tous les départements et cent intercommunalités :
     quand l'écart et la position d'un constat vont en sens contraire, le titre les relie par « mais » et la clé en mots
     suit ; sinon le titre ne dit jamais un sens d'écart opposé à sa position ; la clé sous un tableau apparaît dès qu'une
@@ -6992,7 +6993,7 @@ def test_rapports_vrai_signe_moins():
 
 
 def test_sieges_declarants_hors_des_territoires():
-    """Remarque de Lucas du 9 novembre 2026 (infirmiers de Rodez « très au-dessus », « peut-être ailleurs ») : une
+    """Remarque du 9 novembre 2026 (infirmiers de Rodez « très au-dessus », « peut-être ailleurs ») : une
     structure sans FINESS qui déclare à son siège plus d'un professionnel pour cinq habitants ne situe pas leur
     exercice. Sur le répertoire en cache, la règle ne retient que l'association ASALEE à Brioux-sur-Boutonne (ses
     infirmiers exercent dans des cabinets de toute la France), jamais un hôpital déclaré sur son site, et ses
@@ -7026,10 +7027,10 @@ def test_sieges_declarants_hors_des_territoires():
 
 
 def test_population_concernee_reglages():
-    """Population concernée (remarque de Lucas du 9 novembre 2026, relecture indépendante du même jour) : une seule
+    """Population concernée (remarque du 9 novembre 2026, relecture indépendante du même jour) : une seule
     définition du public d'un type (le dénominateur du registre des structures d'abord, puis config.PUBLIC_DES_LIEUX),
     les EHPAD écartés, chaque public lu dans le dossier complet de l'INSEE en cache pour les communes, et rien de publié
-    avant la validation de la présentation par Lucas (donnée le 10 novembre 2026, sur maquette)."""
+    avant la validation de la présentation (donnée le 10 novembre 2026, sur maquette)."""
     from pipeline import lieux as LI, lieux_profil as LP
     assert config.POPULATION_CONCERNEE_PUBLIEE
     types = {t[0] for t in config.LIEUX_TYPES}
@@ -7078,7 +7079,7 @@ def test_sous_ligne_population_concernee():
                                   {"txt": "0", "v": 0.0}, "Distance à la structure la plus proche, maternités, depuis le domicile "
                                   "des mères (enfants nés de 2017 à 2022)")
     assert zero["note"] == "type présent dans la commune de domicile d'au moins la moitié de ces mères", zero["note"]
-    # sous sa ligne mère, la définition courte remplace la longue (Lucas, 10 novembre 2026)
+    # sous sa ligne mère, la définition courte remplace la longue (10 novembre 2026)
     courte = {"id": "distp_lieu_pmi", "lib": "Distance à la structure la plus proche, PMI, depuis le domicile des mères "
               "(enfants nés de 2017 à 2022)", "txt": "4,5", "v": 4.5, "defn": "longue", "defn_court": "courte"}
     FT.accrocher_sous_lignes([{"id": "dist_lieu_pmi", "lib": "PMI", "txt": "7,1", "v": 7.1}, courte])
@@ -7119,7 +7120,7 @@ def test_periode_naissances_insee():
 
 def test_reponse_domaine_texte_courant():
     """Pages de domaine : la phrase de réponse sous le sous-titre est en texte courant (Work Sans, justifiée), séparée
-    du sous-titre par un filet fin (Lucas, 10 novembre 2026, sur captures, proposition A1) : deux paragraphes en
+    du sous-titre par un filet fin (10 novembre 2026, sur captures, proposition A1) : deux paragraphes en
     Newsreader de même taille ne se distinguaient pas."""
     import re
     g = (config.RACINE / "gabarits" / "page_domaine.html").read_text(encoding="utf-8")
@@ -7130,7 +7131,7 @@ def test_reponse_domaine_texte_courant():
                     "text-align:justify"):
         assert attendu in st, (attendu, st)
     assert re.search(r"max-width:560px\)\{main\.domaine \.reponse-d\{text-align:left\}", g)
-    # sur les sept colonnes de la grille commune, comme le sous-titre et la carte (Lucas, 10 novembre 2026, sur
+    # sur les sept colonnes de la grille commune, comme le sous-titre et la carte (10 novembre 2026, sur
     # captures) : les indicateurs phares n'ont plus leurs propres colonnes (7fr et 5fr à 40 px, 13 px d'écart)
     assert "--sept-d:calc((100% - 11 * var(--gouttiere)) * 7 / 12 + 6 * var(--gouttiere))" in g
     assert re.search(r"main\.domaine \.phares\{[^}]*grid-template-columns:minmax\(0,var\(--sept-d\)\)", g)
@@ -7151,7 +7152,7 @@ def test_reponse_domaine_texte_courant():
 
 
 def test_sous_titre_justifie_cesures():
-    """Sous-titre des pages, à l'écran : justifié avec césures sur ordinateur, comme le texte courant (Lucas, 10 novembre
+    """Sous-titre des pages, à l'écran : justifié avec césures sur ordinateur, comme le texte courant (10 novembre
     2026, sur captures, B3), sans lignes équilibrées, qui, justifiées, creusaient de grands blancs ; au téléphone, aligné
     à gauche en lignes équilibrées et sans mot coupé. Le script de césure ne traite que le texte justifié."""
     import re
@@ -7184,7 +7185,7 @@ def test_entete_une_ligne_largeurs_controlees():
 
 def test_atlas_comment_lire_toutes_les_cles():
     """Chaque « Comment lire » de l'atlas renvoie à des définitions qui existent dans le glossaire : le bloc
-    Addictologie affichait « Explication absente de ce fichier de données » (clé « addictions » absente, vu par Lucas le
+    Addictologie affichait « Explication absente de ce fichier de données » (clé « addictions » absente, vu le
     11 novembre 2026)."""
     import glob
     import re
@@ -7200,7 +7201,7 @@ def test_atlas_comment_lire_toutes_les_cles():
 def test_explorer_croisements_glossaire():
     """La fenêtre de croisement d'Explorer reprend le moteur de l'atlas sans son initialisation : elle remplit elle-même le
     glossaire avant son « Comment lire », qui sinon écrivait « Explication absente de ce fichier de données » (vu par
-    Lucas le 11 novembre 2026) ; les données d'Explorer portent ce glossaire."""
+    l'auteur le 11 novembre 2026) ; les données d'Explorer portent ce glossaire."""
     src = (config.RACINE / "gabarits" / "explorer_croisements.js").read_text(encoding="utf-8")
     assert "GL = new Map((D.meta.glossaire" in src and src.index("GL = new Map") < src.index('howHtml("correlation')
     f = config.RACINE / "site" / "explorer" / "donnees_croisements.js"
@@ -7232,7 +7233,7 @@ def test_audit_fable_defauts_publies():
 
 
 def test_figures_telephone_agrandir_et_zoom():
-    """Figures lisibles au téléphone (Lucas, 12 novembre 2026, « Bouton Agrandir, plein écran ») et zoom sans boîte
+    """Figures lisibles au téléphone (12 novembre 2026, « Bouton Agrandir, plein écran ») et zoom sans boîte
     (« B, en signes ») : le bouton et son plein écran dans le script commun des figures, le zoom souligné d'un filet sur
     les figures et dans l'atlas, et le contrôle de mise en page qui les vérifie."""
     f = (config.RACINE / "gabarits" / "figures.js").read_text(encoding="utf-8")
@@ -7418,7 +7419,7 @@ def test_population_concernee_brouillon():
         assert not defs or vus, "aucune part lue dans les définitions des sous-lignes"
 
 
-# une décision de Lucas ou un défaut d'audit, un test (6 novembre 2026), repris ici pour que la commande du projet les lance
+# une décision ou un défaut d'audit, un test (6 novembre 2026), repris ici pour que la commande du projet les lance
 sys.path.insert(0, str(Path(__file__).parent))
 from test_decisions import *  # noqa: E402,F401,F403
 from test_audit3_site import *  # noqa: E402,F401,F403
@@ -7427,7 +7428,7 @@ from test_veille import *  # noqa: E402,F401,F403
 
 
 def test_reseaux_republier():
-    """Republication des producteurs de données (décision de Lucas du 11 novembre 2026), sans rien envoyer : liste
+    """Republication des producteurs de données (décision du 11 novembre 2026), sans rien envoyer : liste
     fermée de producteurs, annonce de données chiffrée avec un lien, sujet que le site reprend, rien de plus de sept
     jours ; jamais les moyens de suicide, une réaction politique, un appel ou une opinion ; une republication par
     semaine au plus, la plus récente ; l'essai n'envoie ni n'écrit rien ; arrêt, retrait et journal lisible."""
@@ -7510,7 +7511,7 @@ def test_reseaux_republier():
         print(r.annuler_republication(effaceur=lambda _s, uri, col: effaces.append((uri, col))))
         assert effaces == [(j[0]["enregistrement"], "app.bsky.feed.repost")]
         assert r.journal_republications()[-1]["etat"] == "annule"
-        # arrêt par Lucas : plus rien
+        # arrêt : plus rien
         r.ecrire_json(r.ETAT, {"republication_arretee": True})
         fils[drees] = [message(bon, jours=0, n=9)]
         assert r.republier(discret=True, lire=lire, deja=jamais, ecrivain=ecrivain, ici=ici + dt.timedelta(days=20)) == 0
@@ -7808,7 +7809,7 @@ def _domaines_sous_themes(h: str) -> list[str]:
 
 
 def test_domaines_chaque_indicateur_une_fois_vers_sa_page():
-    """Maquette validée par Lucas le 14 novembre 2026 : sur la page Domaines, chaque indicateur du catalogue paraît une
+    """Maquette validée le 14 novembre 2026 : sur la page Domaines, chaque indicateur du catalogue paraît une
     fois, dans son sous-thème, avec un lien vers sa page, et cette page existe dans le site construit. « La liste »
     repliée du bas a disparu."""
     import re
@@ -7954,13 +7955,13 @@ def test_bornes_intervalle_region():
     assert FT.bornes_intervalle("136,3", 128.7, 147.2) == ("128,7", "147,2")
     assert FT.dans_marge((7.19, 7.12, 7.26), 7.14) and not FT.dans_marge((4.8, 4.0, 5.7), 5.8)
     assert not FT.dans_marge(None, 5.0)
-    # la réserve « dans la marge d'incertitude » attend la décision de Lucas : le paramètre reste éteint
+    # la réserve « dans la marge d'incertitude » attend la décision : le paramètre reste éteint
     assert FT.MARGE_INCERTITUDE is False
 
 
 def test_fiche_departement_indicateurs_de_la_region():
     """Sur chaque fiche de département, dans « 01 Santé mentale », les indicateurs publiés seulement par région (maquette
-    validée par Lucas le 14 novembre 2026) : la liste se déduit du catalogue (niveau région seul, santé mentale, jamais
+    validée le 14 novembre 2026) : la liste se déduit du catalogue (niveau région seul, santé mentale, jamais
     sensible) ; chacun paraît une fois, avec la valeur, la position, la réglette et la limite de la fiche de sa région ;
     l'intervalle publié encadre la valeur ; aucun 0 seul ; une mesure absente dit pourquoi ; Mayotte sans valeur ; les
     liens mènent à des pages qui existent. Fiches de tous les départements et de toutes les régions, rendues à part."""
@@ -8106,18 +8107,45 @@ def test_code_publie_sans_le_nom_de_l_auteur():
     jamais dans les commentaires de la feuille de style ni des scripts publiés avec le site, ni dans les pages
     construites hors des mentions légales (relecture indépendante du 14 novembre 2026, défaut 7)."""
     import re
+    PRENOM = "Lu" + "cas"   # assemblé, pour que ce test ne se signale pas lui-même
     g = config.RACINE / "gabarits"
     sources = [g / "style.css", *g.glob("*.js"), *g.glob("*/*.js")]
     fautes = [f"{p.relative_to(config.RACINE)}:{i}" for p in sources
-              for i, l in enumerate(p.read_text(encoding="utf-8-sig").splitlines(), 1) if "Lucas" in l]
+              for i, l in enumerate(p.read_text(encoding="utf-8-sig").splitlines(), 1) if PRENOM in l]
     assert not fautes, fautes
     site = config.RACINE / "site"
     if site.exists():
-        pages = [p for p in (site / "territoire" / "dep").glob("*.html")] + [site / "domaines.html", site / "style.css"]
-        # « SESSAD ASE Antoine Lucas » est une raison sociale, permise : on cherche les mentions de l'auteur
-        auteur = re.compile(r"(?:\bde|\bpar|\()\s?Lucas\b|\bLucas,\s+\d")
+        # toutes les pages, feuilles de style et scripts du site construit, rapports archivés compris
+        # sauf les dossiers et brouillons que la publication écarte (outils/publier.ps1)
+        exclus = {"prototype", "prototype2", "prototype3", "prototype4", "maquettes", "_maquettes"}
+        pages = [p for x in ("*.html", "*.css", "*.js") for p in site.rglob(x)
+                 if not exclus & set(p.relative_to(site).parts[:-1]) and not (p.suffix == ".html" and p.name.startswith("_"))]
+        # une raison sociale qui contient ce prénom est permise : on cherche les mentions de l'auteur
+        auteur = re.compile(r"(?:\bde|\bpar|\()\s?" + PRENOM + r"\b|\b" + PRENOM + r",\s+\d")
         fautes = [p.name for p in pages if p.exists() and auteur.search(p.read_text(encoding="utf-8"))]
         assert not fautes, fautes[:5]
+
+
+def test_publier_retrouve_les_ecarts_deja_valides():
+    """Une republication dont les écarts sont ceux déjà validés part sans -Valider : la ligne de `outils/publier.ps1` qui
+    relit `donnees/ecarts_valides.json`, exécutée par Windows PowerShell 5.1, retrouve une empreinte enregistrée, même
+    seule dans la liste (défaut de la republication du 14 novembre 2026)."""
+    import re
+    import shutil
+    import subprocess
+    import tempfile
+    ps = shutil.which("powershell")
+    if not ps:
+        return
+    texte = (config.RACINE / "outils" / "publier.ps1").read_text(encoding="utf-8-sig")
+    ligne = next(l.strip() for l in texte.splitlines() if re.match(r"\s*if \(Test-Path \$ecartsValides\)", l))
+    for liste in (["v:AAA"], ["v:AAA", "v:BBB"]):
+        with tempfile.TemporaryDirectory() as d:
+            f = Path(d) / "ecarts.json"
+            f.write_text(json.dumps(liste), encoding="utf-8")
+            script = f"$ecartsValides = '{f}'; $dejaValides = @(); {ligne}; ($dejaValides -contains 'v:AAA') -and ($dejaValides.Count -eq {len(liste)})"
+            r = subprocess.run([ps, "-NoProfile", "-Command", script], capture_output=True, text=True, timeout=60)
+            assert r.stdout.strip() == "True", (liste, r.stdout, r.stderr)
 
 
 if __name__ == "__main__":

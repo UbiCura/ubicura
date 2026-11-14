@@ -64,7 +64,7 @@
 {% for d in domaines %}
 <section class="dom" id="{{ d.id }}" aria-labelledby="t-{{ d.id }}">
   <div>
-    {#- le titre du domaine mène à sa page (remarque de Lucas du 8 novembre 2026 : le lien en dernière ligne se voyait peu) #}
+    {#- le titre du domaine mène à sa page (remarque du 8 novembre 2026 : le lien en dernière ligne se voyait peu) #}
     <h2 id="t-{{ d.id }}"><a class="vers-dom" href="domaine/{{ 'offre-de-soins' if d.centre else d.id }}.html">{{ d.nom }}<span aria-hidden="true"> →</span></a></h2>
     <p class="pourquoi">{{ d.pourquoi }}</p>
     {% if d.centre %}<p class="vers-page"><a href="domaine/sante-mentale.html">La page Santé mentale</a> et <a href="domaine/sante.html">la page Santé</a>, leurs questions et leurs figures</p>{% endif %}
@@ -72,7 +72,7 @@
   </div>
   <div>
     {#- chaque sous-thème se déplie là où il est nommé et montre ses indicateurs, chacun lié à sa page ; « À venir » en
-        dernier (maquette validée par Lucas le 14 novembre 2026, données de portail.donnees_domaines) #}
+        dernier (maquette validée le 14 novembre 2026, données de portail.donnees_domaines) #}
     <ul class="sous">{% for s in d.sous_themes %}
       {%- if s.lignes or s.bases %}
       <li><details class="sous-pli" id="{{ s.ancre }}"><summary><span class="chev" aria-hidden="true"></span><span class="lib"><b>{{ s.nom }}</b> <span class="n">{{ s.compte }}</span></span></summary>

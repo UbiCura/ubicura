@@ -1,10 +1,10 @@
 """Réutilisation « Ubi Cura » sur data.gouv.fr, reliée à chaque jeu de données utilisé (feuille de route de la
-communication, phase 1, accord de Lucas du 29 octobre 2026, déclaration par l'API demandée le même jour).
+communication, phase 1, accord du 29 octobre 2026, déclaration par l'API demandée le même jour).
 
 Les jeux sont tirés du code lui-même (identifiants passés à util.ressources_datagouv et adresses data.gouv.fr citées
 dans pipeline/config.py), puis lus sur l'API de data.gouv pour leur identifiant, leur titre et leur producteur.
-La réutilisation est créée **privée** (invisible du public) avec la clé d'API de Lucas, rangée dans le gestionnaire
-d'identifiants de Windows et jamais affichée. C'est Lucas qui la rend publique, d'un clic sur data.gouv.fr (tutoriel 12).
+La réutilisation est créée **privée** (invisible du public) avec la clé d'API, rangée dans le gestionnaire
+d'identifiants de Windows et jamais affichée. C'est l'auteur qui la rend publique, d'un clic sur data.gouv.fr (tutoriel 12).
 Champs et adresses d'après la description de l'API, https://www.data.gouv.fr/api/1/swagger.json (lue le 29 octobre
 2026), clé dans l'en-tête X-API-KEY, champs obligatoires title, description, topic, type, url.
 
@@ -40,7 +40,7 @@ ETAT = config.DONNEES / "datagouv.json"   # identifiant de la réutilisation cr�
 IMAGE = RACINE / "site" / "apercu.png"
 
 # texte de la réutilisation, ton neutre et titre qui décrit l'usage des données (guide de data.gouv.fr, « Publier une
-# réutilisation », lu le 29 octobre 2026), relu par Lucas avant qu'il la rende publique
+# réutilisation », lu le 29 octobre 2026), relu avant qu'il la rende publique
 REUTILISATION = {
     "title": "Atlas de l'offre de soins et de santé mentale en France, par territoire",
     "url": config.ADRESSE_SITE.rstrip("/") + "/",
@@ -62,7 +62,7 @@ REUTILISATION = {
 
 
 class Arret(Exception):
-    """Arrêt propre, avec un message pour Lucas."""
+    """Arrêt propre, avec un message pour l'auteur."""
 
 
 # ---------------------------------------------------------------- jeux utilisés
@@ -136,7 +136,7 @@ def cmd_liste(_args) -> int:
     return 0
 
 
-# ---------------------------------------------------------------- API de data.gouv, avec la clé de Lucas
+# ---------------------------------------------------------------- API de data.gouv, avec la clé
 class DataGouv:
     def __init__(self, cle: str):
         self.s = requests.Session()

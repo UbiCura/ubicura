@@ -153,7 +153,7 @@ new MutationObserver(ms=>{ms.forEach(m=>{let s=m.target.closest?m.target.closest
   if(!s)return;if(!TYPO_VUS.has(s)){TYPO_VUS.add(s);TYPO_RO.observe(s)}TYPO_A_FAIRE.add(s)});typoPlanifier()})
   .observe(ZONE_MOTEUR,{childList:true,subtree:true});
 // export d'un graphique (harmonisation, lot 5, 22 octobre 2026), toujours sur fond blanc avec les couleurs du fond clair
-// quel que soit le fond affiché (décision de Lucas), toujours en vue entière même si la carte est zoomée, à une taille
+// quel que soit le fond affiché (décision), toujours en vue entière même si la carte est zoomée, à une taille
 // commune (dessin rapporté à 800 pixels, image à 1 600), texte à l'échelle typographique commune, légende puis citation
 // à la largeur de la figure. Les couleurs du fond clair sont lues en basculant le thème le temps d'un calcul, sans dessin.
 const VARS_COULEUR=["--bg","--panel","--ink","--muted","--line","--nodata","--accent","--signal","--focus","--contour","--choisi","--action","--line-fort","--hist","--bv0","--bv1","--bv2","--bv3","--bv4","--bv5","--bv6","--bv7","--bv8","--r0","--r1","--r2","--r3","--r4","--r5","--d0","--d1","--d2","--d3","--d4","--d5","--d6"];
@@ -289,7 +289,7 @@ document.addEventListener("click",e=>{const b=e.target.closest("button.how");if(
   if(!t||!t.classList.contains("howtxt")){t=b.parentElement.nextElementSibling;while(t&&t.classList.contains("citation"))t=t.nextElementSibling}
   if(!t||!t.classList.contains("howtxt"))return;
   const open=t.classList.contains("hidden");if(open)t.innerHTML=howHtml(b.dataset.how);t.classList.toggle("hidden",!open);b.setAttribute("aria-expanded",String(open))});
-// « Comment lire » toujours visible, comme sur la fiche (règles du projet, partie 6 ; décision de Lucas du 5 novembre
+// « Comment lire » toujours visible, comme sur la fiche (règles du projet, partie 6 ; décision du 5 novembre
 // 2026) : chaque texte est rempli et montré dès que son encadré est dessiné, le bouton qui le dépliait disparaît
 function texteHow(b){let t=b.nextElementSibling;
   if(!t||!t.classList.contains("howtxt")){t=b.parentElement.nextElementSibling;while(t&&t.classList.contains("citation"))t=t.nextElementSibling}
@@ -309,7 +309,7 @@ const famOf=p=>p.famille||(p.groupe==="Santé mentale"?SM:SANTE);
 const natOf=p=>p.nature||"profession";
 const inFam=p=>S.fam==="*"||famOf(p)===S.fam;
 const ctxVisibles=()=>IDX.ctx.filter(c=>!c.famille||S.fam==="*"||c.famille===S.fam);
-// taux d'un type de structure montré avec son nombre (décision de Lucas du 30 octobre 2026, « 2 EHPAD, soit 268 pour
+// taux d'un type de structure montré avec son nombre (décision du 30 octobre 2026, « 2 EHPAD, soit 268 pour
 // 100 000 personnes de 80 ans et plus »), le nombre venant des comptes de l'encadré des structures (niveaux.*.lieux)
 function nombreStructures(c,lv,i){if(!c||!String(c.id).startsWith("lieux_"))return null;const v=D.niveaux[lv]?.lieux?.[c.id.slice(6)];return v&&v[i]!=null?v[i]:null}
 const motStructures=n=>n?fmt.format(n)+"\u00a0structure"+(n>1?"s":""):"aucune structure";
@@ -317,7 +317,7 @@ const motStructures=n=>n?fmt.format(n)+"\u00a0structure"+(n>1?"s":""):"aucune st
 const AUCUNE_STRUCTURE="aucune structure inscrite";
 // libellé d'un taux de structures coupé en son nom et son unité (« Maisons de santé pluriprofessionnelles » et « pour
 // 100 000 habitants ») : l'unité suit le taux, jamais un « 6 structures, soit 1,9 » où l'on ne sait pas de quoi est 1,9
-// (remarque de Lucas du 5 novembre 2026)
+// (remarque du 5 novembre 2026)
 function nomUnite(c){const m=String(c.label||"").match(/^(.*?),\s*(pour\s.+)$/);return m?[m[1],m[2]]:[c.label,""]}
 function texteTaux(c,lv,i,txt){const n=nombreStructures(c,lv,i);if(n==null)return txt;if(n===0)return AUCUNE_STRUCTURE;
   const u=nomUnite(c)[1];return motStructures(n)+", soit "+txt+(u?" "+u:"")}
@@ -348,7 +348,7 @@ function prep(){
       L.units.forEach((u,k)=>{if(!u.x)u.x=[];const v=r&&r[k]?r[k][1]:null;u.x[i]=v;if(v!=null)vu=true})}
     if(vu)IDX.ctx.push({id:"route:"+e.id,label:"Temps médian par la route, "+e.lib.charAt(0).toLowerCase()+e.lib.slice(1),unite:"minutes",
       groupe:"Temps de trajet par la route",famille:e.fam||null,source:"",explication:"Durée en voiture, aux heures creuses, jusqu’à l’équipement le plus proche, médiane des habitants du territoire (INSEE).",i})});
-  // part de l'exercice libéral par territoire (demande de Lucas du 23 octobre 2026), ajoutée aux indicateurs du nuage
+  // part de l'exercice libéral par territoire (demande du 23 octobre 2026), ajoutée aux indicateurs du nuage
   // avec la règle de analyses.part_liberal : pas de part sous l'effectif minimal de la profession dans le territoire
   const PL=D.meta.part_liberal;
   if(PL)PL.professions.forEach(p=>{const pr=IDX.prof.get(p);if(!pr)return;const i=IDX.ctx.length;
@@ -415,7 +415,7 @@ function fCtx(c,v){if(v==null||!isFinite(v))return"";const u=String(c.unite||"")
   if(u.startsWith("min"))return f0.format(v);
   return fD(v)}
 // Moyenne des territoires d'un niveau, calculée comme eux (somme de leurs effectifs rapportée à leur population).
-// C'est la référence de toutes les comparaisons de territoires (décision de Lucas du 5 octobre 2026). natD reste le
+// C'est la référence de toutes les comparaisons de territoires (décision du 5 octobre 2026). natD reste le
 // chiffre de la France entière, où chaque personne compte une fois, y compris les activités sans lieu.
 const MOY={},MOYLAB={com:"des communes",epci:"des intercommunalités",dep:"des départements",reg:"des régions"};
 const NIVLAB={epci:"intercommunalités",dep:"départements",reg:"régions"},UNLAB={epci:"une intercommunalité",dep:"un département",reg:"une région"};
@@ -505,7 +505,7 @@ function grilleX(svg,x,m,h,n){svg.append("g").attr("class","grille").attr("trans
 const famCle=()=>S.fam===SM?"sm":S.fam===SANTE?"sante":"tout";
 // liste de choix soignée, reprise d'une liste du navigateur qui reste la source de l'état (un choix y écrit la valeur
 // et déclenche son « change »). Au-delà de quinze options, une recherche en tête et les groupes répartis en colonnes,
-// pour ne jamais présenter un mur d'options (remarque de Lucas du 23 octobre 2026, liste des professions de la santé)
+// pour ne jamais présenter un mur d'options (remarque du 23 octobre 2026, liste des professions de la santé)
 function choixListe(sel,cle,apres){if(!sel)return null;
   let box=document.querySelector('.prof-choix[data-pour="'+cle+'"]');
   if(!box){box=document.createElement("div");box.className="prof-choix";box.dataset.pour=cle;
@@ -514,7 +514,7 @@ function choixListe(sel,cle,apres){if(!sel)return null;
     const fermer=()=>{l.hidden=true;b.setAttribute("aria-expanded","false")};
     const option=o=>'<button type="button" data-v="'+esc(o.value)+'" aria-current="'+(o.value===sel.value)+'">'+esc(o.textContent)+'</button>';
     b.onclick=()=>{const o=l.hidden;
-      // une seule liste ouverte à la fois (remarque de Lucas du 23 octobre 2026, deux listes ouvertes se superposaient)
+      // une seule liste ouverte à la fois (remarque du 23 octobre 2026, deux listes ouvertes se superposaient)
       if(o)document.querySelectorAll(".prof-liste:not([hidden])").forEach(x=>{if(x!==l){x.hidden=true;x.parentElement.querySelector(":scope > button")?.setAttribute("aria-expanded","false")}});
       if(o){const n=sel.querySelectorAll("option").length,grand=n>15,og=[...sel.children].filter(g=>g.tagName==="OPTGROUP"),deux=grand&&og.length>=4;
         l.classList.toggle("large",grand&&!deux);l.classList.toggle("deux",deux);
@@ -533,7 +533,7 @@ function choixListe(sel,cle,apres){if(!sel)return null;
     document.addEventListener("pointerdown",e=>{if(!l.hidden&&!e.target.closest('.prof-choix[data-pour="'+cle+'"]'))fermer()},true)}
   box.querySelector("button span").textContent=sel.selectedOptions[0]?.textContent||"";
   return box}
-// menu en deux temps (remarque de Lucas du 23 octobre 2026, cent dix-sept indicateurs dans une seule liste étaient
+// menu en deux temps (remarque du 23 octobre 2026, cent dix-sept indicateurs dans une seule liste étaient
 // difficiles à parcourir ; Impeccable, peu de choix à la fois, le reste à la demande) : une douzaine de thèmes avec
 // leur nombre d'indicateurs, les indicateurs du thème montré, une recherche qui parcourt tous les thèmes
 const sansAccent=t=>t.normalize("NFD").replace(/\p{M}/gu,"").toLowerCase();
@@ -556,7 +556,7 @@ function menuDeux(sel,l,og,option){
     l.querySelectorAll(".volet-choix .grp").forEach(g=>{let k=0;g.querySelectorAll("button").forEach(x=>{const ok=sansAccent(x.textContent).includes(q);x.hidden=!ok;if(ok)k++});g.hidden=!k});
     l.querySelectorAll(".theme").forEach(t=>{const g=l.querySelector('.volet-choix .grp[data-g="'+t.dataset.g+'"]');t.classList.toggle("vide",!g||g.hidden)})})}
 addEventListener("scroll",hideTip,{passive:true});
-// barre de rappel des réglages (remarque de Lucas du 23 octobre 2026 : utile que les réglages suivent la lecture, mais
+// barre de rappel des réglages (remarque du 23 octobre 2026 : utile que les réglages suivent la lecture, mais
 // la barre entière prenait de la place, et la replier en cours de défilement faisait sauter la page). Les réglages
 // restent en tête de page ; une fois dépassés, une fine barre flottante apparaît sous l'en-tête, par un fondu, sans rien
 // déplacer dans la page : la profession (même liste), le rappel des autres choix et « Réglages », qui ouvre tous les

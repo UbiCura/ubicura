@@ -91,7 +91,7 @@ def voisinages(ref, hors_ligne=False, rafraichir=False) -> dict | None:
                         voisins[niv].setdefault(x, set()).add(y)
                         voisins[niv].setdefault(y, set()).add(x)
         # centre du contour, pour placer une structure sans adresse dans sa commune ; les distances partent du centre de
-        # la population de la commune (pipeline/sources/insee_carreaux.py, demande de Lucas du 29 octobre 2026)
+        # la population de la commune (pipeline/sources/insee_carreaux.py, demande du 29 octobre 2026)
         voisins["centres_geo"] = {c: (x, y) for c, (x, y, _a) in centres.items()}
         voisins["formes"] = formes
         from . import insee_carreaux

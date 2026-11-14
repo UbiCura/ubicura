@@ -7,7 +7,7 @@ tel que reçu. Ajouter une région, c'est déposer son document et écrire sa de
 tableau demande un nouveau lecteur.
 
 Les arrêtés arrivent par courriel en réponse à une demande d'accès aux documents administratifs. Ils ne se téléchargent
-pas d'eux-mêmes, c'est l'exception à la règle « tout est automatisable », signalée à Lucas et acceptée le 29 octobre 2026.
+pas d'eux-mêmes, c'est l'exception à la règle « tout est automatisable », signalée à l'auteur et acceptée le 29 octobre 2026.
 Licence, document administratif communiqué, réutilisable sans altération avec sa source et sa date (CRPA, articles
 L321-1 et L322-1, registre pipeline/licences.py).
 

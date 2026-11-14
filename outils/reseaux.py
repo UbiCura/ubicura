@@ -1,12 +1,12 @@
-"""Messages pour LinkedIn (profil de Lucas) et Bluesky (compte du projet, @ubicura.fr), relus dans l'onglet « Réseaux »
-de la fenêtre du courrier et publiés seulement par un clic de Lucas sur « Publier » (tutoriels 10 et 11, feuille de
-route de la communication, phase 2, décisions de Lucas du 29 octobre 2026). Les messages restent sur le PC dans
+"""Messages pour LinkedIn (profil de l'auteur) et Bluesky (compte du projet, @ubicura.fr), relus dans l'onglet « Réseaux »
+de la fenêtre du courrier et publiés seulement par un clic sur « Publier » (tutoriels 10 et 11, feuille de
+route de la communication, phase 2, décisions du 29 octobre 2026). Les messages restent sur le PC dans
 donnees\\messagerie\\reseaux\\ (hors de Git).
 
     python outils\\reseaux.py bluesky-mot-de-passe   identifiant du compte et mot de passe d'application de Bluesky,
                                                     testés puis rangés dans le gestionnaire d'identifiants de Windows
     python outils\\reseaux.py linkedin-application   identifiant et secret de l'application de développeur de LinkedIn
-    python outils\\reseaux.py linkedin-autoriser     autorisation de publier au nom de Lucas, valable 60 jours
+    python outils\\reseaux.py linkedin-autoriser     autorisation de publier en son nom, valable 60 jours
     python outils\\reseaux.py verifier               état de chaque compte, sans rien publier
     python outils\\reseaux.py ajouter F              ajoute le message du fichier JSON F, après contrôle
     python outils\\reseaux.py ajouter-serie D         ajoute à la file, dans l'ordre de leurs dates, les messages du
@@ -14,20 +14,20 @@ donnees\\messagerie\\reseaux\\ (hors de Git).
     python outils\\reseaux.py remplacer F            remplace un message pas encore publié par celui du fichier F
                                                     (série refaite après une édition) ; il revient à relire
     python outils\\reseaux.py apercu ID              ce qui serait envoyé à chaque réseau, sans rien envoyer
-    python outils\\reseaux.py publier-programmes     publie les messages programmés par Lucas dont l'heure est passée
-    python outils\\reseaux.py suivre [--essai]       abonne le compte Bluesky du projet aux comptes cochés par Lucas
+    python outils\\reseaux.py publier-programmes     publie les messages programmés dont l'heure est passée
+    python outils\\reseaux.py suivre [--essai]       abonne le compte Bluesky du projet aux comptes cochés
                                                     dans docs\\reseaux\\comptes_a_suivre.csv, cinq par jour au plus
                                                     (aussi lancé par messagerie.py envoyer-programmes)
     python outils\\reseaux.py ne-plus-suivre ID      retire un abonnement fait par l'outil, et décoche le compte
     python outils\\reseaux.py republier [--essai]    republie au plus un message par semaine d'un producteur de
                                                     données (DREES, Insee, Santé publique France, IRDES, Assurance
                                                     Maladie) qui annonce une donnée reprise par le site, sur règles
-                                                    écrites (décision de Lucas du 11 novembre 2026, aussi lancé par
+                                                    écrites (décision du 11 novembre 2026, aussi lancé par
                                                     messagerie.py envoyer-programmes) ; --arreter, --reprendre
     python outils\\reseaux.py annuler-republication [ADRESSE]   retire la dernière republication (ou celle donnée)
 
 Interfaces officielles seulement, jamais d'automate qui pilote un compte, jamais le mot de passe principal d'un compte.
-Les identifiants sont saisis par Lucas et rangés dans le gestionnaire d'identifiants de Windows (outils/identifiants.py),
+Les identifiants sont saisis et rangés dans le gestionnaire d'identifiants de Windows (outils/identifiants.py),
 jamais écrits dans un fichier ni affichés.
 
 Bluesky, lexiques du dépôt bluesky-social/bsky lus le 29 octobre 2026 (lexicons/app/bsky/feed/post.json, texte de
@@ -79,7 +79,7 @@ ETAT = DOSSIER / "etat.json"
 # version des chiffres en ligne, tenue par la chaîne de publication (outils/publier.ps1)
 PUBLICATION = config.DONNEES / "publication.json"
 # un message programmé qui n'est pas parti dans ce délai revient à relire (ordinateur éteint, réseau coupé) : un message
-# de 9 h 30 ne part pas au milieu de la nuit sans que Lucas l'ait revu (note du 8 novembre 2026)
+# de 9 h 30 ne part pas au milieu de la nuit sans que l'auteur l'ait revu (note du 8 novembre 2026)
 DELAI_DEPART = 6
 RESEAUX = {"linkedin": "LinkedIn", "bluesky": "Bluesky"}
 STATUTS = ("a_relire", "plus_tard", "programme", "publie", "ecarte")
@@ -105,7 +105,7 @@ LIEN = re.compile(r"https?://[^\s<>«»\"]+|(?<![\w@/.-])(?:www\.)?ubicura\.fr(?
 FIN_DE_LIEN = ".,;:!?)»'’\""
 RESERVES_LINKEDIN = set("|{}@[]()<>#\\*_~")
 
-# abonnements du compte Bluesky du projet (demande de Lucas du 29 octobre 2026), seulement aux comptes de la liste
+# abonnements du compte Bluesky du projet (demande du 29 octobre 2026), seulement aux comptes de la liste
 # vérifiée qu'il a cochés, une poignée par jour, jamais deux fois le même, ni message ni « j'aime ». Lexique
 # app.bsky.graph.follow (dépôt bluesky-social/bsky, lexicons/app/bsky/graph/follow.json, subject en DID et createdAt
 # obligatoires), relations lues par app.bsky.graph.getRelationships sur l'API publique.
@@ -120,7 +120,7 @@ MOTIF_DID = re.compile(r"did:plc:[a-z2-7]{24}")
 
 
 class Arret(Exception):
-    """Arrêt propre, avec un message pour Lucas."""
+    """Arrêt propre, avec un message pour l'auteur."""
 
 
 # ---------------------------------------------------------------- fichiers
@@ -298,7 +298,7 @@ def lire_date(texte) -> dt.datetime | None:
 
 
 def empreinte(m: dict) -> str:
-    """Empreinte de ce que Lucas a validé au clic, textes, réseaux choisis, texte de remplacement et figure."""
+    """Empreinte de ce que l'auteur a validé au clic, textes, réseaux choisis, texte de remplacement et figure."""
     f = chemin_figure(m)
     image = hashlib.sha256(f.read_bytes()).hexdigest() if f.is_file() else None
     return hashlib.sha256(json.dumps([m.get("linkedin"), m.get("bluesky"), m.get("alt"), m.get("lien"),
@@ -700,7 +700,7 @@ def suivre_bluesky(s: dict, did: str) -> str:
 
 def suivre(essai: bool = False, discret: bool = False, resoudre=None, deja=None, suiveur=None,
            pause: float = PAUSE_SUIVI) -> int:
-    """Abonne le compte du projet aux comptes cochés par Lucas, cinq par jour au plus, dans l'ordre de la liste.
+    """Abonne le compte du projet aux comptes cochés, cinq par jour au plus, dans l'ordre de la liste.
     Un compte déjà dans le journal n'est jamais repris. Un identifiant qui mène à un autre DID que celui vérifié est
     refusé (compte à revérifier). Codes 0 rien à faire ou fait, 20 au moins un échec. Avec essai, rien n'est envoyé."""
     import time
@@ -827,7 +827,7 @@ def cmd_linkedin_application(_args) -> int:
 
 
 def cmd_linkedin_autoriser(_args) -> int:
-    """Flux d'autorisation à trois parties. Le navigateur ouvre la page de LinkedIn, Lucas accepte, LinkedIn renvoie
+    """Flux d'autorisation à trois parties. Le navigateur ouvre la page de LinkedIn, l'auteur accepte, LinkedIn renvoie
     vers ce PC (adresse locale, rien ne passe par le site), le code est échangé contre un jeton de 60 jours."""
     import http.server
     import secrets
@@ -1011,7 +1011,7 @@ def cmd_ne_plus_suivre(args) -> int:
 
 def suivre_discret() -> int:
     """Pour envoyer-programmes (tâche planifiée et mise à jour quotidienne), n'écrit que ce qui a été fait ou a
-    échoué : les abonnements du jour, puis la republication de la semaine (décision de Lucas du 11 novembre 2026)."""
+    échoué : les abonnements du jour, puis la republication de la semaine (décision du 11 novembre 2026)."""
     code = 0
     try:
         code = suivre(discret=True)
@@ -1027,12 +1027,12 @@ def suivre_discret() -> int:
 
 
 # ---------------------------------------------------------------- republication des producteurs de données
-# Décision de Lucas du 11 novembre 2026 (« Oui mais tu pourras automatiser pour moi ? ») : au plus une fois par
+# Décision du 11 novembre 2026 (« Oui mais tu pourras automatiser pour moi ? ») : au plus une fois par
 # semaine, l'outil republie sur le compte du projet un message d'un producteur de données que le site reprend, quand
 # il annonce une publication de données, jamais une prise de position. Règles écrites ci-dessous, toutes à la fois ;
 # un doute écarte le message. Lexique app.bsky.feed.repost (dépôt bluesky-social/bsky,
 # lexicons/app/bsky/feed/repost.json, subject en référence forte uri et cid, createdAt obligatoires), messages lus par
-# app.bsky.feed.getAuthorFeed sur l'API publique. Journal lisible par Lucas, retrait par « annuler-republication ».
+# app.bsky.feed.getAuthorFeed sur l'API publique. Journal lisible, retrait par « annuler-republication ».
 COLLECTION_REPUBLICATION = "app.bsky.feed.repost"
 JOURNAL_REPUBLICATIONS = DOSSIER / "journal_republications.csv"
 # liste fermée, DID relus dans docs/reseaux/comptes_a_suivre.csv (vérifiés le 29 octobre 2026)
@@ -1239,7 +1239,7 @@ def republier(essai: bool = False, discret: bool = False, lire=None, deja=None, 
               ici: dt.datetime | None = None) -> int:
     """Republie au plus un message par semaine d'un producteur de données (PRODUCTEURS), choisi par
     juger_republication : le plus récent qui passe toutes les règles et n'a jamais été republié. Rien si une
-    republication a eu lieu dans les sept derniers jours, si Lucas l'a arrêtée (« republier --arreter »), ou si les
+    republication a eu lieu dans les sept derniers jours, si l'auteur l'a arrêtée (« republier --arreter »), ou si les
     producteurs ont été relus il y a moins de six heures. Avec essai, rien n'est envoyé ni écrit : la liste des messages
     lus et la raison de chaque choix sont affichées. Codes 0 rien à faire ou fait, 20 échec."""
     lire, deja, ecrivain = lire or fil_public, deja or deja_republie, ecrivain or ecrire_bluesky
@@ -1313,7 +1313,7 @@ def annuler_republication(message: str | None = None, effaceur=None) -> str:
     j = faites[-1]
     effaceur(session_bluesky(), j["enregistrement"], COLLECTION_REPUBLICATION)
     journaliser_republication("annule", j["producteur"], j["message"], j["adresse"], j["extrait"],
-                              "retirée à la demande de Lucas", j["enregistrement"])
+                              "retirée à la demande", j["enregistrement"])
     return f"Republication retirée de Bluesky ({j['producteur']}, {j['adresse']})."
 
 
@@ -1338,7 +1338,7 @@ def ne_plus_suivre(identifiant: str, effaceur=None) -> str:
 
 # ---------------------------------------------------------------- choix des comptes à suivre
 def fenetre_comptes(racine, c: dict, petite) -> None:
-    """Fenêtre où Lucas coche les comptes que Bluesky suivra. Le choix est écrit dans la colonne valide de
+    """Fenêtre où l'auteur coche les comptes que Bluesky suivra. Le choix est écrit dans la colonne valide de
     docs\\reseaux\\comptes_a_suivre.csv (date du choix). Un compte déjà suivi reste coché, il n'est jamais repris."""
     import tkinter as tk
     from tkinter import messagebox, ttk
@@ -1729,7 +1729,7 @@ def onglet(onglets, racine, c: dict, police, petite, zone_texte, remplir) -> dic
     ttk.Button(boutons, text="Publier", style="Envoyer.TButton", command=cliquer_publier).pack(side="left")
     def programmer_periode(jours: int, periode: str):
         """Valide d'un clic les messages à relire de la période, chacun à sa date proposée, après une confirmation
-        qui les liste tous (demande de Lucas du 8 novembre 2026 pour la semaine, du 13 novembre 2026 pour le mois).
+        qui les liste tous (demande du 8 novembre 2026 pour la semaine, du 13 novembre 2026 pour le mois).
         Un message programmé dont les chiffres ne sont plus ceux du site en ligne revient à relire sans partir."""
         garder()
         ici = dt.datetime.now()

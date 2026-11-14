@@ -1,8 +1,8 @@
 # Note, secteurs d'activité du RPPS qui ne soignent pas la population
 
-Note préparée le 4 octobre 2026 pour décision de Lucas.
+Note préparée le 4 octobre 2026 pour décision.
 
-**Décision de Lucas (4 octobre 2026).** Tout garder, mais de façon identifiable. Trois catégories, soins à la population (chiffres principaux), public particulier (gardé dans les densités et repérable), sans soins à la population (retiré des densités et compté à part par territoire, les personnes restant dans l'effectif national). Le secteur « Ministère » est rangé en public particulier, sauf pour les médecins (sans soins), parce qu'il réunit surtout des infirmiers et psychologues de l'Éducation nationale, des infirmiers de PMI et des services sociaux des départements, et pour les médecins surtout de l'administration. Liste dans `config.SECTEURS_CATEGORIES`.
+**Décision (4 octobre 2026).** Tout garder, mais de façon identifiable. Trois catégories, soins à la population (chiffres principaux), public particulier (gardé dans les densités et repérable), sans soins à la population (retiré des densités et compté à part par territoire, les personnes restant dans l'effectif national). Le secteur « Ministère » est rangé en public particulier, sauf pour les médecins (sans soins), parce qu'il réunit surtout des infirmiers et psychologues de l'Éducation nationale, des infirmiers de PMI et des services sociaux des départements, et pour les médecins surtout de l'administration. Liste dans `config.SECTEURS_CATEGORIES`.
 
 ## Le constat
 
@@ -73,7 +73,7 @@ Ailleurs, l'effet reste faible, sauf quelques cas. La Lozère perd 14 % de ses g
 3. **Secteur « Ministère »**, garder pour les psychologues (Éducation nationale) et le retirer pour les médecins, ou le garder pour tous en le signalant. Un tri par raison sociale serait plus fin mais plus fragile d'une mise à jour à l'autre.
 4. Liste des secteurs retenus dans `config.py`, modifiable sans toucher au reste du code, avec un contrôle dans le journal (nombre d'activités et de personnes retirées).
 
-## Questions pour Lucas
+## Questions pour l'auteur
 
 - Retirer le groupe 1 des comptages par territoire, oui ou non ?
 - Le groupe 2, tout garder, ou retirer certains secteurs (lesquels) ?

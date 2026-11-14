@@ -2,18 +2,18 @@
   <div class="in">
     <a class="marque" href="{{ racine }}index.html" title="{{ sous_titre }}">{{ nom_projet }}</a>
     {#- recherche de l'en-tête, la même sur toutes les pages et au téléphone, hors du menu replié (navigation, étape 2,
-        validée par Lucas le 8 novembre 2026) #}
+        validée le 8 novembre 2026) #}
     <button class="chercher" id="bouton-chercher" type="button" aria-expanded="false" aria-controls="panneau-chercher">Chercher</button>
     <button class="menu" id="bouton-menu" type="button" aria-expanded="false" aria-controls="liens-site">Menu</button>
     <div class="liens" id="liens-site">
     {# menu de six entrées par tâche (direction visuelle du 30 octobre 2026), sur toutes les pages depuis la décision de
-       Lucas du 5 novembre 2026 (un seul en-tête). L'atlas, Explorer, les rapports et les pages du projet restent
+       l'auteur du 5 novembre 2026 (un seul en-tête). L'atlas, Explorer, les rapports et les pages du projet restent
        atteignables par le pied de page et par les pages de chaque entrée ; chaque page allume l'entrée dont elle relève. #}
     {% set entrees = [('offre', 'domaine/offre-de-soins.html', 'Offre de soins'), ('domaines', 'domaines.html', 'Domaines'),
                       ('territoires', 'territoires/index.html', 'Territoires'), ('comparer', 'comparer.html', 'Comparer'),
                       ('explorer', 'explorer.html', 'Explorer'),
                       ('croiser', 'croiser.html', 'Croiser'), ('methode', 'methode.html', 'Méthode et données')] %}
-    {#- septième entrée « Explorer », entre Comparer et Croiser (Lucas, 8 novembre 2026, version A sur captures) #}
+    {#- septième entrée « Explorer », entre Comparer et Croiser (8 novembre 2026, version A sur captures) #}
     {% set actif = {'atlas': 'offre', 'liens': 'croiser', 'sources': 'methode', 'rapports': 'methode', 'domaine': 'domaines', 'theme': 'domaines', 'indicateurs': 'domaines', 'indicateur': 'domaines', 'offre_famille': 'offre'}.get(page, page) %}
     {% for cle, lien, titre in entrees %}<a class="l{% if actif == cle %} on{% endif %}" href="{{ racine }}{{ lien }}"{% if actif == cle %} aria-current="{{ 'page' if page == cle else 'true' }}"{% endif %}>{{ titre }}</a>
     {% endfor %}

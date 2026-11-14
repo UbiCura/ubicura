@@ -23,7 +23,7 @@ import pandas as pd
 from . import config
 from .util import JOURNAL
 
-# rien ne part dans les résultats publiés avant que la sectorisation ait été montrée à Lucas (demande du 29 octobre
+# rien ne part dans les résultats publiés avant que la sectorisation ait été montrée à l'auteur (demande du 29 octobre
 # 2026) ; d'ici là les tables vont dans donnees/intermediaire/sectorisation, jamais publié
 PUBLIER = True
 DOSSIER_INTERNE = config.INTER / "sectorisation"
@@ -148,7 +148,7 @@ def table_publiee(secteurs: pd.DataFrame) -> pd.DataFrame:
 
 
 def geojson_secteurs(secteurs: pd.DataFrame, fonds: dict, decimales: int = 4) -> dict | None:
-    """Contours des secteurs pour le plan de l'atlas (couche « secteurs de psychiatrie », demande de Lucas du 29 octobre
+    """Contours des secteurs pour le plan de l'atlas (couche « secteurs de psychiatrie », demande du 29 octobre
     2026), un objet par secteur et par type, plus un objet par ville partagée entre secteurs d'un même type. Chaque
     secteur porte son code, son type, l'établissement porteur, sa teinte (deux voisins jamais de la même, coloriage de
     cartes.teintes_secteurs sur toute la région), la source et la date de l'arrêté et les limites signalées par l'ARS.

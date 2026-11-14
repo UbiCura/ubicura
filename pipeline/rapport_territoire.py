@@ -351,7 +351,7 @@ def _odisse(B, niveau):
 
 def _zero_pedopsychiatre(B, T, famille):
     """Un territoire sans pédopsychiatre au sens de la spécialité ordinale reçoit une phrase avec ses propres chiffres,
-    psychiatres qualifiés pour l'enfant et structures de soins pour enfants (constat de Lucas du 12 octobre 2026, 15
+    psychiatres qualifiés pour l'enfant et structures de soins pour enfants (constat du 12 octobre 2026, 15
     départements à 0, tous avec des psychiatres qualifiés pour l'enfant)."""
     niv, code = T["niveau"], T["code"]
     n = B.t[niv][0]
@@ -382,7 +382,7 @@ def _professions(B, T, famille, cle_fig):
     n, d, pop = B.t[niv]
     profs = list(B.profs(famille))
     # les psychiatres qualifiés pour l'enfant juste après les pédopsychiatres au sens strict, pour qu'un 0 ne soit
-    # jamais lu seul (demande de Lucas du 12 octobre 2026)
+    # jamais lu seul (demande du 12 octobre 2026)
     if "pedopsychiatre" in profs and "q_psychiatrie_enfant" in profs:
         profs.remove("q_psychiatrie_enfant")
         profs.insert(profs.index("pedopsychiatre") + 1, "q_psychiatrie_enfant")
@@ -896,7 +896,7 @@ def _sae(B, T):
         return []
     d = pd.DataFrame(lignes)
     # l'unité du taux dans le nom de l'indicateur, le nombre puis les taux, pour qu'aucune colonne ne se devine
-    # (remarque de Lucas du 12 octobre 2026, « on ne comprend pas ce que veut dire Ce territoire »)
+    # (remarque du 12 octobre 2026, « on ne comprend pas ce que veut dire Ce territoire »)
     d["libelle"] = d["libelle"] + " (taux " + d["unite"].astype(str) + ")"
     f = lambda v: nombre(v, 1)  # noqa: E731
     avec_reg = "region" in d
@@ -1000,7 +1000,7 @@ def _modes(B, T, famille):
         tot = n.at[code, p]
         if tot < 1:
             continue
-        # références calculées sur les départements, comme le territoire (décision de Lucas du 5 octobre 2026)
+        # références calculées sur les départements, comme le territoire (décision du 5 octobre 2026)
         e = B.agg.effectifs["dep"]
         e = e[e["prof"] == p].groupby("mode")["n"].sum()
         r = {"libelle": B.lab[p], "lib": nl.at[code, p] / tot if p in nl else np.nan,
@@ -1247,7 +1247,7 @@ def _carte_distance_lieux(B, T, famille, L):
 
 
 def _carte_secteurs(B, T, L):
-    """Secteurs de psychiatrie du département d'après l'arrêté de l'ARS (demande de Lucas du 29 octobre 2026), une carte
+    """Secteurs de psychiatrie du département d'après l'arrêté de l'ARS (demande du 29 octobre 2026), une carte
     par type de secteur (psychiatrie générale puis infanto-juvénile, au choix sur le site), CMP du public du secteur
     posés par-dessus avec leur classe de confirmation, légende en texte sous la carte sur téléphone. Seulement pour les
     régions dont l'arrêté est reçu, une mention ailleurs, rien tant que la sectorisation n'est pas publiée."""
@@ -1326,7 +1326,7 @@ def _verification_cmp(L, T):
     v = verifications_lieux.phrases_md(verifications_lieux.charger(), T.get("deps") or [code] if niv == "reg" else [code])
     if v:
         out += ["**Vérifié sur d'autres sources.** " + " ".join(v), ""]
-    # confirmation des CMP, montrée en trois classes dans le tableau des structures de soins (décision de Lucas du
+    # confirmation des CMP, montrée en trois classes dans le tableau des structures de soins (décision du
     # 21 octobre 2026, les paragraphes « Confirmation des CMP » et « Liste vérifiée » répétaient les mêmes chiffres)
     if isinstance(cs, pd.DataFrame):
         r = cs[(cs["niveau"] == niv) & (cs["code"] == code)]
@@ -1397,7 +1397,7 @@ def _lieux(B, T, famille):
             continue
         g = x[x["type"] == tid]
         n = len(g)
-        # trois classes de confirmation (décision de Lucas du 21 octobre 2026), pour les types où le niveau est établi
+        # trois classes de confirmation (décision du 21 octobre 2026), pour les types où le niveau est établi
         from . import confirmation as conf_mod
         cf = g["confirmation"] if "confirmation" in g else pd.Series(dtype=object)
         etabli = "confirmation" in x and L["lieux"].loc[L["lieux"]["type"] == tid, "confirmation"].notna().any()

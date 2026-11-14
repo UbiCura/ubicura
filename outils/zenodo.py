@@ -1,5 +1,5 @@
 """Nouvelles versions des trois dépôts Zenodo (données, rapport santé mentale, rapport santé), par l'API de Zenodo et la
-clé d'accès personnelle de Lucas (tutoriel 07).
+clé d'accès personnelle (tutoriel 07).
 
     python outils\\zenodo.py cle          saisit la clé d'accès, la teste et la range dans le gestionnaire
                                          d'identifiants de Windows (jamais dans un fichier ni dans le dépôt)
@@ -51,12 +51,12 @@ CIBLE_CLE = "Ubi Cura, Zenodo"            # nom de la clé dans le gestionnaire 
 ETAT = config.DONNEES / "zenodo.json"
 DOSSIER = config.DONNEES / "zenodo"
 DEPOTS = {"donnees": config.DOI_DONNEES, **config.DOI_RAPPORTS}
-JOURS_RAPPEL = 91                         # une version archivée par trimestre (choix de Lucas du 10 octobre 2026)
+JOURS_RAPPEL = 91                         # une version archivée par trimestre (choix du 10 octobre 2026)
 NOMS = {"donnees": "données", "sante-mentale": "rapport santé mentale", "sante": "rapport santé"}
 
 
 class Arret(Exception):
-    """Arrêt propre, avec un message pour Lucas."""
+    """Arrêt propre, avec un message pour l'auteur."""
 
 
 # ---------------------------------------------------------------- gestionnaire d'identifiants de Windows
@@ -247,7 +247,7 @@ def cmd_preparer(args) -> int:
     etat.update({"en_preparation": version, "brouillons": {}, "date_preparation": dt.datetime.now().isoformat("T", "seconds"),
                  "remplace": getattr(args, "remplace", None)})
     # 1. les brouillons d'abord, pour connaître leurs DOI réservés : les rapports déposés citent ainsi leur propre
-    # version, et le site se construit une seule fois avec ces DOI, avant la publication (Lucas, 6 novembre 2026)
+    # version, et le site se construit une seule fois avec ces DOI, avant la publication (6 novembre 2026)
     brouillons = {}
     for cle, x in e.items():
         if version_du_depot(x["derniere"]) == etiquette:
@@ -351,7 +351,7 @@ def cmd_publier(args) -> int:
         for cle, b in a_publier:
             z.appel("POST", f"/deposit/depositions/{b['id']}/actions/publish")
             print(f"- {NOMS[cle]}, publié.")
-        # version corrective : la version qu'elle remplace reçoit la mention qui renvoie vers elle (règle de Lucas du
+        # version corrective : la version qu'elle remplace reçoit la mention qui renvoie vers elle (règle du
         # 7 novembre 2026), dans le même geste que la publication
         if etat.get("remplace"):
             annoter_remplacee(etat["remplace"], etat["en_preparation"])
@@ -545,7 +545,7 @@ def cmd_site_refait(_args) -> int:
 
 
 def cmd_rappel(args) -> int:
-    """Rappel trimestriel d'archivage (choix de Lucas du 10 octobre 2026, une version par trimestre). Code 10 quand la
+    """Rappel trimestriel d'archivage (choix du 10 octobre 2026, une version par trimestre). Code 10 quand la
     dernière version archivée a au moins JOURS_RAPPEL jours, qu'une version plus récente existe, et que le dernier
     rappel date d'au moins une semaine. La tâche planifiée affiche alors une fenêtre (mise_a_jour.ps1)."""
     etat = lire_etat()

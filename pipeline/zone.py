@@ -9,7 +9,7 @@ Centre de chaque commune, celui de sa population d'après les carreaux de 200 m 
 (donnees/intermediaire/centres_population_communes.parquet), le milieu de l'emprise de son plus grand polygone sinon.
 Les temps de route vers ces structures (pipeline/trajets.py) viennent de temps_route_centres.json : tranche de temps,
 à l'échelle du distancier de l'INSEE, depuis le centre de la population de chaque commune (clé « trajets », décision
-de Lucas du 31 octobre 2026).
+de l'auteur du 31 octobre 2026).
 """
 import csv
 import json

@@ -1,4 +1,4 @@
-"""Liste vérifiée des structures de soins (décision de Lucas du 13 octobre 2026).
+"""Liste vérifiée des structures de soins (décision du 13 octobre 2026).
 
 FINESS et le ROR réunis automatiquement donnent une première liste. Elle contient des erreurs que seules les sources
 des établissements permettent de corriger, par exemple des CMP déclarés à l'adresse de l'hôpital, un hôpital de jour
@@ -182,7 +182,7 @@ def appliquer(lieux: pd.DataFrame, ref, centres: dict | None = None,
     numéros FINESS des inscriptions rapprochées restent attachés (finess_absorbes), celles qui ne correspondent à
     aucune structure vérifiée sont consignées. Une inscription non citée par la source mais confirmée par une autre
     liste officielle (index dans garder, certification HAS ou Sirene) est gardée en attendant une vérification à la
-    main (décision de Lucas du 14 octobre 2026). Une structure de la liste fermée depuis dans FINESS (fermees, numéro
+    main (décision du 14 octobre 2026). Une structure de la liste fermée depuis dans FINESS (fermees, numéro
     et date) et qu'aucune inscription active ne décrit n'est plus comptée, et son établissement est à revérifier
     (fermee_depuis). Renvoie les structures et un compte rendu."""
     e, s = charger()

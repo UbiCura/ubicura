@@ -269,7 +269,7 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
 
 def construire_themes(env, commun: dict, sd: dict, dernier: Path, site: Path, A: dict, fiches: dict,
                       doi: str | None) -> list[Path]:
-    """Pages des thèmes transversaux (navigation, étape 2, validée par Lucas le 8 novembre 2026) : les indicateurs du
+    """Pages des thèmes transversaux (navigation, étape 2, validée le 8 novembre 2026) : les indicateurs du
     thème, rangés par domaine, et ses questions, reprises des pages santé mentale et santé avec la même figure, le même
     « Comment lire » et le même renvoi au rapport (pages_domaine.QUESTIONS). Les étiquettes viennent du catalogue unique
     (pipeline/themes_indicateurs.csv), si bien qu'une base ajoutée prend place d'elle-même."""

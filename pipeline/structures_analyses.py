@@ -1,4 +1,4 @@
-"""Analyses complémentaires des structures de soins (accord de Lucas du 15 octobre 2026), réglées par type dans config
+"""Analyses complémentaires des structures de soins (accord du 15 octobre 2026), réglées par type dans config
 pour servir aussi aux structures vérifiées plus tard.
 
 1. Sensibilité au niveau de confirmation. Les résultats clés (nombre, distance des habitants, comparaison des

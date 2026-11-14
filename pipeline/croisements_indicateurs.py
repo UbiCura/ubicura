@@ -1,5 +1,5 @@
 """Croisement des indicateurs de santé mentale et de vulnérabilité entre eux, par département, sans les professionnels
-(demande de Lucas du 8 octobre 2026).
+(demande du 8 octobre 2026).
 
 Deux analyses. (1) Corrélation de rang entre chaque paire d'indicateurs (config.INDICATEURS_CROISES), avec intervalle
 de confiance par bootstrap et correction de Benjamini-Hochberg. (2) Régression linéaire multiple de quelques indicateurs

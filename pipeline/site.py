@@ -34,16 +34,16 @@ from .util import JOURNAL, controles_publics, date_version, lire_meta, log
 
 SITE = Path(os.environ["OFFRE_SOINS_SITE"]) if os.environ.get("OFFRE_SOINS_SITE") else config.RACINE / "site"
 
-# Réglage unique de la présentation (30 octobre 2026). Les choix actuels de Lucas sont le défaut, texte justifié avec
+# Réglage unique de la présentation (30 octobre 2026). Les choix actuels sont le défaut, texte justifié avec
 # césures et fond clair (validation du 31 octobre 2026, fond sombre au choix). Les options de l'audit esthétique se basculent ici, une seule fois pour tout le site.
 #   texte  "justifie" (règle 8 du registre) ou "gauche" (audit, en drapeau sur 68 caractères)
 #   fond   "light" (défaut du site depuis le 31 octobre 2026), "dark" ou "chaud" (audit, blanc cassé chaud) ; le
 #          bouton du site passe au fond sombre, puis revient au fond clair choisi par fond_clair
 #   accueil "portail" (nouvel accueil, recherche, domaines et fiches) ou "atlas" (l'atlas en première page, décision
-#          de Lucas du 28 octobre 2026, à reconfirmer en voyant le nouvel accueil)
+#          du 28 octobre 2026, à reconfirmer en voyant le nouvel accueil)
 PRESENTATION = {"texte": "justifie", "fond": "light", "fond_clair": "light", "accueil": "portail",
                 # « moyenne » (règle actuelle) ou « position » (variante B2 de l'audit de contrôle du 30 octobre 2026,
-                # en attente de Lucas : repère nommé « Ensemble », position du territoire, couleur par quart)
+                # en attente : repère nommé « Ensemble », position du territoire, couleur par quart)
                 "repere": "moyenne"}
 GABARITS = config.RACINE / "gabarits"
 RAPPORTS = {"sante-mentale": ("rapport_sante_mentale.md", "Rapport santé mentale"),
@@ -120,7 +120,7 @@ def md_html(texte: str, graphiques: Path | None, imprimer=False, donnees: dict |
                 attr = f' data-donnees="{donnees["prefixe"]}{fichier}" data-donnees-nom="{fichier}"'
         # titre au-dessus de la figure, comme dans l'atlas, puis la figure elle-même
         return (f'<figure class="graphique{" zoomable" if zoom else ""}"{attr}>'
-                # titre sans numéro, comme les tableaux (Lucas, 22 octobre et 1er novembre 2026)
+                # titre sans numéro, comme les tableaux (22 octobre et 1er novembre 2026)
                 + (f'<figcaption class="small muted"><span class="leg">'
                    f'{legende.group(1)}</span>.</figcaption>' if legende else "")
                 + f'<div class="fig-corps">{choix}{contenu}</div></figure>')
@@ -132,7 +132,7 @@ def md_html(texte: str, graphiques: Path | None, imprimer=False, donnees: dict |
     # (règle 8, 7 novembre 2026)
     corps = re.sub(r"<p>(?=Sources?[ ,:]|Ce document contient des informations issues)", '<p class="references">', corps)
     # définitions des indicateurs de contexte (« Part des… (%). Définition. Source, … ») : un glossaire, donc une liste,
-    # alignée à gauche comme toutes les listes (Lucas, 7 novembre 2026)
+    # alignée à gauche comme toutes les listes (7 novembre 2026)
     corps = re.sub(r'(<h3 id="indicateurs-de-contexte">.*?</h3>)(.*?)(?=<h[1-6]|\Z)',
                    lambda m: m.group(1) + m.group(2).replace("<p><strong>", '<p class="glossaire"><strong>'), corps, flags=re.S)
     corps = tableaux_larges(corps)
@@ -142,7 +142,7 @@ def md_html(texte: str, graphiques: Path | None, imprimer=False, donnees: dict |
 
 
 # ---------------------------------------------------------------- PDF des rapports (harmonisation, lot 5, 22 octobre 2026)
-# Décisions de Lucas du 22 octobre 2026, les volets « Pour aller plus loin » réunis dans une annexe technique à la fin
+# Décisions du 22 octobre 2026, les volets « Pour aller plus loin » réunis dans une annexe technique à la fin
 # du PDF avec un renvoi à leur place, texte justifié sans trous, un même « À savoir » imprimé une seule fois.
 
 def _sans_balises(t: str) -> str:
@@ -300,7 +300,7 @@ def _liste_verifiee(dossier, lire, nb):
 def _parties_imprimees(corps: str) -> str:
     """À l'impression, chaque grande partie d'un rapport national (titre de niveau 3 sous « Santé mentale » ou « Santé »,
     hors « En bref ») commence une nouvelle page, pour qu'aucun titre de partie ne reste en bas de page avec son
-    introduction (demande de Lucas du 10 octobre 2026)."""
+    introduction (demande du 10 octobre 2026)."""
     famille = [False]
 
     def marque(m):
@@ -340,7 +340,7 @@ def _ancre(texte, sep):
 # Une seule mise en page pour les pages de texte (harmonisation, 22 octobre 2026). Le titre et le chapeau prennent la
 # largeur du cadre, puis viennent le sommaire à gauche, tiré des intertitres, et la colonne de texte, au même endroit que
 # dans les rapports et la page méthode. Une page sans au moins deux intertitres n'a ni sommaire ni marge vide, son
-# contenu s'aligne sur le titre. Mise en page choisie page par page (demande de Lucas du 22 octobre 2026), la page des
+# contenu s'aligne sur le titre. Mise en page choisie page par page (demande du 22 octobre 2026), la page des
 # rapports nationaux, faite de cartes, et la page des publications, courte, gardent la leur.
 EN_COLONNE = {"page.html", "donnees_sources.html", "journal.html", "territoires.html"}
 
@@ -374,7 +374,7 @@ def en_colonne(page: str) -> str:
     # un tableau trop large pour un téléphone défile dans son cadre au lieu d'élargir la page
     reste = re.sub(r'(?<!<div class="defile">)(<table\b.*?</table>)', r'<div class="defile">\1</div>', reste, flags=re.S)
     if len(lignes) < 2:
-        # sans sommaire, pas de colonne vide à gauche, le contenu s'aligne sur le titre (remarque de Lucas du 22 octobre)
+        # sans sommaire, pas de colonne vide à gauche, le contenu s'aligne sur le titre (remarque du 22 octobre)
         return page[:m.start()] + tete + f'\n<div class="corps etroit">{reste}</div>' + page[fin + len("</div>"):]
     aside = ('<aside class="sommaire" aria-label="Sommaire de la page"><ul>'
              + "".join(f'<li><a href="#{i}">{t}</a></li>' for i, t in lignes) + "</ul></aside>")
@@ -696,7 +696,7 @@ def imprimer_pdf(html: Path, pdf: Path, exe: str) -> bool:
 # ---------------------------------------------------------------- données sources
 def donnees_sources(dernier: Path, site_data: dict) -> list[dict]:
     """Une fiche par jeu de données suivi, producteur, licence, page du jeu, fichiers lus avec leur adresse, version,
-    versions constatées, usage et indicateurs qui en dérivent (demande de Lucas du 5 octobre 2026)."""
+    versions constatées, usage et indicateurs qui en dérivent (demande du 5 octobre 2026)."""
     journal = json.loads((dernier / "journal.json").read_text(encoding="utf-8"))
     hist = mises_a_jour.lire()
     etat = hist[-1]["etat"] if hist else mises_a_jour.etat_sources()
@@ -744,7 +744,7 @@ def journal_page() -> dict:
             etat.append({"jeu": jeu, "producteur": j["producteur"], "maj": dl(j["maj"]), "recupere": dl(j["recupere"]),
                          "change": dl(vu[-1]) if vu else f"aucun depuis le {dl(premiere)}"})
     # résumé de l'essentiel par jour (contenus/journal_resume.csv), à la place des lignes « Journal: » des commits,
-    # trop détaillées pour le lecteur (point 11 de la version 2, demande de Lucas du 11 octobre 2026). Le détail reste
+    # trop détaillées pour le lecteur (point 11 de la version 2, demande du 11 octobre 2026). Le détail reste
     # dans l'historique du dépôt.
     resume = {}
     f_resume = config.RACINE / "contenus" / "journal_resume.csv"
@@ -933,7 +933,7 @@ def fichiers_zenodo(iso: str, cible: Path) -> dict[str, list[Path]]:
 
 
 # ---------------------------------------------------------------- construction
-# groupes de pages que pipeline.site --pages peut refaire seuls (méthode de travail, Lucas, 6 novembre 2026)
+# groupes de pages que pipeline.site --pages peut refaire seuls (méthode de travail, 6 novembre 2026)
 GROUPES = ("rapports", "territoires", "fiches", "methode", "explorer", "atlas", "portail")
 
 
@@ -1195,7 +1195,7 @@ def construire_methode(env, commun, dernier, site_data, ddir, pages, fiches_sour
             ctx, corps="<h1>À propos</h1>" + corps), encoding="utf-8")
         pages.append(SITE / "a-propos.html")
 
-    # ajouts prévus et propositions de bases (demande de Lucas du 5 octobre 2026), textes dans contenus/
+    # ajouts prévus et propositions de bases (demande du 5 octobre 2026), textes dans contenus/
     for fichier, sortie, titre in (("a_venir.md", "a-venir.html", "À venir"),
                                    ("contribuer.md", "contribuer.html", "Proposer une base de données")):
         src = config.RACINE / "contenus" / fichier
@@ -1225,7 +1225,7 @@ def construire_methode(env, commun, dernier, site_data, ddir, pages, fiches_sour
 
 def construire_explorer(env, commun, dernier, site_data, pages):
     """Page Explorer, ses données et ses outils."""
-    # explorer les données (décision de Lucas du 26 octobre 2026), analyses réglées par le lecteur
+    # explorer les données (décision du 26 octobre 2026), analyses réglées par le lecteur
     from . import explorer
     if explorer.ecrire(dernier, SITE, site_data):
         ctx = dict(commun, racine="", page="explorer", titre="Explorer les données")
@@ -1245,7 +1245,7 @@ def construire_explorer(env, commun, dernier, site_data, pages):
 
 def construire_atlas_site(env, commun, dernier):
     """Atlas, sous l'en-tête commun, et contours des secteurs de psychiatrie."""
-    # l'atlas est la première page du site (décisions de Lucas du 28 octobre 2026, la page d'accueil précédente n'était
+    # l'atlas est la première page du site (décisions du 28 octobre 2026, la page d'accueil précédente n'était
     # « pas très pro », puis une seule page plutôt qu'un accueil et un atlas presque identiques), sous un en-tête
     # purement typographique ; atlas.html renvoie vers index.html pour les liens déjà partagés, gabarits/accueil.html
     # n'est plus utilisé
@@ -1491,7 +1491,7 @@ def _tuiles(sd) -> list[dict]:
 
 
 def _fenetres(sd, dossier: Path) -> dict:
-    """Données des fenêtres de l'accueil (essai du 23 octobre 2026, d'après reactbits.dev, demande de Lucas).
+    """Données des fenêtres de l'accueil (essai du 23 octobre 2026, d'après reactbits.dev, demande).
     « Professions » : pour chaque profession, l'effectif national et, par département, la classe et l'indice de la
     carte du rapport (densité rapportée à la moyenne des départements, comme analyses.moyenne_territoires : somme des
     effectifs sur somme des populations, puis cartes.classe), pour recolorer la carte de l'accueil sans autre calcul.

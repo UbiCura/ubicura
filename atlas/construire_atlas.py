@@ -150,7 +150,7 @@ def completer(data: dict) -> dict:
     return data
 
 
-# Page d'accueil du site allégée (demande de Lucas du 29 octobre 2026, index.html de 15 Mo qu'un réseau d'entreprise
+# Page d'accueil du site allégée (demande du 29 octobre 2026, index.html de 15 Mo qu'un réseau d'entreprise
 # n'ouvrait pas). Avec externes=True, les blocs lourds partent dans des fichiers à empreinte appelés au même endroit
 # par <script src>, ce qui garde l'ordre d'exécution (bibliothèques, fond, données, moteur, puis figures.js avant
 # DOMContentLoaded) tout en laissant le navigateur afficher la page pendant leur téléchargement et les garder en cache.
@@ -241,7 +241,7 @@ def construire(src: Path, dest: Path, nav: str = "", accueil: str = "", titre: s
     for k, v in remplacements.items():
         html = html.replace(k, v.replace("</script", "<\\/script"), 1)
     html = html.replace("<!--NAV-->", nav, 1)
-    # première page du site (décision de Lucas du 28 octobre 2026), l'atlas lui-même avec un bandeau d'accueil à la place
+    # première page du site (décision du 28 octobre 2026), l'atlas lui-même avec un bandeau d'accueil à la place
     # de son en-tête, la carte juste en dessous
     if accueil:
         i, j = html.index('<header class="top">'), html.index("</header>") + len("</header>")

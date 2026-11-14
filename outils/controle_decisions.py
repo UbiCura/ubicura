@@ -1,5 +1,5 @@
-"""Contrôle du site construit face aux décisions de Lucas (docs/decisions_a_verifier.md), sur toutes les pages et tous
-les rapports, et non sur un échantillon (demande de Lucas du 6 novembre 2026 : les audits trouvaient chaque fois
+"""Contrôle du site construit face aux décisions (docs/decisions_a_verifier.md), sur toutes les pages et tous
+les rapports, et non sur un échantillon (demande du 6 novembre 2026 : les audits trouvaient chaque fois
 d'autres défauts, la machine les cherche désormais partout à chaque construction).
 
     python outils/controle_decisions.py            # dernier site construit, code de sortie 1 s'il reste un défaut
@@ -457,7 +457,7 @@ def controler() -> int:
         pdf.append(("pypdf", "absent, contrôle des PDF non fait"))
     note("PDF : nombres jamais coupés en fin de ligne", pdf)
 
-    # 12. tout chiffre d'une figure se lit aussi au survol (règle de Lucas du 6 novembre 2026) : une figure de données
+    # 12. tout chiffre d'une figure se lit aussi au survol (règle du 6 novembre 2026) : une figure de données
     #     (role="img") dont les barres, points ou territoires n'ont pas d'infobulle est signalée
     survol = []
     for p, s in sources.items():
@@ -500,7 +500,7 @@ def controler() -> int:
             perdues.append((avant[-1].name, nom, "présente dans la version précédente, absente ici"))
     note("Aucune figure perdue (annoncée par le rapport, présente dans la version précédente)", perdues)
 
-    # 15. navigation (audit du 8 novembre 2026, étape 1 validée par Lucas) : chaque fiche relie le territoire qui la
+    # 15. navigation (audit du 8 novembre 2026, étape 1 validée) : chaque fiche relie le territoire qui la
     #     contient et ceux qu'elle contient, propose « Autour d'un lieu » ; chaque page a au pied « Autour d'un lieu » et
     #     « Télécharger les données » ; plus d'ancien nom « Données sources »
     nav = []

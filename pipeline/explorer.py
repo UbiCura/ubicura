@@ -1,4 +1,4 @@
-"""Page « Explorer les données » (décision de Lucas du 26 octobre 2026), des analyses que le lecteur règle lui-même,
+"""Page « Explorer les données » (décision du 26 octobre 2026), des analyses que le lecteur règle lui-même,
 rangées par question. Ce module prépare les données de la page à partir des résultats de la version (aucun calcul
 nouveau, les mêmes comptes que les rapports) et copie les bibliothèques et le fond de carte dans site/explorer/.
 
@@ -23,7 +23,7 @@ from .util import JOURNAL
 NATURES = ("profession", "qualification")
 # variables qui rangent les territoires (dixièmes des paires, groupes des trajectoires), tirées du catalogue des
 # indicateurs (site_data.json, contexte), un seul catalogue pour le site, l'atlas, Explorer et l'API (décision de
-# Lucas du 28 octobre 2026). Une base ajoutée au catalogue paraît d'elle-même dans Explorer, rangée dans son thème.
+# L'auteur du 28 octobre 2026). Une base ajoutée au catalogue paraît d'elle-même dans Explorer, rangée dans son thème.
 # Réglages de lecture seulement, pour quelques variables, le nom des groupes extrêmes, le sens des dixièmes et la
 # forme du nom dans une phrase ; les autres variables reçoivent une formule générale.
 LECTURE_GROUPES = {
@@ -192,7 +192,7 @@ def donnees_nuage(site_data: dict) -> dict | None:
     if not all(lv in niv for lv in NIVEAUX_NUAGE) or not site_data.get("contexte"):
         return None
     d = {k: site_data.get(k) for k in CLES_NUAGE}
-    # « lieux », nombre de structures de chaque type par territoire, montré à côté de son taux (décision de Lucas du
+    # « lieux », nombre de structures de chaque type par territoire, montré à côté de son taux (décision du
     # 30 octobre 2026)
     d["niveaux"] = {lv: {k: niv[lv][k] for k in ("units", "n", "route", "lieux") if k in niv[lv]} for lv in NIVEAUX_NUAGE}
     d["correlations"] = [{k: v for k, v in r.items() if v is not None} for r in site_data.get("correlations", [])
@@ -242,7 +242,7 @@ def ecrire(dossier: Path, site: Path, site_data: dict) -> bool:
     # outils repris de l'atlas (lots 2 et 3), mêmes données que l'atlas, Gini recalculé face à inegalites.csv
     di = donnees_inegalites(site_data)
     if di:
-        # addictologie (choix de Lucas du 29 octobre 2026), données de l'encadré de l'atlas et leur limite
+        # addictologie (choix du 29 octobre 2026), données de l'encadré de l'atlas et leur limite
         da = site_data.get("addicto") or {"offre": [], "ind": [], "regions": {}}
         lim = config.LIMITES.get("addictions")
         da = {**da, "limite": {"texte": lim["texte"], "sources": lim["sources"]} if lim else None}

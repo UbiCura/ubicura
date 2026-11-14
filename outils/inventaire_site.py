@@ -1,6 +1,6 @@
 """Inventaire du contenu du site, page par page, pour ne rien perdre à la refonte de la présentation.
 
-Demande de Lucas du 30 octobre 2026 : la nouvelle présentation reprend tout ce que montre le site actuel (figures,
+Demande du 30 octobre 2026 : la nouvelle présentation reprend tout ce que montre le site actuel (figures,
 tableaux, cartes, encadrés). Ce script compte, dans chaque page HTML construite, les figures (SVG), les cartes (SVG
 d'au moins 30 tracés), les tableaux, les images, et relève les titres (h2, h3, légendes de tableau). Il relève aussi
 les limites connues des données (config.LIMITES) que chaque page écrit en texte, par leur phrase courte ou la première
@@ -145,7 +145,7 @@ def comparer(avant: dict, apres: dict, correspondances: dict[str, str] | None = 
     Une correspondance dont l'ancien titre finit par « * » vaut pour tout titre qui commence ainsi, et un nouveau titre
     qui finit par « * » est trouvé dès qu'un titre d'après commence ainsi : un titre propre à chaque territoire
     (« Évolution depuis 2016, Cher ») se range sous un seul motif. baisses donne, par total, la baisse décidée (fiche
-    resserrée validée par Lucas le 31 octobre 2026 : les tableaux d'évolution devenus une colonne)."""
+    resserrée validée le 31 octobre 2026 : les tableaux d'évolution devenus une colonne)."""
     exacts, motifs = {}, []
     for a, b in (correspondances or {}).items():
         cible = (norm(b.rstrip("*")), b.endswith("*"))

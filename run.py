@@ -235,7 +235,7 @@ def executer(args):
         # distances des communes des départements sans mesure, retirées une fois faites les analyses nationales
         lieux.masquer_distances_communes(lieux_res, ref)
     out = export.ecrire(agg, ref, professions, contexte, R, diplomes, jour=args.date)
-    # en brouillon tant que Lucas n'a pas validé la présentation (config.POPULATION_CONCERNEE_PUBLIEE)
+    # en brouillon tant que l'auteur n'a pas validé la présentation (config.POPULATION_CONCERNEE_PUBLIEE)
     pc_ = (lieux_res or {}).get("population_concernee")
     if pc_ is not None and not pc_.empty and (args.brouillons or config.POPULATION_CONCERNEE_PUBLIEE):
         pc_.to_csv(Path(out) / "population_concernee.csv", sep=";", decimal=",", index=False, encoding="utf-8-sig")

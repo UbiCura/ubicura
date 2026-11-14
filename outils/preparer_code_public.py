@@ -1,7 +1,7 @@
 """Prépare le code public dans un dépôt Git séparé et le vérifie. N'envoie rien.
 
 Le dépôt de travail garde son historique et ses notes internes. Le dépôt public n'en reçoit qu'une copie filtrée, en
-commits signés de la seule adresse anonyme GitHub de Lucas (git config offresoins.adresseautorisee).
+commits signés de la seule adresse anonyme GitHub (git config offresoins.adresseautorisee).
 
 Deux modes.
 - Par défaut, un dépôt neuf d'un seul commit, refait à chaque fois (pour vérifier).
@@ -37,7 +37,7 @@ DOCS_PUBLICS = {"docs/verification_2026-10-05.md", "docs/verification_2026-10-08
 # le nom de l'assistant est assemblé ici, pour que ce fichier ne contienne pas lui-même ce qu'il recherche
 ASSISTANT = "cla" + "ude"
 # l'offre professionnelle (prototype de l'API et sa démonstration) ne part pas en ligne avant d'être finalisée
-# (décision de Lucas du 28 octobre 2026)
+# (décision du 28 octobre 2026)
 EXCLUS = re.compile(rf"^({ASSISTANT.upper()}\.md|\.{ASSISTANT}/|prototypes/|docs/|outils/api_|outils/lancer_api)")
 INTERDITS_CHEMIN = re.compile(r"^(donnees|resultats|site)/|\.(parquet|log)$|(^|/)rpps[^/]*\.(txt|csv)$", re.I)
 INTERDITS_TEXTE = [
@@ -48,6 +48,10 @@ INTERDITS_TEXTE = [
     # (gabarits/cesure, atlas/vendor, 23 octobre 2026) ; toute autre adresse personnelle reste bloquante
     (re.compile(r"(?<!yevhentiurin)@gmail\.|a-remplacer\.invalid|univ-[a-z]+\.fr", re.I), "adresse personnelle"),
     (re.compile(r"(?<![\d.,])(10\d{9}|810\d{8})(?![\d.,])"), "identifiant RPPS possible"),
+    # le prénom de l'auteur ne paraît que dans son nom complet (citations, mentions légales, identité Git), jamais
+    # dans un commentaire ni un texte (règles du projet, partie 3 ; nettoyage du 14 novembre 2026). Assemblé ici,
+    # comme le nom de l'assistant.
+    (re.compile(r"(?i:(?<!Pithon, )(?<![\w-])" + "lu" + r"cas(?!\w))(?! Pithon)"), "prénom de l'auteur hors de son nom complet"),
 ]
 
 

@@ -58,7 +58,7 @@ MODELES = {
     "t_aucun": "{Nom} : aucun inscrit",
     "t_struct": "{n} {nom}, {confirmation}",
     "t_struct_aucun": "{Nom} : aucune structure inscrite",
-    # pas de CMP réservé aux adultes, mais des CMP tous publics (décision de Lucas du 31 octobre 2026, M4b)
+    # pas de CMP réservé aux adultes, mais des CMP tous publics (décision du 31 octobre 2026, M4b)
     "t_cmp_tous": "Aucun CMP réservé aux adultes, {k} CMP tous publics",
     "cmp_tous_1": "Aucun CMP réservé aux adultes n'est inscrit dans {territoire} ; {territoire} compte {k} CMP tous publics, pour les adultes et les enfants.",
     # bases incomplètes dans le département (limite manque_sae) : « aucune » ne serait pas établi (relecture du 31 octobre
@@ -68,7 +68,7 @@ MODELES = {
     "t_dist": "{Nom} : la moitié des habitants à moins de {v} km",
     "t_dist_zero": "{Nom} : dans la commune d'au moins la moitié des habitants",
     "t_ctx": "{Nom} : {position}",
-    # écart et position de sens contraire, dits ensemble dans le titre (remarques de Lucas du 31 octobre 2026)
+    # écart et position de sens contraire, dits ensemble dans le titre (remarques du 31 octobre 2026)
     "t_contraire": "{Nom} : {ecart}, mais {position}",
     "t_contraire_net_bas": "{Nom} : nettement en dessous de l'ensemble, mais {position}",
     "t_contraire_net_haut": "{Nom} : nettement au-dessus de l'ensemble, mais {position}",

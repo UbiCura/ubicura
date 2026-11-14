@@ -308,7 +308,7 @@ def mini_carte(F: Formes, lv: str, code: str, codes_vals: dict, bornes: list, ca
     s = [f'<svg class="carte-svg mini" viewBox="{x0:.1f} {y0:.1f} {x1 - x0:.1f} {y1 - y0:.1f}" role="img" '
          f'aria-label="{titre}"><g class="aplats" stroke="{_v("--contour", "#F4F4F1")}" stroke-width=".5">']
     # classes q0 à q4 (bleu d'encre, style.css), nd sans valeur ; figures.js écrit les couleurs dans l'export
-    # chaque territoire donne son nom et sa valeur au survol (règle de Lucas du 6 novembre 2026 : tout chiffre d'une
+    # chaque territoire donne son nom et sa valeur au survol (règle du 6 novembre 2026 : tout chiffre d'une
     # figure se lit aussi en infobulle) ; valeur(v) écrit le nombre avec son unité, selon la règle d'affichage
     from . import affichage as AF
     noms = {u["c"]: u.get("nm", u["c"]) for u in (F.A.get("units") or {}).get(lv, [])}

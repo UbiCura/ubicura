@@ -1,5 +1,5 @@
 """Écho du projet, une photographie par jour des mesures publiées par Bluesky, data.gouv.fr, Zenodo et GoatCounter,
-montrée dans l'onglet « Statistiques » de la fenêtre du courrier (demande de Lucas du 29 octobre 2026). Lecture seule,
+montrée dans l'onglet « Statistiques » de la fenêtre du courrier (demande du 29 octobre 2026). Lecture seule,
 rien n'est publié, sources officielles seulement. Les photographies restent sur le PC dans donnees\\statistiques\\
 (hors de Git), une par jour, AAAA-MM-JJ.json.
 

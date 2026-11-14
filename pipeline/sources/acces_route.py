@@ -26,7 +26,7 @@ SOURCE = ("INSEE, données sur la localisation et l'accès de la population aux 
 DOSSIER = config.BRUT / "acces_route"
 MINUTES_MAX = 180   # au-delà, les durées sont regroupées dans la dernière tranche de l'histogramme
 # version 2 (5 octobre 2026), l'histogramme des durées est gardé par commune et non plus par département, pour
-# calculer la médiane à tous les niveaux, intercommunalités comprises (lacune relevée par Lucas)
+# calculer la médiane à tous les niveaux, intercommunalités comprises (lacune relevée)
 VERSION_RESUME = 2
 
 

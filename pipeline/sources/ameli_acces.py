@@ -155,7 +155,7 @@ def _ald(hors_ligne, rafraichir):
 
 
 def _non_publies(x: pd.DataFrame, lab: str) -> dict:
-    """Raison écrite de chaque taux de dépassement non publié, par niveau et par territoire (décision de Lucas du 30
+    """Raison écrite de chaque taux de dépassement non publié, par niveau et par territoire (décision du 30
     octobre 2026, « non publié, 2 médecins généralistes en secteur 2, moins de 5 »), montrée à la place du chiffre."""
     seuil = config.AMELI_SECTEURS_EFFECTIF_MIN
     plur = lab.lower()

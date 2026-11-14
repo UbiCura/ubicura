@@ -1,6 +1,6 @@
 """Structures de soins encore à vérifier, regroupées par établissement gestionnaire (22 octobre 2026).
 
-Prépare les courriels aux établissements (point 3 de l'ordre de Lucas). Une ligne par structure dont la classe de
+Prépare les courriels aux établissements (point 3 de l'ordre). Une ligne par structure dont la classe de
 confirmation est « à vérifier », pour tous les types confrontés à des listes indépendantes (CATTP, hôpitaux de jour,
 CMPP, CAMSP, CSAPA...), avec son gestionnaire (entité juridique de FINESS et sa dénomination) et, pour les CATTP, le
 nombre que l'hôpital déclare à la SAE face au nombre recensé ici. Écrit dans docs/verification/ :

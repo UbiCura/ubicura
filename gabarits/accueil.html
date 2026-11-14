@@ -4,7 +4,7 @@
 <h1 class="accueil-titre">L'offre de soins en France, territoire par territoire</h1>
 <p class="chapeau">Où exercent les professionnels de santé, comment leur présence varie d'un territoire à l'autre, et ce qui l'accompagne dans le profil des habitants. Les données viennent de bases publiques, chaque version est datée et archivée.</p>
 
-{# fenêtres de l'accueil (essai du 23 octobre 2026, d'après reactbits.dev, demande de Lucas) : la carte, le choix de
+{# fenêtres de l'accueil (essai du 23 octobre 2026, d'après reactbits.dev, demande) : la carte, le choix de
    la profession qui la recolore, et la version avec ses contrôles, chacune dans une fenêtre à barre de titre #}
 <div class="scene">
   {% if apercu %}<section class="fenetre fen-carte" aria-label="Carte">
@@ -81,12 +81,12 @@
   const norm=s=>s.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim();
   f.addEventListener("submit",e=>{e.preventDefault();const v=norm(i.value),theme=(e.submitter&&e.submitter.value)||"sante-mentale";
     const t=T.find(x=>norm(x.libelle)===v)||T.find(x=>x.niveau==="dep"&&norm(x.code)===v)||T.find(x=>norm(x.nom)===v)||(v.length>2?T.find(x=>norm(x.nom).startsWith(v)):null);
-    // champ vide, le bouton ne reste pas muet (remarque de Lucas du 23 octobre 2026, « Santé » semblait inclicable)
+    // champ vide, le bouton ne reste pas muet (remarque du 23 octobre 2026, « Santé » semblait inclicable)
     if(!v){vide.hidden=false;err.hidden=true;i.focus();return}
     vide.hidden=true;
     if(!t||!t.fichiers.includes(theme)){err.hidden=false;return}
     location.href="territoires/"+t.base+"-"+theme+".html"});
-  // suggestions sous le champ, dans le style des listes du site (remarque de Lucas du 23 octobre 2026, la liste du
+  // suggestions sous le champ, dans le style des listes du site (remarque du 23 octobre 2026, la liste du
   // navigateur s'ouvrait à gauche et ne ressemblait pas au reste) ; flèches, Entrée et Échap au clavier
   const L=document.getElementById("terrListe"),esc=x=>String(x).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"})[c]);let items=[],k=-1;
   const fermer=()=>{L.hidden=true;i.setAttribute("aria-expanded","false");k=-1};

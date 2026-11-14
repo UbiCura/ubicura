@@ -2,7 +2,7 @@
 complémentaires (Assurance Maladie, descripteurs de complements/), avec libellé, unité, explication,
 source, famille et licence. Le site, le rapport et le dictionnaire des colonnes s'appuient sur elle.
 
-Catalogue unique (décision de Lucas du 28 octobre 2026) : le site, l'Explorer et l'API lisent cette liste. Chaque
+Catalogue unique (décision du 28 octobre 2026) : le site, l'Explorer et l'API lisent cette liste. Chaque
 indicateur porte aussi l'identifiant de sa licence dans le registre (pipeline/licences.py), ses niveaux en codes, le type
 de sa valeur, sa règle d'agrégation pour une zone faite de plusieurs territoires et la page de sa source."""
 from __future__ import annotations

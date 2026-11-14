@@ -884,7 +884,7 @@ def voie_a_nom_propre(voie) -> bool:
 
 
 def _commune_voisine(lot: pd.DataFrame, requests) -> pd.DataFrame | None:
-    """Adresses introuvables dans leur commune, cherchées dans le code postal de cette commune (décision de Lucas du 29
+    """Adresses introuvables dans leur commune, cherchées dans le code postal de cette commune (décision du 29
     octobre 2026). Une adresse est acceptée dans une commune voisine qui partage ce code postal, au numéro ou à la rue,
     avec un score d'au moins config.GEOCODAGE_SCORE_MIN, quand tous les mots de la rue cherchée sont dans la rue trouvée et
     que la rue a un nom propre (« 34 rue Pasteur » à Mayot pour une structure inscrite à La Fère, code postal 02800). Renvoie voie, commune (celle de l'inscription), lat, lon, score, niveau et commune_adresse."""
@@ -1075,7 +1075,7 @@ def localiser(lieux: pd.DataFrame, fin: pd.DataFrame, centres: dict | None, hors
             x.loc[idx, "lat"] = pd.to_numeric(gg["lat"], errors="coerce").to_numpy(float)
             x.loc[idx, "lon"] = pd.to_numeric(gg["lon"], errors="coerce").to_numpy(float)
             x.loc[idx, "precision"] = gg["niveau"].to_numpy()
-            # adresse trouvée dans une commune voisine du même code postal (décision de Lucas du 29 octobre 2026), la
+            # adresse trouvée dans une commune voisine du même code postal (décision du 29 octobre 2026), la
             # structure est comptée là où elle reçoit, sa commune d'inscription reste dans commune_inscription
             ca = gg["commune_adresse"].to_numpy() if "commune_adresse" in gg else np.full(len(idx), None)
             autre = pd.Series([isinstance(v, str) and v != c for v, c in zip(ca, x.loc[idx, "commune"])], index=idx)
@@ -1256,13 +1256,13 @@ def resumer_distances(dist: pd.DataFrame, ref, niveaux=("epci", "dep", "reg")) -
 
 
 # Relecture des bases, chaque correction apportée à FINESS et au ROR avec le nombre de structures concernées, montrée
-# sur la page méthode et dans le rapport national (demande de Lucas du 13 octobre 2026, « bien préciser la relecture »)
+# sur la page méthode et dans le rapport national (demande du 13 octobre 2026, « bien préciser la relecture »)
 RELEVE: list[dict] = []
 
 
 def retyper_cattp(lieux: pd.DataFrame) -> tuple[pd.DataFrame, int, int]:
     """Ateliers thérapeutiques rangés avec la réhabilitation psychosociale et CATTP en milieu pénitentiaire rangés
-    comme les CMP en milieu pénitentiaire (décisions de Lucas du 16 octobre 2026, voir config). Renvoie les structures
+    comme les CMP en milieu pénitentiaire (décisions du 16 octobre 2026, voir config). Renvoie les structures
     et les deux nombres."""
     x = lieux.copy()
     m = x["type"] == "lieu_cattp"
@@ -1323,7 +1323,7 @@ def roles_addictologie(lieux: pd.DataFrame) -> pd.DataFrame:
 
 
 def comptes_csapa(lieux: pd.DataFrame) -> dict:
-    """Trois comptes des CSAPA jamais additionnés (décision de Lucas du 16 octobre 2026). Lieux (chaque site d'accueil),
+    """Trois comptes des CSAPA jamais additionnés (décision du 16 octobre 2026). Lieux (chaque site d'accueil),
     établissements FINESS de catégorie CSAPA, et établissements dont aucune ligne n'est désignée par son nom comme site
     annexe ou consultation jeunes consommateurs."""
     g = lieux[lieux["type"] == "lieu_csapa"]
@@ -1349,7 +1349,7 @@ def comptes_csapa(lieux: pd.DataFrame) -> dict:
 def roles_antennes(lieux: pd.DataFrame, fin: pd.DataFrame | None) -> tuple[pd.DataFrame, dict]:
     """Rôle de chaque CMPP et CAMSP (config.LIEUX_ANTENNES_FINESS), structure principale, antenne ou site
     supplémentaire, et confirmation héritée du site principal (niveau « principal ») pour une antenne ou un site que
-    rien ne confirme directement, quand son principal est confirmé (décision de Lucas du 16 octobre 2026). Le site
+    rien ne confirme directement, quand son principal est confirmé (décision du 16 octobre 2026). Le site
     d'accueil (chaque ligne) reste l'unité des distances et de la carte."""
     x = lieux.copy()
     x["role_structure"] = None
@@ -1403,7 +1403,7 @@ def roles_antennes(lieux: pd.DataFrame, fin: pd.DataFrame | None) -> tuple[pd.Da
 
 
 def cattp_des_cmp(lieux: pd.DataFrame) -> tuple[pd.DataFrame, int]:
-    """CATTP tenus dans un CMP (décision de Lucas du 16 octobre 2026, un CATTP est le lieu où l'hôpital déclare cette
+    """CATTP tenus dans un CMP (décision du 16 octobre 2026, un CATTP est le lieu où l'hôpital déclare cette
     activité). Quand le nom d'un CMP, une unité du ROR qu'il réunit ou l'enseigne Sirene de son établissement annonce un
     CATTP (« CMP-CATTP enfants ») et que son gestionnaire n'a aucun CATTP dans la même commune, un CATTP est compté au
     même lieu. Son niveau de confirmation suit la source qui l'annonce (Sirene, liste vérifiée de l'établissement, ou
@@ -1653,7 +1653,7 @@ def fusion_meme_adresse(lieux: pd.DataFrame, cat_finess: pd.Series | None = None
     # Deux CMP du même hôpital, du même public et de la même commune, dont les noms ne disent rien d'autre que la
     # commune, un sigle de pôle ou un code de secteur (« PPEA - CMPEA CAVAILLON » et « CMPI CAVAILLON - Secteur
     # PES »), l'un décrit par une seule base, sont la même structure décrite à deux adresses, l'ancienne et la
-    # nouvelle (constats de Lucas du 13 octobre 2026, Cavaillon, avenue de Verdun, et Tarare, rue Gaston-Salet).
+    # nouvelle (constats du 13 octobre 2026, Cavaillon, avenue de Verdun, et Tarare, rue Gaston-Salet).
     # Seulement quand ils sont exactement deux dans ce cas, hors antennes, permanences et consultations spécialisées.
     if noms_communes is not None:
         x_ = x.drop(index=a_retirer)
@@ -1709,14 +1709,14 @@ def fusion_meme_adresse(lieux: pd.DataFrame, cat_finess: pd.Series | None = None
 def repartition_cmp(lieux: pd.DataFrame, niv: str) -> pd.DataFrame:
     """Par territoire, CMP en tout, pour adultes, pour enfants et adolescents, accueillant les deux publics, et au public
     non précisé (CMP connu de FINESS seul sans âges ni indice dans son nom). Adultes plus enfants moins les deux, plus
-    les non précisés, redonne le total (constat de Lucas du 12 octobre 2026 sur les CMP de l'Ain)."""
+    les non précisés, redonne le total (constat du 12 octobre 2026 sur les CMP de l'Ain)."""
     c = lieux[lieux["type"] == "lieu_cmp"][["lieu", niv]] if niv != "fr" else         lieux[lieux["type"] == "lieu_cmp"][["lieu"]].assign(fr="FR")
     ad = set(lieux.loc[lieux["type"] == "lieu_cmp_adultes", "lieu"])
     en = set(lieux.loc[lieux["type"] == "lieu_cmp_enfants", "lieu"])
     c = c.assign(adultes=c["lieu"].isin(ad), enfants=c["lieu"].isin(en))
     c = c.assign(les_deux=c["adultes"] & c["enfants"], non_precise=~c["adultes"] & ~c["enfants"])
     # antennes et permanences (en mairie, en CCAS, en maison de santé), comptées parmi les CMP et signalées comme
-    # telles (décision de Lucas du 13 octobre 2026, cas du Var)
+    # telles (décision du 13 octobre 2026, cas du Var)
     m = lieux["type"] == "lieu_cmp"
     noms = (lieux.loc[m, "nom"] if "nom" in lieux else pd.Series("", index=lieux.index[m])).fillna(
         lieux.loc[m, "nom_finess"] if "nom_finess" in lieux else "").fillna("")
@@ -1732,7 +1732,7 @@ def repartition_cmp(lieux: pd.DataFrame, niv: str) -> pd.DataFrame:
 def concordance_sae(L: dict, sae: dict | None, ref) -> pd.DataFrame | None:
     """CMP recensés ici (FINESS et ROR réunis) confrontés aux CMP que les établissements déclarent à la SAE de la DREES,
     psychiatrie générale (adultes) et infanto-juvénile (enfants et adolescents), par département et par région
-    (demande de Lucas du 12 octobre 2026, vérifier par d'autres sources). La SAE range tous les CMP d'un établissement
+    (demande du 12 octobre 2026, vérifier par d'autres sources). La SAE range tous les CMP d'un établissement
     dans le département de son siège, les écarts départementaux tiennent donc en partie aux établissements qui
     gèrent des CMP dans un département voisin, la comparaison régionale les efface en grande partie."""
     if not L or not sae or not isinstance(sae.get("cmp_disciplines"), pd.DataFrame):
@@ -2102,7 +2102,7 @@ def controle_route_cmp(ar, L: dict, ref) -> dict | None:
 
 def population_concernee_visible() -> bool:
     """Les chiffres de la population concernée entrent au catalogue (fiches, atlas, Explorer) seulement dans une
-    exécution en brouillon, jamais publiée, tant que Lucas n'a pas validé leur présentation sur maquette
+    exécution en brouillon, jamais publiée, tant que l'auteur n'a pas validé leur présentation sur maquette
     (config.POPULATION_CONCERNEE_PUBLIEE, rien de visible sans maquette validée)."""
     return bool(config.POPULATION_CONCERNEE_PUBLIEE) or config.RESULTATS.name == "brouillons"
 
@@ -2236,7 +2236,7 @@ def _par_epci(L: dict, ref, types):
 
 
 def inegalites_distances(L: dict, ref, ctx_epci: pd.DataFrame | None, rng, cle: str = "toutes") -> dict | None:
-    """Inégalités de distance aux structures de soins (demande de Lucas du 12 octobre 2026).
+    """Inégalités de distance aux structures de soins (demande du 12 octobre 2026).
     1. Selon le type de territoire, classes de densité de population des intercommunalités (mêmes classes que les
        professions), distance médiane des habitants, part à plus de 20 km, test de Kruskal-Wallis sur les distances
        médianes des intercommunalités avec sa taille d'effet (epsilon carré), correction de Benjamini-Hochberg.
@@ -2312,7 +2312,7 @@ def inegalites_distances(L: dict, ref, ctx_epci: pd.DataFrame | None, rng, cle: 
 def typologie_lieux(affect: pd.DataFrame | None, L: dict, ref) -> pd.DataFrame | None:
     """Structures de soins décrites dans chaque groupe de la typologie, à titre descriptif seulement (elles ne servent pas à
     former les groupes). Structures pour 100 000 habitants, indice 100 pour la France, et distance médiane des habitants
-    à la structure la plus proche (décision de Lucas du 12 octobre 2026)."""
+    à la structure la plus proche (décision du 12 octobre 2026)."""
     if not L or not isinstance(affect, pd.DataFrame) or affect.empty:
         return None
     from .analyses import mediane_ponderee
@@ -2386,7 +2386,7 @@ def indicateurs(L: dict, ref, ctx: dict | None = None) -> dict | None:
             "reg": ref.regs.set_index("code")["pop"]}
     # « sortie » et non « ctx » : le même nom écrasait le contexte de l'INSEE reçu en paramètre, et du 15 au 30 octobre
     # 2026 les structures d'un public particulier (EHPAD, CMP pour enfants, CMPP, CAMSP...) étaient rapportées à toute la
-    # population sous un libellé qui annonçait leur public (signalé par Lucas, EHPAD de la Sologne des Étangs)
+    # population sous un libellé qui annonçait leur public (signalé, EHPAD de la Sologne des Étangs)
     sortie = {}
     for niv, pop in pops.items():
         c = L["comptes"][niv].pivot_table(index="code", columns="type", values="n", fill_value=0)
@@ -2423,7 +2423,7 @@ def indicateurs(L: dict, ref, ctx: dict | None = None) -> dict | None:
         court = _court(lib, tp)
         public = lieux_profil.denominateur(tp)[1] if ctx else ""
         # « pour 100 000 personnes de 80 ans et plus » et non « pour 100 000 80 ans et plus », qui se lisait comme
-        # « pour 100 000 habitants » (remarque de Lucas du 30 octobre 2026)
+        # « pour 100 000 habitants » (remarque du 30 octobre 2026)
         qui = (f"enfants de {public}" if public.startswith("moins") else f"personnes de {public}") if public else "habitants"
         defs.append({"id": f"lieux_{tp}", "libelle": f"{court}, pour 100 000 {qui}",
                      "unite": f"pour 100 000 {qui}" if public else "pour 100 000 hab.",
@@ -2463,7 +2463,7 @@ def indicateurs(L: dict, ref, ctx: dict | None = None) -> dict | None:
                 e = egales.get(niv)
                 return (f" ; même valeur que pour tous les habitants dans {nombre(100 * e, 0)}\u202f% des {noms_niv[niv]}"
                         if e is not None and e > 0.05 else "")
-            # « naissances récentes » ne se comprenait pas, même avec sa définition (Lucas, 10 novembre 2026) : le public
+            # « naissances récentes » ne se comprenait pas, même avec sa définition (10 novembre 2026) : le public
             # se nomme par ce qu'il est, les mères des enfants nés pendant une période dite en années. Les naissances
             # viennent de l'état civil, publiées dans la série historique du recensement (DS_RP_SERIE_HISTORIQUE).
             gens = ("enfants de " if qui.startswith("moins") else "personnes de ") + qui
@@ -2538,7 +2538,7 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
     lieux, stats = reunir(lr, lf, fin.set_index("nofinesset")["categetab"])
     # un CMP connu de FINESS seul n'a pas d'âges déclarés, son public est déduit de son nom (« infanto-juvénile »,
     # « adultes », code de secteur). Sans indice, il reste compté parmi les CMP, au public non précisé, et le dire
-    # partout (constat de Lucas du 12 octobre 2026, 22 CMP dans l'Ain pour 11 adultes et 10 enfants)
+    # partout (constat du 12 octobre 2026, 22 CMP dans l'Ain pour 11 adultes et 10 enfants)
     cmp_ = lieux[lieux["type"] == "lieu_cmp"]
     deja = set(lieux.loc[lieux["type"].isin(["lieu_cmp_adultes", "lieu_cmp_enfants"]), "lieu"])
     sans = cmp_[~cmp_["lieu"].isin(deja)]
@@ -2590,7 +2590,7 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
     lieux["libelle_type"] = lieux["type"].map(lambda t: labels[t][1])
     lieux["famille"] = lieux["type"].map(lambda t: labels[t][2])
     lieux["groupe"] = lieux["type"].map(lambda t: labels[t][3])
-    # Nom affiché lisible (règle choisie par Lucas le 12 octobre 2026). Le type du lieu est affiché à côté, les morceaux
+    # Nom affiché lisible (règle choisie le 12 octobre 2026). Le type du lieu est affiché à côté, les morceaux
     # du nom du ROR qui ne font que le décrire (« Hébergement Complet Internat ») sont retirés. Un terme à proscrire est
     # retiré quand il reste de quoi identifier le lieu (« IME Les Muscaris »), réécrit sinon, et en dernier recours le
     # lieu est désigné par son type et sa commune. Le nom d'origine reste dans unite_ror (libellé officiel).
@@ -2620,7 +2620,7 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
     _releve("FINESS et ROR", "Même structure décrite deux fois (deux fois par le ROR, par exemple sous l'ancien et le "
             "nouveau nom de son pôle ou à son ancienne et à sa nouvelle adresse, ou sous deux catégories de FINESS)", n_fus,
             "Réunies en une seule, numéros FINESS gardés")
-    # liste vérifiée établissement par établissement sur les sources des établissements (décision de Lucas du
+    # liste vérifiée établissement par établissement sur les sources des établissements (décision du
     # 13 octobre 2026), qui remplace la réunion automatique pour les établissements vérifiés. Les inscriptions des
     # bases avant remplacement sont gardées pour préparer les vérifications (jamais publiées).
     from . import structures_verifiees as sv
@@ -2635,7 +2635,7 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
     except Exception as e:  # noqa: BLE001
         log.warning("structures avant vérification non enregistrées : %s", e)
     # inscriptions confirmées par la certification HAS ou par Sirene avant la liste vérifiée, gardées même quand la
-    # source de l'établissement ne les cite pas, en attendant une vérification à la main (décision de Lucas du
+    # source de l'établissement ne les cite pas, en attendant une vérification à la main (décision du
     # 14 octobre 2026)
     from . import confirmation
     pre, _ = confirmation.confirmer(lieux, has, sirene, essms)
@@ -2648,7 +2648,7 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
     verif["non_retenues"] = list(verif["non_retenues"]) + verif["fermees"]
     # confirmation par la certification HAS et par Sirene (listes indépendantes de FINESS et du ROR)
     lieux, sirene_seul = confirmation.confirmer(lieux, has, sirene, essms)
-    # verdicts de la vérification à la main (décisions de Lucas du 15 octobre 2026, pipeline/verdicts.py)
+    # verdicts de la vérification à la main (décisions du 15 octobre 2026, pipeline/verdicts.py)
     from . import verdicts as verdicts_mod
     lieux, rendu_verdicts = verdicts_mod.appliquer(lieux, avant_liste, ref, geo, hors_ligne)
     verif["non_retenues"] = list(verif["non_retenues"]) + rendu_verdicts["retirees"]

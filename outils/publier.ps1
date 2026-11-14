@@ -4,7 +4,7 @@ Envoie le site en ligne (GitHub Pages), après comparaison avec la version préc
 
 .DESCRIPTION
 1. Compare la nouvelle version des résultats à la dernière publiée (outils\comparer_versions.py). Si un problème
-   bloquant apparaît, rien n'est envoyé. Si des écarts sont à regarder, rien n'est envoyé non plus tant que Lucas ne
+   bloquant apparaît, rien n'est envoyé. Si des écarts sont à regarder, rien n'est envoyé non plus tant que l'auteur ne
    relance pas avec -Valider après avoir lu le compte rendu (donnees\journaux\comparaison_...md).
 2. Garde une copie du site envoyé dans donnees\sauvegardes\ (les huit dernières).
 3. Prépare et vérifie le code public (outils\preparer_code_public.py --suivi, dépôt permanent donnees\code_public),
@@ -53,7 +53,7 @@ function Ecrire([string]$texte) {
     Add-Content -Path $log -Value $ligne -Encoding UTF8
 }
 function Prevenir([string]$texte) {
-    # fenêtre d'avertissement, pour que Lucas voie qu'une décision l'attend
+    # fenêtre d'avertissement, pour que l'auteur voie qu'une décision l'attend
     try { Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show($texte, "Ubi Cura, publication") | Out-Null } catch {}
 }
 
@@ -83,7 +83,7 @@ if ($Restaurer) {
     Expand-Archive -Path $Restaurer -DestinationPath $temp -Force
     $libelle = "restauration de " + [IO.Path]::GetFileNameWithoutExtension($Restaurer)
 } else {
-    # le site cite-t-il une version que Zenodo a publiée ? Zenodo d'abord, le site ensuite (Lucas, 6 novembre 2026)
+    # le site cite-t-il une version que Zenodo a publiée ? Zenodo d'abord, le site ensuite (6 novembre 2026)
     $sortieZ = & $python outils\zenodo.py pret-site 2>&1 | ForEach-Object { "$_" }
     $codeZ = $LASTEXITCODE
     foreach ($l in $sortieZ) { if ($l.Trim()) { Add-Content -Path $log -Value $l -Encoding UTF8 } }
@@ -102,8 +102,8 @@ if ($Restaurer) {
         Prevenir "La nouvelle version présente un problème bloquant. Rien n'a été mis en ligne.`n`n$compte"
         exit 1
     }
-    # écarts déjà lus et validés par Lucas pour cette même version (republication d'une correction de pages) : ils ne
-    # bloquent plus ; un écart nouveau ou changé bloque toujours (demande de Lucas du 14 novembre 2026)
+    # écarts déjà lus et validés pour cette même version (republication d'une correction de pages) : ils ne
+    # bloquent plus ; un écart nouveau ou changé bloque toujours (demande du 14 novembre 2026)
     $ecartsValides = Join-Path $racine "donnees\ecarts_valides.json"
     $empreinte = ""
     $cheminCompte = ($compte -replace '^Compte rendu,?\s*', '').Trim()
@@ -116,7 +116,9 @@ if ($Restaurer) {
         }
     }
     $dejaValides = @()
-    if (Test-Path $ecartsValides) { $dejaValides = @(Get-Content $ecartsValides -Raw -Encoding UTF8 | ConvertFrom-Json) }
+    # ConvertFrom-Json de PowerShell 5.1 rend la liste comme un seul objet : ForEach-Object la déplie, sinon
+    # -contains ne retrouve jamais une empreinte déjà validée (republication du 14 novembre 2026)
+    if (Test-Path $ecartsValides) { $dejaValides = @(Get-Content $ecartsValides -Raw -Encoding UTF8 | ConvertFrom-Json | ForEach-Object { $_ }) }
     if ($code -eq 10 -and $Valider -and $empreinte -and ($dejaValides -notcontains $empreinte)) {
         $dejaValides = @($dejaValides) + $empreinte
         ConvertTo-Json -InputObject @($dejaValides) | Set-Content -Path $ecartsValides -Encoding UTF8
@@ -130,7 +132,7 @@ if ($Restaurer) {
         Prevenir "Des écarts sont à regarder avant de publier. Rien n'a été mis en ligne.`n`nLire le compte rendu, puis relancer la publication avec -Valider (tutoriel 06).`n`n$compte"
         exit 1
     }
-    # contrôle complet du site construit, bloquant, -Valider ne le contourne pas (méthode de travail, Lucas, 6 novembre
+    # contrôle complet du site construit, bloquant, -Valider ne le contourne pas (méthode de travail, 6 novembre
     # 2026) : décisions et chiffres sur toutes les pages, puis mise en page page type par page type
     foreach ($ctrl in @(@("outils\controle_decisions.py", "Contrôle des décisions"), @("outils\controle_mise_en_page.py", "Contrôle de mise en page"))) {
         Ecrire "$($ctrl[1])."
@@ -153,7 +155,7 @@ if ($Restaurer) {
     Ecrire "Copie des pages publiques."
     # les pages de travail, dont le nom commence par « _ » (planche de style, contrôles), ne partent jamais en ligne
     robocopy (Join-Path $racine "site") $temp /E /XD prototype prototype2 prototype3 prototype4 maquettes _maquettes /XF _*.html /NFL /NDL /NJH /NJS /NP | Out-Null
-    # aucune page de l'offre professionnelle ne part avant que l'offre soit finalisée (décision de Lucas du 28 octobre 2026)
+    # aucune page de l'offre professionnelle ne part avant que l'offre soit finalisée (décision du 28 octobre 2026)
     $offre = & $python (Join-Path $racine "outils\verifier_site_public.py") $temp
     if ($LASTEXITCODE -ne 0) { Ecrire "Page de l'offre dans le site, rien n'est envoyé. $offre"; Prevenir "Une page de l'offre professionnelle est dans le site. Rien n'a été mis en ligne.`n`n$offre"; exit 1 }
     $zip = Join-Path $sauvegardes ("site_" + $version + "_" + (Get-Date -Format "yyyyMMdd_HHmm") + ".zip")

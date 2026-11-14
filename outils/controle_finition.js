@@ -280,7 +280,7 @@
     const t = c.innerText.replace(/\s+/g, " ").trim();
     if (/^mais /i.test(t)) sortie.defauts.push("cellule qui commence par « mais » « " + t.slice(0, 50) + " »");
   });
-  // 11. bord droit (règle 8, Lucas, 6 novembre 2026) : un paragraphe large s'arrête au même bord droit que la figure,
+  // 11. bord droit (règle 8, 6 novembre 2026) : un paragraphe large s'arrête au même bord droit que la figure,
   //     le tableau ou l'encadré de sa colonne, à 8 px près. Un seul défaut par page, avec le compte et un exemple.
   {
     const blocs = "figure,table,.encadre,.defile,.graphique";
@@ -290,7 +290,7 @@
       const figs = [...par.children].filter(e => e.matches(blocs) && vis(e) && !cache(e));
       if (!figs.length) return;
       const bord = Math.max(...figs.map(f => f.getBoundingClientRect().right));
-      // le sous-titre des pages est sur les sept colonnes de la grille (Lucas, 7 novembre 2026, proposition 1)
+      // le sous-titre des pages est sur les sept colonnes de la grille (7 novembre 2026, proposition 1)
       [...par.children].filter(e => e.matches("p,ul,ol,.comment-lire,.source,.note") && !e.matches(".chapeau:not(.version),.reponse-d") && vis(e) && !cache(e)).forEach(p => {
         const r = p.getBoundingClientRect();
         if (r.width < 300) return;                       // une phrase courte ou une colonne étroite n'est pas mesurée
@@ -300,14 +300,14 @@
     });
     if (n) sortie.defauts.push(`bord droit : ${n} paragraphe(s) qui s'arrêtent avant la figure de leur colonne, jusqu'à ${Math.round(ecart)} px (${ex})`);
   }
-  // 11 bis. pas de colonne de lecture étroite (Lucas, 7 novembre 2026, capture A) : un texte courant d'une colonne large
+  // 11 bis. pas de colonne de lecture étroite (7 novembre 2026, capture A) : un texte courant d'une colonne large
   //     n'est pas bridé par une largeur maximale qui l'arrête avant le bord de sa colonne, même sans figure à côté
-  //     (7 novembre 2026, chapeaux des pages de domaine bridés à 64 caractères, vus par Lucas)
+  //     (7 novembre 2026, chapeaux des pages de domaine bridés à 64 caractères, vus)
   {
     let n = 0, ex = "", ecart = 0;
     document.querySelectorAll("main p,main ul,main ol,main .comment-lire,main .source,main .note").forEach(p => {
-      // le sous-titre des pages est sur les sept colonnes de la grille (Lucas, 7 novembre 2026, proposition 1), et la
-      // phrase qui le suit sur les pages de domaine aussi (Lucas, 10 novembre 2026, sur captures)
+      // le sous-titre des pages est sur les sept colonnes de la grille (7 novembre 2026, proposition 1), et la
+      // phrase qui le suit sur les pages de domaine aussi (10 novembre 2026, sur captures)
       if (!vis(p) || cache(p) || p.matches(".chapeau,.reponse-d") || getComputedStyle(p).maxWidth === "none") return;
       const par = p.parentElement, sp = getComputedStyle(par), rp = par.getBoundingClientRect();
       const droite = rp.right - parseFloat(sp.paddingRight) - parseFloat(sp.borderRightWidth);
@@ -347,7 +347,7 @@
       const p = x.parentElement;
       if (!p || p.closest("script,style,code,pre,textarea,svg,input,select,option,#controle-finition") || !vis(p)) continue;
       // message de repli d'une donnée ou d'une explication absente (« Explication absente de ce fichier de données »
-      // sous le nuage de points d'Explorer, vu par Lucas le 11 novembre 2026)
+      // sous le nuage de points d'Explorer, vu le 11 novembre 2026)
       if (/absentes? de ce fichier/.test(x.nodeValue)) abs = abs || x.nodeValue.trim().slice(0, 60);
       const m = x.nodeValue.match(/\d \d{3}(?!\d)|« |[^\s] »|\d (?:%|€)/);
       if (m) { n++; ex = ex || "« " + x.nodeValue.trim().slice(0, 50) + " »"; }
@@ -404,7 +404,7 @@
       if (/\d\u00a0\d{3}(?!\d)/.test(x3.nodeValue)) larges++;
     }
     if (larges) sortie.defauts.push(`séparateur des milliers large au lieu de l'espace fine : ${larges} texte(s)`);
-    // figures lisibles au téléphone (Lucas, 12 novembre 2026) : une figure dont le texte tombe sous 9 px a son bouton
+    // figures lisibles au téléphone (12 novembre 2026) : une figure dont le texte tombe sous 9 px a son bouton
     // « Agrandir la figure », et la figure agrandie se lit à 9 px au moins
     if (innerWidth <= 640) {
       await new Promise(r => setTimeout(r, 900));
@@ -452,7 +452,7 @@
     }
   }
   // 11 ter. sur les pages de domaine, le sous-titre, la phrase qui le suit et la colonne de la carte finissent au même bord
-  //     droit, celui des sept colonnes de la grille (Lucas, 10 novembre 2026, sur captures : 13 px d'écart avant)
+  //     droit, celui des sept colonnes de la grille (10 novembre 2026, sur captures : 13 px d'écart avant)
   if (innerWidth > 900) {
     const els = ["main.domaine header.tete .chapeau", "main.domaine .reponse-d", "main.domaine .phares > :first-child"]
       .map(s => document.querySelector(s)).filter(e => e && vis(e));
@@ -463,7 +463,7 @@
     }
   }
   // 11 quater. un texte ne touche pas le bord gauche ou droit du cadre qui le contient (7 novembre 2026, « Comment
-  //     lire » de la carte d'« Autour d'un lieu », collé au filet de son encadré, vu par Lucas) : 4 px au moins entre
+  //     lire » de la carte d'« Autour d'un lieu », collé au filet de son encadré, vu) : 4 px au moins entre
   //     le texte et un bord tracé de l'un des trois éléments qui l'entourent
   {
     let n = 0, ex = "";
@@ -484,7 +484,7 @@
     });
     if (n) sortie.defauts.push(`texte collé au bord de son cadre : ${n} bloc(s) (${ex})`);
   }
-  // 11 quinquies. l'atlas mène à la fiche du territoire choisi (promesse de l'accueil, demande de Lucas du 2 novembre
+  // 11 quinquies. l'atlas mène à la fiche du territoire choisi (promesse de l'accueil, demande du 2 novembre
   //     2026 ; l'encadré ne menait qu'aux rapports, relevé par l'audit de la navigation du 8 novembre)
   if (/atlas\.html$/.test(location.pathname.replace(/_finition_atlas[^/]*\.html$/, "atlas.html")) && document.getElementById("tip")) {
     // un territoire de la carte elle-même, amenée à l'écran : à 883 px, la carte commence sous le premier écran et le
@@ -519,7 +519,7 @@
     if (n) sortie.defauts.push(`valeur barrée par un trait de repère : ${n} texte(s) (${ex})`);
   }
   // 11 ter. l'infobulle d'une carte tient entière à l'écran, son tableau compris (7 novembre 2026, atlas, médecins
-  //     spécialistes : la colonne « Écart » débordait de l'infobulle et sortait de l'écran, vu par Lucas). Survol de
+  //     spécialistes : la colonne « Écart » débordait de l'infobulle et sortait de l'écran, vu). Survol de
   //     douze territoires répartis sur la carte, aux deux bords compris.
   {
     const tip = document.getElementById("tip");
@@ -540,7 +540,7 @@
     }
   }
   // 12. tailles du texte courant, par rôle (texte, tableaux et notes), lues par outils/controle_finition.py en papier :
-  //     deux tailles au plus dans les rapports imprimés (Lucas, 6 novembre 2026)
+  //     deux tailles au plus dans les rapports imprimés (6 novembre 2026)
   {
     const role = {};
     document.querySelectorAll("main p, main li, main dd, main td, main th, main figcaption, main .source, main .note").forEach(e => {

@@ -1,5 +1,5 @@
 """Vérifications des structures de soins faites sur d'autres sources (sites des établissements, documents des ARS, listes
-ouvertes locales), consignées dans contenus/verifications_lieux.csv (décision de Lucas du 13 octobre 2026).
+ouvertes locales), consignées dans contenus/verifications_lieux.csv (décision du 13 octobre 2026).
 
 Ce fichier ne corrige aucune donnée. Les chiffres restent ceux de FINESS et du ROR réunis, et une vérification qui
 révèle une erreur de règle fait corriger la règle pour toute la France. Il garde, comme les limites de config.LIMITES,

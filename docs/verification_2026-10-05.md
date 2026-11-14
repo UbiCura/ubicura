@@ -1,6 +1,6 @@
 # Vérification de la fiabilité, 5 octobre 2026
 
-Étape 0 de la version de base (demande de Lucas du 4 octobre 2026 au soir). Chaque chiffre publié doit être juste, et l'on doit pouvoir dire de quelle source et de quel calcul il sort. Cette note consigne ce qui a été vérifié, contre quelle référence, et ce qui a été corrigé.
+Étape 0 de la version de base (demande du 4 octobre 2026 au soir). Chaque chiffre publié doit être juste, et l'on doit pouvoir dire de quelle source et de quel calcul il sort. Cette note consigne ce qui a été vérifié, contre quelle référence, et ce qui a été corrigé.
 
 Méthode. Trois niveaux de contrôle.
 1. **Recompte indépendant.** Relire le fichier brut sans le code du pipeline et retrouver le chiffre publié.
@@ -126,9 +126,9 @@ Les territoires sont comparés à une « moyenne nationale » (couleurs des cart
 
 Pour les généralistes, 17 départements changent de couleur sur la carte selon la référence choisie. Les psychiatres et les psychologues sont peu touchés.
 
-**Décidé par Lucas le 5 octobre 2026 et corrigé.** Chaque territoire est comparé à la moyenne des territoires du même niveau, calculée comme eux (somme des effectifs des territoires rapportée à la population), nommée « moyenne des départements » ou « moyenne des intercommunalités ». Rapports nationaux et territoriaux, cartes, escalier social, typologie, entonnoir et atlas utilisent cette référence (`analyses.moyenne_territoires`, test `test_moyenne_territoires`). Le nombre de professionnels en France (80 765 psychologues) reste le chiffre national affiché, avec sa définition. La typologie, l'entonnoir et les cartes nationales calculaient déjà leur référence ainsi, seul leur libellé « moyenne nationale » a changé.
+**Décidé le 5 octobre 2026 et corrigé.** Chaque territoire est comparé à la moyenne des territoires du même niveau, calculée comme eux (somme des effectifs des territoires rapportée à la population), nommée « moyenne des départements » ou « moyenne des intercommunalités ». Rapports nationaux et territoriaux, cartes, escalier social, typologie, entonnoir et atlas utilisent cette référence (`analyses.moyenne_territoires`, test `test_moyenne_territoires`). Le nombre de professionnels en France (80 765 psychologues) reste le chiffre national affiché, avec sa définition. La typologie, l'entonnoir et les cartes nationales calculaient déjà leur référence ainsi, seul leur libellé « moyenne nationale » a changé.
 
 ## 8. Reste à faire
 
-- Table « d'où vient chaque chiffre » ajoutée à la page « Méthode et données », à relire par Lucas.
-- Inscrits sans activité déclarée, publiés par profession (`inscrits_sans_activite.csv` et page méthode), décision de Lucas du 5 octobre 2026.
+- Table « d'où vient chaque chiffre » ajoutée à la page « Méthode et données », à relire.
+- Inscrits sans activité déclarée, publiés par profession (`inscrits_sans_activite.csv` et page méthode), décision du 5 octobre 2026.

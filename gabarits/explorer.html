@@ -1,8 +1,8 @@
 {% extends "base.html" %}
 {% block contenu %}
 <style>
-/* Page « Explorer les données » (décision de Lucas du 26 octobre 2026). Une question, une grande fenêtre sur toute la
-   largeur de la page, les réglages en tête, les figures liées côte à côte. Règle de Lucas du 26 octobre 2026, des
+/* Page « Explorer les données » (décision du 26 octobre 2026). Une question, une grande fenêtre sur toute la
+   largeur de la page, les réglages en tête, les figures liées côte à côte. Règle du 26 octobre 2026, des
    onglets seulement entre des vues d'un même résultat (figures, tableau), des fenêtres séparées pour des analyses
    différentes. Lignes des groupes validées par le skill dataviz le 25 octobre 2026. */
 /* groupes rangés du moins au mieux doté : cuivre, gris, canard, comme les écarts du site (étape 4, 5 novembre 2026, la
@@ -13,11 +13,11 @@
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]):not([data-theme="chaud"]){--k1:#E9BB9C;--k2:#B97D5C;--k3:#6B717B;--k4:#5BA39C;--k5:#CDEBE7}}
 /* une seule ligne de réglages gardée sous la barre du site pendant la lecture, les trois familles puis le réglage de
    la question en cours de lecture (profession et niveau, type de structure), qui change en descendant (remarque de
-   Lucas du 29 octobre 2026, le choix de la profession n'était qu'en haut de la question) */
+   l'auteur du 29 octobre 2026, le choix de la profession n'était qu'en haut de la question) */
 .reglages-page{position:sticky;top:var(--haut-nav,64px);z-index:8;display:flex;align-items:baseline;gap:8px 28px;flex-wrap:wrap;margin:22px 0 0;padding:9px 0;background:var(--bg);border-bottom:1px solid var(--line);border-radius:0;
   transition:background-color .22s ease-out,box-shadow .22s ease-out,padding .22s ease-out,border-radius .22s ease-out}
 /* une fois collée, même allure que le rappel des réglages de l'atlas (panneau arrondi qui flotte sous la barre du site,
-   remarque de Lucas du 29 octobre 2026), à hauteur égale pour que la page ne bouge pas */
+   remarque du 29 octobre 2026), à hauteur égale pour que la page ne bouge pas */
 /* réglages gardés pendant la lecture, posés sur le fond de la page comme dans l'atlas (étape 4, 5 novembre 2026) */
 .reglages-page.flotte{padding:9px 0;background:var(--bg);border-top:2px solid var(--ink);border-bottom:1px solid var(--line);border-radius:0;box-shadow:none}
 .reglages-page .reg-q{flex:1 1 auto;display:flex;min-width:0}
@@ -89,7 +89,7 @@
 .prof-liste button[aria-pressed]::before{content:"";display:inline-block;width:12px;height:12px;border:1px solid var(--muted);border-radius:2px;margin-right:10px;vertical-align:-1px}
 .prof-liste button[aria-pressed="true"]::before{background:var(--ink);border-color:var(--ink);box-shadow:inset 0 0 0 2px var(--table,var(--panel))}
 /* liste de choix (professions, indicateurs) en composant B+ commun à l'atlas et à Explorer (H7 de l'étape 4,
-   5 novembre 2026 : fond blanc et encadré gris à l'intérieur, remarque de Lucas du 31 octobre) : le fond de la page,
+   5 novembre 2026 : fond blanc et encadré gris à l'intérieur, remarque du 31 octobre) : le fond de la page,
    un filet appuyé au-dessus et un filet autour, une ombre légère seulement parce que la liste passe sur la page,
    aucun fond gris dedans, le choix marqué par un trait d'encre à gauche */
 .prof-liste{background:var(--bg);border:1px solid var(--line);border-top:2px solid var(--ink);border-radius:0;box-shadow:none}  /* calée sur la grille, sans ombre (relecture du 5 novembre) */
@@ -100,7 +100,7 @@
 .prof-liste button:disabled{opacity:.35;cursor:default}
 /* menu en deux temps des indicateurs (thèmes à gauche, indicateurs du thème à droite), repris de l'atlas avec
    « Croiser deux indicateurs » : sans ces règles les indicateurs se rangeaient sous les thèmes, hors de vue, et le choix
-   semblait impossible (bug signalé par Lucas le 29 octobre 2026). Un thème n'est pas une case à cocher. */
+   semblait impossible (bug signalé le 29 octobre 2026). Un thème n'est pas une case à cocher. */
 .prof-liste.deux{width:min(760px,calc(100vw - 48px));max-height:none;padding:0;overflow:hidden;display:grid;grid-template-columns:250px minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);height:min(70vh,560px)}
 .prof-liste.deux .filtre-liste{grid-column:1/-1}
 .prof-liste.deux .volet-themes{overflow-x:hidden;overflow-y:auto;scrollbar-gutter:stable;scrollbar-width:thin;padding:6px 0;border-right:1px solid var(--line)}
@@ -139,7 +139,7 @@
 .vue[hidden]{display:none}
 .cote{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;align-items:start}
 .cote figure.graphique{margin:0}
-/* une figure posée dans la fenêtre d'un outil n'a pas de second cadre (fenêtre dans la fenêtre, remarque de Lucas du
+/* une figure posée dans la fenêtre d'un outil n'a pas de second cadre (fenêtre dans la fenêtre, remarque du
    28 octobre 2026), sa légende et « Citer et exporter » restent au-dessus d'elle sur le fond de la fenêtre */
 .outil figure.graphique{background:none;border:0;border-radius:0;box-shadow:none;padding:0}
 .outil figure.graphique>figcaption,.outil figure.graphique>.outils-figure{margin:0;padding:0 0 6px;background:none;border:0;border-radius:0}
@@ -438,7 +438,7 @@ td i.pastille{display:inline-block;width:10px;height:10px;border-radius:2px;marg
 </article>
 </section>
 
-<!-- ============================================================ addictologie, reprise de l'atlas (choix de Lucas du 29 octobre 2026) -->
+<!-- ============================================================ addictologie, reprise de l'atlas (choix du 29 octobre 2026) -->
 <section class="question" id="qAddicto" aria-labelledby="qAddictoT">
 <h2 class="q-titre" id="qAddictoT">L'addictologie, de l'offre aux consommations</h2>
 <div class="q-reglages" role="group" aria-label="Réglages de la question « L'addictologie, de l'offre aux consommations »"><span class="lib cache-visuel">Région repérée</span><div id="adReg"></div></div>

@@ -136,7 +136,7 @@ def specialites_medecins(chemin: Path | None, ids: set) -> tuple[dict, dict]:
 def _inscrits(ins, act):
     """Par libellé de profession du RPPS, personnes inscrites (hors étudiants) et personnes ayant au moins une
     activité déclarée. Le fichier ne dit rien des inscrits sans activité (ni lieu, ni âge, ni date), on ne peut donc
-    pas dire qu'ils n'exercent pas (retraite, autre métier, congé ou activité non déclarée). Demande de Lucas du
+    pas dire qu'ils n'exercent pas (retraite, autre métier, congé ou activité non déclarée). Demande du
     5 octobre 2026, publié comme tableau de contrôle."""
     exclus = ins["prof_lib"].map(norm).str.contains("|".join(config.PROFESSIONS_EXCLUES))         if config.PROFESSIONS_EXCLUES else pd.Series(False, index=ins.index)
     ins = ins[~exclus & (ins["prof_lib"] != "")]
@@ -169,7 +169,7 @@ SOINS = re.compile(r"\b(?:CH|CHU|CHR|CHS|CHI|HOPITAL|HÔPITAL|HOSPITALI\w*|CLINI
 
 def sieges(act: pd.DataFrame, ref) -> pd.DataFrame:
     """Sièges déclarants : une structure sans numéro FINESS qui déclare dans une commune au moins SIEGE_MIN personnes
-    d'une même profession, plus d'une pour cinq habitants. Remarque de Lucas du 9 novembre 2026 (« Rodez, un nombre
+    d'une même profession, plus d'une pour cinq habitants. Remarque du 9 novembre 2026 (« Rodez, un nombre
     d'infirmiers très au-dessus, peut-être ailleurs ») : l'association ASALEE déclare 1 409 infirmiers à son siège de
     Brioux-sur-Boutonne (1 440 habitants), alors qu'ils exercent dans des cabinets de médecine générale de toute la
     France, et la CC Mellois en Poitou comptait 336 infirmiers pour 10 000 habitants, la plus forte densité du pays. Les

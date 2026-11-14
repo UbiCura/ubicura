@@ -13,9 +13,9 @@ Mise à jour des données, des résultats et du site, à lancer à la main ou pa
 6. Chaque jour, regarde sur Zenodo si une nouvelle version des trois dépôts a été publiée (outils\zenodo.py, tutoriel
    07). Si oui, le site est refait pour la citer par son DOI. Une fenêtre rappelle aussi d'archiver une version chaque
    trimestre.
-7. Ne met plus rien en ligne de lui-même (décision de Lucas du 26 octobre 2026). Une version refaite et contrôlée est
+7. Ne met plus rien en ligne de lui-même (décision du 26 octobre 2026). Une version refaite et contrôlée est
    comparée à la version en ligne (outils\comparer_versions.py) et signalée dans donnees\version_prete.json, que la
-   fenêtre du courrier affiche. Lucas décide de la publication. -Publier reste possible à la main.
+   fenêtre du courrier affiche. L'auteur décide de la publication. -Publier reste possible à la main.
 
 .PARAMETER Simuler
 Fait seulement la vérification et dit ce qui serait fait, sans rien télécharger ni recalculer.
@@ -51,7 +51,7 @@ function Ecrire([string]$texte) {
     Add-Content -Path $log -Value $ligne -Encoding UTF8
 }
 function Prevenir([string]$texte) {
-    # fenêtre d'avertissement quand la mise à jour s'arrête, pour que Lucas le sache sans ouvrir les comptes rendus
+    # fenêtre d'avertissement quand la mise à jour s'arrête, pour que l'auteur le sache sans ouvrir les comptes rendus
     try { Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.MessageBox]::Show($texte, "Ubi Cura, mise à jour") | Out-Null } catch {}
 }
 
@@ -62,7 +62,7 @@ function PublierSite {
 }
 
 function VersionPrete([string]$motif) {
-    # version refaite et contrôlée, comparée à la version en ligne et signalée à Lucas (fenêtre du courrier), sans envoi
+    # version refaite et contrôlée, comparée à la version en ligne et signalée à l'auteur (fenêtre du courrier), sans envoi
     $sortie = & $python outils\comparer_versions.py 2>&1 | ForEach-Object { "$_" }
     $codeC = $LASTEXITCODE
     $cr = ($sortie | Where-Object { $_ -match "^Compte rendu, " } | Select-Object -Last 1) -replace "^Compte rendu, ", ""
@@ -71,7 +71,7 @@ function VersionPrete([string]$motif) {
     if (-not $etatC) { $etatC = "comparaison impossible (code $codeC)" }
     @{ resultats = $res.Name; motif = $motif; code_comparaison = $codeC; comparaison = $etatC; compte_rendu = $cr;
        preparee_le = (Get-Date -Format s) } | ConvertTo-Json | Set-Content -Path (Join-Path $racine "donnees\version_prete.json") -Encoding UTF8
-    Ecrire "Nouvelle version prête ($($res.Name), $motif), comparaison avec la version en ligne, $etatC. Rien n'est publié sans Lucas."
+    Ecrire "Nouvelle version prête ($($res.Name), $motif), comparaison avec la version en ligne, $etatC. Rien n'est publié sans validation."
 }
 
 function Verifier {
@@ -117,14 +117,14 @@ if (Test-Path $verrou) {
 Set-Content -Path $verrou -Value $PID
 
 try {
-    # messages programmés par un clic de Lucas dans la fenêtre du courrier, dont l'heure est passée (28 octobre 2026)
+    # messages programmés par un clic dans la fenêtre du courrier, dont l'heure est passée (28 octobre 2026)
     if (-not $Simuler) {
         $sortieM = & $python outils\messagerie.py envoyer-programmes 2>&1 | ForEach-Object { "$_" }
         foreach ($l in $sortieM) { if ($l.Trim()) { Ecrire $l } }
     }
     # pendant une séance de travail (reconstruction rapide ou contrôle depuis moins de trois heures, donnees\seance.verrou)
     # ou avec moins de 6 Go de mémoire libre, la tâche passe son tour : le 7 novembre 2026, elle a relancé une
-    # reconstruction complète au milieu d'une séance et d'une partie de Lucas. Les messages programmés partent quand même.
+    # reconstruction complète au milieu d'une séance et d'une partie. Les messages programmés partent quand même.
     $seance = Join-Path $racine "donnees\seance.verrou"
     $enSeance = (Test-Path $seance) -and (((Get-Date) - (Get-Item $seance).LastWriteTime).TotalHours -lt 3)
     $libreGo = [math]::Round((Get-CimInstance Win32_OperatingSystem).FreePhysicalMemory / 1MB, 1)

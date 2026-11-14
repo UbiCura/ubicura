@@ -1,4 +1,4 @@
-"""Tri de la veille des bases (refonte du 8 novembre 2026, remarque de Lucas du 7 novembre : « je ne peux pas tout
+"""Tri de la veille des bases (refonte du 8 novembre 2026, remarque du 7 novembre : « je ne peux pas tout
 traiter »). Tests sur les vraies données en cache (donnees/veille) et le vrai registre (docs/veille/registre_bases.csv).
 Lancement seul : python tests/test_veille.py. Sans cache de la veille, chaque test le dit et s'arrête sans échouer."""
 from __future__ import annotations
@@ -17,7 +17,7 @@ from outils import veille as v  # noqa: E402
 
 __all__ = ["test_veille_tri_statut_partout", "test_veille_ecart_toujours_motive", "test_veille_point_dix_au_plus",
            "test_veille_regles_sur_vrais_candidats", "test_veille_registre_alimente_sans_toucher_aux_decisions",
-           "test_veille_reponses_de_lucas", "test_veille_releve_trie_a_l_arrivee"]
+           "test_veille_reponses", "test_veille_releve_trie_a_l_arrivee"]
 
 
 def _donnees():
@@ -67,7 +67,7 @@ def test_veille_ecart_toujours_motive():
 
 
 def test_veille_point_dix_au_plus():
-    """Le point de la semaine tient en dix bases au plus, chacune avec la décision attendue de Lucas et la
+    """Le point de la semaine tient en dix bases au plus, chacune avec la décision attendue et la
     recommandation, et seulement des décisions qui lui reviennent (licence, juridique, sensible, libellés). La
     limite tient même quand toutes les lignes à examiner du vrai registre demanderaient une décision."""
     cands, lignes = _donnees()
@@ -77,7 +77,7 @@ def test_veille_point_dix_au_plus():
         return
     assert len(point["lignes"]) <= v.POINT_MAX == 10
     for x in point["lignes"]:
-        assert x["decision"] in v.DECISIONS_LUCAS and x["decision"], x["id"]
+        assert x["decision"] in v.DECISIONS_ATTENDUES and x["decision"], x["id"]
         assert "Recommandation" in x["recommandation"], x["id"]
     tout = [dict(x, decision="licence", recommandation="Recommandation : essai.") if x["statut"] == "à examiner"
             else x for x in copy.deepcopy(lignes)]
@@ -97,7 +97,7 @@ def test_veille_point_dix_au_plus():
 def test_veille_regles_sur_vrais_candidats():
     """Règles du tri sur des candidats réels relevés le 29 octobre 2026 : annuaires nominatifs, articles de Zenodo,
     jeux d'une seule collectivité, tables de la CNAF déjà intégrée, thèmes hors du site, moyens des suicides jamais
-    retenus ; marques de Lucas gardées telles quelles."""
+    retenus ; marques gardées telles quelles."""
     cands, lignes = _donnees()
     if cands is None:
         return
@@ -116,7 +116,7 @@ def test_veille_regles_sur_vrais_candidats():
             assert c["tri"]["statut"] == "écarté", c["cle"]
         if "moyens utilises" in t:
             assert c["tri"]["statut"] == "écarté", c["cle"]
-    # les marques déjà posées par Lucas ne changent pas, ses bases « intéressantes » restent au registre
+    # les marques déjà posées ne changent pas, ses bases « intéressantes » restent au registre
     for cle, m in v.marques().items():
         if cle in cands and m.get("marque") == "interessant":
             assert cands[cle]["tri"]["statut"] == "au registre", cle
@@ -145,16 +145,16 @@ def test_veille_registre_alimente_sans_toucher_aux_decisions():
             assert x["pertinence"] in ("forte", "moyenne", "faible"), x["id"]
 
 
-def test_veille_reponses_de_lucas():
-    """Une réponse de Lucas au point de la semaine passe au registre : « non » écarte la ligne avec la date, « d'accord »
+def test_veille_reponses():
+    """Une réponse au point de la semaine passe au registre : « non » écarte la ligne avec la date, « d'accord »
     la garde à examiner avec la recommandation acceptée. Dans un dossier temporaire, sur une vraie ligne du registre."""
     cands, lignes = _donnees()
     if cands is None:
         return
-    # une ligne à laquelle Lucas n'a pas encore répondu : celle d'Idéo, acceptée le 9 novembre 2026, gardait sa réponse
+    # une ligne à laquelle l'auteur n'a pas encore répondu : celle d'Idéo, acceptée le 9 novembre 2026, gardait sa réponse
     # et faisait échouer l'essai du refus
     x = next((y for y in lignes if y["decision"] and y["statut"] == "à examiner"
-              and "par Lucas le" not in y["raison"]), None)
+              and "par le responsable le" not in y["raison"]), None)
     if x is None:
         print("  aucune ligne en attente de décision, test sans objet")
         return
@@ -165,11 +165,11 @@ def test_veille_reponses_de_lucas():
         v.repondre(x["id"], "refus", x["recommandation"])
         b = v.alimenter_registre(ecrire=False, lignes=copy.deepcopy(lignes), cands=copy.deepcopy(cands))
         y = next(z for z in b["lignes"] if z["id"] == x["id"])
-        assert y["statut"] == "écartée" and "par Lucas le" in y["raison"] and b["reponses"] == 1
+        assert y["statut"] == "écartée" and "par le responsable le" in y["raison"] and b["reponses"] == 1
         v.repondre(x["id"], "accord", x["recommandation"])
         b = v.alimenter_registre(ecrire=False, lignes=copy.deepcopy(lignes), cands=copy.deepcopy(cands))
         y = next(z for z in b["lignes"] if z["id"] == x["id"])
-        assert y["statut"] == "à examiner" and y["raison"].startswith("recommandation acceptée par Lucas le")
+        assert y["statut"] == "à examiner" and y["raison"].startswith("recommandation acceptée par le responsable le")
         try:
             v.repondre(x["id"], "peut-être")
             raise AssertionError("réponse inconnue acceptée")

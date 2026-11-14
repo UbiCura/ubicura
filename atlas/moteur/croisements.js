@@ -76,7 +76,7 @@ function gwrCarte(){
   if(!G){document.getElementById("gwPhrase").textContent="Données absentes de ce fichier.";return}
   if(!sel.options.length){sel.innerHTML=Object.keys(G).map(p=>'<option value="'+p+'">'+esc(cap(pluriel(profLab(p))))+'</option>').join("");sel.onchange=e=>{S.gwProf=e.target.value;gwrCarte();signer()}}
   // la carte suit la profession choisie en haut de la page quand le calcul existe pour elle, et garde sinon le choix
-  // fait dans l'encadré (remarque de Lucas du 23 octobre 2026, la carte ne changeait pas avec la profession)
+  // fait dans l'encadré (remarque du 23 octobre 2026, la carte ne changeait pas avec la profession)
   if(G[S.prof]&&S.prof!==GW_SUIVI)S.gwProf=S.prof;GW_SUIVI=S.prof;
   if(!G[S.gwProf])S.gwProf=Object.keys(G)[0];sel.value=S.gwProf;
   const liste=Object.keys(G).map(p=>pluriel(profLab(p))),dispo=document.getElementById("gwDispo");
@@ -134,7 +134,7 @@ function regressions(){
   document.getElementById("regLimite").innerHTML=limiteHtml([S.regRes],[]);
 }
 const HM_PRINC={[SM]:["psychologue","psychiatre","pedopsychiatre","q_psychiatrie_enfant","psychotherapeute"],[SANTE]:["medecin_generaliste","infirmier","masseur_kinesitherapeute","orthophoniste","pediatre","sage_femme","chirurgien_dentiste","pharmacien"]};
-// un cadre par groupe d'indicateurs (demande de Lucas du 12 octobre 2026), chacun avec son titre, « Comment lire »,
+// un cadre par groupe d'indicateurs (demande du 12 octobre 2026), chacun avec son titre, « Comment lire »,
 // « Citer et exporter » et son tableau, professions en colonnes, indicateurs du groupe en lignes
 function heatmap(){
   const lv=S.level,toutes=D.professions.filter(p=>inFam(p)&&natOf(p)!=="perimetre_elargi"&&natN(p.id,"all")>=30);
@@ -185,7 +185,7 @@ function heatmap(){
     // le cadre cliqué reste sous les yeux après le changement
     const n=document.getElementById(id);if(n)window.scrollBy(0,n.getBoundingClientRect().top-y)});
   // une case ouvre son croisement dans « Croiser deux indicateurs » (profession, indicateur, niveau gardé) ; la case
-  // se signale au survol et au clavier (remarque de Lucas du 23 octobre 2026, partir de ce qui ressort)
+  // se signale au survol et au clavier (remarque du 23 octobre 2026, partir de ce qui ressort)
   const ouvrirCase=td=>ouvrirNuage({prof:td.dataset.p,x:td.dataset.x,y:""});
   cadres.querySelectorAll("td[data-p]").forEach(td=>{if(!td.textContent)return;td.tabIndex=0;td.classList.add("ouvrable");
     td.title=(td.title?td.title+". ":"")+"Cliquer pour voir ce croisement dans le nuage";

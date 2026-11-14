@@ -1,4 +1,4 @@
-"""Analyses spatiales de l'audit du 4 octobre 2026, ajoutées le 8 octobre (accord de Lucas).
+"""Analyses spatiales de l'audit du 4 octobre 2026, ajoutées le 8 octobre (accord).
 
 1. Moran local bivarié (point 2.5). Pour chaque département, l'indicateur de besoin du département est rapproché de
    l'offre moyenne de ses voisins. Il repère des zones où un indicateur élevé est entouré d'une offre faible, ou
@@ -201,7 +201,7 @@ def centres_epci(ref, voisins) -> pd.DataFrame | None:
 def professions_gwr(n_epci: pd.DataFrame, seuil: float | None = None) -> list[str]:
     """Professions retenues pour la régression géographiquement pondérée : celles présentes dans au moins une
     intercommunalité sur deux (config.GWR_PRESENCE_MIN). Pour une profession plus rare, la densité est nulle dans la
-    plupart des intercommunalités et le lien local n'a pas de sens (demande de Lucas du 23 octobre 2026, ouvrir le
+    plupart des intercommunalités et le lien local n'a pas de sens (demande du 23 octobre 2026, ouvrir le
     calcul au-delà des trois professions d'origine). Psychologues, psychiatres et généralistes d'abord, puis l'ordre
     de config.PROFESSIONS."""
     seuil = config.GWR_PRESENCE_MIN if seuil is None else seuil

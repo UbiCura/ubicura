@@ -5,7 +5,7 @@ Depuis 2023, chaque ESSMS est évalué tous les cinq ans par un organisme accré
 jeu data.gouv publie une ligne par évaluation, avec le numéro FINESS géographique de la structure évaluée, sa catégorie
 FINESS et les dates de l'évaluation (vérifié par l'API le 16 octobre 2026). On garde le petit fichier de l'échelle de
 qualité (parquet), pas la base des rapports (plus de 350 Mo). Une structure évaluée sous la catégorie de son type
-confirme qu'elle est en activité à la date de l'évaluation (accord de Lucas du 16 octobre 2026). Le cycle court sur cinq
+confirme qu'elle est en activité à la date de l'évaluation (accord du 16 octobre 2026). Le cycle court sur cinq
 ans, une structure pas encore évaluée n'est pas douteuse pour autant.
 """
 from __future__ import annotations

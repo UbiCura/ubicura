@@ -6,9 +6,9 @@
 const LX=D.lieux||null;
 let LIEU_CHOISI=null;
 // niveau de confirmation de chaque structure (pipeline/confirmation.py), point creux pour une structure inscrite dans
-// FINESS ou le ROR que rien d'autre ne confirme encore, point plein sinon (décision de Lucas du 15 octobre 2026)
+// FINESS ou le ROR que rien d'autre ne confirme encore, point plein sinon (décision du 15 octobre 2026)
 const CONF=LX?.confirmations||[],CONF_BASES=CONF.findIndex(c=>c.id==="bases");
-// trois classes montrées au lecteur (décision de Lucas du 21 octobre 2026), confirmée (point plein), recoupée par la SAE
+// trois classes montrées au lecteur (décision du 21 octobre 2026), confirmée (point plein), recoupée par la SAE
 // (point à demi rempli, le nombre ou l'activité du site est confirmé, pas l'adresse), à vérifier (point creux)
 const classeDe=d=>d[11]!=null?(CONF[d[11]]?.classe||null):null;
 const creux=d=>classeDe(d)==="a_verifier",recoupe=d=>classeDe(d)==="recoupee",confirme=d=>classeDe(d)==="confirmee";
@@ -59,7 +59,7 @@ function legendeClasses(nc,nr,nb){return '<span class="lx-leg">'+symboleConf(nul
   +(nr?'<span class="lx-leg">'+symboleConf(null,"recoupee")+' '+fmt.format(nr)+' recoupée'+(nr>1?"s":"")+' par la statistique des hôpitaux</span>':'')
   +'<span class="lx-leg">'+symboleConf(null,"a_verifier")+' '+fmt.format(nb)+' à vérifier</span>'}
 // à l'échelle de la France les points chargent trop la carte, ils ne paraissent qu'en zoomant (au moins 2 fois)
-// (remarques de Lucas du 12 et du 16 octobre 2026). Le territoire choisi a son propre plan dans l'encadré « Structures
+// (remarques du 12 et du 16 octobre 2026). Le territoire choisi a son propre plan dans l'encadré « Structures
 // de soins de ce territoire », sans que la grande carte change de cadrage.
 function visibiliteLieux(Mx){if(!Mx)return;const k=d3.zoomTransform(Mx.svg.node()).k;
   Mx.zoomable.selectAll("circle.lieu").style("display",d=>k>=2||d===LIEU_CHOISI?null:"none");
@@ -150,7 +150,7 @@ function structuresTerritoire(){const el=document.getElementById("lieuxCard");
   const base=[...autres,...(typeConfirme("lieu_cmp")?cmpTous:[])],nc=base.filter(confirme).length,nr=base.filter(recoupe).length,nb=base.filter(creux).length;
   let h='<h2 tabindex="-1">Structures de soins de ce territoire <button class="how" data-how="lieux,confirmation">Comment lire</button></h2><div class="howtxt hidden"></div>';
   h+='<div data-export="structures">';
-  // l'encadré repensé (demande de Lucas du 28 octobre 2026) : le résultat d'abord, en une phrase et une légende en
+  // l'encadré repensé (demande du 28 octobre 2026) : le résultat d'abord, en une phrase et une légende en
   // couleur, puis le plan sur toute la largeur, puis la liste par type, le détail de chaque type ouvert par un bouton
   const accord=(k,s,p)=>N(k)+' '+(k>1?p:s);
   h+='<p class="phrase">'+(base.length>1?'Sur les '+N(base.length)+' structures de ce territoire dont le niveau de confirmation est établi, '
@@ -225,14 +225,14 @@ function structuresTerritoire(){const el=document.getElementById("lieuxCard");
     // plan hors de l'écran (petits écrans), on le fait venir sans changer son cadrage
     const r=(document.getElementById("lxPlan")||document.getElementById("lxCarte")).getBoundingClientRect(),haut=document.querySelector(".collant")?.getBoundingClientRect().bottom||0;
     if(r.top<haut||r.bottom>innerHeight)scrollTo({top:scrollY+r.top-haut-60,behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"})})}
-// ---------- carte du territoire choisi, dans l'encadré des structures (décision de Lucas du 16 octobre 2026). Sur la
+// ---------- carte du territoire choisi, dans l'encadré des structures (décision du 16 octobre 2026). Sur la
 // grande carte les points ne paraissent qu'en zoomant, ici le plan est cadré sur le territoire, avec ses limites
 // internes (intercommunalités d'un département, départements d'une région), et montre les structures d'un type, point
 // plein confirmée, point creux à vérifier. Un clic dans la liste repère la structure sur ce plan, la grande carte ne bouge
 // pas. Les points ne sont pas dans l'ordre de tabulation, la liste en est l'équivalent au clavier.
 let LX_TYPE_LOCAL="lieu_cmp_adultes",LX_CHOISI_LOCAL=null;
 const nbPlan=l=>l.pts.length?fmt.format(l.pts.length)+" structure"+(l.pts.length>1?"s":""):"aucune structure inscrite";
-// Plan IGN sous les structures (demande de Lucas du 28 octobre 2026), fond de la Géoplateforme (couche
+// Plan IGN sous les structures (demande du 28 octobre 2026), fond de la Géoplateforme (couche
 // GEOGRAPHICALGRIDSYSTEMS.PLANIGNV2, grille PM_0_19, PNG), adresse et couche relevées le 28 octobre 2026 dans les
 // capacités du service WMTS, conditions sur https://cartes.gouv.fr/cgu. Le plan en SVG reste dessiné hors de l'écran,
 // c'est lui que « Citer et exporter » enregistre (les images du fond viennent d'un autre serveur). Sans Leaflet, ou si
@@ -246,7 +246,7 @@ const IGN_MENTION='© IGN – <a href="https://cartes.gouv.fr/" target="_blank" 
 const PLAN_POINT="#0E5A5A",PLAN_CHOISI="#1C2028";
 const planIgn=()=>!!(window.L&&window.L.map);
 let LX_PLAN=null;
-// ---------- secteurs de psychiatrie sur le plan (demande de Lucas du 29 octobre 2026), d'après les arrêtés des ARS reçus
+// ---------- secteurs de psychiatrie sur le plan (demande du 29 octobre 2026), d'après les arrêtés des ARS reçus
 // (pipeline/sectorisation.py, secteurs_psychiatrie.geojson à côté de la page, chargé à la première demande). Une couche
 // par type, générale ou infanto-juvénile, en aplats clairs sous les structures, deux secteurs voisins jamais de la même
 // teinte, une ville partagée entre secteurs en pointillé. Ailleurs, la sectorisation est dite non disponible.
@@ -382,7 +382,7 @@ function lieuxEnfants(lv,i){const L=D.niveaux[lv].lieux||{},n=k=>L[k]?.[i]||0;
   const txt=parts.map(([k,s,pl])=>fmt.format(k)+" "+(k>1?pl:s));
   return(txt.length>1?txt.slice(0,-1).join(", ")+" et "+txt.at(-1):txt[0])+" recensés par FINESS et le ROR, où des pédopsychiatres peuvent consulter"}
 // spécialité exercée surtout à l'hôpital (précision calculée à chaque mise à jour), signalée dans la légende de la carte,
-// sans changer les couleurs, avec le conseil de la lire par département (demande de Lucas du 11 octobre 2026)
+// sans changer les couleurs, avec le conseil de la lire par département (demande du 11 octobre 2026)
 function legendeHospitaliere(p,lv){const k=cleLimite("prof:"+p);
   if(!k||D.limites[k]?.risque!=="exercice surtout salarié"||["trajet","evol","lieux"].includes(S.metric))return "";
   SIG.hospitalier="Exercice surtout hospitalier"+(lv==="epci"?", à lire de préférence par département":"")+", voir « À savoir » sous la carte";

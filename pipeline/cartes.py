@@ -84,7 +84,7 @@ TOLERANCE = .002        # simplification des contours des rapports, en degrés (
 TOLERANCE_ATLAS = .006  # simplification plus forte pour l'atlas, qui affiche toute la France
 FOND_ATLAS = config.INTER / "fond_atlas.topojson.json"
 
-# classes de densité rapportée à l'ensemble des territoires du même niveau (décision de Lucas du 5 octobre 2026),
+# classes de densité rapportée à l'ensemble des territoires du même niveau (décision du 5 octobre 2026),
 # de la plus faible à la plus forte. Palette divergente,
 # cuivre en dessous de l'ensemble, canard au-dessus, et un gris neutre pour les territoires proches de l'ensemble,
 # pour que la couleur soit réservée aux vrais écarts (révision du 4 octobre 2026).
@@ -280,7 +280,7 @@ GRIS_HASARD = "proche de l'ensemble, ou écart qui peut tenir au hasard"
 
 def au_hasard(rapports: dict, effectifs: dict, bases: dict, reference) -> set:
     """Territoires laissés en gris parce que l'écart à l'ensemble ne dépasse pas ce que le hasard explique, ou parce
-    que l'effectif est petit (moins de 5) : la règle des fiches et de l'atlas (affichage.couleur, décision de Lucas du
+    que l'effectif est petit (moins de 5) : la règle des fiches et de l'atlas (affichage.couleur, décision du
     30 octobre 2026, audit du 6 novembre : une intercommunalité à 1 psychiatre pour 1,3 attendu était colorée).
     rapports {code: densité / reference}, effectifs {code: professionnels}, bases {code: habitants}, reference la
     densité de l'ensemble pour 10 000 habitants."""
@@ -311,7 +311,7 @@ MARQUE_CMP = "aucun psychiatre déclaré, mais au moins un CMP selon FINESS"
 
 def libelles_classes(reference=None, unite=None, fac=10000, hasard=False):
     """Libellés de la légende des classes. Avec une valeur de référence (pour 10 000 habitants), chaque classe donne
-    aussi ses bornes en valeurs réelles (remarque de Lucas du 12 octobre 2026, la légende ne parlait qu'en fois la
+    aussi ses bornes en valeurs réelles (remarque du 12 octobre 2026, la légende ne parlait qu'en fois la
     moyenne), dans l'unité de la profession (fac, 100 000 pour une profession rare) et avec les arrondis des pages.
     hasard, la classe du milieu dit aussi qu'elle reçoit les écarts qui peuvent tenir au hasard."""
     unite = unite or ("pour 100 000 hab." if fac == 100000 else "pour 10 000 hab.")
@@ -393,7 +393,7 @@ def carte(geoms: dict, rapports: dict, etiquettes: dict, titre: str, largeur=560
             px, py = P(*geoms[code].representative_point().coords[0])
             el.append(f'<text x="{px:.1f}" y="{py + 4:.1f}" text-anchor="middle" font-size="{fs_p}" font-weight="600" '
                       f'fill="{ENCRE}" stroke="var(--bg, #F4F4F1)" stroke-width="3" paint-order="stroke">{escape(str(t))}</text>')
-    # signal d'une limite des données posé sur le territoire, sans changer sa couleur (demande de Lucas du 9 octobre)
+    # signal d'une limite des données posé sur le territoire, sans changer sa couleur (demande du 9 octobre)
     fragiles = signaux(geoms)
     for lab in sorted(set(fragiles.values())):
         el.append(symbole_fragile(largeur - 10, 10, lab))
@@ -433,7 +433,7 @@ def _legende(el, x, y, largeur, hasard=False):
     fs = taille_role("petit", largeur + 16)
     libs = [GRIS_HASARD if hasard and i == GRIS else lab for i, (_b, _c, lab) in enumerate(CLASSES)]
     # autant de colonnes que la largeur en laisse au plus long libellé, jamais un libellé qui chevauche le suivant
-    # (remarque de Lucas du 6 novembre 2026 sur les PDF, « … peut tenir au hasard » sous la classe voisine)
+    # (remarque du 6 novembre 2026 sur les PDF, « … peut tenir au hasard » sous la classe voisine)
     colonnes = 2 if largeur < 700 else 3
     while colonnes > 1 and 20 + max(len(t) for t in libs) * fs * .56 + 12 > largeur / colonnes:
         colonnes -= 1

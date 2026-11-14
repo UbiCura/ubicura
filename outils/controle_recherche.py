@@ -258,7 +258,7 @@ def essais() -> list[tuple[str, str]]:
 
 
 def catalogue_recherche() -> list[tuple[str, str]]:
-    """La recherche suit les ajouts de bases et de variables (Lucas, 9 novembre 2026) : les indicateurs de l'index sont
+    """La recherche suit les ajouts de bases et de variables (9 novembre 2026) : les indicateurs de l'index sont
     exactement ceux du catalogue unique du site construit (presentation/catalogue.json), chacun a sa réponse directe
     (presentation/reponses.json), et chaque page de thème et chaque question d'Explorer est dans les pages proposées.
     Une base ajoutée qui manquerait à la recherche fait échouer le contrôle."""

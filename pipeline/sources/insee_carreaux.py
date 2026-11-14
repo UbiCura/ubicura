@@ -1,5 +1,5 @@
 """INSEE, données carroyées à 200 mètres (Filosofi 2019), pour placer le point de départ des distances là où vivent les
-habitants (demande de Lucas du 29 octobre 2026).
+habitants (demande du 29 octobre 2026).
 
 Chaque commune reçoit le centre de sa population, moyenne des centres de ses carreaux de 200 mètres pondérée par le
 nombre d'habitants du carreau (variable ind, imputée sous 11 ménages, indicatrice i_est_200). Un carreau partagé entre

@@ -1,10 +1,10 @@
-"""Comparaison de deux versions des résultats avant publication (demande de Lucas du 9 octobre 2026).
+"""Comparaison de deux versions des résultats avant publication (demande du 9 octobre 2026).
 
 Compare la version qui va être publiée à la précédente (par défaut la dernière publiée, inscrite dans
 donnees/publication.json, sinon l'avant-dernière version de resultats/). Repère ce qui serait incohérent, fichier
 disparu, effectif national qui bouge brutalement, département qui perd ou gagne beaucoup de professionnels d'un coup,
 indicateur qui se vide, page du site manquante. Écrit un compte rendu lisible dans donnees/journaux/ et rend un code,
-0 rien d'anormal, 10 des écarts à regarder (la publication attend la validation de Lucas), 20 un problème bloquant.
+0 rien d'anormal, 10 des écarts à regarder (la publication attend la validation), 20 un problème bloquant.
 
     python outils/comparer_versions.py                    compare la nouvelle version à la dernière publiée
     python outils/comparer_versions.py 2026-10-08 2026-10-09
@@ -158,7 +158,7 @@ def comparer(avant: Path, apres: Path, c: Compte):
     ta, tb = len(list((avant / "territoires").glob("*.md"))), len(list((apres / "territoires").glob("*.md")))
     if tb < ta:
         c.note(20, f"Rapports territoriaux, {ta} avant, {tb} après")
-    # 7. cohérence des indicateurs et des croisements (exigence de Lucas du 12 octobre 2026, après des indicateurs
+    # 7. cohérence des indicateurs et des croisements (exigence du 12 octobre 2026, après des indicateurs
     # fantômes nés d'un ajout placé dans la mauvaise liste de config.py)
     coherence(apres, c)
 
@@ -314,7 +314,7 @@ def a_reverifier(version: Path) -> set[str] | None:
 
 
 def structures_verifiees(avant: Path, apres: Path, c: Compte):
-    """Ce qui a été vérifié à la main doit survivre à une nouvelle version des bases (demande de Lucas du
+    """Ce qui a été vérifié à la main doit survivre à une nouvelle version des bases (demande du
     28 octobre 2026, point sur la tâche planifiée). Moins de structures confirmées par leur établissement, un verdict
     qui ne retrouve plus sa structure ou un établissement nouvellement signalé à revérifier sont à regarder."""
     a, b = lire(avant / "lieux_soins.csv"), lire(apres / "lieux_soins.csv")
@@ -376,7 +376,7 @@ def coherence(version: Path, c: Compte):
     manquants = [t for t in attendus if t not in faits]
     c.note(10 if manquants else 0, "Questions de croisement sans résultat, "
            + (", ".join(manquants) if manquants else f"aucune sur {len(attendus)}"))
-    # chiffres des rapports confrontés aux tableaux publiés (demande de Lucas du 13 octobre 2026)
+    # chiffres des rapports confrontés aux tableaux publiés (demande du 13 octobre 2026)
     sys.path.insert(0, str(RACINE / "outils"))
     import coherence_rapports
     ecarts = coherence_rapports.controler(version)
@@ -427,7 +427,7 @@ def main(args):
     JOURNAUX.mkdir(parents=True, exist_ok=True)
     sortie = JOURNAUX / f"comparaison_{datetime.now():%Y-%m-%d_%H%M}.md"
     verdict = {0: "Rien d'anormal, la publication peut se faire.",
-               10: "Des écarts sont à regarder, la publication attend la validation de Lucas.",
+               10: "Des écarts sont à regarder, la publication attend la validation.",
                20: "Problème bloquant, rien n'est publié."}[c.niveau]
     texte = [f"# Comparaison avant publication, {datetime.now():%d/%m/%Y %H:%M}", "",
              f"Version précédente, {avant.name if avant else 'aucune'}. Nouvelle version, {apres.name}.", "",

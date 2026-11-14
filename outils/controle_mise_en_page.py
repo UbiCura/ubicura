@@ -1,10 +1,10 @@
-"""Contrôle de mise en page du site construit, page type par page type (méthode de travail, Lucas, 6 novembre 2026).
+"""Contrôle de mise en page du site construit, page type par page type (méthode de travail, 6 novembre 2026).
 
 Chaque type de page est ouvert dans Edge sans fenêtre, à 1 280, 1 024, 883 et 375 px, puis tel qu'il s'imprime pour les pages
 qui ont un PDF (rapports nationaux, rapports par territoire, fiches). Le contrôle de finition (outils/controle_finition.js)
 y relève les chevauchements, y compris dans les figures, les textes coupés, les pages qui défilent en largeur, le texte
 qui ne va pas jusqu'au bord droit de la figure de sa colonne, les couleurs trop proches du fond, les réglettes illisibles.
-En papier, les rapports n'ont que deux tailles de texte courant (10,5 et 9 points, Lucas, 6 novembre 2026).
+En papier, les rapports n'ont que deux tailles de texte courant (10,5 et 9 points, 6 novembre 2026).
 
     .\\.venv\\Scripts\\python.exe outils\\controle_mise_en_page.py          # code de sortie 1 s'il reste un défaut
 

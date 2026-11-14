@@ -1,4 +1,4 @@
-"""Confirmation des structures par des listes officielles indépendantes de FINESS et du ROR (décision de Lucas du
+"""Confirmation des structures par des listes officielles indépendantes de FINESS et du ROR (décision du
 13 octobre 2026, « qu'à la fin on n'ait plus de doute »).
 
 Trois listes, tirées automatiquement à chaque mise à jour.
@@ -10,7 +10,7 @@ Trois listes, tirées automatiquement à chaque mise à jour.
   mots du nom, le public (enfants ou adultes) et la rue. L'adresse de Sirene est gardée à côté.
 - Pour le médico-social (CMPP, CAMSP, CSAPA, CAARUD), que la certification ne couvre pas, les évaluations des
   établissements et services médico-sociaux publiées par la HAS (sources/has_essms.py). Une structure dont un numéro
-  FINESS a été évalué sous une catégorie FINESS de son type est confirmée (accord de Lucas du 16 octobre 2026).
+  FINESS a été évalué sous une catégorie FINESS de son type est confirmée (accord du 16 octobre 2026).
 Les types confirmés et le nom qui les désigne sont dans config.SIRENE_ENSEIGNES. Un type réservé à un public (hôpitaux de
 jour pour adultes ou pour enfants) n'est confirmé que par un établissement ou un site du même public.
 
@@ -37,7 +37,7 @@ NIVEAUX = {"etablissement": "vérifiée sur les sources de l'établissement",
            "examinee": "examinée à la main et maintenue (source dans la colonne examen)",
            "bases": "inscrite dans FINESS ou le ROR, à vérifier"}
 # libellés courts lus dans l'atlas (encadré des structures d'un territoire, fiche d'une structure), le niveau « bases »
-# seul est montré par un point creux, les autres par un point plein (décision de Lucas du 15 octobre 2026)
+# seul est montré par un point creux, les autres par un point plein (décision du 15 octobre 2026)
 NIVEAUX_COURTS = {"etablissement": "vérifiée sur les sources de l'établissement",
                   "source_publique": "vérifiée sur une autre source publique",
                   "has_sirene": "confirmée par la HAS et Sirene",
@@ -47,7 +47,7 @@ NIVEAUX_COURTS = {"etablissement": "vérifiée sur les sources de l'établisseme
                          "jour du site, l'adresse n'est pas confirmée)",
                   "examinee": "examinée à la main et maintenue",
                   "bases": "inscrite dans FINESS ou le ROR seulement, à vérifier"}
-# Trois classes montrées au lecteur (décision de Lucas du 21 octobre 2026), le détail par source restant dans la page
+# Trois classes montrées au lecteur (décision du 21 octobre 2026), le détail par source restant dans la page
 # méthode et la colonne confirmation des fichiers. Confirmée, la structure est nommée par une source indépendante des
 # deux bases. Recoupée par la SAE, c'est le nombre (CATTP) ou l'activité du site (hôpital de jour) qui est confirmé, pas
 # l'adresse. À vérifier, la structure n'est inscrite que dans FINESS ou le ROR.
@@ -91,14 +91,14 @@ def _nums(r) -> set[str]:
 
 
 # Types confirmés aussi par le nombre que leur établissement déclare à la SAE, avec la colonne de statut de
-# lieux.concordance_etablissements (décision de Lucas du 16 octobre 2026 pour les CATTP, souvent une activité tenue dans
+# lieux.concordance_etablissements (décision du 16 octobre 2026 pour les CATTP, souvent une activité tenue dans
 # un CMP ou un centre de jour plutôt qu'un lieu à part, que les sites des hôpitaux ne listent presque jamais)
 PAR_SAE = {"lieu_cattp": "statut_cattp"}
 # Hôpitaux de jour, activité d'un site plutôt que lieu nommé (16 octobre 2026). Un hôpital de jour qu'aucune liste ne
 # confirme l'est quand un de ses numéros FINESS est un site qui déclare à la SAE des places d'hôpital de jour dans la
 # discipline de son public (psychiatrie générale pour les adultes, infanto-juvénile pour les enfants).
 PAR_SAE_SITE = {"lieu_hdj_psy_adultes": "GEN", "lieu_hdj_psy_enfants": "INF"}
-# types pour lesquels la classe « recoupée » existe, « sans objet » pour les autres (remarque de Lucas du 21 octobre
+# types pour lesquels la classe « recoupée » existe, « sans objet » pour les autres (remarque du 21 octobre
 # 2026, un 0 laissait croire que la statistique des hôpitaux avait été consultée sans rien trouver)
 TYPES_RECOUPES = set(PAR_SAE) | set(PAR_SAE_SITE)
 

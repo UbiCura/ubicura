@@ -74,7 +74,7 @@ def preciser_sous_ligne(r: dict, mere: dict | None, lib_complet: str, defn: str 
     accessible de son menu (cinq « Même distance, pour les moins de 15 ans » sur une fiche se confondaient), sa
     définition, et « comme pour tous les habitants » quand elle répète sa ligne (relecture du 10 novembre 2026)."""
     r["sous"], r["lib"], r["titre"] = True, libelle_public(lib_complet), lib_complet
-    # sous sa ligne mère, la définition courte (décision de Lucas du 10 novembre 2026, la longue se répétait sous chaque
+    # sous sa ligne mère, la définition courte (décision du 10 novembre 2026, la longue se répétait sous chaque
     # sous-ligne) ; elle redit « à vol d'oiseau » et « pas un temps de trajet », que la mère ne porte pas toujours
     court = r.pop("defn_court", None)
     if defn or court:
@@ -427,7 +427,7 @@ def fiche(dn: Donnees, lv: str, code: str, version: str) -> dict:
             sans = dv is None or dv["v"] is None
             out.append(_ligne(lib, dv, couleur=False, limite=lim if sans and lim and lim.get("territoire") else None,
                               ident="dist_" + t, T=dn.T))
-            # population concernée, en sous-ligne (brouillon tant que Lucas n'a pas validé la présentation)
+            # population concernée, en sous-ligne (brouillon tant que l'auteur n'a pas validé la présentation)
             dp = dn.contexte(lv, code, "distp_" + t)
             if dp is not None and ("distp_" + t) in dn.ctx:
                 ind = dn.ctx["distp_" + t][1]
@@ -704,10 +704,10 @@ def _sante_mentale_autres(dn, lv, code, dep):
     return [{"nom": d["nom"], "rows": accrocher_sous_lignes(par[d["id"]])} for d in D.DOMAINES if d["id"] in par]
 
 
-# -- indicateurs publiés seulement par région, sur la fiche d'un département (maquette validée par Lucas le 14 novembre
+# -- indicateurs publiés seulement par région, sur la fiche d'un département (maquette validée le 14 novembre
 # 2026, prototypes/entrees/v2_fiche/) ----------------------------------------------------------------------------------
 # « dans la marge d'incertitude » après la position quand l'intervalle publié contient le repère des régions : proposé
-# (relecture du 14 novembre 2026, C2), pas encore tranché par Lucas. Le paramètre reste éteint jusqu'à sa décision.
+# (relecture du 14 novembre 2026, C2), pas encore tranché. Le paramètre reste éteint jusqu'à sa décision.
 MARGE_INCERTITUDE = False
 MARGE_TEXTE = ", dans la marge d'incertitude"
 # la région nommée dans les phrases : la Corse et les régions d'outre-mer par leur nom et son article, les autres
@@ -1638,7 +1638,7 @@ def construire(env, commun: dict, dernier: Path, site_data: dict, site: Path, re
             f["n_section"] = {sec: sum(1 for k in ks if k["section"] == sec) for sec, _ in K.SECTIONS}
             limites_papier = sorted({f"{l['lib']}, {l['limite']['court']}." for key in ("sm_pro", "sante_pro", "sm_dist", "sm_recours")
                                      for l in f[key] if l.get("limite") and l["limite"].get("court")})
-            # fiche resserrée (validée par Lucas le 31 octobre 2026) : bandes de domaine et « En bref » en matrice, rangés
+            # fiche resserrée (validée le 31 octobre 2026) : bandes de domaine et « En bref » en matrice, rangés
             # par bandes_fiche à partir de ce qui précède ; effectif attendu des constats de profession ; cartes de bloc
             # d'un département d'outre-mer sur toute la France ; carte des départements d'une région
             extras = {"attendu": {}, "cartes_france": {}, "carte_region": None}
@@ -1696,7 +1696,7 @@ def _cle_nom(nom: str) -> str:
 
 def liens_niveaux(lv: str, u: dict, f: dict, dn, reg_code: dict, deps_de_reg: dict, epcis_de_dep: dict) -> dict:
     """Le territoire qui contient celui-ci, en lien vers sa fiche, et la liste de ceux qu'il contient (étape 1 de l'audit
-    de la navigation, validée par Lucas le 8 novembre 2026 : aucune fiche ne reliait sa région, son département ni ses
+    de la navigation, validée le 8 novembre 2026 : aucune fiche ne reliait sa région, son département ni ses
     intercommunalités). Une intercommunalité sur plusieurs départements les relie tous, et la région de son département
     de rattachement."""
     from html import escape

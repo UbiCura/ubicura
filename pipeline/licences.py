@@ -1,4 +1,4 @@
-"""Registre des licences des sources (demande de Lucas du 28 octobre 2026, « être précis pour les licences spécifiques,
+"""Registre des licences des sources (demande du 28 octobre 2026, « être précis pour les licences spécifiques,
 je veux me protéger juridiquement »).
 
 Une entrée par licence, avec chaque fait lu sur sa page officielle et daté. Ce qui n'a pas été lu reste « à confirmer ».

@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{# Fiche de territoire resserrée, validée par Lucas le 31 octobre 2026 (prototype et relectures dans
+{# Fiche de territoire resserrée, validée le 31 octobre 2026 (prototype et relectures dans
    prototypes/fiche_resserree/, NOTE.md). Composition B+ et palette canard et cuivre (docs/direction_visuelle.md). Dans
    l'ordre : la tête en deux lignes, les quatre tuiles et la phrase sur l'ensemble, une seule fois ; la barre des
    domaines ; le tableau de bord (carte et repères condensés à gauche, « En bref » en matrice à droite) ; puis une bande
@@ -60,7 +60,7 @@
   {%- endif %}
   <td class="reg">{{ reglette(l.reg, 'petite') }}</td>
   {#- une position dit toujours son ensemble, en entier dans la cellule : au téléphone l'en-tête du tableau disparaît
-      (remarque de Lucas du 31 octobre 2026). La cellule porte aussi ce à quoi « mais » s'oppose, l'écart ou, sans
+      (remarque du 31 octobre 2026). La cellule porte aussi ce à quoi « mais » s'oppose, l'écart ou, sans
       écart écrit, l'ensemble (affichage.avant_position) : « mais » ne commence jamais une cellule (relecture v2 des
       fiches construites, 1er novembre 2026). -#}
   <td class="pos">{% if l.txt and l.code != 'aucun' %}{% if l.avant %}<span class="{{ 'ec ' ~ (l.couleur or 'neutre') if l.avant_ecart else 'ens-pos' }}">{{ l.avant }}</span>{{ ', mais ' if l.mais else ', ' }}{% endif %}{{ l.pos_txt }}{% endif %}</td>
@@ -137,7 +137,7 @@ Position parmi les {{ {'epci': 'intercommunalités', 'dep': 'départements', 're
 {%- set mots = l.lib.rsplit(' ', 1) -%}
 <a class="vers-ind" href="{{ racine }}{{ l.page }}">{% if mots|length > 1 %}{{ mots[0] }} {% endif %}<span class="insec">{{ mots[-1] }}<span class="fl" aria-hidden="true">&nbsp;→</span>{% if sig %}<b class="sig" aria-hidden="true">&nbsp;!</b>{% endif %}</span><span class="lecteur">, page de l’indicateur</span></a>
 {%- endmacro %}
-{#- les indicateurs publiés seulement par région, sur la fiche d'un département (maquette validée par Lucas le 14
+{#- les indicateurs publiés seulement par région, sur la fiche d'un département (maquette validée le 14
     novembre 2026, prototypes/entrees/v2_fiche/) : la valeur de la région nommée comme telle, son intervalle de
     confiance, la réglette et la position parmi les régions avec leur repère, la définition et la limite visibles ; une
     mesure absente le dit ; sans aucune mesure (Mayotte), la raison et les noms liés à leur page -#}

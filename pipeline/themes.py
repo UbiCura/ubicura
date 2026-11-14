@@ -1,4 +1,4 @@
-"""Thèmes transversaux du site (décision de Lucas du 8 novembre 2026, navigation, étape 2). Un thème réunit, autour d'une
+"""Thèmes transversaux du site (décision du 8 novembre 2026, navigation, étape 2). Un thème réunit, autour d'une
 même question, des indicateurs de plusieurs domaines : la santé mentale (sa page existe, domaine/sante-mentale.html),
 l'addictologie, la géographie sociale, le grand âge, et la victimologie quand ses bases seront intégrées.
 
@@ -6,7 +6,7 @@ Les étiquettes sont écrites indicateur par indicateur dans `pipeline/themes_in
 lu ici et versé au catalogue unique (affichage.catalogue). Toute base ajoutée y inscrit ses indicateurs (liste à cocher
 de docs/nouvelle_base.md, étape 9 quater) ; un test échoue si un indicateur du catalogue n'y figure pas. La marque
 « sensible » (délinquance, violences) écarte un indicateur de toute proposition d'office avec la santé mentale (décision
-de Lucas du 31 octobre 2026) ; il reste dans le croisement libre."""
+de l'auteur du 31 octobre 2026) ; il reste dans le croisement libre."""
 from __future__ import annotations
 
 import csv

@@ -1,4 +1,4 @@
-"""Réponses directes de la recherche de l'en-tête (navigation, étape 2, validée par Lucas le 8 novembre 2026).
+"""Réponses directes de la recherche de l'en-tête (navigation, étape 2, validée le 8 novembre 2026).
 
 « psychiatres rodez » : la recherche reconnaît un indicateur et un lieu, rattache une commune à son intercommunalité, et
 montre la valeur de la fiche de ce territoire. Les chiffres viennent de la règle d'affichage unique

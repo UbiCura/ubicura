@@ -7,7 +7,7 @@
                                                                 nouvelles (service de l'IGN) et calcule l'empreinte
                                                                 des établissements qui n'en ont pas
     python outils\\structures_verifiees.py etat                  avancement (établissements et structures vérifiés)
-    python outils\\structures_verifiees.py a-verifier            écrit docs\\a_verifier_par_lucas.csv, tout ce qui
+    python outils\\structures_verifiees.py a-verifier            écrit docs\\a_verifier_a_la_main.csv, tout ce qui
                                                                 reste à trancher à la main, colonne verdict à remplir
     python outils\\structures_verifiees.py verdicts              range les verdicts remplis dans
                                                                 contenus\\verdicts_verification.csv
@@ -149,9 +149,9 @@ def valider():
     sys.exit(20 if pb else 0)
 
 
-A_VERIFIER = RACINE / "docs" / "a_verifier_par_lucas.csv"
+A_VERIFIER = RACINE / "docs" / "a_verifier_a_la_main.csv"
 VERDICTS = RACINE / "contenus" / "verdicts_verification.csv"
-CAS = RACINE / "docs" / "structures_a_verifier_par_lucas.csv"
+CAS = RACINE / "docs" / "structures_a_verifier_a_la_main.csv"
 COLS_AV = ["categorie", "departement", "etablissement", "ej", "structure", "commune", "adresse", "finess",
            "ce_que_disent_les_sources", "question", "lien", "verdict", "commentaire", "cle"]
 
@@ -162,7 +162,7 @@ def _cle(ej, finess, commune, nom) -> str:
 
 
 def a_verifier():
-    """Écrit docs/a_verifier_par_lucas.csv, tout ce qui reste à trancher à la main, refait à chaque appel à partir de
+    """Écrit docs/a_verifier_a_la_main.csv, tout ce qui reste à trancher à la main, refait à chaque appel à partir de
     la dernière exécution, avec les verdicts déjà donnés (contenus/verdicts_verification.csv)."""
     ref = _ref()
     nc = ref.communes.set_index("code")["nom"]
@@ -226,7 +226,7 @@ def a_verifier():
 
 
 def verdicts():
-    """Range les verdicts remplis dans docs/a_verifier_par_lucas.csv dans contenus/verdicts_verification.csv (versionné)."""
+    """Range les verdicts remplis dans docs/a_verifier_a_la_main.csv dans contenus/verdicts_verification.csv (versionné)."""
     t = pd.read_csv(A_VERIFIER, sep=";", dtype=str, encoding="utf-8-sig").fillna("")
     t = t[t["verdict"].str.strip() != ""]
     old = pd.read_csv(VERDICTS, sep=";", dtype=str).fillna("") if VERDICTS.exists() else pd.DataFrame(

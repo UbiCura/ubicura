@@ -15,7 +15,7 @@ DOMAINES = [
      "pourquoi": "Qui exerce, où, dans quelles structures, à quelles conditions de tarif, et comment "
                  "cette offre a changé depuis 2016.",
      # « Activité des libéraux » (patientèle, depuis le 11 novembre 2026) manquait ici : la page Domaines ne la
-     # montrait pas et les listes la rangeaient en dernier (maquette validée par Lucas le 14 novembre 2026)
+     # montrait pas et les listes la rangeaient en dernier (maquette validée le 14 novembre 2026)
      "sous": ["Professionnels", "Structures de soins", "Psychiatrie à l'hôpital", "Âge et évolution des professionnels",
               "Accès financier", "Activité des libéraux"]},
     {"id": "recours", "nom": "État de santé et recours aux soins", "court": "Santé et recours",

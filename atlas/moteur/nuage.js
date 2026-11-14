@@ -9,7 +9,7 @@ function phraseCroisement(r){
   const dens=r.rp==null?"":net&&netp?", et "+forceLien(r.rp)+" à densité de population égale (rho = "+f2.format(r.rp)+")":net?", mais il disparaît à densité de population égale (rho = "+f2.format(r.rp)+")":netp?", mais un lien "+forceLien(r.rp)+" apparaît à densité de population égale (rho = "+f2.format(r.rp)+")":", ni à densité de population égale (rho = "+f2.format(r.rp)+")";
   return "Entre « "+minuscule(r.x)+" » et « "+minuscule(r.y)+" », "+brut+dens+"."}
 // questions préparées entre bases (config.CROISEMENTS), chargées d'un clic dans « Croiser deux indicateurs » (demande
-// de Lucas du 23 octobre 2026 : la fenêtre à part enfermait la lecture dans ces questions, l'outil permet d'en croiser
+// du 23 octobre 2026 : la fenêtre à part enfermait la lecture dans ces questions, l'outil permet d'en croiser
 // d'autres) ; la question en cours est soulignée et sa phrase reprend fourchette et lien à densité égale
 let CB_T=[];
 const cleCb=k=>String(k||"").replace(/^ctx:/,"");
@@ -66,7 +66,7 @@ function scatter(){
   const lv=S.level,L=D.niveaux[lv],p=S.prof,cx=IDX.ctx.find(c=>c.id===S.xvar),cy=S.yvar?IDX.ctx.find(c=>c.id===S.yvar):null;
   const svg=d3.select("#scatter");
   // positions d'avant, pour que les points glissent vers leur nouvelle place quand on change d'indicateur, de profession
-  // ou d'échelle (comme dans le prototype validé par Lucas le 23 octobre 2026), au même niveau seulement
+  // ou d'échelle (comme dans le prototype validé le 23 octobre 2026), au même niveau seulement
   const avant=new Map();if(SC_NIVEAU===S.level)svg.selectAll("g.points circle").each(function(d){if(d&&d.u)avant.set(d.u.c,[+this.getAttribute("cx"),+this.getAttribute("cy")])});
   SC_NIVEAU=S.level;svg.selectAll("*").remove();
   document.querySelector('.seg[data-k="ylog"]').hidden=!!cy;
@@ -118,7 +118,7 @@ function scatter(){
     quad=" Lignes pointillées, médianes des départements, en bas à droite un indicateur élevé et une offre faible. "+crit.length+" départements ont un indicateur au-dessus de la médiane et une densité "+deMot(pluriel(profLab(p)))+" au-dessous. Cette position par rapport aux médianes ne mesure pas une insuffisance au sens d’une norme.";
     quadListe='<details class="plus"><summary>Liste de ces '+crit.length+' départements, par ordre alphabétique</summary><div class="scroll"><table><tr><th>Département</th><th>'+esc(cx.label)+'</th><th>'+esc(profLab(p))+', '+uniteP(p,true)+'</th></tr>'+crit.slice().sort((a,b)=>a.u.nm.localeCompare(b.u.nm,"fr")).map(d=>'<tr><td>'+esc(d.u.nm)+'</td><td>'+f1.format(d.x)+'</td><td>'+fD(d.y)+'</td></tr>').join("")+'</table></div></details>';
   }
-  // zoom du nuage (remarque de Lucas du 23 octobre 2026, l'échelle se dérèglait) : les axes et la grille se
+  // zoom du nuage (remarque du 23 octobre 2026, l'échelle se dérèglait) : les axes et la grille se
   // recalculent au lieu d'agrandir l'image ; boutons + et −, Ctrl et molette, glisser pour se déplacer une fois zoomé
   {const fx=d=>Math.max(d.x,xs.domain()[0]),dedans=v=>v>=m.l-1&&v<=w-m.r+1;
     const zoomer=t=>{const X=t.rescaleX(xs),Y=t.rescaleY(ys),trait=g=>g.selectAll("line,path").attr("stroke",css("--line"));
@@ -133,7 +133,7 @@ function scatter(){
       .filter(ev=>ev.type==="wheel"?(ev.ctrlKey||ev.metaKey):(!ev.button&&ev.type!=="dblclick")).on("zoom",ev=>zoomer(ev.transform));
     svg.property("__zoom",d3.zoomIdentity).call(zm).on("dblclick.zoom",null);
     // les boutons de zoom vont dans un cadre autour de la figure, jamais en tête de la fenêtre (le titre doit rester
-    // le premier élément pour former la barre de titre, remarque de Lucas du 23 octobre 2026)
+    // le premier élément pour former la barre de titre, remarque du 23 octobre 2026)
     let hote=box.parentElement;if(!hote.classList.contains("sc-hote")){const w=document.createElement("div");w.className="sc-hote";box.before(w);w.appendChild(box);hote=w;
       const vieux=w.parentElement.querySelector(":scope > .sc-zoom");if(vieux)vieux.remove()}
     let zb=hote.querySelector(":scope > .sc-zoom");

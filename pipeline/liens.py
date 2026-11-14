@@ -1,5 +1,5 @@
 """Données de la matrice des liens de l'atelier « Croiser » (avis de l'auditeur externe du 30 octobre 2026,
-docs/avis_carte_des_liens_2026-10-30.md, suivi par Lucas).
+docs/avis_carte_des_liens_2026-10-30.md, suivi).
 
 L'offre en colonnes (professions de santé mentale, ou principales professions de santé), les indicateurs des autres
 domaines en lignes, rangés par domaine. Chaque case garde la corrélation de rang brute et à densité de population égale,

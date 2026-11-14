@@ -86,9 +86,9 @@ INSEE_MESURES = {
     "pseul": ("FAM_G2", r"^ONEPERS_AGE_.*_NOC_P1$"),
     "popmen15p": ("FAM_G2", r"^DWELLINGS_POPSIZE_AGE_"),
 }
-# Vulnérabilité psychosociale (chantier 5, demande de Lucas du 4 octobre 2026). Mêmes règles de lecture,
+# Vulnérabilité psychosociale (chantier 5, demande du 4 octobre 2026). Mêmes règles de lecture,
 # codes relevés le 4 octobre 2026. Ces indicateurs entrent dans les croisements mais pas dans le modèle de
-# l'effectif attendu (sans accord de Lucas).
+# l'effectif attendu (sans accord).
 INSEE_MESURES.update({
     "pop1564": ("EMP_T1", r"^POP_AGE_Y15T64$"),
     "occupes1564": ("EMP_T1", r"^POP_EMPSTA_ENQ_1_AGE_Y15T64$"),
@@ -200,7 +200,7 @@ DEPARTEMENTS_EXCLUS_CROISEMENTS = ["976"]
 # vers La Réunion jusqu'à 1 450 km, Guyane vers les Antilles, outre-mer vers l'Hexagone jusqu'à 9 000 km, note
 # docs/note_valeurs_aberrantes_2026-10-28.md, 28 octobre 2026). Les îles proches des côtes restent avec leur
 # territoire (Belle-Île, Marie-Galante). Sans structure de ce type sur le territoire, la distance reste vide. La Corse
-# à part, confirmé par Lucas le 28 octobre 2026.
+# à part, confirmé le 28 octobre 2026.
 ZONES_TERRESTRES = {"2A": "corse", "2B": "corse", "971": "971", "972": "972", "973": "973", "974": "974",
                     "976": "976"}
 # Carte bivariée offre et besoin (audit 4.2), 3 tiers de l'offre (canard) sur 3 tiers de l'indicateur (cuivre), les
@@ -341,9 +341,9 @@ ODISSE = [
                     "intoxication médicamenteuse volontaire, parmi l'ensemble des passages. Ce n'est pas un taux "
                     "rapporté à la population, il dépend aussi de l'usage des urgences dans le département."},
     # Baromètre 2024 (jeux vérifiés par l'API d'Odissé le 12 novembre 2026, modifiés le 11 décembre 2025, Licence
-    # Ouverte 2.0, 18 à 79 ans, France hexagonale et quatre DROM, hors Mayotte ; libellés validés par Lucas le
+    # Ouverte 2.0, 18 à 79 ans, France hexagonale et quatre DROM, hors Mayotte ; libellés validés le
     # 12 novembre 2026, docs/chantier_spf_sante_mentale.md). L'épisode dépressif passe à la série 2024, qui remplace
-    # l'ancienne (accord de Lucas du même jour).
+    # l'ancienne (accord du même jour).
     {"dataset": "episodes-depressifs-indicateurs-du-barometre-de-sante-publique-france-2024-detail-region",
      "niveau": "reg", "code": "nouvelles_regions",
      "where": 'indicateur="Episode dépressif caractérisé" and sexe="Tous" and classe_d_age="Tous"',
@@ -375,7 +375,7 @@ ODISSE = [
                'and situation_financiere_percue="Tous"'),
      "valeur": "estimation", "ic_bas": "ic_inf", "ic_haut": "ic_sup",
      "id": "satisfaction_vie", "libelle": "Satisfaction de la vie actuelle, score moyen",
-     # libellé validé par Lucas le 12 novembre 2026 ; l'unité se lit après un nombre (« entre 7,1 et 7,2 sur 10 »)
+     # libellé validé le 12 novembre 2026 ; l'unité se lit après un nombre (« entre 7,1 et 7,2 sur 10 »)
      # et après le libellé sans répéter « score » (audit du 13 novembre 2026, R6)
      "unite": "sur 10", "source": ODISSE_SOURCE + ", Baromètre de Santé publique France",
      "explication": "Note moyenne que les adultes de 18 à 79 ans donnent à leur vie actuelle, de 0, la pire vie "
@@ -408,7 +408,7 @@ ODISSE = [
      "explication": "Part des adultes interrogés qui déclarent avoir fait une tentative de suicide au cours de leur "
                     "vie. Disponible seulement par région."},
     # addictions (jeux Odissé vérifiés par l'API le 22 octobre 2026, Licence Ouverte 2.0, régions seulement, note
-    # docs/note_statistiques_addictologie_2026-10-22.md, accord de Lucas du 22 octobre 2026)
+    # docs/note_statistiques_addictologie_2026-10-22.md, accord du 22 octobre 2026)
     {"dataset": "alcool-indicateurs-du-barometre-de-sante-publique-france-2024-detail-region",
      "niveau": "reg", "code": "nouvelles_regions",
      "where": ('indicateur="Dépassement des repères de consommation d\'alcool" and sexe="Tous" and classe_d_age="Tous" '
@@ -624,7 +624,7 @@ CONTOURS_PAGE_PRODUCTEUR = ("https://www.data.gouv.fr/datasets/admin-express-adm
                             "admin-express-cog-carto-pe-admin-express-cog-carto-plus-pe")
 
 # INSEE, données carroyées à 200 m de Filosofi 2019 (parues le 12 octobre 2023), Hexagone, Corse, Martinique et La
-# Réunion, point de départ des distances au centre de la population de chaque commune (demande de Lucas du 29 octobre
+# Réunion, point de départ des distances au centre de la population de chaque commune (demande du 29 octobre
 # 2026). Adresse relevée le 29 octobre 2026 sur la page de l'INSEE, archive zip contenant un 7z de trois CSV.
 INSEE_CARREAUX_PAGE = "https://www.insee.fr/fr/statistiques/7655475"
 INSEE_CARREAUX_URL = "https://www.insee.fr/fr/statistiques/fichier/7655475/Filosofi2019_carreaux_200m_csv.zip"
@@ -653,7 +653,7 @@ SIRENE_TYPES_VOIE = {"AV": "avenue", "BD": "boulevard", "PL": "place", "CHE": "c
                      "LD": "lieu-dit", "RES": "résidence", "CITE": "cité", "FG": "faubourg", "PASS": "passage"}
 # Types de structures confirmés par des listes indépendantes de FINESS et du ROR (pipeline/confirmation.py), avec le
 # motif du nom qui désigne le type, cherché dans l'enseigne Sirene et dans le nom des sites de certification HAS. CMP
-# d'abord (13 octobre 2026), puis CATTP, hôpitaux de jour, CMPP, CAMSP et addictologie (accord de Lucas du
+# d'abord (13 octobre 2026), puis CATTP, hôpitaux de jour, CMPP, CAMSP et addictologie (accord du
 # 16 octobre 2026). Un hôpital de jour d'une autre discipline ne confirme pas un hôpital de jour en psychiatrie.
 _HDJ_AUTRE = (r"GERIAT|G[EÉ]RONTO|P[EÉ]DIATR|ONCOLOG|CANCER|DIAB[EÈ]T|N[EÉ]PHRO|CHIRUR|M[EÉ]DECINE|R[EÉ][EÉ]DUC|"
               r"R[EÉ]ADAPT|\bSSR\b|\bSMR\b|ALLERG|DIALY|DOULEUR|ADDICT|NUTRI|RHUMAT|DERMAT|H[EÉ]MATO|CARDIO|NEURO|"
@@ -735,7 +735,7 @@ FT_ROME = {
 # Chaque entrée associe un motif (sur le libellé normalisé) à un identifiant, un libellé, un groupe
 # et une famille. La famille sépare l'offre en santé mentale du reste de l'offre de soins. Pour
 # changer le classement d'une profession, il suffit de modifier sa famille ici.
-# Classement validé avec Lucas le 3 octobre 2026. Psychomotriciens, orthophonistes, ergothérapeutes
+# Classement validé avec l'auteur le 3 octobre 2026. Psychomotriciens, orthophonistes, ergothérapeutes
 # et infirmiers restent en « Santé » au sens strict. Ceux qui travaillent dans un établissement
 # psychiatrique sont repris dans le périmètre élargi (voir FINESS_SANTE_MENTALE).
 FAMILLES = [SANTE_MENTALE, SANTE]
@@ -766,7 +766,7 @@ PROFESSIONS = [
 ]
 # Spécialités des médecins (libellé normalisé de la spécialité ordinale), par ordre de priorité.
 # Chaque médecin reçoit une seule spécialité, celle de son inscription à l'Ordre. Groupes des spécialités (version 2,
-# validés par Lucas le 11 octobre 2026), d'après le partage des diplômes d'études spécialisées entre spécialités
+# validés le 11 octobre 2026), d'après le partage des diplômes d'études spécialisées entre spécialités
 # médicales, chirurgicales et médico-techniques, plus la prévention et la santé publique, qui ne sont pas des soins
 # à la population.
 G_MED, G_CHIR, G_TECH, G_PREV = ("Spécialités médicales", "Spécialités chirurgicales", "Spécialités médico-techniques",
@@ -837,7 +837,7 @@ PREFIXE_ENSEMBLE = "ens_"
 ENSEMBLE_SPECIALISTES = ("ens_medecin_specialiste", "Médecin spécialiste (toutes spécialités)", "Médecins spécialistes, ensemble",
                          SANTE, "ensemble")
 # Précision « exercice surtout salarié », écrite pour toute spécialité dont moins d'un tiers des médecins exercent en
-# libéral (calculée à chaque exécution, build.limites_specialites), validée par Lucas le 11 octobre 2026
+# libéral (calculée à chaque exécution, build.limites_specialites), validée le 11 octobre 2026
 SEUIL_LIBERAL_SPECIALITE = 1 / 3
 GROUPE_AUTRES = ("Autres", SANTE)   # libellés RPPS non reconnus par les motifs ci-dessus
 # Libellés RPPS qui ne désignent pas une profession de soin et sont écartés des comptages.
@@ -895,12 +895,12 @@ PUBLICS_CIBLES = {
     "pedopsychiatre": (["part_0_14"], "moins de 15 ans"),
     "q_psychiatrie_enfant": (["part_0_14"], "moins de 15 ans"),
     "pediatre": (["part_0_14"], "moins de 15 ans"),
-    # orthophonistes et psychomotriciens retirés le 12 octobre 2026 (remarque de Lucas), ils soignent tous les âges
+    # orthophonistes et psychomotriciens retirés le 12 octobre 2026 (remarque), ils soignent tous les âges
     # (LIMITES["prof:orthophoniste"] et ["prof:psychomotricien"])
     "geriatre": (["part_65_79", "part_80p"], "65 ans et plus"),
 }
 
-# Population concernée (remarque de Lucas du 9 novembre 2026, chantier accepté le même jour) : une structure ou une
+# Population concernée (remarque du 9 novembre 2026, chantier accepté le même jour) : une structure ou une
 # profession qui sert un public précis se mesure aussi sur ce public. « Pour la moitié des habitants, la maternité la
 # plus proche est à moins de 5,5 km » compte tous les habitants, alors que les femmes en âge d'avoir un enfant vivent
 # plus souvent en ville. Publics lus dans le dossier complet de l'INSEE (communes), additionnés par tranche d'âge.
@@ -928,17 +928,17 @@ PUBLIC_DU_DENOMINATEUR = {("part_0_14",): "moins_15", ("part_80p",): "plus_80", 
 # 80 ans et plus y serait en partie produite par la mesure elle-même (9,9 % de 80 ans et plus dans les communes de 500
 # à 3 000 habitants qui ont un EHPAD, 5,1 % dans les autres, relecture du 9 novembre 2026)
 PUBLIC_EXCLUS = {"lieu_ehpad": "résidents comptés dans la commune de l'établissement"}
-# chiffres de la population concernée : écrits en brouillon seulement jusqu'à la validation par Lucas de leur
+# chiffres de la population concernée : écrits en brouillon seulement jusqu'à la validation de leur
 # présentation sur maquette, donnée le 10 novembre 2026 (« Oui, je valide la maquette », captures de
-# prototypes/population_concernee/) ; publiés à partir de l'édition suivante, mise en ligne par Lucas
+# prototypes/population_concernee/) ; publiés à partir de l'édition suivante, mise en ligne
 POPULATION_CONCERNEE_PUBLIEE = True
 
 # Professions croisées avec les indicateurs de besoin en santé mentale (quadrants offre et besoin)
 PROFESSIONS_QUADRANTS = ["psychiatre", "psychologue", "q_psychiatrie_enfant", "medecin_generaliste"]
 # régression géographiquement pondérée du lien avec le niveau de vie : professions présentes dans au moins une
-# intercommunalité sur deux (décision de Lucas du 23 octobre 2026, au-delà des trois professions d'origine)
+# intercommunalité sur deux (décision du 23 octobre 2026, au-delà des trois professions d'origine)
 GWR_PRESENCE_MIN = 0.5
-# part de l'exercice libéral par territoire, indicateur de « Croiser deux indicateurs » (demande de Lucas du 23 octobre
+# part de l'exercice libéral par territoire, indicateur de « Croiser deux indicateurs » (demande du 23 octobre
 # 2026). Calculée seulement quand le territoire compte au moins PART_LIBERAL_EFFECTIF_MIN professionnels de la
 # profession (en dessous, une ou deux personnes font passer la part de 0 à 100 %), pour les professions principales où
 # libéraux et salariés pèsent tous deux en France et qui atteignent ce minimum dans au moins un département sur deux
@@ -965,7 +965,7 @@ SECTEURS_GROUPES = [
 ]
 SECTEUR_AUTRE = "Autre ou non renseigné"
 
-# Catégorie de chaque secteur d'activité du RPPS (décision de Lucas du 4 octobre 2026, voir
+# Catégorie de chaque secteur d'activité du RPPS (décision du 4 octobre 2026, voir
 # docs/note_secteurs_hors_soins.md). Motif sur le libellé normalisé (util.norm), professions concernées (None pour
 # toutes), catégorie. La première ligne qui correspond l'emporte, un secteur absent de la liste relève des soins.
 #   soins                 soins à la population, chiffres principaux (densités, cartes, comparaisons)
@@ -973,7 +973,7 @@ SECTEUR_AUTRE = "Autre ou non renseigné"
 #                         et repérables dans les fichiers
 #   a_distance            soins à distance pour une société de téléconsultation, déclarés à l'adresse de son siège,
 #                         donc impossibles à rattacher au territoire des patients. Ce sont bien des soins (remarque
-#                         de Lucas du 12 octobre 2026), retirés des densités et comptés à part.
+#                         du 12 octobre 2026), retirés des densités et comptés à part.
 #   sans_soins            activités sans soins à la population, souvent déclarées au siège d'un organisme, retirées
 #                         des densités et comptées à part, territoire par territoire. Les personnes restent dans
 #                         l'effectif national.
@@ -1013,7 +1013,7 @@ CATEGORIES_HORS_DENSITES = ("a_distance", "sans_soins")
 
 # Loi inverse des soins (Tudor Hart), indicateurs de besoin qui classent les départements et professions testées
 # ---------------------------------------------------------------- limites connues des données
-# Demande de Lucas du 5 octobre 2026. Chaque fois qu'une donnée risque d'être sous-déclarée ou incomplète, le dire
+# Demande du 5 octobre 2026. Chaque fois qu'une donnée risque d'être sous-déclarée ou incomplète, le dire
 # là où elle est montrée et renvoyer vers la source qui l'établit. Sources lues et vérifiées le 5 octobre 2026
 # (note docs/note_suicide_ile_de_france_2026-10-05.md). Clés, identifiant d'indicateur, « prof:<profession> » ou
 # « route ». « territoires », précision propre à certains départements.
@@ -1143,7 +1143,7 @@ LIEUX_CONSULT_HORS_CMP = (r"non sectoris|transculturel|consultation de psych\w* 
 # (constat du 12 octobre 2026 en Guyane, « Centre médico-psychologique adulte » sans catégorie)
 NOM_CMP = r"\bcmp\b|\bcmpea\b|\bcmpi\b|\bcmppa\b|medico.?psy?c?h?ologique|centre de sante mentale"
 # Établissements enregistrés dans FINESS comme CMP (catégorie 156) dont le nom dit qu'ils sont autre chose, rangés dans
-# le type que leur nom désigne, comme les unités du ROR (constat de Lucas du 12 octobre 2026, CMP de l'Ain, vérifié
+# le type que leur nom désigne, comme les unités du ROR (constat du 12 octobre 2026, CMP de l'Ain, vérifié
 # sur toute la France). Motif sur le nom sans accents ni majuscules, type visé, dans l'ordre, le premier qui convient.
 # Un nom qui cite aussi un CMP (« CMP CATTP de Barriol ») reste un CMP pour les CATTP seulement.
 RETYPAGE_CMP_FINESS = [
@@ -1162,15 +1162,15 @@ RETYPAGE_CMP_FINESS = [
      "lieu_consult_psy"),
 ]
 RETYPAGE_CATTP = r"cattp|cattg|accueil therapeutique"
-# CATTP qui n'en sont pas pour le compte (décisions de Lucas du 16 octobre 2026). Les ateliers thérapeutiques, que la SAE
+# CATTP qui n'en sont pas pour le compte (décisions du 16 octobre 2026). Les ateliers thérapeutiques, que la SAE
 # et les chambres régionales des comptes comptent à part des CATTP, vont avec la réhabilitation psychosociale (catégorie
 # FINESS 366 ou nom d'atelier, sauf quand le nom dit aussi CATTP). Les CATTP en milieu pénitentiaire sont écartés du
 # compte des territoires et rangés comme les CMP en milieu pénitentiaire.
 FINESS_ATELIER_THERAPEUTIQUE = "366"
-# Types dont les antennes se lisent dans la relation de budget de FINESS (décision de Lucas du 16 octobre 2026, note
+# Types dont les antennes se lisent dans la relation de budget de FINESS (décision du 16 octobre 2026, note
 # docs/note_sources_cmpp_camsp_2026-10-16.md). Structure principale, antenne (établissement non porteuse d'un
 # établissement de même catégorie), site supplémentaire (lieu du ROR seul au numéro d'une autre structure du type).
-# « Où ils exercent » dans les structures de santé mentale (demande de Lucas du 21 octobre 2026). Seules les structures
+# « Où ils exercent » dans les structures de santé mentale (demande du 21 octobre 2026). Seules les structures
 # enregistrées sous leur propre numéro FINESS sont retenues, une déclaration au RPPS y désigne bien la structure, alors
 # que les unités hospitalières du ROR partagent le numéro de leur hôpital.
 LIEUX_EXERCICE_TYPES = ["lieu_cmp", "lieu_cattp", "lieu_cmpp", "lieu_camsp", "lieu_csapa", "lieu_caarud"]
@@ -1180,7 +1180,7 @@ LIEUX_ANTENNES_FINESS = ["lieu_cmpp", "lieu_camsp", "lieu_csapa", "lieu_caarud"]
 NOM_ATELIER_THERAPEUTIQUE = r"atelier|ergotherap|art ?therap|groupe animation|theatre"
 NOM_PENITENTIAIRE = (r"usmp|smpr|medico.?psychologique regional|\bucsa\b|carceral|detention|maison (?:centrale|d.?arret)|"
                      r"peniten[ct]")
-# Rôles lus dans le nom pour l'addictologie (décision de Lucas du 16 octobre 2026, note
+# Rôles lus dans le nom pour l'addictologie (décision du 16 octobre 2026, note
 # docs/note_sources_addictologie_2026-10-16.md), dans cet ordre. Un lieu en milieu pénitentiaire et une équipe de
 # liaison (ELSA, sans lieu propre) restent listés et comptés avec leur rôle, mais n'entrent pas dans les distances.
 ROLES_ADDICTOLOGIE = {
@@ -1344,7 +1344,7 @@ DREES_PANORAMA_ES_2025 = ("DREES, Les établissements de santé en 2023, éditio
                           "panoramas-de-la-drees/250522_Panorama_etablissements-de-sante2025")
 GROUPE_LIEUX = "Structures de soins (FINESS et ROR)"
 # Public de chaque type de structure, pour la rapporter aux habitants concernés plutôt qu'à toute la population (accord
-# de Lucas du 15 octobre 2026, même règle que PUBLICS_CIBLES pour les professions). Le recensement publie les moins de
+# du 15 octobre 2026, même règle que PUBLICS_CIBLES pour les professions). Le recensement publie les moins de
 # 15 ans, pas les moins de 18 ans.
 _MOINS_15 = (["part_0_14"], "moins de 15 ans")
 _80_PLUS = (["part_80p"], "80 ans et plus")
@@ -1850,7 +1850,7 @@ CROISEMENTS = [
      "Les habitants des départements modestes sont-ils plus loin des CMP et des CSAPA ?"),
     ("ctx:taux_pauvrete", "dist_lieu_cmp_enfants", "lieux_social", ""),
     ("ctx:taux_pauvrete", "dist_lieu_csapa", "lieux_social", ""),
-    # addictologie (21 octobre 2026, demande de Lucas de tirer des nouvelles structures tout ce qu'elles permettent)
+    # addictologie (21 octobre 2026, demande de tirer des nouvelles structures tout ce qu'elles permettent)
     ("pec_addictions", "lieux_lieu_csapa", "lieux_addicto",
      "Les structures d'addictologie sont-elles plus nombreuses là où plus de personnes sont prises en charge pour une "
      "addiction ?"),
@@ -1868,34 +1868,34 @@ BOOTSTRAP = 500                      # rééchantillonnages pour les intervalles
 GRAINE = 20261003                    # reproductibilité
 
 # ---------------------------------------------------------------- citation et identifiants pérennes
-# Les DOI seront attribués par Zenodo au moment de la publication (chantier 8, accord de Lucas). Tant qu'ils valent
+# Les DOI seront attribués par Zenodo au moment de la publication (chantier 8, accord). Tant qu'ils valent
 # None, les rapports, les PDF et l'atlas affichent la citation sans DOI.
-# nom du site, choisi par Lucas le 9 octobre 2026 (« ubi cura », là où est le soin, en latin), et sous-titre descriptif
+# nom du site, choisi le 9 octobre 2026 (« ubi cura », là où est le soin, en latin), et sous-titre descriptif
 NOM_PROJET = "Ubi Cura"
 SOUS_TITRE = "Offre de soins et santé mentale en France, territoire par territoire"
 AUTEUR = "Lucas Pithon"
-ORCID = "0000-0003-2400-368X"         # identifiant ORCID de Lucas (9 octobre 2026)
+ORCID = "0000-0003-2400-368X"         # identifiant ORCID (9 octobre 2026)
 CONTACT = "contact@ubicura.fr"      # adresse de contact du site, chez OVHcloud (9 octobre 2026)
 CITATION_AUTEUR = "Pithon L."
 # DOI généraux (versions 1 publiées le 9 octobre 2026, rapport santé mentale 10.5281/zenodo.23265074, rapport santé 10.5281/zenodo.23265209). DOI réservés sur Zenodo le 9 octobre 2026 (première version, à publier avant la mise en ligne, tutoriel 05). Après la
 # première publication, les remplacer par les DOI généraux, qui renvoient toujours à la dernière version.
-# Mesure d'audience sans cookie, pour le seul porteur du projet (demande de Lucas du 23 octobre 2026). GoatCounter,
+# Mesure d'audience sans cookie, pour le seul porteur du projet (demande du 23 octobre 2026). GoatCounter,
 # logiciel libre (EUPL 1.2), service hébergé dans l'Union européenne (Hetzner, Finlande et Allemagne), aucun cookie,
 # aucune adresse IP conservée, totaux par page seulement. Pages vérifiées le 23 octobre 2026,
 # https://www.goatcounter.com/help/start, https://www.goatcounter.com/help/privacy, https://www.goatcounter.com/help/countjs-versions
-# (count.v5.js du 9 juin 2025, empreinte ci-dessous, ce fichier versionné ne change jamais). Code du compte créé par Lucas
+# (count.v5.js du 9 juin 2025, empreinte ci-dessous, ce fichier versionné ne change jamais). Code du compte créé
 # (tutoriel 08) ; vide, aucun script n'est ajouté aux pages.
-GOATCOUNTER = "ubicura"   # compte créé par Lucas le 23 octobre 2026, tableau de bord https://ubicura.goatcounter.com
+GOATCOUNTER = "ubicura"   # compte créé le 23 octobre 2026, tableau de bord https://ubicura.goatcounter.com
 GOATCOUNTER_SCRIPT = "https://gc.zgo.at/count.v5.js"
 GOATCOUNTER_INTEGRITE = "sha384-atnOLvQb9t+jTSipvd75X2yginT4PjVbqDdlJAmxMm+wYElFmeR6EmLP5bYeoRVQ"
 
-# Réseaux (feuille de route de la communication, phase 2, décisions de Lucas du 29 octobre 2026), messages relus et
+# Réseaux (feuille de route de la communication, phase 2, décisions du 29 octobre 2026), messages relus et
 # publiés d'un clic depuis l'onglet « Réseaux » de la fenêtre du courrier (outils/reseaux.py, tutoriels 10 et 11).
 # Bluesky, compte du projet, identifiant @ubicura.fr prouvé par le fichier https://ubicura.fr/.well-known/atproto-did
 # qui contient le DID du compte seul (option « No DNS Panel » de l'application, src/screens/Settings/components/
 # ChangeHandleDialog.tsx du dépôt bluesky-social/social-app, et https://atproto.com/specs/handle, lus le 29 octobre 2026),
-# sans toucher aux enregistrements du domaine. DID donné par Lucas (tutoriel 11, partie B) ; vide, aucun fichier.
-BLUESKY_DID = "did:plc:afctyaab6pcdw2j7iz2wcg7f"   # compte @ubicura.bsky.social créé par Lucas le 29 octobre 2026, DID lu sur l'API publique de Bluesky (resolveHandle)
+# sans toucher aux enregistrements du domaine. DID donné (tutoriel 11, partie B) ; vide, aucun fichier.
+BLUESKY_DID = "did:plc:afctyaab6pcdw2j7iz2wcg7f"   # compte @ubicura.bsky.social créé le 29 octobre 2026, DID lu sur l'API publique de Bluesky (resolveHandle)
 # LinkedIn, version de l'interface (en-tête Linkedin-Version, AAAAMM). Chaque version vit au moins un an, 202610 est la
 # plus récente d'après https://learn.microsoft.com/en-us/linkedin/marketing/versioning (lue le 29 octobre 2026, fin de
 # vie le 15 octobre 2027). À avancer avant cette date.
@@ -1908,7 +1908,7 @@ DOI_RAPPORTS = {"sante-mentale": "10.5281/zenodo.23265073", "sante": "10.5281/ze
 VERSION_ZENODO = "2026-10-09"
 # les versions suivantes sont constatées sur Zenodo par outils/zenodo.py (tutoriel 07), qui l'écrit dans donnees/zenodo.json
 # Une version dont les brouillons sont prêts, avec leurs DOI réservés pour les trois dépôts, est citée par ces DOI : le
-# site se construit une seule fois avant la publication de Zenodo (ordre de publication demandé par Lucas le 6 novembre
+# site se construit une seule fois avant la publication de Zenodo (ordre de publication demandé le 6 novembre
 # 2026). publier.ps1 refuse d'envoyer ce site tant que Zenodo n'a pas publié la version (zenodo.py pret-site).
 VERSION_RESERVEE = None
 if (DONNEES / "zenodo.json").exists():
@@ -1919,7 +1919,7 @@ if (DONNEES / "zenodo.json").exists():
     if (_etat_zenodo.get("en_preparation") and _etat_zenodo["en_preparation"] >= VERSION_ZENODO
             and all((_br.get(c) or {}).get("doi") for c in ("donnees", "sante-mentale", "sante"))):
         VERSION_RESERVEE = VERSION_ZENODO = _etat_zenodo["en_preparation"]
-# titres des dépôts Zenodo, descriptifs et sans le nom du site (décision de Lucas du 9 octobre 2026), repris par les
+# titres des dépôts Zenodo, descriptifs et sans le nom du site (décision du 9 octobre 2026), repris par les
 # citations
 TITRES_DEPOTS = {"donnees": "Offre de soins et santé mentale en France par territoire, données agrégées",
                  "sante-mentale": "L'offre de soins en santé mentale en France, rapport national",

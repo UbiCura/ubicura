@@ -255,7 +255,7 @@ def effet_ville(R, lab, ctxlab, cle, p=None):
                                           (r["rho_partiel_densite"], VIOLET[2], "à densité de population égale")]):
             if pd.notna(v):
                 x0, x1 = sorted([f.X(0), f.X(max(min(v, .8), -.8))])
-                # la valeur au survol de chaque barre (remarque de Lucas du 6 novembre 2026, aucun chiffre ne
+                # la valeur au survol de chaque barre (remarque du 6 novembre 2026, aucun chiffre ne
                 # s'affichait), corrélation de rang à deux décimales comme dans le tableau
                 f.ajout(f'<rect x="{x0:.1f}" y="{y0 + j * bh:.1f}" width="{x1 - x0:.1f}" height="{bh - 2}" fill="{c}">'
                         f'<title>{escape(ctxlab[r["variable"]])}, {quoi}, corrélation de rang '
@@ -656,7 +656,7 @@ def cartes_nationales(agg, ref, lab, R):
                 continue
             fr = n[p].sum() / pop.sum() * 1e4
             rap = (d[p] / fr).to_dict()
-            # la couleur ne marque un écart qu'au-delà du hasard, la règle des fiches (décision de Lucas du 30 octobre)
+            # la couleur ne marque un écart qu'au-delà du hasard, la règle des fiches (décision du 30 octobre)
             gris = cartes.au_hasard(rap, n[p].to_dict(), pop.to_dict(), fr)
             nom = pluriel_simple(lab.get(p, p))
             out[f"carte_dep_{cle}"] = cartes.carte_france(f["atlas_dep"], rap, f"{nom} {unite(p)}, par département, "
@@ -850,7 +850,7 @@ COMBINAISON_COULEURS = {"trois": "var(--d3, #ABAEB4)", "sans_psychiatre": "var(-
 
 def combinaisons_carte(agg, ref):
     """Carte des intercommunalités selon la présence d'un généraliste, d'un psychologue et d'un psychiatre (demande de
-    Lucas du 23 octobre 2026), un aplat par intercommunalité, légende limitée aux combinaisons présentes."""
+    l'auteur du 23 octobre 2026), un aplat par intercommunalité, légende limitée aux combinaisons présentes."""
     from . import cartes
     from .analyses import COMBINAISON_CLASSES, combinaison_par_territoire
     f = cartes.fonds(ref)

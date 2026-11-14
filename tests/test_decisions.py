@@ -1,5 +1,5 @@
-"""Une décision de Lucas ou un défaut relevé par un audit, un test : ce qui a été tranché ne se perd plus sans qu'un test
-échoue (remarque de Lucas du 6 novembre 2026, la carte de l'accueil décidée le 2 novembre avait été oubliée). Tests sur
+"""Une décision ou un défaut relevé par un audit, un test : ce qui a été tranché ne se perd plus sans qu'un test
+échoue (remarque du 6 novembre 2026, la carte de l'accueil décidée le 2 novembre avait été oubliée). Tests sur
 les gabarits et, quand il existe, sur le site construit (site/), jamais sur des données factices. Repris par
 tests/test_unitaires.py."""
 from __future__ import annotations
@@ -21,7 +21,7 @@ def _texte(chemin) -> str:
 
 
 def test_accueil_montre_la_carte_cliquable_de_l_atlas():
-    """Lucas, 2 novembre 2026 : l'accueil garde la carte cliquable de l'atlas, avec l'encadré du territoire et celui des
+    """Décision du 2 novembre 2026 : l'accueil garde la carte cliquable de l'atlas, avec l'encadré du territoire et celui des
     structures de soins. L'atlas a une vue « accueil » sans en-tête ni onglets, et la page d'accueil l'affiche."""
     p = (GAB / "portail.html").read_text(encoding="utf-8")
     assert 'id="cadre-atlas"' in p and "?vue=accueil" in p and 'loading="lazy"' in p
@@ -35,7 +35,7 @@ def test_accueil_montre_la_carte_cliquable_de_l_atlas():
 
 
 def test_offre_de_soins_mene_a_l_atlas():
-    """Remarque de Lucas du 6 novembre 2026 : depuis le menu à six entrées, l'atlas n'était plus atteint que par le pied de
+    """Remarque du 6 novembre 2026 : depuis le menu à six entrées, l'atlas n'était plus atteint que par le pied de
     page. La page « Offre de soins » le propose à côté des deux familles, et ses pages allument l'entrée « Offre de soins »."""
     p = (GAB / "page_domaine.html").read_text(encoding="utf-8")
     assert '<a href="../{{ page_atlas }}"><strong>L’atlas</strong>' in p
@@ -47,7 +47,7 @@ def test_offre_de_soins_mene_a_l_atlas():
 
 
 def test_comment_lire_jamais_replie_derriere_un_bouton():
-    """Décision de Lucas du 5 novembre 2026, « Comment lire » toujours visible : l'audit du 6 novembre en trouvait encore
+    """Décision du 5 novembre 2026, « Comment lire » toujours visible : l'audit du 6 novembre en trouvait encore
     replié dans les rapports (figures.js), Croiser, la matrice des liens et la zone. Aucun gabarit ne garde de bouton
     « Comment lire » ; l'atlas déplie les siens à l'ouverture (noyau.js, deplierCommentLire)."""
     for nom in ("croiser.html", "liens.html", "zone.html", "comparer.html", "page_domaine.html", "portail.html"):
@@ -191,7 +191,7 @@ def test_evolutions_et_doi_des_fiches():
 
 
 def test_methode_dit_pourquoi_les_moyens_ne_sont_pas_montres():
-    """Règles du projet, partie 3 (Lucas, 30 octobre 2026) : la page méthode dit pourquoi les moyens des suicides ne sont jamais
+    """Règles du projet, partie 3 (30 octobre 2026) : la page méthode dit pourquoi les moyens des suicides ne sont jamais
     montrés par territoire, avec ses sources, et sans allusion à une offre payante."""
     m = (GAB / "methode.html").read_text(encoding="utf-8")
     i = m.index('id="moyens-suicide"')
@@ -201,7 +201,7 @@ def test_methode_dit_pourquoi_les_moyens_ne_sont_pas_montres():
 
 
 def test_raisons_sociales_gardees_telles_quelles():
-    """Lucas, 6 novembre 2026 : « Centre rééducation déficients visuels » (Clermont-Ferrand) garde son nom, comme la MDPH
+    """Décision du 6 novembre 2026 : « Centre rééducation déficients visuels » (Clermont-Ferrand) garde son nom, comme la MDPH
     dans sa forme abrégée du RPPS ; le contrôle du langage relève toujours le mot ailleurs."""
     from pipeline import libelles as L
     assert not L.termes_proscrits("centre reeducation deficients visuels clermont ferrand")
@@ -393,7 +393,7 @@ def test_rapports_par_territoire_mediane_avec_article_et_unite_insecable():
 
 def test_etiquettes_de_theme_completes():
     """Chaque indicateur du catalogue unique a sa ligne dans pipeline/themes_indicateurs.csv (thèmes et marque sensible),
-    aucun thème inconnu, aucun indicateur sensible proposé d'office avec la santé mentale (décision de Lucas du
+    aucun thème inconnu, aucun indicateur sensible proposé d'office avec la santé mentale (décision du
     8 novembre 2026, navigation, étape 2 ; liste à cocher d'une nouvelle base, étape 9 quater)."""
     import json
     from pipeline import affichage as AF, config, themes as TH
@@ -527,7 +527,7 @@ def test_arrondissements_dans_la_recherche():
 
 
 def test_recherche_suit_le_catalogue():
-    """Lucas, 9 novembre 2026 : la recherche de l'en-tête s'adapte aux bases et variables ajoutées. L'index est fabriqué
+    """Décision du 9 novembre 2026 : la recherche de l'en-tête s'adapte aux bases et variables ajoutées. L'index est fabriqué
     depuis le catalogue unique (portail.catalogue) ; sur le site construit, ses indicateurs sont exactement ceux de
     presentation/catalogue.json, chacun a sa réponse directe, et chaque thème et question d'Explorer y est
     (outils/controle_recherche.catalogue_recherche)."""

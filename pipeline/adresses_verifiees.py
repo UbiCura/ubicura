@@ -16,7 +16,7 @@ Règles.
   elle remplace l'emplacement de la structure, avec une précision qui dit qu'elle a été vérifiée. Introuvable, la
   structure garde son emplacement.
 - Une adresse dans une autre commune (« rue, code postal commune ») fait compter la structure dans cette commune, celle
-  où elle reçoit, comme pour les adresses trouvées dans une commune voisine (décision de Lucas du 29 octobre 2026), sa
+  où elle reçoit, comme pour les adresses trouvées dans une commune voisine (décision du 29 octobre 2026), sa
   commune d'inscription reste dans commune_inscription.
 - Une ligne sans source ou sans date n'est pas appliquée (une réponse sans source vérifiable ne change pas le statut
   d'une donnée).

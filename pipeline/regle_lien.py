@@ -1,5 +1,5 @@
 """Règle unique pour dire « lien » ou « pas de lien » entre deux indicateurs, sur tout le site (avis de l'auditeur
-externe du 30 octobre 2026, docs/avis_carte_des_liens_2026-10-30.md, suivi par Lucas).
+externe du 30 octobre 2026, docs/avis_carte_des_liens_2026-10-30.md, suivi).
 
 Même mesure partout, la corrélation de rang de Spearman entre territoires d'un même niveau. Même correction des tests
 multiples, Benjamini-Hochberg (q-valeur sous ALPHA). Même seuil d'intensité, une valeur absolue d'au moins SEUIL_RHO.

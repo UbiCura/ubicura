@@ -1,6 +1,6 @@
 # À propos
 
-<!-- Texte de la page « À propos » du site, validé avec Lucas le 9 octobre 2026.
+<!-- Texte de la page « À propos » du site, validé avec l'auteur le 9 octobre 2026.
 Les marques entre accolades sont remplacées à la construction du site (pipeline/site.py, fonction a_propos_variables). -->
 
 ## Ce que montre ce site
@@ -13,7 +13,7 @@ Il s'adresse aux habitants et aux élus comme aux professionnels, aux chercheurs
 
 ## Qui le réalise
 
-Ce site est réalisé par Lucas Pithon, psychologue clinicien et enseignant-chercheur, à titre personnel ([ORCID {orcid}](https://orcid.org/{orcid})).
+Ce site est réalisé Pithon, psychologue clinicien et enseignant-chercheur, à titre personnel ([ORCID {orcid}](https://orcid.org/{orcid})).
 
 ## Indépendance
 

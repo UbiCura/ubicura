@@ -1,4 +1,4 @@
-"""Contrôle que les chiffres écrits dans les rapports sont ceux des tableaux publiés (demande de Lucas du 13 octobre
+"""Contrôle que les chiffres écrits dans les rapports sont ceux des tableaux publiés (demande du 13 octobre
 2026, « aucune incohérence de chiffre entre rapport et tableau »).
 
 Pour chaque rapport territorial (départements et régions) et pour le rapport national de santé mentale, les nombres

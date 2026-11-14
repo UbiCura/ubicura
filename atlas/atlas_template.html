@@ -18,7 +18,7 @@
    2026) : l'atlas avait gardé sa palette bleue et le fond sombre par défaut */
 /*JETONS*/
 :root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
-:root{--mesure:none}  /* les textes d'un encadré prennent tous sa largeur (demande de Lucas du 22 octobre 2026) */
+:root{--mesure:none}  /* les textes d'un encadré prennent tous sa largeur (demande du 22 octobre 2026) */
 .panel p:not(.indice-defil){max-width:var(--mesure)}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *,*::before,*::after{box-sizing:inherit}
@@ -26,7 +26,7 @@ body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font
 button,select,input{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--focus);outline-offset:2px}
 /* même largeur que les autres pages du site (1 264 pixels, contenu de 1 200, direction visuelle du 30 octobre 2026), décision du 22 octobre 2026 rappelée par
-   Lucas le 28 octobre (l'atlas et Explorer n'avaient pas la même largeur) */
+   l'auteur le 28 octobre (l'atlas et Explorer n'avaient pas la même largeur) */
 .wrap{max-width:var(--largeur-contenu,1264px);margin:0 auto;padding:24px var(--marge,32px) 64px}
 /* marges du site : 16 px au téléphone, comme style.css partie 10 (relecture du 5 novembre, l'atlas gardait 32 px) */
 @media (max-width:760px){:root{--marge:16px}}
@@ -45,7 +45,7 @@ header.top{display:flex;justify-content:space-between;align-items:flex-end;gap:2
 @media (max-width:600px){.bandeau-accueil .portes .version{margin-left:0}}
 h1{font-family:var(--serif);font-weight:500;font-size:clamp(1.625rem,2.4vw,2rem);line-height:1.1;margin:0;letter-spacing:-.01em}
 .lede{color:var(--ink);max-width:none;margin:6px 0 0;font-size:var(--t-note)}
-/* sous-titre de la page, comme sur tout le site (Lucas, 7 novembre 2026, proposition 1) : Newsreader à la taille des
+/* sous-titre de la page, comme sur tout le site (7 novembre 2026, proposition 1) : Newsreader à la taille des
    titres d'encadré, sur sept colonnes, en lignes équilibrées, sans mot coupé */
 @media screen{header > div > .lede{font-family:var(--serif);font-size:var(--t-encadre);line-height:1.4;max-width:690px;text-wrap:balance;hyphens:none;text-align:left!important;margin:var(--e-2,8px) 0 0}}
 header.top>div{flex:1 1 100%}
@@ -130,7 +130,7 @@ svg.map rect.t.sel{stroke:var(--choisi);stroke-width:3}
 svg.map text.tc{font-size:18px;font-weight:500;pointer-events:none;font-variant-numeric:tabular-nums}
 svg.map text.om{font-size:16px}
 .vuebar{position:absolute;top:10px;right:10px;z-index:2}
-/* zoom sans boîte, en signes soulignés d'un filet, comme les figures (Lucas, 12 novembre 2026, « B, en signes ») */
+/* zoom sans boîte, en signes soulignés d'un filet, comme les figures (12 novembre 2026, « B, en signes ») */
 .zoombar{position:absolute;top:48px;right:10px;z-index:2;display:flex;gap:14px;padding:2px 6px;background:color-mix(in srgb,var(--bg) 85%,transparent)}
 .zoombar button{background:none;border:0;border-bottom:1px solid var(--line-fort);border-radius:0;padding:0 2px 2px;cursor:pointer;color:var(--ink);font-size:1.0625rem;min-width:22px;min-height:28px}
 .zoombar button+button{border-left:0}
@@ -152,21 +152,21 @@ svg text{fill:var(--muted);font-family:var(--sans);font-size:11px}
 .legende-ev span{display:inline-flex;align-items:center;gap:6px}
 .legende-ev i{display:inline-block;width:22px;height:10px;border-radius:2px}
 .vers-explorer{font-size:var(--t-note);color:var(--muted);margin:0 0 14px}
-/* rangées de réglages d'une marge à l'autre (remarque de Lucas du 23 octobre 2026, « que ça termine bien à la marge
+/* rangées de réglages d'une marge à l'autre (remarque du 23 octobre 2026, « que ça termine bien à la marge
    droite ») : la première rangée répartie entre la profession à gauche et le mode d'exercice à droite, la rangée des
    mesures étirée sur toute la largeur, ses choix également espacés */
 body .collant .bar.plein{justify-content:space-between;column-gap:40px}
 body .collant .bar>.groupe-reg.plein{flex:1 1 100%}
 body .collant .bar>.groupe-reg.plein>.seg{display:flex;flex:1 1 auto;justify-content:space-between;column-gap:20px}
 /* « À savoir » justifié, « Lire la suite » à la fin de la phrase au lieu d'une colonne qui rétrécissait le texte
-   (remarque de Lucas du 23 octobre 2026, « j'aime bien les choses justifiées et cohérentes ») */
+   (remarque du 23 octobre 2026, « j'aime bien les choses justifiées et cohérentes ») */
 body .asavoir,body details.asavoir>summary{text-align:justify;hyphens:auto;-webkit-hyphens:auto}
 body details.asavoir>summary{padding-right:0}
 /* sur téléphone, un « À savoir » justifié laissait de grands blancs (la césure manque souvent), aligné à gauche comme
    les encadrés des rapports (relecture du 30 octobre 2026, règle 19) */
 @media (max-width:640px){body .asavoir,body details.asavoir>summary{text-align:left}}
 body details.asavoir>summary::after{position:static;display:inline;margin-left:.6em;white-space:nowrap}
-/* tableaux des corrélations à leur hauteur naturelle, sans défilement interne (remarque de Lucas du 23 octobre 2026),
+/* tableaux des corrélations à leur hauteur naturelle, sans défilement interne (remarque du 23 octobre 2026),
    la ligne des professions collée sous la barre de rappel pendant la lecture ; défilement horizontal seulement si
    le tableau est plus large que la fenêtre */
 #hmCadres .hmbox{max-height:none;overflow:visible}
@@ -177,12 +177,12 @@ body details.asavoir>summary::after{position:static;display:inline;margin-left:.
 .seg[hidden]{display:none}
 #cbPlot,#indPlot,#regPlot{display:block}
 table td,table th{hyphens:manual;-webkit-hyphens:manual;overflow-wrap:normal;word-break:normal}
-/* texte courant justifié (consigne de Lucas du 9 octobre 2026), avec césures, jamais dans les tableaux ni les infobulles */
+/* texte courant justifié (consigne du 9 octobre 2026), avec césures, jamais dans les tableaux ni les infobulles */
 p,li,dd{text-align:justify;hyphens:auto;-webkit-hyphens:auto;hyphenate-limit-chars:7 3 3}
 td p,th p,td li,.tip p,.tip li,.legend p,nav li{text-align:left;hyphens:manual}
 /* justifié seulement sur une ligne assez longue. Le navigateur ne coupe pas toujours les mots français (césure absente
    de certains navigateurs sous Windows), et une colonne étroite justifiée laisse alors de grands blancs entre les mots.
-   Un encadré de moins de 520 pixels passe en fer à gauche (remarque de Lucas du 22 octobre 2026) */
+   Un encadré de moins de 520 pixels passe en fer à gauche (remarque du 22 octobre 2026) */
 [data-etroit] p,[data-etroit] li,[data-etroit] dd,p[data-etroit],li[data-etroit],dd[data-etroit]{text-align:left;text-wrap:pretty}
 .legende-signaux{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:var(--t-note);color:var(--muted);margin:6px 0}
 .bulle-fig{position:fixed;pointer-events:none;white-space:pre-line;background:var(--ink);color:var(--bg);font-size:var(--t-note);padding:6px 9px;border-radius:4px;max-width:min(420px,calc(100vw - 16px));opacity:0;z-index:50;transition:opacity .1s}
@@ -278,7 +278,7 @@ dl.f dt{color:var(--muted)}dl.f dd{margin:0;text-align:right;font-variant-numeri
 .grid.carte>#selCard.repliee{padding-bottom:0}.grid.carte>#selCard.repliee>.selhead{margin-bottom:0;border-bottom:0;border-radius:8px/14px}
 .selzone>.phrase{max-width:var(--mesure)}
 /* fiche d'un territoire, les groupes coulent en colonnes de même hauteur sous chaque titre (offre de santé mentale,
-   de santé, profil de la population), plus de colonne courte à côté d'une colonne longue (remarque de Lucas du
+   de santé, profil de la population), plus de colonne courte à côté d'une colonne longue (remarque du
    28 octobre 2026) */
 .fiche-colonnes{columns:3 280px;column-gap:44px;margin-top:2px}
 .fiche-colonnes>.fiche-bt{column-span:all;font-family:var(--serif);font-weight:600;font-size:var(--t-texte);color:var(--ink);margin:22px 0 0;padding-top:12px;border-top:1px solid var(--line)}
@@ -357,7 +357,7 @@ svg.map circle.lieu.creux{filter:drop-shadow(0 0 .35px var(--panel)) drop-shadow
 .lieuxzone h2:focus{outline:none}
 .lieuxzone .phrase{max-width:var(--mesure)}
 /* plan au-dessus du tableau, tous deux sur toute la largeur de la fenêtre : le tableau n'est plus coupé par le plan,
-   le plan IGN gagne en taille (remarques de Lucas du 28 octobre 2026) */
+   le plan IGN gagne en taille (remarques du 28 octobre 2026) */
 .lx-corps{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;align-items:start}
 .lx-droite{display:flex;flex-direction:column;gap:8px}
 .lx-plan-tete{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 14px}
@@ -469,7 +469,7 @@ button.repli:focus-visible{outline:2px solid var(--focus);outline-offset:3px;bor
 @media (prefers-reduced-motion:reduce){button.repli .chevron{transition:none}}
 button.how{background:none;border:0;padding:2px 0;font-family:var(--sans);font-size:var(--t-note);font-weight:500;color:var(--muted);cursor:pointer;white-space:nowrap;text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--muted) 45%,transparent);text-underline-offset:3px}
 button.how[aria-expanded="true"],button.how:hover{color:var(--ink);text-decoration-color:currentColor}
-/* « Comment lire » toujours visible, en texte sous le titre, sans boîte (décision de Lucas du 5 novembre 2026) */
+/* « Comment lire » toujours visible, en texte sous le titre, sans boîte (décision du 5 novembre 2026) */
 .howtxt{max-width:var(--mesure);box-sizing:border-box;font-size:var(--t-note);color:var(--ink);background:none;border-radius:0;padding:0;margin:4px 0 12px}
 .howtxt .cl-tete{margin:0 0 2px}
 .howtxt p{margin:0 0 6px}.howtxt p:last-child{margin:0}
@@ -482,7 +482,7 @@ dl.gl dt{font-weight:600;margin-top:12px}dl.gl dd{margin:2px 0 0;max-width:var(-
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 
 /* =====================================================================================================================
-   Direction « l'atlas de nuit » (refonte du 23 octobre 2026, audit avec Impeccable et Taste Skill, validée par Lucas sur
+   Direction « l'atlas de nuit » (refonte du 23 octobre 2026, audit avec Impeccable et Taste Skill, validée sur
    prototype). Même couche que le site : un fond, la « table » sous les figures seulement, aucune boîte autour du texte
    ni des réglages, Newsreader pour les titres, Work Sans pour le reste, chiffres à chasse fixe, couleur sur les données,
    les chiffres significatifs et le signal « ! » ; palette d'écart à la moyenne revue et validée. Écran seulement.
@@ -509,7 +509,7 @@ h1{font-weight:400}
 .collant.flotte{position:fixed;z-index:10;top:calc(var(--haut-nav,64px) + 58px);left:50%;transform:translateX(-50%);width:min(var(--largeur-contenu,1264px) - 40px,calc(100vw - 32px));
   max-height:calc(100vh - var(--haut-nav,64px) - 72px);overflow:auto;padding:0 20px 4px;background:var(--fen-corps);border:6px solid var(--fen);border-radius:14px;box-shadow:0 0 0 1px var(--fen-bord),0 24px 60px -20px var(--ombre-nav,rgb(0 0 0 / .5))}
 @media (prefers-reduced-motion:no-preference){.collant.flotte{animation:onglet-fondu .18s ease-out}}
-/* encadrés en fenêtres (demande de Lucas du 23 octobre 2026) : cadre, barre de titre (titre, « Comment lire », « Citer
+/* encadrés en fenêtres (demande du 23 octobre 2026) : cadre, barre de titre (titre, « Comment lire », « Citer
    et exporter »), intérieur calme ; seulement les encadrés de premier niveau, jamais un encadré dans un encadré */
 :is(section[data-p]>.panel,section[data-p]>.two>.panel,section[data-p]>#hmCadres>.panel){--fond-cellule:var(--fen-corps);background:var(--fen-corps);border:6px solid var(--fen);border-top:0;border-radius:14px;padding:0 20px 18px;box-shadow:0 0 0 1px var(--fen-bord),0 22px 46px -30px var(--ombre-fig)}
 :is(section[data-p]>.panel,section[data-p]>.two>.panel,section[data-p]>#hmCadres>.panel)>h2:first-child{margin:0 -20px;padding:12px 20px 2px;background:var(--fen);border-radius:8px 8px 0 0/14px 14px 0 0;font-size:var(--t-encadre)}
@@ -519,12 +519,12 @@ section[data-p]>.panel,section[data-p]>.two,section[data-p]>#hmCadres>.panel{mar
 /* fenêtre sans titre en tête : marge haute ordinaire, le cadre fait le tour */
 :is(section[data-p]>.panel,section[data-p]>.two>.panel,section[data-p]>#hmCadres>.panel):not(:has(>h2:first-child)){border-top-width:6px;padding-top:16px}
 /* la carte principale en fenêtre : son titre, « Comment lire » et « Citer et exporter » dans la barre du haut
-   (remarque de Lucas du 23 octobre 2026, l'export de la carte, placé tout en bas, restait introuvable) */
+   (remarque du 23 octobre 2026, l'export de la carte, placé tout en bas, restait introuvable) */
 .grid.carte>.mapbox{display:flex;flex-direction:column;background:var(--fen-corps);border:6px solid var(--fen);border-top:0;border-radius:14px;box-shadow:0 0 0 1px var(--fen-bord),0 22px 46px -30px var(--ombre-fig)}
 .grid.carte>.mapbox>#mapOutils{order:-1;display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 18px;margin:-12px -12px 12px;padding:11px 16px 10px!important;background:var(--fen);border-bottom:1px solid var(--fen-bord);border-radius:8px 8px 0 0/14px 14px 0 0}
 #mapOutils .map-titre{flex:1 1 20rem;font-family:var(--serif);font-size:var(--t-texte);line-height:1.3;color:var(--ink)}
 #mapOutils>.howtxt,#mapOutils>.citation{flex:1 1 100%}
-/* commandes de la carte dans sa barre de titre (remarques de Lucas du 28 octobre 2026, boutons encadrés posés sur la
+/* commandes de la carte dans sa barre de titre (remarques du 28 octobre 2026, boutons encadrés posés sur la
    carte) : présentation en mots, zoom en symboles au trait comme les boutons des fenêtres, titre et commandes sur une
    ligne, « Comment lire » et « Citer et exporter » sur la suivante, comme dans toutes les fenêtres */
 #mapOutils .map-commandes{display:flex;flex-wrap:wrap;align-items:center;gap:4px 16px;margin-left:auto}
@@ -539,14 +539,14 @@ section[data-p]>.panel,section[data-p]>.two,section[data-p]>#hmCadres>.panel{mar
 #mapOutils .zoombar button:focus-visible{outline:2px solid var(--focus,var(--ink));outline-offset:1px;color:var(--ink)}
 #mapOutils>.outils-encadre{flex:1 1 100%;order:3}
 #mapOutils>.howtxt,#mapOutils>.citation{order:4}
-/* la colonne du profil défile sans retenir la molette : arrivée en bas, la page reprend (remarque de Lucas, défilement bloqué) */
+/* la colonne du profil défile sans retenir la molette : arrivée en bas, la page reprend (remarque, défilement bloqué) */
 .grid.carte .defile{overscroll-behavior:auto}
 /* figures larges, aux libellés longs (effet ville, corrélations) : toute la largeur de la fenêtre, la lecture dessous
-   (remarque de Lucas du 23 octobre 2026, la figure devenait trop petite) */
+   (remarque du 23 octobre 2026, la figure devenait trop petite) */
 section[data-p] .panel:has(> :is(#effetVille,#hmPlot)){display:block}
 /* encadrés repliables (Addictologie, et sur la page Carte « Où ils exercent », « Dans quels établissements », « Du
    répertoire aux densités ») : la ligne « Comment lire, Citer et exporter » est dans le bloc replié ; elle rejoint la
-   barre de titre comme ailleurs, et le chevron passe après le titre (remarque de Lucas du 23 octobre 2026) */
+   barre de titre comme ailleurs, et le chevron passe après le titre (remarque du 23 octobre 2026) */
 :is(section[data-p]>.panel,section[data-p]>.two>.panel)>h2:first-child~div:not([class])>.outils-encadre:first-child{margin:0 -20px 16px;padding:4px 20px 10px;background:var(--fen);border-bottom:1px solid var(--fen-bord)}
 .panel>h2>button.repli{display:inline-flex;flex-direction:row-reverse;align-items:baseline;gap:10px;font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer;text-align:left}
 .panel>h2>button.repli .chevron{font-size:.75em;color:var(--muted)}
@@ -556,7 +556,7 @@ nav.tabs button{padding:12px 0;margin-right:24px}
 /* choix, des mots ; le choisi à l'encre et souligné, sans boîte */
 /* choix « un seul parmi plusieurs » marqués comme des boutons radio, la convention que tout lecteur connaît : un petit
    cercle devant chaque option, plein pour l'option choisie, qui passe aussi à l'encre et en légère graisse ; ni boîte ni
-   rail (remarques de Lucas du 23 octobre 2026, pastilles refusées ; avis d'Impeccable, un signe de forme et non une
+   rail (remarques du 23 octobre 2026, pastilles refusées ; avis d'Impeccable, un signe de forme et non une
    nuance, et de Taste Skill, le choix marqué par la luminosité sur fond sombre) */
 .seg{display:inline-flex;flex-wrap:wrap;gap:4px 18px;background:none;border:0;border-radius:0;padding:0;overflow:visible;max-width:100%}
 .seg button,.collant .bar .seg button,.seg.fam button{flex:none;display:inline-flex;align-items:center;gap:7px;background:none;border:0;border-radius:0;padding:5px 0;color:var(--muted);font-size:var(--t-note);box-shadow:none}
@@ -611,7 +611,7 @@ nav.tabs button{padding:12px 0;margin-right:24px}
 .prof-liste.deux .theme .nb{font-size:var(--t-note);color:var(--faint);font-variant-numeric:tabular-nums}
 .prof-liste.deux .theme[aria-pressed="true"]{color:var(--ink);background:color-mix(in srgb,var(--ink) 8%,transparent)}
 /* liste de choix (professions, indicateurs) en composant B+ commun à l'atlas et à Explorer (H7 de l'étape 4,
-   5 novembre 2026 : fond blanc et encadré gris à l'intérieur, remarque de Lucas du 31 octobre) : le fond de la page,
+   5 novembre 2026 : fond blanc et encadré gris à l'intérieur, remarque du 31 octobre) : le fond de la page,
    un filet appuyé au-dessus et un filet autour, une ombre légère seulement parce que la liste passe sur la page,
    aucun fond gris dedans, le choix marqué par un trait d'encre à gauche */
 .prof-liste{background:var(--bg);border:1px solid var(--line);border-top:2px solid var(--ink);border-radius:0;box-shadow:none}  /* calée sur la grille, sans ombre (relecture du 5 novembre) */
@@ -626,7 +626,7 @@ nav.tabs button{padding:12px 0;margin-right:24px}
 @media (max-width:640px){.prof-liste.deux{grid-template-columns:minmax(0,1fr);grid-template-rows:auto auto minmax(0,1fr)}.prof-liste.deux .volet-themes{max-height:30vh;border-right:0;border-bottom:1px solid var(--line)}}
 #lieuxBar{display:none!important}
 /* fiche d'un territoire et structures de ce territoire en fenêtres, barre de titre et intérieur calme, comme les
-   encadrés des onglets et d'Explorer (demande de Lucas du 28 octobre 2026, harmoniser avec le reste) */
+   encadrés des onglets et d'Explorer (demande du 28 octobre 2026, harmoniser avec le reste) */
 .grid.carte>.selzone{--fond-cellule:var(--fen-corps);background:var(--fen-corps);border:6px solid var(--fen);border-top:0;border-radius:14px;padding:0 20px 18px;box-shadow:0 0 0 1px var(--fen-bord),0 22px 46px -30px var(--ombre-fig)}
 .grid.carte>#selCard>.selhead{margin:0 -20px 4px;padding:14px 20px 10px;background:var(--fen);border-bottom:1px solid var(--fen-bord);border-radius:8px 8px 0 0/14px 14px 0 0}
 .grid.carte>#selCard>.selhead h2{font-weight:400;font-size:var(--t-encadre);margin:0}
@@ -644,7 +644,7 @@ nav.tabs button{padding:12px 0;margin-right:24px}
 .panel{background:none;border:0;border-radius:0;box-shadow:none}
 .panel.pad,.pad{padding:0 0 8px}
 .two{gap:48px 56px}
-/* fenêtres empilées, même écart qu'entre les autres fenêtres de la page (24 px, remarque de Lucas du 29 octobre 2026) */
+/* fenêtres empilées, même écart qu'entre les autres fenêtres de la page (24 px, remarque du 29 octobre 2026) */
 .two.empile{row-gap:24px}
 section[data-p]>.panel,section[data-p]>.two,section[data-p]>#hmCadres>.panel{margin-top:64px}
 .panel h2{font-weight:400;font-size:var(--t-encadre)}
@@ -659,7 +659,7 @@ section[data-p]>.panel,section[data-p]>.two,section[data-p]>#hmCadres>.panel{mar
   mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath fill-rule='evenodd' d='M7 0a7 7 0 1 1 0 14A7 7 0 0 1 7 0zm-.8 3v5.2h1.6V3zm.8 6.5a1 1 0 1 0 0 2 1 1 0 0 0 0-2z'/%3E%3C/svg%3E") center/contain no-repeat}
 .asavoir strong:first-child{font-weight:600}
 /* sommaire des onglets, des tableaux sans bandes, des listes déroulantes discrètes */
-/* marge de lecture (choix de Lucas du 23 octobre 2026, Impeccable « où suis-je, où aller ensuite », Taste « la liste des
+/* marge de lecture (choix du 23 octobre 2026, Impeccable « où suis-je, où aller ensuite », Taste « la liste des
    sections est l'index ») : questions en gris, analyses en titres seuls, l'analyse en cours en encre avec un trait à
    gauche ; sur un écran large la marge reste à gauche pendant la lecture, sur un écran plus étroit elle se pose en tête */
 .sommaire-onglet{margin:0 0 28px;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(220px,100%),1fr));gap:4px 36px}
@@ -679,10 +679,10 @@ select{background-color:transparent;border:0;border-bottom:1px solid color-mix(i
 input[type=search]{background:transparent;border:0;border-bottom:1px solid color-mix(in srgb,var(--ink) 35%,transparent);border-radius:0;padding:8px 0}
 input[type=search]:focus{outline:none;border-bottom-color:var(--ink)}
 .hmliens button{color:var(--ink)}
-/* figure en haut, lecture dessous, sur la même largeur (remarque de Lucas du 23 octobre 2026 : le texte posé à droite
+/* figure en haut, lecture dessous, sur la même largeur (remarque du 23 octobre 2026 : le texte posé à droite
    prenait plus de place que la figure et faisait un encadré bizarre) ; les fenêtres seules gardent une largeur de
    lecture, la figure prend toute la largeur de la fenêtre, une carte reste à une hauteur raisonnable */
-/* la page Carte garde la largeur de sa carte pour les encadrés du dessous, sans décalage (remarque de Lucas du 23 octobre 2026) */
+/* la page Carte garde la largeur de sa carte pour les encadrés du dessous, sans décalage (remarque du 23 octobre 2026) */
 section[data-p]:not([data-p="carte"])>.panel:not(.scroll),section[data-p]>#hmCadres>.panel,section[data-p]:not([data-p="carte"])>.two.empile>.panel{max-width:900px;margin-left:auto;margin-right:auto;width:100%}
 #cbPlot,#indPlot,#regPlot,#effetVille{max-width:none;width:100%}
 .vers-explorer-onglets{margin:6px 0 0;font-size:var(--t-note);text-align:right}
@@ -699,7 +699,7 @@ section[data-p="tableau"]>#accesLieux{max-width:none}
 /* figures qui apparaissent en douceur quand on arrive dessus */
 html.revele .panel svg[role="img"]{transition:opacity .6s cubic-bezier(.22,1,.36,1)}
 html.revele .panel svg[role="img"]:not(.vu){opacity:0}
-/* encadrés de l'atlas en encadré B+ (étape 4, 5 novembre 2026, composition validée par Lucas le 31 octobre) : un
+/* encadrés de l'atlas en encadré B+ (étape 4, 5 novembre 2026, composition validée le 31 octobre) : un
    filet appuyé au-dessus, le titre et ses outils sur la même ligne, ni cadre, ni fond, ni ombre, ni coins arrondis,
    comme sur la fiche d'un territoire. Le contenu des encadrés (carte cliquable, fiche du territoire, structures de
    ce territoire) ne change pas. */
@@ -734,7 +734,7 @@ footer.pied-atlas p{margin:0 0 var(--e-2,8px)}footer.pied-atlas a{color:inherit}
 footer.pied-atlas .pied-liens{display:flex;flex-wrap:wrap;gap:var(--e-2,8px) var(--e-4,24px)}
 /* vue « accueil » (atlas.html?vue=accueil), dans le cadre de la première page du site : la carte cliquable, l'encadré
    du territoire et celui des structures de soins, sans l'en-tête, les onglets ni les encadrés nationaux (demande de
-   Lucas du 2 novembre 2026) ; marges nulles, la page qui l'accueille porte la grille */
+   l'auteur du 2 novembre 2026) ; marges nulles, la page qui l'accueille porte la grille */
 html.vue-accueil{--marge:0px;--haut-nav:0px}
 html.vue-accueil{overflow:hidden}html.vue-accueil body{background:transparent;margin:0}
 .vue-accueil nav.site,.vue-accueil header.top,.vue-accueil #maj,.vue-accueil #tabs,.vue-accueil .vers-explorer-onglets,

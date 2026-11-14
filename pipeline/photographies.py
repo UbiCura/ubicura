@@ -1,4 +1,4 @@
-"""Suivi dans le temps des comptes (demande de Lucas du 26 octobre 2026, point 7 de la version 2).
+"""Suivi dans le temps des comptes (demande du 26 octobre 2026, point 7 de la version 2).
 
 Deux traces, pour pouvoir dire plus tard si une figure « bouge » et pourquoi.
 
@@ -9,7 +9,7 @@ Deux traces, pour pouvoir dire plus tard si une figure « bouge » et pourquoi.
 2. Une archive mensuelle de l'extraction brute du RPPS, sur le PC seulement (donnees/archives/rpps/, hors de Git),
    pour pouvoir recalculer une date passée avec les règles du moment. Sans elle, un changement de règle se confondrait
    avec un vrai changement. Les noms, prénoms et coordonnées de contact n'y sont pas gardés, ils ne servent à aucun
-   calcul (Lucas, 31 octobre 2026). Elle garde l'identifiant, nécessaire pour compter chaque professionnel une fois, et
+   calcul (31 octobre 2026). Elle garde l'identifiant, nécessaire pour compter chaque professionnel une fois, et
    ne doit jamais être publiée.
 """
 from __future__ import annotations

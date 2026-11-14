@@ -74,7 +74,7 @@ NOMS = {"age_drees": "Âge des professionnels", "taux_depassement": "Dépassemen
 
 def specialites_salariees(national, professions) -> dict:
     """Précision « exercice surtout salarié » pour chaque spécialité médicale dont moins d'un tiers des médecins exercent
-    en libéral (config.SEUIL_LIBERAL_SPECIALITE, validé par Lucas le 11 octobre 2026), calculée sur l'effectif
+    en libéral (config.SEUIL_LIBERAL_SPECIALITE, validé le 11 octobre 2026), calculée sur l'effectif
     national de l'exécution. Ajoutée à config.LIMITES, elle suit le chiffre partout où il est montré."""
     if national is None or professions is None or not len(national):
         return {}

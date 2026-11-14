@@ -1,5 +1,5 @@
 """Onglet « État » de la fenêtre du courrier : d'un coup d'œil, les tâches qui tournent seules vont-elles bien
-(demande de Lucas du 1er novembre 2026) ? Relève du courrier, statistiques, veille des bases, relève hebdomadaire du
+(demande du 1er novembre 2026) ? Relève du courrier, statistiques, veille des bases, relève hebdomadaire du
 RPPS et archive mensuelle, place sur le disque. Lecture seule, rien n'est lancé d'ici.
 
 Chaque ligne a un état : « bien » (dans les temps), « à regarder » (en retard), « en panne » (rien depuis longtemps

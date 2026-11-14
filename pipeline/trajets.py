@@ -355,7 +355,7 @@ def comparer_insee(nous: pd.DataFrame, ar, equipement: str = "urgences") -> dict
 # ---------------------------------------------------------------- calcul
 # types du calcul national, ceux du pilote et les autres structures de psychiatrie et de l'enfance suivies par l'atlas
 TYPES_NATIONAL = TYPES_PILOTE + ("lieu_hdj_psy_enfants", "lieu_hc_psy_adultes", "lieu_cmpp", "lieu_camsp", "lieu_csapa")
-# Décision de Lucas du 31 octobre 2026 (note docs/note_temps_trajet_2026-10-30.md, « D'où vient l'écart ») : chiffre
+# Décision du 31 octobre 2026 (note docs/note_temps_trajet_2026-10-30.md, « D'où vient l'écart ») : chiffre
 # principal à l'échelle de l'INSEE, la fourchette du moteur prudent dans « Comment lire », les SMUR comptés avec les
 # urgences. Même origine (carreaux de 200 m) et même destination, le moteur de la Géoplateforme met 1,31 fois le temps
 # du distancier de l'INSEE (Metric-OSRM), rapport médian commune par commune sur les urgences (outils/

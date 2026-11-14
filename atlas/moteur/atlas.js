@@ -5,7 +5,7 @@
 // ---------- sommaire en tête d'un onglet, une ligne par encadré avec son titre et ce qu'il permet (RESUMES),
 // tenu à jour à chaque nouveau choix. Un clic mène à l'encadré, qui reste entier (chantier d'organisation, 22 octobre 2026)
 // ce que permet chaque analyse, sans en citer un résultat particulier, chaque encadré étant un outil à régler
-// (remarque de Lucas du 22 octobre 2026, la phrase de résultat n'était qu'un exemple parmi les croisements possibles)
+// (remarque du 22 octobre 2026, la phrase de résultat n'était qu'un exemple parmi les croisements possibles)
 const RESUMES={
   "Corrélations par groupe d’indicateurs":"Les indicateurs qui varient avec la présence de chaque profession, groupe par groupe.",
   "Besoins, recours et conditions de vie, croisés entre eux":"Comparer entre eux, par département, les indicateurs de besoin, de recours aux soins et de conditions de vie.",
@@ -35,10 +35,10 @@ function sommaireOnglet(onglet){
     // les cadres d'un même groupe (corrélations par groupe d'indicateurs) deviennent des liens de l'entrée qui les précède
     if(p.parentElement.id==="hmCadres"&&items.length){items[items.length-1].sous.push(p);return}
     items.push({p,sous:[]})});
-  // marge de lecture (choix de Lucas du 23 octobre 2026) : les analyses rangées par question, titres seuls, la phrase
+  // marge de lecture (choix du 23 octobre 2026) : les analyses rangées par question, titres seuls, la phrase
   // de RESUMES en infobulle ; la marge reste visible pendant la lecture et marque l'analyse en cours
   const lien=p=>{const t=titreEncadre(p),r=RESUMES[t];return '<li><a href="#'+p.id+'" data-cible="'+p.id+'"'+(r?' title="'+esc(r)+'"':'')+'>'+esc(t)+'</a></li>'};
-  // la marge suit l'ordre de la page (demande de Lucas du 23 octobre 2026) : les questions dans l'ordre où leur
+  // la marge suit l'ordre de la page (demande du 23 octobre 2026) : les questions dans l'ordre où leur
   // première analyse paraît, les analyses dans l'ordre de la page ; la page a été rangée par question (rangerOnglet)
   const grp=QUESTIONS[onglet]||[],grpDe=p=>{const k=grp.findIndex(([q,ts])=>ts.includes(titreEncadre(p)));return k<0?grp.length:k},groupes=[];
   items.forEach(({p})=>{const k=grpDe(p);let g=groupes.find(x=>x.k===k);if(!g){g={k,ps:[]};groupes.push(g)}g.ps.push(p)});
@@ -146,7 +146,7 @@ function drawMap(){
   M.g.selectAll("path.sel").raise();M.gdom.selectAll("path.sel").raise();
   bordures(M,lv==="epci"?geom.dep:[]);
   // territoires sans psychiatre déclaré qui accueillent un CMP de FINESS, signalés dans l'infobulle et la fiche (plus
-  // de ronds sur la carte, trop nombreux, décision de Lucas du 10 octobre 2026), compte gardé pour la limite écrite
+  // de ronds sur la carte, trop nombreux, décision du 10 octobre 2026), compte gardé pour la limite écrite
   M.svg.selectAll("circle.cmp").remove();
   // sur téléphone, les notes se limitent à la profession affichée (premier audit externe du 30 octobre 2026, des notes
   // sur les psychiatres s'affichaient sous la carte des psychologues) ; sur ordinateur, rien ne change
@@ -227,7 +227,7 @@ function selCard(){
   el.classList.remove("hidden");
   const lv=S.sel.lv,i=IDX[lv].get(S.sel.c),u=D.niveaux[lv].units[i];
   const parent=lv==="epci"?(IDX.depName.get(u.p)||u.p):lv==="reg"?"Région":u.p;
-  // lien vers la fiche complète du territoire choisi, promis par l'accueil et demandé par Lucas le 2 novembre 2026 (relevé par l'audit de la navigation du 8 novembre : l'encadré ne menait qu'aux rapports)
+  // lien vers la fiche complète du territoire choisi, promis par l'accueil et demandé le 2 novembre 2026 (relevé par l'audit de la navigation du 8 novembre : l'encadré ne menait qu'aux rapports)
   let h='<div class="selhead"><div class="sel-titre"><h2>'+esc(u.nm)+' <button class="how" data-how="indice100,attendu,entonnoir">Comment lire</button></h2><div class="howtxt hidden"></div><div class="sel-sous"><span class="muted">'+esc(parent)+', '+fmt.format(u.pop)+' habitants</span>'+'<a class="lien-rapport lien-fiche" href="'+(D.rapports_dossier||"territoires").replace(/territoires$/,"")+'territoire/'+lv+'/'+S.sel.c+'.html">Fiche complète</a>'+[["sante-mentale","Rapport santé mentale"],["sante","Rapport santé"]].filter(([k])=>(D.rapports_territoires||[]).includes(lv+"-"+S.sel.c+"-"+k)).map(([k,l])=>'<a class="lien-rapport" href="'+(D.rapports_dossier||"territoires")+'/'+lv+'-'+S.sel.c+'-'+k+'.html">'+l+'</a>').join("")+'</div></div><div class="pastilles"><button id="selReplier" type="button" aria-controls="selCorps" aria-expanded="'+!S.selReplie+'" aria-label="'+(S.selReplie?"Déplier":"Replier")+' la fiche « '+esc(u.nm)+' »">'+(S.selReplie?ICONE_FEN.plus:ICONE_FEN.moins)+'</button></div></div>';
   const finTete=h.length;
   let court="",precision="";
@@ -242,7 +242,7 @@ function selCard(){
       ph+=" Compte tenu du profil de sa population, l’effectif attendu est d’environ "+fmt.format(Math.round(e))+(Math.abs(diff)<1?", l’effectif observé y correspond.":diff>0?", on en compte environ "+fmt.format(Math.round(diff))+" de moins.":", on en compte environ "+fmt.format(Math.round(-diff))+" de plus.")+" C’est une comparaison avec des territoires semblables, pas une mesure du besoin."}
     const st=D.niveaux[lv].entonnoir?.[p0]?.[i];
     // un écart n'est marqué que hors de 0,8 à 1,25 fois le repère et au-delà du hasard, la règle de la fiche et de
-    // Comparer (décision de Lucas du 30 octobre 2026) : l'atlas disait « nettement en dessous » pour un écart de −18 %
+    // Comparer (décision du 30 octobre 2026) : l'atlas disait « nettement en dessous » pour un écart de −18 %
     // que la fiche laisse dans la marge (relecture indépendante du 5 novembre 2026, psychologues de l'Ain)
     if(st!=null&&n0>0&&nd>0){const rr=d/nd;
       if(st!==0&&rr>=.8&&rr<=1.25)ph+=" L’écart reste dans la marge de 0,8 à 1,25 fois l’ensemble "+MOYLAB[lv]+", il n’est pas marqué comme un écart.";
@@ -276,7 +276,7 @@ function selCard(){
   const dv=DIV(),barreL=c=>'<svg viewBox="0 0 26 10" aria-hidden="true"><rect x="1" y="2" width="24" height="6" fill="'+c+'"/></svg>';
   h+='<div class="fiche-legende"><span>'+barreL(dv[1])+'moins dense</span><span><svg viewBox="0 0 26 10" aria-hidden="true"><line x1="13" x2="13" y1="0" y2="10" stroke="'+css("--muted")+'" stroke-width="1.5"/></svg>ensemble '+MOYLAB[lv]+' = 100</span><span>'+barreL(dv[5])+'plus dense</span><span>'+barreL(dv[3])+'dans la marge ou au hasard</span><span>50 = deux fois moins, 200 = deux fois plus, '+modeLab[S.mode]+'</span></div>';
   // dans le groupe « Salariés des établissements psychiatriques », le titre dit déjà où ils exercent : le libellé court
-  // évite des lignes de quatre lignes qui décalaient barres et valeurs (remarque de Lucas du 30 octobre 2026), le
+  // évite des lignes de quatre lignes qui décalaient barres et valeurs (remarque du 30 octobre 2026), le
   // libellé entier reste dans l'infobulle
   const nomCourt=p=>natOf(p)==="perimetre_elargi"?p.libelle.replace(/, en établissement psychiatrique$/,""):p.libelle;
   const ligne=p=>{const ind=unitD(lv,p.id,i)/refD(lv,p.id)*100,l=Math.max(-2,Math.min(2,Math.log2(Math.max(ind,1)/100)));
@@ -305,7 +305,7 @@ function selCard(){
     }
     blocs[fam]=h;h=h0;
   }
-  if(u.x){blocs.pop='';const h0=h;h='';// un taux non publié montre sa raison à la place du chiffre (décision de Lucas du 30 octobre 2026, « non publié, 2
+  if(u.x){blocs.pop='';const h0=h;h='';// un taux non publié montre sa raison à la place du chiffre (décision du 30 octobre 2026, « non publié, 2
     // médecins généralistes en secteur 2, moins de 5 »), lue dans le catalogue (champ non_publies)
     // unité dite dans le libellé quand elle ne suit pas la valeur (« Densité de population (hab./km²) », audit externe du 30
     // octobre 2026, « Densité de population 74,6 »)
@@ -317,7 +317,7 @@ function selCard(){
   // offre de la famille choisie (santé mentale puis santé), puis profil de la population, chacun en colonnes équilibrées
   h+='<div class="fiche-colonnes">'+[blocs[SM],blocs[SANTE],blocs.pop].filter(Boolean).join("")+'</div>';
   if(LX&&D.niveaux[lv].lieux)h+='<p class="small" style="margin:14px 0 0"><button type="button" class="lien" id="selVersLieux">Structures de soins de ce territoire, niveau de confirmation et liste</button></p>';
-  // addictologie de la région du territoire, dans Explorer (choix de Lucas du 29 octobre 2026), consommations publiées
+  // addictologie de la région du territoire, dans Explorer (choix du 29 octobre 2026), consommations publiées
   // par région seulement
   const rg=regionDe(lv,S.sel.c);
   if(S.fam!==SANTE&&rg)h+='<p class="small" style="margin:6px 0 0"><a href="explorer.html#qAddicto?fam='+famCle()+'&adReg='+rg+'">L’addictologie '+esc(enRegion(rg))+', de l’offre aux consommations, dans Explorer</a></p>';
@@ -518,7 +518,7 @@ function syncBar(){
   evb.title=evb.disabled?"Disponible pour les régions et les départements, pour les professions suivies par la DREES depuis 2016":"";
   if(evb.disabled&&S.metric==="evol")S.metric="dens";
   // distance aux structures, cliquable dès qu'un type a des distances à ce niveau ; sans type choisi sous la carte, le
-  // premier type disponible de la liste est retenu (remarque de Lucas du 23 octobre 2026, la mesure semblait inactive)
+  // premier type disponible de la liste est retenu (remarque du 23 octobre 2026, la mesure semblait inactive)
   const ld=D.niveaux[S.level].lieux_dist||{},lb=document.querySelector('#metricSeg [data-v="lieux"]');lb.disabled=!Object.keys(ld).length;
   if(S.metric==="lieux"&&!(S.lieux&&ld[S.lieux])){const v=[...document.querySelectorAll("#lieuxType option")].map(o=>o.value).find(x=>x&&ld[x]);
     if(v){S.lieux=v;document.getElementById("lieuxType").value=v}else S.metric="dens"}
@@ -581,7 +581,7 @@ function intitulesReglages(){const lib={level:"Niveau",mode:"Exercice",metric:"M
   document.querySelectorAll("#bar .groupe-reg").forEach(w=>{const g=w.querySelector(".seg");w.hidden=!g||g.classList.contains("hidden")})}
 function choixProfession(){intitulesReglages();const sel=document.getElementById("prof");choixListe(sel,"prof",sel);choixStructures();listesEncadres();rappelReglages()}
 // les listes des encadrés prennent la même forme que le choix de la profession, au lieu de la liste blanche du système
-// (remarque de Lucas du 23 octobre 2026) ; la liste du navigateur reste cachée et garde l'état, si bien qu'un choix
+// (remarque du 23 octobre 2026) ; la liste du navigateur reste cachée et garde l'état, si bien qu'un choix
 // redessine la figure par le même chemin, points qui glissent compris
 function listesEncadres(){document.querySelectorAll("section[data-p] select:not(#lieuxType)").forEach(sel=>{if(!sel.id||!sel.options.length)return;
   // la liste du navigateur, cachée, ne se lit plus en double avec le bouton qui la remplace (« CMP pour adultes (1) »
@@ -709,7 +709,7 @@ document.querySelectorAll("[data-repli]").forEach(p=>{const h=p.querySelector("h
     const maj=()=>{const o=g.classList.contains("carte-ouverte");b.textContent=o?"Masquer la carte":"Voir la carte";b.setAttribute("aria-expanded",String(o))};
     b.addEventListener("click",()=>{g.classList.toggle("carte-ouverte");maj();if(g.classList.contains("carte-ouverte"))render()});
     g.insertBefore(b,mb);maj()}}
-// vue « accueil » (atlas.html?vue=accueil), la carte de la première page du site dans un cadre (demande de Lucas du
+// vue « accueil » (atlas.html?vue=accueil), la carte de la première page du site dans un cadre (demande du
 // 2 novembre 2026) : les liens vers d'autres pages s'ouvrent dans la page entière, le fond suit celui de la page qui
 // l'accueille, et la hauteur du contenu lui est donnée pour que le cadre n'ait jamais sa propre barre de défilement
 if(new URLSearchParams(location.search).get("vue")==="accueil"&&window.parent!==window){const r=document.documentElement;r.classList.add("vue-accueil");

@@ -1,6 +1,6 @@
 """Référencement du site par les moteurs de recherche et aperçu des liens partagés (feuille de route de la
-communication, phase 1, accord de Lucas du 29 octobre 2026). Rien n'est publié ici, ces balises partent avec le site
-quand Lucas le met en ligne.
+communication, phase 1, accord du 29 octobre 2026). Rien n'est publié ici, ces balises partent avec le site
+quand l'auteur le met en ligne.
 
 - Adresse de référence (canonical) et aperçu des liens (Open Graph, carte des réseaux) sur chaque page.
 - Balises de citation des rapports pour Google Scholar (citation_*), d'après ses consignes aux éditeurs,

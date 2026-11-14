@@ -1,4 +1,4 @@
-"""Fiche de territoire resserrée (validée par Lucas le 31 octobre 2026, prototype dans prototypes/fiche_resserree/) :
+"""Fiche de territoire resserrée (validée le 31 octobre 2026, prototype dans prototypes/fiche_resserree/) :
 les bandes de domaine, toutes sur un même gabarit, et « En bref » en matrice. Ce module ne fait que ranger ce que
 fiche_territoire.fiche et constats.constats ont déjà calculé : lignes types, constats, phrases, cartes, comptages. Il ne
 calcule aucun chiffre ; les cartes propres à la fiche resserrée (départements d'une région, outre-mer sur toute la
@@ -73,7 +73,7 @@ def bandes(ctx: dict) -> list[dict]:
                 vus_lim.add(lim_k)
         r["tuile"] = i in TUILES
         # la phrase de lecture des douze indicateurs de « En bref » reste visible sous leur ligne (règle de la partie 6 :
-        # une phrase de lecture ne se replie pas ; validé par Lucas le 31 octobre 2026)
+        # une phrase de lecture ne se replie pas ; validé le 31 octobre 2026)
         r["phrase_visible"] = bool(k)
         r["mais"] = mais(l.get("e"), l.get("pos_txt"), l.get("kind"), l.get("e_mots"), l.get("code"), l.get("txt"), l.get("ref_txt"))
         ecrit = l.get("kind") in ("prof", "lieux") and bool(l.get("e_txt")) and l.get("code") not in ("aucun", "petit")
@@ -151,7 +151,7 @@ def bandes(ctx: dict) -> list[dict]:
                              "décrivent des habitants, ils ne mesurent ni un besoin de soins ni la qualité de l'offre.",
                      "source": f["source_recours"], "lignes": [ligne(l) for l in f["sm_recours"]] if a_valeur else []})
     # les indicateurs publiés seulement par région, avec la valeur de la région du département, après les recours
-    # (maquette validée par Lucas le 14 novembre 2026, fiche_territoire._region_seule) : rangés tels quels
+    # (maquette validée le 14 novembre 2026, fiche_territoire._region_seule) : rangés tels quels
     rs = f.get("region_seule")
     if rs:
         g_sm.append({"titre": rs["titre"], "id": "t-sm-reg", "region": rs, "avec_eff": False,
@@ -275,7 +275,7 @@ def tableau_de_bord(ctx: dict) -> list[dict]:
                                        mais(c["e"], pos, c["kind"], c["e_mots"], c["statut"], c["v_txt"], c["ref_txt"]),
                                        c["ref_txt"], c["kind"], c["v_txt"]),
             "couleur": c["couleur"],
-            # la position dit toujours son ensemble, en entier (remarque de Lucas du 31 octobre 2026)
+            # la position dit toujours son ensemble, en entier (remarque du 31 octobre 2026)
             "pos": pos})
     return sections
 

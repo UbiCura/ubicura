@@ -1,6 +1,6 @@
 """Garde-fou avant publication, aucune page de l'offre professionnelle dans le site publié.
 
-Décision de Lucas du 28 octobre 2026, rappelée le 30 octobre : rien de ce qui touche aux services payants
+Décision du 28 octobre 2026, rappelée le 30 octobre : rien de ce qui touche aux services payants
 n'apparaît sur le site avant que l'offre soit finalisée (ni page « Pour les professionnels », « Modèle économique »
 ou « Accès professionnel », ni lien vers elles depuis les menus ou l'accueil). publier.ps1 appelle ce contrôle sur le
 dossier qu'il s'apprête à envoyer, et s'arrête s'il trouve quelque chose. Un test le vérifie.

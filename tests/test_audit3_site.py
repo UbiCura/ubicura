@@ -133,7 +133,7 @@ def test_aucun_zero_seul_dans_tous_les_tableaux_des_rapports():
 
 
 def test_fond_clair_par_defaut_pour_les_anciens_visiteurs():
-    """Fond clair par défaut (Lucas, 31 octobre 2026) : le choix gardé sous l'ancien nom « theme », du temps où le fond
+    """Fond clair par défaut (31 octobre 2026) : le choix gardé sous l'ancien nom « theme », du temps où le fond
     sombre était le réglage par défaut, n'est plus lu ; chacun repart en clair et garde ensuite son choix (« fond »)."""
     for f in (GAB / "base.html", GAB / "nav.html", RAC / "atlas" / "atlas_template.html"):
         t = f.read_text(encoding="utf-8")
@@ -148,7 +148,7 @@ def test_mise_en_page_du_7_novembre():
     css = (GAB / "style.css").read_text(encoding="utf-8")
     assert "--mesure:none" in css
     assert "main:has(.rapport) :is(p,li,dd,blockquote,figcaption,.comment-lire,.small,.muted)" in css and "10.5pt" in css
-    assert "main li{text-align:left!important}" in css      # toutes les listes à gauche (Lucas, 7 novembre 2026)
+    assert "main li{text-align:left!important}" in css      # toutes les listes à gauche (7 novembre 2026)
     for sel in ("ul.liste-noms li", ".couv-citer p", "p.references", ".accueil .ajouts li", ".grp li"):
         assert sel in css, sel
     pub = (RAC / "outils" / "publier.ps1").read_text(encoding="utf-8")
