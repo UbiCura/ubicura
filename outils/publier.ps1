@@ -96,6 +96,29 @@ if ($Restaurer) {
         Prevenir "La nouvelle version présente un problème bloquant. Rien n'a été mis en ligne.`n`n$compte"
         exit 1
     }
+    # écarts déjà lus et validés par Lucas pour cette même version (republication d'une correction de pages) : ils ne
+    # bloquent plus ; un écart nouveau ou changé bloque toujours (demande de Lucas du 14 novembre 2026)
+    $ecartsValides = Join-Path $racine "donnees\ecarts_valides.json"
+    $empreinte = ""
+    $cheminCompte = ($compte -replace '^Compte rendu,?\s*', '').Trim()
+    if ($code -eq 10 -and $cheminCompte -and (Test-Path $cheminCompte)) {
+        $texteCompte = Get-Content $cheminCompte -Raw -Encoding UTF8
+        $m = [regex]::Match($texteCompte, '(?s)## À regarder(.*?)(## |$)')
+        if ($m.Success) {
+            $sha = [System.Security.Cryptography.SHA256]::Create()
+            $empreinte = $version + ":" + [BitConverter]::ToString($sha.ComputeHash([Text.Encoding]::UTF8.GetBytes($m.Groups[1].Value.Trim()))).Replace("-", "")
+        }
+    }
+    $dejaValides = @()
+    if (Test-Path $ecartsValides) { $dejaValides = @(Get-Content $ecartsValides -Raw -Encoding UTF8 | ConvertFrom-Json) }
+    if ($code -eq 10 -and $Valider -and $empreinte -and ($dejaValides -notcontains $empreinte)) {
+        $dejaValides = @($dejaValides) + $empreinte
+        ConvertTo-Json -InputObject @($dejaValides) | Set-Content -Path $ecartsValides -Encoding UTF8
+    }
+    if ($code -eq 10 -and -not $Valider -and $empreinte -and ($dejaValides -contains $empreinte)) {
+        Ecrire "Mêmes écarts que ceux déjà validés pour la version $version, la publication continue. $compte"
+        $code = 0
+    }
     if ($code -eq 10 -and -not $Valider) {
         Ecrire "Des écarts sont à regarder, rien n'est envoyé. Après lecture, relancer avec -Valider. $compte"
         Prevenir "Des écarts sont à regarder avant de publier. Rien n'a été mis en ligne.`n`nLire le compte rendu, puis relancer la publication avec -Valider (tutoriel 06).`n`n$compte"

@@ -175,17 +175,7 @@ def construire(env, commun: dict, dernier: Path, site_data: dict, site: Path, ga
                                                        ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     cat = catalogue(site_data)
     venir = D.bases_a_venir(registre)
-    tuiles = []
-    for d in D.DOMAINES:
-        mes = [i for i in cat if i["domaine"] == d["id"]]
-        exemples = []
-        for so in d["sous"]:
-            e = next((i for i in mes if i["sous"] == so), None)
-            if e and len(exemples) < 3:
-                exemples.append(e["label"])
-        exemples += venir.get(d["id"], [])[:3 - len(exemples)]
-        tuiles.append({**d, "n": len(mes), "venir": len(venir.get(d["id"], [])), "exemples": exemples,
-                       "sm": sum(1 for i in mes if i["sm"])})
+    tuiles = tuiles_domaines(cat, venir)
     nsm = sum(1 for i in cat if i["sm"])
     part = part_psychologue_sans_psychiatre(dernier)
     pages = []
@@ -219,19 +209,8 @@ def construire(env, commun: dict, dernier: Path, site_data: dict, site: Path, ga
                dernier=dernier.name, classe_main="accueil")
     (site / "index.html").write_text(env.get_template("portail.html").render(ctx, titre="L’offre de soins en France, territoire par territoire"), encoding="utf-8")
     pages.append(site / "index.html")
-    doms = []
-    for d in D.DOMAINES:
-        mes = [i for i in cat if i["domaine"] == d["id"]]
-        # n et venir comme dans le schéma : la liste qui le remplace au téléphone écrivait « aucun indicateur » partout
-        # (relecture de l'étape 4, 5 novembre 2026)
-        doms.append({**d, "indicateurs": mes, "venir_liste": venir.get(d["id"], []), "n": len(mes),
-                     "venir": len(venir.get(d["id"], [])),
-                     "par_sous": [(so, [i for i in mes if i["sous"] == so]) for so in d["sous"]]})
-    (site / "domaines.html").write_text(env.get_template("domaines.html").render(
-        dict(commun, racine="", page="domaines", titre="L’offre de soins au centre, sept domaines autour",
-             classe_main="domaines", domaines=doms, schema=schema(tuiles), n_sm=nsm,
-             themes=[dict(x, slug=TH.slug(x["id"])) for x in TH.THEMES],
-             doi=doi_cite("donnees", dernier.name))), encoding="utf-8")
+    (site / "domaines.html").write_text(page_domaines(env, commun, cat, venir, doi_cite("donnees", dernier.name)),
+                                        encoding="utf-8")
     pages.append(site / "domaines.html")
     (site / "croiser.html").write_text(env.get_template("croiser.html").render(
         dict(commun, racine="", page="croiser", titre="Croiser librement", classe_main="croiser",
@@ -267,6 +246,160 @@ def construire(env, commun: dict, dernier: Path, site_data: dict, site: Path, ga
         if p.suffix == ".html" and p.exists():
             p.write_text(insecables(p.read_text(encoding="utf-8")), encoding="utf-8")
     return pages
+
+
+def tuiles_domaines(cat: list[dict], venir: dict) -> list[dict]:
+    """Chaque domaine avec son nombre d'indicateurs, de bases à venir et de santé mentale (accueil et schéma)."""
+    tuiles = []
+    for d in D.DOMAINES:
+        mes = [i for i in cat if i["domaine"] == d["id"]]
+        exemples = []
+        for so in d["sous"]:
+            e = next((i for i in mes if i["sous"] == so), None)
+            if e and len(exemples) < 3:
+                exemples.append(e["label"])
+        exemples += venir.get(d["id"], [])[:3 - len(exemples)]
+        tuiles.append({**d, "n": len(mes), "venir": len(venir.get(d["id"], [])), "exemples": exemples,
+                       "sm": sum(1 for i in mes if i["sm"])})
+    return tuiles
+
+
+# ---------------------------------------------------------------- page Domaines
+# Sous-thèmes dépliables (maquette validée par Lucas le 14 novembre 2026, prototypes/entrees/v2_domaines/) : chaque
+# sous-thème se déplie là où il est nommé et montre ses indicateurs, chacun lié à sa page ; les professions principales
+# d'abord, les autres repliées ; « À venir » en dernier, lu dans le registre des bases. Tout vient du catalogue.
+
+def colle(texte: str):
+    """Texte échappé dont chaque mot composé (« masseur-kinésithérapeute ») ne se coupe jamais à son trait d'union."""
+    import re
+    from markupsafe import Markup, escape
+    return Markup(re.sub(r"(\w+(?:-\w+)+)", r'<span class="colle">\1</span>', str(escape(texte))))
+
+
+def phares_professions() -> list[str]:
+    """Les professions de « En bref » des fiches (constats.CANDIDATS), au format du catalogue (« prof:psychiatre »)."""
+    from . import constats as K
+    return [TH.cle(c[1]) for c in K.CANDIDATS if c[1].startswith("prof:")]
+
+
+def professions_principales(profs: list[dict], phares: list[str]) -> list[dict]:
+    """Les professions principales (config.PROFESSIONS_PRINCIPALES) dans l'ordre de la liste des professions du site,
+    plus toute profession de « En bref » qui n'en est pas : aucune n'est cachée parmi les autres (C11 de la relecture du
+    14 novembre 2026). Une telle profession suit la principale de même famille qui sert le même public
+    (config.PUBLICS_CIBLES : le psychiatre qualifié pour l'enfant après le pédopsychiatre), sinon la dernière de sa
+    famille, sinon elle ferme la liste."""
+    public = lambda i: (config.PUBLICS_CIBLES.get(i["id"].removeprefix("prof:")) or (None, None))[1]  # noqa: E731
+    base = [i for i in profs if i["id"].removeprefix("prof:") in config.PROFESSIONS_PRINCIPALES]
+    par_id = {i["id"]: i for i in profs}
+    for pid in phares:
+        e = par_id.get(pid)
+        if e is None or e in base:
+            continue
+        fam = [k for k, b in enumerate(base) if b.get("famille") == e.get("famille")]
+        pub = [k for k in fam if public(e) and public(base[k]) == public(e)]
+        k = (pub or fam or [len(base) - 1])[-1]
+        base.insert(k + 1, e)
+    return base
+
+
+def _meta(i: dict) -> str:
+    """Unité et source d'un indicateur, comme la liste les écrivait (« % standardisé sur l'âge, Assurance Maladie… »)."""
+    if not i.get("unite"):
+        return ""
+    return i["unite"] + (f", {i['source']}" if i.get("source") else "")
+
+
+def _lignes(F: list[dict], sm_montree: bool, suffixe: str = "") -> tuple[str, list[dict]]:
+    """Lignes d'un sous-thème : libellé (table des libellés), lien vers la page de l'indicateur, étiquette santé mentale
+    si le titre ne la dit pas déjà. L'unité et la source, quand elles sont les mêmes pour toutes, sont dites une fois
+    sous le titre (R5 de la relecture du 14 novembre 2026)."""
+    from . import libelles as L
+    metas = {_meta(i) for i in F}
+    commune = metas.pop() if len(metas) == 1 else ""
+    sortie = []
+    for i in F:
+        lib = L.affichage(i["label"] or i["id"])
+        if suffixe and lib.endswith(suffixe):
+            lib = lib[:-len(suffixe)]
+        sortie.append({"id": i["id"], "lib": colle(lib), "tri": lib,
+                       "href": f"indicateur/{i['fiche']}.html" if i.get("fiche") else "",
+                       "sm": sm_montree and bool(i["sm"]), "meta": "" if commune else _meta(i)})
+    return commune, sortie
+
+
+def _compte(n: int, mot: str) -> str:
+    return f"{n} {mot}{'s' if n > 1 else ''}"
+
+
+def _sans_accent(s: str) -> str:
+    import unicodedata
+    return unicodedata.normalize("NFD", s).encode("ascii", "ignore").decode().lower()
+
+
+def donnees_domaines(cat: list[dict], venir: dict, phares: list[str]) -> list[dict]:
+    """Chaque domaine de la page Domaines avec ses sous-thèmes dépliables, tirés du catalogue (portail.catalogue, champ
+    « fiche » renseigné) et du registre des bases (domaines.bases_a_venir)."""
+    doms = []
+    for d in D.DOMAINES:
+        mes = [i for i in cat if i["domaine"] == d["id"]]
+        sous = []
+        for k, so in enumerate(D.sous_themes(d, mes)):
+            F = [i for i in mes if i["sous"] == so]
+            s = {"nom": so, "ancre": f"st-{d['id']}-{k + 1}", "n": len(F), "compte": _compte(len(F), "indicateur"),
+                 "meta": "", "lignes": [], "autres": None, "bases": []}
+            if F and all(i["id"].startswith("prof:") for i in F):
+                # les principales d'abord, puis « Les autres professions » par ordre alphabétique et, à part, les
+                # salariés des établissements psychiatriques (C10), dont l'étiquette santé mentale est dite au titre
+                P = professions_principales(F, phares)
+                A = [i for i in F if i not in P]
+                esm = [i for i in A if i["id"].startswith("prof:" + config.PREFIXE_ELARGI)]
+                hors = [i for i in A if i not in esm]
+                _, s["lignes"] = _lignes(P, so != "Santé mentale")
+                _, lh = _lignes(hors, so != "Santé mentale")
+                lh.sort(key=lambda x: _sans_accent(x["tri"]))
+                groupe = None
+                if esm:
+                    fins = {(i["label"] or "").rpartition(", ")[2] for i in esm}
+                    suffixe = ", " + fins.pop() if len(fins) == 1 else ""
+                    sm_tous = all(i["sm"] for i in esm)
+                    _, le = _lignes(esm, not sm_tous, suffixe)
+                    le.sort(key=lambda x: _sans_accent(x["tri"]))
+                    titre = suffixe[2:3].upper() + suffixe[3:] if suffixe else config.GROUPE_ELARGI
+                    groupe = {"titre": titre, "n": len(le), "sm": sm_tous, "lignes": le}
+                if A:
+                    s["autres"] = {"n": len(A), "lignes": lh, "groupe": groupe}
+            elif F:
+                s["meta"], s["lignes"] = _lignes(F, so != "Santé mentale")
+            sous.append(s)
+        v = venir.get(d["id"], [])
+        if v:
+            sous.append({"nom": "À venir", "ancre": f"st-{d['id']}-venir", "n": len(v), "compte": _compte(len(v), "base"),
+                         "meta": "", "lignes": [], "autres": None, "bases": [colle(x) for x in v]})
+        # « dont 27 de santé mentale » à côté de « Santé mentale 24 indicateurs » : la différence est nommée (C6)
+        n_sm = sum(1 for i in mes if i["sm"])
+        n_sous_sm = sum(1 for i in mes if i["sous"] == "Santé mentale")
+        detail = ""
+        if n_sous_sm and n_sous_sm != n_sm:
+            autres = {}
+            for i in mes:
+                if i["sm"] and i["sous"] != "Santé mentale":
+                    autres[i["sous"]] = autres.get(i["sous"], 0) + 1
+            detail = colle(f"{n_sous_sm} dans le sous-thème Santé mentale, "
+                           + ", ".join(f"{n} dans {x}" for x, n in autres.items()))
+        # n et venir comme dans le schéma : la liste qui le remplace au téléphone écrivait « aucun indicateur » partout
+        # (relecture de l'étape 4, 5 novembre 2026)
+        doms.append({**d, "indicateurs": mes, "venir_liste": v, "n": len(mes), "venir": len(v), "n_sm": n_sm,
+                     "detail_sm": detail, "sous_themes": sous})
+    return doms
+
+
+def page_domaines(env, commun: dict, cat: list[dict], venir: dict, doi: str | None) -> str:
+    """HTML de la page Domaines (domaines.html), le catalogue portant déjà le nom de la page de chaque indicateur."""
+    return env.get_template("domaines.html").render(
+        dict(commun, racine="", page="domaines", titre="L’offre de soins au centre, sept domaines autour",
+             classe_main="domaines", domaines=donnees_domaines(cat, venir, phares_professions()),
+             schema=schema(tuiles_domaines(cat, venir)), n_sm=sum(1 for i in cat if i["sm"]),
+             themes=[dict(x, slug=TH.slug(x["id"])) for x in TH.THEMES], doi=doi))
 
 
 def schema(tuiles: list[dict]) -> dict:

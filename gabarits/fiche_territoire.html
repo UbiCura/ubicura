@@ -130,6 +130,57 @@ Position parmi les {{ {'epci': 'intercommunalités', 'dep': 'départements', 're
   {% if g.reserves %}<ul class="reserves">{% for r in g.reserves %}<li><b class="sig" aria-hidden="true">!</b><span>{{ r }}</span></li>{% endfor %}</ul>{% endif %}
 </div>
 {%- endmacro %}
+{#- un nom qui mène à la page de l'indicateur porte « → », et un texte pour les lecteurs d'écran (relecture du 14
+    novembre 2026, C4). Le dernier mot, la flèche et le « ! » de la limite ne se séparent jamais (une flèche ou un « ! »
+    seul en début de ligne). -#}
+{% macro vers_indicateur(l, sig=false) -%}
+{%- set mots = l.lib.rsplit(' ', 1) -%}
+<a class="vers-ind" href="{{ racine }}{{ l.page }}">{% if mots|length > 1 %}{{ mots[0] }} {% endif %}<span class="insec">{{ mots[-1] }}<span class="fl" aria-hidden="true">&nbsp;→</span>{% if sig %}<b class="sig" aria-hidden="true">&nbsp;!</b>{% endif %}</span><span class="lecteur">, page de l’indicateur</span></a>
+{%- endmacro %}
+{#- les indicateurs publiés seulement par région, sur la fiche d'un département (maquette validée par Lucas le 14
+    novembre 2026, prototypes/entrees/v2_fiche/) : la valeur de la région nommée comme telle, son intervalle de
+    confiance, la réglette et la position parmi les régions avec leur repère, la définition et la limite visibles ; une
+    mesure absente le dit ; sans aucune mesure (Mayotte), la raison et les noms liés à leur page -#}
+{% macro groupe_region(g, b) -%}
+{%- set R = g.region -%}
+<div class="groupe groupe-region" data-titre="{{ g.titre }}, {{ b.nom|lower }}">
+  <div class="groupe-tete">
+    <h3 id="{{ g.id }}">{{ g.titre }}</h3>
+    <p class="groupe-lire"><b>Comment lire.</b> {{ R.lire }}</p>
+    <p class="source">{{ R.source }}</p>
+    {% if R.publies %}<p class="groupe-vers"><a class="vers-ind" href="{{ racine }}territoire/reg/{{ R.code }}.html">Fiche de la région : {{ R.nom }}</a></p>{% endif %}
+  </div>
+  {% if R.publies %}
+  <div class="defile"><table class="indicateurs ligne-type sans-eff t-region">
+    <colgroup><col class="col-nom-large"><col class="col-val"><col class="col-reg"><col class="col-pos"><col class="col-outil"></colgroup>
+    <thead><tr><th scope="col">Indicateur, unité et année</th><th scope="col" class="v">Valeur de la région</th><th scope="col">Répartition des régions</th><th scope="col" class="pos">Position parmi les régions</th><th scope="col" class="outil"><span class="lecteur">Plus</span></th></tr></thead>
+    <tbody>
+    {%- for l in R.lignes %}
+    {%- set lim = (l.limite.court ~ ((' ' ~ l.limite.territoire) if l.limite.territoire else '')) if l.limite else '' %}
+<tr{% if not l.txt %} class="non-pub"{% endif %} id="{{ l.ancre }}" data-ind="{{ l.id }}" data-niv="{{ l.niv }}" data-titre="{{ l.lib }}">
+  <th scope="row"><span class="nom-ligne">{{ vers_indicateur(l, l.txt and lim) }}</span></th>
+  {%- if l.txt %}
+  <td class="v"><b>{{ l.txt }}</b>{% if l.note %}<span class="note">{{ l.note }}</span>{% endif %}{% if l.ic %}<span class="note ic">entre {{ l.ic[0] }} et {{ l.ic[1] }}</span>{% endif %}</td>
+  <td class="reg">{{ reglette(l.reg, 'petite') }}</td>
+  <td class="pos">{{ l.pos_txt }}{{ l.marge }}{% if l.ref_txt %}<span class="note">{{ l.ref_lib }} : {{ l.ref_txt }}</span>{% endif %}</td>
+  {%- else %}
+  <td class="v"><span class="statut">{{ l.statut or 'non publié' }}</span></td>
+  <td class="reg"></td>
+  <td class="pos">{{ l.pourquoi }}</td>
+  {%- endif %}
+  <td class="outil"></td>
+</tr>
+    {%- if l.txt and (l.defn or lim) %}
+<tr class="suite-ligne"><td colspan="5">{% if l.defn %}<span class="note defn">{{ l.defn }}</span>{% endif %}{% if lim %}<span class="lim-ligne" data-limite="{{ l.limite.cle or '' }}">{{ lim }}</span>{% endif %}</td></tr>
+    {%- endif %}
+    {%- endfor %}
+    </tbody>
+  </table></div>
+  {% else %}
+  <ul class="liste-np">{% for l in R.lignes %}<li>{{ vers_indicateur(l) }}</li>{% endfor %}</ul>
+  {% endif %}
+</div>
+{%- endmacro %}
 {% macro barres(rows) -%}
 <ul class="barres">{% for r in rows %}<li><span class="b-lib">{{ r.lib }}</span><span class="b-n">{{ r.n }}{% if r.pc %} ({{ r.pc }}){% endif %}</span><span class="b-t"><span style="width:{{ r.l }}"></span></span></li>{% endfor %}</ul>
 {%- endmacro %}
@@ -225,7 +276,7 @@ Position parmi les {{ {'epci': 'intercommunalités', 'dep': 'départements', 're
     {% for g in b.groupes %}{{ groupe(g, b) }}{% endfor %}
     {% if b.cartes %}<div class="dom-haut dom-carte">{{ carte_bloc(b) }}<div>{{ venir_liste(b.venir) }}</div></div>{% else %}{{ venir_liste(b.venir) }}{% endif %}
     {% else %}
-    {% for g in b.groupes %}{{ groupe(g, b) }}{% endfor %}
+    {% for g in b.groupes %}{% if g.region %}{{ groupe_region(g, b) }}{% else %}{{ groupe(g, b) }}{% endif %}{% endfor %}
     {% endif %}
     {% if b.autres_n %}
     <details class="autres"><summary>{{ "L'autre indicateur" if b.autres_n == 1 else 'Les ' ~ b.autres_n ~ ' autres indicateurs' }} {{ 'de santé mentale' if b.id == 'sm' else 'du domaine' }}</summary>

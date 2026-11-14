@@ -53,6 +53,11 @@ def choroplethe(A: dict, lv: str, ind: str, titre: str, unite: str, largeur=660)
     g = ((A.get("aff") or {}).get("ind", {}).get(ind) or {}).get("g") or AF.genre(unite, ind)
     noms = {u["c"]: u.get("nm", u["c"]) for u in A["units"][lv]}
     prof = ind.startswith("prof")
+    # les valeurs de A["val"] sont arrondies à quatre chiffres ; celles dont cet arrondi s'écrirait autrement que la
+    # valeur exacte (4,5497 gardé 4,550 puis écrit 4,6) sont données à leur arrondi d'affichage dans aff.lv.x, comme
+    # les lit presentation/chiffres.js (écart de la Dordogne trouvé le 13 novembre 2026, 398 infobulles par département)
+    exacte = {codes[int(j)]: xv for j, xv in
+              ((((A.get("aff") or {}).get("lv") or {}).get(lv) or {}).get(ind) or {}).get("x", {}).items()}
 
     def info(c):
         if c not in v:
@@ -61,7 +66,7 @@ def choroplethe(A: dict, lv: str, ind: str, titre: str, unite: str, largeur=660)
             return f"{noms.get(c, c)}, aucun inscrit"
         if v[c] == 0 and ind.startswith("lieux"):
             return f"{noms.get(c, c)}, {AF.AUCUNE_STRUCTURE}"
-        return f"{noms.get(c, c)}, {AF.nombre(v[c], g)}" + (f" {unite}" if unite else "")
+        return f"{noms.get(c, c)}, {AF.nombre(exacte.get(c, v[c]), g)}" + (f" {unite}" if unite else "")
 
     def classe(x):
         return sum(1 for b in bornes if x >= b)

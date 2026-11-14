@@ -712,10 +712,18 @@ def donnees_sources(dernier: Path, site_data: dict) -> list[dict]:
             fichiers.append({"nom": chemin.rsplit("/", 1)[-1], "url": url if url.startswith("http") else "",
                              "version": dl(date_version(meta)), "titre": meta.get("titre", "")})
         pages = list(dict.fromkeys(s["page"] for s in ent if s.get("page")))
+        licences = list(dict.fromkeys(s["licence"] for s in ent if s.get("licence")))
+        # un jeu lu sans ligne au journal des sources (données carroyées de l'INSEE) prend sa licence et sa page dans
+        # config.SOURCES_INFO, au lieu de « non renseignée » (relecture du 13 novembre 2026)
+        info = next((i for i in config.SOURCES_INFO if i[0] == motif_src), None)
+        if info and not licences:
+            licences = [info[2]]
+        if info and not pages and str(info[3]).startswith("http"):
+            pages = [info[3]]
         versions = [dl(x["date"]) for x in hist if any(s["jeu"] == nom and s["nature"] != "retiré" for s in x["sources"])]
         inds = [c for c in site_data.get("contexte", []) if mises_a_jour.jeu_de_source(c.get("source") or "") == nom]
         fiches.append({"ancre": mises_a_jour.ancre(nom), "nom": nom, "producteur": ent[0]["producteur"] if ent else producteur,
-                       "licences": list(dict.fromkeys(s["licence"] for s in ent if s.get("licence"))), "pages": pages,
+                       "licences": licences, "pages": pages,
                        "usage": usage, "version": dl(e.get("maj")), "recupere": dl(e.get("recupere")),
                        "suivi_depuis": dl(next((x["date"] for x in hist if nom in x["etat"]), "")),
                        "versions": versions, "fichiers": fichiers, "indicateurs": inds,

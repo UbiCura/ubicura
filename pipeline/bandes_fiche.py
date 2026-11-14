@@ -150,6 +150,12 @@ def bandes(ctx: dict) -> list[dict]:
                      "lire": "Taux standardisés sur l'âge, publiés par département et situés parmi les départements. Ils "
                              "décrivent des habitants, ils ne mesurent ni un besoin de soins ni la qualité de l'offre.",
                      "source": f["source_recours"], "lignes": [ligne(l) for l in f["sm_recours"]] if a_valeur else []})
+    # les indicateurs publiés seulement par région, avec la valeur de la région du département, après les recours
+    # (maquette validée par Lucas le 14 novembre 2026, fiche_territoire._region_seule) : rangés tels quels
+    rs = f.get("region_seule")
+    if rs:
+        g_sm.append({"titre": rs["titre"], "id": "t-sm-reg", "region": rs, "avec_eff": False,
+                     "lignes": [l for l in rs["lignes"] if l.get("txt")]})
     if f["sae"]:
         g_sm.append({"titre": "Psychiatrie à l'hôpital", "id": "t-sm-sae", "quoi": "Indicateur et unité", "unite": "Valeur",
                      "avec_eff": False, "au_dep": au_dep,

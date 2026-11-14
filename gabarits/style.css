@@ -2028,3 +2028,55 @@ nav.site .chercher[aria-expanded="true"]{border-bottom-color:var(--ink)}
   .leg-classes li{display:flex;align-items:center;gap:6px;margin:0}
   .leg-classes i{display:inline-block;width:14px;height:12px;flex:none}
   .leg-classes i.hachure{background:repeating-linear-gradient(45deg,var(--muted) 0 1px,var(--nodata) 1px 3.5px)}}
+
+/* Page Domaines, sous-thèmes dépliables (14 novembre 2026) */
+/* maquette validée par Lucas (prototypes/entrees/v2_domaines/) : chaque sous-thème se déplie avec un chevron, ses
+   indicateurs liés à leur page ; les règles ci-dessous remplacent celles de la liste repliée unique */
+.domaines .sous > li{padding:0}
+.domaines details.sous-pli{margin:0}
+.domaines details.sous-pli > summary,.domaines details.autres-pli > summary{list-style:none;cursor:pointer;display:flex;align-items:flex-start;column-gap:10px;min-height:44px;box-sizing:border-box}
+.domaines details.sous-pli > summary{padding:var(--e-2) 0}
+.domaines details.sous-pli > summary::-webkit-details-marker,.domaines details.autres-pli > summary::-webkit-details-marker{display:none}
+.domaines .sous span.lib{flex:1 1 auto;min-width:0;font-size:var(--t-texte);color:var(--ink)}
+.domaines .sous .autres-pli span.lib{font-size:var(--t-note)}
+.domaines .dom .vers-catalogue{margin-top:var(--e-3)}
+.domaines details.sous-pli > summary b,.domaines .sous > li.sans-pli b{font-weight:600;color:var(--ink)}
+.domaines .sous span.n{color:var(--muted);font-size:var(--t-note)}
+.domaines details.sous-pli > summary:hover b,.domaines details.sous-pli > summary:focus-visible b{color:var(--action)}
+.domaines details > summary:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
+.domaines .chev{flex:none;align-self:flex-start;width:7px;height:7px;margin:.55em 4px 0 2px;border-right:1.5px solid var(--muted);border-bottom:1.5px solid var(--muted);transform:rotate(-45deg);transition:transform .15s}
+.domaines details[open] > summary > .chev{transform:rotate(45deg) translate(-2px,-2px)}
+.domaines details > summary:hover > .chev{border-color:var(--action)}
+.domaines details.sous-pli > .liste-ind,.domaines details.sous-pli > .meta-commune{margin:0 0 var(--e-3);padding-left:23px}
+.domaines details.sous-pli > .meta-commune{margin:-4px 0 2px;font-size:var(--t-note);color:var(--muted)}
+.domaines details.sous-pli .liste-ind li:last-child{border-bottom:0}
+.domaines .liste-ind a{color:var(--ink);text-decoration-line:underline;text-decoration-style:solid;text-decoration-color:var(--line-fort);text-decoration-thickness:1px;text-underline-offset:3px;border-bottom:0}
+.domaines .liste-ind a:hover,.domaines .liste-ind a:focus-visible{color:var(--action);text-decoration-color:var(--action)}
+.domaines .liste-ind .sm{margin-left:0}
+.domaines .colle,.domaines .sous span.colle{white-space:nowrap;color:inherit;font-size:inherit}
+.domaines .liste-ind li.autres{border-bottom:0;padding:4px 0 0}
+.domaines details.autres-pli > summary{padding:4px 0;font-weight:600;color:var(--ink)}
+.domaines details.autres-pli > summary .n{font-weight:400}
+.domaines details.autres-pli > summary:hover{color:var(--action)}
+.domaines details.autres-pli > .liste-ind{padding-left:23px;margin:0 0 var(--e-2)}
+.domaines details.autres-pli > .sous-groupe .sm{display:inline-block;padding:0 5px;border:1px solid var(--action);border-radius:2px;color:var(--chiffre);font-weight:400;line-height:1.4}
+.domaines details.autres-pli > .sous-groupe{padding-left:23px;margin:var(--e-2) 0 0;font-size:var(--t-note);font-weight:600;color:var(--muted)}
+.domaines .sous > li.sans-pli{padding:var(--e-2) 0 var(--e-2) 23px;min-height:44px;box-sizing:border-box}
+@media (min-width:861px){.domaines .liste-ind.deux-col{columns:2;column-gap:var(--e-5)}
+  .domaines .liste-ind.deux-col li{break-inside:avoid}
+  .domaines .dom > div:first-child{position:sticky;top:88px;align-self:start}}
+
+/* Fiche de département, indicateurs connus seulement par région (14 novembre 2026) */
+.fiche .groupe-region .groupe-vers{margin:6px 0 0;font-size:var(--t-note);text-align:left}
+.fiche table.t-region td.v .note.ic{display:block;white-space:nowrap}
+.fiche table.t-region td.pos .note{display:block;color:var(--muted);font-size:var(--t-note)}
+.fiche table.t-region tr.non-pub td.pos{color:var(--muted);font-size:var(--t-note)}
+.fiche .groupe-region .fl{display:inline-block;text-decoration:none;color:var(--muted)}
+.fiche .groupe-region a.vers-ind:hover .fl{color:var(--chiffre)}
+.fiche .groupe-region ul.liste-np{columns:2;column-gap:40px;margin:10px 0 0;padding:0;list-style:none;text-align:left}
+.fiche .groupe-region ul.liste-np li{break-inside:avoid;padding:6px 0;border-bottom:1px solid var(--line);font-size:var(--t-note)}
+@media (max-width:760px){.fiche .groupe-region ul.liste-np{columns:1}}
+.fiche .groupe-region a.vers-ind{color:var(--ink);text-decoration:underline;text-decoration-color:var(--line-fort);text-decoration-thickness:1px;text-underline-offset:3px}
+.fiche .groupe-region a.vers-ind:hover,.fiche .groupe-region a.vers-ind:focus-visible{color:var(--chiffre);text-decoration-color:var(--chiffre)}
+@container (max-width:820px){.fiche table.t-region tr.non-pub td.reg{display:none}}
+.fiche .groupe-region a.vers-ind .sig{display:inline-block;margin-left:0;text-decoration:none}

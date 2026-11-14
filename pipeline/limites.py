@@ -64,6 +64,11 @@ NOMS = {"age_drees": "Âge des professionnels", "taux_depassement": "Dépassemen
         "episode_depressif_declare": "Épisode dépressif déclaré (Baromètre 2024)",
         "trouble_anxieux_generalise": "Trouble anxieux généralisé (Baromètre 2024)",
         "satisfaction_vie": "Satisfaction de la vie actuelle (Baromètre 2024)",
+        "pensees_suicidaires_declarees": "Pensées suicidaires déclarées (Baromètre 2024)",
+        "tentative_suicide_vie_declaree": "Tentative de suicide déclarée (Baromètre 2024)",
+        "alcool_depassement_reperes": "Dépassement des repères d'alcool (Baromètre 2024)",
+        "tabac_quotidien": "Tabac quotidien (Baromètre 2021)",
+        "deces_attribuables_tabac": "Décès attribuables au tabac",
         "entretien_postnatal_precoce": "Entretien postnatal précoce"}
 
 

@@ -75,7 +75,10 @@ def test_carte_des_departements_arrondis_communs_et_noms():
     py = (RAC / "pipeline" / "cartes_presentation.py").read_text(encoding="utf-8")
     debut = py.index("def choroplethe(")
     corps = py[debut:py.index("\ndef ", debut + 10)]
-    assert "_fr(" not in corps and "AF.nombre(v[c], g)" in corps and "aucun inscrit" in corps and "noms.get(c, c)" in corps
+    # 14 novembre 2026 : la valeur écrite est la valeur exacte quand l'arrondi à quatre chiffres la changerait
+    # (test_carte_indicateur_infobulles_a_l_arrondi_exact)
+    assert "_fr(" not in corps and "AF.nombre(exacte.get(c, v[c]), g)" in corps and "aucun inscrit" in corps \
+        and "noms.get(c, c)" in corps
 
 
 def test_fiche_indicateur_dictionnaire_et_doi_cliquable():

@@ -112,6 +112,13 @@ def _f(v, d=1):
     return None if v is None else float(v)
 
 
+def _nombre_csv(x) -> float | None:
+    try:
+        return float(str(x).replace(",", ".")) if x not in (None, "") else None
+    except ValueError:
+        return None
+
+
 class Donnees:
     """Accès aux résultats d'une version, partagé par toutes les fiches."""
 
@@ -133,6 +140,25 @@ class Donnees:
         self.ip = {c: ch.index(c) for c in ch}
         self.pts = lieux.get("pts", [])
         self.concordance = self._concordance()
+        self._cat = None
+        self._ic = None
+
+    def catalogue(self) -> list[dict]:
+        """Le catalogue unique des indicateurs (affichage.catalogue), lu une fois pour toutes les fiches."""
+        if self._cat is None:
+            self._cat = AF.catalogue(self.sd, self.dossier)
+        return self._cat
+
+    def intervalles(self) -> dict:
+        """Intervalles de confiance publiés par Santé publique France (portail Odissé), tels que le fichier publié de la
+        version les donne (sante_mentale_sante_publique_france.csv) : {(niveau, code, indicateur): (valeur, bas, haut)}."""
+        if self._ic is None:
+            self._ic = {}
+            for l in self._csv("sante_mentale_sante_publique_france.csv"):
+                v, lo, hi = (_nombre_csv(l.get(c)) for c in ("valeur", "ic_bas", "ic_haut"))
+                if None not in (v, lo, hi):
+                    self._ic[(l.get("niveau"), l.get("code"), l.get("indicateur"))] = (v, lo, hi)
+        return self._ic
 
     # -- valeurs élémentaires, lues dans la règle d'affichage (pipeline/affichage.py) --------------------------------
     def unite(self, lv, code):
@@ -548,6 +574,7 @@ def fiche(dn: Donnees, lv: str, code: str, version: str) -> dict:
     f["secteurs_psy"] = _secteurs_psy(dn, lv, code, dep)
     f["sm_autres"] = _sante_mentale_autres(dn, lv, code, dep)
     f["sm_autres_n"] = sum(1 for x in f["sm_autres"] for r in x["rows"] if not r.get("sous"))
+    f["region_seule"] = _region_seule(dn, lv, code)
     return f
 
 
@@ -675,6 +702,131 @@ def _sante_mentale_autres(dn, lv, code, dep):
             ligne["defn_court"] = courte(ind, lv)
         par.setdefault(D.classer(ind)[0], []).append(ligne)
     return [{"nom": d["nom"], "rows": accrocher_sous_lignes(par[d["id"]])} for d in D.DOMAINES if d["id"] in par]
+
+
+# -- indicateurs publiés seulement par région, sur la fiche d'un département (maquette validée par Lucas le 14 novembre
+# 2026, prototypes/entrees/v2_fiche/) ----------------------------------------------------------------------------------
+# « dans la marge d'incertitude » après la position quand l'intervalle publié contient le repère des régions : proposé
+# (relecture du 14 novembre 2026, C2), pas encore tranché par Lucas. Le paramètre reste éteint jusqu'à sa décision.
+MARGE_INCERTITUDE = False
+MARGE_TEXTE = ", dans la marge d'incertitude"
+# la région nommée dans les phrases : la Corse et les régions d'outre-mer par leur nom et son article, les autres
+# « la région Auvergne-Rhône-Alpes »
+REGION_DITE = {"94": "la Corse", "01": "la Guadeloupe", "02": "la Martinique", "03": "la Guyane", "04": "La Réunion",
+               "06": "Mayotte"}
+NOMBRE_MOTS = {1: "Une", 2: "Deux", 3: "Trois", 4: "Quatre", 5: "Cinq", 6: "Six", 7: "Sept", 8: "Huit", 9: "Neuf",
+               10: "Dix"}
+
+
+def seulement_region(dn: Donnees) -> list[str]:
+    """Les indicateurs de santé mentale que le catalogue ne publie que par région, dans l'ordre du catalogue, jamais un
+    indicateur marqué sensible : une base régionale ajoutée au catalogue y prend place d'elle-même."""
+    return [e["id"] for e in dn.catalogue() if e.get("niveaux") == ["reg"] and not e.get("sensible")
+            and e["id"] in dn.ctx and D.sante_mentale(dn.ctx[e["id"]][1])]
+
+
+def bornes_intervalle(v_txt: str, bas: float, haut: float) -> tuple[str, str]:
+    """Bornes de l'intervalle de confiance écrites au nombre de décimales de la valeur affichée, avec une décimale de
+    plus quand l'intervalle est plus étroit que dix unités de sa dernière décimale : la satisfaction de la vie, 7,12 à
+    7,26, arrondie à 7,1 et 7,3, semblait contenir la région médiane 7,1 (relecture du 14 novembre 2026, R2)."""
+    n = len(v_txt.split(",")[1]) if "," in v_txt else 0
+    k = n + 1 if haut - bas < 10 * 10 ** -n - 1e-12 else n
+
+    def ecrire(x):
+        r = AF._arr(x, k)
+        return ("−" if r < 0 else "") + f"{abs(r):,.{k}f}".replace(",", FINE).replace(".", ",")
+    return ecrire(bas), ecrire(haut)
+
+
+def dans_marge(ic: tuple | None, ref: float | None) -> bool:
+    """L'intervalle publié (valeur, bas, haut) contient le repère des régions, sur leurs valeurs non arrondies."""
+    return ic is not None and ref is not None and ic[1] <= ref <= ic[2]
+
+
+def _qui_publie(e: dict | None) -> tuple[str, bool]:
+    """Qui ne donne pas la mesure, dit d'après la source du catalogue : « Le portail Odissé de Santé publique France »
+    (relecture du 14 novembre 2026, C1 : ce qui se vérifie dans le fichier, et non « Santé publique France ne publie
+    pas »). Rend aussi si la source est le portail Odissé."""
+    src = (e or {}).get("source") or ""
+    if "portail Odissé" in src:
+        return "Le portail Odissé de Santé publique France", True
+    return f"La source, {src.split(',')[0]}," if src else "La source", False
+
+
+def _region_seule(dn: Donnees, lv: str, code: str) -> dict | None:
+    """Sur la fiche d'un département, les indicateurs publiés seulement par région, avec la valeur de sa région : la
+    même ligne que la fiche de la région (même cellule de la règle d'affichage, même réglette, même position, même
+    repère, même définition et même limite), l'intervalle de confiance publié quand il existe, et le nom vers la page
+    de l'indicateur. Une mesure absente pour la région le dit, jamais un 0 ni une case vide."""
+    if lv != "dep":
+        return None
+    ids = seulement_region(dn)
+    nom_r = dn.unite("dep", code).get("p")
+    rc = next((u["c"] for u in dn.niv["reg"]["units"] if u["nm"] == nom_r), None)
+    if not ids or rc is None:
+        return None
+    from .fiche_indicateur import slug
+    pr = REGION_DITE.get(rc, f"la région {nom_r}")
+    cat = {e["id"]: e for e in dn.catalogue()}
+    ics = dn.intervalles()
+    lignes = []
+    for i in ids:
+        ind = dn.ctx[i][1]
+        cel = dn.contexte("reg", rc, i)
+        l = _ligne(libelle(ind, dn.sd), cel, couleur=False, limite=dn.limite(i, "reg", rc), ident=i, T=dn.T)
+        l.update({"id": i, "defn": ind.get("explication"), "page": f"indicateur/{slug(i)}.html", "niv": f"reg:{rc}",
+                  "ancre": "l-reg-" + "".join(ch if ch.isalnum() else "-" for ch in i.lower()).strip("-"),
+                  "ic": None, "marge": "", "pourquoi": "", "odisse": _qui_publie(cat.get(i))[1]})
+        if l["txt"]:
+            x = ics.get(("reg", rc, i))
+            # l'intervalle n'est écrit que s'il accompagne la valeur publiée elle-même
+            if x and cel["v"] is not None and abs(x[0] - cel["v"]) <= 1e-6 * max(1.0, abs(x[0])):
+                l["ic"] = bornes_intervalle(l["txt"], x[1], x[2])
+                l["marge"] = MARGE_TEXTE if MARGE_INCERTITUDE and dans_marge(x, cel.get("ref")) else ""
+        else:
+            l["pourquoi"] = f"{_qui_publie(cat.get(i))[0]} ne donne pas cette mesure pour {pr}."
+        lignes.append(l)
+    publies = sum(1 for l in lignes if l["txt"])
+    manque = len(lignes) - publies
+    odisse = all(l["odisse"] for l in lignes if not l["txt"])
+    # sources du catalogue, chacune avec ses années, puis la licence (par source si elles diffèrent)
+    par_src: dict = {}
+    for i in ids:
+        e = cat.get(i) or {}
+        s = par_src.setdefault(e.get("source") or "", {"annees": set(), "lic": []})
+        s["annees"].update(str(a) for a in e.get("annees") or [])
+        if e.get("licence") and e["licence"] not in s["lic"]:
+            s["lic"].append(e["licence"])
+    lics = list(dict.fromkeys(x for s in par_src.values() for x in s["lic"]))
+    morceaux = [s + (f" ({', '.join(sorted(v['annees']))})" if v["annees"] else "")
+                + (f", {', '.join(v['lic'])}" if len(lics) > 1 and v["lic"] else "") for s, v in par_src.items() if s]
+    source = "Sources : " + " ; ".join(morceaux) + "." + (f" {lics[0]}." if len(lics) == 1 else "")
+    if publies:
+        refs = {l["ref_lib"] for l in lignes if l["txt"]}
+        avec = "avec la région médiane" if refs == {AF.MEDIANE["reg"]} else "avec leur repère"
+        p = [f"Ces mesures ne sont publiées que par région. Chaque ligne donne la valeur de {pr}, à laquelle appartient "
+             f"le département, et non celle du département. Elle la situe parmi les régions, {avec}."]
+        if any(l["ic"] for l in lignes):
+            p.append("Sous la valeur, l'intervalle de confiance publié par Santé publique France : l'enquête interroge un "
+                     "échantillon d'adultes, la valeur de la région se trouve probablement dans cet intervalle.")
+            if MARGE_INCERTITUDE:
+                p.append("Quand il contient la région médiane, la position est suivie de « dans la marge d'incertitude ».")
+        if manque:
+            p.append(f"{NOMBRE_MOTS.get(manque, manque)} mesure{'s' if manque > 1 else ''} "
+                     f"n'{'ont' if manque > 1 else 'a'} pas de valeur{' sur le portail Odissé' if odisse else ' dans sa source'} "
+                     f"pour {pr}.")
+        lire = " ".join(p)
+        titre = f"Connus seulement pour {pr}"
+    else:
+        qui = "Le portail Odissé de Santé publique France n'en donne" if odisse else "Leurs sources n'en donnent"
+        # Mayotte : le Baromètre de 2024 ne la couvre pas (maquette validée par Lucas le 14 novembre 2026)
+        pourquoi = ("; les mesures de 2024 du Baromètre de Santé publique France y portent sur la France hexagonale et "
+                    "quatre départements et régions d'outre-mer") if rc == "06" else ""
+        lire = (f"Ces {len(lignes)} mesures ne sont publiées que par région. {qui} aucune pour {pr}{pourquoi}. Chaque nom "
+                f"mène à la page de l'indicateur, sa définition et ses limites.")
+        titre = f"Publiés seulement par région, absents pour {pr}"
+    return {"titre": titre, "lire": lire, "source": source, "code": rc, "nom": nom_r, "pr": pr, "lignes": lignes,
+            "publies": publies, "manque": manque}
 
 
 def _domaines(dn: Donnees, lv, code, dep):
@@ -1287,7 +1439,7 @@ def construire(env, commun: dict, dernier: Path, site_data: dict, site: Path, re
     for u in site_data["niveaux"]["epci"]["units"]:
         epcis_de_dep.setdefault(u.get("p"), []).append(u["c"])
     venir = D.bases_a_venir(registre)
-    cat = {e["id"]: e for e in AF.catalogue(site_data, dernier)}
+    cat = {e["id"]: e for e in dn.catalogue()}
     gabarit = env.get_template("fiche_territoire.html")
     # part des structures de soins psychiques confirmées en France, sur les mêmes types
     tot = conf = 0

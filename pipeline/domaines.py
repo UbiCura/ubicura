@@ -14,8 +14,10 @@ DOMAINES = [
     {"id": "offre", "nom": "Offre de soins", "court": "Offre de soins", "centre": True,
      "pourquoi": "Qui exerce, où, dans quelles structures, à quelles conditions de tarif, et comment "
                  "cette offre a changé depuis 2016.",
+     # « Activité des libéraux » (patientèle, depuis le 11 novembre 2026) manquait ici : la page Domaines ne la
+     # montrait pas et les listes la rangeaient en dernier (maquette validée par Lucas le 14 novembre 2026)
      "sous": ["Professionnels", "Structures de soins", "Psychiatrie à l'hôpital", "Âge et évolution des professionnels",
-              "Accès financier"]},
+              "Accès financier", "Activité des libéraux"]},
     {"id": "recours", "nom": "État de santé et recours aux soins", "court": "Santé et recours",
      "pourquoi": "L'état de santé des habitants et les soins qu'ils reçoivent, approchés par les affections de longue "
                  "durée, les gestes suicidaires, les consommations et les traitements. Un recours dépend aussi de l'offre "
@@ -111,6 +113,14 @@ def classer(ind: dict) -> tuple[str, str]:
     if i in _ENF:
         return "enfance", _ENF[i]
     return "population", "Ménages"
+
+
+def sous_themes(d: dict, indicateurs: list[dict]) -> list[str]:
+    """Sous-thèmes d'un domaine dans l'ordre de DOMAINES, suivis de tout sous-thème que le catalogue donne à ses
+    indicateurs sans qu'il soit nommé ici : une base rangée dans un sous-thème nouveau paraît d'elle-même."""
+    noms = list(d.get("sous", []))
+    return noms + [s for s in dict.fromkeys(i["sous"] for i in indicateurs if i.get("domaine", d["id"]) == d["id"])
+                   if s and s not in noms]
 
 
 def sante_mentale(ind: dict) -> bool:

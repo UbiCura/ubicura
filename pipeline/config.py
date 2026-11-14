@@ -713,7 +713,8 @@ SOURCES_INFO = [
      "Licence Ouverte 2.0", "https://www.data.gouv.fr/datasets/offres-de-sante-sanitaire-medico-social-et-de-ville-en-"
      "france-metropolitaine-et-drom-1"),
     (r"^IGN, géocodage", "IGN, service de géocodage de la Géoplateforme (Base Adresse Nationale)", "Licence Ouverte 2.0",
-     "https://geoservices.ign.fr/documentation/services/services-geoplateforme/geocodage"),    (r"^INSEE, données carroyées", "Institut national de la statistique et des études économiques (INSEE)",
+     "https://geoservices.ign.fr/documentation/services/services-geoplateforme/geocodage"),
+    (r"^INSEE, données carroyées", "Institut national de la statistique et des études économiques (INSEE)",
      "Licence Ouverte 2.0", INSEE_CARREAUX_PAGE),
 ]
 
@@ -1456,6 +1457,34 @@ LIMITES = {
             "Mesure déclarée, tirée", "Note moyenne déclarée, tirée").replace(", ce n'est pas un diagnostic", ""),
         "sources": [("Santé publique France, Baromètre 2024, bien-être", _ODISSE_JEU
                      + "bien-etre-indicateurs-du-barometre-2024/")]},
+    # conduites suicidaires, alcool et tabac du Baromètre, publiés sans limite jusqu'au 14 novembre 2026 (relevé en
+    # préparant les maquettes des fiches) ; couverture lue dans les fichiers publiés : 17 régions pour les mesures de
+    # 2024, 12 régions de l'Hexagone hors Corse pour le tabac quotidien, dont la série date de 2021
+    "pensees_suicidaires_declarees": {
+        "risque": "mesure déclarée", "texte": _BAROMETRE_TEXTE,
+        "sources": [("Santé publique France, Baromètre 2024, conduites suicidaires", _ODISSE_JEU
+                     + "conduites-suicidaires-indicateurs-du-barometre-de-sante-publique-france-2024-detail-region/")]},
+    "tentative_suicide_vie_declaree": {
+        "risque": "mesure déclarée", "texte": _BAROMETRE_TEXTE,
+        "sources": [("Santé publique France, Baromètre 2024, conduites suicidaires", _ODISSE_JEU
+                     + "conduites-suicidaires-indicateurs-du-barometre-de-sante-publique-france-2024-detail-region/")]},
+    "alcool_depassement_reperes": {
+        "risque": "mesure déclarée", "texte": _BAROMETRE_TEXTE.replace(", ce n'est pas un diagnostic", ""),
+        "sources": [("Santé publique France, Baromètre 2024, alcool", _ODISSE_JEU
+                     + "alcool-indicateurs-du-barometre-de-sante-publique-france-2024-detail-region/")]},
+    "tabac_quotidien": {
+        "risque": "mesure déclarée",
+        "texte": ("Mesure déclarée, tirée de l'édition 2021 du Baromètre de Santé publique France, auprès d'adultes de "
+                  "18 à 75 ans. Elle n'est publiée que pour les 12 régions de l'Hexagone hors Corse, avec une "
+                  "fourchette souvent large dans les petites régions. Elle ne se compare pas aux mesures de 2024."),
+        "sources": [("Santé publique France, Baromètre, consommation quotidienne de tabac par région", _ODISSE_JEU
+                     + "tabac-consommation-quotidienne_reg/")]},
+    "deces_attribuables_tabac": {
+        "risque": "estimation",
+        "texte": ("Estimation et non compte de décès : elle est tirée de la mortalité par cause et de la part de "
+                  "fumeurs, standardisée sur l'âge, avec sa fourchette. Publiée seulement par région, hors Mayotte."),
+        "sources": [("Santé publique France, décès attribuables au tabac par région", _ODISSE_JEU
+                     + "tabac-deces-attribuables-au-tabac_reg/")]},
     "entretien_postnatal_precoce": {
         "risque": "recours aux soins",
         "texte": ("C'est un recours aux soins, qui dépend aussi de l'offre de sages-femmes et de médecins, et non un "
@@ -1745,6 +1774,9 @@ for _k, _c in {"episode_depressif_declare": _BAROMETRE_COURT[:-1] + ", série 20
                "trouble_anxieux_generalise": _BAROMETRE_COURT,
                "satisfaction_vie": _BAROMETRE_COURT.replace("Mesure déclarée", "Note déclarée"),
                "pensees_suicidaires_declarees": _BAROMETRE_COURT, "tentative_suicide_vie_declaree": _BAROMETRE_COURT,
+               "alcool_depassement_reperes": _BAROMETRE_COURT,
+               "tabac_quotidien": "Mesure déclarée de 2021, 12 régions de l'Hexagone hors Corse, fourchette souvent large.",
+               "deces_attribuables_tabac": "Estimation et non compte de décès, par région seulement, hors Mayotte.",
                "entretien_postnatal_precoce": "Recours aux soins et non besoin, publié depuis 2023, non calculé pour Mayotte."}.items():
     if _k in LIMITES:
         LIMITES_COURT[_k] = LIMITES[_k]["court"] = _c

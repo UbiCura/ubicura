@@ -5,6 +5,9 @@
 {% macro compte(d) -%}
 {%- if d.n %}{{ d.n }} indicateur{{ 's' if d.n > 1 }}{% else %}aucun indicateur{% endif %}{% if d.venir %}, {{ d.venir }} à venir{% endif -%}
 {%- endmacro %}
+{% macro lignes(liste) -%}
+{%- for i in liste %}<li>{% if i.href %}<a href="{{ i.href }}">{{ i.lib }}</a>{% else %}{{ i.lib }}{% endif %}{% if i.sm %} <span class="sm">santé mentale</span>{% endif %}{% if i.meta %}<span class="meta">{{ i.meta }}</span>{% endif %}</li>{% endfor -%}
+{%- endmacro %}
 {% block contenu %}
 <header class="tete">
   <h1>L’offre de soins au centre, sept domaines autour</h1>
@@ -65,21 +68,33 @@
     <h2 id="t-{{ d.id }}"><a class="vers-dom" href="domaine/{{ 'offre-de-soins' if d.centre else d.id }}.html">{{ d.nom }}<span aria-hidden="true"> →</span></a></h2>
     <p class="pourquoi">{{ d.pourquoi }}</p>
     {% if d.centre %}<p class="vers-page"><a href="domaine/sante-mentale.html">La page Santé mentale</a> et <a href="domaine/sante.html">la page Santé</a>, leurs questions et leurs figures</p>{% endif %}
-    <p class="compte">{% if d.indicateurs %}<b>{{ d.indicateurs|length }}</b> indicateur{{ 's publiés' if d.indicateurs|length > 1 else ' publié' }}{% else %}Aucun indicateur publié{% endif %}{% set n_sm = d.indicateurs|selectattr('sm')|list|length %}{% if n_sm %}, dont {{ n_sm }} de santé mentale{% endif %}{% if d.venir_liste %}, {{ d.venir_liste|length }} base{{ 's' if d.venir_liste|length > 1 }} à venir{% endif %}.</p>
+    <p class="compte">{% if d.indicateurs %}<b>{{ d.indicateurs|length }}</b> indicateur{{ 's publiés' if d.indicateurs|length > 1 else ' publié' }}{% else %}Aucun indicateur publié{% endif %}{% if d.n_sm %}, dont {{ d.n_sm }} de santé mentale{% if d.detail_sm %} ({{ d.detail_sm }}){% endif %}{% endif %}{% if d.venir_liste %}, {{ d.venir_liste|length }} base{{ 's' if d.venir_liste|length > 1 }} à venir{% endif %}.</p>
   </div>
   <div>
-    <ul class="sous">{% for so, liste in d.par_sous %}<li><b>{{ so }}</b> <span>{% if liste %}{{ liste|length }} indicateur{{ 's' if liste|length > 1 }}{% else %}à venir{% endif %}</span></li>{% endfor %}</ul>
-    {% if d.indicateurs or d.venir_liste %}
+    {#- chaque sous-thème se déplie là où il est nommé et montre ses indicateurs, chacun lié à sa page ; « À venir » en
+        dernier (maquette validée par Lucas le 14 novembre 2026, données de portail.donnees_domaines) #}
+    <ul class="sous">{% for s in d.sous_themes %}
+      {%- if s.lignes or s.bases %}
+      <li><details class="sous-pli" id="{{ s.ancre }}"><summary><span class="chev" aria-hidden="true"></span><span class="lib"><b>{{ s.nom }}</b> <span class="n">{{ s.compte }}</span></span></summary>
+        {%- if s.meta %}<p class="meta-commune">{{ s.meta }}</p>{% endif %}
+        {%- if s.bases %}
+        <ul class="liste-ind a-venir">{% for b in s.bases %}<li>{{ b }}</li>{% endfor %}</ul>
+        {%- else %}
+        <ul class="liste-ind">{{ lignes(s.lignes) }}
+          {%- if s.autres %}<li class="autres"><details class="autres-pli"><summary><span class="chev" aria-hidden="true"></span><span class="lib">Les autres professions <span class="n">{{ s.autres.n }}</span></span></summary>
+            <ul class="liste-ind deux-col">{{ lignes(s.autres.lignes) }}</ul>
+            {%- if s.autres.groupe %}{% set g = s.autres.groupe %}
+            <p class="sous-groupe">{{ g.titre }} <span class="n">{{ g.n }}</span>{% if g.sm %} <span class="sm">santé mentale</span>{% endif %}</p>
+            <ul class="liste-ind deux-col">{{ lignes(g.lignes) }}</ul>{% endif %}
+          </details></li>{% endif %}
+        </ul>
+        {%- endif %}
+      </details></li>
+      {%- else %}
+      <li class="sans-pli" data-sans-glossaire><span class="lib"><b>{{ s.nom }}</b> <span class="n">à venir</span></span></li>
+      {%- endif %}
+    {%- endfor %}</ul>
     {% if d.indicateurs %}<p class="vers-catalogue"><a href="indicateurs.html#dom={{ d.nom|urlencode }}">Ses indicateurs dans le catalogue</a>, avec la recherche et les filtres</p>{% endif %}
-    <details><summary>La liste</summary>
-      <ul class="liste-ind">
-        {% for so, liste in d.par_sous if liste %}<li class="sous-titre">{{ so }}</li>
-          {% for i in liste %}<li>{% if i.fiche %}<a href="indicateur/{{ i.fiche }}.html">{{ i.label }}</a>{% else %}{{ i.label }}{% endif %}{% if i.sm %}<span class="sm">santé mentale</span>{% endif %}{% if i.unite %}<span class="meta">{{ i.unite }}{% if i.source %}, {{ i.source }}{% endif %}</span>{% endif %}</li>{% endfor %}
-        {% endfor %}
-        {% if d.venir_liste %}<li class="sous-titre">À venir</li>{% for v in d.venir_liste %}<li>{{ v }}</li>{% endfor %}{% endif %}
-      </ul>
-    </details>
-    {% endif %}
   </div>
 </section>
 {% endfor %}

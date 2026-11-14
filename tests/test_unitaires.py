@@ -6462,6 +6462,85 @@ def test_controle_affichage_site_construit():
     assert all(CA.ATTENDU_AVANT_EXECUTION in t or "atlas" in t or "rapport" in t for n, t in res if n == "à regarder")
 
 
+def test_carte_indicateur_infobulles_a_l_arrondi_exact():
+    """13 novembre 2026 : la carte de la page « Psychiatres, en établissement psychiatrique » écrivait la Dordogne à
+    4,6 pour 100 000, sa fiche à 4,5 (valeur 4,5497, gardée 4,550 par l'arrondi à quatre chiffres des données de
+    l'atlas, puis arrondie une seconde fois). 398 infobulles par département étaient concernées. Les cartes lisent
+    désormais les valeurs exactes données à part (aff.lv.x), comme les pages en JavaScript, et les pages construites
+    sont vérifiées partout."""
+    import html as H
+    from pipeline import affichage as AF
+    from pipeline import controle_affichage as CA
+    from pipeline.cartes_presentation import choroplethe
+    site = Path(__file__).resolve().parent.parent / "site"
+    if not (site / "presentation" / "atelier_donnees.js").exists():
+        raise Ignore("site de la présentation non construit dans cette copie")
+    A = CA._atelier(site)
+    codes = [u["c"] for u in A["units"]["dep"]]
+    noms = {u["c"]: u.get("nm", u["c"]) for u in A["units"]["dep"]}
+    fi = {e["id"]: e for e in A["ind"]}
+    vus, faux_code, faux_page = 0, [], []
+    for ind, p in A["aff"]["lv"]["dep"].items():
+        x = p.get("x") or {}
+        if not x or ind not in fi:
+            continue
+        e = fi[ind]
+        g = A["aff"]["ind"].get(ind, {}).get("g") or AF.genre(e.get("u") or "", ind)
+        svg = choroplethe(A, "dep", ind, e["lab"], e.get("u") or "") or ""
+        page = site / "indicateur" / f"{e.get('fi')}.html"
+        # la page d'une profession porte la carte de tous les modes ; celles des libéraux et des salariés n'en ont pas
+        carte_de_la_page = not ind.startswith("prof:") or ind.endswith(":all")
+        texte_page = page.read_text(encoding="utf-8") if carte_de_la_page and page.exists() else ""
+        for j, xv in x.items():
+            c = codes[int(j)]
+            attendu = H.escape(f"{noms[c]}, {AF.nombre(xv, g)}")
+            vus += 1
+            if svg and attendu not in svg:
+                faux_code.append((ind, c))
+            if texte_page and "<svg" in texte_page and f"<title>{attendu}" not in texte_page and f"<title>{noms[c]}, non" not in texte_page:
+                faux_page.append((ind, c))
+    assert vus > 100
+    assert not faux_code, faux_code[:5]
+    assert not faux_page, f"{len(faux_page)} infobulles de carte à reconstruire : {faux_page[:5]}"
+
+
+def test_registre_aucune_base_lue_encore_a_integrer():
+    """14 novembre 2026 : la page Domaines annonçait « à venir » la patientèle des libéraux, publiée depuis le 11
+    novembre, parce que le registre la gardait « à intégrer ». Une base dont le jeu est déjà lu par le programme
+    (adresse dans config.py) ne reste ni « à intégrer » ni « à examiner »."""
+    import csv
+    import re as _re
+    texte = (config.RACINE / "pipeline" / "config.py").read_text(encoding="utf-8")
+    lus = set(_re.findall(r"datasets?/([a-z0-9][a-z0-9_-]+)", texte))
+    f = config.RACINE / "docs" / "veille" / "registre_bases.csv"
+    lignes = list(csv.DictReader(f.read_text(encoding="utf-8-sig").splitlines(), delimiter=";"))
+    restes = [l["id"] for l in lignes if l["statut"] in ("à intégrer", "à examiner")
+              and any(x.strip() in lus for x in l["identifiant"].split(",") if x.strip())]
+    assert not restes, f"bases lues mais encore annoncées : {restes}"
+
+
+def test_odisse_chaque_indicateur_porte_sa_limite():
+    """14 novembre 2026 : les pensées suicidaires, la tentative de suicide, l'alcool, le tabac quotidien et les décès
+    attribuables au tabac étaient publiés sans limite sur leur page et les fiches, alors que ce sont des mesures
+    déclarées ou estimées (le tabac, de 2021, sur 12 régions seulement). Chaque indicateur de Santé publique France a
+    sa limite, sa limite courte et son nom de limite."""
+    from pipeline.limites import NOMS
+    manque = [e["id"] for e in config.ODISSE
+              if e["id"] not in config.LIMITES or not config.LIMITES_COURT.get(e["id"]) or e["id"] not in NOMS]
+    assert not manque, manque
+    assert "2021" in config.LIMITES["tabac_quotidien"]["texte"] and "12 régions" in config.LIMITES["tabac_quotidien"]["texte"]
+
+
+def test_sources_licence_et_page_toujours_renseignees():
+    """Relecture du 13 novembre 2026 : la fiche des données carroyées de l'INSEE écrivait « Licence, non renseignée »
+    et « Page du jeu, non renseignée », alors que config.SOURCES_INFO les donne. Chaque jeu suivi a sa licence et sa
+    page sur la page construite."""
+    page =Path(__file__).resolve().parent.parent / "site" / "donnees-sources.html"
+    if not page.exists():
+        raise Ignore("site non construit dans cette copie")
+    assert "non renseignée" not in page.read_text(encoding="utf-8")
+
+
 def test_controle_affichage_lit_la_fiche_bplus():
     """Le contrôle de cohérence lit la fiche B+ (étape 2, 31 octobre 2026) : valeur en gras sans « km », repère pris
     dans la description de la réglette par son nom (la position manque quand la valeur n'est pas publiée), note sous un
@@ -7686,6 +7765,287 @@ def test_limites_relues_a_la_construction_du_site():
     if "remplace depuis" not in t:
         raise Ignore("site construit avant le changement de série")
     assert "12 régions de l'Hexagone hors Corse" in t and "13 régions" not in t
+
+
+def _domaines_rendue():
+    """Page Domaines rendue sur les vraies données de la dernière version, sans construire le site : catalogue du
+    portail, registre des bases, et nom de la page de chaque indicateur lu dans le catalogue du site construit."""
+    import json
+    from pipeline import config, domaines as D, portail, site as S
+    dates = sorted(p for p in config.RESULTATS.glob("20*") if (p / "site_data.json").exists())
+    cj = config.RACINE / "site" / "presentation" / "catalogue.json"
+    if not dates or not cj.exists():
+        raise Ignore("résultats ou site construit absents")
+    sd = json.loads((dates[-1] / "site_data.json").read_text(encoding="utf-8"))
+    cat = portail.catalogue(sd)
+    fiches = {e["id"]: e["page"][len("indicateur/"):-len(".html")]
+              for e in json.loads(cj.read_text(encoding="utf-8")) if e["page"].startswith("indicateur/")}
+    for i in cat:
+        i["fiche"] = fiches.get(i["id"], "")
+    venir = D.bases_a_venir(config.RACINE / "docs" / "veille" / "registre_bases.csv")
+    h = portail.page_domaines(S._environnement(), S._commun(dates[-1], sd), cat, venir, None)
+    return h, cat, venir
+
+
+def _domaines_sous_themes(h: str) -> list[str]:
+    """Le contenu de chaque liste des sous-thèmes (<ul class="sous">) de la page, un par domaine."""
+    import re
+    return re.findall(r'<ul class="sous">(.*?)</ul>\s*(?:<p class="vers-catalogue">|</div>)', h, flags=re.S)
+
+
+def test_domaines_chaque_indicateur_une_fois_vers_sa_page():
+    """Maquette validée par Lucas le 14 novembre 2026 : sur la page Domaines, chaque indicateur du catalogue paraît une
+    fois, dans son sous-thème, avec un lien vers sa page, et cette page existe dans le site construit. « La liste »
+    repliée du bas a disparu."""
+    import re
+    from pipeline import config
+    h, cat, _ = _domaines_rendue()
+    assert "<summary>La liste</summary>" not in h
+    liens = re.findall(r'<li><a href="(indicateur/[^"]+\.html)">', h)
+    assert len(liens) == len(set(liens)) == len(cat), (len(liens), len(set(liens)), len(cat))
+    attendus = {f"indicateur/{i['fiche']}.html" for i in cat if i["fiche"]}
+    assert set(liens) == attendus and len(attendus) == len(cat), sorted({i["id"] for i in cat if not i["fiche"]})[:5]
+    absents = [l for l in liens if not (config.RACINE / "site" / l).is_file()]
+    assert not absents, absents[:5]
+    # chaque indicateur est rangé sous son propre sous-thème (le dépliable ouvert le plus proche avant son lien)
+    for i in cat:
+        lien = f'href="indicateur/{i["fiche"]}.html"'
+        debut = h.rindex('<details class="sous-pli"', 0, h.index(lien))
+        assert f"<b>{i['sous']}</b>".replace("'", "&#39;") in h[debut:debut + 400], (i["id"], i["sous"])
+
+
+def test_domaines_compte_de_chaque_sous_theme_egal_a_ses_liens():
+    """Le nombre écrit à côté de chaque sous-thème (« 86 indicateurs », « Les autres professions 72 », « 8 bases ») est
+    le nombre de lignes qu'il ouvre ; le compte du domaine est la somme de ses sous-thèmes."""
+    import re
+    h, cat, venir = _domaines_rendue()
+    vus = 0
+    for sec in re.findall(r'<section class="dom" id="[a-z]+".*?</section>', h, flags=re.S):
+        # chaque dépliable va jusqu'au suivant : ses lignes sont celles qu'il ouvre, « Les autres professions » comprises
+        morceaux = re.split(r'(?=<li><details class="sous-pli")|(?=<li class="sans-pli")', sec)
+        for corps in morceaux[1:]:
+            m = re.match(r'<li><details class="sous-pli" id="([^"]+)"><summary>.*?<b>(.*?)</b> <span class="n">(\d+)\s(indicateurs?|bases?)</span>', corps, flags=re.S)
+            if not m:
+                assert corps.startswith('<li class="sans-pli"') and "<a " not in corps.split("</li>")[0]
+                continue
+            ident, nom, n, mot = m.group(1), m.group(2), int(m.group(3)), m.group(4)
+            if mot.startswith("indicateur"):
+                assert len(re.findall(r'<li><a href="indicateur/', corps)) == n, (ident, nom, n)
+            else:
+                liste = re.search(r'<ul class="liste-ind a-venir">(.*?)</ul>', corps, flags=re.S).group(1)
+                assert liste.count("<li>") == n == len(venir[ident.split("-")[1]]), (ident, n)
+            vus += 1
+    assert vus >= 20
+    a = re.search(r'Les autres professions <span class="n">(\d+)</span></span></summary>(.*?)</details></li>', h, flags=re.S)
+    assert a and len(re.findall(r'<li><a href="indicateur/', a.group(2))) == int(a.group(1))
+    g = re.search(r'<p class="sous-groupe">.*?<span class="n">(\d+)</span>.*?</p>\s*<ul class="liste-ind deux-col">(.*?)</ul>', a.group(2), flags=re.S)
+    assert g and len(re.findall(r"<li><a ", g.group(2))) == int(g.group(1))
+    # compte du domaine, en tête, égal à la somme de ses sous-thèmes
+    for sec in re.findall(r'<section class="dom" id="[a-z]+".*?</section>', h, flags=re.S):
+        tete = re.search(r'<p class="compte"><b>(\d+)</b>', sec)
+        n_sous = sum(int(x) for x in re.findall(r'<span class="n">(\d+)\sindicateurs?</span>', sec))
+        assert (int(tete.group(1)) if tete else 0) == n_sous, sec[:120]
+
+
+def test_domaines_professions_principales_et_activite_des_liberaux():
+    """Les professions principales viennent d'abord, dont toute profession de « En bref » des fiches (le psychiatre
+    qualifié pour l'enfant, juste après le pédopsychiatre) ; le sous-thème « Activité des libéraux » est présent ; le
+    compte « dont N de santé mentale » dit où sont ceux qui ne sont pas dans le sous-thème Santé mentale."""
+    import re
+    from pipeline import config, domaines as D, portail
+    h, cat, _ = _domaines_rendue()
+    assert "Activité des libéraux" in D.PAR_ID["offre"]["sous"]
+    assert re.search(r'<b>Activité des libéraux</b> <span class="n">\d+ indicateurs?</span>', h)
+    # tout sous-thème que le catalogue donne à un indicateur est nommé sur la page
+    for s in {i["sous"] for i in cat}:
+        assert f"<b>{s}</b>".replace("'", "&#39;") in h, s
+    p = re.search(r'id="st-offre-1">.*?<ul class="liste-ind">(.*?)<li class="autres">', h, flags=re.S)
+    principales = re.findall(r'href="indicateur/([^"]+)\.html"', p.group(1))
+    fiche = {i["id"]: i["fiche"] for i in cat}
+    for pid in portail.phares_professions():
+        assert fiche[pid] in principales, pid
+    for pid in config.PROFESSIONS_PRINCIPALES:
+        if "prof:" + pid in fiche:
+            assert fiche["prof:" + pid] in principales, pid
+    assert principales.index(fiche["prof:q_psychiatrie_enfant"]) == principales.index(fiche["prof:pedopsychiatre"]) + 1
+    m = re.search(r"dont (\d+)\sde santé mentale \((\d+)\sdans le .*?sous-thème.*? Santé mentale, (\d+)\sdans Addictions\)", h)
+    sm = [i for i in cat if i["domaine"] == "recours" and i["sm"]]
+    assert m and int(m.group(1)) == len(sm) == int(m.group(2)) + int(m.group(3)), m and m.groups()
+
+
+def test_domaines_sous_themes_au_meme_style():
+    """Aucun sous-thème n'a un style à part : chacun est un dépliable avec chevron (nom accessible : son titre et son
+    compte), ou, s'il n'a encore aucun indicateur, une ligne alignée sur les autres, hors du glossaire (« Structures de
+    soins » prenait le pointillé du glossaire, 14 novembre 2026)."""
+    import re
+    h, _, _ = _domaines_rendue()
+    listes = _domaines_sous_themes(h)
+    assert len(listes) == 8, len(listes)
+    n = 0
+    for ul in listes:
+        # chaque sous-thème commence une ligne de la liste : il a l'une des deux formes, et aucune autre
+        tetes = re.findall(r"\n\s*(<li[^>]*>.{0,40})", "\n" + ul)
+        assert all(t.startswith(('<li><details class="sous-pli"', '<li class="sans-pli" data-sans-glossaire>')) for t in tetes), tetes
+        ouverts = re.findall(r'<li><details class="sous-pli" id="[^"]+"><summary><span class="chev" aria-hidden="true"></span><span class="lib"><b>[^<]+</b> <span class="n">[^<]+</span></span></summary>', ul)
+        sans = re.findall(r'<li class="sans-pli" data-sans-glossaire><span class="lib"><b>[^<]+</b> <span class="n">à venir</span></span></li>', ul)
+        assert len(ouverts) + len(sans) == len(tetes) > 0, (len(ouverts), len(sans), len(tetes))
+        n += len(tetes)
+    assert n >= 25
+    css = (Path(__file__).resolve().parents[1] / "gabarits" / "style.css").read_text(encoding="utf-8")
+    bloc = css[css.index("/* Page Domaines, sous-thèmes dépliables (14 novembre 2026) */"):]
+    assert "details.sous-pli > summary" in bloc and ".sous > li.sans-pli" in bloc and "::-webkit-details-marker" in bloc
+
+
+def test_domaines_a_venir_dernier_et_sans_base_integree():
+    """« À venir » est le dernier dépliable de chaque domaine, lu dans le registre des bases ; aucune base annoncée
+    n'est déjà au catalogue (la patientèle des libéraux restait annoncée alors qu'elle était publiée, 14 novembre 2026) :
+    ni jeu lu par le programme, ni source d'un indicateur publié."""
+    import csv
+    import re
+    from pipeline import config, domaines as D
+    h, cat, venir = _domaines_rendue()
+    for d in D.DOMAINES:
+        sec = re.search(rf'<section class="dom" id="{d["id"]}".*?</section>', h, flags=re.S).group(0)
+        noms = re.findall(r'<details class="sous-pli" id="([^"]+)">', sec)
+        if venir.get(d["id"]):
+            assert noms and noms[-1] == f"st-{d['id']}-venir", (d["id"], noms)
+        else:
+            assert f"st-{d['id']}-venir" not in sec
+    texte_config = (config.RACINE / "pipeline" / "config.py").read_text(encoding="utf-8")
+    lus = set(re.findall(r"datasets?/([a-z0-9][a-z0-9_-]+)", texte_config))
+    norme = lambda s: re.sub(r"\W+", " ", s.lower()).strip()  # noqa: E731
+    sources = {norme(re.sub(r"\([^)]*\)", "", s.split(", ", 1)[1])) for s in {i.get("source") or "" for i in cat}
+               if ", " in s}
+    sources = {s for s in sources if len(s) >= 15}
+    registre = config.RACINE / "docs" / "veille" / "registre_bases.csv"
+    with registre.open(encoding="utf-8") as f:
+        lignes = {l["id"]: l for l in csv.DictReader(f, delimiter=";")}
+    annoncees = [l for i, l in lignes.items() if i in D._REG_PAR_ID and l["statut"] == "à intégrer"
+                 and i not in D.REGISTRE_HORS_MODELE | D.REGISTRE_ECARTEES]
+    assert sum(len(v) for v in venir.values()) == len(annoncees)
+    for l in annoncees:
+        assert not any(x.strip() in lus for x in l["identifiant"].split(",") if x.strip()), l["id"]
+        nom = norme(D.REGISTRE_LIBELLE.get(l["id"]) or l["nom"])
+        assert not any(s in nom or nom in s for s in sources), (l["id"], nom)
+
+
+def test_bornes_intervalle_region():
+    """Indicateurs publiés seulement par région sur la fiche d'un département (14 novembre 2026) : les bornes de
+    l'intervalle de confiance prennent les décimales de la valeur, une de plus quand l'intervalle est plus étroit que
+    dix unités de la dernière décimale (satisfaction de la vie, 7,12 à 7,26, et non 7,1 à 7,3 à côté de la médiane 7,1)."""
+    from pipeline import fiche_territoire as FT
+    assert FT.bornes_intervalle("7,2", 7.12, 7.26) == ("7,12", "7,26")
+    assert FT.bornes_intervalle("16,7", 15.2, 18.3) == ("15,2", "18,3")
+    assert FT.bornes_intervalle("24,9", 22.7614, 26.9783) == ("22,8", "27,0")
+    assert FT.bornes_intervalle("136,3", 128.7, 147.2) == ("128,7", "147,2")
+    assert FT.dans_marge((7.19, 7.12, 7.26), 7.14) and not FT.dans_marge((4.8, 4.0, 5.7), 5.8)
+    assert not FT.dans_marge(None, 5.0)
+    # la réserve « dans la marge d'incertitude » attend la décision de Lucas : le paramètre reste éteint
+    assert FT.MARGE_INCERTITUDE is False
+
+
+def test_fiche_departement_indicateurs_de_la_region():
+    """Sur chaque fiche de département, dans « 01 Santé mentale », les indicateurs publiés seulement par région (maquette
+    validée par Lucas le 14 novembre 2026) : la liste se déduit du catalogue (niveau région seul, santé mentale, jamais
+    sensible) ; chacun paraît une fois, avec la valeur, la position, la réglette et la limite de la fiche de sa région ;
+    l'intervalle publié encadre la valeur ; aucun 0 seul ; une mesure absente dit pourquoi ; Mayotte sans valeur ; les
+    liens mènent à des pages qui existent. Fiches de tous les départements et de toutes les régions, rendues à part."""
+    import html as H
+    import json
+    import re
+    import tempfile
+    from pipeline import domaines as D, fiche_territoire as FT, limites
+    from pipeline import site as S
+    r = _dernier_resultats()
+    sd = json.loads((r / "site_data.json").read_text(encoding="utf-8"))
+    for k, L in config.LIMITES.items():   # comme site.construire
+        e = sd.setdefault("limites", {}).setdefault(k, {})
+        e.update(risque=L["risque"], texte=L["texte"], sources=L["sources"], nom=limites.NOMS.get(k, k),
+                 court=config.LIMITES_COURT.get(k, ""))
+    limites.completer(sd.get("limites"))
+    dn = FT.Donnees(sd, r)
+    ctx = {c["id"]: c for c in sd["contexte"]}
+    attendus = [e["id"] for e in dn.catalogue() if e["niveaux"] == ["reg"] and e["id"] in ctx
+                and D.sante_mentale(ctx[e["id"]]) and not e["sensible"]]
+    assert attendus and FT.seulement_region(dn) == attendus, (FT.seulement_region(dn), attendus)
+    sensibles = {e["id"] for e in dn.catalogue() if e["sensible"]}
+    site_reel = config.RACINE / "site"
+
+    def texte(h):
+        t = H.unescape(re.sub(r"<[^>]+>", " ", h)).replace(" ", " ").replace(" ", " ")
+        return re.sub(r"\s+", " ", t).strip()
+
+    def lignes(h):
+        """Ligne data-ind -> (valeur, position, réglette, limite) d'une fiche."""
+        out = {}
+        for m in re.finditer(r'<tr[^>]*?data-ind="([^"]+)"[^>]*>(.*?)</tr>(\s*<tr class="suite-ligne">.*?</tr>)?', h, re.S):
+            v = re.search(r'<td class="v"><b>(.*?)</b>', m.group(2), re.S)
+            pos = re.search(r'<td class="pos">(.*?)(?:<span class="note">|</td>)', m.group(2), re.S)
+            rg = re.search(r'aria-label="([^"]*)"', m.group(2))
+            lim = re.search(r'<span class="lim-ligne"[^>]*>(.*?)</span>', m.group(3) or "", re.S)
+            out.setdefault(m.group(1), (texte(v.group(1)) if v else "", texte(pos.group(1)) if pos else "",
+                                        rg.group(1) if rg else "", texte(lim.group(1)) if lim else ""))
+        return out
+    deps = [u["c"] for u in sd["niveaux"]["dep"]["units"]]
+    regs = [u["c"] for u in sd["niveaux"]["reg"]["units"]]
+    with tempfile.TemporaryDirectory() as d:
+        pages = FT.construire(S._environnement(), S._commun(r, sd), r, sd, Path(d),
+                              config.RACINE / "docs" / "veille" / "registre_bases.csv", "https://ubicura.fr", "Pithon L.",
+                              {("dep", c) for c in deps} | {("reg", c) for c in regs})
+        assert len(pages) == len(deps) + len(regs)
+        fiches_reg = {c: lignes((Path(d) / "territoire" / "reg" / f"{c}.html").read_text(encoding="utf-8")) for c in regs}
+        non_publiees, vues = [], 0
+        for c in deps:
+            h = (Path(d) / "territoire" / "dep" / f"{c}.html").read_text(encoding="utf-8")
+            assert h.count('class="groupe groupe-region"') == 1, c
+            k = h.index('class="groupe groupe-region"')
+            # dans la partie « 01 Santé mentale », avant la partie suivante
+            assert h.rfind('id="d-sm"', 0, k) > h.rfind('id="d-sante"', 0, k), c
+            g = h[k:]
+            g = g[:min(x for x in (g.find('<div class="groupe"'), g.find("</details>")) if x > 0)]
+            assert "marge d" not in texte(g), c
+            ids = re.findall(r'data-ind="([^"]+)"', g)
+            rc = re.search(r'data-niv="reg:(\w+)"', g)
+            for href in re.findall(r'href="\.\./\.\./([^"#]+)"', g):
+                if href.startswith("territoire/"):
+                    assert (Path(d) / href).exists(), (c, href)
+                elif site_reel.exists():
+                    assert (site_reel / href).exists(), (c, href)
+            if c == "976":
+                # Mayotte : aucune valeur, la raison, chaque nom lié à la page de son indicateur
+                assert not ids and "<td" not in g and "absents pour Mayotte" in g, c
+                noms = re.findall(r'<li><a class="vers-ind" href="\.\./\.\./(indicateur/[^"]+)"', g)
+                assert len(noms) == len(attendus), noms
+                assert "Le portail Odissé de Santé publique France n'en donne aucune pour Mayotte" in texte(g)
+                continue
+            assert sorted(ids) == sorted(attendus) and len(ids) == len(set(ids)), (c, ids)
+            assert not set(ids) & sensibles, c
+            reg = fiches_reg[rc.group(1)]
+            for ident, (v, pos, rg, lim) in lignes(g).items():
+                if not v:
+                    # jamais un 0 ni une case vide : la mesure absente est dite, avec qui ne la donne pas
+                    ligne = re.search(rf'data-ind="{ident}"[^>]*>(.*?)</tr>', g, re.S).group(1)
+                    assert "non publié" in ligne and "ne donne pas cette mesure pour" in texte(ligne), (c, ident)
+                    assert ident not in reg or not reg[ident][0], (c, ident)
+                    non_publiees.append((c, ident))
+                    continue
+                vues += 1
+                assert v != "0", (c, ident)
+                assert (v, pos, rg) == reg[ident][:3], (c, ident, (v, pos, rg), reg[ident])
+                # la limite de la règle unique (config.LIMITES_COURT), écrite sur chaque ligne ; la fiche de la région
+                # ne la répète pas sur les lignes qui partagent le même texte
+                L_ = dn.limite(ident, "reg", rc.group(1))
+                assert lim == (texte(L_["court"] + (" " + L_["territoire"] if L_.get("territoire") else "")) if L_ else ""), \
+                    (c, ident, lim)
+                assert not reg[ident][3] or reg[ident][3] == lim, (c, ident)
+                ic = re.search(rf'data-ind="{ident}".*?</tr>', g, re.S).group(0)
+                ic = re.search(r'<span class="note ic">entre ([\d,]+) et ([\d,]+)</span>', ic)
+                if ic:
+                    lo, hi, x = (float(s.replace(",", ".").replace(" ", "")) for s in (ic.group(1), ic.group(2), v))
+                    assert lo <= x <= hi, (c, ident, lo, x, hi)
+        assert vues > 90 * (len(attendus) - 1), vues
+        # le tabac quotidien manque en Corse et à La Réunion (portail Odissé, série 2021)
+        assert {("2A", "tabac_quotidien"), ("974", "tabac_quotidien")} <= set(non_publiees), non_publiees
 
 
 if __name__ == "__main__":
