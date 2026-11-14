@@ -1,4 +1,4 @@
-// Page « Explorer les données » (décision de Lucas du 26 octobre 2026), outils réglés par le lecteur. Données préparées
+// Page « Explorer les données » (décision du 26 octobre 2026), outils réglés par le lecteur. Données préparées
 // par pipeline/explorer.py (mêmes comptes que les rapports), réglages gardés dans l'adresse de la page.
 const fr = d3.formatLocale({decimal: ",", thousands: " ", grouping: [3], currency: ["", " €"]});
 const f1 = fr.format(",.1f"), f0 = fr.format(",.0f"), fp = v => (v >= 0 ? "+" : "−") + fr.format(",.1f")(Math.abs(v)) + " %";
@@ -26,7 +26,7 @@ function donneesFigure(id, nom, lignes) {
   f.dataset.donnees = URL.createObjectURL(new Blob([csv], {type: "text/csv"})); f.dataset.donneesNom = nom;
 }
 // styles écrits dans la figure elle-même, avec les valeurs du fond clair en repli, pour qu'un SVG ou un PNG exporté
-// garde ses couleurs et ses traits hors de la page (exports sur fond blanc, décision de Lucas du 22 octobre 2026)
+// garde ses couleurs et ses traits hors de la page (exports sur fond blanc, décision du 22 octobre 2026)
 function figer(svg) {
   const s = d3.select(svg), police = "Work Sans, Segoe UI, sans-serif";
   s.attr("font-family", police);
@@ -58,10 +58,10 @@ function dansLeCadre(svg) {
 }
 
 // quand un réglage redessine une figure de mêmes dimensions, chaque élément glisse de son ancienne place à la nouvelle
-// (barres, points, courbes, étiquettes, graduations), comme « Croiser deux indicateurs » dans l'atlas (demande de Lucas
+// (barres, points, courbes, étiquettes, graduations), comme « Croiser deux indicateurs » dans l'atlas (demande du
 // du 29 octobre 2026) ; un élément est retrouvé par sa place dans la figure (même balise, même classe, même rang), un
 // élément sans ancien apparaît en fondu ; glissement plus court pour qui a demandé moins d'animations à son système
-// (choix de Lucas du 29 octobre 2026, même règle que l'atlas). Les
+// (choix du 29 octobre 2026, même règle que l'atlas). Les
 // attributs d'arrivée sont ceux du dessin, l'export reste le même.
 const DUREE_GLISSE = () => matchMedia("(prefers-reduced-motion: reduce)").matches ? 250 : 480, GEOMETRIE = ["x", "y", "width", "height", "cx", "cy", "r", "x1", "x2", "y1", "y2", "d", "transform"];
 const nombres = v => (String(v).match(/-?[\d.]+(e-?\d+)?/g) || []).length;

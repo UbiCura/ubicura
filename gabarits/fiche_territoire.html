@@ -158,7 +158,7 @@ Position parmi les {{ {'epci': 'intercommunalités', 'dep': 'départements', 're
     {%- for l in R.lignes %}
     {%- set lim = (l.limite.court ~ ((' ' ~ l.limite.territoire) if l.limite.territoire else '')) if l.limite else '' %}
 <tr{% if not l.txt %} class="non-pub"{% endif %} id="{{ l.ancre }}" data-ind="{{ l.id }}" data-niv="{{ l.niv }}" data-titre="{{ l.lib }}">
-  <th scope="row"><span class="nom-ligne">{{ vers_indicateur(l, l.txt and lim) }}</span></th>
+  <th scope="row"><span class="nom-ligne">{{ vers_indicateur(l, lim) }}</span></th>
   {%- if l.txt %}
   <td class="v"><b>{{ l.txt }}</b>{% if l.note %}<span class="note">{{ l.note }}</span>{% endif %}{% if l.ic %}<span class="note ic">entre {{ l.ic[0] }} et {{ l.ic[1] }}</span>{% endif %}</td>
   <td class="reg">{{ reglette(l.reg, 'petite') }}</td>
@@ -168,9 +168,12 @@ Position parmi les {{ {'epci': 'intercommunalités', 'dep': 'départements', 're
   <td class="reg"></td>
   <td class="pos">{{ l.pourquoi }}</td>
   {%- endif %}
-  <td class="outil"></td>
+  <td class="outil">{% if l.txt %}{{ menu(l) }}{% endif %}</td>
 </tr>
-    {%- if l.txt and (l.defn or lim) %}
+    {#- la définition et la limite restent visibles aussi sous une mesure non publiée : elle n'est expliquée nulle part
+        ailleurs sur la fiche (relecture indépendante du 14 novembre 2026, défaut 1) ; le menu « Citer et exporter »
+        comme sur la fiche de la région (défaut 5) -#}
+    {%- if l.defn or lim %}
 <tr class="suite-ligne"><td colspan="5">{% if l.defn %}<span class="note defn">{{ l.defn }}</span>{% endif %}{% if lim %}<span class="lim-ligne" data-limite="{{ l.limite.cle or '' }}">{{ lim }}</span>{% endif %}</td></tr>
     {%- endif %}
     {%- endfor %}

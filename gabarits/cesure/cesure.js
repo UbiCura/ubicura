@@ -1,4 +1,4 @@
-// Césure française du texte justifié (refonte du 23 octobre 2026, demande de Lucas ; le texte est justifié partout depuis
+// Césure française du texte justifié (refonte du 23 octobre 2026 ; le texte est justifié partout depuis
 // la décision du 30 octobre 2026). Le navigateur ne coupe pas les mots français sous Windows, si bien qu'un texte
 // justifié laisse de grands blancs entre les mots. Les règles de césure de TeX (module hyphen, licence ISC, texte
 // joint) placent des césures possibles invisibles, dont on écarte les coupures ridicules : mots de moins de sept

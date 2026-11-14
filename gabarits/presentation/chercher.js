@@ -1,4 +1,4 @@
-// Recherche de l'en-tête (navigation, étape 2, validée par Lucas le 8 novembre 2026, prototypes/nav_etape2/) : un bouton
+// Recherche de l'en-tête (navigation, étape 2, validée le 8 novembre 2026, prototypes/nav_etape2/) : un bouton
 // « Chercher » sur toutes les pages ouvre un champ qui trouve territoires, communes, indicateurs, questions, thèmes et
 // outils, sans tenir compte des accents, des pluriels, de quelques sigles d'usage et d'une faute de frappe. « indicateur +
 // lieu » (« psychiatres rodez ») reçoit une réponse directe : les chiffres de la fiche du territoire (règle d'affichage

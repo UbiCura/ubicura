@@ -5546,7 +5546,8 @@ def test_reseaux_file_d_attente():
         assert m["statut"] == "a_relire" and "heure" in m["retour"]
         # remplacement d'un message non publié, refus pour un message publié
         neuf = json.loads((serie / f"{m['id']}.json").read_text(encoding="utf-8"))
-        neuf["bluesky"] = neuf["bluesky"].replace("\n", " Nouvelle version.\n", 1)
+        # la première ligne est remplacée, pas allongée : le texte reste sous 300 caractères quel que soit le message
+        neuf["bluesky"] = "Nouvelle version.\n" + neuf["bluesky"].split("\n", 1)[1]
         r.remplacer(neuf)
         m = r.lire_json(r.MESSAGES / f"{m['id']}.json")
         assert "Nouvelle version." in m["bluesky"] and m["statut"] == "a_relire" and m["cree_le"] == ms[0]["cree_le"]
@@ -6502,6 +6503,19 @@ def test_carte_indicateur_infobulles_a_l_arrondi_exact():
     assert vus > 100
     assert not faux_code, faux_code[:5]
     assert not faux_page, f"{len(faux_page)} infobulles de carte à reconstruire : {faux_page[:5]}"
+
+
+def test_fichiers_temporaires_hors_du_disque_systeme():
+    """14 novembre 2026 : le disque C: s'était rempli de profils du navigateur et de dossiers de tests (environ 5 Go).
+    L'import du paquet place les fichiers temporaires dans le dossier voisin du projet, hérité par les processus lancés
+    ensuite, et la publication fait de même."""
+    import os
+    import tempfile
+    import pipeline  # noqa: F401
+    attendu = str(config.RACINE.parent / "offre_soins_tmp")
+    assert tempfile.gettempdir() == attendu and os.environ["TEMP"] == attendu
+    ps = (config.RACINE / "outils" / "publier.ps1").read_text(encoding="utf-8-sig")
+    assert '"offre_soins_tmp"' in ps and "$env:TEMP = $tmpProjet" in ps
 
 
 def test_registre_aucune_base_lue_encore_a_integrer():
@@ -8002,7 +8016,10 @@ def test_fiche_departement_indicateurs_de_la_region():
             # dans la partie « 01 Santé mentale », avant la partie suivante
             assert h.rfind('id="d-sm"', 0, k) > h.rfind('id="d-sante"', 0, k), c
             g = h[k:]
-            g = g[:min(x for x in (g.find('<div class="groupe"'), g.find("</details>")) if x > 0)]
+            # fin du groupe : le groupe suivant, ou la fin de la bande repliée, après le tableau (chaque ligne a son
+            # menu « Citer et exporter », un details à elle)
+            fin_t = g.find("</table>")
+            g = g[:min(x for x in (g.find('<div class="groupe"'), g.find("</details>", max(fin_t, 0))) if x > 0)]
             assert "marge d" not in texte(g), c
             ids = re.findall(r'data-ind="([^"]+)"', g)
             rc = re.search(r'data-niv="reg:(\w+)"', g)
@@ -8016,8 +8033,22 @@ def test_fiche_departement_indicateurs_de_la_region():
                 assert not ids and "<td" not in g and "absents pour Mayotte" in g, c
                 noms = re.findall(r'<li><a class="vers-ind" href="\.\./\.\./(indicateur/[^"]+)"', g)
                 assert len(noms) == len(attendus), noms
-                assert "Le portail Odissé de Santé publique France n'en donne aucune pour Mayotte" in texte(g)
+                assert "Le portail Odissé de Santé publique France n'en donne aucune pour Mayotte ; " in texte(g)
+                # la raison du Baromètre n'est dite que de ses mesures de 2024 (relecture indépendante, défaut 3)
+                n24 = sum(1 for e in dn.catalogue() if e["id"] in attendus and FT._enquete(e)
+                          and "2024" in {str(a) for a in e.get("annees") or []})
+                assert 0 < n24 < len(attendus) and f"mesures de 2024 du Baromètre" in texte(g), n24
                 continue
+            # la phrase de la fourchette dit enquête et estimation quand les deux portent une fourchette (défaut 2)
+            lire = texte(g[:g.find("<table")])
+            if "entre " in g:
+                assert "fourchette" in lire and "intervalle de confiance" in lire, (c, lire)
+                rangs = {e["id"]: re.search(rf'data-ind="{re.escape(e["id"])}".*?</tr>', g, re.S) for e in dn.catalogue()
+                         if e["id"] in attendus}
+                kinds = {FT._enquete(e) for e in dn.catalogue() if rangs.get(e["id"]) and
+                         'class="note ic"' in rangs[e["id"]].group(0)}
+                assert (False not in kinds) or "estimation" in lire, (c, lire)
+                assert (True not in kinds) or "échantillon d'adultes" in lire, (c, lire)
             assert sorted(ids) == sorted(attendus) and len(ids) == len(set(ids)), (c, ids)
             assert not set(ids) & sensibles, c
             reg = fiches_reg[rc.group(1)]
@@ -8027,10 +8058,16 @@ def test_fiche_departement_indicateurs_de_la_region():
                     ligne = re.search(rf'data-ind="{ident}"[^>]*>(.*?)</tr>', g, re.S).group(1)
                     assert "non publié" in ligne and "ne donne pas cette mesure pour" in texte(ligne), (c, ident)
                     assert ident not in reg or not reg[ident][0], (c, ident)
+                    # la mesure absente reste expliquée : sa définition et sa limite, le « ! » au nom (défaut 1)
+                    suite = re.search(rf'data-ind="{ident}".*?</tr>\s*(<tr class="suite-ligne">.*?</tr>)', g, re.S)
+                    assert suite and 'class="note defn"' in suite.group(1) and lim, (c, ident)
+                    assert 'class="sig"' in ligne, (c, ident)
                     non_publiees.append((c, ident))
                     continue
                 vues += 1
                 assert v != "0", (c, ident)
+                # « Citer et exporter » sur chaque ligne publiée, comme sur la fiche de la région (défaut 5)
+                assert "Citer et exporter" in re.search(rf'data-ind="{ident}".*?</tr>', g, re.S).group(0), (c, ident)
                 assert (v, pos, rg) == reg[ident][:3], (c, ident, (v, pos, rg), reg[ident])
                 # la limite de la règle unique (config.LIMITES_COURT), écrite sur chaque ligne ; la fiche de la région
                 # ne la répète pas sur les lignes qui partagent le même texte
@@ -8046,6 +8083,41 @@ def test_fiche_departement_indicateurs_de_la_region():
         assert vues > 90 * (len(attendus) - 1), vues
         # le tabac quotidien manque en Corse et à La Réunion (portail Odissé, série 2021)
         assert {("2A", "tabac_quotidien"), ("974", "tabac_quotidien")} <= set(non_publiees), non_publiees
+
+
+def test_journal_montre_chaque_jour_du_resume():
+    """Chaque jour de `contenus/journal_resume.csv` paraît sur la page Journal, même sans nouvelle extraction de données
+    ce jour-là (correction du site seul du 14 novembre 2026, absente de la page)."""
+    import csv
+    from pipeline import site as S
+    with open(config.RACINE / "contenus" / "journal_resume.csv", encoding="utf-8") as f:
+        jours = {r["date"] for r in csv.DictReader(f, delimiter=";")}
+    j = S.journal_page()
+    montres = {e["date"] for e in j["entrees"]}
+    premier = min(montres)
+    manque = sorted(d for d in jours if d >= premier and d not in montres)
+    assert not manque, manque
+    dates = [e["date"] for e in j["entrees"]]
+    assert dates == sorted(dates, reverse=True), dates[:5]
+
+
+def test_code_publie_sans_le_nom_de_l_auteur():
+    """Le nom de l'auteur ne paraît que dans les citations (« Pithon L. ») et les mentions légales (règles du projet) :
+    jamais dans les commentaires de la feuille de style ni des scripts publiés avec le site, ni dans les pages
+    construites hors des mentions légales (relecture indépendante du 14 novembre 2026, défaut 7)."""
+    import re
+    g = config.RACINE / "gabarits"
+    sources = [g / "style.css", *g.glob("*.js"), *g.glob("*/*.js")]
+    fautes = [f"{p.relative_to(config.RACINE)}:{i}" for p in sources
+              for i, l in enumerate(p.read_text(encoding="utf-8-sig").splitlines(), 1) if "Lucas" in l]
+    assert not fautes, fautes
+    site = config.RACINE / "site"
+    if site.exists():
+        pages = [p for p in (site / "territoire" / "dep").glob("*.html")] + [site / "domaines.html", site / "style.css"]
+        # « SESSAD ASE Antoine Lucas » est une raison sociale, permise : on cherche les mentions de l'auteur
+        auteur = re.compile(r"(?:\bde|\bpar|\()\s?Lucas\b|\bLucas,\s+\d")
+        fautes = [p.name for p in pages if p.exists() and auteur.search(p.read_text(encoding="utf-8"))]
+        assert not fautes, fautes[:5]
 
 
 if __name__ == "__main__":

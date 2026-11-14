@@ -753,6 +753,12 @@ def _qui_publie(e: dict | None) -> tuple[str, bool]:
     return f"La source, {src.split(',')[0]}," if src else "La source", False
 
 
+def _enquete(e: dict | None) -> bool:
+    """Une mesure d'enquête (le Baromètre de Santé publique France), et non une estimation, d'après la source du
+    catalogue."""
+    return "Baromètre" in ((e or {}).get("source") or "")
+
+
 def _region_seule(dn: Donnees, lv: str, code: str) -> dict | None:
     """Sur la fiche d'un département, les indicateurs publiés seulement par région, avec la valeur de sa région : la
     même ligne que la fiche de la région (même cellule de la règle d'affichage, même réglette, même position, même
@@ -806,9 +812,21 @@ def _region_seule(dn: Donnees, lv: str, code: str) -> dict | None:
         avec = "avec la région médiane" if refs == {AF.MEDIANE["reg"]} else "avec leur repère"
         p = [f"Ces mesures ne sont publiées que par région. Chaque ligne donne la valeur de {pr}, à laquelle appartient "
              f"le département, et non celle du département. Elle la situe parmi les régions, {avec}."]
-        if any(l["ic"] for l in lignes):
-            p.append("Sous la valeur, l'intervalle de confiance publié par Santé publique France : l'enquête interroge un "
-                     "échantillon d'adultes, la valeur de la région se trouve probablement dans cet intervalle.")
+        avec_ic = [l for l in lignes if l["ic"]]
+        if avec_ic:
+            # enquête (Baromètre) ou estimation (décès attribuables) : la phrase dit d'où vient la fourchette de chacune
+            # (relecture indépendante du 14 novembre 2026, défaut 2), et garde les deux mots du site (C3)
+            enquete = {_enquete(cat.get(l["id"])) for l in avec_ic}
+            debut = ("Sous la valeur, la fourchette publiée par Santé publique France (intervalle de confiance)")
+            if enquete == {True}:
+                p.append(debut + " : l'enquête interroge un échantillon d'adultes, et la valeur pour l'ensemble des "
+                         "adultes de la région se trouve probablement dans cette fourchette.")
+            elif enquete == {False}:
+                p.append(debut + " : ce sont des estimations, et la valeur vraie pour la région se trouve probablement "
+                         "dans cette fourchette.")
+            else:
+                p.append(debut + ". Les mesures d'enquête sont tirées d'un échantillon d'adultes, les autres sont des "
+                         "estimations : la valeur vraie pour la région se trouve probablement dans cette fourchette.")
             if MARGE_INCERTITUDE:
                 p.append("Quand il contient la région médiane, la position est suivie de « dans la marge d'incertitude ».")
         if manque:
@@ -819,9 +837,14 @@ def _region_seule(dn: Donnees, lv: str, code: str) -> dict | None:
         titre = f"Connus seulement pour {pr}"
     else:
         qui = "Le portail Odissé de Santé publique France n'en donne" if odisse else "Leurs sources n'en donnent"
-        # Mayotte : le Baromètre de 2024 ne la couvre pas (maquette validée par Lucas le 14 novembre 2026)
-        pourquoi = ("; les mesures de 2024 du Baromètre de Santé publique France y portent sur la France hexagonale et "
-                    "quatre départements et régions d'outre-mer") if rc == "06" else ""
+        # Mayotte : le Baromètre de 2024 ne la couvre pas (maquette validée le 14 novembre 2026). La raison n'est dite
+        # que des mesures de 2024 du Baromètre, pas des autres (relecture indépendante du 14 novembre 2026, défaut 3).
+        n24 = sum(1 for l in lignes if _enquete(cat.get(l["id"])) and "2024" in
+                  {str(a) for a in (cat.get(l["id"]) or {}).get("annees") or []})
+        pourquoi = (f" ; {'les ' + NOMBRE_MOTS.get(n24, str(n24)).lower() if n24 > 1 else 'la'} mesure"
+                    f"{'s' if n24 > 1 else ''} de 2024 du Baromètre de Santé publique France "
+                    f"port{'ent' if n24 > 1 else 'e'} sur la France hexagonale et quatre départements et régions "
+                    f"d'outre-mer, sans Mayotte") if rc == "06" and n24 else ""
         lire = (f"Ces {len(lignes)} mesures ne sont publiées que par région. {qui} aucune pour {pr}{pourquoi}. Chaque nom "
                 f"mène à la page de l'indicateur, sa définition et ses limites.")
         titre = f"Publiés seulement par région, absents pour {pr}"

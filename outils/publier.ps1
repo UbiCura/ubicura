@@ -31,6 +31,12 @@ param([string]$Adresse, [string]$Courriel, [string]$Domaine, [switch]$Valider, [
 # « Continue », car Windows PowerShell 5.1 traite tout message d'erreur de git ou de Python comme une erreur bloquante
 $ErrorActionPreference = "Continue"
 $racine = Split-Path -Parent $PSScriptRoot
+# fichiers temporaires hors du disque du système, dans le dossier voisin du projet (le disque C: s'était rempli pendant
+# l'envoi, 14 novembre 2026) ; les programmes lancés ensuite en héritent
+$tmpProjet = Join-Path (Split-Path -Parent $racine) "offre_soins_tmp"
+New-Item -ItemType Directory -Force -Path $tmpProjet | Out-Null
+$env:TEMP = $tmpProjet
+$env:TMP = $tmpProjet
 Set-Location $racine
 $python = Join-Path $racine ".venv\Scripts\python.exe"
 $config = Join-Path $racine "donnees\publication.json"

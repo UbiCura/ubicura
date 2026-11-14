@@ -92,7 +92,7 @@ function escalierI() {
   const div = document.getElementById("iEscalier");
   document.getElementById("iEsTitre").textContent = `${cap(plurielI(lab))} ${uniteI(p)} selon le niveau de vie médian des ${NIV_I[lv][1]}, dix tranches de population égale, tous modes d'exercice`;
   if (!v) { div.innerHTML = `<p class="small muted">Pas de données de niveau de vie pour cette profession.</p>`; document.getElementById("iEsResultat").textContent = ""; document.getElementById("iEsLegende").innerHTML = ""; return; }
-  // couleur d'écart seulement hors de 0,8 à 1,25 fois l'ensemble (décision de Lucas du 30 octobre 2026) ; chaque tranche
+  // couleur d'écart seulement hors de 0,8 à 1,25 fois l'ensemble (décision du 30 octobre 2026) ; chaque tranche
   // réunit un dixième de la population, le hasard n'y joue presque pas
   const coulEs = d => d < .8 * nd ? "var(--d1, #BC6B3B)" : d > 1.25 * nd ? "var(--r3, #1C5652)" : "var(--d3, #ABAEB4)";
   legende("iEsLegende", [["var(--d1, #BC6B3B)", `moins de 0,8 fois l'ensemble ${NIV_I[lv][3]}`], ["var(--d3, #ABAEB4)", "proche de l'ensemble"], ["var(--r3, #1C5652)", "plus de 1,25 fois"], [null, `ensemble ${NIV_I[lv][3]}, ${fDI(nd)}`, true]]);
@@ -195,7 +195,7 @@ function concentrationI(apres) {
   const ref = ETAT.fam === "sm" ? ["psychologue", "psychiatre", "pedopsychiatre"] : ETAT.fam === "sante" ? ["medecin_generaliste", "infirmier", "masseur_kinesitherapeute"] : ["medecin_generaliste", "psychologue", "psychiatre"];
   const comp = [p, ...ref].filter((q, i, a) => DI.profs[q] && DI.niv[lv].n[q] && a.indexOf(q) === i).slice(0, 4);
   // la profession choisie en canard et plus épaisse, les professions de comparaison en catégories du site, chacune avec
-  // son tracé (trois tons de canard proches se confondaient, remarque de Lucas du 31 octobre 2026 ; l'ocre est réservé
+  // son tracé (trois tons de canard proches se confondaient, remarque du 31 octobre 2026 ; l'ocre est réservé
   // au signal « ! »)
   const cols = ["var(--action, #0E5A5A)", "var(--c1, #B473A4)", "var(--c2, #2E672F)", "var(--c3, #998E3B)"], tirets = [null, "7 3", "2 3", "9 3 2 3"];
   document.getElementById("iLoTitre").textContent = `Part cumulée des professionnels selon la part cumulée de la population, ${NIV_I[lv][1]} classées de la moins à la mieux dotée, ${MODES.find(x => x[0] === md)[1]}`;

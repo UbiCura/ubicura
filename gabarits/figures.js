@@ -1,4 +1,4 @@
-// Graphiques interactifs, communs aux rapports et à l'atlas (demande de Lucas du 9 octobre 2026).
+// Graphiques interactifs, communs aux rapports et à l'atlas (demande du 9 octobre 2026).
 // Infobulle au survol de chaque point ou zone qui porte un titre, clic pour la garder, zoom à la molette et par
 // boutons, déplacement à la souris quand le graphique est zoomé. La page n'est pas bloquée, une molette qui
 // arrive pendant le défilement de la page continue de faire défiler la page.
@@ -62,7 +62,7 @@
   document.querySelectorAll(R.zoom).forEach(boutons);
   document.addEventListener("pointerover",function(ev){var s=svgDe(ev.target,R.zoom);if(s)boutons(s)});
   // la molette seule fait toujours défiler la page ; le zoom à la molette demande Ctrl (ou ⌘), sinon le curseur restait
-  // pris dans la figure (remarque de Lucas du 23 octobre 2026) ; les boutons + et − restent le moyen ordinaire
+  // pris dans la figure (remarque du 23 octobre 2026) ; les boutons + et − restent le moyen ordinaire
   document.addEventListener("wheel",function(ev){
     if(!(ev.ctrlKey||ev.metaKey))return;
     var s=svgDe(ev.target,R.zoom);if(!s)return;
@@ -146,7 +146,7 @@
 
   // tableaux des rapports et des pages, citables et exportables comme les figures (version 2, point 1, 22 octobre 2026).
   // La citation est celle du rapport (data-citation) ou de la page (data-citation-page et son adresse), suivie du titre
-  // du tableau, tiré de sa légende ou de l'intertitre qui le précède (décision de Lucas, titre sans numéro). Le CSV
+  // du tableau, tiré de sa légende ou de l'intertitre qui le précède (décision, titre sans numéro). Le CSV
   // reprend les lignes affichées, au format des fichiers du site (point-virgule, virgule décimale, nombres sans
   // séparateur de milliers), avec la citation en dernière ligne.
   // adresse citée, la même que celle affichée en tête des pages (sans « .html », que GitHub Pages sert aussi)
@@ -273,7 +273,7 @@
   // qui explique reste visible ; défaut P1 relevé par le prototype de la fiche resserrée, 1er novembre 2026)
 
   // « Comment lire » des rapports et des pages de domaine : toujours affiché sous sa figure ou son tableau, sans bouton
-  // (décision de Lucas du 5 novembre 2026 ; le repli au clic du 22 octobre est retiré, audit du 6 novembre 2026)
+  // (décision du 5 novembre 2026 ; le repli au clic du 22 octobre est retiré, audit du 6 novembre 2026)
 
   // longs tableaux de consultation (pages de la méthode), un champ filtre les lignes à mesure qu'on tape
   function filtres(){
@@ -304,9 +304,9 @@
 // classe « resserree » et non « defile », que .defile{overflow-x:auto} des tableaux rognait (liste « Le projet » cachée)
 (function(){var n=document.querySelector("nav.site");if(!n)return;
   var f=function(){n.classList.toggle("resserree",(window.scrollY||0)>12)};f();addEventListener("scroll",f,{passive:true})})();
-// fenêtres repliables façon macOS (demandes de Lucas des 23 et 28 octobre 2026), pour tout élément .fenetre.repliable
+// fenêtres repliables façon macOS (demandes des 23 et 28 octobre 2026), pour tout élément .fenetre.repliable
 // qui porte une barre .fen-tete et un corps .fen-corps. Deux boutons sobres à droite de la barre, comme sous Windows
-// (choix de Lucas du 28 octobre 2026, les trois pastilles en couleur à gauche faisaient trop), replier ou déplier, et
+// (choix du 28 octobre 2026, les trois pastilles en couleur à gauche faisaient trop), replier ou déplier, et
 // agrandir à la largeur de l'écran (Échap pour revenir). Double clic sur la barre, replier. Une fenêtre
 // repliée garde son titre et sa phrase de résultat (copie de son .resultat). État gardé dans le navigateur du lecteur,
 // commodité seulement, jamais dans l'adresse, pour qu'un lien partagé ouvre toujours la fenêtre qu'il vise.
@@ -348,7 +348,7 @@
     var r=corps.querySelector(".resultat");if(r){resume(f);new MutationObserver(function(){resume(f)}).observe(r,{childList:true,characterData:true,subtree:true})}
     // « Comment lire » de la barre, ouvre la note de lecture rangée en tête du corps
     var bl=tete.querySelector(".fen-lire-bouton"),nl=f.querySelector(".fen-lire");
-    // toujours visible, comme sur la fiche (règles du projet, partie 6 ; décision de Lucas du 5 novembre 2026) : la note
+    // toujours visible, comme sur la fiche (règles du projet, partie 6 ; décision du 5 novembre 2026) : la note
     // est montrée et le bouton qui la dépliait disparaît
     if(nl){nl.hidden=false;var figs=corps.querySelectorAll("figure");if(figs.length)figs[figs.length-1].after(nl)}if(bl)bl.remove();   // sous la dernière figure, le résultat d'abord
     poser(f,!!etat[f.id],false)});
@@ -370,7 +370,7 @@
   window.fenetres={toutes:function(replie){fens.forEach(function(f){poser(f,replie)})}};
   document.querySelectorAll("[data-fenetres]").forEach(function(b){b.onclick=function(){window.fenetres.toutes(b.dataset.fenetres==="replier")}});
 })();
-// Figures lisibles au téléphone (décision de Lucas du 12 novembre 2026, sur captures, prototypes/figures_telephone/) :
+// Figures lisibles au téléphone (décision du 12 novembre 2026, sur captures, prototypes/figures_telephone/) :
 // une figure dont le texte tomberait sous 9 px reçoit, sous son titre, un bouton « Agrandir la figure » qui l'ouvre en
 // plein écran, dessinée assez grand pour que son plus petit texte fasse au moins 11 px ; elle glisse si le téléphone
 // reste droit, et tient mieux s'il est tourné. Le style est posé ici, pour valoir aussi dans l'atlas.

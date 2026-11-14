@@ -1,4 +1,4 @@
-// Explorer, question « L'addictologie, de l'offre aux consommations » (choix de Lucas du 29 octobre 2026, option C de
+// Explorer, question « L'addictologie, de l'offre aux consommations » (choix du 29 octobre 2026, option C de
 // la note docs/note_atlas_2026-10-29.md), reprise de l'encadré « Addictologie » de l'onglet Croisements de l'atlas.
 // Même calcul que la partie du rapport santé mentale (pipeline/export.py, _addicto_atlas), données DA écrites par
 // pipeline/explorer.py. Régions rangées par ordre alphabétique et non par valeur (pas de palmarès). Les panneaux sont

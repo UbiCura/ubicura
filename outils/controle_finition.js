@@ -217,6 +217,12 @@
     tb.querySelectorAll("tbody td.pos").forEach(c => {
       if (!vis(c)) return;
       const t = c.innerText.replace(/\s+/g, " ").trim();
+      // une mesure non publiée n'a pas de position : sa cellule dit pourquoi elle manque (indicateurs connus seulement
+      // pour la région, fiche de département, 14 novembre 2026), et doit le dire
+      if (c.closest("tr.non-pub")) {
+        if (!/ne donne pas cette mesure/.test(t)) sortie.defauts.push("mesure non publiée sans sa raison « " + t.slice(0, 50) + " »");
+        return;
+      }
       if (t && !/ des (intercommunalités|départements|régions)| (tous|toutes) les autres /.test(t + " "))
         sortie.defauts.push("position sans son ensemble au téléphone « " + t.slice(0, 50) + " »");
       const ec = [...c.closest("tr").querySelectorAll(".ec")].filter(vis);

@@ -753,6 +753,13 @@ def journal_page() -> dict:
             for r in csv.DictReader(f, delimiter=";"):
                 resume.setdefault(r["date"], []).append(r["texte"])
     sortie = []
+    # un jour du résumé sans entrée de données (une correction du site seul, 14 novembre 2026) a aussi sa place, sans
+    # quoi le lecteur ne voit pas la correction ; il prend l'état des sources de l'entrée précédente
+    vus = {e["date"] for e in entrees}
+    for jour in sorted(d for d in resume if d not in vus and entrees and d > entrees[0]["date"]):
+        avant = [e for e in entrees if e["date"] < jour][-1]
+        entrees.append({"date": jour, "sources": [], "variations": [], "etat": avant["etat"]})
+    entrees.sort(key=lambda e: e["date"])
     for e in reversed(entrees):
         sources = [dict(s, maj=dl(s.get("maj")), maj_avant=dl(s.get("maj_avant"))) for s in e["sources"]]
         variations = [dict(v, avant_txt=nombre(v["avant"]), apres_txt=nombre(v["apres"]),

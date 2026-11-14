@@ -6,7 +6,7 @@
 // l'intercommunalité, lien des fiches).
 // Temps de route : Z.trajets (pipeline/zone.py, depuis pipeline/trajets.py) {seuils: [10, 15, 20, 30, 45], rapport,
 // calcules: [rang des types calculés], communes: {code: [tranche par type calculé, null si au-delà]}}, à l'échelle du
-// distancier de l'INSEE (décision de Lucas du 31 octobre 2026) ; le bouton « En temps de route » s'active et la colonne
+// distancier de l'INSEE (décision du 31 octobre 2026) ; le bouton « En temps de route » s'active et la colonne
 // « La plus proche » donne la tranche de temps depuis le centre de la commune choisie, la distance pour les autres types.
 (function () {
   var $ = function (i) { return document.getElementById(i); };
