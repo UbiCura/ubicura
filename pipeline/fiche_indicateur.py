@@ -11,6 +11,7 @@ sauf quand elle n'en a pas : population concernée, Assurance Maladie).
 """
 import csv
 import html as _html
+import json
 import re
 from functools import lru_cache
 from pathlib import Path
@@ -191,8 +192,8 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
     ctx = {c["id"]: c for c in sd["contexte"]}
     mayotte = (sd.get("limites") or {}).get("mayotte") or {}
     version = dernier.name
-    pages, index = [], {}
-    modes = {e["id"]: e for e in A["ind"] if e.get("type") == "prof"}
+    pages, index, a_ecrire = [], {}, []
+    modes ={e["id"]: e for e in A["ind"] if e.get("type") == "prof"}
     T = AF.Affichage(sd, dernier)
     for e in A["ind"]:
         if e.get("type") == "ctx":
@@ -278,11 +279,30 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
         f["fichiers"] = [x for x in f["fichiers"] if (dernier / x[0]).exists()]
         # petite carte de France, en aplat par département (audit de contrôle du 30 octobre 2026, point I1, règle 15)
         from .cartes_presentation import choroplethe
-        f["carte"] = choroplethe(A, "dep", e["id"], f["lab"], f["u"]) if "dep" in niveaux else None
+        f["carte"] = choroplethe(A, "dep", e["id"], f["lab"], f["u"], T=T) if "dep" in niveaux else None
         f["donnees_fig"] = f"../donnees/{version}/{f['fichiers'][0][0]}" if f["fichiers"] else ""
         # titre de la page : le nom et l'unité, sans répéter une unité que le nom porte déjà (« CSAPA, pour 100 000
         # habitants, pour 100 000 hab. » sur dix pages de structures, relevé le 8 novembre 2026)
         f["titre"] = titre_indicateur(f["lab"], f["u"])
+        # étape 3 des portes d'entrée (maquette P3 validée le 14 novembre 2026) : l'identifiant des fichiers des
+        # territoires, les niveaux où l'indicateur est publié, du plus fin au plus large
+        f["cle"] = e["id"].removesuffix(":all")
+        f["niv_codes"] = " ".join(niveaux)
+        a_ecrire.append(f)
+        # suffixe retiré, jamais remplacé : « prof:allergologue:all » devenait « profergologue » (8 novembre 2026)
+        index[e["id"].removesuffix(":all")] = f["slug"]
+    # les voisins se tirent du catalogue, qui ne connaît les pages qu'une fois toutes nommées
+    from .page_indicateurs import donnees as catalogue_pages
+    from .voisins import voisins
+    cat = catalogue_pages(sd, dernier, A, index)
+    (dossier / "reglettes").mkdir(exist_ok=True)
+    macro = env.from_string('{% from "reglette.html" import reglette %}{{ reglette(r, "petite") }}')
+    for f in a_ecrire:
+        f["voisins"] = [(t, [{"nom": x["nom"], "page": x["page"], "source": x["source"]} for x in L])
+                        for t, L in voisins(f["cle"], cat)]
+        (dossier / "reglettes" / f"{f['slug']}.json").write_text(
+            json.dumps(reglettes(T, macro, f["id"], f["niv_codes"].split()), ensure_ascii=False, separators=(",", ":")),
+            encoding="utf-8")
         cit = f"{commun['citation_auteur']} ({commun['annee_version']}). {f['titre']}. {config.NOM_PROJET}, version du {commun['date_longue']}" + ((f", toutes les versions doi:{doi}" if doi == config.DOI_DONNEES else f", doi:{doi}") if doi else "")
         html = gabarit.render(dict(commun, racine="../", page="indicateur", titre=f["titre"],
                                    classe_main="indicateur", f=f, version=version, doi=doi, citation=cit,
@@ -294,6 +314,40 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
                                    description=f"Fiche de l'indicateur {f['lab']}, définition, source, répartition des territoires et limites."))
         (dossier / f"{f['slug']}.html").write_text(insecables(html), encoding="utf-8")
         pages.append(dossier / f"{f['slug']}.html")
-        # suffixe retiré, jamais remplacé : « prof:allergologue:all » devenait « profergologue » (8 novembre 2026)
-        index[e["id"].removesuffix(":all")] = f["slug"]
     return pages, index
+
+
+def reglettes(T, macro, ident: str, niveaux: list[str]) -> dict:
+    """La réglette de chaque territoire, pour « Votre territoire » (étape 3) : celle de sa fiche, même fonction et même
+    gabarit (affichage.Affichage.reglette, gabarits/reglette.html). Pour rester léger, chaque niveau donne une réglette
+    type où la classe, le point et la description sont à remplir (§C§, §V§, §A§), puis pour chaque territoire sa classe et
+    la place de son point ; un territoire dont la réglette diffère du type (axe élargi pour une valeur au-delà) a la
+    sienne entière. La description lue par les lecteurs d'écran commence par la valeur et la position du fichier du
+    territoire, suivies de la partie commune (« a »)."""
+    out = {}
+    for lv in niveaux:
+        if T.serie(ident, lv) is None:
+            continue
+        from collections import Counter
+        rendus = {}
+        for code in T.pos[lv]:
+            r = T.reglette(ident, lv, code)
+            if r and r.get("h"):
+                rendus[code] = (r, macro.render(r=dict(r, classe="§C§", aria="§A§", h=dict(r["h"], val="§V§"))))
+        if not rendus:
+            continue
+        # la réglette type est la plus fréquente (un territoire au-delà de l'axe en a une à lui)
+        tpl = Counter(t for _, t in rendus.values()).most_common(1)[0][0]
+        d, x, queue = {}, {}, None
+        for code, (r, t) in rendus.items():
+            if t != tpl:
+                x[code] = macro.render(r=r)
+                continue
+            d[code] = [r["h"]["val"] if r["h"]["val"] is not None and r["classe"] != "sans" else None, r["classe"]]
+            if queue is None:
+                # la partie commune de la description : repère et médiane (après la valeur et la position)
+                cel = T.cellule(ident, lv, code)
+                debut = ", ".join(m for m in (cel["v_txt"] or AF.STATUTS.get(cel["statut"], ""), cel["pos_txt"]) if m)
+                queue = r["aria"][len(debut):] if r["aria"].startswith(debut) else ""
+        out[lv] = {"t": tpl, "a": queue or "", "d": d, "x": x}
+    return out

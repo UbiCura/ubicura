@@ -147,12 +147,18 @@ def relation(T, c: dict) -> tuple[str, bool]:
     return f"{avant}{', mais ' if m else ', '}{pos}", "(" in avant or avant.startswith("ensemble ")
 
 
-def limite_txt(dn, ident: str, lv: str, code: str) -> str:
+def limite_txt(dn, ident: str, lv: str, code: str, c: dict | None = None) -> str:
     """La limite que la fiche pose à côté de la valeur, avec son « ! » : la phrase propre au territoire si elle existe,
-    sinon la phrase courte (contre-audit du 8 novembre 2026, « limites là où la donnée est montrée »)."""
+    sinon la phrase courte (contre-audit du 8 novembre 2026, « limites là où la donnée est montrée »). La limite des
+    structures absentes des bases (« distance et nombre non publiés ») ne vaut que là où la valeur est retirée, comme
+    sur la fiche (constats.limite_retenue, règle M1 du 31 octobre 2026) : sous une valeur publiée, elle se taisait sur
+    la fiche mais pas dans ce fichier (relecture indépendante de l'étape 3, 15 novembre 2026, 740 cas sur 808)."""
+    from .constats import limite_retenue
     k = TH.cle(ident)
     lim = dn.limite(k, lv, code) or (dn.limite(ident, lv, code) if ident != k else None)
     if not lim:
+        return ""
+    if c is not None and not limite_retenue(dn, lim.get("court"), c):
         return ""
     return (lim.get("territoire") or lim.get("court") or "").strip()
 
@@ -190,11 +196,14 @@ def ecrire(sd: dict, dernier: Path, site: Path) -> int:
                 sans_valeur = not aucun and not c["v_txt"]
                 statut = AUCUNE_STRUCTURE if zero_lieux else (c["statut_txt"] or c["note"])
                 # effectif, valeur, phrase de position, limite, repère, statut ou note du zéro, genre : ce que la fiche
-                # écrit ; sans valeur, ni position ni repère
+                # écrit ; sans valeur, ni position ni repère ; enfin la couleur de l'écart que la fiche donne à la
+                # position (« haut », « bas » ou rien), pour le tableau complet de la fiche (étape 2 des portes
+                # d'entrée, 15 novembre 2026)
                 ind[TH.cle(e["id"])] = ["aucun" if aucun else c["n_txt"], "" if aucun else c["v_txt"],
-                                        "" if sans_valeur else rel, limite_txt(dn, e["id"], lv, u["c"]),
+                                        "" if sans_valeur else rel, limite_txt(dn, e["id"], lv, u["c"], c),
                                         "" if ens_ecrit or sans_valeur else c["ref_lib"],
-                                        "" if ens_ecrit or sans_valeur else c["ref_txt"], statut, c["kind"]]
+                                        "" if ens_ecrit or sans_valeur else c["ref_txt"], statut, c["kind"],
+                                        "" if sans_valeur or aucun else (c.get("couleur") or "")]
             j = {"nom": u["nm"], "dans": dans(lv, u["c"], u["nm"]), "de": de_nom(lv, u["c"], u["nm"]),
                  "pop": u.get("pop"), "ind": ind}
             if lv == "epci" and u.get("p"):

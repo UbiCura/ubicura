@@ -1463,6 +1463,7 @@ def construire(env, commun: dict, dernier: Path, site_data: dict, site: Path, re
         epcis_de_dep.setdefault(u.get("p"), []).append(u["c"])
     venir = D.bases_a_venir(registre)
     cat = {e["id"]: e for e in dn.catalogue()}
+    cat_pages = pages_catalogue(dn)
     gabarit = env.get_template("fiche_territoire.html")
     # part des structures de soins psychiques confirmées en France, sur les mêmes types
     tot = conf = 0
@@ -1664,6 +1665,9 @@ def construire(env, commun: dict, dernier: Path, site_data: dict, site: Path, re
             ctx_b = {"f": f, "constats": ks, "extras": extras, "date_rpps": date_rpps, "venir": venir,
                      "confiance_france": confiance_ensemble(lv), "limite_sae": (lim_sae or {}).get("territoire")}
             bandes_f, bord_f = BF.bandes(ctx_b), BF.tableau_de_bord(ctx_b)
+            pages_indicateur(bandes_f, cat_pages)
+            # la région d'un département, pour le tableau complet (indicateurs publiés seulement par région)
+            extras["code_region"] = reg_code.get(u.get("p")) if lv == "dep" else None
             titre = f"{f['nom']}, offre de soins et santé mentale"
             adr = f"{adresse.replace('https://', '').rstrip('/')}/territoire/{lv}/{u['c']}"
             html = gabarit.render(commun, f=f, racine="../../", titre=titre, page="territoires", classe_main="fiche",
@@ -1687,6 +1691,34 @@ def construire(env, commun: dict, dernier: Path, site_data: dict, site: Path, re
             (dossier / f"{u['c']}.html").write_text(insecables(html), encoding="utf-8")
             pages.append(dossier / f"{u['c']}.html")
     return pages
+
+
+def pages_catalogue(dn) -> dict:
+    """Page de chaque indicateur du catalogue qui en a une, selon la règle de fiche_indicateur.construire (un indicateur
+    dont la série a une médiane à un niveau au moins) : identifiant du catalogue -> « indicateur/<slug>.html »."""
+    from . import themes as TH
+    from .fiche_indicateur import ORDRE, slug
+    out = {}
+    for e in dn.catalogue():
+        k = TH.cle(e["id"])
+        for i in dict.fromkeys((e["id"], k + ":all" if k.startswith("prof:") else k)):
+            if any((S := dn.T.serie(i, lv)) is not None and S.med is not None for lv in ORDRE):
+                out[k] = f"indicateur/{slug(k)}.html"
+                break
+    return out
+
+
+def pages_indicateur(bandes: list[dict], cat_pages: dict) -> None:
+    """Chaque ligne détaillée d'une bande mène à la page de son indicateur, quand le catalogue la publie : son nom
+    porte « → » (maquette validée le 14 novembre 2026, prototypes/entrees/v2_domaines/, captures l1 à l4). Une ligne
+    d'une profession (« prof:psychiatre:lib ») mène à la page de la profession."""
+    from . import themes as TH
+    for b in bandes:
+        lignes = [l for g in b.get("groupes") or [] if not g.get("region") for l in g.get("lignes") or []]
+        lignes += [l for a in b.get("autres") or [] for l in a.get("rows") or []]
+        for l in lignes:
+            if l.get("id") and not l.get("page"):
+                l["page"] = cat_pages.get(TH.cle(l["id"]))
 
 
 def _cle_nom(nom: str) -> str:

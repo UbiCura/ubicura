@@ -216,19 +216,19 @@ else {
 }
 $c | ConvertTo-Json | Set-Content -Path $config -Encoding UTF8
 Ecrire "Site envoyé, $libelle. GitHub Pages le déploie en une ou deux minutes."
-# le site en ligne est relu jusqu'à ce qu'il serve la nouvelle version (6 novembre 2026 : un déploiement de GitHub
-# Pages peut échouer, seul un courriel le disait), au plus dix minutes
+# le site en ligne est relu jusqu'à ce que des pages témoins (accueil, feuille de style, journal, page de la version et
+# quelques pages au hasard) soient identiques aux fichiers envoyés, au plus dix minutes. La seule page de la version
+# ne prouvait rien quand on republie la même édition (14 novembre 2026) ; un déploiement de GitHub Pages peut aussi
+# échouer sans autre signe qu'un courriel (6 novembre 2026)
 if (-not $Restaurer -and $c["domaine"]) {
-    $adresseVersion = "https://$($c["domaine"])/donnees/$version/dictionnaire.html"
-    $vu = $false
-    for ($i = 0; $i -lt 40 -and -not $vu; $i++) {
-        Start-Sleep -Seconds 15
-        try { $r = Invoke-WebRequest -Uri ($adresseVersion + "?v=" + (Get-Random)) -UseBasicParsing -TimeoutSec 20; $vu = ($r.StatusCode -eq 200) } catch {}
-    }
-    if ($vu) { Ecrire "Site en ligne et vérifié : $($c["domaine"]) sert la version $version. Recharger avec Ctrl + F5." }
+    Start-Sleep -Seconds 30
+    $sortieV = & $python outils\verifier_en_ligne.py $temp "https://$($c["domaine"])" $version --attendre 600 2>&1 | ForEach-Object { "$_" }
+    $codeV = $LASTEXITCODE
+    foreach ($l in $sortieV) { if ($l.Trim()) { Add-Content -Path $log -Value $l -Encoding UTF8 } }
+    if ($codeV -eq 0) { Ecrire "Site en ligne et vérifié : $($c["domaine"]) sert les pages envoyées, version $version. Recharger avec Ctrl + F5." }
     else {
-        Ecrire "Le site envoyé n'est pas encore servi par $($c["domaine"]) après dix minutes. Voir l'onglet Actions du dépôt GitHub."
-        Prevenir "Le site a été envoyé, mais $($c["domaine"]) ne sert pas encore la version $version après dix minutes. Regarder l'onglet Actions du dépôt GitHub (déploiement de GitHub Pages)."
+        Ecrire "Le site envoyé n'est pas encore servi en entier par $($c["domaine"]) après dix minutes. $($sortieV -join ' ') Voir l'onglet Actions du dépôt GitHub."
+        Prevenir "Le site a été envoyé, mais $($c["domaine"]) ne sert pas encore toutes les pages envoyées après dix minutes.`n`n$($sortieV -join ' ')`n`nRegarder l'onglet Actions du dépôt GitHub (déploiement de GitHub Pages)."
         exit 1
     }
 }

@@ -338,6 +338,8 @@ def controler() -> int:
 
     # 8. aucun 0 seul : tableaux des rapports, infobulles « 0 pour … », « 0,0 fois »
     zeros = []
+    from pipeline.affichage import ZERO as _Z
+    AF_ZERO = list(_Z.values())
     for f in sorted(R.glob("rapport*.md")) + sorted((R / "territoires").glob("*.md")):
         for l in f.read_text(encoding="utf-8").splitlines():
             if l.startswith("|") and re.search(r"\| 0 (?=\|)", l):
@@ -345,7 +347,9 @@ def controler() -> int:
     for p, s in sources.items():
         for x in re.findall(r"<title>([^<]*)</title>", s) + re.findall(r'(?:data-tip|data-info|title)="([^"]*)"', s):
             x = html.unescape(x).replace(" ", " ").replace(" ", " ")
-            if re.search(r"(^|[ :]|, )0([,.]0+)? (pour 1|fois l)|, 0([,.]0+)?$", x):
+            # un 0 suivi de la note qui dit ce qu'il signifie (affichage.ZERO) n'est pas seul
+            if re.search(r"(^|[ :]|, )0([,.]0+)? (pour 1|fois l)|, 0([,.]0+)?$", x) and not any(
+                    x.endswith(", " + z) for z in AF_ZERO):
                 zeros.append((rel(p), x[:120]))
         for l in re.findall(r"<tr.*?</tr>", s, flags=re.S):
             c = cellules(l)

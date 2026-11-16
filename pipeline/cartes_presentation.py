@@ -15,6 +15,7 @@ from .atelier import COS, MET, W, H
 
 CLASSES = ["var(--r0, #579891)", "var(--r1, #3B7E78)", "var(--r2, #2A6B66)", "var(--r3, #1C5652)", "var(--r5, #0D3D3B)"]
 VIDE = "url(#hachure)"
+AUCUN = "var(--nodata, #E6E6E9)"   # aucun inscrit, aucune structure : gris uni (maquette P3, 14 novembre 2026)
 DEFS = ('<defs><pattern id="hachure" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">'
         '<rect width="5" height="5" fill="var(--nodata, #E6E6E9)"/><line x1="0" y1="0" x2="0" y2="5" '
         'stroke="var(--muted, #5D6371)" stroke-width="1"/></pattern></defs>')
@@ -37,12 +38,32 @@ def _fr(x, d=1):
     return f"{x:,.{d}f}".replace(",", " ").replace(".", ",")
 
 
-def choroplethe(A: dict, lv: str, ind: str, titre: str, unite: str, largeur=660) -> str | None:
+def choroplethe(A: dict, lv: str, ind: str, titre: str, unite: str, largeur=660, T=None) -> str | None:
+    """T, la règle d'affichage (affichage.Affichage) : un territoire que les données de Croiser écartent (Mayotte,
+    exclue des croisements entre départements) reçoit la valeur de sa fiche, si bien que la carte, son infobulle et le
+    panneau du clic disent la même chose (relecture indépendante de l'étape 3, 15 novembre 2026 : Mayotte hachurée
+    « non publié » alors que sa fiche publie une valeur)."""
     vals = A["val"].get(lv, {}).get(ind)
     if not vals:
         return None
     codes = [u["c"] for u in A["units"][lv]]
     v = {c: x for c, x in zip(codes, vals) if x is not None}
+    noms_t, aucun_t, notes_t = {}, set(), {}
+    if T is not None:
+        noms_t = {u["c"]: u.get("nm", u["c"]) for u in T.niv[lv]["units"]}
+        for c in A["geo"][lv]:
+            if c not in v:
+                cel = T.cellule(ind, lv, c)
+                if cel and cel["v"] is not None:
+                    v[c] = 0.0 if cel["statut"] == "aucun" else cel["v"]
+                    # un 0 ne reste jamais seul : la note de sa fiche (« valeur nulle dans la source », Mayotte, contrôle
+                    # complet du 15 novembre 2026)
+                    if cel["note"]:
+                        notes_t[c] = cel["note"]
+                elif cel and cel["kind"] == "lieux" and cel["n"] == 0:
+                    # aucune structure du type, taux retiré (bases incomplètes) : « aucune structure », comme la fiche
+                    # et son fichier (reponses.py, contre-audit du 8 novembre 2026), jamais « non publié »
+                    aucun_t.add(c)
     if len(v) < 10:
         return None
     tri = sorted(v.values())
@@ -51,7 +72,7 @@ def choroplethe(A: dict, lv: str, ind: str, titre: str, unite: str, largeur=660)
     # territoire et son unité, un 0 d'une profession s'écrit « aucun inscrit » (audit du 6 novembre 2026)
     from . import affichage as AF
     g = ((A.get("aff") or {}).get("ind", {}).get(ind) or {}).get("g") or AF.genre(unite, ind)
-    noms = {u["c"]: u.get("nm", u["c"]) for u in A["units"][lv]}
+    noms = {**noms_t, **{u["c"]: u.get("nm", u["c"]) for u in A["units"][lv]}}
     prof = ind.startswith("prof")
     # les valeurs de A["val"] sont arrondies à quatre chiffres ; celles dont cet arrondi s'écrirait autrement que la
     # valeur exacte (4,5497 gardé 4,550 puis écrit 4,6) sont données à leur arrondi d'affichage dans aff.lv.x, comme
@@ -60,38 +81,53 @@ def choroplethe(A: dict, lv: str, ind: str, titre: str, unite: str, largeur=660)
               ((((A.get("aff") or {}).get("lv") or {}).get(lv) or {}).get(ind) or {}).get("x", {}).items()}
 
     def info(c):
+        if c in aucun_t:
+            return f"{noms.get(c, c)}, {AF.AUCUNE_STRUCTURE}"
         if c not in v:
             return f"{noms.get(c, c)}, non publié"
         if v[c] == 0 and prof:
             return f"{noms.get(c, c)}, aucun inscrit"
         if v[c] == 0 and ind.startswith("lieux"):
             return f"{noms.get(c, c)}, {AF.AUCUNE_STRUCTURE}"
-        return f"{noms.get(c, c)}, {AF.nombre(exacte.get(c, v[c]), g)}" + (f" {unite}" if unite else "")
+        return (f"{noms.get(c, c)}, {AF.nombre(exacte.get(c, v[c]), g)}" + (f" {unite}" if unite else "")
+                + (f", {notes_t[c]}" if c in notes_t else ""))
 
     def classe(x):
         return sum(1 for b in bornes if x >= b)
 
+    # un territoire sans inscrit ni structure est en gris uni, « aucun inscrit », jamais teinté comme la classe la plus
+    # basse ni hachuré comme une valeur non publiée (maquette P3 validée le 14 novembre 2026) ; chaque territoire porte
+    # data-t, que la page d'indicateur lit au clic et que « Ton territoire partout » cerne (epingle.js)
+    aucun = {c for c, x in v.items() if x == 0 and (prof or ind.startswith("lieux"))} | aucun_t
     s = [f'<svg viewBox="0 0 {A["W"]} {A["H"] + 46}" role="img" aria-label="{titre}, par {"département" if lv == "dep" else "intercommunalité"}, en cinq classes">', DEFS]
     for c, chemin in A["geo"][lv].items():
-        f = CLASSES[classe(v[c])] if c in v else VIDE
-        s.append(f'<path d="{chemin}" fill="{f}" stroke="var(--panel, #FFFFFF)" stroke-width="{0.3 if lv == "epci" else 0.6}">'
+        f = AUCUN if c in aucun else CLASSES[classe(v[c])] if c in v else VIDE
+        s.append(f'<path data-t="{lv}:{c}" d="{chemin}" fill="{f}" stroke="var(--panel, #FFFFFF)" stroke-width="{0.3 if lv == "epci" else 0.6}">'
                  f'<title>{html.escape(info(c))}</title></path>')
     y = A["H"] + 8
     lim = [tri[0]] + bornes + [tri[-1]]
     s.append('<g class="leg-svg">')
     for k in range(5):
-        x = 70 + k * 96
-        s.append(f'<rect x="{x}" y="{y}" width="92" height="12" fill="{CLASSES[k]}"/>')
+        x = 46 + k * 94   # les cinq classes finissent avant « non publié » et « aucune structure »
+        s.append(f'<rect x="{x}" y="{y}" width="90" height="12" fill="{CLASSES[k]}"/>')
         s.append(f'<text x="{x}" y="{y + 28}" font-size="12" fill="var(--muted, #5D6371)" font-family="Work Sans, sans-serif">'
                  f'{AF.nombre(lim[k], g) or "0"} à {AF.nombre(lim[k + 1], g)}</text>')
-    s.append(f'<rect x="{70 + 5 * 96 + 8}" y="{y}" width="16" height="12" fill="{VIDE}"/><text x="{70 + 5 * 96 + 28}" y="{y + 11}" '
+    # « non publié » et « aucune structure » à droite des classes ; le second mot, plus long, tenait hors du cadre
+    # (contrôle de mise en page du 15 novembre 2026) : ils commencent assez à gauche pour finir dans la largeur
+    xl = A["W"] - 130
+    s.append(f'<rect x="{xl}" y="{y}" width="16" height="12" fill="{VIDE}"/><text x="{xl + 20}" y="{y + 11}" '
              f'font-size="12" fill="var(--muted, #5D6371)" font-family="Work Sans, sans-serif">non publié</text>')
+    mot_aucun = "aucun inscrit" if prof else AF.AUCUNE_STRUCTURE
+    if aucun:
+        s.append(f'<rect x="{xl}" y="{y + 18}" width="16" height="12" fill="{AUCUN}"/><text x="{xl + 20}" '
+                 f'y="{y + 29}" font-size="12" fill="var(--muted, #5D6371)" font-family="Work Sans, sans-serif">{mot_aucun}</text>')
     s.append("</g></svg>")
     # au téléphone, la figure réduite rendait la légende illisible (6 px, relecture du 11 novembre 2026, 2.7) : la
     # même légende en texte, à la taille des notes, sous la carte ; la légende dessinée reste pour l'export
     s.append('<ul class="leg-classes" aria-hidden="true">' + "".join(
         f'<li><i style="background:{CLASSES[k]}"></i>{AF.nombre(lim[k], g) or "0"} à {AF.nombre(lim[k + 1], g)}</li>'
-        for k in range(5)) + '<li><i class="hachure"></i>non publié</li></ul>')
+        for k in range(5)) + (f'<li><i style="background:{AUCUN}"></i>{mot_aucun}</li>' if aucun else "")
+        + '<li><i class="hachure"></i>non publié</li></ul>')
     return "".join(s)
 
 

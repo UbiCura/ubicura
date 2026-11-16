@@ -20,6 +20,118 @@
   };
   const cache = el => el.closest(".cache,[hidden],.seul-papier,template,noscript");
   const nom = el => (el.id ? "#" + el.id : el.tagName.toLowerCase() + (typeof el.className === "string" && el.className.trim() ? "." + el.className.trim().split(/\s+/).join(".") : "")) + " « " + (el.textContent || "").replace(/­/g, "").trim().slice(0, 40) + " »";
+  // 0. fiche, « Tous les indicateurs de ce territoire » et tableau complet (étape 2 des portes d'entrée, 15 novembre
+  //    2026) : chargés, le compte de la porte égal aux lignes du tableau, chaque raccourci de domaine égal à son domaine,
+  //    chaque lien vers une page d'indicateur porte « → », chaque lien vers une ligne de la fiche porte « ↓ », chaque
+  //    résultat de la recherche mène à un élément qui existe. Le tableau est ensuite ouvert en entier, pour que les
+  //    contrôles qui suivent le lisent aussi.
+  const porte = document.getElementById("porte");
+  if (porte) {
+    for (let i = 0; i < 100 && !porte.classList.contains("pret") && !porte.querySelector(".p-attente")?.textContent; i++) await new Promise(r => setTimeout(r, 100));
+    if (!porte.classList.contains("pret")) sortie.defauts.push("tableau complet de la fiche non chargé : " + (porte.querySelector(".p-attente")?.textContent || "délai dépassé"));
+    else {
+      const lignes = document.querySelectorAll("#tout-terr table.tt tr[id]").length;
+      const nb = ((document.querySelector("[data-compte-tout]") || {}).textContent || "").match(/\d+/g) || [];
+      const somme = nb.reduce((s, x) => s + (+x), 0);
+      if (!lignes || somme !== lignes) sortie.defauts.push(`compte de « Tous les indicateurs » (${somme}) différent des lignes du tableau complet (${lignes})`);
+      porte.querySelectorAll(".p-doms a[data-aller]").forEach(a => {
+        const d = document.getElementById(a.dataset.aller), n = d && d.querySelectorAll("tr[id]").length;
+        const k = +(((a.parentElement.querySelector(":scope > span") || {}).textContent || "").match(/^\d+/) || [NaN])[0];
+        if (!d || n !== k) sortie.defauts.push(`raccourci « ${a.textContent.replace(/[↓,].*$/, "").trim()} » : ${k} annoncés, ${n} lignes dans le tableau`);
+      });
+      const q = document.getElementById("q-fiche");
+      for (const m of ["pour", "psy", "taux"]) {
+        q.value = m; q.dispatchEvent(new Event("input"));
+        document.querySelectorAll("#r-fiche a[data-aller]").forEach(a => { if (!document.getElementById(a.dataset.aller)) sortie.defauts.push(`résultat de la recherche dans la fiche sans cible : « ${a.textContent.trim().slice(0, 40)} »`); });
+      }
+      q.value = ""; q.dispatchEvent(new Event("input"));
+      // l'écart du tableau complet a la couleur de la réglette de la même ligne de la fiche (haut, bas ou neutre)
+      const coul = el => el.classList.contains("haut") ? "haut" : el.classList.contains("bas") ? "bas" : "neutre";
+      const vus = new Set();
+      document.querySelectorAll(".fiche tr[data-ind][id] .rg").forEach(rg => {
+        const tr = rg.closest("tr"); if (tr.closest("#tout-terr")) return;
+        const i = tr.dataset.ind, c = i.indexOf("prof:") === 0 ? i.split(":").slice(0, 2).join(":") : i;
+        if (vus.has(c)) return; vus.add(c);
+        const ec = document.querySelector("#tt-" + c.replace(/[:_]/g, "-") + " .ec"); if (!ec) return;
+        if (coul(ec) !== coul(rg)) sortie.defauts.push(`écart de « ${tr.dataset.titre || c} » : ${coul(ec)} dans le tableau complet, ${coul(rg)} sur la fiche`);
+      });
+      // relecture indépendante du 15 novembre 2026 : la fourchette de la fiche reprise sous la valeur du tableau ; chaque
+      // ligne de la fiche absente du tableau se trouve par la recherche ; le repli du téléphone dit le nombre de domaines ;
+      // chaque domaine du tableau a son « Citer et exporter »
+      document.querySelectorAll(".fiche tr[data-ind][id] td.v .note.ic").forEach(n => {
+        const tr = n.closest("tr"); if (tr.closest("#tout-terr")) return;
+        const td = document.querySelector("#tt-" + tr.dataset.ind.replace(/[:_]/g, "-") + " td.v"), ic = n.textContent.replace(/\s+/g, " ").trim();
+        if (td && !td.textContent.replace(/\s+/g, " ").includes(ic)) sortie.defauts.push(`fourchette « ${ic} » de « ${tr.dataset.titre || tr.dataset.ind} » absente du tableau complet`);
+      });
+      const cle = i => i.indexOf("prof:") === 0 ? i.split(":").slice(0, 2).join(":") : i;
+      document.querySelectorAll(".fiche tr[data-ind][id]").forEach(tr => {
+        if (tr.closest("#tout-terr") || document.getElementById("tt-" + cle(tr.dataset.ind).replace(/[:_]/g, "-"))) return;
+        const nm = tr.dataset.titre || ""; if (!nm) return;
+        q.value = nm; q.dispatchEvent(new Event("input"));
+        if (![...document.querySelectorAll("#r-fiche a[data-aller]")].some(a => a.dataset.aller === tr.id)) sortie.defauts.push(`ligne « ${nm} » de la fiche introuvable par la recherche dans la fiche`);
+      });
+      q.value = ""; q.dispatchEvent(new Event("input"));
+      const sm = document.querySelector("#porte .p-doms-d > summary");
+      if (sm && !/\d+\s+domaines?$/.test(sm.textContent.replace(/­/g, "").trim())) sortie.defauts.push("repli des domaines sans leur nombre : « " + sm.textContent.trim() + " »");
+      document.querySelectorAll("#tout-terr details.tt-domd").forEach(d => { if (!d.querySelector(".citer-encadre")) sortie.defauts.push("domaine du tableau complet sans « Citer et exporter » : " + d.id); });
+      // jamais un mot répété dans la valeur d'une ligne (défaut vu le 15 novembre 2026, « aucun aucun inscrit »)
+      document.querySelectorAll("#tout-terr table.tt td.v, #r-fiche .p-v").forEach(td => {
+        const m = /(^|\s)([\p{L}]+)\s+\2(\s|$)/u.exec(td.textContent.replace(/\s+/g, " "));
+        if (m) sortie.defauts.push(`mot répété dans une valeur du tableau complet : « ${td.textContent.trim().slice(0, 50)} »`);
+      });
+      // l'infobulle « ensemble » ou « médiane » ne reprend jamais la fourchette de la valeur (défaut du 15 novembre 2026,
+      // « Médiane, 15,5 entre 15,2 et 18,3 ») et porte l'unité quand la ligne en a une
+      const bulle = document.getElementById("rg-bulle");
+      if (bulle) document.querySelectorAll(".fiche .rg-lab").forEach(l => {
+        l.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+        const t = bulle.hidden ? "" : bulle.textContent;
+        if (/\bentre\b/.test(t)) sortie.defauts.push("infobulle de réglette avec une fourchette : « " + t.slice(0, 60) + " »");
+        document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape" }));
+      });
+      // la page replace les étiquettes des réglettes à l'image suivante (fiche_tout.js) ; le navigateur sans fenêtre
+      // n'en dessine pas entre deux clics : on le fait ici, comme le navigateur du lecteur
+      if (window.etiquettesReglettes) window.etiquettesReglettes();
+      document.querySelectorAll("#tout-terr, #tout-terr details.tt-domd").forEach(d => { d.open = true; });
+    }
+    document.querySelectorAll('main a[href*="indicateur/"]').forEach(a => { if (!a.textContent.includes("→")) sortie.defauts.push("lien vers une page d'indicateur sans « → » : " + nom(a)); });
+    document.querySelectorAll('main a[href^="#l-"], main a[href^="#t-sm-reg"]').forEach(a => { if (!a.textContent.includes("↓")) sortie.defauts.push("lien vers une ligne de la fiche sans « ↓ » : " + nom(a)); });
+    await new Promise(r => setTimeout(r, 100));
+  }
+  // 0 bis. page d'indicateur, étape 3 des portes d'entrée (15 novembre 2026) : « Votre territoire » trouve le Rhône (ou
+  //    la première région) et écrit la valeur de son fichier publié, avec sa réglette quand le niveau en a une ; un clic
+  //    sur un département de la carte affiche sa valeur à côté. Les contrôles qui suivent lisent la page ainsi remplie.
+  const votre = document.getElementById("votre");
+  if (votre && /\b(dep|reg)\b/.test(votre.dataset.niv)) {
+    const attendre = async (f, n = 80) => { for (let i = 0; i < n && !f(); i++) await new Promise(r => setTimeout(r, 100)); return f(); };
+    const q = document.getElementById("q-votre"), niv = votre.dataset.niv.split(" "), lv = niv.includes("dep") ? "dep" : "reg";
+    const code = lv === "dep" ? "69" : "84", nomT = lv === "dep" ? "Rhône" : "Auvergne";
+    q.value = nomT; q.dispatchEvent(new Event("input"));
+    const b = await attendre(() => document.querySelector("#s-votre:not([hidden]) button[data-i]"));
+    if (!b) sortie.defauts.push("« Votre territoire » : aucune proposition pour « " + nomT + " »");
+    else {
+      b.click();
+      const ok = await attendre(() => document.querySelector("#r-votre .vt-v, #r-votre .vt-pos"));
+      let T = null; try { T = await (await fetch("../territoire/" + lv + "/" + code + ".json")).json(); } catch (e) {}
+      const v = T && T.ind[votre.dataset.ind], aff = (document.querySelector("#r-votre .vt-v") || {}).textContent || "";
+      if (!ok) sortie.defauts.push("« Votre territoire » : rien n'est affiché pour " + nomT);
+      else if (v && v[1] && aff !== v[1]) sortie.defauts.push(`« Votre territoire » : ${aff} affiché, ${v[1]} dans le fichier du territoire`);
+      else if (v && v[1] && !document.querySelector("#r-votre .rg") && votre.dataset.niv) sortie.defauts.push("« Votre territoire » : réglette absente pour " + nomT);
+    }
+    const p = document.querySelector('.carte-cote svg path[data-t="dep:69"]');
+    if (p) {
+      p.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      if (!await attendre(() => document.querySelector("#clic .ck-nom"))) sortie.defauts.push("carte : un clic sur le Rhône n'affiche pas sa valeur");
+    }
+    if (window.etiquettesReglettes) window.etiquettesReglettes();
+    await new Promise(r => setTimeout(r, 200));
+  }
+  // la flèche « → » ou « ↓ » d'un lien ne passe jamais seule à la ligne : elle est sur la ligne où finit le nom (défaut vu
+  // le 15 novembre 2026, « Masseurs-kinésithérapeutes » puis « → » seule)
+  document.querySelectorAll("main a.avec-fl").forEach(a => {
+    const u = a.querySelector(".u"), f = a.querySelector(".fl"); if (!u || !f || !vis(a) || cache(a)) return;
+    const ru = u.getClientRects(), rf = f.getBoundingClientRect(); if (!ru.length || !rf.width) return;
+    if (Math.abs(ru[ru.length - 1].top - rf.top) > 4) sortie.defauts.push("flèche seule en début de ligne : " + nom(a));
+  });
 
   // 1. tailles de texte
   const tailles = new Map();

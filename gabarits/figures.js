@@ -249,6 +249,8 @@
             cv.toBlob(function(png){if(png){enregistrer(png,nom+".png");x.textContent="Enregistré"}})};img.src=u}})}})
     // « Citer cette fiche », en fin de page : tous les formats montrés d'emblée
     document.querySelectorAll(".citer-encadre[data-ouvert]").forEach(function(b){if(b.getAttribute("aria-expanded")!=="true")b.click()})}
+  // relancé par un bloc construit après le chargement (tableau complet de la fiche, presentation/fiche_tout.js)
+  window.citerEncadres=citerEncadres;
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",citerEncadres);else citerEncadres();
 
   // Réglettes : chaque étiquette (ensemble, médiane) reste dans sa réglette ; près d'un bord, elle glisse vers
@@ -264,6 +266,8 @@
       rg.querySelectorAll(".rg-lab").forEach(function(l){l.style.marginLeft="";var a=l.getBoundingClientRect(),d=0;
         if(a.left<R.left)d=R.left-a.left;else if(a.right>R.right)d=R.right-a.right;
         if(d)l.style.marginLeft=d.toFixed(1)+"px"})})}
+  // relancé quand une infobulle de réglette s'ouvre ou se ferme dans le fil d'un tableau (presentation/fiche_tout.js)
+  window.etiquettesReglettes=etiquettesReglettes;
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",etiquettesReglettes);else etiquettesReglettes();
   addEventListener("load",etiquettesReglettes);addEventListener("resize",etiquettesReglettes);
   document.addEventListener("toggle",function(){requestAnimationFrame(etiquettesReglettes)},true);

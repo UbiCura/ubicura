@@ -153,6 +153,7 @@ def test_mise_en_page_du_7_novembre():
         assert sel in css, sel
     pub = (RAC / "outils" / "publier.ps1").read_text(encoding="utf-8")
     assert "outils\\controle_decisions.py" in pub and "outils\\controle_mise_en_page.py" in pub
-    assert "sert la version" in pub
+    # la fin de la mise en ligne compare au dossier envoyé des pages témoins servies en ligne (15 novembre 2026)
+    assert "outils\\verifier_en_ligne.py" in pub and "sert les pages envoyées" in pub
     from pipeline import site as S
     assert "rapports" in S.GROUPES and "portail" in S.GROUPES

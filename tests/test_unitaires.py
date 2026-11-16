@@ -8032,7 +8032,7 @@ def test_fiche_departement_indicateurs_de_la_region():
             if c == "976":
                 # Mayotte : aucune valeur, la raison, chaque nom lié à la page de son indicateur
                 assert not ids and "<td" not in g and "absents pour Mayotte" in g, c
-                noms = re.findall(r'<li><a class="vers-ind" href="\.\./\.\./(indicateur/[^"]+)"', g)
+                noms = re.findall(r'<li><a class="vers-ind[^"]*" href="\.\./\.\./(indicateur/[^"]+)"', g)
                 assert len(noms) == len(attendus), noms
                 assert "Le portail Odissé de Santé publique France n'en donne aucune pour Mayotte ; " in texte(g)
                 # la raison du Baromètre n'est dite que de ses mesures de 2024 (relecture indépendante, défaut 3)
@@ -8146,6 +8146,228 @@ def test_publier_retrouve_les_ecarts_deja_valides():
             script = f"$ecartsValides = '{f}'; $dejaValides = @(); {ligne}; ($dejaValides -contains 'v:AAA') -and ($dejaValides.Count -eq {len(liste)})"
             r = subprocess.run([ps, "-NoProfile", "-Command", script], capture_output=True, text=True, timeout=60)
             assert r.stdout.strip() == "True", (liste, r.stdout, r.stderr)
+
+
+def test_verification_en_ligne_compare_le_contenu():
+    """Après l'envoi, la publication compare au dossier envoyé des pages témoins servies par le site (accueil, feuille de
+    style, journal, page de la version, pages au hasard) : une page restée ancienne en ligne est vue, même quand la page
+    de la version existe déjà (republication de la même édition, 14 novembre 2026)."""
+    import functools
+    import http.server
+    import tempfile
+    import threading
+    sys.path.insert(0, str(config.RACINE / "outils"))
+    import verifier_en_ligne as V
+    assert "verifier_en_ligne.py" in (config.RACINE / "outils" / "publier.ps1").read_text(encoding="utf-8-sig")
+    with tempfile.TemporaryDirectory() as envoye, tempfile.TemporaryDirectory() as servi:
+        for d in (envoye, servi):
+            for rel, txt in [("index.html", "accueil"), ("style.css", "css"), ("journal.html", "journal"),
+                             ("donnees/2026-11-13/dictionnaire.html", "version"), ("territoire/dep/69.html", "fiche"),
+                             ("territoire/dep/2A.html", "fiche corse")]:
+                f = Path(d) / rel
+                f.parent.mkdir(parents=True, exist_ok=True)
+                f.write_text(txt, encoding="utf-8")
+        class Muet(http.server.SimpleHTTPRequestHandler):
+            def log_message(self, *a):
+                pass
+        h = functools.partial(Muet, directory=servi)
+        serveur = http.server.ThreadingHTTPServer(("127.0.0.1", 0), h)
+        threading.Thread(target=serveur.serve_forever, daemon=True).start()
+        adresse = f"http://127.0.0.1:{serveur.server_address[1]}"
+        try:
+            chemins = V.temoins(Path(envoye), "2026-11-13", graine=1)
+            assert {"index.html", "style.css", "journal.html", "donnees/2026-11-13/dictionnaire.html"} <= set(chemins)
+            assert "territoire/dep/69.html" in chemins and "territoire/dep/2A.html" in chemins, chemins
+            assert V.differences(Path(envoye), adresse, chemins) == []
+            (Path(servi) / "territoire/dep/69.html").write_text("fiche ancienne", encoding="utf-8")
+            (Path(servi) / "journal.html").unlink()
+            assert sorted(V.differences(Path(envoye), adresse, chemins)) == ["journal.html", "territoire/dep/69.html"]
+            assert V.main([envoye, adresse, "2026-11-13", "--attendre", "0"]) == 1
+        finally:
+            serveur.shutdown()
+            serveur.server_close()
+
+
+def test_fiches_portes_et_liens_etape_2():
+    """Étape 2 des portes d'entrée (maquettes validées le 14 novembre 2026), sur toutes les fiches construites :
+    « Tous les indicateurs de ce territoire » sous les tuiles, avec son niveau, son code et, pour un département, sa
+    région ; le tableau complet à la fin de « Confiance et citation » et son entrée dans la barre des domaines ; le
+    script qui les remplit ; chaque lien vers une page d'indicateur mène à une page qui existe et porte « → » ; chaque
+    lien vers une ligne de la fiche porte « ↓ » ; le nom seul est souligné (classe « avec-fl »). Et dans chaque fichier
+    publié d'un territoire, la couleur de l'écart que lit le tableau complet."""
+    import json
+    import re
+    site = config.RACINE / "site"
+    if not (site / "territoire").exists():
+        return
+    fautes = []
+    n = 0
+    for lv in ("reg", "dep", "epci"):
+        for f in sorted((site / "territoire" / lv).glob("*.html")):
+            h = f.read_text(encoding="utf-8")
+            n += 1
+            j = json.loads(f.with_suffix(".json").read_text(encoding="utf-8"))
+            m = re.search(r'<div class="porte seul-ecran" id="porte" data-niv="([^"]+)" data-code="([^"]+)"(?: data-reg="([^"]*)")?', h)
+            if not m or m.group(1) != lv or m.group(2) != f.stem or (lv == "dep" and m.group(3) != j.get("reg")):
+                fautes.append(f"{lv}/{f.stem} : porte absente ou mal renseignée")
+                continue
+            if h.find('id="porte"') < h.find('class="cles-fiche"') or 'id="tout-terr"' not in h or 'href="#tout-terr"' not in h \
+                    or 'presentation/fiche_tout.js' not in h:
+                fautes.append(f"{lv}/{f.stem} : porte, tableau complet ou script mal placés")
+            for href, corps in re.findall(r'<a [^>]*href="([^"]*indicateur/[^"]+)"[^>]*>(.*?)</a>', h, re.S):
+                cible = (f.parent / href.split("#")[0]).resolve()
+                if not cible.exists():
+                    fautes.append(f"{lv}/{f.stem} : lien vers une page absente, {href}")
+                if "→" not in corps:
+                    fautes.append(f"{lv}/{f.stem} : lien vers {href} sans « → »")
+            for href, corps in re.findall(r'<a [^>]*href="(#l-[^"]+|#t-sm-reg)"[^>]*>(.*?)</a>', h, re.S):
+                if "↓" not in corps:
+                    fautes.append(f"{lv}/{f.stem} : lien vers {href} sans « ↓ »")
+            for a in re.findall(r"<a [^>]*>(?:(?!</a>).)*?[→↓](?:(?!</a>).)*?</a>", h, re.S):
+                if 'class="vers-ind avec-fl"' not in a and 'class="avec-fl"' not in a and 'aria-hidden' in a:
+                    fautes.append(f"{lv}/{f.stem} : lien fléché sans la classe avec-fl, {a[:80]}")
+            for i, v in j["ind"].items():
+                if len(v) != 9 or v[8] not in ("", "haut", "bas") or (v[8] and not v[1]):
+                    fautes.append(f"{lv}/{f.stem}.json : {i} {v}")
+        if len(fautes) > 30:
+            break
+    assert n > 1300, n
+    assert not fautes, fautes[:10]
+
+
+def test_voisins_du_catalogue():
+    """Étape 3 des portes d'entrée (maquette P3 validée le 14 novembre 2026) : les voisins d'un indicateur sont tirés du
+    catalogue, jamais lui-même, jamais un indicateur sensible à côté d'un indicateur de santé mentale, huit au plus ; la
+    même profession sous ses autres mesures d'abord."""
+    from pipeline.voisins import voisins
+    cat = [{"id": "prof:psychiatre", "themes": ["Santé mentale"], "sensible": False, "sous": "Professionnels"},
+           {"id": "prof:esm_psychiatre", "themes": ["Santé mentale"], "sensible": False, "sous": "Professionnels"},
+           {"id": "age60_psychiatre", "themes": ["Santé mentale"], "sensible": False, "sous": "Âge et évolution des professionnels"},
+           {"id": "prof:psychologue", "themes": ["Santé mentale"], "sensible": False, "sous": "Professionnels"},
+           {"id": "prof:pediatre", "themes": [], "sensible": False, "sous": "Professionnels"},
+           {"id": "violences_x", "themes": ["Santé mentale"], "sensible": True, "sous": "Professionnels"},
+           {"id": "lieux_lieu_cmp_adultes", "themes": ["Santé mentale"], "sensible": False, "sous": "Structures de soins"}]
+    g = voisins("prof:psychiatre", cat)
+    ids = [x["id"] for _, L in g for x in L]
+    assert g[0][0] == "La même profession, autres mesures" and ids[:2] == ["prof:esm_psychiatre", "age60_psychiatre"], g
+    assert "prof:psychiatre" not in ids and "violences_x" not in ids and 0 < len(ids) <= 8, ids
+    assert "lieux_lieu_cmp_adultes" in ids   # indicateur phare du thème
+    # dans l'autre sens, aucun indicateur de santé mentale à côté d'un indicateur sensible
+    g = voisins("violences_x", cat)
+    assert not any("Santé mentale" in x["themes"] for _, L in g for x in L), g
+
+
+def test_pages_indicateur_etape_3():
+    """Étape 3 des portes d'entrée, sur toutes les pages d'indicateur construites : « Votre territoire » renseigné
+    (identifiant, niveaux, page) et son script ; la réglette de chaque territoire dans indicateur/reglettes/, aux seuls
+    niveaux de la page ; chaque département de la carte cliquable (data-t) ; les voisins mènent à des pages qui existent,
+    jamais à la page elle-même, jamais un indicateur sensible à côté d'un indicateur de santé mentale, huit au plus.
+    Et la réglette de « Votre territoire » est celle de la fiche : même classe, même place du point, sur la fiche du
+    Rhône et de la Lozère."""
+    import json
+    import re
+    site = config.RACINE / "site"
+    if not (site / "indicateur" / "reglettes").exists():
+        return
+    cat = {x["id"]: x for x in json.loads((site / "presentation" / "catalogue.json").read_text(encoding="utf-8"))}
+    par_page = {x["page"]: x for x in cat.values()}
+    fautes, n, R = [], 0, {}
+    for f in sorted((site / "indicateur").glob("*.html")):
+        h = f.read_text(encoding="utf-8")
+        n += 1
+        m = re.search(r'<div class="votre seul-ecran" id="votre" data-ind="([^"]+)" data-niv="([^"]+)" data-slug="([^"]+)"', h)
+        if not m or m.group(3) != f.stem or "presentation/indicateur.js" not in h:
+            fautes.append(f"{f.name} : « Votre territoire » absent ou mal renseigné")
+            continue
+        ident, niv = m.group(1), m.group(2).split()
+        rf = site / "indicateur" / "reglettes" / f"{f.stem}.json"
+        if not rf.exists():
+            fautes.append(f"{f.name} : réglettes absentes")
+            continue
+        R[ident] = json.loads(rf.read_text(encoding="utf-8"))
+        if not set(R[ident]) <= set(niv) or not R[ident]:
+            fautes.append(f"{f.name} : réglettes de niveaux {sorted(R[ident])} pour {niv}")
+        for lv, g in R[ident].items():
+            if g["t"].count("§C§") != 1 or g["t"].count("§A§") != 1 or g["t"].count("§V§") != 1:
+                fautes.append(f"{f.name} : réglette type {lv} mal formée")
+        if 'id="t-carte-i"' in h:
+            k = h.find('id="t-carte-i"')
+            chemins = re.findall(r"<path ([^>]*)>", h[k:h.find("</svg>", k)])
+            if not chemins or any('data-t="dep:' not in c for c in chemins if " d=" in c and "leg" not in c):
+                fautes.append(f"{f.name} : départements de la carte sans data-t")
+        page = f"indicateur/{f.stem}.html"
+        moi = par_page.get(page) or {}
+        sm = "Santé mentale" in (moi.get("themes") or [])
+        k = h.find('class="voisins"')
+        vs = re.findall(r'<a class="vers-ind avec-fl" href="\.\./([^"]+)">', h[k:h.find("</section>", k)]) if k > 0 else []
+        if len(vs) > 8:
+            fautes.append(f"{f.name} : {len(vs)} voisins")
+        for v in vs:
+            x = par_page.get(v)
+            if v == page or not (site / v).exists() or x is None or (sm and x["sensible"]):
+                fautes.append(f"{f.name} : voisin {v} interdit ou absent")
+        if len(fautes) > 30:
+            break
+    assert n > 200, n
+    # la carte dit ce que dit le fichier de chaque département (Mayotte comprise, relecture indépendante du
+    # 15 novembre 2026) ; la limite des structures absentes des bases jamais sous une valeur publiée (règle M1)
+    import html as H
+    deps = {g.stem: json.loads(g.read_text(encoding="utf-8")) for g in (site / "territoire" / "dep").glob("*.json")}
+    for f in sorted((site / "indicateur").glob("*.html")):
+        h = f.read_text(encoding="utf-8")
+        m = re.search(r'data-ind="([^"]+)"', h)
+        k = h.find('id="t-carte-i"')
+        if not m or k < 0:
+            continue
+        titres = dict(re.findall(r'<path data-t="dep:([^"]+)" [^>]*><title>(.*?)</title>', h[k:h.find("</svg>", k)]))
+        for c, J in deps.items():
+            v, t = J["ind"].get(m.group(1)), H.unescape(titres.get(c, ""))
+            if v is None:
+                continue
+            attendu = v[1] if v[1] else "aucun" if v[0] == "aucun" else "non publié"
+            if attendu not in t:
+                fautes.append(f"{f.name} : carte « {t} », fichier du département {c} « {attendu} »")
+    for c, J in deps.items():
+        for i, v in J["ind"].items():
+            if v[1] and ("n'y sont pas publiés" in v[3] or "distance et nombre non publiés" in v[3]):
+                fautes.append(f"dep/{c}.json : {i}, limite « non publiés » sous la valeur {v[1]}")
+    # la légende dessinée de chaque carte tient dans son cadre (« aucune structure » sortait à droite, contrôle de mise
+    # en page du 15 novembre 2026) : 6,6 px par caractère au plus en Work Sans 12, les classes avant les pastilles de
+    # droite ; et un 0 d'une carte porte sa note (règle « aucun 0 laissé seul »)
+    from pipeline.affichage import ZERO
+    for f in sorted((site / "indicateur").glob("*.html")) + sorted((site / "domaine").glob("*.html")):
+        h = f.read_text(encoding="utf-8")
+        for svg in re.findall(r'<svg viewBox="0 0 (\d+) \d+"[^>]*>(.*?)</svg>', h, flags=re.S):
+            W, corps = int(svg[0]), svg[1]
+            g = corps.find('<g class="leg-svg">')
+            if g < 0:
+                continue
+            for x, t in re.findall(r'<text x="([\d.]+)"[^>]*>([^<]*)</text>', corps[g:]):
+                if float(x) + 6.6 * len(H.unescape(t)) > W:
+                    fautes.append(f"{f.name} : légende « {t} » hors du cadre ({x} + {len(t)} caractères, largeur {W})")
+            for t in re.findall(r"<title>([^<]*)</title>", corps):
+                t = H.unescape(t)
+                if re.search(r", 0([,.]0+)? pour 1", t) and not any(t.endswith(", " + z) for z in ZERO.values()):
+                    fautes.append(f"{f.name} : « {t} », 0 sans sa note")
+    # même réglette que la fiche, ligne par ligne
+    pages = {x["page"]: i for i, x in cat.items()}
+    for code in ("69", "48"):
+        h = (site / "territoire" / "dep" / f"{code}.html").read_text(encoding="utf-8")
+        vus = 0
+        for tr in re.findall(r'<tr id="l-[^"]+" data-ind="([^"]+)"[^>]*>(.*?)</tr>', h, re.S):
+            i = tr[0] if tr[0] in R else tr[0].rsplit(":", 1)[0] if tr[0].rsplit(":", 1)[0] in R else None
+            m = re.search(r'<div class="rg ([a-z]*) ?petite"', tr[1])
+            if not i or not m or "dep" not in R[i] or tr[0].count(":") == 2 and not tr[0].endswith(":all"):
+                continue
+            d = R[i]["dep"]["d"].get(code)
+            if d is None:
+                continue
+            vus += 1
+            pt = re.search(r'<span class="rg-pt" style="left:([\d.]+)%">', tr[1])
+            if d[1] != m.group(1) or (pt and d[0] is not None and abs(float(pt.group(1)) - d[0]) > 1e-6) or (pt is None) != (d[0] is None):
+                fautes.append(f"réglette de {i} pour {code} : {d} sur la page, {m.group(1)} {pt and pt.group(1)} sur la fiche")
+        assert vus > 20, (code, vus)
+    assert not fautes, fautes[:10]
 
 
 if __name__ == "__main__":

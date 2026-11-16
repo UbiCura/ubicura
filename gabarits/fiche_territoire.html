@@ -44,7 +44,7 @@
 {%- set dep = (l.echelle == 'dep' or l.code == 'departement') -%}
 <tr{% if l.sous %} class="sous"{% endif %}{% if l.ancre %} id="{{ l.ancre }}"{% endif %}{% if l.id %} data-ind="{{ l.id }}"{% endif %}{% if l.lv %} data-niv="{{ l.lv }}:{{ l.code or '' }}"{% endif %} data-titre="{{ l.titre or l.lib }}">
   {%- set suite = limite_ligne(l, ns)|trim -%}
-  <th scope="row"><span class="nom-ligne">{{ l.lib }}{{ signal(l) }}</span>{% if dep and f.niveau != 'dep' %}<span class="etiq">donnée du département{% if f.parent and f.niveau == 'epci' %}, {{ f.parent }}{% endif %}</span>{% endif %}{% if l.precision %}<span class="note">{{ l.precision }}.</span>{% endif %}{% if l.k and not l.phrase_visible %}<span class="lecteur">{{ l.k.phrase }}</span>{% endif %}</th>
+  <th scope="row"><span class="nom-ligne">{% if l.page %}{{ vers_indicateur(l, l.limite or (l.k and l.k.limite)) }}{% else %}{{ l.lib }}{{ signal(l) }}{% endif %}</span>{% if dep and f.niveau != 'dep' %}<span class="etiq">donnée du département{% if f.parent and f.niveau == 'epci' %}, {{ f.parent }}{% endif %}</span>{% endif %}{% if l.precision %}<span class="note">{{ l.precision }}.</span>{% endif %}{% if l.k and not l.phrase_visible %}<span class="lecteur">{{ l.k.phrase }}</span>{% endif %}</th>
   {%- if g.avec_eff %}
   <td class="eff">
     {%- if l.s %}{% if l.s.n is none %}{% elif l.s.n == 0 %}aucune{% else %}{{ l.s.n }}, {{ l.s.conf|confirmation }}{% endif %}
@@ -130,12 +130,17 @@ Position parmi les {{ {'epci': 'intercommunalités', 'dep': 'départements', 're
   {% if g.reserves %}<ul class="reserves">{% for r in g.reserves %}<li><b class="sig" aria-hidden="true">!</b><span>{{ r }}</span></li>{% endfor %}</ul>{% endif %}
 </div>
 {%- endmacro %}
-{#- un nom qui mène à la page de l'indicateur porte « → », et un texte pour les lecteurs d'écran (relecture du 14
-    novembre 2026, C4). Le dernier mot, la flèche et le « ! » de la limite ne se séparent jamais (une flèche ou un « ! »
-    seul en début de ligne). -#}
+{#- un nom qui mène à la page de l'indicateur porte « → », un lien qui reste dans la fiche porte « ↓ », et un texte pour
+    les lecteurs d'écran (maquettes validées le 14 novembre 2026, relecture C4). Le nom seul est souligné ; la flèche et
+    le « ! » de la limite sont du texte ordinaire, tenus au dernier mot par un caractère de liaison (U+2060) et une
+    espace insécable : ils ne passent jamais seuls à la ligne, et le nom peut se couper à son trait d'union
+    (« Masseurs-kinésithérapeutes → » débordait, puis sa flèche passait seule à la ligne, 15 novembre 2026). Le lien
+    porte la classe « avec-fl ». -#}
+{% macro fleche_bas(nom, aide) -%}
+<span class="u">{{ nom }}</span>&#8288;<span class="fl" aria-hidden="true">&nbsp;↓</span><span class="lecteur">, {{ aide }}</span>
+{%- endmacro %}
 {% macro vers_indicateur(l, sig=false) -%}
-{%- set mots = l.lib.rsplit(' ', 1) -%}
-<a class="vers-ind" href="{{ racine }}{{ l.page }}">{% if mots|length > 1 %}{{ mots[0] }} {% endif %}<span class="insec">{{ mots[-1] }}<span class="fl" aria-hidden="true">&nbsp;→</span>{% if sig %}<b class="sig" aria-hidden="true">&nbsp;!</b>{% endif %}</span><span class="lecteur">, page de l’indicateur</span></a>
+<a class="vers-ind avec-fl" href="{{ racine }}{{ l.page }}"><span class="u">{{ l.lib }}</span>&#8288;<span class="fl" aria-hidden="true">&nbsp;→</span>{% if sig %}&#8288;<b class="sig" aria-hidden="true">&nbsp;!</b>{% endif %}<span class="lecteur">, page de l’indicateur</span></a>
 {%- endmacro %}
 {#- les indicateurs publiés seulement par région, sur la fiche d'un département (maquette validée le 14
     novembre 2026, prototypes/entrees/v2_fiche/) : la valeur de la région nommée comme telle, son intervalle de
@@ -265,6 +270,10 @@ Position parmi les {{ {'epci': 'intercommunalités', 'dep': 'départements', 're
   <div class="dom-haut">
     <div class="dom-texte">
       <p class="compte">{{ b.compte }}</p>
+      {%- set gr = b.groupes|selectattr('region')|list %}
+      {%- if gr %}
+      <p class="vers-bas seul-ecran"><a class="avec-fl" href="#{{ gr[0].id }}">{{ fleche_bas('Plus bas, les indicateurs ' ~ gr[0].titre[:1]|lower ~ gr[0].titre[1:], 'plus bas dans la fiche') }}</a></p>
+      {%- endif %}
       {% for p, liste in b.synthese %}{% if p %}<p class="phrase{% if liste %} phrase-liste{% endif %}">{{ p }}</p>{% endif %}{% endfor %}
       <p class="lire-bande"><b>Comment lire.</b> Chaque ligne situe le territoire parmi les {{ f.nb_territoires|nombre('entier') }} {{ niv }}, avec la médiane et l'ensemble des {{ niv }}, calculé de la même façon ; l'ensemble est tiré par les territoires les plus peuplés, d'où le « mais » quand un territoire est sous l'ensemble et pourtant plus haut que la plupart. Un point n'est en cuivre ou en canard que si l'écart sort de 0,8 à 1,25 fois l'ensemble et dépasse ce que le hasard explique ; le comptage des écarts suit cette règle, pour les professions et les structures. Chaque personne compte une fois dans le territoire, même si elle exerce dans plusieurs de ses communes ; additionner des territoires compterait deux fois les mêmes personnes.{% if b.att %} « Attendu » : l'effectif attendu compte tenu du profil de la population ; c'est une comparaison avec des territoires semblables, pas une mesure du besoin.{% endif %}</p>
       <p class="a-venir-ligne"><b>À venir.</b> {% if b.a_venir_ic %}L'intervalle de confiance des effectifs du répertoire et des ALD. {% endif %}L'évolution des indicateurs qui n'en ont pas encore.</p>
@@ -333,9 +342,21 @@ Position parmi les {{ {'epci': 'intercommunalités', 'dep': 'départements', 're
 </section>
 {% endif %}
 
+{#- « Tous les indicateurs de ce territoire » (maquette validée le 14 novembre 2026, prototypes/entrees/v2_fiche/) : un
+    champ qui cherche dans la fiche et les domaines en raccourcis vers le tableau complet, rempli par
+    presentation/fiche_tout.js depuis les fichiers publiés du territoire -#}
+<div class="porte seul-ecran" id="porte" data-niv="{{ f.niveau }}" data-code="{{ f.code }}"{% if extras.code_region %} data-reg="{{ extras.code_region }}"{% endif %} data-racine="{{ racine }}">
+  <h2 class="porte-titre">Tous les indicateurs de ce territoire<span data-compte-tout></span></h2>
+  <div class="p-champ"><label for="q-fiche">Chercher un indicateur dans cette fiche</label><input id="q-fiche" type="search" autocomplete="off" spellcheck="false">
+    <p class="lecteur" id="e-fiche" aria-live="polite"></p><ul class="p-res" id="r-fiche"></ul></div>
+  <details class="p-doms-d" open><summary>Le tableau complet, par domaine</summary>
+    <ul class="p-doms"><li class="p-tete">Le tableau complet, par domaine<span>indicateurs</span></li></ul>
+    <p class="p-csv"></p><p class="p-attente note" aria-live="polite"></p></details>
+</div>
+
 {#- la barre des domaines, collante : chaque domaine et son nombre d'écarts nets -#}
 <nav class="barre-dom seul-ecran" aria-label="Domaines de la fiche"><div class="barre-dom-in">
-  {%- for b in bandes %}<a href="#d-{{ b.id }}" title="{{ b.nom }} : {{ b.compte }}"{% if b.vide %} class="vide"{% endif %}>{{ b.court }}{% if b.n_ecarts is not none %}<span class="n-ecarts">{% if b.n_ecarts %}{{ b.n_ecarts }} écart{{ 's' if b.n_ecarts > 1 }}{% else %}aucun écart{% endif %}</span>{% elif b.vide %}<span class="lecteur"> : aucune base encore</span>{% endif %}</a>{% endfor %}
+  {%- for b in bandes %}<a href="#d-{{ b.id }}" title="{{ b.nom }} : {{ b.compte }}"{% if b.vide %} class="vide"{% endif %}>{{ b.court }}{% if b.n_ecarts is not none %}<span class="n-ecarts">{% if b.n_ecarts %}{{ b.n_ecarts }} écart{{ 's' if b.n_ecarts > 1 }}{% else %}aucun écart{% endif %}</span>{% elif b.vide %}<span class="lecteur"> : aucune base encore</span>{% endif %}</a>{% endfor %}<a href="#tout-terr" title="Tous les indicateurs du territoire, en un tableau">Tous les indicateurs</a>
 </div></nav>
 
 {#- le tableau de bord : la carte du territoire et ses repères, « En bref » en matrice -#}
@@ -444,12 +465,13 @@ Position parmi les {{ {'epci': 'intercommunalités', 'dep': 'départements', 're
   <div class="en-bref">
     <h2 id="t-bref">En bref</h2>
     <p class="note">{{ nb_phares }} indicateurs phares, les mêmes d'un territoire à l'autre, dans l'ordre d'un diagnostic : l'offre, l'accès, le recours, puis le contexte. Chacun situe le territoire parmi les {{ f.nb_territoires|nombre('entier') }} {{ niv }}.{% if phares_absents %} {{ "L'un d'eux n'a" if phares_absents|length == 1 else (['Deux', 'Trois', 'Quatre', 'Cinq', 'Six', 'Sept', 'Huit', 'Neuf', 'Dix', 'Onze', 'Douze'][phares_absents|length - 2] ~ " d'entre eux n'ont") }} pas de donnée publiée pour ce territoire : {{ phares_absents|join(', ') }}.{% endif %}</p>
+    <p class="note aide-liens seul-ecran">Un nom suivi de ↓ mène à sa ligne détaillée, plus bas. Dans les lignes détaillées, un nom suivi de → ouvre la page de l’indicateur : définition, carte de France et source.</p>
     <table class="matrice">
       <thead><tr><th scope="col">Indicateur</th><th scope="col">Valeur et position parmi les {{ niv }}</th></tr></thead>
       {% for s in bord %}
       <tbody><tr class="m-section"><th colspan="2" scope="colgroup">{{ s.nom }}</th></tr>
       {% for m in s.lignes %}<tr>
-        <th scope="row"><a href="#{{ m.ancre }}">{{ m.nom }}</a><span class="note">{{ m.unite }}{% if m.dep %}, au département{% if f.niveau == 'epci' %} ({{ f.parent }}){% endif %}{% endif %}</span></th>
+        <th scope="row"><a class="avec-fl" href="#{{ m.ancre }}">{{ fleche_bas(m.nom, 'sa ligne détaillée, plus bas') }}</a><span class="note">{{ m.unite }}{% if m.dep %}, au département{% if f.niveau == 'epci' %} ({{ f.parent }}){% endif %}{% endif %}</span></th>
         <td class="m-cel">
           <div class="m-ligne">{{ reglette(m.reglette, 'micro') }}<span class="m-v">{% if m.v %}<b>{{ m.v }}{% if m.km %} km{% endif %}</b>{% else %}<span class="statut">{{ m.statut }}</span>{% endif %}</span></div>
           <p class="m-pos">{% if m.ecart %}<span class="ec {{ m.couleur or 'neutre' }}">{{ m.ecart }}</span>{{ ', mais ' if m.mais else ', ' }}{% elif m.avant %}<span class="ens-pos">{{ m.avant }}</span>{{ ', mais ' if m.mais else ', ' }}{% endif %}{{ m.pos }}</p>
@@ -512,6 +534,15 @@ Position parmi les {{ {'epci': 'intercommunalités', 'dep': 'départements', 're
       <p class="signaler seul-ecran"><b>Signaler une erreur.</b> Une valeur vous paraît fausse ? Écrivez-nous depuis la page <a href="{{ racine }}contribuer.html">Contribuer</a>, en donnant l'adresse de la fiche et la ligne concernée ; chaque correction est datée dans le journal.</p>
     </div>
   </div>
+  {#- le tableau complet, rempli par presentation/fiche_tout.js : chaque indicateur que le site publie pour ce territoire,
+      par domaine puis par sous-thème, et deux fichiers CSV, un par licence -#}
+  {%- set mots_tt = {'dep': ("départements", "au département médian", "Les indicateurs publiés seulement par région portent la valeur de sa région, comparée aux autres régions. "),
+                     'reg': ("régions", "à la région médiane", ""),
+                     'epci': ("intercommunalités", "à l’intercommunalité médiane", "Les indicateurs publiés seulement par département portent la valeur de son département, comparée aux autres départements. ")}[f.niveau] %}
+  <details class="tech tout-terr seul-ecran" id="tout-terr"><summary>Tous les indicateurs : <span data-compte-tout></span></summary>
+    <div class="tt-tete"><p>Rangés par domaine, chacun s’ouvre à part, puis par sous-thème dans l’ordre de la page Domaines, et dans l’ordre de la fiche à l’intérieur d’un sous-thème. Un domaine qui a au moins trois sous-thèmes porte un filtre. Chaque valeur est comparée à l’ensemble des {{ mots_tt[0] }}, calculé comme elle, ou {{ mots_tt[1] }} quand la page de l’indicateur le dit. {{ mots_tt[2] }}Aucune profession n’est additionnée à une autre.</p><p class="tt-csv"></p></div>
+    <div class="tt-corps"></div>
+  </details>
 </section>
 
 {% if niveaux.enfants %}
@@ -725,4 +756,5 @@ Position parmi les {{ {'epci': 'intercommunalités', 'dep': 'départements', 're
   });
 })();
 </script>
+<script src="{{ racine }}presentation/fiche_tout.js" defer></script>
 {% endblock %}

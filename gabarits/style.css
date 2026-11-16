@@ -2071,7 +2071,7 @@ nav.site .chercher[aria-expanded="true"]{border-bottom-color:var(--ink)}
 .fiche table.t-region td.v .note.ic{display:block;white-space:nowrap}
 .fiche table.t-region td.pos .note{display:block;color:var(--muted);font-size:var(--t-note)}
 .fiche table.t-region tr.non-pub td.pos{color:var(--muted);font-size:var(--t-note)}
-.fiche .groupe-region .fl{display:inline-block;text-decoration:none;color:var(--muted)}
+.fiche .groupe-region .fl{color:var(--muted)}
 .fiche .groupe-region a.vers-ind:hover .fl{color:var(--chiffre)}
 .fiche .groupe-region ul.liste-np{columns:2;column-gap:40px;margin:10px 0 0;padding:0;list-style:none;text-align:left}
 .fiche .groupe-region ul.liste-np li{break-inside:avoid;padding:6px 0;border-bottom:1px solid var(--line);font-size:var(--t-note)}
@@ -2079,4 +2079,112 @@ nav.site .chercher[aria-expanded="true"]{border-bottom-color:var(--ink)}
 .fiche .groupe-region a.vers-ind{color:var(--ink);text-decoration:underline;text-decoration-color:var(--line-fort);text-decoration-thickness:1px;text-underline-offset:3px}
 .fiche .groupe-region a.vers-ind:hover,.fiche .groupe-region a.vers-ind:focus-visible{color:var(--chiffre);text-decoration-color:var(--chiffre)}
 @container (max-width:820px){.fiche table.t-region tr.non-pub td.reg{display:none}}
-.fiche .groupe-region a.vers-ind .sig{display:inline-block;margin-left:0;text-decoration:none}
+.fiche .groupe-region a.vers-ind .sig{margin-left:0}
+
+/* Fiche, étape 2 des portes d'entrée (maquettes validées le 14 novembre 2026, prototypes/entrees/v2_fiche/ et
+   v2_domaines/) : « Tous les indicateurs de ce territoire » sous les tuiles, le tableau complet, les signes « ↓ » (dans
+   la fiche) et « → » (page de l'indicateur), les infobulles « ensemble » et « médiane » des réglettes */
+.fiche .fl{color:var(--muted)}
+.fiche a:hover .fl,.fiche a:focus-visible .fl{color:var(--chiffre)}
+.fiche a.vers-ind{color:var(--ink);text-decoration:underline;text-decoration-color:var(--line-fort);text-decoration-thickness:1px;text-underline-offset:3px}
+.fiche a.vers-ind:hover,.fiche a.vers-ind:focus-visible{color:var(--chiffre);text-decoration-color:var(--chiffre)}
+.fiche a.vers-ind .sig{margin-left:0}
+.fiche a.vers-ind.avec-fl,.fiche a.avec-fl{text-decoration:none}
+.fiche a.avec-fl .u{text-decoration:underline;text-decoration-color:var(--line-fort);text-decoration-thickness:1px;text-underline-offset:3px}
+.fiche a.avec-fl:hover .u,.fiche a.avec-fl:focus-visible .u{text-decoration-color:var(--chiffre)}
+.fiche .en-bref p.aide-liens{margin-top:6px}
+.fiche p.vers-bas{margin:6px 0 0;font-size:var(--t-note);text-align:left}
+.fiche .porte{margin:28px 0 8px;padding-top:14px;border-top:1px solid var(--line-fort);display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:10px 40px;align-items:start}
+.fiche .porte h2.porte-titre{grid-column:1/-1;font-family:var(--serif);font-weight:400;font-size:var(--t-encadre);margin:0;display:flex;flex-wrap:wrap;gap:2px 14px;align-items:baseline}
+.fiche .porte h2.porte-titre span{font-family:var(--sans);font-size:var(--t-note);color:var(--muted)}
+.fiche .porte label{display:block;font-size:var(--t-note);color:var(--muted);margin:0 0 6px}
+.fiche .porte input#q-fiche{width:100%;max-width:520px;box-sizing:border-box;font:inherit;font-size:var(--t-texte);padding:10px 12px;border:1px solid var(--line-fort);border-radius:2px;background:var(--bg);color:var(--ink)}
+.fiche .porte .p-res{list-style:none;margin:8px 0 0;padding:0;max-width:520px;text-align:left}
+.fiche .porte .p-res li{padding:8px 0;border-bottom:1px solid var(--line);font-size:var(--t-note);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 16px;align-items:baseline}
+.fiche .porte .p-res li a{font-size:var(--t-texte)}
+.fiche .porte .p-res .p-v{font-variant-numeric:tabular-nums;font-weight:600;white-space:nowrap;text-align:right}
+.fiche .porte .p-res .p-ou{grid-column:1/-1;color:var(--muted)}
+.fiche .porte .p-res li.p-plus{display:block;color:var(--muted);border-bottom:0}
+.fiche .porte .p-doms{list-style:none;margin:0;padding:0;text-align:left}
+.fiche .porte .p-doms li{display:flex;justify-content:space-between;gap:16px;align-items:baseline;padding:6px 0;border-bottom:1px solid var(--line);font-size:var(--t-note)}
+.fiche .porte .p-doms li > span{color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.fiche .porte .p-doms .p-tete{color:var(--muted);border-bottom:1px solid var(--line-fort);padding-top:0}
+.fiche .porte .p-csv{font-size:var(--t-note);color:var(--muted);margin:8px 0 0;text-align:left}
+.fiche .porte .p-attente:empty{display:none}
+.fiche .p-doms-d>summary{display:none}
+.fiche tr.vu>*{background:var(--fond-cellule)}
+.fiche details.tout-terr{margin-top:32px;border-top:1px solid var(--line-fort);padding-top:4px}
+.fiche details.tout-terr > summary{font-size:var(--t-texte)}
+.fiche .tt-tete{margin:10px 0 4px}
+.fiche .tt-tete p{margin:0;font-size:var(--t-note);color:var(--muted)}
+/* « Citer et exporter » de chaque domaine du tableau complet, sous le filtre (maquette validée) */
+.fiche details.tt-domd .tt-outils{margin:0 0 6px}
+.fiche details.tt-domd .citation-fig{margin:0 0 12px}
+.fiche .tt-tete p.tt-csv{margin-top:10px;justify-content:start;text-align:left}
+.fiche .tt-csv{display:grid;grid-template-columns:auto auto;gap:4px 12px;align-items:baseline}
+.fiche .tt-csv span{font-size:var(--t-note);color:var(--muted)}
+.fiche .tt-tete button{justify-self:start;font:inherit;font-size:var(--t-note);background:none;border:0;border-bottom:1px solid var(--line-fort);color:var(--ink);padding:4px 0;cursor:pointer;white-space:nowrap}
+.fiche .tt-tete button:hover{color:var(--chiffre);border-bottom-color:var(--chiffre)}
+.fiche details.tt-domd{border-top:1px solid var(--line);margin-top:0}
+.fiche details.tt-domd:first-of-type{margin-top:22px}
+.fiche details.tt-domd>summary{cursor:pointer;list-style:none;padding:12px 0}
+.fiche details.tt-domd>summary::-webkit-details-marker{display:none}
+.fiche details.tt-domd[open]>summary{padding-bottom:4px}
+.fiche h3.tt-dom{font-family:var(--serif);font-weight:400;font-size:var(--t-encadre);margin:0;display:flex;flex-wrap:wrap;gap:2px 14px;align-items:baseline}
+.fiche h3.tt-dom::before{content:"+";font-family:var(--sans);font-size:var(--t-texte);color:var(--lien);width:1.1em;flex:none}
+.fiche details.tt-domd[open] h3.tt-dom::before{content:"−"}
+.fiche .tt-corps .sc,.fiche h3.tt-dom span{white-space:nowrap}
+.fiche h3.tt-dom span{font-family:var(--sans);font-size:var(--t-note);color:var(--muted)}
+.fiche .tt-filtre{display:flex;flex-wrap:wrap;gap:4px 18px;margin:0 0 10px;padding:0 0 8px;border-bottom:1px solid var(--line);text-align:left}
+.fiche .tt-filtre button{font:inherit;font-size:var(--t-note);background:none;border:0;padding:6px 0;min-height:32px;cursor:pointer;color:var(--ink);text-decoration:underline;text-decoration-color:var(--line-fort);text-decoration-thickness:1px;text-underline-offset:3px}
+.fiche .tt-filtre button span{color:var(--muted)}
+.fiche .tt-filtre button:hover{color:var(--chiffre);text-decoration-color:var(--chiffre)}
+.fiche .tt-filtre button[aria-pressed="true"]{font-weight:600;text-decoration:none;box-shadow:inset 0 -2px 0 var(--chiffre)}
+.fiche table.tt{width:100%;border-collapse:collapse;table-layout:fixed;font-size:var(--t-note)}
+.fiche table.tt col.c1{width:39%}.fiche table.tt col.c2{width:13%}.fiche table.tt col.c3{width:21%}.fiche table.tt col.c4{width:27%}
+.fiche table.tt td.rep,.fiche table.tt thead th.rep{padding-left:36px}
+.fiche table.tt .ec.haut{color:var(--chiffre);font-weight:600}.fiche table.tt .ec.bas{color:var(--chiffre-bas);font-weight:600}
+.fiche table.tt th,.fiche table.tt td{text-align:left;vertical-align:top;padding:8px 16px 8px 0;border-bottom:1px solid var(--line);hyphens:none;overflow-wrap:normal}
+.fiche table.tt thead th{font-weight:500;color:var(--muted);border-bottom:1px solid var(--line-fort)}
+.fiche table.tt tbody th{font-weight:400;font-size:var(--t-texte)}
+.fiche table.tt tr.tt-sous th{font-weight:600;font-size:var(--t-note);color:var(--ink);padding-top:16px}
+.fiche table.tt tr[hidden]{display:none}
+.fiche table.tt td.v{text-align:right;font-variant-numeric:tabular-nums}
+.fiche table.tt td.v b{font-weight:600;font-size:var(--t-texte)}
+.fiche table.tt .tt-n{display:block;color:var(--muted);text-align:right}
+.fiche table.tt .tt-rl{display:block;color:var(--muted)}
+.fiche table.tt .tt-rd{display:none}
+.fiche table.tt thead th.v{text-align:right}
+.fiche .tt-eti{display:inline-block;margin-left:0;padding:0 5px;border:1px solid var(--action);border-radius:2px;color:var(--chiffre);font-size:var(--t-note);line-height:1.4}
+.fiche .tt-lim{display:flex;gap:8px;font-size:var(--t-note);color:var(--muted);margin-top:3px}
+.fiche .tt-lim b{color:var(--signal);flex:none}
+.fiche .rg-lab .rg-mot{text-decoration:underline dotted;text-decoration-color:var(--muted);text-underline-offset:3px}
+.fiche .rg-lab{cursor:help}
+.fiche .rg-lab::before{content:"";position:absolute;inset:-7px -6px}
+.fiche .rg:focus-visible{outline:2px solid var(--focus);outline-offset:3px;border-radius:2px}
+#rg-bulle{position:absolute;z-index:60;width:max-content;max-width:min(480px,calc(100vw - 16px));background:var(--panel);color:var(--ink);border:1px solid var(--line-fort);border-radius:2px;padding:6px 10px;font-family:var(--sans);font-size:var(--t-note);font-weight:400;line-height:1.45;text-align:left;hyphens:none;box-shadow:0 2px 6px rgba(28,32,40,.12)}
+#rg-bulle b{font-weight:600}
+#rg-bulle .l{display:block}
+#rg-bulle .colle{white-space:nowrap}
+#rg-bulle.dans-flux{position:static;box-shadow:none;margin:4px 0 6px;max-width:100%}
+.fiche tr.rg-expl > td{padding:0 0 8px;border:0}
+.fiche tr.rg-expl #rg-bulle{max-width:min(640px,100%)}
+@media print{#rg-bulle,.fiche tr.rg-expl{display:none}}
+@media (max-width:900px){.fiche .porte{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:760px){
+ .fiche .porte .p-doms .p-tete{display:none}
+ .fiche .p-doms-d>summary{display:flex;align-items:center;min-height:44px;cursor:pointer;list-style:none;font-size:var(--t-note);color:var(--ink);text-decoration:underline;text-decoration-color:var(--line-fort);text-underline-offset:3px}
+ .fiche .p-doms-d>summary::-webkit-details-marker{display:none}
+ .fiche .p-doms-d>summary::before{content:"+";display:inline-block;width:1.2em;color:var(--lien);text-decoration:none}
+ .fiche .p-doms-d[open]>summary::before{content:"−"}
+ .fiche .tt-csv{grid-template-columns:minmax(0,1fr)}.fiche .tt-csv span{margin-bottom:8px}
+ .fiche table.tt,.fiche table.tt tbody,.fiche table.tt tr,.fiche table.tt th,.fiche table.tt td{display:block;width:auto}
+ .fiche table.tt thead,.fiche table.tt colgroup{display:none}
+ .fiche table.tt tr{padding:10px 0;border-bottom:1px solid var(--line)}
+ .fiche table.tt th,.fiche table.tt td,.fiche table.tt td.rep{border:0;padding:2px 0}
+ .fiche table.tt td.v,.fiche table.tt .tt-n{text-align:left}
+ .fiche table.tt td.v .tt-n{display:inline;margin-left:8px}
+ .fiche table.tt .tt-rd{display:inline;color:var(--muted)}
+ .fiche table.tt td.rep .tt-rl{display:none}
+ .fiche table.tt tr.tt-sous{padding-top:18px}
+}

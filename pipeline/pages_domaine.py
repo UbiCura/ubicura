@@ -252,7 +252,7 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
         for pid in d.get("phares", []):
             e = inds.get(pid)
             if e and "dep" in e["niv"]:
-                carte = choroplethe(A, "dep", pid, e["lab"], e.get("u") or "")
+                carte = choroplethe(A, "dep", pid, e["lab"], e.get("u") or "", T=T)
                 carte_ind = {"lab": e["lab"], "u": e.get("u") or "", "fiche": fiches.get(pid), "id": pid}
                 break
         cit = f"{commun['citation_auteur']} ({commun['annee_version']}). {d['nom']}. Ubi Cura, version du {commun['date_longue']}" + (f", doi:{doi}" if doi else "")

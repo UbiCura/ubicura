@@ -33,6 +33,52 @@ main.indicateur .discret{color:var(--muted);font-size:.875rem;text-align:left}
 main.indicateur ul.fichiers{list-style:none;padding:0;margin:0}
 main.indicateur ul.fichiers li{margin:0;padding:8px 0;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline}
 main.indicateur .code{font-size:.875rem;background:var(--panel);border:1px solid var(--line);border-radius:4px;padding:10px 12px;overflow-wrap:anywhere;text-align:left}
+/* étape 3 des portes d'entrée (maquette P3 validée le 14 novembre 2026) : « Votre territoire », la carte cliquable et
+   son panneau, les indicateurs voisins ; grille 7 + 5 de la page */
+main.indicateur .lecteur{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+main.indicateur a.avec-fl{color:var(--ink);text-decoration:none}
+main.indicateur a.avec-fl .u{text-decoration:underline;text-decoration-color:var(--line-fort);text-decoration-thickness:1px;text-underline-offset:3px}
+main.indicateur a.avec-fl:hover,main.indicateur a.avec-fl:focus-visible{color:var(--chiffre)}
+main.indicateur a.avec-fl:hover .u,main.indicateur a.avec-fl:focus-visible .u{text-decoration-color:var(--chiffre)}
+main.indicateur .fl{color:var(--muted)}
+main.indicateur .votre{margin:22px 0 0;padding-top:14px;border-top:1px solid var(--line-fort)}
+main.indicateur .votre .champ,main.indicateur .votre-res{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:6px 40px;align-items:end}
+main.indicateur .votre .champ>div{position:relative}
+main.indicateur .votre-res{align-items:start;margin-top:14px}
+main.indicateur .votre-res:empty{display:none}
+main.indicateur .votre label{display:block;font-size:var(--t-note);color:var(--muted);margin-bottom:6px;text-align:left}
+main.indicateur .votre input#q-votre{width:100%;max-width:460px;box-sizing:border-box;font:inherit;font-size:var(--t-texte);padding:10px 12px;border:1px solid var(--line-fort);border-radius:2px;background:var(--bg);color:var(--ink)}
+main.indicateur .votre .aide{font-size:var(--t-note);color:var(--muted);margin:0 0 12px;text-align:left}
+main.indicateur .votre .sugg{list-style:none;margin:4px 0 0;padding:0;max-width:460px;text-align:left}
+main.indicateur .votre .sugg li{border-bottom:1px solid var(--line)}
+main.indicateur .votre .sugg button{display:flex;justify-content:space-between;gap:12px;width:100%;font:inherit;font-size:var(--t-note);text-align:left;background:none;border:0;padding:8px 2px;min-height:40px;align-items:baseline;color:var(--ink);cursor:pointer}
+main.indicateur .votre .sugg button span{color:var(--muted);white-space:nowrap}
+main.indicateur .votre .sugg button:hover,main.indicateur .votre .sugg button[aria-selected="true"]{color:var(--chiffre);background:var(--fond-cellule)}
+main.indicateur .vt-l1{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;margin:0;text-align:left}
+main.indicateur .vt-nom,main.indicateur .ck-nom{font-size:var(--t-texte);font-weight:600}
+main.indicateur .vt-v,main.indicateur .ck-v{font-family:var(--serif);font-size:var(--t-section);line-height:1.1;font-variant-numeric:tabular-nums}
+main.indicateur .vt-u{font-size:var(--t-note);color:var(--muted)}
+main.indicateur .vt-pos,main.indicateur .clic p{font-size:var(--t-note);margin:4px 0 0;text-align:left}
+main.indicateur .ec.haut{color:var(--chiffre);font-weight:600}main.indicateur .ec.bas{color:var(--chiffre-bas);font-weight:600}
+main.indicateur .vt-lien{font-size:var(--t-note);margin:8px 0 0;text-align:left}
+main.indicateur .votre-res .fiche{max-width:420px;margin-top:4px}
+main.indicateur .carte-i.avec-cote{max-width:none}
+main.indicateur .carte-i.avec-cote figure{max-width:none}
+main.indicateur .carte-cote{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:28px 40px;align-items:start}
+main.indicateur .carte-cote svg path[data-t]{cursor:pointer}
+main.indicateur .carte-cote svg path.repere{stroke:var(--ink);stroke-width:2.2}
+main.indicateur .clic{border-top:1px solid var(--line-fort);padding:12px 0 16px;margin-bottom:22px}
+main.indicateur .clic .ck-v span{font-family:var(--sans);font-size:var(--t-note);color:var(--muted);margin-left:8px}
+main.indicateur .clic a.ck-bouton{display:inline-block;margin-top:10px;font-size:var(--t-note);color:var(--ink);text-decoration:none;border-bottom:1px solid var(--ink);padding:3px 0}
+main.indicateur .clic a.ck-bouton:hover{color:var(--chiffre);border-bottom-color:var(--chiffre)}
+main.indicateur .voisins{border-top:1px solid var(--line-fort);padding-top:12px}
+main.indicateur .voisins h3{font-family:var(--serif);font-weight:400;font-size:var(--t-encadre);margin:0 0 8px}
+main.indicateur .voisins h4{font-family:var(--sans);font-size:var(--t-note);font-weight:500;color:var(--muted);margin:12px 0 2px}
+main.indicateur .voisins ul{list-style:none;margin:0;padding:0;text-align:left}
+main.indicateur .voisins li{padding:6px 0;border-bottom:1px solid var(--line);font-size:var(--t-note)}
+main.indicateur .voisins .vs{color:var(--muted);margin-left:8px;white-space:nowrap}
+main.indicateur .voisins .regle{font-size:var(--t-note);color:var(--muted);margin:12px 0 0;text-align:left}
+@media (max-width:900px){main.indicateur .votre .champ,main.indicateur .votre-res,main.indicateur .carte-cote{grid-template-columns:minmax(0,1fr)}main.indicateur .votre .aide{margin:0}}
 @media (max-width:900px){main.indicateur .grille-i{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:480px){main.indicateur dl.meta{grid-template-columns:minmax(0,1fr);gap:2px 0}main.indicateur dl.meta dd{margin-bottom:8px}}
 </style>
@@ -44,6 +90,16 @@ main.indicateur .code{font-size:.875rem;background:var(--panel);border:1px solid
     <strong>{{ f.dens_fr|nombre }}</strong> {{ f.lab|lower }} pour {{ f.par }} habitants en France, soit {{ f.n_fr[2]|nombre('entier') }} personnes distinctes ({{ f.an }}).
   {%- endif %} Par {{ f.fin.nom[:-1] }}, la moitié des territoires se situe entre {{ f.fin.q1|nombre(f.g) }} et {{ f.fin.q3|nombre(f.g) }}{% if f.u %} {{ f.u }}{% endif %}, la médiane à {{ f.fin.med|nombre(f.g) }}{% if f.fin.rep_lib|lower != 'intercommunalité médiane' and f.fin.rep_lib|lower != 'département médian' and f.fin.rep_lib|lower != 'région médiane' %}, face à l’{{ f.fin.rep_lib|lower }}, {{ f.fin.rep|nombre(f.g) }}{% endif %}.</p>
   <p class="vers"><a href="../{{ f.croiser }}">Croiser avec un autre indicateur</a>{% if f.atlas %}<a href="../{{ f.atlas }}">Sur la carte de l’atlas</a>{% endif %}<a href="../domaines.html#{{ f.dom.id }}">Les autres indicateurs du domaine</a></p>
+  {#- étape 3 des portes d'entrée (maquette P3 validée le 14 novembre 2026) : la valeur d'un territoire, lue dans son
+      fichier publié (territoire/<niveau>/<code>.json), et sa réglette, celle de sa fiche (indicateur/reglettes/) ;
+      presentation/indicateur.js #}
+  <div class="votre seul-ecran" id="votre" data-ind="{{ f.cle }}" data-niv="{{ f.niv_codes }}" data-slug="{{ f.slug }}" data-unite="{{ f.u or '' }}">
+    <div class="champ"><div><label for="q-votre">Votre territoire : une commune, un code postal ou {{ 'un département' if 'dep' in f.niv_codes else 'une région' }}</label>
+      <input id="q-votre" type="search" role="combobox" aria-autocomplete="list" aria-expanded="false" autocomplete="off" spellcheck="false" aria-describedby="a-votre" aria-controls="s-votre">
+      <ul class="sugg" id="s-votre" role="listbox" aria-label="Territoires trouvés" hidden></ul></div>
+      <p class="aide" id="a-votre">{% if 'epci' in f.niv_codes %}Une commune est lue dans son intercommunalité, comme sur sa fiche.{% elif 'dep' in f.niv_codes %}Une commune est lue dans son département : cet indicateur n’est pas publié par intercommunalité.{% else %}Une commune ou un département est lu dans sa région : cet indicateur n’est publié que par région.{% endif %}</p></div>
+    <div class="votre-res" id="r-votre" aria-live="polite"></div>
+  </div>
 </header>
 
 <div class="grille-i" data-citation="{{ citation }}">
@@ -67,12 +123,26 @@ main.indicateur .code{font-size:.875rem;background:var(--panel);border:1px solid
   </section>
 </div>
 
+{#- les indicateurs voisins, tirés du catalogue (pipeline/voisins.py), jamais d'une corrélation #}
+{% macro voisins() -%}
+{% if f.voisins %}<section class="voisins" aria-labelledby="t-vois"><h3 id="t-vois">Indicateurs voisins</h3>
+  {% for t, L in f.voisins %}<h4>{{ t }}</h4><ul>{% for x in L %}<li><a class="vers-ind avec-fl" href="../{{ x.page }}"><span class="u">{{ x.nom }}</span>&#8288;<span class="fl" aria-hidden="true">&nbsp;→</span><span class="lecteur">, page de l’indicateur</span></a><span class="vs">{{ x.source }}</span></li>{% endfor %}</ul>{% endfor %}
+  <p class="regle">Voisins par la profession ou la structure, le sous-thème et le thème, d’après le catalogue des indicateurs. Pour chercher un lien entre deux indicateurs, <a href="../{{ f.croiser }}">Croiser</a>.</p></section>{% endif %}
+{%- endmacro %}
 {% if f.carte %}
-<section class="sect carte-i" aria-labelledby="t-carte-i" data-citation="{{ citation }}">
+<section class="sect carte-i avec-cote" aria-labelledby="t-carte-i" data-citation="{{ citation }}">
   <h2 id="t-carte-i">Sur la carte</h2>
+  <div class="carte-cote">
   <figure class="graphique"><figcaption class="small muted"><strong>Carte.</strong> <span class="leg">{{ f.titre }}, par département, en cinq classes de même effectif</span></figcaption>{{ f.carte|safe }}</figure>
+  <div class="cote">
+    <div class="clic seul-ecran" id="clic" aria-live="polite"><p>Un clic sur un département affiche sa valeur ici. La carte ne bouge pas. Au clavier, le champ « Votre territoire », plus haut, donne les mêmes valeurs.</p></div>
+    {{ voisins() }}
+  </div>
+  </div>
   <p class="discret" style="margin-top:6px">Par intercommunalité et avec les territoires nommés, {% if f.atlas %}<a href="../{{ f.atlas }}">dans l’atlas</a> ou {% endif %}<a href="../{{ f.croiser }}">dans Croiser</a>.</p>
 </section>
+{% elif f.voisins %}
+<section class="sect">{{ voisins() }}</section>
 {% endif %}
 <section class="sect" aria-labelledby="t-niv">
   <h2 id="t-niv">À chaque niveau</h2>
@@ -114,4 +184,5 @@ main.indicateur .code{font-size:.875rem;background:var(--panel);border:1px solid
   {# DOI cliquable (règle 11, audit du 6 novembre 2026) #}
   <p class="code">{{ citation_html|safe }}</p>
 </section>
+<script src="../presentation/indicateur.js" defer></script>
 {% endblock %}
