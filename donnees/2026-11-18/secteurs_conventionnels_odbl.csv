@@ -1,0 +1,601 @@
+﻿profession_sante;secteur_1;secteur_2_optam;secteur_2_sans_optam;secteur_2;non_conventionnes;liberaux;part_depassements;part_depassements_libres;niveau;code;prof;annee
+Gynécologues médicaux et obstétriciens;19;11;6;17;0;36;0,472222;0,166667;dep;971;gynecologue;2025
+Gynécologues médicaux et obstétriciens;19;11;6;17;0;36;0,472222;0,166667;reg;01;gynecologue;2025
+Gynécologues médicaux et obstétriciens;10;8;3;11;0;21;0,52381;0,142857;dep;972;gynecologue;2025
+Gynécologues médicaux et obstétriciens;10;8;3;11;0;21;0,52381;0,142857;reg;02;gynecologue;2025
+Gynécologues médicaux et obstétriciens;25;3;1;4;0;29;0,137931;0,0344828;dep;973;gynecologue;2025
+Gynécologues médicaux et obstétriciens;25;3;1;4;0;29;0,137931;0,0344828;reg;03;gynecologue;2025
+Gynécologues médicaux et obstétriciens;23;37;8;45;0;68;0,661765;0,117647;dep;974;gynecologue;2025
+Gynécologues médicaux et obstétriciens;23;37;8;45;0;68;0,661765;0,117647;reg;04;gynecologue;2025
+Gynécologues médicaux et obstétriciens;0;0;1;1;0;1;;;dep;976;gynecologue;2025
+Gynécologues médicaux et obstétriciens;0;0;1;1;0;1;;;reg;06;gynecologue;2025
+Gynécologues médicaux et obstétriciens;32;24;480;504;1;537;0,94041;0,895717;dep;75;gynecologue;2025
+Gynécologues médicaux et obstétriciens;17;33;19;52;0;69;0,753623;0,275362;dep;77;gynecologue;2025
+Gynécologues médicaux et obstétriciens;6;29;82;111;0;117;0,948718;0,700855;dep;78;gynecologue;2025
+Gynécologues médicaux et obstétriciens;17;25;39;64;0;81;0,790123;0,481481;dep;91;gynecologue;2025
+Gynécologues médicaux et obstétriciens;18;18;134;152;2;172;0,895349;0,790698;dep;92;gynecologue;2025
+Gynécologues médicaux et obstétriciens;17;30;19;49;0;66;0,742424;0,287879;dep;93;gynecologue;2025
+Gynécologues médicaux et obstétriciens;15;33;49;82;0;97;0,845361;0,505155;dep;94;gynecologue;2025
+Gynécologues médicaux et obstétriciens;11;29;37;66;1;78;0,858974;0,487179;dep;95;gynecologue;2025
+Gynécologues médicaux et obstétriciens;133;221;859;1080;4;1217;0,890715;0,709121;reg;11;gynecologue;2025
+Gynécologues médicaux et obstétriciens;2;8;0;8;0;10;0,8;0;dep;18;gynecologue;2025
+Gynécologues médicaux et obstétriciens;4;4;10;14;0;18;0,777778;0,555556;dep;28;gynecologue;2025
+Gynécologues médicaux et obstétriciens;2;1;2;3;0;5;0,6;0,4;dep;36;gynecologue;2025
+Gynécologues médicaux et obstétriciens;10;20;12;32;0;42;0,761905;0,285714;dep;37;gynecologue;2025
+Gynécologues médicaux et obstétriciens;5;4;1;5;0;10;0,5;0,1;dep;41;gynecologue;2025
+Gynécologues médicaux et obstétriciens;9;13;11;24;1;34;0,735294;0,352941;dep;45;gynecologue;2025
+Gynécologues médicaux et obstétriciens;32;50;36;86;1;119;0,731092;0,310924;reg;24;gynecologue;2025
+Gynécologues médicaux et obstétriciens;2;19;15;34;0;36;0,944444;0,416667;dep;21;gynecologue;2025
+Gynécologues médicaux et obstétriciens;14;4;11;15;0;29;0,517241;0,37931;dep;25;gynecologue;2025
+Gynécologues médicaux et obstétriciens;2;1;3;4;0;6;0,666667;0,5;dep;39;gynecologue;2025
+Gynécologues médicaux et obstétriciens;4;1;2;3;0;7;0,428571;0,285714;dep;58;gynecologue;2025
+Gynécologues médicaux et obstétriciens;2;2;0;2;0;4;;;dep;70;gynecologue;2025
+Gynécologues médicaux et obstétriciens;4;15;1;16;0;20;0,8;0,05;dep;71;gynecologue;2025
+Gynécologues médicaux et obstétriciens;2;8;0;8;0;10;0,8;0;dep;89;gynecologue;2025
+Gynécologues médicaux et obstétriciens;2;4;3;7;0;9;0,777778;0,333333;dep;90;gynecologue;2025
+Gynécologues médicaux et obstétriciens;32;54;35;89;0;121;0,735537;0,289256;reg;27;gynecologue;2025
+Gynécologues médicaux et obstétriciens;6;11;20;31;0;37;0,837838;0,540541;dep;14;gynecologue;2025
+Gynécologues médicaux et obstétriciens;3;3;4;7;0;10;0,7;0,4;dep;27;gynecologue;2025
+Gynécologues médicaux et obstétriciens;7;4;4;8;0;15;0,533333;0,266667;dep;50;gynecologue;2025
+Gynécologues médicaux et obstétriciens;3;3;2;5;0;8;0,625;0,25;dep;61;gynecologue;2025
+Gynécologues médicaux et obstétriciens;18;28;9;37;0;55;0,672727;0,163636;dep;76;gynecologue;2025
+Gynécologues médicaux et obstétriciens;37;49;39;88;0;125;0,704;0,312;reg;28;gynecologue;2025
+Gynécologues médicaux et obstétriciens;12;10;1;11;0;23;0,478261;0,0434783;dep;02;gynecologue;2025
+Gynécologues médicaux et obstétriciens;35;71;48;119;0;154;0,772727;0,311688;dep;59;gynecologue;2025
+Gynécologues médicaux et obstétriciens;10;11;11;22;0;32;0,6875;0,34375;dep;60;gynecologue;2025
+Gynécologues médicaux et obstétriciens;20;19;9;28;0;48;0,583333;0,1875;dep;62;gynecologue;2025
+Gynécologues médicaux et obstétriciens;6;9;6;15;1;22;0,727273;0,318182;dep;80;gynecologue;2025
+Gynécologues médicaux et obstétriciens;83;120;75;195;1;279;0,702509;0,272401;reg;32;gynecologue;2025
+Gynécologues médicaux et obstétriciens;3;4;1;5;0;8;0,625;0,125;dep;08;gynecologue;2025
+Gynécologues médicaux et obstétriciens;6;4;5;9;0;15;0,6;0,333333;dep;10;gynecologue;2025
+Gynécologues médicaux et obstétriciens;9;12;20;32;0;41;0,780488;0,487805;dep;51;gynecologue;2025
+Gynécologues médicaux et obstétriciens;4;1;0;1;0;5;0,2;0;dep;52;gynecologue;2025
+Gynécologues médicaux et obstétriciens;13;16;2;18;0;31;0,580645;0,0645161;dep;54;gynecologue;2025
+Gynécologues médicaux et obstétriciens;5;0;1;1;0;6;0,166667;0,166667;dep;55;gynecologue;2025
+Gynécologues médicaux et obstétriciens;18;9;9;18;0;36;0,5;0,25;dep;57;gynecologue;2025
+Gynécologues médicaux et obstétriciens;22;46;40;86;0;108;0,796296;0,37037;dep;67;gynecologue;2025
+Gynécologues médicaux et obstétriciens;4;10;37;47;0;51;0,921569;0,72549;dep;68;gynecologue;2025
+Gynécologues médicaux et obstétriciens;7;3;5;8;0;15;0,533333;0,333333;dep;88;gynecologue;2025
+Gynécologues médicaux et obstétriciens;91;105;120;225;0;316;0,712025;0,379747;reg;44;gynecologue;2025
+Gynécologues médicaux et obstétriciens;15;54;11;65;0;80;0,8125;0,1375;dep;44;gynecologue;2025
+Gynécologues médicaux et obstétriciens;1;4;29;33;0;34;0,970588;0,852941;dep;49;gynecologue;2025
+Gynécologues médicaux et obstétriciens;1;3;2;5;0;6;0,833333;0,333333;dep;53;gynecologue;2025
+Gynécologues médicaux et obstétriciens;8;10;5;15;0;23;0,652174;0,217391;dep;72;gynecologue;2025
+Gynécologues médicaux et obstétriciens;11;10;4;14;0;25;0,56;0,16;dep;85;gynecologue;2025
+Gynécologues médicaux et obstétriciens;36;81;51;132;0;168;0,785714;0,303571;reg;52;gynecologue;2025
+Gynécologues médicaux et obstétriciens;9;11;3;14;0;23;0,608696;0,130435;dep;22;gynecologue;2025
+Gynécologues médicaux et obstétriciens;11;14;19;33;0;44;0,75;0,431818;dep;29;gynecologue;2025
+Gynécologues médicaux et obstétriciens;12;38;15;53;0;65;0,815385;0,230769;dep;35;gynecologue;2025
+Gynécologues médicaux et obstétriciens;9;7;20;27;0;36;0,75;0,555556;dep;56;gynecologue;2025
+Gynécologues médicaux et obstétriciens;41;70;57;127;0;168;0,755952;0,339286;reg;53;gynecologue;2025
+Gynécologues médicaux et obstétriciens;0;4;7;11;0;11;1;0,636364;dep;16;gynecologue;2025
+Gynécologues médicaux et obstétriciens;8;11;14;25;0;33;0,757576;0,424242;dep;17;gynecologue;2025
+Gynécologues médicaux et obstétriciens;2;5;2;7;0;9;0,777778;0,222222;dep;19;gynecologue;2025
+Gynécologues médicaux et obstétriciens;1;1;1;2;0;3;;;dep;23;gynecologue;2025
+Gynécologues médicaux et obstétriciens;3;5;7;12;0;15;0,8;0,466667;dep;24;gynecologue;2025
+Gynécologues médicaux et obstétriciens;30;36;79;115;0;145;0,793103;0,544828;dep;33;gynecologue;2025
+Gynécologues médicaux et obstétriciens;10;6;3;9;0;19;0,473684;0,157895;dep;40;gynecologue;2025
+Gynécologues médicaux et obstétriciens;3;1;2;3;0;6;0,5;0,333333;dep;47;gynecologue;2025
+Gynécologues médicaux et obstétriciens;12;26;21;47;0;59;0,79661;0,355932;dep;64;gynecologue;2025
+Gynécologues médicaux et obstétriciens;4;5;1;6;0;10;0,6;0,1;dep;79;gynecologue;2025
+Gynécologues médicaux et obstétriciens;2;11;6;17;0;19;0,894737;0,315789;dep;86;gynecologue;2025
+Gynécologues médicaux et obstétriciens;7;17;0;17;0;24;0,708333;0;dep;87;gynecologue;2025
+Gynécologues médicaux et obstétriciens;82;128;143;271;0;353;0,767705;0,405099;reg;75;gynecologue;2025
+Gynécologues médicaux et obstétriciens;0;1;2;3;0;3;;;dep;09;gynecologue;2025
+Gynécologues médicaux et obstétriciens;14;2;1;3;0;17;0,176471;0,0588235;dep;11;gynecologue;2025
+Gynécologues médicaux et obstétriciens;2;2;0;2;0;4;;;dep;12;gynecologue;2025
+Gynécologues médicaux et obstétriciens;11;12;19;31;0;42;0,738095;0,452381;dep;30;gynecologue;2025
+Gynécologues médicaux et obstétriciens;21;55;54;109;0;130;0,838462;0,415385;dep;31;gynecologue;2025
+Gynécologues médicaux et obstétriciens;0;3;0;3;0;3;;;dep;32;gynecologue;2025
+Gynécologues médicaux et obstétriciens;17;49;30;79;0;96;0,822917;0,3125;dep;34;gynecologue;2025
+Gynécologues médicaux et obstétriciens;3;0;0;0;0;3;;;dep;46;gynecologue;2025
+Gynécologues médicaux et obstétriciens;1;0;2;2;0;3;;;dep;48;gynecologue;2025
+Gynécologues médicaux et obstétriciens;1;1;5;6;0;7;0,857143;0,714286;dep;65;gynecologue;2025
+Gynécologues médicaux et obstétriciens;11;11;14;25;0;36;0,694444;0,388889;dep;66;gynecologue;2025
+Gynécologues médicaux et obstétriciens;6;6;2;8;0;14;0,571429;0,142857;dep;81;gynecologue;2025
+Gynécologues médicaux et obstétriciens;5;4;4;8;0;13;0,615385;0,307692;dep;82;gynecologue;2025
+Gynécologues médicaux et obstétriciens;92;146;133;279;0;371;0,752022;0,358491;reg;76;gynecologue;2025
+Gynécologues médicaux et obstétriciens;2;8;3;11;0;13;0,846154;0,230769;dep;01;gynecologue;2025
+Gynécologues médicaux et obstétriciens;10;4;2;6;1;17;0,411765;0,176471;dep;03;gynecologue;2025
+Gynécologues médicaux et obstétriciens;8;7;4;11;0;19;0,578947;0,210526;dep;07;gynecologue;2025
+Gynécologues médicaux et obstétriciens;0;2;0;2;0;2;;;dep;15;gynecologue;2025
+Gynécologues médicaux et obstétriciens;5;6;6;12;1;18;0,722222;0,388889;dep;26;gynecologue;2025
+Gynécologues médicaux et obstétriciens;11;19;24;43;0;54;0,796296;0,444444;dep;38;gynecologue;2025
+Gynécologues médicaux et obstétriciens;5;17;7;24;0;29;0,827586;0,241379;dep;42;gynecologue;2025
+Gynécologues médicaux et obstétriciens;1;3;0;3;0;4;;;dep;43;gynecologue;2025
+Gynécologues médicaux et obstétriciens;11;14;11;25;0;36;0,694444;0,305556;dep;63;gynecologue;2025
+Gynécologues médicaux et obstétriciens;12;42;116;158;1;171;0,929825;0,684211;dep;69;gynecologue;2025
+Gynécologues médicaux et obstétriciens;5;10;7;17;0;22;0,772727;0,318182;dep;73;gynecologue;2025
+Gynécologues médicaux et obstétriciens;6;12;29;41;0;47;0,87234;0,617021;dep;74;gynecologue;2025
+Gynécologues médicaux et obstétriciens;76;144;209;353;3;432;0,824074;0,490741;reg;84;gynecologue;2025
+Gynécologues médicaux et obstétriciens;5;1;0;1;0;6;0,166667;0;dep;04;gynecologue;2025
+Gynécologues médicaux et obstétriciens;2;2;0;2;0;4;;;dep;05;gynecologue;2025
+Gynécologues médicaux et obstétriciens;11;45;89;134;0;145;0,924138;0,613793;dep;06;gynecologue;2025
+Gynécologues médicaux et obstétriciens;39;83;115;198;0;237;0,835443;0,485232;dep;13;gynecologue;2025
+Gynécologues médicaux et obstétriciens;17;31;27;58;0;75;0,773333;0,36;dep;83;gynecologue;2025
+Gynécologues médicaux et obstétriciens;14;15;12;27;0;41;0,658537;0,292683;dep;84;gynecologue;2025
+Gynécologues médicaux et obstétriciens;88;177;243;420;0;508;0,826772;0,478346;reg;93;gynecologue;2025
+Gynécologues médicaux et obstétriciens;6;4;1;5;0;11;0,454545;0,0909091;dep;2A;gynecologue;2025
+Gynécologues médicaux et obstétriciens;4;4;1;5;0;9;0,555556;0,111111;dep;2B;gynecologue;2025
+Gynécologues médicaux et obstétriciens;10;8;2;10;0;20;0,5;0,1;reg;94;gynecologue;2025
+Gynécologues médicaux et obstétriciens;910;1412;2021;3433;9;4352;0,790901;0,466452;FR;FR;gynecologue;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);334;6;1;7;0;341;0,0205279;0,00293255;dep;971;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);334;6;1;7;0;341;0,0205279;0,00293255;reg;01;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);310;4;3;7;4;321;0,0342679;0,0218069;dep;972;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);310;4;3;7;4;321;0,0342679;0,0218069;reg;02;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);101;2;0;2;0;103;0,0194175;0;dep;973;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);101;2;0;2;0;103;0,0194175;0;reg;03;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);921;4;3;7;2;930;0,00967742;0,00537634;dep;974;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);921;4;3;7;2;930;0,00967742;0,00537634;reg;04;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);36;0;0;0;0;36;0;0;dep;976;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);36;0;0;0;0;36;0;0;reg;06;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);1381;145;179;324;111;1816;0,239537;0,159692;dep;75;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);621;35;4;39;14;674;0,078635;0,0267062;dep;77;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);750;44;18;62;21;833;0,0996399;0,0468187;dep;78;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);612;29;7;36;11;659;0,0713202;0,0273141;dep;91;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);822;69;51;120;17;959;0,142857;0,0709072;dep;92;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);741;23;6;29;2;772;0,0401554;0,0103627;dep;93;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);746;44;17;61;13;820;0,0902439;0,0365854;dep;94;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);638;24;7;31;8;677;0,0576071;0,0221566;dep;95;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);6311;413;289;702;197;7210;0,124688;0,0674064;reg;11;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);129;2;1;3;0;132;0,0227273;0,00757576;dep;18;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);192;6;0;6;6;204;0,0588235;0,0294118;dep;28;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);117;2;1;3;0;120;0,025;0,00833333;dep;36;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);534;1;2;3;4;541;0,012939;0,0110906;dep;37;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);193;2;0;2;0;195;0,0102564;0;dep;41;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);360;18;5;23;5;388;0,0721649;0,0257732;dep;45;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);1525;31;9;40;15;1580;0,0348101;0,0151899;reg;24;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);458;5;0;5;0;463;0,0107991;0;dep;21;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);488;0;1;1;3;492;0,00813008;0,00813008;dep;25;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);211;1;2;3;0;214;0,0140187;0,00934579;dep;39;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);121;0;0;0;0;121;0;0;dep;58;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);168;0;0;0;1;169;0,00591716;0,00591716;dep;70;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);297;3;2;5;6;308;0,0357143;0,025974;dep;71;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);159;3;0;3;1;163;0,0245399;0,00613497;dep;89;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);89;0;2;2;0;91;0,021978;0,021978;dep;90;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);1991;12;7;19;11;2021;0,0148441;0,00890648;reg;27;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);629;7;2;9;2;640;0,0171875;0,00625;dep;14;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);324;2;0;2;4;330;0,0181818;0,0121212;dep;27;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);328;1;0;1;4;333;0,015015;0,012012;dep;50;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);152;1;0;1;1;154;0,012987;0,00649351;dep;61;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);978;3;2;5;3;986;0,00811359;0,00507099;dep;76;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);2411;14;4;18;14;2443;0,0130986;0,00736799;reg;28;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);311;3;1;4;3;318;0,0220126;0,0125786;dep;02;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);2191;8;2;10;16;2217;0,0117276;0,00811908;dep;59;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);432;7;3;10;9;451;0,0421286;0,0266075;dep;60;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);1069;5;0;5;4;1078;0,00834879;0,00371058;dep;62;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);495;1;1;2;1;498;0,0060241;0,00401606;dep;80;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);4498;24;7;31;33;4562;0,0140289;0,00876808;reg;32;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);193;1;0;1;0;194;0,00515464;0;dep;08;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);185;6;0;6;3;194;0,0463918;0,0154639;dep;10;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);468;3;1;4;0;472;0,00847458;0,00211864;dep;51;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);93;0;0;0;3;96;0,03125;0,03125;dep;52;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);616;1;3;4;4;624;0,0128205;0,0112179;dep;54;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);128;1;0;1;0;129;0,00775194;0;dep;55;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);740;2;3;5;5;750;0,0133333;0,0106667;dep;57;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);1153;21;13;34;6;1193;0,0335289;0,0159262;dep;67;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);516;7;2;9;3;528;0,0227273;0,0094697;dep;68;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);272;0;0;0;2;274;0,00729927;0,00729927;dep;88;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);4364;42;22;64;26;4454;0,0202066;0,0107768;reg;44;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);1228;8;1;9;20;1257;0,0230708;0,0167064;dep;44;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);702;2;1;3;16;721;0,0263523;0,0235784;dep;49;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);165;1;0;1;0;166;0,0060241;0;dep;53;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);311;1;1;2;1;314;0,00955414;0,00636943;dep;72;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);422;2;0;2;4;428;0,0140187;0,00934579;dep;85;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);2828;14;3;17;41;2886;0,020097;0,015246;reg;52;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);432;2;0;2;2;436;0,00917431;0,00458716;dep;22;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);924;7;1;8;2;934;0,0107066;0,00321199;dep;29;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);951;5;0;5;4;960;0,009375;0,00416667;dep;35;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);733;4;1;5;3;741;0,0107962;0,00539811;dep;56;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);3040;18;2;20;11;3071;0,0100944;0,00423315;reg;53;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);204;0;2;2;3;209;0,0239234;0,0239234;dep;16;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);668;5;2;7;7;682;0,0205279;0,0131965;dep;17;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);137;1;0;1;4;142;0,0352113;0,028169;dep;19;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);79;1;0;1;0;80;0,0125;0;dep;23;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);271;5;1;6;3;280;0,0321429;0,0142857;dep;24;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);1753;25;9;34;8;1795;0,0233983;0,00947075;dep;33;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);425;2;0;2;0;427;0,00468384;0;dep;40;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);165;0;0;0;1;166;0,0060241;0,0060241;dep;47;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);760;6;4;10;5;775;0,0193548;0,0116129;dep;64;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);235;1;0;1;1;237;0,00843882;0,00421941;dep;79;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);347;1;1;2;2;351;0,011396;0,00854701;dep;86;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);331;1;1;2;0;333;0,00600601;0,003003;dep;87;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);5375;48;20;68;34;5477;0,0186233;0,00985941;reg;75;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);138;2;0;2;0;140;0,0142857;0;dep;09;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);282;1;0;1;2;285;0,0105263;0,00701754;dep;11;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);222;0;3;3;1;226;0,0176991;0,0176991;dep;12;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);524;9;1;10;7;541;0,0314233;0,0147874;dep;30;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);1358;9;3;12;10;1380;0,015942;0,00942029;dep;31;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);138;0;1;1;2;141;0,0212766;0,0212766;dep;32;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);1171;5;6;11;11;1193;0,0184409;0,0142498;dep;34;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);116;0;0;0;0;116;0;0;dep;46;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);50;0;0;0;0;50;0;0;dep;48;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);182;1;0;1;0;183;0,00546448;0;dep;65;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);434;2;0;2;8;444;0,0225225;0,018018;dep;66;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);282;1;0;1;1;284;0,00704225;0,00352113;dep;81;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);174;0;2;2;0;176;0,0113636;0,0113636;dep;82;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);5071;30;16;46;42;5159;0,0170576;0,0112425;reg;76;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);345;5;0;5;1;351;0,017094;0,002849;dep;01;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);222;2;0;2;0;224;0,00892857;0;dep;03;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);226;2;0;2;1;229;0,0131004;0,00436681;dep;07;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);124;2;0;2;0;126;0,015873;0;dep;15;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);377;7;3;10;8;395;0,0455696;0,0278481;dep;26;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);945;31;8;39;8;992;0,047379;0,016129;dep;38;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);582;5;2;7;5;594;0,020202;0,0117845;dep;42;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);196;4;0;4;3;203;0,0344828;0,0147783;dep;43;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);556;6;2;8;10;574;0,0313589;0,0209059;dep;63;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);1580;45;48;93;26;1699;0,0700412;0,043555;dep;69;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);477;19;5;24;7;508;0,0610236;0,023622;dep;73;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);662;18;8;26;15;703;0,0583215;0,0327169;dep;74;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);6292;146;76;222;84;6598;0,0463777;0,0242498;reg;84;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);150;6;0;6;0;156;0,0384615;0;dep;04;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);179;5;0;5;0;184;0,0271739;0;dep;05;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);1044;85;26;111;15;1170;0,107692;0,0350427;dep;06;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);2041;37;22;59;24;2124;0,0390772;0,0216573;dep;13;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);856;37;13;50;12;918;0,0675381;0,0272331;dep;83;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);397;9;3;12;9;418;0,0502392;0,0287081;dep;84;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);4667;179;64;243;60;4970;0,0609658;0,0249497;reg;93;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);147;2;0;2;1;150;0,02;0,00666667;dep;2A;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);138;1;1;2;0;140;0,0142857;0,00714286;dep;2B;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);285;3;1;4;1;290;0,0172414;0,00689655;reg;94;medecin_generaliste;2025
+Médecins généralistes (hors médecins à expertise particulière - MEP);50360;990;527;1517;575;52452;0,0398841;0,0210097;FR;FR;medecin_generaliste;2025
+Ophtalmologues;11;2;9;11;0;22;0,5;0,409091;dep;971;ophtalmologue;2025
+Ophtalmologues;11;2;9;11;0;22;0,5;0,409091;reg;01;ophtalmologue;2025
+Ophtalmologues;16;2;3;5;0;21;0,238095;0,142857;dep;972;ophtalmologue;2025
+Ophtalmologues;16;2;3;5;0;21;0,238095;0,142857;reg;02;ophtalmologue;2025
+Ophtalmologues;1;4;0;4;0;5;0,8;0;dep;973;ophtalmologue;2025
+Ophtalmologues;1;4;0;4;0;5;0,8;0;reg;03;ophtalmologue;2025
+Ophtalmologues;19;9;24;33;0;52;0,634615;0,461538;dep;974;ophtalmologue;2025
+Ophtalmologues;19;9;24;33;0;52;0,634615;0,461538;reg;04;ophtalmologue;2025
+Ophtalmologues;0;0;0;0;0;0;;;dep;976;ophtalmologue;2025
+Ophtalmologues;0;0;0;0;0;0;;;reg;06;ophtalmologue;2025
+Ophtalmologues;33;39;298;337;2;372;0,91129;0,806452;dep;75;ophtalmologue;2025
+Ophtalmologues;21;6;47;53;0;74;0,716216;0,635135;dep;77;ophtalmologue;2025
+Ophtalmologues;24;33;59;92;0;116;0,793103;0,508621;dep;78;ophtalmologue;2025
+Ophtalmologues;19;14;31;45;0;64;0,703125;0,484375;dep;91;ophtalmologue;2025
+Ophtalmologues;21;16;73;89;1;111;0,810811;0,666667;dep;92;ophtalmologue;2025
+Ophtalmologues;13;15;16;31;0;44;0,704545;0,363636;dep;93;ophtalmologue;2025
+Ophtalmologues;18;15;42;57;0;75;0,76;0,56;dep;94;ophtalmologue;2025
+Ophtalmologues;13;8;36;44;0;57;0,77193;0,631579;dep;95;ophtalmologue;2025
+Ophtalmologues;162;146;602;748;3;913;0,822563;0,662651;reg;11;ophtalmologue;2025
+Ophtalmologues;3;6;0;6;0;9;0,666667;0;dep;18;ophtalmologue;2025
+Ophtalmologues;6;5;8;13;0;19;0,684211;0,421053;dep;28;ophtalmologue;2025
+Ophtalmologues;8;1;1;2;1;11;0,272727;0,181818;dep;36;ophtalmologue;2025
+Ophtalmologues;4;5;28;33;0;37;0,891892;0,756757;dep;37;ophtalmologue;2025
+Ophtalmologues;10;0;6;6;0;16;0,375;0,375;dep;41;ophtalmologue;2025
+Ophtalmologues;9;7;19;26;0;35;0,742857;0,542857;dep;45;ophtalmologue;2025
+Ophtalmologues;40;24;62;86;1;127;0,685039;0,496063;reg;24;ophtalmologue;2025
+Ophtalmologues;4;7;26;33;0;37;0,891892;0,702703;dep;21;ophtalmologue;2025
+Ophtalmologues;6;3;23;26;0;32;0,8125;0,71875;dep;25;ophtalmologue;2025
+Ophtalmologues;2;3;8;11;0;13;0,846154;0,615385;dep;39;ophtalmologue;2025
+Ophtalmologues;3;2;3;5;0;8;0,625;0,375;dep;58;ophtalmologue;2025
+Ophtalmologues;1;1;1;2;0;3;;;dep;70;ophtalmologue;2025
+Ophtalmologues;7;0;20;20;0;27;0,740741;0,740741;dep;71;ophtalmologue;2025
+Ophtalmologues;2;2;4;6;0;8;0,75;0,5;dep;89;ophtalmologue;2025
+Ophtalmologues;8;2;4;6;1;15;0,466667;0,333333;dep;90;ophtalmologue;2025
+Ophtalmologues;33;20;89;109;1;143;0,769231;0,629371;reg;27;ophtalmologue;2025
+Ophtalmologues;14;7;20;27;0;41;0,658537;0,487805;dep;14;ophtalmologue;2025
+Ophtalmologues;8;3;17;20;0;28;0,714286;0,607143;dep;27;ophtalmologue;2025
+Ophtalmologues;12;7;4;11;0;23;0,478261;0,173913;dep;50;ophtalmologue;2025
+Ophtalmologues;4;0;2;2;2;8;0,5;0,5;dep;61;ophtalmologue;2025
+Ophtalmologues;20;14;35;49;0;69;0,710145;0,507246;dep;76;ophtalmologue;2025
+Ophtalmologues;58;31;78;109;2;169;0,656805;0,473373;reg;28;ophtalmologue;2025
+Ophtalmologues;6;7;5;12;0;18;0,666667;0,277778;dep;02;ophtalmologue;2025
+Ophtalmologues;30;77;53;130;0;160;0,8125;0,33125;dep;59;ophtalmologue;2025
+Ophtalmologues;4;6;27;33;0;37;0,891892;0,72973;dep;60;ophtalmologue;2025
+Ophtalmologues;19;28;11;39;0;58;0,672414;0,189655;dep;62;ophtalmologue;2025
+Ophtalmologues;9;6;18;24;0;33;0,727273;0,545455;dep;80;ophtalmologue;2025
+Ophtalmologues;68;124;114;238;0;306;0,777778;0,372549;reg;32;ophtalmologue;2025
+Ophtalmologues;1;5;3;8;0;9;0,888889;0,333333;dep;08;ophtalmologue;2025
+Ophtalmologues;6;1;3;4;1;11;0,454545;0,363636;dep;10;ophtalmologue;2025
+Ophtalmologues;10;7;15;22;0;32;0,6875;0,46875;dep;51;ophtalmologue;2025
+Ophtalmologues;2;0;3;3;0;5;0,6;0,6;dep;52;ophtalmologue;2025
+Ophtalmologues;13;12;21;33;0;46;0,717391;0,456522;dep;54;ophtalmologue;2025
+Ophtalmologues;1;1;1;2;0;3;;;dep;55;ophtalmologue;2025
+Ophtalmologues;21;3;24;27;0;48;0,5625;0,5;dep;57;ophtalmologue;2025
+Ophtalmologues;19;11;68;79;0;98;0,806122;0,693878;dep;67;ophtalmologue;2025
+Ophtalmologues;16;4;32;36;1;53;0,698113;0,622642;dep;68;ophtalmologue;2025
+Ophtalmologues;1;1;7;8;2;11;0,909091;0,818182;dep;88;ophtalmologue;2025
+Ophtalmologues;90;45;177;222;4;316;0,71519;0,572785;reg;44;ophtalmologue;2025
+Ophtalmologues;36;11;65;76;0;112;0,678571;0,580357;dep;44;ophtalmologue;2025
+Ophtalmologues;15;19;17;36;1;52;0,711538;0,346154;dep;49;ophtalmologue;2025
+Ophtalmologues;9;0;4;4;0;13;0,307692;0,307692;dep;53;ophtalmologue;2025
+Ophtalmologues;5;5;12;17;0;22;0,772727;0,545455;dep;72;ophtalmologue;2025
+Ophtalmologues;13;5;15;20;0;33;0,606061;0,454545;dep;85;ophtalmologue;2025
+Ophtalmologues;78;40;113;153;1;232;0,663793;0,491379;reg;52;ophtalmologue;2025
+Ophtalmologues;10;1;16;17;0;27;0,62963;0,592593;dep;22;ophtalmologue;2025
+Ophtalmologues;15;3;36;39;0;54;0,722222;0,666667;dep;29;ophtalmologue;2025
+Ophtalmologues;29;19;27;46;0;75;0,613333;0,36;dep;35;ophtalmologue;2025
+Ophtalmologues;20;8;25;33;0;53;0,622642;0,471698;dep;56;ophtalmologue;2025
+Ophtalmologues;74;31;104;135;0;209;0,645933;0,497608;reg;53;ophtalmologue;2025
+Ophtalmologues;3;4;5;9;0;12;0,75;0,416667;dep;16;ophtalmologue;2025
+Ophtalmologues;1;10;29;39;0;40;0,975;0,725;dep;17;ophtalmologue;2025
+Ophtalmologues;6;2;6;8;0;14;0,571429;0,428571;dep;19;ophtalmologue;2025
+Ophtalmologues;1;0;0;0;0;1;;;dep;23;ophtalmologue;2025
+Ophtalmologues;13;3;5;8;1;22;0,409091;0,272727;dep;24;ophtalmologue;2025
+Ophtalmologues;48;26;77;103;0;151;0,682119;0,509934;dep;33;ophtalmologue;2025
+Ophtalmologues;6;4;15;19;0;25;0,76;0,6;dep;40;ophtalmologue;2025
+Ophtalmologues;7;0;10;10;0;17;0,588235;0,588235;dep;47;ophtalmologue;2025
+Ophtalmologues;8;11;51;62;0;70;0,885714;0,728571;dep;64;ophtalmologue;2025
+Ophtalmologues;2;6;6;12;0;14;0,857143;0,428571;dep;79;ophtalmologue;2025
+Ophtalmologues;8;1;11;12;1;21;0,619048;0,571429;dep;86;ophtalmologue;2025
+Ophtalmologues;10;14;0;14;1;25;0,6;0,04;dep;87;ophtalmologue;2025
+Ophtalmologues;113;81;215;296;3;412;0,725728;0,529126;reg;75;ophtalmologue;2025
+Ophtalmologues;1;2;1;3;0;4;;;dep;09;ophtalmologue;2025
+Ophtalmologues;6;14;3;17;0;23;0,73913;0,130435;dep;11;ophtalmologue;2025
+Ophtalmologues;7;2;1;3;0;10;0,3;0,1;dep;12;ophtalmologue;2025
+Ophtalmologues;7;11;18;29;0;36;0,805556;0,5;dep;30;ophtalmologue;2025
+Ophtalmologues;37;23;55;78;0;115;0,678261;0,478261;dep;31;ophtalmologue;2025
+Ophtalmologues;4;3;1;4;0;8;0,5;0,125;dep;32;ophtalmologue;2025
+Ophtalmologues;24;14;65;79;0;103;0,76699;0,631068;dep;34;ophtalmologue;2025
+Ophtalmologues;4;0;0;0;0;4;;;dep;46;ophtalmologue;2025
+Ophtalmologues;2;1;2;3;0;5;0,6;0,4;dep;48;ophtalmologue;2025
+Ophtalmologues;7;0;7;7;1;15;0,533333;0,533333;dep;65;ophtalmologue;2025
+Ophtalmologues;15;5;20;25;0;40;0,625;0,5;dep;66;ophtalmologue;2025
+Ophtalmologues;8;7;12;19;0;27;0,703704;0,444444;dep;81;ophtalmologue;2025
+Ophtalmologues;4;3;15;18;0;22;0,818182;0,681818;dep;82;ophtalmologue;2025
+Ophtalmologues;126;85;200;285;1;412;0,694175;0,487864;reg;76;ophtalmologue;2025
+Ophtalmologues;4;1;16;17;0;21;0,809524;0,761905;dep;01;ophtalmologue;2025
+Ophtalmologues;9;3;5;8;0;17;0,470588;0,294118;dep;03;ophtalmologue;2025
+Ophtalmologues;4;0;3;3;0;7;0,428571;0,428571;dep;07;ophtalmologue;2025
+Ophtalmologues;1;1;1;2;0;3;;;dep;15;ophtalmologue;2025
+Ophtalmologues;15;3;18;21;0;36;0,583333;0,5;dep;26;ophtalmologue;2025
+Ophtalmologues;9;8;42;50;0;59;0,847458;0,711864;dep;38;ophtalmologue;2025
+Ophtalmologues;9;7;21;28;0;37;0,756757;0,567568;dep;42;ophtalmologue;2025
+Ophtalmologues;2;4;2;6;0;8;0,75;0,25;dep;43;ophtalmologue;2025
+Ophtalmologues;9;15;19;34;0;43;0,790698;0,44186;dep;63;ophtalmologue;2025
+Ophtalmologues;22;13;124;137;1;160;0,8625;0,78125;dep;69;ophtalmologue;2025
+Ophtalmologues;7;3;22;25;0;32;0,78125;0,6875;dep;73;ophtalmologue;2025
+Ophtalmologues;13;8;29;37;0;50;0,74;0,58;dep;74;ophtalmologue;2025
+Ophtalmologues;104;66;302;368;1;473;0,780127;0,640592;reg;84;ophtalmologue;2025
+Ophtalmologues;2;2;4;6;0;8;0,75;0,5;dep;04;ophtalmologue;2025
+Ophtalmologues;4;2;2;4;0;8;0,5;0,25;dep;05;ophtalmologue;2025
+Ophtalmologues;27;50;52;102;0;129;0,790698;0,403101;dep;06;ophtalmologue;2025
+Ophtalmologues;55;31;100;131;1;187;0,705882;0,540107;dep;13;ophtalmologue;2025
+Ophtalmologues;36;21;49;70;0;106;0,660377;0,462264;dep;83;ophtalmologue;2025
+Ophtalmologues;7;4;31;35;0;42;0,833333;0,738095;dep;84;ophtalmologue;2025
+Ophtalmologues;131;110;238;348;1;480;0,727083;0,497917;reg;93;ophtalmologue;2025
+Ophtalmologues;2;0;13;13;0;15;0,866667;0,866667;dep;2A;ophtalmologue;2025
+Ophtalmologues;2;10;4;14;0;16;0,875;0,25;dep;2B;ophtalmologue;2025
+Ophtalmologues;4;10;17;27;0;31;0,870968;0,548387;reg;94;ophtalmologue;2025
+Ophtalmologues;1128;830;2347;3177;18;4323;0,73907;0,547074;FR;FR;ophtalmologue;2025
+Psychiatres;8;2;1;3;0;11;0,272727;0,0909091;dep;971;psychiatre;2025
+Psychiatres;8;2;1;3;0;11;0,272727;0,0909091;reg;01;psychiatre;2025
+Psychiatres;3;0;2;2;2;7;0,571429;0,571429;dep;972;psychiatre;2025
+Psychiatres;3;0;2;2;2;7;0,571429;0,571429;reg;02;psychiatre;2025
+Psychiatres;2;0;0;0;0;2;;;dep;973;psychiatre;2025
+Psychiatres;2;0;0;0;0;2;;;reg;03;psychiatre;2025
+Psychiatres;34;12;12;24;0;58;0,413793;0,206897;dep;974;psychiatre;2025
+Psychiatres;34;12;12;24;0;58;0,413793;0,206897;reg;04;psychiatre;2025
+Psychiatres;0;0;0;0;0;0;;;dep;976;psychiatre;2025
+Psychiatres;0;0;0;0;0;0;;;reg;06;psychiatre;2025
+Psychiatres;321;131;799;930;28;1279;0,749023;0,646599;dep;75;psychiatre;2025
+Psychiatres;25;20;18;38;0;63;0,603175;0,285714;dep;77;psychiatre;2025
+Psychiatres;30;17;56;73;3;106;0,716981;0,556604;dep;78;psychiatre;2025
+Psychiatres;36;19;15;34;0;70;0,485714;0,214286;dep;91;psychiatre;2025
+Psychiatres;43;22;87;109;6;158;0,727848;0,588608;dep;92;psychiatre;2025
+Psychiatres;44;10;6;16;0;60;0,266667;0,1;dep;93;psychiatre;2025
+Psychiatres;28;12;42;54;0;82;0,658537;0,512195;dep;94;psychiatre;2025
+Psychiatres;23;21;19;40;0;63;0,634921;0,301587;dep;95;psychiatre;2025
+Psychiatres;550;252;1042;1294;37;1881;0,707602;0,573631;reg;11;psychiatre;2025
+Psychiatres;10;1;0;1;0;11;0,0909091;0;dep;18;psychiatre;2025
+Psychiatres;3;3;0;3;0;6;0,5;0;dep;28;psychiatre;2025
+Psychiatres;3;1;2;3;0;6;0,5;0,333333;dep;36;psychiatre;2025
+Psychiatres;38;8;28;36;0;74;0,486486;0,378378;dep;37;psychiatre;2025
+Psychiatres;23;3;0;3;0;26;0,115385;0;dep;41;psychiatre;2025
+Psychiatres;20;1;8;9;0;29;0,310345;0,275862;dep;45;psychiatre;2025
+Psychiatres;97;17;38;55;0;152;0,361842;0,25;reg;24;psychiatre;2025
+Psychiatres;30;8;8;16;0;46;0,347826;0,173913;dep;21;psychiatre;2025
+Psychiatres;26;7;3;10;0;36;0,277778;0,0833333;dep;25;psychiatre;2025
+Psychiatres;5;3;1;4;0;9;0,444444;0,111111;dep;39;psychiatre;2025
+Psychiatres;9;0;0;0;0;9;0;0;dep;58;psychiatre;2025
+Psychiatres;4;2;0;2;0;6;0,333333;0;dep;70;psychiatre;2025
+Psychiatres;23;4;6;10;2;35;0,342857;0,228571;dep;71;psychiatre;2025
+Psychiatres;18;3;2;5;0;23;0,217391;0,0869565;dep;89;psychiatre;2025
+Psychiatres;9;1;0;1;0;10;0,1;0;dep;90;psychiatre;2025
+Psychiatres;124;28;20;48;2;174;0,287356;0,126437;reg;27;psychiatre;2025
+Psychiatres;30;14;4;18;0;48;0,375;0,0833333;dep;14;psychiatre;2025
+Psychiatres;13;9;2;11;0;24;0,458333;0,0833333;dep;27;psychiatre;2025
+Psychiatres;13;2;0;2;0;15;0,133333;0;dep;50;psychiatre;2025
+Psychiatres;3;3;0;3;0;6;0,5;0;dep;61;psychiatre;2025
+Psychiatres;34;25;26;51;0;85;0,6;0,305882;dep;76;psychiatre;2025
+Psychiatres;93;53;32;85;0;178;0,477528;0,179775;reg;28;psychiatre;2025
+Psychiatres;19;4;1;5;0;24;0,208333;0,0416667;dep;02;psychiatre;2025
+Psychiatres;58;28;62;90;0;148;0,608108;0,418919;dep;59;psychiatre;2025
+Psychiatres;18;1;6;7;1;26;0,307692;0,269231;dep;60;psychiatre;2025
+Psychiatres;21;7;3;10;0;31;0,322581;0,0967742;dep;62;psychiatre;2025
+Psychiatres;27;8;1;9;0;36;0,25;0,0277778;dep;80;psychiatre;2025
+Psychiatres;143;48;73;121;1;265;0,460377;0,279245;reg;32;psychiatre;2025
+Psychiatres;5;1;0;1;0;6;0,166667;0;dep;08;psychiatre;2025
+Psychiatres;4;1;0;1;0;5;0,2;0;dep;10;psychiatre;2025
+Psychiatres;7;21;7;28;0;35;0,8;0,2;dep;51;psychiatre;2025
+Psychiatres;4;0;1;1;0;5;0,2;0,2;dep;52;psychiatre;2025
+Psychiatres;29;16;30;46;0;75;0,613333;0,4;dep;54;psychiatre;2025
+Psychiatres;3;1;1;2;0;5;0,4;0,2;dep;55;psychiatre;2025
+Psychiatres;30;3;16;19;0;49;0,387755;0,326531;dep;57;psychiatre;2025
+Psychiatres;56;52;49;101;0;157;0,643312;0,312102;dep;67;psychiatre;2025
+Psychiatres;15;11;15;26;0;41;0,634146;0,365854;dep;68;psychiatre;2025
+Psychiatres;8;0;0;0;0;8;0;0;dep;88;psychiatre;2025
+Psychiatres;161;106;119;225;0;386;0,582902;0,30829;reg;44;psychiatre;2025
+Psychiatres;50;23;58;81;1;132;0,621212;0,44697;dep;44;psychiatre;2025
+Psychiatres;41;12;6;18;0;59;0,305085;0,101695;dep;49;psychiatre;2025
+Psychiatres;10;0;0;0;0;10;0;0;dep;53;psychiatre;2025
+Psychiatres;18;2;1;3;0;21;0,142857;0,047619;dep;72;psychiatre;2025
+Psychiatres;12;3;4;7;0;19;0,368421;0,210526;dep;85;psychiatre;2025
+Psychiatres;131;40;69;109;1;241;0,456432;0,290456;reg;52;psychiatre;2025
+Psychiatres;21;8;1;9;0;30;0,3;0,0333333;dep;22;psychiatre;2025
+Psychiatres;56;5;4;9;0;65;0,138462;0,0615385;dep;29;psychiatre;2025
+Psychiatres;64;17;16;33;1;98;0,346939;0,173469;dep;35;psychiatre;2025
+Psychiatres;26;13;6;19;0;45;0,422222;0,133333;dep;56;psychiatre;2025
+Psychiatres;167;43;27;70;1;238;0,298319;0,117647;reg;53;psychiatre;2025
+Psychiatres;7;3;3;6;0;13;0,461538;0,230769;dep;16;psychiatre;2025
+Psychiatres;22;5;13;18;0;40;0,45;0,325;dep;17;psychiatre;2025
+Psychiatres;7;1;1;2;0;9;0,222222;0,111111;dep;19;psychiatre;2025
+Psychiatres;3;1;1;2;0;5;0,4;0,2;dep;23;psychiatre;2025
+Psychiatres;13;0;1;1;0;14;0,0714286;0,0714286;dep;24;psychiatre;2025
+Psychiatres;169;61;96;157;0;326;0,481595;0,294479;dep;33;psychiatre;2025
+Psychiatres;17;1;1;2;0;19;0,105263;0,0526316;dep;40;psychiatre;2025
+Psychiatres;6;0;1;1;0;7;0,142857;0,142857;dep;47;psychiatre;2025
+Psychiatres;48;20;17;37;2;87;0,448276;0,218391;dep;64;psychiatre;2025
+Psychiatres;6;2;4;6;0;12;0,5;0,333333;dep;79;psychiatre;2025
+Psychiatres;12;4;2;6;0;18;0,333333;0,111111;dep;86;psychiatre;2025
+Psychiatres;23;5;1;6;0;29;0,206897;0,0344828;dep;87;psychiatre;2025
+Psychiatres;333;103;141;244;2;579;0,42487;0,246978;reg;75;psychiatre;2025
+Psychiatres;7;1;0;1;0;8;0,125;0;dep;09;psychiatre;2025
+Psychiatres;16;3;1;4;0;20;0,2;0,05;dep;11;psychiatre;2025
+Psychiatres;15;1;0;1;0;16;0,0625;0;dep;12;psychiatre;2025
+Psychiatres;42;6;7;13;0;55;0,236364;0,127273;dep;30;psychiatre;2025
+Psychiatres;162;36;14;50;1;213;0,239437;0,0704225;dep;31;psychiatre;2025
+Psychiatres;8;2;0;2;0;10;0,2;0;dep;32;psychiatre;2025
+Psychiatres;126;32;24;56;0;182;0,307692;0,131868;dep;34;psychiatre;2025
+Psychiatres;6;0;0;0;0;6;0;0;dep;46;psychiatre;2025
+Psychiatres;3;1;0;1;0;4;;;dep;48;psychiatre;2025
+Psychiatres;11;0;2;2;0;13;0,153846;0,153846;dep;65;psychiatre;2025
+Psychiatres;24;6;2;8;0;32;0,25;0,0625;dep;66;psychiatre;2025
+Psychiatres;11;7;1;8;0;19;0,421053;0,0526316;dep;81;psychiatre;2025
+Psychiatres;7;1;0;1;0;8;0,125;0;dep;82;psychiatre;2025
+Psychiatres;438;96;51;147;1;586;0,25256;0,0887372;reg;76;psychiatre;2025
+Psychiatres;15;5;0;5;0;20;0,25;0;dep;01;psychiatre;2025
+Psychiatres;7;3;0;3;0;10;0,3;0;dep;03;psychiatre;2025
+Psychiatres;5;5;0;5;0;10;0,5;0;dep;07;psychiatre;2025
+Psychiatres;1;1;1;2;0;3;;;dep;15;psychiatre;2025
+Psychiatres;14;6;2;8;0;22;0,363636;0,0909091;dep;26;psychiatre;2025
+Psychiatres;81;32;14;46;1;128;0,367188;0,117188;dep;38;psychiatre;2025
+Psychiatres;23;21;4;25;0;48;0,520833;0,0833333;dep;42;psychiatre;2025
+Psychiatres;14;1;1;2;0;16;0,125;0,0625;dep;43;psychiatre;2025
+Psychiatres;83;15;0;15;0;98;0,153061;0;dep;63;psychiatre;2025
+Psychiatres;99;39;172;211;3;313;0,683706;0,559105;dep;69;psychiatre;2025
+Psychiatres;16;10;12;22;0;38;0,578947;0,315789;dep;73;psychiatre;2025
+Psychiatres;26;23;22;45;0;71;0,633803;0,309859;dep;74;psychiatre;2025
+Psychiatres;384;161;228;389;4;777;0,505792;0,298584;reg;84;psychiatre;2025
+Psychiatres;9;2;0;2;0;11;0,181818;0;dep;04;psychiatre;2025
+Psychiatres;4;1;4;5;0;9;0,555556;0,444444;dep;05;psychiatre;2025
+Psychiatres;115;63;42;105;3;223;0,484305;0,201794;dep;06;psychiatre;2025
+Psychiatres;212;97;73;170;1;383;0,446475;0,193211;dep;13;psychiatre;2025
+Psychiatres;69;21;20;41;0;110;0,372727;0,181818;dep;83;psychiatre;2025
+Psychiatres;26;9;7;16;0;42;0,380952;0,166667;dep;84;psychiatre;2025
+Psychiatres;435;193;146;339;4;778;0,440874;0,192802;reg;93;psychiatre;2025
+Psychiatres;16;3;1;4;0;20;0,2;0,05;dep;2A;psychiatre;2025
+Psychiatres;6;7;3;10;0;16;0,625;0,1875;dep;2B;psychiatre;2025
+Psychiatres;22;10;4;14;0;36;0,388889;0,111111;reg;94;psychiatre;2025
+Psychiatres;3125;1164;2005;3169;55;6349;0,507797;0,324461;FR;FR;psychiatre;2025
+Pédiatres;16;5;0;5;0;21;0,238095;0;dep;971;pediatre;2025
+Pédiatres;16;5;0;5;0;21;0,238095;0;reg;01;pediatre;2025
+Pédiatres;5;1;3;4;0;9;0,444444;0,333333;dep;972;pediatre;2025
+Pédiatres;5;1;3;4;0;9;0,444444;0,333333;reg;02;pediatre;2025
+Pédiatres;7;1;0;1;0;8;0,125;0;dep;973;pediatre;2025
+Pédiatres;7;1;0;1;0;8;0,125;0;reg;03;pediatre;2025
+Pédiatres;31;13;2;15;0;46;0,326087;0,0434783;dep;974;pediatre;2025
+Pédiatres;31;13;2;15;0;46;0,326087;0,0434783;reg;04;pediatre;2025
+Pédiatres;0;0;0;0;0;0;;;dep;976;pediatre;2025
+Pédiatres;0;0;0;0;0;0;;;reg;06;pediatre;2025
+Pédiatres;38;23;160;183;0;221;0,828054;0,723982;dep;75;pediatre;2025
+Pédiatres;15;39;8;47;0;62;0,758065;0,129032;dep;77;pediatre;2025
+Pédiatres;22;16;41;57;1;80;0,725;0,525;dep;78;pediatre;2025
+Pédiatres;21;26;5;31;0;52;0,596154;0,0961538;dep;91;pediatre;2025
+Pédiatres;34;28;92;120;2;156;0,782051;0,602564;dep;92;pediatre;2025
+Pédiatres;19;44;4;48;0;67;0,716418;0,0597015;dep;93;pediatre;2025
+Pédiatres;29;44;21;65;0;94;0,691489;0,223404;dep;94;pediatre;2025
+Pédiatres;18;15;13;28;0;46;0,608696;0,282609;dep;95;pediatre;2025
+Pédiatres;196;235;344;579;3;778;0,748072;0,446015;reg;11;pediatre;2025
+Pédiatres;3;0;0;0;0;3;;;dep;18;pediatre;2025
+Pédiatres;3;5;5;10;0;13;0,769231;0,384615;dep;28;pediatre;2025
+Pédiatres;1;1;0;1;0;2;;;dep;36;pediatre;2025
+Pédiatres;18;14;2;16;0;34;0,470588;0,0588235;dep;37;pediatre;2025
+Pédiatres;5;6;0;6;0;11;0,545455;0;dep;41;pediatre;2025
+Pédiatres;8;11;1;12;0;20;0,6;0,05;dep;45;pediatre;2025
+Pédiatres;38;37;8;45;0;83;0,542169;0,0963855;reg;24;pediatre;2025
+Pédiatres;11;10;2;12;0;23;0,521739;0,0869565;dep;21;pediatre;2025
+Pédiatres;9;5;1;6;1;16;0,4375;0,125;dep;25;pediatre;2025
+Pédiatres;3;1;1;2;0;5;0,4;0,2;dep;39;pediatre;2025
+Pédiatres;1;1;0;1;0;2;;;dep;58;pediatre;2025
+Pédiatres;1;0;0;0;0;1;;;dep;70;pediatre;2025
+Pédiatres;5;1;1;2;0;7;0,285714;0,142857;dep;71;pediatre;2025
+Pédiatres;2;0;3;3;0;5;0,6;0,6;dep;89;pediatre;2025
+Pédiatres;2;4;0;4;0;6;0,666667;0;dep;90;pediatre;2025
+Pédiatres;34;22;8;30;1;65;0,476923;0,138462;reg;27;pediatre;2025
+Pédiatres;6;16;4;20;0;26;0,769231;0,153846;dep;14;pediatre;2025
+Pédiatres;2;1;0;1;0;3;;;dep;27;pediatre;2025
+Pédiatres;2;7;1;8;0;10;0,8;0,1;dep;50;pediatre;2025
+Pédiatres;5;0;0;0;0;5;0;0;dep;61;pediatre;2025
+Pédiatres;15;11;4;15;0;30;0,5;0,133333;dep;76;pediatre;2025
+Pédiatres;30;35;9;44;0;74;0,594595;0,121622;reg;28;pediatre;2025
+Pédiatres;7;1;0;1;0;8;0,125;0;dep;02;pediatre;2025
+Pédiatres;28;27;18;45;0;73;0,616438;0,246575;dep;59;pediatre;2025
+Pédiatres;17;6;2;8;0;25;0,32;0,08;dep;60;pediatre;2025
+Pédiatres;11;15;1;16;0;27;0,592593;0,037037;dep;62;pediatre;2025
+Pédiatres;10;7;0;7;0;17;0,411765;0;dep;80;pediatre;2025
+Pédiatres;73;56;21;77;0;150;0,513333;0,14;reg;32;pediatre;2025
+Pédiatres;3;1;0;1;0;4;;;dep;08;pediatre;2025
+Pédiatres;1;2;1;3;0;4;;;dep;10;pediatre;2025
+Pédiatres;11;6;0;6;0;17;0,352941;0;dep;51;pediatre;2025
+Pédiatres;1;0;0;0;0;1;;;dep;52;pediatre;2025
+Pédiatres;29;19;1;20;0;49;0,408163;0,0204082;dep;54;pediatre;2025
+Pédiatres;1;3;0;3;0;4;;;dep;55;pediatre;2025
+Pédiatres;23;6;1;7;0;30;0,233333;0,0333333;dep;57;pediatre;2025
+Pédiatres;26;20;14;34;0;60;0,566667;0,233333;dep;67;pediatre;2025
+Pédiatres;12;13;9;22;0;34;0,647059;0,264706;dep;68;pediatre;2025
+Pédiatres;5;0;0;0;0;5;0;0;dep;88;pediatre;2025
+Pédiatres;112;70;26;96;0;208;0,461538;0,125;reg;44;pediatre;2025
+Pédiatres;18;13;17;30;0;48;0,625;0,354167;dep;44;pediatre;2025
+Pédiatres;23;4;12;16;0;39;0,410256;0,307692;dep;49;pediatre;2025
+Pédiatres;4;0;0;0;0;4;;;dep;53;pediatre;2025
+Pédiatres;6;3;2;5;0;11;0,454545;0,181818;dep;72;pediatre;2025
+Pédiatres;2;4;0;4;0;6;0,666667;0;dep;85;pediatre;2025
+Pédiatres;53;24;31;55;0;108;0,509259;0,287037;reg;52;pediatre;2025
+Pédiatres;10;0;1;1;0;11;0,0909091;0,0909091;dep;22;pediatre;2025
+Pédiatres;20;9;1;10;0;30;0,333333;0,0333333;dep;29;pediatre;2025
+Pédiatres;26;16;2;18;0;44;0,409091;0,0454545;dep;35;pediatre;2025
+Pédiatres;15;11;2;13;0;28;0,464286;0,0714286;dep;56;pediatre;2025
+Pédiatres;71;36;6;42;0;113;0,371681;0,0530973;reg;53;pediatre;2025
+Pédiatres;2;2;0;2;0;4;;;dep;16;pediatre;2025
+Pédiatres;6;17;7;24;0;30;0,8;0,233333;dep;17;pediatre;2025
+Pédiatres;3;1;0;1;0;4;;;dep;19;pediatre;2025
+Pédiatres;1;1;0;1;0;2;;;dep;23;pediatre;2025
+Pédiatres;4;4;1;5;0;9;0,555556;0,111111;dep;24;pediatre;2025
+Pédiatres;36;27;32;59;0;95;0,621053;0,336842;dep;33;pediatre;2025
+Pédiatres;3;8;0;8;0;11;0,727273;0;dep;40;pediatre;2025
+Pédiatres;3;2;0;2;0;5;0,4;0;dep;47;pediatre;2025
+Pédiatres;17;18;1;19;0;36;0,527778;0,0277778;dep;64;pediatre;2025
+Pédiatres;0;2;0;2;0;2;;;dep;79;pediatre;2025
+Pédiatres;9;4;0;4;0;13;0,307692;0;dep;86;pediatre;2025
+Pédiatres;8;1;0;1;0;9;0,111111;0;dep;87;pediatre;2025
+Pédiatres;92;87;41;128;0;220;0,581818;0,186364;reg;75;pediatre;2025
+Pédiatres;2;3;0;3;0;5;0,6;0;dep;09;pediatre;2025
+Pédiatres;9;0;0;0;0;9;0;0;dep;11;pediatre;2025
+Pédiatres;2;0;1;1;0;3;;;dep;12;pediatre;2025
+Pédiatres;10;7;8;15;1;26;0,615385;0,346154;dep;30;pediatre;2025
+Pédiatres;62;24;6;30;0;92;0,326087;0,0652174;dep;31;pediatre;2025
+Pédiatres;1;0;3;3;0;4;;;dep;32;pediatre;2025
+Pédiatres;37;36;13;49;0;86;0,569767;0,151163;dep;34;pediatre;2025
+Pédiatres;3;0;0;0;0;3;;;dep;46;pediatre;2025
+Pédiatres;3;0;0;0;0;3;;;dep;48;pediatre;2025
+Pédiatres;1;0;2;2;0;3;;;dep;65;pediatre;2025
+Pédiatres;10;7;2;9;0;19;0,473684;0,105263;dep;66;pediatre;2025
+Pédiatres;5;3;0;3;0;8;0,375;0;dep;81;pediatre;2025
+Pédiatres;7;0;0;0;0;7;0;0;dep;82;pediatre;2025
+Pédiatres;152;80;35;115;1;268;0,432836;0,134328;reg;76;pediatre;2025
+Pédiatres;6;1;1;2;0;8;0,25;0,125;dep;01;pediatre;2025
+Pédiatres;3;2;0;2;0;5;0,4;0;dep;03;pediatre;2025
+Pédiatres;6;0;0;0;0;6;0;0;dep;07;pediatre;2025
+Pédiatres;5;0;0;0;0;5;0;0;dep;15;pediatre;2025
+Pédiatres;6;0;1;1;0;7;0,142857;0,142857;dep;26;pediatre;2025
+Pédiatres;37;6;10;16;0;53;0,301887;0,188679;dep;38;pediatre;2025
+Pédiatres;14;8;3;11;0;25;0,44;0,12;dep;42;pediatre;2025
+Pédiatres;1;1;0;1;0;2;;;dep;43;pediatre;2025
+Pédiatres;25;4;1;5;0;30;0,166667;0,0333333;dep;63;pediatre;2025
+Pédiatres;38;29;50;79;0;117;0,675214;0,42735;dep;69;pediatre;2025
+Pédiatres;9;8;3;11;0;20;0,55;0,15;dep;73;pediatre;2025
+Pédiatres;11;15;6;21;0;32;0,65625;0,1875;dep;74;pediatre;2025
+Pédiatres;161;74;75;149;0;310;0,480645;0,241935;reg;84;pediatre;2025
+Pédiatres;6;4;1;5;0;11;0,454545;0,0909091;dep;04;pediatre;2025
+Pédiatres;0;0;0;0;0;0;;;dep;05;pediatre;2025
+Pédiatres;23;23;34;57;0;80;0,7125;0,425;dep;06;pediatre;2025
+Pédiatres;46;55;36;91;0;137;0,664234;0,262774;dep;13;pediatre;2025
+Pédiatres;18;22;9;31;0;49;0,632653;0,183673;dep;83;pediatre;2025
+Pédiatres;13;4;0;4;0;17;0,235294;0;dep;84;pediatre;2025
+Pédiatres;106;108;80;188;0;294;0,639456;0,272109;reg;93;pediatre;2025
+Pédiatres;2;3;0;3;0;5;0,6;0;dep;2A;pediatre;2025
+Pédiatres;3;4;1;5;0;8;0,625;0,125;dep;2B;pediatre;2025
+Pédiatres;5;7;1;8;0;13;0,615385;0,0769231;reg;94;pediatre;2025
+Pédiatres;1182;891;690;1581;5;2768;0,572977;0,251084;FR;FR;pediatre;2025

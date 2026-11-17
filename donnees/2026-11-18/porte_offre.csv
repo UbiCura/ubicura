@@ -1,0 +1,381 @@
+﻿prof;classe;groupe;n;part
+chirurgien_dentiste;Dense (plus de 300);Autre ou non renseigné;779;0,0216023
+chirurgien_dentiste;Dense (plus de 300);Centre de santé;8287;0,229805
+chirurgien_dentiste;Dense (plus de 300);Hôpital public;1675;0,0464491
+chirurgien_dentiste;Dense (plus de 300);Libéral (cabinet, société, maison de santé);25224;0,699481
+chirurgien_dentiste;Dense (plus de 300);Médico-social;20;0,000554616
+chirurgien_dentiste;Dense (plus de 300);Établissement de santé privé;76;0,00210754
+chirurgien_dentiste;Intermédiaire (100 à 300);Autre ou non renseigné;108;0,00873645
+chirurgien_dentiste;Intermédiaire (100 à 300);Centre de santé;1250;0,101116
+chirurgien_dentiste;Intermédiaire (100 à 300);Hôpital public;296;0,0239443
+chirurgien_dentiste;Intermédiaire (100 à 300);Libéral (cabinet, société, maison de santé);10685;0,864342
+chirurgien_dentiste;Intermédiaire (100 à 300);Médico-social;3;0,000242679
+chirurgien_dentiste;Intermédiaire (100 à 300);Établissement de santé privé;20;0,00161786
+chirurgien_dentiste;Peu dense (25 à 100);Autre ou non renseigné;9;0,00128829
+chirurgien_dentiste;Peu dense (25 à 100);Centre de santé;409;0,0585457
+chirurgien_dentiste;Peu dense (25 à 100);Hôpital public;108;0,0154595
+chirurgien_dentiste;Peu dense (25 à 100);Libéral (cabinet, société, maison de santé);6449;0,923132
+chirurgien_dentiste;Peu dense (25 à 100);Médico-social;4;0,000572574
+chirurgien_dentiste;Peu dense (25 à 100);Établissement de santé privé;7;0,001002
+chirurgien_dentiste;Très peu dense (moins de 25 hab./km²);Autre ou non renseigné;3;0,00349243
+chirurgien_dentiste;Très peu dense (moins de 25 hab./km²);Centre de santé;17;0,0197905
+chirurgien_dentiste;Très peu dense (moins de 25 hab./km²);Hôpital public;6;0,00698487
+chirurgien_dentiste;Très peu dense (moins de 25 hab./km²);Libéral (cabinet, société, maison de santé);831;0,967404
+chirurgien_dentiste;Très peu dense (moins de 25 hab./km²);Médico-social;1;0,00116414
+chirurgien_dentiste;Très peu dense (moins de 25 hab./km²);Établissement de santé privé;1;0,00116414
+ens_medecin_specialiste;Dense (plus de 300);Autre ou non renseigné;10510;0,0738072
+ens_medecin_specialiste;Dense (plus de 300);Centre de santé;3890;0,0273178
+ens_medecin_specialiste;Dense (plus de 300);Hôpital public;54216;0,380736
+ens_medecin_specialiste;Dense (plus de 300);Libéral (cabinet, société, maison de santé);49860;0,350145
+ens_medecin_specialiste;Dense (plus de 300);Médico-social;2250;0,0158008
+ens_medecin_specialiste;Dense (plus de 300);Établissement de santé privé;21672;0,152193
+ens_medecin_specialiste;Intermédiaire (100 à 300);Autre ou non renseigné;2012;0,0485744
+ens_medecin_specialiste;Intermédiaire (100 à 300);Centre de santé;389;0,00939137
+ens_medecin_specialiste;Intermédiaire (100 à 300);Hôpital public;15268;0,368605
+ens_medecin_specialiste;Intermédiaire (100 à 300);Libéral (cabinet, société, maison de santé);17070;0,41211
+ens_medecin_specialiste;Intermédiaire (100 à 300);Médico-social;776;0,0187345
+ens_medecin_specialiste;Intermédiaire (100 à 300);Établissement de santé privé;5906;0,142585
+ens_medecin_specialiste;Peu dense (25 à 100);Autre ou non renseigné;610;0,0343739
+ens_medecin_specialiste;Peu dense (25 à 100);Centre de santé;191;0,010763
+ens_medecin_specialiste;Peu dense (25 à 100);Hôpital public;5661;0,319001
+ens_medecin_specialiste;Peu dense (25 à 100);Libéral (cabinet, société, maison de santé);8784;0,494985
+ens_medecin_specialiste;Peu dense (25 à 100);Médico-social;435;0,0245126
+ens_medecin_specialiste;Peu dense (25 à 100);Établissement de santé privé;2065;0,116364
+ens_medecin_specialiste;Très peu dense (moins de 25 hab./km²);Autre ou non renseigné;27;0,0186593
+ens_medecin_specialiste;Très peu dense (moins de 25 hab./km²);Centre de santé;53;0,0366275
+ens_medecin_specialiste;Très peu dense (moins de 25 hab./km²);Hôpital public;511;0,353144
+ens_medecin_specialiste;Très peu dense (moins de 25 hab./km²);Libéral (cabinet, société, maison de santé);712;0,492053
+ens_medecin_specialiste;Très peu dense (moins de 25 hab./km²);Médico-social;65;0,0449205
+ens_medecin_specialiste;Très peu dense (moins de 25 hab./km²);Établissement de santé privé;79;0,0545957
+infirmier;Dense (plus de 300);Autre ou non renseigné;60944;0,198418
+infirmier;Dense (plus de 300);Centre de santé;3190;0,0103858
+infirmier;Dense (plus de 300);Hôpital public;121146;0,39442
+infirmier;Dense (plus de 300);Libéral (cabinet, société, maison de santé);50306;0,163783
+infirmier;Dense (plus de 300);Médico-social;20149;0,0655999
+infirmier;Dense (plus de 300);Établissement de santé privé;51415;0,167394
+infirmier;Intermédiaire (100 à 300);Autre ou non renseigné;19180;0,149117
+infirmier;Intermédiaire (100 à 300);Centre de santé;1482;0,011522
+infirmier;Intermédiaire (100 à 300);Hôpital public;50693;0,394118
+infirmier;Intermédiaire (100 à 300);Libéral (cabinet, société, maison de santé);30395;0,236309
+infirmier;Intermédiaire (100 à 300);Médico-social;12966;0,100805
+infirmier;Intermédiaire (100 à 300);Établissement de santé privé;13908;0,108129
+infirmier;Peu dense (25 à 100);Autre ou non renseigné;9688;0,122078
+infirmier;Peu dense (25 à 100);Centre de santé;1690;0,0212956
+infirmier;Peu dense (25 à 100);Hôpital public;24918;0,313991
+infirmier;Peu dense (25 à 100);Libéral (cabinet, société, maison de santé);24863;0,313298
+infirmier;Peu dense (25 à 100);Médico-social;12520;0,157764
+infirmier;Peu dense (25 à 100);Établissement de santé privé;5680;0,0715735
+infirmier;Très peu dense (moins de 25 hab./km²);Autre ou non renseigné;1128;0,0929619
+infirmier;Très peu dense (moins de 25 hab./km²);Centre de santé;440;0,0362617
+infirmier;Très peu dense (moins de 25 hab./km²);Hôpital public;2803;0,231004
+infirmier;Très peu dense (moins de 25 hab./km²);Libéral (cabinet, société, maison de santé);4569;0,376545
+infirmier;Très peu dense (moins de 25 hab./km²);Médico-social;2486;0,204879
+infirmier;Très peu dense (moins de 25 hab./km²);Établissement de santé privé;708;0,0583484
+masseur_kinesitherapeute;Dense (plus de 300);Autre ou non renseigné;1453;0,0231886
+masseur_kinesitherapeute;Dense (plus de 300);Centre de santé;266;0,00424513
+masseur_kinesitherapeute;Dense (plus de 300);Hôpital public;3743;0,0597351
+masseur_kinesitherapeute;Dense (plus de 300);Libéral (cabinet, société, maison de santé);52632;0,839962
+masseur_kinesitherapeute;Dense (plus de 300);Médico-social;1202;0,0191829
+masseur_kinesitherapeute;Dense (plus de 300);Établissement de santé privé;3364;0,0536866
+masseur_kinesitherapeute;Intermédiaire (100 à 300);Autre ou non renseigné;365;0,0127998
+masseur_kinesitherapeute;Intermédiaire (100 à 300);Centre de santé;70;0,00245476
+masseur_kinesitherapeute;Intermédiaire (100 à 300);Hôpital public;1572;0,0551269
+masseur_kinesitherapeute;Intermédiaire (100 à 300);Libéral (cabinet, société, maison de santé);24476;0,858325
+masseur_kinesitherapeute;Intermédiaire (100 à 300);Médico-social;574;0,0201291
+masseur_kinesitherapeute;Intermédiaire (100 à 300);Établissement de santé privé;1459;0,0511643
+masseur_kinesitherapeute;Peu dense (25 à 100);Autre ou non renseigné;245;0,0138771
+masseur_kinesitherapeute;Peu dense (25 à 100);Centre de santé;51;0,0028887
+masseur_kinesitherapeute;Peu dense (25 à 100);Hôpital public;959;0,0543189
+masseur_kinesitherapeute;Peu dense (25 à 100);Libéral (cabinet, société, maison de santé);15507;0,878335
+masseur_kinesitherapeute;Peu dense (25 à 100);Médico-social;341;0,0193146
+masseur_kinesitherapeute;Peu dense (25 à 100);Établissement de santé privé;552;0,0312659
+masseur_kinesitherapeute;Très peu dense (moins de 25 hab./km²);Autre ou non renseigné;54;0,0177632
+masseur_kinesitherapeute;Très peu dense (moins de 25 hab./km²);Centre de santé;3;0,000986842
+masseur_kinesitherapeute;Très peu dense (moins de 25 hab./km²);Hôpital public;109;0,0358553
+masseur_kinesitherapeute;Très peu dense (moins de 25 hab./km²);Libéral (cabinet, société, maison de santé);2636;0,867105
+masseur_kinesitherapeute;Très peu dense (moins de 25 hab./km²);Médico-social;66;0,0217105
+masseur_kinesitherapeute;Très peu dense (moins de 25 hab./km²);Établissement de santé privé;172;0,0565789
+medecin_generaliste;Dense (plus de 300);Autre ou non renseigné;5595;0,0949593
+medecin_generaliste;Dense (plus de 300);Centre de santé;3627;0,061558
+medecin_generaliste;Dense (plus de 300);Hôpital public;11226;0,19053
+medecin_generaliste;Dense (plus de 300);Libéral (cabinet, société, maison de santé);32733;0,55555
+medecin_generaliste;Dense (plus de 300);Médico-social;2639;0,0447895
+medecin_generaliste;Dense (plus de 300);Établissement de santé privé;3100;0,0526137
+medecin_generaliste;Intermédiaire (100 à 300);Autre ou non renseigné;1467;0,0562867
+medecin_generaliste;Intermédiaire (100 à 300);Centre de santé;1105;0,0423973
+medecin_generaliste;Intermédiaire (100 à 300);Hôpital public;5977;0,229329
+medecin_generaliste;Intermédiaire (100 à 300);Libéral (cabinet, société, maison de santé);14939;0,573188
+medecin_generaliste;Intermédiaire (100 à 300);Médico-social;1569;0,0602003
+medecin_generaliste;Intermédiaire (100 à 300);Établissement de santé privé;1006;0,0385988
+medecin_generaliste;Peu dense (25 à 100);Autre ou non renseigné;496;0,0281802
+medecin_generaliste;Peu dense (25 à 100);Centre de santé;978;0,055565
+medecin_generaliste;Peu dense (25 à 100);Hôpital public;3432;0,194989
+medecin_generaliste;Peu dense (25 à 100);Libéral (cabinet, société, maison de santé);10940;0,621556
+medecin_generaliste;Peu dense (25 à 100);Médico-social;1288;0,0731777
+medecin_generaliste;Peu dense (25 à 100);Établissement de santé privé;467;0,0265326
+medecin_generaliste;Très peu dense (moins de 25 hab./km²);Autre ou non renseigné;40;0,0138889
+medecin_generaliste;Très peu dense (moins de 25 hab./km²);Centre de santé;290;0,100694
+medecin_generaliste;Très peu dense (moins de 25 hab./km²);Hôpital public;336;0,116667
+medecin_generaliste;Très peu dense (moins de 25 hab./km²);Libéral (cabinet, société, maison de santé);1880;0,652778
+medecin_generaliste;Très peu dense (moins de 25 hab./km²);Médico-social;248;0,0861111
+medecin_generaliste;Très peu dense (moins de 25 hab./km²);Établissement de santé privé;86;0,0298611
+orthophoniste;Dense (plus de 300);Autre ou non renseigné;252;0,012967
+orthophoniste;Dense (plus de 300);Centre de santé;88;0,00452815
+orthophoniste;Dense (plus de 300);Hôpital public;1440;0,0740969
+orthophoniste;Dense (plus de 300);Libéral (cabinet, société, maison de santé);14559;0,749151
+orthophoniste;Dense (plus de 300);Médico-social;2491;0,128177
+orthophoniste;Dense (plus de 300);Établissement de santé privé;604;0,0310796
+orthophoniste;Intermédiaire (100 à 300);Autre ou non renseigné;50;0,00640041
+orthophoniste;Intermédiaire (100 à 300);Centre de santé;23;0,00294419
+orthophoniste;Intermédiaire (100 à 300);Hôpital public;472;0,0604199
+orthophoniste;Intermédiaire (100 à 300);Libéral (cabinet, société, maison de santé);6062;0,775986
+orthophoniste;Intermédiaire (100 à 300);Médico-social;989;0,1266
+orthophoniste;Intermédiaire (100 à 300);Établissement de santé privé;216;0,0276498
+orthophoniste;Peu dense (25 à 100);Autre ou non renseigné;33;0,00686071
+orthophoniste;Peu dense (25 à 100);Centre de santé;9;0,0018711
+orthophoniste;Peu dense (25 à 100);Hôpital public;169;0,0351351
+orthophoniste;Peu dense (25 à 100);Libéral (cabinet, société, maison de santé);4041;0,840125
+orthophoniste;Peu dense (25 à 100);Médico-social;460;0,0956341
+orthophoniste;Peu dense (25 à 100);Établissement de santé privé;98;0,0203742
+orthophoniste;Très peu dense (moins de 25 hab./km²);Autre ou non renseigné;1;0,00175439
+orthophoniste;Très peu dense (moins de 25 hab./km²);Hôpital public;16;0,0280702
+orthophoniste;Très peu dense (moins de 25 hab./km²);Libéral (cabinet, société, maison de santé);488;0,85614
+orthophoniste;Très peu dense (moins de 25 hab./km²);Médico-social;47;0,0824561
+orthophoniste;Très peu dense (moins de 25 hab./km²);Établissement de santé privé;18;0,0315789
+pediatre;Dense (plus de 300);Autre ou non renseigné;473;0,0556733
+pediatre;Dense (plus de 300);Centre de santé;153;0,0180085
+pediatre;Dense (plus de 300);Hôpital public;4746;0,558616
+pediatre;Dense (plus de 300);Libéral (cabinet, société, maison de santé);2314;0,272363
+pediatre;Dense (plus de 300);Médico-social;326;0,038371
+pediatre;Dense (plus de 300);Établissement de santé privé;484;0,056968
+pediatre;Intermédiaire (100 à 300);Autre ou non renseigné;72;0,0396694
+pediatre;Intermédiaire (100 à 300);Centre de santé;26;0,0143251
+pediatre;Intermédiaire (100 à 300);Hôpital public;1051;0,579063
+pediatre;Intermédiaire (100 à 300);Libéral (cabinet, société, maison de santé);506;0,278788
+pediatre;Intermédiaire (100 à 300);Médico-social;105;0,0578512
+pediatre;Intermédiaire (100 à 300);Établissement de santé privé;55;0,030303
+pediatre;Peu dense (25 à 100);Autre ou non renseigné;27;0,0441899
+pediatre;Peu dense (25 à 100);Centre de santé;13;0,0212766
+pediatre;Peu dense (25 à 100);Hôpital public;318;0,520458
+pediatre;Peu dense (25 à 100);Libéral (cabinet, société, maison de santé);175;0,286416
+pediatre;Peu dense (25 à 100);Médico-social;60;0,0981997
+pediatre;Peu dense (25 à 100);Établissement de santé privé;18;0,0294599
+pediatre;Très peu dense (moins de 25 hab./km²);Autre ou non renseigné;2;0,028169
+pediatre;Très peu dense (moins de 25 hab./km²);Centre de santé;12;0,169014
+pediatre;Très peu dense (moins de 25 hab./km²);Hôpital public;25;0,352113
+pediatre;Très peu dense (moins de 25 hab./km²);Libéral (cabinet, société, maison de santé);22;0,309859
+pediatre;Très peu dense (moins de 25 hab./km²);Médico-social;6;0,084507
+pediatre;Très peu dense (moins de 25 hab./km²);Établissement de santé privé;4;0,056338
+pedopsychiatre;Dense (plus de 300);Autre ou non renseigné;18;0,0301003
+pedopsychiatre;Dense (plus de 300);Centre de santé;9;0,0150502
+pedopsychiatre;Dense (plus de 300);Hôpital public;335;0,560201
+pedopsychiatre;Dense (plus de 300);Libéral (cabinet, société, maison de santé);131;0,219064
+pedopsychiatre;Dense (plus de 300);Médico-social;73;0,122074
+pedopsychiatre;Dense (plus de 300);Établissement de santé privé;32;0,0535117
+pedopsychiatre;Intermédiaire (100 à 300);Autre ou non renseigné;3;0,0218978
+pedopsychiatre;Intermédiaire (100 à 300);Centre de santé;1;0,00729927
+pedopsychiatre;Intermédiaire (100 à 300);Hôpital public;68;0,49635
+pedopsychiatre;Intermédiaire (100 à 300);Libéral (cabinet, société, maison de santé);30;0,218978
+pedopsychiatre;Intermédiaire (100 à 300);Médico-social;27;0,19708
+pedopsychiatre;Intermédiaire (100 à 300);Établissement de santé privé;8;0,0583942
+pedopsychiatre;Peu dense (25 à 100);Autre ou non renseigné;4;0,0519481
+pedopsychiatre;Peu dense (25 à 100);Centre de santé;1;0,012987
+pedopsychiatre;Peu dense (25 à 100);Hôpital public;24;0,311688
+pedopsychiatre;Peu dense (25 à 100);Libéral (cabinet, société, maison de santé);15;0,194805
+pedopsychiatre;Peu dense (25 à 100);Médico-social;21;0,272727
+pedopsychiatre;Peu dense (25 à 100);Établissement de santé privé;12;0,155844
+pedopsychiatre;Très peu dense (moins de 25 hab./km²);Hôpital public;1;0,25
+pedopsychiatre;Très peu dense (moins de 25 hab./km²);Médico-social;3;0,75
+pharmacien;Dense (plus de 300);Autre ou non renseigné;30993;0,806584
+pharmacien;Dense (plus de 300);Centre de santé;21;0,000546519
+pharmacien;Dense (plus de 300);Hôpital public;5999;0,156122
+pharmacien;Dense (plus de 300);Libéral (cabinet, société, maison de santé);3;7,80742e-05
+pharmacien;Dense (plus de 300);Médico-social;110;0,00286272
+pharmacien;Dense (plus de 300);Établissement de santé privé;1299;0,0338061
+pharmacien;Intermédiaire (100 à 300);Autre ou non renseigné;14167;0,871494
+pharmacien;Intermédiaire (100 à 300);Centre de santé;1;6,15157e-05
+pharmacien;Intermédiaire (100 à 300);Hôpital public;1643;0,10107
+pharmacien;Intermédiaire (100 à 300);Médico-social;69;0,00424459
+pharmacien;Intermédiaire (100 à 300);Établissement de santé privé;376;0,0231299
+pharmacien;Peu dense (25 à 100);Autre ou non renseigné;10543;0,905367
+pharmacien;Peu dense (25 à 100);Centre de santé;1;8,58738e-05
+pharmacien;Peu dense (25 à 100);Hôpital public;883;0,0758265
+pharmacien;Peu dense (25 à 100);Médico-social;48;0,00412194
+pharmacien;Peu dense (25 à 100);Établissement de santé privé;170;0,0145985
+pharmacien;Très peu dense (moins de 25 hab./km²);Autre ou non renseigné;1670;0,930362
+pharmacien;Très peu dense (moins de 25 hab./km²);Hôpital public;95;0,0529248
+pharmacien;Très peu dense (moins de 25 hab./km²);Médico-social;9;0,00501393
+pharmacien;Très peu dense (moins de 25 hab./km²);Établissement de santé privé;21;0,0116992
+psychiatre;Dense (plus de 300);Autre ou non renseigné;315;0,0234899
+psychiatre;Dense (plus de 300);Centre de santé;290;0,0216257
+psychiatre;Dense (plus de 300);Hôpital public;5603;0,417823
+psychiatre;Dense (plus de 300);Libéral (cabinet, société, maison de santé);5228;0,389858
+psychiatre;Dense (plus de 300);Médico-social;1036;0,0772558
+psychiatre;Dense (plus de 300);Établissement de santé privé;938;0,0699478
+psychiatre;Intermédiaire (100 à 300);Autre ou non renseigné;103;0,0323594
+psychiatre;Intermédiaire (100 à 300);Centre de santé;25;0,00785423
+psychiatre;Intermédiaire (100 à 300);Hôpital public;1469;0,461514
+psychiatre;Intermédiaire (100 à 300);Libéral (cabinet, société, maison de santé);1001;0,314483
+psychiatre;Intermédiaire (100 à 300);Médico-social;379;0,11907
+psychiatre;Intermédiaire (100 à 300);Établissement de santé privé;206;0,0647188
+psychiatre;Peu dense (25 à 100);Autre ou non renseigné;24;0,0167131
+psychiatre;Peu dense (25 à 100);Centre de santé;4;0,00278552
+psychiatre;Peu dense (25 à 100);Hôpital public;542;0,377437
+psychiatre;Peu dense (25 à 100);Libéral (cabinet, société, maison de santé);401;0,279248
+psychiatre;Peu dense (25 à 100);Médico-social;209;0,145543
+psychiatre;Peu dense (25 à 100);Établissement de santé privé;256;0,178273
+psychiatre;Très peu dense (moins de 25 hab./km²);Autre ou non renseigné;1;0,00598802
+psychiatre;Très peu dense (moins de 25 hab./km²);Centre de santé;3;0,0179641
+psychiatre;Très peu dense (moins de 25 hab./km²);Hôpital public;68;0,407186
+psychiatre;Très peu dense (moins de 25 hab./km²);Libéral (cabinet, société, maison de santé);52;0,311377
+psychiatre;Très peu dense (moins de 25 hab./km²);Médico-social;29;0,173653
+psychiatre;Très peu dense (moins de 25 hab./km²);Établissement de santé privé;14;0,0838323
+psychologue;Dense (plus de 300);Autre ou non renseigné;7198;0,120922
+psychologue;Dense (plus de 300);Centre de santé;222;0,00372946
+psychologue;Dense (plus de 300);Hôpital public;10743;0,180476
+psychologue;Dense (plus de 300);Libéral (cabinet, société, maison de santé);27533;0,462537
+psychologue;Dense (plus de 300);Médico-social;10765;0,180845
+psychologue;Dense (plus de 300);Établissement de santé privé;3065;0,0514901
+psychologue;Intermédiaire (100 à 300);Autre ou non renseigné;1693;0,0808423
+psychologue;Intermédiaire (100 à 300);Centre de santé;41;0,00195779
+psychologue;Intermédiaire (100 à 300);Hôpital public;4420;0,211059
+psychologue;Intermédiaire (100 à 300);Libéral (cabinet, société, maison de santé);8296;0,396142
+psychologue;Intermédiaire (100 à 300);Médico-social;5514;0,263299
+psychologue;Intermédiaire (100 à 300);Établissement de santé privé;978;0,0467004
+psychologue;Peu dense (25 à 100);Autre ou non renseigné;768;0,0600281
+psychologue;Peu dense (25 à 100);Centre de santé;12;0,00093794
+psychologue;Peu dense (25 à 100);Hôpital public;2072;0,161951
+psychologue;Peu dense (25 à 100);Libéral (cabinet, société, maison de santé);5031;0,393231
+psychologue;Peu dense (25 à 100);Médico-social;4193;0,327732
+psychologue;Peu dense (25 à 100);Établissement de santé privé;718;0,0561201
+psychologue;Très peu dense (moins de 25 hab./km²);Autre ou non renseigné;63;0,0390577
+psychologue;Très peu dense (moins de 25 hab./km²);Centre de santé;2;0,00123993
+psychologue;Très peu dense (moins de 25 hab./km²);Hôpital public;253;0,156851
+psychologue;Très peu dense (moins de 25 hab./km²);Libéral (cabinet, société, maison de santé);602;0,373218
+psychologue;Très peu dense (moins de 25 hab./km²);Médico-social;607;0,376317
+psychologue;Très peu dense (moins de 25 hab./km²);Établissement de santé privé;86;0,0533168
+psychomotricien;Dense (plus de 300);Autre ou non renseigné;717;0,0546286
+psychomotricien;Dense (plus de 300);Centre de santé;8;0,000609524
+psychomotricien;Dense (plus de 300);Hôpital public;2179;0,166019
+psychomotricien;Dense (plus de 300);Libéral (cabinet, société, maison de santé);4630;0,352762
+psychomotricien;Dense (plus de 300);Médico-social;4988;0,380038
+psychomotricien;Dense (plus de 300);Établissement de santé privé;603;0,0459429
+psychomotricien;Intermédiaire (100 à 300);Autre ou non renseigné;169;0,0305827
+psychomotricien;Intermédiaire (100 à 300);Centre de santé;4;0,000723851
+psychomotricien;Intermédiaire (100 à 300);Hôpital public;922;0,166848
+psychomotricien;Intermédiaire (100 à 300);Libéral (cabinet, société, maison de santé);1950;0,352877
+psychomotricien;Intermédiaire (100 à 300);Médico-social;2287;0,413862
+psychomotricien;Intermédiaire (100 à 300);Établissement de santé privé;194;0,0351068
+psychomotricien;Peu dense (25 à 100);Autre ou non renseigné;89;0,0270928
+psychomotricien;Peu dense (25 à 100);Centre de santé;1;0,000304414
+psychomotricien;Peu dense (25 à 100);Hôpital public;389;0,118417
+psychomotricien;Peu dense (25 à 100);Libéral (cabinet, société, maison de santé);1263;0,384475
+psychomotricien;Peu dense (25 à 100);Médico-social;1406;0,428006
+psychomotricien;Peu dense (25 à 100);Établissement de santé privé;137;0,0417047
+psychomotricien;Très peu dense (moins de 25 hab./km²);Autre ou non renseigné;9;0,0247934
+psychomotricien;Très peu dense (moins de 25 hab./km²);Centre de santé;1;0,00275482
+psychomotricien;Très peu dense (moins de 25 hab./km²);Hôpital public;54;0,14876
+psychomotricien;Très peu dense (moins de 25 hab./km²);Libéral (cabinet, société, maison de santé);141;0,38843
+psychomotricien;Très peu dense (moins de 25 hab./km²);Médico-social;145;0,399449
+psychomotricien;Très peu dense (moins de 25 hab./km²);Établissement de santé privé;13;0,0358127
+sage_femme;Dense (plus de 300);Autre ou non renseigné;1504;0,0819351
+sage_femme;Dense (plus de 300);Centre de santé;363;0,0197756
+sage_femme;Dense (plus de 300);Hôpital public;8398;0,457507
+sage_femme;Dense (plus de 300);Libéral (cabinet, société, maison de santé);5021;0,273535
+sage_femme;Dense (plus de 300);Médico-social;22;0,00119852
+sage_femme;Dense (plus de 300);Établissement de santé privé;3048;0,166049
+sage_femme;Intermédiaire (100 à 300);Autre ou non renseigné;400;0,0547495
+sage_femme;Intermédiaire (100 à 300);Centre de santé;88;0,0120449
+sage_femme;Intermédiaire (100 à 300);Hôpital public;3991;0,546263
+sage_femme;Intermédiaire (100 à 300);Libéral (cabinet, société, maison de santé);2452;0,335615
+sage_femme;Intermédiaire (100 à 300);Médico-social;7;0,000958117
+sage_femme;Intermédiaire (100 à 300);Établissement de santé privé;368;0,0503696
+sage_femme;Peu dense (25 à 100);Autre ou non renseigné;127;0,0336157
+sage_femme;Peu dense (25 à 100);Centre de santé;42;0,011117
+sage_femme;Peu dense (25 à 100);Hôpital public;1742;0,461091
+sage_femme;Peu dense (25 à 100);Libéral (cabinet, société, maison de santé);1808;0,47856
+sage_femme;Peu dense (25 à 100);Médico-social;3;0,000794071
+sage_femme;Peu dense (25 à 100);Établissement de santé privé;56;0,0148227
+sage_femme;Très peu dense (moins de 25 hab./km²);Autre ou non renseigné;1;0,00226757
+sage_femme;Très peu dense (moins de 25 hab./km²);Centre de santé;7;0,015873
+sage_femme;Très peu dense (moins de 25 hab./km²);Hôpital public;194;0,439909
+sage_femme;Très peu dense (moins de 25 hab./km²);Libéral (cabinet, société, maison de santé);229;0,519274
+sage_femme;Très peu dense (moins de 25 hab./km²);Établissement de santé privé;10;0,0226757
+chirurgien_dentiste;Ensemble;Autre ou non renseigné;899;0,0159771
+chirurgien_dentiste;Ensemble;Centre de santé;9963;0,177063
+chirurgien_dentiste;Ensemble;Hôpital public;2085;0,0370548
+chirurgien_dentiste;Ensemble;Libéral (cabinet, société, maison de santé);43189;0,767559
+chirurgien_dentiste;Ensemble;Médico-social;28;0,000497619
+chirurgien_dentiste;Ensemble;Établissement de santé privé;104;0,0018483
+ens_medecin_specialiste;Ensemble;Autre ou non renseigné;13159;0,0648188
+ens_medecin_specialiste;Ensemble;Centre de santé;4523;0,0222795
+ens_medecin_specialiste;Ensemble;Hôpital public;75656;0,372668
+ens_medecin_specialiste;Ensemble;Libéral (cabinet, société, maison de santé);76426;0,376461
+ens_medecin_specialiste;Ensemble;Médico-social;3526;0,0173684
+ens_medecin_specialiste;Ensemble;Établissement de santé privé;29722;0,146405
+infirmier;Ensemble;Autre ou non renseigné;90940;0,172474
+infirmier;Ensemble;Centre de santé;6802;0,0129005
+infirmier;Ensemble;Hôpital public;199560;0,37848
+infirmier;Ensemble;Libéral (cabinet, société, maison de santé);110133;0,208875
+infirmier;Ensemble;Médico-social;48121;0,091265
+infirmier;Ensemble;Établissement de santé privé;71711;0,136005
+masseur_kinesitherapeute;Ensemble;Autre ou non renseigné;2117;0,0189236
+masseur_kinesitherapeute;Ensemble;Centre de santé;390;0,00348616
+masseur_kinesitherapeute;Ensemble;Hôpital public;6383;0,0570568
+masseur_kinesitherapeute;Ensemble;Libéral (cabinet, société, maison de santé);95251;0,851436
+masseur_kinesitherapeute;Ensemble;Médico-social;2183;0,0195135
+masseur_kinesitherapeute;Ensemble;Établissement de santé privé;5547;0,0495839
+medecin_generaliste;Ensemble;Autre ou non renseigné;7598;0,0720435
+medecin_generaliste;Ensemble;Centre de santé;6000;0,0568915
+medecin_generaliste;Ensemble;Hôpital public;20971;0,198845
+medecin_generaliste;Ensemble;Libéral (cabinet, société, maison de santé);60492;0,57358
+medecin_generaliste;Ensemble;Médico-social;5744;0,0544641
+medecin_generaliste;Ensemble;Établissement de santé privé;4659;0,0441762
+orthophoniste;Ensemble;Autre ou non renseigné;336;0,0102985
+orthophoniste;Ensemble;Centre de santé;120;0,00367805
+orthophoniste;Ensemble;Hôpital public;2097;0,0642739
+orthophoniste;Ensemble;Libéral (cabinet, société, maison de santé);25150;0,770858
+orthophoniste;Ensemble;Médico-social;3987;0,122203
+orthophoniste;Ensemble;Établissement de santé privé;936;0,0286888
+pediatre;Ensemble;Autre ou non renseigné;574;0,052215
+pediatre;Ensemble;Centre de santé;204;0,0185573
+pediatre;Ensemble;Hôpital public;6140;0,558537
+pediatre;Ensemble;Libéral (cabinet, société, maison de santé);3017;0,274447
+pediatre;Ensemble;Médico-social;497;0,0452106
+pediatre;Ensemble;Établissement de santé privé;561;0,0510325
+pedopsychiatre;Ensemble;Autre ou non renseigné;25;0,0306373
+pedopsychiatre;Ensemble;Centre de santé;11;0,0134804
+pedopsychiatre;Ensemble;Hôpital public;428;0,52451
+pedopsychiatre;Ensemble;Libéral (cabinet, société, maison de santé);176;0,215686
+pedopsychiatre;Ensemble;Médico-social;124;0,151961
+pedopsychiatre;Ensemble;Établissement de santé privé;52;0,0637255
+pharmacien;Ensemble;Autre ou non renseigné;57373;0,842222
+pharmacien;Ensemble;Centre de santé;23;0,000337635
+pharmacien;Ensemble;Hôpital public;8620;0,12654
+pharmacien;Ensemble;Libéral (cabinet, société, maison de santé);3;4,40393e-05
+pharmacien;Ensemble;Médico-social;236;0,00346442
+pharmacien;Ensemble;Établissement de santé privé;1866;0,0273924
+psychiatre;Ensemble;Autre ou non renseigné;443;0,024346
+psychiatre;Ensemble;Centre de santé;322;0,0176962
+psychiatre;Ensemble;Hôpital public;7682;0,422181
+psychiatre;Ensemble;Libéral (cabinet, société, maison de santé);6682;0,367224
+psychiatre;Ensemble;Médico-social;1653;0,0908441
+psychiatre;Ensemble;Établissement de santé privé;1414;0,0777094
+psychologue;Ensemble;Autre ou non renseigné;9722;0,102472
+psychologue;Ensemble;Centre de santé;277;0,00291963
+psychologue;Ensemble;Hôpital public;17488;0,184327
+psychologue;Ensemble;Libéral (cabinet, société, maison de santé);41462;0,437017
+psychologue;Ensemble;Médico-social;21079;0,222177
+psychologue;Ensemble;Établissement de santé privé;4847;0,0510883
+psychomotricien;Ensemble;Autre ou non renseigné;984;0,0441275
+psychomotricien;Ensemble;Centre de santé;14;0,000627831
+psychomotricien;Ensemble;Hôpital public;3544;0,158931
+psychomotricien;Ensemble;Libéral (cabinet, société, maison de santé);7984;0,358043
+psychomotricien;Ensemble;Médico-social;8826;0,395803
+psychomotricien;Ensemble;Établissement de santé privé;947;0,0424683
+sage_femme;Ensemble;Autre ou non renseigné;2032;0,0680031
+sage_femme;Ensemble;Centre de santé;500;0,016733
+sage_femme;Ensemble;Hôpital public;14325;0,479402
+sage_femme;Ensemble;Libéral (cabinet, société, maison de santé);9510;0,318262
+sage_femme;Ensemble;Médico-social;32;0,00107091
+sage_femme;Ensemble;Établissement de santé privé;3482;0,116529

@@ -1,0 +1,13 @@
+﻿niveau;medecin_generaliste;psychologue;psychiatre;territoires;population;part_population
+com;False;False;False;23388;9222782;0,134933
+com;False;False;True;44;39083;0,0005718
+com;False;True;False;1965;1753168;0,0256496
+com;False;True;True;67;80365;0,00117577
+com;True;False;False;2731;4271284;0,0624906
+com;True;False;True;67;140316;0,00205288
+com;True;True;False;4825;17038466;0,24928
+com;True;True;True;1782;35805334;0,523847
+epci;True;False;False;17;177550;0,00259763
+epci;True;False;True;1;5169;7,56246e-05
+epci;True;True;False;492;8500320;0,124363
+epci;True;True;True;749;59667759;0,872964

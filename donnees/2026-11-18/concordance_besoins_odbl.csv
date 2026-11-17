@@ -1,0 +1,16 @@
+﻿variable_a;variable_b;rho;departements
+suicides;pec_troubles_psy;0,36134;100
+suicides;pec_humeur;0,306537;100
+suicides;antidepresseurs;0,406307;100
+hospit_gestes_auto_infliges;pec_troubles_psy;0,37701;100
+hospit_gestes_auto_infliges;pec_humeur;0,349503;100
+hospit_gestes_auto_infliges;antidepresseurs;0,400251;100
+urgences_gestes_auto_infliges;pec_troubles_psy;0,116904;100
+urgences_gestes_auto_infliges;pec_humeur;0,143546;100
+urgences_gestes_auto_infliges;antidepresseurs;0,273039;100
+pec_troubles_psy;pec_humeur;0,912031;100
+pec_troubles_psy;antidepresseurs;0,335446;100
+pec_troubles_psy;ase_mesures;0,462919;98
+pec_humeur;antidepresseurs;0,380222;100
+pec_humeur;ase_mesures;0,317775;98
+antidepresseurs;ase_mesures;0,302504;98
