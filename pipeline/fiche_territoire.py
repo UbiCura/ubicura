@@ -1630,7 +1630,10 @@ def construire(env, commun: dict, dernier: Path, site_data: dict, site: Path, re
                           ("recoupée", "recoupé")):
                 conf_cmp = conf_cmp.replace(a, b2)   # accord au masculin : un CMP
             st_tous = next((s for s in f["structures"] if s["id"] == "lieux_lieu_cmp"), None)
+            # bases incomplètes dans le département (limite manque_sae) : « aucun » ne serait pas établi, comme dans
+            # les constats (relecture de l'édition corrective, 17 novembre 2026, Saint-Louis Agglomération)
             f["reperes"]["cmp"] = {"n": st_cmp["n"] if st_cmp else None, "conf": conf_cmp,
+                                   "masque": K._manque(dn, lv, u["c"], dep if lv == "epci" else None, "CMP pour adultes"),
                                    "tous": (st_tous or {}).get("n") or 0,
                                    "dist": d_cmp["txt"] if d_cmp and d_cmp.get("txt") else "",
                                    "dist_nulle": bool(d_cmp and d_cmp.get("txt") and AF.distance_nulle(d_cmp["txt"])),

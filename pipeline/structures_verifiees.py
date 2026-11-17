@@ -236,6 +236,12 @@ def appliquer(lieux: pd.DataFrame, ref, centres: dict | None = None,
         for t in parents:
             b = pd.concat([base[base["type"] == t], orph[orph["type"] == t]])
             v = ver[ver["type"] == t]
+            # numéros FINESS que les lignes de la vérification revendiquent : une ligne sans numéro ne prend pas une
+            # inscription qu'une autre ligne réclame par son numéro (CMP pour adultes de Valence prenant, par le nom
+            # de la commune, celle du CMP pour enfants, vérification de Montauban du 16 novembre 2026)
+            # (un numéro d'hôpital porte des unités de plusieurs communes : seul le couple numéro et commune est réservé)
+            reclames = {(n.strip(), c) for x, c in zip(v["finess"].fillna(""), v["commune"])
+                        for n in str(x).split(",") if n.strip()}
             pris = set()
             for _, r in v.iterrows():
                 # inscriptions des bases rapprochées, même commune, puis mots du nom ou rue en commun
@@ -257,6 +263,8 @@ def appliquer(lieux: pd.DataFrame, ref, centres: dict | None = None,
                 else:
                     lies = None
                     cand = b[(b["commune"] == r["commune"]) & ~b.index.isin(pris)]
+                    if reclames and "finess" in cand:
+                        cand = cand[[(str(f), c) not in reclames for f, c in zip(cand["finess"], cand["commune"])]]
                 mv, rv = _mots(r["nom"]), _rue(r["adresse"])
                 score = {i: len(mv & _mots(str(c.get("nom") or c.get("nom_finess") or "")))
                          + 2 * (bool(rv) and _rue(c.get("adresse")) == rv) for i, c in cand.iterrows()}

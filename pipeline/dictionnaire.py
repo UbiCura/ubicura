@@ -105,7 +105,10 @@ FICHIERS = [
     (r"^categories_etablissements\.csv$", lambda m: "Effectifs salariés par catégorie d'établissement FINESS, "
                                                     "France et départements."),
     (r"^structures_principales\.csv$", lambda m: "Principales structures d'exercice salarié par profession, "
-                                                 "France et départements (raisons sociales d'établissements)."),
+                                                 "France et départements (raisons sociales d'établissements ; une "
+                                                 "société d'exercice, un cabinet, une officine au nom d'une personne "
+                                                 "ou une structure qui porte le nom d'un professionnel du "
+                                                 "département n'est pas nommé)."),
     (r"^controle_appariement_finess\.csv$", lambda m: "Contrôle de l'appariement entre le RPPS et FINESS."),
     (r"^contexte_(com|epci|dep|reg)\.csv$", lambda m: f"Indicateurs de contexte INSEE par {NIVEAUX[m.group(1)]}."),
     (r"^inegalites\.csv$", lambda m: "Indicateurs d'inégalité de répartition par profession, niveau et mode."),

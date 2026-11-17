@@ -342,8 +342,17 @@ def eloignement(L, tid):
                 f'height="{f.Y(0) - f.Y(r["distance_mediane_km"]):.1f}" fill="{c}" rx="2">'
                 f'<title>{"1er" if int(r["decile"]) == 1 else str(int(r["decile"])) + "e"} dixième de la population, distance médiane '
                 f'{nombre(r["distance_mediane_km"], 1)} km, France {nombre(fr, 1)} km</title></rect>')
-        f.texte(x + largeur / 2, f.Y(r["distance_mediane_km"]) - 5, nombre(r["distance_mediane_km"], 1), "middle",
-                ENCRE, "petit")
+        # une valeur n'est jamais barrée par le repère de la France (règle 17, relecture du 17 novembre 2026) : dans
+        # la barre si elle est assez haute, au-dessus du repère sinon, comme l'escalier des densités
+        v_, fs = r["distance_mediane_km"], f.fs("petit")
+        y_val, y_rep = f.Y(v_) - 5, f.Y(fr)
+        if y_val - fs - 2 <= y_rep <= y_val + 3:
+            if f.Y(0) - f.Y(v_) > 2 * fs + 6:
+                f.texte(x + largeur / 2, f.Y(v_) + fs + 3, nombre(v_, 1), "middle",
+                        ENCRE if c == OCRE_PALE else "#FFFFFF", "petit")
+                continue
+            y_val = y_rep - 4
+        f.texte(x + largeur / 2, y_val, nombre(v_, 1), "middle", ENCRE, "petit")
     f.ligne(f.g, f.Y(fr), f.w - f.d, f.Y(fr), REPERE, 1.5, "5 3")
     f.texte(f.w - f.d + 6, f.Y(fr) - 3, "France", "start", REPERE)
     f.texte(f.w - f.d + 6, f.Y(fr) + f.fs("petit") + 1, f"{nombre(fr, 1)} km", "start", REPERE)

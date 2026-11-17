@@ -32,7 +32,8 @@ from .util import JOURNAL, entier_fr, log, norm
 PROVENANCES = {"les_deux": "FINESS et ROR", "finess": "FINESS seul", "ror": "ROR seul",
                "ror_type": "ROR, type que FINESS ne distingue pas",
                "sources": "Absente des deux bases, d'après les sources de l'établissement",
-               "nom_cmp": "Annoncé par le nom d'un CMP (CMP-CATTP), au même lieu"}
+               "nom_cmp": "Annoncé par le nom d'un CMP (CMP-CATTP), au même lieu",
+               "autorisation": "Activité autorisée et exercée selon FINESS, sans unité de ce type dans le ROR"}
 PRECISIONS = {"finess": "coordonnées FINESS", "ror": "coordonnées du ROR", "adresse": "adresse géocodée au numéro",
               "rue": "adresse géocodée à la rue", "lieu_dit": "adresse géocodée au lieu-dit",
               "commune": "centre de la commune",
@@ -289,13 +290,33 @@ def _hopitaux(fin: pd.DataFrame) -> pd.Series:
         ~fin["rs"].map(_simple).str.contains(r"\bcmp|\bc m p\b|\bcattp|\bcattg|medico psycho", regex=True)
 
 
-def _plus_longue(mots: list, dico: dict, d: str, doubles: set) -> str | None:
-    """Code de la commune nommée par la plus longue suite de mots (cinq au plus), ou rien."""
+# mot qui, placé juste avant un nom de commune dans le nom d'une unité, montre que ce nom n'y désigne pas une commune :
+# un article (« ESAT la Fontaine », « Domaine du Château », « hors les murs »), un lieu-dit, un bâtiment ou une voie (« Palais Belvédère », « Cap Sizun », « Jardin fleuri »). Mesure nationale du
+# 16 novembre 2026 (chantier des structures, constat C1, docs/structures/mesure_2026-11-16/)
+# Pas de règle pour « saint » : la mise en forme des noms développe « ST » en « saint » (« PAV - ST Carpentras »,
+# soins de transition, serait perdu), et la commune n'est cherchée que dans le département de l'unité (banc d'essai
+# du 16 novembre 2026, outils/essai_lieux.py).
+AVANT_NON_COMMUNE = {"le", "la", "les", "l", "cap", "pays", "palais", "domaine", "villa",
+                     "residence", "parc", "jardin", "jardins", "hors", "rue", "avenue", "boulevard", "allee", "chemin",
+                     "place", "quai", "impasse", "square", "jules"}
+# « du », « des », « au », « aux » contiennent l'article : ils précèdent normalement une commune qui le porte (« site
+# du Mée-sur-Seine », « CMP du Havre »), jamais une autre (« Domaine du Château »)
+CONTRACTES = {"du", "des", "au", "aux"}
+
+
+def _plus_longue(mots: list, dico: dict, d: str, doubles: set, sans_article: set | None = None) -> str | None:
+    """Code de la commune nommée par la plus longue suite de mots (cinq au plus), ou rien. Une suite précédée d'un
+    article, d'un lieu-dit ou d'une voie (AVANT_NON_COMMUNE) n'est pas lue comme commune ; précédée de
+    « du », « des », « au » ou « aux », seulement si c'est le nom d'une commune qui porte l'article (sans_article)."""
     for k in range(min(5, len(mots)), 0, -1):
         for j in range(len(mots) - k + 1):
             g = " ".join(mots[j:j + k])
-            if g in dico and (d, g) not in doubles:
-                return dico[g]
+            if g not in dico or (d, g) in doubles:
+                continue
+            avant = mots[j - 1] if j > 0 else ""
+            if avant in AVANT_NON_COMMUNE or (avant in CONTRACTES and (d, g) not in (sans_article or set())):
+                continue
+            return dico[g]
     return None
 
 
@@ -354,7 +375,7 @@ def communes_du_nom(noms: pd.Series, deps: pd.Series, ref, exclure: pd.Series | 
     alors que citer le gestionnaire. Renvoie le code de la commune, ou rien."""
     c = ref.communes.assign(s=ref.communes["nom"].map(_simple))
     n = c.groupby(["dep", "s"])["code"].transform("size")
-    index = {}
+    index, sans_article = {}, set()
     for d, s, code in zip(c["dep"], c["s"], c["code"]):
         if s and s not in config.MOTS_NON_COMMUNES and len(s) >= 3:
             index.setdefault(d, {})[s] = code
@@ -363,6 +384,7 @@ def communes_du_nom(noms: pd.Series, deps: pd.Series, ref, exclure: pd.Series | 
             sans = re.sub(r"^(?:l|le|la|les) ", "", s)
             if sans != s and len(sans.split()) >= 2:
                 index[d].setdefault(sans, code)
+                sans_article.add((d, sans))
     doubles = set(zip(c.loc[n > 1, "dep"], c.loc[n > 1, "s"]))
     out = {}
     for i, n_, d in zip(noms.index, noms, deps):
@@ -375,9 +397,9 @@ def communes_du_nom(noms: pd.Series, deps: pd.Series, ref, exclure: pd.Series | 
         # sinon le nom entier est lu (« Biologie délocalisée CH Pont-à-Mousson » désigne bien Pont-à-Mousson)
         complet = _simple(n_)
         avant = re.sub(config.NOM_ETABLISSEMENT_GESTIONNAIRE, "", complet)
-        trouve = _plus_longue(avant.split(), dico, d, doubles) if avant != complet else None
+        trouve = _plus_longue(avant.split(), dico, d, doubles, sans_article) if avant != complet else None
         if trouve is None:
-            trouve = _plus_longue(complet.split(), dico, d, doubles)
+            trouve = _plus_longue(complet.split(), dico, d, doubles, sans_article)
             # la commune trouvée seulement dans le nom de l'hôpital, si elle est exclue, n'est pas remplacée par une
             # plus courte (« Mousson » dans « Pont-à-Mousson »)
             if avant != complet and trouve in interdites:
@@ -456,7 +478,13 @@ def _unites_retenues(ror: dict, ref, fin: pd.DataFrame | None = None) -> pd.Data
     u["origine_commune"] = np.where(u["commune"].notna(), "unite", None)
     com_struct = actuelle(u["structure"].map(s["commune"]))
     dep_struct = com_struct.map(ref.communes.set_index("code")["dep"])
-    sans = u["commune"].isna() & dep_struct.notna()
+    # un bloc ou une salle d'un service (« Bloc obstétrical - Salles de césarienne ») n'est jamais déplacé par son nom :
+    # dix blocs de maternité de Gironde, du Lot-et-Garonne et du Tarn étaient placés à Salles (constat C1 du 16 novembre
+    # 2026)
+    # reconnue par son nom seulement : un hôpital à plusieurs sites nomme ses urgences par la ville du site (« S.A.U
+    # NOYON », « Urgences - CH Ste-Foy-la-Grande »), une catégorie ne suffit pas (banc d'essai du 16 novembre 2026)
+    interne = u["nom"].fillna("").map(norm).str.contains(config.NOM_UNITE_INTERNE, regex=True)
+    sans = u["commune"].isna() & dep_struct.notna() & ~interne
     deduites = communes_du_nom(u.loc[sans, "nom"], dep_struct[sans], ref)
     u.loc[deduites.index, "commune"] = deduites
     u.loc[deduites.index, "origine_commune"] = "nom"
@@ -464,7 +492,7 @@ def _unites_retenues(ror: dict, ref, fin: pd.DataFrame | None = None) -> pd.Data
     # (« CMP Munster » déclaré à l'hôpital de Rouffach), est placée dans la commune de son nom
     # Un nom qui ne cite que son hôpital gestionnaire ne déplace pas l'unité (« CMP 59G30 CONDE/ESCAU CH VALENCIENNES »
     # reste à Condé-sur-l'Escaut, constat du 15 octobre 2026), d'où les communes des hôpitaux du gestionnaire exclues
-    copie = (u["origine_commune"] == "unite") & (u["commune"] == com_struct) & dep_struct.notna()
+    copie = (u["origine_commune"] == "unite") & (u["commune"] == com_struct) & dep_struct.notna() & ~interne
     exclure = None
     if fin is not None:
         est_hop = _hopitaux(fin)
@@ -1063,6 +1091,37 @@ def localiser(lieux: pd.DataFrame, fin: pd.DataFrame, centres: dict | None, hors
     # adresse, celle du ROR, sinon celle de FINESS
     x["adresse"] = x.get("voie").fillna(num.map(f["adresse"])) if "voie" in x else num.map(f["adresse"])
     gestionnaire = adresse_du_gestionnaire(x, f)
+    # une unité d'un service qui ne se tient qu'à l'hôpital, sans adresse propre, dont le ROR donne une commune voisine
+    # de son site FINESS, est dans ce site : les unités du CHU de Poitiers site de Châtellerault (inscrites à Antran), du
+    # CH de Sens (Maillot), du CH de la Haute-Gironde (Saint-Seurin-de-Cursac) étaient placées au chef-lieu de la commune
+    # voisine alors que FINESS et la SAE les situent à l'hôpital (constat C3 du 16 novembre 2026). Jamais pour un CMP ou
+    # une structure extrahospitalière, dont la commune du ROR est souvent juste quand l'adresse manque.
+    # sans adresse propre, ou avec la rue même de son site (« rue du Docteur-Luc-Montagnier » inscrite à Antran)
+    sans_voie = x["voie"].isna() if "voie" in x else pd.Series(True, index=x.index)
+    rue = lambda a: re.sub(r"^(?:\d+\s*(?:bis|ter|b|t)?\s+)", "", _cle_adresse(a) or "") or None  # noqa: E731
+    meme_rue = x["adresse"].map(rue) == num.map(f["adresse"]).map(rue)
+    com_site = commune_de(num.map(f["com"]))
+    au_site = (x["type"].isin(config.TYPES_INTERNES_HOPITAL) & (sans_voie | meme_rue) & (origine == "unite") & num.notna()
+               & com_site.notna() & (com_site != x["commune"]) & x["lat"].isna())
+    # FINESS inscrit parfois la commune postale (l'hôpital de Honfleur est à Équemauville, celui de Cognac à
+    # Châteaubernard) : seulement quand le point géocodé du site tombe dans la commune de FINESS et hors de celle du ROR
+    lat_s, lon_s = num.map(f["lat"]).astype(float), num.map(f["lon"]).astype(float)
+    au_site &= lat_s.notna()
+    if au_site.any() and formes:
+        au_site &= ~hors_commune(lat_s, lon_s, com_site, formes) & hors_commune(lat_s, lon_s, x["commune"], formes)
+    elif not formes:
+        au_site &= False
+    if au_site.any():
+        if "commune_inscription" not in x:
+            x["commune_inscription"] = None
+        x.loc[au_site, "commune_inscription"] = x.loc[au_site, "commune"]
+        x.loc[au_site, "commune"] = com_site[au_site]
+        x.loc[au_site, "lat"] = num[au_site].map(f["lat"]).astype(float)
+        x.loc[au_site, "lon"] = num[au_site].map(f["lon"]).astype(float)
+        x.loc[au_site & x["lat"].notna(), "precision"] = "finess"
+        gestionnaire = gestionnaire & ~au_site
+    JOURNAL.controle("Unités d'un service hospitalier sans adresse, inscrites au ROR dans une commune voisine de leur site, "
+                     "replacées à leur site FINESS", entier_fr(int(au_site.sum())))
     m = x["lat"].isna() & x["adresse"].notna() & ~gestionnaire
     if m.any():
         cache = _geocoder(x.loc[m, ["adresse", "commune"]].rename(columns={"adresse": "voie"}), hors_ligne)
@@ -1402,20 +1461,33 @@ def roles_antennes(lieux: pd.DataFrame, fin: pd.DataFrame | None) -> tuple[pd.Da
     return x, rendu
 
 
-def cattp_des_cmp(lieux: pd.DataFrame) -> tuple[pd.DataFrame, int]:
+def cattp_des_cmp(lieux: pd.DataFrame, verifies: set | None = None) -> tuple[pd.DataFrame, int]:
     """CATTP tenus dans un CMP (décision du 16 octobre 2026, un CATTP est le lieu où l'hôpital déclare cette
     activité). Quand le nom d'un CMP, une unité du ROR qu'il réunit ou l'enseigne Sirene de son établissement annonce un
     CATTP (« CMP-CATTP enfants ») et que son gestionnaire n'a aucun CATTP dans la même commune, un CATTP est compté au
     même lieu. Son niveau de confirmation suit la source qui l'annonce (Sirene, liste vérifiée de l'établissement, ou
     les bases seulement). Un gestionnaire qui a déjà un CATTP dans la commune n'en reçoit pas, le CATTP annoncé est
-    alors sans doute celui-là, décrit à une autre adresse (constat sur Ville-Évrard et la Savoie, 16 octobre 2026)."""
+    alors sans doute celui-là, décrit à une autre adresse (constat sur Ville-Évrard et la Savoie, 16 octobre 2026).
+    Le nom de l'établissement de FINESS qui porte le CMP compte aussi (« CMP-CATTP ADULTES MOREZ », « HJ CMP CATTP
+    ENFANTS ARBOIS » : aucun CATTP n'était compté dans le Jura, chantier des structures du 16 novembre 2026), une fois
+    par établissement et par commune quand plusieurs CMP le partagent, et seulement pour un CMP placé là où est
+    l'établissement (pas un CMP dont la commune est lue dans son nom). Un établissement dont les CATTP sont vérifiés
+    (`verifies`, couples entité juridique et département, vide pour tous ses départements) n'en reçoit aucun ainsi :
+    sa liste vérifiée fait foi."""
     motif = config.SIRENE_ENSEIGNES["lieu_cattp"] + r"|\bCATTG\b"
     x = lieux
     c = x[x["type"] == "lieu_cmp"]
+    if verifies:
+        dep_c = c["dep"] if "dep" in c else pd.Series("", index=c.index)
+        c = c[[not ((e, d) in verifies or (e, "") in verifies) for e, d in zip(c["ej"], dep_c)]]
     if c.empty:
         return x, 0
     col = lambda n: c[n].fillna("").astype(str) if n in c else pd.Series("", index=c.index)  # noqa: E731
-    par_nom = (col("nom_affiche") + " " + col("nom") + " " + col("noms_unites")).str.contains(motif, case=False, regex=True)
+    # le nom de l'établissement ne vaut que pour une unité placée dans sa commune, pas pour une unité dont la commune
+    # est lue dans son propre nom (« CMP CATTP DE BRIVE » pour les CMP d'Egletons et de Tulle, banc d'essai du
+    # 16 novembre 2026)
+    hors_struct = col("origine_commune") == "nom"
+    par_nom = (col("nom_affiche") + " " + col("nom") + " " + col("noms_unites")).str.contains(motif, case=False, regex=True)         | ((col("structure_nom") + " " + col("nom_finess")).str.contains(motif, case=False, regex=True) & ~hors_struct)
     par_sirene = col("enseigne_sirene").str.contains(motif, case=False, regex=True)
     ca = x[x["type"] == "lieu_cattp"]
     deja = set(zip(ca["ej"].fillna(""), ca["commune"]))
@@ -1423,6 +1495,10 @@ def cattp_des_cmp(lieux: pd.DataFrame) -> tuple[pd.DataFrame, int]:
     libre = [(e or "", k) not in deja and not (not e and k in sans_ej)
              for e, k in zip(c["ej"].where(c["ej"].notna(), None), c["commune"])]
     m = (par_nom | par_sirene) & pd.Series(libre, index=c.index)
+    # un établissement de FINESS qui porte plusieurs CMP d'une commune (« HJ CMP CATTP ENFANTS ADOS LONS ») annonce un
+    # seul CATTP : un par gestionnaire, commune et nom d'établissement
+    struct = (col("structure_nom") + " " + col("nom_finess")).str.strip()
+    m &= ~pd.Series(list(zip(c["ej"].fillna(""), c["commune"], struct)), index=c.index).where(struct != "").duplicated()         | (struct == "")
     if not m.any():
         return x, 0
     n = c[m].copy()
@@ -1837,6 +1913,30 @@ def _dep_finess(n: str) -> str:
     return "97" + n[3] if n.startswith("970") else n[:2]
 
 
+def annee_source(source: str, adresse: str) -> int | None:
+    """Année la plus récente que cite le nom d'une source (« guide Psycom, édition 2018 »), sinon son adresse web
+    (« /2025-11/ »), None pour une page actuelle non datée. L'année du nom prime : l'adresse d'un guide de 2018 peut
+    porter l'année de son dépôt en ligne."""
+    for t in (source, adresse):
+        ys = [int(y) for y in re.findall(r"(?<!\d)(20[0-4]\d)(?!\d)", str(t or ""))]
+        if ys:
+            return max(ys)
+    return None
+
+
+def etablissements_sources_recentes(lignes: pd.DataFrame, aujourd: int | None = None) -> set:
+    """Entités juridiques dont toutes les lignes vérifiées s'appuient sur une source de moins de
+    config.VERIFICATION_SOURCE_ANS ans (décision 1 du 16 novembre 2026) : l'inventaire de l'ARS PACA de 2017 ne prouve
+    pas qu'un CMP reçoit encore en 2026 (Châteaurenard, fermé en 2024, y figurait)."""
+    import datetime as dt
+    aujourd = aujourd or dt.date.today().year
+    if lignes is None or lignes.empty:
+        return set()
+    an = [annee_source(s, a) for s, a in zip(lignes["source"], lignes["adresse_source"])]
+    vieux = pd.Series([a is not None and a < aujourd - config.VERIFICATION_SOURCE_ANS for a in an], index=lignes.index)
+    return set(lignes["ej"]) - set(lignes.loc[vieux, "ej"])
+
+
 def manques_sae(L: dict, sae: dict | None, ref) -> pd.DataFrame | None:
     """Pour chaque type que la SAE permet de recouper, chaque département et chaque région, structures inscrites dans
     FINESS et le ROR face aux structures déclarées à la SAE, et « manque » quand les bases en inscrivent moins de
@@ -1871,6 +1971,44 @@ def manques_sae(L: dict, sae: dict | None, ref) -> pd.DataFrame | None:
     if not lignes:
         return None
     out = pd.concat(lignes, ignore_index=True)
+    # décision 1 du chantier des structures (docs/structures/decisions_2026-11-16.md), acceptée le 16 novembre 2026 : un
+    # territoire dont 90 % au moins des CMP déclarés à la SAE relèvent d'établissements vérifiés sur leurs propres sources
+    # récentes n'est pas masqué, la SAE comptant des unités de secteur et non des lieux (constat C11)
+    if config.MASQUAGE_PAR_VERIFICATION:
+        from . import structures_verifiees as sv
+        e_, s_ = sv.charger()
+        recents = etablissements_sources_recentes(s_)
+        e_ = e_[e_["ej"].isin(recents)]
+        publics = {}
+        for ej_, types_ in zip(e_["ej"], e_["types"]):
+            for t_ in str(types_).split(","):
+                t_, _, p_ = t_.strip().partition(":")
+                if t_ == "lieu_cmp":
+                    publics.setdefault(ej_, set()).update({p_} if p_ else {"adultes", "enfants"})
+        # la part se mesure sur les CMP que chaque établissement déclare à la SAE, pas sur les CMP inscrits : un
+        # établissement sans aucun CMP inscrit compte aussi (Haut-Rhin, 16 novembre 2026 : le CH de Rouffach, vérifié,
+        # portait 12 des 13 CMP pour adultes inscrits, mais le GHR Mulhouse Sud-Alsace et les Hôpitaux civils de Colmar
+        # en déclarent 15 à la SAE sur 34, aucun inscrit, et Saint-Louis aurait été montrée sans CMP)
+        etab = sae.get("etablissements")
+        if isinstance(etab, pd.DataFrame) and len(etab):
+            # département lu dans le numéro FINESS, sauf outre-mer où il n'en donne que deux chiffres (« 98 » pour
+            # Mayotte, 976) : alors celui du siège déclaré à la SAE (relecture du 17 novembre 2026)
+            dep_f = pd.Series([_dep_finess(f) for f in etab.index], index=etab.index)
+            dep_s = (etab["dep_siege"].astype("string").str.strip() if "dep_siege" in etab
+                     else pd.Series(pd.NA, index=etab.index, dtype="string"))
+            om = dep_f.astype(str).str.match(r"^9[78]") & dep_s.fillna("").str.match(r"^9[78]\d$")
+            et = etab.assign(dep=dep_f.where(~om, dep_s))
+            for tid, col in (("lieu_cmp_adultes", "sae_adultes"), ("lieu_cmp_enfants", "sae_enfants")):
+                pub = tid.rsplit("_", 1)[1]
+                ver = [pub in publics.get(str(j), set()) or pub in publics.get(str(f), set())
+                       for f, j in zip(et.index, et["ej_sae"])]
+                d_ = et.assign(dec=et[col].fillna(0), dec_ver=et[col].fillna(0).where(ver, 0))
+                for niv, cle in (("dep", d_["dep"]), ("reg", d_["dep"].map(dep_reg))):
+                    g = d_.groupby(cle)[["dec", "dec_ver"]].sum()
+                    part = (g["dec_ver"] / g["dec"]).where(g["dec"] > 0)
+                    sel = ((out["type"] == tid) & (out["niveau"] == niv)
+                           & out["code"].map(part).ge(config.PART_VERIFIEE_MIN))
+                    out.loc[sel, "manque"] = False
     # intercommunalités, d'après le département qui porte l'essentiel de leur population
     dep_m = out[(out["niveau"] == "dep") & out["manque"]]
     e = ref.epci[["code", "dep"]]
@@ -2508,6 +2646,163 @@ def indicateurs(L: dict, ref, ctx: dict | None = None) -> dict | None:
     return {"contexte": sortie, "defs": defs}
 
 
+# distance en deçà de laquelle un site autorisé est tenu pour une structure du même type déjà dans la liste sous un
+# autre numéro (le Groupe hospitalier mutualiste de Grenoble, devenu Cité hospitalière des Alpes à la même adresse ; le
+# centre de dialyse du Lensois dans le CH de Lens ; le second site de l'Hôpital américain ; l'antenne de Sainte-Foy-la-
+# Grande du CH de Libourne), banc d'essai du 16 novembre 2026
+AUTORISATION_MEME_LIEU_KM = 0.5
+
+
+def completer_par_autorisations(lieux: pd.DataFrame, hors_ligne: bool, fin: pd.DataFrame | None = None,
+                                urgences_specialisees: set | None = None, ref=None) -> tuple[pd.DataFrame, dict]:
+    """Quatrième source des types hospitaliers (chantier des structures, constat C10 du 16 novembre 2026) : un
+    établissement géographique qui exerce une activité autorisée (urgences, maternité, dialyse, HAD, réadaptation, flux
+    « FINESS - Activités » de l'ANS) et que la liste n'a pas sous ce type la reçoit, comme une structure de FINESS, à
+    son adresse FINESS (urgences de Dunkerque, maternité de Sarreguemines, cliniques de réadaptation absentes du ROR).
+    Il faut qu'il soit ouvert dans FINESS et dans une commune du référentiel (pas Saint-Martin, Saint-Barthélemy ni
+    Saint-Pierre-et-Miquelon). Une fois les structures placées, `ecarter_autorisations_meme_lieu` retire celles qui
+    tombent à moins de AUTORISATION_MEME_LIEU_KM d'une structure du même type : c'est alors la même, sous un autre
+    numéro. La ligne est construite depuis FINESS, jamais recopiée d'une unité du ROR d'un autre type (une ligne recopiée
+    gardait les unités, catégories et rapprochements de cette unité : « PASS » en dialyse à Pau, banc d'essai du
+    16 novembre 2026). Une structure de la liste dont le numéro n'exerce pas l'activité est comptée, sans être retirée
+    (un numéro de site peut différer de celui de l'autorisation)."""
+    from .sources import finess_activites
+    a = finess_activites.charger(hors_ligne)
+    rendu = {"ajoutees": 0, "absentes_de_la_liste": 0, "sans_autorisation": 0, "par_type": {}}
+    if not a or fin is None:
+        return lieux, rendu
+    f = fin[fin["actif"]].drop_duplicates("nofinesset").set_index("nofinesset")
+    com = f["com"]
+    if ref is not None:
+        actuels = set(ref.communes["code"])
+        com = com.where(com.isin(actuels), com.map(ref.anciens)).where(lambda c: c.isin(actuels))
+    f = f.assign(com=commune_de(com))
+    ajouts = []
+    for t, sites in a["sites"].items():
+        du_type = lieux["type"] == t
+        deja = set(lieux.loc[du_type, "finess"].dropna())
+        if "finess_rapproche" in lieux:
+            deja |= set(lieux.loc[du_type, "finess_rapproche"].dropna())
+        c = f.loc[sorted((sites - deja) & set(f.index[f["com"].notna()]))]
+        if t == "lieu_urgences":
+            # comme pour les unités du ROR (config.LIEUX_TYPES, « hors »), pas les urgences d'une maternité ni d'une
+            # spécialité, que l'autorisation de médecine d'urgence ne distingue pas
+            c = c[~c.index.isin(urgences_specialisees or set())]
+            c = c[~c["rs"].fillna("").map(norm).str.contains(r"matern|obstetri|gyneco|ophtalm|\borl\b|tete et cou",
+                                                             regex=True)]
+        et_ = c.index.to_series()
+        n = pd.DataFrame({"type": t, "lieu": "F" + et_ + "|" + c["com"], "finess": et_, "ej": c["nofinessej"],
+                          "commune": c["com"], "nom_finess": c["rs"], "nom_affiche": c["rs"],
+                          "categorie_finess": c["categetab"], "provenance": "autorisation", "dans_ror": "False"})
+        ajouts.append(n.reset_index(drop=True))
+        rendu["par_type"][t] = [len(n), len(sites - deja) - len(n), len(deja - sites - {""})]
+        rendu.setdefault("sites", {})[t] = sites
+        rendu["sans_autorisation"] += len(deja - sites - {""})
+    if ajouts:
+        lieux = pd.concat([lieux] + ajouts, ignore_index=True)
+    return lieux, rendu
+
+
+def un_lieu_par_adresse_cmp(lieux: pd.DataFrame) -> tuple[pd.DataFrame, list]:
+    """Décision 1 du chantier des structures (acceptée le 16 novembre 2026) : un lieu de CMP, c'est une adresse et un public.
+    Deux CMP pour adultes (ou deux CMP pour enfants) à la même adresse numérotée de la même commune, souvent deux
+    secteurs dans un même immeuble (Carcassonne, Le Mans, Étampes), ne comptent qu'une fois ; un CMP pour adultes et un
+    CMP pour enfants à la même adresse restent deux lieux. Le CMP « tous publics » d'un lieu réuni n'est retiré que s'il
+    n'accueille plus aucun public. Renvoie les structures et la liste des lignes retirées, avec leur raison."""
+    x = lieux
+    adr = (x["adresse"].fillna("").map(lambda s: _simple(voie_developpee(s))) if "adresse" in x
+           else pd.Series("", index=x.index))
+    num = adr.str.extract(r"^(\d+\s*(?:bis|ter|b|t)?)\s")[0]
+    rue = adr.str.replace(r"^\d+\s*(?:bis|ter|b|t)?\s+", "", regex=True)
+    retirer, retirees = set(), []
+    lieux_retires = {}
+    for tid in ("lieu_cmp_adultes", "lieu_cmp_enfants"):
+        m = (x["type"] == tid) & num.notna() & (rue != "")
+        g = x[m].assign(_cle=x.loc[m, "commune"] + "|" + num[m].str.replace(" ", "") + "|" + rue[m])
+        for _, grp in g.groupby("_cle"):
+            if grp["lieu"].nunique() < 2:
+                continue
+            garde = grp["lieu"].iloc[0]
+            for i, r in grp[grp["lieu"] != garde].iterrows():
+                retirer.add(i)
+                lieux_retires.setdefault(r["lieu"], set()).add(tid)
+                retirees.append({"ej": r.get("ej"), "etablissement": None, "type": tid,
+                                 "nom": r.get("nom_affiche") if isinstance(r.get("nom_affiche"), str) else r.get("nom"),
+                                 "commune": r.get("commune"), "nom_commune": None,
+                                 "finess": r.get("finess") if isinstance(r.get("finess"), str) else None,
+                                 "provenance": r.get("provenance"),
+                                 "raison": "même adresse et même public qu'un autre CMP, un seul lieu"})
+    # le CMP « tous publics » d'un lieu dont tous les publics ont été réunis à un autre lieu
+    enfants = x[x["type"].isin(["lieu_cmp_adultes", "lieu_cmp_enfants"]) & ~x.index.isin(retirer)]
+    restants = set(enfants["lieu"])
+    for lieu in lieux_retires:
+        if lieu not in restants:
+            retirer |= set(x.index[(x["type"] == "lieu_cmp") & (x["lieu"] == lieu)])
+    x = x.drop(index=sorted(retirer))
+    JOURNAL.controle("CMP réunis : même adresse numérotée et même public, un seul lieu (décision du 16 novembre 2026)",
+                     ", ".join(f"{t.removeprefix('lieu_')} {sum(r['type'] == t for r in retirees)}"
+                               for t in ("lieu_cmp_adultes", "lieu_cmp_enfants")))
+    return x, retirees
+
+
+def ecarter_autorisations_meme_lieu(lieux: pd.DataFrame, rendu: dict, fin: pd.DataFrame | None = None) -> pd.DataFrame:
+    """Après le placement : une structure ajoutée par son autorisation (`completer_par_autorisations`) à moins de
+    AUTORISATION_MEME_LIEU_KM d'une structure du même type déjà dans la liste dont le numéro n'exerce pas lui-même
+    l'activité est la même sous un autre numéro : elle est retirée. Une structure voisine dont le numéro l'exerce aussi
+    est un autre site (au CHRU de Brabois, à Nancy, le centre de dialyse de l'hôpital et les unités d'autodialyse de
+    l'ALTIR, trois sites de la SAE), à condition d'être dans la commune de ce numéro : l'unité d'urgences de
+    Sainte-Foy-la-Grande porte dans le ROR le numéro du site principal du CH de Libourne. Plusieurs sites ajoutés au même point (moins de 50 m : quatre cliniques regroupées
+    à Montaudran, Toulouse) ne font qu'une structure. Écrit les contrôles du journal."""
+    if not rendu.get("par_type"):
+        return lieux
+    retire = pd.Series(False, index=lieux.index)
+    exemples = []
+    for t in rendu["par_type"]:
+        m = lieux["type"] == t
+        aut = m & (lieux["provenance"] == "autorisation")
+        if not aut.any():
+            continue
+        sites = rendu.get("sites", {}).get(t, set())
+        num_r = lieux["finess_rapproche"] if "finess_rapproche" in lieux else pd.Series(None, index=lieux.index)
+        com_f = fin.drop_duplicates("nofinesset").set_index("nofinesset")["com"] if fin is not None else pd.Series(dtype=object)
+        chez = lambda n: n.isin(sites) & (commune_de(n.map(com_f)) == lieux["commune"])  # noqa: E731
+        exerce = chez(lieux["finess"]) | chez(num_r)
+        base = lieux[m & ~aut & ~exerce & lieux["lat"].notna()]
+        la, lo = list(base["lat"].astype(float)), list(base["lon"].astype(float))
+        nla, nlo = [], []
+        for i, r in lieux[aut].iterrows():
+            if pd.isna(r["lat"]):
+                continue
+            cos = np.cos(np.radians(r["lat"]))
+            pres = la and np.hypot((np.array(la) - r["lat"]) * 111.2,
+                                   (np.array(lo) - r["lon"]) * 111.2 * cos).min() < AUTORISATION_MEME_LIEU_KM
+            meme_point = nla and np.hypot((np.array(nla) - r["lat"]) * 111.2,
+                                          (np.array(nlo) - r["lon"]) * 111.2 * cos).min() < 0.05
+            if pres or meme_point:
+                retire[i] = True
+                if len(exemples) < 6:
+                    exemples.append(str(r["nom_affiche"])[:40])
+                continue
+            nla.append(float(r["lat"]))
+            nlo.append(float(r["lon"]))
+        n_ret = int((retire & m).sum())
+        rendu["par_type"][t][0] -= n_ret
+        rendu["par_type"][t][1] += n_ret
+    lieux = lieux[~retire].reset_index(drop=True)
+    rendu["ajoutees"] = sum(v[0] for v in rendu["par_type"].values())
+    rendu["absentes_de_la_liste"] = sum(v[1] for v in rendu["par_type"].values())
+    JOURNAL.controle("FINESS - Activités, sites qui exercent une activité hospitalière autorisée, ajoutés sous ce type",
+                     ", ".join(f"{t.removeprefix('lieu_')} {v[0]} ajoutés, {v[1]} non ajoutés (même lieu qu'une "
+                               f"structure du type, hors du référentiel, fermés ou urgences spécialisées), {v[2]} numéros "
+                               f"de la liste sans l'activité" for t, v in rendu["par_type"].items())
+                     + f" ; {int(retire.sum())} retirés au même lieu qu'une structure du type, dont "
+                     + ", ".join(exemples))
+    _releve("FINESS - Activités", "Établissements qui exercent une activité hospitalière autorisée (urgences, maternité, "
+            "dialyse, HAD, réadaptation) sans structure de ce type dans le ROR ni à moins de 500 m", rendu["ajoutees"],
+            "Ajoutés sous ce type, à leur adresse de FINESS")
+    return lieux
+
+
 def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref, voisins, hors_ligne=False,
              has: dict | None = None, sirene: dict | None = None, essms: dict | None = None) -> dict | None:
     """Structures de soins réunies, comptes par territoire, distances, concordance des deux bases et contrôles."""
@@ -2581,9 +2876,21 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
     # une structure sans adresse va au centre du contour de sa commune, les distances partent du centre de sa population
     geo = (voisins or {}).get("centres_geo") or (voisins or {}).get("centres")
     centres = (voisins or {}).get("centres")
+    # sites dont le ROR ne décrit que des urgences spécialisées (tête et cou, ophtalmologie, mains...) : l'autorisation
+    # de médecine d'urgence ne les distingue pas (hôpitaux Huriez à Lille et Gui-de-Chauliac à Montpellier, vérifiés
+    # sur les sites des CHU le 16 novembre 2026)
+    hors_urg = next(r["hors"] for t, *_m, r in config.LIEUX_TYPES if t == "lieu_urgences")
+    # toutes les unités nommées « urgences », quelle que soit leur catégorie : le ROR en laisse sans catégorie
+    # (« Urgences Ophtalmologie » à Huriez, « Accueil des urgences médicales » au site mère-enfant du CHU de Martinique)
+    nm_u = u["nom"].fillna("").map(norm)
+    urg = u[(u["categorie"] == "20") | nm_u.str.contains(r"urgenc", regex=True)]
+    urg = urg.assign(_spe=nm_u.reindex(urg.index).str.contains(hors_urg, regex=True))
+    specialisees = set(urg.loc[urg["_spe"], "finess_ror"].dropna()) - set(urg.loc[~urg["_spe"], "finess_ror"].dropna())
+    lieux, stats["activites_autorisees"] = completer_par_autorisations(lieux, hors_ligne, fin, specialisees, ref)
     from .sources import insee_carreaux
     lieux = localiser(lieux, fin, geo, hors_ligne, (voisins or {}).get("formes"),
                       chefs_lieux=lambda codes: insee_carreaux.chefs_lieux_ban(ref, codes, hors_ligne))
+    lieux = ecarter_autorisations_meme_lieu(lieux, stats["activites_autorisees"], fin)
     rattach = ref.communes.set_index("code")[["epci", "dep", "reg"]]
     lieux = lieux.join(rattach, on="commune")
     labels = {t[0]: t for t in config.LIEUX_TYPES}
@@ -2605,6 +2912,14 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
     if reste.any():
         lieux.loc[reste, "nom_affiche"] = (lieux.loc[reste, "libelle_type"].astype(str).str.split(",").str[0] + ", "
                                            + lieux.loc[reste, "commune"].map(nom_com).fillna("").astype(str))
+    # une raison sociale de FINESS qui est le nom d'une personne (« Monsieur ... », relecture de l'édition corrective du
+    # 17 novembre 2026, un centre de santé) n'est jamais montrée : le lieu est désigné par son type et sa commune
+    perso = lieux["nom_affiche"].fillna("").map(norm).str.contains(config.CIVILITE_EN_TETE, regex=True)
+    if perso.any():
+        lieux.loc[perso, "nom_affiche"] = (lieux.loc[perso, "libelle_type"].astype(str).str.split(",").str[0] + ", "
+                                           + lieux.loc[perso, "commune"].map(nom_com).fillna("").astype(str))
+    JOURNAL.controle("Structures de soins dont un nom inscrit est celui d'une personne, désignées par leur type et leur "
+                     "commune", f"{int(perso.sum())}")
     JOURNAL.controle("Noms des structures de soins rendus lisibles",
                      f"{int(trait.isin(['court', 'rattachement']).sum())} noms raccourcis à leur nom propre, "
                      f"{int((trait == 'retire').sum())} débarrassés d'un terme à proscrire, {int((trait == 'reecrit').sum())} "
@@ -2663,7 +2978,9 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
                 f"Ateliers rangés avec la réhabilitation psychosociale ({n_atelier}), CATTP en milieu pénitentiaire "
                 f"rangés avec les consultations hors CMP ({n_prison}), comme les CMP en milieu pénitentiaire")
     # CATTP tenus dans un CMP qui l'annonce dans son nom (16 octobre 2026)
-    lieux, n_cattp_cmp = cattp_des_cmp(lieux)
+    e_v = sv.charger()[0]
+    cattp_v = {(r["ej"], r["departement"]) for _, r in e_v.iterrows() if "lieu_cattp" in sv.types_de(r["types"])}
+    lieux, n_cattp_cmp = cattp_des_cmp(lieux, cattp_v)
     # structures principales, antennes et sites des CMPP, CAMSP, CSAPA et CAARUD, puis rôles lus dans le nom pour
     # l'addictologie (16 octobre 2026)
     lieux, roles_ms = roles_antennes(lieux, fin)
@@ -2671,6 +2988,21 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
     # adresses vérifiées sur les sources des établissements, tout type, après les changements de type (31 octobre 2026)
     from . import adresses_verifiees
     lieux, verif["adresses_verifiees"] = adresses_verifiees.appliquer(lieux, ref, hors_ligne)
+    # verdicts de la vérification à la main pour les types autres que les CMP (doublons, structures fermées), chacun
+    # avec sa source datée (chantier des structures, 16 novembre 2026)
+    from . import verdicts_structures
+    lieux, verif["verdicts_structures"] = verdicts_structures.appliquer(lieux, ref)
+    if verif["verdicts_structures"]["retirees"]:
+        verif["non_retenues"] = list(verif["non_retenues"]) + verif["verdicts_structures"]["retirees"]
+        _releve("Sources des établissements", "Structures autres que les CMP inscrites deux fois ou fermées, d'après "
+                "une vérification à la main sourcée", len(verif["verdicts_structures"]["retirees"]), "Retirées")
+    # un lieu de CMP, c'est une adresse et un public (décision 1 du chantier des structures, 16 novembre 2026)
+    if config.CMP_UN_LIEU_PAR_ADRESSE:
+        lieux, reunis = un_lieu_par_adresse_cmp(lieux)
+        if reunis:
+            verif["non_retenues"] = list(verif["non_retenues"]) + reunis
+            _releve("FINESS et ROR", "CMP du même public à la même adresse (plusieurs secteurs dans un même lieu)",
+                    len(reunis), "Comptés comme un seul lieu")
     if n_cattp_cmp:
         _releve("FINESS, ROR et Sirene", "CMP dont le nom, une unité du ROR ou l'enseigne Sirene annonce aussi un CATTP "
                 "(« CMP-CATTP »), sans autre CATTP de leur gestionnaire dans la commune", n_cattp_cmp,
@@ -2699,6 +3031,11 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
     couv = (lieux[lieux["dep"].isin(deps)].groupby("type")["dep"].nunique() / len(deps)).rename("part_departements")
     couv = couv.reindex([t[0] for t in config.LIEUX_TYPES]).fillna(0).reset_index().rename(columns={"index": "type"})
     couv["complet"] = couv["part_departements"] >= config.LIEUX_COUVERTURE_MIN
+    # un type présent presque partout peut n'être recensé qu'en partie : les PMI, 1 152 dans la liste pour 4 616 points
+    # fixes de consultation déclarés à la DREES en 2024 (constat C4 du 16 novembre 2026, décision 2, fermée tant
+    # qu'elle n'est pas acceptée)
+    if config.LIEUX_NON_RECENSES:
+        couv.loc[couv["type"].isin(config.LIEUX_NON_RECENSES), "complet"] = False
     conc = (lieux.groupby(["dep", "type", "provenance"]).size().unstack(fill_value=0)
             .reindex(columns=list(PROVENANCES), fill_value=0).reset_index())
     # un lieu en milieu pénitentiaire et une équipe sans lieu propre restent listés, sans entrer dans les distances

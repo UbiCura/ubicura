@@ -217,6 +217,54 @@ def nom_commune(ref, code: str) -> str:
     return f"{n} ({code[:2]})" if n else code
 
 
+_CACHE_MOTS: dict[str, frozenset] = {}
+
+
+def _mots(x) -> frozenset:
+    """Mots de trois lettres ou plus d'un nom ou d'une raison sociale, sans accents ni ponctuation."""
+    x = x if isinstance(x, str) else ""
+    if x not in _CACHE_MOTS:
+        _CACHE_MOTS[x] = frozenset(m for m in re.split(r"[^a-z0-9]+", norm(x)) if len(m) >= 3)
+    return _CACHE_MOTS[x]
+
+
+def _dep_commune(code) -> str:
+    code = code if isinstance(code, str) else ""
+    return code[:3] if code[:2] in ("97", "98") else code[:2]
+
+
+def _rs_nomme(rs: pd.Series, nom: pd.Series) -> pd.Series:
+    """Vrai quand la raison sociale de l'activité contient le nom d'exercice du professionnel qui la déclare (tous les
+    mots de trois lettres ou plus de son nom) : « SELARL PHARMACIE DUPONT » déclarée par M. Dupont. Le nom n'est ni gardé
+    ni écrit, seul ce booléen l'est."""
+    return pd.Series([bool(mn) and mn <= _mots(r) for r, mn in zip(rs, map(_mots, nom))], index=rs.index)
+
+
+def _rs_nommee_dans_dep(rs: pd.Series, com: pd.Series, noms_dep: dict) -> pd.Series:
+    """Vrai quand la raison sociale contient le nom entier d'un professionnel qui exerce dans le même département,
+    quelle que soit la façon dont lui-même écrit la structure (espaces, ponctuation, « SELARL » ajouté, autre
+    structure) : la comparaison de la seule activité qui déclare la raison sociale en laissait passer (audit du 17
+    novembre 2026). noms_dep, département -> ensembles des mots des noms, gardé en mémoire le temps de la lecture."""
+    from collections import Counter
+    from itertools import combinations
+    paires = pd.DataFrame({"rs": rs.values, "dep": com.map(_dep_commune).values})
+    uniques = paires.drop_duplicates()
+    uniques = uniques[uniques["rs"].astype(str).str.strip() != ""]
+    # un nom fait de mots courants des raisons sociales (« Centre », « Dame », « Parc », « Martin » de Saint-Martin)
+    # n'est pas retenu : il retirerait des centaines d'établissements qui n'ont rien à voir avec la personne
+    freq = Counter(m for r in uniques["rs"].drop_duplicates() for m in _mots(r))
+    oui = set()
+    for r, d in zip(uniques["rs"], uniques["dep"]):
+        noms = noms_dep.get(d)
+        if not noms:
+            continue
+        m = sorted(_mots(r))
+        if any(frozenset(c) in noms and min(freq[x] for x in c) < config.RS_NOM_MOT_RARE
+               for k in range(1, min(3, len(m)) + 1) for c in combinations(m, k)):
+            oui.add((r, d))
+    return pd.Series([(r, d) in oui for r, d in zip(paires["rs"], paires["dep"])], index=rs.index)
+
+
 def lire_activites(fichiers: dict, ref) -> tuple[pd.DataFrame, pd.DataFrame]:
     chemin = fichiers["activite"]
     META_LUE.clear()
@@ -235,10 +283,14 @@ def lire_activites(fichiers: dict, ref) -> tuple[pd.DataFrame, pd.DataFrame]:
         "sf": trouver_colonne(cols, [r"^libelle savoir faire$"], False),
         "struct": trouver_colonne(cols, [r"^identifiant technique de la structure$"], False),
         "civ": trouver_colonne(cols, [r"^code civilite$"], False),
+        # lu seulement pour savoir si la raison sociale contient le nom du professionnel (cabinet, société d'exercice,
+        # officine à son nom), jamais gardé ni écrit (règles du projet, partie 3)
+        "nom": trouver_colonne(cols, [r"^nom d ?exercice$"], False),
     }
     log.info("RPPS activité, colonnes retenues : %s", {k: v for k, v in C.items() if v})
     usecols = sorted({v for v in C.values() if v})
     morceaux, inscrits, n_lu, n_etud, n_sans = [], [], 0, 0, 0
+    noms_dep: dict[str, set] = {}
     for ch in _lecteur(chemin, usecols, sep):
         n_lu += len(ch)
         if C["cat"]:
@@ -266,10 +318,21 @@ def lire_activites(fichiers: dict, ref) -> tuple[pd.DataFrame, pd.DataFrame]:
             # civilité déclarée (Madame, Monsieur), seule approximation du sexe dans l'extraction publique
             "femme": ch[C["civ"]].map(norm).map({"mme": True, "mlle": True, "m": False}) if C["civ"] else None,
             "com": ref.resoudre(ch[C["com"]], ch[C["cp"]] if C["cp"] else pd.Series("", index=ch.index)),
+            "rs_nomme": (_rs_nomme(ch[C["rs"]], ch[C["nom"]]) if C["rs"] and C["nom"]
+                         else pd.Series(False, index=ch.index)),
         })
+        if C["nom"]:
+            for d, mn in zip(out["com"].map(_dep_commune), ch[C["nom"]].map(_mots)):
+                if mn and len(mn) <= 3:
+                    noms_dep.setdefault(d, set()).add(mn)
         morceaux.append(out)
         log.info("  RPPS : %s lignes lues", f"{n_lu:,}".replace(",", " "))
     act = pd.concat(morceaux, ignore_index=True)
+    if noms_dep:
+        act["rs_nomme"] = act["rs_nomme"].astype(bool) | _rs_nommee_dans_dep(act["rs"], act["com"], noms_dep)
+    # les noms ne servent qu'à ce booléen : ils ne sont ni gardés ni écrits (règles du projet, partie 3)
+    noms_dep.clear()
+    _CACHE_MOTS.clear()
     act.loc[act["secteur"] == "", "secteur"] = "Secteur non renseigné"
 
     exclus = act["prof_lib"].map(norm).str.contains("|".join(config.PROFESSIONS_EXCLUES)) \

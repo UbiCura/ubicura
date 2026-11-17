@@ -16,7 +16,7 @@ from . import (build, cartes, config, dictionnaire, graphiques, indicateurs, lib
 from .affichage import conserver
 from .analyses import professions_part_liberal, tables
 from .lecture import GLOSSAIRE, noms_classes as noms_classes_uniques
-from .util import JOURNAL, log
+from .util import JOURNAL, log, norm
 
 
 LICENCE_LO = "Résultats sous Licence Ouverte 2.0, en citant la source et la date de la version."
@@ -35,6 +35,20 @@ def _nombre_csv(x: float) -> str:
     else:
         t = f"{x:.0f}" if float(x).is_integer() else f"{x:.1f}"
     return t.replace(".", ",")
+
+
+def _sans_non_recenses(d: pd.DataFrame) -> pd.DataFrame:
+    """Distances vidées pour les types non recensés (config.LIEUX_NON_RECENSES, les PMI, décision du 16 novembre 2026 :
+    aucun nombre ni distance) ; les lignes restent, avec recensement_complet faux."""
+    garde = {"niveau", "code", "nom", "type", "libelle_type", "recensement_complet"}
+    nr = d["type"].isin(config.LIEUX_NON_RECENSES)
+    if nr.any():
+        d = d.copy()
+        # une colonne de nombres reste de nombres (vide, NaN), sinon _csv n'écrit plus la virgule décimale
+        for c in d.columns:
+            if c not in garde:
+                d[c] = d[c].where(~nr, np.nan) if pd.api.types.is_numeric_dtype(d[c]) else d[c].astype(object).where(~nr, None)
+    return d
 
 
 def _csv(df, chemin: Path):
@@ -246,6 +260,11 @@ def _lieux_csv(agg, noms, lab, out: Path, contexte: dict | None = None):
         "enseigne_sirene": x.get("enseigne_sirene"), "adresse_sirene": x.get("adresse_sirene"),
         "role": x.get("role_structure", pd.Series(index=x.index, dtype=object)).map(lieux_mod.ROLES),
         "verdict": x.get("verdict"), "examen": x.get("examen"), "lieu": x["lieu"]})
+    # aucun nom inscrit qui soit celui d'une personne (« Monsieur ... »), règles du projet, partie 3 ; le nom affiché
+    # l'est déjà (lieux.py), le libellé du ROR et l'enseigne de Sirene sont vidés
+    for c in ("unite_ror", "enseigne_sirene"):
+        perso = t[c].fillna("").astype(str).map(norm).str.contains(config.CIVILITE_EN_TETE, regex=True)
+        t.loc[perso, c] = None
     pros = L["pros"].add_prefix("declares_")
     t = t.merge(pros, left_on="lieu", right_index=True, how="left")
     sans_num = t["finess"].isna()
@@ -328,6 +347,11 @@ def _lieux_csv(agg, noms, lab, out: Path, contexte: dict | None = None):
         non_pub = non_pub.where(non_pub == "", lieux_mod.MOTIF_NON_PUBLIE + " : " + non_pub)
         w = pd.concat([base, n.add_prefix("n_"), taux.add_prefix("pour_100000_"),
                        non_pub.rename("taux_non_publies")], axis=1)
+        # types non recensés (décision du 16 novembre 2026, les PMI) : aucun nombre ni taux, la liste des lieux reste
+        for tp in config.LIEUX_NON_RECENSES:
+            for col in (f"n_{tp}", f"pour_100000_{tp}"):
+                if col in w:
+                    w[col] = np.nan
         w.index.name = "code"
         _csv(w.reset_index(), out / f"lieux_soins_{niv}.csv")
         # contrôle, les taux du fichier sont ceux du site (contexte du niveau), vides aux mêmes endroits
@@ -343,13 +367,13 @@ def _lieux_csv(agg, noms, lab, out: Path, contexte: dict | None = None):
         if isinstance(d, pd.DataFrame):
             d = d.assign(libelle_type=d["type"].map(types), nom=d["code"].map(noms[niv].set_index("code")["nom"]),
                          recensement_complet=d["type"].map(complet).fillna(False).astype(bool))
-            _csv(d, out / f"distances_lieux_{niv}.csv")
+            _csv(_sans_non_recenses(d), out / f"distances_lieux_{niv}.csv")
     JOURNAL.controle("Structures de soins, taux des fichiers lieux_soins égaux à ceux du site (attendu, aucun écart)",
                      "; ".join(controle))
     d = (L.get("distances") or {}).get("fr")
     if isinstance(d, pd.DataFrame):
-        _csv(d.assign(libelle_type=d["type"].map(types),
-                      recensement_complet=d["type"].map(complet).fillna(False).astype(bool)),
+        _csv(_sans_non_recenses(d.assign(libelle_type=d["type"].map(types),
+                                         recensement_complet=d["type"].map(complet).fillna(False).astype(bool))),
              out / "distances_lieux_france.csv")
     # CMP par public, chaque niveau et la France
     rc = []
@@ -503,6 +527,7 @@ def _lieux_points(agg, ref):
                     npart if npart > 1 else 0])
     return {"types": [{"id": tp[0], "lib": tp[1], "famille": tp[2], "groupe": tp[3],
                        "complet": bool(couv.at[tp[0], "complet"]) if tp[0] in couv.index else False,
+                       "nr": tp[0] in config.LIEUX_NON_RECENSES,
                        "part": _r(couv.at[tp[0], "part_departements"]) if tp[0] in couv.index else None}
                       for tp in types],
             "provenances": [lieux_mod.PROVENANCES[k] for k in prov],

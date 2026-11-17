@@ -261,6 +261,28 @@ def particulieres(act, cat, loc, rattach) -> dict | None:
     return out
 
 
+def raison_sociale_publiable(rs: str, avec_finess: bool = False, nomme: bool = False, grande: bool = False) -> bool:
+    """Une raison sociale du RPPS peut-elle être publiée sans risquer de nommer un professionnel (règles du projet,
+    partie 3) ? Jamais une société d'exercice ou un cabinet, ni un nom qui commence par une civilité. Jamais un titre
+    suivi d'un nom, ni le nom d'un professionnel du département (nomme, lu au RPPS), sauf pour un établissement de santé
+    ou médico-social nommé d'après une personne, et jamais dans ce cas pour une officine ou une société. Ensuite, elle
+    doit porter un mot d'institution autre que « pharmacie » (config.MOT_INSTITUTION, config.NOM_DE_TITULAIRE) ; sans
+    lui, seul un établissement à numéro FINESS (avec_finess) d'au moins RS_NOMMEE_TAILLE_MAX professionnels (grande),
+    qui n'est ni une officine ni une société, est publié (« CHMS - site Chambéry »)."""
+    n = norm(rs)
+    # sigles écrits lettre par lettre (« S.E.L.A.R.L », « S A R L ») réunis avant la recherche
+    n = re.sub(r"\b(?:[a-z] )+[a-z]\b", lambda m: m.group().replace(" ", ""), n)
+    if re.search(config.SOCIETE_EXERCICE, n) or re.search(config.CIVILITE_EN_TETE, n):
+        return False
+    titulaire = bool(re.search(config.SOCIETE_COMMERCIALE, n) or re.search(config.NOM_DE_TITULAIRE, n))
+    titre = re.search(config.NOM_PERSONNE, n) or re.search(config.TITRE_PERSONNE, n)
+    if (nomme or titre) and (titulaire or not re.search(config.ETABLISSEMENT_NOMME, n)):
+        return False
+    if re.search(config.MOT_INSTITUTION, re.sub(config.NOM_DE_TITULAIRE, " ", n)):
+        return True
+    return avec_finess and grande and not titulaire
+
+
 def agreger(act: pd.DataFrame, ref, finess: pd.DataFrame | None, lieux_res=None) -> Agregats:
     rattach = ref.communes.set_index("code")[["epci", "dep", "reg"]]
     # Les soins à distance (téléconsultation) et les activités sans soins à la population (contrôle médical,
@@ -329,6 +351,25 @@ def agreger(act: pd.DataFrame, ref, finess: pd.DataFrame | None, lieux_res=None)
 
     s = loc[(loc["mode"] != "lib") & (loc["rs"] != "") & loc["prof"].isin(config.PROFESSIONS_PRINCIPALES)]
     if len(s):
+        # au nom d'un professionnel qui y déclare son activité ou qui exerce dans le même département (rs_nomme), dans
+        # une structure assez petite pour être la sienne (le titulaire d'une officine ou l'associé d'une société y est
+        # souvent libéral : tout le répertoire est lu)
+        cand = (set(act.loc[act["rs_nomme"].fillna(False).astype(bool), "rs"]) & set(s["rs"])) if "rs_nomme" in act \
+            else set()
+        taille = act.loc[act["rs"].isin(set(s["rs"]))].groupby("rs")["id"].nunique()
+        grandes = set(taille[taille >= config.RS_NOMMEE_TAILLE_MAX].index)
+        rs_nomme = cand - grandes
+        rs_finess = set(s.loc[s["finess"] != "", "rs"])
+        publiable = {r: raison_sociale_publiable(r, r in rs_finess, r in rs_nomme, r in grandes)
+                     for r in s["rs"].unique()}
+        tues = sorted(r for r, ok in publiable.items() if not ok)
+        JOURNAL.controle("Principales structures d'exercice salarié, raisons sociales non publiées (nom possible d'un "
+                         "professionnel : société d'exercice, cabinet, civilité, titre suivi d'un nom, nom d'un "
+                         "professionnel du département, société ou officine sans autre mot d'institution, aucun mot "
+                         "d'institution)",
+                         f"{len(tues)} sur {len(publiable)}, dont {len(rs_nomme)} au nom d'un professionnel du "
+                         "département")
+        s = s[s["rs"].map(publiable)]
         s = s.assign(commune=s["com"].map(ref.communes.set_index("code")["nom"]))
         st = []
         for niv, df in [("FR", s.assign(code="FR")), ("dep", s.assign(code=s["dep"]))]:

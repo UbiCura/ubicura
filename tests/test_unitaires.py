@@ -767,6 +767,474 @@ def test_structures_verifiees():
     assert [n["finess"] for n in r["non_retenues"]] == ["222"] and r["ajoutees"] == 1
 
 
+def test_verdict_ferme_pas_sur_sirene_seul():
+    """Constat C14 du 16 novembre 2026 : le CMP pour adultes de Redon, en activité d'après la plaquette de l'hôpital de
+    mars 2026, était retiré par un verdict « fermé » fondé sur un établissement Sirene radié. Un verdict « fermé » en
+    vigueur qui cite Sirene cite aussi une autre source (adresse web hors de l'annuaire des entreprises, FINESS, ROR, HAS,
+    ARS ou site de l'établissement)."""
+    import pandas as pd
+    from pipeline import config
+    v = pd.read_csv(config.RACINE / "contenus" / "verdicts_verification.csv", sep=";", dtype=str).fillna("")
+    v = v.drop_duplicates("cle", keep="last")
+    f = v[(v["verdict"] == "ferme") & v["commentaire"].str.contains("sirene", case=False)]
+    autre = lambda c: (any("annuaire-entreprises" not in u and "sirene" not in u.lower()  # noqa: E731
+                           for u in re.findall(r"https?://\S+", c))
+                       or bool(re.search(r"\bFINESS\b|\bROR\b|\bHAS\b|\bARS\b|site de l'établissement", c)))
+    seuls = [r.cle for r in f.itertuples() if not autre(r.commentaire)]
+    assert not seuls, seuls
+
+
+def test_un_lieu_de_cmp_par_adresse_et_public():
+    """Décision 1 du 16 novembre 2026 : deux CMP pour adultes à la même adresse numérotée (deux secteurs d'un même
+    immeuble) font un seul lieu ; le CMP pour enfants à la même adresse reste un lieu à part ; le CMP « tous publics »
+    d'un lieu réuni n'est retiré que s'il n'accueille plus personne. Cas repris de Carcassonne (secteurs 2 et 3)."""
+    import pandas as pd
+    from pipeline import lieux
+    ligne = lambda t, lieu, adr: {"type": t, "lieu": lieu, "commune": "11069", "adresse": adr,  # noqa: E731
+                                  "nom": lieu, "nom_affiche": lieu, "ej": "110780061", "finess": "", "provenance": "les_deux"}
+    x = pd.DataFrame([ligne("lieu_cmp", "S2", "12 rue Antoine-Marty"), ligne("lieu_cmp_adultes", "S2", "12 rue Antoine-Marty"),
+                      ligne("lieu_cmp", "S3", "12 R ANTOINE MARTY"), ligne("lieu_cmp_adultes", "S3", "12 R ANTOINE MARTY"),
+                      ligne("lieu_cmp", "E", "12 rue Antoine-Marty"), ligne("lieu_cmp_enfants", "E", "12 rue Antoine-Marty"),
+                      ligne("lieu_cmp", "X", "14 rue Antoine-Marty"), ligne("lieu_cmp_adultes", "X", "14 rue Antoine-Marty")])
+    y, retirees = lieux.un_lieu_par_adresse_cmp(x)
+    assert sorted(y.loc[y["type"] == "lieu_cmp_adultes", "lieu"]) == ["S2", "X"]
+    assert sorted(y.loc[y["type"] == "lieu_cmp", "lieu"]) == ["E", "S2", "X"]
+    assert len(retirees) == 1 and retirees[0]["raison"].startswith("même adresse")
+
+
+def test_verification_sur_sources_recentes():
+    """Décision 1 du 16 novembre 2026 : un établissement ne compte comme vérifié, pour juger qu'un département a tous
+    ses CMP, que si toutes ses lignes s'appuient sur une source de moins de trois ans ; l'année du nom de la source prime
+    sur celle de son adresse web (un guide de 2018 déposé en ligne en 2024)."""
+    import pandas as pd
+    from pipeline import lieux
+    s = pd.DataFrame([
+        {"ej": "A", "source": "ARS PACA, inventaire des structures de psychiatrie (septembre 2017)", "adresse_source": "https://x/2017-10/inv.pdf"},
+        {"ej": "A", "source": "Site de l'établissement", "adresse_source": "https://a/cmp"},
+        {"ej": "B", "source": "Site de l'établissement, page des CMP", "adresse_source": "https://b/cmp"},
+        {"ej": "C", "source": "Psycom, guide santé mentale, édition 2018", "adresse_source": "https://p/uploads/2024/04/guide.pdf"},
+        {"ej": "D", "source": "ARS, guide pratique 2025-2026", "adresse_source": "https://d/2025-11/guide.pdf"}])
+    assert lieux.etablissements_sources_recentes(s, aujourd=2026) == {"B", "D"}
+
+
+def test_aucun_nom_de_praticien_dans_les_structures():
+    """Règles du projet, partie 3 : jamais de nom de professionnel publié. Le 16 novembre 2026, cinq noms d'unités du
+    ROR publiés le 13 novembre portaient des noms de médecins (« Consultation gynécologie & obstétrique Drs … », « SSR
+    MPR Orthopédie Drs … ») ou de psychologues (« Consultation psychologie Mme … ») : la règle ne connaissait que
+    « Dr ». Sur le dernier fichier publié, aucun nom de structure tiré du ROR ne contient un titre ou une civilité suivi
+    d'un nom (les raisons sociales d'établissements de FINESS, qui portent parfois le nom d'un fondateur, sont permises
+    et ne sont pas dans la colonne du nom d'unité)."""
+    import re
+    import pandas as pd
+    from pipeline import config
+    from pipeline.util import norm
+    eds = sorted(p for p in (config.RACINE / "resultats").iterdir() if p.is_dir() and p.name[:2] == "20")
+    if not eds or not (eds[-1] / "lieux_soins.csv").exists():
+        return
+    L = pd.read_csv(eds[-1] / "lieux_soins.csv", sep=";", dtype=str, keep_default_na=False, encoding="utf-8-sig")
+    fautes = sorted({n for c in ("unite_ror",) if c in L for n in L[c]
+                     if re.search(config.NOM_PERSONNE, norm(n))})
+    assert not fautes, fautes[:10]
+    assert re.search(config.NOM_PERSONNE, norm("SSR MPR Orthopédie Drs Albert, Haddad"))
+    assert re.search(config.NOM_PERSONNE, norm("Consultation psychologie Mme Martin"))
+    assert not re.search(config.NOM_PERSONNE, norm("Prestation en milieu ordinaire DRS - Difficultés psychologiques"))
+
+
+def test_completude_cmp_jugee_sur_les_declarations_a_la_sae():
+    """Décision 1 du 16 novembre 2026 : un département n'est jugé complet pour les CMP que si 90 % au moins des CMP
+    déclarés à la SAE relèvent d'établissements vérifiés. Le Haut-Rhin reste non publié pour les CMP pour adultes : le CH
+    de Rouffach, vérifié, porte presque tous les CMP inscrits, mais le GHR Mulhouse Sud-Alsace et les Hôpitaux civils de
+    Colmar en déclarent 15 à la SAE sans aucun inscrit (Saint-Louis aurait été montrée sans CMP)."""
+    import pandas as pd
+    from pipeline import config, lieux as Lm
+    from pipeline.sources import referentiel, sae as sae_src
+    d = _dernier_resultats()
+    l = _csv(d, "lieux_soins.csv", dtype=str, usecols=["type", "dep"])
+    ref = referentiel.charger(hors_ligne=True)
+    hop = sae_src.charger(ref, hors_ligne=True)
+    if l is None or not hop or "etablissements" not in hop:
+        raise Ignore("résultats ou SAE absents")
+    assert config.MASQUAGE_PAR_VERIFICATION
+    m = Lm.manques_sae({"lieux": l}, hop, ref)
+    dep = m[(m["niveau"] == "dep") & (m["type"] == "lieu_cmp_adultes")].set_index("code")
+    assert dep.at["68", "manque"], dep.loc["68"]
+    # Mayotte : le département se lit au siège déclaré à la SAE, le numéro FINESS n'en donnant que « 98 »
+    assert "98" not in set(m.loc[m["niveau"] == "dep", "code"])
+    # le site construit suit la règle : la fiche du Haut-Rhin ne publie pas le nombre de CMP pour adultes
+    f = config.RACINE / "site" / "territoire" / "dep" / "68.html"
+    if f.exists():
+        assert "pour les CMP pour adultes (" in f.read_text(encoding="utf-8")
+
+
+def test_pmi_sans_nombre_ni_distance_dans_les_fichiers():
+    """Décision 2 du 16 novembre 2026 : les PMI sont dites non recensées partout, aucun nombre ni distance. La relecture
+    de l'édition corrective (17 novembre 2026) trouvait encore leurs nombres, taux et distances dans les fichiers par
+    territoire. La liste des lieux (lieux_soins.csv) reste."""
+    from pipeline import config
+    assert "lieu_pmi" in config.LIEUX_NON_RECENSES
+    d = _dernier_resultats()
+    vus = 0
+    for niv in ("epci", "dep", "reg"):
+        w = _csv(d, f"lieux_soins_{niv}.csv", dtype=str, keep_default_na=False)
+        if w is None:
+            continue
+        for tp in config.LIEUX_NON_RECENSES:
+            for c in (f"n_{tp}", f"pour_100000_{tp}"):
+                if c in w:
+                    assert (w[c] == "").all(), (niv, c, w.loc[w[c] != "", c].head(3).tolist())
+                    vus += 1
+        x = _csv(d, f"distances_lieux_{niv}.csv", dtype=str, keep_default_na=False)
+        if x is not None:
+            y = x[x["type"].isin(config.LIEUX_NON_RECENSES)]
+            num = [c for c in y.columns if c not in ("niveau", "code", "nom", "type", "libelle_type", "recensement_complet")]
+            assert not (y[num] != "").any().any(), (niv, y.head(2).to_dict("records"))
+            assert (y["recensement_complet"] == "False").all()
+    if not vus:
+        raise Ignore("fichiers lieux_soins par territoire absents")
+
+
+def test_reperes_cmp_sans_aucun_la_ou_les_bases_sont_incompletes():
+    """Relecture de l'édition corrective du 17 novembre 2026 : la fiche de Saint-Louis Agglomération disait « CMP pour
+    adultes. Aucun dans le territoire » dans ses Repères en santé mentale, alors que le Haut-Rhin est non publié pour
+    les CMP pour adultes (bases incomplètes, limite manque_sae). Sur toutes les fiches construites, les Repères ne
+    disent jamais « aucun » là où la fiche porte cette limite pour les CMP pour adultes."""
+    import re
+    from pipeline import config
+    fiches = sorted((config.RACINE / "site" / "territoire").glob("*/*.html"))
+    if not fiches:
+        raise Ignore("site non construit")
+    fautes, vues = [], 0
+    for p in fiches:
+        h = p.read_text(encoding="utf-8")
+        m = re.search(r'<p class="rep-cmp">(.*?)</p>', h, re.S)
+        if not m:
+            continue
+        vues += 1
+        if "inscrivent moins de la moitié" in h and re.search(r"pour les CMP pour adultes \(\d", h) \
+                and ("Aucun dans le territoire" in m.group(1) or "dans le territoire, " in m.group(1)
+                     and "ne les recensent pas tous" not in m.group(1)):
+            fautes.append(p.parent.name + "/" + p.stem)
+    assert vues > 1000, vues
+    assert not fautes, (len(fautes), fautes[:10])
+
+
+def test_structures_principales_sans_nom_de_professionnel():
+    """Règles du projet, partie 3 : jamais de nom de personne. Le 16 novembre 2026, la liste des principales structures
+    d'exercice salarié publiait 119 raisons sociales du RPPS de la forme « Cabinet du Dr ... » ; le 17, la relecture de
+    l'édition corrective y trouvait encore des sociétés d'exercice de pharmacie au nom du pharmacien (« SELAS » suivi
+    d'un nom et d'un prénom), qu'un numéro FINESS dispensait du contrôle, et un nom de quatre mots. Le fichier publié
+    est contrôlé indépendamment de la règle qui l'a filtré : aucune société d'exercice ni cabinet, aucune civilité en
+    tête, aucun titre suivi d'un nom hors d'un établissement de santé, et le nom d'un professionnel qui y exerce
+    seulement dans une grande structure (activités du RPPS en cache). Les exemples ci-dessous sont des noms inventés."""
+    import re
+    import pandas as pd
+    from pipeline import config
+    from pipeline.build import raison_sociale_publiable as P
+    from pipeline.util import norm
+    assert not P("CABINET DU DR EXEMPLE") and not P("SELARL EXEMPLE JEANNE", True)
+    assert not P("EXEMPLE JEANNE") and not P("SCP EXEMPLE", True) and not P("PHARMACIE EXEMPLE", True, True)
+    assert not P("MONSIEUR EXEMPLE JEAN", True) and not P("EXEMPLE VAN DER JEAN PAUL")
+    assert P("CENTRE HOSPITALIER CALAIS") and P("SDIS DE LA CREUSE") and P("CHRU EXEMPLE", True)
+    assert P("GROUPE HOSPITALIER SELESTAT OBERNAI") and P("CENTRE HOSPITALIER DOCTEUR EXEMPLE DE LENS")
+    assert P("PHARMACIE DU CENTRE", True) and not P("CLINIQUE DR EXEMPLE", True)
+    assert not P("S.E.L.A.R.L PHARMACIE DU CENTRE", True) and not P("SELURL EXEMPLE", True)
+    assert not P("SARL EXEMPLE", True) and not P("PHIE EXEMPLE", True) and not P("PHARMACIE EXEMPLE JEANNE", True)
+    assert P("CLINIQUE EXEMPLE SAS", True) and P("EPS EXEMPLE STE GENEVIEVE", True) and P("IME EXEMPLE", True, True)
+    # seconde relecture du 17 novembre 2026 : officine au nom du pharmacien qui contient « hôpital », association
+    # « des Drs », officine « Prénom Nom » qu'un numéro FINESS suffisait à publier
+    assert not P("PHARMACIE HOPITAL EXEMPLE", True, True) and not P("ASSOCIATION DES DRS EXEMPLE", True)
+    assert not P("JEANNE EXEMPLE", True) and P("CHMS SITE EXEMPLE", True, False, True) and P("DAME EXEMPLE")
+    eds = sorted(p for p in (config.RACINE / "resultats").iterdir() if p.is_dir() and p.name[:2] == "20")
+    act = config.INTER / "rpps_activites.parquet"
+    if not eds or not (eds[-1] / "structures_principales.csv").exists() or not act.exists():
+        raise Ignore("structures_principales.csv ou activités du RPPS absentes")
+    S = pd.read_csv(eds[-1] / "structures_principales.csv", sep=";", dtype=str, keep_default_na=False,
+                    encoding="utf-8-sig")
+    a = pd.read_parquet(act)
+    assert "rs_nomme" in a, "activités du RPPS sans la colonne rs_nomme, à reconstruire"
+    taille = a.groupby("rs")["id"].nunique()
+    nommees = set(a.loc[a["rs_nomme"].fillna(False).astype(bool), "rs"])
+    sigles = lambda n: re.sub(r"\b(?:[a-z] )+[a-z]\b", lambda m: m.group().replace(" ", ""), n)  # noqa: E731
+    officine = r"\b(?:pharmacies?|pharma|pharm|phie|phcie|officines?)\b"
+    fautes = []
+    for r in S["rs"].unique():
+        n = sigles(norm(r))
+        etab = re.search(config.ETABLISSEMENT_NOMME, n)
+        reste = re.sub(officine, " ", n)
+        # formes écrites ici, pas reprises de la règle : « S.E.L.A.R.L » et « SELURL » passaient le 17 novembre 2026
+        societe = reste != n or re.search(r"\b(?:sarl|sas|sasu|sa|societe|sci|sca)\b", n)
+        petite = taille.get(r, 0) < config.RS_NOMMEE_TAILLE_MAX
+        if re.search(r"\b(?:sel|selarl|selas|selasu|selafa|selca|seleurl|selurl|selarlu|spfpl|scop|scp|scm|sisa|snc|"
+                     r"eurl|ei|eirl|cabinets?)\b", n) or re.match(r"(?:monsieur|madame|mademoiselle|mme|mlle)\b", n) \
+                or ((re.search(config.NOM_PERSONNE, n) or re.search(r"\b(?:pr|mr|madame|monsieur)\b\.?\s", n)
+                     or (r in nommees and petite)) and (societe or not etab)) \
+                or (not re.search(config.MOT_INSTITUTION, reste) and (societe or petite)):
+            fautes.append(r)
+    assert not fautes, (len(fautes), fautes[:10])
+    # Contrôle par le RPPS brut, sans passer par la colonne rs_nomme : le 17 novembre 2026, le titulaire d'une officine
+    # déclarait sa structure autrement que ses salariés (espaces, ponctuation, « SELARL » ajouté) et son nom passait.
+    # Aucune raison sociale publiée d'une petite structure ne contient le nom entier (avec un mot peu courant) d'un
+    # professionnel du même département. Les noms ne sont lus qu'en mémoire.
+    from collections import Counter, defaultdict
+    from itertools import combinations
+    from pipeline.sources import rpps
+    from pipeline.util import trouver_colonne
+    chemin = rpps.FICHIERS["activite"]
+    if chemin.exists():
+        mots = lambda x: frozenset(m for m in re.split(r"[^a-z0-9]+", norm(x if isinstance(x, str) else ""))  # noqa: E731
+                                   if len(m) >= 3)
+        sep, cols = rpps._entete(chemin)
+        c_nom = trouver_colonne(cols, [r"^nom d ?exercice$"], False)
+        c_com = trouver_colonne(cols, [r"^code commune coord structure$"], False)
+        assert c_nom and c_com, "colonnes du nom ou de la commune introuvables dans le RPPS brut"
+        noms = defaultdict(set)
+        for ch in rpps._lecteur(chemin, [c_nom, c_com], sep):
+            for nm, cm in zip(ch[c_nom], ch[c_com]):
+                m = mots(nm)
+                if m and len(m) <= 3 and isinstance(cm, str) and cm.strip():
+                    cm = cm.strip()
+                    noms[cm[:3] if cm[:2] in ("97", "98") else cm[:2]].add(m)
+        freq = Counter(x for r in a["rs"].dropna().unique() for x in mots(r))
+        trouves = 0
+        for code, r in S.loc[S["niveau"] == "dep", ["code", "rs"]].drop_duplicates().itertuples(index=False):
+            if taille.get(r, 0) >= config.RS_NOMMEE_TAILLE_MAX or re.search(config.ETABLISSEMENT_NOMME, sigles(norm(r))):
+                continue
+            m = sorted(mots(r))
+            if any(frozenset(c) in noms[code] and min(freq[x] for x in c) < config.RS_NOM_MOT_RARE
+                   for k in range(1, min(3, len(m)) + 1) for c in combinations(m, k)):
+                trouves += 1
+        noms.clear()
+        # aucun nom n'est affiché par le test, seulement leur nombre
+        assert not trouves, f"{trouves} raisons sociales publiées contiennent le nom d'un professionnel du département"
+    L = _csv(eds[-1], "lieux_soins.csv", dtype=str, keep_default_na=False)
+    if L is not None:
+        civ = sorted({v for c in ("nom", "unite_ror", "enseigne_sirene") if c in L for v in L[c]
+                      if re.search(config.CIVILITE_EN_TETE, norm(v))})
+        assert not civ, civ[:10]
+
+
+def test_verdicts_structures_sources():
+    """Verdicts des structures autres que les CMP (contenus/verdicts_structures.csv, 16 novembre 2026) : chacun a une
+    sorte connue, une source cliquable et une date de moins d'un an (exception du 15 novembre 2026), et une même
+    structure n'a qu'un verdict en vigueur ; un verdict sans source est refusé par appliquer."""
+    import pandas as pd
+    from pipeline import verdicts_structures as vs
+    v = vs.charger()
+    fautes = [(r["cle"], vs.valable(r)) for _, r in v.iterrows() if vs.valable(r)]
+    assert not fautes, fautes
+    faux = pd.DataFrame([{"type": "lieu_urgences", "cle": "x", "etablissement": "", "structure": "", "verdict": "doublon",
+                          "commentaire": "sans adresse", "date": "2026-11-16"}])
+    assert vs.valable(faux.iloc[0]) == "sans source cliquable"
+
+
+def test_verdicts_sources():
+    """Exception du 15 novembre 2026 (règles du projet, partie 4) : une vérification de structure tenue à la main
+    (existence, lieu, type) porte une source officielle cliquable et datée et expire au bout d'un an. Les verdicts de
+    contenus/verdicts_verification.csv en sont : chaque verdict en vigueur (sauf « tranche », constat d'ensemble sans
+    effet ligne à ligne) cite une adresse web et a moins d'un an. Le 16 novembre 2026, 215 verdicts du 15 octobre n'en
+    citaient aucune ; ils changent encore 44 CMP."""
+    import datetime as dt
+    import pandas as pd
+    from pipeline import config
+    v = pd.read_csv(config.RACINE / "contenus" / "verdicts_verification.csv", sep=";", dtype=str).fillna("")
+    v = v.drop_duplicates("cle", keep="last")
+    v = v[v["verdict"] != "tranche"]
+    aujourd = dt.date.today()
+    age = v["date"].map(lambda d: (aujourd - dt.date.fromisoformat(d)).days if d else 9999)
+    sans = v[~v["commentaire"].str.contains(r"https?://", regex=True)]
+    vieux = v[age > 365]
+    assert sans.empty and vieux.empty, (f"{len(sans)} verdicts sans source cliquable, {len(vieux)} de plus d'un an",
+                                        sans["cle"].head(5).tolist())
+
+
+def test_listes_verifiees_sourcees():
+    """Exception du 15 novembre 2026 (règles du projet, partie 4) : une vérification de structure tenue à la main n'est
+    acceptée qu'avec une source officielle cliquable et datée, une structure par ligne, et elle expire au bout d'un an.
+    Contrôle sur les fichiers versionnés de contenus/ : chaque ligne a une adresse web, une date valide de moins d'un an
+    et pas dans le futur ; une structure n'apparaît qu'une fois (même établissement, type, public, nom, commune)."""
+    import datetime as dt
+    import pandas as pd
+    from pipeline import config
+    fautes = []
+    aujourd = dt.date.today()
+    fichiers = {"structures_verifiees.csv": ("adresse_source", "date"),
+                # le fichier des établissements résume leurs sources en mots ; chaque structure porte la sienne
+                "etablissements_verifies.csv": ("", "date"),
+                "adresses_verifiees.csv": (None, None)}
+    for nom, (col_src, col_date) in fichiers.items():
+        f = config.RACINE / "contenus" / nom
+        if not f.exists():
+            continue
+        t = pd.read_csv(f, sep=";", dtype=str, encoding="utf-8").fillna("")
+        if col_src is None:
+            col_src = next((c for c in t.columns if "source" in c and "adresse" in c), None) or \
+                next((c for c in t.columns if "source" in c), None)
+        col_date = col_date or next((c for c in t.columns if "date" in c), None)
+        for i, r in t.iterrows():
+            # une inscription de FINESS ou du ROR gardée telle quelle (statut « bases ») a la base pour source
+            if col_src and r.get("statut", "") != "bases" and not re.search(r"https?://", r[col_src]):
+                fautes.append(f"{nom}, ligne {i + 2} : pas d'adresse web dans « {col_src} »")
+            try:
+                d = dt.date.fromisoformat(r[col_date][:10])
+                if d > aujourd or (aujourd - d).days > 365:
+                    fautes.append(f"{nom}, ligne {i + 2} : date {d} hors de l'année écoulée, à revérifier")
+            except (ValueError, KeyError):
+                fautes.append(f"{nom}, ligne {i + 2} : date absente ou illisible")
+        if nom == "structures_verifiees.csv":
+            dbl = t[t.duplicated(["ej", "type", "public", "nom", "commune"], keep=False)]
+            fautes += [f"{nom} : structure en double, {r['nom']} ({r['commune']})" for _, r in dbl.iterrows()]
+    assert not fautes, fautes[:15]
+
+
+def test_structures_verifiees_numeros_a_leur_ligne():
+    """Défaut trouvé le 16 novembre 2026 (vérification de Montauban) : une ligne vérifiée sans numéro FINESS prenait,
+    par le nom de la commune, l'inscription qu'une autre ligne du même établissement réclamait par son numéro. Sur le
+    dernier fichier publié : un numéro réclamé par une ligne vérifiée ne se retrouve jamais, dans la même commune, sur une
+    autre structure de la même vérification (même établissement et même type)."""
+    import pandas as pd
+    from pipeline import config
+    eds = sorted(p for p in (config.RACINE / "resultats").iterdir() if p.is_dir() and p.name[:2] == "20")
+    if not eds or not (eds[-1] / "lieux_soins.csv").exists():
+        return
+    L = pd.read_csv(eds[-1] / "lieux_soins.csv", sep=";", dtype=str, keep_default_na=False, encoding="utf-8-sig")
+    v = pd.read_csv(config.RACINE / "contenus" / "structures_verifiees.csv", sep=";", dtype=str).fillna("")
+    noms = {(r["ej"], r["type"], r["commune"], r["nom"]) for _, r in v.iterrows()}
+    # un numéro donné par deux lignes (CMP pour adultes et pour enfants sous un même numéro, Valbonne, Pamiers) n'est
+    # réclamé par aucune en propre
+    par_cle = {}
+    for _, r in v.iterrows():
+        for n in r["finess"].split(","):
+            if n.strip():
+                par_cle.setdefault((r["type"], r["commune"], n.strip()), set()).add(r["nom"])
+    reclame = {k: next(iter(s)) for k, s in par_cle.items() if len(s) == 1}
+    fautes = []
+    for _, x in L[L["provenance"].isin(["FINESS et ROR", "FINESS seul", "ROR seul"])].iterrows():
+        nom = reclame.get((x["type"], x["commune"], x["finess"]))
+        if nom and nom != x["nom"] and (x["entite_juridique"], x["type"], x["commune"], x["nom"]) in noms:
+            fautes.append(f"{x['nom']} ({x['commune']}) porte le numéro {x['finess']}, réclamé par « {nom} »")
+    assert not fautes, fautes[:10]
+
+
+def test_pas_de_double_apres_un_verdict():
+    """Défaut trouvé le 16 novembre 2026 : un verdict « existe » remettait une inscription des bases que la liste
+    vérifiée avait reprise sous une autre clé, et la structure comptait deux fois (CMP Point du Jour de Saint-Dizier,
+    25 CMP dans la version du 13 novembre). Sur le dernier fichier publié : aucun CMP inscrit des bases (non vérifié)
+    n'a le numéro et la commune d'un CMP vérifié."""
+    import pandas as pd
+    from pipeline import config
+    eds = sorted(p for p in (config.RACINE / "resultats").iterdir() if p.is_dir() and p.name[:2] == "20")
+    if not eds or not (eds[-1] / "lieux_soins.csv").exists():
+        return
+    L = pd.read_csv(eds[-1] / "lieux_soins.csv", sep=";", dtype=str, keep_default_na=False, encoding="utf-8-sig")
+    cmp_ = L[(L["type"] == "lieu_cmp") & (L["finess"] != "")]
+    sources_v = {"FINESS et ROR", "FINESS seul", "ROR seul", "ROR, type que FINESS ne distingue pas"}
+    v = pd.read_csv(config.RACINE / "contenus" / "structures_verifiees.csv", sep=";", dtype=str).fillna("")
+    noms_v = set(zip(v["commune"], v["nom"]))
+    ver = cmp_[[(c, n) in noms_v for c, n in zip(cmp_["commune"], cmp_["nom"])]]
+    cles = set(zip(ver["finess"], ver["commune"]))
+    autres = cmp_[~cmp_.index.isin(ver.index) & cmp_["provenance"].isin(sources_v)]
+    doubles = autres[[(f, c) in cles for f, c in zip(autres["finess"], autres["commune"])]]
+    assert doubles.empty, [f"{r.nom} ({r.commune}, {r.finess})" for r in doubles.itertuples()][:10]
+
+
+def test_autorisations_ni_doublon_ni_unite_recopiee():
+    """Banc d'essai du 16 novembre 2026 : une structure ajoutée par son activité autorisée (FINESS - Activités) ne
+    reprend aucune unité ni catégorie du ROR (la dialyse du CH de Pau portait l'unité « PASS » d'une ligne recopiée), et
+    aucune n'est à moins de 500 m d'une structure du même type dont le numéro n'exerce pas l'activité (Groupe
+    hospitalier mutualiste de Grenoble, devenu Cité hospitalière des Alpes ; antenne de Sainte-Foy-la-Grande). Sur le
+    dernier fichier publié."""
+    import numpy as np
+    import pandas as pd
+    from pipeline import config, lieux
+    from pipeline.sources import finess_activites
+    eds = sorted(p for p in (config.RACINE / "resultats").iterdir() if p.is_dir() and p.name[:2] == "20")
+    if not eds or not (eds[-1] / "lieux_soins.csv").exists():
+        return
+    L = pd.read_csv(eds[-1] / "lieux_soins.csv", sep=";", dtype=str, keep_default_na=False, encoding="utf-8-sig")
+    lib = lieux.PROVENANCES["autorisation"]
+    act = finess_activites.charger(True)
+    sites = act["sites"] if act else {}
+    from pipeline.sources import finess
+    com_f = finess.charger(True, False).drop_duplicates("nofinesset").set_index("nofinesset")["com"]
+    a = L[L["provenance"] == lib]
+    if a.empty:
+        return
+    assert (a["unite_ror"] == "").all() and (a["categories_ror"] == "").all(),         a.loc[(a["unite_ror"] != "") | (a["categories_ror"] != ""), "nom"].head().tolist()
+    num = lambda s: pd.to_numeric(s.str.replace(",", "."), errors="coerce")  # noqa: E731
+    fautes = []
+    for t, g in L.groupby("type"):
+        ga = g[g["provenance"] == lib]
+        s_t = sites.get(t, set())
+        chez = lambda n: n.isin(s_t) & (lieux.commune_de(n.map(com_f)) == g["commune"])  # noqa: E731
+        gb = g[(g["provenance"] != lib) & ~chez(g["finess"]) & ~chez(g["finess_rapproche"])]
+        if ga.empty or gb.empty:
+            continue
+        la, lo = num(gb["latitude"]).to_numpy(), num(gb["longitude"]).to_numpy()
+        for r in ga.itertuples():
+            y, x = float(str(r.latitude).replace(",", ".") or "nan"), float(str(r.longitude).replace(",", ".") or "nan")
+            if np.isnan(y):
+                continue
+            d = np.hypot((la - y) * 111.2, (lo - x) * 111.2 * np.cos(np.radians(y)))
+            if np.nanmin(d) < lieux.AUTORISATION_MEME_LIEU_KM:
+                fautes.append(f"{t} {r.nom} ({r.commune})")
+    assert not fautes, fautes[:10]
+
+
+def test_cattp_annonce_par_le_nom_de_l_etablissement():
+    """Chantier des structures, 16 novembre 2026 : le nom de l'établissement de FINESS qui porte un CMP annonce un
+    CATTP (« CMP-CATTP ADULTES MOREZ » dans le Jura, où aucun n'était compté), une fois par établissement et par
+    commune, et jamais pour un CMP dont la commune est lue dans son nom (« CMP CATTP DE BRIVE » pour le CMP
+    d'Egletons). Cas repris des inscriptions du ROR."""
+    import pandas as pd
+    from pipeline import lieux
+    x = pd.DataFrame([
+        {"type": "lieu_cmp", "lieu": "a", "ej": "390780476", "commune": "39368", "nom": "CMP MOREZ",
+         "nom_affiche": "CMP MOREZ", "structure_nom": "CMP-CATTP ADULTES MOREZ", "origine_commune": "unite"},
+        {"type": "lieu_cmp", "lieu": "b", "ej": "390780476", "commune": "39300", "nom": "CMP ESPACE ADO",
+         "nom_affiche": "CMP ESPACE ADO", "structure_nom": "HJ CMP CATTP ENFANTS ADOS LONS", "origine_commune": "unite"},
+        {"type": "lieu_cmp", "lieu": "c", "ej": "390780476", "commune": "39300", "nom": "CMP ENFANTS LA FERTE",
+         "nom_affiche": "CMP ENFANTS LA FERTE", "structure_nom": "HJ CMP CATTP ENFANTS ADOS LONS",
+         "origine_commune": "unite"},
+        {"type": "lieu_cmp", "lieu": "d", "ej": "190000042", "commune": "19073", "nom": "CMP Egletons",
+         "nom_affiche": "CMP Egletons", "structure_nom": "CMP CATTP DE BRIVE", "origine_commune": "nom"},
+    ])
+    out, n = lieux.cattp_des_cmp(x)
+    c = out[out["type"] == "lieu_cattp"]
+    assert sorted(c["commune"]) == ["39300", "39368"], c[["commune", "nom"]].to_dict("records")
+
+
+def test_urgences_sans_cellule_de_crise_ni_urgence_psychiatrique():
+    """Chantier des structures, 16 novembre 2026 : le ROR range en catégorie 20 des cellules de crise sanitaire du SAMU
+    et des accueils d'urgence psychiatrique (« SAMU Centre 15 - Cellule de crise », « APU Cherbourg », « CPOA »), qui
+    étaient comptés comme services d'urgences. Sur le dernier fichier publié, aucun service d'urgences ne porte ces
+    noms."""
+    import re
+    import pandas as pd
+    from pipeline import config
+    from pipeline.util import norm
+    eds = sorted(p for p in (config.RACINE / "resultats").iterdir() if p.is_dir() and p.name[:2] == "20")
+    if not eds or not (eds[-1] / "lieux_soins.csv").exists():
+        return
+    L = pd.read_csv(eds[-1] / "lieux_soins.csv", sep=";", dtype=str, keep_default_na=False, encoding="utf-8-sig")
+    u = L[L["type"] == "lieu_urgences"]
+    motif = (r"\bsamu\b|(?:cellule|salle|gestion|centre) de crise|medico[- ]?psycholog|\bpsy\b|\bapu\b|\bcpoa\b|\bupca\b|"
+             r"medico[- ]?judiciaire|medecine legale|victimologie|bloc operatoire|\baorte\b|vigilans")
+    fautes = u[u["nom"].map(lambda n: bool(re.search(motif, norm(n))))]
+    assert fautes.empty, fautes["nom"].tolist()
+
+
+def test_provenances_toutes_dans_le_tableau_de_methode():
+    """Le tableau de provenance de la page de méthode des structures dit que ses colonnes refont le nombre de
+    structures. Chaque provenance de lieux.PROVENANCES est donc reprise dans une colonne de site.py (la provenance
+    « autorisation », ajoutée le 16 novembre 2026 avec FINESS-Activités, compte parmi « FINESS seul »)."""
+    from pipeline import config, lieux
+    src = (config.RACINE / "pipeline" / "site.py").read_text(encoding="utf-8")
+    debut = src.index("couverture.append(")
+    bloc = src[debut:src.index("})", debut)]
+    manquantes = [v for v in lieux.PROVENANCES.values() if f'"{v}"' not in bloc]
+    assert not manquantes, manquantes
+
+
 def test_structures_verifiees_sans_etablissement():
     """Une unité du ROR sans établissement, dans la commune d'une structure vérifiée et de nom concordant, lui est
     rattachée au lieu de compter à part. Une autre unité sans établissement de la même commune reste."""
@@ -1237,6 +1705,77 @@ def test_lieux_enfants_et_communes():
     r = lieux.communes_du_nom(noms, pd.Series(["62", "59"], index=noms.index), ref,
                               pd.Series({1: {"62427"}, 2: {"59606"}}))
     assert r.to_dict() == {1: "62215"}, r
+
+
+def test_commune_du_nom_sans_mot_courant():
+    """Chantier des structures, constat C1 du 16 novembre 2026, sur le référentiel des communes en cache : un nom de
+    commune précédé d'un article, d'un lieu-dit ou d'une voie n'est pas lu (« ESAT la Fontaine », « Domaine du
+    Château », « hors les murs », « Palais Belvédère », « Cap Sizun », « CMP Jules Verne ») ; « du » devant une commune
+    qui porte l'article reste lu (« site du Mée-sur-Seine »), « ST » abrégé aussi (« PAV - ST Carpentras ») ; un bloc
+    ou une salle d'un service est une unité interne, jamais déplacée par son nom. Et le public d'un CMP sans âge se lit
+    dans « adult », « psy générale » ou « enfance » (constat C8)."""
+    import re
+    import pandas as pd
+    from pipeline import config, lieux
+    from pipeline.sources import referentiel
+    ref = referentiel.charger(True, False)
+    cas = {"ESAT LA FONTAINE": ("10", None), "EHPAD LE DOMAINE DU CHATEAU": ("71", None),
+           "MAS HORS LES MURS LES COLIBRIS": ("84", None), "Hébergement permanent - EHPAD PALAIS BELVEDERE": ("06", None),
+           "ESAT du Cap Sizun - Déficience Intellectuelle": ("29", None), "CMP JULES VERNE": ("25", None),
+           "SITE DU MEE SUR SEINE": ("77", "77285"), "PAV - ST Carpentras": ("84", "84031"),
+           "PAV - ST Orange haut Vaucluse": ("84", "84087"), "CMP Munster - Psy adulte": ("68", "68226")}
+    noms = pd.Series(list(cas), index=range(len(cas)))
+    r = lieux.communes_du_nom(noms, pd.Series([v[0] for v in cas.values()]), ref).to_dict()
+    for i, (n, (_d, attendu)) in enumerate(cas.items()):
+        assert r.get(i) == attendu, (n, r.get(i), attendu)
+    for n in ("Bloc obstétrical - Salles de césarienne", "Bloc obstétrical - salles de travail et de naissance"):
+        assert re.search(config.NOM_UNITE_INTERNE, lieux.norm(n)), n
+    for n in ("Urgences - CH Ste-Foy-la-Grande", "S.A.U NOYON", "CMP Salles"):
+        assert not re.search(config.NOM_UNITE_INTERNE, lieux.norm(n)), n
+    for n, adu, enf in (("CMP ADULT PRINTEMPS MILLAU", True, False), ("C.M.P.S PSY GENERALE AVION CH LENS", True, False),
+                        ("CMP ENFANCE ET SURDITE LES ULIS", False, True), ("CMP 59I12 MAUBEUGE", False, True)):
+        s = lieux.norm(n)
+        e = bool(re.search(config.NOM_ENFANTS + "|" + config.NOM_SECTEUR_ENFANTS, s))
+        a = not e and bool(re.search(config.NOM_ADULTES, s))
+        assert (a, e) == (adu, enf), (n, a, e)
+
+
+def test_unites_hospitalieres_a_leur_site():
+    """Constat C3 du 16 novembre 2026 : les unités d'un service qui ne se tient qu'à l'hôpital, inscrites au ROR dans une
+    commune voisine de leur site, sont à leur site quand le point FINESS du site est dans la commune de FINESS. Sur le
+    dernier fichier publié : les unités du CH de Sens et du CH de la Haute-Gironde sont à Sens et à Blaye, jamais à
+    Maillot ni à Saint-Seurin-de-Cursac ; celles de l'hôpital de Honfleur restent à Équemauville, où il se trouve."""
+    import pandas as pd
+    from pipeline import config
+    eds = sorted(p for p in (config.RACINE / "resultats").iterdir() if p.is_dir() and p.name[:2] == "20")
+    if not eds or not (eds[-1] / "lieux_soins.csv").exists():
+        return
+    L = pd.read_csv(eds[-1] / "lieux_soins.csv", sep=";", dtype=str, keep_default_na=False, encoding="utf-8-sig")
+    h = L[L["type"].isin(config.TYPES_INTERNES_HOPITAL)]
+    fautes = [f"{r.nom} ({r.finess}) à {r.commune}" for r in h.itertuples()
+              if (r.finess == "890975550" and r.commune == "89236") or (r.finess == "330000571" and r.commune == "33477")]
+    assert not fautes, fautes[:10]
+
+
+def test_finess_activites_exercees():
+    """Quatrième source des types hospitaliers (constat C10 du 16 novembre 2026), sur le fichier en cache : les
+    urgences du CH de Dunkerque et la maternité de Sarreguemines sont des activités exercées ; une structure des urgences
+    se distingue du SAMU et du SMUR par sa modalité ; la lecture ligne à ligne retrouve des milliers d'activités des deux
+    formats (AMM et AMF), sans en perdre derrière une activité médico-sociale."""
+    from pipeline.sources import finess_activites as F
+    if not F.FICHIER.exists():
+        return
+    a = F.lire(F.FICHIER)
+    assert {"AMM", "AMF"} <= set(a["nature"]) and len(a) > 30000, a["nature"].value_counts()
+    s = F.sites_par_type(a)
+    assert "590000337" in s["lieu_urgences"] and "570000901" in s["lieu_maternite"]
+    assert 500 < len(s["lieu_urgences"]) < 800 and 350 < len(s["lieu_maternite"]) < 550, {k: len(v) for k, v in s.items()}
+    samu = a[(a["nature"] == "AMM") & (a["activite"] == "QA014") & (a["modalite"].isin(["MO030", "MO031"]))]
+    # un site peut avoir son SMUR au nouveau format et ses urgences encore à l'ancien (activité 14, modalité 23 ou 24)
+    su = (((a["activite"] == "QA014") & a["modalite"].isin(["MO032", "MO033"]))
+          | ((a["nature"] == "AMF") & (a["activite"] == "14") & a["modalite"].isin(["23", "24"])))
+    seuls = set(samu["finess_et"]) - set(a.loc[su, "finess_et"])
+    assert not (seuls & s["lieu_urgences"]), "un site de SAMU ou de SMUR seul compté comme urgences"
 
 
 def test_lieux_reunion_sans_double_compte():
@@ -1791,14 +2330,18 @@ def test_nom_qui_cite_un_pays_ou_une_voie():
     from pipeline.sources import referentiel
     ref = referentiel.charger(hors_ligne=True)
     cas = {"gex": ("CPTS DU PAYS DE GEX", "01", "240 RUE DE LA GARE", False),
-           "cra": ("Centre Ressources Austime des Pays de la Loire - ANGERS", "49", "4 RUE LARREY", False),
+           # lu Loiré jusqu'au 16 novembre 2026, puis écarté comme pays ; l'article écarte désormais « la Loire » et le
+           # nom est lu Angers, sa commune (4 rue Larrey, CHU d'Angers)
+           "cra": ("Centre Ressources Austime des Pays de la Loire - ANGERS", "49", "4 RUE LARREY", True),
            "betheny": ("RESIDENCE BETHENY", "51", "40 RUE DE BETHENY", False),
            "mamers": ("CSAPA - Mamers", "72", "92 RUE MOLIERE", True),
            "arles": ("SAMSAH INTERACTION13 - Relais Pays d'Arles - Cérébro lésés", "13", "85 RUE PIERRE BERTIER", True),
            "chanteheux": ("ESAT EPSILON site de Chanteheux", "54", "ZONE D'AMENAGEMENT DIFFERE DE CHANTEHEUX", True)}
     noms = pd.Series({k: v[0] for k, v in cas.items()})
     autres = lieux.communes_du_nom(noms, pd.Series({k: v[1] for k, v in cas.items()}), ref)
-    assert set(autres.index) == set(cas), autres   # la lecture seule du nom les place toutes
+    # la lecture seule du nom les place toutes, sauf « Résidence Bétheny », que le mot « résidence » écarte déjà
+    # (règle du 16 novembre 2026, lieux.AVANT_NON_COMMUNE)
+    assert set(autres.index) == set(cas) - {"betheny"}, autres
     garde = lieux.sans_pays_ni_voie(autres, pd.Series(True, index=noms.index), noms,
                                     pd.Series({k: v[2] for k, v in cas.items()}), ref)
     assert set(garde.index) == {k for k, v in cas.items() if v[3]}, garde
@@ -2810,27 +3353,29 @@ def test_manques_sae():
         raise Ignore("résultats ou SAE absents")
     m = Lm.manques_sae({"lieux": l}, hop, ref)
     dep = m[(m["niveau"] == "dep") & (m["type"] == "lieu_cattp")].set_index("code")
-    if "39" not in dep.index or dep.at["39", "inscrites"] > 0:
-        raise Ignore("CATTP du Jura inscrits depuis, repère à revoir")
-    assert dep.at["39", "manque"] and dep.at["87", "manque"] and dep.at["39", "declarees"] >= 10
+    # les CATTP du Jura, repère jusqu'au 13 novembre 2026, sont inscrits depuis l'édition du 16 (vérification de
+    # l'établissement) ; la Haute-Vienne (aucun pour 6) et la Vienne (aucun pour 4) restent le repère
+    if "87" not in dep.index or dep.at["87", "inscrites"] > 0:
+        raise Ignore("CATTP de la Haute-Vienne inscrits depuis, repère à revoir")
+    assert dep.at["87", "manque"] and dep.at["86", "manque"] and dep.at["87", "declarees"] >= 5
     assert not dep.loc[dep["inscrites"] >= dep["declarees"], "manque"].any()
     ep = m[(m["niveau"] == "epci") & (m["type"] == "lieu_cattp")]
-    assert set(ep["code"]) >= set(ref.epci.loc[ref.epci["dep"] == "39", "code"])
+    assert set(ep["code"]) >= set(ref.epci.loc[ref.epci["dep"] == "87", "code"])
     L = {"lieux": l, "manques_sae": m, "distances": {"dep": dist[["code", "type", "distance_mediane_km", "part_plus_20_km",
                                                                     "part_plus_30_km"]].copy()}}
     sortie = Lm.masquer_manques(L, ref)
     dd = L["distances"]["dep"].set_index(["type", "code"])
-    assert pd.isna(dd.at[("lieu_cattp", "39"), "distance_mediane_km"]) and pd.isna(dd.at[("lieu_cattp", "87"), "part_plus_30_km"])
+    assert pd.isna(dd.at[("lieu_cattp", "86"), "distance_mediane_km"]) and pd.isna(dd.at[("lieu_cattp", "87"), "part_plus_30_km"])
     assert pd.notna(dd.at[("lieu_cmp_adultes", "39"), "distance_mediane_km"])
     # une seule limite et une seule phrase par territoire, qui nomme chaque type touché avec ses nombres (trois
     # « À savoir » presque identiques s'empilaient dans la fiche de Limoges Métropole, remarque du 30 octobre 2026)
     assert list(sortie["limites"]) == ["manque_sae"] and sortie["limites"]["manque_sae"]["court"]
     terr = sortie["limites"]["manque_sae"]["territoires"]
-    assert "75" not in terr and "les CATTP (14 déclarés, aucun inscrit)" in terr["39"]
+    assert "75" not in terr and "les CATTP (6 déclarés, aucun inscrit)" in terr["87"]
     # régions sous « reg: », la Guyane (région 03) ne se confond pas avec l'Allier (département 03)
     assert "reg:03" in terr and "CATTP" in terr["reg:03"] and "03" not in terr
-    t87 = terr["87"]
-    assert t87.count("FINESS et le Répertoire") == 1 and "les CATTP" in t87 and "les CMP pour adultes" in t87
+    t68 = terr["68"]
+    assert t68.count("FINESS et le Répertoire") == 1 and "les CMP pour adultes" in t68 and "les CMP pour enfants" in t68
     e87 = ref.epci.loc[ref.epci["dep"] == "87", "code"].iloc[0]
     assert "l'essentiel de la population de ce territoire (Haute-Vienne)" in terr[e87]
     assert sortie["alias"]["dist_lieu_cattp"] == sortie["alias"]["lieux_lieu_cmp_adultes"] == "manque_sae"
@@ -5223,6 +5768,24 @@ def test_distances_sans_traverser_la_mer():
     assert loin.empty, loin[["code", "type", "distance_mediane_km"]].head().to_dict("records")
 
 
+def test_csv_publies_virgule_decimale():
+    """Chaque nombre des fichiers CSV publiés s'écrit avec la virgule décimale. Défaut du 17 novembre 2026 : les
+    distances vidées pour les PMI changeaient les colonnes de nombres en texte, et les fichiers distances_lieux_* de
+    l'édition corrective sortaient avec le point décimal (export._sans_non_recenses). Toutes les lignes de tous les
+    fichiers du dernier dossier de résultats sont lues."""
+    import csv
+    import re
+    d = _dernier_resultats()
+    point = re.compile(r"^-?\d+\.\d+(?:e-?\d+)?$")
+    fautes = {}
+    for f in sorted(d.rglob("*.csv")):
+        with open(f, encoding="utf-8-sig", newline="") as h:
+            n = sum(1 for ligne in csv.reader(h, delimiter=";") for x in ligne if point.match(x))
+        if n:
+            fautes[f.relative_to(d).as_posix()] = n
+    assert not fautes, f"nombres écrits avec un point décimal : {fautes}"
+
+
 def test_envoi_programme():
     """Envoi programmé de la fenêtre du courrier (28 octobre 2026). Dates lues sous les deux formes, empreinte qui
     change avec le texte ou les destinataires, sur un vrai brouillon (sans rien écrire ni envoyer)."""
@@ -6327,7 +6890,9 @@ def test_affichage_repere_distance_mediane_habitants():
     for lv in ("epci", "dep", "reg"):
         S = T.serie("dist_lieu_cmp_adultes", lv)
         assert S.ref_type == "mediane_habitants" and AF.nombre(S.ref, "distance") == AF.nombre(fr["lieu_cmp_adultes"], "distance")
-    assert AF.nombre(T.serie("dist_lieu_cmp_adultes", "dep").ref, "distance") == "2,6"
+    # 2,6 km jusqu'à l'édition du 13 novembre 2026, 2,5 km depuis celle du 16 (CMP replacés à l'adresse de leurs
+    # établissements, distance médiane de 2,564 à 2,527 km)
+    assert AF.nombre(T.serie("dist_lieu_cmp_adultes", "dep").ref, "distance") == "2,5"
     for t, comp in T.complet.items():
         S = T.serie("dist_" + t, "dep")
         if S is not None and not comp:

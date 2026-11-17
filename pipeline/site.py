@@ -1617,7 +1617,10 @@ def _lieux_methode(dossier):
         seul_ror = p.get("ROR, type que FINESS ne distingue pas", 0) == n
         couverture.append({"libelle": r["libelle_type"], "n": nb(n),
                            "deux": "sans objet" if seul_ror else nb(p.get("FINESS et ROR", 0)),
-                           "finess": "sans objet" if seul_ror else nb(p.get("FINESS seul", 0)),
+                           # une activité autorisée et exercée selon FINESS (source FINESS-Activités, 16 novembre 2026) est connue de
+                           # FINESS seul, pour que les colonnes refassent le total
+                           "finess": "sans objet" if seul_ror else nb(p.get("FINESS seul", 0) + p.get(
+                               "Activité autorisée et exercée selon FINESS, sans unité de ce type dans le ROR", 0)),
                            # le ROR seul compte aussi les unités d'un type que FINESS ne distingue pas, pour que les
                            # trois colonnes refassent le total
                            "ror": "sans objet" if seul_ror else nb(p.get("ROR seul", 0)

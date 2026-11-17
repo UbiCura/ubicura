@@ -34,6 +34,10 @@ RPPS_RESSOURCES = {
 # ---------------------------------------------------------------- FINESS
 # Le flux historique est gelé depuis mai 2026, Finess+ le remplace.
 FINESS_NOUVEAU = "finess-structures-1"
+# Activités de soins autorisées et exercées par établissement géographique, flux FINESS+ « FINESS - Activités » de
+# l'ANS, https://www.data.gouv.fr/datasets/finess-activites-1 (lu par l'API de data.gouv.fr le 16 novembre 2026,
+# Licence Ouverte 2.0, fichier quotidien et instantané mensuel) ; module pipeline/sources/finess_activites.py
+FINESS_ACTIVITES = "finess-activites-1"
 FINESS_HISTORIQUE = "53699569a3a729239d2046eb"
 # Colonnes du flux historique (fichier sans en-tête, section "structureet")
 FINESS_COLONNES_HISTO = [
@@ -681,6 +685,8 @@ HAS_ESSMS_PAGE = "https://www.data.gouv.fr/datasets/" + HAS_ESSMS_JEU
 SOURCES_INFO = [
     (r"^RPPS", "Agence du numérique en santé (ANS)", "Licence Ouverte 2.0",
      "https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps"),
+    (r"^FINESS - Activités", "Agence du numérique en santé (ANS)", "Licence Ouverte 2.0",
+     "https://www.data.gouv.fr/datasets/finess-activites-1"),
     (r"^FINESS \(Finess\+\)", "Agence du numérique en santé (ANS)", "Licence Ouverte 2.0",
      "https://www.data.gouv.fr/datasets/finess-structures-1"),
     (r"^FINESS", "Ministère chargé de la santé", "Licence Ouverte 2.0",
@@ -1077,7 +1083,28 @@ CHAMP_PSY = "03"
 # limite (des CMP pour enfants et adolescents déclarent 21 ans, constat du 12 octobre 2026 dans le Haut-Rhin), ou
 # quand son nom le dit
 AGE_MAX_ENFANTS = 21
-NOM_ENFANTS = r"enfant|adolescen|\bados?\b|pedo|infanto|juvenil|bebe|perinat|petite enfance|cmpea|cmpi\b"
+# « CMP ENFANCE ET SURDITE » (constat C8 du 16 novembre 2026)
+NOM_ENFANTS = r"enfant|enfance|adolescen|\bados?\b|pedo|infanto|juvenil|bebe|perinat|cmpea|cmpi\b"
+# décision 1 du chantier des structures, acceptée le 16 novembre 2026 : un territoire dont cette part au moins des CMP
+# du public relève d'établissements vérifiés n'est pas masqué par la règle des 50 % de la SAE (lieux.manques_sae) ; seuls
+# comptent les établissements dont toutes les sources ont moins de VERIFICATION_SOURCE_ANS ans (une page actuelle non
+# datée compte comme récente), et un lieu de CMP est une adresse et un public (lieux.un_lieu_par_adresse_cmp)
+MASQUAGE_PAR_VERIFICATION = True
+PART_VERIFIEE_MIN = 0.9
+VERIFICATION_SOURCE_ANS = 3
+CMP_UN_LIEU_PAR_ADRESSE = True
+# décision 2, acceptée le 16 novembre 2026 : types écrits « non recensé » partout malgré leur présence dans presque tous
+# les départements, parce qu'une référence indépendante montre qu'une grande part manque : les PMI, 1 152 dans la liste
+# pour 4 616 points fixes de consultation déclarés à la DREES en 2024 (enquête Aide sociale, volet PMI)
+LIEUX_NON_RECENSES: set = {"lieu_pmi"}
+# types d'activité qui ne se tiennent qu'à l'hôpital : une unité de ces types sans adresse propre est à son site FINESS
+# (lieux.localiser, constat C3 du 16 novembre 2026)
+TYPES_INTERNES_HOPITAL = {"lieu_maternite", "lieu_neonatalogie", "lieu_urgences", "lieu_soins_non_programmes",
+                          "lieu_reanimation", "lieu_chirurgie", "lieu_medecine", "lieu_cardiologie", "lieu_neurologie",
+                          "lieu_pediatrie", "lieu_geriatrie", "lieu_cancerologie", "lieu_soins_palliatifs", "lieu_usld"}
+# (ni la réadaptation, ni la dialyse, ni l'hospitalisation en psychiatrie, qui ont souvent un autre site du même numéro)
+# nom d'une unité interne à l'hôpital, quelle que soit sa catégorie (« Bloc obstétrical - Salles de césarienne »)
+NOM_UNITE_INTERNE = r"\bbloc\b|\bsalles? de (?:cesarienne|pretravail|travail|naissance|reveil)"
 # Mots qui ne désignent jamais une commune quand on cherche la commune d'une unité dans son nom (beaucoup d'unités de
 # psychiatrie du ROR n'ont pas de commune propre, constat du 12 octobre 2026)
 MOTS_NON_COMMUNES = {"centre", "pavillon", "secteur", "adulte", "adultes", "enfant", "enfants", "psy", "maison",
@@ -1207,11 +1234,65 @@ FINESS_HOPITAUX = {"101", "106", "355", "292", "362", "365", "366"}
 # public d'un CMP connu de FINESS seul (sans âges déclarés dans le ROR), déduit de son nom. Codes de secteur de
 # psychiatrie, « G » pour la psychiatrie générale (adultes), « I » pour les intersecteurs infanto-juvéniles
 NOM_SECTEUR_ENFANTS = r"\b(?:\d{2}|2a|2b)\s?i\s?\d{1,2}\b"
-NOM_ADULTES = r"adulte|\b(?:\d{2}|2a|2b)\s?g\s?\d{1,2}\b|geronto|sujet age|personnes agees|psychiatrie generale"
+# « CMP ADULT PRINTEMPS MILLAU », « C.M.P.S PSY GENERALE AVION » (constat C8 du 16 novembre 2026)
+NOM_ADULTES = r"adulte|\badult\b|\b(?:\d{2}|2a|2b)\s?g\s?\d{1,2}\b|geronto|sujet age|personnes agees|psy(?:chiatrie)? generale"
 # Aucun nom de personne n'est publié. Une unité du ROR dont le nom en contient un (consultation nominative) est écartée,
 # et un contrôle bloquant le vérifie sur les noms tirés du ROR. Les raisons sociales d'établissements de FINESS, qui
 # portent parfois le nom d'un fondateur (« EHPAD Docteur ... »), sont autorisées.
-NOM_PERSONNE = r"\b(?:dr|docteur|professeur)\b\.?\s"
+# le pluriel et les civilités aussi : « Consultation gynécologie & obstétrique Drs … », « SSR MPR Orthopédie Drs … »,
+# « Consultation psychologie Mme … » étaient publiés (chantier des structures du 16 novembre 2026) ; « DRS - Difficultés
+# psychologiques » est un sigle, pas un nom
+NOM_PERSONNE = r"\b(?:drs?|docteurs?|professeurs?|mmes?)\b\.?\s(?!difficult)"
+
+# Principales structures d'exercice salarié (structures_principales.csv, atlas) : la raison sociale déclarée au RPPS
+# n'est publiée que si elle ne peut pas être le nom d'un professionnel (règles du projet, partie 3), quel que soit son
+# numéro FINESS (une officine en a un). Elle doit porter un mot d'institution, et n'est jamais publiée quand elle
+# désigne une société d'exercice ou un cabinet, commence par une civilité, ou contient un titre suivi d'un nom ou le nom
+# d'un professionnel qui y déclare son activité, sauf pour un établissement de santé public ou associatif nommé
+# d'après une personne (« Centre hospitalier Docteur ... »). Le 16 novembre 2026, 119 raisons sociales publiées portaient
+# un titre et un nom (« Cabinet du Dr ... ») ; le 17, la relecture de l'édition corrective trouvait encore des sociétés
+# d'exercice de pharmacie au nom du pharmacien, qu'un numéro FINESS dispensait du contrôle.
+SOCIETE_EXERCICE = (r"\b(?:sel|selarl|selas|selasu|selafa|selca|seleurl|selurl|selarlu|spfpl|scop|scp|scm|sisa|snc|eurl|ei|eirl|"
+                    r"cabinets?)\b")
+# Une société commerciale ordinaire, une officine ou un laboratoire porte souvent le nom de son titulaire, présent ou
+# passé (« SARL Dupont », « Pharmacie Dupont ») : son numéro FINESS ou le seul mot « pharmacie » ne suffit pas, il lui
+# faut un autre mot d'institution (« Pharmacie du Centre », « Pharmacie à usage intérieur du CH »), audit du 17 novembre
+# 2026.
+SOCIETE_COMMERCIALE = r"\b(?:sarl|sas|sasu|sa|societe|sci|sca)\b"
+NOM_DE_TITULAIRE = r"\b(?:pharmacies?|pharma|pharm|phie|phcie|officines?)\b"
+# titres et civilités au milieu d'une raison sociale (« Association des Drs ... », « Centre Pr ... »), avec NOM_PERSONNE
+TITRE_PERSONNE = r"\b(?:pr|mr|madame|monsieur|mademoiselle)\b\.?\s"
+# Seconde relecture du 17 novembre 2026 : un numéro FINESS ne suffit plus à une petite structure (une officine au nom
+# « Prénom Nom ») ; il ne dispense du mot d'institution qu'une structure d'au moins RS_NOMMEE_TAILLE_MAX professionnels.
+# Une officine ou une société n'est jamais excusée par un mot d'établissement (« Pharmacie ... de l'Hôpital ... » au nom
+# du pharmacien), ni une association par son seul nom (« Association des Drs ... »).
+CIVILITE_EN_TETE = r"^(?:monsieur|madame|mademoiselle|mme|mlle)\b\.?\s"
+# au-delà de ce nombre de professionnels déclarés, une structure qui contient le nom de l'un d'eux n'est pas à son nom
+# (« CHRU Rennes », « Clinique Louis Pasteur ») ; en deçà, c'est un cabinet, une officine ou une société d'exercice
+RS_NOMMEE_TAILLE_MAX = 50
+# un nom de professionnel n'est cherché dans les raisons sociales de son département que s'il porte un mot présent dans
+# moins de ce nombre de raisons sociales en France (sinon « Centre », « Dame » ou « Parc », qui sont aussi des noms)
+RS_NOM_MOT_RARE = 20
+ETABLISSEMENT_NOMME = (r"\b(?:centres? hospitali\w*|hopita\w*|groupe hospitalier|chu|chr|chi|chs|ch|chiv|eps|epsm|ehpad|"
+                       r"ime|iem|sessad|cmpp|camsp|d?itep|mas|fam|esat|cmp|cattp|"
+                       r"fondations?|institut\w*)\b")
+MOT_INSTITUTION = (r"\b(?:centres?|ctre|eps|hospitali\w*|hopita\w*|hosp\w*|clini\w*|polycliniques?|chu|chr|chi|chs|ch|chiv|"
+                   r"epsm|ght|gcs|gip|gie|institut\w*|fondations?|associations?|ass|assoc|asso|mutual\w*|mutuelles?|"
+                   r"communes?|mairie|ville|metropole|eurometropole|communaute|departement\w*|conseil|region\w*|"
+                   r"collectivite|academie|rectorat|inspection|education|directions?|services?|sce|sdis|mdph|caisses?|"
+                   r"cpam|msa|universite|faculte|ufr|ecoles?|colleges?|lycees?|minister\w*|prefecture|etablissements?|"
+                   r"groupements?|groupe|union|federation|agences?|police|gendarmerie|armees?|penitentiaire|ehpad|esat|"
+                   r"ime|itep|sessad|camsp|cmpp|cmp|maison|foyer|residences?|office|syndicat|sante|travail|medical\w*|"
+                   r"medico\w*|soins|laboratoires?|lbm|pharmacies?|pharma|industrie|france|ccas|hotel|aphp|"
+                   r"croix|ordre|reseau|pole|unite|club|ligue|comite|oeuvres?|apajh|adapei\w*|unapei\w*|apf|sauvegarde|thermes|"
+                   r"ssti\w*|chru|chd|chic|chg|chm|chp|ghu|gh|ghi|ghsif|ghef|ghre|gher|hop|hp|hia|hnia|hnfc|hus|hfme|"
+                   r"clcc|crlcc|cl|cds|cs|csd|cms|cmr|crf|crrf|cmpr|cmrf|mrc|ssr|smr|had|hadar|pmi|cpmi|efs|csapa|ssiad|"
+                   r"savs|mas|iem|usld|cpef|cidag|sist|aist|spst|apst|ast|etab|ets|inst|maternite|consult\w*|protection|"
+                   r"readapt\w*|reeduc\w*|planning|eps\w*|dame|ditep|dime|samsah|sams|fam|eam|hj|hdj|mecs|esrp|esms|"
+                   r"eeap|csp|cpds|csmr|chiva|chsld|polycl\w*|clinea|epdef|mea|eplsms|sessd|ssad|sessad|dispositifs?|"
+                   r"placement|aemo|sos|crpa|crcpfc|cesdda|ids|dams|pep|ladapt|apas|asmis|amsn|guidance|cmp\w*|cattp|"
+                   r"camsp|pfs|ssr\w*|ehpa|mapad|marpa|uhcd|urgences?|eanm|ies|cdr|impro|diem|bapu|safep|ddame|"
+                   r"chrs)\b")
 
 # Types de lieux. Identifiant, libellé, famille, groupe, règle. Règle, catégories du ROR (TRE_R244, None pour les unités
 # sans catégorie), champs d'activité, modes de prise en charge, public (enfants ou adultes), motif d'exclusion sur le
@@ -1275,11 +1356,17 @@ LIEUX_TYPES = [
     # beaucoup d'unités hospitalières du ROR n'ont pas de catégorie, les urgences sont aussi repérées par leur mode
     # (accueil des urgences), les maternités par leur type de maternité
     # services d'urgences générales ou pédiatriques, comme la DREES, sans les urgences spécialisées ni les salles
-    # d'accueil des urgences vitales, qui font partie d'un service compté par ailleurs (constat du 12 octobre 2026)
+    # d'accueil des urgences vitales, qui font partie d'un service compté par ailleurs (constat du 12 octobre 2026), ni
+    # les cellules de crise sanitaire du SAMU ni les accueils d'urgence psychiatrique, que le ROR range aussi en
+    # catégorie 20 (« SAMU Centre 15 - Cellule de crise », « APU Cherbourg », « CPOA », « Urgences médico-psychologiques
+    # CH Pontivy » : douze lignes), ni les unités médico-judiciaires, de victimologie, un bloc opératoire ou les
+    # consultations d'un hôpital psychiatrique aux urgences d'un autre (chantier des structures du 16 novembre 2026)
     ("lieu_urgences", "Services d'urgences", SANTE, G_URG,
      {"cats": {"20"}, "modes_seuls": {"33"}, "champs_seuls": {"01"},
       "hors": r"obstetri|gyneco|psychiatr|dentaire|odonto|ophtalm|\bmains?\b|vasculaire|tete et cou|\bsauv\b|"
-              r"urgences vitales|maternite|salle de naissance"}),
+              r"urgences vitales|maternite|salle de naissance|\bsamu\b|(?:cellule|salle|gestion|centre) de crise|"
+              r"medico[- ]?psycholog|\bpsy\b|\bapu\b|\bcpoa\b|\bupca\b|medico[- ]?judiciaire|medecine legale|victimologie|"
+              r"bloc operatoire|\baorte\b|vigilans|accueil soignant|unite medicale de garde|harmattan|consultations chg"}),
     ("lieu_smur", "SMUR, interventions d'urgence", SANTE, G_URG, {"cats": {"247"}}),
     ("lieu_soins_non_programmes", "Soins non programmés", SANTE, G_URG, {"cats": {"138", "92", "278"}}),
     # le type de maternité est attaché à toutes les unités d'un hôpital qui en a une, il ne compte que pour les unités
@@ -1572,7 +1659,16 @@ LIMITES = {
                   "deux bourgs d'une même commune. Les carreaux ne couvrent ni la Guadeloupe, ni la Guyane, ni Mayotte, "
                   "où les distances partent du chef-lieu de la commune dans la Base Adresse Nationale. L'emplacement "
                   "d'une structure sans coordonnées connues est le centre de sa commune. Un type recensé dans moins de 90 % des départements est "
-                  "listé, mais pas comparé entre territoires."),
+                  "listé, mais pas comparé entre territoires. Les PMI sont dites non recensées partout : la liste en "
+                  "compte environ 1 200, pour 4 616 points fixes de consultation que les départements déclarent à la "
+                  "DREES en 2024 (enquête Aide sociale, volet PMI). Pour les urgences, les maternités, la dialyse, la "
+                  "réadaptation et l'hospitalisation à domicile, FINESS donne aussi les activités autorisées et exercées "
+                  "par chaque site : un site qui exerce l'activité sans structure de ce type dans le ROR est ajouté à "
+                  "son adresse, sauf à moins de 500 mètres d'une structure du même type. Un lieu de CMP est une adresse "
+                  "et un public : deux secteurs pour adultes installés à la même adresse ne comptent qu'une fois. Les "
+                  "CMP d'un département sont jugés complets quand 90 % au moins relèvent d'établissements dont la liste "
+                  "a été vérifiée sur leurs propres sources récentes, sinon quand ils atteignent la moitié du nombre que "
+                  "les établissements déclarent à la statistique annuelle des établissements de santé."),
         "sources": [SRC_ROR, SRC_FINESS, SRC_ARS_MARTINIQUE,
                     ("IGN, service de géocodage de la Géoplateforme", GEOCODAGE_PAGE),
                     ("INSEE, données carroyées à 200 m (Filosofi 2019)", INSEE_CARREAUX_PAGE)],
@@ -1935,7 +2031,9 @@ SOURCES_SUIVIES = [
     (r"^rpps_", "Répertoire RPPS des professionnels de santé", "Agence du numérique en santé", r"^RPPS",
      "Effectifs et densités de toutes les professions, lieux et modes d'exercice, secteurs d'activité."),
     (r"^finess_", "FINESS, établissements sanitaires et sociaux", "Ministère chargé de la santé", r"^FINESS",
-     "Catégorie des établissements où exercent les salariés, périmètre élargi de la santé mentale."),
+     "Catégorie des établissements où exercent les salariés, périmètre élargi de la santé mentale ; activités de soins "
+     "autorisées et exercées par site (urgences, maternités, dialyse, HAD, réadaptation), qui complètent la liste des "
+     "structures (finess_activites, depuis le 16 novembre 2026)."),
     (r"^insee_dossier_complet", "Dossier complet, recensement et revenus", "INSEE", r"^INSEE,? dossier",
      "Profil des territoires (âge, revenus, pauvreté, emploi, diplômes, logement), effectif attendu."),
     (r"^insee_estimations", "Estimations annuelles de population", "INSEE", r"^INSEE, estimations",

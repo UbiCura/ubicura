@@ -20,7 +20,7 @@ function lieuxOptions(){const sel=document.getElementById("lieuxType"),bar=docum
   const types=LX.types.map((t,k)=>({...t,k})).filter(t=>LX.pts.some(p=>p[0]===t.k)&&(S.fam==="*"||t.famille===S.fam));
   const grp=[...new Set(types.map(t=>t.groupe))];
   sel.innerHTML='<option value="">Aucune</option>'+grp.map(g=>'<optgroup label="'+esc(g)+'">'+types.filter(t=>t.groupe===g)
-    .map(t=>'<option value="'+t.id+'"'+(S.lieux===t.id?" selected":"")+'>'+esc(t.lib)+(t.complet?"":" (recensement incomplet)")+'</option>').join("")+'</optgroup>').join("");
+    .map(t=>'<option value="'+t.id+'"'+(S.lieux===t.id?" selected":"")+'>'+esc(t.lib)+(t.nr?" (non recensé)":t.complet?"":" (recensement incomplet)")+'</option>').join("")+'</optgroup>').join("");
   if(S.lieux&&!types.some(t=>t.id===S.lieux))S.lieux="";sel.value=S.lieux||""}
 function projLieu(pt){const d=lieuDep(pt[4]),ll=[pt[2]/1e4,pt[1]/1e4];return DOMS.includes(d)?(P[d]?P[d].projection()(ll):null):CORSE.includes(d)?metro([ll[0]-DLON_CORSE,ll[1]]):metro(ll)}
 function dessinerLieux(Mx){Mx.zoomable.selectAll("g.lieux").remove();Mx.svg.selectAll("g.lieuxdom").remove();
@@ -48,7 +48,8 @@ function dessinerLieux(Mx){Mx.zoomable.selectAll("g.lieux").remove();Mx.svg.sele
   const vus=ici||pts,nc=vus.filter(confirme).length,nr=vus.filter(recoupe).length,nb=vus.filter(creux).length;
   const conf=typeConfirme(t.id)?legendeClasses(nc,nr,nb)+'<span>'+(ici?"dans le territoire choisi":"en France")+', voir « Comment lire »</span>':"";
   return '<div class="legende-lieux">'+(conf?conf+'</div><div class="legende-lieux">':'<svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="4" fill="'+css("--ink")+'"/></svg> ')
-    +fmt.format(pts.length)+' structures, '+esc(minLib(t.lib))+', recensées par FINESS et le ROR, réunies sans double compte'+(t.complet?"":", recensement incomplet")
+    +(t.nr?'Structures, '+esc(minLib(t.lib))+', inscrites dans FINESS et le ROR, réunies sans double compte ; non recensé, la liste est très incomplète et leur nombre n’est pas publié'
+      :fmt.format(pts.length)+' structures, '+esc(minLib(t.lib))+', recensées par FINESS et le ROR, réunies sans double compte'+(t.complet?"":", recensement incomplet"))
     +'. Les points s’affichent en zoomant sur la carte (deux fois au moins), le plan du territoire choisi est dans l’encadré « Structures de soins de ce territoire »'+(t.complet&&D.niveaux[S.level].lieux_dist?.[S.lieux]?", la mesure « Distance aux structures » en donne la vue d’ensemble":"")+'.</div>'}
 // symbole du niveau de confirmation, plein ou creux comme sur la carte
 function symboleConf(d,k){const c=d?classeDe(d):(k===true?"a_verifier":k===false?"confirmee":k);

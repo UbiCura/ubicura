@@ -107,6 +107,29 @@ def appliquer(lieux: pd.DataFrame, avant: pd.DataFrame | None, ref, centres: dic
     absents = None
     if avant is not None and len(avant):
         absents = avant[~avant.set_index(["type", "lieu"]).index.isin(x.set_index(["type", "lieu"]).index)]
+        # une inscription reprise par une ligne de la liste vérifiée change de clé sans être écartée : son numéro et sa
+        # commune sont ceux d'une structure vérifiée du même type. La remettre la compterait deux fois (CMP Point du
+        # Jour de Saint-Dizier, verdict « existe » du 15 octobre, vérification du CH de la Haute-Marne du 16 novembre 2026)
+        if "verifiee" in x and "finess" in x and "finess" in absents:
+            ver = x[x["verifiee"].fillna(False).astype(bool)]
+            repris = set(zip(ver["type"], ver["finess"].astype(str), ver["commune"]))
+            # et les numéros que les lignes vérifiées réclament, même placés ailleurs (« CMP de Pontault », inscrit à
+            # Pontault-Combault, reçu à Roissy-en-Brie d'après le GHEF)
+            from . import structures_verifiees as sv
+            # ; seulement pour un numéro qui ne désigne qu'un lieu dans les bases, jamais pour un numéro d'hôpital porté
+            # par des unités de plusieurs communes (consultations C.P.A.O. de Prémontré sous le numéro de l'EPSM de
+            # l'Aisne, que réclame aussi son CMP de Villers-Cotterêts)
+            reclames = set()
+            _, sv_lignes = sv.charger()
+            communes_du_num = avant.groupby(avant["finess"].astype(str))["commune"].nunique()
+            for t_, f_ in zip(sv_lignes["type"], sv_lignes["finess"].fillna("")):
+                for n_ in str(f_).split(","):
+                    if n_.strip() and communes_du_num.get(n_.strip(), 0) == 1:
+                        reclames.add((t_, n_.strip()))
+                        for enf in sv.ENFANTS_DE.get(t_, []):
+                            reclames.add((enf, n_.strip()))
+            absents = absents[[(t, str(f), c) not in repris and (t, str(f)) not in reclames
+                               for t, f, c in zip(absents["type"], absents["finess"], absents["commune"])]]
     idx_avant = _index(absents, nom_com) if absents is not None else {}
     retirer, ajouter = [], []
     for r in v.itertuples():
