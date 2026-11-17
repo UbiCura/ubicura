@@ -49,7 +49,29 @@ def charger() -> pd.DataFrame:
         return pd.DataFrame(columns=cols)
     v = pd.read_csv(FICHIER, sep=";", dtype=str).fillna("")
     v = v[v["verdict"].isin(list(RETIRES) + ["existe", "tranche"])]
-    return v.drop_duplicates("cle", keep="last").reindex(columns=cols, fill_value="")
+    v = v.drop_duplicates("cle", keep="last").reindex(columns=cols, fill_value="")
+    # exception du 15 novembre 2026 (règles du projet, partie 4) : un verdict sans source cliquable, sans date ou de
+    # plus d'un an est écarté et consigné, jamais appliqué (« tranche », constat d'ensemble, n'a pas d'effet)
+    import datetime as dt
+    aujourd = dt.date.today()
+
+    def raison(r):
+        if r["verdict"] == "tranche":
+            return ""
+        if not re.search(r"https?://", r["commentaire"]):
+            return "sans source cliquable"
+        try:
+            d = dt.date.fromisoformat(r["date"])
+        except ValueError:
+            return "sans date"
+        return "date hors de l'année écoulée" if d > aujourd or (aujourd - d).days > 365 else ""
+    r_ = v.apply(raison, axis=1) if len(v) else pd.Series(dtype=str)
+    ecartes = v[r_ != ""]
+    if len(ecartes):
+        JOURNAL.controle("Vérifications à la main des CMP écartées (sans source cliquable, sans date ou de plus d'un an)",
+                         f"{len(ecartes)} : " + "; ".join(f"{s} ({x})" for s, x in
+                                                          zip(ecartes["structure"].head(15), r_[r_ != ""].head(15))))
+    return v[r_ == ""]
 
 
 def _cles(r, nom_com: pd.Series) -> set:

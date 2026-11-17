@@ -239,9 +239,13 @@ def ages(familles: dict) -> dict | None:
                 dep = t[(t["niveau"] == "dep") & (t["annee"] == a1)].set_index("code")
                 cols[ident] = dep["part_60"] * 100
                 fam = familles.get(profs[0], config.SANTE)
+                # « psychiatres, dont psychiatres de l'enfant » devient « psychiatres (psychiatres de l'enfant compris) »
+                # : la virgule rattachait l'âge au seul « dont » (relecture du 17 novembre 2026)
+                nom_, _, dont_ = lib.lower().partition(", dont ")
+                lib_l = nom_ + (f" ({dont_} compris)" if dont_ else "")
                 defs.append({
-                    "id": ident, "libelle": f"Part des {AGE_SEUIL} ans et plus, {lib.lower()}", "unite": "%",
-                    "explication": f"Part des {lib.lower()} âgés de {AGE_SEUIL} ans ou plus au 1er janvier {a1}, "
+                    "id": ident, "libelle": f"Part des {AGE_SEUIL} ans et plus, {lib_l}", "unite": "%",
+                    "explication": f"Part des {lib_l} âgés de {AGE_SEUIL} ans ou plus au 1er janvier {a1}, "
                                    f"d'après la DREES. La DREES compte chaque professionnel une fois, dans le "
                                    f"département de son activité principale, ce qui diffère des comptages par lieu "
                                    f"d'exercice du reste du site. Repère du renouvellement à venir, pas une prévision "

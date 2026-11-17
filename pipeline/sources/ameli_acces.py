@@ -146,6 +146,11 @@ def _ald(hors_ligne, rafraichir):
                    where, hors_ligne, rafraichir)
     df = pd.read_csv(dest, sep=";", dtype=str)
     df = df[df["annee"] == df["annee"].max()]
+    # ligne « inconnu » de la source (patients sans département connu), qui n'est pas un territoire
+    inconnu = df["departement"].str.strip().str.lower().eq("inconnu") | df["region"].str.strip().str.lower().eq("inconnu")
+    if inconnu.any():
+        JOURNAL.controle("ALD sans médecin traitant, lignes sans territoire connu écartées", f"{int(inconnu.sum())}")
+    df = df[~inconnu]
     df["valeur"] = pd.to_numeric(df["taux_patients_ald_sans_mt_integer"], errors="coerce")
     df["niveau"] = "dep"
     df.loc[df["departement"] == "999", "niveau"] = "reg"

@@ -368,7 +368,7 @@ def _lieux_csv(agg, noms, lab, out: Path, contexte: dict | None = None):
             d = d.assign(libelle_type=d["type"].map(types), nom=d["code"].map(noms[niv].set_index("code")["nom"]),
                          recensement_complet=d["type"].map(complet).fillna(False).astype(bool))
             _csv(_sans_non_recenses(d), out / f"distances_lieux_{niv}.csv")
-    JOURNAL.controle("Structures de soins, taux des fichiers lieux_soins égaux à ceux du site (attendu, aucun écart)",
+    JOURNAL.controle("Structures de soins, taux des fichiers de structures par territoire égaux à ceux du site (attendu, aucun écart)",
                      "; ".join(controle))
     d = (L.get("distances") or {}).get("fr")
     if isinstance(d, pd.DataFrame):

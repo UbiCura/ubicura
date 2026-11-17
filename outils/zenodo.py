@@ -169,15 +169,36 @@ def version_du_depot(d: dict) -> str:
     return m.get("version") or m.get("publication_date") or "sans numéro"
 
 
+def _ligne(texte: str) -> str:
+    """Texte échappé, adresses DOI rendues cliquables."""
+    corps = html.escape(texte.strip(), quote=False)
+    return re.sub(r"(https://doi\.org/[^\s<]*[^\s<.,;)])", r'<a href="\1">\1</a>', corps)
+
+
 def paragraphe(titre: str, texte: str) -> str:
-    """Paragraphe de description Zenodo, titre en gras, texte échappé, adresses DOI rendues cliquables."""
-    corps = html.escape(texte, quote=False)
-    corps = re.sub(r"(https://doi\.org/[^\s<]*[^\s<.,;)])", r'<a href="\1">\1</a>', corps)
-    return f"<p><strong>{titre}.</strong> {corps}</p>"
+    """Paragraphe de description Zenodo, titre en gras. Sur plusieurs lignes, la première suit le titre, une ligne
+    qui commence par « - » est un point de liste, les autres lignes sont des intertitres en italique : la liste des
+    corrections d'une version se lit d'un coup d'œil (demande du 17 novembre 2026)."""
+    lignes = [l for l in texte.splitlines() if l.strip()]
+    if not lignes:
+        return f"<p><strong>{titre}.</strong></p>"
+    morceaux, liste = [f"<p><strong>{titre}.</strong> {_ligne(lignes[0])}</p>"], []
+    for l in lignes[1:] + [None]:
+        if l is not None and l.lstrip().startswith("- "):
+            liste.append(f"<li>{_ligne(l.lstrip()[2:])}</li>")
+            continue
+        if liste:
+            morceaux.append("<ul>" + "".join(liste) + "</ul>")
+            liste = []
+        if l is not None:
+            morceaux.append(f"<p><em>{_ligne(l)}</em></p>")
+    return "\n".join(morceaux)
 
 
 def sans_paragraphe(description: str, titre: str) -> str:
-    return re.sub(rf"<p>\s*<strong>{re.escape(titre)}\.</strong>.*?</p>\s*", "", description or "", flags=re.S)
+    """Retire le paragraphe « titre » avec ses listes et ses intertitres en italique."""
+    return re.sub(rf"<p>\s*<strong>{re.escape(titre)}\.</strong>.*?</p>\s*(?:(?:<ul>.*?</ul>|<p>\s*<em>.*?</p>)\s*)*",
+                  "", description or "", flags=re.S)
 
 
 def avec_paragraphe(description: str, titre: str, texte: str) -> str:
@@ -302,8 +323,11 @@ def cmd_preparer(args) -> int:
                         "python outils\\zenodo.py abandonner, puis recommencer.")
         # la note de la version précédente ne vaut pas pour celle-ci
         meta["description"] = sans_paragraphe(meta.get("description"), "Note de version")
-        if args.note:
-            meta["description"] = avec_paragraphe(meta["description"], "Note de version", args.note)
+        note = args.note
+        if getattr(args, "note_fichier", None):
+            note = Path(args.note_fichier).read_text(encoding="utf-8")
+        if note:
+            meta["description"] = avec_paragraphe(meta["description"], "Note de version", note)
         z.appel("PUT", f"/deposit/depositions/{bid}", json={"metadata": meta})
         # adresse donnée par Zenodo lui-même (le brouillon n'est visible que du titulaire du compte, connecté)
         lien = brouillon["links"].get("latest_draft_html") or brouillon["links"].get("html") or f"https://zenodo.org/deposit/{bid}"
@@ -579,6 +603,8 @@ def main() -> int:
     p.add_argument("--version", help="date de la version à archiver (par défaut la plus récente)")
     p.add_argument("--note", help="paragraphe « Note de version » en tête de la description (ce que la version "
                                   "corrige ou ajoute)")
+    p.add_argument("--note-fichier", help="fichier texte de la note de version, à la place de --note : la première "
+                                          "ligne suit le titre, les lignes « - ... » forment une liste")
     p.add_argument("--correctif", help="étiquette d'une version corrective publiée le jour même d'une autre, par "
                                        "exemple « version corrigée » (version 2026-10-30 (version corrigée))")
     p.add_argument("--remplace", help="date de la version publiée que celle-ci corrige ; à la publication, elle reçoit "

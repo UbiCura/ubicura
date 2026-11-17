@@ -96,7 +96,14 @@ if ($Restaurer) {
     $sortie = & $python outils\comparer_versions.py 2>&1 | ForEach-Object { "$_" }
     $code = $LASTEXITCODE
     foreach ($l in $sortie) { if ($l.Trim()) { Add-Content -Path $log -Value $l -Encoding UTF8 } }
-    $compte = ($sortie | Where-Object { $_ -match "^Compte rendu" } | Select-Object -Last 1)
+    $compte = "$($sortie | Where-Object { $_ -match '^Compte rendu' } | Select-Object -Last 1)"
+    # une comparaison qui plante (code autre que 0, 10 ou 20) bloque : le 17 novembre 2026, une erreur Python de
+    # comparer_versions.py (code 1) laissait la publication continuer sans comparaison
+    if ($code -ne 0 -and $code -ne 10 -and $code -ne 20) {
+        Ecrire "La comparaison avec la version publiée a échoué (code $code), rien n'est envoyé. Voir $log"
+        Prevenir "La comparaison avec la version publiée a échoué. Rien n'a été mis en ligne.`n`nVoir $log"
+        exit 1
+    }
     if ($code -eq 20) {
         Ecrire "Problème bloquant relevé, rien n'est envoyé. $compte"
         Prevenir "La nouvelle version présente un problème bloquant. Rien n'a été mis en ligne.`n`n$compte"

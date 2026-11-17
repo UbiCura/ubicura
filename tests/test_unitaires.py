@@ -360,8 +360,15 @@ def test_lecture():
     from pipeline import lecture as Lc
     assert Lc.pluriel("Médecin généraliste") == "médecins généralistes"
     # un intervalle de confiance qui comprend zéro empêche de présenter le lien comme établi
-    assert Lc.phrase_correlation(-.19, "Taux de suicide", "Psychologue", (-.39, .04)).startswith("Aucun lien net")
+    assert Lc.phrase_correlation(-.19, "Taux de suicide", "Psychologue", (-.39, .04)).startswith("Pas de lien au-delà")
     assert "comptent plutôt moins" in Lc.phrase_correlation(-.38, "Taux de suicide", "Psychiatre", (-.54, -.19))
+    # règle unique du site : sous le seuil de 0,3, ou q au-dessus de 0,05, ce n'est pas un lien (relecture du 17 novembre)
+    assert Lc.phrase_correlation(.27, "AAH", "Psychiatre", (.2, .33)).startswith("Pas de lien au-delà")
+    assert Lc.phrase_correlation(.35, "AAH", "Psychiatre", (.2, .45), q=.08).startswith("Pas de lien au-delà")
+    assert "plutôt plus" in Lc.phrase_correlations([("Psychiatre", .27, (.2, .33), .001),
+                                                    ("Psychologue", .32, (.25, .4), .001)], "AAH")
+    assert "psychiatres" in Lc.phrase_correlations([("Psychiatre", .27, (.2, .33), .001),
+                                                    ("Psychologue", .32, (.25, .4), .001)], "AAH").split("seuil")[-1]
     assert Lc.pluriel("Masseur-kinésithérapeute") == "masseurs-kinésithérapeutes"
     assert Lc.pluriel("Sage-femme") == "sages-femmes"
     assert Lc.pluriel("Technicien de laboratoire") == "techniciens de laboratoire"
@@ -802,6 +809,44 @@ def test_un_lieu_de_cmp_par_adresse_et_public():
     assert len(retirees) == 1 and retirees[0]["raison"].startswith("même adresse")
 
 
+def test_cmp_meme_rue_sans_numero_un_lieu():
+    """Constat du 17 novembre 2026, sur la liste publiée ce jour-là : deux CMP du même public dans la même rue, numéro
+    absent d'au moins un côté, au même point (moins de config.CMP_MEME_RUE_M), du même établissement ou du même code
+    de secteur, font un seul lieu (Le Cerisier à Merville, CMP 94G12 d'Ivry-sur-Seine) ; deux établissements sans
+    code commun (boulevard Béranger à Tours) ou deux points éloignés (rue de Charlieu à Roanne) restent deux lieux."""
+    import pandas as pd
+    from pipeline import config, lieux
+    f = config.RACINE / "resultats" / "2026-11-17" / "lieux_soins.csv"
+    if not f.exists():
+        raise Ignore("liste des structures du 17 novembre 2026 absente")
+    L = pd.read_csv(f, sep=";", dtype=str)
+    x = L.rename(columns={"entite_juridique": "ej", "latitude": "lat", "longitude": "lon", "id_structure": "lieu"})
+    x["nom_affiche"] = x["nom"]
+    x["verifiee"] = x["source_verification"].notna()
+    for c in ("lat", "lon"):
+        x[c] = pd.to_numeric(x[c].str.replace(",", "."), errors="coerce")
+    y, retirees = lieux.un_lieu_par_adresse_cmp(x)
+    ret = {(r["commune"], r["nom"]) for r in retirees}
+    assert ("59400", "CMP ADULTES LE CERISIER") in ret or ("59400", "CMP LE CERISER") in ret, ret
+    assert ("94041", "CMP 94G12") in ret, ret
+    reste = lambda com, mot: y[(y["commune"] == com) & y["type"].str.startswith("lieu_cmp_")  # noqa: E731
+                               & y["adresse"].str.upper().str.contains(mot)]
+    assert len(reste("37261", "BERANGER")) == 2
+    assert len(reste("42187", "CHARLIEU")) == 2
+    assert 15 <= len(retirees) <= 40, len(retirees)
+
+
+def test_meme_adresse_numero_absent_d_un_cote():
+    """Une inscription gardée parce que la HAS ou Sirene la confirme n'est pas comptée en plus d'une structure de la
+    liste vérifiée de son établissement à la même adresse (CMP Daviers d'Angers, constat du 17 novembre 2026)."""
+    from pipeline.structures_verifiees import _voie, meme_adresse
+    assert meme_adresse(_voie("8 BOULEVARD DAVIERS"), _voie("BOULEVARD DAVIERS"))
+    assert meme_adresse(_voie("PL JEAN TAVE"), _voie("place Jean-Tavé"))
+    assert meme_adresse(_voie("55 bis rue Gustave-Flaubert"), _voie("55 BIS R GUSTAVE FLAUBERT"))
+    assert not meme_adresse(_voie("16 rue Prato"), _voie("64 rue Prato"))
+    assert not meme_adresse(_voie(""), _voie(""))
+
+
 def test_verification_sur_sources_recentes():
     """Décision 1 du 16 novembre 2026 : un établissement ne compte comme vérifié, pour juger qu'un département a tous
     ses CMP, que si toutes ses lignes s'appuient sur une source de moins de trois ans ; l'année du nom de la source prime
@@ -1036,8 +1081,10 @@ def test_verdicts_sources():
     import datetime as dt
     import pandas as pd
     from pipeline import config
-    v = pd.read_csv(config.RACINE / "contenus" / "verdicts_verification.csv", sep=";", dtype=str).fillna("")
-    v = v.drop_duplicates("cle", keep="last")
+    # le contrôle porte sur les verdicts appliqués : un verdict sans source est écarté par verdicts.charger, consigné
+    # au journal, jamais appliqué (règle du 15 novembre 2026, appliquée au code le 17 novembre)
+    from pipeline import verdicts
+    v = verdicts.charger()
     v = v[v["verdict"] != "tranche"]
     aujourd = dt.date.today()
     age = v["date"].map(lambda d: (aujourd - dt.date.fromisoformat(d)).days if d else 9999)
@@ -2589,6 +2636,22 @@ def test_version_corrective_zenodo():
     assert zenodo.date_version("2026-10-30 (version corrigée)") == "2026-10-30"
     assert zenodo.date_version("2026-10-30") == "2026-10-30"
     assert zenodo.date_version("sans numéro") == "sans numéro"
+
+
+def test_note_de_version_zenodo_en_liste():
+    """La note d'une version corrective liste ses corrections à puces, et la version suivante la retire en entier,
+    liste et intertitres compris, sans toucher au reste de la description (17 novembre 2026)."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "outils"))
+    import zenodo
+    note = "Corrige la version du 17.\nChiffres qui changent\n- 509 & non 492\n- 2 653 CMP\nTextes corrigés\n- titre"
+    reste = "<p><strong>Version remplacée.</strong> voir</p>\n<p>Corps de la description.</p><ul><li>garde</li></ul>"
+    d = zenodo.avec_paragraphe(reste, "Note de version", note)
+    assert d.startswith("<p><strong>Note de version.</strong> Corrige la version du 17.</p>")
+    assert "<p><em>Chiffres qui changent</em></p>" in d and "<li>509 &amp; non 492</li><li>2 653 CMP</li>" in d
+    assert d.count("<ul>") == 3
+    assert zenodo.sans_paragraphe(d, "Note de version") == reste
+    d2 = zenodo.avec_paragraphe(d, "Note de version", "Autre note.")
+    assert d2 == "<p><strong>Note de version.</strong> Autre note.</p>\n" + reste
 
 
 def test_liens_zenodo_code_et_rapports():
@@ -5786,6 +5849,20 @@ def test_csv_publies_virgule_decimale():
     assert not fautes, f"nombres écrits avec un point décimal : {fautes}"
 
 
+def test_comparaison_avant_publication_bloquante():
+    """Publication du 17 novembre 2026 : comparer_versions.py plantait sur les PMI non recensées (nombre vide dans
+    lieux_soins_dep.csv, coherence_rapports.py), et publier.ps1 continuait, le code 1 n'étant ni 10 ni 20. La cohérence
+    des rapports se calcule sur les derniers résultats sans erreur, et publier.ps1 s'arrête sur tout autre code."""
+    import sys
+    from pipeline import config
+    sys.path.insert(0, str(config.RACINE / "outils"))
+    import coherence_rapports
+    coherence_rapports.controler(_dernier_resultats())
+    ps = (config.RACINE / "outils" / "publier.ps1").read_text(encoding="utf-8-sig")
+    assert "$code -ne 0 -and $code -ne 10 -and $code -ne 20" in ps
+    assert ps.index("$code -ne 0 -and $code -ne 10 -and $code -ne 20") < ps.index("Copie des pages publiques")
+
+
 def test_envoi_programme():
     """Envoi programmé de la fenêtre du courrier (28 octobre 2026). Dates lues sous les deux formes, empreinte qui
     change avec le texte ou les destinataires, sur un vrai brouillon (sans rien écrire ni envoyer)."""
@@ -6130,6 +6207,133 @@ def test_reseaux_file_d_attente():
         assert not r.JOURNAL_PUBLICATIONS.exists()
     finally:
         r.MESSAGES, r.FIGURES, r.JOURNAL_PUBLICATIONS, r.PUBLICATION = avant
+        shutil.rmtree(tmp, ignore_errors=True)
+
+
+def test_reseaux_fil():
+    """Fil Bluesky publié d'un seul clic (demande du 17 novembre 2026), sans rien publier, sur le fil de
+    présentation de la série du 17 novembre. Chaque message du fil est contrôlé ; ses figures sont copiées à l'ajout ;
+    l'aperçu montre chaque message avec sa réponse ; l'empreinte d'un message sans fil ne change pas, celle d'un fil
+    change quand une figure de réponse change ; chaque réponse porte reply.root (premier message) et reply.parent
+    (message précédent), en uri et cid ; un échec au milieu arrête le fil, garde ce qui est parti et l'inscrit au
+    journal ; un nouveau clic reprend à la suite sans rien publier deux fois, y compris une réponse partie dont
+    l'accusé de réception s'est perdu."""
+    import argparse
+    import datetime as dt
+    import hashlib
+    import json
+    import shutil
+    import tempfile
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from outils import reseaux as r
+    f = (Path(__file__).resolve().parent.parent / "docs" / "communication" / "serie_2026-11-17" / "fil"
+         / "s17-sans-psychiatre-cmp-fil.json")
+    if not f.exists():
+        raise Ignore("fil de présentation absent")
+    source = json.loads(f.read_text(encoding="utf-8"))
+    assert len(source["fil"]) == 3 and not r.controler_message(source), r.controler_message(source)
+    # chaque réponse est contrôlée comme le premier message
+    mauvais = json.loads(json.dumps(source))
+    mauvais["fil"][0]["bluesky"] = "x" * 301
+    mauvais["fil"][1]["alt"] = ""
+    mauvais["fil"][2]["figure"] = "absente.png"
+    e = r.controler_message(mauvais)
+    assert any("message 2, 301" in x for x in e) and any("message 3, texte de remplacement" in x for x in e) \
+        and any("message 4, figure" in x for x in e), e
+    assert r.controler_message({**source, "reseaux": ["linkedin"], "linkedin": "x ubicura.fr"})
+    # empreinte d'un message sans fil, calculée comme avant le 17 novembre (aucune programmation ne revient à relire)
+    seul = {k: v for k, v in source.items() if k != "fil"}
+    image = hashlib.sha256(r.chemin_figure(seul).read_bytes()).hexdigest()
+    ancienne = hashlib.sha256(json.dumps([seul.get("linkedin"), seul.get("bluesky"), seul.get("alt"), seul.get("lien"),
+                                          sorted(seul.get("reseaux") or []), image], ensure_ascii=False)
+                              .encode("utf-8")).hexdigest()
+    assert r.empreinte(seul) == ancienne and r.empreinte(source) != ancienne
+    avant = (r.MESSAGES, r.FIGURES, r.JOURNAL_PUBLICATIONS)
+    tmp = Path(tempfile.mkdtemp(prefix="reseaux_fil_"))
+    try:
+        r.MESSAGES, r.FIGURES, r.JOURNAL_PUBLICATIONS = tmp / "messages", tmp / "figures", tmp / "journal.csv"
+        (tmp / "m.json").write_text(json.dumps(source, ensure_ascii=False), encoding="utf-8")
+        r.cmd_ajouter(argparse.Namespace(fichier=str(tmp / "m.json")))
+        m = r.lire_json(r.MESSAGES / f"{source['id']}.json")
+        assert [x["figure"] for x in m["fil"]] == [f"{m['id']}-{k}.png" for k in (2, 3, 4)]
+        assert all((r.FIGURES / x["figure"]).is_file() for x in m["fil"]) and not r.controler_message(m)
+        # une figure de réponse changée change l'empreinte, donc annule une validation
+        r.valider(m)
+        shutil.copyfile(r.chemin_figure(m), r.FIGURES / m["fil"][1]["figure"])
+        assert m["empreinte_validee"] != r.empreinte(m)
+        shutil.copyfile(r.chemin_figure(source["fil"][1]), r.FIGURES / m["fil"][1]["figure"])
+        assert m["empreinte_validee"] == r.empreinte(m)
+        # aperçu, chaque message du fil
+        sortie = []
+        import contextlib
+        import io
+        tampon = io.StringIO()
+        with contextlib.redirect_stdout(tampon):
+            assert r.cmd_apercu(argparse.Namespace(id=m["id"])) == 0
+        sortie = json.loads(tampon.getvalue())["bluesky"]
+        assert [x["message"] for x in sortie] == ["1 sur 4", "2 sur 4", "3 sur 4", "4 sur 4"]
+        assert "reply" not in sortie[0]["record"] and all("reply" in x["record"] for x in sortie[1:])
+        assert all(x["record"]["embed"]["images"][0]["alt"] for x in sortie)
+        # publication simulée : panne au message 3, puis reprise
+        envois, panne = [], {"au": 2, "perdu": False}
+
+        def envoyer(partie, reponse=None):
+            k = len(envois)
+            if k == panne["au"]:
+                panne["au"] = None
+                if panne["perdu"]:      # parti, mais l'accusé de réception se perd
+                    envois.append((partie["bluesky"], reponse))
+                raise r.Arret("Bluesky ne répond pas (essai)")
+            envois.append((partie["bluesky"], reponse))
+            rec = r.enregistrement_bluesky(partie, {"$type": "blob"}, 1200, 1500, dt.datetime.now(), reponse)
+            assert rec["text"] == partie["bluesky"].strip()
+            return {"le": f"t{k}", "identifiant": f"at://did:plc:essai/app.bsky.feed.post/{k}", "cid": f"cid{k}",
+                    "adresse": f"https://bsky.app/profile/essai/post/{k}"}
+        envoyer.did = "did:plc:essai"
+
+        def deja(parent, auteur, texte):
+            assert auteur == "did:plc:essai"
+            for k, (t, rep) in enumerate(envois):
+                if t == texte and rep and rep["parent"]["uri"] == parent:
+                    return {"le": "", "identifiant": f"at://did:plc:essai/app.bsky.feed.post/{k}", "cid": f"cid{k}",
+                            "adresse": f"https://bsky.app/profile/essai/post/{k}"}
+            return None
+        pub = {"bluesky": lambda x: r.publier_bluesky(x, envoyer=envoyer, deja=deja)}
+        try:
+            r.publier(m, pub)
+            raise AssertionError("panne non signalée")
+        except r.Arret as ex:
+            assert "message 3 sur 4" in str(ex) and "reprend" in str(ex)
+        m = r.lire_json(r.MESSAGES / f"{m['id']}.json")
+        assert len(m["fil_publie"]) == 2 and "bluesky" not in m.get("publications", {}) and m["statut"] != "publie"
+        assert len(r.journal()) == 2 and r.journal()[1]["message"] == f"{m['id']}, 2 sur 4"
+        panne.update(au=3, perdu=True)           # cette fois, le message 4 part mais sa réponse se perd
+        try:
+            r.publier(m, pub)
+            raise AssertionError("panne non signalée")
+        except r.Arret:
+            pass
+        m = r.lire_json(r.MESSAGES / f"{m['id']}.json")
+        assert len(m["fil_publie"]) == 3
+        texte = r.publier(m, pub)               # reprise : le message 4 est retrouvé, jamais renvoyé
+        m = r.lire_json(r.MESSAGES / f"{m['id']}.json")
+        textes = [t for t, _ in envois]
+        assert len(textes) == len(set(textes)) == 4, textes
+        assert m["statut"] == "publie" and m["publications"]["bluesky"]["identifiant"].endswith("/0")
+        assert "fil de 4 messages" in texte
+        racine = {"uri": "at://did:plc:essai/app.bsky.feed.post/0", "cid": "cid0"}
+        for k, (_t, rep) in enumerate(envois):
+            if k == 0:
+                assert rep is None
+            else:
+                assert rep["root"] == racine and rep["parent"] == {"uri": f"at://did:plc:essai/app.bsky.feed.post/"
+                                                                          f"{k - 1}", "cid": f"cid{k - 1}"}
+        j = r.journal()
+        assert [x["message"] for x in j] == [f"{m['id']}, {k} sur 4" for k in (1, 2, 3, 4)]
+        assert [x["texte"] for x in j] == [p["bluesky"].strip() for p in r.parties_bluesky(m)]
+        assert r.publier(m, pub).startswith("Rien à publier") and len(envois) == 4
+    finally:
+        r.MESSAGES, r.FIGURES, r.JOURNAL_PUBLICATIONS = avant
         shutil.rmtree(tmp, ignore_errors=True)
 
 
@@ -8949,3 +9153,207 @@ if __name__ == "__main__":
             n += 1
             print("ok", nom)
     print(f"{n} tests réussis" + (f", {len(ignores)} ignorés faute de résultats : {', '.join(ignores)}" if ignores else ""))
+
+
+def test_rapports_sans_psychiatre_meme_compte():
+    """Relecture du 17 novembre 2026 : la phrase « les intercommunalités sans psychiatre déclaré ... X sur Y ... Z % des
+    habitants » comptait celles qui ont un psychologue (492, 12,4 %), la phrase des CMP qui la suit toutes (« 215 de ces
+    509 »). Dans chaque rapport, les deux comptes sont les mêmes, et la part est celle du tableau des combinaisons
+    (lignes sans psychiatre)."""
+    import re
+    d = _dernier_resultats()
+    vus = 0
+    for f in sorted(d.glob("rapport*.md")):
+        t = f.read_text(encoding="utf-8")
+        m = re.search(r"sans psychiatre déclaré couvrent une grande surface, ([\d\u202f\xa0 ]+) sur", t)
+        c = re.search(r"([\d\u202f\xa0 ]+) de ces ([\d\u202f\xa0 ]+) intercommunalités", t)
+        if not m or not c:
+            continue
+        vus += 1
+        n = lambda s: int(re.sub(r"\D", "", s))  # noqa: E731
+        assert n(m.group(1)) == n(c.group(2)), (f.name, m.group(0), c.group(0))
+    assert vus, "aucun rapport ne porte les deux phrases"
+
+
+def test_rapports_accords_un_pluriel():
+    """« d'un hôpitaux de jour » (relecture du 17 novembre 2026) : un article singulier devant un libellé de type au
+    pluriel. Aucun rapport ni page construite ne l'écrit."""
+    import re
+    motif = re.compile(r"\b(?:d'|d’)?une? (?:hôpitaux|établissements|centres|services|équipes|maisons|structures|"
+                       r"instituts|foyers|consultations|urgences|soins)\b")
+    d = _dernier_resultats()
+    fautes = []
+    for f in sorted(d.glob("*.md")):
+        for m in motif.finditer(f.read_text(encoding="utf-8")):
+            fautes.append(f"{f.name} : {m.group(0)}")
+    assert not fautes, fautes[:10]
+
+
+def _rapports_md():
+    d = _dernier_resultats()
+    fs = [f for f in sorted(d.glob("rapport*.md"))]
+    if not fs:
+        raise Ignore("aucun rapport")
+    return {f.name: f.read_text(encoding="utf-8") for f in fs}
+
+
+def test_rapports_formulations_proscrites():
+    """Audit des phrases chiffrées du 17 novembre 2026 : formulations fausses ou trompeuses qui ne doivent plus
+    revenir (couleurs de la carte, cause, « d'entre eux » pour un public, lien dit « disparu », colonnes inexistantes,
+    en-tête qui ne nomme pas son compte)."""
+    proscrits = ["Violet, les territoires", "Ocre, ils en ont", "l'hôpital compense", "il disparaît à densité",
+                 "d'entre eux vivent dans une intercommunalité", "Les colonnes de provenance",
+                 "« sans objet » pour leur provenance", "Personnes avec un lieu d'exercice",
+                 "lien net, c'est-à-dire une fourchette", "Seulement les confirmées",
+                 "Les départements éloignés des CMP ont-ils", "Médecin, autre spécialité |",
+                 # deuxième relecture du 17 novembre 2026
+                 "Un lien net a une fourchette", "net a une fourchette qui exclut zéro", "Médecin médecin",
+                 "restent vides pour les types", "Aucun lien net n'apparaît entre", "aucun lien net "
+                 "n'apparaît, la corrélation", "trop incertaine pour conclure",
+                 "dont psychiatres de l'enfant |"]
+    fautes = [f"{n} : {p}" for n, t in _rapports_md().items() for p in proscrits if p in t]
+    assert not fautes, fautes
+
+
+def test_rapports_lien_selon_la_regle_du_site():
+    """Un « lien » écrit dans un croisement atteint le seuil de la règle unique (regle_lien.SEUIL_RHO)."""
+    import re
+    from pipeline import regle_lien
+    fautes = []
+    for n, t in _rapports_md().items():
+        for m in re.finditer(r"le lien est (?:négligeable|faible|modéré|fort) \(rho = (-?\d+,\d+)\)", t):
+            if abs(float(m.group(1).replace(",", "."))) < regle_lien.SEUIL_RHO:
+                fautes.append(f"{n} : {m.group(0)}")
+        # « (lien faible, rho = 0,27) » des phrases de lecture (deuxième relecture du 17 novembre 2026)
+        for m in re.finditer(r"\(lien (?:négligeable|faible|modéré|fort), rho = (-?\d+,\d+)\)", t):
+            if abs(float(m.group(1).replace(",", "."))) < regle_lien.SEUIL_RHO:
+                fautes.append(f"{n} : {m.group(0)}")
+        for m in re.finditer(r"un lien (?:négligeable|faible|modéré|fort) apparaît à densité de population égale "
+                             r"\(rho = (-?\d+,\d+)\)", t):
+            if abs(float(m.group(1).replace(",", "."))) < regle_lien.SEUIL_RHO:
+                fautes.append(f"{n} : {m.group(0)}")
+    assert not fautes, fautes[:10]
+
+
+def test_rapports_evolution_valeurs_distinctes():
+    """« est passée de 2,3 à 2,3 (+3,2 %) » : deux valeurs écrites pareil pour une évolution non nulle."""
+    import re
+    fautes = [f"{n} : {m.group(0)}" for n, t in _rapports_md().items()
+              for m in re.finditer(r"passée de ([\d\u202f\xa0 ,]+) à ([\d\u202f\xa0 ,]+) [^()]*\(([+−-][^)]*)\)", t)
+              if m.group(1).strip() == m.group(2).strip()]
+    assert not fautes, fautes
+
+
+def test_rapports_perimetre_elargi_parts_plausibles():
+    """Part de la profession du périmètre élargi : numérateur et dénominateur du même groupe (45,6 % pour les
+    médecins d'autres spécialités, au lieu de 0,3 %, audit du 17 novembre 2026). Aucune part au-dessus de 100 %, et
+    les médecins d'une autre spécialité sous 5 %."""
+    import re
+    for n, t in _rapports_md().items():
+        i = t.find("Périmètre élargi, salariés des établissements psychiatriques")
+        if i < 0:
+            continue
+        bloc = t[i:t.find("**Comment lire", i)]
+        for ligne in bloc.splitlines():
+            m = re.match(r"\| (.+?) \| [\d\u202f\xa0 ]+ \| (\d+,?\d*)\s?% \|", ligne)
+            if not m:
+                continue
+            v = float(m.group(2).replace(",", "."))
+            assert v <= 100, (n, ligne)
+            if m.group(1).startswith("Médecin d'une autre spécialité"):
+                assert v < 5, (n, ligne)
+
+
+def test_types_de_structure_libelles_courts_distincts():
+    """Deux types de structure n'ont jamais le même libellé court (« Hôpitaux de jour en psychiatrie » pour les
+    adultes et pour les enfants, audit du 17 novembre 2026), et aucun n'a de parenthèse ouverte sans sa fermeture."""
+    from collections import Counter
+    from pipeline import config
+    from pipeline.lieux import _court
+    c = Counter(_court(t[1], t[0]) for t in config.LIEUX_TYPES)
+    assert not [k for k, v in c.items() if v > 1], c
+    assert all(_court(t[1], t[0]).count("(") == _court(t[1], t[0]).count(")") for t in config.LIEUX_TYPES)
+
+
+def test_exercice_en_cmp_coherent_avec_les_declarations():
+    """Les psychiatres comptés dans les CMP (exercice_structures.csv) ne peuvent être bien moins nombreux que les CMP
+    où au moins un psychiatre est déclaré (lieux_soins.csv) : 51 contre 256 avant la correction du 17 novembre 2026
+    (catégorie FINESS perdue à la réunion avec le ROR)."""
+    import pandas as pd
+    d = _dernier_resultats()
+    ex = _csv(d, "exercice_structures.csv")
+    l = pd.read_csv(d / "lieux_soins.csv", sep=";", dtype=str, usecols=["type", "declares_psychiatre"])
+    n_cmp = int((pd.to_numeric(l.loc[l["type"] == "lieu_cmp", "declares_psychiatre"], errors="coerce").fillna(0) > 0).sum())
+    x = ex[(ex["niveau"] == "fr") & (ex["type"] == "lieu_cmp") & (ex["prof"] == "psychiatre")]
+    n_psy = int(x["personnes"].sum()) if len(x) else 0
+    assert n_psy >= 0.5 * n_cmp, (n_psy, n_cmp)
+
+
+def test_controles_publies_sans_identifiant_technique():
+    """Les contrôles des rapports (« Sources et contrôles ») ne montrent ni identifiant technique (« pas_un_cmp »,
+    « cmp_adultes »), ni entier de plus de quatre chiffres sans espace des milliers, ni « % » collé (audit du
+    17 novembre 2026). Les noms de fichiers et les adresses web ne comptent pas."""
+    import re
+    fautes = []
+    for n, t in _rapports_md().items():
+        i, j = t.find("## Sources et contrôles"), t.find("## Précautions de lecture")
+        if i < 0:
+            continue
+        bloc = re.sub(r"https?://\S+|\b[\w-]+\.(?:csv|json|parquet|xlsx|zip)\b|\[[^\]]*\]\([^)]*\)", " ", t[i:j])
+        for m in re.finditer(r"(?<![\w/.:])[a-z]+(?:_[a-z0-9]+)+(?![\w/.])", bloc):
+            fautes.append(f"{n} : identifiant {m.group(0)}")
+        for m in re.finditer(r"(?<![\d,.\-–/\w])\d{5,8}(?![\d,.\w])", bloc):
+            fautes.append(f"{n} : nombre {m.group(0)}")
+        for m in re.finditer(r"\d%", bloc):
+            fautes.append(f"{n} : {bloc[max(0, m.start() - 10):m.end()]}")
+    assert not fautes, fautes[:15]
+
+
+def test_mayotte_hors_des_correlations_entre_departements():
+    """Mayotte est écartée de toute corrélation entre départements (config.DEPARTEMENTS_EXCLUS_CROISEMENTS) : aucun
+    fichier de corrélation ne compte plus de départements qu'il n'en reste sans elle (deuxième relecture du
+    17 novembre 2026, corrélation suicides et psychiatres calculée avec Mayotte)."""
+    import pandas as pd
+    from pipeline import config
+    d = _dernier_resultats()
+    n_max = 101 - len(config.DEPARTEMENTS_EXCLUS_CROISEMENTS)
+    fautes = []
+    f = d / "correlations_contexte.csv"
+    if f.exists():
+        t = pd.read_csv(f, sep=";", decimal=",")
+        x = t[(t["niveau"] == "dep") & (pd.to_numeric(t["n"], errors="coerce") > n_max)]
+        if len(x):
+            fautes.append(f"correlations_contexte.csv, {len(x)} lignes à plus de {n_max} départements")
+    f = d / "sensibilite_ile_de_france.csv"
+    if f.exists():
+        t = pd.read_csv(f, sep=";", decimal=",")
+        if (pd.to_numeric(t["n_tous"], errors="coerce") > n_max).any():
+            fautes.append("sensibilite_ile_de_france.csv")
+    assert not fautes, fautes
+
+
+def test_aucun_territoire_inconnu_dans_les_resultats():
+    """Aucune ligne « inconnu » d'une source n'est comptée comme un territoire (deuxième relecture du 17 novembre
+    2026, ligne « inconnu » de l'Assurance Maladie lue comme un département, 15,9 %)."""
+    import pandas as pd
+    fautes = []
+    for f in sorted(_dernier_resultats().glob("*.csv")):
+        try:
+            t = pd.read_csv(f, sep=";", dtype=str, nrows=500000)
+        except Exception:  # noqa: BLE001
+            continue
+        for c in [c for c in t.columns if c in ("code", "code_dep", "dep", "code_reg", "territoire")]:
+            v = t[c].dropna().str.strip().str.lower()
+            if v.isin(["inconnu", "inconnue", "nan", "999", "99"]).any() and c != "code_reg":
+                fautes.append(f"{f.name} ({c})")
+    assert not fautes, fautes
+
+
+def test_controles_publies_departements_plausibles():
+    """Un compte de départements écrit dans les rapports ne dépasse jamais 101 (deuxième relecture du 17 novembre
+    2026, « 105 départements » pour des codes de la source qui n'en sont pas)."""
+    import re
+    fautes = [f"{n} : {m.group(0)}" for n, t in _rapports_md().items()
+              for m in re.finditer(r"\b(\d{3}) départements\b", t) if int(m.group(1)) > 101]
+    assert not fautes, fautes
+

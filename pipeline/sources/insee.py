@@ -258,6 +258,10 @@ def charger(ref, hors_ligne=False, rafraichir=False) -> dict | None:
         niveaux_fr = {"dep": "départements", "epci": "intercommunalités", "reg": "régions"}
         par_k = {}
         for k, niv, n in approx:
+            # la part des minima sociaux par intercommunalité est vidée ensuite (pas de donnée communale publiée) :
+            # le contrôle ne la dit pas remplacée (relecture du 17 novembre 2026)
+            if k == "minima_sociaux" and niv == "epci":
+                continue
             par_k.setdefault(k, []).append(f"{n} {niveaux_fr.get(niv, niv)}")
         JOURNAL.controle("Valeurs officielles manquantes remplacées par la moyenne des communes pondérée par la population",
                          ", ".join(f"{noms.get(k, k)} ({', '.join(v)})" for k, v in par_k.items()))

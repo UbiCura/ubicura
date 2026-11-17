@@ -191,7 +191,15 @@ def controler(version: Path) -> list[str]:
                     continue
                 if col not in tt:
                     continue
+                # type non recensé (les PMI, décision du 16 novembre 2026) : aucun nombre publié, rien à comparer
+                if tid in config.LIEUX_NON_RECENSES:
+                    continue
                 for dep, v in tt[col].items():
+                    if pd.isna(v):
+                        n_ecarts += 1
+                        if n_ecarts <= 5:
+                            pb.append(f"atlas, {tid} dans le département {dep}, nombre vide dans lieux_soins_dep.csv")
+                        continue
                     if int(float(v)) != int(atlas.get((dep, tid), 0)):
                         n_ecarts += 1
                         if n_ecarts <= 5:

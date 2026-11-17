@@ -311,7 +311,7 @@ def constats(dn, f: dict, lv: str, code: str, dep: str | None) -> list[dict]:
                 continue
             niv_c = AF.NIV_PLURIEL[lv_c]
             unite = (ctx[1].get("unite") or "").replace(" hab.", " habitants").replace("hab./km²", "habitants par km²")
-            unite = re.sub(r"pour 100 000\s*\(standardisé\)", "pour 100 000 habitants, à âge égal", unite)
+            unite = re.sub(r"pour 100 000\s*(?:\(standardisé\)|, standardisé)", "pour 100 000 habitants, à âge égal", unite)
             nom = ARTICLE.get(ident, "") + NOM_COURT.get(ident, (ctx[1].get("label") or ident).lower())
             v_unite = unite if unite not in ("%", "€") else ""
             v = c["v_txt"] + (" " + unite if unite in ("%", "€") else "")

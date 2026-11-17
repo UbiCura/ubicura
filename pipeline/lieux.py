@@ -697,7 +697,12 @@ def _suivre_parents(x: pd.DataFrame, remplace: dict) -> pd.DataFrame:
 def _court(libelle: str, tid: str) -> str:
     """Libellé court d'un type pour une énumération (« Hôpitaux de jour en psychiatrie (adultes) »)."""
     tete, _, reste = libelle.partition(", ")
-    return f"{tete} ({reste})" if tid.startswith("lieu_hdj") and reste else tete
+    if tete.count("(") != tete.count(")"):
+        return libelle   # virgule dans une parenthèse (« (PASS, LHSS...) »), le libellé reste entier
+    # le public reste quand un autre type porte la même tête de libellé (hôpitaux de jour, hospitalisation complète en
+    # psychiatrie : relecture du 17 novembre 2026, un même libellé pour les adultes et pour les enfants)
+    tetes = [x[1].partition(", ")[0] for x in config.LIEUX_TYPES]
+    return f"{tete} ({reste})" if reste and tetes.count(tete) > 1 else tete
 
 
 def reunir(lr: pd.DataFrame, lf: pd.DataFrame, fin_cat: pd.Series | None = None) -> tuple[pd.DataFrame, dict]:
@@ -1232,7 +1237,8 @@ def professionnels(lieux: pd.DataFrame, act: pd.DataFrame) -> pd.DataFrame:
     return t
 
 
-def exercice_structures(lieux: pd.DataFrame, act: pd.DataFrame) -> pd.DataFrame | None:
+def exercice_structures(lieux: pd.DataFrame, act: pd.DataFrame,
+                        cat_finess: pd.Series | None = None) -> pd.DataFrame | None:
     """Personnes distinctes de chaque profession qui déclarent au RPPS une activité dans une structure de santé mentale
     enregistrée sous son propre numéro FINESS (config.LIEUX_EXERCICE_TYPES), par type, en France, par région et par
     département (lieu de la structure). Une personne qui exerce dans deux types compte dans chacun, une fois dans
@@ -1245,6 +1251,10 @@ def exercice_structures(lieux: pd.DataFrame, act: pd.DataFrame) -> pd.DataFrame 
     propres = _categories_propres()
     x = lieux[lieux["type"].isin(config.LIEUX_EXERCICE_TYPES)].copy()
     cat = x["categorie_finess"].fillna("").astype(str) if "categorie_finess" in x else pd.Series("", index=x.index)
+    # catégorie de FINESS lue par le numéro quand la réunion avec le ROR l'a laissée vide (relecture du 17 novembre
+    # 2026 : 2 015 CMP de FINESS et du ROR écartés, 51 psychiatres comptés dans les CMP contre 256 CMP qui en déclarent)
+    if cat_finess is not None and "finess" in x:
+        cat = cat.where(cat != "", x["finess"].map(cat_finess).fillna("").astype(str))
     x = x[[c in propres.get(t, set()) for t, c in zip(x["type"], cat)]]
     l = pd.DataFrame({"type": x["type"], "finess": x["finess"], "commune": x["commune"], "dep": x["dep"],
                       "reg": x["reg"]}).dropna(subset=["finess"]).drop_duplicates(["type", "finess", "commune"])
@@ -1455,7 +1465,7 @@ def roles_antennes(lieux: pd.DataFrame, fin: pd.DataFrame | None) -> tuple[pd.Da
                       "site": int(v.get("site", 0)), "herite": herite}
         lib = {t[0]: t[1] for t in config.LIEUX_TYPES}[tid]
         JOURNAL.controle(f"Structures principales, antennes et sites, {lib}",
-                         f"{len(g)} sites d'accueil, {rendu[tid]['structure']} structures principales, "
+                         f"{len(g)} sites d'accueil, {rendu[tid]['structure']} sites désignés comme structure principale par leur nom ou leur rattachement, "
                          f"{rendu[tid]['antenne']} antennes, {rendu[tid]['site']} sites supplémentaires, {herite} "
                          f"confirmés par leur site principal")
     return x, rendu
@@ -2440,7 +2450,8 @@ def inegalites_distances(L: dict, ref, ctx_epci: pd.DataFrame | None, rng, cle: 
     if len(c):
         lib = {x[0]: x[1] for x in config.LIEUX_TYPES}
         nets = c[(c["ic95_bas"] > 0) | (c["ic95_haut"] < 0)]
-        JOURNAL.controle("Distance aux structures de soins selon le niveau de vie (indice de concentration)",
+        JOURNAL.controle("Distance aux structures de soins selon le niveau de vie (indice de concentration)"
+                         + ("" if cle == "toutes" else ", avec les seules structures confirmées"),
                          f"{len(nets)} types sur {len(c)} avec un lien net, " + ", ".join(
                              f"{lib[r.type].split(',')[0]} {r.indice_concentration:+.2f}" for r in c.itertuples()
                              if r.type in ("lieu_cmp_adultes", "lieu_urgences")))
@@ -2703,6 +2714,15 @@ def completer_par_autorisations(lieux: pd.DataFrame, hors_ligne: bool, fin: pd.D
     return lieux, rendu
 
 
+def _distance_m(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+    """Distance en mètres entre deux points (formule de haversine), NaN si un point manque."""
+    if any(pd.isna(v) for v in (lat1, lon1, lat2, lon2)):
+        return float("nan")
+    p1, p2 = np.radians(lat1), np.radians(lat2)
+    a = np.sin((p2 - p1) / 2) ** 2 + np.cos(p1) * np.cos(p2) * np.sin(np.radians(lon2 - lon1) / 2) ** 2
+    return float(2 * 6371000 * np.arcsin(np.sqrt(a)))
+
+
 def un_lieu_par_adresse_cmp(lieux: pd.DataFrame) -> tuple[pd.DataFrame, list]:
     """Décision 1 du chantier des structures (acceptée le 16 novembre 2026) : un lieu de CMP, c'est une adresse et un public.
     Deux CMP pour adultes (ou deux CMP pour enfants) à la même adresse numérotée de la même commune, souvent deux
@@ -2732,6 +2752,49 @@ def un_lieu_par_adresse_cmp(lieux: pd.DataFrame) -> tuple[pd.DataFrame, list]:
                                  "finess": r.get("finess") if isinstance(r.get("finess"), str) else None,
                                  "provenance": r.get("provenance"),
                                  "raison": "même adresse et même public qu'un autre CMP, un seul lieu"})
+        # même rue de la même commune, numéro absent d'au moins un côté (« PL JEAN TAVE » et « place Jean-Tavé » à
+        # Tulle, « R des prêtres » à Merville, constat du 17 novembre 2026) : même lieu quand les deux points sont à
+        # moins de CMP_MEME_RUE_M mètres et que le gestionnaire est le même ou le code de secteur le même (« CMP
+        # 94G12 » et « CMP Paul-Brousse d'Ivry-sur-Seine (94G12) »). Sans ces conditions, une longue rue peut porter
+        # deux lieux distincts (boulevard Béranger à Tours, deux établissements).
+        reste = x[(x["type"] == tid) & (rue != "") & ~x.index.isin(retirer)]
+        for _, grp in reste.groupby([reste["commune"], rue[reste.index]]):
+            if grp["lieu"].nunique() < 2 or grp.index.map(num).notna().all():
+                continue
+            # la structure vérifiée, puis celle dont l'adresse est numérotée, est gardée
+            ver_ = grp["verifiee"].fillna(False).astype(bool) if "verifiee" in grp else pd.Series(False, index=grp.index)
+            ordre = sorted(grp.index, key=lambda i: (not ver_[i], pd.isna(num[i]), str(grp.at[i, "lieu"])))
+            gardes_ = []
+            for i in ordre:
+                r = x.loc[i]
+                nom_i = _simple(r.get("nom_affiche") if isinstance(r.get("nom_affiche"), str) else r.get("nom"))
+                meme = None
+                for j in gardes_:
+                    q = x.loc[j]
+                    if isinstance(num[i], str) and isinstance(num[j], str):
+                        continue
+                    nom_j = _simple(q.get("nom_affiche") if isinstance(q.get("nom_affiche"), str) else q.get("nom"))
+                    codes = set(_CODE_SECTEUR.findall(nom_i)) & set(_CODE_SECTEUR.findall(nom_j))
+                    meme_ej = isinstance(r.get("ej"), str) and r.get("ej") == q.get("ej")
+                    try:
+                        d = _distance_m(float(r["lat"]), float(r["lon"]), float(q["lat"]), float(q["lon"]))
+                    except (TypeError, ValueError, KeyError):
+                        d = float("nan")
+                    if (meme_ej or codes) and d <= config.CMP_MEME_RUE_M:
+                        meme = j
+                        break
+                if meme is None:
+                    gardes_.append(i)
+                    continue
+                retirer.add(i)
+                lieux_retires.setdefault(r["lieu"], set()).add(tid)
+                retirees.append({"ej": r.get("ej"), "etablissement": None, "type": tid,
+                                 "nom": r.get("nom_affiche") if isinstance(r.get("nom_affiche"), str) else r.get("nom"),
+                                 "commune": r.get("commune"), "nom_commune": None,
+                                 "finess": r.get("finess") if isinstance(r.get("finess"), str) else None,
+                                 "provenance": r.get("provenance"),
+                                 "raison": "même rue et même public qu'un autre CMP du même établissement ou du même "
+                                           "secteur, au même point, un seul lieu"})
     # le CMP « tous publics » d'un lieu dont tous les publics ont été réunis à un autre lieu
     enfants = x[x["type"].isin(["lieu_cmp_adultes", "lieu_cmp_enfants"]) & ~x.index.isin(retirer)]
     restants = set(enfants["lieu"])
@@ -2780,8 +2843,9 @@ def ecarter_autorisations_meme_lieu(lieux: pd.DataFrame, rendu: dict, fin: pd.Da
                                           (np.array(nlo) - r["lon"]) * 111.2 * cos).min() < 0.05
             if pres or meme_point:
                 retire[i] = True
-                if len(exemples) < 6:
-                    exemples.append(str(r["nom_affiche"])[:40])
+                # nom entier, une seule fois (relecture du 17 novembre 2026, noms tronqués et répétés)
+                if len(exemples) < 6 and str(r["nom_affiche"]) not in exemples:
+                    exemples.append(str(r["nom_affiche"]))
                 continue
             nla.append(float(r["lat"]))
             nlo.append(float(r["lon"]))
@@ -2847,7 +2911,7 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
     stats["cmp_public_non_precise"] = int(len(sans) - len(ajout))
     _releve("FINESS", "CMP connus de FINESS seul, sans âges déclarés", int(len(sans)),
             f"Public déduit du nom pour {int(enf.sum()) + int(adu.sum())} ({int(enf.sum())} pour enfants et adolescents, "
-            f"{int(adu.sum())} pour adultes), écrit « public non précisé » pour {int(len(sans) - len(ajout))}")
+            f"{int(adu.sum())} pour adultes), écrit « public non précisé » pour {int(len(sans) - len(ajout))}, avant vérification et réunion des doublons")
     JOURNAL.controle("CMP dont le public est déduit du nom (FINESS seul, sans âges déclarés)",
                      f"{int(enf.sum())} pour enfants et adolescents, {int(adu.sum())} pour adultes, "
                      f"{int(len(sans) - len(ajout))} au public non précisé")
@@ -2923,11 +2987,11 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
     JOURNAL.controle("Noms des structures de soins rendus lisibles",
                      f"{int(trait.isin(['court', 'rattachement']).sum())} noms raccourcis à leur nom propre, "
                      f"{int((trait == 'retire').sum())} débarrassés d'un terme à proscrire, {int((trait == 'reecrit').sum())} "
-                     f"réécrits, {int(reste.sum())} désignés par leur type et leur commune")
+                     f"réécrits, {int(reste.sum())} désignés par leur type et leur commune pour un terme à proscrire")
     _releve("FINESS et ROR", "Noms d'unités du ROR formés de la description de l'activité, ou noms comprenant un terme "
             "daté ou stigmatisant", int(trait.isin(['court', 'rattachement', 'retire', 'reecrit']).sum() + reste.sum()),
-            f"Nom propre gardé pour {int(trait.isin(['court', 'rattachement']).sum())}, terme retiré pour "
-            f"{int((trait == 'retire').sum())}, réécrit pour {int((trait == 'reecrit').sum())}, nom d'origine conservé dans les "
+            f"Nom propre gardé pour {entier_fr(int(trait.isin(['court', 'rattachement']).sum()))}, terme retiré pour "
+            f"{entier_fr(int((trait == 'retire').sum()))}, réécrit pour {entier_fr(int((trait == 'reecrit').sum()))}, nom d'origine conservé dans les "
             f"fichiers")
     lieux, n_fus = fusion_meme_adresse(lieux, fin.drop_duplicates("nofinesset").set_index("nofinesset")["categetab"],
                                        ref.communes.set_index("code")["nom"])
@@ -2953,7 +3017,7 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
     # source de l'établissement ne les cite pas, en attendant une vérification à la main (décision du
     # 14 octobre 2026)
     from . import confirmation
-    pre, _ = confirmation.confirmer(lieux, has, sirene, essms)
+    pre, _ = confirmation.confirmer(lieux, has, sirene, essms, etape="avant les listes vérifiées")
     garder = set(pre.index[pre["confirmation"].isin(["has", "sirene", "has_sirene"])])
     avant_liste = pre.copy()
     lieux, verif = sv.appliquer(lieux, ref, geo, hors_ligne, garder=garder,
@@ -2962,7 +3026,8 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
     # retenues, leur raison le dit
     verif["non_retenues"] = list(verif["non_retenues"]) + verif["fermees"]
     # confirmation par la certification HAS et par Sirene (listes indépendantes de FINESS et du ROR)
-    lieux, sirene_seul = confirmation.confirmer(lieux, has, sirene, essms)
+    lieux, sirene_seul = confirmation.confirmer(lieux, has, sirene, essms,
+                                                 etape="après les listes vérifiées, avant les verdicts et la réunion des CMP à la même adresse")
     # verdicts de la vérification à la main (décisions du 15 octobre 2026, pipeline/verdicts.py)
     from . import verdicts as verdicts_mod
     lieux, rendu_verdicts = verdicts_mod.appliquer(lieux, avant_liste, ref, geo, hors_ligne)
@@ -3021,7 +3086,8 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
     JOURNAL.controle("Lieux déclarés deux fois à la même adresse, réunis",
                      f"{n_fus} structures réunies à une autre du même type, du même établissement, à la même adresse")
     pros = professionnels(lieux, act)
-    exercice = exercice_structures(lieux, act)
+    exercice = exercice_structures(lieux, act, fin.drop_duplicates("nofinesset").set_index("nofinesset")["categetab"]
+                                   if fin is not None else None)
     # comptes par territoire et couverture
     comptes = {}
     lieux["com"] = lieux["commune"]
@@ -3052,13 +3118,20 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
             f"{nombre(int(_p.get('ror', 0)) + int(_p.get('ror_type', 0)))} dans le ROR seul, dont "
             f"{nombre(int(_p.get('ror_type', 0)))} unités hospitalières que FINESS ne distingue pas)")
     JOURNAL.controle("Structures de soins, réunion de FINESS et du ROR",
-                     f"{nombre(len(lieux))} lieux-types, {nombre(prov.get('les_deux', 0))} dans les deux bases, "
-                     f"{nombre(prov.get('finess', 0))} dans FINESS seul, {nombre(prov.get('ror', 0))} dans le ROR seul, "
+                     f"{nombre(len(lieux))} lieux-types, types rattachés compris (CMP par public, antennes), "
+                     f"{nombre(prov.get('les_deux', 0))} dans les deux bases, "
+                     f"{nombre(prov.get('finess', 0))} dans FINESS seul, {nombre(prov.get('ror', 0))} dans le ROR seul et "
+                     f"{nombre(prov.get('ror_type', 0))} unités hospitalières du ROR, "
                      f"{nombre(stats['rapproches_entite_juridique'])} rapprochés par l'entité juridique et la commune")
     cmp_ = lieux[lieux["type"] == "lieu_cmp"]["provenance"].value_counts()
     JOURNAL.controle("CMP réunis (structures distinctes)",
                      f"{nombre(int(cmp_.sum()))}, dont {nombre(cmp_.get('les_deux', 0))} dans les deux bases, "
-                     f"{nombre(cmp_.get('finess', 0))} dans FINESS seul, {nombre(cmp_.get('ror', 0))} dans le ROR seul")
+                     f"{nombre(cmp_.get('finess', 0))} dans FINESS seul, {nombre(cmp_.get('ror', 0))} dans le ROR seul"
+                     # le reste vient des sources des établissements, absent des deux bases : la somme est complète
+                     # (relecture du 17 novembre 2026)
+                     + (f", {nombre(int(cmp_.sum()) - sum(int(cmp_.get(k, 0)) for k in ('les_deux', 'finess', 'ror')))} "
+                        f"absents des deux bases, ajoutés depuis les sources des établissements"
+                        if int(cmp_.sum()) > sum(int(cmp_.get(k, 0)) for k in ('les_deux', 'finess', 'ror')) else ""))
     prec = lieux["precision"].value_counts(normalize=True)
     JOURNAL.controle("Structures de soins, emplacement",
                      ", ".join(f"{PRECISIONS[k]} {v:.0%}".replace(".", ",") for k, v in prec.items() if k in PRECISIONS))

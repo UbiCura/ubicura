@@ -37,6 +37,13 @@ def _lire(jeu, ids, hors_ligne, rafraichir):
     return df, lire_meta(dest)
 
 
+def _est_dep(codes: pd.Series) -> pd.Series:
+    """Codes de département du référentiel : la source ajoute 20R, 69D et 69M (Rhône sans et avec la métropole de
+    Lyon), 6AE (Collectivité européenne d'Alsace) et 975 (Saint-Pierre-et-Miquelon), qui n'en sont pas."""
+    c = codes.fillna("").astype(str)
+    return c.str.fullmatch(r"(0[1-9]|[1-8]\d|9[0-5]|2A|2B|97[1-46])")
+
+
 def charger(hors_ligne=False, rafraichir=False):
     """Renvoie {"contexte": {"dep", "reg"}, "defs": [...], "table": DataFrame} ou None."""
     ctx, defs, lignes = {"dep": {}, "reg": {}}, [], []
@@ -47,7 +54,7 @@ def charger(hors_ligne=False, rafraichir=False):
         except Exception as e:  # noqa: BLE001
             JOURNAL.note(f"DREES, {TITRES.get(jeu, jeu)}", "erreur", str(e)[:300])
             continue
-        annees = []
+        annees, n_deps = [], []
         for _j, idd, iid, lab, unite, facteur, fam, expl in inds:
             x = df[(df["id_indicateur"] == idd) & df["valeur"].notna()]
             if x.empty:
@@ -55,7 +62,8 @@ def charger(hors_ligne=False, rafraichir=False):
             annee = x["annee"].max()
             x = x[x["annee"] == annee]
             annees.append(annee)
-            dep = x[x["code_dep"].str.len().between(2, 3) & (x["code_dep"] != "20R")]
+            n_deps.append(int(x.loc[_est_dep(x["code_dep"]), "code_dep"].nunique()))
+            dep = x[_est_dep(x["code_dep"])]
             reg = x[x["code_dep"] == "1000"]
             for niv, t, cle in [("dep", dep, "code_dep"), ("reg", reg, "code_reg")]:
                 v = t.drop_duplicates(cle).set_index(cle)["valeur"] * facteur
@@ -70,7 +78,10 @@ def charger(hors_ligne=False, rafraichir=False):
             JOURNAL.note(f"DREES, {TITRES.get(jeu, jeu)}", "ok",
                          f"{len(annees)} indicateurs, "
                          + (f"année {min(annees)}, " if min(annees) == max(annees) else f"années {min(annees)} à {max(annees)}, ")
-                         + f"{df.loc[df['code_dep'].str.len() <= 3, 'code_dep'].nunique()} départements",
+                         # départements qui ont une valeur pour l'année retenue de chaque indicateur (2A et 2B
+                         # manquent pour certains), relecture du 17 novembre 2026
+                         + (f"{min(n_deps)} départements" if min(n_deps) == max(n_deps)
+                            else f"{min(n_deps)} à {max(n_deps)} départements selon l'indicateur"),
                          url=PAGE.format(jeu), date_donnees=(meta.get("maj_source") or "")[:10])
     if not defs:
         return None

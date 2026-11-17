@@ -149,10 +149,13 @@ def perimetre_elargi(act: pd.DataFrame, finess: pd.DataFrame | None, professions
     m = (act["mode"].astype(str) == "sal") & prof.isin(reelles) & (act["finess"] != "") \
         & act["finess"].map(cat).isin(list(config.FINESS_SANTE_MENTALE))
     sel = act[m]
+    # personnes distinctes du périmètre, toutes professions, avant le seuil d'effectif : le même nombre dans le
+    # contrôle et dans l'En bref (relecture du 17 novembre 2026, 58 659 et 58 291)
+    personnes = int(sel["id"].nunique())
     n_par_prof = sel.groupby(prof[m])["id"].nunique()
     gardees = n_par_prof[n_par_prof >= config.ELARGI_EFFECTIF_MIN].index
     JOURNAL.controle("Santé mentale, périmètre élargi",
-                     f"{sel['id'].nunique()} personnes salariées d'un établissement psychiatrique ou "
+                     f"{personnes} personnes salariées d'un établissement psychiatrique ou "
                      f"médico-psychologique, {len(gardees)} professions retenues (au moins "
                      f"{config.ELARGI_EFFECTIF_MIN} personnes en France)")
     if not len(gardees):
@@ -170,7 +173,7 @@ def perimetre_elargi(act: pd.DataFrame, finess: pd.DataFrame | None, professions
     professions = pd.concat([professions, defs], ignore_index=True)
     professions.attrs.update(attrs)
     # nombre de personnes distinctes du périmètre, toutes professions (une personne n'est comptée qu'une fois)
-    professions.attrs["elargi_personnes"] = int(sel["id"].nunique())
+    professions.attrs["elargi_personnes"] = personnes
     return act, professions
 
 

@@ -148,7 +148,7 @@ def _du_public(noms: pd.Series, public: str | None) -> pd.Series:
 
 
 def confirmer(lieux: pd.DataFrame, has: dict | None, sir: dict | None,
-              essms: dict | None = None) -> tuple[pd.DataFrame, pd.DataFrame]:
+              essms: dict | None = None, etape: str = "") -> tuple[pd.DataFrame, pd.DataFrame]:
     """Ajoute à chaque structure d'un type confirmé (config.SIRENE_ENSEIGNES) les colonnes confirmee_has, siret_sirene,
     enseigne_sirene, adresse_sirene et confirmation (niveau). Renvoie les structures et les établissements Sirene actifs
     sans correspondant."""
@@ -233,7 +233,9 @@ def confirmer(lieux: pd.DataFrame, has: dict | None, sir: dict | None,
                 x.loc[me, c] = x.loc[me, "lieu"].map(par_lieu[c])
         n = niv.value_counts()
         lib = {t[0]: t[1] for t in config.LIEUX_TYPES}[tid]
-        JOURNAL.controle(f"Confirmation des structures, {lib}",
+        # l'étape est dans le libellé : la chaîne confirme deux fois, avant et après les listes vérifiées, et le
+        # contrôle ne doit pas se lire comme le compte final des tableaux (relecture du 17 novembre 2026)
+        JOURNAL.controle(f"Confirmation des structures, {lib}" + (f", {etape}" if etape else ""),
                          # « : aucune » plutôt qu'un 0 collé au libellé (« de l'établissement 0 », 6 novembre 2026)
                          f"{len(g)} structures, " + ", ".join(f"{NIVEAUX[k]} : {int(n.get(k, 0)) or 'aucune'}" for k in NIVEAUX)
                          + f", établissements Sirene actifs sans correspondant : "

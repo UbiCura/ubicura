@@ -1093,6 +1093,8 @@ MASQUAGE_PAR_VERIFICATION = True
 PART_VERIFIEE_MIN = 0.9
 VERIFICATION_SOURCE_ANS = 3
 CMP_UN_LIEU_PAR_ADRESSE = True
+# même rue sans numéro d'un côté : même lieu à moins de cette distance, même gestionnaire ou même code de secteur (17 novembre 2026)
+CMP_MEME_RUE_M = 150
 # décision 2, acceptée le 16 novembre 2026 : types écrits « non recensé » partout malgré leur présence dans presque tous
 # les départements, parce qu'une référence indépendante montre qu'une grande part manque : les PMI, 1 152 dans la liste
 # pour 4 616 points fixes de consultation déclarés à la DREES en 2024 (enquête Aide sociale, volet PMI)
@@ -1899,7 +1901,7 @@ REGRESSION_EXPLICATIVES = ["densite_pop", "part_80p", "taux_pauvrete", "part_seu
 # Croisements départementaux, mesure d'offre, indicateur croisé, question posée
 CROISEMENTS = [
     ("dens_lib:psychiatre", "sae_etp_psychiatres", "hopital_liberal",
-     "L'hôpital compense-t-il la faiblesse des psychiatres libéraux ?"),
+     "L'offre hospitalière est-elle plus forte là où les psychiatres libéraux sont moins nombreux ?"),
     ("dens_lib:psychiatre", "sae_lits_psy", "hopital_liberal", ""),
     ("dens_lib:psychiatre", "sae_cmp", "hopital_liberal", ""),
     ("ctx:revenu_median", "depassements_psychiatre", "secteur2_revenu",

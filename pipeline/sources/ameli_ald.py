@@ -89,7 +89,7 @@ def charger(hors_ligne=False, rafraichir=False):
             continue
         iid = f"ald_{num}"
         ctx[iid] = x.set_index("code")["taux_standardise"]
-        defs.append({"id": iid, "libelle": f"{lab} (ALD {num})", "unite": "pour 100 000 (standardisé)",
+        defs.append({"id": iid, "libelle": f"{lab} (ALD {num})", "unite": "pour 100 000, standardisé",
                      "explication": (f"Personnes en affection de longue durée n° {num} ({noms.get(num, lab)}) pour "
                                      f"100 000 personnes protégées du régime général, taux standardisé sur l'âge pour "
                                      f"comparer des départements jeunes et âgés. Année {annee}."),

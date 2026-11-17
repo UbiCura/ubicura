@@ -81,7 +81,8 @@ GLOSSAIRE = [
      "Sur la carte de France, la Corse est rapprochée du continent, à la même échelle, pour que la carte reste "
      "lisible. Les plans des territoires et les distances gardent sa position réelle.", ""),
     ("indice100", "Indice 100",
-     "Comparaison à l'ensemble des territoires du même niveau. Un indice de 150 signifie une densité supérieure de "
+     "Comparaison à l'ensemble des territoires du même niveau (ensemble des intercommunalités, des départements "
+     "ou des régions). Un indice de 150 signifie une densité supérieure de "
      "moitié à celle de l'ensemble, un indice de 50 une densité deux fois plus faible.", ""),
     ("gini", "Indice de Gini",
      "Mesure de l'inégalité de répartition, entre 0 et 1. À 0, chaque territoire a exactement autant de "
@@ -179,13 +180,13 @@ GLOSSAIRE = [
      "Le temps médian est celui en dessous duquel vit la moitié des habitants.", ""),
     ("zones","Zones peu dotées et zones de concentration",
      "Un territoire peu doté n'est pas forcément un désert, ses habitants peuvent consulter juste à côté. Une zone "
-     "peu dotée réunit des territoires voisins tous en dessous de l'ensemble des territoires, ce qui rend le recours de proximité "
+     "peu dotée réunit des territoires voisins tous en dessous de l'ensemble des intercommunalités, ce qui rend le recours de proximité "
      "plus difficile. Une zone de concentration est l'inverse. Ces zones sont repérées par un calcul qui vérifie "
      "que la ressemblance entre voisins ne tient pas au hasard (indice de Moran local).", ""),
     ("ecologique", "Corrélation n'est pas causalité",
      "Tous les liens décrits ici portent sur des territoires, pas sur des personnes. Si les territoires aisés "
-     "comptent plus de psychologues, cela ne dit ni que les personnes aisées consultent davantage, ni que le "
-     "revenu attire les psychologues. D'autres facteurs, comme la présence d'une université ou d'un hôpital, "
+     "comptent plus de professionnels de santé, cela ne dit ni que les personnes aisées consultent davantage, ni que "
+     "le revenu attire les professionnels. D'autres facteurs, comme la présence d'une université ou d'un hôpital, "
      "peuvent expliquer les deux.", ""),
     ("addictions", "Addictologie",
      "La figure place chaque région selon la part des adultes qui déclarent consommer de l'alcool ou du tabac, et selon "
@@ -357,36 +358,43 @@ def minuscule(libelle: str) -> str:
     return libelle[0].lower() + libelle[1:]
 
 
-def phrase_correlation(rho: float, indicateur: str, profession: str, ic=None) -> str:
-    """Phrase descriptive d'une corrélation de rang. Quand l'intervalle de confiance est donné et contient zéro, le
-    lien n'est pas présenté comme établi."""
+def _est_lien(rho, ic=None, q=None) -> bool:
+    """Règle unique du site (regle_lien) : au moins le seuil d'intensité, la correction de Benjamini-Hochberg quand la
+    q-valeur est connue, et une fourchette qui exclut zéro quand elle est donnée."""
+    from .regle_lien import ALPHA, SEUIL_RHO
+    if not math.isfinite(rho) or abs(rho) < SEUIL_RHO:
+        return False
+    if q is not None and not (math.isfinite(q) and q < ALPHA):
+        return False
+    return not (ic is not None and all(math.isfinite(x) for x in ic) and ic[0] <= 0 <= ic[1])
+
+
+def phrase_correlation(rho: float, indicateur: str, profession: str, ic=None, q=None) -> str:
+    """Phrase descriptive d'une corrélation de rang. Un lien n'est dit que s'il passe la règle unique du site."""
     if not math.isfinite(rho):
         return ""
-    f = force(rho)
-    if ic is not None and all(math.isfinite(x) for x in ic) and ic[0] < 0 < ic[1] and f != "négligeable":
-        r, a, b = (f"{x:.2f}".replace(".", ",") for x in (rho, *ic))
-        return (f"Aucun lien net n'apparaît entre l'indicateur « {minuscule(indicateur)} » et la présence "
-                f"{de(pluriel(profession))}. La corrélation mesurée ({r}) est trop incertaine pour conclure, elle "
-                f"pourrait aussi bien être nulle (fourchette plausible de {a} à {b}).")
-    if f == "négligeable":
-        return f"Aucun lien notable entre l'indicateur « {minuscule(indicateur)} » et la présence {de(pluriel(profession))}."
-    sens = "plus" if rho > 0 else "moins"
     r = f"{rho:.2f}".replace(".", ",")
+    if not _est_lien(rho, ic, q):
+        return (f"Pas de lien au-delà du seuil retenu entre l'indicateur « {minuscule(indicateur)} » et la présence "
+                f"{de(pluriel(profession))} (rho = {r}).")
+    sens = "plus" if rho > 0 else "moins"
     return (f"Les territoires où l'indicateur « {minuscule(indicateur)} » est élevé comptent plutôt {sens} "
-            f"{de(pluriel(profession))}. Le lien est {f} (rho = {r}).")
+            f"{de(pluriel(profession))}. Le lien est {force(rho)} (rho = {r}).")
 
 
 def phrase_correlations(items, indicateur: str) -> str:
-    """Une phrase pour les liens d'un indicateur avec plusieurs professions. items, liste de (profession, rho, ic).
-    Les liens nets sont regroupés par sens, les liens nuls ou incertains en une seule mention."""
+    """Une phrase pour les liens d'un indicateur avec plusieurs professions. items, liste de (profession, rho, ic) ou
+    (profession, rho, ic, q). Les liens sont regroupés par sens, ceux sous le seuil en une seule mention."""
     if len(items) == 1:
-        return phrase_correlation(items[0][1], indicateur, items[0][0], items[0][2])
+        return phrase_correlation(items[0][1], indicateur, items[0][0], items[0][2],
+                                  items[0][3] if len(items[0]) > 3 else None)
     plus, moins, nuls = [], [], []
-    for prof, rho, ic in items:
+    for it in items:
+        prof, rho, ic = it[:3]
+        q = it[3] if len(it) > 3 else None
         if not math.isfinite(rho):
             continue
-        incertain = ic is not None and all(math.isfinite(x) for x in ic) and ic[0] < 0 < ic[1]
-        if force(rho) == "négligeable" or incertain:
+        if not _est_lien(rho, ic, q):
             nuls.append(prof)
         else:
             (plus if rho > 0 else moins).append(f"{de(pluriel(prof))} (lien {force(rho)}, rho = {rho:.2f})".replace(".", ","))
@@ -403,8 +411,8 @@ def phrase_correlations(items, indicateur: str) -> str:
     if nuls:
         q = [de(pluriel(p)) for p in nuls]
         ou = q[0] if len(q) == 1 else ", ".join(q[:-1]) + " ou " + q[-1]
-        ph += (" " if ph else "") + (f"Aucun lien net n'apparaît avec la présence {ou}." if morceaux else
-                                     f"Aucun lien net entre l'indicateur « {ind} » et la présence {ou}.")
+        ph += (" " if ph else "") + (f"Pas de lien au-delà du seuil retenu avec la présence {ou}." if morceaux else
+                                     f"Pas de lien au-delà du seuil retenu entre l'indicateur « {ind} » et la présence {ou}.")
     return ph
 
 

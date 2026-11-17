@@ -105,6 +105,19 @@ def _rue(s: str) -> str:
     return re.sub(r"^\d+\s*(?:bis|ter|b|t)?\s+", "", _simple(s or ""))
 
 
+def _voie(s) -> tuple[str, str]:
+    """Numéro et rue d'une adresse, abréviations développées (« PL JEAN TAVE » et « place Jean-Tavé »)."""
+    from .lieux import _simple, voie_developpee
+    a = _simple(voie_developpee(s if isinstance(s, str) else ""))
+    m = re.match(r"^(\d+\s*(?:bis|ter|b|t)?)\s+(.*)$", a)
+    return (m.group(1).replace(" ", ""), m.group(2)) if m else ("", a)
+
+
+def meme_adresse(a: tuple[str, str], b: tuple[str, str]) -> bool:
+    """Même rue, et même numéro ou numéro absent d'un côté."""
+    return bool(a[1]) and a[1] == b[1] and (a[0] == b[0] or not a[0] or not b[0])
+
+
 def _nums_ligne(r) -> set[str]:
     """Numéros FINESS d'une inscription (le sien, celui rapproché, ceux réunis à elle)."""
     out = set()
@@ -243,6 +256,7 @@ def appliquer(lieux: pd.DataFrame, ref, centres: dict | None = None,
             reclames = {(n.strip(), c) for x, c in zip(v["finess"].fillna(""), v["commune"])
                         for n in str(x).split(",") if n.strip()}
             pris = set()
+            adresses_ver = []
             for _, r in v.iterrows():
                 # inscriptions des bases rapprochées, même commune, puis mots du nom ou rue en commun
                 # d'abord les numéros FINESS relevés à la vérification (colonne finess), puis le rapprochement
@@ -315,6 +329,7 @@ def appliquer(lieux: pd.DataFrame, ref, centres: dict | None = None,
                          "date_verification": r["date"], "remarque_verification": r.get("remarque", ""), "nom_finess": None, "categorie_finess": None,
                          "unites_ror": int(b.loc[lies, "unites_ror"].fillna(0).sum()) if lies and "unites_ror" in b else 0}
                 nouvelles.append(ligne)
+                adresses_ver.append((r["commune"], _voie(adr)))
                 pub = (r.get("public") or "").lower()
                 # public de la liste vérifiée, plus l'autre public quand l'inscription rapprochée l'accueillait aussi
                 # et que la vérification ne portait que sur un public
@@ -332,7 +347,13 @@ def appliquer(lieux: pd.DataFrame, ref, centres: dict | None = None,
             retirer = [i for i in retirer if i not in set(reste)
                        and not (x.at[i, "type"] in ENFANTS_DE.get(t, []) and x.at[i, "lieu"] in lieux_reste)]
             for i in b.index.difference(list(pris)).difference(orph.index).difference(reste):
-                garde = i in garder
+                # une inscription confirmée par la HAS ou Sirene n'est pas gardée quand la liste vérifiée de son
+                # établissement compte déjà une structure du même type à la même adresse : c'est la même, inscrite de
+                # nouveau sous un autre numéro (CMP Daviers d'Angers du CESAME, numéro 490025012 apparu après la
+                # vérification d'octobre, constat du 17 novembre 2026)
+                deja = any(c == b.at[i, "commune"] and meme_adresse(a, _voie(b.at[i, "adresse"]))
+                           for c, a in adresses_ver)
+                garde = i in garder and not deja
                 if garde:
                     gardes.append(i)
                 (rendu["gardees"] if garde else rendu["non_retenues"]).append({
@@ -341,7 +362,9 @@ def appliquer(lieux: pd.DataFrame, ref, centres: dict | None = None,
                     "commune": b.at[i, "commune"], "nom_commune": nom_com.get(b.at[i, "commune"], ""),
                     "finess": ",".join(sorted(_nums_ligne(b.loc[i]))) or None, "provenance": b.at[i, "provenance"],
                     "raison": ("absente de la liste vérifiée, gardée car confirmée par la certification HAS ou Sirene, "
-                               "à vérifier à la main") if garde else "absente de la liste vérifiée de l'établissement"})
+                               "à vérifier à la main") if garde else
+                              ("même adresse qu'une structure de la liste vérifiée de l'établissement, déjà comptée"
+                               if deja and i in garder else "absente de la liste vérifiée de l'établissement")})
     # inscriptions gardées, avec leurs lignes pour adultes ou pour enfants
     if gardes:
         lieux_gardes = set(x.loc[gardes, "lieu"])
@@ -365,7 +388,8 @@ def appliquer(lieux: pd.DataFrame, ref, centres: dict | None = None,
         raise ValueError(f"{dup} structures en double après la liste vérifiée (deux lignes de même nom dans la même "
                          f"commune pour un même établissement)")
     n_et = len(e)
-    JOURNAL.controle("Structures de soins, établissements vérifiés sur leurs propres sources",
+    JOURNAL.controle("Structures de soins, établissements vérifiés sur leurs propres sources, au moment de la liste "
+                     "vérifiée (avant la réunion des CMP du même public à la même adresse)",
                      f"{n_et} établissements, {int(x['verifiee'].sum())} structures vérifiées, "
                      f"{rendu['ajoutees']} absentes des deux bases, {len(rendu['non_retenues'])} inscriptions non retenues, "
                      f"{len(rendu['gardees'])} gardées en attente de vérification (confirmées par la HAS ou Sirene)")

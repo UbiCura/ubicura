@@ -9,7 +9,7 @@ import re
 import numpy as np
 import pandas as pd
 
-from . import affichage as AF, config, limites
+from . import affichage as AF, config, limites, regle_lien
 from .lecture import minuscule, nombre, pct, phrase_correlations
 
 SM, SANTE = config.SANTE_MENTALE, config.SANTE
@@ -93,9 +93,14 @@ def evolution(C, famille):
                        "n_baisse": int((dep < 0).sum()), "n": len(dep)})
     T = pd.DataFrame(lignes)
     r = T.iloc[0]
-    tete = (f"D'après les séries de la DREES, de {r['periode']}, la densité de {r['libelle'].split(',')[0].lower()} est passée de "
-            f"{_dens(r['debut'])} à {_dens(r['fin'])} {r['unite']} en France ({_signe(r['evolution'])}). "
-            f"Elle a baissé dans {r['n_baisse']} départements sur {r['n']}.")
+    # deux valeurs qui s'écrivent pareil après arrondi (« de 2,3 à 2,3 (+3,2 %) ») : la phrase dit l'évolution et la
+    # densité commune, sans décimale de plus, une décimale à partir de 1 (relecture du 17 novembre 2026)
+    d0, d1 = _dens(r["debut"]), _dens(r["fin"])
+    lib = r['libelle'].split(',')[0].lower()
+    tete = (f"D'après les séries de la DREES, de {r['periode']}, la densité de {lib} est passée de "
+            f"{d0} à {d1} {r['unite']} en France ({_signe(r['evolution'])}). " if d0 != d1 else
+            f"D'après les séries de la DREES, de {r['periode']}, la densité de {lib} {_a_evolue(r['evolution'])} en "
+            f"France, et reste de {d1} {r['unite']} à une décimale près. ") +         f"Elle a baissé dans {r['n_baisse']} départements sur {r['n']}."
     if famille == SANTE:
         bas = T[T["evolution"] < 0]
         tete = (f"D'après les séries de la DREES, entre 2016 et 2026, la densité baisse en France pour {len(bas)} des {len(T)} professions suivies "
@@ -144,7 +149,9 @@ def ald(C, famille):
         if s.empty:
             continue
         lignes.append({"libelle": re.sub(r" \(ALD \d+\)$", "", d["libelle"]), "num": num,
-                       "personnes": x["effectif"].sum(), "mediane": s.median(),
+                       # tous les départements, Mayotte comprise, comme le total des contrôles ; Mayotte n'est
+                       # écartée que des comparaisons de taux (relecture du 17 novembre 2026)
+                       "personnes": t.loc[t["ald"] == num, "effectif"].sum(), "mediane": s.median(),
                        "min": f"{nombre(s.min())} ({noms.get(s.idxmin(), s.idxmin())})",
                        "max": f"{nombre(s.max())} ({noms.get(s.idxmax(), s.idxmax())})",
                        "rapport": s.max() / s.min() if s.min() > 0 else None})
@@ -167,7 +174,11 @@ def ald(C, famille):
         "Le taux compte les personnes en affection de longue durée pour 100 000 personnes protégées, à âge égal "
         "(taux standardisé), pour qu'un département âgé ne paraisse pas plus touché du seul fait de son âge. Une "
         "personne peut avoir plusieurs affections, les lignes ne s'additionnent pas.",
-        limites.phrase_md(["ald_23"]))
+        # la phrase sur l'hypertension (ALD 12) n'a pas de sens dans la partie santé mentale, qui ne montre que les
+        # ALD 23 et 15 (relecture du 17 novembre 2026)
+        limites.phrase_md(["ald_23"]) if famille != SM else
+        limites.phrase_md(["ald_23"]).replace(" L'hypertension artérielle sévère n'ouvre plus de nouvelle ALD depuis "
+                                              "juin 2011.", "").replace(f", [{config.SRC_ALD_HTA[0]}]({config.SRC_ALD_HTA[1]})", ""))
     if famille == SM:
         L += _lien_offre(C, "ald_23", ["psychiatre", "psychologue"], "dep")
     L += _plus_loin([f"Source, Assurance Maladie, bénéficiaires du dispositif des affections de longue durée, "
@@ -190,12 +201,12 @@ def _lien_offre(C, var, profs, niv):
         if len(x):
             r = x.iloc[0]
             ic = (float(r["ic95_bas"]), float(r["ic95_haut"])) if pd.notna(r.get("ic95_bas")) else None
-            items.append((C.lab[p], float(r["rho_spearman"]), ic))
+            items.append((C.lab[p], float(r["rho_spearman"]), ic, float(r.get("q_bh", np.nan))))
     if not items:
         return []
     ph = phrase_correlations(items, lab.get(var, var))
     return [ph + (" Quand un lien apparaît, il peut aller dans les deux sens et ne dit rien d'une cause."
-                  if not ph.startswith("Aucun") else ""), ""]
+                  if "comptent plutôt" in ph else ""), ""]
 
 
 def allocations(C, famille):
@@ -377,15 +388,16 @@ def indicateurs_entre_eux(C, ctxlab):
     if not isinstance(t, pd.DataFrame) or t.empty:
         return []
     lab = lambda v: ctxlab.get(v, v)  # noqa: E731
-    nets = t[(t["ic95_bas"] > 0) | (t["ic95_haut"] < 0)].copy()
+    # règle unique du site (seuil et Benjamini-Hochberg), relecture du 17 novembre 2026
+    nets = t[[regle_lien.est_lien(r_, q_) for r_, q_ in zip(t["rho"], t["q_bh"])]].copy()
     nets["force"] = nets["rho"].abs()
     top = nets.sort_values("force", ascending=False).head(12).assign(
         a=lambda d: d["variable_a"].map(lab), b=lambda d: d["variable_b"].map(lab),
         ic=lambda d: [f"de {nombre(x, 2)} à {nombre(y, 2)}" for x, y in zip(d["ic95_bas"], d["ic95_haut"])])
     L = ["#### Besoins, recours aux soins et conditions de vie, croisés entre eux", "",
          INTRO_ENTRE_EUX, "",
-         f"Entre départements, {len(nets)} des {len(t)} paires de ces indicateurs ont un lien net, c'est-à-dire une "
-         f"fourchette plausible qui exclut zéro. Le tableau donne les plus forts.", "",
+         f"Entre départements, {len(nets)} des {len(t)} paires de ces indicateurs sont liées. "
+         f"{regle_lien.phrase_seuil()} Le tableau donne les liens les plus forts.", "",
          _tableau(top, ["a", "b", "rho", "ic", "rho_sans_ile_de_france"],
                   ["Indicateur", "Indicateur", "Corrélation de rang", "Fourchette plausible", "Sans l'Île-de-France"],
                   {"rho": lambda v: nombre(v, 2), "rho_sans_ile_de_france": lambda v: nombre(v, 2)}), ""]
@@ -485,7 +497,7 @@ def _regressions(r, lab):
             phrase = f"À autres indicateurs égaux, aucun de ces indicateurs n'est nettement lié à {nom}."
         phrase += f" Ensemble, ils résument {pct(g['r2'].iloc[0], 0)} des écarts entre départements."
         cols = ["v", "coef_standardise", "ic", "net"]
-        ents = ["Indicateur", "Coefficient standardisé", "Fourchette plausible", "Lien net"]
+        ents = ["Indicateur", "Coefficient standardisé", "Fourchette plausible", "Fourchette sans zéro"]
         if "rho_simple" in g:
             cols.insert(1, "rho_simple")
             ents.insert(1, "Lien simple (rho)")
@@ -504,8 +516,9 @@ def _regressions(r, lab):
         "Le coefficient standardisé dit de combien d'écarts-types l'indicateur étudié varie quand un autre indicateur "
         "augmente d'un écart-type, les autres restant égaux. Il peut différer du lien simple entre deux indicateurs, "
         "donné à côté, car il retire ce que les autres indicateurs expliquent déjà. Quand deux indicateurs liés entre eux "
-        "agissent en sens opposé, l'un peut sembler sans lien pris seul et lié une fois l'autre pris en compte. Un lien "
-        "net a une fourchette qui exclut zéro.",
+        "agissent en sens opposé, l'un peut sembler sans lien pris seul et lié une fois l'autre pris en compte. Un "
+        "coefficient dont la fourchette exclut zéro est dit net. Ce n'est pas la règle des liens entre deux indicateurs, "
+        "qui porte sur les corrélations de rang.",
         "Ces modèles portent sur les 96 départements de l'Hexagone, l'outre-mer ayant un profil trop différent pour être "
         "décrit par les mêmes relations. Ils décrivent des départements, pas des personnes, et ne disent rien d'une "
         "cause. Les limites de ces indicateurs (sous-déclaration des suicides, reconnaissance des affections de longue "
@@ -535,7 +548,7 @@ def profil_egal(C):
                      ic=[f"de {nombre((a - 1) * 100, 0)} à {nombre((b - 1) * 100, 0)} %" for a, b in zip(g["ic95_bas"], g["ic95_haut"])],
                      net=["oui" if (a > 1 or b < 1) else "non" for a, b in zip(g["ic95_bas"], g["ic95_haut"])])
         L += [f"**{pluriel(C.lab.get(p, p)).capitalize()}**", "", _tableau(g, ["v", "effet", "ic", "net"],
-              ["Caractéristique (un écart-type de plus)", "Effectif", "Fourchette plausible", "Lien net"]), ""]
+              ["Caractéristique (un écart-type de plus)", "Effectif", "Fourchette plausible", "Fourchette sans zéro"]), ""]
     L += _comment_lire(
         "Par exemple, « +20 % » signifie qu'à autres caractéristiques égales, une intercommunalité dont cette "
         "caractéristique est plus élevée d'un écart-type compte en moyenne 20 % de professionnels de plus. La densité de "
@@ -628,8 +641,8 @@ def gwr_section(C, prof="psychologue"):
             "ne varie pas d'une région à l'autre plus que le hasard ne le ferait. ")
          + detail, "", *graphique("gwr_sm")]
     L += _comment_lire(
-        "Chaque intercommunalité de l'Hexagone reçoit le lien mesuré avec ses voisines les plus proches. Violet, les "
-        "territoires plus aisés y ont plutôt plus de professionnels. Ocre, ils en ont plutôt moins. Gris, aucun lien "
+        "Chaque intercommunalité de l'Hexagone reçoit le lien mesuré avec ses voisines les plus proches. Canard, les "
+        "territoires plus aisés y ont plutôt plus de professionnels. Cuivre, ils en ont plutôt moins. Gris, aucun lien "
         "net. Le lien est mesuré à densité de population égale, pour ne pas confondre niveau de vie et effet ville. "
         "Il décrit des territoires et ne dit rien d'une cause.")
     L += _plus_loin([

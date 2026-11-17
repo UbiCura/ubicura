@@ -13,7 +13,8 @@ donnees\\messagerie\\reseaux\\ (hors de Git).
                                                     dossier D (sauf le fil fil-*.json, posté à la main)
     python outils\\reseaux.py remplacer F            remplace un message pas encore publié par celui du fichier F
                                                     (série refaite après une édition) ; il revient à relire
-    python outils\\reseaux.py apercu ID              ce qui serait envoyé à chaque réseau, sans rien envoyer
+    python outils\\reseaux.py apercu ID              ce qui serait envoyé à chaque réseau, sans rien envoyer (chaque
+                                                    message d'un fil Bluesky, avec sa place dans le fil)
     python outils\\reseaux.py publier-programmes     publie les messages programmés dont l'heure est passée
     python outils\\reseaux.py suivre [--essai]       abonne le compte Bluesky du projet aux comptes cochés
                                                     dans docs\\reseaux\\comptes_a_suivre.csv, cinq par jour au plus
@@ -44,6 +45,15 @@ GET /v2/userinfo), Posts API (POST /rest/posts, en-têtes Linkedin-Version et X-
 du message dans l'en-tête x-restli-id), Images API (initializeUpload puis envoi du fichier par PUT), texte au format
 « little text » (caractères réservés précédés d'une barre oblique inverse). La publication avec une personne comme
 auteur n'a pas d'exemple dans la documentation, à confirmer au premier essai (tutoriel 10, partie E).
+
+Fil Bluesky (demande du 17 novembre 2026) : un message peut porter « fil », une liste de réponses, chacune
+avec son texte « bluesky », sa « figure » et son « alt ». Un seul clic publie le message puis chaque réponse, en réponse
+à la précédente (champ reply du lexique app.bsky.feed.post, objet replyRef, root et parent obligatoires, chacun une
+référence forte com.atproto.repo.strongRef, uri et cid obligatoires ; uri et cid rendus par
+com.atproto.repo.createRecord ; lexiques lus le 17 novembre 2026 dans les dépôts bluesky-social/bsky,
+lexicons/app/bsky/feed/post.json, et bluesky-social/atproto, lexicons/com/atproto/repo/). Chaque message parti est
+noté aussitôt (« fil_publie ») et inscrit au journal : après une erreur, un nouveau clic reprend à la suite, et une
+réponse déjà visible sous la précédente sur l'API publique n'est jamais renvoyée.
 
 Fichiers de donnees\\messagerie\\reseaux\\
     messages\\<id>.json          message (a_relire, plus_tard, programme, publie, ecarte), une version par réseau
@@ -84,7 +94,7 @@ DELAI_DEPART = 6
 RESEAUX = {"linkedin": "LinkedIn", "bluesky": "Bluesky"}
 STATUTS = ("a_relire", "plus_tard", "programme", "publie", "ecarte")
 CHAMPS = {"id", "titre", "motif", "linkedin", "bluesky", "lien", "figure", "alt", "sources", "reseaux", "envoi_prevu",
-          "donnees"}
+          "donnees", "fil"}
 
 # noms des secrets dans le gestionnaire d'identifiants de Windows
 CIBLE_BLUESKY = "Ubi Cura, Bluesky"                       # identifiant du compte, mot de passe d'application
@@ -243,7 +253,7 @@ def controler_message(m: dict) -> list[str]:
     erreurs = []
     if not re.fullmatch(r"[a-z0-9][a-z0-9-]{2,80}", str(m.get("id", ""))):
         erreurs.append("id en minuscules, chiffres et tirets")
-    inconnus = set(m) - CHAMPS - {"statut", "cree_le", "modifie_le", "programme_le", "empreinte_validee",
+    inconnus = set(m) - CHAMPS - {"statut", "cree_le", "modifie_le", "programme_le", "empreinte_validee", "fil_publie",
                                   "publications", "valide_le", "retour", "remplace_le"}
     if inconnus:
         erreurs.append(f"champs inconnus {sorted(inconnus)}")
@@ -289,7 +299,58 @@ def controler_message(m: dict) -> list[str]:
             erreurs.append(f"figure de {len(brut)} octets, {BLUESKY_IMAGE_OCTETS} au plus pour Bluesky")
     if m.get("envoi_prevu") is not None and lire_date(m["envoi_prevu"]) is None:
         erreurs.append("envoi_prevu au format AAAA-MM-JJTHH:MM (heure de Paris)")
+    return erreurs + controler_fil(m)
+
+
+def controler_fil(m: dict) -> list[str]:
+    """Chaque réponse d'un fil Bluesky passe les mêmes contrôles que le premier message : texte de 300 graphèmes au
+    plus, ni tiret long ni deux-points, termes proscrits, figure PNG de 2 Mo au plus, texte de remplacement."""
+    from pipeline import libelles
+    if "fil" not in m:
+        return []
+    fil, erreurs = m["fil"], []
+    if not isinstance(fil, list) or not fil:
+        return ["fil, une liste d'au moins une réponse"]
+    if "bluesky" not in (m.get("reseaux") or []):
+        erreurs.append("fil, seulement pour Bluesky (cocher Bluesky)")
+    for k, rep in enumerate(fil, 2):
+        q = f"fil, message {k}"
+        if not isinstance(rep, dict) or set(rep) - {"bluesky", "figure", "alt"}:
+            erreurs.append(f"{q}, champs bluesky, figure et alt seulement")
+            continue
+        texte = str(rep.get("bluesky") or "")
+        if not texte.strip():
+            erreurs.append(f"{q}, texte manquant")
+        prose = _prose(texte)
+        if "—" in prose or " – " in prose:
+            erreurs.append(f"{q}, tiret long dans le texte")
+        if re.search(r"\s:|:\s|:$", prose):
+            erreurs.append(f"{q}, deux-points dans le texte")
+        erreurs += [f"{q}, {x}" for x in libelles.termes_proscrits(texte)]
+        if graphemes(texte) > BLUESKY_GRAPHEMES:
+            erreurs.append(f"{q}, {graphemes(texte)} caractères pour {BLUESKY_GRAPHEMES} au plus")
+        if len(texte.encode("utf-8")) > BLUESKY_OCTETS:
+            erreurs.append(f"{q}, {len(texte.encode('utf-8'))} octets pour {BLUESKY_OCTETS} au plus")
+        a = str(rep.get("alt") or "").strip()
+        if not a:
+            erreurs.append(f"{q}, texte de remplacement manquant")
+        elif len(a) > ALT_CARACTERES:
+            erreurs.append(f"{q}, texte de remplacement de {len(a)} caractères pour {ALT_CARACTERES} au plus")
+        f = chemin_figure(rep)
+        if not rep.get("figure") or not f.is_file():
+            erreurs.append(f"{q}, figure introuvable")
+        else:
+            brut = f.read_bytes()
+            if taille_png(brut) is None:
+                erreurs.append(f"{q}, figure au format PNG")
+            if len(brut) > BLUESKY_IMAGE_OCTETS:
+                erreurs.append(f"{q}, figure de {len(brut)} octets, {BLUESKY_IMAGE_OCTETS} au plus pour Bluesky")
     return erreurs
+
+
+def parties_bluesky(m: dict) -> list[dict]:
+    """Les messages Bluesky dans l'ordre du fil : le message lui-même, puis ses réponses."""
+    return [m] + list(m.get("fil") or [])
 
 
 def lire_date(texte) -> dt.datetime | None:
@@ -301,9 +362,12 @@ def empreinte(m: dict) -> str:
     """Empreinte de ce que l'auteur a validé au clic, textes, réseaux choisis, texte de remplacement et figure."""
     f = chemin_figure(m)
     image = hashlib.sha256(f.read_bytes()).hexdigest() if f.is_file() else None
-    return hashlib.sha256(json.dumps([m.get("linkedin"), m.get("bluesky"), m.get("alt"), m.get("lien"),
-                                      sorted(m.get("reseaux") or []), image], ensure_ascii=False)
-                          .encode("utf-8")).hexdigest()
+    contenu = [m.get("linkedin"), m.get("bluesky"), m.get("alt"), m.get("lien"), sorted(m.get("reseaux") or []), image]
+    if m.get("fil"):                      # chaque réponse du fil, texte, texte de remplacement et figure
+        contenu.append([[r.get("bluesky"), r.get("alt"),
+                         hashlib.sha256(chemin_figure(r).read_bytes()).hexdigest() if chemin_figure(r).is_file()
+                         else None] for r in m["fil"]])
+    return hashlib.sha256(json.dumps(contenu, ensure_ascii=False).encode("utf-8")).hexdigest()
 
 
 # ---------------------------------------------------------------- Bluesky
@@ -363,8 +427,10 @@ def session_bluesky(identifiant: str | None = None, mdp: str | None = None) -> d
     return {"jeton": s["accessJwt"], "did": s["did"], "handle": s["handle"], "serveur": serveur.rstrip("/")}
 
 
-def enregistrement_bluesky(m: dict, image: dict | None, largeur: int, hauteur: int, quand: dt.datetime) -> dict:
-    """Message app.bsky.feed.post, texte, facettes de lien, langue, figure et son texte de remplacement."""
+def enregistrement_bluesky(m: dict, image: dict | None, largeur: int, hauteur: int, quand: dt.datetime,
+                           reponse: dict | None = None) -> dict:
+    """Message app.bsky.feed.post, texte, facettes de lien, langue, figure et son texte de remplacement ; dans un fil,
+    reply = {root, parent}, références fortes (uri, cid) du premier message et du message auquel il répond."""
     texte = m["bluesky"].strip()
     rec = {"$type": "app.bsky.feed.post", "text": texte,
            "createdAt": quand.astimezone(dt.timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z"),
@@ -372,6 +438,9 @@ def enregistrement_bluesky(m: dict, image: dict | None, largeur: int, hauteur: i
     f = facettes(texte)
     if f:
         rec["facets"] = f
+    if reponse is not None:
+        rec["reply"] = {"root": {"uri": reponse["root"]["uri"], "cid": reponse["root"]["cid"]},
+                        "parent": {"uri": reponse["parent"]["uri"], "cid": reponse["parent"]["cid"]}}
     if image is not None:
         rec["embed"] = {"$type": "app.bsky.embed.images",
                         "images": [{"alt": m["alt"].strip(), "image": image,
@@ -379,27 +448,80 @@ def enregistrement_bluesky(m: dict, image: dict | None, largeur: int, hauteur: i
     return rec
 
 
-def publier_bluesky(m: dict) -> dict:
+def envoyeur_bluesky():
+    """Ouvre une session et rend la fonction qui poste un message (figure comprise), en réponse ou non, et renvoie
+    {le, identifiant (uri), cid, adresse}. Une seule session pour tout un fil."""
     requests = _http()
     s = session_bluesky()
     entetes = {"Authorization": f"Bearer {s['jeton']}"}
-    brut = chemin_figure(m).read_bytes()
-    largeur, hauteur = taille_png(brut)
-    try:
-        r = requests.post(f"{s['serveur']}/xrpc/com.atproto.repo.uploadBlob", data=brut,
-                          headers=entetes | {"Content-Type": "image/png"}, timeout=120)
+
+    def envoyer(partie: dict, reponse: dict | None = None) -> dict:
+        brut = chemin_figure(partie).read_bytes()
+        largeur, hauteur = taille_png(brut)
+        try:
+            r = requests.post(f"{s['serveur']}/xrpc/com.atproto.repo.uploadBlob", data=brut,
+                              headers=entetes | {"Content-Type": "image/png"}, timeout=120)
+            if r.status_code != 200:
+                raise _erreur_http("Bluesky", r)
+            rec = enregistrement_bluesky(partie, r.json()["blob"], largeur, hauteur, dt.datetime.now(), reponse)
+            r = requests.post(f"{s['serveur']}/xrpc/com.atproto.repo.createRecord", headers=entetes, timeout=60,
+                              json={"repo": s["did"], "collection": "app.bsky.feed.post", "record": rec})
+        except requests.RequestException as e:
+            raise Arret(f"Bluesky ne répond pas ({e.__class__.__name__}). Réessayer plus tard.") from e
         if r.status_code != 200:
             raise _erreur_http("Bluesky", r)
-        rec = enregistrement_bluesky(m, r.json()["blob"], largeur, hauteur, dt.datetime.now())
-        r = requests.post(f"{s['serveur']}/xrpc/com.atproto.repo.createRecord", headers=entetes, timeout=60,
-                          json={"repo": s["did"], "collection": "app.bsky.feed.post", "record": rec})
+        uri = r.json()["uri"]
+        return {"le": maintenant(), "identifiant": uri, "cid": r.json()["cid"],
+                "adresse": f"https://bsky.app/profile/{s['handle']}/post/{uri.rsplit('/', 1)[-1]}"}
+
+    envoyer.did = s["did"]
+    return envoyer
+
+
+def reponse_deja_visible(parent_uri: str, auteur: str, texte: str) -> dict | None:
+    """Réponse de l'auteur, de même texte, déjà publiée sous parent_uri (API publique, app.bsky.feed.getPostThread) :
+    une réponse partie dont l'accusé de réception s'est perdu n'est jamais renvoyée."""
+    requests = _http()
+    try:
+        r = requests.get(f"{BLUESKY_PUBLIC}/xrpc/app.bsky.feed.getPostThread",
+                         params={"uri": parent_uri, "depth": 1, "parentHeight": 0}, timeout=30)
     except requests.RequestException as e:
-        raise Arret(f"Bluesky ne répond pas ({e.__class__.__name__}). Réessayer plus tard.") from e
+        raise Arret(f"Bluesky ne répond pas ({e.__class__.__name__}), fil non repris. Réessayer plus tard.") from e
     if r.status_code != 200:
         raise _erreur_http("Bluesky", r)
-    uri = r.json()["uri"]
-    return {"le": maintenant(), "identifiant": uri,
-            "adresse": f"https://bsky.app/profile/{s['handle']}/post/{uri.rsplit('/', 1)[-1]}"}
+    for x in (r.json().get("thread") or {}).get("replies") or []:
+        p = x.get("post") or {}
+        if (p.get("author") or {}).get("did") == auteur and (p.get("record") or {}).get("text") == texte.strip():
+            return {"le": (p.get("record") or {}).get("createdAt", ""), "identifiant": p["uri"], "cid": p["cid"],
+                    "adresse": f"https://bsky.app/profile/{auteur}/post/{p['uri'].rsplit('/', 1)[-1]}"}
+    return None
+
+
+def publier_bluesky(m: dict, envoyer=None, deja=None) -> dict:
+    """Publie le message, puis chaque réponse de son fil en réponse à la précédente. Chaque message parti est noté
+    aussitôt dans « fil_publie » et inscrit au journal ; au premier échec, Arret, et un nouvel appel reprend à la
+    suite, sans renvoyer ce qui est parti. Renvoie la publication du premier message (adresse du fil)."""
+    envoyer = envoyer or envoyeur_bluesky()
+    if not m.get("fil"):
+        return envoyer(m)
+    deja = deja or reponse_deja_visible
+    parties = parties_bluesky(m)
+    faits = m.setdefault("fil_publie", [])
+    for k in range(len(faits), len(parties)):
+        reponse = None if k == 0 else {"root": {"uri": faits[0]["identifiant"], "cid": faits[0]["cid"]},
+                                       "parent": {"uri": faits[k - 1]["identifiant"], "cid": faits[k - 1]["cid"]}}
+        # reprise : la réponse est peut-être partie sans que l'accusé de réception soit arrivé
+        p = deja(faits[k - 1]["identifiant"], envoyer.did, parties[k]["bluesky"]) if k else None
+        if p is None:
+            try:
+                p = envoyer(parties[k], reponse)
+            except Arret as e:
+                raise Arret(f"fil arrêté au message {k + 1} sur {len(parties)} ({e}). Les {k} premiers sont publiés ; "
+                            "un nouveau clic sur « Publier » reprend à la suite." if k else str(e)) from e
+        faits.append(p)
+        enregistrer(m)
+        journaliser(m, "bluesky", p, partie=k)
+    return {**faits[0], "fil": len(faits)}
 
 
 # ---------------------------------------------------------------- LinkedIn
@@ -462,7 +584,11 @@ PUBLIEURS = {"linkedin": publier_linkedin, "bluesky": publier_bluesky}
 
 
 # ---------------------------------------------------------------- publication (seulement depuis la fenêtre)
-def journaliser(m: dict, reseau: str, p: dict) -> None:
+def journaliser(m: dict, reseau: str, p: dict, partie: int | None = None) -> None:
+    """Une ligne par publication ; dans un fil, une ligne par message (« id, 2 sur 4 »)."""
+    if partie is not None:
+        parties = parties_bluesky(m)
+        m = {**m, "id": f"{m['id']}, {partie + 1} sur {len(parties)}", reseau: parties[partie][reseau]}
     neuf = not JOURNAL_PUBLICATIONS.exists()
     JOURNAL_PUBLICATIONS.parent.mkdir(parents=True, exist_ok=True)
     with JOURNAL_PUBLICATIONS.open("a", encoding="utf-8-sig" if neuf else "utf-8", newline="") as f:
@@ -494,8 +620,9 @@ def publier(m: dict, publieurs=None) -> str:
         p = publieurs[r](m)
         m["publications"][r] = p
         enregistrer(m)
-        journaliser(m, r, p)
-        faits.append(f"{RESEAUX[r]}, {p['adresse']}")
+        if not (r == "bluesky" and m.get("fil")):      # un fil est inscrit au journal message par message
+            journaliser(m, r, p)
+        faits.append(f"{RESEAUX[r]}, {p['adresse']}" + (f" (fil de {p['fil']} messages)" if p.get("fil") else ""))
     if all(r in m["publications"] for r in m["reseaux"]):
         m["statut"] = "publie"
         enregistrer(m)
@@ -550,9 +677,7 @@ def remplacer(m_neuf: dict) -> str:
         raise Arret(f"aucun message {m_neuf['id']} à remplacer, l'ajouter d'abord.")
     if ancien.get("publications") or ancien.get("statut") == "publie":
         raise Arret(f"le message {m_neuf['id']} est déjà publié, il se corrige par un nouveau message.")
-    FIGURES.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(chemin_figure(m_neuf), FIGURES / f"{m_neuf['id']}.png")
-    m = {"sources": [], **m_neuf, "figure": f"{m_neuf['id']}.png", "statut": "a_relire", "cree_le": ancien.get("cree_le"),
+    m = {"sources": [], **copier_figures(m_neuf), "statut": "a_relire", "cree_le": ancien.get("cree_le"),
          "modifie_le": maintenant(), "remplace_le": maintenant(), "publications": {}}
     enregistrer(m)
     return f"Message {m['id']} remplacé, à relire dans l'onglet « Réseaux » de la fenêtre du courrier."
@@ -919,6 +1044,21 @@ def cmd_verifier(_args) -> int:
     return code
 
 
+def copier_figures(m: dict) -> dict:
+    """Copie la figure du message et celles de son fil dans figures\\ ; renvoie le message avec les noms copiés."""
+    FIGURES.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(chemin_figure(m), FIGURES / f"{m['id']}.png")
+    m = {**m, "figure": f"{m['id']}.png"}
+    if m.get("fil"):
+        fil = []
+        for k, rep in enumerate(m["fil"], 2):
+            nom = f"{m['id']}-{k}.png"
+            shutil.copyfile(chemin_figure(rep), FIGURES / nom)
+            fil.append({**rep, "figure": nom})
+        m["fil"] = fil
+    return m
+
+
 def cmd_ajouter(args) -> int:
     m = json.loads(Path(args.fichier).read_text(encoding="utf-8"))
     erreurs = controler_message(m)
@@ -926,10 +1066,9 @@ def cmd_ajouter(args) -> int:
         erreurs.append(f"un message {m.get('id')} existe déjà")
     if erreurs:
         raise Arret("message refusé, " + " ; ".join(erreurs))
-    FIGURES.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(chemin_figure(m), FIGURES / f"{m['id']}.png")
+    m = copier_figures(m)
     # cree_le à la microseconde, les messages ajoutés à la suite gardent leur ordre dans la liste
-    m = {"sources": [], **m, "figure": f"{m['id']}.png", "statut": "a_relire",
+    m = {"sources": [], **m, "statut": "a_relire",
          "cree_le": dt.datetime.now().astimezone().isoformat(timespec="microseconds"),
          "modifie_le": None, "publications": {}}
     enregistrer(m)
@@ -969,13 +1108,25 @@ def cmd_apercu(args) -> int:
     if not m:
         raise Arret(f"message {args.id} introuvable.")
     erreurs = controler_message(m)
-    largeur, hauteur = taille_png(chemin_figure(m).read_bytes()) or (0, 0)
-    sortie = {"controle": erreurs or "aucune erreur",
-              "bluesky": {"graphemes": graphemes(m.get("bluesky") or ""),
-                          "record": enregistrement_bluesky(m, {"$type": "blob", "ref": "(figure envoyée au moment de "
-                                                               "la publication)"}, largeur, hauteur, dt.datetime.now())},
-              "linkedin": {"caracteres": len(m.get("linkedin") or ""),
-                           "corps": corps_linkedin(m, "urn:li:person:(auteur)", "urn:li:image:(figure)")}}
+    sortie = {"controle": erreurs or "aucune erreur"}
+    # seulement les réseaux choisis : un message pour Bluesky seul n'a pas de version LinkedIn (aperçu du 17 novembre
+    # 2026, qui échouait sur chaque message de la file)
+    if "bluesky" in (m.get("reseaux") or []):
+        blob = {"$type": "blob", "ref": "(figure envoyée au moment de la publication)"}
+        parties = parties_bluesky(m)
+        sortie["bluesky"] = []
+        for k, partie in enumerate(parties):
+            f = chemin_figure(partie)
+            lh = (taille_png(f.read_bytes()) if f.is_file() else None) or (0, 0)
+            racine_ = {"uri": "(adresse du message 1)", "cid": "(cid du message 1)"}
+            parent = {"uri": f"(adresse du message {k})", "cid": f"(cid du message {k})"}
+            sortie["bluesky"].append({
+                "message": f"{k + 1} sur {len(parties)}", "graphemes": graphemes(partie.get("bluesky") or ""),
+                "figure": str(f), "record": enregistrement_bluesky(partie, blob, *lh, dt.datetime.now(),
+                                                                   {"root": racine_, "parent": parent} if k else None)})
+    if "linkedin" in (m.get("reseaux") or []):
+        sortie["linkedin"] = {"caracteres": len(m.get("linkedin") or ""),
+                              "corps": corps_linkedin(m, "urn:li:person:(auteur)", "urn:li:image:(figure)")}
     print(json.dumps(sortie, ensure_ascii=False, indent=2))
     return 1 if erreurs else 0
 
@@ -1510,18 +1661,25 @@ def onglet(onglets, racine, c: dict, police, petite, zone_texte, remplir) -> dic
         tete.grid(row=1 + 2 * i, column=0, columnspan=2, sticky="ew", pady=(4 if i else 0, 2))
         ttk.Label(tete, text=RESEAUX[r] + (", version longue" if r == "linkedin" else ", version courte"),
                   font=("Segoe UI Semibold", 10)).pack(side="left")
+        if r == "bluesky":
+            # fil Bluesky (17 novembre 2026) : chaque message se relit et se corrige ici, un à la fois
+            partie_var = tk.StringVar()
+            partie_choix = ttk.Combobox(tete, textvariable=partie_var, state="readonly", width=18)
         compteurs[r] = tk.Label(tete, bg=c["fond"], fg=c["discret"], font=petite)
         compteurs[r].pack(side="right")
         cadre, t = zone_texte(droite, False)
         t.configure(height=haut)
         cadre.grid(row=2 + 2 * i, column=0, columnspan=2, sticky="nsew")
         zones[r] = t
-    droite.rowconfigure(2, weight=2)
-    droite.rowconfigure(4, weight=1)
+    # hauteur minimale des deux textes à relire, même sur un écran de 1080 px et avec un long motif
+    droite.rowconfigure(2, weight=2, minsize=90)
+    droite.rowconfigure(4, weight=1, minsize=90)
     bas = ttk.Frame(droite)
     bas.grid(row=5, column=0, columnspan=2, sticky="ew", pady=(8, 0))
-    apercu = tk.Label(bas, bg=c["panneau"], relief="flat", width=36, height=9)
-    apercu.pack(side="left", anchor="n")
+    cadre_figure = ttk.Frame(bas)
+    cadre_figure.pack(side="left", anchor="n")
+    apercu = tk.Label(cadre_figure, bg=c["panneau"], relief="flat", width=36, height=9, cursor="hand2")
+    apercu.pack(anchor="n")
     cote = ttk.Frame(bas, padding=(12, 0, 0, 0))
     cote.pack(side="left", fill="both", expand=True)
     tete_alt = ttk.Frame(cote)
@@ -1530,8 +1688,12 @@ def onglet(onglets, racine, c: dict, police, petite, zone_texte, remplir) -> dic
               style="Discret.TLabel").pack(side="left")
     compteurs["alt"] = tk.Label(tete_alt, bg=c["fond"], fg=c["discret"], font=petite)
     compteurs["alt"].pack(side="right")
+    # figure trop petite pour être bien lue : un clic sur elle, ou ce bouton, l'ouvre en grand (demande du
+    # 17 novembre 2026) ; sur la ligne du texte de remplacement, pour ne pas allonger l'onglet
+    bouton_agrandir = ttk.Button(tete_alt, text="Agrandir la figure")
+    bouton_agrandir.pack(side="right", padx=(0, 12))
     cadre_alt, alt = zone_texte(cote, False)
-    alt.configure(height=5)
+    alt.configure(height=3)                      # défile ; l'onglet tient sur un écran de 1080 px
     cadre_alt.pack(fill="both", expand=True)
     ligne_reseaux = ttk.Frame(droite)
     ligne_reseaux.grid(row=6, column=0, columnspan=2, sticky="ew", pady=(8, 0))
@@ -1549,7 +1711,7 @@ def onglet(onglets, racine, c: dict, police, petite, zone_texte, remplir) -> dic
     droite.bind("<Configure>", lambda e: [motif.configure(wraplength=max(300, e.width - 24)),
                                           comptes.configure(wraplength=max(200, e.width - 300)),
                                           sources.configure(wraplength=max(300, e.width - 24))])
-    etat = {"courant": None, "image": None}
+    etat = {"courant": None, "image": None, "partie": 0}
 
     def compter(_e=None):
         b = zones["bluesky"].get("1.0", "end").rstrip("\n")
@@ -1580,6 +1742,18 @@ def onglet(onglets, racine, c: dict, police, petite, zone_texte, remplir) -> dic
         m = lire_json(MESSAGES / f"{m['id']}.json") or m
         nouveau = {r: zones[r].get("1.0", "end").rstrip() for r in RESEAUX} | {
             "alt": alt.get("1.0", "end").strip(), "reseaux": [r for r in RESEAUX if choix[r].get()]}
+        k = etat["partie"]
+        if k and m.get("fil") and k <= len(m["fil"]):
+            # une réponse du fil est affichée : son texte et son texte de remplacement vont à la réponse
+            r_ = m["fil"][k - 1]
+            texte_, alt_ = nouveau.pop("bluesky"), nouveau.pop("alt")
+            nouveau |= {"bluesky": (m.get("bluesky") or "").rstrip(), "alt": (m.get("alt") or "").strip()}
+            if (texte_, alt_) != ((r_.get("bluesky") or "").rstrip(), (r_.get("alt") or "").strip()):
+                r_.update(bluesky=texte_, alt=alt_)
+                m["modifie_le"] = maintenant()
+                if m.get("statut") == "programme":   # un fil changé après le clic doit être validé de nouveau
+                    m["statut"] = "a_relire"
+                enregistrer(m)
         avant = {r: (m.get(r) or "").rstrip() for r in RESEAUX} | {"alt": (m.get("alt") or "").strip(),
                                                                    "reseaux": [r for r in RESEAUX if r in m["reseaux"]]}
         quand = lire_date(champ_date.get())
@@ -1601,6 +1775,7 @@ def onglet(onglets, racine, c: dict, police, petite, zone_texte, remplir) -> dic
         sel = liste.selection()
         m = lire_json(MESSAGES / f"{sel[0]}.json") if sel else None
         etat["courant"] = m
+        etat["partie"] = 0
         for t in (*zones.values(), alt):
             remplir(t, "")
         champ_date.delete(0, "end")
@@ -1629,17 +1804,119 @@ def onglet(onglets, racine, c: dict, police, petite, zone_texte, remplir) -> dic
             texte += f"\nDate de publication proposée, le {date_affichee(m).replace(' ', ' à ')}."
         motif.configure(text=texte)
         src = "Lien " + m["lien"] + (". Sources " + " ; ".join(m["sources"]) if m.get("sources") else "")
+        if len(src) > 260:      # les sources d'un fil sont longues : la ligne ne doit pas écraser les textes à relire
+            src = src[:257].rsplit(" ", 1)[0] + " … (toutes les sources dans le fichier du message)"
         sources.configure(text=src)
-        f = chemin_figure(m)
+        if m.get("fil"):
+            n = len(parties_bluesky(m))
+            partie_choix.configure(values=[f"Message {i} sur {n}" for i in range(1, n + 1)])
+            partie_choix.current(0)
+            partie_choix.pack(side="left", padx=(12, 0))
+            texte += (f"\nFil de {n} messages : relis chacun avec « Message 1 sur {n} », un seul clic sur « Publier » "
+                      "les envoie tous.")
+            if m.get("fil_publie"):
+                texte += (f"\n{len(m['fil_publie'])} message(s) du fil déjà publiés. Un clic sur « Publier » reprend "
+                          "à la suite, sans renvoyer ceux qui sont partis.")
+            motif.configure(text=texte)
+        else:
+            partie_choix.pack_forget()
+        montrer_figure(chemin_figure(m))
+        compter()
+
+    def montrer_figure(f):
+        apercu.configure(image="", text="")
+        etat["figure"] = f
         if f.is_file():
             try:
                 img = tk.PhotoImage(file=str(f))
-                k = max(1, -(-img.width() // 260), -(-img.height() // 170))
+                k = max(1, -(-img.width() // 260), -(-img.height() // 115))   # vignette ; « Agrandir la figure » pour la lire
                 etat["image"] = img.subsample(k, k)
                 apercu.configure(image=etat["image"], width=0, height=0)
             except tk.TclError:
                 apercu.configure(text="Figure illisible")
+
+    def choisir_partie(_e=None):
+        """Montre le message k du fil : son texte court, sa figure et son texte de remplacement."""
+        garder()
+        m = etat["courant"]
+        if not m or not m.get("fil"):
+            return
+        k = partie_choix.current()
+        etat["partie"] = k
+        partie = parties_bluesky(m)[k]
+        remplir(zones["bluesky"], partie.get("bluesky") or "")
+        remplir(alt, partie.get("alt") or "")
+        montrer_figure(chemin_figure(partie))
         compter()
+
+    partie_choix.bind("<<ComboboxSelected>>", choisir_partie)
+
+    def agrandir(_e=None):
+        """Ouvre la figure affichée en grand : à la taille de l'écran d'abord, en taille réelle sur demande (avec
+        barres de défilement). « Fermer », la touche Échap ou un clic sur l'image referment la fenêtre."""
+        f = etat.get("figure")
+        if not f or not f.is_file():
+            return
+        try:
+            img = tk.PhotoImage(file=str(f))
+        except tk.TclError:
+            messagebox.showerror("Figure illisible", str(f), parent=racine)
+            return
+        m = etat["courant"] or {}
+        n = len(parties_bluesky(m)) if m.get("fil") else 1
+        fen = tk.Toplevel(racine)
+        fen.title(f"Figure, {m.get('titre', '')}" + (f", message {etat['partie'] + 1} sur {n}" if n > 1 else ""))
+        fen.configure(bg=c["fond"])
+        haut_ = ttk.Frame(fen, padding=(12, 8))
+        haut_.pack(fill="x")
+        ttk.Button(haut_, text="Fermer", command=fen.destroy).pack(side="right")
+        bouton_taille = ttk.Button(haut_)
+        bouton_taille.pack(side="right", padx=(0, 8))
+        ttk.Label(haut_, text="Échap ou un clic sur l'image pour fermer", style="Discret.TLabel").pack(side="left")
+        zone = tk.Canvas(fen, bg=c["panneau"], highlightthickness=0)
+        vert, horiz = ttk.Scrollbar(fen, command=zone.yview), ttk.Scrollbar(fen, orient="horizontal",
+                                                                              command=zone.xview)
+        zone.configure(yscrollcommand=vert.set, xscrollcommand=horiz.set)
+        lw, lh = fen.winfo_screenwidth() - 80, fen.winfo_screenheight() - 160
+        # échelle a/b (zoom puis subsample, Tk ne connaît que les entiers) la plus grande qui tient dans l'écran
+        a, b = max(((a, b) for b in range(1, 13) for a in range(1, b + 1)
+                    if img.width() * a / b <= lw and img.height() * a / b <= lh), key=lambda x: x[0] / x[1],
+                   default=(1, 12))
+        vues = {"ecran": img.zoom(a).subsample(b) if (a, b) != (1, 1) else img, "reelle": img}
+
+        def montrer(mode):
+            im = vues[mode]
+            fen.vue = im
+            zone.delete("all")
+            zone.create_image(0, 0, image=im, anchor="nw")
+            zone.configure(scrollregion=(0, 0, im.width(), im.height()), width=min(im.width(), lw),
+                           height=min(im.height(), lh))
+            vert.pack_forget()
+            horiz.pack_forget()
+            zone.pack_forget()
+            if im.height() > lh:
+                vert.pack(side="right", fill="y")
+            if im.width() > lw:
+                horiz.pack(side="bottom", fill="x")
+            zone.pack(fill="both", expand=True)
+            autre = "reelle" if mode == "ecran" else "ecran"
+            bouton_taille.configure(text="Taille réelle" if autre == "reelle" else "Taille de l'écran",
+                                    command=lambda: montrer(autre))
+            if (a, b) == (1, 1):            # l'image tient déjà à sa taille réelle
+                bouton_taille.pack_forget()
+
+        montrer("ecran")
+        zone.bind("<Button-1>", lambda _e: fen.destroy())
+        zone.bind("<MouseWheel>", lambda e: zone.yview_scroll(-1 if e.delta > 0 else 1, "units"))
+        fen.bind("<Escape>", lambda _e: fen.destroy())
+        fen.transient(racine)
+        fen.update_idletasks()
+        fen.geometry(f"+{max(0, (fen.winfo_screenwidth() - fen.winfo_reqwidth()) // 2)}+10")
+        fen.focus_force()
+        etat["agrandie"] = fen
+
+    apercu.bind("<Button-1>", agrandir)
+    bouton_agrandir.configure(command=agrandir)
 
     def rafraichir(choisi=None):
         liste.delete(*liste.get_children())
@@ -1689,6 +1966,8 @@ def onglet(onglets, racine, c: dict, police, petite, zone_texte, remplir) -> dic
             messagebox.showerror("Compte non relié", "Rien n'est publié.\n\n" + "\n".join(absents), parent=racine)
             return
         noms = " et ".join(RESEAUX[r] for r in restants)
+        if m.get("fil") and "bluesky" in restants:
+            noms += f" (fil de {len(parties_bluesky(m))} messages, envoyés d'un seul clic)"
         saisie = champ_date.get().strip()
         quand = lire_date(saisie) if saisie else None
         if saisie and quand is None:
@@ -1780,7 +2059,9 @@ def onglet(onglets, racine, c: dict, police, petite, zone_texte, remplir) -> dic
     liste.bind("<<TreeviewSelect>>", afficher)
     pub.bind("<Double-1>", ouvrir_publication)
     rafraichir()
-    return {"page": page, "garder": garder, "rafraichir": lambda: rafraichir(liste.selection()[0]
+    return {"page": page, "garder": garder, "agrandir": agrandir, "choisir_partie": choisir_partie,
+            "partie_choix": partie_choix, "liste": liste, "etat": etat,
+            "rafraichir": lambda: rafraichir(liste.selection()[0]
                                                                            if liste.selection() else None),
             "a_relire": a_relire}
 

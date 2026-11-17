@@ -573,20 +573,23 @@ def croisements(agg, ref, ctx, rng, route=None, questions=()):
             continue
         m = x.notna() & y.notna() & ~x.index.isin(config.DEPARTEMENTS_EXCLUS_CROISEMENTS)
         rho, p, lo, hi, k = spearman_bootstrap(x[m], y[m], config.BOOTSTRAP, tirage("croisements", xa, yb))
-        r = {"theme": theme, "mesure": xa, "variable": yb, "departements": k, "rho": rho, "ic95_bas": lo, "ic95_haut": hi}
-        if questions:
-            r["p"] = p
+        # p-valeur gardée pour tous les croisements : le rapport applique la règle unique du site (regle_lien, seuil et
+        # correction de Benjamini-Hochberg), et non la seule fourchette (relecture du 17 novembre 2026)
+        r = {"theme": theme, "mesure": xa, "variable": yb, "departements": k, "rho": rho, "ic95_bas": lo, "ic95_haut": hi,
+             "p": p}
         points[(xa, yb)] = [(c_, float(a), float(b)) for c_, a, b in zip(x[m].index, x[m], y[m])]
         if z is not None:
-            rp, _pp, lp, hp, _k = spearman_partiel_bootstrap(x[m], y[m], z[m], config.BOOTSTRAP,
-                                                             tirage("croisements_partiel", xa, yb))
-            r.update({"rho_partiel_densite": rp, "ic95_bas_partiel": lp, "ic95_haut_partiel": hp})
+            rp, pp, lp, hp, _k = spearman_partiel_bootstrap(x[m], y[m], z[m], config.BOOTSTRAP,
+                                                            tirage("croisements_partiel", xa, yb))
+            r.update({"rho_partiel_densite": rp, "ic95_bas_partiel": lp, "ic95_haut_partiel": hp, "_p_partiel": pp})
         out.append(r)
     if not out:
         return None
     t = pd.DataFrame(out)
-    if questions:
-        t["q_bh"] = benjamini_hochberg(t["p"].to_numpy())
+    t["q_bh"] = benjamini_hochberg(t["p"].to_numpy())
+    if "_p_partiel" in t:
+        t["q_bh_partiel"] = benjamini_hochberg(t["_p_partiel"].to_numpy())
+        t = t.drop(columns="_p_partiel")
     t.attrs["points"] = points   # valeurs par département, pour le nuage de l'atlas (pas écrites dans le CSV)
     t.attrs["questions"] = questions
     return t
@@ -943,6 +946,8 @@ def correlations_contexte(agg, ref, ctx, rng):
         for mode in ["all", "lib", "sal"]:
             _n, dens, pop = tables(agg, ref, niv, mode)
             c = ctx[niv].reindex(dens.index)
+            if niv == "dep":   # Mayotte écartée des croisements entre départements
+                c.loc[c.index.isin(config.DEPARTEMENTS_EXCLUS_CROISEMENTS)] = np.nan
             # contrôle de l'effet ville, logarithme de la densité de population (les rangs n'en dépendent pas)
             ville = c["densite_pop"] if "densite_pop" in c else None
             for p in dens.columns:
@@ -1202,6 +1207,8 @@ def sensibilite_sous_declaration(agg, ref, ctx):
         return pd.DataFrame()
     n, dens, pop = tables(agg, ref, "dep", "all")
     c = ctx["dep"].reindex(dens.index)
+    # Mayotte écartée comme dans tous les croisements entre départements
+    c.loc[c.index.isin(config.DEPARTEMENTS_EXCLUS_CROISEMENTS)] = np.nan
     lignes = []
     for p in [p for p in config.PROFESSIONS_QUADRANTS if p in dens]:
         for v in [v for v in ["suicides", "hospit_gestes_auto_infliges", "urgences_gestes_auto_infliges"] if v in c]:
@@ -1243,6 +1250,8 @@ def correlations_professions(agg, ref):
     for niv in config.NIVEAUX_ANALYSE:
         n, dens, _pop = tables(agg, ref, niv, "all")
         cols = [p for p in dens.columns if n[p].sum() >= 30]
+        if niv == "dep":   # Mayotte écartée des croisements entre départements
+            dens = dens[~dens.index.isin(config.DEPARTEMENTS_EXCLUS_CROISEMENTS)]
         out[niv] = dens[cols].corr(method="spearman")
     return out
 
