@@ -3170,6 +3170,23 @@ def test_css_libelle_valeur_ecart():
                 assert re.search(r"(^|[;{])\s*(column-)?gap:", regle), (f.name, regle.strip()[:120])
 
 
+def test_css_fondu_jamais_imprime():
+    """Un fondu (masque en dégradé) ne signale qu'à l'écran un contenu à faire défiler. Chaque règle qui en pose un le
+    pose par les classes deborde-d ou deborde-g, et une règle d'impression les annule avec !important, quelle que soit
+    la force de la règle d'écran : le PDF s'imprime dans une fenêtre étroite où les tableaux débordent, et la dernière
+    colonne des tableaux larges sortait estompée dans les rapports PDF (22 novembre 2026)."""
+    import re
+    from pipeline import config
+    css = (config.RACINE / "gabarits" / "style.css").read_text(encoding="utf-8")
+    for regle in re.findall(r"[^{}]*\{[^{}]*\}", css):
+        if re.search(r"mask-image:\s*(linear|radial)-gradient", regle):
+            selecteur = regle.split("{")[0]
+            assert all(re.search(r"\.deborde-[dg]\b", s) for s in selecteur.split(",")), selecteur.strip()[:120]
+    blocs = re.findall(r"@media print\{(.*?)\n\}", css, re.S)
+    assert any(re.search(r"\.deborde-d,\.deborde-g\{-webkit-mask-image:none!important;mask-image:none!important\}", b)
+               for b in blocs)
+
+
 def test_direction_visuelle_palettes():
     """Direction visuelle du 30 octobre 2026 : aucune classe de couleur des données de la couleur du fond (contraste
     d'au moins 2:1 sur le fond sombre et sur le fond clair), texte à 4,5:1 au moins, cinq tailles de texte en
@@ -5481,6 +5498,60 @@ def test_cle_persistante_structures():
     assert soi["nouvelles"] == 0 and soi["disparues"] == 0, soi
 
 
+def test_cle_propre_a_chaque_structure_du_meme_lieu():
+    """Deux structures du même type réunies au même lieu interne (accueil familial « AFT G10 » et atelier « Jules
+    Leclercq », Armentières, même adresse) gardent chacune leur clé ; la ligne par public d'un CMP garde celle de sa
+    structure (relecture du 22 novembre 2026)."""
+    import pandas as pd
+    from pipeline import cles_structures as cs, config
+    f = config.RESULTATS / "2026-11-22" / "lieux_soins.csv"
+    if not f.exists():
+        raise Ignore("version du 22 novembre absente")
+    x = pd.read_csv(f, sep=";", dtype=str)
+    arm = x[(x["nom_commune"] == "Armentières") & (x["type"] == "lieu_rehab_psy")
+            & x["nom"].str.contains("AFT G10|Jules Leclercq", regex=True)].copy()
+    assert len(arm) == 2
+    eu = x[(x["nom"] == "CMP d'Eu pour enfants")].copy()
+    assert set(eu["type"]) == {"lieu_cmp", "lieu_cmp_enfants"}
+    t = pd.concat([arm.assign(lieu="meme-lieu"), eu.assign(lieu="cmp-eu")], ignore_index=True)
+    cle, _reg, _c = cs.attribuer(t, "2026-11-22", pd.DataFrame(columns=cs.COLS))
+    assert cle.iloc[0] != cle.iloc[1]
+    assert cle.iloc[2] == cle.iloc[3]
+
+
+def test_accords_legende_reglettes_fiches_construites():
+    """La légende des réglettes accorde ses mots au niveau : « toutes les régions réunies », « d’intercommunalités »,
+    « elles sont plus de 40 % » (relecture indépendante du 22 novembre 2026, sur les fiches construites)."""
+    from pipeline import config
+    racine = config.RACINE / "site" / "territoire"
+    vus = 0
+    for niv in ("dep", "reg", "epci"):
+        for f in sorted((racine / niv).glob("*.html"))[:3]:
+            h = f.read_text(encoding="utf-8")
+            if "Lire les réglettes" not in h:
+                continue
+            vus += 1
+            for faux in ("tous les régions", "tous les intercommunalités", "de intercommunalités", "les régions réunis",
+                         "les intercommunalités réunis", "régions peuplés", "intercommunalités peuplés"):
+                assert faux not in h, (f.name, faux)
+            if niv != "dep":
+                assert "quand ils sont plus de 40" not in h, f.name
+    if not vus:
+        raise Ignore("fiches construites sans la légende des réglettes")
+
+
+def test_cmp_ea_pour_enfants():
+    """« CMP EA », écrit en deux mots, désigne un CMP pour enfants et adolescents (« CMP EA LANGUEDOC GRAULHET »,
+    FINESS seul, compté sans public jusqu'au 22 novembre 2026) ; « CMP Eaux-Bonnes » ou « Eauze » ne le sont pas."""
+    import re
+    from pipeline import config
+    from pipeline.util import norm
+    for s in ("CMP EA LANGUEDOC GRAULHET", "CMPEA Lisieux", "CMP IJ LA PARENTHESE"):
+        assert re.search(config.NOM_ENFANTS, norm(s)), s
+    for s in ("CMP Eaux-Bonnes", "CMP adultes EAUZE", "CMP de Seapoint"):
+        assert not re.search(config.NOM_ENFANTS, norm(s)), s
+
+
 def test_voies_developpees():
     """Abréviations des voies développées pour le géocodage (29 octobre 2026), sur de vraies adresses de FINESS."""
     from pipeline.lieux import voie_developpee
@@ -7668,15 +7739,27 @@ def test_chiffres_cles_ecart_et_position_ensemble():
 
 
 def test_lire_reglette_dit_ensemble_tire_par_les_peuples():
-    """« Lire une réglette » et l'introduction des constats disent pourquoi un territoire peut être sous l'ensemble et
-    plus haut que la plupart des autres (relecture de clarté du 31 octobre 2026)."""
-    from pipeline import affichage as AF, config
+    """La légende des réglettes dit pourquoi un territoire peut être sous l'ensemble et plus haut que la plupart des
+    autres (relecture de clarté du 31 octobre 2026) : « ensemble » et « médiane » y sont définis en les opposant, chaque
+    habitant compte autant ou chaque territoire compte autant (maquette validée le 22 novembre 2026). Les explications
+    au survol disent la même chose ; l'introduction des constats garde la clé de l'ensemble."""
+    from pipeline import affichage as AF
     FT, dn, f, code = _fiche_vraie()
     assert f["cle_ensemble"] == AF.cle_contraire("haut", "epci") and "plus peuplés" in f["cle_ensemble"]
-    g = (Path(__file__).resolve().parent.parent / "gabarits" / "fiche_territoire.html").read_text(encoding="utf-8")
-    debut = g.index("reglette-type")
-    assert "f.cle_ensemble" in g[debut:g.index("</figure>", debut)]
-    assert g.count("{{ f.cle_ensemble }}") >= 2
+    racine = Path(__file__).resolve().parent.parent
+    g = (racine / "gabarits" / "fiche_territoire.html").read_text(encoding="utf-8")
+    debut = g.index('class="lire-reglette legende-rg"')
+    leg = g[debut:g.index("</p>", g.index("</dl>", debut))]
+    assert "Lire les réglettes" in leg and "Lire une réglette" not in g
+    assert "Chaque habitant y compte autant" in leg and "compte autant, quelle que soit sa population" in leg
+    assert "peut être sous l’ensemble et plus haut" in leg
+    # la densité de population rapporte les habitants à la surface : chaque km² y compte autant (relecture du soir)
+    assert "pour la densité de population, c’est chaque km² qui compte autant" in leg
+    # accords pour les régions et les intercommunalités (« toutes les régions réunies », « d’intercommunalités »)
+    assert "'toutes les' if NV[3] else 'tous les'" in leg and "'elles' if NV[3] else 'ils'" in g
+    js = (racine / "gabarits" / "presentation" / "fiche_tout.js").read_text(encoding="utf-8")
+    assert "Chaque habitant y compte autant" in js and "compte autant, quelle que soit sa population" in js
+    assert "chaque km² y compte autant" in js and "M.tous" in js
 
 
 def test_intervalle_annonce_seulement_ou_il_est_prevu():

@@ -281,6 +281,32 @@
       });
     });
   });
+  // 5 bis. explication de « ensemble » et « médiane » ouverte d'un clic (fiche) : la réglette garde sa largeur et sa
+  //    place, l'explication vient dessous et ne fait pas défiler la page. Ouverte dans « Lire une réglette », elle
+  //    élargissait la réglette au-delà de sa colonne, et dans « En bref » elle prenait sa place (22 novembre 2026).
+  //    Une réglette de chaque sorte : « En bref », tableau.
+  const bulle = document.getElementById("rg-bulle");
+  if (bulle) {
+    // la légende des réglettes a remplacé l'encadré qui portait une réglette (22 novembre 2026) : restent « En bref »
+    // et les tableaux ; une fiche où aucune explication ne peut s'ouvrir est signalée
+    const sortes = ["table.matrice .rg-lab", "table:not(.matrice) .rg-lab"];
+    if (document.querySelector(".fiche .rg-lab .rg-mot") && !sortes.some(s => [...document.querySelectorAll(s)].some(x => x.querySelector(".rg-mot") && vis(x) && !cache(x))))
+      sortes.length = 0, sortie.reglettes.push("aucune explication de réglette visible à ouvrir");
+    for (const sel of sortes) {
+      const l = [...document.querySelectorAll(sel)].find(x => x.querySelector(".rg-mot") && vis(x) && !cache(x));
+      if (!l) continue;
+      const rg = l.closest(".rg"), a = rg.getBoundingClientRect(), qui = sel.split(" ")[0];
+      l.click(); await new Promise(r => setTimeout(r, 120));
+      const b = rg.getBoundingClientRect(), bb = bulle.getBoundingClientRect();
+      if (bulle.hidden) sortie.reglettes.push("explication de « " + l.textContent.trim() + " » qui ne s'ouvre pas (" + qui + ")");
+      else {
+        if (Math.abs(b.width - a.width) > 1.5 || Math.abs(b.left - a.left) > 1.5) sortie.reglettes.push(`réglette qui change de taille quand son explication s'ouvre (${qui}, ${Math.round(a.width)} puis ${Math.round(b.width)} px)`);
+        if (bb.top < b.bottom - 1) sortie.reglettes.push("explication de réglette qui n'est pas sous la réglette (" + qui + ")");
+        if (document.documentElement.scrollWidth > innerWidth + 1) sortie.reglettes.push("explication de réglette qui fait défiler la page en largeur (" + qui + ")");
+      }
+      l.click(); await new Promise(r => setTimeout(r, 80));
+    }
+  }
   sortie.reglettes = [...new Set(sortie.reglettes)].slice(0, 60);
   // 7. colonnes du tableau de bord d'une fiche : côte à côte, elles finissent ensemble, à 40 px près (relecture
   //    esthétique du 31 octobre 2026, M5 : 236 px de vide sous la colonne de gauche)

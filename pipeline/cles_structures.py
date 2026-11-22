@@ -93,6 +93,7 @@ def decrire(t: pd.DataFrame) -> pd.DataFrame:
     for c in ("latitude", "longitude"):
         d[c] = pd.to_numeric(p[c].astype(str).str.replace(",", "."), errors="coerce") if c in p else np.nan
     d["precis"] = p["emplacement"].isin(PRECIS) if "emplacement" in p else False
+    d["ligne"] = p.index          # ligne d'origine, pour rendre à chaque structure sa propre clé
     return d.reset_index(drop=True)
 
 
@@ -186,8 +187,13 @@ def attribuer(t: pd.DataFrame, version: str, registre: pd.DataFrame | None = Non
     compte["disparues"] = int((~reg.index.isin(list(vus)) & (reg["derniere_version"] == precedente)).sum()) if len(reg) else 0
     par_lieu = dict(zip(zip(d["type"], d["lieu"]), d["id_structure"]))
     parents = _parents()
-    cle = pd.Series([par_lieu.get((parents.get(ty, ty), li)) or par_lieu.get((ty, li))
-                     for ty, li in zip(t["type"], _lieu(t))], index=t.index)
+    # une structure décrite garde sa propre clé, même quand une autre du même type partage sa clé interne (deux unités
+    # du ROR réunies au même lieu, l'accueil familial et l'atelier d'Armentières portaient la même clé, relecture du
+    # 22 novembre 2026) ; une ligne par public prend la clé de sa structure
+    propre = dict(zip(d["ligne"], d["id_structure"]))
+    cle = pd.Series([propre[i] if i in propre else
+                     (par_lieu.get((parents.get(ty, ty), li)) or par_lieu.get((ty, li)))
+                     for i, ty, li in zip(t.index, t["type"], _lieu(t))], index=t.index)
     return cle, nouveau, compte
 
 

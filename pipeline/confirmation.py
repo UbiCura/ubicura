@@ -82,9 +82,7 @@ def libelle(niveau, court: bool = False) -> str | None:
     # (« bases|adresse|CMPEA Blanquefort », « bases|rue|... »)
     niveau, _, meme = niveau.partition("|")
     if meme:
-        lieu, _, nom = meme.partition("|")
-        lib = libelle(niveau, court)
-        phrase = f"même {'adresse' if lieu == 'adresse' else 'rue'} que « {nom} », d'un autre gestionnaire, peut-être la même structure"
+        lib, phrase = libelle(niveau, court), meme_adresse(niveau + "|" + meme)
         return (lib + ", " + phrase) if lib else phrase[0].upper() + phrase[1:]
     base, _, date = niveau.partition("@")
     d = _date_fr(date) if date else ""
@@ -94,6 +92,16 @@ def libelle(niveau, court: bool = False) -> str | None:
         return ("non confirmée, demande envoyée à l'établissement" + (f" le {d}" if d else "")
                 + ", en attente de réponse")
     return (NIVEAUX_COURTS if court else NIVEAUX).get(base, NIVEAUX.get(base))
+
+
+def meme_adresse(niveau) -> str | None:
+    """Mention d'une structure d'un autre gestionnaire à la même adresse ou dans la même rue, lue dans le niveau codé
+    (« bases|adresse|CMPEA Blanquefort ») ; None sans elle. La même phrase dans les fichiers, l'atlas et les fiches."""
+    if not isinstance(niveau, str) or "|" not in niveau:
+        return None
+    _, _, meme = niveau.partition("|")
+    lieu, _, nom = meme.partition("|")
+    return f"même {'adresse' if lieu == 'adresse' else 'rue'} que « {nom} », d'un autre gestionnaire, peut-être la même structure"
 
 
 def avec_meme_adresse(x: pd.DataFrame) -> pd.Series:

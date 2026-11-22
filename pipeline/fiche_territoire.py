@@ -1449,8 +1449,20 @@ def construire(env, commun: dict, dernier: Path, site_data: dict, site: Path, re
         JOURNAL.note("Fiches des territoires", "erreur", "fond de carte de l'atlas introuvable, fiches sans carte de situation ni plan")
     else:
         A = {"geo": _fond(f_fond, site_data), "units": {lv: site_data["niveaux"][lv]["units"] for lv in NIVEAUX}}
+        from . import confirmation as conf_mod
         proj, sm = CP.projection(), {t for t, _ in STRUCT_SM}
         ip, noms_types, noms_lieux = dn.ip, dict(STRUCT_SM), (site_data.get("lieux") or {}).get("noms", [])
+        ids_conf = [c.get("id") for c in (site_data.get("lieux") or {}).get("confirmations", [])]
+        # un CMP figure sous « CMP, tous publics » et sous son public : un seul point, d'après le public de la structure
+        # (champ « public » des points : a adultes, e enfants, d les deux, n non précisé), sinon l'infobulle le nommait
+        # deux fois (relectures du 22 novembre 2026). Un CMP des deux publics est un seul point, « CMP pour adultes et
+        # pour enfants » ; un CMP au public non précisé reste sous « CMP, tous publics ».
+        par_public, deux_publics = _types_par_public(), set()
+        ipub = ip.get("public")
+        for pt in dn.pts:
+            typ = dn.types[pt[0]] if pt[0] < len(dn.types) else None
+            if typ == "lieu_cmp" and ipub is not None and pt[ipub] == "d":
+                deux_publics.add((pt[ip["lon"]], pt[ip["lat"]], pt[ip["nom"]]))
         for pt in dn.pts:
             typ = dn.types[pt[0]] if pt[0] < len(dn.types) else None
             if typ not in sm or pt[ip["dep"]] in ENCARTS or pt[ip["lat"]] is None:
@@ -1458,9 +1470,17 @@ def construire(env, commun: dict, dernier: Path, site_data: dict, site: Path, re
             x, y = proj(pt[ip["lon"]] / 1e4, pt[ip["lat"]] / 1e4)   # coordonnées au dix-millième de degré
             c = pt[ip["confirmation"]] if "confirmation" in ip else None
             cl = dn.classes_conf[c] if isinstance(c, int) and c < len(dn.classes_conf) else None
+            pub = pt[ipub] if ipub is not None else ""
+            if typ == "lieu_cmp" and pub in ("a", "e"):
+                continue
+            if typ in par_public and (pt[ip["lon"]], pt[ip["lat"]], pt[ip["nom"]]) in deux_publics:
+                continue
             nom = noms_lieux[pt[ip["nom"]]] if isinstance(pt[ip["nom"]], int) and pt[ip["nom"]] < len(noms_lieux) else ""
-            # raisons sociales en casse de titre partout, comme les listes (relecture du 1er novembre 2026, mineur 4)
-            titre = f"{noms_types[typ]}, {casse_titre(nom)}".replace("&", "&amp;").replace("<", "&lt;")
+            # raisons sociales en casse de titre partout, comme les listes (relecture du 1er novembre 2026, mineur 4) ;
+            # une structure d'un autre gestionnaire à la même adresse est nommée, comme dans l'atlas et les fichiers
+            meme = conf_mod.meme_adresse(ids_conf[c]) if isinstance(c, int) and c < len(ids_conf) else None
+            lib_t = "CMP pour adultes et pour enfants" if typ == "lieu_cmp" and pub == "d" else noms_types[typ]
+            titre = (f"{lib_t}, {casse_titre(nom)}" + (f", {meme}" if meme else "")).replace("&", "&amp;").replace("<", "&lt;")
             points_dep.setdefault(pt[ip["dep"]], []).append((round(x, 2), round(y, 2), cl, titre, pt[ip["epci"]]))
     tous_deps = [u["c"] for u in site_data["niveaux"]["dep"]["units"]]
     fonds_communes = {f.stem for f in (site / "presentation" / "zone_fond").glob("*.json")}

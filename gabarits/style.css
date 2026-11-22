@@ -1269,6 +1269,10 @@ h2{margin-top:var(--e-5)}
   tr{break-inside:avoid}
   /* à l'impression, les tableaux tiennent dans la largeur de la page au lieu de défiler */
   .corps table{display:table;overflow:visible;font-size:9pt;-webkit-mask-image:none;mask-image:none}
+  /* le fondu qui signale à l'écran un tableau à faire défiler ne s'imprime jamais : le PDF s'imprime dans une fenêtre
+     étroite où le tableau déborde, et la règle d'écran (.corps table.deborde-d) l'emportait sur celle-ci, d'où une
+     dernière colonne estompée dans les rapports PDF (vu sur Zenodo le 22 novembre 2026) */
+  .deborde-d,.deborde-g{-webkit-mask-image:none!important;mask-image:none!important}
   .corps table.large{font-size:7pt}
   .corps table.etroite{width:auto;min-width:55%}
   details>summary{list-style:none}details>summary::-webkit-details-marker{display:none}
@@ -2168,7 +2172,7 @@ nav.site .chercher[aria-expanded="true"]{border-bottom-color:var(--ink)}
 #rg-bulle b{font-weight:600}
 #rg-bulle .l{display:block}
 #rg-bulle .colle{white-space:nowrap}
-#rg-bulle.dans-flux{position:static;box-shadow:none;margin:4px 0 6px;max-width:100%}
+#rg-bulle.dans-flux{position:static;box-shadow:none;margin:4px 0 6px;max-width:100%;width:auto}   /* dans le fil, la largeur de sa colonne : à la largeur de sa phrase, elle élargissait « Lire une réglette » et sa réglette débordait (22 novembre 2026) */
 .fiche tr.rg-expl > td{padding:0 0 8px;border:0}
 .fiche tr.rg-expl #rg-bulle{max-width:min(640px,100%)}
 @media print{#rg-bulle,.fiche tr.rg-expl{display:none}}
@@ -2190,3 +2194,15 @@ nav.site .chercher[aria-expanded="true"]{border-bottom-color:var(--ink)}
  .fiche table.tt td.rep .tt-rl{display:none}
  .fiche table.tt tr.tt-sous{padding-top:18px}
 }
+/* légende des réglettes de la fiche, à la place de l'encadré « Lire une réglette » (maquette validée le 22 novembre
+   2026, prototypes/reglette_legende/) ; le trait de l'ensemble est vertical, comme sur la réglette */
+.fiche .legende-rg{margin:4px 0 14px;padding:12px 14px;background:var(--fond-marge);border-top:var(--bord-marge);display:grid;gap:10px}
+.fiche .legende-rg .lr-titre{margin:0;font-size:var(--t-corps);font-weight:600}
+.fiche .legende-rg .legende-cat{margin:0}
+.fiche .legende-rg dl{margin:0;display:grid;gap:6px}
+.fiche .legende-rg dl div{display:grid;grid-template-columns:88px minmax(0,1fr);column-gap:12px}
+.fiche .legende-rg dt{font-weight:600;font-size:var(--t-note)}
+.fiche .legende-rg dd{margin:0;font-size:var(--t-note);line-height:1.5;text-align:left}
+.fiche .legende-rg .note{margin:0}
+.fiche .legende-rg i.trait.plein{width:0;height:14px;border-top:0;border-left:2px solid var(--ink);margin:0 6px}
+@media (max-width:560px){.fiche .legende-rg dl div{grid-template-columns:1fr}}

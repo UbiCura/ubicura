@@ -327,7 +327,12 @@ def appliquer(lieux: pd.DataFrame, ref, centres: dict | None = None,
     rendu = {"etablissements": e, "a_reverifier": [], "non_retenues": [], "gardees": [], "ajoutees": 0, "fermees": []}
     gardes = []
     lai = charger_laissees()
-    laissees = {(r.ej, r.type, r.commune, r.nom.strip()): (r.categorie, r.raison) for r in lai.itertuples()}
+    # plusieurs lignes peuvent partager un nom dans une commune (deux « CATTP adulte » à Flers) : chacune garde son
+    # numéro FINESS, exigé pour laisser de côté une inscription qui en porte un (relecture du 22 novembre 2026)
+    laissees: dict = {}
+    for r in lai.itertuples():
+        laissees.setdefault((r.ej, r.type, r.commune, r.nom.strip()), []).append(
+            (str(r.finess) if isinstance(r.finess, str) else "", r.categorie, r.raison))
     if e.empty:
         return lieux, rendu
     x = lieux.copy()
@@ -536,7 +541,9 @@ def appliquer(lieux: pd.DataFrame, ref, centres: dict | None = None,
                 nom_i = b.at[i, "nom"] if isinstance(b.at[i, "nom"], str) else b.loc[i].get("nom_finess")
                 # laissée de côté seulement avec une raison écrite pour elle (inscriptions_laissees.csv), ou au même
                 # endroit qu'une structure de la liste ; sinon gardée, dans le doute (règle du 19 novembre 2026)
-                lai_i = laissees.get((ej, t, b.at[i, "commune"], str(nom_i or "").strip()))
+                nums_i = _nums_ligne(b.loc[i])
+                lai_i = next(((cat, rai) for fi, cat, rai in laissees.get((ej, t, b.at[i, "commune"], str(nom_i or "").strip()), [])
+                              if not fi or not nums_i or set(fi.split(",")) & nums_i), None)
                 garde = not deja and not lai_i
                 if garde:
                     gardes.append(i)

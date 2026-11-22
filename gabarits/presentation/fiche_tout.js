@@ -229,12 +229,13 @@
   });
 })();
 
-// Réglettes : « ensemble » et « médiane » expliqués au survol, au toucher et au clavier, dans le fil de la page, sans
+// Réglettes : « ensemble » et « médiane » expliqués au survol, avec les mots de la légende des réglettes (maquette
+// validée le 22 novembre 2026), au toucher et au clavier, dans le fil de la page, sans
 // rien recouvrir (maquette validée le 14 novembre 2026, prototypes/entrees/v2_domaines/, captures r1 à r7).
 (function () {
-  var MOTS = { dep: { le: "le département", pl: "départements", ce: "ce département", tous: "tous les", reunis: "réunis, calculés comme" },
-               reg: { le: "la région", pl: "régions", ce: "cette région", tous: "toutes les", reunis: "réunies, calculées comme" },
-               epci: { le: "l’intercommunalité", pl: "intercommunalités", ce: "cette intercommunalité", tous: "toutes les", reunis: "réunies, calculées comme" } };
+  var MOTS = { dep: { reunis2: "réunis", unseul: "s’ils n’en faisaient qu’un", un: "département", peuples: "peuplés", le: "le département", pl: "départements", ce: "ce département", tous: "tous les", reunis: "réunis, calculés comme" },
+               reg: { reunis2: "réunies", unseul: "si elles n’en faisaient qu’une", un: "région", peuples: "peuplées", le: "la région", pl: "régions", ce: "cette région", tous: "toutes les", reunis: "réunies, calculées comme" },
+               epci: { reunis2: "réunies", unseul: "si elles n’en faisaient qu’une", un: "intercommunalité", peuples: "peuplées", le: "l’intercommunalité", pl: "intercommunalités", ce: "cette intercommunalité", tous: "toutes les", reunis: "réunies, calculées comme" } };
   var porte = document.getElementById("porte"), defaut = (porte && porte.dataset.niv) || "dep";
   function mots(l) { var tr = l.closest("tr[data-niv]"), n = tr ? tr.getAttribute("data-niv").split(":")[0] : defaut; return MOTS[n] || MOTS[defaut] || MOTS.dep; }
   var b = document.createElement("div"); b.id = "rg-bulle"; b.setAttribute("role", "tooltip"); b.hidden = true; document.body.appendChild(b);
@@ -249,8 +250,8 @@
   function ligne(l) {
     var t = l.textContent.trim(), m = t.match(/^(ensemble|médiane)\s+(.*)$/); if (!m) return null;
     var v = m[2].replace(/\s*\(aucun : .*\)$/, ""), u = /^[\d\s\u00a0 ,]+$/.test(v) ? unite(l) : "", M = mots(l);
-    if (m[1] === "ensemble") return "<b>Ensemble des " + M.pl + ", " + v + u + "</b> : " + M.tous + " " + M.pl + " " + M.reunis + " " + M.ce + ", donc tirés par les plus peuplés.";
-    return "<b>Médiane, " + v + u + "</b> : " + M.le + " du milieu, autant de " + M.pl + ' <span class="colle">au-dessus</span> qu’en dessous.';
+    if (m[1] === "ensemble") return "<b>Ensemble des " + M.pl + ", " + v + u + "</b> : " + M.tous + " " + M.pl + " " + M.reunis2 + " comme " + M.unseul + ", la mesure calculée comme pour " + M.ce + ". " + (/km²/.test(u) ? "Pour la densité de population, chaque km² y compte autant." : "Chaque habitant y compte autant, donc les " + M.pl + " " + M.peuples + " pèsent plus.");
+    return "<b>Médiane, " + v + u + "</b> : la moitié des " + M.pl + " est au-dessus, l’autre moitié en dessous. Chaque " + M.un + " compte autant, quelle que soit sa population.";
   }
   // « ensemble » et « médiane » reçoivent le pointillé du glossaire : il annonce une explication
   document.querySelectorAll(".fiche .rg-lab").forEach(function (l) { var t = l.firstChild; if (!t || t.nodeType !== 3) return;
@@ -264,7 +265,9 @@
     if (tr && innerWidth >= 640 && !rg.closest("table.matrice")) { var n = document.createElement("tr"); n.className = "rg-expl"; var td = document.createElement("td");
       td.colSpan = tr.cells.length; td.style.paddingLeft = (rg.getBoundingClientRect().left - tr.getBoundingClientRect().left) + "px";
       n.appendChild(td); td.appendChild(b); tr.insertAdjacentElement("afterend", n); }
-    else rg.insertAdjacentElement("afterend", b);
+    // sous la ligne de la réglette et de sa valeur (« En bref ») : placée entre les deux, la bulle prenait la place de la
+    // réglette, réduite à 32 px (22 novembre 2026)
+    else (rg.closest(".m-ligne") || rg).insertAdjacentElement("afterend", b);
   }
   // la bulle ajoutée ou retirée dans le fil d'un tableau peut changer la largeur des colonnes : les étiquettes des
   // réglettes sont replacées aussitôt (figures.js), sinon elles se chevauchent (contrôle de mise en page du 15 novembre 2026)

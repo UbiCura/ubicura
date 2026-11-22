@@ -1084,7 +1084,9 @@ CHAMP_PSY = "03"
 # quand son nom le dit
 AGE_MAX_ENFANTS = 21
 # « CMP ENFANCE ET SURDITE » (constat C8 du 16 novembre 2026)
-NOM_ENFANTS = r"enfant|enfance|adolescen|\bados?\b|pedo|infanto|juvenil|bebe|perinat|cmpea|cmpi\b"
+# « CMP EA » en deux mots, enfants et adolescents (« CMP EA LANGUEDOC GRAULHET », FINESS seul, compté sans public,
+# relecture du 22 novembre 2026)
+NOM_ENFANTS = r"enfant|enfance|adolescen|\bados?\b|pedo|infanto|juvenil|bebe|perinat|cmpea|cmpi\b|\bcmp e ?a\b|\bcmp i ?j\b"
 # décision 1 du chantier des structures, acceptée le 16 novembre 2026 : un territoire dont cette part au moins des CMP
 # du public relève d'établissements vérifiés n'est pas masqué par la règle des 50 % de la SAE (lieux.manques_sae) ; seuls
 # comptent les établissements dont toutes les sources ont moins de VERIFICATION_SOURCE_ANS ans (une page actuelle non

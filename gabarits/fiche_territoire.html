@@ -442,23 +442,26 @@ Position parmi les {{ {'epci': 'intercommunalités', 'dep': 'départements', 're
     {% endif %}
     <p class="rep-cmp"><b>CMP pour adultes.</b> {% if not R.cmp.n and R.cmp.masque %}<span class="statut">non publié</span>, les bases ne les recensent pas tous dans le département{% elif R.cmp.n %}{{ R.cmp.n }} dans le territoire, {{ R.cmp.conf }}{% if R.cmp.masque %}, mais les bases ne les recensent pas tous dans le département{% endif %}{% elif R.cmp.n == 0 and R.cmp.tous %}Aucun CMP réservé aux adultes dans le territoire, {{ R.cmp.tous }} CMP tous publics{% elif R.cmp.n == 0 %}Aucun dans le territoire{% endif %}{% if R.cmp.dist %} ; {% if R.cmp.dist_nulle %}un CMP pour adultes dans la commune d'au moins la moitié des habitants{% else %}la moitié des habitants à moins de {{ R.cmp.dist }} km à vol d'oiseau{% endif %} ({% if R.cmp.mais %}{{ 'plus loin' if R.cmp.pos.startswith('plus près') else 'plus près' }} que l’ensemble des {{ niv }}, {{ R.cmp.ref }} km, mais {{ R.cmp.pos }}{% else %}ensemble des {{ niv }} : {{ R.cmp.ref }} km ; {{ R.cmp.pos }}{% endif %}){% endif %}. Temps de route vers le CMP : à venir.</p>
   </div>
-  {% set k0 = constats[0] %}
-    {% if k0 and k0.reglette %}
-    <figure class="lire-reglette reglette-type" aria-labelledby="t-lire-r" data-titre="Lire une réglette">
-      <figcaption id="t-lire-r">Lire une réglette : {{ k0.nom_ind|lower if k0.nom_ind else '' }}</figcaption>
-      <div class="encadre-outils seul-ecran"><button type="button" class="citer-encadre" aria-expanded="false">Citer et exporter</button></div>
-      {{ reglette(k0.reglette, 'petite') }}
-      <ul class="legende-cat legende-reglette">
-        <li><i class="rg-l-pt"></i>le point : le territoire, {{ k0.cel.v_txt }}</li>
-        <li><i class="trait plein"></i>trait plein : l'ensemble des {{ niv }},&nbsp;{{ k0.cel.ref_txt }}</li>
-        <li><i class="triangle"></i>triangle : {{ k0.cel.med_mots }}</li>
-        <li><i class="rg-l-hist"></i>barres : répartition des {{ f.nb_territoires|nombre('entier') }} {{ niv }}</li>
-        {% if k0.reglette.h.chevron %}<li><i class="rg-l-chev"></i>chevron : l'axe s'arrête au 98ᵉ centile, ou au 90ᵉ quand la répartition est très étalée ; quelques territoires au-delà</li>{% endif %}
-        <li><i class="rg-l-sqrt"></i>la hauteur des barres suit la racine carrée du nombre de territoires ; une barre détachée à gauche compte ceux qui n'ont aucun inscrit, quand ils sont plus de 40 %</li>
+  {#- légende des réglettes, à la place de l'ancien encadré de lecture (maquette validée le 22 novembre
+      2026, prototypes/reglette_legende/) : les réglettes restent chacune à sa place, « ensemble » et « médiane » sont
+      définis en les opposant (chaque habitant compte autant, chaque territoire compte autant) -#}
+  {% set NV = {'dep': ('département', 'Un', 'ce département', ''), 'reg': ('région', 'Une', 'cette région', 'e'),
+               'epci': ('intercommunalité', 'Une', 'cette intercommunalité', 'e')}[f.niveau] %}
+    <div class="lire-reglette legende-rg" role="note" aria-labelledby="t-lire-r">
+      <p class="lr-titre" id="t-lire-r">Lire les réglettes</p>
+      <ul class="legende-cat">
+        <li><i class="rg-l-pt"></i>{{ NV[2] }}</li>
+        <li><i class="trait plein"></i>ensemble des {{ niv }}</li>
+        <li><i class="triangle"></i>médiane</li>
+        <li><i class="rg-l-hist"></i>les {{ f.nb_territoires|nombre('entier') }} {{ niv }}, du plus bas au plus haut</li>
+        <li><i class="rg-l-chev"></i>quelques {{ niv }} au-delà de l’axe</li>
       </ul>
-      <p class="cle-contraire">{{ f.cle_ensemble }}</p>
-    </figure>
-    {% endif %}
+      <dl>
+        <div><dt>Ensemble</dt><dd>{{ 'toutes les' if NV[3] else 'tous les' }} {{ niv }} réuni{{ 'e' if NV[3] }}s comme {{ 'si elles' if NV[3] else 's’ils' }} n’en faisaient qu’un{{ 'e' if NV[3] }}, la mesure calculée comme pour {{ NV[2] }}. Chaque habitant y compte autant, donc les {{ niv }} peuplé{{ 'e' if NV[3] }}s pèsent plus ; pour la densité de population, c’est chaque km² qui compte autant. {{ NV[1] }} {{ NV[0] }} peut être sous l’ensemble et plus haut{{ NV[3] }} que la plupart des autres.</dd></div>
+        <div><dt>Médiane</dt><dd>la moitié des {{ niv }} est au-dessus, l’autre moitié en dessous. Chaque {{ NV[0] }} compte autant, quelle que soit sa population.</dd></div>
+      </dl>
+      <p class="note">La hauteur des barres suit la racine carrée du nombre {{ 'd’' if niv[0] in 'aeiouéè' else 'de ' }}{{ niv }} ; une barre détachée à gauche compte {{ 'celles' if NV[3] else 'ceux' }} qui n’ont aucun inscrit, quand {{ 'elles' if NV[3] else 'ils' }} sont plus de 40 %. L’axe s’arrête au 98ᵉ centile, ou au 90ᵉ quand la répartition est très étalée.</p>
+    </div>
 
   </div>
 
@@ -608,7 +611,7 @@ Position parmi les {{ {'epci': 'intercommunalités', 'dep': 'départements', 're
     a.addEventListener("mouseenter", dire); a.addEventListener("focus", dire);
     a.addEventListener("mouseleave", function () { p.textContent = t0; }); });
 })();
-// « Lire une réglette » : dans la colonne la plus courte du tableau de bord, pour que les deux finissent ensemble ;
+// Légende des réglettes : dans la colonne la plus courte du tableau de bord, pour que les deux finissent ensemble ;
 // au téléphone, sous l'introduction de « En bref », avant la première réglette (relecture esthétique, M5 et M6).
 (function () {
   var fig = document.querySelector(".fiche .bord .lire-reglette"), g = document.querySelector(".fiche .bord-carte"),
@@ -632,7 +635,7 @@ Position parmi les {{ {'epci': 'intercommunalités', 'dep': 'départements', 're
   // partie 2 ; relecture v2 des fiches construites, 22 fiches sectorisées)
   var lignes = d.querySelectorAll("table.matrice tbody tr:not(.m-section)");
   function aerer(px) { d.style.setProperty("--m-plus", (px > 0 && lignes.length ? Math.min(px / lignes.length, 32) : 0).toFixed(1) + "px"); }
-  // « Lire une réglette » essayé dans chaque colonne, l'écart compensé à chaque fois (la carte grandit, ou la matrice
+  // la légende des réglettes essayée dans chaque colonne, l'écart compensé à chaque fois (la carte grandit, ou la matrice
   // s'aère) : la place gardée est celle qui laisse le moins d'écart entre les deux colonnes (relecture v2, Lens-Liévin)
   function essayer(droite) {
     etirer(0); aerer(0);
