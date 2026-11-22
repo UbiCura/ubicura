@@ -8,10 +8,12 @@ let LIEU_CHOISI=null;
 // niveau de confirmation de chaque structure (pipeline/confirmation.py), point creux pour une structure inscrite dans
 // FINESS ou le ROR que rien d'autre ne confirme encore, point plein sinon (décision du 15 octobre 2026)
 const CONF=LX?.confirmations||[],CONF_BASES=CONF.findIndex(c=>c.id==="bases");
-// trois classes montrées au lecteur (décision du 21 octobre 2026), confirmée (point plein), recoupée par la SAE
-// (point à demi rempli, le nombre ou l'activité du site est confirmé, pas l'adresse), à vérifier (point creux)
+// classes montrées au lecteur (décisions du 21 octobre et du 18 novembre 2026), confirmée (point plein), recoupée par
+// la SAE (point à demi rempli, le nombre ou l'activité du site est confirmé, pas l'adresse), à confirmer (point creux,
+// pas encore vérifiée une à une), non confirmée (point creux tireté, cherchée sans source officielle récente)
 const classeDe=d=>d[11]!=null?(CONF[d[11]]?.classe||null):null;
-const creux=d=>classeDe(d)==="a_verifier",recoupe=d=>classeDe(d)==="recoupee",confirme=d=>classeDe(d)==="confirmee";
+const aConfirmer=d=>classeDe(d)==="a_verifier",nonConf=d=>classeDe(d)==="non_confirmee";
+const creux=d=>aConfirmer(d)||nonConf(d),recoupe=d=>classeDe(d)==="recoupee",confirme=d=>classeDe(d)==="confirmee";
 const typeConfirme=id=>(LX?.types_confirmes||[]).includes(id);
 const rayonLieu=d=>d===LIEU_CHOISI?5:creux(d)?2.7:2.4,traitLieu=d=>creux(d)?1.2:.6;
 const lieuDep=c=>c&&c.startsWith("97")?c.slice(0,3):(c||"").slice(0,2);
@@ -32,6 +34,7 @@ function dessinerLieux(Mx){Mx.zoomable.selectAll("g.lieux").remove();Mx.svg.sele
     .attr("class",d=>"lieu"+(creux(d)?" creux":"")).attr("pointer-events","all")
     .attr("fill",d=>d===LIEU_CHOISI?css("--action"):creux(d)?"none":css("--ink")).attr("fill-opacity",d=>recoupe(d)&&d!==LIEU_CHOISI?.4:.85)
     .attr("stroke",d=>creux(d)?(d===LIEU_CHOISI?css("--action"):css("--ink")):css("--panel")).attr("stroke-width",d=>traitLieu(d)/(g.node().parentNode===Mx.zoomable.node()?z:1))
+    .attr("stroke-dasharray",d=>{const k=g.node().parentNode===Mx.zoomable.node()?z:1;return nonConf(d)?(1.6/k)+" "+(1.2/k):null})
     .attr("tabindex",0).attr("role","button").attr("aria-label",d=>LX.noms[d[3]]+", "+(LX.communes[d[4]]||"")+(d[11]!=null?", "+CONF[d[11]].lib:""))
     .on("mousemove",(ev,d)=>showTip(ev,'<div class="tt">'+esc(LX.noms[d[3]])+'</div><div class="tl">'+esc(t.lib)+", "+esc(LX.communes[d[4]]||d[4])+'</div>'+(d[11]!=null?'<div class="tl">'+symboleConf(d)+' '+esc(CONF[d[11]].lib)+'</div>':'')))
     .on("mouseleave",hideTip)
@@ -43,22 +46,23 @@ function dessinerLieux(Mx){Mx.zoomable.selectAll("g.lieux").remove();Mx.svg.sele
   if(LIEU_CHOISI&&LIEU_CHOISI[0]!==k)LIEU_CHOISI=null;
   visibiliteLieux(Mx);
   ficheLieu();
-  // légende, nombre de structures confirmées et à vérifier (France entière, ou territoire choisi)
+  // légende, nombre de structures confirmées, à confirmer et non confirmées (France entière, ou territoire choisi)
   const champ={epci:8,dep:9,reg:10}[S.sel?.lv],ici=S.sel&&S.sel.lv===S.level&&champ!=null?pts.filter(d=>d[champ]===S.sel.c):null;
-  const vus=ici||pts,nc=vus.filter(confirme).length,nr=vus.filter(recoupe).length,nb=vus.filter(creux).length;
-  const conf=typeConfirme(t.id)?legendeClasses(nc,nr,nb)+'<span>'+(ici?"dans le territoire choisi":"en France")+', voir « Comment lire »</span>':"";
+  const vus=ici||pts,nc=vus.filter(confirme).length,nr=vus.filter(recoupe).length,nb=vus.filter(aConfirmer).length,nn=vus.filter(nonConf).length;
+  const conf=typeConfirme(t.id)?legendeClasses(nc,nr,nb,nn)+'<span>'+(ici?"dans le territoire choisi":"en France")+', voir « Comment lire »</span>':"";
   return '<div class="legende-lieux">'+(conf?conf+'</div><div class="legende-lieux">':'<svg width="12" height="12" aria-hidden="true"><circle cx="6" cy="6" r="4" fill="'+css("--ink")+'"/></svg> ')
     +(t.nr?'Structures, '+esc(minLib(t.lib))+', inscrites dans FINESS et le ROR, réunies sans double compte ; non recensé, la liste est très incomplète et leur nombre n’est pas publié'
       :fmt.format(pts.length)+' structures, '+esc(minLib(t.lib))+', recensées par FINESS et le ROR, réunies sans double compte'+(t.complet?"":", recensement incomplet"))
     +'. Les points s’affichent en zoomant sur la carte (deux fois au moins), le plan du territoire choisi est dans l’encadré « Structures de soins de ce territoire »'+(t.complet&&D.niveaux[S.level].lieux_dist?.[S.lieux]?", la mesure « Distance aux structures » en donne la vue d’ensemble":"")+'.</div>'}
-// symbole du niveau de confirmation, plein ou creux comme sur la carte
+// symbole du niveau de confirmation, plein, creux ou creux tireté comme sur la carte
 function symboleConf(d,k){const c=d?classeDe(d):(k===true?"a_verifier":k===false?"confirmee":k);
-  const f=c==="a_verifier"?'fill="none" stroke="currentColor" stroke-width="1.6"':c==="recoupee"?'fill="currentColor" fill-opacity=".4" stroke="currentColor" stroke-width="1.2"':'fill="currentColor"';
+  const f=c==="a_verifier"?'fill="none" stroke="currentColor" stroke-width="1.6"':c==="non_confirmee"?'fill="none" stroke="currentColor" stroke-width="1.6" stroke-dasharray="2 1.6"':c==="recoupee"?'fill="currentColor" fill-opacity=".4" stroke="currentColor" stroke-width="1.2"':'fill="currentColor"';
   return '<svg class="sym-conf" width="12" height="12" viewBox="0 0 12 12" aria-hidden="true"><circle cx="6" cy="6" r="4" '+f+'/></svg>'}
-// légende des trois classes avec leur nombre (la classe recoupée n'apparaît que si elle compte des structures)
-function legendeClasses(nc,nr,nb){return '<span class="lx-leg">'+symboleConf(null,"confirmee")+' '+fmt.format(nc)+' confirmée'+(nc>1?"s":"")+'</span>'
+// légende des classes avec leur nombre (recoupée et non confirmée n'apparaissent que si elles comptent des structures)
+function legendeClasses(nc,nr,nb,nn){return '<span class="lx-leg">'+symboleConf(null,"confirmee")+' '+fmt.format(nc)+' confirmée'+(nc>1?"s":"")+'</span>'
   +(nr?'<span class="lx-leg">'+symboleConf(null,"recoupee")+' '+fmt.format(nr)+' recoupée'+(nr>1?"s":"")+' par la statistique des hôpitaux</span>':'')
-  +'<span class="lx-leg">'+symboleConf(null,"a_verifier")+' '+fmt.format(nb)+' à vérifier</span>'}
+  +'<span class="lx-leg">'+symboleConf(null,"a_verifier")+' '+fmt.format(nb)+' à confirmer</span>'
+  +(nn?'<span class="lx-leg">'+symboleConf(null,"non_confirmee")+' '+fmt.format(nn)+' non confirmée'+(nn>1?"s":"")+'</span>':'')}
 // à l'échelle de la France les points chargent trop la carte, ils ne paraissent qu'en zoomant (au moins 2 fois)
 // (remarques du 12 et du 16 octobre 2026). Le territoire choisi a son propre plan dans l'encadré « Structures
 // de soins de ce territoire », sans que la grande carte change de cadrage.
@@ -132,10 +136,10 @@ function precisionLieu(p,id){const tags=[];
   if(p[13]&1)tags.push("antenne ou permanence");
   if(p[13]&2)tags.push("au même lieu qu’un CMP");
   return tags}
-function confLigne(l,c,r,b){if(!l.conf)return '<span class="muted">niveau non établi</span>';
+function confLigne(l,c,r,b,nn){if(!l.conf)return '<span class="muted">niveau non établi</span>';
   const rec=(LX.types_recoupes||[]).includes(l.id),N=n=>fmt.format(n),s=(k,cl)=>'<span>'+symboleConf(null,cl)+N(k)+'</span>';
-  return '<span class="lx-conf"><span aria-hidden="true">'+s(c,"confirmee")+(rec?s(r,"recoupee"):'')+s(b,"a_verifier")+'</span><span class="sr">'
-    +N(c)+' confirmée'+(c>1?'s':'')+(rec?', '+N(r)+' recoupée'+(r>1?'s':''):'')+', '+N(b)+' à vérifier</span></span>'}
+  return '<span class="lx-conf"><span aria-hidden="true">'+s(c,"confirmee")+(rec?s(r,"recoupee"):'')+s(b,"a_verifier")+(nn?s(nn,"non_confirmee"):'')+'</span><span class="sr">'
+    +N(c)+' confirmée'+(c>1?'s':'')+(rec?', '+N(r)+' recoupée'+(r>1?'s':''):'')+', '+N(b)+' à confirmer'+(nn?', '+N(nn)+' non confirmée'+(nn>1?'s':''):'')+'</span></span>'}
 function structuresTerritoire(){const el=document.getElementById("lieuxCard");
   const vider=()=>{el.classList.add("hidden");el.innerHTML="";delete EXPORT_CSV.structures};
   if(!LX||!S.sel||S.sel.lv!==S.level)return vider();
@@ -148,7 +152,7 @@ function structuresTerritoire(){const el=document.getElementById("lieuxCard");
   const toutes=groupes.flatMap(([,ls])=>ls);
   const autres=toutes.filter(l=>l.conf&&l.tid!=="lieu_cmp"&&!l.id.startsWith("lieu_cmp_")).flatMap(l=>l.pts);
   const cmpTous=toutes.some(l=>l.tid==="lieu_cmp"||l.id.startsWith("lieu_cmp_"))?ici.filter(p=>p[0]===cmpK):[];
-  const base=[...autres,...(typeConfirme("lieu_cmp")?cmpTous:[])],nc=base.filter(confirme).length,nr=base.filter(recoupe).length,nb=base.filter(creux).length;
+  const base=[...autres,...(typeConfirme("lieu_cmp")?cmpTous:[])],nc=base.filter(confirme).length,nr=base.filter(recoupe).length,nb=base.filter(aConfirmer).length,nn=base.filter(nonConf).length;
   let h='<h2 tabindex="-1">Structures de soins de ce territoire <button class="how" data-how="lieux,confirmation">Comment lire</button></h2><div class="howtxt hidden"></div>';
   h+='<div data-export="structures">';
   // l'encadré repensé (demande du 28 octobre 2026) : le résultat d'abord, en une phrase et une légende en
@@ -156,12 +160,14 @@ function structuresTerritoire(){const el=document.getElementById("lieuxCard");
   const accord=(k,s,p)=>N(k)+' '+(k>1?p:s);
   h+='<p class="phrase">'+(base.length>1?'Sur les '+N(base.length)+' structures de ce territoire dont le niveau de confirmation est établi, '
       +accord(nc,"est confirmée","sont confirmées")+' par une source indépendante de FINESS et du Répertoire opérationnel des ressources (ROR)'
-      +(nr?', '+accord(nr,"est recoupée","sont recoupées")+' par la statistique annuelle des établissements de santé (SAE), qui confirme le nombre et non l’adresse,':'')
-      +' et '+accord(nb,"reste","restent")+' à vérifier.'
-    :base.length?'La structure de ce territoire dont le niveau de confirmation est établi '+(nc?'est confirmée par une source indépendante de FINESS et du Répertoire opérationnel des ressources (ROR).':nr?'est recoupée par la statistique annuelle des établissements de santé (SAE).':'reste à vérifier.')
+      +(nr?', '+accord(nr,"est recoupée","sont recoupées")+' par la statistique annuelle des établissements de santé (SAE), qui confirme le nombre et non l’adresse':'')+'.'
+      // à confirmer et non confirmées (décision du 18 novembre 2026, maquette prototypes/structures_non_confirmees/)
+      +(nb?' '+accord(nb,"reste","restent")+' à confirmer':'')
+      +(nn?(nb?', et pour ':' Pour ')+N(nn)+', aucune source officielle de moins de trois ans n’a été trouvée':'')+(nb||nn?'.':'')
+    :base.length?'La structure de ce territoire dont le niveau de confirmation est établi '+(nc?'est confirmée par une source indépendante de FINESS et du Répertoire opérationnel des ressources (ROR).':nr?'est recoupée par la statistique annuelle des établissements de santé (SAE).':nn?'n’est pas confirmée, aucune source officielle de moins de trois ans n’a été trouvée.':'reste à confirmer.')
     :toutes.some(l=>l.n)?'FINESS et le Répertoire opérationnel des ressources (ROR), réunis sans double compte, recensent ici les structures suivantes.'
     :'FINESS et le Répertoire opérationnel des ressources (ROR), réunis sans double compte, n’inscrivent ici aucune structure des types suivants.')+'</p>';
-  if(base.length)h+='<div class="lx-legende lx-resultat">'+legendeClasses(nc,nr,nb)+'</div>';
+  if(base.length)h+='<div class="lx-legende lx-resultat">'+legendeClasses(nc,nr,nb,nn)+'</div>';
   // plan dessiné dès que le contour existe, même sans structure placée ici (audit du 31 octobre 2026, 365
   // intercommunalités sans plan) ; le type proposé d'abord est celui qui a des structures ici
   const lignesPlan=groupes.flatMap(([,ls])=>ls).filter(l=>l.place);
@@ -170,9 +176,9 @@ function structuresTerritoire(){const el=document.getElementById("lieuxCard");
   h+='<div class="lx-corps">'+(lignesPlan.length&&formeTerritoire(lv,code)?carteTerritoireHtml(lignesPlan):'')+'<div class="lx-gauche"><div class="scroll"><table class="lx-table"><thead><tr><th scope="col">Type de structure</th><th scope="col">Nombre</th><th scope="col">Niveau de confirmation</th></tr></thead><tbody>';
   const cp=D.niveaux[lv].cmp_public,cs=D.niveaux[lv].cmp_sae?.[i];
   for(const [g,ls] of groupes){h+='<tr class="lx-groupe"><th colspan="3" scope="colgroup">'+esc(g)+'</th></tr>';
-    for(const l of ls){const n=l.n,c=l.pts.filter(confirme).length,r=l.pts.filter(recoupe).length,b=l.pts.filter(creux).length,ouv=LX_OUVERTS.has(l.id);
+    for(const l of ls){const n=l.n,c=l.pts.filter(confirme).length,r=l.pts.filter(recoupe).length,b=l.pts.filter(aConfirmer).length,nnl=l.pts.filter(nonConf).length,ouv=LX_OUVERTS.has(l.id);
       h+='<tr><td>'+esc(l.lib)+(n&&l.place?'<br><button type="button" class="lien lx-ouvrir" data-l="'+l.id+'" aria-expanded="'+ouv+'" aria-controls="lx-'+l.id+'">'+(ouv?"Masquer la liste":"Voir la liste")+'</button>':'')+'</td>'
-        +'<td>'+(n?N(n):'<span class="muted">aucune</span>')+'</td><td>'+(!n?'':l.place?confLigne(l,c,r,b):'<span class="muted">hors du plan</span>')+'</td></tr>';
+        +'<td>'+(n?N(n):'<span class="muted">aucune</span>')+'</td><td>'+(!n?'':l.place?confLigne(l,c,r,b,nnl):'<span class="muted">hors du plan</span>')+'</td></tr>';
       const notes=[];
       if(l.id==="lieu_cattp"){const m=l.pts.filter(p=>p[13]&2).length;
         if(m)notes.push(N(m)+(m>1?" sont au même lieu qu’un CMP, comptés à part comme lieux d’activité déclarés":" est au même lieu qu’un CMP, compté à part comme lieu d’activité déclaré"));
@@ -229,7 +235,7 @@ function structuresTerritoire(){const el=document.getElementById("lieuxCard");
 // ---------- carte du territoire choisi, dans l'encadré des structures (décision du 16 octobre 2026). Sur la
 // grande carte les points ne paraissent qu'en zoomant, ici le plan est cadré sur le territoire, avec ses limites
 // internes (intercommunalités d'un département, départements d'une région), et montre les structures d'un type, point
-// plein confirmée, point creux à vérifier. Un clic dans la liste repère la structure sur ce plan, la grande carte ne bouge
+// plein confirmée, point creux à confirmer, creux tireté non confirmée. Un clic dans la liste repère la structure sur ce plan, la grande carte ne bouge
 // pas. Les points ne sont pas dans l'ordre de tabulation, la liste en est l'équivalent au clavier.
 let LX_TYPE_LOCAL="lieu_cmp_adultes",LX_CHOISI_LOCAL=null;
 const nbPlan=l=>l.pts.length?fmt.format(l.pts.length)+" structure"+(l.pts.length>1?"s":""):"aucune structure inscrite";
@@ -302,9 +308,10 @@ function dessinerPlanIgn(lv,code,lignes,l){
   P.points.clearLayers();
   const pts=l.pts.filter(p=>isFinite(p[1])&&isFinite(p[2])&&p[1]&&p[2]).sort((a,b)=>(a===LX_CHOISI_LOCAL)-(b===LX_CHOISI_LOCAL));
   for(const p of pts){const ch=p===LX_CHOISI_LOCAL,c=ch?PLAN_CHOISI:PLAN_POINT,vide=creux(p),demi=recoupe(p);
-    // point plein confirmée (cerné de blanc), à demi rempli recoupée, creux à vérifier (centre blanc)
+    // point plein confirmée (cerné de blanc), à demi rempli recoupée, creux à confirmer (centre blanc), creux
+    // tireté non confirmée
     const m=LF.circleMarker([p[1]/1e4,p[2]/1e4],{radius:ch?8:5.5,color:vide||demi?c:"#FFFFFF",weight:vide?2.2:1.5,
-      fillColor:vide?"#FFFFFF":c,fillOpacity:vide?.9:demi?.45:1,bubblingMouseEvents:false});
+      dashArray:nonConf(p)?"3 2.4":null,fillColor:vide?"#FFFFFF":c,fillOpacity:vide?.9:demi?.45:1,bubblingMouseEvents:false});
     m.on("mousemove",ev=>showTip(ev.originalEvent,'<div class="tt">'+esc(LX.noms[p[3]])+'</div><div class="tl">'+esc(LX.communes[p[4]]||p[4])+'</div>'+(p[11]!=null?'<div class="tl">'+symboleConf(p)+' '+esc(CONF[p[11]].lib)+'</div>':'')));
     m.on("mouseout",hideTip);
     m.on("click",()=>{LX_CHOISI_LOCAL=LX_CHOISI_LOCAL===p?null:p;dessinerCarteTerritoire(lv,code,lignes)});
@@ -313,7 +320,7 @@ function dessinerPlanIgn(lv,code,lignes,l){
   if(LX_CHOISI_LOCAL&&pts.includes(LX_CHOISI_LOCAL)){const ll=[LX_CHOISI_LOCAL[1]/1e4,LX_CHOISI_LOCAL[2]/1e4];if(!P.carte.getBounds().contains(ll))P.carte.panTo(ll,{animate:false})}
   dessinerSecteurs(lv,code);
   const u=D.niveaux[lv].units[IDX[lv].get(code)];
-  el.setAttribute("aria-label","Plan IGN de "+u.nm+", "+minLib(l.lib)+", "+nbPlan(l)+", point plein confirmée, point creux à vérifier")}
+  el.setAttribute("aria-label","Plan IGN de "+u.nm+", "+minLib(l.lib)+", "+nbPlan(l)+", point plein confirmée, point creux à confirmer, point creux tireté non confirmée")}
 const LX_MAILLES={};
 // contours de tous les territoires d'un niveau (le fond ne partage pas les arcs entre voisins, d'où le maillage complet)
 // filtre, territoires retenus (par leurs propriétés), pour ne tracer que les limites utiles au plan
@@ -335,7 +342,7 @@ function dessinerCarteTerritoire(lv,code,lignes){
   const dep=depOfFeat(lv,f),dom=DOMS.includes(dep);
   const proj=(dom?d3.geoMercator():d3.geoConicConformal().parallels([44,49]).rotate([-3,0])).fitExtent([[14,14],[386,326]],f),path=d3.geoPath(proj);
   const u=D.niveaux[lv].units[IDX[lv].get(code)];
-  svg.attr("aria-label","Plan de "+u.nm+", "+minLib(l.lib)+", "+nbPlan(l)+", point plein confirmée, point creux à vérifier");
+  svg.attr("aria-label","Plan de "+u.nm+", "+minLib(l.lib)+", "+nbPlan(l)+", point plein confirmée, point creux à confirmer, point creux tireté non confirmée");
   svg.append("rect").attr("width",400).attr("height",340).attr("fill",css("--nodata"));
   // territoires voisins en fond, limites des départements (et des intercommunalités pour une intercommunalité)
   const memeDep=pr=>IDX.epciDep.get(pr.epci)===dep;
@@ -358,17 +365,17 @@ function dessinerCarteTerritoire(lv,code,lignes){
     .attr("cx",d=>d.xy[0]).attr("cy",d=>d.xy[1]).attr("r",d=>d.p===LX_CHOISI_LOCAL?6.5:creux(d.p)?4.2:4)
     .attr("fill",d=>d.p===LX_CHOISI_LOCAL?(creux(d.p)?"none":css("--action")):creux(d.p)?"none":css("--ink"))
     .attr("stroke",d=>d.p===LX_CHOISI_LOCAL?css("--action"):creux(d.p)?css("--ink"):css("--panel"))
-    .attr("stroke-width",d=>creux(d.p)?(d.p===LX_CHOISI_LOCAL?2.4:1.6):1).attr("pointer-events","all").style("cursor","pointer")
+    .attr("stroke-width",d=>creux(d.p)?(d.p===LX_CHOISI_LOCAL?2.4:1.6):1).attr("stroke-dasharray",d=>nonConf(d.p)?"2.4 1.8":null).attr("pointer-events","all").style("cursor","pointer")
     .on("mousemove",(ev,d)=>showTip(ev,'<div class="tt">'+esc(LX.noms[d.p[3]])+'</div><div class="tl">'+esc(LX.communes[d.p[4]]||d.p[4])+'</div>'+(d.p[11]!=null?'<div class="tl">'+symboleConf(d.p)+' '+esc(CONF[d.p[11]].lib)+'</div>':'')))
     .on("mouseleave",hideTip)
     .on("click",(ev,d)=>{LX_CHOISI_LOCAL=LX_CHOISI_LOCAL===d.p?null:d.p;dessinerCarteTerritoire(lv,code,lignes)});
   // légende en couleur, nombres du type montré, emplacements approchés signalés
-  const nc=l.pts.filter(confirme).length,nr=l.pts.filter(recoupe).length,nb=l.pts.filter(creux).length,kc=new Set(LX.precisions.map((x,i)=>/^centre de la commune/.test(x)?i:-1).filter(i=>i>=0));
+  const nc=l.pts.filter(confirme).length,nr=l.pts.filter(recoupe).length,nb=l.pts.filter(aConfirmer).length,nn=l.pts.filter(nonConf).length,kc=new Set(LX.precisions.map((x,i)=>/^centre de la commune/.test(x)?i:-1).filter(i=>i>=0));
   // positions approchées, contour, chef-lieu ou adresse du gestionnaire reprise (29 octobre 2026)
   const approx=l.pts.filter(p=>kc.has(p[6])).length,horsCadre=l.pts.length-pts.length;
   // structures au même emplacement (même immeuble, ou centre de la même commune), un seul point visible pour plusieurs
   const nEmpl=d3.rollup(l.pts,v=>v.length,p=>p[1]+","+p[2]),superposes=d3.sum([...nEmpl.values()].filter(v=>v>1));
-  document.getElementById("lxLegende").innerHTML=!l.pts.length?'<span>Aucune structure de ce type n’est inscrite ici.</span>':(l.conf?legendeClasses(nc,nr,nb):'<span>Niveau de confirmation non établi pour ce type.</span>')
+  document.getElementById("lxLegende").innerHTML=!l.pts.length?'<span>Aucune structure de ce type n’est inscrite ici.</span>':(l.conf?legendeClasses(nc,nr,nb,nn):'<span>Niveau de confirmation non établi pour ce type.</span>')
     +(approx?'<span>'+fmt.format(approx)+(approx>1?' placées au centre de leur commune':' placée au centre de sa commune')+', adresse exacte inconnue.</span>':'')
     +(superposes?'<span>'+fmt.format(superposes)+' partagent leur emplacement avec une autre, un seul point les montre.</span>':'')
     +(horsCadre?'<span>'+fmt.format(horsCadre)+' sans emplacement connu.</span>':'');

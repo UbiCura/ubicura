@@ -27,6 +27,76 @@ LICENCE_ODBL = ("Résultats sous Licence Ouverte 2.0, en citant la source et la 
                 "cartes qui les affichent contiennent des informations issues de cette base sous ODbL.")
 
 
+
+def devenir_gardees(g: pd.DataFrame, t: pd.DataFrame) -> pd.DataFrame:
+    """Devenir de chaque inscription gardée à la liste vérifiée, lu sur les structures publiées : la liste est écrite
+    avant les vérifications à la main et les réunions, qui peuvent ensuite la retirer ou la ranger ailleurs (relecture du
+    21 novembre 2026 : 85 des 260 « gardées » n'étaient plus comptées). Comptée avec sa classe ; sinon la vérification à
+    la main appliquée qui la vise (mêmes établissement, numéro, commune et nom que verdicts.cle, verdicts écartés
+    exclus), avec son type réel ; sinon comptée sous un autre type à son nom ; sinon non retrouvée, en disant si la
+    commune compte d'autres structures de ce type."""
+    if g.empty:
+        return g.assign(devenir=pd.Series(dtype=object))
+    from . import config, verdicts
+    from .lieux import _simple
+    lib_type = {x[0]: x[1] for x in config.LIEUX_TYPES}
+    nums_t = [set(filter(None, ",".join(str(v) for v in vs if isinstance(v, str)).split(",")))
+              for vs in zip(t["finess"], t["finess_rapproche"], t["finess_absorbes"])]
+    try:
+        ver = verdicts.charger(journal=False).set_index("cle")   # déjà consigné par lieux.calculer
+    except Exception:  # noqa: BLE001
+        ver = pd.DataFrame(columns=["verdict", "type_reel"])
+    out = []
+    for r in g.itertuples():
+        nums = set(filter(None, str(r.finess if isinstance(r.finess, str) else "").split(",")))
+        nom = r.nom if isinstance(r.nom, str) else ""
+        meme_com = t["commune"] == r.commune
+        par_num = pd.Series([bool(nums & n) for n in nums_t], index=t.index) if nums else             (t["unite_ror"].fillna("") == nom)
+        ici = t[meme_com & par_num & (t["type"] == r.type)]
+        cles = {verdicts.cle(r.ej, n_, r.nom_commune, nom) for n_ in (sorted(nums) or [""])}
+        vd = next((ver.loc[c_] for c_ in cles if c_ in ver.index), None)
+        au_nom = t[meme_com & (t["type"] != r.type) & (t["unite_ror"].fillna("") == nom)] if nom else t.iloc[:0]
+        # structure publiée de ce type à son numéro et sous son nom (mêmes mots, ou nom publié débarrassé d'un terme à
+        # proscrire, ses mots tous dans ceux de l'inscription) : la classe dite est la sienne, pas celle d'une voisine
+        # qui porte le même numéro d'hôpital (relecture de la version finale du 21 novembre 2026)
+        mots = set(_simple(nom).split())
+        meme_nom = [bool(mots) and (set(_simple(a).split()) <= mots or set(_simple(b_).split()) <= mots)
+                    for a, b_ in zip(ici["unite_ror"].fillna("x"), ici["nom"].fillna("x"))]
+        ici_nom = ici[meme_nom] if len(ici) else ici
+        # sans nom, le numéro seul décide, comme avant
+        if not (nom and nums):
+            ici_nom = ici
+
+        def classe_de(x_):
+            return (x_["classe_confirmation"].dropna().iloc[0] if x_["classe_confirmation"].notna().any()
+                    else "sans classe de confirmation")
+        if len(ici_nom):
+            d = "comptée, " + classe_de(ici_nom)
+        elif vd is not None and vd["verdict"] in verdicts.RETIRES:
+            if not vd["type_reel"]:
+                d = f"retirée par une vérification à la main, {verdicts.RETIRES[vd['verdict']]}"
+            else:
+                lib = lib_type.get(vd["type_reel"], vd["type_reel"])
+                # rangée seulement si une structure de ce type est publiée à son numéro ou à son nom dans la commune
+                nom_ok = (t["unite_ror"].fillna("") == nom) if nom else pd.Series(False, index=t.index)
+                reel = t[meme_com & (t["type"] == vd["type_reel"]) & (par_num | nom_ok)]
+                d = (f"rangée dans son type réel par une vérification à la main, {lib}" if len(reel) else
+                     f"classée dans un autre type par une vérification à la main, {lib}, sans structure de ce type à "
+                     f"son numéro ni à son nom dans la commune (réunie à une autre, ou à rechercher)")
+        elif len(au_nom):
+            d = "comptée sous un autre type, " + au_nom["libelle_type"].iloc[0]
+        elif len(ici):
+            # son numéro est porté par une autre structure de ce type, sous un autre nom : réunie à elle, ou numéro
+            # d'un hôpital partagé par plusieurs unités ; aucune n'est nommée, le numéro seul ne dit pas laquelle
+            d = ("non retrouvée sous son nom ; son numéro FINESS est porté par une autre structure de ce type dans la "
+                 "commune (réunie à elle, ou numéro partagé par plusieurs unités)")
+        elif (meme_com & (t["type"] == r.type)).any():
+            d = "non retrouvée sous son nom ni son numéro ; la commune compte d'autres structures de ce type"
+        else:
+            d = "non retrouvée parmi les structures publiées"
+        out.append(d)
+    return g.assign(devenir=out)
+
 def _nombre_csv(x: float) -> str:
     """Six chiffres significatifs, sans notation scientifique pour les grands nombres. Les populations et effectifs
     restent exacts (« %.6g » écrivait 1,24631e+07 pour 12 463 067 habitants)."""
@@ -255,7 +325,8 @@ def _lieux_csv(agg, noms, lab, out: Path, contexte: dict | None = None):
         "source_adresse_verifiee": x.get("adresse_verifiee_source"), "date_adresse_verifiee": x.get("adresse_verifiee_date"),
         "classe_confirmation": x.get("confirmation", pd.Series(index=x.index, dtype=object)).map(conf_mod.classe)
         .map(conf_mod.CLASSES),
-        "confirmation": x.get("confirmation", pd.Series(index=x.index, dtype=object)).map(conf_mod.NIVEAUX),
+        "confirmation": x.get("confirmation", pd.Series(index=x.index, dtype=object)).map(conf_mod.libelle),
+        "meme_adresse_que": x.get("meme_adresse_que"),
         "site_certification_has": x.get("confirmee_has"), "siret_sirene": x.get("siret_sirene"),
         "enseigne_sirene": x.get("enseigne_sirene"), "adresse_sirene": x.get("adresse_sirene"),
         "role": x.get("role_structure", pd.Series(index=x.index, dtype=object)).map(lieux_mod.ROLES),
@@ -315,8 +386,12 @@ def _lieux_csv(agg, noms, lab, out: Path, contexte: dict | None = None):
         _csv(pd.DataFrame(ver.get("non_retenues") or [], columns=["ej", "etablissement", "type", "nom", "commune",
                                                                   "nom_commune", "finess", "provenance", "raison"]),
              out / "structures_non_retenues.csv")
-        _csv(pd.DataFrame(ver.get("gardees") or [], columns=["ej", "etablissement", "type", "nom", "commune",
-                                                             "nom_commune", "finess", "provenance", "raison"]),
+        ga = pd.DataFrame(ver.get("gardees") or [], columns=[
+            "ej", "etablissement", "type", "nom", "commune", "nom_commune", "finess", "provenance", "raison"])
+        # nom de la commune, absent des CATTP gardés dans lieux.cattp_des_cmp (colonne pas encore calculée)
+        ga["nom_commune"] = ga["nom_commune"].where(ga["nom_commune"].fillna("") != "",
+                                                    ga["commune"].map(noms["com"].set_index("code")["nom"]))
+        _csv(devenir_gardees(ga, t),
              out / "structures_gardees_a_verifier.csv")
         # aucun nom de personne dans les textes de vérification publiés (règle du 15 octobre 2026, son nom
         # ne figure que dans les citations et les mentions légales)
@@ -501,8 +576,10 @@ def _lieux_points(agg, ref):
     # niveau de confirmation (confirmation.NIVEAUX), public des CMP et signaux (antenne, CATTP au même lieu qu'un CMP),
     # pour l'encadré des structures d'un territoire et les points creux de la carte (16 octobre 2026)
     from . import confirmation as conf_mod
-    niveaux = list(conf_mod.NIVEAUX)
-    conf = x["confirmation"] if "confirmation" in x else pd.Series(None, index=x.index, dtype=object)
+    conf = conf_mod.avec_meme_adresse(x)
+    # niveaux fixes, puis niveaux datés des structures non confirmées (« cherchee@2026-11-18 ») et niveaux suivis d'une
+    # structure d'un autre gestionnaire à la même adresse (« bases|CMPEA Blanquefort »)
+    niveaux = list(conf_mod.NIVEAUX) + sorted({c for c in conf.dropna() if "@" in str(c) or "|" in str(c)})
     publics, antennes = _publics_cmp(L["lieux"])
     meme_lieu = _cattp_meme_lieu_cmp(L["lieux"])
     pts = []
@@ -546,8 +623,9 @@ def _lieux_points(agg, ref):
             "champs": ["type", "lat", "lon", "nom", "commune", "provenance", "precision", "declares", "epci", "dep", "reg",
                        "confirmation", "public", "signaux", "partage"],
             # niveaux de confirmation, libellé court, et types pour lesquels le niveau est établi
-            "confirmations": [{"id": k, "lib": conf_mod.NIVEAUX_COURTS.get(k, conf_mod.NIVEAUX[k]),
-                               "confirme": k != "bases", "classe": conf_mod.classe(k)} for k in niveaux],
+            "confirmations": [{"id": k, "lib": conf_mod.libelle(k, court=True),
+                               "confirme": conf_mod.classe(k) in ("confirmee", "recoupee"), "classe": conf_mod.classe(k)}
+                              for k in niveaux],
             "classes": [{"id": k, "lib": v} for k, v in conf_mod.CLASSES.items()],
             "types_recoupes": sorted(conf_mod.TYPES_RECOUPES),
             "types_confirmes": sorted(set(x.loc[conf.notna(), "type"])),

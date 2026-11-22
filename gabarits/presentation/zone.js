@@ -85,14 +85,16 @@
     dedans.forEach(function (x) { deps[x[5]] = 1; });
     var ks = typesFam(), garde = {}; ks.forEach(function (k) { garde[k] = 1; });
     var parType = Z.types.map(function () { return { n: 0, conf: 0, proche: null, nomProche: "" }; }), pts = [], auCentre = 0;
+    // types par public, déjà comptés dans leur type parent : hors des totaux, chaque structure une fois
+    var parPublic = {}; (Z.par_public || []).forEach(function (k) { parPublic[k] = 1; });
     Z.structures.forEach(function (s) {
       if (!garde[s[0]]) return;
       var d = dist(lon, lat, s[2], s[3]), t = parType[s[0]];
       if (t.proche == null || d < t.proche) { t.proche = d; t.nomProche = s[1]; }
-      if (P ? dans[s[5]] : d <= R) { t.n++; if (s[4] === "c") t.conf++; if (s[6]) auCentre++; }
+      if (P ? dans[s[5]] : d <= R) { t.n++; if (s[4] === "c") t.conf++; if (s[6] && !parPublic[s[0]]) auCentre++; }
       if (d <= R * 1.3) pts.push([s, d]);
     });
-    var total = ks.reduce(function (s, k) { return s + parType[k].n; }, 0);
+    var total = ks.reduce(function (s, k) { return parPublic[k] ? s : s + parType[k].n; }, 0);
     var lieuTxt = P ? " du périmètre" : " dont le centre de la population est à moins de " + R + "&nbsp;km de celui de " + esc(com[1]);
     $("chz").innerHTML = '<div><span class="n">' + fr0.format(pop) + "</span><p>habitants dans " + fr0.format(dedans.length) + " " + pl(dedans.length, "commune") + lieuTxt + "</p></div>" +
       '<div><span class="n">' + fr0.format(total) + "</span><p>" + pl(total, "structure") + " de soins " + (S.fam === "sm" ? "en santé mentale" : "en santé, de proximité et d’urgence") + (P ? " dans le périmètre" : " dans la zone") + ", tous types confondus, chacune comptée une fois</p></div>";
@@ -153,6 +155,7 @@
       var hors = P && !dans[st[5]] ? " hors" : "", t = "<title>" + esc(Z.types[st[0]]) + ", " + esc(st[1]) + ", " + Chiffres.fmt(p[1], "distance") + " km" + (st[6] ? ", placée au centre de sa commune" : "") + "</title>";
       if (st[4] === "c") s += '<circle class="st c' + hors + '" cx="' + X.toFixed(1) + '" cy="' + Y.toFixed(1) + '" r="5">' + t + "</circle>";
       else if (st[4] === "v") s += '<circle class="st v' + hors + '" cx="' + X.toFixed(1) + '" cy="' + Y.toFixed(1) + '" r="4.5">' + t + "</circle>";
+      else if (st[4] === "n") s += '<circle class="st n' + hors + '" cx="' + X.toFixed(1) + '" cy="' + Y.toFixed(1) + '" r="4.5">' + t + "</circle>";
       else s += '<rect class="st o' + hors + '" x="' + (X - 4).toFixed(1) + '" y="' + (Y - 4).toFixed(1) + '" width="8" height="8" transform="rotate(45 ' + X.toFixed(1) + " " + Y.toFixed(1) + ')">' + t + "</rect>";
     });
     // noms des six communes les plus peuplées de la vue, et du lieu choisi

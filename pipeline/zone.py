@@ -25,7 +25,11 @@ TYPES_SM = ["lieu_cmp_adultes", "lieu_cmp_enfants", "lieu_cmp", "lieu_cattp", "l
 TYPES_SANTE = ["lieu_urgences", "lieu_smur", "lieu_soins_non_programmes", "lieu_maternite", "lieu_perinatal_proximite",
                "lieu_pmi", "lieu_msp", "lieu_centre_sante", "lieu_cpts", "lieu_sante_sexuelle", "lieu_precarite",
                "lieu_dialyse", "lieu_ehpad"]
-CLASSES = {"confirmée": "c", "à vérifier": "v", "recoupée par la statistique des hôpitaux": "r"}
+# classes de confirmation lues dans lieux_soins.csv (libellés de pipeline/confirmation.CLASSES) : « à vérifier » est
+# devenu « à confirmer » le 19 novembre 2026, et la classe « non confirmée » est apparue ; l'ancienne table laissait
+# ces structures sans classe (relecture du 21 novembre 2026)
+from .confirmation import CLASSES as _CL
+CLASSES = {_CL["confirmee"]: "c", _CL["a_verifier"]: "v", _CL["non_confirmee"]: "n", _CL["recoupee"]: "r"}
 
 
 def _lire(f: Path) -> list[dict]:
@@ -121,6 +125,9 @@ def donnees(dernier: Path, brut: Path, inter: Path, version: str, doi: str | Non
     f = dernier / "temps_route_centres.json"
     trajets = trajets_zone(json.loads(f.read_text(encoding="utf-8")), rang) if f.exists() else None
     return {"version": version, "doi": doi, "citation": config.CITATION_AUTEUR, "types": [libelles[t] for t in types], "codes": types, "sm": sum(1 for t in types if t in TYPES_SM),
+            # types par public, déjà comptés dans leur type parent : hors du total « chacune comptée une fois »
+            "par_public": [i for i, t in enumerate(types)
+                           if next((x[4].get("parent") for x in config.LIEUX_TYPES if x[0] == t), None)],
             "communes": communes, "structures": structures, "masques": masques, "incomplets": sorted(incomplets), "departements": {k: deps[k] for k in masques if k in deps},
             "centres_population": n_pop, "trajets": trajets,
             "statuts": AF.pour_js()["statuts"]}

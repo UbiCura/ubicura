@@ -38,6 +38,21 @@ DUREE_JOURS = 365
 COLS_ETAB = ["ej", "etablissement", "departement", "types", "date", "sources", "empreinte", "remarque"]
 COLS = ["ej", "etablissement", "type", "public", "nom", "adresse", "commune", "statut", "finess", "source",
         "adresse_source", "date", "remarque"]
+# inscriptions des bases laissées de côté, une par ligne avec sa raison (règle du 19 novembre 2026 : dans le doute, une
+# structure reste comptée). Une inscription absente de la liste vérifiée de son établissement et absente de ce fichier
+# est gardée : 233 inscriptions retirées sans raison propre trouvées le 20 novembre 2026 (hôpitaux de jour de
+# gérontopsychiatrie de l'EPSY Var écrits en CATTP, consultation du lycée Raynouard de Brignoles).
+FICHIER_LAISSEES = config.RACINE / "contenus" / "inscriptions_laissees.csv"
+COLS_LAISSEES = ["ej", "type", "nom", "commune", "finess", "categorie", "raison", "date"]
+CATEGORIES_LAISSEES = {"liste_complete": "absente de la liste complète et actuelle de l'établissement",
+                       "doublon": "doublon d'une structure de la liste vérifiée",
+                       "pas_ce_type": "n'est pas une structure de ce type selon la source de l'établissement",
+                       "fermee": "fermée selon la source de l'établissement"}
+
+
+def charger_laissees() -> pd.DataFrame:
+    return (pd.read_csv(FICHIER_LAISSEES, sep=";", dtype=str, encoding="utf-8").fillna("")
+            if FICHIER_LAISSEES.exists() else pd.DataFrame(columns=COLS_LAISSEES))
 # statut de chaque structure, du plus sûr au moins sûr
 STATUTS = {"etablissement": "confirmée par l'établissement",
            "source_publique": "confirmée par une autre source publique (HAS, ARS, collectivité, Acceslibre)",
@@ -100,6 +115,55 @@ def _mots(s: str) -> set[str]:
     return set(_distinctif(_simple(s)).split()) - {"cmp", "cattp", "hdj", "hj", "centre", "hopital", "jour"}
 
 
+def _public_du_nom(s) -> set[str]:
+    """Public que le nom annonce (« CMP Adulte », « CMP PEDO », « Infanto-Juvénile »), vide s'il n'en dit rien ou
+    nomme les deux."""
+    from .lieux import _simple
+    s = _simple(s if isinstance(s, str) else "")
+    enf = re.search(r"\b(enfants?|enfance|infanto\w*|p[ée]do\w*|ados?|adolescen\w*|juvenile|cmpea?|perinat\w*|bebes?)\b", s)
+    adu = re.search(r"\b(adultes?)\b", s)
+    if re.search(r"\bcmp\b", s) and re.search(r"\bcmpea?\b", s):  # « CMP, CMPEA et CATTP d'Arudy » : les deux
+        return set()
+    return {"enfants"} if enf and not adu else {"adultes"} if adu and not enf else set()
+
+
+def _partager(r, lies: list, soeurs: pd.DataFrame, b: pd.DataFrame, x: pd.DataFrame, t: str) -> list:
+    """Inscriptions d'un même numéro FINESS, dans une commune où plusieurs lignes de la liste vérifiée portent ce
+    numéro (CMP pour adultes et CMP pour enfants d'un hôpital inscrits sous un seul numéro) : chacune revient à la
+    ligne qui lui ressemble le plus, par les mots du nom, la rue et le public, et non à la première ligne lue
+    (relecture du 21 novembre 2026 : à Mirande, Friville-Escarbotin, Fumel, Marseille et Avignon, une ligne prenait
+    les deux inscriptions et les deux publics, et l'autre perdait son public ou disparaissait). Une seule inscription
+    pour plusieurs lignes va de même à celle qui lui ressemble le plus (CATTP pour adultes de Bras-Fusil, Saint-Benoît).
+    À égalité, la première ligne lue la prend, et elle n'est plus offerte aux suivantes (pris)."""
+    enf = ENFANTS_DE.get(t, [])
+
+    def pub_ligne(l_):
+        p = str(l_.get("public") or "").lower()
+        out = ({"adultes"} if "adulte" in p else set()) | ({"enfants"} if "enfant" in p else set())
+        return out or _public_du_nom(l_.get("nom"))
+
+    def pub_insc(i):
+        ty = set(x.loc[(x["lieu"] == b.at[i, "lieu"]) & x["type"].isin(enf), "type"])
+        out = {("adultes" if c.endswith("adultes") else "enfants") for c in ty}
+        return out or _public_du_nom(b.at[i, "nom"] if isinstance(b.at[i, "nom"], str) else b.loc[i].get("nom_finess"))
+
+    def score(l_, i):
+        nom_i = b.at[i, "nom"] if isinstance(b.at[i, "nom"], str) else str(b.loc[i].get("nom_finess") or "")
+        rv = _rue(l_.get("adresse"))
+        s_ = len(_mots(l_["nom"]) & _mots(nom_i)) + 2 * (bool(rv) and _rue(b.at[i, "adresse"]) == rv)
+        pl, pi = pub_ligne(l_), pub_insc(i)
+        if pl and pi:
+            s_ += 3 if pl & pi else -3
+        return s_
+
+    garde = []
+    for i in lies:
+        sc = {k: score(l_, i) for k, l_ in soeurs.iterrows()}
+        if sc[r.name] == max(sc.values()):
+            garde.append(i)
+    return garde
+
+
 def _rue(s: str) -> str:
     from .lieux import _simple
     return re.sub(r"^\d+\s*(?:bis|ter|b|t)?\s+", "", _simple(s or ""))
@@ -118,6 +182,54 @@ def meme_adresse(a: tuple[str, str], b: tuple[str, str]) -> bool:
     return bool(a[1]) and a[1] == b[1] and (a[0] == b[0] or not a[0] or not b[0])
 
 
+TYPES_MEME_ADRESSE = ("lieu_cmp_adultes", "lieu_cmp_enfants", "lieu_cattp", "lieu_hdj_psy_adultes",
+                      "lieu_hdj_psy_enfants", "lieu_csapa", "lieu_cmpp", "lieu_camsp", "lieu_caarud")
+
+
+def meme_adresse_deux_gestionnaires(x: pd.DataFrame, ej: str = "ej", verifiee=None) -> list[dict]:
+    """Structures du même type (et du même public pour les CMP) à la même adresse sous deux gestionnaires, dont une
+    attestée par la liste vérifiée de son gestionnaire. Le plus souvent la même structure inscrite deux fois : quand une
+    liste vérifiée en retire une, l'inscription des bases revient gardée « dans le doute » si rien ne dit qu'elle est
+    laissée de côté (CMPEA de Blanquefort, Eysines, Saint-Médard et Pauillac, gérés par l'association Rénovation pour
+    le CH Charles-Perrens, comptés deux fois, relecture du 22 novembre 2026). verifiee, la série booléenne des lignes
+    attestées (par défaut le statut etablissement ou source_publique)."""
+    if verifiee is None:
+        verifiee = x.get("statut_verification", pd.Series("", index=x.index)).isin(["etablissement", "source_publique"])
+    y = x[x["type"].isin(TYPES_MEME_ADRESSE)].assign(attestee_=verifiee)
+    y = y.assign(voie_n_=y.get("adresse", pd.Series("", index=y.index)).map(_voie))
+    # gestionnaire connu des deux côtés : une unité du ROR sans établissement n'est pas « d'un autre gestionnaire »
+    y = y[y[ej].fillna("").astype(str).str.strip() != ""]
+    out = []
+    for (t, c), g in y.groupby(["type", "commune"]):
+        if g[ej].nunique() < 2 or not g["attestee_"].any():
+            continue
+        for a in g[g["attestee_"]].itertuples():
+            for b in g.itertuples():
+                if getattr(b, ej) != getattr(a, ej) and meme_adresse(a.voie_n_, b.voie_n_):
+                    # même numéro des deux côtés, ou numéro absent d'un côté (alors seulement la même rue)
+                    out.append({"type": t, "commune": c, "verifiee": _nom_vu(a), "autre": _nom_vu(b),
+                                "i_autre": b.Index, "autre_attestee": bool(b.attestee_),
+                                "meme_numero": bool(a.voie_n_[0] and b.voie_n_[0])})
+    return out
+
+
+FICHIER_PAIRES_DISTINCTES = config.RACINE / "contenus" / "paires_distinctes.csv"
+
+
+def paires_distinctes() -> set:
+    """Paires de structures à la même adresse sous deux gestionnaires que les sources disent distinctes, chacune avec sa
+    source (relecture du 19 novembre 2026) : (type, nom de la structure attestée, nom de l'autre)."""
+    if not FICHIER_PAIRES_DISTINCTES.exists():
+        return set()
+    d = pd.read_csv(FICHIER_PAIRES_DISTINCTES, sep=";", dtype=str, encoding="utf-8").fillna("")
+    return {(r.type, r.nom_attestee, r.nom_autre) for r in d.itertuples()}
+
+
+def _nom_vu(r) -> str:
+    n = getattr(r, "nom_affiche", None)
+    return n if isinstance(n, str) and n else str(r.nom)
+
+
 def _nums_ligne(r) -> set[str]:
     """Numéros FINESS d'une inscription (le sien, celui rapproché, ceux réunis à elle)."""
     out = set()
@@ -128,15 +240,18 @@ def _nums_ligne(r) -> set[str]:
     return out
 
 
-def placer(n: pd.DataFrame, centres: dict | None, hors_ligne: bool) -> pd.DataFrame:
-    """Coordonnées des structures vérifiées, par leur adresse géocodée (service de l'IGN, avec cache), sinon le centre
-    de leur commune."""
+def placer(n: pd.DataFrame, centres: dict | None, hors_ligne: bool, chefs_lieux=None) -> pd.DataFrame:
+    """Coordonnées des structures vérifiées, par leur adresse géocodée (service de l'IGN, avec cache), sinon
+    l'emplacement de l'inscription rapprochée, sinon le chef-lieu de leur commune (chefs_lieux, même règle que les autres
+    structures depuis le 29 octobre 2026, oubliée ici jusqu'au 20 novembre 2026), sinon le centre de son contour."""
     from .lieux import _geocoder
     n = n.copy()
     n["lat"], n["lon"], n["precision"] = float("nan"), float("nan"), None
     a = n[["adresse", "commune"]].rename(columns={"adresse": "voie"})
     cache = _geocoder(a, hors_ligne)
     g = cache.dropna(subset=["lat"]).drop_duplicates(["voie", "commune"]).set_index(["voie", "commune"])
+    sans = sorted({c for v, c in zip(n["adresse"], n["commune"]) if (v, c) not in g.index and isinstance(c, str)})
+    ch = (chefs_lieux(sans) or {}) if chefs_lieux is not None and sans else {}
     for i, (v, c) in enumerate(zip(n["adresse"], n["commune"])):
         if (v, c) in g.index:
             n.iloc[i, n.columns.get_loc("lat")] = float(g.at[(v, c), "lat"])
@@ -146,6 +261,10 @@ def placer(n: pd.DataFrame, centres: dict | None, hors_ligne: bool) -> pd.DataFr
             n.iloc[i, n.columns.get_loc("lat")] = float(n["lat_base"].iloc[i])
             n.iloc[i, n.columns.get_loc("lon")] = float(n["lon_base"].iloc[i])
             n.iloc[i, n.columns.get_loc("precision")] = n["precision_base"].iloc[i]
+        elif ch.get(c):
+            n.iloc[i, n.columns.get_loc("lon")] = ch[c][0]
+            n.iloc[i, n.columns.get_loc("lat")] = ch[c][1]
+            n.iloc[i, n.columns.get_loc("precision")] = "chef_lieu"
         elif centres and centres.get(c):
             n.iloc[i, n.columns.get_loc("lon")] = centres[c][0]
             n.iloc[i, n.columns.get_loc("lat")] = centres[c][1]
@@ -190,7 +309,7 @@ def fermee_depuis(r, fermees: dict) -> str | None:
 
 def appliquer(lieux: pd.DataFrame, ref, centres: dict | None = None,
               hors_ligne: bool = True, garder: set | None = None,
-              fermees: dict | None = None) -> tuple[pd.DataFrame, dict]:
+              fermees: dict | None = None, chefs_lieux=None) -> tuple[pd.DataFrame, dict]:
     """Remplace, pour chaque établissement vérifié, ses structures des types vérifiés par la liste vérifiée. Les
     numéros FINESS des inscriptions rapprochées restent attachés (finess_absorbes), celles qui ne correspondent à
     aucune structure vérifiée sont consignées. Une inscription non citée par la source mais confirmée par une autre
@@ -200,8 +319,15 @@ def appliquer(lieux: pd.DataFrame, ref, centres: dict | None = None,
     (fermee_depuis). Renvoie les structures et un compte rendu."""
     e, s = charger()
     garder, fermees = garder or set(), fermees or {}
+    # deux structures de même nom générique dans une commune (« Centre médico-psychologique » à Paris), à deux
+    # adresses : l'adresse entre dans leur clé (vérification par lots du 18 novembre 2026)
+    _cles = ("V" + s["ej"] + "|" + s["commune"] + "|"
+             + s["nom"].str.lower().map(lambda v: re.sub(r"\W+", "-", v).strip("-")) + "#" + s["type"])
+    cles_doubles = {k.split("#")[0] for k in _cles[_cles.duplicated(keep=False)]}
     rendu = {"etablissements": e, "a_reverifier": [], "non_retenues": [], "gardees": [], "ajoutees": 0, "fermees": []}
     gardes = []
+    lai = charger_laissees()
+    laissees = {(r.ej, r.type, r.commune, r.nom.strip()): (r.categorie, r.raison) for r in lai.itertuples()}
     if e.empty:
         return lieux, rendu
     x = lieux.copy()
@@ -265,10 +391,22 @@ def appliquer(lieux: pd.DataFrame, ref, centres: dict | None = None,
                     nums_b = b.apply(lambda c: {str(c.get(k)) for k in ("finess", "finess_rapproche")
                                                 if isinstance(c.get(k), str)}
                                      | set(str(c.get("finess_absorbes") or "").split(",")), axis=1)
-                    lies = [i for i in b.index if i not in pris and nums_b[i] & voulus]
+                    # numéros que cette ligne est seule à réclamer dans sa commune : l'inscription qui les porte lui
+                    # revient même si une autre ligne l'a déjà prise par un numéro qu'elle avait absorbé (Givors,
+                    # Cergy, Marseille, constat du 20 novembre 2026)
+                    a_soi = {n for n in voulus if sum(n in {m.strip() for m in str(f).split(",")}
+                                                       for f, c in zip(v["finess"].fillna(""), v["commune"])
+                                                       if c == r["commune"]) == 1}
+                    lies = [i for i in b.index if i not in pris and nums_b[i] & voulus] or \
+                        [i for i in b.index if nums_b[i] & a_soi and b.at[i, "commune"] == r["commune"]]
                     # un numéro d'hôpital porte plusieurs unités, on ne garde que celles de la même commune
                     if len(lies) > 1:
                         lies = [i for i in lies if b.at[i, "commune"] == r["commune"]] or lies[:1]
+                    if lies:
+                        soeurs = v[(v["commune"] == r["commune"]) & v["finess"].fillna("").map(
+                            lambda f: bool({n.strip() for n in str(f).split(",") if n.strip()} & voulus))]
+                        if len(soeurs) > 1:
+                            lies = _partager(r, lies, soeurs, b, x, t)
                     # plus les unités du ROR sans établissement de la même commune, de même rue ou de même nom
                     # (CMP Anatole-France de Charenton-le-Pont, inscrit aussi comme « CMP périnatalité 94I03 » sans
                     # établissement, constat du 15 octobre 2026)
@@ -309,13 +447,48 @@ def appliquer(lieux: pd.DataFrame, ref, centres: dict | None = None,
                         if isinstance(val, str) and val:
                             nums |= set(val.split(","))
                 prov = "sources"
-                if lies:
-                    pv = set(b.loc[lies, "provenance"])
-                    prov = "les_deux" if "les_deux" in pv or {"finess", "ror"} <= pv else next(iter(pv))
-                num = sorted(nums)[0] if nums else None
+                # sans inscription propre (déjà prise par une autre ligne de la commune, souvent l'autre public au même
+                # numéro), une ligne qui porte un numéro inscrit dans les bases n'est pas « absente des deux bases » :
+                # elle reprend la provenance de l'inscription de ce numéro (relecture du 21 novembre 2026, 25 lignes)
+                lies_prov = lies or ([i for i in b.index if nums_b[i] & voulus] if voulus else [])
+                src_prov = b
+                if not lies_prov and voulus:
+                    # numéro inscrit sous un autre type de l'établissement (« Atelier 18 », hôpital de jour au ROR)
+                    src_prov = x[x["ej"] == ej]
+                    lies_prov = [i for i, c in src_prov.iterrows() if voulus & {
+                        n.strip() for k in ("finess", "finess_rapproche", "finess_absorbes")
+                        for n in str(c.get(k) or "").split(",") if n.strip()}]
+                if not lies_prov and r.get("statut") == "bases":
+                    # ligne « inscrite dans les bases » sans numéro : son inscription, au même nom dans la commune
+                    src_prov = x[(x["ej"] == ej) & (x["commune"] == r["commune"])]
+                    nom_r = r["nom"].strip().lower()
+                    lies_prov = [i for i, c in src_prov.iterrows()
+                                 if nom_r in {str(c.get(k) or "").strip().lower() for k in ("nom", "nom_finess")}]
+                if lies_prov:
+                    # un site ajouté par son activité autorisée est inscrit dans FINESS, sans être une unité de ce
+                    # type : la ligne vérifiée est « FINESS seul », jamais « activité autorisée » (CMP de Mayotte)
+                    pv = {{"autorisation": "finess"}.get(p_, p_) for p_ in src_prov.loc[lies_prov, "provenance"]
+                          if p_ in ("les_deux", "finess", "ror", "ror_type", "autorisation")} or {"sources"}
+                    # ordre fixe : un ensemble se parcourt dans un ordre qui change d'une exécution à l'autre
+                    prov = "les_deux" if "les_deux" in pv or {"finess", "ror"} <= pv else                         next(p_ for p_ in ("finess", "ror", "ror_type", "autorisation", "sources") if p_ in pv)
+                # le numéro de la ligne est celui qu'elle réclame ; un numéro qu'une autre ligne de la même commune
+                # réclame ne lui est jamais attribué, même absorbé par l'inscription rapprochée (20 novembre 2026)
+                nums -= {n for n, c in reclames if c == r["commune"]} - voulus
+                num = (sorted(nums & voulus) or sorted(nums) or [None])[0]
                 cle = "V" + ej + "|" + r["commune"] + "|" + re.sub(r"\W+", "-", r["nom"].lower()).strip("-")
+                if cle in cles_doubles:
+                    cle += "|" + re.sub(r"\W+", "-", str(r["adresse"]).lower()).strip("-")
                 adr = r["adresse"] or next((b.at[i, "adresse"] for i in lies if isinstance(b.at[i, "adresse"], str)
                                             and b.at[i, "commune"] == r["commune"]), "")
+                # catégorie FINESS de l'inscription qui porte le numéro de la ligne, gardée pour les CSAPA seulement :
+                # le compte des établissements CSAPA de FINESS la lit (« 674 lieux de CSAPA correspondent à 6
+                # établissements de FINESS », relecture du 21 novembre 2026). Les autres types ne la reprennent pas,
+                # pour qu'une catégorie des bases ne change pas le type d'une structure vérifiée.
+                cat_v = None
+                if t == "lieu_csapa" and lies and "categorie_finess" in b:
+                    cats_ = [b.at[i, "categorie_finess"] for i in lies
+                             if num and num in str(b.at[i, "finess"] or "").split(",")]                         or [b.at[i, "categorie_finess"] for i in lies]
+                    cat_v = next((c_ for c_ in cats_ if isinstance(c_, str) and c_), None)
                 ligne = {"type": t, "lieu": cle, "nom": r["nom"], "nom_affiche": r["nom"], "ej": ej,
                          "commune": r["commune"], "voie": adr, "adresse": adr,
                          "origine_commune": "unite", "provenance": prov, "finess": num,
@@ -326,11 +499,18 @@ def appliquer(lieux: pd.DataFrame, ref, centres: dict | None = None,
                             else {}),
                          "finess_absorbes": ",".join(sorted(nums - {num})) or None, "verifiee": True,
                          "statut_verification": r.get("statut", ""), "source_verification": r["source"], "adresse_source": r["adresse_source"],
-                         "date_verification": r["date"], "remarque_verification": r.get("remarque", ""), "nom_finess": None, "categorie_finess": None,
+                         "date_verification": r["date"], "remarque_verification": r.get("remarque", ""), "nom_finess": None, "categorie_finess": cat_v,
                          "unites_ror": int(b.loc[lies, "unites_ror"].fillna(0).sum()) if lies and "unites_ror" in b else 0}
                 nouvelles.append(ligne)
                 adresses_ver.append((r["commune"], _voie(adr)))
                 pub = (r.get("public") or "").lower()
+                # public laissé vide par la source : celui des inscriptions rapprochées, pour qu'un CMP vérifié ne
+                # sorte pas des CMP pour adultes ou pour enfants (CH d'Abbeville, 18 novembre 2026, cinq CMP sans public)
+                if not pub and lies:
+                    pub = " ".join(("adultes" if e_.endswith("adultes") else "enfants") for e_ in sorted(set(
+                        x.loc[x["lieu"].isin(set(b.loc[lies, "lieu"])) & x["type"].isin(ENFANTS_DE.get(t, [])), "type"])))
+                    if pub:
+                        rendu.setdefault("public_des_bases", []).append((ej, r["nom"], pub))
                 # public de la liste vérifiée, plus l'autre public quand l'inscription rapprochée l'accueillait aussi
                 # et que la vérification ne portait que sur un public
                 aussi = bool(t in perim and set(b.loc[lies, "lieu"]) & autre_lieux.get(t, set()))
@@ -353,18 +533,23 @@ def appliquer(lieux: pd.DataFrame, ref, centres: dict | None = None,
                 # vérification d'octobre, constat du 17 novembre 2026)
                 deja = any(c == b.at[i, "commune"] and meme_adresse(a, _voie(b.at[i, "adresse"]))
                            for c, a in adresses_ver)
-                garde = i in garder and not deja
+                nom_i = b.at[i, "nom"] if isinstance(b.at[i, "nom"], str) else b.loc[i].get("nom_finess")
+                # laissée de côté seulement avec une raison écrite pour elle (inscriptions_laissees.csv), ou au même
+                # endroit qu'une structure de la liste ; sinon gardée, dans le doute (règle du 19 novembre 2026)
+                lai_i = laissees.get((ej, t, b.at[i, "commune"], str(nom_i or "").strip()))
+                garde = not deja and not lai_i
                 if garde:
                     gardes.append(i)
                 (rendu["gardees"] if garde else rendu["non_retenues"]).append({
-                    "ej": ej, "etablissement": et["etablissement"], "type": t,
-                    "nom": b.at[i, "nom"] if isinstance(b.at[i, "nom"], str) else b.loc[i].get("nom_finess"),
+                    "ej": ej, "etablissement": et["etablissement"], "type": t, "nom": nom_i,
                     "commune": b.at[i, "commune"], "nom_commune": nom_com.get(b.at[i, "commune"], ""),
                     "finess": ",".join(sorted(_nums_ligne(b.loc[i]))) or None, "provenance": b.at[i, "provenance"],
                     "raison": ("absente de la liste vérifiée, gardée car confirmée par la certification HAS ou Sirene, "
-                               "à vérifier à la main") if garde else
+                               "à vérifier à la main") if garde and i in garder else
+                              ("absente de la liste vérifiée de l'établissement, qui ne donne pas de raison de la "
+                               "laisser de côté : gardée, à vérifier") if garde else
                               ("même adresse qu'une structure de la liste vérifiée de l'établissement, déjà comptée"
-                               if deja and i in garder else "absente de la liste vérifiée de l'établissement")})
+                               if deja else f"{CATEGORIES_LAISSEES.get(lai_i[0], lai_i[0])} : {lai_i[1]}")})
     # inscriptions gardées, avec leurs lignes pour adultes ou pour enfants
     if gardes:
         lieux_gardes = set(x.loc[gardes, "lieu"])
@@ -374,7 +559,7 @@ def appliquer(lieux: pd.DataFrame, ref, centres: dict | None = None,
     x = x.drop(index=retirer)
     if nouvelles:
         n = pd.DataFrame(nouvelles)
-        n = placer(n, centres, hors_ligne)
+        n = placer(n, centres, hors_ligne, chefs_lieux)
         rattach = ref.communes.set_index("code")[["epci", "dep", "reg"]]
         n = n.join(rattach, on="commune")
         labels = {t[0]: t for t in config.LIEUX_TYPES}
@@ -392,7 +577,9 @@ def appliquer(lieux: pd.DataFrame, ref, centres: dict | None = None,
                      "vérifiée (avant la réunion des CMP du même public à la même adresse)",
                      f"{n_et} établissements, {int(x['verifiee'].sum())} structures vérifiées, "
                      f"{rendu['ajoutees']} absentes des deux bases, {len(rendu['non_retenues'])} inscriptions non retenues, "
-                     f"{len(rendu['gardees'])} gardées en attente de vérification (confirmées par la HAS ou Sirene)")
+                     f"{len(rendu['gardees'])} gardées en attente de vérification (dont "
+                     f"{sum(r['raison'].startswith('absente de la liste vérifiée, gardée car') for r in rendu['gardees'])}"
+                     f" confirmées par la HAS ou Sirene, les autres faute de raison écrite pour les laisser de côté)")
     f = rendu["fermees"]
     JOURNAL.controle("Structures des listes vérifiées fermées depuis dans FINESS, plus comptées (attendu, aucune)",
                      "aucune" if not f else f"{len(f)}, " + "; ".join(f"{r['nom']} ({r['nom_commune']}), "

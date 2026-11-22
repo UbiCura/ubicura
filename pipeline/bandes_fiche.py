@@ -127,8 +127,12 @@ def bandes(ctx: dict) -> list[dict]:
              "lire": "Une structure est comptée là où les patients sont reçus. Le taux se rapporte à tous les habitants, et "
                      "pour les structures pour enfants aux moins de 15 ans. Confirmée, d'après la liste de l'établissement, une autre source publique, la HAS ou "
                      "Sirene ; « recoupée » quand la statistique annuelle des établissements (SAE) confirme leur nombre, pas "
-                     "leur adresse ; « sans source de confirmation » quand aucune liste publique ne couvre ce type ; un type "
-                     "mal recensé s'écrit « non recensé ».",
+                     "leur adresse ; « à confirmer » quand elle n'est inscrite que dans FINESS ou le ROR et pas encore "
+                     "vérifiée une à une ; « non confirmée » quand aucune source officielle de moins de trois ans ne l'a "
+                     "confirmée sur les sources de son établissement, ce qui ne veut pas dire qu'elle est fermée ; « sans "
+                     "source de confirmation » quand aucune liste publique ne couvre ce type ; un type mal recensé s'écrit "
+                     "« non recensé ». Les CMP pour adultes et pour enfants sont aussi comptés parmi les CMP tous publics, "
+                     "et une seule fois dans le total des structures.",
              "source": "Sources : FINESS et Répertoire opérationnel des ressources. Licence Ouverte 2.0. " + ctx["confiance_france"],
              "limite": ctx.get("limite_sae"), "reserves": f["reserves_structures"],
              "lignes": [ligne(s["ligne"], s=s) for s in f["structures"]], "contraire": f["contraire"].get("structures")},

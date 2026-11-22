@@ -78,9 +78,11 @@ class Zenodo:
 
     def appel(self, methode: str, url: str, attendu=(200, 201, 202, 204), **kw) -> requests.Response:
         url = url if url.startswith("http") else API + url
+        # délai lu une fois : retiré de kw au premier essai, il retombait à 120 s aux suivants
+        delai = kw.pop("timeout", 120)
         for essai in range(4):
             try:
-                r = self.s.request(methode, url, timeout=kw.pop("timeout", 120), **kw)
+                r = self.s.request(methode, url, timeout=delai, **kw)
             except requests.RequestException as e:
                 if essai == 3:
                     raise Arret(f"Zenodo ne répond pas ({e.__class__.__name__}). Réessayer plus tard.") from e
@@ -126,8 +128,38 @@ def etat_depots(z: Zenodo) -> dict:
         brouillons = [d for d in lies if not d.get("submitted")]
         if not publiees:
             raise Arret(f"aucune version publiée trouvée pour le dépôt {NOMS[cle]} (DOI {doi}) sur ce compte Zenodo")
+        # un brouillon créé par l'interface récente de Zenodo n'est pas toujours dans la liste de l'ancienne : on le
+        # retrouve par le numéro noté à la préparation (donnees/zenodo.json, 21 novembre 2026)
+        if not brouillons:
+            bid = ((lire_etat().get("brouillons") or {}).get(cle) or {}).get("id")
+            if bid:
+                try:
+                    d = z.appel("GET", f"/deposit/depositions/{bid}").json()
+                    if not d.get("submitted") and str(d.get("conceptrecid")) == concept(doi):
+                        brouillons = [d]
+                except Arret:
+                    pass
         sortie[cle] = {"derniere": publiees[-1], "brouillon": brouillons[0] if brouillons else None}
     return sortie
+
+
+def nouvelle_version(z: "Zenodo", derniere: dict) -> dict:
+    """Brouillon de nouvelle version. L'ancienne interface (actions/newversion) répond depuis le 21 novembre 2026
+    « Please remove all files first » sans brouillon existant : on passe alors par l'interface récente
+    (POST /records/{id}/versions), dont le brouillon se lit ensuite par l'ancienne, DOI réservé compris."""
+    try:
+        r = z.appel("POST", f"/deposit/depositions/{derniere['id']}/actions/newversion").json()
+        return z.appel("GET", r["links"]["latest_draft"]).json()
+    except Arret as err:
+        if "remove all files" not in str(err):
+            raise
+    n = z.appel("POST", f"/records/{derniere['id']}/versions").json()
+    d = z.appel("GET", f"/deposit/depositions/{n['id']}").json()
+    if not (d["metadata"].get("prereserve_doi") or {}).get("doi"):
+        # DOI réservé par l'interface récente, s'il ne l'est pas d'office
+        z.appel("POST", f"/records/{n['id']}/draft/pids/doi")
+        d = z.appel("GET", f"/deposit/depositions/{n['id']}").json()
+    return d
 
 
 def lire_etat() -> dict:
@@ -259,6 +291,12 @@ def cmd_preparer(args) -> int:
     # version corrective du jour même (une version Zenodo est désignée par sa date) : même dossier de résultats, étiquette
     # distincte, pour que les deux versions du même jour ne se confondent ni sur Zenodo ni dans ce script
     etiquette = f"{version} ({args.correctif})" if getattr(args, "correctif", None) else version
+    # une note encore en chantier ne part pas
+    texte_note = (Path(args.note_fichier).read_text(encoding="utf-8") if getattr(args, "note_fichier", None)
+                  else args.note or "")
+    if re.search(r"À COMPLÉTER|A COMPLETER|TODO|\[\.\.\.\]|XXX", texte_note, re.IGNORECASE):
+        print("La note de version contient un passage à compléter, rien n'est envoyé.")
+        return 1
     z = connexion()
     e = etat_depots(z)
     if all(version_du_depot(x["derniere"]) == etiquette for x in e.values()):
@@ -278,8 +316,7 @@ def cmd_preparer(args) -> int:
         if x["brouillon"]:
             brouillon = z.appel("GET", f"/deposit/depositions/{x['brouillon']['id']}").json()
         else:
-            r = z.appel("POST", f"/deposit/depositions/{x['derniere']['id']}/actions/newversion").json()
-            brouillon = z.appel("GET", r["links"]["latest_draft"]).json()
+            brouillon = nouvelle_version(z, x["derniere"])
         if brouillon.get("submitted"):
             raise Arret(f"Zenodo n'a pas créé de brouillon pour le dépôt {NOMS[cle]}, rien n'a été modifié")
         doi = (brouillon["metadata"].get("prereserve_doi") or {}).get("doi")
@@ -306,9 +343,21 @@ def cmd_preparer(args) -> int:
         for f in z.appel("GET", f"/deposit/depositions/{bid}/files").json():
             z.appel("DELETE", f"/deposit/depositions/{bid}/files/{f['id']}")
         for f in fichiers[cle]:
-            with open(f, "rb") as fh:
-                rep = z.appel("PUT", f"{brouillon['links']['bucket']}/{f.name}", data=fh, timeout=1800).json()
-            if rep.get("checksum", "").removeprefix("md5:") != md5(f):
+            # trois essais : Zenodo a reçu des fichiers tronqués le 21 novembre 2026 (4,9 Mo envoyés, 0,25 Mo reçus) ;
+            # le fichier incomplet est effacé avant de renvoyer
+            for essai in range(3):
+                # le contenu entier, et non le fichier ouvert : une reprise de appel() après une erreur 5xx renvoyait
+                # un fichier déjà lu, d'où les envois vides ou tronqués du 21 novembre 2026
+                rep = z.appel("PUT", f"{brouillon['links']['bucket']}/{f.name}", data=f.read_bytes(),
+                              timeout=1800).json()
+                if rep.get("checksum", "").removeprefix("md5:") == md5(f):
+                    break
+                for g in z.appel("GET", f"/deposit/depositions/{bid}/files").json():
+                    if g.get("filename") == f.name:
+                        z.appel("DELETE", f"/deposit/depositions/{bid}/files/{g['id']}")
+                if essai < 2:
+                    print(f"  {f.name} reçu incomplet par Zenodo, nouvel envoi ({essai + 2} sur 3)")
+            else:
                 raise Arret(f"le fichier {f.name} reçu par Zenodo ne correspond pas au fichier envoyé. Lancer "
                             "python outils\\zenodo.py abandonner, puis recommencer.")
         meta = brouillon["metadata"]

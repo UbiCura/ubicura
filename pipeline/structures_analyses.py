@@ -107,7 +107,11 @@ def sensibilite(L: dict, ref, centres: dict | None, ctx_epci: pd.DataFrame | Non
     JOURNAL.controle("Sensibilité des résultats au niveau de confirmation des structures",
                      f"{len(out) - len(diff)} résultats sur {len(out)} gardent la même conclusion avec les seules "
                      f"structures confirmées" + (", à signaler, " + "; ".join(
-                         f"{lib[r.type].split(',')[0]} {r.mesure.split(',')[0].lower()}" for r in diff.itertuples())
+                         # libellé entier (adultes ou enfants) et mesure entière, sans la parenthèse de méthode :
+                         # « CATTP classement des départements » écrit deux fois ne se lisait pas (relecture du 21
+                         # novembre 2026)
+                         f"{lib[r.type]} : {r.mesure.split(' (corrélation')[0][0].lower()}"
+                         f"{r.mesure.split(' (corrélation')[0][1:]}" for r in diff.itertuples())
                          if len(diff) else ""))
     return out
 

@@ -414,7 +414,7 @@ def plan(F: Formes, lv: str, code: str, sous: list[tuple], points: list, deps_fo
     for (x, y, cl, titre, dedans) in points:
         if x0 <= x <= x1 and y0 <= y <= y1:
             lieux.setdefault((round(x, 2), round(y, 2), cl, dedans), []).append(titre)
-    ordre = {"recoupee": 0, "a_verifier": 1, "confirmee": 2}
+    ordre = {"recoupee": 0, "non_confirmee": 1, "a_verifier": 1, "confirmee": 2}
     r = rayon_points(r, len(lieux))
     poses = ecarter(regrouper([(x, y, cl, dedans, titres) for (x, y, cl, dedans), titres in
                                sorted(lieux.items(), key=lambda kv: (not kv[0][3], -ordre.get(kv[0][2], 0)))], 2.5 * r), r)
@@ -425,7 +425,8 @@ def plan(F: Formes, lv: str, code: str, sous: list[tuple], points: list, deps_fo
             s.append(f'<circle cx="{x}" cy="{y}" r="{r * .6:.3f}" fill="none" stroke="{_v("--muted", "#5D6371")}" '
                      f'stroke-width="{r * .15:.3f}" class="hors">{t}</circle>')
             continue
-        # confirmation en trois formes (validation du 31 octobre 2026) : plein, creux, tireté ; sans source, petit point gris
+        # confirmation (validations du 31 octobre et du 18 novembre 2026) : plein confirmée, creux à confirmer, tireté
+        # non confirmée (cherchée sans source), à demi rempli recoupée comme dans l'atlas ; sans source, petit point gris
         act = _v("--action", "#0E5A5A")
         if cl == "confirmee":
             s.append(f'<circle cx="{x}" cy="{y}" r="{r:.3f}" fill="{act}" stroke="{trait}" stroke-width="{r * .3:.3f}" '
@@ -433,9 +434,12 @@ def plan(F: Formes, lv: str, code: str, sous: list[tuple], points: list, deps_fo
         elif cl == "a_verifier":
             s.append(f'<circle cx="{x}" cy="{y}" r="{r * .85:.3f}" fill="{trait}" stroke="{act}" stroke-width="{r * .38:.3f}" '
                      f'class="pt creux">{t}</circle>')
-        elif cl == "recoupee":
+        elif cl == "non_confirmee":
             s.append(f'<circle cx="{x}" cy="{y}" r="{r * .85:.3f}" fill="{trait}" stroke="{act}" stroke-width="{r * .36:.3f}" '
                      f'stroke-dasharray="{r * .55:.3f} {r * .4:.3f}" class="pt tirete">{t}</circle>')
+        elif cl == "recoupee":
+            s.append(f'<circle cx="{x}" cy="{y}" r="{r * .85:.3f}" fill="{act}" fill-opacity=".4" stroke="{act}" '
+                     f'stroke-width="{r * .3:.3f}" class="pt demi">{t}</circle>')
         else:
             s.append(f'<circle cx="{x}" cy="{y}" r="{r * .6:.3f}" fill="{_v("--muted", "#5D6371")}" class="pt objet">{t}</circle>')
     s.append("</g></svg>")
@@ -479,6 +483,9 @@ def situation(A: dict, lv: str, code: str, parent: str | None, points: list, con
             s.append(f'<circle cx="{x:.2f}" cy="{y:.2f}" r="{r:.2f}" fill="var(--r4, #0E5A5A)" stroke="var(--panel, #FFFFFF)" stroke-width="{r / 4:.2f}">{t}</circle>')
         elif cl == "a_verifier":
             s.append(f'<circle cx="{x:.2f}" cy="{y:.2f}" r="{r * .9:.2f}" fill="var(--panel, #FFFFFF)" stroke="var(--r4, #0E5A5A)" stroke-width="{r / 2.5:.2f}">{t}</circle>')
+        elif cl == "non_confirmee":
+            s.append(f'<circle cx="{x:.2f}" cy="{y:.2f}" r="{r * .9:.2f}" fill="var(--panel, #FFFFFF)" stroke="var(--r4, #0E5A5A)" stroke-width="{r / 2.5:.2f}" '
+                     f'stroke-dasharray="{r * .6:.2f} {r * .45:.2f}">{t}</circle>')
         else:
             s.append(f'<rect x="{x - r * .75:.2f}" y="{y - r * .75:.2f}" width="{r * 1.5:.2f}" height="{r * 1.5:.2f}" '
                      f'transform="rotate(45 {x:.2f} {y:.2f})" fill="var(--muted, #5D6371)">{t}</rect>')

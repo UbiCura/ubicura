@@ -145,12 +145,23 @@ def fichier(jour: dt.date) -> Path:
 
 
 def photographier(forcer: bool = False, sources: dict | None = None) -> dict | None:
-    """Photographie du jour, une source en échec n'empêche pas les autres. None si elle existe déjà (sans forcer)."""
+    """Photographie du jour, une source en échec n'empêche pas les autres. None si elle existe déjà et qu'aucune source
+    n'y est en échec (sans forcer). Une source en échec est relue au passage suivant du même jour, les autres gardées :
+    le 19 novembre 2026, la tâche lancée à l'ouverture de session, avant le réseau, avait figé une photographie vide."""
     f = fichier(dt.date.today())
-    if f.exists() and not forcer:
-        return None
+    sources = sources or SOURCES
     photo = {"prise_le": maintenant(), "sources": {}}
-    for nom, lire in (sources or SOURCES).items():
+    if f.exists() and not forcer:
+        try:
+            ancienne = json.loads(f.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            ancienne = None
+        if ancienne and all(v.get("ok") for v in ancienne.get("sources", {}).values()):
+            return None
+        if ancienne:
+            photo = ancienne
+            sources = {k: v for k, v in sources.items() if not (ancienne["sources"].get(k) or {}).get("ok")}
+    for nom, lire in sources.items():
         try:
             photo["sources"][nom] = {"ok": True, "lu_le": maintenant(), **lire()}
         except Exception as e:   # noqa: BLE001, une source cassée est notée et n'arrête pas les autres

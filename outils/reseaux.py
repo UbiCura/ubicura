@@ -608,6 +608,43 @@ def journal() -> list[dict]:
 def publier(m: dict, publieurs=None) -> str:
     """Publie le message sur chaque réseau choisi qui ne l'a pas encore reçu. Un réseau déjà servi n'est jamais
     servi deux fois. Renvoie le compte rendu, lève Arret au premier échec (les réseaux déjà servis restent notés)."""
+    with verrou_publication(m):
+        return _publier(m, publieurs)
+
+
+VERROU_MINUTES = 15
+
+
+class verrou_publication:
+    """Une seule publication à la fois pour un message. Le 18 novembre 2026, la tâche planifiée et un clic sur
+    « Publier » ont repris ensemble le fil de présentation, à trois secondes d'écart, et ses trois réponses sont parties
+    deux fois. Le verrou est un fichier créé en exclusivité à côté du message, ignoré après quinze minutes (processus
+    arrêté net). Une fois le verrou pris, l'état publié est relu sur le disque, pour reprendre après l'autre."""
+
+    def __init__(self, m: dict):
+        self.m, self.f = m, MESSAGES / f"{m['id']}.verrou"
+
+    def __enter__(self):
+        import os
+        if self.f.exists() and dt.datetime.now().timestamp() - self.f.stat().st_mtime > VERROU_MINUTES * 60:
+            self.f.unlink(missing_ok=True)
+        try:
+            os.close(os.open(self.f, os.O_CREAT | os.O_EXCL | os.O_WRONLY))
+        except FileExistsError:
+            raise Arret(f"« {self.m.get('titre') or self.m['id']} » est déjà en cours de publication. Attendre "
+                        "quelques minutes, puis rouvrir l'onglet pour voir ce qui est parti.") from None
+        disque = lire_json(MESSAGES / f"{self.m['id']}.json") or {}
+        for k in ("publications", "fil_publie"):
+            if disque.get(k):
+                self.m[k] = disque[k]
+        return self
+
+    def __exit__(self, *_):
+        self.f.unlink(missing_ok=True)
+        return False
+
+
+def _publier(m: dict, publieurs=None) -> str:
     publieurs = publieurs or PUBLIEURS
     erreurs = controler_message(m)
     if erreurs:
@@ -1733,7 +1770,11 @@ def onglet(onglets, racine, c: dict, police, petite, zone_texte, remplir) -> dic
         return q.strftime("%d/%m/%Y %H:%M") if q else ""
 
     def a_relire():
-        return [m for m in messages() if m.get("statut") in ("a_relire", "plus_tard", "programme")]
+        # à relire et programmés d'abord, par date d'envoi prévue, puis ceux mis de côté pour plus tard (demande du
+        # 18 novembre 2026 : l'ordre de création mettait 29 messages « plus tard » devant les trois à relire)
+        ms = [m for m in messages() if m.get("statut") in ("a_relire", "plus_tard", "programme")]
+        return sorted(ms, key=lambda m: (m.get("statut") == "plus_tard", m.get("envoi_prevu") or "9999",
+                                         m.get("cree_le") or ""))
 
     def garder():
         m = etat["courant"]

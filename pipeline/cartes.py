@@ -485,9 +485,11 @@ def teintes_secteurs(geoms: dict, secteurs: dict) -> tuple[dict, dict, dict]:
 # structures posées sur la carte des secteurs, remplissage et contour selon la classe de confirmation (mots de
 # pipeline.confirmation.CLASSES), pleines, grises ou creuses comme sur le plan de l'atlas
 CLASSES_CONFIRMATION = {"confirmee": "confirmé", "recoupee": "recoupé par la statistique des hôpitaux",
-                        "a_verifier": "à vérifier"}
+                        "a_verifier": "à confirmer", "non_confirmee": "non confirmé"}
 ROND_CONFIRMATION = {"confirmee": ("#1C2028", "#ffffff"), "recoupee": ("#8A8F99", "#ffffff"),
-                     "a_verifier": ("#ffffff", "#1C2028")}
+                     "a_verifier": ("#ffffff", "#1C2028"), "non_confirmee": ("#ffffff", "#1C2028")}
+# trait tireté du rond « non confirmé » (cherché sans source, décision du 18 novembre 2026), creux comme « à confirmer »
+TIRETE_CONFIRMATION = {"non_confirmee": ' stroke-dasharray="2.2 1.6"'}
 
 
 def carte_secteurs(geoms: dict, secteurs: dict, porteurs: dict, titre: str, largeur=560, hauteur_max=520,
@@ -497,7 +499,7 @@ def carte_secteurs(geoms: dict, secteurs: dict, porteurs: dict, titre: str, larg
     secteur au nom de son établissement porteur. Secteurs voisins de teintes différentes, frontières des secteurs
     marquées, code du secteur posé dans le secteur, légende des établissements sous la carte. points, structures posées
     par-dessus (dictionnaires lon, lat, classe de confirmation, info), pleines si confirmées, grises si recoupées par la
-    statistique des hôpitaux, creuses à vérifier, comme sur le plan de l'atlas ; nom_points les nomme dans la légende."""
+    statistique des hôpitaux, creuses à confirmer, creuses en tireté non confirmées, comme sur le plan de l'atlas ; nom_points les nomme dans la légende."""
     geoms = {k: g for k, g in geoms.items() if g is not None and not g.is_empty}
     if not geoms or not any(secteurs.get(k) for k in geoms):
         return ""
@@ -537,7 +539,8 @@ def carte_secteurs(geoms: dict, secteurs: dict, porteurs: dict, titre: str, larg
         for q in pts:
             x, y = P(q["lon"], q["lat"])
             f, c = ROND_CONFIRMATION.get(q.get("classe"), ROND_CONFIRMATION["a_verifier"])
-            el.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="3.4" fill="{f}" stroke="{c}">'
+            el.append(f'<circle cx="{x:.1f}" cy="{y:.1f}" r="3.4" fill="{f}" stroke="{c}"'
+                      f'{TIRETE_CONFIRMATION.get(q.get("classe"), "")}>'
                       f'<title>{escape(q.get("info", ""))}</title></circle>')
         el.append("</g>")
     taille = taille_role("petit", largeur)
@@ -565,7 +568,8 @@ def carte_secteurs(geoms: dict, secteurs: dict, porteurs: dict, titre: str, larg
         xx, yy = marge + (i % 2) * col, h + 8 + pas * (i // 2)
         if s and s.startswith("•"):
             f, c = ROND_CONFIRMATION[s[1:]]
-            el.append(f'<circle cx="{xx + 7:.0f}" cy="{yy + 6:.0f}" r="3.4" fill="{f}" stroke="{c}" stroke-width="1.2"/>')
+            el.append(f'<circle cx="{xx + 7:.0f}" cy="{yy + 6:.0f}" r="3.4" fill="{f}" stroke="{c}" stroke-width="1.2"'
+                      f'{TIRETE_CONFIRMATION.get(s[1:], "")}/>')
             el.append(f'<text x="{xx + 20:.0f}" y="{yy + 10:.0f}" font-size="{taille}" fill="{DISCRET}">{escape(txt)}</text>')
             continue
         fill = "url(#hachure-secteurs)" if s is None else TEINTES_SECTEURS[teinte[s]]

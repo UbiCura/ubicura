@@ -153,6 +153,16 @@ def casse_titre(nom: str) -> str:
     return "".join(sortie)
 
 
+RAISON_SOCIALE = re.compile(r'<span class="raison-sociale">.*?</span>', re.S)
+
+
+def sans_raisons_sociales(page: str) -> str:
+    """Page sans les raisons sociales marquées <span class="raison-sociale"> : ce sont des noms propres, gardés tels quels
+    même avec un terme daté (6 novembre 2026), que le contrôle du langage ne lit pas (liste des établissements vérifiés
+    de la page méthode, 20 novembre 2026)."""
+    return RAISON_SOCIALE.sub(" ", page)
+
+
 def termes_proscrits(texte: str) -> list[str]:
     """Liste des termes à proscrire présents dans un texte (vide si le texte est conforme)."""
     t = norm(re.sub(r"https?://\S+", " ", texte))   # les adresses web ne sont pas du texte lu

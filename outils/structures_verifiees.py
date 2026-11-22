@@ -126,7 +126,7 @@ def valider():
             p = sv.perimetres(et["types"]).get(r["type"])
             if p and p.rstrip("s") not in r["public"]:
                 pb.append(f"public « {r['public']} » hors du périmètre vérifié ({p}) ({r['nom']})")
-    dbl = s[s.duplicated(["ej", "type", "commune", "nom"], keep=False)]
+    dbl = s[s.duplicated(["ej", "type", "commune", "nom", "adresse"], keep=False)]  # homonymes à deux adresses : deux structures
     for _, r in dbl.iterrows():
         pb.append(f"structure en double, {r['nom']}")
     s.to_csv(sv.FICHIER, sep=";", index=False, encoding="utf-8")

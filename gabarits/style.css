@@ -697,6 +697,7 @@ a.vers-repliee{opacity:.7}
 .fiche .pt.plein{fill:var(--pt);stroke:var(--surface);stroke-width:2}
 .fiche .pt.creux{fill:var(--surface);stroke:var(--pt);stroke-width:2.6}
 .fiche .pt.tirete{fill:var(--surface);stroke:var(--pt);stroke-width:2.4;stroke-dasharray:3.5 2.5}
+.fiche .pt.demi{fill:var(--pt);fill-opacity:.4;stroke:var(--pt);stroke-width:1.8}
 .fiche .pt.objet{fill:var(--muted);stroke:var(--surface);stroke-width:1.5}
 .fiche .pt.hors{fill:none;stroke:var(--muted);stroke-width:1.2}
 .fiche .sect-g{fill:none;stroke:var(--c1);stroke-width:2.4;vector-effect:non-scaling-stroke}
@@ -715,6 +716,7 @@ a.vers-repliee{opacity:.7}
 .fiche .legende-cat i.pt.plein{background:var(--pt);box-shadow:0 0 0 2px var(--surface),0 0 0 3px var(--line-fort)}
 .fiche .legende-cat i.pt.creux{border:2.5px solid var(--pt);background:var(--surface)}
 .fiche .legende-cat i.pt.tirete{border:2.5px dashed var(--pt);background:var(--surface)}
+.fiche .legende-cat i.pt.demi{border:2px solid var(--pt);background:color-mix(in srgb,var(--pt) 40%,var(--surface))}
 .fiche .legende-cat i.pt.objet{background:var(--muted);width:10px;height:10px}
 .fiche .legende-cat i.pt.hors{border:1px solid var(--muted);width:9px;height:9px}
 .fiche .legende-cat i.hachure{background:repeating-linear-gradient(45deg,var(--nodata) 0 3px,var(--muted) 3px 4px);border-radius:2px}

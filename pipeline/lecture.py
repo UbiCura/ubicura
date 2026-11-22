@@ -23,10 +23,13 @@ GLOSSAIRE = [
      "Chaque CMP, CATTP, hôpital de jour en psychiatrie, CMPP, CAMSP, CSAPA et CAARUD est confronté à des listes qui ne "
      "viennent ni de FINESS ni du ROR, les sources de son établissement, une autre source publique (ARS, Acceslibre), les "
      "sites déclarés à la certification de la HAS ou ses évaluations des établissements médico-sociaux, et le répertoire "
-     "Sirene. La structure est confirmée quand l'une de ces listes la nomme. Un CATTP l'est aussi quand son établissement "
-     "en compte autant qu'il en déclare à la statistique annuelle des établissements de santé (SAE), ce qui confirme le "
-     "nombre et non chaque adresse. Une structure qu'aucune liste ne confirme reste comptée, marquée d'un point creux sur "
-     "la carte. Elle est à vérifier, ce qui ne veut pas dire qu'elle est fermée.", ""),
+     "Sirene. La structure est confirmée quand l'une de ces listes la nomme. Elle est recoupée par la statistique annuelle "
+     "des établissements de santé (SAE) quand son établissement compte autant de CATTP qu'il en déclare à la SAE, ou "
+     "quand l'hôpital de jour est sur un site qui y déclare des places d'hôpital de jour : le nombre ou le site est "
+     "recoupé, pas l'adresse. Une structure qu'aucune liste ne confirme reste comptée, marquée d'un point creux sur la "
+     "carte. Elle est à confirmer quand elle n'a pas encore été vérifiée une à une, non confirmée (point creux tireté) "
+     "quand ses sources ont été cherchées sans source officielle de moins de trois ans, ce qui ne veut pas dire qu'elle "
+     "est fermée. Les tableaux des rapports réunissent ces deux dernières classes dans la colonne « Non confirmées ».", ""),
     ("acces_lieux", "Accès aux structures de soins",
      "Le temps de trajet vient de l'INSEE, en voiture aux heures creuses, vers l'équipement le plus proche recensé "
      "dans sa base des équipements. La distance à la structure de soins la plus proche est mesurée ici à vol d'oiseau, depuis "

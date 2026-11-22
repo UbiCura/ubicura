@@ -66,12 +66,14 @@ FICHIERS = [
      "(clé changée par une mise à jour des bases ou structure déjà réunie à une autre), à revoir."),
     (r"^etablissements_verifies\.csv$", lambda m: "Établissements dont les structures ont été reprises une à une sur "
                                                     "leurs propres sources (liste vérifiée)."),
-    (r"^structures_non_retenues\.csv$", lambda m: "Inscriptions de FINESS ou du ROR qui ne correspondent à aucune "
-                                                  "structure de la liste vérifiée de leur établissement."),
+    (r"^structures_non_retenues\.csv$", lambda m: "Inscriptions de FINESS ou du ROR laissées de côté, chacune avec "
+                                                  "sa raison (doublon, fermée, autre type, absente d'une liste "
+                                                  "complète et actuelle de l'établissement)."),
     (r"^structures_gardees_a_verifier\.csv$", lambda m: "Inscriptions de FINESS ou du ROR absentes de la liste "
-                                                        "vérifiée de leur établissement mais confirmées par la "
-                                                        "certification HAS ou Sirene, gardées en attendant une "
-                                                        "vérification à la main."),
+                                                        "vérifiée de leur établissement, gardées en attendant une "
+                                                        "vérification à la main (confirmées par la certification HAS "
+                                                        "ou Sirene, ou sans raison écrite de les laisser de côté). "
+                                                        "La colonne devenir dit ce qui en est finalement compté."),
     (r"^concordance_cmp_etablissements\.csv$", lambda m: "CMP et CATTP confrontés hôpital par hôpital (entité juridique) "
                                                          "aux déclarations de la SAE, pour repérer les établissements à "
                                                          "vérifier."),
@@ -302,14 +304,20 @@ COLONNES = [
                          "déclarées à la SAE."),
     (r"^classe_confirmation$", "Classe de confirmation montrée au lecteur, confirmée (nommée par une source "
                                "indépendante de FINESS et du ROR), recoupée par la statistique des hôpitaux (SAE, nombre de CATTP de "
-                               "l'établissement ou places d'hôpital de jour du site, l'adresse n'est pas confirmée) ou à "
-                               "vérifier (inscrite dans FINESS ou le ROR seulement). Vide quand le niveau n'est pas établi "
+                               "l'établissement ou places d'hôpital de jour du site, l'adresse n'est pas confirmée), à "
+                               "confirmer (inscrite dans FINESS ou le ROR seulement, pas encore vérifiée une à une) ou non "
+                               "confirmée (cherchée sur les sources de son établissement sans source officielle de moins de "
+                               "trois ans). Vide quand le niveau n'est pas établi "
                                "pour ce type. Détail par source dans la colonne confirmation."),
     (r"^confirmation$", "Niveau de confirmation de la structure (vérifiée sur les sources de l'établissement, sur une "
                         "autre source publique, confirmée par la HAS (certification de l'hôpital ou évaluation de la "
                         "structure médico-sociale) ou par Sirene, concordante avec la SAE (nombre de CATTP de son établissement, "
-                        "places d'hôpital de jour de son site), examinée à la main et maintenue, ou à vérifier). Vide pour les types qui ne sont pas "
+                        "places d'hôpital de jour de son site), examinée à la main et maintenue, à confirmer, ou non confirmée avec la date "
+                        "de la recherche et, le cas échéant, de la demande envoyée à l'établissement). Vide pour les types qui ne sont pas "
                         "encore confrontés à ces listes."),
+    (r"^meme_adresse_que$", "Structure du même type d'un autre gestionnaire, attestée par sa liste vérifiée, à la même "
+                            "adresse (ou dans la même rue quand un numéro manque) : peut-être la même structure, gardée "
+                            "dans le doute. Vide quand il n'y en a pas, ou quand les sources disent les deux distinctes."),
     (r"^role$", "Pour les CMPP, CAMSP, CSAPA et CAARUD, structure principale, antenne (établissement rattaché à un "
                 "principal par la relation de budget de FINESS, ou désigné comme antenne par son nom) ou site "
                 "supplémentaire (lieu du ROR au numéro d'une autre structure). En addictologie aussi consultation jeunes "
@@ -355,7 +363,10 @@ COLONNES = [
                      "autre gestionnaire, disparue des bases)."),
     (r"^structure_actuelle$", "Nom de la structure qui porte aujourd'hui le même numéro FINESS, quand l'inscription a été "
                               "renommée. Le verdict ne lui est pas reporté."),
-    (r"^raison$", "Raison pour laquelle l'inscription n'est pas retenue."),
+    (r"^raison$", "Raison pour laquelle l'inscription n'est pas retenue, ou pour laquelle elle est gardée."),
+    (r"^devenir$", "Ce qui est finalement compté : la structure avec sa classe de confirmation, la structure rangée dans "
+                   "son type réel ou sous un autre type, retirée par une vérification à la main, ou réunie à une "
+                   "structure du même type de la commune."),
     (r"^ej$", "Numéro FINESS de l'entité juridique (l'hôpital ou l'association gestionnaire)."),
     (r"^dep_siege$", "Département du siège de l'établissement d'après la SAE."),
     (r"^ici_(cmp|adultes|enfants|cattp)$", "CMP (tous, pour adultes, pour enfants) ou CATTP recensés ici et rattachés à "
@@ -447,7 +458,7 @@ COLONNES = [
     (r"^(adultes|enfants)$", "CMP qui accueillent les adultes, ou les enfants et adolescents (un CMP qui accueille les "
                              "deux compte dans les deux colonnes)."),
     (r"^les_deux$", "CMP qui accueillent à la fois les adultes et les enfants."),
-    (r"^non_precise$", "CMP connus de FINESS seul, sans âges déclarés ni indice du public dans leur nom."),
+    (r"^non_precise$", "CMP dont aucune source ne précise le public (ni âges déclarés, ni indice dans le nom, ni public donné par la source de l'établissement)."),
     (r"^antennes$", "CMP dont le nom dit qu'il s'agit d'une antenne ou d'une permanence (en mairie, en CCAS, en maison "
                     "de santé), comptés parmi les CMP et signalés comme tels."),
     (r"^lieux_pour_100000$", "Nombre de structures de soins de ce type pour 100 000 habitants."),

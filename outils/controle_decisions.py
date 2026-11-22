@@ -23,7 +23,7 @@ RACINE = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RACINE))
 from pipeline import config  # noqa: E402
 from pipeline.affichage import nombre, unite_prof  # noqa: E402
-from pipeline.libelles import termes_proscrits  # noqa: E402
+from pipeline.libelles import sans_raisons_sociales, termes_proscrits  # noqa: E402
 
 SITE = RACINE / "site"
 # menu à sept entrées depuis le 8 novembre 2026 (Explorer entre Comparer et Croiser, version A validée sur captures)
@@ -308,7 +308,9 @@ def controler() -> int:
     mots = []
     for p in pages:
         t = textes[p]
-        mots += [(rel(p), x[:140]) for x in termes_proscrits(t)]
+        # raisons sociales marquées comme telles (noms propres gardés tels quels, 6 novembre 2026) : non lues ici
+        tv = texte(sans_raisons_sociales(sources[p])) if 'class="raison-sociale"' in sources[p] else t
+        mots += [(rel(p), x[:140]) for x in termes_proscrits(tv)]
         for m in re.finditer(r"\b(Figure|Tableau|Carte|Graphique)\s+\d+\s*[.:]", t):
             mots.append((rel(p), t[max(0, m.start() - 30):m.end() + 30]))
         for m in re.finditer(r"\b[Mm]oyenne des (intercommunalités|départements|régions|territoires)\b", t):

@@ -70,8 +70,13 @@ PROFESSIONS = ["psychiatre", "pedopsychiatre", "q_psychiatrie_enfant", "psycholo
 
 
 def _enfants(u: pd.DataFrame) -> pd.Series:
-    """Unité réservée aux enfants et aux adolescents, d'après la catégorie, l'âge maximal des patients ou le nom."""
-    return (u["categorie"].isin(["281", "282"]) | (u["age_max"].notna() & (u["age_max"] <= config.AGE_MAX_ENFANTS))
+    """Unité réservée aux enfants et aux adolescents, d'après la catégorie, l'âge maximal des patients ou le nom.
+    Une unité de catégorie enfants dont les âges déclarés ne reçoivent que des adultes (18 ans au moins) n'en est pas
+    une : « CMP ADULTES SAINT JUST EN CHEVALET », catégorie 281, de 18 à 150 ans, seule dans ce cas en France
+    (relecture du 17 novembre 2026, réunie à tort au CMP pour enfants de la même rue)."""
+    adultes_seuls = u["age_min"].notna() & (u["age_min"] >= 18)
+    return ((u["categorie"].isin(["281", "282"]) & ~adultes_seuls)
+            | (u["age_max"].notna() & (u["age_max"] <= config.AGE_MAX_ENFANTS))
             | u["nom"].fillna("").map(norm).str.contains(config.NOM_ENFANTS, regex=True))
 
 
@@ -617,6 +622,15 @@ def _lieux_finess(fin: pd.DataFrame, ref) -> pd.DataFrame:
     for tid, _lab, _fam, _g, r in config.LIEUX_TYPES:
         if r.get("finess"):
             g = f[f["categetab"].isin(r["finess"]) & f["com"].notna()]
+            if tid == "lieu_cattp":
+                # catégorie 366 de FINESS, « atelier thérapeutique » : pas un CATTP, sauf si son nom le dit (relecture
+                # des structures laissées de côté, 18 novembre 2026, neuf ateliers parmi 62 inscriptions)
+                atelier = (g["categetab"] == config.FINESS_ATELIER_THERAPEUTIQUE) & ~g["rs"].fillna("").map(norm).str.contains(
+                    r"catt[pg]|temps partiel|accueil therapeutique", regex=True)
+                if atelier.any():
+                    JOURNAL.controle("FINESS, ateliers thérapeutiques (catégorie 366) non comptés comme CATTP",
+                                     f"{int(atelier.sum())} établissements ouverts")
+                g = g[~atelier]
             out.append(pd.DataFrame({"type": tid, "lieu": "F" + g["nofinesset"] + "|" + g["com"], "finess": g["nofinesset"],
                                      "ej": g["nofinessej"], "commune": g["com"], "nom_finess": g["rs"],
                                      "categorie_finess": g["categetab"]}))
@@ -1214,8 +1228,13 @@ def professionnels(lieux: pd.DataFrame, act: pd.DataFrame) -> pd.DataFrame:
     s = s[~s["type"].isin(enfants)].dropna().drop_duplicates(["type", "lieu"])
     n_struct = s.groupby(["finess", "commune"]).size()
     n_types = s.groupby(["finess", "commune"])["type"].nunique()
-    partage = pd.Series(list(zip(l["finess"], l["commune"])), index=l.index).map(n_struct).fillna(1).astype(int)
-    t["partage_par"] = t.index.map(dict(zip(l["lieu"], partage))).fillna(1).astype(int)
+    # partage d'une clé de lieu : le plus grand des partages des numéros de ses lignes, et au moins son nombre de types.
+    # Une clé de la liste vérifiée porte souvent plusieurs types sous un nom (« CMP / CATTP / HDJ »), chacun sous son
+    # numéro : avec le seul numéro de sa première ligne, l'hôpital de jour de Saint-Chamond recevait les déclarés du CMP
+    # (constat du 20 novembre 2026, 13 structures)
+    n_lieu = pd.Series(list(zip(s["finess"], s["commune"])), index=s.index).map(n_struct)
+    partage = n_lieu.groupby(s["lieu"]).max().combine(s.groupby("lieu")["type"].nunique(), max)
+    t["partage_par"] = t.index.map(partage).fillna(1).astype(int)
     # contrôle permanent, la somme attribuée aux structures d'un même établissement ne dépasse jamais l'effectif qui y est
     # déclaré, puisqu'un effectif partagé n'est attribué à aucune
     propres = t[t["partage_par"] == 1].drop(columns="partage_par")
@@ -1471,7 +1490,8 @@ def roles_antennes(lieux: pd.DataFrame, fin: pd.DataFrame | None) -> tuple[pd.Da
     return x, rendu
 
 
-def cattp_des_cmp(lieux: pd.DataFrame, verifies: set | None = None) -> tuple[pd.DataFrame, int]:
+def cattp_des_cmp(lieux: pd.DataFrame, verifies: set | None = None, gardees: list | None = None,
+                  noms_etab: dict | None = None) -> tuple[pd.DataFrame, int]:
     """CATTP tenus dans un CMP (décision du 16 octobre 2026, un CATTP est le lieu où l'hôpital déclare cette
     activité). Quand le nom d'un CMP, une unité du ROR qu'il réunit ou l'enseigne Sirene de son établissement annonce un
     CATTP (« CMP-CATTP enfants ») et que son gestionnaire n'a aucun CATTP dans la même commune, un CATTP est compté au
@@ -1482,14 +1502,27 @@ def cattp_des_cmp(lieux: pd.DataFrame, verifies: set | None = None) -> tuple[pd.
     ENFANTS ARBOIS » : aucun CATTP n'était compté dans le Jura, chantier des structures du 16 novembre 2026), une fois
     par établissement et par commune quand plusieurs CMP le partagent, et seulement pour un CMP placé là où est
     l'établissement (pas un CMP dont la commune est lue dans son nom). Un établissement dont les CATTP sont vérifiés
-    (`verifies`, couples entité juridique et département, vide pour tous ses départements) n'en reçoit aucun ainsi :
-    sa liste vérifiée fait foi."""
+    (`verifies`, couples entité juridique et département, vide pour tous ses départements) en reçoit un seulement
+    sans raison écrite de le laisser de côté (contenus/inscriptions_laissees.csv, type lieu_cattp, nom du CMP) : dans
+    le doute, le CATTP annoncé reste compté (règle du 19 novembre 2026 ; le 21 novembre, 57 CATTP annoncés ainsi
+    disparaissaient sans raison à mesure que les listes vérifiées s'achevaient, dont sept dans le Jura). Son niveau
+    suit la source qui l'annonce ; ceux que seules les bases annoncent sont ajoutés à `gardees`, la liste des
+    structures gardées en attente de vérification."""
     motif = config.SIRENE_ENSEIGNES["lieu_cattp"] + r"|\bCATTG\b"
     x = lieux
     c = x[x["type"] == "lieu_cmp"]
-    if verifies:
-        dep_c = c["dep"] if "dep" in c else pd.Series("", index=c.index)
-        c = c[[not ((e, d) in verifies or (e, "") in verifies) for e, d in zip(c["ej"], dep_c)]]
+    dep_c = c["dep"] if "dep" in c else pd.Series("", index=c.index)
+    sous_liste = pd.Series([bool(verifies) and ((e, d) in verifies or (e, "") in verifies)
+                            for e, d in zip(c["ej"], dep_c)], index=c.index, dtype=bool)
+    if sous_liste.any():
+        from .structures_verifiees import charger_laissees
+        lai = charger_laissees()
+        lai = lai[lai["type"] == "lieu_cattp"]
+        cles = {(r.ej, r.commune, r.nom.strip()) for r in lai.itertuples()}
+        noms = lambda r: {str(r.get(k) or "").strip() for k in ("nom", "nom_affiche", "nom_finess")} - {""}  # noqa: E731
+        laisse = pd.Series([bool(s_) and any((r["ej"], r["commune"], n_) in cles for n_ in noms(r))
+                            for s_, (_, r) in zip(sous_liste, c.iterrows())], index=c.index, dtype=bool)
+        c, sous_liste = c[~laisse], sous_liste[~laisse]
     if c.empty:
         return x, 0
     col = lambda n: c[n].fillna("").astype(str) if n in c else pd.Series("", index=c.index)  # noqa: E731
@@ -1531,12 +1564,30 @@ def cattp_des_cmp(lieux: pd.DataFrame, verifies: set | None = None) -> tuple[pd.
             n[k] = n[k].where(par_sirene[m], None)
     if "confirmee_has" in n:
         n["confirmee_has"] = False
+    # la vérification du CMP ne vaut pour son CATTP que si le nom vérifié l'annonce : sinon le CATTP ne reprend ni son
+    # statut ni sa source (« confirmée par l'établissement » pour un CATTP que la liste ne cite pas, relecture du
+    # 21 novembre 2026, 71 cas)
+    for k in ("statut_verification", "source_verification", "adresse_source", "date_verification",
+              "remarque_verification"):
+        if k in n:
+            n[k] = n[k].where(v, None)
+    # ceux que le nom vérifié n'annonce pas restent à vérifier ; « CMP-CATTG de Parthenay », nom de la liste vérifiée,
+    # confirme son CATTP par l'établissement
+    gv = sous_liste[m] & (niv == "bases").values
+    if gardees is not None and gv.any():
+        for _, r in n[gv.values].iterrows():
+            gardees.append({"ej": r.get("ej"), "etablissement": (noms_etab or {}).get(r.get("ej")) or r.get("structure_nom"),
+                            "type": "lieu_cattp", "nom": r.get("nom"), "commune": r.get("commune"),
+                            "nom_commune": r.get("nom_commune"), "finess": r.get("finess"), "provenance": "nom_cmp",
+                            "raison": "CATTP annoncé par le nom du CMP, absent de la liste vérifiée de l'établissement, "
+                                      "qui ne donne pas de raison de le laisser de côté : gardé, à vérifier"})
     out = pd.concat([x, n], ignore_index=True)
     JOURNAL.controle("CATTP annoncés par le nom d'un CMP, comptés au même lieu",
                      f"{int(m.sum())} CATTP ({int((par_sirene & m).sum())} par l'enseigne Sirene, "
                      f"{int((par_nom & ~par_sirene & m).sum())} par le nom seulement), "
                      f"{int((par_nom | par_sirene).sum() - m.sum())} CMP qui en annoncent un sans ajout, leur gestionnaire "
-                     f"ayant déjà un CATTP dans la commune")
+                     f"ayant déjà un CATTP dans la commune, {int(gv.sum())} d'un établissement dont la liste vérifiée "
+                     f"ne le cite pas, gardés à vérifier")
     return out, int(m.sum())
 
 
@@ -2188,9 +2239,11 @@ def phrase_publics_cmp(r) -> str:
     s = (f"{nombre(r['adultes'])} accueillent des adultes et {nombre(r['enfants'])} des enfants et adolescents"
          + (f", dont {nombre(r['les_deux'])} les deux publics" if r["les_deux"] else "") + ".")
     if r["non_precise"] == 1:
-        s += " Pour l'un d'eux, connu de FINESS seul, le public n'est pas précisé."
+        s += " Pour l'un d'eux, aucune source ne précise le public."
     elif r["non_precise"]:
-        s += f" Pour {nombre(r['non_precise'])} d'entre eux, connus de FINESS seul, le public n'est pas précisé."
+        # sans dire d'où ils viennent : FINESS seul, ou les sources de leur établissement (relecture du 21 novembre
+        # 2026, 11 des 31 venaient des établissements)
+        s += f" Pour {nombre(r['non_precise'])} d'entre eux, aucune source ne précise le public."
     a = int(r.get("antennes", 0) or 0)
     if a == 1:
         s += " L'un d'eux est une antenne ou une permanence (en mairie, en CCAS ou en maison de santé, par exemple)."
@@ -3009,7 +3062,7 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
         # signalait à tort 43 des 48 établissements à revérifier (constat du 29 octobre 2026)
         avant = lieux[[c for c in ("type", "lieu", "nom", "nom_finess", "ej", "finess", "finess_rapproche",
                                    "finess_absorbes", "commune", "adresse", "provenance", "unites_ror", "noms_unites",
-                                   "lat", "lon", "precision") if c in lieux]].copy()
+                                   "lat", "lon", "precision", "categorie_finess") if c in lieux]].copy()
         avant.to_parquet(sv.BASES, index=False)
     except Exception as e:  # noqa: BLE001
         log.warning("structures avant vérification non enregistrées : %s", e)
@@ -3021,7 +3074,22 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
     garder = set(pre.index[pre["confirmation"].isin(["has", "sirene", "has_sirene"])])
     avant_liste = pre.copy()
     lieux, verif = sv.appliquer(lieux, ref, geo, hors_ligne, garder=garder,
-                                fermees=sv.fermees_finess(fin))
+                                fermees=sv.fermees_finess(fin),
+                                chefs_lieux=lambda codes: insee_carreaux.chefs_lieux_ban(ref, codes, hors_ligne))
+    # nom affiché des structures des listes vérifiées, recopié de la source (raison sociale de FINESS comprise) : même
+    # traitement des termes à proscrire que les autres lieux, terme retiré ou réécrit, sinon type et commune (constat du
+    # 20 novembre 2026, « Centre spécialisé de soins aux toxicomanes » dans quinze rapports territoriaux)
+    ver = lieux["verifiee"].fillna(False).astype(bool) if "verifiee" in lieux else pd.Series(False, index=lieux.index)
+    a_revoir = ver & lieux["nom_affiche"].fillna("").map(lambda s: bool(libelles.termes_proscrits(s)))
+    for i in lieux.index[a_revoir]:
+        lieux.at[i, "nom_affiche"] = nom_lisible(lieux.at[i, "nom_affiche"])[0]
+    reste_v = a_revoir & lieux["nom_affiche"].fillna("").map(lambda s: bool(libelles.termes_proscrits(s)))
+    if reste_v.any():
+        lieux.loc[reste_v, "nom_affiche"] = (lieux.loc[reste_v, "type"].map(lambda t: labels[t][1]).str.split(",").str[0]
+                                             + ", " + lieux.loc[reste_v, "commune"].map(nom_com).fillna("").astype(str))
+    JOURNAL.controle("Noms des structures des listes vérifiées débarrassés d'un terme à proscrire",
+                     f"{int(a_revoir.sum())}, dont " + (f"{int(reste_v.sum())} désignés" if reste_v.sum() else "aucun désigné")
+                     + " par leur type et leur commune")
     # structures des listes vérifiées fermées depuis dans FINESS (29 octobre 2026), rangées avec les inscriptions non
     # retenues, leur raison le dit
     verif["non_retenues"] = list(verif["non_retenues"]) + verif["fermees"]
@@ -3045,7 +3113,8 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
     # CATTP tenus dans un CMP qui l'annonce dans son nom (16 octobre 2026)
     e_v = sv.charger()[0]
     cattp_v = {(r["ej"], r["departement"]) for _, r in e_v.iterrows() if "lieu_cattp" in sv.types_de(r["types"])}
-    lieux, n_cattp_cmp = cattp_des_cmp(lieux, cattp_v)
+    lieux, n_cattp_cmp = cattp_des_cmp(lieux, cattp_v, verif.setdefault("gardees", []),
+                                       dict(zip(e_v["ej"], e_v["etablissement"])))
     # structures principales, antennes et sites des CMPP, CAMSP, CSAPA et CAARUD, puis rôles lus dans le nom pour
     # l'addictologie (16 octobre 2026)
     lieux, roles_ms = roles_antennes(lieux, fin)
@@ -3068,6 +3137,26 @@ def calculer(ror: dict | None, fin: pd.DataFrame | None, act: pd.DataFrame, ref,
             verif["non_retenues"] = list(verif["non_retenues"]) + reunis
             _releve("FINESS et ROR", "CMP du même public à la même adresse (plusieurs secteurs dans un même lieu)",
                     len(reunis), "Comptés comme un seul lieu")
+    # même structure inscrite sous deux gestionnaires (relecture du 22 novembre 2026) : chaque paire est relue, puis
+    # laissée de côté avec sa source (inscriptions_laissees.csv) ou gardée comme deux structures distinctes
+    paires = sv.meme_adresse_deux_gestionnaires(lieux)
+    # le lecteur le sait : la structure non attestée de chaque paire porte, avec sa confirmation, « même adresse (ou même
+    # rue) que ..., d'un autre gestionnaire, peut-être la même structure », sauf quand les sources les disent distinctes
+    # (décision du 22 novembre 2026)
+    distinctes = sv.paires_distinctes()
+    lieux["meme_adresse_que"] = None
+    lieux["meme_adresse_numero"] = None
+    for p in paires:
+        if p["autre_attestee"] or (p["type"], p["verifiee"], p["autre"]) in distinctes:
+            continue
+        parent = next((t[4].get("parent") for t in config.LIEUX_TYPES if t[0] == p["type"]), None)
+        m = (lieux["lieu"] == lieux.at[p["i_autre"], "lieu"]) & lieux["type"].isin([p["type"], parent])
+        lieux.loc[m, "meme_adresse_que"] = p["verifiee"]
+        lieux.loc[m, "meme_adresse_numero"] = p["meme_numero"]
+    JOURNAL.controle("Structures du même type à la même adresse sous deux gestionnaires, dont une attestée par sa liste "
+                     "vérifiée, chacune relue : laissée de côté avec sa source, distincte d'après les sources, ou gardée dans le doute avec une mention",
+                     "aucune" if not paires else f"{len(paires)}, dont " + " ; ".join(
+                         f"{p['verifiee']} et {p['autre']}" for p in paires[:5]))
     if n_cattp_cmp:
         _releve("FINESS, ROR et Sirene", "CMP dont le nom, une unité du ROR ou l'enseigne Sirene annonce aussi un CATTP "
                 "(« CMP-CATTP »), sans autre CATTP de leur gestionnaire dans la commune", n_cattp_cmp,

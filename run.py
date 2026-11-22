@@ -191,6 +191,12 @@ def executer(args):
         from pipeline import confirmation
         lieux_res["lieux"] = confirmation.confirmer_par_sae(lieux_res["lieux"], lieux_res["concordance_etablissements"],
                                                             hop)
+        # à confirmer (pas encore cherchée) ou non confirmée (cherchée sans source, demande envoyée), après la SAE pour
+        # qu'un recoupement l'emporte (décision du 18 novembre 2026)
+        import pandas as pd
+        f_dem = config.RACINE / "contenus" / "demandes_confirmation.csv"
+        lieux_res["lieux"] = confirmation.non_confirmer(
+            lieux_res["lieux"], pd.read_csv(f_dem, sep=";", dtype=str).fillna("") if f_dem.exists() else None)
         lieux_res["concordance_cattp"] = lieux.concordance_cattp(lieux_res, hop, ref)
         lieux.controle_route_cmp(externes.get("acces_route"), lieux_res, ref)
         # sectorisation psychiatrique des arrêtés des ARS reçus, CMP confrontés aux secteurs (29 octobre 2026)

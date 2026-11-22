@@ -35,7 +35,12 @@ NIVEAUX = {"etablissement": "vérifiée sur les sources de l'établissement",
            "principal": "confirmée par son site principal (antenne ou site rattaché)",
            "sae": "concordante avec la SAE (nombre de CATTP de l'établissement, places d'hôpital de jour du site)",
            "examinee": "examinée à la main et maintenue (source dans la colonne examen)",
-           "bases": "inscrite dans FINESS ou le ROR, à vérifier"}
+           "bases": "à confirmer, inscrite dans FINESS ou le ROR, pas encore vérifiée une à une",
+           # cherchée sur les sources de son établissement sans rien trouver (statut « bases » de la liste vérifiée), puis
+           # demande de confirmation envoyée à l'établissement (décision du 18 novembre 2026, maquette
+           # prototypes/structures_non_confirmees/) ; la date s'écrit après « @ » (cherchee@2026-11-18), libelle() la lit
+           "cherchee": "non confirmée, aucune source officielle de moins de trois ans trouvée",
+           "demande": "non confirmée, demande envoyée à l'établissement, en attente de réponse"}
 # libellés courts lus dans l'atlas (encadré des structures d'un territoire, fiche d'une structure), le niveau « bases »
 # seul est montré par un point creux, les autres par un point plein (décision du 15 octobre 2026)
 NIVEAUX_COURTS = {"etablissement": "vérifiée sur les sources de l'établissement",
@@ -46,19 +51,96 @@ NIVEAUX_COURTS = {"etablissement": "vérifiée sur les sources de l'établisseme
                   "sae": "recoupée par la statistique des hôpitaux (nombre de CATTP de l'établissement ou places d'hôpital de "
                          "jour du site, l'adresse n'est pas confirmée)",
                   "examinee": "examinée à la main et maintenue",
-                  "bases": "inscrite dans FINESS ou le ROR seulement, à vérifier"}
-# Trois classes montrées au lecteur (décision du 21 octobre 2026), le détail par source restant dans la page
-# méthode et la colonne confirmation des fichiers. Confirmée, la structure est nommée par une source indépendante des
-# deux bases. Recoupée par la SAE, c'est le nombre (CATTP) ou l'activité du site (hôpital de jour) qui est confirmé, pas
-# l'adresse. À vérifier, la structure n'est inscrite que dans FINESS ou le ROR.
-CLASSES = {"confirmee": "confirmée", "recoupee": "recoupée par la statistique des hôpitaux", "a_verifier": "à vérifier"}
+                  "bases": "à confirmer, inscrite dans FINESS ou le ROR, pas encore vérifiée une à une",
+                  "cherchee": "non confirmée, aucune source officielle de moins de trois ans trouvée",
+                  "demande": "non confirmée, demande envoyée à l'établissement, en attente de réponse"}
+# Classes montrées au lecteur (décisions du 21 octobre et du 18 novembre 2026), le détail par source restant dans la
+# page méthode et la colonne confirmation des fichiers. Confirmée, la structure est nommée par une source indépendante
+# des deux bases. Recoupée par la SAE, c'est le nombre (CATTP) ou l'activité du site (hôpital de jour) qui est
+# confirmé, pas l'adresse. À confirmer, elle n'est inscrite que dans FINESS ou le ROR et n'a pas encore été vérifiée une
+# à une. Non confirmée, elle a été cherchée sur les sources de son établissement sans source officielle récente.
+CLASSES = {"confirmee": "confirmée", "recoupee": "recoupée par la statistique des hôpitaux", "a_verifier": "à confirmer",
+           "non_confirmee": "non confirmée"}
+NON_CONFIRMEES = ("cherchee", "demande")
+MOIS = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre",
+        "décembre"]
+
+
+def _date_fr(iso: str) -> str:
+    try:
+        a, m, j = (int(v) for v in iso.split("-"))
+        return f"{'1er' if j == 1 else j} {MOIS[m - 1]} {a}"
+    except (ValueError, IndexError):
+        return ""
+
+
+def libelle(niveau, court: bool = False) -> str | None:
+    """Libellé d'un niveau, daté pour une structure cherchée ou une demande envoyée (« cherchee@2026-11-18 »)."""
+    if not isinstance(niveau, str) or not niveau:
+        return None
+    # niveau suivi d'une structure d'un autre gestionnaire à la même adresse ou dans la même rue
+    # (« bases|adresse|CMPEA Blanquefort », « bases|rue|... »)
+    niveau, _, meme = niveau.partition("|")
+    if meme:
+        lieu, _, nom = meme.partition("|")
+        lib = libelle(niveau, court)
+        phrase = f"même {'adresse' if lieu == 'adresse' else 'rue'} que « {nom} », d'un autre gestionnaire, peut-être la même structure"
+        return (lib + ", " + phrase) if lib else phrase[0].upper() + phrase[1:]
+    base, _, date = niveau.partition("@")
+    d = _date_fr(date) if date else ""
+    if base == "cherchee":
+        return "non confirmée, aucune source officielle de moins de trois ans trouvée" + (f" au {d}" if d else "")
+    if base == "demande":
+        return ("non confirmée, demande envoyée à l'établissement" + (f" le {d}" if d else "")
+                + ", en attente de réponse")
+    return (NIVEAUX_COURTS if court else NIVEAUX).get(base, NIVEAUX.get(base))
+
+
+def avec_meme_adresse(x: pd.DataFrame) -> pd.Series:
+    """Niveau de confirmation de chaque structure, suivi après « | » du nom de la structure d'un autre gestionnaire à la
+    même adresse quand il y en a une (lieux.py, contrôle des paires à la même adresse, 22 novembre 2026)."""
+    conf = x["confirmation"] if "confirmation" in x else pd.Series(None, index=x.index, dtype=object)
+    if "meme_adresse_que" not in x:
+        return conf
+    m = conf.notna() & x["meme_adresse_que"].notna()
+    num = x["meme_adresse_numero"].astype(str).eq("True") if "meme_adresse_numero" in x else pd.Series(True, index=x.index)
+    lieu = num.map({True: "adresse", False: "rue"})
+    return conf.where(~m, conf.astype(str) + "|" + lieu + "|" + x["meme_adresse_que"].astype(str))
 
 
 def classe(niveau) -> str | None:
     """Classe montrée au lecteur pour un niveau de confirmation (None quand le niveau n'est pas établi)."""
     if not isinstance(niveau, str) or not niveau:
         return None
-    return "a_verifier" if niveau == "bases" else "recoupee" if niveau == "sae" else "confirmee"
+    base = niveau.partition("|")[0].partition("@")[0]
+    return ("a_verifier" if base == "bases" else "non_confirmee" if base in NON_CONFIRMEES
+            else "recoupee" if base == "sae" else "confirmee")
+
+
+def non_confirmer(x: pd.DataFrame, demandes: pd.DataFrame | None = None) -> pd.DataFrame:
+    """Structure au niveau « bases » que sa liste vérifiée garde sans source (statut « bases ») : « cherchee@date ».
+    Avec une demande de confirmation envoyée à son établissement et sans réponse (contenus/demandes_confirmation.csv),
+    « demande@date d'envoi ». Une confirmation par la HAS, Sirene ou la SAE l'emporte (niveau autre que « bases »)."""
+    if "confirmation" not in x or "statut_verification" not in x:
+        return x
+    x = x.copy()
+    m = (x["confirmation"] == "bases") & (x["statut_verification"] == "bases")
+    dates = x.get("date_verification", pd.Series("", index=x.index)).fillna("").astype(str)
+    x.loc[m, "confirmation"] = "cherchee@" + dates[m]
+    if isinstance(demandes, pd.DataFrame) and not demandes.empty:
+        en_attente = demandes[demandes["reponse"].fillna("").str.strip() == ""]
+        envoi = en_attente.groupby("ej")["date_envoi"].max().to_dict()
+        md = m & x["ej"].isin(envoi)
+        x.loc[md, "confirmation"] = "demande@" + x.loc[md, "ej"].map(envoi)
+    # chaque structure une fois : un CMP a aussi une ligne pour son public (types « enfants » d'un type parent), qui
+    # ne s'ajoute pas au compte (relecture du 21 novembre 2026, 719 lignes pour 615 structures)
+    par_public = {t[0] for t in config.LIEUX_TYPES if t[4].get("parent")}
+    mu = m & ~x["type"].isin(par_public) if "type" in x else m
+    n = x.loc[mu, "confirmation"].map(lambda v: v.partition("@")[0]).value_counts()
+    JOURNAL.controle("Structures non confirmées (cherchées sur les sources de leur établissement sans source récente)",
+                     f"{int(mu.sum())} structures, dont {int(n.get('demande', 0))} avec une demande de confirmation "
+                     "envoyée à l'établissement et sans réponse")
+    return x
 
 
 def compter_classes(niveaux: pd.Series) -> dict:

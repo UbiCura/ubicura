@@ -41,8 +41,11 @@ ASSISTANT = "cla" + "ude"
 EXCLUS = re.compile(rf"^({ASSISTANT.upper()}\.md|\.{ASSISTANT}/|prototypes/|docs/|outils/api_|outils/lancer_api)")
 INTERDITS_CHEMIN = re.compile(r"^(donnees|resultats|site)/|\.(parquet|log)$|(^|/)rpps[^/]*\.(txt|csv)$", re.I)
 INTERDITS_TEXTE = [
-    # noms propres écartés (Camille-Claudel, rue Claude-Monet, Jean-Claude), toute autre forme reste bloquante
-    (re.compile(r"(?i:(?<![\w-])" + ASSISTANT + r"(?!l))(?!-[A-ZÀ-Ý][a-zà-ÿ])|(?i:anthr" + "opic)"),
+    # noms propres écartés (Camille-Claudel, rue Claude-Monet, Jean-Claude), et, dans les listes de structures, le
+    # prénom suivi d'un nom de famille (Centre Claude Bernard, rue Claude de Gateff, CMPP CLAUDE CHASSAGNY) ou une
+    # « rue Claude » (20 novembre 2026), sauf les noms de produits de l'assistant ; toute autre forme reste bloquante
+    (re.compile(r"(?i:(?<![\w-])(?<!rue )" + ASSISTANT + r"(?!l))(?!-[A-ZÀ-Ý][a-zà-ÿ])"
+                r"(?! (?:d[eu] )?(?!(?i:code|opus|sonnet|haiku|fable|mythos|instant|ai|desktop|app)\b)[A-ZÀ-Ý])|(?i:anthr" + "opic)"),
      "mention d'un assistant"),
     # seule exception, l'adresse de l'auteur de la bibliothèque de césure, que sa licence ISC oblige à garder
     # (gabarits/cesure, atlas/vendor, 23 octobre 2026) ; toute autre adresse personnelle reste bloquante

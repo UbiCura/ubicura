@@ -25,7 +25,7 @@ from . import libelles as L_
 from .analyses import tables, temps_montres
 from .lecture import de, nombre, pct, pluriel, un_pour
 from .rapport import (EQ_PHRASE, MENTION_ODBL, PRINCIPALES, SANTE, SM, Contexte, _comment_lire, _liste,
-                      _aucun_accorde, _plus_loin, _tableau, entete_densite, graphique, ligne_source,
+                      _aucun_accorde, _plus_loin, compte_effectif as _compte_effectif, _tableau, entete_densite, graphique, ligne_source,
                       signe_moins)
 from .util import JOURNAL, log
 
@@ -371,9 +371,13 @@ def _zero_pedopsychiatre(B, T, famille):
         if parts:
             lieux_txt = (", et FINESS et le ROR y recensent " + (", ".join(parts[:-1]) + " et " + parts[-1]
                                                               if len(parts) > 1 else parts[0]))
+    # aucun psychiatre qualifié non plus : dit en mots, jamais « 0 » seul (Gers, relecture du 21 novembre 2026)
+    psy_txt = ("Il ne compte pas non plus de psychiatre qualifié pour l'enfant et l'adolescent, toutes voies confondues"
+               if q == 0 else
+               f"Il compte {nombre(q)} psychiatre{'s' if q > 1 else ''} qualifié{'s' if q > 1 else ''} pour "
+               f"l'enfant et l'adolescent, toutes voies confondues")
     return [f"Le territoire ne compte aucun pédopsychiatre au sens de la spécialité ordinale, la définition la plus "
-            f"étroite. Il compte {nombre(q)} psychiatre{'s' if q > 1 else ''} qualifié{'s' if q > 1 else ''} pour "
-            f"l'enfant et l'adolescent, toutes voies confondues{lieux_txt}. Les médecins qui y consultent peuvent aussi "
+            f"étroite. {psy_txt}{lieux_txt}. Les médecins qui y consultent peuvent aussi "
             f"être déclarés dans un autre territoire, à l'hôpital de rattachement.", ""]
 
 
@@ -1172,7 +1176,7 @@ def _ecarts(B, T, famille):
             + _comment_lire(
                 f"L'effectif attendu est celui d'intercommunalités de profil comparable (âge, revenus, pauvreté, "
                 f"densité de population...) dans toute la France. Par exemple, la première intercommunalité du "
-                f"tableau compte {nombre(r['effectif'])} {pluriel(B.lab[p]) if r['effectif'] != 1 else B.lab[p].lower()} "
+                f"tableau {_compte_effectif(r['effectif'], B.lab[p])} "
                 f"là où l'on en attendrait environ {nombre(r['effectif_attendu'])}.",
                 "Ce n'est pas une mesure du besoin de soins, et les territoires de comparaison peuvent eux-mêmes être "
                 "peu dotés. Seules les intercommunalités où l'on attendrait au moins deux professionnels figurent ici. "
@@ -1287,7 +1291,7 @@ def _carte_secteurs(B, T, L):
         legendes.append(f'<p><strong>{escape(d["types"][ty].capitalize())}.</strong> '
                         + " ; ".join(escape(f"{k}, {v}") for k, v in sorted(porteurs.items()))
                         + (". Ville hachurée, partagée entre secteurs" if any(len(v) > 1 for v in par_com.values()) else "")
-                        + (f". Points, {escape(nom_pts)}, pleins si confirmés, creux à vérifier" if pts else "") + ".</p>")
+                        + (f". Points, {escape(nom_pts)}, pleins si confirmés, creux à confirmer, tiretés non confirmés" if pts else "") + ".</p>")
     if not svgs:
         return []
     (B.dossier_fig / f"{cle}.svg").write_text(svgs[0], encoding="utf-8")
@@ -1350,7 +1354,7 @@ def _verification_cmp(L, T):
     e = e.sort_values(["statut", "nom"])
     ecarts = int(e["statut"].isin(["moins ici qu'à la SAE", "plus ici qu'à la SAE"]).sum())
     out += ["<details>", f"<summary>CMP de chaque établissement, recensés ici et déclarés à la SAE "
-                         f"({nombre(len(e))} établissements, {nombre(ecarts)} en écart)</summary>", "",
+                         f"({nombre(len(e))} établissements, {nombre(ecarts) if ecarts else 'aucun'} en écart)</summary>", "",
             "Pour chaque établissement gestionnaire, le nombre de CMP recensés ici (FINESS et ROR réunis, où qu'ils "
             "soient) est rapproché du nombre qu'il déclare à la statistique annuelle des établissements de santé (SAE). "
             "Les deux concordent quand l'écart ne dépasse pas 20 % ou un CMP. Un écart signale une différence entre les "
@@ -1416,13 +1420,15 @@ def _lieux(B, T, famille):
         lignes.append({"libelle": lib, "n": n, "p100k": None if taux is None or pd.isna(taux) else float(taux),
                        "conf": k.get("confirmee") if etabli else None,
                        "rec": (k.get("recoupee") if tid in conf_mod.TYPES_RECOUPES else "sans objet") if etabli else None,
-                       "abv": k.get("a_verifier") if etabli else None,
+                       # à confirmer et non confirmées réunies dans une colonne (décision du 18 novembre 2026)
+                       "abv": k.get("a_verifier", 0) + k.get("non_confirmee", 0) if etabli else None,
                        "dist": d_ici.at[tid, "distance_mediane_km"] if tid in d_ici.index and not sans_mesure else None,
                        "dist_fr": d_fr.at[tid, "distance_mediane_km"] if tid in d_fr.index else None,
                        "p30": d_ici.at[tid, "part_plus_30_km"] if tid in d_ici.index and not sans_mesure else None})
     if not lignes:
         return []
     t = pd.DataFrame(lignes)
+    avec_conf = t["conf"].notna().any()
     from . import affichage as AF
     f1 = lambda v: AF.nombre(v, "taux")  # noqa: E731
     fd = lambda v: AF.nombre(v, "distance")  # noqa: E731
@@ -1434,23 +1440,27 @@ def _lieux(B, T, famille):
            f"jamais par-dessus la mer (la Corse et chaque département d'outre-mer sont comptés à part)."
            + (" Une distance laissée vide signale qu'aucune structure de ce type n'existe sur ce territoire."
               if t["dist"].isna().any() else ""), "",
-           _tableau(t, ["libelle", "n", "conf", "rec", "abv", "p100k", "dist", "dist_fr", "p30"],
-                    ["Type de structure", "Structures", "Confirmées", "Recoupées par la statistique des hôpitaux", "À vérifier",
-                     "Pour 100 000 habitants, ou personnes du public nommé", "Distance médiane (km)",
-                     "Ensemble des habitants de France, distance médiane", "Habitants à plus de 30 km"],
+           # les colonnes de confirmation seulement quand l'une porte une valeur, comme le rapport national (rapport
+           # santé, aucun type vérifié : trois colonnes vides faisaient défiler le tableau, 20 novembre 2026)
+           _tableau(t, ["libelle", "n"] + (["conf", "rec", "abv"] if avec_conf else []) + ["p100k", "dist", "dist_fr", "p30"],
+                    ["Type de structure", "Structures"]
+                    + (["Confirmées", "Recoupées par la statistique des hôpitaux", "Non confirmées"] if avec_conf else [])
+                    + ["Pour 100 000 habitants, ou personnes du public nommé", "Distance médiane (km)",
+                       "Ensemble des habitants de France, distance médiane", "Habitants à plus de 30 km"],
                     {"n": nombre, "conf": nombre, "rec": lambda v: v if isinstance(v, str) else nombre(v), "abv": nombre, "p100k": f1, "dist": fd, "dist_fr": fd,
                      "p30": pct}, vide="",
                     zero={"n": "aucune", "conf": "aucune", "rec": "aucune", "abv": "aucune",
                           "p100k": AF.AUCUNE_STRUCTURE, "p30": "aucun habitant"}), ""]
     if t["conf"].notna().any():
-        out += ["Confirmées, recoupées et à vérifier refont le nombre de structures. Une structure confirmée est nommée "
+        out += ["Confirmées, recoupées et non confirmées refont le nombre de structures. Une structure confirmée est nommée "
                 "par une source indépendante de FINESS et du ROR (son établissement, la Haute Autorité de santé, le "
                 "répertoire Sirene, son site principal ou une vérification à la main). Recoupée par la statistique des "
                 "hôpitaux (statistique annuelle des établissements de santé, SAE, remplie par chaque hôpital pour la "
                 "DREES), seulement pour les CATTP et les hôpitaux de jour, c'est le "
                 "nombre de CATTP de son hôpital, ou les places d'hôpital de jour de son site, qui concorde avec la "
-                "statistique annuelle des établissements de santé, pas l'adresse. À vérifier, elle n'est inscrite que "
-                "dans FINESS ou le ROR, ce qui ne veut pas dire qu'elle est fermée. Les cases vides désignent les types "
+                "statistique annuelle des établissements de santé, pas l'adresse. Non confirmée, elle n'est inscrite que "
+                "dans FINESS ou le ROR : soit à confirmer, pas encore vérifiée une à une, soit cherchée sur les sources de "
+                "son établissement sans source officielle de moins de trois ans. Cela ne veut pas dire qu'elle est fermée. Les cases vides désignent les types "
                 "dont le niveau de confirmation n'est pas établi. Le détail par source est dans lieux_soins.csv et la "
                 "page « Méthode, données et limites ».", ""]
     if famille == SM:

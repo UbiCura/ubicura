@@ -89,8 +89,8 @@ def controler(version: Path) -> list[str]:
                 vu = [int(r["cmp"]), int(r["adultes"]), int(r["enfants"]), int(r["les_deux"])]
                 if lu != vu:
                     pb.append(f"{f.name}, CMP par public {lu} dans le texte, {vu} dans cmp_par_public.csv")
-                np_ = re.search(r"Pour " + NOMBRE + r" d'entre eux, connus de FINESS seul", md)
-                n_np = entier(np_.group(1)) if np_ else (1 if "Pour l'un d'eux, connu de FINESS seul" in md else 0)
+                np_ = re.search(r"Pour " + NOMBRE + r" d'entre eux, aucune source ne précise le public", md)
+                n_np = entier(np_.group(1)) if np_ else (1 if "Pour l'un d'eux, aucune source ne précise le public" in md else 0)
                 if n_np != int(r["non_precise"]):
                     pb.append(f"{f.name}, CMP au public non précisé {n_np} dans le texte, {r['non_precise']} dans "
                               f"cmp_par_public.csv")
@@ -151,7 +151,8 @@ def controler(version: Path) -> list[str]:
             g = lieux[lieux["type"] == tid]
             cl = g["classe_confirmation"].value_counts() if "classe_confirmation" in g else pd.Series(dtype=int)
             from pipeline.confirmation import CLASSES
-            vu = [len(g)] + [int(cl.get(CLASSES[k], 0)) for k in ("confirmee", "recoupee", "a_verifier")]
+            # la colonne « Non confirmées » réunit « à confirmer » et « non confirmée » (classe du 19 novembre 2026)
+            vu = [len(g)] + [int(cl.get(CLASSES[k], 0)) for k in ("confirmee", "recoupee")]                 + [int(cl.get(CLASSES["a_verifier"], 0)) + int(cl.get(CLASSES["non_confirmee"], 0))]
             lu = [0 if v == "sans objet" else entier(v) for v in (n, c, r_, a)]
             if lu != vu:
                 pb.append(f"rapport_sante_mentale.md, {lib} {lu} dans le texte, {vu} dans lieux_soins.csv")
@@ -221,6 +222,9 @@ def controler(version: Path) -> list[str]:
                 pb.append(f"site/methode.html, {v[0]}, {d} + {fi} + {ro} ne font pas {n}")
     if nb_rapports == 0:
         pb.append("aucun rapport territorial trouvé")
+    # phrases chiffrées des rapports nationaux recalculées depuis les tableaux (17 novembre 2026)
+    import controle_phrases
+    pb += controle_phrases.controler(version, ecrire=False)
     return pb
 
 

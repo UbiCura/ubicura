@@ -765,13 +765,28 @@ def test_structures_verifiees():
     class Ref:
         communes = pd.DataFrame({"code": ["06088", "06033"], "nom": ["Nice", "Carros"], "dep": ["06", "06"],
                                  "epci": ["X", "X"], "reg": ["93", "93"]})
-    x, r = sv.appliquer(lieux, Ref(), {"06033": (7.18, 43.78)}, True)
+    lai = sv.FICHIER_LAISSEES
+    try:
+        # sans raison écrite pour elle, l'inscription absente de la liste vérifiée reste comptée (21 novembre 2026)
+        sv.FICHIER_LAISSEES = d / "l.csv"
+        x, r = sv.appliquer(lieux, Ref(), {"06033": (7.18, 43.78)}, True)
+        assert set(x.loc[x["type"] == "lieu_cmp", "nom"]) == {"CMP Rembrandt", "CMP Carros", "CMP X", "CMP Y"}
+        assert [n["finess"] for n in r["gardees"]] == ["222"] and not r["non_retenues"]
+        assert "gardée" in r["gardees"][0]["raison"]
+        # avec sa ligne dans inscriptions_laissees.csv, elle est laissée de côté et sa raison est consignée
+        pd.DataFrame([{"ej": "E", "type": "lieu_cmp", "nom": "CMP X", "commune": "06088", "finess": "222",
+                       "categorie": "liste_complete", "raison": "La liste Nos CMP du site, actuelle, ne la cite pas.",
+                       "date": "2026-11-21"}]).to_csv(sv.FICHIER_LAISSEES, sep=";", index=False)
+        x, r = sv.appliquer(lieux, Ref(), {"06033": (7.18, 43.78)}, True)
+    finally:
+        sv.FICHIER_ETAB, sv.FICHIER = origine
+        sv.FICHIER_LAISSEES = lai
     assert set(x.loc[x["type"] == "lieu_cmp", "nom"]) == {"CMP Rembrandt", "CMP Carros", "CMP Y"}
     assert set(x.loc[x["type"] == "lieu_cmp_enfants", "nom"]) == {"CMP Carros"}
     assert x.loc[(x["nom"] == "CMP Rembrandt") & (x["type"] == "lieu_cmp"), "provenance"].iloc[0] == "les_deux"
     assert x.loc[(x["nom"] == "CMP Carros") & (x["type"] == "lieu_cmp"), "provenance"].iloc[0] == "sources"
-    sv.FICHIER_ETAB, sv.FICHIER = origine
     assert [n["finess"] for n in r["non_retenues"]] == ["222"] and r["ajoutees"] == 1
+    assert "liste complète" in r["non_retenues"][0]["raison"] and "Nos CMP" in r["non_retenues"][0]["raison"]
 
 
 def test_verdict_ferme_pas_sur_sirene_seul():
@@ -1128,7 +1143,9 @@ def test_listes_verifiees_sourcees():
             except (ValueError, KeyError):
                 fautes.append(f"{nom}, ligne {i + 2} : date absente ou illisible")
         if nom == "structures_verifiees.csv":
-            dbl = t[t.duplicated(["ej", "type", "public", "nom", "commune"], keep=False)]
+            # deux structures de même nom générique dans une commune, à deux adresses, sont deux structures
+            # (clé de la chaîne depuis le 18 novembre 2026)
+            dbl = t[t.duplicated(["ej", "type", "public", "nom", "commune", "adresse"], keep=False)]
             fautes += [f"{nom} : structure en double, {r['nom']} ({r['commune']})" for _, r in dbl.iterrows()]
     assert not fautes, fautes[:15]
 
@@ -1391,7 +1408,7 @@ def test_verdicts_appliques():
 
 def test_structures_verifiees_garde_confirmees():
     """Une inscription absente de la liste vérifiée mais confirmée par la HAS ou Sirene (garder) reste, avec sa ligne
-    pour adultes, et elle est consignée à part. Une inscription non confirmée est retirée."""
+    pour adultes, et elle est consignée à part. Une inscription laissée de côté avec sa raison écrite est retirée."""
     import tempfile
     from pathlib import Path
     import pandas as pd
@@ -1413,8 +1430,16 @@ def test_structures_verifiees_garde_confirmees():
 
     class Ref:
         communes = pd.DataFrame({"code": ["06088"], "nom": ["Nice"], "dep": ["06"], "epci": ["X"], "reg": ["93"]})
-    x, r = sv.appliquer(lieux, Ref(), {}, True, garder={1})
-    sv.FICHIER_ETAB, sv.FICHIER = origine
+    # l'inscription retirée l'est par sa ligne d'inscriptions_laissees.csv (règle du 21 novembre 2026)
+    lai, sv.FICHIER_LAISSEES = sv.FICHIER_LAISSEES, d / "l.csv"
+    pd.DataFrame([{"ej": "E", "type": "lieu_cmp", "nom": "CMP RETIRE", "commune": "06088", "finess": "333",
+                   "categorie": "fermee", "raison": "Fermé selon la page des CMP du site.", "date": "2026-11-21"}]
+                 ).to_csv(sv.FICHIER_LAISSEES, sep=";", index=False)
+    try:
+        x, r = sv.appliquer(lieux, Ref(), {}, True, garder={1})
+    finally:
+        sv.FICHIER_ETAB, sv.FICHIER = origine
+        sv.FICHIER_LAISSEES = lai
     assert set(x.loc[x["type"] == "lieu_cmp", "nom"]) == {"CMP Rembrandt", "CMP GARDE"}
     assert list(x.loc[x["type"] == "lieu_cmp_adultes", "nom"]) == ["CMP Rembrandt", "CMP GARDE"] or \
         set(x.loc[x["type"] == "lieu_cmp_adultes", "nom"]) == {"CMP Rembrandt", "CMP GARDE"}
@@ -1422,7 +1447,8 @@ def test_structures_verifiees_garde_confirmees():
 
 
 def test_structures_verifiees_un_public():
-    """Liste vérifiée pour les seuls CMP pour adultes (« lieu_cmp:adultes ») : un CMP pour adultes non cité est retiré,
+    """Liste vérifiée pour les seuls CMP pour adultes (« lieu_cmp:adultes ») : un CMP pour adultes laissé de côté avec
+    sa raison est retiré,
     un CMP pour enfants et un CMP au public non précisé restent tels que les bases les donnent."""
     import tempfile
     from pathlib import Path
@@ -1450,12 +1476,56 @@ def test_structures_verifiees_un_public():
 
     class Ref:
         communes = pd.DataFrame({"code": ["34172"], "nom": ["Montpellier"], "dep": ["34"], "epci": ["X"], "reg": ["76"]})
-    x, r = sv.appliquer(lieux, Ref(), {}, True)
-    sv.FICHIER_ETAB, sv.FICHIER = origine
+    lai, sv.FICHIER_LAISSEES = sv.FICHIER_LAISSEES, d / "l.csv"
+    pd.DataFrame([{"ej": "E", "type": "lieu_cmp", "nom": "CMP GIGNAC", "commune": "34172", "finess": "222",
+                   "categorie": "liste_complete", "raison": "La page des CMP pour adultes, actuelle, ne le cite pas.",
+                   "date": "2026-11-21"}]).to_csv(sv.FICHIER_LAISSEES, sep=";", index=False)
+    try:
+        x, r = sv.appliquer(lieux, Ref(), {}, True)
+    finally:
+        sv.FICHIER_ETAB, sv.FICHIER = origine
+        sv.FICHIER_LAISSEES = lai
     assert set(x.loc[x["type"] == "lieu_cmp", "nom"]) == {"CMP Massane", "CMP ENFANTS LUNEL", "CMP SANS PUBLIC"}
     assert list(x.loc[x["type"] == "lieu_cmp_adultes", "nom"]) == ["CMP Massane"]
     assert list(x.loc[x["type"] == "lieu_cmp_enfants", "nom"]) == ["CMP ENFANTS LUNEL"]
     assert [n["finess"] for n in r["non_retenues"]] == ["222"] and not r["gardees"]
+
+
+def test_structures_verifiees_public_vide_garde_celui_des_bases():
+    """Un CMP de la liste vérifiée dont la source ne dit pas le public (public vide, recopié des bases ou confirmé)
+    garde le public de ses inscriptions rapprochées : il reste compté parmi les CMP pour adultes ou pour enfants (CH
+    d'Abbeville, 18 novembre 2026). Un public écrit par la source l'emporte."""
+    import tempfile
+    from pathlib import Path
+    import pandas as pd
+    from pipeline import structures_verifiees as sv
+    d = Path(tempfile.mkdtemp())
+    origine = (sv.FICHIER_ETAB, sv.FICHIER)
+    sv.FICHIER_ETAB, sv.FICHIER = d / "e.csv", d / "s.csv"
+    pd.DataFrame([{"ej": "E", "etablissement": "CH", "departement": "", "types": "lieu_cmp", "date": "2026-11-18",
+                   "sources": "site", "empreinte": "", "remarque": ""}]).to_csv(sv.FICHIER_ETAB, sep=";", index=False)
+    pd.DataFrame([{"ej": "E", "etablissement": "CH", "type": "lieu_cmp", "public": pub, "nom": nom, "adresse": adr,
+                   "commune": "80001", "statut": st, "finess": fi, "source": "" if st == "bases" else "site",
+                   "adresse_source": "" if st == "bases" else "https://x", "date": "2026-11-18", "remarque": ""}
+                  for pub, nom, adr, st, fi in [("", "CMP ADULTES ABBEVILLE", "R A", "bases", "111"),
+                                                ("", "CMP Enfants", "R B", "etablissement", "222"),
+                                                ("adultes", "CMP Centre", "R C", "etablissement", "333")]]).to_csv(
+        sv.FICHIER, sep=";", index=False)
+    lieux = pd.DataFrame({"type": ["lieu_cmp", "lieu_cmp_adultes", "lieu_cmp", "lieu_cmp_enfants", "lieu_cmp",
+                                   "lieu_cmp_enfants"],
+                          "lieu": ["a", "a", "b", "b", "c", "c"],
+                          "nom": ["CMP ADULTES ABBEVILLE"] * 2 + ["CMP ENFANTS"] * 2 + ["CMP CENTRE"] * 2,
+                          "ej": ["E"] * 6, "finess": ["111", "111", "222", "222", "333", "333"], "commune": ["80001"] * 6,
+                          "dep": ["80"] * 6, "adresse": ["R A", "R A", "R B", "R B", "R C", "R C"],
+                          "provenance": ["les_deux"] * 6, "lat": [50.1] * 6, "lon": [1.8] * 6, "precision": ["finess"] * 6})
+
+    class Ref:
+        communes = pd.DataFrame({"code": ["80001"], "nom": ["Abbeville"], "dep": ["80"], "epci": ["X"], "reg": ["32"]})
+    x, r = sv.appliquer(lieux, Ref(), {}, True)
+    sv.FICHIER_ETAB, sv.FICHIER = origine
+    assert set(x.loc[x["type"] == "lieu_cmp_adultes", "nom"]) == {"CMP ADULTES ABBEVILLE", "CMP Centre"}, x
+    assert set(x.loc[x["type"] == "lieu_cmp_enfants", "nom"]) == {"CMP Enfants"}, x
+    assert len(r["public_des_bases"]) == 2
 
 
 def test_structures_verifiees_orphelin_meme_rue():
@@ -1573,6 +1643,39 @@ def test_cattp_des_cmp():
     assert n == 2 and set(ajout.index) == {"a|cattp", "b|cattp"}
     assert ajout.at["a|cattp", "confirmation"] == "bases" and ajout.at["b|cattp", "confirmation"] == "sirene"
     assert (ajout["type"] == "lieu_cattp").all()
+
+
+def test_cattp_des_cmp_etablissement_verifie():
+    """Édition du 21 novembre 2026 : un établissement dont les CATTP sont vérifiés ne recevait plus aucun CATTP annoncé
+    par le nom d'un CMP, 57 disparaissaient sans raison écrite (sept dans le Jura). Dans le doute, le CATTP reste
+    compté, à confirmer, et figure parmi les structures gardées à vérifier ; une ligne de inscriptions_laissees.csv le
+    laisse de côté ; un nom vérifié qui annonce le CATTP (« CMP-CATTG de Parthenay ») le confirme par l'établissement."""
+    import tempfile
+    import pandas as pd
+    from pipeline import structures_verifiees as sv
+    from pipeline.lieux import cattp_des_cmp
+    L = pd.DataFrame({"type": ["lieu_cmp"] * 3, "lieu": ["a", "b", "c"], "dep": ["39", "39", "79"],
+                      "nom_affiche": ["CMP MOREZ", "CMP DOLE", "CMP-CATTG de Parthenay"],
+                      "nom": ["CMP CATTP MOREZ", "CMP CATTP DOLE", "CMP-CATTG de Parthenay"],
+                      "ej": ["390780476", "390780476", "790000012"], "commune": ["39368", "39198", "79202"],
+                      "statut_verification": ["bases", "bases", "etablissement"], "confirmation": ["bases"] * 3,
+                      "provenance": ["les_deux"] * 3})
+    FICHIER = sv.FICHIER_LAISSEES
+    with tempfile.TemporaryDirectory() as d:
+        sv.FICHIER_LAISSEES = Path(d) / "laissees.csv"
+        pd.DataFrame([{"ej": "390780476", "type": "lieu_cattp", "nom": "CMP CATTP DOLE", "commune": "39198",
+                       "finess": "", "categorie": "liste_complete", "raison": "La liste complète du CH n'en cite aucun.",
+                       "date": "2026-11-21"}]).to_csv(sv.FICHIER_LAISSEES, sep=";", index=False)
+        try:
+            g = []
+            x, n = cattp_des_cmp(L, {("390780476", "39"), ("790000012", "79")}, g, {"390780476": "CH du Jura"})
+        finally:
+            sv.FICHIER_LAISSEES = FICHIER
+    ajout = x[x["provenance"] == "nom_cmp"].set_index("lieu")
+    assert n == 2 and set(ajout.index) == {"a|cattp", "c|cattp"}, ajout.index.tolist()
+    assert ajout.at["a|cattp", "confirmation"] == "bases" and ajout.at["c|cattp", "confirmation"] == "etablissement"
+    assert [r["nom"] for r in g] == ["CMP CATTP MOREZ"] and g[0]["etablissement"] == "CH du Jura"
+    assert "gardé, à vérifier" in g[0]["raison"] and sv.FICHIER_LAISSEES is FICHIER
 
 
 def test_fusion_meme_adresse():
@@ -1730,7 +1833,8 @@ def test_lieux_enfants_et_communes():
     import pandas as pd
     from types import SimpleNamespace
     from pipeline import lieux
-    u = pd.DataFrame({"categorie": ["10", "281", "10", "10"], "age_max": [21.0, 150.0, 150.0, 65.0],
+    u = pd.DataFrame({"categorie": ["10", "281", "10", "10"], "age_min": [None, 0.0, None, 18.0],
+                      "age_max": [21.0, 150.0, 150.0, 65.0],
                       "nom": ["CMP Rouffach", "CMP", "CMP pédopsychiatrie Nord", "CMP Munster - Psy adulte"]})
     assert lieux._enfants(u).tolist() == [True, True, True, False]
     ref = SimpleNamespace(communes=pd.DataFrame({"code": ["68226", "68287", "68004", "68005"],
@@ -2717,7 +2821,7 @@ def test_consultations_non_sectorisees():
             "Psychiatrie consultations", "Consultations psychiatrie adultes 62G05", "CMP consultations adultes"]
     n = len(noms)
     u = pd.DataFrame({"cle": list("abcdef"), "nom": noms, "categorie": ["10"] * n, "champ": [config.CHAMP_PSY] * n,
-                      "mode": ["02"] * n, "age_max": [None] * n})
+                      "mode": ["02"] * n, "age_min": [None] * n, "age_max": [None] * n})
     t = lieux.classer_unites(u).groupby("cle")["type"].apply(set)
     assert t["a"] == {"lieu_consult_psy"} and "lieu_cmp" in t["b"] and "lieu_consult_psy" not in t["b"]
     # consultations d'hôpital ou de clinique au nom seulement générique, sans CMP ni numéro de secteur
@@ -2852,8 +2956,10 @@ def test_lieux_profil_donnees():
         if p.get("confirmation"):
             if g["confirmation"].isna().any():
                 err.append(f"{tid} : {int(g['confirmation'].isna().sum())} structures sans niveau de confirmation")
-            if not set(g["confirmation"].dropna()) <= niveaux_ok:
-                err.append(f"{tid} : niveau de confirmation inconnu {sorted(set(g['confirmation'].dropna()) - niveaux_ok)}")
+            # libellés datés d'une structure cherchée ou d'une demande envoyée (« au 18 novembre 2026 », 19 novembre 2026)
+            vus = {re.sub(r" (?:au|le) (?:1er|\d{1,2}) \S+ \d{4}", "", v) for v in g["confirmation"].dropna()}
+            if not vus <= niveaux_ok:
+                err.append(f"{tid} : niveau de confirmation inconnu {sorted(vus - niveaux_ok)}")
             if tid not in cles_sirene:
                 err.append(f"{tid} : confirmation déclarée mais absente de config.SIRENE_ENSEIGNES")
         elif tid in cles_sirene:
@@ -2998,14 +3104,32 @@ def test_roles_addictologie():
 
 
 def test_classes_confirmation():
-    """Trois classes montrées au lecteur, qui refont le nombre de structures au niveau établi."""
+    """Classes montrées au lecteur, qui refont le nombre de structures au niveau établi : confirmée, recoupée, à
+    confirmer (pas encore vérifiée une à une) et non confirmée (cherchée sans source, ou demande envoyée), décision du
+    18 novembre 2026. Le libellé d'une structure non confirmée porte la date, écrite en français."""
     import pandas as pd
-    from pipeline.confirmation import NIVEAUX, classe, compter_classes
-    assert {classe(k) for k in NIVEAUX} == {"confirmee", "recoupee", "a_verifier"}
+    from pipeline.confirmation import NIVEAUX, classe, compter_classes, libelle, non_confirmer
+    assert {classe(k) for k in NIVEAUX} == {"confirmee", "recoupee", "a_verifier", "non_confirmee"}
     assert classe("bases") == "a_verifier" and classe("sae") == "recoupee" and classe("principal") == "confirmee"
+    assert classe("cherchee@2026-11-18") == classe("demande@2026-11-18") == "non_confirmee"
     assert classe(None) is None
-    c = compter_classes(pd.Series(["has", "sae", "bases", "etablissement", None]))
-    assert c == {"confirmee": 2, "recoupee": 1, "a_verifier": 1}
+    c = compter_classes(pd.Series(["has", "sae", "bases", "etablissement", "cherchee@2026-11-18", None]))
+    assert c == {"confirmee": 2, "recoupee": 1, "a_verifier": 1, "non_confirmee": 1}
+    assert libelle("cherchee@2026-11-18") == ("non confirmée, aucune source officielle de moins de trois ans trouvée "
+                                             "au 18 novembre 2026")
+    assert libelle("demande@2026-12-01") == ("non confirmée, demande envoyée à l'établissement le 1er décembre 2026, "
+                                            "en attente de réponse")
+    assert libelle("bases").startswith("à confirmer") and libelle("has", court=True) == "confirmée par la HAS"
+    # seules les structures « bases » gardées sans source par leur liste vérifiée deviennent non confirmées ; une
+    # confirmation par la HAS l'emporte ; une demande sans réponse donne sa date d'envoi, une demande répondue non
+    x = pd.DataFrame({"confirmation": ["bases", "bases", "has", "bases", "bases"],
+                      "statut_verification": ["bases", "", "bases", "bases", "bases"],
+                      "date_verification": ["2026-11-18", "", "2026-11-18", "2026-11-18", "2026-11-18"],
+                      "ej": ["A", "A", "A", "B", "C"]})
+    d = pd.DataFrame({"ej": ["B", "C"], "date_envoi": ["2026-11-19", "2026-11-19"], "reponse": ["", "oui, fermée"]})
+    y = non_confirmer(x, d)
+    assert y["confirmation"].tolist() == ["cherchee@2026-11-18", "bases", "has", "demande@2026-11-19",
+                                          "cherchee@2026-11-18"], y
 
 
 def test_exercice_structures():
@@ -3991,6 +4115,7 @@ def test_relecture_v2_fiches_construites():
     intercommunalités »), clé sous les tuiles accordée au « mais » montré, colonne de droite jamais vide, points qui ne
     se touchent pas trait compris, apostrophes droites, capitales des noms mêlés."""
     import re
+    import pandas as pd
     from pipeline import affichage as AF, libelles
     from pipeline import site as S
     from outils import recouvrements_points as RP
@@ -4025,8 +4150,18 @@ def test_relecture_v2_fiches_construites():
         assert not re.search(r"tous les autres (intercommunalités|régions)", h), u
         assert "INDIFFERENCIEE" not in h, u
         assert RP.recouvrements(h) == 0, u
-    nbt = pages["epci/249710062"].read_text(encoding="utf-8")
-    assert AF.DANS_COMMUNE in nbt and "un CMP pour adultes dans la commune d'au moins la moitié des habitants" in nbt
+    # une intercommunalité où la moitié des habitants a un CMP pour adultes dans sa commune (distance médiane nulle) ;
+    # choisie dans les résultats : le Nord Basse-Terre, exemple fixe jusqu'au 20 novembre 2026, est passé à 3,4 km
+    # quand ses deux CMP ont été placés à leur adresse vérifiée au lieu du centre de leur commune
+    dist = _csv(_dernier_resultats(), "distances_lieux_epci.csv", dtype=str)
+    if dist is not None:
+        dist.columns = [c.lstrip("﻿") for c in dist.columns]
+        nulles = dist[(dist["type"] == "lieu_cmp_adultes")
+                      & (pd.to_numeric(dist["distance_mediane_km"].str.replace(",", "."), errors="coerce") == 0)]
+        code = next((c for c in nulles["code"] if (S.SITE / "territoire" / "epci" / f"{c}.html").exists()), None)
+        assert code, "aucune intercommunalité à distance médiane nulle d'un CMP pour adultes"
+        nbt = (S.SITE / "territoire" / "epci" / f"{code}.html").read_text(encoding="utf-8")
+        assert AF.DANS_COMMUNE in nbt and "un CMP pour adultes dans la commune d'au moins la moitié des habitants" in nbt, code
     ard = pages["dep/08"].read_text(encoding="utf-8")
     import html as H
     sans_fines = lambda t: re.sub(r"[\s  ]+", " ", t)
@@ -5320,9 +5455,11 @@ def test_cle_persistante_structures():
     elle-même garde toutes ses clés."""
     import pandas as pd
     from pipeline import cles_structures as cs, config
-    v28, v29 = config.RESULTATS / "2026-10-28" / "lieux_soins.csv", _dernier_resultats() / "lieux_soins.csv"
+    # les deux versions du constat, et non la dernière : sur trois semaines, les listes vérifiées remplacent par
+    # centaines des inscriptions des bases (20 novembre 2026)
+    v28, v29 = config.RESULTATS / "2026-10-28" / "lieux_soins.csv", config.RESULTATS / "2026-10-29" / "lieux_soins.csv"
     if not v28.exists() or not v29.exists():
-        raise Ignore("versions du 28 octobre et du jour absentes")
+        raise Ignore("versions du 28 et du 29 octobre absentes")
     a = pd.read_csv(v28, sep=";", dtype=str)
     b = pd.read_csv(v29, sep=";", dtype=str)
     ca, reg, _ = cs.attribuer(a, "2026-10-28", pd.DataFrame(columns=cs.COLS))
@@ -5444,15 +5581,17 @@ def test_empreinte_meme_calcul():
     ref = referentiel.charger(True)
     b = b.assign(dep=b["commune"].map(ref.communes.set_index("code")["dep"]))
     etab, _s = sv.charger()
-    stock = etab.set_index(["ej", "etablissement"])
+    # une association vérifiée département par département a une ligne par département (18 novembre 2026)
+    stock = etab.set_index(["ej", "etablissement", "departement"])
     ok = e[e["raison_reverification"].isna()]
     assert len(ok) > 40
     for r in ok.itertuples():
-        x = stock.loc[(r.ej, r.etablissement)]
+        dep = r.departement if isinstance(r.departement, str) else ""
+        x = stock.loc[(r.ej, r.etablissement, dep)]
         if not x["empreinte"]:
             continue
         ts = [t for t in sv.types_de(x["types"]) if t not in sum(sv.ENFANTS_DE.values(), [])]
-        assert sv.empreinte(b, r.ej, ts, x["departement"]) == x["empreinte"], r.etablissement
+        assert sv.empreinte(b, r.ej, ts, dep) == x["empreinte"], r.etablissement
 
 
 def test_declares_numero_partage():
@@ -5643,7 +5782,12 @@ def test_sectorisation_hauts_de_france():
     import tempfile
     from pathlib import Path
     pendant = l.drop(columns=["secteur"]).rename(columns={"entite_juridique": "ej", "id_structure": "lieu"}) \
-        .assign(nom_affiche=l["nom"], nom=l["unite_ror"].fillna(l["nom"]))
+        .assign(nom_affiche=l["nom"], nom=l["unite_ror"].fillna(l["nom"]), remarque_verification=l["secteur"])
+    # le code de secteur d'une structure vérifiée est lu aussi dans sa remarque (20 novembre 2026)
+    import pandas as pd
+    assert SA.cmp_par_public(pd.DataFrame([{"type": "lieu_cmp_adultes", "lieu": "x", "nom": "CMP adultes",
+                                            "commune": "59350", "ej": "1",
+                                            "remarque_verification": "Secteur 59G11."}]))["secteur_nom"].iloc[0] == "59G11"
     ancien = SA.DOSSIER_INTERNE
     SA.DOSSIER_INTERNE = Path(tempfile.mkdtemp())
     try:
@@ -5742,7 +5886,8 @@ def test_carte_secteurs_rapport():
     # table des structures telle que l'exécution la donne (coordonnées, code du niveau de confirmation)
     num = lambda v: pd.to_numeric(v.str.replace(",", "."), errors="coerce")  # noqa: E731
     l = l.assign(lat=num(l["latitude"]), lon=num(l["longitude"]), nom_affiche=l["nom"],
-                 confirmation=l["classe_confirmation"].map({"confirmée": "has", "à vérifier": "bases"}))
+                 confirmation=l["classe_confirmation"].map({"confirmée": "has", "à vérifier": "bases", "à confirmer": "bases",
+                                                                 "non confirmée": "cherchee@2026-11-18"}))
     cartes.retenir_noms(ref)
     dossier = Path(tempfile.mkdtemp())
     B = SimpleNamespace(dep_reg=ref.deps.set_index("code")["reg"], communes_dep=lambda c: fonds.get(c, {}),
@@ -5852,12 +5997,15 @@ def test_csv_publies_virgule_decimale():
 def test_comparaison_avant_publication_bloquante():
     """Publication du 17 novembre 2026 : comparer_versions.py plantait sur les PMI non recensées (nombre vide dans
     lieux_soins_dep.csv, coherence_rapports.py), et publier.ps1 continuait, le code 1 n'étant ni 10 ni 20. La cohérence
-    des rapports se calcule sur les derniers résultats sans erreur, et publier.ps1 s'arrête sur tout autre code."""
+    des rapports se calcule sur les derniers résultats sans erreur, et publier.ps1 s'arrête sur tout autre code.
+    Édition du 21 novembre 2026 : le contrôle tournait sans que son résultat soit lu, et la colonne « Non confirmées »
+    du rapport (« à confirmer » et « non confirmée » réunies) n'était confrontée qu'à la première classe. Aucun écart."""
     import sys
     from pipeline import config
     sys.path.insert(0, str(config.RACINE / "outils"))
     import coherence_rapports
-    coherence_rapports.controler(_dernier_resultats())
+    ecarts = coherence_rapports.controler(_dernier_resultats())
+    assert not ecarts, f"chiffres des rapports différents des tableaux : {ecarts[:4]}"
     ps = (config.RACINE / "outils" / "publier.ps1").read_text(encoding="utf-8-sig")
     assert "$code -ne 0 -and $code -ne 10 -and $code -ne 20" in ps
     assert ps.index("$code -ne 0 -and $code -ne 10 -and $code -ne 20") < ps.index("Copie des pages publiques")
@@ -6227,7 +6375,7 @@ def test_reseaux_fil():
     sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
     from outils import reseaux as r
     f = (Path(__file__).resolve().parent.parent / "docs" / "communication" / "serie_2026-11-17" / "fil"
-         / "s17-sans-psychiatre-cmp-fil.json")
+         / "s18-presentation-fil.json")
     if not f.exists():
         raise Ignore("fil de présentation absent")
     source = json.loads(f.read_text(encoding="utf-8"))
@@ -6332,6 +6480,21 @@ def test_reseaux_fil():
         assert [x["message"] for x in j] == [f"{m['id']}, {k} sur 4" for k in (1, 2, 3, 4)]
         assert [x["texte"] for x in j] == [p["bluesky"].strip() for p in r.parties_bluesky(m)]
         assert r.publier(m, pub).startswith("Rien à publier") and len(envois) == 4
+        # deux reprises en même temps (tâche planifiée et clic, 18 novembre 2026) : la seconde est refusée, et une copie
+        # ancienne du message, relue sur le disque une fois le verrou pris, ne renvoie rien
+        import os
+        verrou = r.MESSAGES / f"{m['id']}.verrou"
+        verrou.write_text("", encoding="utf-8")
+        try:
+            r.publier(m, pub)
+            raise AssertionError("publication simultanée non refusée")
+        except r.Arret as ex:
+            assert "déjà en cours de publication" in str(ex)
+        vieux = dt.datetime.now().timestamp() - (r.VERROU_MINUTES + 1) * 60
+        os.utime(verrou, (vieux, vieux))         # verrou laissé par un processus arrêté net : ignoré
+        ancienne_copie = {**m, "publications": {}, "fil_publie": m["fil_publie"][:1], "statut": "programme"}
+        assert r.publier(ancienne_copie, pub).startswith("Rien à publier") and len(envois) == 4
+        assert not verrou.exists()
     finally:
         r.MESSAGES, r.FIGURES, r.JOURNAL_PUBLICATIONS = avant
         shutil.rmtree(tmp, ignore_errors=True)
@@ -6418,7 +6581,9 @@ def test_statistiques_photographie():
         photo = s.photographier()
         if not any(v.get("ok") for v in photo["sources"].values()):
             raise Ignore("aucune source joignable (hors ligne)")
-        assert s.photographier() is None and s.fichier(dt.date.today()).exists()
+        if all(v.get("ok") for v in photo["sources"].values()):
+            assert s.photographier() is None
+        assert s.fichier(dt.date.today()).exists()
         b = photo["sources"]["bluesky"]
         if b["ok"]:
             assert all(isinstance(b[k], int) for k in ("abonnes", "abonnements", "messages", "jaime"))
@@ -6446,6 +6611,20 @@ def test_statistiques_photographie():
                                                                      p2["sources"]["zenodo"]["donnees"]["vues"])]
         assert s.serie(photos, "datagouv", "vues") == []   # lecture en échec, jour omis
         assert s.visiteurs_par_semaine(photos) == []
+        # une source en échec est relue au passage suivant du même jour, les autres ne sont pas relues (tâche lancée
+        # avant le réseau, 19 novembre 2026)
+        relues = []
+
+        def revient():
+            relues.append("datagouv")
+            return {"vues": 7}
+
+        def interdit():
+            raise AssertionError("source déjà lue, relue à tort")
+        p3 = s.photographier(sources={"datagouv": revient, "zenodo": interdit if p2["sources"]["zenodo"]["ok"] else s.zenodo})
+        assert relues == ["datagouv"] and p3["sources"]["datagouv"] == {**p3["sources"]["datagouv"], "ok": True, "vues": 7}
+        if p3["sources"]["zenodo"]["ok"]:
+            assert s.photographier(sources={"datagouv": interdit, "zenodo": interdit}) is None
     finally:
         s.DOSSIER = avant
         shutil.rmtree(tmp, ignore_errors=True)
@@ -8855,6 +9034,27 @@ def test_fiche_departement_indicateurs_de_la_region():
         assert {("2A", "tabac_quotidien"), ("974", "tabac_quotidien")} <= set(non_publiees), non_publiees
 
 
+def test_fichiers_de_contenus_lisibles():
+    """Un « ; » dans un texte de verdict ou de raison coupe la ligne en trop de champs et arrête toute l'exécution
+    (verdict de la rue de la Harpe, 22 novembre 2026) : chaque fichier de contenus/ se lit sans erreur."""
+    import pandas as pd
+    from pipeline import config
+    for f in sorted((config.RACINE / "contenus").glob("*.csv")):
+        try:
+            pd.read_csv(f, sep=";", dtype=str, encoding="utf-8")
+        except Exception as e:
+            raise AssertionError(f"{f.name} : {e}")
+
+
+def test_journal_resume_sans_separateur_dans_le_texte():
+    """Relecture du 21 novembre 2026 : un « ; » dans le texte d'un jour coupait la ligne du journal à cet endroit (le
+    fichier est lu avec « ; » pour séparateur), et la page n'en montrait que le début."""
+    import csv
+    with open(config.RACINE / "contenus" / "journal_resume.csv", encoding="utf-8") as f:
+        coupes = [r["date"] for r in csv.DictReader(f, delimiter=";") if None in r]
+    assert not coupes, coupes
+
+
 def test_journal_montre_chaque_jour_du_resume():
     """Chaque jour de `contenus/journal_resume.csv` paraît sur la page Journal, même sans nouvelle extraction de données
     ce jour-là (correction du site seul du 14 novembre 2026, absente de la page)."""
@@ -9139,22 +9339,6 @@ def test_pages_indicateur_etape_3():
     assert not fautes, fautes[:10]
 
 
-if __name__ == "__main__":
-    n = 0
-    ignores = []
-    for nom, f in list(globals().items()):
-        if nom.startswith("test_"):
-            try:
-                f()
-            except Ignore as e:
-                ignores.append(nom)
-                print("ignoré", nom, "-", e)
-                continue
-            n += 1
-            print("ok", nom)
-    print(f"{n} tests réussis" + (f", {len(ignores)} ignorés faute de résultats : {', '.join(ignores)}" if ignores else ""))
-
-
 def test_rapports_sans_psychiatre_meme_compte():
     """Relecture du 17 novembre 2026 : la phrase « les intercommunalités sans psychiatre déclaré ... X sur Y ... Z % des
     habitants » comptait celles qui ont un psychologue (492, 12,4 %), la phrase des CMP qui la suit toutes (« 215 de ces
@@ -9357,3 +9541,610 @@ def test_controles_publies_departements_plausibles():
               for m in re.finditer(r"\b(\d{3}) départements\b", t) if int(m.group(1)) > 101]
     assert not fautes, fautes
 
+
+
+def test_phrases_chiffrees_recalculees():
+    """Les phrases chiffrées des rapports nationaux disent ce que disent leurs tableaux : chaque chiffre important est
+    recalculé depuis les CSV publiés par outils/controle_phrases.py, et les règles générales (lien sous le seuil,
+    comptes de territoires impossibles, « N sur M », accords) passent sur toutes les phrases (17 novembre 2026)."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "outils"))
+    import controle_phrases as K
+    fautes = K.controler(_dernier_resultats(), ecrire=False)
+    assert not fautes, fautes[:10]
+
+
+def test_phrases_chiffrees_controle_voit_une_erreur():
+    """Le contrôle des phrases voit une erreur glissée dans le texte : un compte changé, un lien dit sous le seuil,
+    un compte de départements impossible (deuxième relecture du 17 novembre 2026)."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "outils"))
+    import re
+    import controle_phrases as K
+    V = K.Version(_dernier_resultats())
+    if "sm" not in V.textes:
+        raise Ignore("aucun rapport")
+    t = V.textes["sm"]
+    m = re.search(r"l'une des (\d+) intercommunalités \(sur", t)
+    assert m, "phrase des intercommunalités sans psychiatre introuvable"
+    V.textes["sm"] = (t.replace(m.group(0), m.group(0).replace(m.group(1), str(int(m.group(1)) - 17)))
+                      + "\n\nLes territoires comptent plutôt plus de psychiatres (lien faible, rho = 0,21).\n\n"
+                      + "Année 2025, 104 départements.\n")
+    C = K.Compte()
+    for fn in K.PHRASES:
+        fn(V, C)
+    K.regles_generales(V, C)
+    texte = " ".join(C.fautes)
+    assert "sans psychiatre, nombre et total" in texte, C.fautes
+    assert "lien sous le seuil" in texte and "104 départements" in texte, C.fautes
+
+
+def test_cmp_adultes_categorie_enfants_lu_adultes():
+    """Une unité du ROR de catégorie enfants (281) dont les âges ne reçoivent que des adultes n'est pas un CMP pour
+    enfants : « CMP ADULTES SAINT JUST EN CHEVALET », de 18 à 150 ans, était réunie au CMP pour enfants de la même rue
+    (relecture du 17 novembre 2026). Vraies données du ROR en cache."""
+    import glob
+    import pandas as pd
+    from pipeline import lieux
+    fs = sorted(glob.glob(str(Path(__file__).resolve().parents[1] / "donnees" / "brut" / "ror"
+                              / "*auvergne-rhone-alpes-84.unites.v*.parquet")))
+    if not fs:
+        raise Ignore("ROR absent du cache")
+    u = pd.read_parquet(fs[-1])
+    u = u[u["id"].isin(["82/179441", "82/179435"])].copy()
+    if len(u) != 2:
+        raise Ignore("unités de Saint-Just-en-Chevalet absentes de cette version du ROR")
+    for c in ("age_min", "age_max"):
+        u[c] = pd.to_numeric(u[c], errors="coerce")
+    e = lieux._enfants(u).set_axis(u["id"]).to_dict()
+    assert e == {"82/179441": False, "82/179435": True}, e
+
+
+def test_lots_structures_mots_entiers():
+    """Le contrôle des lots de structures cherche des mots entiers (« ote » ne se lit pas dans « leperon ») et lit
+    « St Paul » comme « Saint-Paul » (lot r04-01 du 18 novembre 2026)."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "outils"))
+    import lots_structures as L
+    t = L.simple("Antenne de proximité, route de l'Éperon, St Paul ; CMP Ste-Suzanne")
+    assert L.contient(t, L.simple("Saint-Paul")) and L.contient(t, L.simple("Sainte-Suzanne"))
+    assert not L.contient(t, "ote") and L.contient(t, "eperon")
+    assert L.INTERDITS.search("https://www.sante.fr/x") and not L.INTERDITS.search("https://www.has-sante.fr/x")
+    assert not L.INTERDITS.search("https://www.paca.ars.sante.fr/x")
+
+
+def test_inscriptions_retirees_avec_leur_raison():
+    """Règle du 19 novembre 2026 (dans le doute, une structure reste comptée), contrôle du 21 novembre : une inscription
+    des bases n'est laissée de côté qu'avec une raison écrite pour elle. Dans inscriptions_laissees.csv, chaque ligne a
+    une catégorie connue, une raison et une date ; dans les derniers résultats, aucune inscription n'est plus retirée
+    au seul motif d'être absente de la liste vérifiée (233 l'étaient le 20 novembre). Et une structure vérifiée n'est
+    jamais rangée sous un type que sa remarque contredit (hôpitaux de jour de gérontopsychiatrie de l'EPSY Var écrits
+    en CATTP, leurs inscriptions d'hôpital de jour perdues)."""
+    import re
+    import pandas as pd
+    from pipeline import structures_verifiees as sv
+    lai = sv.charger_laissees()
+    assert list(lai.columns) == sv.COLS_LAISSEES, list(lai.columns)
+    mauvais = lai[~lai["categorie"].isin(sv.CATEGORIES_LAISSEES) | (lai["raison"].str.len() < 20)
+                  | ~lai["date"].str.fullmatch(r"\d{4}-\d{2}-\d{2}")]
+    assert mauvais.empty, mauvais.head().to_dict("records")
+    assert not lai.duplicated(["ej", "type", "commune", "nom"]).any()
+    _e, s = sv.charger()
+    contre = {"lieu_cattp": r"Hôpital de jour|CMP\b|Centre médico-psychologique|CSAPA",
+              "lieu_hdj_psy_adultes": r"CATTP|Centre d'accueil thérapeutique|CMP\b|CSAPA",
+              "lieu_hdj_psy_enfants": r"CATTP|Centre d'accueil thérapeutique|CMP\b|CSAPA",
+              "lieu_csapa": r"Hôpital de jour|CATTP|CMP\b"}
+    # une remarque qui commence par un autre type (« Hôpital de jour de gérontopsychiatrie à Brignoles. ») ; une
+    # structure qui réunit plusieurs types le dit (« CMP, CATTP et hôpital de jour... ») et n'est pas visée
+    faux = [(r.ej, r.type, r.nom) for r in s.itertuples() if r.type in contre and r.remarque
+            and re.match(rf"(?:{contre[r.type]})(?![^.]*\b(?:et|,)\b)", r.remarque, re.I)
+            and not re.search(r"rangé par erreur", r.remarque, re.I)]
+    assert not faux, faux
+    nr = _csv(_dernier_resultats(), "structures_non_retenues.csv", dtype=str)
+    if nr is None:
+        raise Ignore("résultats absents")
+    nues = nr[nr["raison"].fillna("").str.strip() == "absente de la liste vérifiée de l'établissement"]
+    assert nues.empty, f"{len(nues)} inscriptions retirées sans raison écrite, par exemple {nues.head(3).to_dict('records')}"
+    assert not nr["raison"].fillna("").str.strip().eq("").any()
+
+
+def test_listes_verifiees_appliquees_sans_doublon():
+    """Listes vérifiées (audit du 19 novembre 2026), sur les vraies listes et les vraies inscriptions en cache :
+    - chaque ligne d'etablissements_verifies.csv porte un seul département, ou aucun ;
+    - chaque structure de structures_verifiees.csv est appliquée : une ligne de son établissement couvre sa commune et
+      porte son type (16 lignes intégrées sans effet le 18 novembre, qui se seraient ajoutées au complément) ;
+    - aucune structure n'est écrite sous deux établissements (même type, commune et adresse), sauf « adresse
+      partagée » écrite en remarque après vérification (CAARUD Beaurepaire compté deux fois à Paris) ;
+    - aucune empreinte enregistrée n'est celle de l'ancien calcul sans département (136 lignes le 18 novembre)."""
+    import pandas as pd
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "outils"))
+    import lots_structures as L
+    from pipeline import structures_verifiees as sv
+    from pipeline.sources import referentiel
+    if not sv.BASES.exists():
+        raise Ignore("inscriptions des bases absentes")
+    e, s = sv.charger()
+    dep_de = referentiel.charger(True, False).communes.set_index("code")["dep"].to_dict()
+    deps = set(dep_de.values())
+    assert e["departement"].map(lambda d: d == "" or d in deps).all(), \
+        e.loc[~e["departement"].map(lambda d: d == "" or d in deps), ["ej", "departement"]].values.tolist()
+    jet = {}
+    for r in e.itertuples():
+        jet.setdefault(r.ej, []).append((r.departement, L._bases_types(r.types)))
+    dormantes = [(r.ej, r.type, r.nom) for r in s.itertuples()
+                 if not any((not d or d == dep_de.get(r.commune)) and r.type in ts for d, ts in jet.get(r.ej, []))]
+    assert not dormantes, (len(dormantes), dormantes[:10])
+    s = s.assign(voie_=s["adresse"].map(L.voie_cle))
+    doubles = []
+    for (t, c), g in s[s["adresse"] != ""].groupby(["type", "commune"]):
+        if g["ej"].nunique() < 2:
+            continue
+        rows = list(g.itertuples())
+        for i, a in enumerate(rows):
+            for b_ in rows[i + 1:]:
+                # « doublon possible » : non tranché, seulement sur une ligne non confirmée (paires du 19 novembre 2026)
+                possible = any("doublon possible" in x.remarque.lower() and x.statut == "bases" for x in (a, b_))
+                if a.ej != b_.ej and sv.meme_adresse(a.voie_, b_.voie_) and not possible and not (
+                        "adresse partagée" in a.remarque.lower() or "adresse partagée" in b_.remarque.lower()):
+                    doubles.append((t, c, a.nom, a.ej, b_.nom, b_.ej))
+    assert not doubles, (len(doubles), doubles[:10])
+    # une inscription non retenue n'est jamais recopiée sous un autre type (CMPP de Toulouse recopié en hôpital de jour
+    # adultes, ce qui le retirait du compte, 20 novembre 2026)
+    import glob
+    noms = {(r.ej, " ".join(r.nom.lower().split()), r.type) for r in s.itertuples()}
+    noms_ej = {(ej, n) for ej, n, _ in noms}
+    recopiees = []
+    for f in glob.glob(str(Path(__file__).resolve().parents[1] / "docs" / "structures" / "verification_sm" / "*" /
+                           "non_retenues.csv")):
+        for r in pd.read_csv(f, sep=";", dtype=str).fillna("").itertuples():
+            n = " ".join(r.nom.lower().split())
+            if (r.ej, n) in noms_ej and (r.ej, n, r.type) not in noms:
+                recopiees.append((Path(f).parent.name, r.ej, r.nom, r.type))
+    assert not recopiees, recopiees[:10]
+    # aucune structure confirmée par une source de plus de trois ans (66 lignes le 19 novembre 2026)
+    import datetime as dt
+    vieilles = s[(s["statut"] != "bases") & (s["source"].map(lambda x: bool(L.age_source(x, dt.date.today())))
+                                             | s["adresse_source"].map(lambda x: bool(L.age_adresse(x, dt.date.today()))))]
+    assert L.age_adresse("https://adapei-charente.fr/2022/11/23/camsp/", dt.date(2026, 11, 20)) == "11/2022"
+    assert L.age_adresse("https://x.fr/wp-content/uploads/2021/06/a.pdf", dt.date(2026, 11, 20)) is None
+    assert vieilles.empty, (len(vieilles), vieilles[["ej", "nom", "source"]].values.tolist()[:10])
+    assert L.age_source("Certification HAS, décision du 22 mars 2023", dt.date(2026, 11, 19)) == "03/2023"
+    assert L.age_source("HAS, décision du 22 novembre 2023", dt.date(2026, 11, 19)) is None
+    assert L.age_source("Avis de situation Sirene, établissement actif depuis le 01/12/2020", dt.date(2026, 11, 19)) is None
+    b = L._bases_dep()
+    nb = b.drop(columns="dep")
+    enf = sum(sv.ENFANTS_DE.values(), [])
+    faux = []
+    for r in e[(e["departement"] != "") & (e["empreinte"] != "")].itertuples():
+        ts = [t for t in sv.types_de(r.types) if t not in enf]
+        juste, sans_dep = sv.empreinte(b, r.ej, ts, r.departement), sv.empreinte(nb, r.ej, ts, r.departement)
+        if r.empreinte != juste and r.empreinte == sans_dep:
+            faux.append((r.ej, r.departement))
+    assert not faux, faux
+
+
+def test_lots_structures_reprise():
+    """Lots de reprise (19 novembre 2026) : un établissement déjà vérifié reçoit ses types pas encore relus dans sa
+    ligne existante, jamais un type déjà vérifié, sauf l'autre public d'un type vérifié pour un seul public ; les lignes
+    dormantes de ces types sont remplacées ; une revérification remplace la ligne et l'ancienne liste. Vraies listes et
+    vraies inscriptions en cache, fusion faite en mémoire."""
+    import json
+    import tempfile
+    import pandas as pd
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "outils"))
+    import lots_structures as L
+    from pipeline import structures_verifiees as sv
+    if not sv.BASES.exists():
+        raise Ignore("inscriptions des bases absentes")
+    assert L.fusion_types("lieu_cmp,lieu_csapa", "lieu_cattp") == ("lieu_cmp,lieu_csapa,lieu_cattp", "")
+    assert L.fusion_types("lieu_cmp:adultes", "lieu_cmp:enfants") == ("lieu_cmp", "")
+    assert L.fusion_types("lieu_cmp", "lieu_cmp:enfants")[0] is None
+    assert L.fusion_types("lieu_cmp:adultes,lieu_cattp", "lieu_cattp")[0] is None
+    e, s = sv.charger()
+    b = L._bases_dep()
+    enf = sum(sv.ENFANTS_DE.values(), [])
+    cand = {}
+    for reg in ("84", "93", "75", "11", "53"):
+        cand.update(L.a_reprendre_verifies(reg, b))
+    assert all(v["mode"] in ("completer", "reverifier") for v in cand.values())
+    if not any(v["mode"] == "completer" and not any(":" in t for t in v["types_a_relire"]) for v in cand.values()):
+        # plus rien à compléter (toutes les vérifications faites, 20 novembre 2026) : un cas construit en mémoire, une
+        # ligne vérifiée privée de son dernier type, que la reprise doit lui rendre
+        for i, r in e.iterrows():
+            ts = [t for t in r["types"].split(",") if t and ":" not in t and t not in enf]
+            if len(ts) >= 2 and len(s[(s["ej"] == r["ej"]) & (s["type"] == ts[-1])]):
+                e = e.copy()
+                e.at[i, "types"] = ",".join(t for t in r["types"].split(",") if t != ts[-1])
+                e.at[i, "empreinte"] = sv.empreinte(b, r["ej"], ts[:-1], r["departement"])
+                cand[(r["ej"], r["departement"])] = {"mode": "completer", "types_deja": e.at[i, "types"],
+                                                     "types_a_relire": [ts[-1]]}
+                break
+    assert cand
+    # aucun type proposé au complément n'est déjà vérifié, hors l'autre public
+    for (ej, dep), v in cand.items():
+        if v["mode"] == "completer":
+            assert L.fusion_types(v["types_deja"], ",".join(v["types_a_relire"]))[0], (ej, v)
+    (ej, dep), v = next((k, v) for k, v in cand.items() if v["mode"] == "completer"
+                        and not any(":" in t for t in v["types_a_relire"]))
+    old = e[(e["ej"] == ej) & (e["departement"] == dep)].iloc[0]
+    neuf = pd.DataFrame([{"ej": ej, "etablissement": old["etablissement"], "departement": dep,
+                          "types": v["types_a_relire"][0], "date": "2026-11-19", "sources": "Site de l'établissement",
+                          "remarque": "Essai."}])
+    with tempfile.TemporaryDirectory() as tmp:
+        lot = Path(tmp) / "r84-99"
+        lot.mkdir()
+        comp = {(ej, dep): dict(v, ej=ej, departement=dep)}
+        e2, s2, ret = L.fondre_reprise(e, s, neuf, b, lot, comp)
+        r = e2[(e2["ej"] == ej) & (e2["departement"] == dep)].iloc[0]
+        assert len(e2) == len(e) and r["types"] == old["types"] + "," + v["types_a_relire"][0]
+        assert r["date"] == min(old["date"], "2026-11-19") and "Complété le 19/11/2026" in r["remarque"]
+        assert r["empreinte"] == sv.empreinte(b, ej, [t for t in sv.types_de(r["types"]) if t not in enf], dep)
+        assert len(s2) + len(ret) == len(s) and set(ret["type"]) <= {v["types_a_relire"][0]}
+        # revérification : la ligne et l'ancienne liste de ses types sont remplacées
+        comp_r = {(ej, dep): dict(v, mode="reverifier", ej=ej, departement=dep)}
+        neuf_r = neuf.assign(types=old["types"] + "," + v["types_a_relire"][0])
+        e3, s3, ret3 = L.fondre_reprise(e, s, neuf_r, b, lot, comp_r)
+        r3 = e3[(e3["ej"] == ej) & (e3["departement"] == dep)].iloc[0]
+        assert r3["date"] == "2026-11-19" and r3["remarque"].startswith("Revérifié le 19/11/2026")
+        assert (ret3["ej"] == ej).all() and len(ret3) >= (s["ej"] == ej).sum() - (s3["ej"] == ej).sum()
+        # le contrôle refuse un type déjà vérifié, dans etablissements.csv comme dans structures.csv
+        deja = sorted(L._bases_types(old["types"]))[0]
+        (lot / "completer.json").write_text(json.dumps([dict(v, ej=ej, departement=dep)]), encoding="utf-8")
+        (lot / "etablissements_attendus.txt").write_text(ej + "\n", encoding="utf-8")
+        neuf.assign(types=deja)[L.COLS_ETAB].to_csv(lot / "etablissements.csv", sep=";", index=False)
+        commune = next(c for c, d in b[b["ej"] == ej][["commune", "dep"]].values if not dep or d == dep)
+        pd.DataFrame([{"ej": ej, "etablissement": old["etablissement"], "type": v["types_a_relire"][0], "public": "",
+                       "nom": "Essai", "adresse": "", "commune": commune, "statut": "bases", "finess": "", "source": "",
+                       "adresse_source": "", "date": "2026-11-19", "remarque": "Cherchée."}])[L.COLS] \
+            .to_csv(lot / "structures.csv", sep=";", index=False)
+        fautes = L.valider(lot)
+        assert any("déjà vérifié" in f and "etablissements.csv" in f for f in fautes), fautes
+        assert any("absent de la colonne types" in f for f in fautes), fautes
+
+
+def test_ateliers_therapeutiques_pas_des_cattp():
+    """Un atelier thérapeutique (catégorie 366 de FINESS) n'est pas compté comme CATTP, sauf si son nom le dit
+    (relecture des structures laissées de côté, 18 novembre 2026). Vraies données de FINESS en cache."""
+    from pipeline import lieux
+    from pipeline.sources import finess, referentiel
+    fin = finess.charger(True)
+    if fin is None:
+        raise Ignore("FINESS absent du cache")
+    lf = lieux._lieux_finess(fin, referentiel.charger(True, False))
+    c = lf[(lf["type"] == "lieu_cattp") & (lf["categorie_finess"] == "366")]
+    assert c["nom_finess"].fillna("").str.upper().str.contains(r"CATT[PG]|TEMPS PARTIEL|ACCUEIL TH").all(), c["nom_finess"].tolist()
+
+
+def test_raisons_sociales_hors_controle_langage():
+    """Une raison sociale marquée comme telle n'est pas lue par le contrôle du langage (nom propre gardé tel quel, 6
+    novembre 2026), le reste de la page l'est toujours ; la page méthode marque les établissements vérifiés (20 novembre
+    2026, 97 raisons sociales signalées à tort)."""
+    from pipeline import libelles as lb
+    page = ('<td><span class="raison-sociale">Association pour adultes et jeunes handicapés</span></td>'
+            '<td>accueil des handicapés</td>')
+    assert len(lb.termes_proscrits(lb.sans_raisons_sociales(page))) == 1
+    assert len(lb.termes_proscrits(page)) == 2
+    g = (Path(__file__).resolve().parents[1] / "gabarits" / "methode.html").read_text(encoding="utf-8")
+    assert '<span class="raison-sociale">{{ e.etablissement }}</span>' in g
+
+
+def test_noms_listes_verifiees_respectueux():
+    """Le nom affiché d'une structure des listes vérifiées passe par le même traitement des termes à proscrire que les
+    autres lieux (20 novembre 2026, quinze noms « ... aux toxicomanes » dans les rapports territoriaux) : chaque nom de la
+    liste qui contient un tel terme en sort débarrassé."""
+    import csv as _csv
+    from pipeline import libelles as lb
+    from pipeline.lieux import nom_lisible
+    src = Path(__file__).resolve().parents[1] / "pipeline" / "lieux.py"
+    assert "Noms des structures des listes vérifiées débarrassés d'un terme à proscrire" in src.read_text(encoding="utf-8")
+    f = Path(__file__).resolve().parents[1] / "contenus" / "structures_verifiees.csv"
+    with open(f, encoding="utf-8") as h:
+        noms = {r["nom"] for r in _csv.DictReader(h, delimiter=";") if r.get("nom")}
+    fautifs = [n for n in noms if lb.termes_proscrits(n)]
+    assert fautifs, "aucun nom à traiter, le test ne vérifie plus rien"
+    restes = [n for n in fautifs if lb.termes_proscrits(nom_lisible(n)[0])]
+    # un nom qui garde un terme est désigné par son type et sa commune dans la chaîne, le contrôle le compte
+    print(f"  {len(fautifs)} noms traités, {len(restes)} désignés par leur type et leur commune")
+
+
+def test_annuaires_ars_pays_de_la_loire_du_bon_departement():
+    """Une structure confirmée par un annuaire de santé mentale de l'ARS Pays de la Loire cite celui de son département
+    (20 novembre 2026 : 18 CMP de Loire-Atlantique citaient l'annuaire de la Sarthe, 11 de la Mayenne celui de la
+    Loire-Atlantique). Numéros des documents lus le 20 novembre 2026 (page de titre de chacun)."""
+    import pandas as _pd
+    bon = {"44": "13728", "49": "13730", "53": "13732", "72": "13737", "85": "13739"}
+    racine = Path(__file__).resolve().parents[1] / "contenus"
+    fautes = []
+    for nom, col_dep in (("structures_verifiees.csv", "commune"), ("verdicts_verification.csv", "cle")):
+        t = _pd.read_csv(racine / nom, sep=";", dtype=str, keep_default_na=False)
+        for _, r in t.iterrows():
+            texte = " ".join(r.values)
+            for n in re.findall(r"pays-de-la-loire\.ars\.sante\.fr/media/(137\d\d)/download", texte):
+                dep = r[col_dep][:2]
+                if bon.get(dep) != n:
+                    fautes.append(f"{nom} : {r[col_dep][:40]} cite media/{n}")
+    assert not fautes, fautes[:5]
+
+
+def test_adresses_verifiees_geocodees():
+    """Chaque adresse des listes vérifiées a été cherchée par le service de géocodage, pour que la chaîne hors ligne la
+    place à son adresse (20 novembre 2026 : l'intégration par lots ne géocodait pas, 1 640 adresses vérifiées étaient
+    posées au centre de leur commune)."""
+    import pandas as _pd
+    from pipeline import lieux as _L
+    if not _L.CACHE_GEO.exists():
+        raise Ignore("cache du géocodage absent")
+    s = _pd.read_csv(Path(__file__).resolve().parents[1] / "contenus" / "structures_verifiees.csv", sep=";", dtype=str,
+                     keep_default_na=False)
+    c = _pd.read_parquet(_L.CACHE_GEO, columns=["voie", "commune"])
+    connus = set(zip(c["voie"], c["commune"]))
+    # à Paris, Lyon et Marseille, un échec n'est pas gardé dans le cache (il est cherché de nouveau à chaque calcul en
+    # ligne, voir _geocoder) : seules les adresses des autres communes se contrôlent ici
+    villes = set(_L.arrondissements().values())
+    manque = [f"{v} ({k})" for v, k in zip(s["adresse"], s["commune"])
+              if len(v) > 2 and k not in villes and (v, k) not in connus]
+    assert not manque, (len(manque), manque[:5])
+
+
+def test_listes_verifiees_public_selon_la_source():
+    """Relecture du 21 novembre 2026 : dix CMP de la Fondation Lenval, hôpital pour enfants, portaient le public
+    « adultes et enfants » alors que leur remarque disait « Public non précisé par la source » ; ils étaient comptés
+    parmi les CMP pour adultes (Alpes-Maritimes, 19 devenus 29, constat inversé). Une ligne dont la remarque dit le
+    public non précisé n'en porte un que si la remarque dit d'où il vient (code de secteur, nom, établissement)."""
+    import pandas as pd
+    from pipeline import structures_verifiees as sv
+    v = pd.read_csv(sv.FICHIER, sep=";", dtype=str).fillna("")
+    raison = (r"sans doute ce lieu|code de secteur|d'après le secteur|d'après le nom|hôpital pour enfants|"
+              r"les deux publics|d'après les autres antennes")
+    m = v["remarque"].str.contains("ublic non précisé", case=False) & (v["public"] != "")         & ~v["remarque"].str.contains(raison, case=False, regex=True)
+    assert not m.any(), v.loc[m, ["ej", "nom", "public"]].head(8).to_dict("records")
+
+
+def test_cmp_public_contraire_au_code_de_secteur():
+    """Relecture du 21 novembre 2026 : un CMP pour adultes dont le seul code de secteur est infanto-juvénile (06I03),
+    ou un CMP pour enfants au seul code de psychiatrie générale (78G02), est un public mal lu. Exceptions jugées une à
+    une : un nom qui dit le public, ou une source de pédopsychiatrie."""
+    import pandas as pd
+    lieux = pd.read_csv(_dernier_resultats() / "lieux_soins.csv", sep=";", dtype=str)
+    sec = lieux["secteur"].fillna("")
+    nom = lieux["nom"].fillna("")
+    juges = {"CMP Meaux Pierre Collinet": "liste des structures de pédopsychiatrie du GHEF (octobre 2026)",
+             "CH Valvert, CMP Saint-Marcel": "une ligne pour deux CMP au même lieu, secteurs 13G07 et 13I04"}
+    ad = (lieux["type"] == "lieu_cmp_adultes") & sec.str.fullmatch(r"\w{2}I\d{2}")
+    en = (lieux["type"] == "lieu_cmp_enfants") & sec.str.fullmatch(r"\w{2}G\d{2}")         & ~nom.str.contains(r"enfant|ado|infanto|juv", case=False)
+    m = (ad | en) & ~nom.isin(juges)
+    assert not m.any(), lieux.loc[m, ["type", "nom", "secteur", "nom_commune"]].to_dict("records")
+
+
+def test_meme_adresse_deux_gestionnaires_relues():
+    """Relecture du 22 novembre 2026 : les doublons entre gestionnaires retirés des listes vérifiées le 19 novembre
+    revenaient par leur inscription des bases, gardée « dans le doute » (CMPEA de Blanquefort, Eysines, Saint-Médard,
+    Pauillac et Bordeaux Nord, CSAPA de Lille et de Thonon comptés deux fois). Toute structure attestée par sa liste
+    vérifiée qui partage son adresse avec une structure du même type d'un autre gestionnaire est relue : laissée de côté
+    avec sa source (inscriptions_laissees.csv), ou gardée parmi les paires ci-dessous, distinctes d'après les sources
+    ou à revérifier (feuille de route)."""
+    import pandas as pd
+    from pipeline import structures_verifiees as sv
+    lieux = pd.read_csv(_dernier_resultats() / "lieux_soins.csv", sep=";", dtype=str)
+    lieux = lieux.drop_duplicates(["type", "id_structure"])
+    ver = lieux["verification"].fillna("").str.startswith("confirmée")
+    paires = {(p["verifiee"], p["autre"]) for p in sv.meme_adresse_deux_gestionnaires(lieux, "entite_juridique", ver)}
+    distinctes = {(a, b) for _, a, b in sv.paires_distinctes()}
+    # gardées dans le doute, à revérifier (feuille de route, 22 novembre 2026)
+    doute = {
+        ("CAMSP - APSA", "CAMSP de Migné-Auxances"), ("CAMSP de Migné-Auxances", "CAMSP - APSA"),
+        ("CATTP Sud-Médoc", "CATTP (Centre d'Accueil Thérapeutique à Temps Partiel) Blanquefort"),
+        ("Unité CHU Chartreuse", "VAN GOGH HDJ"), ("Hôpital de Jour Relais", "HJ Psychiatrie générale adulte"),
+        ("Hôpital de jour de l'unité Stereden Vor", "HJ Psychiatrie générale adulte"),
+        ("Centre d'accueil thérapeutique à temps partiel (CATTP)", "CATTP enfant et adolescent Redon 35I04"),
+        ("Association Addictions France - CSAPA de Bar-le-Duc", "CSAPA GENERALISTE CENTR'AID, SITE DE BAR-LE-DUC"),
+        ("Antenne de Noyon", "CSAPA NOYON - AAF 60"),
+        ("HDJ REPAIRE (Pôle BSM)", "Psychiatrie adultes HDJ Foyer Seguey"),
+        ("HDJ Pédo-psychiatrie - Montaury", "Hôpital de jour Montaury (Ouest)"),
+    }
+    assert paires <= distinctes | doute, sorted(paires - distinctes - doute)[:8]
+    # le lecteur sait qu'une structure gardée dans le doute partage son adresse, colonne meme_adresse_que (décision du
+    # 22 novembre 2026), jamais pour une paire que les sources disent distincte
+    marquees = set(zip(lieux["meme_adresse_que"].fillna(""), lieux["nom"]))
+    autres_marques = {b_ for a_, b_ in marquees if a_}
+    for p_ in sv.meme_adresse_deux_gestionnaires(lieux, "entite_juridique", ver):
+        cle_ = (p_["verifiee"], p_["autre"])
+        # une structure en face de deux structures attestées en nomme une (hôpitaux de jour de Bohars)
+        if cle_ in doute and not p_["autre_attestee"]:
+            assert p_["autre"] in autres_marques, cle_
+    assert not (distinctes & marquees), distinctes & marquees
+    # verdicts d'octobre dont l'inscription a changé de nom dans les bases, clé reportée le 22 novembre 2026
+    cmp = lieux[lieux["type"] == "lieu_cmp_adultes"]
+    assert (cmp["nom_commune"] == "Verneuil-sur-Seine").sum() == 1
+    assert not ((lieux["type"].str.startswith("lieu_cmp")) & (lieux["nom"] == "CMP D'ALCOOLOGIE VALENCIENNES")).any()
+    # CMP de la Harpe de l'IMM, une seule fois (unité du ROR sans établissement, verdict « doublon » du 22 novembre 2026)
+    harpe = lieux[(lieux["type"] == "lieu_cmp") & (lieux["nom_commune"] == "Paris")
+                  & lieux["adresse"].fillna("").str.contains("harpe", case=False)]
+    assert len(harpe) == 1, harpe["nom"].tolist()
+
+
+def test_cmp_jamais_compte_pour_le_public_contraire_a_son_nom():
+    """Relecture du 21 novembre 2026 : quand un hôpital inscrit son CMP pour adultes et son CMP pour enfants sous un
+    même numéro FINESS dans une commune, la première ligne vérifiée prenait les deux inscriptions et les deux publics
+    (« CMP Adulte » de Friville-Escarbotin compté aussi pour enfants, « CMP enfants à Mirande » perdu). Un CMP dont le
+    nom annonce un seul public n'est jamais compté pour l'autre, ni dans la liste vérifiée ni dans les résultats."""
+    import pandas as pd
+    from pipeline import structures_verifiees as sv
+    v = pd.read_csv(sv.FICHIER, sep=";", dtype=str).fillna("")
+    v = v[v["type"] == "lieu_cmp"]
+    mv = [(n, p) for n, p in zip(v["nom"], v["public"]) if p and (pn := sv._public_du_nom(n))
+          and not any(x_.rstrip("s") in p for x_ in pn)]
+    assert not mv, mv[:8]
+    lieux = pd.read_csv(_dernier_resultats() / "lieux_soins.csv", sep=";", dtype=str)
+    c = lieux[lieux["type"].isin(["lieu_cmp_adultes", "lieu_cmp_enfants"])]
+    m = [(t, n, cm) for t, n, cm in zip(c["type"], c["nom"], c["nom_commune"])
+         if (pn := sv._public_du_nom(n)) and not t.endswith(next(iter(pn)))]
+    assert not m, m[:8]
+    # cas de la relecture : chaque CMP garde son seul public, aucun ne disparaît
+    for nom, com, t in (("CMP enfants à Mirande", "Mirande", "lieu_cmp_enfants"),
+                        ("CMP Adulte", "Friville-Escarbotin", "lieu_cmp_adultes"),
+                        ("PPEA - CMPEA  AVIGNON", "Avignon", "lieu_cmp_enfants"),
+                        # verdicts « doublon » d'octobre qui visaient des inscriptions reprises par la liste refaite
+                        ("CMP / CE Psychiatrie - Secteur G04/G05", "La Seyne-sur-Mer", "lieu_cmp_adultes"),
+                        ("CMP Psychiatrie Adolescents - Secteur I02", "La Seyne-sur-Mer", "lieu_cmp_enfants")):
+        types = set(lieux.loc[(lieux["nom"] == nom) & (lieux["nom_commune"] == com), "type"])
+        assert types == {"lieu_cmp", t}, (nom, types)
+
+
+def test_aucun_zero_seul_devant_un_nom():
+    """Relecture du 21 novembre 2026 : « Il compte 0 psychiatre qualifié pour l'enfant » (Gers), « la première
+    intercommunalité du tableau compte 0 psychologues », « dont 0 désignés ». Un compte nul s'écrit en mots dans
+    tous les rapports, nationaux et territoriaux."""
+    import re
+    motif = re.compile(r"\b(?:compte|comptent|recense|recensent|dont|avec|soit) 0 (?!%)[a-zéèàç]")
+    d = _dernier_resultats()
+    vus = []
+    for f in list(d.glob("*.md")) + list((d / "territoires").glob("*.md")):
+        for ligne in f.read_text(encoding="utf-8").splitlines():
+            if motif.search(ligne):
+                vus.append((f.name, motif.search(ligne).group(0)))
+    assert not vus, vus[:8]
+    from pipeline.rapport import compte_effectif
+    assert compte_effectif(0, "Psychologue") == "ne compte aucun psychologue"
+    assert compte_effectif(3, "Psychologue") == "compte 3 psychologues"
+
+
+def test_partage_des_inscriptions_d_un_meme_numero():
+    """Deux lignes vérifiées d'une commune sous le même numéro : chaque inscription revient à celle qui lui ressemble."""
+    import pandas as pd
+    from pipeline import structures_verifiees as sv
+    b = pd.DataFrame({"lieu": ["A", "E"], "nom": ["CMP Adulte - Mirande - 32G01", "CMP Infanto-Juvénile - Mirande"],
+                      "nom_finess": [None, None], "adresse": ["AV DE CHANZY", "AV DE CHANZY"]}, index=[10, 11])
+    x = pd.DataFrame({"lieu": ["A", "E"], "type": ["lieu_cmp_adultes", "lieu_cmp_enfants"]})
+    soeurs = pd.DataFrame({"nom": ["CMP/CATTP à Mirande", "CMP enfants à Mirande"], "public": ["", "enfants"],
+                           "adresse": ["AV DE CHANZY", "AV DE CHANZY"]}, index=[1, 2])
+    assert sv._partager(soeurs.loc[1], [10, 11], soeurs, b, x, "lieu_cmp") == [10]
+    assert sv._partager(soeurs.loc[2], [10, 11], soeurs, b, x, "lieu_cmp") == [11]
+    assert sv._public_du_nom("CMP, CMPEA et CATTP d'Arudy") == set()
+    assert sv._public_du_nom("Soins Petite Enfance") == {"enfants"}
+
+
+def test_structures_provenance_bases_jamais_absente():
+    """Relecture du 21 novembre 2026 : 25 structures de la liste vérifiée inscrites dans FINESS ou le ROR (statut
+    « bases », un numéro FINESS) sortaient « absentes des deux bases », leur inscription étant prise par une autre
+    ligne de la commune. Aucune structure inscrite seulement dans les bases n'est dite absente des deux bases."""
+    import pandas as pd
+    from pipeline.structures_verifiees import STATUTS
+    lieux = pd.read_csv(_dernier_resultats() / "lieux_soins.csv", sep=";", dtype=str)
+    # lignes « bases » sans numéro dont aucune inscription ne porte plus le nom dans la commune, à revérifier : le CMP
+    # Montaury du CHU de Nîmes (son inscription est reprise par le CMP Pellecuer, doublon non tranché le 19 novembre),
+    # l'atelier thérapeutique 14G01 du CHU de Caen (plus inscrit dans les bases au 21 novembre 2026)
+    revoir = {"CMP pour enfants et adolescents Montaury, Nîmes", "ATELIER THERAPEUTIQUE (14G01)-CHU CAEN"}
+    m = (lieux["verification"] == STATUTS["bases"]) & lieux["provenance"].fillna("").str.startswith("Absente des deux")         & ~lieux["nom"].isin(revoir)
+    assert not m.any(), lieux.loc[m, ["type", "nom", "nom_commune", "finess"]].head(8).to_dict("records")
+
+
+def test_gardees_avec_leur_devenir():
+    """Relecture du 21 novembre 2026 : la liste des inscriptions gardées était écrite avant les vérifications à la
+    main, qui en retiraient 85 sur 260. Chaque ligne dit ce qui est finalement compté, et aucune n'est perdue."""
+    import pandas as pd
+    g = pd.read_csv(_dernier_resultats() / "structures_gardees_a_verifier.csv", sep=";", dtype=str)
+    assert "devenir" in g, "colonne devenir absente"
+    assert g["devenir"].notna().all() and not g["devenir"].str.startswith("non retrouvée parmi").any(),         g.loc[g["devenir"].fillna("non retrouvée parmi").str.startswith("non retrouvée parmi"), ["ej", "nom"]].to_dict("records")
+    assert (g["nom_commune"].fillna("") != "").all(), "nom de commune vide"
+    # le type réel est celui de la vérification à la main, pas une structure prise au hasard au même numéro (relecture
+    # des corrections du 21 novembre 2026 : Molsheim dit « CATTP », Brignoles « urgences psychiatriques »)
+    cas = {"CMP Molsheim 11 rue Schweisguth": "Hôpitaux de jour en psychiatrie, adultes",
+           "Antenne CMP Addictologie Lycée Rainouard - Brignoles": "CSAPA"}
+    for nom, attendu in cas.items():
+        d = g.loc[g["nom"] == nom, "devenir"]
+        assert len(d) and d.str.contains(attendu, regex=False).all(), (nom, d.tolist())
+    # relecture de la version finale du 21 novembre 2026 : une inscription réunie à une autre structure de son numéro
+    # n'est pas « comptée » sous son nom, et la classe dite est celle de la structure de ce nom, pas d'une voisine
+    cas_debut = {"ANTENNE CMP DE TRINQUETAILLE - SALIN DE GIRAUD - secteur 13G26 - ADULTES":
+                 "retirée par une vérification à la main, doublon",
+                 "CMP Troubles des conduites alimentaires": "rangée dans son type réel",
+                 "ATELIER THERAPEUTIQUE": "comptée sous un autre type",
+                 "CMP CATTP BEBES INTERSECTEUR": "comptée, à confirmer"}
+    for nom, attendu in cas_debut.items():
+        d = g.loc[g["nom"] == nom, "devenir"]
+        assert len(d) and d.str.startswith(attendu).all(), (nom, d.tolist())
+
+
+def test_cattp_des_cmp_sans_statut_du_cmp():
+    """Relecture des corrections du 21 novembre 2026 : un CATTP annoncé par le nom d'un CMP recopiait le statut de
+    vérification du CMP (« confirmée par l'établissement ») alors que la liste de l'établissement ne le cite pas
+    (71 cas). Il ne porte ce statut que si le nom vérifié annonce le CATTP."""
+    import pandas as pd
+    from pipeline import config
+    from pipeline.lieux import PROVENANCES
+    lieux = pd.read_csv(_dernier_resultats() / "lieux_soins.csv", sep=";", dtype=str)
+    c = lieux[lieux["provenance"] == PROVENANCES["nom_cmp"]]
+    motif = config.SIRENE_ENSEIGNES["lieu_cattp"] + r"|\bCATTG\b"     # le motif de lieux.cattp_des_cmp
+    m = c["verification"].fillna("").str.startswith("confirmée par") &         ~c["nom"].fillna("").str.contains(motif, case=False, regex=True)
+    assert not m.any(), c.loc[m, ["nom", "nom_commune", "verification"]].head(6).to_dict("records")
+
+
+def test_total_des_structures_chacune_une_fois():
+    """Relecture du 21 novembre 2026 : la tuile « 109 des 156 structures de soins psychiques » additionnait les CMP
+    pour adultes, pour enfants et tous publics, qui sont les mêmes lieux (124 structures dans le Bas-Rhin). Sur toutes
+    les fiches de département, le total est celui des structures distinctes de lieux_soins.csv, et Autour d'un lieu
+    retire du total les types par public."""
+    import re
+    import pandas as pd
+    from pipeline import config, fiche_territoire as ft
+    assert ft._types_par_public() == {"lieu_cmp_adultes", "lieu_cmp_enfants"}
+    js = (config.RACINE / "gabarits" / "presentation" / "zone.js").read_text(encoding="utf-8")
+    assert "parPublic[k] ? s : s + parType[k].n" in js
+    lieux = pd.read_csv(_dernier_resultats() / "lieux_soins.csv", sep=";", dtype=str)
+    types = {t for t, _ in ft.STRUCT_SM} - ft._types_par_public()
+    attendu = lieux[lieux["type"].isin(types)].groupby("dep").size()
+    fautes = []
+    for f in sorted((config.RACINE / "site" / "territoire" / "dep").glob("*.html")):
+        m = re.search(r"([\d  ]+) structures? de soins psychiques (?:sont inscrites|est inscrite)", f.read_text(encoding="utf-8"))
+        if m and int(re.sub(r"\D", "", m.group(1))) != int(attendu.get(f.stem, 0)):
+            fautes.append((f.stem, m.group(1), int(attendu.get(f.stem, 0))))
+    assert not fautes, fautes[:6]
+
+
+def test_textes_des_classes_de_confirmation():
+    """Relecture du 21 novembre 2026 : la page Méthode décrivait encore trois classes et des inscriptions « écartées »,
+    Autour d'un lieu gardait « à vérifier » (ses structures « à confirmer » perdaient leur classe), et le « Comment
+    lire » du tableau des structures des fiches ne définissait ni « à confirmer » ni « non confirmée »."""
+    from pipeline import config, zone, bandes_fiche
+    from pipeline.confirmation import CLASSES
+    assert set(zone.CLASSES) == set(CLASSES.values())
+    m = (config.RACINE / "gabarits" / "methode.html").read_text(encoding="utf-8")
+    assert "À vérifier correspond" not in m and "sont écartées et listées" not in m
+    assert "quatre classes" in m and "Non confirmée correspond" in m and "inscriptions_laissees" not in m
+    z = (config.RACINE / "gabarits" / "zone.html").read_text(encoding="utf-8")
+    assert "à vérifier" not in z and "non confirmée" in z and "à confirmer" in z
+    b = (config.RACINE / "pipeline" / "bandes_fiche.py").read_text(encoding="utf-8")
+    assert "« à confirmer » quand" in b and "« non confirmée » quand" in b
+
+
+def test_serie_lancee_en_dernier():
+    """Le bloc qui lance la série est le dernier du fichier : aucun test n'est écrit après lui (19 novembre 2026)."""
+    t = Path(__file__).read_text(encoding="utf-8")
+    assert "\ndef test_" not in t[t.index('if __name__ == "__main__":'):]
+
+
+# en dernier, pour que tous les tests ci-dessus soient définis quand la série se lance (18 tests écrits après ce
+# bloc ne tournaient jamais, constat du 19 novembre 2026)
+if __name__ == "__main__":
+    # la série va jusqu'au bout et liste tous les échecs : arrêtée au premier, elle avait caché onze défauts pendant
+    # plusieurs jours (constat du 20 novembre 2026)
+    import traceback as _tb
+    n = 0
+    ignores, echecs = [], []
+    for nom, f in list(globals().items()):
+        if nom.startswith("test_"):
+            try:
+                f()
+            except Ignore as e:
+                ignores.append(nom)
+                print("ignoré", nom, "-", e)
+                continue
+            except Exception:  # noqa: BLE001
+                echecs.append(nom)
+                print("ÉCHEC", nom)
+                print(_tb.format_exc()[-1500:])
+                continue
+            n += 1
+            print("ok", nom)
+    print(f"{n} tests réussis" + (f", {len(ignores)} ignorés faute de résultats : {', '.join(ignores)}" if ignores else ""))
+    if echecs:
+        print(f"{len(echecs)} échec(s) : {', '.join(echecs)}")
+        sys.exit(1)

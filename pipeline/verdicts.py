@@ -43,7 +43,7 @@ def cle(ej, finess, commune_nom, nom) -> str:
     return "|".join([_txt(ej), _txt(finess).split(",")[0], _txt(commune_nom), _simple(_txt(nom))[:40]])
 
 
-def charger() -> pd.DataFrame:
+def charger(journal: bool = True) -> pd.DataFrame:
     cols = ["cle", "etablissement", "structure", "verdict", "type_reel", "adresse_reelle", "commentaire", "date"]
     if not FICHIER.exists():
         return pd.DataFrame(columns=cols)
@@ -67,7 +67,7 @@ def charger() -> pd.DataFrame:
         return "date hors de l'année écoulée" if d > aujourd or (aujourd - d).days > 365 else ""
     r_ = v.apply(raison, axis=1) if len(v) else pd.Series(dtype=str)
     ecartes = v[r_ != ""]
-    if len(ecartes):
+    if len(ecartes) and journal:
         JOURNAL.controle("Vérifications à la main des CMP écartées (sans source cliquable, sans date ou de plus d'un an)",
                          f"{len(ecartes)} : " + "; ".join(f"{s} ({x})" for s, x in
                                                           zip(ecartes["structure"].head(15), r_[r_ != ""].head(15))))
@@ -189,6 +189,15 @@ def appliquer(lieux: pd.DataFrame, avant: pd.DataFrame | None, ref, centres: dic
         if sorte in RETIRES and isinstance(statut, str) and statut in ("etablissement", "source_publique"):
             rendu["sur_liste"] = rendu.get("sur_liste", 0) + 1
             continue
+        # sur une ligne de la liste vérifiée, un verdict « doublon » ne vaut que par le numéro de cette ligne, jamais par
+        # celui d'une inscription qu'elle a reprise (finess_absorbes) : il disait que cette inscription doublait une
+        # structure de la liste d'alors, et la liste refaite la compte désormais sur sa propre ligne (CMP pour adultes et
+        # pour adolescents de La Seyne-sur-Mer, doublons d'une liste refaite le 19 novembre, qui les retiraient,
+        # relecture du 21 novembre 2026). Les autres verdicts (fermée, introuvable, pas un CMP) s'appliquent toujours.
+        if (sorte == "doublon" and "verifiee" in x and str(x.at[i, "verifiee"]) == "True"
+                and r.cle.split("|")[1] != _txt(x.at[i, "finess"]).split(",")[0]):
+            rendu["doublons_repris"] = rendu.get("doublons_repris", 0) + 1
+            continue
         rendu["appliques"][sorte] = rendu["appliques"].get(sorte, 0) + 1
         if sorte in RETIRES:
             if sorte == "pas_un_cmp" and r.type_reel in labels:
@@ -233,9 +242,16 @@ def appliquer(lieux: pd.DataFrame, avant: pd.DataFrame | None, ref, centres: dic
         n = n[~n.set_index(["type", "lieu"]).index.isin(x.set_index(["type", "lieu"]).index)]
         # une structure rangée dans son type réel n'est pas ajoutée quand son gestionnaire en a déjà une de ce type dans
         # la même commune (elle y est déjà comptée, sous son propre numéro, constat du CSAPA de Brignoles)
-        deja = set(zip(x["type"], x["ej"].fillna(""), x["commune"]))
-        dbl = (n["verdict"] == "pas_un_cmp") & pd.Series([k in deja for k in zip(n["type"], n["ej"].fillna(""), n["commune"])],
-                                                         index=n.index)
+        # ... à la même adresse seulement : la consultation du CSAPA tenue au lycée Raynouard de Brignoles, à une autre
+        # adresse que le CSAPA de la liste vérifiée, était perdue (dans le doute, une structure reste, 21 novembre 2026)
+        from .structures_verifiees import _voie, meme_adresse
+        adr = {}
+        for t_, e_, c_, a_ in zip(x["type"], x["ej"].fillna(""), x["commune"], x.get("adresse", pd.Series("", index=x.index))):
+            adr.setdefault((t_, e_, c_), []).append(_voie(a_))
+        dbl = (n["verdict"] == "pas_un_cmp") & pd.Series(
+            [any(meme_adresse(a_, _voie(av)) for a_ in adr.get(k, [])) or (k in adr and not _voie(av)[1])
+             for k, av in zip(zip(n["type"], n["ej"].fillna(""), n["commune"]),
+                              n.get("adresse", pd.Series("", index=n.index)))], index=n.index)
         rendu["retypees"] -= int(dbl.sum())
         rendu["deja_comptees"] = int(dbl.sum())
         n = n[~dbl]
@@ -255,6 +271,8 @@ def appliquer(lieux: pd.DataFrame, avant: pd.DataFrame | None, ref, centres: dic
                      f"{rendu['adresses']} adresses corrigées, {len(rendu['non_trouves'])} sans structure correspondante")
     JOURNAL.controle("Verdicts de retrait qui désignent une structure attestée par la liste vérifiée de son établissement, "
                      "sans effet (la liste prévaut)", str(rendu.get("sur_liste", 0)))
+    JOURNAL.controle("Verdicts « doublon » qui visaient une inscription reprise depuis par une ligne de la liste "
+                     "vérifiée, sans effet", str(rendu.get("doublons_repris", 0)))
     return x, rendu
 
 

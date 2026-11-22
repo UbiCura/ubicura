@@ -50,6 +50,14 @@ STRUCT_SM = [("lieu_cmp_adultes", "CMP pour adultes"), ("lieu_cmp_enfants", "CMP
              ("lieu_hc_psy_adultes", "Hospitalisation complète en psychiatrie, adultes"), ("lieu_cmpp", "CMPP"), ("lieu_camsp", "CAMSP"),
              ("lieu_csapa", "CSAPA, addictologie"), ("lieu_caarud", "CAARUD, réduction des risques")]
 TYPES_ENFANTS = {"lieu_cmp_enfants", "lieu_hdj_psy_enfants", "lieu_cmpp", "lieu_camsp"}
+
+
+def _types_par_public() -> set:
+    """Types qui comptent par public des structures déjà comptées dans leur type parent (CMP pour adultes et pour
+    enfants, compris dans « CMP, tous publics »). Ils restent des lignes du tableau mais n'entrent pas dans les totaux :
+    chaque structure y compte une fois (relecture du 21 novembre 2026, « 109 des 156 » comptait deux fois les CMP)."""
+    from . import config
+    return {t[0] for t in config.LIEUX_TYPES if t[4].get("parent")}
 RECOURS_DEP = [("suicides", "Décès par suicide"), ("hospit_gestes_auto_infliges", "Hospitalisations pour geste auto-infligé"),
                ("ald_23", "Affection de longue durée, troubles psychiatriques")]
 DEJA_EN_TETE = ({"suicides", "hospit_gestes_auto_infliges", "ald_23"} | {"dist_" + t for t, _ in DIST_SM + DIST_SANTE}
@@ -180,7 +188,7 @@ class Donnees:
         """Nombre de structures inscrites, et leurs classes de confirmation lues point par point."""
         serie = (self.niv[lv].get("lieux") or {}).get(typ)
         n = serie[self.pos[lv][code]] if serie else None
-        conf = {"confirmee": 0, "recoupee": 0, "verifier": 0, "objet": 0, "meme_lieu": 0}
+        conf = {"confirmee": 0, "recoupee": 0, "verifier": 0, "non_confirmee": 0, "objet": 0, "meme_lieu": 0}
         if typ in self.types and lv in self.ip:
             t, il, ic, isg = self.types.index(typ), self.ip[lv], self.ip.get("confirmation"), self.ip.get("signaux")
             for p in self.pts:
@@ -189,7 +197,8 @@ class Donnees:
                         conf["meme_lieu"] += 1
                     c = p[ic] if ic is not None else None
                     cl = self.classes_conf[c] if isinstance(c, int) and c < len(self.classes_conf) else None
-                    conf[{"confirmee": "confirmee", "recoupee": "recoupee", "a_verifier": "verifier"}.get(cl, "objet")] += 1
+                    conf[{"confirmee": "confirmee", "recoupee": "recoupee", "a_verifier": "verifier",
+                          "non_confirmee": "non_confirmee"}.get(cl, "objet")] += 1
         return n, conf
 
     def limite(self, cle, lv=None, code=None):
@@ -470,8 +479,9 @@ def fiche(dn: Donnees, lv: str, code: str, version: str) -> dict:
             st["ligne"]["precision"] = (f"{m} au même lieu qu'un CMP, compté{'s' if m > 1 else ''} à part comme "
                                         f"lieu{'x' if m > 1 else ''} d'activité déclaré{'s' if m > 1 else ''}")
         sts.append(st)
-        tot += n or 0
-        confirmees += conf["confirmee"]
+        if t not in _types_par_public():
+            tot += n or 0
+            confirmees += conf["confirmee"]
     f["structures"], f["structures_total"], f["structures_confirmees"] = sts, tot, confirmees
     # réserves des structures, sous leur tableau (inventaire des limites du 31 octobre 2026, A1, A2, A3, D7, D12) :
     # chaque phrase reprend le texte des limites « lieux » et « confirmation » (config.LIMITES)
@@ -654,7 +664,7 @@ def phrases_tableaux(f: dict, lv: str) -> dict:
             if phrase_liste(haut, bas):
                 out[cle + "_liste"] = True
     tot, conf = f.get("structures_total") or 0, f.get("structures_confirmees") or 0
-    types = sum(1 for s in f.get("structures", []) if s.get("n"))
+    types = sum(1 for s in f.get("structures", []) if s.get("n") and s["id"][len("lieux_"):] not in _types_par_public())
     out["structures"] = (f"{tot} structure{'s' if tot > 1 else ''} de soins psychiques {'sont inscrites' if tot > 1 else 'est inscrite'}, "
                          f"de {types} type{'s' if types > 1 else ''}, dont {conf} confirmée{'s' if conf > 1 else ''}."
                          if tot else "Aucune structure de soins psychiques n'est inscrite dans le territoire ; la distance à la plus proche est donnée plus bas.")
@@ -1338,9 +1348,10 @@ def _nombre_filtre(v, genre="taux"):
 
 def confirmation(conf: dict) -> str:
     """Confirmation d'un type de structure, en peu de mots : « confirmée », « toutes confirmées », « dont 3 confirmées,
-    1 à vérifier ». « Sans source de confirmation » est expliqué dans « Comment lire »."""
+    1 à confirmer, 1 non confirmée ». « Sans source de confirmation » est expliqué dans « Comment lire »."""
     noms = (("confirmee", "confirmée", "confirmées"), ("recoupee", "recoupée", "recoupées"),
-            ("verifier", "à vérifier", "à vérifier"), ("objet", "sans source de confirmation", "sans source de confirmation"))
+            ("verifier", "à confirmer", "à confirmer"), ("non_confirmee", "non confirmée", "non confirmées"),
+            ("objet", "sans source de confirmation", "sans source de confirmation"))
     tot = sum(conf.get(c, 0) for c, _, _ in noms)
     for cle, un, plus in noms:
         if tot and conf.get(cle, 0) == tot:
@@ -1468,6 +1479,8 @@ def construire(env, commun: dict, dernier: Path, site_data: dict, site: Path, re
     # part des structures de soins psychiques confirmées en France, sur les mêmes types
     tot = conf = 0
     for t, _ in STRUCT_SM:
+        if t in _types_par_public():
+            continue
         for code in dn.pos["reg"]:
             n, c = dn.structures("reg", code, t)
             tot += n or 0

@@ -180,7 +180,7 @@ function svgExport(id,citation){
     zg.querySelectorAll("circle").forEach(c=>{const r=+c.getAttribute("r");if(r&&k>1){c.setAttribute("r",r*k);const sw=parseFloat(c.style.strokeWidth);if(sw)c.style.strokeWidth=sw*k}})}
   // légende des cartes, recopiée depuis la légende affichée sous la carte (HTML)
   const leg=[],lg=id==="map"?document.getElementById("legend"):id==="tmap"?document.getElementById("tyLegende"):null;
-  if(id==="lxCarte")leg.push({cle:css("--ink"),t:"Point plein, structure confirmée par une source indépendante de FINESS et du ROR"},{t:"Point creux, structure inscrite dans FINESS ou le ROR seulement, à vérifier"});
+  if(id==="lxCarte")leg.push({cle:css("--ink"),t:"Point plein, structure confirmée par une source indépendante de FINESS et du ROR"},{t:"Point creux, structure inscrite dans FINESS ou le ROR seulement, à confirmer"},{t:"Point creux tireté, structure non confirmée, aucune source officielle de moins de trois ans trouvée"});
   if(id==="regPlot")leg.push({cle:css("--r4"),t:"Lien positif"},{cle:css("--d1"),t:"Lien négatif"},{t:"Point et trait, départements de l’Hexagone avec leur fourchette plausible à 95 %, couleur pâle si la fourchette englobe zéro."},{cle:css("--muted"),t:"Losange gris, sans l’Île-de-France"});
   if(lg&&id==="tmap")lg.querySelectorAll("li").forEach(li=>leg.push({cle:getComputedStyle(li.querySelector("i")).backgroundColor,t:li.querySelector("span").textContent}));
   else if(lg)[...lg.children].forEach(el=>{

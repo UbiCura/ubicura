@@ -40,6 +40,15 @@ def _aucun_accorde(libelle) -> str:
                              "admissions", "structures") else "aucun"
 
 
+def compte_effectif(n, libelle) -> str:
+    """« compte 3 psychologues », ou « ne compte aucun psychologue » quand l'effectif est nul, jamais « 0 » seul
+    (relecture du 21 novembre 2026)."""
+    lab = minuscule(str(libelle))   # garde les sigles en capitales
+    if n == 0:
+        return f"ne compte {'aucune' if lab.startswith('sage-femme') else 'aucun'} {lab}"
+    return f"compte {nombre(n)} {pluriel(libelle) if n != 1 else lab}"
+
+
 def _aucun_habitant(v) -> str:
     """Une part d'habitants exactement nulle écrite en mots, « aucun habitant », jamais « 0 % » seul ; une part
     infime mais non nulle reste un pourcentage (lecture.pct écrit « moins de 0,1 % »)."""
@@ -1475,6 +1484,30 @@ def _age(C: Contexte, famille):
     return L
 
 
+def _manques_sae_phrase(C: Contexte, L: dict, x: pd.DataFrame) -> str:
+    """Limite écrite à côté du tableau des distances : départements où FINESS et le ROR inscrivent moins de la moitié
+    des structures que les hôpitaux déclarent à la SAE (lieux.manques_sae). Leur distance et leur nombre pour 100 000 ne
+    sont pas publiés, et les distances nationales du tableau les comptent (relecture du 17 novembre 2026, Puy-de-Dôme
+    et Haut-Rhin pour les CMP pour adultes, limite écrite seulement dans les contrôles)."""
+    m = L.get("manques_sae")
+    if not isinstance(m, pd.DataFrame) or m.empty:
+        return ""
+    m = m[(m["niveau"] == "dep") & m["manque"] & m["type"].isin(set(x["type"]))]
+    if m.empty:
+        return ""
+    noms = C.ref.deps.set_index("code")["nom"]
+    lab = {t[0]: t[1] for t in config.LIEUX_TYPES}
+    parts = []
+    for tid, g in m.groupby("type", sort=False):
+        deps = [noms.get(c, c) for c in sorted(g["code"])]
+        parts.append(f"{lab.get(tid, tid)} : {_liste(deps) if len(deps) <= 4 else f'{len(deps)} départements'}")
+    n = m["code"].nunique()
+    return (f"Dans {n} {'département' if n == 1 else 'départements'}, FINESS et le ROR inscrivent moins de la moitié des "
+            f"structures que les hôpitaux déclarent à la SAE pour un type ({' ; '.join(parts)}). La distance et le nombre "
+            "pour 100 000 habitants n'y sont pas publiés pour ce type, et les distances de ce tableau, qui les comptent, "
+            "peuvent y être un peu surestimées.")
+
+
 def _lieux(C: Contexte, famille):
     """Structures de soins de la famille, FINESS et ROR réunis sans double compte (pipeline/lieux.py), avec leur provenance,
     la distance des habitants au plus proche et, en santé, la confrontation aux chiffres publiés."""
@@ -1506,7 +1539,8 @@ def _lieux(C: Contexte, famille):
                        "part": couv.at[tid, "part_departements"] if tid in couv.index else None,
                        "conf": k.get("confirmee") if etabli else None,
                        "rec": (k.get("recoupee") if tid in conf_mod.TYPES_RECOUPES else "sans objet") if etabli else None,
-                       "abv": k.get("a_verifier") if etabli else None,
+                       # à confirmer et non confirmées réunies dans une colonne (décision du 18 novembre 2026)
+                       "abv": k.get("a_verifier", 0) + k.get("non_confirmee", 0) if etabli else None,
                        "dist": dfr.at[tid, "distance_mediane_km"] if complet and tid in dfr.index else None,
                        "p30": dfr.at[tid, "part_plus_30_km"] if complet and tid in dfr.index else None})
     t = pd.DataFrame(lignes)
@@ -1529,8 +1563,9 @@ def _lieux(C: Contexte, famille):
                "la statistique des hôpitaux, c'est le nombre de CATTP de son hôpital, ou les places d'hôpital de jour de "
                "son site, qui concorde avec la statistique annuelle des établissements de santé (SAE), que chaque hôpital "
                "remplit pour la DREES, pas l'adresse. Ce recoupement n'existe que pour les CATTP et les hôpitaux de jour "
-               "(« sans objet » pour les autres types). À vérifier, elle n'est inscrite "
-               "que dans FINESS ou le ROR, ce qui ne veut pas dire qu'elle est fermée. Les trois colonnes refont le "
+               "(« sans objet » pour les autres types). Non confirmée, elle n'est inscrite que dans FINESS ou le ROR : "
+               "soit à confirmer, pas encore vérifiée une à une, soit cherchée sur les sources de son établissement sans "
+               "source officielle de moins de trois ans, ce qui ne veut pas dire qu'elle est fermée. Les trois colonnes refont le "
                "nombre de structures, et portent « non établi » pour les types dont le niveau n'est pas établi. Le détail par "
                "source et la provenance de chaque inscription sont dans la page "
                "« Méthode, données et limites » et dans lieux_soins.csv.", ""]
@@ -1541,7 +1576,7 @@ def _lieux(C: Contexte, famille):
         if len(tg):
             avec = tg["conf"].notna().any()
             cols = ["libelle", "n"] + (["conf", "rec", "abv"] if avec else []) + ["dist", "p30"]
-            tetes = (["Type de structure", "Structures"] + (["Confirmées", "Recoupées par la statistique des hôpitaux", "À vérifier"] if avec
+            tetes = (["Type de structure", "Structures"] + (["Confirmées", "Recoupées par la statistique des hôpitaux", "Non confirmées"] if avec
                                                             else []) + ["Distance médiane des habitants (km)",
                                                                         "Habitants à plus de 30 km"])
             L_ += [_tableau(tg, cols, tetes, {"n": nombre, "conf": nombre, "abv": nombre, "dist": f1,
@@ -1575,6 +1610,7 @@ def _lieux(C: Contexte, famille):
         "par le numéro FINESS de l'établissement, par l'entité juridique et la commune, puis par le nom, pour qu'une même "
         "structure ne compte qu'une fois. La distance médiane est celle qui "
         "sépare la moitié des habitants de la structure la plus proche, à vol d'oiseau depuis le centre de leur commune.",
+        _manques_sae_phrase(C, L, x),
         "Une structure n'est pas une capacité. Les structures ne s'ajoutent pas aux professionnels, elles se lisent à côté. Les "
         "unités hospitalières (hôpitaux de jour, hospitalisation, urgences, maternités...) ne sont décrites que dans le "
         "ROR, FINESS ne les distinguant pas : leur confirmation par une autre source n'est pas établie"
@@ -2800,10 +2836,11 @@ def _retrait(C: Contexte, famille):
     if exemple:
         p, r = exemple
         L += _comment_lire(
-            f"Par exemple, la première intercommunalité du tableau compte {nombre(r['effectif'])} {pluriel(C.lab[p]) if r['effectif'] != 1 else C.lab[p].lower()} "
+            f"Par exemple, la première intercommunalité du tableau {compte_effectif(r['effectif'], C.lab[p])} "
             f"pour {nombre(r['pop'])} habitants. Des intercommunalités de profil comparable (âge, revenus, "
-            f"pauvreté, densité de population...) en comptent environ {nombre(r['effectif_attendu'])}. Le rapport "
-            f"de {nombre(r['rapport'], 2)} se lit « {nombre(r['rapport'] * 100)} % de l'effectif attendu ».",
+            f"pauvreté, densité de population...) en comptent environ {nombre(r['effectif_attendu'])}. "
+            + (f"Le rapport de {nombre(r['rapport'], 2)} se lit « {nombre(r['rapport'] * 100)} % de l'effectif "
+               f"attendu »." if r['effectif'] else "Le rapport à l'effectif attendu est donc nul."),
             "Ce n'est pas une mesure du besoin de soins. C'est une comparaison avec des territoires semblables, "
             "qui peuvent eux-mêmes être peu dotés. Ces tableaux décrivent un écart et ne classent pas les "
             "territoires. Sur de petits effectifs, quelques arrivées ou départs suffisent à changer la liste d'une "

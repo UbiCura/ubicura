@@ -1690,10 +1690,14 @@ LIMITES = {
                   "autant. Les hôpitaux ferment rarement leurs anciens établissements dans Sirene, un établissement "
                   "encore actif dans Sirene peut avoir cessé son activité. Une structure confirmée par l'une de ces "
                   "listes existe dans les listes officielles de son établissement, une structure confirmée par aucune "
-                  "reste à vérifier sur les sources de l'établissement. Les rapports et l'atlas réunissent ces "
-                  "sources en trois classes, confirmée (nommée par une source indépendante des deux bases), "
+                  "reste à confirmer sur les sources de l'établissement. Les rapports et l'atlas réunissent ces "
+                  "sources en classes, confirmée (nommée par une source indépendante des deux bases), "
                   "recoupée par la statistique des hôpitaux (SAE, nombre de CATTP de l'hôpital ou places d'hôpital de jour du site, "
-                  "l'adresse n'étant pas confirmée) et à vérifier (inscrite dans FINESS ou le ROR seulement)."),
+                  "l'adresse n'étant pas confirmée), à confirmer (inscrite dans FINESS ou le ROR seulement, pas encore "
+                  "vérifiée une à une) et non confirmée (cherchée sur les sources de son établissement sans source "
+                  "officielle de moins de trois ans, la date de la recherche étant donnée, et le cas échéant celle de la "
+                  "demande de confirmation envoyée à l'établissement). Les rapports réunissent ces deux dernières "
+                  "classes dans une colonne « Non confirmées »."),
         "sources": [("HAS, certification des établissements de santé, données ouvertes", HAS_PAGE),
                     ("HAS, résultats d'évaluation des établissements et services sociaux et médico-sociaux",
                      HAS_ESSMS_PAGE),
@@ -1809,8 +1813,9 @@ LIMITES_COURT = {
     "prof:psychologue": ("Les psychologues sont inscrits au RPPS depuis la reprise d'ADELI, leur nombre diffère des "
                          "séries de la DREES, sur un champ différent."),
     "lieux": "Ni FINESS ni le ROR ne sont complets, certaines structures manquent aux deux bases ou y sont mal classées.",
-    "confirmation": ("Une structure à vérifier n'est pas douteuse pour autant, les listes qui servent à confirmer sont "
-                     "incomplètes ou anciennes."),
+    "confirmation": ("Une structure à confirmer ou non confirmée n'est pas douteuse pour autant, les listes qui servent "
+                     "à confirmer sont incomplètes ou anciennes et beaucoup d'établissements ne publient pas la liste de "
+                     "leurs lieux de consultation."),
     "route": ("Temps en voiture vers le libéral le plus proche, sans les délais de rendez-vous, les tarifs ni les "
               "transports en commun."),
     "route_psychiatrie_ambulatoire": ("Le temps de l'INSEE vers la psychiatrie ambulatoire n'est pas montré là où il "

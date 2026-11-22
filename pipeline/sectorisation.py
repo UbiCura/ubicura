@@ -48,8 +48,11 @@ def cmp_par_public(lieux: pd.DataFrame) -> pd.DataFrame:
         secteur = x["secteur"]
     else:
         from .lieux import code_secteur
-        secteur = [code_secteur(a, b, c) for a, b, c in zip(nom, x["nom"], x.get("nom_finess", pd.Series(
-            index=x.index, dtype=object)))]
+        # le code cité par la remarque d'une structure vérifiée compte aussi, comme dans la table publiée (export.py ;
+        # 42 CMP des Hauts-de-France perdaient leur secteur, constat du 20 novembre 2026)
+        vide = pd.Series(index=x.index, dtype=object)
+        secteur = [code_secteur(a, b, c, d) for a, b, c, d in zip(nom, x["nom"], x.get("nom_finess", vide),
+                                                                    x.get("remarque_verification", vide))]
     return pd.DataFrame({"id": x[col_id], "nom": nom, "commune": x["commune"], "ej": x[col_ej],
                          "public": x["type"].map({"lieu_cmp_adultes": "A", "lieu_cmp_enfants": "E"}).fillna("?"),
                          "secteur_nom": secteur}).reset_index(drop=True)

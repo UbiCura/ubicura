@@ -256,6 +256,10 @@ def _confirmation(dossier, lire, nb):
     types = [t for t in config.SIRENE_ENSEIGNES if x.loc[x["type"] == t, "confirmation"].notna().any()]
     if not types:
         return None
+    # libellés datés des structures non confirmées (« … trouvée au 18 novembre 2026 ») réunis sous leur niveau
+    for k in ("cherchee", "demande"):
+        tete = NIVEAUX[k].split(",")[0] + ", " + NIVEAUX[k].split(", ")[1].split(" ")[0]
+        x.loc[x["confirmation"].fillna("").str.startswith(tete), "confirmation"] = NIVEAUX[k]
     n = {t: x.loc[x["type"] == t, "confirmation"].value_counts() for t in types}
     rows = [{"niveau": niv[0].upper() + niv[1:], "n": [nb(int(n[t].get(niv, 0))) for t in types]}
             for niv in NIVEAUX.values() if any(n[t].get(niv, 0) for t in types)]
@@ -277,13 +281,30 @@ def _liste_verifiee(dossier, lire, nb):
     if not fe.exists():
         return None
     from . import config
-    lib = {t[0]: t[1].split(",")[0] for t in config.LIEUX_TYPES}
+    court = {t[0]: t[1].split(",")[0] for t in config.LIEUX_TYPES}
+    # libellé court, sauf quand deux types le partagent (hôpitaux de jour pour adultes et pour enfants, audit du
+    # 22 novembre 2026, « Hôpitaux de jour en psychiatrie, Hôpitaux de jour en psychiatrie »)
+    lib = {t[0]: (t[1] if list(court.values()).count(court[t[0]]) > 1 else court[t[0]]) for t in config.LIEUX_TYPES}
+    # département d'un établissement vérifié pour toute la France : ceux de ses structures vérifiées
+    deps = {}
+    fl = dossier / "lieux_soins.csv"
+    if fl.exists():
+        import pandas as pd
+        ls = pd.read_csv(fl, sep=";", dtype=str, usecols=lambda c: c in ("entite_juridique", "dep", "verification"))
+        ls = ls[ls["verification"].fillna("").str.startswith("confirmée")].dropna(subset=["entite_juridique", "dep"])
+        deps = ls.groupby("entite_juridique")["dep"].agg(lambda s: sorted(set(s))).to_dict()
+
+    def _dep(r):
+        if r["departement"]:
+            return r["departement"]
+        d = deps.get(r["ej"], [])
+        return ", ".join(d) if len(d) <= 4 else f"{nb(len(d))} départements"
     non = {}
     for r in (lire(fn) if fn.exists() else []):
         non[(r["ej"], r["etablissement"])] = non.get((r["ej"], r["etablissement"]), 0) + 1
     rows = []
     for r in lire(fe):
-        rows.append({"etablissement": r["etablissement"], "departement": r["departement"],
+        rows.append({"etablissement": r["etablissement"], "departement": _dep(r),
                      "types": ", ".join(lib.get(t.strip(), t) for t in r["types"].split(",")),
                      "etab": nb(r.get("structures_etablissement", 0)), "publique": nb(r.get("structures_source_publique", 0)),
                      "bases": nb(r.get("structures_bases", 0)),
@@ -292,9 +313,11 @@ def _liste_verifiee(dossier, lire, nb):
     if not rows:
         return None
     n = len(rows)
-    resume = (f"{n} établissement{'s' if n > 1 else ''} vérifié{'s' if n > 1 else ''} à ce jour. La vérification de "
-              f"tous les établissements qui gèrent des CMP est en cours.")
-    return {"etablissements": rows, "resume": resume}
+    ng = len({r["ej"] for r in lire(fe)})
+    resume = (f"{nb(n)} établissement{'s' if n > 1 else ''} vérifié{'s' if n > 1 else ''} à ce jour, sous "
+              f"{nb(ng)} gestionnaire{'s' if ng > 1 else ''} (un gestionnaire peut compter un établissement par "
+              f"département). La vérification de tous les établissements qui gèrent des CMP est en cours.")
+    return {"etablissements": rows, "resume": resume, "nb": nb(n)}
 
 
 def _parties_imprimees(corps: str) -> str:
@@ -1317,7 +1340,8 @@ def finir(env, commun, dernier, site_data, pages, rapports_cites, tout, fiches_s
     # contrôle du langage sur les pages (le texte visible, sans les balises)
     pb = []
     for p in pages:
-        texte = re.sub(r"<[^>]+>", " ", re.sub(r"<(svg|script|style)[\s\S]*?</\1>", " ", p.read_text(encoding="utf-8")))
+        texte = re.sub(r"<[^>]+>", " ", re.sub(r"<(svg|script|style)[\s\S]*?</\1>", " ",
+                                                libelles.sans_raisons_sociales(p.read_text(encoding="utf-8"))))
         pb += [f"{p.name} : {x}" for x in libelles.termes_proscrits(texte)]
     for x in pb:
         log.warning("terme à proscrire dans le site : %s", x)
