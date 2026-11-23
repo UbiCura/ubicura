@@ -105,6 +105,10 @@ def genre(unite: str | None, ident: str = "") -> str:
         return "minutes"
     if u.startswith("patients"):            # patientèle moyenne des libéraux, un nombre de personnes
         return "entier"
+    # une note sur 10 (satisfaction de la vie) s'écrit avec deux décimales : ses fourchettes, publiées au centième, et sa
+    # médiane (7,14) se lisent alors avec les mêmes chiffres partout (décision du 23 novembre 2026)
+    if u == "sur 10":
+        return "note"
     return "taux"
 
 
@@ -127,6 +131,8 @@ def decimales(v: float, g: str) -> int:
         return 3
     if g in ("distance", "part"):
         return 1
+    if g == "note":
+        return 2
     if abs(_arr(v, 2)) < 1:
         return 2
     return 0 if abs(_arr(v, 1)) >= 1000 else 1

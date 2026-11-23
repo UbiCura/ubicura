@@ -1,0 +1,49 @@
+cible;mots_du_lecteur;remarque
+episode_depressif_declare;dépression | déprime | dépressif | état dépressif | moral;mesure déclarée, par région
+pec_humeur;dépression | anxiété | troubles de l'humeur | trouble bipolaire;libellé de l'Assurance Maladie (troubles névrotiques et de l'humeur)
+antidepresseurs;dépression | antidépresseur;
+trouble_anxieux_generalise;anxiété | angoisse | stress | trouble anxieux;mesure déclarée, par région
+anxiolytiques;anxiété | angoisse | anxiolytique | calmant;
+hypnotiques;sommeil | insomnie | somnifère;
+prof:medecin_generaliste;désert médical | accès aux soins | médecin traitant;« désert médical » mène aux indicateurs, il n'est jamais repris dans un texte publié
+patients_mt_medecin_generaliste;désert médical | accès aux soins | médecin traitant;
+ald_sans_medecin_traitant;désert médical | accès aux soins | sans médecin traitant | médecin traitant;
+age60_medecin_generaliste;désert médical | retraite | départ à la retraite;
+dist_lieu_msp;désert médical | accès aux soins | maison de santé;
+page:domaine/sante.html#q5;désert médical | accès aux soins | accessibilité;question « Quelle accessibilité, au-delà de la distance ? »
+page:explorer.html#qDistances;désert médical | accès aux soins | distance | éloignement;
+depassements_medecin_generaliste;accès aux soins | dépassements d'honoraires | reste à charge | secteur 2;
+dist_lieu_urgences;accès aux soins | urgences;
+age60_medecins;retraite | départ à la retraite | vieillissement des médecins;les parts de 60 ans et plus parmi les professionnels
+age60_psychiatre;retraite | départ à la retraite;
+age60_infirmier_liberal;retraite | départ à la retraite;
+part_65_79;retraite | retraités;population de 65 à 79 ans
+page:domaine/violences.html;violences | violence | victimes | violences conjugales | violences faites aux femmes | violences sexuelles | agression | harcèlement | maltraitance | délinquance | sécurité;domaine annoncé, sans indicateur pour l'instant, les violences sont présentées du côté des personnes victimes
+page:journal.html;nouveautés | nouveau | quoi de neuf | mise à jour | mises à jour | changements | dernières données;
+page:a-venir.html;violences | nouveautés | à venir | prochaines données | bientôt;
+suicides;suicide | décès par suicide | mortalité par suicide;aucun mot qui désigne un moyen (règle du projet), à vérifier par un test
+pensees_suicidaires_declarees;suicide | idées suicidaires | idées noires;mesure déclarée, par région
+tentative_suicide_vie_declaree;suicide | tentative de suicide;mesure déclarée, par région
+hospit_gestes_auto_infliges;suicide | tentative de suicide | geste auto-infligé | se faire du mal;
+urgences_gestes_auto_infliges;suicide | tentative de suicide | geste auto-infligé;
+page:domaine/sante-mentale.html;psy | santé mentale | psychiatrie | troubles psychiques;
+prof:psychiatre;psy | psychiatrie;
+prof:psychologue;psy | psychothérapie;
+prof:pedopsychiatre;psy | pédopsy | psy enfant;
+sae_cmp;psy | CMP | centre médico-psychologique;
+page:theme/addictologie.html;addiction | addicto | dépendance | drogue | alcool | tabac;
+pec_addictions;addiction | dépendance;
+lieux_lieu_csapa;addiction | drogue | dépendance | centre d'addictologie;
+lieux_lieu_caarud;addiction | drogue | réduction des risques;
+prof:q_addictologie;addiction | addictologue;
+alcool_depassement_reperes;alcool | addiction;
+tabac_quotidien;tabac | cigarette | fumer | addiction;
+partie:d-sm;santé mentale | psy | psychiatrie;avec un territoire : « santé mentale Rhône » ouvre la partie 01 de la fiche du Rhône
+partie:d-sante;offre de soins | soins | médecins;avec un territoire
+partie:d-recours;état de santé | recours aux soins | maladies;avec un territoire
+partie:d-population;population | logement | habitants;avec un territoire
+partie:d-revenus;revenus | pauvreté | emploi | chômage;avec un territoire
+partie:d-enfance;enfance | éducation | familles | enfants;avec un territoire
+partie:d-mobilite;distances | mobilité | trajets;avec un territoire
+partie:d-violences;violences | victimes;avec un territoire
+regle:code_departement;01 à 95, 2A, 2B, 971 à 976;règle, pas une liste : « 69 » trouve le Rhône, « psychiatres 69 » répond pour le Rhône, cinq chiffres restent un code postal

@@ -13,7 +13,7 @@ Il s'adresse aux habitants et aux élus comme aux professionnels, aux chercheurs
 
 ## Qui le réalise
 
-Ce site est réalisé Pithon, psychologue clinicien et enseignant-chercheur, à titre personnel ([ORCID {orcid}](https://orcid.org/{orcid})).
+Ce site est réalisé par Lucas Pithon, psychologue clinicien et enseignant-chercheur, à titre personnel ([ORCID {orcid}](https://orcid.org/{orcid})).
 
 ## Indépendance
 

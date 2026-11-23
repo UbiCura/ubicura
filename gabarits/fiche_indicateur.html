@@ -81,6 +81,11 @@ main.indicateur .voisins .regle{font-size:var(--t-note);color:var(--muted);margi
 @media (max-width:900px){main.indicateur .votre .champ,main.indicateur .votre-res,main.indicateur .carte-cote{grid-template-columns:minmax(0,1fr)}main.indicateur .votre .aide{margin:0}}
 @media (max-width:900px){main.indicateur .grille-i{grid-template-columns:minmax(0,1fr)}}
 @media (max-width:480px){main.indicateur dl.meta{grid-template-columns:minmax(0,1fr);gap:2px 0}main.indicateur dl.meta dd{margin-bottom:8px}}
+/* chaque région et sa fourchette : le dessin de l'ordinateur au-delà de 600 px, celui du téléphone en deçà (maquette du
+   23 novembre 2026) ; la figure ne dépasse pas la colonne de lecture */
+main.indicateur .fourchettes figure.graphique{max-width:760px}
+main.indicateur .fourchettes figure.graphique svg.fig-tel{display:none}
+@media (max-width:600px){main.indicateur .fourchettes figure.graphique svg.fig-ord{display:none}main.indicateur .fourchettes figure.graphique svg.fig-tel{display:block}}
 </style>
 <header class="tete">
   <p class="fil"><a href="../domaines.html#{{ f.dom.id }}">{{ f.dom.nom }}</a>{% if f.sous %}, {{ f.sous|lower }}{% endif %}{% if f.sm and (f.sous or '')|lower != 'santé mentale' %}<span class="marque-sm">santé mentale</span>{% endif %}</p>
@@ -122,6 +127,19 @@ main.indicateur .voisins .regle{font-size:var(--t-note);color:var(--muted);margi
     </dl>
   </section>
 </div>
+
+{#- chaque région et sa fourchette (maquette validée le 23 novembre 2026, pipeline/figure_fourchettes.py) : deux dessins,
+    l'un pour l'ordinateur, l'autre pour le téléphone, lisible sans agrandir #}
+{% if f.fourchettes %}
+<section class="sect fourchettes" aria-labelledby="t-fourchette" data-citation="{{ citation }}">
+  <h2 id="t-fourchette">Fourchettes publiées</h2>
+  <p class="groupe-lire"><b>Comment lire.</b> {{ f.fourchettes.lire }}</p>
+  <figure class="graphique"{% if f.fourchettes.donnees %} data-donnees="{{ f.fourchettes.donnees }}" data-donnees-nom="sante_mentale_sante_publique_france.csv"{% endif %}>
+    <figcaption><strong>Chaque région et sa fourchette.</strong> <span class="leg">{{ f.lab }}, valeur et intervalle de confiance publiés par Santé publique France</span></figcaption>
+    {{ f.fourchettes.svg_ord|safe }}{{ f.fourchettes.svg_tel|safe }}
+  </figure>
+</section>
+{% endif %}
 
 {#- les indicateurs voisins, tirés du catalogue (pipeline/voisins.py), jamais d'une corrélation #}
 {% macro voisins() -%}

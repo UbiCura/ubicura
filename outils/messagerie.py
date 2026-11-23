@@ -510,6 +510,10 @@ def etat_mise_a_jour() -> dict:
     if z.get("en_preparation"):
         lignes.append((f"Archive sur Zenodo, les brouillons de la version du {date_longue(z['en_preparation'])} attendent ta "
                        "publication (tutoriel 07).", "bleu"))
+    # sauvegarde hors du PC (outils/sauvegarde.py), en alerte au-delà de dix jours ou après un échec
+    from outils import sauvegarde
+    texte_s, ton_s = sauvegarde.etat_en_mots()
+    lignes.append((texte_s, "ocre" if ton_s == "alerte" else "discret"))
     return {"titre": "Données du site", "lignes": lignes, "fichier": fichier, "en_cours": en_cours}
 
 

@@ -1572,6 +1572,9 @@ main table.fichiers td:first-child a,main table.fichiers td:last-child{white-spa
 .fiche table.ligne-type .att{display:block;margin-top:2px;font-size:var(--t-note);color:var(--muted);line-height:1.4}
 .fiche table.ligne-type td.outil,.fiche table.ligne-type th.outil{padding-right:0;text-align:right}
 .fiche table.ligne-type tr:has(+ tr.suite-ligne) > *{border-bottom:0;padding-bottom:2px}
+/* une ligne qui porte une fourchette et sa mention a une position haute de trois ou quatre lignes : un espace la
+   sépare de sa définition, qui ne vient plus buter contre elle (maquette validée le 23 novembre 2026, variante A) */
+.fiche table.ligne-type tr.avec-ic:has(+ tr.suite-ligne) > *{padding-bottom:12px}
 .fiche table.ligne-type tr.suite-ligne td{padding:0 0 10px;font-size:var(--t-note);line-height:1.45}
 .fiche table.ligne-type tr.sous + tr.suite-ligne td{padding-left:24px}
 /* « Même distance, … » (population concernée, maquette) : la sous-ligne se lit comme une précision de sa ligne, valeur

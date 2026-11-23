@@ -4151,7 +4151,8 @@ def test_relecture_fiches_construites():
     assert BF.mais(None, "plus près que 52 % des départements", "dist", "", None, "4,4", "2,6")
     assert "pres" in AF.CLE_CONTRAIRE and "loin" in AF.CLE_CONTRAIRE
     # 1. la cellule de la position, en entier ; l'écart passe à côté d'elle sous 820 px
-    assert "{{ l.pos_txt }}{% endif %}</td>" in g and "l.avant" in g and "m.avant" in g
+    # la mention de la fourchette suit la position dans la même cellule (maquette validée le 23 novembre 2026)
+    assert "{{ l.pos_txt }}{% if l.marge %}" in g and "l.avant" in g and "m.avant" in g
     assert "position sans son ensemble au téléphone" in js and "écart et position sur deux lignes" in js
     # 3. la carte ne rétrécit plus ; les colonnes et les codes de secteur se mesurent après le chargement, sur chaque couche
     assert "-.45 * h" not in g and "xMidYMid slice" not in g and 'addEventListener("fiche:couche", placer)' in g
@@ -9106,8 +9107,8 @@ def test_bornes_intervalle_region():
     assert FT.bornes_intervalle("136,3", 128.7, 147.2) == ("128,7", "147,2")
     assert FT.dans_marge((7.19, 7.12, 7.26), 7.14) and not FT.dans_marge((4.8, 4.0, 5.7), 5.8)
     assert not FT.dans_marge(None, 5.0)
-    # la réserve « dans la marge d'incertitude » attend la décision : le paramètre reste éteint
-    assert FT.MARGE_INCERTITUDE is False
+    # la réserve « dans la marge d'incertitude », validée le 23 novembre 2026 sur maquette
+    assert FT.MARGE_INCERTITUDE is True
 
 
 def test_fiche_departement_indicateurs_de_la_region():
@@ -9146,7 +9147,8 @@ def test_fiche_departement_indicateurs_de_la_region():
         out = {}
         for m in re.finditer(r'<tr[^>]*?data-ind="([^"]+)"[^>]*>(.*?)</tr>(\s*<tr class="suite-ligne">.*?</tr>)?', h, re.S):
             v = re.search(r'<td class="v"><b>(.*?)</b>', m.group(2), re.S)
-            pos = re.search(r'<td class="pos">(.*?)(?:<span class="note">|</td>)', m.group(2), re.S)
+            # la position seule, sans ses notes (« Région médiane », mention de la fourchette sur la fiche de région)
+            pos = re.search(r'<td class="pos">(.*?)(?:<span class="note|</td>)', m.group(2), re.S)
             rg = re.search(r'aria-label="([^"]*)"', m.group(2))
             lim = re.search(r'<span class="lim-ligne"[^>]*>(.*?)</span>', m.group(3) or "", re.S)
             out.setdefault(m.group(1), (texte(v.group(1)) if v else "", texte(pos.group(1)) if pos else "",
@@ -9172,7 +9174,9 @@ def test_fiche_departement_indicateurs_de_la_region():
             # menu « Citer et exporter », un details à elle)
             fin_t = g.find("</table>")
             g = g[:min(x for x in (g.find('<div class="groupe"'), g.find("</details>", max(fin_t, 0))) if x > 0)]
-            assert "marge d" not in texte(g), c
+            # la mention « dans la marge d'incertitude » suit toujours la ligne de la région médiane (maquette validée le
+            # 23 novembre 2026) ; son accord aux nombres écrits est contrôlé par test_fourchettes_et_marge_...
+            assert texte(g).count("marge d'incertitude") <= texte(g).count("Région médiane") + 1, c
             ids = re.findall(r'data-ind="([^"]+)"', g)
             rc = re.search(r'data-niv="reg:(\w+)"', g)
             for href in re.findall(r'href="\.\./\.\./([^"#]+)"', g):
@@ -9294,8 +9298,14 @@ def test_code_publie_sans_le_nom_de_l_auteur():
                  if not exclus & set(p.relative_to(site).parts[:-1]) and not (p.suffix == ".html" and p.name.startswith("_"))]
         # une raison sociale qui contient ce prénom est permise : on cherche les mentions de l'auteur
         auteur = re.compile(r"(?:\bde|\bpar|\()\s?" + PRENOM + r"\b|\b" + PRENOM + r",\s+\d")
-        fautes = [p.name for p in pages if p.exists() and auteur.search(p.read_text(encoding="utf-8"))]
+        # la page « À propos » porte les mentions légales et dit qui réalise le site : le nom complet y est permis
+        fautes = [p.name for p in pages if p.exists() and p != site / "a-propos.html"
+                  and auteur.search(p.read_text(encoding="utf-8"))]
         assert not fautes, fautes[:5]
+    # et il y est bien, en entier : le 14 novembre 2026, le retrait du prénom avait laissé « Ce site est réalisé
+    # Pithon » (vu par l'auteur le 23 novembre)
+    a_propos = (config.RACINE / "contenus" / "a_propos.md").read_text(encoding="utf-8")
+    assert "Ce site est réalisé par " + PRENOM + " Pithon," in a_propos
 
 
 def test_publier_retrouve_les_ecarts_deja_valides():
@@ -10316,6 +10326,134 @@ def test_textes_des_classes_de_confirmation():
     assert "à vérifier" not in z and "non confirmée" in z and "à confirmer" in z
     b = (config.RACINE / "pipeline" / "bandes_fiche.py").read_text(encoding="utf-8")
     assert "« à confirmer » quand" in b and "« non confirmée » quand" in b
+
+
+def test_sauvegarde_hors_du_pc():
+    """Sauvegarde hors du PC (outils/sauvegarde.py, fiche du 15 novembre 2026) : la liste copie ce qui ne se
+    retélécharge pas, la copie n'efface rien et vérifie les empreintes, la fenêtre alerte au-delà de dix jours."""
+    import datetime as dt
+    import json as js
+    import tempfile
+    sys.path.insert(0, str(config.RACINE / "outils"))
+    import sauvegarde as SV
+    for rel in ("resultats/historique", "donnees/archives", "contenus", "docs"):
+        assert rel in SV.COPIES, rel
+    # les règles du projet, à la racine, sont copiées avec les autres fichiers Markdown de la racine
+    assert SV.RACINE_MD and set(SV.fichiers_racine()) == set(config.RACINE.glob("*.md"))
+    assert set(SV.VERIFIEES) <= set(SV.COPIES)
+    with tempfile.TemporaryDirectory() as d:
+        src, cible = Path(d) / "src", Path(d) / "cible"
+        (src / "a").mkdir(parents=True)
+        (src / "a" / "x.txt").write_text("un", encoding="utf-8")
+        assert SV.copier(src, cible) == 0 and SV.verifier(src, cible) == []
+        (cible / "a" / "garde.txt").write_text("deja sauvegarde", encoding="utf-8")
+        (src / "a" / "x.txt").write_text("deux", encoding="utf-8")
+        assert SV.copier(src, cible) == 0
+        assert (cible / "a" / "garde.txt").exists(), "la copie ne doit rien effacer sur le disque"
+        assert (cible / "a" / "x.txt").read_text(encoding="utf-8") == "deux"
+        (cible / "a" / "x.txt").write_text("abime", encoding="utf-8")
+        assert SV.verifier(src, cible), "une copie différente doit être signalée"
+        ancien = SV.ETAT
+        try:
+            SV.ETAT = Path(d) / "etat.json"
+            assert SV.etat_en_mots()[1] == "alerte"
+            SV.ETAT.write_text(js.dumps({"date": "2026-11-20T10:00:00", "reussie": True, "erreurs": []}), encoding="utf-8")
+            assert SV.etat_en_mots(dt.date(2026, 11, 23))[1] == "discret"
+            assert SV.etat_en_mots(dt.date(2026, 12, 5))[1] == "alerte"
+            SV.ETAT.write_text(js.dumps({"date": "2026-11-20T10:00:00", "reussie": False, "erreurs": ["x"]}), encoding="utf-8")
+            assert SV.etat_en_mots(dt.date(2026, 11, 21))[1] == "alerte"
+        finally:
+            SV.ETAT = ancien
+    # le disque du projet n'est jamais pris pour le disque de sauvegarde
+    assert SV.disque_temoin() is None or SV.disque_temoin().drive.upper() != config.RACINE.drive.upper()
+
+
+def test_definitions_du_barometre_2024_homogenes():
+    """Les mesures du Baromètre 2024 de Santé publique France (même enquête, adultes de 18 à 79 ans, sans Mayotte) se
+    définissent de la même façon : les pensées suicidaires et les tentatives de suicide ne disaient ni l'âge, ni
+    « hors Mayotte », ni qu'elles sont déclarées (remarque du 23 novembre 2026 sur la fiche de département)."""
+    from pipeline import config
+    vus = 0
+    for e in config.ODISSE:
+        if "Baromètre" in e.get("source", "") and "barometre" in e["dataset"]:
+            vus += 1
+            x = e["explication"]
+            assert "18 à 79 ans" in x and "hors Mayotte" in x and "déclar" in x, (e["id"], x)
+    assert vus >= 6, vus
+
+
+def test_fourchettes_et_marge_d_incertitude_sur_toutes_les_fiches():
+    """Sur chaque fiche de région et de département construite, chaque ligne qui porte une fourchette (« entre A et B »)
+    se lit sans contradiction : la mention « dans la marge d'incertitude » paraît si et seulement si la médiane écrite
+    sur la ligne est dans la fourchette écrite (maquette validée le 23 novembre 2026 ; « entre 7,12 et 7,26 » à côté de
+    « médiane 7,1 » se contredisait). Une seule médiane écrite par indicateur sur toutes les fiches, la même dans la
+    figure de sa page d'indicateur, qui marque d'un point vide autant de régions que les fiches de région portent la
+    mention (relecture indépendante du 23 novembre 2026)."""
+    import html
+    import re
+    site = config.RACINE / "site" / "territoire"
+    if not (site / "reg").exists():
+        raise Ignore("site non construit")
+    ESP = "\u202f\u00a0 "
+    num = lambda s: float(s.replace("\u2212", "-").translate({ord(c): None for c in ESP}).replace(",", "."))  # noqa: E731
+    NB = r"([0-9,\u2212\u202f\u00a0 ]+)"
+    vues, fautes, medianes, marges = 0, [], {}, {}
+    for niv in ("reg", "dep"):
+        for f in sorted((site / niv).glob("*.html")):
+            h = f.read_text(encoding="utf-8")
+            for tr in re.findall(r"<tr[^>]*>.*?</tr>", h, flags=re.S):
+                tr = html.unescape(tr)
+                m = re.search(r'class="note ic">entre ([^<]+?)\s+et\s+([^<]+?)</span>', tr)
+                if not m:
+                    continue
+                med = re.search(r">médiane " + NB + "<", tr)
+                if not med:
+                    fautes.append(f"{niv}/{f.name} : fourchette sans médiane sur la réglette")
+                    continue
+                vues += 1
+                ind = re.search(r'data-ind="([^"]+)"', tr).group(1)
+                medianes.setdefault(ind, set()).add(med.group(1).strip())
+                dedans = num(m.group(1)) <= num(med.group(1)) <= num(m.group(2))
+                mention = "dans la marge d'incertitude" in tr
+                if dedans != mention:
+                    fautes.append(f"{niv}/{f.name} : entre {m.group(1)} et {m.group(2)}, médiane {med.group(1)}")
+                if niv == "reg" and mention:
+                    marges[ind] = marges.get(ind, 0) + 1
+                r = re.search(r"Région médiane\s*:\s*([0-9−   ]+(?:,[0-9]+)?)", tr)
+                if r and r.group(1).strip() != med.group(1).strip():
+                    fautes.append(f"{niv}/{f.name} : médiane {med.group(1)} sur la réglette, {r.group(1)} sur la ligne")
+    assert vues > 100, vues
+    fautes += [f"{i} : médianes {sorted(m)}" for i, m in medianes.items() if len(m) > 1]
+    assert not fautes, fautes[:8]
+    ind = config.RACINE / "site" / "indicateur"
+    for slug, ident in (("satisfaction-vie", "satisfaction_vie"), ("pensees-suicidaires-declarees", "pensees_suicidaires_declarees"),
+                        ("episode-depressif-declare", "episode_depressif_declare")):
+        h = html.unescape((ind / f"{slug}.html").read_text(encoding="utf-8"))
+        assert 'id="t-fourchette"' in h and "fig-ord" in h and "fig-tel" in h, slug
+        fig = h[h.index('id="t-fourchette"'):]
+        m = re.search(r"région médiane " + NB + "<", fig)
+        assert m and {m.group(1).strip()} == medianes[ident], (slug, m and m.group(1), medianes.get(ident))
+        ordi = fig.split('class="fig-tel"')[0]
+        vides = len(re.findall(r"<title>[^<]*dans la marge d'incertitude</title>", ordi))
+        assert vides == marges.get(ident, 0), (slug, vides, marges.get(ident))
+
+
+def test_mots_du_lecteur_cibles_et_mots_permis():
+    """La table des mots du lecteur (validée le 23 novembre 2026) : chaque cible existe dans la recherche publiée, et
+    aucun mot ne désigne un moyen de suicide (règle du 30 octobre 2026) ; la recherche publiée reprend toutes ses
+    lignes. Un mot de moyen ajouté par erreur est refusé par la fonction de contrôle."""
+    import json
+    from pipeline import mots_lecteur as M
+    L = M.lire()
+    assert len(L) >= 40, len(L)
+    assert M.erreurs_table([{"cible": "suicides", "mots": ["pendaison"]}], {"suicides"}, set()), "mot de moyen accepté"
+    rj = config.RACINE / "site" / "presentation" / "recherche.json"
+    if not rj.exists():
+        raise Ignore("site non construit")
+    R = json.loads(rj.read_text(encoding="utf-8"))
+    ids, urls = {i[0] for i in R["indicateurs"]}, {p[1] for p in R["pages"]}
+    assert not M.erreurs_table(L, ids, urls), M.erreurs_table(L, ids, urls)[:5]
+    assert len(R["mots"]["lignes"]) == len(L)
 
 
 def test_serie_lancee_en_dernier():

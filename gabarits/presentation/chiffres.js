@@ -10,6 +10,7 @@ var Chiffres = (function () {
   function decimales(v, g) {
     if (g === "entier" || g === "euros" || g === "minutes") return 0;
     if (g === "distance" || g === "part") return 1;
+    if (g === "note") return 2;   // une note sur 10, au centième comme ses fourchettes (23 novembre 2026)
     if (Math.abs(num(nf(2).format(v))) < 1) return 2;
     return Math.abs(num(nf(1).format(v))) >= 1000 ? 0 : 1;
   }

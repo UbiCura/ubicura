@@ -122,6 +122,12 @@ try {
         $sortieM = & $python outils\messagerie.py envoyer-programmes 2>&1 | ForEach-Object { "$_" }
         foreach ($l in $sortieM) { if ($l.Trim()) { Ecrire $l } }
     }
+    # sauvegarde hors du PC quand le disque de sauvegarde est branché (outils\sauvegarde.py, tutoriel 16), sans rien
+    # dire s'il ne l'est pas : la fenêtre « Ubi Cura » rappelle de le brancher au-delà de dix jours
+    if (-not $Simuler) {
+        $sortieS = & $python outils\sauvegarde.py sauvegarder --si-branche 2>&1 | ForEach-Object { "$_" }
+        foreach ($l in $sortieS) { if ($l.Trim()) { Ecrire $l } }
+    }
     # pendant une séance de travail (reconstruction rapide ou contrôle depuis moins de trois heures, donnees\seance.verrou)
     # ou avec moins de 6 Go de mémoire libre, la tâche passe son tour : le 7 novembre 2026, elle a relancé une
     # reconstruction complète au milieu d'une séance et d'une partie. Les messages programmés partent quand même.

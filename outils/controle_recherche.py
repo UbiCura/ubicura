@@ -62,6 +62,12 @@ REQUETES = [
     ("psychiatres Lyon 1er", "prof:psychiatre", "com", "69381"),
     ("psychiatres Marseille 8ème", "prof:psychiatre", "com", "13208"),
     ("psychiatres Lozère", "prof:psychiatre", "dep", "48"),
+    # un département par son code (étape 4 des portes d'entrée, 23 novembre 2026)
+    ("psychiatres 69", "prof:psychiatre", "dep", "69"),
+    ("psychologues 2A", "prof:psychologue", "dep", "2A"),
+    # un nombre du nom de l'indicateur n'est pas un code de département (relecture indépendante du 23 novembre 2026)
+    ("affections psychiatriques ALD 23", "aucune", None, None),
+    ("EHPAD 80", "aucune", None, None),
 ]
 
 # recherche de l'accueil, du comparateur et de « Autour d'un lieu » (recherche.js) : requête, premier résultat attendu ;
@@ -111,6 +117,20 @@ RENDUS = [
     ("Paris 15e", ["territoire/dep/75.html", "75015, à Paris"], ["commune=75115", "arrondissement, 75015"]),
     ("Lyon 3e", ["arr=Lyon%203e", "grande=1", "nom=Lyon&"], []),
     ("Ouessant", ["commune sans intercommunalité"], ["commune=", "Ouessantintercommunalité"]),
+    # mots du lecteur (étape 4 des portes d'entrée, table validée le 23 novembre 2026, contenus/mots_du_lecteur.csv) :
+    # la cible en tête, une faute ou deux lettres inversées tolérées, « désert médical » jamais écrit dans un résultat
+    ("dépression", [r"^Indicateurs\s*Adultes déclarant un épisode dépressif"], ["Rien ne porte ce nom"]),
+    ("dpéression", ["Adultes déclarant un épisode dépressif"], ["Rien ne porte ce nom"]),
+    ("désert médical", ["Médecin généraliste", "Quelle accessibilité"], ["(?i)désert médical"]),
+    ("santé mentale Rhône", ["Rhône : santé mentale", "territoire/dep/69.html#d-sm", "territoire/reg/84.html#d-sm"], []),
+    ("nouveautés", ["Journal des mises à jour"], ["Rien ne porte ce nom"]),
+    ("violences", ["Violences et victimes"], [r"Violences et victimes[\s\S]*Violences et victimes"]),
+    ("69", ["Rhône"], ["Rien ne porte ce nom"]),
+    ("psychiatres 69", ["dans le Rhône"], ["Sur la fiche"]),
+    # le nom exact avant un nom plus peuplé à deux lettres près ; un nom de lieu n'appelle pas une cible approchée
+    ("Omissy", [r"^Territoires\s*Omissy"], []),
+    ("Fumel", ["Fumel"], ["fument chaque jour"]),
+    ("nouveautés", [r"Journal des mises à jour[\s\S]*À venir"], []),
 ]
 
 
@@ -282,6 +302,13 @@ def catalogue_recherche() -> list[tuple[str, str]]:
         pb.append(("presentation/reponses.json", "réponses directes absentes"))
     urls = {p[1] for p in r.get("pages", [])}
     titres = {re.sub(r"\s+", " ", p[0]).strip() for p in r.get("pages", [])}
+    # chaque page proposée existe dans le site construit (journal, à venir, pages de domaine ajoutés le 23 novembre 2026)
+    pb += [("presentation/recherche.json", f"page proposée absente du site : {u}") for u in sorted(urls)
+           if not (SITE / u.split("#")[0]).exists()]
+    # et chaque mot du lecteur garde une cible publiée
+    from pipeline import mots_lecteur as ML
+    pb += [("presentation/recherche.json", f"mots du lecteur : {e}") for e in
+           ML.erreurs_table(ML.lire(), set(ids), urls)]
     for f in sorted((SITE / "theme").glob("*.html")):
         if f"theme/{f.name}" not in urls:
             pb.append(("presentation/recherche.json", f"page de thème theme/{f.name} absente de la recherche"))

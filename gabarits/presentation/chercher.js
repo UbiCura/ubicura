@@ -28,16 +28,86 @@
   function motsCherches(s) { return base(s).split(/[^a-z0-9]+/).filter(function (m) { return m && !VIDES[m]; }).map(mot); }
   function proche(a, b) {   // une faute de frappe au plus sur un mot d'au moins cinq lettres
     if (a.length < 5 || Math.abs(a.length - b.length) > 1) return false;
+    // deux lettres voisines inversées comptent pour une seule faute (« dpression » pour « depression », 23 novembre 2026)
+    if (a.length === b.length) { var d = []; for (var t = 0; t < a.length && d.length < 3; t++) if (a[t] !== b[t]) d.push(t);
+      if (d.length === 2 && d[1] === d[0] + 1 && a[d[0]] === b[d[1]] && a[d[1]] === b[d[0]]) return true; }
     var i = 0, j = 0, e = 0;
     while (i < a.length && j < b.length) { if (a[i] === b[j]) { i++; j++; continue; } if (++e > 1) return false;
       if (a.length > b.length) i++; else if (b.length > a.length) j++; else { i++; j++; } }
     return e + (a.length - i) + (b.length - j) <= 1;
   }
+
+  // mots du lecteur (étape 4 des portes d'entrée, table validée le 23 novembre 2026, contenus/mots_du_lecteur.csv) : des
+  // mots d'usage vers des indicateurs, des pages et des parties de fiche, en tête de leur groupe (pipeline/mots_lecteur.py)
+  var LEX = null;
+  function cle(s) { return motsCherches(s).join(" "); }
+  function lexique() {
+    if (LEX) return LEX; LEX = { ph: {}, pa: {} };
+    ((D.mots || {}).lignes || []).forEach(function (l) { l.mots.forEach(function (p) { var k = cle(p); if (!k) return;
+      // « violences » et « violence » donnent la même clé : chaque cible une seule fois
+      var T = l.cible.indexOf("partie:") === 0 ? LEX.pa : LEX.ph, c = l.cible.indexOf("partie:") === 0 ? l.cible.slice(7) : l.cible;
+      T[k] = T[k] || []; if (T[k].indexOf(c) < 0) T[k].push(c); }); });
+    return LEX;
+  }
+  // un lieu nommé en entier, ou un département par son code (« 69 », « 2a »)
+  function lieuExact(b) {
+    var lieu = base(b).trim().replace(/\s+/g, " ").replace(/^(a|au|aux|en|dans|de|du|des|d|pour|sur) /, ""), lieux = [lieu, lieu.replace(/^(la|le|les|l) /, "")];
+    if (lieu.length < 3 && !/^(\d\d|2[ab])$/.test(lieu)) return null;
+    var best = null, bn = 99;
+    trouver(b).terr.forEach(function (e) { var f = formes(e.nm).concat(e.t === "dep" ? [e.c.toLowerCase()] : []);
+      for (var z = 0; z < f.length; z++) if (lieux.indexOf(f[z]) >= 0) { if (z < bn) { bn = z; best = e; } break; } });
+    return best;
+  }
+  function partie(t, p) {
+    var P = ((D.mots || {}).parties || {})[p], lv = t.t === "com" ? "epci" : t.t;
+    var u = t.t === "com" ? lienCommune(t) : racine + "territoire/" + t.t + "/" + t.c + ".html";
+    if (!P || !u) return null;
+    var ep = t.t === "com" ? epci[t.epci] : null;
+    return { g: "partie", nm: t.nm + " : " + P[1].toLowerCase(), url: u.slice(racine.length) + "#" + p,
+      prec: (ep ? "fiche de " + ep[1] : NIV[lv]) + ", partie " + P[0] + " de la fiche" };
+  }
+  // une clé de la table retrouvée malgré une faute ou une inversion par mot (« dpéression »), comme le reste de la recherche
+  function cles(T, k) {
+    if (T[k]) return T[k];
+    // un nom de lieu exact n'appelle pas une cible approchée de la table (« Fumel » n'est pas « tabac », relecture
+    // indépendante du 23 novembre 2026)
+    if (idx.some(function (e) { return e.g === "terr" && motsCherches(e.nm).join(" ") === k; })) return [];
+    var w = k.split(" "), out = [];
+    Object.keys(T).forEach(function (c) { var v = c.split(" ");
+      if (v.length === w.length && v.every(function (x, i) { return x === w[i] || proche(w[i], x); }))
+        T[c].forEach(function (x) { if (out.indexOf(x) < 0) out.push(x); }); });
+    return out;
+  }
+  function lecteur(q) {
+    var X = lexique(), k = cle(q), o = { ind: [], page: [], q: [], partie: [] };
+    cles(X.ph, k).forEach(function (c) {
+      if (c.indexOf("page:") === 0) { var u = c.slice(5), e = idx.filter(function (x) { return (x.g === "page" || x.g === "q") && x.url === u; })[0];
+        if (e) (e.g === "q" ? o.q : o.page).push(e); }
+      else { var e2 = idx.filter(function (x) { return x.g === "ind" && x.c === c; })[0]; if (e2) o.ind.push(e2); }
+    });
+    var ms = q.trim().split(/\s+/);
+    for (var n = 1; n < ms.length && !o.partie.length; n++) {
+      [[ms.slice(0, n), ms.slice(n)], [ms.slice(ms.length - n), ms.slice(0, ms.length - n)]].forEach(function (x) {
+        // une partie de fiche se demande par ses mots exacts : « psychiatres 69 » n'est pas « psychiatrie 69 », il appelle la
+        // réponse directe (contrôle du 23 novembre 2026)
+        var th = X.pa[cle(x[0].join(" "))] || []; if (!th.length || o.partie.length) return;
+        var t = lieuExact(x[1].join(" ")); if (t) th.forEach(function (p) { var e = partie(t, p); if (e) o.partie.push(e);
+          // un département : la même partie de la fiche de sa région, quand des indicateurs n'y sont publiés que par région
+          var nr = ((D.mots || {}).reg_seul || {})[p] || 0, rg = t.t === "dep" ? idx.filter(function (z) { return z.t === "reg" && z.nm === t.p; })[0] : null;
+          if (nr && rg) { var e3 = partie(rg, p); if (e3) { e3.prec = "région, partie " + D.mots.parties[p][0] + " : " + nr + " indicateur" + (nr > 1 ? "s" : "") + " publié" + (nr > 1 ? "s" : "") + " seulement par région"; o.partie.push(e3); } } });
+      });
+    }
+    return o;
+  }
+  function fusion(r, L) {
+    ["ind", "page", "q"].forEach(function (g) { if (!L[g].length) return;
+      r[g] = L[g].concat(r[g].filter(function (e) { return L[g].indexOf(e) < 0 && !L[g].some(function (f) { return f.url && f.url === e.url; }); })); });
+  }
   function charger() {
     if (!enCours) enCours = fetch(racine + "presentation/recherche.json").then(function (r) { return r.json(); }).then(function (d) {
       D = d; idx = [];
       ["reg", "dep", "epci"].forEach(function (lv) { d.territoires[lv].forEach(function (u) {
-        idx.push({ g: "terr", t: lv, c: u[0], nm: u[1], m: mots(u[1]), pop: u[2], p: u[3] }); if (lv === "epci") epci[u[0]] = u; }); });
+        idx.push({ g: "terr", t: lv, c: u[0], nm: u[1], m: mots(u[1] + (lv === "dep" ? " " + u[0] : "")), pop: u[2], p: u[3] }); if (lv === "epci") epci[u[0]] = u; }); });
       d.communes.forEach(function (k) { idx.push({ g: "terr", t: "com", c: k[0], nm: k[1], m: mots(k[1]), cp: k[2], pop: k[3], epci: k[4] }); comNom[k[0]] = k[1]; comPop[k[0]] = k[3]; });
       // les arrondissements de Paris, Lyon et Marseille, trouvés comme une commune (« Paris 15e », « Lyon 3 »,
       // « Marseille 8ème »), qui mènent à la fiche de leur commune (contre-audit du 8 novembre 2026) ; « arrondissement »
@@ -103,7 +173,13 @@
       if (couvre(e, V)) res[e.g].push(e);
     });
     var RANG = { dep: 0, reg: 1, epci: 2, com: 3 };
-    res.terr.sort(function (a, b) { return (b.pop || 0) - (a.pop || 0) || RANG[a.t] - RANG[b.t]; });
+    // le nom exact d'abord, puis les noms dont chaque mot cherché est un début de mot, puis les noms approchés (une
+    // faute ou une inversion) ; la population ensuite (relecture indépendante du 23 novembre 2026 : « Omissy » ouvrait
+    // Moissy-Cramayel)
+    var qn = base(q).trim().replace(/\s+/g, " "), qm = motsCherches(q);
+    function juste(e) { return base(e.nm) === qn ? 0 : qm.every(function (v) { return e.m.some(function (w) { return v.length < 3 ? w === v : w.indexOf(v) === 0; }); }) ? 1 : 2; }
+    res.terr.forEach(function (e) { e._j = juste(e); });
+    res.terr.sort(function (a, b) { return a._j - b._j || (b.pop || 0) - (a.pop || 0) || RANG[a.t] - RANG[b.t]; });
     // « 75015 » : l'arrondissement dont c'est le code postal avant la commune de Paris (relecture du 9 novembre 2026)
     if (cp) res.terr.sort(function (a, b) { return (b.pc ? 1 : 0) - (a.pc ? 1 : 0); });
     // l'indicateur dont le nom commence par la recherche d'abord, puis le plus court (« Psychiatre » avant « Psychiatre,
@@ -121,6 +197,9 @@
       var essais = [[a, b], [b, a]];
       for (var i = 0; i < 2; i++) {
         var ri = indicateurs(essais[i][0]); if (!ri.length) continue;
+        // un nombre du nom de l'indicateur n'est pas un code de département : « affections psychiatriques ALD 23 » ne
+        // répond pas pour la Creuse, « EHPAD 80 » pour la Somme (relecture indépendante du 23 novembre 2026)
+        if (/^\s*(\d{2,3}|2[ab])\s*$/i.test(essais[i][1]) && mots(ri[0].nm + " " + essais[i][0]).indexOf(base(essais[i][1]).trim()) >= 0) continue;
         var rt = trouver(essais[i][1]).terr;
         // un lieu n'est reconnu que si son nom correspond en entier, avec ou sans article ou sigle (« Lille » pour
         // « Lille », jamais « de vie » pour « Croix-de-Vie »)
@@ -128,8 +207,8 @@
         var lieux = [lieu, lieu.replace(/^(la|le|les|l) /, "")];
         // le nom entier d'abord, puis sans article, puis sans sigle : « Lyon » est la commune, pas la Métropole de Lyon ;
         // -1 quand aucune forme ne va (un arrondissement a plus de neuf formes, « lyon 1er » est la dixième)
-        function niveau(e) { var f = formes(e.nm); for (var z = 0; z < f.length; z++) if (lieux.indexOf(f[z]) >= 0) return z; return -1; }
-        var ok = lieu.length < 3 ? [] : rt.map(function (e, z) { return { e: e, n: /^\d{5}$/.test(lieu) ? 0 : niveau(e), z: z }; })
+        function niveau(e) { var f = formes(e.nm).concat(e.t === "dep" ? [e.c.toLowerCase()] : []); for (var z = 0; z < f.length; z++) if (lieux.indexOf(f[z]) >= 0) return z; return -1; }
+        var ok = (lieu.length < 3 && !/^(\d\d|2[ab])$/.test(lieu)) ? [] : rt.map(function (e, z) { return { e: e, n: /^\d{5}$/.test(lieu) ? 0 : niveau(e), z: z }; })
           .filter(function (x) { return x.n >= 0; }).sort(function (x, y) { return x.n - y.n || x.z - y.z; }).map(function (x) { return x.e; });
         var t = ok[0];
         if (!t) continue;
@@ -192,7 +271,7 @@
     else if (e.g === "ind") s = "indicateur, " + e.dom.toLowerCase();
     else s = e.prec;
     var a = adresse(e);
-    return "<li>" + (a ? '<a href="' + esc(a) + '">' + esc(e.nm) + "</a>" : esc(e.nm)) + "<span>" + esc(s) + "</span></li>";
+    return "<li>" + (a ? '<a href="' + esc(a) + '">' + esc(e.nm).replace(/(\w)-(\w)/g, "$1‑$2") + "</a>" : esc(e.nm)) + "<span>" + esc(s) + "</span></li>";
   }
   function groupe(titre, l, n) { return l.length ? "<div><h3>" + titre + "</h3><ul>" + l.slice(0, n).map(ligne).join("") + "</ul></div>" : ""; }
   function lire(lv, code) { return fetch(racine + "territoire/" + lv + "/" + code + ".json").then(function (r) { return r.ok ? r.json() : null; }); }
@@ -272,8 +351,12 @@
     var q = champ.value, numero = ++demande;
     if (!q.trim()) { sortie.innerHTML = ""; return; }
     if (!idx) { charger().then(montrer); return; }
-    var r = trouver(q), a = analyser(q), s = (a || r.terr.length || r.ind.length || r.q.length || r.page.length) ? null : separer(q);
-    var h = groupe("Territoires", r.terr, 5) + groupe("Indicateurs", r.ind, 5) + groupe("Questions", r.q, 4) + groupe("Pages et outils", r.page, 4);
+    var r = trouver(q), a = analyser(q), L = lecteur(q); fusion(r, L);
+    var s = (a || L.partie.length || r.terr.length || r.ind.length || r.q.length || r.page.length) ? null : separer(q);
+    // une page désignée par la table (« nouveautés », le journal) passe avant les territoires et les indicateurs
+    var dab = L.page.length && !L.ind.length;
+    var h = groupe("Sur la fiche", L.partie, 3) + (dab ? groupe("Pages et outils", r.page, 4) + groupe("Questions", r.q, 4) + groupe("Territoires", r.terr, 5) + groupe("Indicateurs", r.ind, 5)
+      : groupe("Territoires", r.terr, 5) + groupe("Indicateurs", r.ind, 6) + groupe("Questions", r.q, 4) + groupe("Pages et outils", r.page, 4));
     // sans réponse directe ni résultat pour toute la phrase, l'indicateur et le lieu proposés chacun de leur côté
     var avant = s ? '<p class="vide">Pas de réponse directe pour cette recherche : choisissez l\'indicateur, puis le territoire.</p>' : "";
     if (s) h = groupe("Indicateurs", s.ind, 5) + groupe("Territoires", s.terr, 5);

@@ -710,16 +710,34 @@ def _sante_mentale_autres(dn, lv, code, dep):
         ligne["id"], ligne["echelle"], ligne["defn"] = ind_id, echelle, ind.get("explication")
         if courte(ind, lv):
             ligne["defn_court"] = courte(ind, lv)
+        # fourchette publiée par Santé publique France, sur la fiche du niveau qui la porte (une région ; maquette
+        # validée le 23 novembre 2026, prototypes/intervalle_barometre/)
+        if echelle is None:
+            avec_fourchette(dn, ligne, lv, code, ind_id)
         par.setdefault(D.classer(ind)[0], []).append(ligne)
-    return [{"nom": d["nom"], "rows": accrocher_sous_lignes(par[d["id"]])} for d in D.DOMAINES if d["id"] in par]
+    cat = {e["id"]: e for e in dn.catalogue()}
+    out = []
+    for d in D.DOMAINES:
+        if d["id"] not in par:
+            continue
+        rows = accrocher_sous_lignes(par[d["id"]])
+        avec_ic = [l for l in rows if l.get("ic")]
+        out.append({"nom": d["nom"], "rows": rows,
+                    "lire_plus": phrases_fourchette(avec_ic, cat, toutes=len(avec_ic) == len(rows)) if avec_ic else ""})
+    return out
 
 
 # -- indicateurs publiés seulement par région, sur la fiche d'un département (maquette validée le 14 novembre
 # 2026, prototypes/entrees/v2_fiche/) ----------------------------------------------------------------------------------
-# « dans la marge d'incertitude » après la position quand l'intervalle publié contient le repère des régions : proposé
-# (relecture du 14 novembre 2026, C2), pas encore tranché. Le paramètre reste éteint jusqu'à sa décision.
-MARGE_INCERTITUDE = False
-MARGE_TEXTE = ", dans la marge d'incertitude"
+# « dans la marge d'incertitude » quand l'intervalle publié contient la région médiane : proposé le 14 novembre 2026
+# (relecture, C2), validé le 23 novembre 2026 sur maquette (prototypes/intervalle_barometre/). Sur la fiche d'un
+# département, la mention suit la ligne « Région médiane : 15,5 » ; sur celle d'une région, elle a sa ligne.
+MARGE_INCERTITUDE = True
+MARGE_TEXTE = ", écart dans la marge d'incertitude"
+MARGE_LIGNE = "écart à la médiane dans la marge d'incertitude"
+LIRE_MARGE = ("Quand elle contient la valeur de la région médiane, l'écart à la médiane n'est pas assez grand, au regard "
+              "de la précision de la mesure, pour être tenu pour établi : la mention « dans la marge d'incertitude » le "
+              "dit sous la position.")
 # la région nommée dans les phrases : la Corse et les régions d'outre-mer par leur nom et son article, les autres
 # « la région Auvergne-Rhône-Alpes »
 REGION_DITE = {"94": "la Corse", "01": "la Guadeloupe", "02": "la Martinique", "03": "la Guyane", "04": "La Réunion",
@@ -753,6 +771,82 @@ def dans_marge(ic: tuple | None, ref: float | None) -> bool:
     return ic is not None and ref is not None and ic[1] <= ref <= ic[2]
 
 
+def _decimales(txt: str) -> int:
+    return len(txt.split(",")[1]) if "," in txt else 0
+
+
+def _ecrire_dec(x: float, k: int) -> str:
+    r = AF._arr(x, k)
+    return ("−" if r < 0 else "") + f"{abs(r):,.{k}f}".replace(",", FINE).replace(".", ",")
+
+
+def decimales_fourchette(dn, ind: str) -> int:
+    """Le plus grand nombre de décimales des bornes écrites d'un indicateur, toutes régions comprises (0 sans fourchette) :
+    la médiane s'écrit ainsi partout où une fourchette l'accompagne."""
+    cache = dn.__dict__.setdefault("_dec_ic", {})
+    if ind not in cache:
+        k = 0
+        for (lv, code, i), x in dn.intervalles().items():
+            if lv != "reg" or i != ind:
+                continue
+            cel = dn.contexte("reg", code, ind)
+            if cel and cel.get("v_txt"):
+                k = max(k, _decimales(bornes_intervalle(cel["v_txt"], x[1], x[2])[0]))
+        cache[ind] = k
+    return cache[ind]
+
+
+def avec_fourchette(dn, l: dict, lv: str, code: str, ind: str) -> bool:
+    """Pose sur une ligne de fiche la fourchette publiée par Santé publique France (l["ic"]) et, quand elle contient la
+    région médiane, la mention (l["marge"]). Quand les bornes ont une décimale de plus que la valeur, la médiane de la
+    ligne (« Région médiane », réglette) est écrite avec ces décimales : « entre 7,12 et 7,26 » et « médiane 7,1 » se
+    contredisaient, la médiane exacte étant 7,14, et « entre 6,98 et 7,13 » semblait contenir 7,1 sans contenir 7,14
+    (relectures de la maquette du 23 novembre 2026)."""
+    l.setdefault("ic", None)
+    l.setdefault("marge", "")
+    x = dn.intervalles().get((lv, code, ind))
+    v = l.get("v")
+    # l'intervalle n'est écrit que s'il accompagne la valeur publiée elle-même
+    if not (l.get("txt") and x and v is not None and abs(x[0] - v) <= 1e-6 * max(1.0, abs(x[0]))):
+        return False
+    l["ic"] = bornes_intervalle(l["txt"], x[1], x[2])
+    # décimales de la médiane choisies par indicateur, les mêmes sur toutes les fiches et dans la figure des pages
+    # d'indicateur (relecture indépendante du 23 novembre 2026 : choisies ligne par ligne, deux fiches pouvaient écrire
+    # 7,1 et 7,14)
+    k = decimales_fourchette(dn, ind)
+    ref = l.get("ref")
+    if k > _decimales(l["txt"]) and ref is not None and l.get("ref_type") == "mediane_territoires":
+        ancien, m = l.get("ref_txt") or "", _ecrire_dec(ref, k)
+        l["ref_txt"] = m
+        if l.get("reg"):
+            if ancien:
+                l["reg"]["aria"] = l["reg"]["aria"].replace(f"{(l.get('ref_lib') or '').lower()} {ancien}",
+                                                            f"{(l.get('ref_lib') or '').lower()} {m}")
+            if l["reg"].get("h") and l["reg"]["h"].get("med_txt") is not None:
+                l["reg"]["h"]["med_txt"] = m
+    if MARGE_INCERTITUDE and dans_marge(x, ref):
+        l["marge"] = MARGE_TEXTE
+    return True
+
+
+def phrases_fourchette(lignes: list[dict], cat: dict, toutes: bool = True) -> str:
+    """Le « Comment lire » des fourchettes : d'où elles viennent (enquête ou estimation, d'après la source du catalogue)
+    et ce que dit la mention. toutes, chaque ligne du groupe a sa fourchette."""
+    enquete = {_enquete(cat.get(l["id"])) for l in lignes}
+    debut = ("Sous la valeur, la fourchette publiée par Santé publique France (intervalle de confiance)" if toutes else
+             "Sous la valeur des mesures de Santé publique France, la fourchette qu'elle publie (intervalle de confiance)")
+    if enquete == {True}:
+        p = debut + " : l'enquête interroge un échantillon d'adultes, et la valeur pour l'ensemble des adultes de la " \
+                    "région se trouve probablement dans cette fourchette."
+    elif enquete == {False}:
+        p = debut + " : ce sont des estimations, et la valeur vraie pour la région se trouve probablement dans cette " \
+                    "fourchette."
+    else:
+        p = debut + ". Les mesures d'enquête sont calculées sur un échantillon d'adultes, les autres sont des " \
+                    "estimations : la valeur vraie pour la région se trouve probablement dans cette fourchette."
+    return p + (" " + LIRE_MARGE if MARGE_INCERTITUDE else "")
+
+
 def _qui_publie(e: dict | None) -> tuple[str, bool]:
     """Qui ne donne pas la mesure, dit d'après la source du catalogue : « Le portail Odissé de Santé publique France »
     (relecture du 14 novembre 2026, C1 : ce qui se vérifie dans le fichier, et non « Santé publique France ne publie
@@ -784,7 +878,6 @@ def _region_seule(dn: Donnees, lv: str, code: str) -> dict | None:
     from .fiche_indicateur import slug
     pr = REGION_DITE.get(rc, f"la région {nom_r}")
     cat = {e["id"]: e for e in dn.catalogue()}
-    ics = dn.intervalles()
     lignes = []
     for i in ids:
         ind = dn.ctx[i][1]
@@ -794,11 +887,7 @@ def _region_seule(dn: Donnees, lv: str, code: str) -> dict | None:
                   "ancre": "l-reg-" + "".join(ch if ch.isalnum() else "-" for ch in i.lower()).strip("-"),
                   "ic": None, "marge": "", "pourquoi": "", "odisse": _qui_publie(cat.get(i))[1]})
         if l["txt"]:
-            x = ics.get(("reg", rc, i))
-            # l'intervalle n'est écrit que s'il accompagne la valeur publiée elle-même
-            if x and cel["v"] is not None and abs(x[0] - cel["v"]) <= 1e-6 * max(1.0, abs(x[0])):
-                l["ic"] = bornes_intervalle(l["txt"], x[1], x[2])
-                l["marge"] = MARGE_TEXTE if MARGE_INCERTITUDE and dans_marge(x, cel.get("ref")) else ""
+            avec_fourchette(dn, l, "reg", rc, i)
         else:
             l["pourquoi"] = f"{_qui_publie(cat.get(i))[0]} ne donne pas cette mesure pour {pr}."
         lignes.append(l)
@@ -826,19 +915,7 @@ def _region_seule(dn: Donnees, lv: str, code: str) -> dict | None:
         if avec_ic:
             # enquête (Baromètre) ou estimation (décès attribuables) : la phrase dit d'où vient la fourchette de chacune
             # (relecture indépendante du 14 novembre 2026, défaut 2), et garde les deux mots du site (C3)
-            enquete = {_enquete(cat.get(l["id"])) for l in avec_ic}
-            debut = ("Sous la valeur, la fourchette publiée par Santé publique France (intervalle de confiance)")
-            if enquete == {True}:
-                p.append(debut + " : l'enquête interroge un échantillon d'adultes, et la valeur pour l'ensemble des "
-                         "adultes de la région se trouve probablement dans cette fourchette.")
-            elif enquete == {False}:
-                p.append(debut + " : ce sont des estimations, et la valeur vraie pour la région se trouve probablement "
-                         "dans cette fourchette.")
-            else:
-                p.append(debut + ". Les mesures d'enquête sont tirées d'un échantillon d'adultes, les autres sont des "
-                         "estimations : la valeur vraie pour la région se trouve probablement dans cette fourchette.")
-            if MARGE_INCERTITUDE:
-                p.append("Quand il contient la région médiane, la position est suivie de « dans la marge d'incertitude ».")
+            p.append(phrases_fourchette(avec_ic, cat))
         if manque:
             p.append(f"{NOMBRE_MOTS.get(manque, manque)} mesure{'s' if manque > 1 else ''} "
                      f"n'{'ont' if manque > 1 else 'a'} pas de valeur{' sur le portail Odissé' if odisse else ' dans sa source'} "
@@ -1706,7 +1783,7 @@ def construire(env, commun: dict, dernier: Path, site_data: dict, site: Path, re
             extras["code_region"] = reg_code.get(u.get("p")) if lv == "dep" else None
             titre = f"{f['nom']}, offre de soins et santé mentale"
             adr = f"{adresse.replace('https://', '').rstrip('/')}/territoire/{lv}/{u['c']}"
-            html = gabarit.render(commun, f=f, racine="../../", titre=titre, page="territoires", classe_main="fiche",
+            html = gabarit.render(commun, f=f, marge_ligne=MARGE_LIGNE, racine="../../", titre=titre, page="territoires", classe_main="fiche",
                                   carte_situation=carte, constats=ks, bandes=bandes_f, bord=bord_f, extras=extras,
                                   phares_absents=BF.phares_absents(ks), nb_phares=len(K.CANDIDATS),
                                   formes=F.defs() if F else "",

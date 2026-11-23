@@ -195,6 +195,13 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
     pages, index, a_ecrire = [], {}, []
     modes ={e["id"]: e for e in A["ind"] if e.get("type") == "prof"}
     T = AF.Affichage(sd, dernier)
+    # intervalles de confiance publiés par Santé publique France, lus comme sur les fiches (fiche_territoire.Donnees)
+    intervalles = {}
+    for l in _lire(dernier / "sante_mentale_sante_publique_france.csv"):
+        v, lo, hi = (_num(l.get(c)) for c in ("valeur", "ic_bas", "ic_haut"))
+        if None not in (v, lo, hi):
+            intervalles[(l.get("niveau"), l.get("code"), l.get("indicateur"))] = (v, lo, hi)
+    noms_reg = {u["c"]: u["nm"] for u in sd["niveaux"]["reg"]["units"]}
     for e in A["ind"]:
         if e.get("type") == "ctx":
             pass
@@ -277,6 +284,14 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
             f["fichiers"] = [(f"contexte_{lv}{'_odbl' if odbl else ''}.csv", NOMS[lv][1]) for lv in niveaux]
             f["croiser"] = f"croiser.html#y={e['id']}"
         f["fichiers"] = [x for x in f["fichiers"] if (dernier / x[0]).exists()]
+        # chaque région et sa fourchette, pour un indicateur publié par région avec un intervalle de confiance
+        # (maquette validée le 23 novembre 2026, pipeline/figure_fourchettes.py)
+        f["fourchettes"] = None
+        if not prof and "reg" in niveaux:
+            from .figure_fourchettes import fourchettes
+            f["fourchettes"] = fourchettes(T, e["id"], intervalles, noms_reg, f["u"], f["lab"])
+            if f["fourchettes"] and (dernier / "sante_mentale_sante_publique_france.csv").exists():
+                f["fourchettes"]["donnees"] = f"../donnees/{version}/sante_mentale_sante_publique_france.csv"
         # petite carte de France, en aplat par département (audit de contrôle du 30 octobre 2026, point I1, règle 15)
         from .cartes_presentation import choroplethe
         f["carte"] = choroplethe(A, "dep", e["id"], f["lab"], f["u"], T=T) if "dep" in niveaux else None

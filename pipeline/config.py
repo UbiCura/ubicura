@@ -401,16 +401,18 @@ ODISSE = [
      "valeur": "estimation", "ic_bas": "ic_inf", "ic_haut": "ic_sup",
      "id": "pensees_suicidaires_declarees", "libelle": "Adultes déclarant des pensées suicidaires dans l'année",
      "unite": "% des adultes", "source": ODISSE_SOURCE + ", Baromètre de Santé publique France",
-     "explication": "Part des adultes interrogés qui déclarent avoir pensé au suicide au cours des 12 derniers mois. "
-                    "Disponible seulement par région."},
+     "explication": "Part des adultes de 18 à 79 ans qui déclarent avoir pensé au suicide au cours des 12 derniers "
+                    "mois. Mesure déclarée, indépendante du recours aux soins. Disponible seulement par région, "
+                    "hors Mayotte."},
     {"dataset": "conduites-suicidaires-indicateurs-du-barometre-de-sante-publique-france-2024-detail-region",
      "niveau": "reg", "code": "nouvelles_regions",
      "where": 'indicateur="Tentative de suicide au cours de la vie" and classe_d_age="Tous" and sexe="Tous"',
      "valeur": "estimation", "ic_bas": "ic_inf", "ic_haut": "ic_sup",
      "id": "tentative_suicide_vie_declaree", "libelle": "Adultes déclarant une tentative de suicide au cours de la vie",
      "unite": "% des adultes", "source": ODISSE_SOURCE + ", Baromètre de Santé publique France",
-     "explication": "Part des adultes interrogés qui déclarent avoir fait une tentative de suicide au cours de leur "
-                    "vie. Disponible seulement par région."},
+     "explication": "Part des adultes de 18 à 79 ans qui déclarent avoir fait une tentative de suicide au cours de "
+                    "leur vie. Mesure déclarée, indépendante du recours aux soins. Disponible seulement par région, "
+                    "hors Mayotte."},
     # addictions (jeux Odissé vérifiés par l'API le 22 octobre 2026, Licence Ouverte 2.0, régions seulement, note
     # docs/note_statistiques_addictologie_2026-10-22.md, accord du 22 octobre 2026)
     {"dataset": "alcool-indicateurs-du-barometre-de-sante-publique-france-2024-detail-region",
@@ -424,7 +426,7 @@ ODISSE = [
      "unite": "% des adultes", "source": ODISSE_SOURCE + ", Baromètre de Santé publique France",
      "explication": "Part des adultes de 18 à 79 ans qui déclarent boire plus que les repères de consommation à "
                     "moindre risque (au plus dix verres par semaine, deux par jour, et pas tous les jours). Mesure "
-                    "déclarée, disponible seulement par région."},
+                    "déclarée. Disponible seulement par région, hors Mayotte."},
     {"dataset": "tabac-consommation-quotidienne_reg", "niveau": "reg", "code": "reg",
      "where": 'sexe="Hommes et Femmes"', "valeur": "tab_quo_v", "ic_bas": "tab_quo_icb", "ic_haut": "tab_quo_ich",
      "groupe": "Addictions", "id": "tabac_quotidien", "libelle": "Adultes qui fument chaque jour",

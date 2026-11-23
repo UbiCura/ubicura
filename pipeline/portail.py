@@ -96,6 +96,15 @@ def pages_recherche(site: Path) -> list[list[str]]:
            ["Télécharger les données", "methode-fichiers.html", "page", "les fichiers, leur dictionnaire et leur licence"],
            ["Sources des données", "donnees-sources.html", "page", "chaque jeu de données, son producteur et sa date"],
            ["Méthode et données", "methode.html", "page", "d’où viennent les chiffres et ce qu’ils ne disent pas"]]
+    # le journal, les ajouts prévus et la page de chaque domaine, que la table des mots du lecteur désigne (« nouveautés »,
+    # « violences » ; étape 4 des portes d'entrée, table validée le 23 novembre 2026)
+    out += [["Journal des mises à jour", "journal.html", "page", "les changements de chaque version"],
+            ["À venir", "a-venir.html", "page", "les ajouts prévus"]]
+    from . import domaines as D
+    for d in D.DOMAINES:
+        page = f"domaine/{'offre-de-soins' if d['id'] == 'offre' else d['id']}.html"
+        if (site / page).exists() or not (site / "domaine").exists():
+            out.append([d["nom"], page, "page", "domaine, ses indicateurs et ses questions"])
     for th in TH.THEMES:
         if not th.get("a_venir"):
             out.append([th["nom"], th.get("page") or f"theme/{TH.slug(th['id'])}.html", "thème", "indicateurs de plusieurs domaines"])
@@ -189,6 +198,9 @@ def construire(env, commun: dict, dernier: Path, site_data: dict, site: Path, ga
     pages += p_ind
     donnees_r = recherche(site_data, dernier, config.BRUT, fiches)
     donnees_r["pages"] = pages_recherche(site)
+    # mots du lecteur (étape 4 des portes d'entrée, table validée le 23 novembre 2026)
+    from . import mots_lecteur
+    donnees_r["mots"] = mots_lecteur.donnees({i[0] for i in donnees_r["indicateurs"]}, donnees_r["pages"], A["ind"])
     (dossier / "recherche.json").write_text(json.dumps(donnees_r, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     # réponses directes de la recherche de l'en-tête, un fichier par territoire, chiffres de la règle d'affichage unique
     from . import reponses
