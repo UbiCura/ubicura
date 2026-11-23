@@ -33,7 +33,7 @@ NIVEAUX = {"etablissement": "vérifiée sur les sources de l'établissement",
            "has": "confirmée par la HAS (certification de l'hôpital ou évaluation de la structure)",
            "sirene": "confirmée par Sirene",
            "principal": "confirmée par son site principal (antenne ou site rattaché)",
-           "sae": "concordante avec la SAE (nombre de CATTP de l'établissement, places d'hôpital de jour du site)",
+           "sae": "concordante avec la SAE (nombre de CATTP de l'établissement, places d'hôpital de jour ou lits à temps plein du site)",
            "examinee": "examinée à la main et maintenue (source dans la colonne examen)",
            "bases": "à confirmer, inscrite dans FINESS ou le ROR, pas encore vérifiée une à une",
            # cherchée sur les sources de son établissement sans rien trouver (statut « bases » de la liste vérifiée), puis
@@ -49,7 +49,7 @@ NIVEAUX_COURTS = {"etablissement": "vérifiée sur les sources de l'établisseme
                   "has": "confirmée par la HAS",
                   "sirene": "confirmée par Sirene",
                   "sae": "recoupée par la statistique des hôpitaux (nombre de CATTP de l'établissement ou places d'hôpital de "
-                         "jour du site, l'adresse n'est pas confirmée)",
+                         "jour ou lits à temps plein du site, l'adresse n'est pas confirmée)",
                   "examinee": "examinée à la main et maintenue",
                   "bases": "à confirmer, inscrite dans FINESS ou le ROR, pas encore vérifiée une à une",
                   "cherchee": "non confirmée, aucune source officielle de moins de trois ans trouvée",
@@ -187,10 +187,16 @@ PAR_SAE = {"lieu_cattp": "statut_cattp"}
 # Hôpitaux de jour, activité d'un site plutôt que lieu nommé (16 octobre 2026). Un hôpital de jour qu'aucune liste ne
 # confirme l'est quand un de ses numéros FINESS est un site qui déclare à la SAE des places d'hôpital de jour dans la
 # discipline de son public (psychiatrie générale pour les adultes, infanto-juvénile pour les enfants).
-PAR_SAE_SITE = {"lieu_hdj_psy_adultes": "GEN", "lieu_hdj_psy_enfants": "INF"}
+# L'hospitalisation complète l'est de même par les lits à temps plein déclarés par le site (23 novembre 2026, 421 des 641
+# structures pour adultes le 22 novembre ; un établissement qui en déclare sur un autre site ne suffit pas).
+PAR_SAE_SITE = {"lieu_hdj_psy_adultes": ("hdj_sites", "GEN"), "lieu_hdj_psy_enfants": ("hdj_sites", "INF"),
+                "lieu_hc_psy_adultes": ("htp_sites", "GEN"), "lieu_hc_psy_enfants": ("htp_sites", "INF")}
 # types pour lesquels la classe « recoupée » existe, « sans objet » pour les autres (remarque du 21 octobre
 # 2026, un 0 laissait croire que la statistique des hôpitaux avait été consultée sans rien trouver)
 TYPES_RECOUPES = set(PAR_SAE) | set(PAR_SAE_SITE)
+# types dont le niveau de confirmation est établi : ceux que des listes indépendantes confirment (config.SIRENE_ENSEIGNES),
+# plus ceux que seule la SAE recoupe (hospitalisation complète, 23 novembre 2026), qui partent « à confirmer »
+TYPES_ETABLIS = list(config.SIRENE_ENSEIGNES) + [t for t in PAR_SAE_SITE if t not in config.SIRENE_ENSEIGNES]
 
 
 def confirmer_par_sae(lieux: pd.DataFrame, etab: pd.DataFrame | None, sae: dict | None = None) -> pd.DataFrame:
@@ -200,9 +206,8 @@ def confirmer_par_sae(lieux: pd.DataFrame, etab: pd.DataFrame | None, sae: dict 
     if "confirmation" not in lieux:
         return lieux
     x = lieux.copy()
-    sites = (sae or {}).get("hdj_sites") or {}
-    for tid, dis in PAR_SAE_SITE.items():
-        fi = sites.get(dis, set())
+    for tid, (table, dis) in PAR_SAE_SITE.items():
+        fi = ((sae or {}).get(table) or {}).get(dis, set())
         if not fi:
             continue
         m = (x["type"] == tid) & (x["confirmation"] == "bases")
@@ -211,7 +216,8 @@ def confirmer_par_sae(lieux: pd.DataFrame, etab: pd.DataFrame | None, sae: dict 
         n = x.loc[x["type"] == tid, "confirmation"].value_counts()
         lib = {t[0]: t[1] for t in config.LIEUX_TYPES}[tid]
         JOURNAL.controle(f"Confirmation des structures par la SAE, {lib}",
-                         f"{int(m.sum())} structures sur un site qui déclare des places d'hôpital de jour à la SAE, "
+                         f"{int(m.sum())} structures sur un site qui déclare des "
+                         f"{'lits à temps plein' if table == 'htp_sites' else 'places d’hôpital de jour'} à la SAE, "
                          f"{int(n.get('bases', 0))} restent à vérifier")
     if not isinstance(etab, pd.DataFrame):
         return x
@@ -330,4 +336,15 @@ def confirmer(lieux: pd.DataFrame, has: dict | None, sir: dict | None,
                          f"{len(g)} structures, " + ", ".join(f"{NIVEAUX[k]} : {int(n.get(k, 0)) or 'aucune'}" for k in NIVEAUX)
                          + f", établissements Sirene actifs sans correspondant : "
                            f"{sum(1 for s_ in sans if s_['type'] == tid) or 'aucun'}")
+    # types que seule la SAE recoupe (hospitalisation complète) : aucune liste indépendante ne les nomme, ils partent « à
+    # confirmer », ou au niveau de la liste vérifiée de leur établissement, pour que confirmer_par_sae puisse les recouper
+    # (relecture du 23 novembre 2026 : sans niveau, la classe « recoupée » annoncée ne s'appliquait à aucune structure)
+    st_all = x["statut_verification"] if "statut_verification" in x else pd.Series(None, index=x.index)
+    for tid in TYPES_ETABLIS[len(config.SIRENE_ENSEIGNES):]:
+        m = x["type"] == tid
+        x.loc[m, "confirmee_has"] = False
+        niv = pd.Series("bases", index=x.index[m], dtype=object)
+        ok = st_all[m].isin(["etablissement", "source_publique"])
+        niv[ok] = st_all[m][ok]
+        x.loc[m, "confirmation"] = niv
     return x, pd.DataFrame(sans, columns=["type", "ej", "siret", "enseigne", "adresse", "commune", "date_creation"])

@@ -1309,6 +1309,21 @@ G_PERI, G_HOP, G_SMR = "Périnatalité et santé sexuelle", "Hôpital, médecine
 G_PA, G_HE, G_HA = "Personnes âgées", "Handicap, enfants", "Handicap, adultes"
 G_PREC, G_PREM = "Précarité et prévention", "Premier recours organisé"
 _C = MODES_CONSULTATION
+# Unités déclarées en hospitalisation complète dont le nom dit un autre lieu (relecture du 23 novembre 2026, rapprochement
+# avec les lits déclarés à la SAE) : hôpital de jour ou de nuit (« HDJ Aubenas », « HJ Psychiatrie Adulte - Narbonne »,
+# « Psychiatrie Adulte Secteur G04 HDN Unité Boucebci »), équipe mobile, CMP, pharmacie, pédiatrie générale, foyer
+# d'accueil médicalisé (médico-social). Un nom qui dit aussi l'hébergement ou l'hospitalisation complète reste compté en
+# hospitalisation complète, et seulement là (« HEB SV RDC H N / HJ TCA »).
+_PAS_HEBERGEMENT = r"^(?!.*(?:\bheb\b|hebergement|hospitalisation complete|\bhc\b))"
+NOM_HDJ = r"\bhdj\b|\bhj\b|hopital de jour|\bhdn\b|hopital de nuit|hospitalisation de nuit"
+NOM_MOBILE = r"equipe mobile|\bemah?\b"
+# une unité déclarée en hospitalisation complète que son nom dit hôpital de jour ou de nuit va aux hôpitaux de jour,
+# une équipe mobile aux équipes mobiles (« modes_par_nom », « noms_categories »)
+NOM_HDJ_SEUL = _PAS_HEBERGEMENT + r".*(?:" + NOM_HDJ + r")"
+NOM_PAS_HC = (_PAS_HEBERGEMENT + r".*(?:" + NOM_HDJ + "|" + NOM_MOBILE
+              + r"|\bcmp\b|centre medico psychologique|pharmacie|pediatrie generale|foyer d accueil medicalise)")
+# unités mère-bébé de psychiatrie dans la catégorie « Unité mère-enfant » du ROR, qui réunit aussi les centres maternels
+NOM_MERE_BEBE_PSY = r"psychiatr|\bpsy\b|perinat|bebe"
 LIEUX_TYPES = [
     # santé mentale
     ("lieu_cmp", "CMP, tous publics", SANTE_MENTALE, G_PSY,
@@ -1330,19 +1345,26 @@ LIEUX_TYPES = [
     ("lieu_cattp", "CATTP, accueil thérapeutique à temps partiel", SANTE_MENTALE, G_PSY,
      {"cats": {"05", "02"}, "champs": {CHAMP_PSY}, "finess": {"425", "366"}}),
     ("lieu_hdj_psy_adultes", "Hôpitaux de jour en psychiatrie, adultes", SANTE_MENTALE, G_PSY_A,
-     {"cats": {"11", "12", "16", "174", None}, "champs": {CHAMP_PSY}, "modes": MODES_TEMPS_PARTIEL, "public": "adultes"}),
+     {"cats": {"11", "12", "16", "174", None}, "champs": {CHAMP_PSY}, "modes": MODES_TEMPS_PARTIEL, "public": "adultes",
+      "modes_par_nom": (MODES_HC, NOM_HDJ_SEUL)}),
     ("lieu_hdj_psy_enfants", "Hôpitaux de jour en psychiatrie, enfants et adolescents", SANTE_MENTALE, G_PSY_E,
      {"cats": {"11", "12", "16", "174", "282", None}, "champs": {CHAMP_PSY}, "modes": MODES_TEMPS_PARTIEL,
-      "public": "enfants"}),
+      "public": "enfants", "modes_par_nom": (MODES_HC, NOM_HDJ_SEUL)}),
     ("lieu_hc_psy_adultes", "Hospitalisation complète en psychiatrie, adultes", SANTE_MENTALE, G_PSY_A,
      {"cats": {"16", "174", "15", "68", "18", "17", "14", None}, "champs": {CHAMP_PSY}, "modes": MODES_HC,
-      "public": "adultes"}),
+      "public": "adultes", "hors": NOM_PAS_HC}),
+    # la catégorie 119 du ROR, « Unité mère-enfant » (JDV_J34, TRE_R244, vérifié le 23 novembre 2026), réunit les
+    # unités mère-bébé de psychiatrie et les centres maternels de la protection de l'enfance : seules celles dont le nom
+    # dit la psychiatrie ou la périnatalité sont retenues (onze centres maternels et maisons mères-enfants comptés
+    # jusqu'ici, de 0 à 2 ans, Bouches-du-Rhône, Vaucluse, Var, Alpes)
     ("lieu_hc_psy_enfants", "Hospitalisation complète en psychiatrie, enfants et adolescents", SANTE_MENTALE, G_PSY_E,
-     {"cats": {"16", "282", "174", "119", None}, "champs": {CHAMP_PSY}, "modes": MODES_HC, "public": "enfants"}),
+     {"cats": {"16", "282", "174", None}, "champs": {CHAMP_PSY}, "modes": MODES_HC, "public": "enfants",
+      "noms_categories": ({"119"}, NOM_MERE_BEBE_PSY), "hors": NOM_PAS_HC}),
     ("lieu_crise_psy", "Urgences psychiatriques, centres de crise et d'accueil permanent", SANTE_MENTALE, G_PSY,
      {"cats": {"301", "06", "302", "04", "76", "07"}, "finess": {"444"}}),
     ("lieu_mobile_psy", "Équipes mobiles de psychiatrie", SANTE_MENTALE, G_PSY,
-     {"cats": {"280", "77", "78", "144", "279", "283", "300", "70"}}),
+     {"cats": {"280", "77", "78", "144", "279", "283", "300", "70"},
+      "noms_categories": ({"16", "174", "282"}, NOM_MOBILE)}),
     ("lieu_rehab_psy", "Réhabilitation psychosociale, appartements et accueil familial thérapeutiques", SANTE_MENTALE,
      G_PSY, {"cats": {"113", "01", "13"}, "finess": {"412"}}),
     ("lieu_psychotrauma", "Psychotraumatisme et urgences médico-psychologiques", SANTE_MENTALE, G_PSY,
@@ -1694,7 +1716,7 @@ LIMITES = {
                   "listes existe dans les listes officielles de son établissement, une structure confirmée par aucune "
                   "reste à confirmer sur les sources de l'établissement. Les rapports et l'atlas réunissent ces "
                   "sources en classes, confirmée (nommée par une source indépendante des deux bases), "
-                  "recoupée par la statistique des hôpitaux (SAE, nombre de CATTP de l'hôpital ou places d'hôpital de jour du site, "
+                  "recoupée par la statistique des hôpitaux (SAE, nombre de CATTP de l'hôpital ou places d'hôpital de jour ou lits à temps plein du site, "
                   "l'adresse n'étant pas confirmée), à confirmer (inscrite dans FINESS ou le ROR seulement, pas encore "
                   "vérifiée une à une) et non confirmée (cherchée sur les sources de son établissement sans source "
                   "officielle de moins de trois ans, la date de la recherche étant donnée, et le cas échéant celle de la "

@@ -253,7 +253,8 @@ def _confirmation(dossier, lire, nb):
     from .confirmation import NIVEAUX
     court = {"lieu_hdj_psy_adultes": "Hôpitaux de jour, adultes", "lieu_hdj_psy_enfants": "Hôpitaux de jour, enfants"}
     lib = {t[0]: court.get(t[0], t[1].split(",")[0]) for t in config.LIEUX_TYPES}
-    types = [t for t in config.SIRENE_ENSEIGNES if x.loc[x["type"] == t, "confirmation"].notna().any()]
+    from .confirmation import TYPES_ETABLIS
+    types = [t for t in TYPES_ETABLIS if x.loc[x["type"] == t, "confirmation"].notna().any()]
     if not types:
         return None
     # libellés datés des structures non confirmées (« … trouvée au 18 novembre 2026 ») réunis sous leur niveau

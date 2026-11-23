@@ -1235,6 +1235,8 @@ h2{margin-top:var(--e-5)}
     --d0:#83451E;--d1:#BC6B3B;--d2:#E39A71;--d3:#ABAEB4;--d4:#579891;--d5:#2A6B66;--d6:#0E5A5A;--contour:#FFFFFF;
     --c1:#B473A4;--c2:#2E672F;--c3:#998E3B;--c4:#3F8C93;--c5:#564D8F;--c6:#8C8270}
   nav.site,.sommaire,.pas-imprime{display:none!important}
+  /* le pied de page imprimé tient sur une seule page (deux lignes seules en page 125 du rapport du 23 novembre 2026) */
+  footer{break-inside:avoid;page-break-inside:avoid}
   html,body{background:#fff!important}
   :root,:root[data-theme]{color-scheme:light!important}   /* les marges de la page imprimée restent blanches */
   body{font-size:10.5pt}
@@ -1273,6 +1275,8 @@ h2{margin-top:var(--e-5)}
      étroite où le tableau déborde, et la règle d'écran (.corps table.deborde-d) l'emportait sur celle-ci, d'où une
      dernière colonne estompée dans les rapports PDF (vu sur Zenodo le 22 novembre 2026) */
   .deborde-d,.deborde-g{-webkit-mask-image:none!important;mask-image:none!important}
+  /* ni l'ombre de défilement des tableaux, qui laissait une bande grise au bord droit (rapport du 23 novembre 2026) */
+  .defile,.defile-z,.defile-m,.defile-comp{background:none!important}
   .corps table.large{font-size:7pt}
   .corps table.etroite{width:auto;min-width:55%}
   details>summary{list-style:none}details>summary::-webkit-details-marker{display:none}

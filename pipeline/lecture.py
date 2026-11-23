@@ -25,7 +25,7 @@ GLOSSAIRE = [
      "sites déclarés à la certification de la HAS ou ses évaluations des établissements médico-sociaux, et le répertoire "
      "Sirene. La structure est confirmée quand l'une de ces listes la nomme. Elle est recoupée par la statistique annuelle "
      "des établissements de santé (SAE) quand son établissement compte autant de CATTP qu'il en déclare à la SAE, ou "
-     "quand l'hôpital de jour est sur un site qui y déclare des places d'hôpital de jour : le nombre ou le site est "
+     "quand l'hôpital de jour ou l'hospitalisation complète est sur un site qui y déclare des places d'hôpital de jour ou des lits à temps plein : le nombre ou le site est "
      "recoupé, pas l'adresse. Une structure qu'aucune liste ne confirme reste comptée, marquée d'un point creux sur la "
      "carte. Elle est à confirmer quand elle n'a pas encore été vérifiée une à une, non confirmée (point creux tireté) "
      "quand ses sources ont été cherchées sans source officielle de moins de trois ans, ce qui ne veut pas dire qu'elle "

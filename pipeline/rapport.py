@@ -1560,9 +1560,10 @@ def _lieux(C: Contexte, famille):
         L_ += ["Pour les types confrontés à des listes indépendantes de FINESS et du ROR, chaque structure est classée "
                "selon ce qui la confirme. Confirmée, elle est nommée par une autre source (son établissement, la Haute "
                "Autorité de santé, le répertoire Sirene, son site principal ou une vérification à la main). Recoupée par "
-               "la statistique des hôpitaux, c'est le nombre de CATTP de son hôpital, ou les places d'hôpital de jour de "
+               "la statistique des hôpitaux, c'est le nombre de CATTP de son hôpital, ou les places d'hôpital de jour "
+               "ou les lits à temps plein de "
                "son site, qui concorde avec la statistique annuelle des établissements de santé (SAE), que chaque hôpital "
-               "remplit pour la DREES, pas l'adresse. Ce recoupement n'existe que pour les CATTP et les hôpitaux de jour "
+               "remplit pour la DREES, pas l'adresse. Ce recoupement n'existe que pour les CATTP, les hôpitaux de jour et l'hospitalisation complète "
                "(« sans objet » pour les autres types). Non confirmée, elle n'est inscrite que dans FINESS ou le ROR : "
                "soit à confirmer, pas encore vérifiée une à une, soit cherchée sur les sources de son établissement sans "
                "source officielle de moins de trois ans, ce qui ne veut pas dire qu'elle est fermée. Les trois colonnes refont le "
@@ -1581,7 +1582,8 @@ def _lieux(C: Contexte, famille):
                                                                         "Habitants à plus de 30 km"])
             L_ += [_tableau(tg, cols, tetes, {"n": nombre, "conf": nombre, "abv": nombre, "dist": f1,
                                               "rec": lambda v: v if isinstance(v, str) else nombre(v),
-                                              "p30": pct}, vide="non établi"), ""]
+                                              "p30": pct}, vide="non établi",
+                            zero={"conf": "aucune", "rec": "aucune", "abv": "aucune"}), ""]
         if g == config.G_ADD and famille == SM:
             L_ += ["Les trois comptes des CSAPA, le recours aux soins et les consommations d'alcool et de tabac sont "
                    "réunis dans la partie « Addictologie ».", ""]

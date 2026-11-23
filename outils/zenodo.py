@@ -294,6 +294,18 @@ def cmd_preparer(args) -> int:
     # une note encore en chantier ne part pas
     texte_note = (Path(args.note_fichier).read_text(encoding="utf-8") if getattr(args, "note_fichier", None)
                   else args.note or "")
+    if getattr(args, "notes_dossier", None):
+        # une note par dépôt, toutes présentes et non vides, aucun autre fichier : une version corrective ne part
+        # jamais sans la liste de ses corrections (relecture du 23 novembre 2026)
+        d = Path(args.notes_dossier)
+        attendus = {f"{k}.txt" for k in DEPOTS}
+        presents = {f.name for f in d.glob("*.txt")} if d.is_dir() else set()
+        vides = {n for n in presents & attendus if not (d / n).read_text(encoding="utf-8-sig").strip()}
+        if presents != attendus or vides:
+            print(f"Notes de version incomplètes dans {d} : attendus {sorted(attendus)}, trouvés {sorted(presents)}"
+                  + (f", vides {sorted(vides)}" if vides else "") + ". Rien n'est envoyé.")
+            return 1
+        texte_note += "".join((d / n).read_text(encoding="utf-8-sig") for n in sorted(attendus))
     if re.search(r"À COMPLÉTER|A COMPLETER|TODO|\[\.\.\.\]|XXX", texte_note, re.IGNORECASE):
         print("La note de version contient un passage à compléter, rien n'est envoyé.")
         return 1
@@ -374,7 +386,11 @@ def cmd_preparer(args) -> int:
         meta["description"] = sans_paragraphe(meta.get("description"), "Note de version")
         note = args.note
         if getattr(args, "note_fichier", None):
-            note = Path(args.note_fichier).read_text(encoding="utf-8")
+            note = Path(args.note_fichier).read_text(encoding="utf-8-sig")
+        # une note par dépôt (décision du 22 novembre 2026) : <dossier>/<clé du dépôt>.txt, sinon la note commune
+        propre = Path(args.notes_dossier) / f"{cle}.txt" if getattr(args, "notes_dossier", None) else None
+        if propre is not None:
+            note = propre.read_text(encoding="utf-8-sig")
         if note:
             meta["description"] = avec_paragraphe(meta["description"], "Note de version", note)
         z.appel("PUT", f"/deposit/depositions/{bid}", json={"metadata": meta})
@@ -654,6 +670,8 @@ def main() -> int:
                                   "corrige ou ajoute)")
     p.add_argument("--note-fichier", help="fichier texte de la note de version, à la place de --note : la première "
                                           "ligne suit le titre, les lignes « - ... » forment une liste")
+    p.add_argument("--notes-dossier", help="dossier d'une note par dépôt, donnees.txt, sante-mentale.txt, sante.txt "
+                                           "(même forme que --note-fichier), à la place de la note commune")
     p.add_argument("--correctif", help="étiquette d'une version corrective publiée le jour même d'une autre, par "
                                        "exemple « version corrigée » (version 2026-10-30 (version corrigée))")
     p.add_argument("--remplace", help="date de la version publiée que celle-ci corrige ; à la publication, elle reçoit "

@@ -304,7 +304,7 @@ COLONNES = [
                          "déclarées à la SAE."),
     (r"^classe_confirmation$", "Classe de confirmation montrée au lecteur, confirmée (nommée par une source "
                                "indépendante de FINESS et du ROR), recoupée par la statistique des hôpitaux (SAE, nombre de CATTP de "
-                               "l'établissement ou places d'hôpital de jour du site, l'adresse n'est pas confirmée), à "
+                               "l'établissement ou places d'hôpital de jour ou lits à temps plein du site, l'adresse n'est pas confirmée), à "
                                "confirmer (inscrite dans FINESS ou le ROR seulement, pas encore vérifiée une à une) ou non "
                                "confirmée (cherchée sur les sources de son établissement sans source officielle de moins de "
                                "trois ans). Vide quand le niveau n'est pas établi "
@@ -312,7 +312,7 @@ COLONNES = [
     (r"^confirmation$", "Niveau de confirmation de la structure (vérifiée sur les sources de l'établissement, sur une "
                         "autre source publique, confirmée par la HAS (certification de l'hôpital ou évaluation de la "
                         "structure médico-sociale) ou par Sirene, concordante avec la SAE (nombre de CATTP de son établissement, "
-                        "places d'hôpital de jour de son site), examinée à la main et maintenue, à confirmer, ou non confirmée avec la date "
+                        "places d'hôpital de jour ou lits à temps plein de son site), examinée à la main et maintenue, à confirmer, ou non confirmée avec la date "
                         "de la recherche et, le cas échéant, de la demande envoyée à l'établissement). Vide pour les types qui ne sont pas "
                         "encore confrontés à ces listes."),
     (r"^meme_adresse_que$", "Structure du même type d'un autre gestionnaire, attestée par sa liste vérifiée, à la même "

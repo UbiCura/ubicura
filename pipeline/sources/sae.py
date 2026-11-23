@@ -159,6 +159,12 @@ def charger(ref, ctx_dep=None, hors_ligne=False, rafraichir=False):
     q["CAP_HDJ"] = pd.to_numeric(q["CAP_HDJ"], errors="coerce")
     hdj_sites = {d: set(q.loc[(q["DIS"] == d) & (q["CAP_HDJ"] > 0), "FI"].astype(str).str.strip().str.zfill(9))
                  for d in ("GEN", "INF")}
+    # sites qui déclarent des lits d'hospitalisation à temps plein, par discipline, pour recouper l'hospitalisation
+    # complète du ROR de la même façon (23 novembre 2026)
+    q["CAP_HTP"] = pd.to_numeric(q["CAP_HTP"], errors="coerce")
+    htp_sites = {d: set(q.loc[(q["DIS"] == d) & (q["CAP_HTP"] > 0), "FI"].astype(str).str.strip().str.zfill(9))
+                 for d in ("GEN", "INF")}
     return {"contexte": {niv: pd.DataFrame(v) for niv, v in ctx.items()}, "defs": defs,
             "table": pd.concat(lignes, ignore_index=True), "annee": meta.get("annee"), "cmp_disciplines": cmp_dis, "cattp_disciplines": cattp_dis, "charge_disciplines": charge,
-            "etablissements": ej, "hdj_sites": hdj_sites}
+            "etablissements": ej, "hdj_sites": hdj_sites,
+            "htp_sites": htp_sites}

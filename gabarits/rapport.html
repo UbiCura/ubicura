@@ -21,9 +21,9 @@
 {% endif %}
 <h1>{{ titre_rapport }}</h1>
 <p class="chapeau version">Version du {{ date_longue }}.
-{% if pdf %}<a class="pas-imprime" href="{{ pdf }}">Télécharger en PDF</a>.{% endif %}
-<a class="pas-imprime" href="{{ autre_lien }}">{{ autre_titre }}</a>.
-<a class="pas-imprime" href="{{ racine }}rapports.html">Autres versions</a>.</p>
+{% if pdf %}<span class="pas-imprime"><a href="{{ pdf }}">Télécharger en PDF</a>.</span>{% endif %}
+<span class="pas-imprime"><a href="{{ autre_lien }}">{{ autre_titre }}</a>.</span>
+<span class="pas-imprime"><a href="{{ racine }}rapports.html">Autres versions</a>.</span></p>
 <div class="rapport">
   <aside class="sommaire" aria-label="Sommaire">{{ sommaire|safe }}</aside>
   <article class="corps"{% if citation %} data-citation="{{ citation.texte }}"{% endif %}>{% if not impression %}{% if citation %}<details class="citer-haut"><summary><strong>Comment citer ce rapport</strong></summary>

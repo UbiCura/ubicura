@@ -2,11 +2,11 @@
 {% block contenu %}
 <h1>{{ titre_rapport }}</h1>
 <p class="chapeau version">Version du {{ date_longue }}.
-<button type="button" class="pas-imprime bouton-lien" onclick="window.print()">Enregistrer en PDF</button>.
-<a class="pas-imprime" href="{{ autre_lien }}">{{ autre_titre }}</a>.
-{% if lien_region %}<a class="pas-imprime" href="{{ lien_region }}">Rapport de la région</a>.{% endif %}
-<a class="pas-imprime" href="{{ racine }}{{ lien_national }}">Rapport national</a>.
-<a class="pas-imprime" href="{{ lien_index|default('index.html') }}">Tous les territoires</a>.</p>
+<span class="pas-imprime"><button type="button" class="bouton-lien" onclick="window.print()">Enregistrer en PDF</button>.</span>
+<span class="pas-imprime"><a href="{{ autre_lien }}">{{ autre_titre }}</a>.</span>
+{% if lien_region %}<span class="pas-imprime"><a href="{{ lien_region }}">Rapport de la région</a>.</span>{% endif %}
+<span class="pas-imprime"><a href="{{ racine }}{{ lien_national }}">Rapport national</a>.</span>
+<span class="pas-imprime"><a href="{{ lien_index|default('index.html') }}">Tous les territoires</a>.</span></p>
 
 <div class="rapport">
   <aside class="sommaire" aria-label="Sommaire">{{ sommaire|safe }}</aside>

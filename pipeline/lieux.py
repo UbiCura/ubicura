@@ -75,9 +75,19 @@ def _enfants(u: pd.DataFrame) -> pd.Series:
     une : « CMP ADULTES SAINT JUST EN CHEVALET », catégorie 281, de 18 à 150 ans, seule dans ce cas en France
     (relecture du 17 novembre 2026, réunie à tort au CMP pour enfants de la même rue)."""
     adultes_seuls = u["age_min"].notna() & (u["age_min"] >= 18)
+    nom = u["nom"].fillna("").map(norm)
+    # un nom qui dit les adultes, ou le code d'un secteur de psychiatrie générale (« 29G01 »), l'emporte sur des âges
+    # déclarés jusqu'à 21 ans : « Psychiatrie adulte Des Gants » (Montalier, 17 à 25 ans), « HC Psychiatrie adulte Anjela
+    # Duval 29G01 » (15 à 25 ans), « Psychiatrie adultes UAS » (adultes selon l'hôpital, 12 à 16 ans au ROR), relecture
+    # du 23 novembre 2026. « Jeunes adultes » seul ne suffit pas, ni un nom contredit par des âges d'enfants (« CMP
+    # ADULTE BRUAY », 2 à 12 ans au ROR, reste tel quel).
+    dit_adultes = ((nom.str.contains(r"\badultes?\b") & ~nom.str.contains(r"jeunes? adultes?|adultes? jeunes?"))
+                   | pd.Series([bool(re.match(r"(?:\d{2}|2[AB]|97\d)G", code_secteur(n) or "")) for n in u["nom"]],
+                               index=u.index)) \
+        & ~(u["age_min"].notna() & (u["age_min"] < 12))
     return ((u["categorie"].isin(["281", "282"]) & ~adultes_seuls)
-            | (u["age_max"].notna() & (u["age_max"] <= config.AGE_MAX_ENFANTS))
-            | u["nom"].fillna("").map(norm).str.contains(config.NOM_ENFANTS, regex=True))
+            | (u["age_max"].notna() & (u["age_max"] <= config.AGE_MAX_ENFANTS) & ~dit_adultes)
+            | nom.str.contains(config.NOM_ENFANTS, regex=True))
 
 
 def _simple(s) -> str:
@@ -429,8 +439,15 @@ def classer_unites(u: pd.DataFrame) -> pd.DataFrame:
             m |= u["categorie"].isna()
         if r.get("champs"):
             m &= u["champ"].isin(r["champs"])
+        base = m.copy()
         if r.get("modes"):
             m &= u["mode"].isin(r["modes"])
+        if r.get("modes_par_nom"):
+            # unité déclarée sous un autre mode que son nom contredit (« HDJ Aubenas » en hospitalisation complète) :
+            # son nom la range ici plutôt que de la perdre (relecture du 23 novembre 2026)
+            ms, motif = r["modes_par_nom"]
+            par_nom = base & u["mode"].isin(ms) & nom.str.contains(motif, regex=True) & ~m
+            m |= par_nom
         if r.get("modes_seuls"):
             m |= u["mode"].isin(r["modes_seuls"]) & u["champ"].isin(r.get("champs_seuls") or set(u["champ"].dropna()))
         if r.get("maternite") and "type_maternite" in u:
@@ -450,7 +467,18 @@ def classer_unites(u: pd.DataFrame) -> pd.DataFrame:
         elif r.get("public") == "adultes":
             m &= ~enf
         if r.get("hors"):
-            m &= ~nom.str.contains(r["hors"], regex=True)
+            exclues = m & nom.str.contains(r["hors"], regex=True)
+            m &= ~exclues
+            if exclues.any() and tid.startswith("lieu_hc_psy"):
+                JOURNAL.controle(f"Unités du ROR écartées par leur nom, {_lab}",
+                                 f"{int(exclues.sum())} : " + "; ".join(u.loc[exclues, "nom"].fillna("").head(12)))
+        if r.get("modes_par_nom"):
+            # compté après le partage entre adultes et enfants et les exclusions, pour que la ligne d'un type ne cite
+            # que les unités qu'il garde (le journal du 23 novembre 2026 citait des unités pour enfants sous les adultes)
+            par_nom &= m
+            if par_nom.any():
+                JOURNAL.controle(f"Unités du ROR rangées par leur nom malgré leur mode de prise en charge, {_lab}",
+                                 f"{int(par_nom.sum())} : " + "; ".join(u.loc[par_nom, "nom"].fillna("").head(12)))
         if m.any():
             out.append(pd.DataFrame({"cle": u.loc[m, "cle"].to_numpy(), "type": tid}))
     return pd.concat(out, ignore_index=True) if out else pd.DataFrame(columns=["cle", "type"])

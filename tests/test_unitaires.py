@@ -1624,6 +1624,19 @@ def test_confirmation_par_sae():
                       "ej": ["A"] * 3, "finess": ["111", "111", "222"], "confirmation": ["bases"] * 3})
     h = confirmer_par_sae(H, None, {"hdj_sites": {"GEN": {"111"}, "INF": {"222"}}})
     assert h["confirmation"].tolist() == ["sae", "bases", "sae"]
+    # hospitalisation complète, lits à temps plein déclarés par le site ; les places d'hôpital de jour ne suffisent pas
+    C = pd.DataFrame({"type": ["lieu_hc_psy_adultes", "lieu_hc_psy_adultes", "lieu_hc_psy_enfants"],
+                      "ej": ["A"] * 3, "finess": ["111", "333", "222"], "confirmation": ["bases"] * 3})
+    c = confirmer_par_sae(C, None, {"hdj_sites": {"GEN": {"333"}}, "htp_sites": {"GEN": {"111"}, "INF": {"222"}}})
+    assert c["confirmation"].tolist() == ["sae", "bases", "sae"]
+    # l'hospitalisation complète part « à confirmer » à l'étape de confirmation (sans liste indépendante), sinon la
+    # classe « recoupée » ne s'appliquerait à aucune structure (relecture du 23 novembre 2026)
+    from pipeline.confirmation import confirmer
+    H2 = pd.DataFrame({"type": ["lieu_hc_psy_adultes", "lieu_hc_psy_enfants"], "lieu": ["a", "b"], "ej": ["A", "A"],
+                       "finess": ["111", "222"], "statut_verification": [None, "etablissement"]})
+    h2, _ = confirmer(H2, None, None)
+    assert h2["confirmation"].tolist() == ["bases", "etablissement"]
+    assert confirmer_par_sae(h2, None, {"htp_sites": {"GEN": {"111"}}})["confirmation"].tolist() == ["sae", "etablissement"]
 
 
 def test_cattp_des_cmp():
@@ -2827,6 +2840,90 @@ def test_consultations_non_sectorisees():
     # consultations d'hôpital ou de clinique au nom seulement générique, sans CMP ni numéro de secteur
     assert t["c"] == {"lieu_consult_psy"} and t["d"] == {"lieu_consult_psy"}
     assert "lieu_cmp" in t["e"] and "lieu_cmp" in t["f"]
+
+
+def test_hospitalisation_complete_nom_et_categorie():
+    """Relecture du 23 novembre 2026, noms réels du ROR : un centre maternel de la catégorie « Unité mère-enfant » (119)
+    n'est pas une hospitalisation en psychiatrie, une unité mère-bébé de psychiatrie l'est ; une unité déclarée en
+    hospitalisation complète que son nom dit hôpital de jour va aux hôpitaux de jour ; une pharmacie ou la pédiatrie
+    générale ne sont pas comptées ; un nom qui dit aussi l'hébergement reste compté."""
+    import pandas as pd
+    from pipeline import config, lieux
+    noms = ["CENTRE MATERNEL - Hébergement complet internat", "Unité mère-bébé de psychiatrie périnatale",
+            "HDJ Aubenas", "HJ Psychiatrie Adulte - Narbonne", "Pharmacie", "Pédiatrie générale secteur B",
+            "HEB SV RDC H N / HJ TCA", "Psychiatrie adulte Les Tilleuls"]
+    cats = ["119", "119", "174", "174", "16", "16", "16", "16"]
+    ages = [(0.08, 2), (0, 3), (0, 16), (18, 99), (18, 99), (0, 21), (18, 99), (18, 99)]
+    n = len(noms)
+    u = pd.DataFrame({"cle": list("abcdefgh"), "nom": noms, "categorie": cats, "champ": [config.CHAMP_PSY] * n,
+                      "mode": ["28"] * n, "age_min": [a for a, _ in ages], "age_max": [b for _, b in ages]})
+    t = lieux.classer_unites(u).groupby("cle")["type"].apply(set).reindex(list("abcdefgh"))
+    vide = lambda s: s if isinstance(s, set) else set()
+    assert not vide(t["a"]) & {"lieu_hc_psy_enfants", "lieu_hc_psy_adultes"}
+    assert "lieu_hc_psy_enfants" in vide(t["b"])
+    assert vide(t["c"]) & {"lieu_hdj_psy_enfants"} and "lieu_hc_psy_enfants" not in vide(t["c"])
+    assert "lieu_hdj_psy_adultes" in vide(t["d"]) and "lieu_hc_psy_adultes" not in vide(t["d"])
+    assert "lieu_hc_psy_adultes" not in vide(t["e"]) and "lieu_hc_psy_enfants" not in vide(t["f"])
+    assert "lieu_hc_psy_adultes" in vide(t["g"]) and "lieu_hc_psy_adultes" in vide(t["h"])
+    # public : un nom qui dit les adultes ou un secteur de psychiatrie générale l'emporte sur des âges jusqu'à 21 ans,
+    # pas sur des âges d'enfants, ni « jeunes adultes » seul
+    noms = ["Psychiatrie adulte Des Gants", "HC Psychiatrie adulte Anjela Duval 29G01",
+            "Unité d'hospitalisation temps plein jeunes adultes (69G35)", "HC Psychiatrie jeunes adultes 16-21 ans",
+            "CMP ADULTE BRUAY", "Psychiatrie Adolescents et jeunes adultes - HC"]
+    ages = [(16, 21), (16, 21), (16, 21), (16, 21), (2, 12), (16, 21)]
+    p = pd.DataFrame({"nom": noms, "categorie": ["16"] * 6, "age_min": [a for a, _ in ages],
+                      "age_max": [b for _, b in ages]})
+    assert lieux._enfants(p).tolist() == [False, False, False, True, True, True]
+    # hôpital de nuit et équipe mobile déclarés en hospitalisation complète, rangés dans leur type
+    noms = ["Psychiatrie Adulte Secteur G04 HDN Unité Boucebci", "Equipe Mobile Pédopsychiatrie",
+            "FOYER D ACCUEIL MEDICALISE", "HEB SV RDC H N / HJ TCA"]
+    u = pd.DataFrame({"cle": list("wxyz"), "nom": noms, "categorie": ["174", "174", "16", "16"],
+                      "champ": [config.CHAMP_PSY] * 4, "mode": ["28"] * 4, "age_min": [18, 0, 18, 0],
+                      "age_max": [99, 16, 99, 16]})
+    t = lieux.classer_unites(u).groupby("cle")["type"].apply(set).reindex(list("wxyz"))
+    assert vide(t["w"]) == {"lieu_hdj_psy_adultes"} and "lieu_mobile_psy" in vide(t["x"])
+    assert not vide(t["x"]) & {"lieu_hc_psy_enfants"} and not vide(t["y"]) & {"lieu_hc_psy_adultes"}
+    assert vide(t["z"]) == {"lieu_hc_psy_enfants"}
+    # la ligne du journal d'un type ne cite que les unités qu'il garde : une unité pour enfants rangée par son nom aux
+    # hôpitaux de jour n'est jamais citée sous les adultes (journal du 23 novembre 2026)
+    from pipeline.util import JOURNAL
+    avant = len(JOURNAL.controles)
+    u = pd.DataFrame({"cle": ["p", "q"], "nom": ["HJ ENFANTS LES TOURNELLES", "HDJ UAEO"], "categorie": ["16", "16"],
+                      "champ": [config.CHAMP_PSY] * 2, "mode": ["28"] * 2, "age_min": [0, 18], "age_max": [16, 99]})
+    lieux.classer_unites(u)
+    lignes = dict(JOURNAL.controles[avant:])
+    del JOURNAL.controles[avant:]
+    adultes = next(v for k, v in lignes.items() if k.startswith("Unités du ROR rangées par leur nom") and k.endswith("adultes"))
+    enfants = next(v for k, v in lignes.items() if k.startswith("Unités du ROR rangées par leur nom")
+                   and k.endswith("enfants et adolescents"))
+    assert adultes.startswith("1 ") and "UAEO" in adultes and "TOURNELLES" not in adultes
+    assert enfants.startswith("1 ") and "TOURNELLES" in enfants and "UAEO" not in enfants
+
+
+def test_hospitalisation_complete_resultats_sans_autre_lieu():
+    """Contrôle permanent sur la dernière liste des structures : aucune hospitalisation complète en psychiatrie dont le
+    nom dit un centre maternel, une maison mères-enfants, une pharmacie ou un hôpital de jour (onze centres maternels
+    comptés jusqu'au 22 novembre 2026). Les résultats calculés avant la règle sont ignorés."""
+    import re
+    import pandas as pd
+    from pipeline import config
+    from pipeline.util import norm
+    d = _dernier_resultats()
+    if d.name < "2026-11-23":
+        raise Ignore("résultats antérieurs à la règle du 23 novembre 2026")
+    L = pd.read_csv(d / "lieux_soins.csv", sep=";", dtype=str, keep_default_na=False, encoding="utf-8-sig")
+    # une structure rangée là par un verdict sourcé garde son nom d'origine (« CMP infantino-juvénile (Equinoxe) », unité
+    # d'hospitalisation pour adolescents du Havre selon le CGLPL)
+    hc = L[L["type"].isin(["lieu_hc_psy_adultes", "lieu_hc_psy_enfants"]) & (L["verdict"] == "")]
+    # la règle lit le nom d'unité du ROR, pas le nom affiché (« HJ LE RELAIS SERENA », unité « HOSPITALISATION
+    # COMPLETE », 8 lits pour enfants à la SAE) ; une unité de psychiatrie mère-enfant reste permise
+    motif = config.NOM_PAS_HC + r"|centre maternel|hotel maternel|maison meres?|centre parental|accueil parents?"
+    fautes = sorted({n for n in hc["unite_ror"] if n and re.search(motif, norm(n))})
+    assert not fautes, fautes[:10]
+    # chaque structure d'hospitalisation complète a une classe de confirmation, et la SAE en recoupe
+    assert (hc["classe_confirmation"] != "").all(), hc.loc[hc["classe_confirmation"] == "", "nom"].head().tolist()
+    for t in ("lieu_hc_psy_adultes", "lieu_hc_psy_enfants"):
+        assert (L.loc[L["type"] == t, "classe_confirmation"].str.startswith("recoup")).sum() > 50, t
 
 
 def test_code_secteur():
@@ -4458,6 +4555,29 @@ def test_etat_des_taches():
     assert all(l["etat"] in ("bien", "à regarder", "en panne") and l["detail"] for l in lignes)
     assert E._etat("rpps", None) == "en panne" and E._etat("rpps", 3) == "bien"
     assert E._etat("rpps", 10) == "à regarder" and E._etat("rpps", 20) == "en panne"
+
+
+def test_ponctuation_des_liens_caches_a_l_impression():
+    """Un lien caché à l'impression emporte sa ponctuation : le PDF des rapports portait « Version du 22 novembre
+    2026. . . », les points des trois liens restant seuls (relecture du 23 novembre 2026)."""
+    import re
+    from pipeline import config
+    motif = re.compile(r'<(a|button) class="pas-imprime[^"]*"[^>]*>[^<]*</\1>\s*[.,;]')
+    fautes = [f.name for f in (config.RACINE / "gabarits").rglob("*.html")
+              if motif.search(f.read_text(encoding="utf-8", errors="ignore"))]
+    assert not fautes, fautes
+    # le texte imprimé de l'en-tête d'un rapport, les éléments cachés retirés, ne laisse aucun point seul
+    t = (config.RACINE / "gabarits" / "rapport.html").read_text(encoding="utf-8")
+    entete = t[t.index('<p class="chapeau version">'):]
+    entete = entete[:entete.index("</p>")]
+    imprime = re.sub(r'<span class="pas-imprime">.*?</span>', "", re.sub(r"\{%.*?%\}", "", entete), flags=re.S)
+    assert not re.search(r"\.\s*\.", re.sub(r"<[^>]+>", "", imprime)), imprime
+    # le pied de page imprimé n'est jamais coupé entre deux pages (page 125 du rapport du 23 novembre 2026)
+    css = (config.RACINE / "gabarits" / "style.css").read_text(encoding="utf-8")
+    imp = css[css.index("@media print{"):]
+    assert re.search(r"(^|[\s}])footer\{[^}]*break-inside:avoid", imp), "pied de page coupé à l'impression"
+    # ni l'ombre de défilement des tableaux, bande grise au bord droit des tableaux du PDF du 23 novembre 2026
+    assert re.search(r"\.defile,\.defile-z,\.defile-m,\.defile-comp\{background:none!important\}", imp)
 
 
 def test_figures_sans_numero():
