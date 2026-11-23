@@ -106,7 +106,9 @@
     return out;
   }
   function r2(v) { var x = Math.round(v * 100) / 100; return fr.format(x === 0 ? 0 : x).replace("-", "−"); }
-  function fp(p) { return p < 0.001 ? "moins de 0,001" : fr.format(Math.round(p * 1000) / 1000); }
+  // probabilité au millième : le format commun (deux décimales) écrivait « 0 » de 0,001 à 0,005
+  var fr3 = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 3 });
+  function fp(p) { return p < 0.001 ? "moins de 0,001" : fr3.format(Math.round(p * 1000) / 1000); }
 
   // jeu de points du croisement courant
   function points() {

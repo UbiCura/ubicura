@@ -10456,6 +10456,17 @@ def test_mots_du_lecteur_cibles_et_mots_permis():
     assert len(R["mots"]["lignes"]) == len(L)
 
 
+def test_nombres_au_millieme_ecrits_avec_trois_decimales():
+    """Un nombre arrondi au millième passe par un format qui garde trois décimales : Croiser écrivait « 0 » pour une
+    probabilité corrigée de 0,001 à 0,005 (format commun à deux décimales, relevé le 23 novembre 2026)."""
+    for f in sorted((config.RACINE / "gabarits").rglob("*.js")):
+        js = f.read_text(encoding="utf-8")
+        formats = {m.group(1): int(m.group(2)) for m in
+                   re.finditer(r"(\w+)\s*=\s*new Intl\.NumberFormat\([^)]*maximumFractionDigits:\s*(\d)", js)}
+        for m in re.finditer(r"(\w+)\.format\(Math\.round\([^()]*\*\s*1000\)\s*/\s*1000\)", js):
+            assert formats.get(m.group(1), 3) >= 3, f"{f.name} : {m.group(0)} perd le millième"
+
+
 def test_serie_lancee_en_dernier():
     """Le bloc qui lance la série est le dernier du fichier : aucun test n'est écrit après lui (19 novembre 2026)."""
     t = Path(__file__).read_text(encoding="utf-8")
