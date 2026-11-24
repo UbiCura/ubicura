@@ -23,7 +23,9 @@
   <span class="lib" id="f-niv">Niveau</span>
   <div class="choix" aria-labelledby="f-niv"><button type="button" data-g="niv" data-v="" aria-pressed="true">Tous</button>{% for v, l in [('France', 'France'), ('région', 'Région'), ('département', 'Département'), ('intercommunalité', 'Intercommunalité')] %}<button type="button" data-g="niv" data-v="{{ v }}" aria-pressed="false">{{ l }}</button>{% endfor %}</div>
 </div></details>
-<p class="compte-res" id="cat-n" aria-live="polite"></p>
+{#- le sous-thème passé par un compteur (portes d'entrée, étape 5, maquette du 13 novembre 2026) #}
+<p class="compte-res" id="cat-sous" hidden>Sous-thème : <b></b> · <button type="button" class="lien-a">retirer</button></p>
+<p class="compte-res" id="cat-n" aria-live="polite" tabindex="-1"></p>
 <div id="cat-corps"><p class="discret">Chargement du catalogue…</p></div>
 <noscript><p>La recherche demande JavaScript. Tous les indicateurs sont aussi listés par domaine sur la page <a href="domaines.html">Domaines</a>.</p></noscript>
 </div>

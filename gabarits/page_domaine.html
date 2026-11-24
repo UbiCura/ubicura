@@ -7,7 +7,8 @@
 main.domaine{max-width:var(--largeur-page)}
 main.domaine h1{border:0;padding:0}
 
-main.domaine .portes-offre{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--e-4);margin-top:24px}
+main.domaine .portes-offre{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--e-4);margin-top:24px}
+@media (max-width:1100px){main.domaine .portes-offre{grid-template-columns:repeat(2,minmax(0,1fr))}}
 main.domaine .portes-offre a{display:block;padding:var(--e-3) 0 0;border:0;border-top:1px solid var(--line-fort);border-radius:0;background:none;color:var(--ink);text-decoration:none}
 main.domaine .portes-offre a:hover{border-top-color:var(--ink)}
 main.domaine .portes-offre strong{display:block;font-family:var(--serif);font-size:var(--t-encadre);font-weight:400;margin-bottom:var(--e-1)}
@@ -81,6 +82,10 @@ main.domaine .lien-d.pos{background:color-mix(in srgb,var(--d5) 45%,var(--panel)
   <a href="sante-mentale.html"><strong>Santé mentale</strong><span>Psychologues, psychiatres, psychothérapeutes, CMP, CATTP, hôpitaux de jour et structures d’addictologie, et leurs questions.</span></a>
   <a href="sante.html"><strong>Santé</strong><span>Médecins généralistes et spécialistes, infirmiers, autres professions de santé, urgences, maternités, maisons et centres de santé.</span></a>
   <a href="../{{ page_atlas }}"><strong>L’atlas</strong><span>La carte de chaque profession par région, département ou intercommunalité, le profil de chaque territoire et ses structures de soins, le tableau par profession et les croisements.</span></a>
+  {%- if porte_cat %}
+  {#- quatrième porte, les indicateurs de l'offre dans le catalogue (portes d'entrée, étape 5, maquette du 13 novembre 2026) #}
+  <a href="../indicateurs.html#dom={{ porte_cat.dom|urlencode }}"><strong>Les {{ porte_cat.n }} indicateurs de l’offre</strong><span>{{ porte_cat.detail }}. Chacun a sa page, avec sa définition, sa carte et sa source.</span></a>
+  {%- endif %}
 </div>
 <p class="discret" style="margin-top:18px">Les deux familles ne s’additionnent jamais. La santé mentale n’est pas un domaine de plus, c’est un fil qui traverse l’offre, le recours aux soins et les distances, et chaque indicateur qui la concerne en porte la marque dans les sept domaines.</p>
 {% elif centre %}
@@ -88,7 +93,7 @@ main.domaine .lien-d.pos{background:color-mix(in srgb,var(--d5) 45%,var(--panel)
   <nav class="sommaire-d" aria-label="Questions de la page">
     <p>Sur cette page</p>
     <ol>{% for q in questions %}<li><a href="#{{ q.id }}">{{ q.question }}</a></li>{% endfor %}</ol>
-    <div class="autres"><a href="{{ rapport }}">Le rapport national complet</a>{% if venir %}<a href="#venir">Bases à venir</a>{% endif %}<a href="../croiser.html">Croiser librement</a></div>
+    <div class="autres">{% if n_ind_sm %}<a href="../indicateurs.html#th={{ 'Santé mentale'|urlencode }}">Les {{ n_ind_sm }} indicateurs de santé mentale</a>{% endif %}<a href="{{ rapport }}">Le rapport national complet</a>{% if venir %}<a href="#venir">Bases à venir</a>{% endif %}<a href="../croiser.html">Croiser librement</a></div>
   </nav>
   <div data-citation="{{ citation }}">
     {% for q in questions %}

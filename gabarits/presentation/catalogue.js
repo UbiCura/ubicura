@@ -3,7 +3,9 @@
 (function () {
   var corps = document.getElementById("cat-corps"), n = document.getElementById("cat-n"), q = document.getElementById("qcat");
   if (!corps) return;
-  var f = { dom: "", th: "", niv: "" }, C = [];
+  // « sous » : le sous-thème, que les compteurs des pages Domaines et Offre de soins passent dans l'adresse (portes
+  // d'entrée, étape 5) ; il n'a pas de bouton, une ligne le nomme avec « retirer »
+  var f = { dom: "", th: "", niv: "", sous: "" }, C = [];
   function norm(s) {
     return (s || "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().replace(/[’']/g, " ")
       .split(/[^a-z0-9]+/).filter(Boolean).map(function (m) { return m.length > 3 ? m.replace(/(s|x)$/, "") : m; }).join(" ");
@@ -13,7 +15,7 @@
     '<thead><tr><th scope="col">Indicateur</th><th scope="col">Définition</th><th scope="col">Source</th><th scope="col">Niveaux</th></tr></thead><tbody>';
   function ecrireAdresse() {
     var p = []; if (q.value.trim()) p.push("q=" + encodeURIComponent(q.value.trim()));
-    ["dom", "th", "niv"].forEach(function (g) { if (f[g]) p.push(g + "=" + encodeURIComponent(f[g])); });
+    ["dom", "th", "niv", "sous"].forEach(function (g) { if (f[g]) p.push(g + "=" + encodeURIComponent(f[g])); });
     history.replaceState(null, "", p.length ? "#" + p.join("&") : location.pathname);
   }
   function rendre() {
@@ -22,6 +24,7 @@
       if (f.dom && e.domaine !== f.dom) return;
       if (f.th && e.themes.indexOf(f.th) < 0) return;
       if (f.niv && e.niveaux.indexOf(f.niv) < 0) return;
+      if (f.sous && e.sous !== f.sous) return;
       var t = " " + norm([e.nom, e.definition, e.source, e.sous, e.themes.join(" ")].join(" ")) + " ";
       if (mots.some(function (m) { return t.indexOf(" " + m) < 0; })) return;
       k++;
@@ -34,6 +37,8 @@
         '<td>' + esc(e.source) + (e.date ? ", " + esc(e.date) : "") + '</td><td>' + esc(e.niveaux.join(", ")) + '</td></tr>';
     });
     corps.innerHTML = k ? h + "</tbody></table></div>" : '<p>Aucun indicateur ne répond à cette recherche. Essayez un autre mot, ou retirez un filtre.</p>';
+    var fs = document.getElementById("cat-sous");
+    if (fs) { fs.hidden = !f.sous; fs.querySelector("b").textContent = f.sous; }
     n.textContent = k === C.length ? k + " indicateurs" : k + " indicateur" + (k > 1 ? "s" : "") + " sur " + C.length;
     ecrireAdresse();
   }
@@ -47,6 +52,10 @@
   q.addEventListener("input", rendre);
   var a = new URLSearchParams(location.hash.slice(1));
   if (a.get("q")) q.value = a.get("q");
+  if (a.get("sous")) f.sous = a.get("sous");
+  var bs = document.querySelector("#cat-sous button");
+  // le bouton disparaît : le focus passe au compte des résultats, qui annonce la nouvelle liste
+  if (bs) bs.addEventListener("click", function () { f.sous = ""; rendre(); n.focus(); });
   ["dom", "th", "niv"].forEach(function (g) {
     var v = a.get(g); if (!v) return; f[g] = v;
     document.querySelectorAll('.filtres button[data-g="' + g + '"]').forEach(function (x) { x.setAttribute("aria-pressed", String(x.dataset.v === v)); });

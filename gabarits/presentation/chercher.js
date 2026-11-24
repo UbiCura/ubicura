@@ -79,8 +79,9 @@
     return out;
   }
   function lecteur(q) {
-    var X = lexique(), k = cle(q), o = { ind: [], page: [], q: [], partie: [] };
+    var X = lexique(), k = cle(q), o = { ind: [], page: [], q: [], partie: [], aide: false };
     cles(X.ph, k).forEach(function (c) {
+      if (((D.mots || {}).aide || []).indexOf(c) >= 0) o.aide = true;
       if (c.indexOf("page:") === 0) { var u = c.slice(5), e = idx.filter(function (x) { return (x.g === "page" || x.g === "q") && x.url === u; })[0];
         if (e) (e.g === "q" ? o.q : o.page).push(e); }
       else { var e2 = idx.filter(function (x) { return x.g === "ind" && x.c === c; })[0]; if (e2) o.ind.push(e2); }
@@ -361,6 +362,9 @@
     var avant = s ? '<p class="vide">Pas de réponse directe pour cette recherche : choisissez l\'indicateur, puis le territoire.</p>' : "";
     if (s) h = groupe("Indicateurs", s.ind, 5) + groupe("Territoires", s.terr, 5);
     // une seule apostrophe dans tout le panneau, la droite (contre-audit du 8 novembre 2026)
+    // une recherche qui mène aux indicateurs du suicide : la ligne du 3114 au-dessus des résultats (décision du
+    // 23 novembre 2026)
+    if (L.aide) avant = '<p class="aide-3114">Si vous pensez au suicide, ou si un proche vous inquiète, le <a href="tel:3114">3114</a> répond jour et nuit, gratuitement.</p>' + avant;
     sortie.innerHTML = h ? avant + '<div class="groupes">' + h.replace(/’/g, "'") + "</div>" : (a ? "" :'<p class="vide">Rien ne porte ce nom. Essayez le début d\'un nom de commune, un code postal, ou un mot comme « CMP », « revenu » ou « logement ».</p>');
     annoncer();
     if (a) reponse(a, numero);

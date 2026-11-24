@@ -341,9 +341,12 @@ ODISSE = [
      "where": 'classe_d_age="Tous" and sexe="Hommes et Femmes"', "valeur": "part_activite",
      "id": "urgences_gestes_auto_infliges", "libelle": "Passages aux urgences pour geste auto-infligé",
      "unite": "pour 100 000 passages aux urgences", "source": ODISSE_SOURCE + ", d'après le réseau OSCOUR",
+     # définition de Santé publique France (fiche du jeu sur Odissé, lue par l'API le 24 novembre 2026) : passages pour
+     # geste auto-infligé rapportés aux passages dont au moins un diagnostic médical est renseigné, pas à tous
      "explication": "Part des passages aux urgences motivés par une tentative de suicide, une automutilation ou une "
-                    "intoxication médicamenteuse volontaire, parmi l'ensemble des passages. Ce n'est pas un taux "
-                    "rapporté à la population, il dépend aussi de l'usage des urgences dans le département."},
+                    "intoxication médicamenteuse volontaire, parmi les passages dont au moins un diagnostic est "
+                    "renseigné. Ce n'est pas un taux rapporté à la population, il dépend aussi de l'usage des urgences "
+                    "et du codage des diagnostics dans le département."},
     # Baromètre 2024 (jeux vérifiés par l'API d'Odissé le 12 novembre 2026, modifiés le 11 décembre 2025, Licence
     # Ouverte 2.0, 18 à 79 ans, France hexagonale et quatre DROM, hors Mayotte ; libellés validés le
     # 12 novembre 2026, docs/chantier_spf_sante_mentale.md). L'épisode dépressif passe à la série 2024, qui remplace

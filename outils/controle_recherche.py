@@ -130,6 +130,11 @@ RENDUS = [
     # le nom exact avant un nom plus peuplé à deux lettres près ; un nom de lieu n'appelle pas une cible approchée
     ("Omissy", [r"^Territoires\s*Omissy"], []),
     ("Fumel", ["Fumel"], ["fument chaque jour"]),
+    # la ligne du 3114 au-dessus des résultats pour le suicide, et pour lui seul (décision du 23 novembre 2026)
+    ("suicide", [r"^Si vous pensez au suicide.*le 3114 répond jour et nuit, gratuitement"], []),
+    ("idées suicidaires", ["le 3114 répond"], []),
+    ("dépression", [], ["3114"]),
+    ("psychiatres", [], ["3114"]),
     ("nouveautés", [r"Journal des mises à jour[\s\S]*À venir"], []),
 ]
 
@@ -247,8 +252,11 @@ def essais() -> list[tuple[str, str]]:
     serveur = CF._serveur(SITE)
     try:
         url = f"http://127.0.0.1:{serveur.server_address[1]}/{page.name}"
-        dom = subprocess.run([exe, "--headless=new", "--disable-gpu", "--virtual-time-budget=60000", "--dump-dom", url],
-                             capture_output=True, text=True, encoding="utf-8", timeout=180).stdout
+        # 1,5 s de temps simulé par rendu, plus la lecture des index : un budget fixe de 60 s coupait l'essai à partir de
+        # 40 rendus, et le contrôle croyait à une erreur de script (24 novembre 2026)
+        budget = 1500 * len(RENDUS) + 30000
+        dom = subprocess.run([exe, "--headless=new", "--disable-gpu", f"--virtual-time-budget={budget}", "--dump-dom", url],
+                             capture_output=True, text=True, encoding="utf-8", timeout=300).stdout
     finally:
         serveur.shutdown()
         page.unlink(missing_ok=True)

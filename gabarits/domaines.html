@@ -68,7 +68,8 @@
     <h2 id="t-{{ d.id }}"><a class="vers-dom" href="domaine/{{ 'offre-de-soins' if d.centre else d.id }}.html">{{ d.nom }}<span aria-hidden="true"> →</span></a></h2>
     <p class="pourquoi">{{ d.pourquoi }}</p>
     {% if d.centre %}<p class="vers-page"><a href="domaine/sante-mentale.html">La page Santé mentale</a> et <a href="domaine/sante.html">la page Santé</a>, leurs questions et leurs figures</p>{% endif %}
-    <p class="compte">{% if d.indicateurs %}<b>{{ d.indicateurs|length }}</b> indicateur{{ 's publiés' if d.indicateurs|length > 1 else ' publié' }}{% else %}Aucun indicateur publié{% endif %}{% if d.n_sm %}, dont {{ d.n_sm }} de santé mentale{% if d.detail_sm %} ({{ d.detail_sm }}){% endif %}{% endif %}{% if d.venir_liste %}, {{ d.venir_liste|length }} base{{ 's' if d.venir_liste|length > 1 }} à venir{% endif %}.</p>
+    {#- les compteurs mènent à la page Indicateurs filtrée (portes d'entrée, étape 5, maquette du 13 novembre 2026) #}
+    <p class="compte">{% if d.indicateurs %}<a class="compte-lien" href="indicateurs.html#dom={{ d.nom|urlencode }}"><b>{{ d.indicateurs|length }}</b> indicateur{{ 's publiés' if d.indicateurs|length > 1 else ' publié' }}</a>{% else %}Aucun indicateur publié{% endif %}{% if d.n_sm %}, dont <a class="compte-lien" href="indicateurs.html#dom={{ d.nom|urlencode }}&amp;th={{ 'Santé mentale'|urlencode }}">{{ d.n_sm }} de santé mentale</a>{% if d.detail_sm %} ({{ d.detail_sm }}){% endif %}{% endif %}{% if d.venir_liste %}, {{ d.venir_liste|length }} base{{ 's' if d.venir_liste|length > 1 }} à venir{% endif %}.</p>
   </div>
   <div>
     {#- chaque sous-thème se déplie là où il est nommé et montre ses indicateurs, chacun lié à sa page ; « À venir » en
@@ -88,6 +89,8 @@
             <ul class="liste-ind deux-col">{{ lignes(g.lignes) }}</ul>{% endif %}
           </details></li>{% endif %}
         </ul>
+        {#- le sous-thème dans le catalogue, filtré (étape 5) : le compteur du sous-thème, lui, sert à le déplier #}
+        <p class="vers-catalogue-sous"><a class="compte-lien" href="indicateurs.html#dom={{ d.nom|urlencode }}&amp;sous={{ s.nom|urlencode }}">{{ 'Cet indicateur' if s.n == 1 else 'Ces ' ~ s.n ~ ' indicateurs' }} dans le catalogue</a>, avec {{ 'sa définition et sa source' if s.n == 1 else 'leur définition et leur source' }}</p>
         {%- endif %}
       </details></li>
       {%- else %}

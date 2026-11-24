@@ -26,6 +26,9 @@ MOYENS = (r"pendaison|pendre|pendu|arme|fusil|medicament|intoxication|surdose|ov
           r"voie ferree")
 
 
+AIDE_CIBLES = ("suicides", "pensees_suicidaires_declarees", "tentative_suicide_vie_declaree")
+
+
 def sans_accents(s: str) -> str:
     return "".join(c for c in unicodedata.normalize("NFD", s.lower()) if unicodedata.category(c) != "Mn")
 
@@ -82,4 +85,6 @@ def donnees(ids: set, pages: list[list[str]], catalogue: list[dict]) -> dict:
         dom = {"sante": "offre"}.get(p[2:], p[2:])
         reg_seul[p] = sum(1 for e in catalogue if list(e.get("niv") or []) == ["reg"]
                           and ((dom == "sm" and e.get("sm")) or (dom != "sm" and e.get("domb") == dom)))
-    return {"lignes": bon, "parties": parties(), "reg_seul": reg_seul}
+    # une recherche qui mène aux indicateurs du suicide fait paraître, au-dessus des résultats, la ligne du 3114
+    # (décision du 23 novembre 2026, texte de la maquette de l'étape 4 ; numéro vérifié sur 3114.fr le même jour)
+    return {"lignes": bon, "parties": parties(), "reg_seul": reg_seul, "aide": [c for c in AIDE_CIBLES if c in ids]}

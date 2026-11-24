@@ -167,6 +167,12 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
     graphiques = dernier / "graphiques"
     donnees = {"prefixe": f"../donnees/{dernier.name}/", "dossier": dernier}
     pages = []
+    # catalogue publié, lu une fois : compteurs de la page Santé mentale et quatrième porte de l'Offre de soins
+    # (portes d'entrée, étape 5, maquette du 13 novembre 2026), les mêmes que la page Indicateurs
+    from collections import Counter
+    from .page_indicateurs import donnees as catalogue_page
+    CAT = catalogue_page(sd, dernier, A, fiches)
+    n_ind_sm = sum("Santé mentale" in e["themes"] for e in CAT)
     for cle, (nom_page, titre, rapport, page_rapport, chapeau) in PAGES_CENTRE.items():
         f = dernier / rapport
         if not f.exists():
@@ -196,6 +202,7 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
         html = env.get_template("page_domaine.html").render(dict(
             commun, racine="../", page="offre_famille", titre=titre, classe_main="domaine", centre=True, cle=cle, chapeau=chapeau,
             questions=qs, venir=venir, citation=cit, rapport=f"../rapports/{dernier.name}/{page_rapport}.html",
+            n_ind_sm=n_ind_sm if cle == "sm" else None,
             description=f"{titre}, les questions principales, chacune avec son résultat, sa figure et sa méthode."))
         (dossier / f"{nom_page}.html").write_text(insecables(html), encoding="utf-8")
         pages.append(dossier / f"{nom_page}.html")
@@ -203,9 +210,15 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
     # l'entrée « Offre de soins », qui mène aux deux familles sans jamais les additionner (audit de contrôle du
     # 30 octobre 2026, point I3)
     centre = next(d for d in D.DOMAINES if d.get("centre"))
+    # quatrième porte, les indicateurs de l'offre dans le catalogue (portes d'entrée, étape 5, maquette du 13 novembre
+    # 2026) : le nombre et le détail par sous-thème sont lus dans le catalogue publié, le même que la page Indicateurs
+    # dans l'ordre des sous-thèmes de la page Domaines, celui du catalogue (page_indicateurs.donnees)
+    E = [e for e in CAT if e["domaine"] == centre["nom"]]
+    detail = ", ".join(f"{s[0].lower() + s[1:]} ({n})" for s, n in Counter(e["sous"] for e in E).items())
+    porte_cat = {"n": len(E), "detail": (detail[:1].upper() + detail[1:]).replace("'", "’"), "dom": centre["nom"]}
     html = env.get_template("page_domaine.html").render(dict(
         commun, racine="../", page="offre", titre=centre["nom"], classe_main="domaine", centre=False, porte=True,
-        d=centre, chapeau=centre["pourquoi"], citation=None,
+        porte_cat=porte_cat, d=centre, chapeau=centre["pourquoi"], citation=None,
         description="L'offre de soins, en santé mentale et en santé, au centre des sept domaines du site."))
     (dossier / "offre-de-soins.html").write_text(insecables(html), encoding="utf-8")
     pages.append(dossier / "offre-de-soins.html")

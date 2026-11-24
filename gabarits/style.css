@@ -1126,12 +1126,23 @@ a.vers-repliee{opacity:.7}
 .accueil .autour-tete{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:12px var(--e-5);align-items:baseline}
 .accueil .autour-tete p{margin:0;max-width:62ch}
 .accueil .tuiles-dom{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--e-4);margin-top:var(--e-4)}
-.accueil .tuiles-dom a{display:flex;flex-direction:column;gap:6px;padding:var(--e-3) 0 0;border:0;border-top:1px solid var(--line-fort);border-radius:0;background:none;color:var(--ink);text-decoration:none;min-height:44px}
-.accueil .tuiles-dom a:hover{border-top-color:var(--ink)}
-.accueil .tuiles-dom a.centre{border-top:2px solid var(--action)}
+/* une tuile de domaine : son titre mène à la page du domaine (lien étendu à toute la tuile), son compteur à la liste de
+   ses indicateurs (portes d'entrée, étape 5, maquette du 13 novembre 2026) */
+.accueil .tuiles-dom .tuile{position:relative;display:flex;flex-direction:column;gap:6px;padding:var(--e-3) 0 0;border-top:1px solid var(--line-fort);color:var(--ink);min-height:44px}
+.accueil .tuiles-dom .tuile:hover{border-top-color:var(--ink)}
+.accueil .tuiles-dom .tuile.centre{border-top:2px solid var(--action)}
+.accueil .tuiles-dom a.tuile-lien{color:inherit;text-decoration:none}
+.accueil .tuiles-dom a.tuile-lien::after{content:"";position:absolute;inset:0}
+.accueil .tuiles-dom .compte a{position:relative;z-index:1}
 .accueil .tuiles-dom strong{font-family:var(--serif);font-size:var(--t-encadre);font-weight:400;line-height:1.2}
 .accueil .tuiles-dom .compte{font-size:var(--t-note);font-variant-numeric:tabular-nums}
 .accueil .tuiles-dom .compte b{font-weight:600;color:var(--chiffre)}
+.accueil .tuiles-dom .compte a.compte-lien b{color:inherit}
+/* compteur d'indicateurs devenu lien vers la page Indicateurs filtrée, et bouton qui se lit comme un lien */
+a.compte-lien{color:inherit;text-decoration:underline;text-decoration-color:var(--line-fort);text-decoration-thickness:1px;text-underline-offset:3px}
+a.compte-lien:hover,a.compte-lien:focus-visible{color:var(--action);text-decoration-color:var(--action)}
+button.lien-a{font:inherit;background:none;border:0;padding:0;cursor:pointer;color:var(--ink);text-decoration:underline;text-decoration-color:var(--line-fort);text-decoration-thickness:1px;text-underline-offset:3px}
+button.lien-a:hover,button.lien-a:focus-visible{color:var(--action);text-decoration-color:var(--action)}
 .accueil .tuiles-dom .exemples{font-size:var(--t-note);color:var(--muted);line-height:1.4}
 .accueil .vers-modele{margin:var(--e-3) 0 0}
 .accueil .ajouts ol{list-style:none;margin:0;padding:0}
@@ -2019,6 +2030,7 @@ nav.site .chercher[aria-expanded="true"]{border-bottom-color:var(--ink)}
 .panneau-recherche{max-width:var(--largeur-page,1264px);margin:0 auto;padding:0 var(--marge,32px) 28px}
 .panneau-recherche input{width:100%;font:inherit;font-size:var(--t-texte);padding:12px 14px;border:1px solid var(--ink);border-radius:2px;background:var(--bg);color:var(--ink)}
 .panneau-recherche .aide-recherche{font-size:var(--t-note);color:var(--muted);margin:6px 0 0;text-align:left}
+.panneau-recherche .aide-3114{font-size:var(--t-note);margin:14px 0 0;padding:8px 0;border-top:1px solid var(--line-fort);border-bottom:1px solid var(--line-fort);text-align:left}
 .panneau-recherche .groupes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px;margin-top:18px}
 .panneau-recherche h3{font-family:var(--sans);font-size:var(--t-note);font-weight:500;color:var(--muted);margin:0 0 6px;padding-bottom:6px;border-bottom:1px solid var(--line-fort)}
 .panneau-recherche ul{list-style:none;margin:0;padding:0;text-align:left}
@@ -2053,6 +2065,7 @@ nav.site .chercher[aria-expanded="true"]{border-bottom-color:var(--ink)}
 .domaines .sous span.lib{flex:1 1 auto;min-width:0;font-size:var(--t-texte);color:var(--ink)}
 .domaines .sous .autres-pli span.lib{font-size:var(--t-note)}
 .domaines .dom .vers-catalogue{margin-top:var(--e-3)}
+.domaines .vers-catalogue-sous{font-size:var(--t-note);color:var(--muted);margin:var(--e-2) 0 var(--e-3);text-align:left}
 .domaines details.sous-pli > summary b,.domaines .sous > li.sans-pli b{font-weight:600;color:var(--ink)}
 .domaines .sous span.n{color:var(--muted);font-size:var(--t-note)}
 .domaines details.sous-pli > summary:hover b,.domaines details.sous-pli > summary:focus-visible b{color:var(--action)}
@@ -2061,6 +2074,8 @@ nav.site .chercher[aria-expanded="true"]{border-bottom-color:var(--ink)}
 .domaines details[open] > summary > .chev{transform:rotate(45deg) translate(-2px,-2px)}
 .domaines details > summary:hover > .chev{border-color:var(--action)}
 .domaines details.sous-pli > .liste-ind,.domaines details.sous-pli > .meta-commune{margin:0 0 var(--e-3);padding-left:23px}
+.domaines details.sous-pli > .vers-catalogue-sous{padding-left:23px;margin-top:calc(-1 * var(--e-2))}
+.domaines .vers-catalogue-sous a.compte-lien{color:var(--ink)}
 .domaines details.sous-pli > .meta-commune{margin:-4px 0 2px;font-size:var(--t-note);color:var(--muted)}
 .domaines details.sous-pli .liste-ind li:last-child{border-bottom:0}
 .domaines .liste-ind a{color:var(--ink);text-decoration-line:underline;text-decoration-style:solid;text-decoration-color:var(--line-fort);text-decoration-thickness:1px;text-underline-offset:3px;border-bottom:0}

@@ -9009,7 +9009,8 @@ def test_domaines_compte_de_chaque_sous_theme_egal_a_ses_liens():
     assert g and len(re.findall(r"<li><a ", g.group(2))) == int(g.group(1))
     # compte du domaine, en tête, égal à la somme de ses sous-thèmes
     for sec in re.findall(r'<section class="dom" id="[a-z]+".*?</section>', h, flags=re.S):
-        tete = re.search(r'<p class="compte"><b>(\d+)</b>', sec)
+        # le compteur est un lien depuis l'étape 5 des portes d'entrée : lu sans les balises
+        tete = re.search(r'<p class="compte">(?:<a [^>]*>)?<b>(\d+)</b>', sec)
         n_sous = sum(int(x) for x in re.findall(r'<span class="n">(\d+)\sindicateurs?</span>', sec))
         assert (int(tete.group(1)) if tete else 0) == n_sous, sec[:120]
 
@@ -9035,7 +9036,9 @@ def test_domaines_professions_principales_et_activite_des_liberaux():
         if "prof:" + pid in fiche:
             assert fiche["prof:" + pid] in principales, pid
     assert principales.index(fiche["prof:q_psychiatrie_enfant"]) == principales.index(fiche["prof:pedopsychiatre"]) + 1
-    m = re.search(r"dont (\d+)\sde santé mentale \((\d+)\sdans le .*?sous-thème.*? Santé mentale, (\d+)\sdans Addictions\)", h)
+    # les compteurs sont des liens depuis l'étape 5 des portes d'entrée : la phrase est lue sans les balises
+    m = re.search(r"dont (\d+)\sde santé mentale \((\d+)\sdans le .*?sous-thème.*? Santé mentale, (\d+)\sdans Addictions\)",
+                  re.sub(r"</?a\b[^>]*>", "", h))
     sm = [i for i in cat if i["domaine"] == "recours" and i["sm"]]
     assert m and int(m.group(1)) == len(sm) == int(m.group(2)) + int(m.group(3)), m and m.groups()
 
@@ -10454,6 +10457,105 @@ def test_mots_du_lecteur_cibles_et_mots_permis():
     ids, urls = {i[0] for i in R["indicateurs"]}, {p[1] for p in R["pages"]}
     assert not M.erreurs_table(L, ids, urls), M.erreurs_table(L, ids, urls)[:5]
     assert len(R["mots"]["lignes"]) == len(L)
+
+
+def test_urgences_gestes_auto_infliges_rapportees_aux_passages_codes():
+    """Santé publique France rapporte les passages pour geste auto-infligé aux passages dont au moins un diagnostic est
+    renseigné, pas à tous les passages (fiche du jeu sur Odissé, lue le 24 novembre 2026) : la définition le dit."""
+    e = [s for s in config.ODISSE if s.get("id") == "urgences_gestes_auto_infliges"]
+    assert len(e) == 1
+    assert "dont au moins un diagnostic est renseigné" in e[0]["explication"], e[0]["explication"]
+    assert "ensemble des passages" not in e[0]["explication"]
+
+
+def test_compteurs_menent_a_la_liste_qu_ils_comptent():
+    """Portes d'entrée, étape 5 (maquette du 13 novembre 2026) : chaque compteur d'indicateurs de l'accueil, de la page
+    Domaines, de la page Offre de soins et du sommaire de la page Santé mentale mène à la page Indicateurs filtrée, et le
+    nombre écrit est celui des lignes que ce filtre garde dans le catalogue publié (domaine, thème, sous-thème, niveau)."""
+    import html as H
+    import json
+    from urllib.parse import parse_qs, unquote
+    site = config.RACINE / "site"
+    cj = site / "presentation" / "catalogue.json"
+    if not cj.exists():
+        raise Ignore("site non construit")
+    C = json.loads(cj.read_text(encoding="utf-8"))
+    js = (config.RACINE / "gabarits" / "presentation" / "catalogue.js").read_text(encoding="utf-8")
+    assert "f.sous && e.sous !== f.sous" in js and '"sous"].forEach' in js and 'a.get("sous")' in js
+
+    def garde(p):
+        return [e for e in C if (not p.get("dom") or e["domaine"] == p["dom"]) and (not p.get("th") or p["th"] in e["themes"])
+                and (not p.get("sous") or e["sous"] == p["sous"]) and (not p.get("niv") or p["niv"] in e["niveaux"])]
+    SM = "Santé mentale"
+    doms = sorted({e["domaine"] for e in C})
+    # les compteurs attendus, page par page, calculés depuis le catalogue (une signature de filtre chacun) : un compteur
+    # redevenu texte simple, ou un sous-thème sans son lien, fait échouer le test (relecture du 24 novembre 2026)
+    sig = lambda **k: tuple(sorted((a, v) for a, v in k.items() if v))
+    attendus = {
+        "index.html": {sig(th=SM), sig()} | {sig(dom=d) for d in doms},
+        "domaines.html": {sig(dom=d) for d in doms} | {sig(dom=d, th=SM) for d in doms if garde({"dom": d, "th": SM})}
+                         | {sig(dom=e["domaine"], sous=e["sous"]) for e in C if e["sous"]},
+        "domaine/offre-de-soins.html": {sig(dom="Offre de soins")},
+        "domaine/sante-mentale.html": {sig(th=SM)},
+    }
+    fautes = []
+    for rel, voulus in attendus.items():
+        h = (site / rel).read_text(encoding="utf-8")
+        trouves = set()
+        for m in re.finditer(r'<a [^>]*href="(?:\.\./)?indicateurs\.html(#[^"]*)?"[^>]*>(.*?)</a>', h, flags=re.S):
+            texte = re.sub(r"<[^>]+>", "", m.group(2)).strip()
+            p = {k: unquote(v[0]) for k, v in parse_qs(H.unescape((m.group(1) or "#")[1:])).items()}
+            g = garde(p)
+            chiffre = re.search(r"\d+", texte)
+            if chiffre:
+                trouves.add(sig(**p))
+                if int(chiffre.group(0)) != len(g):
+                    fautes.append((rel, texte[:60], p, len(g)))
+            elif texte.startswith("Cet indicateur"):
+                trouves.add(sig(**p))
+                if len(g) != 1:
+                    fautes.append((rel, texte[:60], p, len(g)))
+            elif not g:
+                fautes.append((rel, texte[:60], p, 0))
+        manque = voulus - trouves
+        if manque:
+            fautes.append((rel, "compteurs absents", sorted(manque)[:5], len(manque)))
+    assert not fautes, fautes[:5]
+
+
+def test_classes_de_la_recherche_stylees_partout():
+    """Chaque classe que la recherche de l'en-tête écrit dans son panneau a son style dans style.css et dans l'atlas,
+    qui reprend ces styles à sa construction : la ligne du 3114 paraissait sans filets ni taille dans l'atlas non
+    reconstruit (24 novembre 2026)."""
+    js = (config.RACINE / "gabarits" / "presentation" / "chercher.js").read_text(encoding="utf-8")
+    css = (config.RACINE / "gabarits" / "style.css").read_text(encoding="utf-8")
+    classes = {c for m in re.finditer(r'class=\\?"([^"\\]+)\\?"', js) for c in m.group(1).split() if len(c) >= 4}
+    assert "aide-3114" in classes, sorted(classes)
+    manque = sorted(c for c in classes if "." + c not in css)
+    assert not manque, f"sans style dans style.css : {manque}"
+    atlas = config.RACINE / "site" / "atlas.html"
+    if not atlas.exists():
+        raise Ignore("site non construit")
+    a = atlas.read_text(encoding="utf-8")
+    manque = sorted(c for c in classes if "." + c not in a)
+    assert not manque, f"sans style dans l'atlas : {manque}"
+
+
+def test_ligne_du_3114_pour_le_suicide():
+    """La recherche publiée porte la ligne du 3114 (décision du 23 novembre 2026) : les trois indicateurs du suicide
+    l'appellent, chacun présent dans la table des mots, et le texte publié est celui de la maquette, numéro cliquable."""
+    import json
+    from pipeline import mots_lecteur as M
+    assert set(M.AIDE_CIBLES) == {"suicides", "pensees_suicidaires_declarees", "tentative_suicide_vie_declaree"}
+    assert set(M.AIDE_CIBLES) <= {l["cible"] for l in M.lire()}
+    js = (config.RACINE / "gabarits" / "presentation" / "chercher.js").read_text(encoding="utf-8")
+    assert ('Si vous pensez au suicide, ou si un proche vous inquiète, le <a href="tel:3114">3114</a> répond jour et '
+            'nuit, gratuitement.') in js
+    rj = config.RACINE / "site" / "presentation" / "recherche.json"
+    if not rj.exists():
+        raise Ignore("site non construit")
+    R = json.loads(rj.read_text(encoding="utf-8"))
+    assert sorted(R["mots"].get("aide", [])) == sorted(M.AIDE_CIBLES), R["mots"].get("aide")
 
 
 def test_nombres_au_millieme_ecrits_avec_trois_decimales():

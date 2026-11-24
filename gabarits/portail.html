@@ -61,7 +61,8 @@ addEventListener("theme",function(){try{f.contentWindow.postMessage({ubicura:"th
       <li><a href="explorer.html#qAddicto">De l’offre aux consommations en addictologie<span>addictologie</span></a></li>
       <li><a href="rapports/{{ dernier }}/sante-mentale.html">Le rapport national de santé mentale<span>rapport complet</span></a></li>
     </ul>
-    <p class="bases">{{ n_sm }} indicateurs de santé mentale sur les {{ n_total }} du site, dans l’offre, le recours aux soins et les distances.</p>
+    {#- les compteurs mènent à la page Indicateurs, filtrée ou non (portes d'entrée, étape 5) #}
+    <p class="bases"><a class="compte-lien" href="indicateurs.html#th={{ 'Santé mentale'|urlencode }}">{{ n_sm }} indicateurs de santé mentale</a> sur les <a class="compte-lien" href="indicateurs.html">{{ n_total }} du site</a>, dans l’offre, le recours aux soins et les distances.</p>
   </div>
 </section>
 
@@ -71,9 +72,10 @@ addEventListener("theme",function(){try{f.contentWindow.postMessage({ubicura:"th
     <p>L’offre de soins est au centre. Sept domaines la mettent en regard de qui vit sur le territoire, de ce qu’il demande et de la façon d’y accéder. Chacun a ses questions, ses indicateurs et les bases qui viendront.</p>
   </div>
   <div class="tuiles-dom">
-    {% for d in tuiles %}<a href="{{ 'domaine/offre-de-soins.html' if d.centre else 'domaine/' ~ d.id ~ '.html' }}"{% if d.centre %} class="centre"{% endif %}><strong>{{ d.nom }}</strong>
-      <span class="compte">{% if d.n %}<b>{{ d.n }}</b> indicateur{{ 's' if d.n > 1 }}{% if d.venir %}, {{ d.venir }} base{{ 's' if d.venir > 1 }} à venir{% endif %}{% else %}{% if d.venir %}{{ d.venir }} base{{ 's' if d.venir > 1 }} à venir, aucune encore intégrée{% else %}Aucune base encore intégrée{% endif %}{% endif %}</span>
-      {% if d.exemples %}<span class="exemples">{{ d.exemples|join(' ; ') }}</span>{% endif %}</a>
+    {#- le titre mène à la page du domaine, sur toute la tuile ; le compteur à la liste filtrée de ses indicateurs #}
+    {% for d in tuiles %}<div class="tuile{{ ' centre' if d.centre }}"><strong><a class="tuile-lien" href="{{ 'domaine/offre-de-soins.html' if d.centre else 'domaine/' ~ d.id ~ '.html' }}">{{ d.nom }}</a></strong>
+      <span class="compte">{% if d.n %}<a class="compte-lien" href="indicateurs.html#dom={{ d.nom|urlencode }}"><b>{{ d.n }}</b> indicateur{{ 's' if d.n > 1 }}<span class="visuel-cache">, domaine {{ d.nom }}</span></a>{% if d.venir %}, {{ d.venir }} base{{ 's' if d.venir > 1 }} à venir{% endif %}{% else %}{% if d.venir %}{{ d.venir }} base{{ 's' if d.venir > 1 }} à venir, aucune encore intégrée{% else %}Aucune base encore intégrée{% endif %}{% endif %}</span>
+      {% if d.exemples %}<span class="exemples">{{ d.exemples|join(' ; ') }}</span>{% endif %}</div>
     {% endfor %}
   </div>
   <p class="vers-modele"><a href="domaines.html">Le modèle, les domaines et leurs indicateurs</a></p>
