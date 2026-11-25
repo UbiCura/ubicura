@@ -14,7 +14,9 @@ clé d'accès personnelle (tutoriel 07).
                                          confirmation
     python outils\\zenodo.py constater    lit la dernière version publiée de chaque dépôt et met à jour la version
                                          archivée citée par le site (codes de sortie 0 rien de nouveau, 10 nouvelle
-                                         version archivée, 20 vérification impossible)
+                                         version archivée, 20 vérification impossible) ; refait aussi le relevé des
+                                         versions de la page « Citer et réutiliser »
+    python outils\\zenodo.py versions     refait seul ce relevé public (sans clé), donnees/zenodo_versions.json
     python outils\\zenodo.py rappel       rappel trimestriel pour la tâche planifiée (code 10 quand il est temps
                                          d'archiver une version, au plus une fois par semaine)
 
@@ -507,6 +509,8 @@ def cmd_annoter(args) -> int:
             z.appel("POST", f"/deposit/depositions/{bid}/actions/discard", attendu=(200, 201, 202, 204, 400))
             raise
         print(f"- {NOMS[cle]}, description corrigée.")
+    # la tête des descriptions a changé : relevé des versions à refaire pour la page « Citer et réutiliser »
+    releve_versions()
     return 0
 
 
@@ -524,8 +528,29 @@ def cmd_abandonner(_args) -> int:
     return 0
 
 
+def releve_versions(discret: bool = False) -> int:
+    """Relevé public des versions des trois dépôts (sans clé), gardé dans donnees/zenodo_versions.json pour la page
+    « Citer et réutiliser » : la construction du site ne lit jamais le réseau. La copie gardée n'est remplacée que par
+    un relevé validé."""
+    from pipeline import citer
+    try:
+        msg = citer.enregistrer_historique()
+    except Exception as x:  # noqa: BLE001
+        print(f"Relevé des versions de Zenodo non refait ({x.__class__.__name__} : {str(x)[:160]}), la copie gardée reste.")
+        return 1
+    if not discret:
+        print(msg + ".")
+    return 0
+
+
+def cmd_versions(args) -> int:
+    return releve_versions()
+
+
 def cmd_constater(args) -> int:
-    """Version archivée = dernière version publiée, quand elle est la même pour les trois dépôts."""
+    """Version archivée = dernière version publiée, quand elle est la même pour les trois dépôts. Refait aussi le relevé
+    public des versions pour la page « Citer et réutiliser »."""
+    releve_versions(discret=getattr(args, "discret", False))
     try:
         e = etat_depots(connexion())
     except Arret as x:
@@ -688,6 +713,7 @@ def main() -> int:
     p.add_argument("--discret", action="store_true", help="pour la tâche planifiée, code 20 sans erreur si Zenodo "
                                                           "n'est pas joignable ou si aucune clé n'est rangée")
     sous.add_parser("site-refait")
+    sous.add_parser("versions")
     sous.add_parser("pret-site")
     p = sous.add_parser("rappel")
     p.add_argument("--jours", type=int, default=JOURS_RAPPEL, help="âge de la dernière version archivée qui déclenche "
@@ -697,7 +723,8 @@ def main() -> int:
     try:
         return {"cle": cmd_cle, "verifier": cmd_verifier, "preparer": cmd_preparer, "publier": cmd_publier,
                 "abandonner": cmd_abandonner, "annoter": cmd_annoter, "constater": cmd_constater,
-                "rappel": cmd_rappel, "site-refait": cmd_site_refait, "pret-site": cmd_pret_site}[args.commande](args)
+                "rappel": cmd_rappel, "site-refait": cmd_site_refait, "pret-site": cmd_pret_site,
+                "versions": cmd_versions}[args.commande](args)
     except Arret as e:
         print(f"Arrêt, {e}")
         return 1

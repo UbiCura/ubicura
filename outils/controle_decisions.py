@@ -528,6 +528,9 @@ def controler() -> int:
         pied = re.search(r'<p class="pied-liens">.*?</p>', s, flags=re.S)
         if pied and not ("zone.html" in pied.group(0) and "methode-fichiers.html" in pied.group(0)):
             nav.append((r, "pied de page sans « Autour d'un lieu » ou « Télécharger les données »"))
+        # « Citer et réutiliser » à côté de « Télécharger les données » (décision du 24 novembre 2026)
+        if pied and 'methode-citer.html">Citer et réutiliser</a>' not in pied.group(0):
+            nav.append((r, "pied de page sans « Citer et réutiliser »"))
         if "Données sources" in textes[p]:
             nav.append((r, "ancien nom « Données sources »"))
     note("Navigation : liens entre niveaux, « Autour d'un lieu », pied de page", nav)

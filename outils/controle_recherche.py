@@ -136,6 +136,9 @@ RENDUS = [
     ("dépression", [], ["3114"]),
     ("psychiatres", [], ["3114"]),
     ("nouveautés", [r"Journal des mises à jour[\s\S]*À venir"], []),
+    # page « Citer et réutiliser » (maquette validée le 24 novembre 2026)
+    ("citer", ["Citer et réutiliser"], ["Rien ne porte ce nom"]),
+    ("DOI", ["Citer et réutiliser"], ["Rien ne porte ce nom"]),
 ]
 
 

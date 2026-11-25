@@ -15,8 +15,10 @@ Sources, lues le 29 octobre 2026.
 - Bluesky, API publique (public.api.bsky.app), app.bsky.actor.getProfile (followersCount, followsCount, postsCount) et
   app.bsky.feed.getAuthorFeed sur le DID du compte (likeCount, repostCount, replyCount, quoteCount de chaque message,
   republications d'autres comptes écartées).
-- data.gouv.fr, GET /api/1/reuses/{id}/, champ metrics (views, followers, discussions), identifiant de la réutilisation
-  dans donnees\\datagouv.json.
+- data.gouv.fr, GET /api/1/reuses/{id}/, champ metrics (followers, discussions), identifiant de la réutilisation
+  dans donnees\\datagouv.json. Les vues viennent du service de mesure que la page de la réutilisation lit elle-même,
+  metric-api.data.gouv.fr, /api/reuses_total/data/ (visit) et /api/reuses/data/ (monthly_visit par mois) : le champ
+  metrics.views de l'API principale reste à 0 (constaté le 25 novembre 2026, 474 vues sur la page).
 - Zenodo, GET /api/records/{id} sur le DID général de chaque dépôt (redirigé vers la dernière version), champ stats.
   unique_views et unique_downloads sont les « Views » et « Downloads » de la colonne « All versions » de la page du dépôt
   (vérifié sur zenodo.org/records/23760494 le 29 octobre 2026).
@@ -43,6 +45,8 @@ DATAGOUV = config.DONNEES / "datagouv.json"
 CIBLE_GOATCOUNTER = "Ubi Cura, GoatCounter"   # nom du jeton dans le gestionnaire d'identifiants de Windows
 BLUESKY_PUBLIC = "https://public.api.bsky.app/xrpc"
 DATAGOUV_API = "https://www.data.gouv.fr/api/1"
+# service de mesure lu par la page de la réutilisation elle-même (requêtes relevées sur cette page le 25 novembre 2026)
+DATAGOUV_METRIQUES = "https://metric-api.data.gouv.fr/api"
 ZENODO_API = "https://zenodo.org/api/records"
 GOATCOUNTER_API = f"https://{config.GOATCOUNTER}.goatcounter.com/api/v0"
 GOATCOUNTER_DEBUT = dt.date(2026, 10, 23)     # compteur posé sur le site le 23 octobre 2026
@@ -97,8 +101,13 @@ def datagouv() -> dict:
     ident = json.loads(DATAGOUV.read_text(encoding="utf-8"))["id"]
     d = _get(f"{DATAGOUV_API}/reuses/{ident}/")
     m = d.get("metrics") or {}
-    return {"titre": d.get("title"), "page": d.get("page"), "vues": m.get("views", 0), "abonnes": m.get("followers", 0),
-            "discussions": m.get("discussions", 0), "modifiee_le": d.get("last_modified")}
+    # les vues de la page viennent du service de mesure, le champ metrics.views de l'API principale reste à 0
+    t = _get(f"{DATAGOUV_METRIQUES}/reuses_total/data/", params={"reuse_id__exact": ident}).get("data") or [{}]
+    mois = _get(f"{DATAGOUV_METRIQUES}/reuses/data/", params={"reuse_id__exact": ident, "metric_month__sort": "desc",
+                                                              "page_size": 12}).get("data") or []
+    return {"titre": d.get("title"), "page": d.get("page"), "vues": t[0].get("visit", 0),
+            "vues_par_mois": {x["metric_month"]: x.get("monthly_visit", 0) for x in mois},
+            "abonnes": m.get("followers", 0), "discussions": m.get("discussions", 0), "modifiee_le": d.get("last_modified")}
 
 
 def zenodo() -> dict:

@@ -95,7 +95,11 @@ def pages_recherche(site: Path) -> list[list[str]]:
            ["Rapports nationaux", "rapports.html", "page", "santé mentale et santé, archivés avec leur DOI"],
            ["Télécharger les données", "methode-fichiers.html", "page", "les fichiers, leur dictionnaire et leur licence"],
            ["Sources des données", "donnees-sources.html", "page", "chaque jeu de données, son producteur et sa date"],
-           ["Méthode et données", "methode.html", "page", "d’où viennent les chiffres et ce qu’ils ne disent pas"]]
+           ["Méthode et données", "methode.html", "page", "d’où viennent les chiffres et ce qu’ils ne disent pas"],
+           # page « Étendue des données » (portes d'entrée, étape 6, 24 novembre 2026)
+           ["Étendue des données", "methode-etendue.html", "page", "les indicateurs par niveau, les sources, les années et les contrôles"],
+           # page « Citer et réutiliser » (maquette validée le 24 novembre 2026)
+           ["Citer et réutiliser", "methode-citer.html", "page", "les citations, les DOI de chaque version, les licences et les versions archivées"]]
     # le journal, les ajouts prévus et la page de chaque domaine, que la table des mots du lecteur désigne (« nouveautés »,
     # « violences » ; étape 4 des portes d'entrée, table validée le 23 novembre 2026)
     out += [["Journal des mises à jour", "journal.html", "page", "les changements de chaque version"],

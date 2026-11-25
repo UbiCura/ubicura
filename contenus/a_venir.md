@@ -22,4 +22,6 @@ Les principaux ajouts prévus, sans date ferme. Chacun ne sera intégré que si 
 
 **Rapports par intercommunalité.** Après la fiche de chaque intercommunalité, un rapport complet sur le modèle des départements, avec le plan de ses structures de soins.
 
+**Le calendrier des éditions.** Les dates des éditions mensuelles, fixées et annoncées à l'avance.
+
 **Ce que dit la littérature.** Les travaux scientifiques sur chaque thème, avec leurs références.

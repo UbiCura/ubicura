@@ -38,7 +38,7 @@ class Journal:
     def note(self, source, statut, detail="", **kw):
         detail = format_fr(str(detail)) if statut == "ok" else str(detail)
         e = Entree(source, statut, detail, **kw)
-        for motif, producteur, licence, page in config.SOURCES_INFO:
+        for motif, producteur, licence, page, *_ in config.SOURCES_INFO:
             if re.search(motif, source):
                 e.producteur = e.producteur or producteur
                 e.licence = e.licence or licence

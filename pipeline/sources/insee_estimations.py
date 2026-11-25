@@ -6,6 +6,7 @@ calcul des densités de l'évolution de l'offre, les autres densités reposent s
 from __future__ import annotations
 
 import json
+from datetime import datetime
 
 import pandas as pd
 
@@ -36,7 +37,10 @@ def charger(hors_ligne=False, rafraichir=False):
                 if len(lignes) < 1000:
                     raise IOError(f"réponse incomplète ({len(lignes)} observations)")
                 pd.DataFrame(lignes).sort_values(["code", "annee"]).to_csv(DEST, sep=";", index=False)
+                # date de récupération, écrite comme pour les autres jeux : la page « Étendue des données » la publie
+                # (24 novembre 2026, elle manquait)
                 meta_path(DEST).write_text(json.dumps({"url": config.INSEE_ESTIMATIONS_API + FILTRE, "maj_source": maj,
+                                                       "telecharge_le": datetime.now().isoformat(timespec="seconds"),
                                                        "observations": len(lignes)}, ensure_ascii=False, indent=1),
                                            encoding="utf-8")
         if not DEST.exists():

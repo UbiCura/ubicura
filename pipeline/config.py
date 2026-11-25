@@ -687,47 +687,93 @@ HAS_ESSMS_JEU = "resultats-devaluation-des-etablissements-et-services-sociaux-et
 HAS_ESSMS_MOTIF = "open_data_echelle_qualite"
 HAS_ESSMS_PAGE = "https://www.data.gouv.fr/datasets/" + HAS_ESSMS_JEU
 
+# Producteur, licence, page du jeu et rythme de publication annoncé par le producteur (motif, producteur, licence, page,
+# rythme). Le rythme est lu dans les métadonnées du producteur, le 24 novembre 2026 : champ « frequency » de l'API de
+# data.gouv.fr, champs « update_frequency », « frequence-de-mise-a-jour » ou « periodicite » des portails Opendatasoft
+# (DREES, Assurance Maladie, CAF, Odissé), champ « accrualPeriodicity » du catalogue Melodi de l'INSEE. Un producteur qui
+# n'annonce aucun rythme donne « non indiqué », jamais une estimation (page « Étendue des données », 24 novembre 2026).
+NON_INDIQUE = "non indiqué"
 SOURCES_INFO = [
+    # data.gouv.fr, frequency « daily »
     (r"^RPPS", "Agence du numérique en santé (ANS)", "Licence Ouverte 2.0",
-     "https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps"),
+     "https://www.data.gouv.fr/datasets/annuaire-sante-extractions-des-donnees-en-libre-acces-des-professionnels-intervenant-dans-le-systeme-de-sante-rpps",
+     "quotidienne"),
+    # data.gouv.fr, frequency « daily »
     (r"^FINESS - Activités", "Agence du numérique en santé (ANS)", "Licence Ouverte 2.0",
-     "https://www.data.gouv.fr/datasets/finess-activites-1"),
+     "https://www.data.gouv.fr/datasets/finess-activites-1", "quotidienne"),
+    # le fichier lu est l'extraction mensuelle du jeu (titre publié « finess-structures-mensuel-AAAAMM.json.gz »), le
+    # jeu lui-même est annoncé « daily » sur data.gouv.fr
     (r"^FINESS \(Finess\+\)", "Agence du numérique en santé (ANS)", "Licence Ouverte 2.0",
-     "https://www.data.gouv.fr/datasets/finess-structures-1"),
+     "https://www.data.gouv.fr/datasets/finess-structures-1", "mensuelle"),
+    # data.gouv.fr, frequency « bimonthly »
     (r"^FINESS", "Ministère chargé de la santé", "Licence Ouverte 2.0",
-     "https://www.data.gouv.fr/datasets/finess-extraction-du-fichier-des-etablissements"),
-    (r"^INSEE dossier", "INSEE", "Licence Ouverte 2.0", INSEE_PAGE_DOSSIER),
+     "https://www.data.gouv.fr/datasets/finess-extraction-du-fichier-des-etablissements", "tous les deux mois"),
+    # page de l'INSEE, aucun rythme annoncé
+    (r"^INSEE dossier", "INSEE", "Licence Ouverte 2.0", INSEE_PAGE_DOSSIER, NON_INDIQUE),
+    # data.gouv.fr, frequency « annual »
     (r"^INSEE, temps", "INSEE", "Licence Ouverte 2.0 (distancier fondé sur OpenStreetMap, © ses contributeurs)",
-     "https://www.data.gouv.fr/datasets/donnees-sur-la-localisation-et-lacces-de-la-population-aux-equipements"),
+     "https://www.data.gouv.fr/datasets/donnees-sur-la-localisation-et-lacces-de-la-population-aux-equipements",
+     "annuelle"),
+    # data.ameli.fr, aucun rythme annoncé
     (r"^Assurance Maladie, pathologies", "Caisse nationale de l'Assurance Maladie (Cnam)",
-     "ODbL 1.0 (partage à l'identique)", "https://data.ameli.fr/explore/dataset/effectifs/"),
-    # Licence Ouverte 1.0 (et non 2.0) d'après l'API de data.gouv, champ license « fr-lo », lu le 28 octobre 2026
+     "ODbL 1.0 (partage à l'identique)", "https://data.ameli.fr/explore/dataset/effectifs/", NON_INDIQUE),
+    # Licence Ouverte 1.0 (et non 2.0) d'après l'API de data.gouv, champ license « fr-lo », lu le 28 octobre 2026 ;
+    # data.gouv.fr, frequency « annual »
     (r"^Assurance Maladie, affections de longue durée", "Caisse nationale de l'Assurance Maladie (Cnam)",
-     "Licence Ouverte 1.0", "https://www.data.gouv.fr/datasets/beneficiaires-du-dispositif-des-affections-de-longue-duree-ald"),
-    (r"^CAF", "Caisse nationale des allocations familiales (CNAF)", "Licence Ouverte 2.0", None),   # page notée par le module
-    (r"^INSEE, estimations", "INSEE", "Licence Ouverte 2.0", INSEE_ESTIMATIONS_PAGE),
+     "Licence Ouverte 1.0", "https://www.data.gouv.fr/datasets/beneficiaires-du-dispositif-des-affections-de-longue-duree-ald",
+     "annuelle"),
+    # data.caf.fr, s_ben_dep « Mensuelle » (accrualperiodicity « monthly »), s_ben_epci_f « Annuelle »
+    (r"^CAF", "Caisse nationale des allocations familiales (CNAF)", "Licence Ouverte 2.0", None,   # page notée par le module
+     "mensuelle par département, annuelle par intercommunalité"),
+    # catalogue Melodi de l'INSEE, DS_ESTIMATION_POPULATION, accrualPeriodicity « Annuel »
+    (r"^INSEE, estimations", "INSEE", "Licence Ouverte 2.0", INSEE_ESTIMATIONS_PAGE, "annuelle"),
+    # data.ameli.fr (secteurs conventionnels, honoraires, patientèle, patients en affection de longue durée), aucun
+    # rythme annoncé
     (r"^Assurance Maladie", "Caisse nationale de l'Assurance Maladie (Cnam)", "ODbL 1.0 (partage à l'identique)",
-     None),   # page notée par le module
-    (r"^Santé publique France", "Santé publique France", "Licence Ouverte 2.0", None),   # page déduite de l'adresse
-    (r"^DREES, démographie", "DREES", "Licence Ouverte 2.0", DREES_DEMOGRAPHIE_PAGE),
+     None, NON_INDIQUE),   # page notée par le module
+    # Odissé, un rythme par jeu : « ANNUAL » pour les décès par suicide, les gestes auto-infligés et la périnatalité,
+    # « BIENNIAL » et « IRREG » pour le tabac, aucun pour les indicateurs du Baromètre
+    (r"^Santé publique France", "Santé publique France", "Licence Ouverte 2.0", None,   # page déduite de l'adresse
+     "selon l'indicateur : annuelle, tous les deux ans, irrégulière ou non indiquée"),
+    # data.drees, aucun rythme annoncé
+    (r"^DREES, démographie", "DREES", "Licence Ouverte 2.0", DREES_DEMOGRAPHIE_PAGE, NON_INDIQUE),
+    # data.drees, update_frequency « ANNUAL »
     (r"^DREES, accessibilité", "DREES", "Licence Ouverte 2.0",
-     "https://data.drees.solidarites-sante.gouv.fr/explore/dataset/530_l-accessibilite-potentielle-localisee-apl/"),
-    (r"^DREES", "DREES", "Licence Ouverte 2.0", None),   # page notée par le module
+     "https://data.drees.solidarites-sante.gouv.fr/explore/dataset/530_l-accessibilite-potentielle-localisee-apl/",
+     "annuelle"),
+    # data.drees, 708_bases-statistiques-sae, frequence-de-mise-a-jour « Annuelle »
+    (r"^DREES, (SAE|Statistique annuelle)", "DREES", "Licence Ouverte 2.0", None, "annuelle"),   # page notée par le module
+    # data.drees (indicateurs sociaux départementaux), aucun rythme annoncé
+    (r"^DREES", "DREES", "Licence Ouverte 2.0", None, NON_INDIQUE),   # page notée par le module
+    # dépôt GitHub d'Etalab, aucun rythme annoncé
     (r"^Référentiel", "Etalab, d'après le Code officiel géographique et les populations légales de l'INSEE",
-     "Licence Ouverte 2.0", "https://github.com/etalab/decoupage-administratif"),
-    (r"^Contours", "IGN, ADMIN EXPRESS COG CARTO PE", "Licence Ouverte 2.0", CONTOURS_PAGE_PRODUCTEUR),
-    (r"^HAS, certification", "Haute Autorité de santé (HAS)", "Licence Ouverte 2.0", HAS_PAGE),
-    (r"^HAS, évaluation", "Haute Autorité de santé (HAS)", "Licence Ouverte 2.0", HAS_ESSMS_PAGE),
+     "Licence Ouverte 2.0", "https://github.com/etalab/decoupage-administratif", NON_INDIQUE),
+    # data.gouv.fr, frequency « monthly »
+    (r"^Contours", "IGN, ADMIN EXPRESS COG CARTO PE", "Licence Ouverte 2.0", CONTOURS_PAGE_PRODUCTEUR, "mensuelle"),
+    # data.gouv.fr, frequency « never », démenti par les versions constatées : aucun rythme retenu
+    (r"^HAS, certification", "Haute Autorité de santé (HAS)", "Licence Ouverte 2.0", HAS_PAGE, NON_INDIQUE),
+    # data.gouv.fr, frequency « daily »
+    (r"^HAS, évaluation", "Haute Autorité de santé (HAS)", "Licence Ouverte 2.0", HAS_ESSMS_PAGE, "quotidienne"),
+    # data.gouv.fr, frequency « monthly »
     (r"^INSEE, répertoire Sirene", "Institut national de la statistique et des études économiques (INSEE)",
-     "Licence Ouverte 2.0", SIRENE_PAGE),
+     "Licence Ouverte 2.0", SIRENE_PAGE, "mensuelle"),
+    # data.gouv.fr, frequency « weekly »
     (r"^ANS, offres de santé", "Agence du numérique en santé (ANS), Répertoire opérationnel des ressources",
      "Licence Ouverte 2.0", "https://www.data.gouv.fr/datasets/offres-de-sante-sanitaire-medico-social-et-de-ville-en-"
-     "france-metropolitaine-et-drom-1"),
+     "france-metropolitaine-et-drom-1", "hebdomadaire"),
+    # service interrogé à la demande, sans version publiée
     (r"^IGN, géocodage", "IGN, service de géocodage de la Géoplateforme (Base Adresse Nationale)", "Licence Ouverte 2.0",
-     "https://geoservices.ign.fr/documentation/services/services-geoplateforme/geocodage"),
+     "https://geoservices.ign.fr/documentation/services/services-geoplateforme/geocodage", NON_INDIQUE),
+    # page de l'INSEE, aucun rythme annoncé
     (r"^INSEE, données carroyées", "Institut national de la statistique et des études économiques (INSEE)",
-     "Licence Ouverte 2.0", INSEE_CARREAUX_PAGE),
+     "Licence Ouverte 2.0", INSEE_CARREAUX_PAGE, NON_INDIQUE),
 ]
+# un rythme qui n'est pas celui que le producteur annonce pour le jeu, dit sous le tableau des sources de la page
+# « Étendue des données » (relecture indépendante du 24 novembre 2026)
+RYTHME_NOTES = {
+    r"^FINESS \(Finess\+\)": "FINESS : data.gouv.fr annonce une mise à jour quotidienne du jeu ; les données de ce "
+                               "site proviennent de l’extraction mensuelle qu’il publie, d’où « mensuelle »",
+}
 
 # ---------------------------------------------------------------- France Travail (optionnel)
 FT_TOKEN = "https://entreprise.francetravail.fr/connexion/oauth2/access_token?realm=%2Fpartenaire"

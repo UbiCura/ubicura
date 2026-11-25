@@ -8,6 +8,8 @@
   <p class="discret" style="margin:0 0 var(--e-3)"><a href="domaines.html">Les domaines</a></p>
   <h1>Indicateurs</h1>
   <p class="chapeau">Les {{ n }} indicateurs du site, de l’offre de soins à ce qui l’entoure. Chacun a sa page : définition, carte, source, limites et liens avec les autres.</p>
+  {#- la liste des indicateurs en CSV, la même que sur la page « Étendue des données » (portes d'entrée, étape 6) #}
+  <p class="liste-csv"><a class="telecharger" download href="{{ lien_liste }}">La liste des indicateurs, CSV</a><span>{{ n }} lignes, une par indicateur, avec sa source, sa licence, sa limite et l’adresse de sa page · <a href="{{ page_etendue }}">Étendue des données</a></span></p>
   <p class="explique">Un domaine range les indicateurs selon ce qu’ils mesurent. Un thème réunit, autour d’une même question, des indicateurs de plusieurs domaines.</p>
   <div class="cherche-cat">
     <label for="qcat">Un indicateur, un mot de sa définition ou une source</label>

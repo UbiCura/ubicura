@@ -407,6 +407,16 @@
     const w = b.getBoundingClientRect().width;
     if (w < 559) sortie.defauts.push("justifié sur " + Math.round(w) + " px « " + b.textContent.replace(/­/g, "").trim().slice(0, 40) + " »");
   });
+  // même règle sur ce qui est replié ou caché (panneaux « Citer et exporter », fenêtres fermées), mesurée par le style
+  // calculé : une citation n'est jamais justifiée, et rien ne l'est au téléphone (signalé le 25 novembre 2026)
+  let citJ = 0, telJ = 0, exJ = "";
+  document.querySelectorAll("main p,main li,main dd").forEach(b => {
+    if (b.closest("script,template") || getComputedStyle(b).textAlign !== "justify") return;
+    if (b.closest(".citation-fig")) { citJ++; exJ = exJ || b.textContent.trim().slice(0, 40); }
+    else if (innerWidth < 560) { telJ++; exJ = exJ || b.textContent.trim().slice(0, 40); }
+  });
+  if (citJ) sortie.defauts.push(`citation justifiée : ${citJ} (« ${exJ} »)`);
+  if (telJ) sortie.defauts.push(`texte justifié au téléphone, même replié : ${telJ} (« ${exJ} »)`);
   document.querySelectorAll("[data-lache]").forEach(b => {
     if (cache(b) || !vis(b)) return;
     JSON.parse(b.dataset.lache).forEach(([x, t]) => sortie.defauts.push("ligne lâche (" + String(x).replace(".", ",") + " fois l'espace) « " + t + " »"));
@@ -542,6 +552,14 @@
       if (/\d\u00a0\d{3}(?!\d)/.test(x3.nodeValue)) larges++;
     }
     if (larges) sortie.defauts.push(`séparateur des milliers large au lieu de l'espace fine : ${larges} texte(s)`);
+    // une seule barre de zoom par figure : celle des figures du site et celle du nuage d'Explorer se superposaient, signes
+    // doublés (signalé le 25 novembre 2026)
+    const barres = [...document.querySelectorAll(".zoom-boutons, .zoombar")].filter(vis).map(z => z.getBoundingClientRect());
+    let doubles = 0;
+    barres.forEach((a, i) => barres.slice(i + 1).forEach(b => {
+      if (a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom) doubles++;
+    }));
+    if (doubles) sortie.defauts.push(`barres de zoom superposées : ${doubles}`);
     // figures lisibles au téléphone (12 novembre 2026) : une figure dont le texte tombe sous 9 px a son bouton
     // « Agrandir la figure », et la figure agrandie se lit à 9 px au moins
     if (innerWidth <= 640) {

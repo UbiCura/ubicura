@@ -144,7 +144,11 @@
 .outil figure.graphique{background:none;border:0;border-radius:0;box-shadow:none;padding:0}
 .outil figure.graphique>figcaption,.outil figure.graphique>.outils-figure{margin:0;padding:0 0 6px;background:none;border:0;border-radius:0}
 .outil figure.graphique>.outils-figure{padding-bottom:12px}
-.outil .fen-corps p{max-width:none;text-align:justify}
+/* justifié seulement à partir de 560 px, jamais au téléphone ni dans une citation (règle du 30 octobre 2026 ; la
+   citation de « Citer et exporter » s'étirait au téléphone, signalé le 25 novembre 2026) */
+.outil .fen-corps p{max-width:none}
+@media (min-width:560px){.outil .fen-corps p{text-align:justify}}
+.outil .fen-corps .citation-fig p{text-align:left}
 .outil .fen-tete p{max-width:none}
 .legende-x{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:var(--t-note);color:var(--muted);margin:4px 0 10px}
 .legende-x span{display:inline-flex;align-items:center;gap:6px}
@@ -210,10 +214,11 @@ td i.pastille{display:inline-block;width:10px;height:10px;border-radius:2px;marg
 #qCroisements svg text{fill:var(--muted);font-family:var(--sans);font-size:11px}
 #qCroisements svg text.signature{font-size:10px;opacity:.75}
 #qCroisements #scatter{display:block;width:100%;height:auto;max-width:none}
-/* mêmes boutons de zoom que les figures du site (.zoom-boutons), des carrés séparés sans coins arrondis (relecture du 5 novembre) */
-#qCroisements .zoombar{position:absolute;top:8px;right:8px;z-index:2;display:flex;gap:var(--e-1);border:0;background:none}
-#qCroisements .zoombar button{font:inherit;font-size:var(--t-note);width:28px;height:28px;padding:0;border:1px solid var(--line-fort);border-radius:2px;background:var(--bg);color:var(--ink);cursor:pointer}
-#qCroisements .zoombar button:hover{border-color:var(--ink)}
+/* mêmes boutons de zoom que les figures du site (.zoom-boutons), en signes soulignés d'un filet, sans boîte
+   (12 novembre 2026), au-dessus du nuage et non sur lui, pour qu'aucun point ne passe dessous (25 novembre 2026) */
+#qCroisements .zoombar{position:static;display:flex;justify-content:flex-end;gap:14px;margin:0 0 4px;padding:0;border:0;background:none}
+#qCroisements .zoombar button{font:inherit;font-size:1.0625rem;min-width:22px;min-height:28px;padding:0 2px 2px;border:0;border-bottom:1px solid var(--line-fort);border-radius:0;background:none;color:var(--ink);cursor:pointer}
+#qCroisements .zoombar button:hover{border-bottom-color:var(--ink)}
 #qCroisements .legende-signaux{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:var(--t-note);color:var(--muted);margin:6px 0}
 #qCroisements .asavoir{box-sizing:border-box;border-left:3px solid var(--accent, #8A5A0E);background:color-mix(in srgb,var(--accent, #8A5A0E) 8%,transparent);padding:5px 11px;font-size:var(--t-note);margin:10px 0 0;border-radius:0 4px 4px 0}
 #qCroisements details.asavoir>summary{cursor:pointer;list-style:none}
@@ -487,7 +492,7 @@ td i.pastille{display:inline-block;width:10px;height:10px;border-radius:2px;marg
     </div>
     <div class="onglets" role="tablist"><button type="button" role="tab" data-vue="cxVueNuage">Nuage</button><button type="button" role="tab" data-vue="cxVueDonnees">Données par territoire</button><button type="button" role="tab" data-vue="cxVueQuestions">Questions préparées</button></div>
     <div class="vue" id="cxVueNuage" role="tabpanel">
-      <figure class="graphique zoomable" id="figCxNuage"><figcaption class="small muted"><span class="leg" id="cxTitre"></span>.</figcaption><div class="fig-corps"><svg id="scatter" role="img" aria-label="Nuage de points des territoires" viewBox="0 0 560 420"></svg></div></figure>
+      <figure class="graphique" id="figCxNuage"><figcaption class="small muted"><span class="leg" id="cxTitre"></span>.</figcaption><div class="fig-corps"><svg id="scatter" role="img" aria-label="Nuage de points des territoires" viewBox="0 0 560 420"></svg></div></figure>
       <div id="scLimite"></div>
       <p class="note" id="xvarNote"></p>
     </div>

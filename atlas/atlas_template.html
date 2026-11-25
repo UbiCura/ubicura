@@ -186,10 +186,10 @@ td p,th p,td li,.tip p,.tip li,.legend p,nav li{text-align:left;hyphens:manual}
 [data-etroit] p,[data-etroit] li,[data-etroit] dd,p[data-etroit],li[data-etroit],dd[data-etroit]{text-align:left;text-wrap:pretty}
 .legende-signaux{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:var(--t-note);color:var(--muted);margin:6px 0}
 .bulle-fig{position:fixed;pointer-events:none;white-space:pre-line;background:var(--ink);color:var(--bg);font-size:var(--t-note);padding:6px 9px;border-radius:4px;max-width:min(420px,calc(100vw - 16px));opacity:0;z-index:50;transition:opacity .1s}
-.zoom-boutons{position:absolute;top:6px;right:6px;display:flex;gap:4px;z-index:2}
+.zoom-boutons{position:absolute;top:6px;right:6px;display:flex;gap:14px;z-index:2}
 .fig-zoom > .zoom-boutons{position:static;justify-content:flex-end;margin:0 0 4px}
 .fig-zoom{max-width:640px}
-.zoom-boutons button{font:inherit;font-size:var(--t-note);width:28px;height:28px;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:5px;cursor:pointer}
+.zoom-boutons button{font:inherit;font-size:1.0625rem;min-width:22px;min-height:28px;padding:0 2px 2px;border:0;border-bottom:1px solid var(--line-fort);border-radius:0;background:none;color:var(--ink);cursor:pointer}
 svg [data-choisi]{stroke:var(--ink);stroke-width:2}
 .tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--bg);font-size:var(--t-note);padding:8px 10px;border-radius:4px;max-width:min(470px,calc(100vw - 16px));opacity:0;z-index:40}
 .tip table{font-size:var(--t-note);width:auto;margin-top:4px}.tip th,.tip td{border:0;padding:1px 0 1px 8px;color:inherit;background:none!important;position:static}
@@ -381,9 +381,10 @@ svg.map circle.lieu.creux{filter:drop-shadow(0 0 .35px var(--panel)) drop-shadow
 .lx-plan .leaflet-control-attribution{font-size:.6875rem;color:#3F4550;background:rgb(255 255 255 / .82)}
 .lx-plan .leaflet-control-attribution a{color:#1C2028}
 .lx-plan .leaflet-bar a{color:#1C2028}
-/* boutons de zoom du plan comme ceux des figures du site : carrés séparés, filet, coins à peine arrondis, sans ombre */
+/* boutons de zoom du plan comme ceux des figures du site : signes soulignés d'un filet, sans boîte (12 novembre 2026),
+   sur un fond clair à peine voilé pour rester lisibles sur le fond de carte */
 .lx-plan .leaflet-bar{border:0!important;box-shadow:none!important;border-radius:0;background:none;display:flex;flex-direction:column;gap:4px}
-.lx-plan .leaflet-bar a,.lx-plan .leaflet-bar a:first-child,.lx-plan .leaflet-bar a:last-child{width:28px;height:28px;line-height:26px;border:1px solid #5A606C;border-radius:2px;background:#fff}
+.lx-plan .leaflet-bar a,.lx-plan .leaflet-bar a:first-child,.lx-plan .leaflet-bar a:last-child{width:28px;height:28px;line-height:26px;border:0;border-bottom:1px solid #5A606C;border-radius:0;background:rgba(255,255,255,.85)}
 /* la règle générale svg{width:100%} écrasait la couche de dessin de Leaflet, ses dimensions sont les siennes */
 .lx-plan .leaflet-pane svg{width:auto;height:auto;border-radius:0}
 .lx-plan:focus-visible{outline:2px solid var(--focus);outline-offset:2px}
@@ -912,7 +913,7 @@ html.vue-accueil{overflow:hidden}html.vue-accueil body{background:transparent;ma
 </section>
 </div>
 <!-- pied de page commun du site, l'atlas n'en avait pas (audit du 6 novembre 2026) : les mêmes liens que base.html -->
-<footer class="pied-atlas"><p>Sources, répertoire RPPS, FINESS, Répertoire opérationnel des ressources, INSEE, Assurance Maladie, CAF, Santé publique France, DREES, HAS, IGN (voir <a href="methode.html">Méthode, données et limites</a>).</p><p class="pied-liens"><a href="atlas.html">Atlas</a> <a href="explorer.html">Explorer</a> <a href="rapports.html">Rapports</a> <a href="publications.html">Publications</a> <a href="zone.html">Autour d’un lieu</a> <a href="methode-fichiers.html">Télécharger les données</a> <a href="donnees-sources.html">Sources des données</a> <a href="journal.html">Journal des mises à jour</a> <a href="a-venir.html">À venir</a> <a href="contribuer.html">Proposer une base de données</a> <a href="a-propos.html">À propos</a></p></footer>
+<footer class="pied-atlas"><p>Sources, répertoire RPPS, FINESS, Répertoire opérationnel des ressources, INSEE, Assurance Maladie, CAF, Santé publique France, DREES, HAS, IGN (voir <a href="methode.html">Méthode, données et limites</a>).</p><p class="pied-liens"><a href="atlas.html">Atlas</a> <a href="explorer.html">Explorer</a> <a href="rapports.html">Rapports</a> <a href="publications.html">Publications</a> <a href="zone.html">Autour d’un lieu</a> <a href="methode-fichiers.html">Télécharger les données</a> <a href="methode-citer.html">Citer et réutiliser</a> <a href="donnees-sources.html">Sources des données</a> <a href="journal.html">Journal des mises à jour</a> <a href="a-venir.html">À venir</a> <a href="contribuer.html">Proposer une base de données</a> <a href="a-propos.html">À propos</a></p></footer>
 
 <script>/*D3*/</script>
 <script>/*TOPO*/</script>

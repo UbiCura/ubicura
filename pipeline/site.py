@@ -1077,8 +1077,6 @@ def construire(pdf=True, groupes: set | None = None) -> Path:
     ddir = SITE / "donnees" / dernier.name
     tout = ddir / f"donnees_{dernier.name}.zip"
     fiches_sources = donnees_sources(dernier, site_data)
-    if fait("methode"):
-        construire_methode(env, commun, dernier, site_data, ddir, pages, fiches_sources)
     if fait("explorer"):
         construire_explorer(env, commun, dernier, site_data, pages)
     if fait("atlas"):
@@ -1091,6 +1089,10 @@ def construire(pdf=True, groupes: set | None = None) -> Path:
                                         config.RACINE / "docs" / "veille" / "registre_bases.csv")
     else:
         (SITE / "atlas.html").write_text(ATLAS_REDIRECTION, encoding="utf-8")
+    # la méthode vient après le portail : la page « Étendue des données » et la liste des indicateurs (étape 6 des
+    # portes d'entrée, 24 novembre 2026) lisent le catalogue que la page Indicateurs vient de publier
+    if fait("methode"):
+        construire_methode(env, commun, dernier, site_data, ddir, pages, fiches_sources)
     finir(env, commun, dernier, site_data, pages, rapports_cites, tout, fiches_sources, exe, fait("rapports"),
           len(versions), rapide=groupes is not None)
     noter_citation(groupes is None)
@@ -1122,12 +1124,42 @@ def noter_citation(complet: bool) -> None:
                     "archivée), une construction complète est nécessaire avant la mise en ligne")
 
 
+def version_figee(iso: str) -> bool:
+    """Vrai pour une version déjà mise en ligne (donnees/publication.json) ou archivée sur Zenodo : son dossier de
+    résultats, et donc son archive des données, ne change plus."""
+    pub = config.RACINE / "donnees" / "publication.json"
+    etat = json.loads(pub.read_text(encoding="utf-8-sig")) if pub.exists() else {}
+    vp = etat.get("versions_publiees") or []
+    publiees = {vp} if isinstance(vp, str) else set(vp)
+    return (iso in publiees or iso == config.VERSION_ZENODO
+            or (config.DONNEES / "zenodo" / iso / f"donnees_{iso}.zip").exists())
+
+
+def preparer_liste(dossier: Path, cat: list[dict]) -> Path:
+    """La liste des indicateurs dans le dossier d'une version, et sa description au dictionnaire des colonnes, pour
+    qu'elles partent dans l'archive des données (archive_donnees lit ce dossier)."""
+    from . import dictionnaire, etendue
+    liste = etendue.ecrire_liste(cat, dossier)
+    md = dossier / "dictionnaire_des_colonnes.md"
+    if md.exists():
+        md.write_text(dictionnaire.ajouter_section(md.read_text(encoding="utf-8"), liste), encoding="utf-8")
+    return liste
+
+
 def construire_methode(env, commun, dernier, site_data, ddir, pages, fiches_sources):
     """Données à télécharger, dictionnaire, pages de méthode, à propos, à venir, données sources, journal, publications."""
     if (SITE / "donnees").exists():
         shutil.rmtree(SITE / "donnees")
     ddir.mkdir(parents=True, exist_ok=True)
     import zipfile
+    # liste des indicateurs, une ligne par indicateur du catalogue publié (page « Étendue des données »). Elle est écrite
+    # dans le dossier de la version, avec sa description au dictionnaire des colonnes, avant l'archive, pour partir dans
+    # l'archive des données et sur Zenodo ; une version déjà publiée ou archivée garde son archive telle quelle, la
+    # liste n'est alors écrite que sur le site (relecture indépendante du 24 novembre 2026)
+    from . import citer, dictionnaire, etendue
+    cat_publie = etendue.catalogue(SITE, site_data, dernier)
+    if cat_publie is not None and not version_figee(dernier.name):
+        preparer_liste(dernier, cat_publie)
     tout = archive_donnees(dernier, ddir / f"donnees_{dernier.name}.zip")
     fichiers = []
     for f in sorted(dernier.glob("*.csv")):
@@ -1147,7 +1179,18 @@ def construire_methode(env, commun, dernier, site_data, ddir, pages, fiches_sour
         fichiers.append({"nom": f.name + (" (archive zip)" if cible.suffix == ".zip" else ""),
                          "lien": f"donnees/{dernier.name}/{cible.name}", "description": desc,
                          "taille": taille_fichier(cible.stat().st_size)})
-    _, corps, _ = md_html((dernier / "dictionnaire_des_colonnes.md").read_text(encoding="utf-8"), None)
+    # version figée : la liste est écrite sur le site seulement
+    if cat_publie is not None and not (ddir / etendue.LISTE).exists():
+        liste = etendue.ecrire_liste(cat_publie, ddir)
+        fichiers.append({"nom": liste.name, "lien": f"donnees/{dernier.name}/{liste.name}",
+                         "description": "Liste des indicateurs du site, une ligne par indicateur : identifiant, nom, unité, "
+                                        "domaine, thèmes, niveaux, années, source, licence, limite et adresse de sa page.",
+                         "taille": taille_fichier(liste.stat().st_size)})
+        fichiers.sort(key=lambda f: f["nom"])
+    md = (dernier / "dictionnaire_des_colonnes.md").read_text(encoding="utf-8")
+    if cat_publie is not None:
+        md = dictionnaire.ajouter_section(md, ddir / etendue.LISTE)
+    _, corps, _ = md_html(md, None)
     ctx = dict(commun, racine="../../", page="methode", titre="Dictionnaire des colonnes")
     (ddir / "dictionnaire.html").write_text(rendre(env, "page.html",
         ctx, corps="<h1>Dictionnaire des colonnes</h1>" + corps), encoding="utf-8")
@@ -1178,6 +1221,12 @@ def construire_methode(env, commun, dernier, site_data, ddir, pages, fiches_sour
          + [("suivi", "Suivi dans le temps")]
          + ([("logiciels", "Logiciels et reproductibilité")] if logi else [])
          + [("libelles", "Noms des établissements"), ("licences", "Licences et conditions de réutilisation")]),
+    ] + ([
+        ("etendue", etendue.PAGE, "Étendue des données",
+         [("en-bref", "En bref"), ("niveaux", "Par domaine et par niveau"), ("sources", "Les sources"),
+          ("temps", "La profondeur dans le temps"), ("concordance", "Les contrôles de concordance"),
+          ("a-venir", "Les données annoncées")]),
+    ] if cat_publie is not None else []) + [
         ("structures", "methode-structures.html", "Structures de soins", [("lieux", "Structures de soins, FINESS et ROR réunis")]),
         ("indicateurs", "methode-indicateurs.html", "Indicateurs du profil des territoires",
          [("indicateurs", "Indicateurs du profil des territoires")]),
@@ -1185,6 +1234,10 @@ def construire_methode(env, commun, dernier, site_data, ddir, pages, fiches_sour
          ([("concordance", "Concordance des effectifs avec les chiffres officiels")] if concordance else [])
          + [("controles", "Contrôles")]),
         ("fichiers", "methode-fichiers.html", "Fichiers à télécharger", [("telecharger", "Données à télécharger")]),
+        # page « Citer et réutiliser » (maquette prototypes/citer/, validée le 24 novembre 2026), après les fichiers
+        ("citer", citer.PAGE, "Citer et réutiliser",
+         [("citer", "Citer"), ("identifiants", "Identifiants et adresses"), ("licences", "Licences"),
+          ("editions", "Éditions et versions archivées"), ("reemployer", "Télécharger et réemployer")]),
     ]
     chapeaux = {"entree": "Comment les chiffres sont produits, d'où ils viennent, ce qu'ils ne disent pas, comment les "
                           "vérifier et les réutiliser. Les structures de soins, les indicateurs, les contrôles et les "
@@ -1195,7 +1248,16 @@ def construire_methode(env, commun, dernier, site_data, ddir, pages, fiches_sour
                                "est disponible et sa source.",
                 "controles": "Les effectifs confrontés aux chiffres officiels de la DREES, et les contrôles de cohérence "
                              "de la version.",
-                "fichiers": "Toutes les données de la version, en fichiers CSV, avec le dictionnaire des colonnes."}
+                "fichiers": "Toutes les données de la version, en fichiers CSV, avec le dictionnaire des colonnes.",
+                "citer": "Les données, les rapports et les figures de ce site se citent, se téléchargent et se "
+                         "réemploient librement, en citant la source et la version. Cette page réunit les citations, les "
+                         "identifiants permanents, la licence de chaque fichier et les versions archivées.",
+                "etendue": "Ce que contient le site : les indicateurs par domaine et par niveau, les sources et leurs "
+                           "versions, la profondeur dans le temps et les contrôles qui les rapprochent des chiffres officiels."}
+    contenu["citer"] = citer.donnees(SITE, dernier, fichiers, contenu["archive"], tout, commun, site_data)
+    if cat_publie is not None:
+        contenu["etendue"] = etendue.donnees(cat_publie, dernier, fiches_sources, len(contenu["controles"]),
+                                             f"donnees/{dernier.name}/{etendue.LISTE}")
     for cle, fichier, titre_v, _a in pages_methode:
         titre_page = "Méthode, données et limites" if cle == "entree" else titre_v
         (SITE / fichier).write_text(env.get_template("methode.html").render(

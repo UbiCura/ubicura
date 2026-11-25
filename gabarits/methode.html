@@ -239,6 +239,58 @@
 <p>Logiciels et polices intégrés au site, <a href="https://d3js.org">d3</a> et <a href="https://github.com/topojson/topojson-client">topojson-client</a> (licence ISC, © Mike Bostock), polices Newsreader et Work Sans (SIL Open Font License).</p>
 
 {% endif %}
+{% if vue == 'etendue' and etendue %}{% set E = etendue %}
+{#- Étendue des données (portes d'entrée, étape 6, maquette prototypes/entrees/p4_p6/, 24 novembre 2026) : chaque nombre
+    est calculé par pipeline/etendue.py depuis le catalogue publié, les fiches des sources, les fichiers de concordance
+    et le journal de la version. #}
+<h2 id="en-bref">En bref</h2>
+<p>Le site publie {{ E.n }} indicateurs, rangés en {{ E.n_domaines }} domaines et tirés de {{ E.n_sources }} jeux de données publics. {{ E.n_sm }} portent sur la santé mentale. {{ E.n_epci }} descendent jusqu’à l’intercommunalité, {{ E.n_reg_seul }} ne {{ 'sont publiés' if E.n_reg_seul > 1 else 'est publié' }} que par région. Par licence : {{ E.licences }}.</p>
+<p class="liste-csv"><a class="telecharger" download href="{{ E.lien_liste }}">La liste des indicateurs, CSV</a><span>une ligne par indicateur : identifiant, nom, unité, domaine, thèmes, niveaux, années, source, licence, limite et adresse de sa page</span></p>
+
+<h2 id="niveaux">Les indicateurs par domaine et par niveau</h2>
+<p>Nombre d’indicateurs publiés à chaque niveau, d’après le catalogue des indicateurs. Un tiret signale l’absence d’indicateur.</p>
+<div class="defile"><table class="simple etendue-t">
+<thead><tr><th>Domaine</th><th>Indicateurs</th><th>France</th><th>Régions</th><th>Départements</th><th>Intercommunalités</th><th>dont santé mentale</th></tr></thead>
+<tbody>{% for d in E.domaines.lignes %}<tr><th scope="row">{{ d.nom }}</th><td>{{ d.n }}</td>{% for x in d.niveaux %}<td>{{ x or '–' }}</td>{% endfor %}<td>{{ d.sm or '–' }}</td></tr>
+{% endfor %}{% set T = E.domaines.total %}<tr class="total"><th scope="row">{{ T.nom }}</th><td>{{ T.n }}</td>{% for x in T.niveaux %}<td>{{ x }}</td>{% endfor %}<td>{{ T.sm }}</td></tr></tbody></table></div>
+<p class="note">{% if E.domaines.vides %}Domaines annoncés, sans indicateur pour l’instant : {{ E.domaines.vides }}. {% endif %}Source, catalogue des indicateurs du site.</p>
+
+<h2 id="sources">Les sources</h2>
+<p>Chaque jeu de données avec son producteur, sa licence, la version utilisée et sa date de récupération. Le rythme est celui de la publication annoncée par le producteur, sauf mention sous le tableau. La page <a href="donnees-sources.html">Sources des données</a> donne pour chacun les fichiers lus et les versions constatées.</p>
+<div class="defile"><table class="simple etendue-t sources-t">
+<thead><tr><th>Jeu de données</th><th>Producteur</th><th>Licence</th><th>Version utilisée</th><th>Récupérée le</th><th>Mise à jour</th></tr></thead>
+<tbody>{% for s in E.sources %}<tr><th scope="row">{{ s.nom }}</th><td>{{ s.producteur }}</td><td>{{ s.licence }}</td><td>{{ s.version }}</td><td>{{ s.recupere }}</td><td>{{ s.rythme }}</td></tr>
+{% endfor %}</tbody></table></div>
+<p class="note">Indicateurs par source : {{ E.par_source }}.{% for x in E.notes_rythme %} {{ x }}.{% endfor %}{% for x in E.sans_date %} {{ x }}.{% endfor %}</p>
+
+<h2 id="temps">La profondeur dans le temps</h2>{% set P = E.temps %}
+<p>{% if P.debuts|length == 1 %}Deux séries remontent à {{ P.debuts[0] }}.{% else %}Deux séries remontent à {{ P.debuts|join(' et à ') }}.{% endif %}</p>
+<ul class="etendue-liste">
+<li>Les effectifs de {{ P.n_prof }} professions, de {{ P.annees[0] }} à {{ P.annees[-1] }}, pour {{ P.niveaux[:-1]|join(', ') }}{% if P.niveaux|length > 1 %} et {% endif %}{{ P.niveaux[-1] }}, avec les estimations annuelles de population de l’INSEE pour les densités. Ils sont montrés dans <a href="explorer.html#trajectoires">Explorer</a>, hors du catalogue des indicateurs.</li>
+<li>Les {{ P.n_serie }} indicateurs {{ 'de patientèle et de médecin traitant' if P.patient else 'suivis année par année' }} ({{ P.source_serie }}), de {{ P.periode }}.</li>
+</ul>
+<p>Le répertoire RPPS est relu à chaque nouvelle version{% if P.rpps_versions %} : {{ P.rpps_versions|length }} {{ 'nouvelles versions repérées' if P.rpps_versions|length > 1 else 'nouvelle version repérée' }} {% if P.rpps_versions|length > 1 %}du {{ P.rpps_versions[0] }} au {{ P.rpps_versions[-1] }}{% else %}le {{ P.rpps_versions[0] }}{% endif %}{% endif %}. Les autres indicateurs portent sur une seule année, celle de leur source.</p>
+<div class="defile"><table class="simple etendue-t etroit">
+<thead><tr><th>Millésime des données</th><th>Indicateurs</th></tr></thead>
+<tbody>{% for m in E.millesimes %}<tr><td>{{ m.libelle }}</td><td>{{ m.n }}</td></tr>{% endfor %}</tbody></table></div>
+
+{% if E.concordance %}{% set K = E.concordance %}
+<h2 id="concordance">Les contrôles de concordance</h2>
+<ul class="etendue-liste">
+<li>{{ K.n_prof }} professions et regroupements comparés aux effectifs publiés par la DREES : écart médian de {{ K.ecart_med }} en valeur absolue, {{ K.n_sous_5 }} sur {{ K.n_prof }} sous 5 %{% if K.n_rpps %}. Pour les {{ K.n_rpps }} professions et regroupements que la DREES compte aussi à partir du répertoire, l’écart médian est ramené à {{ K.tend_med }} une fois sa série prolongée jusqu’à la date du répertoire{% endif %}.</li>
+{% if K.rang_min %}<li>Le classement des départements est très proche dans les deux sources, avec un coefficient de rang d’au moins {{ K.rang_min }} (médiane {{ K.rang_med }}).</li>{% endif %}
+{% if K.n_dep_cmp %}<li>Les CMP comptés ici rapprochés de la statistique annuelle des établissements (DREES) dans {{ K.n_dep_cmp }} départements : écart médian de {{ K.cmp_med }} en valeur absolue, compte identique dans {{ K.cmp_egal }}.</li>{% endif %}
+<li>Le résultat de {{ E.n_controles }} contrôles de cohérence de cette version, une ligne chacun sur la page Contrôles et concordance (appariement des bases, localisation des activités, millésimes, termes à proscrire).</li>
+</ul>
+<p>Le détail, profession par profession, est sur la page <a href="methode-controles.html">Contrôles et concordance</a>.</p>
+{% endif %}
+
+{% if E.a_venir %}
+<h2 id="a-venir">Les données annoncées</h2>
+<ul class="etendue-liste">{% for x in E.a_venir %}<li>{{ x }}</li>{% endfor %}</ul>
+<p>Chaque ajout est décrit sur la page <a href="a-venir.html">À venir</a>. Une base peut être <a href="contribuer.html">proposée</a>.</p>
+{% endif %}
+{% endif %}
 {% if vue == 'fichiers' %}
 <h2 id="telecharger">Données à télécharger</h2>
 <p><a href="{{ archive.lien }}">Télécharger toutes les données de la version</a> (archive zip, {{ archive.taille }}).</p>
@@ -247,11 +299,95 @@
 {% for f in fichiers %}<tr><td><a href="{{ f.lien }}">{{ f.nom }}</a></td><td>{{ f.description }}</td><td>{{ f.taille }}</td></tr>{% endfor %}
 </tbody></table></div>
 {% endif %}
+{% if vue == 'citer' and citer %}{% set C = citer %}
+{#- Citer et réutiliser (maquette prototypes/citer/, validée le 24 novembre 2026) : chaque valeur vient de
+    pipeline/citer.py (citations, DOI, fichiers, versions archivées sur Zenodo). Aucune date d'édition future n'est
+    annoncée (décision du 24 novembre 2026). #}
+<ul class="citer-cles" aria-label="En bref">
+<li><span class="c-l">{{ 'Version en ligne' if C.en_ligne else 'Dernière version archivée' }}</span><span class="c-v">{{ C.edition }}</span>
+<span class="c-r">DOI des données <a href="https://doi.org/{{ C.dois.donnees }}">{{ C.dois.donnees }}</a></span></li>
+<li><span class="c-l">Données de la version</span><span class="c-v">{{ C.n_zip }} fichiers</span>
+<span class="c-r">CSV, en une archive zip de {{ C.taille_zip }}{% if C.a_part %} ; {{ C.a_part|join(', ') }} à part{% endif %}</span></li>
+{% if C.n_versions %}<li><span class="c-l">Versions archivées</span><span class="c-v">{{ C.n_versions }} versions</span>
+<span class="c-r">sur Zenodo depuis le {{ C.premiere }}, <a href="#editions">chacune avec ses DOI</a></span></li>{% endif %}
+</ul>
+
+<h2 id="citer">Citer</h2>
+<p>Chaque version des données et des deux rapports nationaux est archivée sur Zenodo avec son propre DOI, qui fige les chiffres cités. Les citations suivantes renvoient à la version du {{ C.edition }} et à ses DOI.</p>
+<ul class="cit-liste">{% for c in C.citations %}<li><span class="c-l">{{ c.nom }}</span><p class="cit" id="cit-{{ loop.index }}">{{ c.html|safe }}</p>
+<div class="citation-actions"><button type="button" data-copier="cit-{{ loop.index }}">Copier la citation</button></div></li>{% endfor %}</ul>
+<p>La citation du site donne la version plutôt que la date de consultation : la version dit exactement quels chiffres ont été lus, et son DOI les retrouve.</p>
+<h3>Une page, une figure ou un tableau</h3>
+<p>Chaque encadré du site porte un lien « Citer et exporter », qui donne sa citation avec le titre exact, l’unité et la version.{% if C.cit_figure %} Par exemple, pour la carte des psychiatres :</p>
+<p class="citation-exemple">{{ C.cit_figure|safe }}.</p>{% else %}</p>{% endif %}
+<p>La page Zenodo de chaque dépôt donne aussi la citation dans d’autres styles et l’exporte vers les logiciels de bibliographie (BibTeX, CSL, DataCite). Identifiant de l’auteur : <a href="https://orcid.org/{{ C.orcid }}">ORCID {{ C.orcid }}</a>.</p>
+
+<h2 id="identifiants">Identifiants et adresses</h2>
+<div class="doi-grille">{% for d in C.concepts %}<div><h3>{{ d.nom }}</h3><dl><dt>DOI de toutes les versions, mène à la plus récente</dt><dd><a href="https://doi.org/{{ d.general }}">{{ d.general }}</a></dd>
+<dt>Version du {{ C.edition }}</dt><dd><a href="https://doi.org/{{ d.version }}">{{ d.version }}</a></dd></dl></div>{% endfor %}</div>
+<p>Le DOI d’une version mène toujours aux mêmes fichiers. Le DOI de toutes les versions mène à la plus récente : il convient pour un lien, pas pour citer un chiffre.</p>
+<h3>Adresses du site</h3>
+<ul class="adresses">
+<li>Une fiche de territoire : {{ C.adresses.fiche|safe }}, avec le code officiel du département, de la région (<span class="adr">reg</span>) ou de l’intercommunalité (<span class="adr">epci</span>, numéro SIREN).</li>
+<li>Une page d’indicateur : {{ C.adresses.indicateur|safe }}.</li>
+<li>Les rapports nationaux de chaque version mise en ligne : {{ C.adresses.rapport|safe }}. Ils restent à cette adresse après les éditions suivantes ({{ C.n_rapports }} versions aujourd’hui).</li>
+<li>Les fichiers de données de la version en ligne : {{ C.adresses.fichiers|safe }}. Ceux des versions archivées restent sur Zenodo, sous le DOI de chaque version.</li>
+</ul>
+<p>Une intercommunalité issue d’une fusion reçoit un nouveau numéro SIREN, et sa fiche une nouvelle adresse.</p>
+
+<h2 id="licences">Licences</h2>
+<dl class="licences">
+<dt>Les {{ C.n_zip - C.n_zip_odbl }} fichiers CSV sans suffixe de l’archive{% if C.a_part %}, et {{ C.a_part|join(', ') }}{% endif %}</dt>
+<dd><b><a href="https://www.etalab.gouv.fr/licence-ouverte-open-licence/">Licence Ouverte 2.0</a>.</b> Réutilisation libre, en citant Ubi Cura et la date de la version.</dd>
+<dt>Les {{ C.n_zip_odbl }} fichiers suffixés <span class="adr">_odbl</span> et les données intégrées à l’atlas</dt>
+<dd><b><a href="https://opendatacommons.org/licenses/odbl/1-0/">ODbL 1.0</a>.</b> Ils contiennent des indicateurs de l’Assurance Maladie ou en dérivent. Une base qui en dérive et qui est diffusée reste sous ODbL, lisible par une machine, avec la mention de l’Assurance Maladie (Cnam).</dd>
+<dt>Les rapports, les figures et les cartes</dt>
+<dd><b>Licence Ouverte 2.0.</b> Ceux qui montrent des indicateurs de l’Assurance Maladie contiennent des informations sous ODbL et le disent dans leurs sources.</dd>
+<dt>L’archive des données sur Zenodo</dt>
+<dd>{% if C.licence_archive %}Zenodo déclare l’archive sous {% for l in C.licence_archive %}<b>{{ l.nom }}</b>{% if not loop.last %} et {% endif %}{% endfor %}{% if C.licence_archive|length == 1 and C.licence_archive[0].nom == 'ODbL 1.0' %} parce qu’elle contient les fichiers <span class="adr">_odbl</span>{% endif %} ; son{% else %}Son{% endif %} fichier LISEZ-MOI donne la licence de chaque fichier, la même que sur ce site.{% if C.licence_rapports %} Les deux rapports y sont déposés sous {% for l in C.licence_rapports %}{{ l.nom }}{% if not loop.last %} et {% endif %}{% endfor %}.{% endif %}</dd>
+<dt>Le code des calculs</dt>
+<dd><b>EUPL 1.2,</b> sur <a href="{{ C.depot_code }}">GitHub</a>.</dd>
+</dl>
+<p>Les bases d’origine ont leurs propres licences, détaillées dans <a href="methode.html#licences">Méthode, données et limites</a>.</p>
+
+<h2 id="editions">Éditions et versions archivées</h2>
+<p>Une édition paraît chaque mois, sur ce site et sur Zenodo, avec ses DOI. Une édition corrective paraît dès qu’un chiffre publié est corrigé, sans attendre le mois suivant. Sa description sur Zenodo commence par la liste des corrections et dit si des chiffres changent ; la version qu’elle remplace renvoie vers elle. Chaque correction est aussi notée dans le <a href="journal.html">journal des mises à jour</a>.</p>
+{% if C.n_versions %}
+<h3>Versions archivées</h3>
+<p>Pendant la construction du site, les versions se sont succédé de près. Celles de ce tableau sont archivées sur Zenodo ; sous chaque date, le tableau reprend ce que dit la tête de sa description sur Zenodo{% if C.n_remplacees %}, et {{ C.n_renvoi }} des {{ C.n_remplacees }} versions remplacées y renvoient vers la version qui les corrige{% endif %}.{% if C.site_seul %} Les rapports des versions parues sur ce site seul, sans archive sur Zenodo, restent à leur adresse datée : ce sont les versions {{ C.site_seul }}.{% endif %}</p>
+{% macro table_versions(V, en_ligne) %}<table class="simple versions"><colgroup><col class="c-version"><col class="c-donnees"><col class="c-rapports"></colgroup><thead><tr><th>Version</th><th>DOI des données</th><th>DOI des rapports</th></tr></thead><tbody>
+{% for v in V %}<tr><td class="d">{{ v.date }}{% if v.corrigee %}, version corrigée{% endif %}{% if v.en_ligne and en_ligne %} (en ligne){% endif %}{% if v.suite %}<span class="suite">{{ v.suite }}</span>{% endif %}</td><td class="doi" data-l="Données"><a href="https://doi.org/{{ v.doi.donnees }}">{{ v.doi.donnees }}</a></td>
+<td data-l="Rapports"><span class="rap"><a href="https://doi.org/{{ v.doi['sante-mentale'] }}">santé mentale</a></span><span class="rap"><a href="https://doi.org/{{ v.doi.sante }}">santé</a></span></td></tr>
+{% endfor %}</tbody></table>{% endmacro %}
+{{ table_versions(C.recentes, C.en_ligne) }}
+{% if C.anciennes %}<details class="anciennes"><summary>Les {{ C.anciennes|length }} versions précédentes, du {{ C.anciennes[-1].date }} au {{ C.anciennes[0].date }}</summary>
+{{ table_versions(C.anciennes, C.en_ligne) }}
+</details>{% endif %}
+{% endif %}
+
+<h2 id="reemployer">Télécharger et réemployer</h2>
+<ul class="reemploi">
+<li>Les {{ C.n_zip }} fichiers CSV de la version en une archive zip ({{ C.taille_zip }}), ou fichier par fichier{% if C.a_part %} avec {{ C.a_part|join(', ') }}{% endif %} : <a href="methode-fichiers.html">Fichiers à télécharger</a>.</li>
+<li>Des fichiers CSV en UTF-8, séparateur point-virgule et virgule décimale, qui s’ouvrent directement dans un tableur ; les plus gros sont compressés en zip.</li>
+<li>Un <a href="{{ C.lien_dictionnaire }}">dictionnaire des colonnes</a>, qui décrit chaque fichier et chaque colonne.</li>
+<li>Des territoires désignés par leur code officiel, code INSEE de la commune, du département et de la région, numéro SIREN de l’intercommunalité, pour joindre d’autres bases.</li>
+<li>Chaque figure en PNG et en SVG, avec ses données en CSV, et chaque tableau en CSV, depuis « Citer et exporter ».</li>
+<li>Les deux <a href="rapports.html">rapports nationaux</a> en HTML et en PDF.</li>
+<li>Le <a href="{{ C.depot_code }}">code des calculs</a>, sous licence EUPL 1.2.</li>
+</ul>
+{% endif %}
 </div>
 </div>
 {% if vue == 'entree' %}<script>
 (function(){var m={lieux:"methode-structures.html",concordance:"methode-controles.html",controles:"methode-controles.html",
 indicateurs:"methode-indicateurs.html",telecharger:"methode-fichiers.html"},h=location.hash.slice(1);
 if(m[h])location.replace(m[h]+"#"+h)})();
+</script>{% endif %}
+{% if vue == 'citer' %}<script>
+// « Copier la citation » (page Citer et réutiliser)
+document.querySelectorAll("[data-copier]").forEach(function(b){b.addEventListener("click",function(){
+var t=document.getElementById(b.dataset.copier).textContent.replace(/\s+/g," ").trim(),a=b.textContent;
+if(!navigator.clipboard){b.textContent="Copie impossible ici";return}
+navigator.clipboard.writeText(t).then(function(){b.textContent="Citation copiée";setTimeout(function(){b.textContent=a},1600)},function(){b.textContent="Copie impossible ici"})})});
 </script>{% endif %}
 {% endblock %}

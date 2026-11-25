@@ -58,6 +58,9 @@ def insecables(html: str) -> str:
             # pas d'espace devant une virgule qui suit un lien ou une balise fermante (« (data.gouv) , FINESS »)
             if sortie and sortie[-1].startswith("</"):
                 t = re.sub(r"^ +(?=[,.](?:\s|$))", "", t)
+                # espace fine insécable devant ; : ! ? qui suivent une balise fermante (« </span> ; son », un « ; » seul
+                # en tête de ligne au téléphone sur la page Citer et réutiliser, 24 novembre 2026)
+                t = re.sub(r"^ +(?=[;:!?](?:\s|$|&))", FINE, t)
             sortie.append(t)
             i += 1
         else:

@@ -278,13 +278,15 @@ def test_methode_en_pages():
     import re
     from pipeline import config
     g = (config.RACINE / "gabarits" / "methode.html").read_text(encoding="utf-8")
-    vues = re.findall(r"\{% if vue == '(\w+)' %\}", g)
+    vues = re.findall(r"\{% if vue == '(\w+)'(?: and \w+)? %\}", g)
     assert set(vues) >= {"entree", "structures", "indicateurs", "controles", "fichiers"}
     redir = dict(re.findall(r'(\w+):"(methode-\w+\.html)"', g))
-    morceaux = re.split(r"\{% if vue == '(\w+)' %\}", g)
+    morceaux = re.split(r"\{% if vue == '(\w+)'(?: and \w+)? %\}", g)
     for vue, corps in zip(morceaux[1::2], morceaux[2::2]):
         for ident in re.findall(r'<h2 id="(\w+)"', corps):
-            if vue != "entree":
+            # les pages venues après la méthode en cinq pages (Étendue des données et Citer et réutiliser, 24 novembre
+            # 2026) n'ont jamais été des sections de methode.html : aucune adresse ancienne à rediriger
+            if vue not in ("entree", "etendue", "citer"):
                 assert redir.get(ident) == f"methode-{vue}.html", (ident, vue)
 
 
@@ -8399,6 +8401,49 @@ def test_figures_telephone_agrandir_et_zoom():
     assert "figure illisible au téléphone sans bouton" in js and "figure agrandie encore illisible" in js
 
 
+def test_boutons_de_zoom_sans_boite_partout():
+    """Zoom en signes soulignés d'un filet, sans boîte (12 novembre 2026), sur toutes les feuilles de style : le nuage
+    d'Explorer gardait des carrés bordés posés sur les points (signalé le 25 novembre 2026), comme les figures de
+    l'atlas et le plan. Toute règle de bouton de zoom (zoombar, zoom-boutons, barre de Leaflet) est sans cadre ni coins
+    arrondis ; celle du nuage d'Explorer n'est plus posée sur la figure."""
+    import re
+    fichiers = [*(config.RACINE / "gabarits").glob("*.html"), *(config.RACINE / "gabarits").glob("*.css"),
+                config.RACINE / "atlas" / "atlas_template.html"]
+    fautes = []
+    for f in fichiers:
+        t = f.read_text(encoding="utf-8")
+        for sel, decl in re.findall(r"([^{}]+)\{([^{}]*)\}", t):
+            s = sel.strip()
+            if not re.search(r"(zoombar|zoom-boutons)[^,]*\s(button|a)\b|leaflet-bar a", s):
+                continue
+            # des coins arrondis ne font une boîte qu'avec un fond (le survol arrondi de la carte de l'atlas, sans fond,
+            # reste permis)
+            boite_fond = re.search(r"border-radius\s*:\s*[1-9]", decl) and not re.search(r"background\s*:\s*none", decl)
+            if re.search(r"(^|;)\s*border\s*:\s*\d+px\s+solid", decl) or boite_fond:
+                fautes.append(f"{f.name}: {s[-60:]}")
+    assert not fautes, fautes
+    ex = (config.RACINE / "gabarits" / "explorer.html").read_text(encoding="utf-8")
+    regle = re.search(r"#qCroisements \.zoombar\{([^}]*)\}", ex).group(1)
+    assert "position:static" in regle
+    # le nuage a sa propre barre (elle redessine les axes) : pas de seconde barre des figures du site par-dessus, et le
+    # contrôle de mise en page signale deux barres superposées sur toute page
+    assert re.search(r'<figure class="graphique" id="figCxNuage">', ex)
+    js = (config.RACINE / "outils" / "controle_finition.js").read_text(encoding="utf-8")
+    assert "barres de zoom superposées" in js
+
+
+def test_explorer_jamais_justifie_au_telephone_ni_en_citation():
+    """Les paragraphes des fenêtres d'Explorer étaient justifiés à toute largeur, citation de « Citer et exporter »
+    comprise, étirée au téléphone (signalé le 25 novembre 2026). Justifié seulement à partir de 560 px, citation
+    toujours à gauche, et le contrôle de mise en page regarde aussi ce qui est replié."""
+    ex = (config.RACINE / "gabarits" / "explorer.html").read_text(encoding="utf-8")
+    assert ".outil .fen-corps p{max-width:none;text-align:justify}" not in ex
+    assert "@media (min-width:560px){.outil .fen-corps p{text-align:justify}}" in ex
+    assert ".outil .fen-corps .citation-fig p{text-align:left}" in ex
+    js = (config.RACINE / "outils" / "controle_finition.js").read_text(encoding="utf-8")
+    assert "citation justifiée" in js and "texte justifié au téléphone, même replié" in js
+
+
 def test_odisse_regions_par_nom_et_barometre_2024():
     """Santé publique France, Baromètre 2024 (12 novembre 2026) : les jeux du trouble anxieux généralisé et du
     bien-être nomment la région ; chaque nom se retrouve dans le référentiel (« Ile-de-France », « Réunion »), la
@@ -10567,6 +10612,608 @@ def test_nombres_au_millieme_ecrits_avec_trois_decimales():
                    re.finditer(r"(\w+)\s*=\s*new Intl\.NumberFormat\([^)]*maximumFractionDigits:\s*(\d)", js)}
         for m in re.finditer(r"(\w+)\.format\(Math\.round\([^()]*\*\s*1000\)\s*/\s*1000\)", js):
             assert formats.get(m.group(1), 3) >= 3, f"{f.name} : {m.group(0)} perd le millième"
+
+
+def _etendue_publiee():
+    """Page « Étendue des données », catalogue publié, liste CSV et dossier des données de la version, lus sur le site
+    construit (étape 6 des portes d'entrée)."""
+    import csv
+    import json
+    import re
+    from pipeline import config
+    site = config.RACINE / "site"
+    page, cj = site / "methode-etendue.html", site / "presentation" / "catalogue.json"
+    if not (page.exists() and cj.exists()):
+        raise Ignore("site non construit")
+    C = json.loads(cj.read_text(encoding="utf-8"))
+    h = page.read_text(encoding="utf-8")
+    lien = re.search(r'<a class="telecharger" download href="(donnees/([^/]+)/liste_indicateurs\.csv)"', h)
+    assert lien, "bouton de la liste des indicateurs absent de la page Étendue des données"
+    brut = (site / lien.group(1)).read_bytes()
+    lignes = list(csv.reader(brut.decode("utf-8-sig").splitlines(), delimiter=";"))
+    return site, C, h, brut, lignes, site / "donnees" / lien.group(2)
+
+
+def test_liste_indicateurs_csv():
+    """La liste des indicateurs en CSV (étape 6 des portes d'entrée, 24 novembre 2026) : une ligne par indicateur du
+    catalogue publié, dans le même ordre, point-virgule, UTF-8 avec BOM, chaque adresse menant à une page qui existe ;
+    le bouton de la page Indicateurs mène au même fichier et en dit le même nombre de lignes."""
+    import re
+    from pipeline import config
+    site, C, h, brut, lignes, ddir = _etendue_publiee()
+    assert brut.startswith(b"\xef\xbb\xbf"), "liste_indicateurs.csv sans BOM"
+    assert lignes[0] == ["identifiant", "nom", "unite", "domaine", "themes", "niveaux", "annees", "source", "licence",
+                         "limite", "adresse"]
+    corps = lignes[1:]
+    assert len(corps) == len(C), f"{len(corps)} lignes pour {len(C)} indicateurs au catalogue"
+    assert [r[0] for r in corps] == [e["id"] for e in C]
+    adresse = config.ADRESSE_SITE.rstrip("/") + "/"
+    for r, e in zip(corps, C):
+        assert len(r) == 11 and all(r[k] for k in (0, 1, 2, 3, 5, 6, 7, 8, 9, 10)), r
+        assert r[1] == e["nom"] and r[3] == e["domaine"] and r[6] == e["date"] and r[8] == e["licence"], r
+        assert r[10] == adresse + e["page"] and (site / e["page"]).exists(), r[10]
+    ind = (site / "indicateurs.html").read_text(encoding="utf-8")
+    b = re.search(r'<p class="liste-csv"><a class="telecharger" download href="([^"]+)">La liste des indicateurs, CSV</a>'
+                  r'<span>(\d+)\s+lignes', ind)
+    assert b and (site / b.group(1)) == ddir / "liste_indicateurs.csv" and int(b.group(2)) == len(C)
+    assert 'href="methode-etendue.html"' in ind
+    # la liste est rangée avec les autres fichiers de la version, la page des fichiers la propose et le dictionnaire des
+    # colonnes la décrit, colonne par colonne
+    assert "liste_indicateurs.csv" in (site / "methode-fichiers.html").read_text(encoding="utf-8")
+    dico = (ddir / "dictionnaire.html").read_text(encoding="utf-8")
+    assert "liste_indicateurs.csv" in dico and all(f"<code>{c}</code>" in dico for c in lignes[0])
+
+
+def test_liste_indicateurs_dans_l_archive():
+    """La liste des indicateurs part dans l'archive des données (relecture indépendante du 24 novembre 2026 : écrite
+    sur le site seulement, elle manquait au zip, que archive_donnees fait depuis le dossier de la version). Une version
+    non publiée la reçoit dans son dossier, avec sa description au dictionnaire, avant l'archive ; une version déjà
+    publiée ou archivée garde son dossier et son archive tels quels."""
+    import re
+    import shutil
+    import tempfile
+    import zipfile
+    from pipeline import config, site as S
+    site, C, _h, _brut, _l, ddir = _etendue_publiee()
+    C = [dict(e, unite="unité", limite="limite.") for e in C]   # champs qu'etendue.catalogue ajoute au catalogue publié
+    d = config.RESULTATS / ddir.name
+    with tempfile.TemporaryDirectory() as tmp:
+        v = Path(tmp) / "2099-01-01"
+        v.mkdir()
+        for n in ("dictionnaire_des_colonnes.md", "libelles.csv", "evolution_offre.csv"):
+            shutil.copy(d / n, v)
+        S.preparer_liste(v, C)
+        z = S.archive_donnees(v, Path(tmp) / "a.zip", archivee=False)
+        with zipfile.ZipFile(z) as zz:
+            assert "liste_indicateurs.csv" in zz.namelist()
+            md = zz.read("dictionnaire_des_colonnes.md").decode("utf-8").replace("\r\n", "\n")
+        partie = md.split("## liste_indicateurs.csv\n")
+        assert len(partie) == 2 and "Description manquante" not in partie[1].split("\n## ")[0]
+        titres = re.findall(r"^## (\S+)$", md, flags=re.M)
+        assert titres == sorted(titres)
+        S.preparer_liste(v, C)   # une seconde fois : rien n'est ajouté deux fois
+        assert (v / "dictionnaire_des_colonnes.md").read_text(encoding="utf-8").count("## liste_indicateurs.csv\n") == 1
+    assert not S.version_figee("2099-01-01")
+    # la version du site : figée, son dossier reste sans la liste et son archive est faite des seuls fichiers du dossier ;
+    # sinon, la liste est dans le dossier et dans l'archive
+    with zipfile.ZipFile(ddir / f"donnees_{d.name}.zip") as zz:
+        dans_zip = {n for n in zz.namelist() if n.endswith(".csv")}
+    if S.version_figee(d.name):
+        assert not (d / "liste_indicateurs.csv").exists() and dans_zip == {f.name for f in d.glob("*.csv")}
+    else:
+        assert (d / "liste_indicateurs.csv").exists() and "liste_indicateurs.csv" in dans_zip
+
+
+def test_etendue_des_donnees_chiffres():
+    """Chaque nombre de la page « Étendue des données » (étape 6 des portes d'entrée, 24 novembre 2026) est recalculé
+    ici depuis ce que le site publie, indépendamment de pipeline/etendue.py : le catalogue publié, la page Sources des
+    données, les fichiers de concordance et d'évolution de la version, le tableau des contrôles et la page À venir. Un
+    nombre de la page qui ne figure dans aucune des phrases vérifiées fait échouer le test."""
+    import csv
+    import html as H
+    import math
+    import re
+    from collections import Counter
+    from pipeline import config, domaines as D
+    site, C, h, _brut, _l, ddir = _etendue_publiee()
+
+    def txt(s):
+        return re.sub(r"\s+", " ", H.unescape(re.sub(r"<[^>]+>", " ", s)).replace("­", "")).strip()
+
+    def cellules(s, balise="t[hd]"):
+        tb = re.search(r"<tbody>(.*?)</tbody>", s, flags=re.S).group(1)
+        return [[txt(c) for c in re.findall(rf"<{balise}[^>]*>(.*?)</{balise}>", r, flags=re.S)]
+                for r in re.findall(r"<tr[^>]*>(.*?)</tr>", tb, flags=re.S)]
+
+    def fr(x):
+        return f"{x * 100:.1f}".replace(".", ",") + " %"
+
+    def med(L):
+        L = sorted(L)
+        return L[len(L) // 2] if len(L) % 2 else (L[len(L) // 2 - 1] + L[len(L) // 2]) / 2
+
+    corps = re.search(r'<div class="methode">(.*?)</div>\s*</div>\s*(?:<script|</main|<footer)', h, flags=re.S).group(1)
+
+    def section(i):
+        return re.search(rf'<h2 id="{i}">.*?(?=<h2 |$)', corps, flags=re.S).group(0)
+    verifie = []   # chaque phrase ou cellule vérifiée ; tout nombre de la page doit s'y trouver
+
+    # les fiches de la page Sources des données
+    hs = (site / "donnees-sources.html").read_text(encoding="utf-8")
+    fiches = []
+    for m in re.finditer(r'<section class="fiche-source"[^>]*>(.*?)</section>', hs, flags=re.S):
+        s = m.group(1)
+        ch = {txt(a): txt(b) for a, b in re.findall(r'<th scope="row">(.*?)</th><td>(.*?)</td>', s, flags=re.S)}
+        v = re.match(r"(.*?), récupérée le (.*)$", ch.get("Version utilisée", ""))
+        fiches.append({"nom": txt(re.search(r"<h2[^>]*>(.*?)</h2>", s, flags=re.S).group(1)), "licence": ch.get("Licence", ""),
+                       "version": v.group(1) if v else ch.get("Version utilisée", ""), "recupere": v.group(2) if v else "",
+                       "versions": ch.get("Versions constatées", "")})
+    assert len(fiches) == len(config.SOURCES_SUIVIES)
+
+    # En bref
+    sm = [e for e in C if "Santé mentale" in e["themes"]]
+    lic = [(re.sub(r" [(].*$", "", x), n) for x, n in Counter(e["licence"] for e in C).most_common()]
+    attendu = (f"Le site publie {len(C)} indicateurs, rangés en {len({e['domaine'] for e in C})} domaines et tirés de "
+               f"{len(fiches)} jeux de données publics. {len(sm)} portent sur la santé mentale. "
+               f"{sum(1 for e in C if 'intercommunalité' in e['niveaux'])} descendent jusqu’à l’intercommunalité, "
+               f"{sum(1 for e in C if e['niveaux'] == ['région'])} ne sont publiés que par région. Par licence : "
+               + ", ".join(f"{n} sous {x}" for x, n in lic[:-1]) + f" et {lic[-1][1]} sous {lic[-1][0]}.")
+    assert txt(re.search(r'<h2 id="en-bref">.*?<p>(.*?)</p>', corps, flags=re.S).group(1)) == attendu
+    verifie.append(attendu)
+
+    # le tableau des domaines par niveau, cellule par cellule
+    doms = list(dict.fromkeys(e["domaine"] for e in C))
+    lig = cellules(section("niveaux"))
+    assert len(lig) == len(doms) + 1
+    for d, r in zip(doms + ["Ensemble"], lig):
+        E = C if d == "Ensemble" else [e for e in C if e["domaine"] == d]
+        vals = [len(E)] + [sum(1 for e in E if n in e["niveaux"]) for n in ("France", "région", "département", "intercommunalité")]
+        vals.append(sum(1 for e in E if e in sm))
+        assert r == [d] + [str(v) if (v or d == "Ensemble") else "–" for v in vals], (d, r)
+        verifie += r
+    for x in D.DOMAINES:
+        if x["nom"] not in doms:
+            assert x["nom"].lower() in txt(section("niveaux")).lower(), x["nom"]
+
+    # les sources : une ligne par fiche de la page Sources, même licence, même version, même date de récupération, et un
+    # rythme lu dans config.SOURCES_INFO
+    lig = cellules(section("sources"))
+    assert [r[0] for r in lig] == [f["nom"] for f in fiches]
+    rythmes = {i[4] for i in config.SOURCES_INFO}
+    for r, f in zip(lig, fiches):
+        assert r[2] == f["licence"] and r[2] != "non renseignée", r
+        assert r[3] == f["version"] and r[4] == (f["recupere"] or "–"), r
+        assert all(x in rythmes for x in r[5].split(", ") if x) or r[5] in rythmes, r
+        verifie += r
+    note = txt(re.search(r'<p class="note">Indicateurs par source.*?</p>', section("sources"), flags=re.S).group(0))
+    par = "Indicateurs par source : " + ", ".join(f"{s} {n}" for s, n in Counter(e["source"] for e in C).most_common()) + "."
+    assert note.startswith(par)
+    verifie.append(par)
+    # un rythme qui n'est pas celui que le producteur annonce pour le jeu (FINESS) est expliqué sous le tableau
+    for motif, n in config.RYTHME_NOTES.items():
+        assert n + "." in note, n
+    assert txt(section("niveaux")).count("Un tiret signale l’absence d’indicateur.") == 1
+    for f in fiches:   # une date de récupération absente est dite, avec les versions constatées
+        if not f["recupere"]:
+            p = f"{f['nom']} : date de récupération non enregistrée, {f['versions']}."
+            assert p in note, f["nom"]
+            verifie.append(p)
+
+    # la profondeur dans le temps
+    t = txt(section("temps"))
+    with open(ddir / "evolution_offre.csv", encoding="utf-8-sig") as fh:
+        evo = list(csv.DictReader(fh, delimiter=";"))
+    an = sorted({int(r["annee"]) for r in evo})
+    serie = [e for e in C if re.match(r"^\d{4} à \d{4}$", e["date"])]
+    assert all(e["nom"].startswith("Patient") for e in serie)
+    debut = min([an[0]] + [int(e["date"][:4]) for e in serie])
+    rpps = next(f for f in fiches if f["nom"].startswith("Répertoire RPPS"))
+    dates = re.findall(r"\d{1,2}(?:er)? \w+ \d{4}", rpps["versions"])
+    for p in (f"Deux séries remontent à {debut}.", f"Les effectifs de {len({r['prof'] for r in evo})} professions, de {an[0]} à {an[-1]},",
+              f"Les {len(serie)} indicateurs de patientèle et de médecin traitant (Assurance Maladie), de {serie[0]['date']}.",
+              f"{len(dates)} nouvelles versions repérées du {dates[0]} au {dates[-1]}."):
+        assert p in t, p
+        verifie.append(p)
+    mil = Counter(e["date"] for e in C)
+    lig = cellules(section("temps"), "td")
+    assert len(lig) == len(mil) and sum(int(r[1]) for r in lig) == len(C)
+    for lib, n in lig:
+        d = next(x for x in sorted(mil, key=len, reverse=True) if x in lib)
+        assert int(n) == mil[d], lib
+        verifie += [lib, n]
+
+    # les contrôles de concordance, recalculés sur les fichiers publiés de la version
+    t = txt(section("concordance"))
+
+    def lire(n):
+        with open(ddir / n, encoding="utf-8-sig") as fh:
+            return list(csv.DictReader(fh, delimiter=";"))
+
+    def f(x):
+        return float(x.replace(",", "."))
+    eff = lire("concordance_effectifs.csv")
+    ec = [abs(f(r["ecart"])) for r in eff if r["ecart"]]
+    rp = [abs(f(r["ecart_a_l_attendu"])) for r in eff if "rpps" in r["fichier_drees"].lower() and r["ecart_a_l_attendu"]]
+    rangs = [f(r["rang_spearman"]) for r in lire("concordance_effectifs_dep.csv") if r["rang_spearman"]]
+    cm = [abs(f(r["ecart_relatif"])) for r in lire("concordance_cmp_sae.csv") if r["niveau"] == "dep" and r["ecart_relatif"]]
+    hc = (site / "methode-controles.html").read_text(encoding="utf-8")
+    n_ctrl = len(re.findall(r"<tr>", re.search(r'id="controles".*?</table>', hc, flags=re.S).group(0)))
+    for p in (f"{len(ec)} professions et regroupements comparés aux effectifs publiés par la DREES : écart médian de "
+              f"{fr(med(ec))} en valeur absolue, {sum(1 for x in ec if x < 0.05)} sur {len(ec)} sous 5 %. Pour les "
+              f"{len(rp)} professions et regroupements",
+              f"l’écart médian est ramené à {fr(med(rp))} une fois",
+              f"coefficient de rang d’au moins {math.floor(min(rangs) * 100) / 100:.2f} (médiane {med(rangs):.3f})".replace(".", ","),
+              f"dans {len(cm)} départements : écart médian de {fr(med(cm))} en valeur absolue, compte identique dans "
+              f"{sum(1 for x in cm if x == 0)}.",
+              f"Le résultat de {n_ctrl} contrôles de cohérence"):
+        assert p in t, p
+        verifie.append(p)
+
+    # les données annoncées, celles de la page À venir
+    av = (site / "a-venir.html").read_text(encoding="utf-8")
+    titres = [txt(x).rstrip(".") for x in re.findall(r"<strong>(.*?)</strong>",
+                                                     re.search(r'<h2 id="donnees">.*?(?=<h2 )', av, flags=re.S).group(0), flags=re.S)]
+    assert [txt(x) for x in re.findall(r"<li>(.*?)</li>", section("a-venir"), flags=re.S)] == titres
+    verifie += titres
+
+    # aucun nombre de la page qui ne soit dans une phrase ou une cellule vérifiée ci-dessus
+    v = " ".join(verifie)
+    seuls = [x for x in re.findall(r"(?<![\w,])\d+(?:,\d+)?(?![\w,])", txt(corps)) if x not in v]
+    assert not seuls, f"nombres de la page sans source vérifiée : {seuls}"
+
+
+def _citer_publiee():
+    """Page « Citer et réutiliser » du site construit, son texte lu et l'état de la citation du site."""
+    import html as H
+    import json
+    import re
+    from pipeline import config
+    site = config.RACINE / "site"
+    page = site / "methode-citer.html"
+    sc = config.DONNEES / "site_citation.json"
+    if not (page.exists() and sc.exists()):
+        raise Ignore("site non construit")
+    h = page.read_text(encoding="utf-8")
+    corps = h[h.index("<h1>"):h.index("<footer>")]
+    texte = re.sub(r"\s+", " ", H.unescape(re.sub(r"<[^>]+>", " ", corps)).replace("­", "")
+                   .replace(" ", " ").replace(" ", " ")).strip()
+    return site, h, corps, texte, json.loads(sc.read_text(encoding="utf-8"))
+
+
+def test_citer_au_sommaire_apres_fichiers():
+    """« Citer et réutiliser » est une page de « Méthode et données », rangée juste après « Fichiers à télécharger » dans
+    le sommaire de chaque page de la méthode (décision du 24 novembre 2026)."""
+    import re
+    from pipeline import citer
+    site, h, *_ = _citer_publiee()
+    assert citer.PAGE == "methode-citer.html"
+    pages = sorted(site.glob("methode*.html"))
+    assert site / citer.PAGE in pages and len(pages) >= 7
+    for p in pages:
+        s = p.read_text(encoding="utf-8")
+        som = re.search(r'<aside class="sommaire" aria-label="Sommaire de la méthode">(.*?)</aside>', s, flags=re.S)
+        assert som, p.name
+        liens = re.findall(r'<li><a href="(methode[\w-]*\.html)"', som.group(1))
+        assert "methode-fichiers.html" in liens and "methode-citer.html" in liens, (p.name, liens)
+        assert liens.index("methode-citer.html") == liens.index("methode-fichiers.html") + 1, (p.name, liens)
+    assert re.search(r'<a href="methode-citer\.html" aria-current="page" class="actif">Citer et réutiliser</a>', h)
+    assert "<title>Citer et réutiliser · " in h
+
+
+def test_citer_au_pied_de_chaque_page():
+    """Un lien « Citer et réutiliser » au pied de toutes les pages, juste après « Télécharger les données », atlas et
+    Explorer compris ; les versions archivées des rapports restent telles qu'elles ont été publiées."""
+    import json
+    import re
+    from pipeline import config
+    site, *_ = _citer_publiee()
+    lien = re.compile(r'<a href="((?:\.\./)*)methode-fichiers\.html">Télécharger les données</a> '
+                      r'<a href="\1methode-citer\.html">Citer et réutiliser</a>')
+    for g in (config.RACINE / "gabarits" / "base.html", config.RACINE / "atlas" / "atlas_template.html"):
+        assert len(lien.findall(g.read_text(encoding="utf-8").replace("{{ racine }}", ""))) == 1, g.name
+    version = json.loads((config.DONNEES / "site_citation.json").read_text(encoding="utf-8"))["version"]
+    vues, sans = 0, []
+    for p in site.rglob("*.html"):
+        r = p.relative_to(site).as_posix()
+        m = re.match(r"(rapports|territoires)/(\d{4}-\d{2}-\d{2})/", r)
+        if r.split("/")[0].startswith(("prototype", "maquettes", "_maquettes")) or p.name.startswith("_") \
+                or (m and m.group(2) < version):
+            continue
+        s = p.read_text(encoding="utf-8")
+        pied = re.search(r'<p class="pied-liens">.*?</p>', s, flags=re.S)
+        if not pied:
+            continue
+        vues += 1
+        if not lien.search(pied.group(0)):
+            sans.append(r)
+    assert vues > 1000 and not sans, (vues, sans[:10])
+    for nom in ("atlas.html", "explorer.html", "index.html", "a-propos.html", "indicateur/prof-psychiatre.html"):
+        assert "methode-citer.html\">Citer et réutiliser</a>" in (site / nom).read_text(encoding="utf-8"), nom
+
+
+def test_aucune_citation_par_date_de_consultation():
+    """Le site se cite par sa version et son DOI, plus jamais « Consulté le (date de consultation) » (décision du
+    24 novembre 2026) : ni dans les textes, ni dans les gabarits, ni dans le code qui écrit les pages, ni dans le site
+    construit. La citation du site est écrite en un seul endroit, citer.citation_site."""
+    import re
+    from pipeline import citer, config, site as S
+    motif = re.compile(r"consulté le|\(date de consultation\)", flags=re.I)
+    R = config.RACINE
+    fichiers = [*R.joinpath("contenus").glob("*.md"), *R.joinpath("gabarits").rglob("*.html"),
+                *R.joinpath("gabarits").rglob("*.js"), *R.joinpath("pipeline").glob("*.py"),
+                R / "atlas" / "atlas_template.html", *R.joinpath("atlas", "moteur").glob("*.js")]
+    fautes = [f.name for f in fichiers if motif.search(f.read_text(encoding="utf-8"))]
+    assert not fautes, fautes
+    site = R / "site"
+    for nom in ("a-propos.html", citer.PAGE, "rapports.html", "index.html"):
+        if (site / nom).exists():
+            assert not motif.search((site / nom).read_text(encoding="utf-8")), nom
+    c = citer.citation_site()
+    iso = config.VERSION_ZENODO
+    assert c == (f"{config.CITATION_AUTEUR} ({iso[:4]}). {config.SOUS_TITRE}. {config.NOM_PROJET}, version du "
+                 f"{S.date_longue(iso)}, ubicura.fr, doi:{S.doi_cite('donnees', iso)}."), c
+    # À propos : « Comment citer » réduit à une phrase et au lien vers la page
+    ap = (R / "contenus" / "a_propos.md").read_text(encoding="utf-8")
+    section = re.search(r"## Comment citer\n(.*?)\n## ", ap, flags=re.S).group(1).strip()
+    assert "](methode-citer.html)" in section and section.count(". ") == 0 and "\n" not in section, section
+    if (site / "a-propos.html").exists():
+        assert 'href="methode-citer.html">Citer et réutiliser</a>' in (site / "a-propos.html").read_text(encoding="utf-8")
+
+
+def test_citer_doi_egaux_a_la_citation_du_site():
+    """Les DOI de la version en ligne, sur la page, sont ceux de donnees/site_citation.json : en tête, dans la grille
+    des identifiants, dans les citations et dans la ligne « (en ligne) » des versions archivées. La citation du site est
+    celle de citer.citation_site, telle quelle."""
+    import html as H
+    import re
+    from pipeline import citer, config, site as S
+    _site, h, corps, texte, sc = _citer_publiee()
+    assert not sc["reservee"] and not sc["melange"]
+    d = sc["dois"]
+    ed = S.date_longue(sc["version"])
+    tete = re.search(r'<ul class="citer-cles".*?</ul>', corps, flags=re.S).group(0)
+    assert f'href="https://doi.org/{d["donnees"]}"' in tete
+    assert ed in H.unescape(tete).replace(" ", " ").replace(" ", " ")
+    grille = re.findall(r"<dd><a href=\"https://doi\.org/([^\"]+)\">",
+                        re.search(r'<div class="doi-grille">.*?</div></div>', corps, flags=re.S).group(0))
+    assert grille == [config.DOI_DONNEES, d["donnees"], config.DOI_RAPPORTS["sante-mentale"], d["sante-mentale"],
+                      config.DOI_RAPPORTS["sante"], d["sante"]], grille
+    cits = [re.sub(r"\s+", " ", H.unescape(re.sub(r"<[^>]+>", "", x)).replace(" ", " ").replace(" ", " ")).strip()
+            for x in re.findall(r'<p class="cit" id="cit-\d">(.*?)</p>', corps, flags=re.S)]
+    assert len(cits) == 4
+    for c, cle in zip(cits, ("donnees", "sante-mentale", "sante")):
+        assert f"https://doi.org/{d[cle]}" in c and f"Version du {ed}" in c, c
+    assert cits[3] == citer.citation_site().replace(" ", " ").replace(" ", " "), cits[3]
+    en_ligne = re.findall(r"<tr><td class=\"d\">[^<]*\(en ligne\).*?</tr>", corps, flags=re.S)
+    assert len(en_ligne) == 1 and all(f"https://doi.org/{d[c]}" in en_ligne[0] for c in d), en_ligne
+
+
+def test_citer_sans_date_d_edition_future():
+    """Aucune date d'édition n'est annoncée (décision du 24 novembre 2026) : sur la page, aucune date postérieure à la
+    version citée ni au relevé de Zenodo, qu'elle soit écrite en entier, sans année (« 7 décembre »), en mois et année
+    (« décembre 2026 ») ou en chiffres (2026-12-07) ; ni « prochaine édition », ni calendrier, ni jour de la semaine ;
+    la règle sans date reste."""
+    import datetime as dt
+    import json
+    import re
+    from pipeline import config
+    _site, _h, corps, texte, sc = _citer_publiee()
+    mois = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre",
+            "décembre"]
+    M = "|".join(mois)
+    lu = json.loads((config.DONNEES / "zenodo_versions.json").read_text(encoding="utf-8"))["lu_le"][:10]
+    borne = max(dt.date.fromisoformat(sc["version"]), dt.date.fromisoformat(lu))
+    dates = [dt.date(int(a), mois.index(m) + 1, int(j)) for j, m, a in
+             re.findall(rf"\b(\d{{1,2}})(?:er)? ({M}) (\d{{4}})\b", texte)]
+    assert dates and all(d <= borne for d in dates), [d for d in dates if d > borne]
+    # jour et mois sans année
+    sans_annee = re.findall(rf"\b\d{{1,2}}(?:er)? (?:{M})\b(?! \d{{4}})", texte)
+    assert not sans_annee, sans_annee
+    # mois et année, avec ou sans jour
+    mois_annee = [(int(a), mois.index(m) + 1) for m, a in re.findall(rf"\b({M}) (\d{{4}})\b", texte)]
+    assert all(x <= (borne.year, borne.month) for x in mois_annee), mois_annee
+    # dates en chiffres, dans le texte et les adresses
+    iso = [dt.date.fromisoformat(x) for x in re.findall(r"\b(20\d\d-\d\d-\d\d)\b", corps)]
+    assert all(d <= borne for d in iso), [d for d in iso if d > borne]
+    assert not re.search(r"prochaines? (?:édition|version|date|parution|mise à jour)|calendrier|à venir|"
+                         r"\b(?:lundi|mardi|mercredi|jeudi|vendredi|samedi|dimanche)\b|mois prochain|"
+                         r"date (?:fixe|annoncée)|tous les mois le|chaque premier", texte, flags=re.I)
+    assert "Une édition paraît chaque mois" in texte
+    assert "Une édition corrective paraît dès qu’un chiffre publié est corrigé" in texte
+    assert 'id="editions"' in corps
+
+
+def test_citer_rien_de_payant_ni_tournure_proscrite():
+    """Rien de l'offre payante sur la page (ni API, ni service, ni allusion), aucun terme proscrit, aucun tiret
+    cadratin, et le nom de l'auteur seulement dans les citations (« Pithon L. »). L'espace devant ; : ! ? qui suivent
+    une balise est insécable (un « ; » seul en tête de ligne au téléphone, 24 novembre 2026), par
+    typographie.insecables."""
+    import re
+    from pipeline import libelles
+    from pipeline.typographie import FINE, insecables
+    _site, _h, corps, texte, _sc = _citer_publiee()
+    assert not libelles.termes_proscrits(texte), libelles.termes_proscrits(texte)
+    motif = re.compile(r"</(?:span|a|b|strong|em|i|code)> [;:!?](?:\s|<|$)", flags=re.M)
+    assert not motif.search(corps), motif.search(corps)
+    for avant, apres in (('<span class="adr">_odbl</span> ; son', f'<span class="adr">_odbl</span>{FINE}; son'),
+                         ('<a href="z.html">Autour</a> : les', f'<a href="z.html">Autour</a>{FINE}: les'),
+                         ("<b>x</b> ! y", f"<b>x</b>{FINE}! y"),
+                         ("<b>x</b> :<i>y</i>", f"<b>x</b>{FINE}:<i>y</i>"),
+                         ("<b>x</b> , y", "<b>x</b>, y")):
+        assert insecables(avant) == apres, (avant, insecables(avant))
+    assert not re.search(r"\bAPI\b|payant|abonnement|tarif|\bprix\b|version complète", texte, flags=re.I)
+    assert "—" not in texte and "–" not in texte
+    assert ("Lu" + "cas") not in texte and texte.count("Pithon") == texte.count("Pithon L.")
+
+
+def test_citer_nombres_et_versions():
+    """Chaque nombre de la page vient de ce que le site publie : les fichiers CSV comptés dans l'archive zip de la
+    version elle-même (celle déposée sur Zenodo), les fichiers à part de la page Fichiers à télécharger, les versions
+    archivées du relevé de Zenodo (six visibles, les autres repliées, mêmes colonnes), les versions remplacées qui
+    renvoient vers la suivante d'après la tête de leur description, la licence déclarée par Zenodo, les versions parues
+    sur le site seul, les versions des rapports des dossiers du site ; la citation d'exemple est celle de la page
+    d'indicateur des psychiatres."""
+    import html as H
+    import json
+    import re
+    import zipfile
+    from pipeline import citer, config, site as S
+    site, _h, corps, texte, sc = _citer_publiee()
+    mf = (site / "methode-fichiers.html").read_text(encoding="utf-8")
+    zp = site / re.search(r'href="(donnees/[^"]+/donnees_[^"]+\.zip)"', mf).group(1)
+    with zipfile.ZipFile(zp) as z:
+        dans = [n.rsplit("/", 1)[-1] for n in z.namelist() if n.endswith(".csv")]
+    n, n_odbl = len(dans), sum("_odbl" in x for x in dans)
+    tableau = re.search(r'<table class="[^"]*\bfichiers\b[^"]*">(.*?)</table>', mf, flags=re.S).group(1)
+    sur_site = [re.sub(r"\.zip$", "", x) for x in re.findall(r'<td><a href="donnees/[^/]+/([^"]+)"', tableau)]
+    a_part = sorted(set(sur_site) - set(dans))
+    taille = re.search(r"\(archive zip, ([^)]+)\)", mf).group(1).replace(" ", " ").replace(" ", " ")
+    assert f"{n} fichiers CSV, en une archive zip de {taille}" in texte
+    assert f"Les {n - n_odbl} fichiers CSV sans suffixe de l’archive" in texte
+    assert f"Les {n_odbl} fichiers suffixés _odbl" in texte and f"Les {n} fichiers CSV de la version" in texte
+    if "liste_indicateurs.csv" in a_part:
+        assert "la liste des indicateurs à part" in texte
+    assert not re.search(rf"\b{len(sur_site)} fichiers\b", texte) or len(sur_site) == n
+    # versions archivées et ce qu'en dit leur description
+    hist = json.loads((config.DONNEES / "zenodo_versions.json").read_text(encoding="utf-8"))
+    V = citer.versions(hist)
+    assert V[0]["iso"] == sc["version"] and V[0]["doi"] == sc["dois"]
+    assert f"{len(V)} versions" in texte and f"depuis le {S.date_longue(V[-1]['iso'])}" in texte
+    visibles = corps[:corps.index('<details class="anciennes">')]
+    assert visibles.count('<tr><td class="d">') == min(len(V), citer.N_VISIBLES)
+    assert corps.count('<tr><td class="d">') == len(V)
+    cols = re.findall(r'<table class="simple versions">(<colgroup>.*?</colgroup>)', corps)
+    assert len(cols) == 2 and cols[0] == cols[1], cols
+    # un DOI ne se coupe jamais dans le tableau des versions (coupé à 1 024 px, 25 novembre 2026)
+    assert corps.count('<td class="doi" data-l="Données">') == len(V)
+    css = (config.RACINE / "gabarits" / "style.css").read_text(encoding="utf-8")
+    assert re.search(r"table\.versions td\.doi\{[^}]*white-space:nowrap", css)
+    # au téléphone, les colonnes fixes de l'ordinateur ne serrent pas les lignes du tableau (filet réduit au tiers de la
+    # largeur, 25 novembre 2026)
+    assert re.search(r"table\.versions thead,table\.versions colgroup\{display:none\}table\.versions\{table-layout:auto\}", css)
+    tetes = sorted(hist["depots"]["donnees"], key=lambda x: (x["date"], x["cree"]), reverse=True)[1:]
+    renvoi = sum(1 for x in tetes if x["tete"].startswith("Version remplacée. Cette version est remplacée par")
+                 or "Utiliser la version corrigée du" in x["tete"])
+    assert f"{renvoi} des {len(tetes)} versions remplacées y renvoient" in texte
+    assert "une version remplacée renvoie vers celle qui la remplace" not in texte
+    assert "versions passées restent sur Zenodo" not in texte
+    # licence de l'archive telle que Zenodo la déclare
+    lic = sorted(hist["depots"]["donnees"], key=lambda x: (x["date"], x["cree"]))[-1]
+    lic = lic.get("licences") or [lic.get("licence")]
+    assert ("Zenodo déclare l’archive sous ODbL 1.0 parce qu’elle contient" in texte) == (lic == ["odc-odbl"]), lic
+    pub = json.loads((config.DONNEES / "publication.json").read_text(encoding="utf-8-sig"))["versions_publiees"]
+    seules = sorted(set(pub) - {v["iso"] for v in V})
+    for x in seules:
+        assert (site / "rapports" / x).is_dir(), x
+    if seules:
+        assert "parues sur ce site seul" in texte
+    n_rap = sum(1 for q in (site / "rapports").iterdir() if q.is_dir() and re.match(r"\d{4}-\d{2}-\d{2}$", q.name))
+    assert f"({n_rap} versions aujourd’hui)" in texte
+    # la citation d'exemple est, au caractère près, celle de la page d'indicateur
+    ex = re.search(r'<p class="citation-exemple">(.*?)</p>', corps, flags=re.S).group(1)
+    fig = re.search(r'data-citation="([^"]+)"', (site / "indicateur" / "prof-psychiatre.html").read_text(encoding="utf-8"))
+    norm = lambda s: re.sub(r"\s+", " ", H.unescape(re.sub(r"<[^>]+>", "", s)).replace(" ", " ")  # noqa: E731
+                            .replace(" ", " ")).strip().rstrip(".")
+    assert norm(ex) == norm(fig.group(1)), (norm(ex), norm(fig.group(1)))
+    # chaque lien local de la page mène à un fichier qui existe
+    for href in set(re.findall(r'href="([^"#:?]+)(?:#[^"]*)?"', corps)):
+        assert (site / href).exists(), href
+
+
+def test_citer_construction_sans_reseau():
+    """La construction du site ne lit jamais le réseau (plan de prototypes/citer/notes.md) : la page lit seulement
+    donnees/zenodo_versions.json, que refait outils/zenodo.py (constater, annoter, versions). Le relevé ne remplace la
+    copie gardée qu'une fois validé."""
+    import inspect
+    import re
+    from pipeline import citer, config
+    src_donnees = inspect.getsource(citer.donnees) + inspect.getsource(citer.historique)
+    assert not re.search(r"relire_zenodo|enregistrer_historique|urlopen|requests\.", src_donnees)
+    site_py = (config.RACINE / "pipeline" / "site.py").read_text(encoding="utf-8")
+    assert not re.search(r"relire_zenodo|enregistrer_historique", site_py)
+    z = (config.RACINE / "outils" / "zenodo.py").read_text(encoding="utf-8")
+    assert "def cmd_versions" in z and z.count("releve_versions(") >= 3
+    e = inspect.getsource(citer.enregistrer_historique)
+    assert e.index("versions(frais)") < e.index("CACHE.write_text")
+
+
+def test_aucun_lien_vers_une_ancre_absente():
+    """Un lien du site vers une partie d'une page (page.html#partie) mène à une partie qui existe, sur toutes les pages
+    de la version en ligne (les versions archivées restent telles qu'elles ont été publiées) ; un état d'outil écrit
+    après # (« #lieu=12202 ») n'est pas une partie. Plus aucun lien vers l'ancien « Comment citer » d'À propos, réduit
+    à une phrase (24 novembre 2026)."""
+    import json
+    import posixpath
+    import re
+    from pathlib import Path
+    from pipeline import config
+    R = config.RACINE
+    for d in ("gabarits", "pipeline", "contenus", "atlas"):
+        for f in (R / d).rglob("*"):
+            if f.suffix in (".html", ".py", ".md", ".js") and f.name != "atlas.html":
+                assert "a-propos.html#comment-citer" not in f.read_text(encoding="utf-8", errors="ignore"), f
+    site = R / "site"
+    sc = config.DONNEES / "site_citation.json"
+    if not (site.exists() and sc.exists()):
+        raise Ignore("site non construit")
+    version = json.loads(sc.read_text(encoding="utf-8"))["version"]
+    ids, manques, n = {}, [], 0
+
+    def ancres(p):
+        if p not in ids:
+            ids[p] = set(re.findall(r'\b(?:id|name)="([^"]+)"', p.read_text(encoding="utf-8"))) if p.exists() else None
+        return ids[p]
+    for p in site.rglob("*.html"):
+        r = p.relative_to(site).as_posix()
+        m = re.match(r"(rapports|territoires)/(\d{4}-\d{2}-\d{2})/", r)
+        if r.split("/")[0].startswith(("prototype", "maquettes", "_maquettes")) or p.name.startswith("_") \
+                or (m and m.group(2) < version):
+            continue
+        s = re.sub(r"<script\b.*?</script>", " ", p.read_text(encoding="utf-8"), flags=re.S)
+        for href in re.findall(r'href="([^"]*#[^"]+)"', s):
+            if href.startswith(("http", "mailto")):
+                continue
+            page, frag = href.split("#", 1)
+            if re.search(r"[=?&/:]", frag):
+                continue
+            cible = Path(posixpath.normpath((p.parent / page).as_posix())) if page else p
+            I = ancres(cible)
+            n += 1
+            if I is None or frag not in I:
+                manques.append((r, href))
+    assert n > 1000 and not manques, (n, manques[:10])
+
+
+def test_citer_fonctions():
+    """Ce qui a suivi une version, lu en tête de sa description sur Zenodo ; une adresse affichée ne se coupe qu'après une
+    barre oblique ; un DOI cité ne se coupe qu'après « doi.org/ » ; liste de dates d'un même mois. Sur le relevé gardé
+    de Zenodo : la plus récente en tête, une date par rang pour les trois dépôts, les licences des dépôts."""
+    import json
+    from pipeline import citer, config, site as S
+    t = ("Version remplacée. Cette version est remplacée par la version du 7 novembre 2026, qui corrige sa mise en page "
+         "sans changer ses résultats")
+    assert citer.suite_version(t) == "mise en page corrigée le 7 novembre 2026"
+    assert citer.suite_version("Version remplacée. Cette version est remplacée par la version du 1er décembre 2026, qui "
+                               "la corrige") == "corrigée le 1er décembre 2026"
+    assert citer.suite_version("Correction du 30 octobre 2026. Les taux") == "corrigée le 30 octobre 2026"
+    assert citer.suite_version("Note de version. Nouvelle version") == ""
+    assert citer.renvoie(t) and citer.renvoie("Correction du 30 octobre 2026. Utiliser la version corrigée du 30 octobre")
+    assert not citer.renvoie("Précision du 10 novembre 2026. La correction") and not citer.renvoie("Note de version.")
+    a = citer.adresse("territoire/dep/69.html", "ubicura.fr/territoire/dep/69")
+    assert a == ('<a class="adr" href="territoire/dep/69.html"><span class="nw">ubicura.fr/</span><wbr>'
+                 '<span class="nw">territoire/</span><wbr><span class="nw">dep/</span><wbr><span class="nw">69</span></a>')
+    c = citer.coupures_doi('x <a href="https://doi.org/10.5281/zenodo.1">https://doi.org/10.5281/zenodo.1</a>.')
+    assert '<span class="nw">https://doi.org/</span><wbr><span class="nw">10.5281/zenodo.1</span></a>' in c
+    assert citer.liste_dates(["2026-10-12", "2026-10-21", "2026-10-26"], S.date_longue) == "des 12, 21 et 26 octobre 2026"
+    f = config.DONNEES / "zenodo_versions.json"
+    if not f.exists():
+        raise Ignore("relevé de Zenodo absent")
+    V = citer.versions(json.loads(f.read_text(encoding="utf-8")))
+    assert [v["iso"] for v in V] == sorted((v["iso"] for v in V), reverse=True)
+    for v in V:
+        assert v["licences"] == {"donnees": ["odc-odbl"], "sante-mentale": ["etalab-2.0"], "sante": ["etalab-2.0"]}, v
+    # la plus récente n'a pas de suite ; une version remplacée le dit en tête de sa description
+    assert V[0]["suite"] == "" and sum(1 for v in V if v["suite"]) >= len(V) // 2
 
 
 def test_serie_lancee_en_dernier():

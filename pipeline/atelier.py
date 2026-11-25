@@ -63,6 +63,16 @@ def profession_croisable(sd: dict, pid: str, m: str = "all") -> bool:
     return False
 
 
+def libelle_profession(sd: dict, pid: str, m: str = "all") -> tuple[str, str]:
+    """Nom et unité de l'indicateur d'une profession (« Psychiatres », « pour 10 000 habitants »), repris par sa page
+    d'indicateur et par l'exemple de citation de la page Citer et réutiliser."""
+    p = next(x for x in sd["professions"] if x["id"] == pid)
+    plur = pluriel(p["libelle"])
+    nm = {"all": "", "lib": ", libéraux", "sal": ", salariés"}[m]
+    u = "pour 100 000 habitants" if par_habitants(sd, pid) == 100000 else "pour 10 000 habitants"
+    return plur[:1].upper() + plur[1:] + nm, u
+
+
 def donnees(sd: dict, dernier: Path, fond: Path, registre: Path, version: str, doi: str | None) -> dict:
     units, ind, val = {}, [], {lv: {} for lv in NIVEAUX}
     for lv in NIVEAUX:
@@ -98,13 +108,12 @@ def donnees(sd: dict, dernier: Path, fond: Path, registre: Path, version: str, d
     date_rpps = _date_rpps(dernier)
     profs = [p for p in sd["professions"] if p.get("famille") in ("Santé mentale", "Santé")]
     for p in profs:
-        pid, plur = p["id"], pluriel(p["libelle"])
-        plur = plur[:1].upper() + plur[1:]
+        pid = p["id"]
         # professions rares pour 100 000 habitants (affichage.par_habitants, audit du 30 octobre 2026, F17)
         fac = par_habitants(sd, pid)
         for m, nm in (("all", ""), ("lib", ", libéraux"), ("sal", ", salariés")):
-            e = {"id": f"prof:{pid}:{m}", "prof": pid, "mode": m, "lab": plur + nm,
-                 "u": "pour 100 000 habitants" if fac == 100000 else "pour 10 000 habitants",
+            lab, u = libelle_profession(sd, pid, m)
+            e = {"id": f"prof:{pid}:{m}", "prof": pid, "mode": m, "lab": lab, "u": u,
                  "src": "RPPS (Agence du numérique en santé), population INSEE", "lic": "Licence Ouverte 2.0",
                  "grp": "Professionnels de santé", "exp": "Professionnels qui soignent la population, chacun compté une "
                  "fois dans chaque territoire où il exerce.", "niv": [], "type": "prof", "moy": {}, "an": ("répertoire RPPS du " + date_rpps) if date_rpps else ""}

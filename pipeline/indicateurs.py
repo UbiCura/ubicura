@@ -46,7 +46,7 @@ def agregation(unite: str) -> tuple[str, str]:
 
 def page_source(source: str) -> str:
     """Page de présentation du jeu de données, d'après config.SOURCES_INFO (motif sur le nom de la source)."""
-    for motif, _, _, page in config.SOURCES_INFO:
+    for motif, _, _, page, *_ in config.SOURCES_INFO:
         if page and re.search(motif, source or ""):
             return page
     return ""

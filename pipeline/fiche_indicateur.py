@@ -40,6 +40,18 @@ def titre_indicateur(lab: str, u: str | None) -> str:
            (len(u_.strip()) > 3 and u_.strip() in l_)   # « pour 100 000 enfants de moins de 15 ans » (audit du 8 novembre 2026)
     return lab if deja else f"{lab}, {u}"
 
+def insecable_nombres(t: str | None) -> str:
+    """Espaces insécables dans les nombres des titres (« pour 10 000 habitants » ne se coupe pas, F3)."""
+    return re.sub(r"(\d) (\d{3})", lambda m: m.group(1) + " " + m.group(2), t or "")
+
+
+def citation_page(commun: dict, titre: str, doi: str | None) -> str:
+    """Citation d'une page d'indicateur, reprise telle quelle en exemple sur la page Citer et réutiliser."""
+    return (f"{commun['citation_auteur']} ({commun['annee_version']}). {titre}. {config.NOM_PROJET}, version du "
+            f"{commun['date_longue']}" + ((f", toutes les versions doi:{doi}" if doi == config.DOI_DONNEES
+                                          else f", doi:{doi}") if doi else ""))
+
+
 def slug(ind_id: str) -> str:
     return ind_id.replace("prof:", "prof-").replace(":all", "").replace(":", "-").replace("_", "-")
 
@@ -254,8 +266,7 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
         if mayotte.get("texte") and not public and not (hors_mayotte and code_m):
             limites.append(mayotte["texte"])
         c = ctx.get(e["id"], {})
-        # espaces insécables dans les nombres des titres (« pour 10 000 habitants » ne se coupe pas, F3)
-        insec = lambda t: re.sub(r"(\d) (\d{3})", lambda m: m.group(1) + "\u00a0" + m.group(2), t or "")  # noqa: E731
+        insec = insecable_nombres
         f = {"id": e["id"], "slug": slug(e["id"]), "lab": insec(e["lab"]), "u": insec(e.get("u")), "prof": prof,
              "dom": doms.get(e.get("domb"), {}), "sous": e.get("sous"), "sm": e.get("sm"),
              "exp": e.get("exp") or "", "src": e.get("src") or "", "lic": e.get("lic") or "", "an": e.get("an") or "",
@@ -318,7 +329,7 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
         (dossier / "reglettes" / f"{f['slug']}.json").write_text(
             json.dumps(reglettes(T, macro, f["id"], f["niv_codes"].split()), ensure_ascii=False, separators=(",", ":")),
             encoding="utf-8")
-        cit = f"{commun['citation_auteur']} ({commun['annee_version']}). {f['titre']}. {config.NOM_PROJET}, version du {commun['date_longue']}" + ((f", toutes les versions doi:{doi}" if doi == config.DOI_DONNEES else f", doi:{doi}") if doi else "")
+        cit = citation_page(commun, f["titre"], doi)
         html = gabarit.render(dict(commun, racine="../", page="indicateur", titre=f["titre"],
                                    classe_main="indicateur", f=f, version=version, doi=doi, citation=cit,
                                    # DOI cliquable dans la citation (règle 11), le lien posé ici et non dans le gabarit,

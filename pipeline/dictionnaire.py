@@ -13,6 +13,8 @@ MODES = {"all": "tous modes d'exercice", "lib": "exercice libéral", "sal": "exe
 
 # (motif sur le nom de fichier, description du fichier)
 FICHIERS = [
+    (r"^liste_indicateurs\.csv$", lambda m: "Liste des indicateurs du site, une ligne par indicateur qui a sa page, tirée "
+     "du catalogue des indicateurs (page « Étendue des données »). Séparateur point-virgule, UTF-8 avec BOM."),
     (r"^sensibilite_confirmation\.csv$", lambda m: "Résultats clés sur les structures de soins recalculés avec les seules "
      "structures confirmées par une source indépendante de FINESS et du ROR (sources de l'établissement, autre source "
      "publique, certification de la HAS, Sirene), pour dire si la conclusion tient sans les structures non confirmées."),
@@ -794,6 +796,36 @@ def _decrire_colonne(col, ctx):
     return "Description manquante, à compléter dans pipeline/dictionnaire.py."
 
 
+# colonnes de la liste des indicateurs (pipeline/etendue.py, étape 6 des portes d'entrée, 24 novembre 2026)
+COLONNES_LISTE = {
+    "identifiant": "Identifiant de l'indicateur dans le catalogue (« prof:psychiatre » pour une profession).",
+    "nom": "Nom de l'indicateur, avec son unité, tel qu'il paraît sur sa page.",
+    "unite": "Unité de la valeur.",
+    "domaine": "Domaine où l'indicateur est rangé.",
+    "themes": "Thèmes transversaux de l'indicateur, séparés par des virgules (vide s'il n'en a pas).",
+    "niveaux": "Niveaux géographiques où l'indicateur est publié (France, région, département, intercommunalité).",
+    "annees": "Millésime des données : date de l'extraction, année, ou période d'une série annuelle.",
+    "source": "Source de l'indicateur, producteur compris.",
+    "licence": "Licence de la source.",
+    "limite": "Limite principale de l'indicateur, en une phrase.",
+    "adresse": "Adresse de la page de l'indicateur sur le site.",
+}
+
+
+def section(p: Path, ctx: dict | None = None) -> list[str]:
+    """Lignes du dictionnaire pour un fichier : son titre, sa description et le tableau de ses colonnes."""
+    ctx = ctx or {}
+    nom = re.sub(r"_odbl\.csv$", ".csv", p.name)
+    desc = next((f(re.match(m, nom)) for m, f in FICHIERS if re.match(m, nom)), "Description manquante.")
+    if p.name.endswith("_odbl.csv"):
+        desc += (" Partie issue de données sous licence ODbL (Assurance Maladie), diffusée sous la même licence "
+                 "(partage à l'identique).")
+    local = dict(ctx)
+    if p.name == "liste_indicateurs.csv":
+        local.update(COLONNES_LISTE)
+    return _section_suite(p, desc, local)
+
+
 def ecrire(out: Path, indicateurs=None):
     if indicateurs is None:
         indicateurs = [{"id": c[0], "label": c[1], "unite": c[2], "source": "INSEE"} for c in config.CONTEXTE]
@@ -804,57 +836,71 @@ def ecrire(out: Path, indicateurs=None):
          "Tous les fichiers CSV utilisent le point-virgule comme séparateur et la virgule comme séparateur "
          "décimal, pour s'ouvrir directement dans un tableur.", ""]
     for p in sorted(out.glob("*.csv")):
-        nom = re.sub(r"_odbl\.csv$", ".csv", p.name)
-        desc = next((f(re.match(m, nom)) for m, f in FICHIERS if re.match(m, nom)), "Description manquante.")
-        if p.name.endswith("_odbl.csv"):
-            desc += (" Partie issue de données sous licence ODbL (Assurance Maladie), diffusée sous la même licence "
-                     "(partage à l'identique).")
-        local = dict(ctx)
-        if p.name == "porte_offre.csv":
-            local.update({"groupe": "Grand secteur d'exercice (libéral, hôpital public, privé, médico-social...).",
-                          "classe": "Classe de densité de population de l'intercommunalité, ou Ensemble."})
-        if p.name == "population_concernee.csv":
-            desc = ("Distance à la structure de soins la plus proche, pour tous les habitants et pour le public que sert "
-                    "la structure (mères des enfants nés entre les deux derniers recensements pour la naissance et la "
-                    "petite enfance, moins de 15 ans pour l'enfance), par intercommunalité, département, région et pour "
-                    "la France, hors Mayotte, qui n'a pas de recensement.")
-            local.update({
-                "type": "Type de structure (identifiant du site, lieu_maternite, lieu_cmpp...).",
-                "public": "Identifiant du public concerné (naissances, moins_15...).",
-                "libelle_public": "Nom du public concerné, avec la période pour les naissances.",
-                "distance_mediane_km_public": "Distance médiane à vol d'oiseau du public concerné à la structure la plus "
-                                              "proche, en km, depuis le centre de sa commune (INSEE, communes).",
-                "part_plus_30_km_public": "Part du public concerné à plus de 30 km de la structure la plus proche.",
-                "part_plus_30_km": "Part des habitants à plus de 30 km de la structure la plus proche.",
-                "communes": "Nombre de communes du territoire qui comptent des habitants.",
-                "population_public": "Effectif du public concerné dans le territoire (INSEE, communes ; naissances "
-                                     "cumulées sur la période pour les mères)."})
-        if p.name == "secteurs_psychiatrie.csv":
-            local.update({"commune": "Code de la commune actuelle (code officiel géographique) rattachée au secteur.",
-                          "type": "Type de secteur dans l'arrêté (G psychiatrie générale, I psychiatrie infanto-juvénile)."})
-        if p.name == "libelles.csv":
-            desc = "Table de correspondance entre libellés officiels et libellés d'affichage."
-            local.update({"source": "Nomenclature d'origine.", "code": "Code dans la nomenclature, s'il existe.",
-                          "libelle_origine": "Libellé officiel de la nomenclature.",
-                          "libelle_affichage": "Libellé affiché au lecteur.",
-                          "statut": "Statut de validation.", "remarque": "Justification ou point de vigilance."})
-        with open(p, encoding="utf-8-sig") as f:
-            cols = f.readline().rstrip("\r\n").split(";")
-        L += [f"## {p.name}", "", desc, "", "| Colonne | Description |", "|---|---|"]
-        if p.name.startswith("correlations_professions_"):
-            L += [f"| `{cols[0]}` | Identifiant de la profession en ligne. |",
-                  "| `<profession>` | Corrélation de rang de Spearman entre la densité de la profession en ligne et "
-                  "celle de la profession en colonne. |", ""]
-            continue
-        vus = set()
-        for c in cols:
-            d = _decrire_colonne(c, local)
-            cle = re.sub(r"^(n|densite)_.+$", r"\1_*", c) if c not in local and re.match(r"^(n|densite)_(?!pop$|nationale$|mediane$|agregee$)", c) else c
-            if cle in vus:
-                continue
-            vus.add(cle)
-            if cle != c:
-                c, d = cle.replace("*", "<profession>"), d.replace(f"« {c.split('_', 1)[1]} »", "<profession>")
-            L.append(f"| `{c}` | {d} |")
-        L.append("")
+        L += section(p, ctx)
     (out / "dictionnaire_des_colonnes.md").write_text("\n".join(L), encoding="utf-8")
+
+
+def ajouter_section(md: str, p: Path) -> str:
+    """Le dictionnaire d'une version, complété de la section d'un fichier qu'il ne décrit pas encore, à sa place dans
+    l'ordre des fichiers."""
+    if f"## {p.name}\n" in md:
+        return md
+    bloc = "\n".join(section(p)) + "\n"
+    titres = [(m.start(), m.group(1)) for m in re.finditer(r"^## (\S+)$", md, flags=re.M)]
+    apres = next((pos for pos, nom in titres if nom > p.name), None)
+    if apres is None:
+        return md.rstrip("\n") + "\n\n" + bloc
+    return md[:apres] + bloc + "\n" + md[apres:]
+
+
+def _section_suite(p: Path, desc: str, local: dict) -> list[str]:
+    """Suite de section : colonnes propres à certains fichiers, puis le tableau des colonnes."""
+    L = []
+    if p.name == "porte_offre.csv":
+        local.update({"groupe": "Grand secteur d'exercice (libéral, hôpital public, privé, médico-social...).",
+                      "classe": "Classe de densité de population de l'intercommunalité, ou Ensemble."})
+    if p.name == "population_concernee.csv":
+        desc = ("Distance à la structure de soins la plus proche, pour tous les habitants et pour le public que sert "
+                "la structure (mères des enfants nés entre les deux derniers recensements pour la naissance et la "
+                "petite enfance, moins de 15 ans pour l'enfance), par intercommunalité, département, région et pour "
+                "la France, hors Mayotte, qui n'a pas de recensement.")
+        local.update({
+            "type": "Type de structure (identifiant du site, lieu_maternite, lieu_cmpp...).",
+            "public": "Identifiant du public concerné (naissances, moins_15...).",
+            "libelle_public": "Nom du public concerné, avec la période pour les naissances.",
+            "distance_mediane_km_public": "Distance médiane à vol d'oiseau du public concerné à la structure la plus "
+                                          "proche, en km, depuis le centre de sa commune (INSEE, communes).",
+            "part_plus_30_km_public": "Part du public concerné à plus de 30 km de la structure la plus proche.",
+            "part_plus_30_km": "Part des habitants à plus de 30 km de la structure la plus proche.",
+            "communes": "Nombre de communes du territoire qui comptent des habitants.",
+            "population_public": "Effectif du public concerné dans le territoire (INSEE, communes ; naissances "
+                                 "cumulées sur la période pour les mères)."})
+    if p.name == "secteurs_psychiatrie.csv":
+        local.update({"commune": "Code de la commune actuelle (code officiel géographique) rattachée au secteur.",
+                      "type": "Type de secteur dans l'arrêté (G psychiatrie générale, I psychiatrie infanto-juvénile)."})
+    if p.name == "libelles.csv":
+        desc = "Table de correspondance entre libellés officiels et libellés d'affichage."
+        local.update({"source": "Nomenclature d'origine.", "code": "Code dans la nomenclature, s'il existe.",
+                      "libelle_origine": "Libellé officiel de la nomenclature.",
+                      "libelle_affichage": "Libellé affiché au lecteur.",
+                      "statut": "Statut de validation.", "remarque": "Justification ou point de vigilance."})
+    with open(p, encoding="utf-8-sig") as f:
+        cols = f.readline().rstrip("\r\n").split(";")
+    L += [f"## {p.name}", "", desc, "", "| Colonne | Description |", "|---|---|"]
+    if p.name.startswith("correlations_professions_"):
+        L += [f"| `{cols[0]}` | Identifiant de la profession en ligne. |",
+              "| `<profession>` | Corrélation de rang de Spearman entre la densité de la profession en ligne et "
+              "celle de la profession en colonne. |", ""]
+        return L
+    vus = set()
+    for c in cols:
+        d = _decrire_colonne(c, local)
+        cle = re.sub(r"^(n|densite)_.+$", r"\1_*", c) if c not in local and re.match(r"^(n|densite)_(?!pop$|nationale$|mediane$|agregee$)", c) else c
+        if cle in vus:
+            continue
+        vus.add(cle)
+        if cle != c:
+            c, d = cle.replace("*", "<profession>"), d.replace(f"« {c.split('_', 1)[1]} »", "<profession>")
+        L.append(f"| `{c}` | {d} |")
+    L.append("")
+    return L

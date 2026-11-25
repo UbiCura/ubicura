@@ -72,6 +72,8 @@ def construire(env, commun: dict, sd: dict, dernier: Path, site: Path, A: dict, 
     themes = [t for t in TH.THEMES]
     html = env.get_template("indicateurs.html").render(dict(
         commun, racine="", page="indicateurs", titre="Indicateurs", n=len(C), domaines=domaines, themes=themes,
+        # la liste des indicateurs en CSV, écrite avec les fichiers de la version par la méthode (pipeline/etendue.py)
+        lien_liste=f"donnees/{dernier.name}/liste_indicateurs.csv", page_etendue="methode-etendue.html",
         description=f"Les {len(C)} indicateurs du site, cherchables et filtrables par domaine, thème et niveau, chacun "
                     "avec sa page : définition, carte, source et limites."))
     (site / "indicateurs.html").write_text(insecables(html), encoding="utf-8")

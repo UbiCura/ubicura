@@ -479,6 +479,70 @@ details.versions{margin:var(--e-4) 0}
 .methode > table.simple.defile{display:block;overflow-x:auto}
 .methode table.simple td:first-child{min-width:9em}
 .methode table.limites th:nth-child(3){width:45%}
+/* Étendue des données et liste des indicateurs en CSV (portes d'entrée, étape 6, maquette prototypes/entrees/p4_p6/) */
+.liste-csv{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 16px;margin:0 0 20px;text-align:left}
+.methode .liste-csv{margin:18px 0 8px}
+.liste-csv span{font-size:var(--t-note);color:var(--muted)}
+a.telecharger{font-size:var(--t-texte);color:var(--ink);border-bottom:0;text-decoration:underline;text-decoration-color:var(--line-fort);text-decoration-thickness:1px;text-underline-offset:3px;white-space:nowrap}
+a.telecharger:hover,a.telecharger:focus-visible{color:var(--chiffre);text-decoration-color:var(--chiffre)}
+a.telecharger::after{content:" \2193";font-family:var(--sans)}
+.methode table.etendue-t td,.methode table.etendue-t th{text-align:left;vertical-align:top}
+.methode table.etendue-t td{font-variant-numeric:tabular-nums}
+.methode table.etendue-t:not(.sources-t) td{text-align:right}
+.methode table.etendue-t:not(.sources-t) thead th:not(:first-child){text-align:right}
+.methode table.etendue-t.etroit{width:auto;min-width:340px}
+.methode table.etendue-t.etroit td:first-child{text-align:left}
+.methode table.etendue-t tr.total th,.methode table.etendue-t tr.total td{font-weight:600;border-top:1px solid var(--line-fort)}
+.methode table.sources-t{font-size:var(--t-note)}
+.methode table.etendue-t th[scope=row]{color:var(--ink);font-size:var(--t-note);font-weight:400;min-width:150px}
+.methode table.etendue-t thead th{white-space:nowrap}
+.methode table.sources-t thead th{white-space:normal}
+.methode table.sources-t td:nth-child(4),.methode table.sources-t td:nth-child(5){white-space:nowrap}
+.methode .note{font-size:var(--t-note);color:var(--muted);text-align:left}
+.methode ul.etendue-liste{text-align:left}
+/* Citer et réutiliser (maquette prototypes/citer/, validée le 24 novembre 2026) : repères en tête, citations à copier,
+   DOI de chaque dépôt, licences fichier par fichier, versions archivées ; une adresse ne se coupe qu'après une barre
+   oblique (.adr, .nw) */
+.citer-cles{list-style:none;padding:0;margin:0 0 var(--e-5);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--e-4)}
+.citer-cles li{display:flex;flex-direction:column;gap:6px;padding-top:var(--e-3);border-top:1px solid var(--line-fort);text-align:left}
+.citer-cles .c-l{font-size:var(--t-note);color:var(--muted)}
+.citer-cles .c-v{font-family:var(--serif);font-size:var(--t-section);line-height:1.1;color:var(--ink);font-variant-numeric:lining-nums}
+.citer-cles .c-r{font-size:var(--t-note);color:var(--muted);line-height:1.45}
+.cit-liste{list-style:none;padding:0;margin:var(--e-3) 0}
+.cit-liste>li{padding:var(--e-3) 0;border-top:1px solid var(--line);text-align:left}
+.cit-liste>li:last-child{border-bottom:1px solid var(--line)}
+.cit-liste .c-l{display:block;font-weight:600;margin-bottom:var(--e-1)}
+.cit-liste p.cit{margin:0 0 var(--e-2);text-align:left!important;hyphens:none}
+.nw{white-space:nowrap}
+.methode p.citation-exemple{text-align:left!important;hyphens:none}
+.doi-grille{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--e-4);margin:var(--e-3) 0 var(--e-4)}
+.doi-grille>div{border-top:1px solid var(--line-fort);padding-top:var(--e-3)}
+.doi-grille h3{font-family:var(--sans);font-size:var(--t-texte);font-weight:600;margin:0 0 var(--e-2)}
+.doi-grille dl{margin:0}.doi-grille dt{font-size:var(--t-note);color:var(--muted);margin-top:var(--e-2)}
+.doi-grille dd{margin:0;text-align:left!important;font-variant-numeric:tabular-nums}
+dl.licences{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);margin:var(--e-3) 0 var(--e-4)}
+dl.licences dt,dl.licences dd{margin:0;padding:var(--e-3) var(--e-4) var(--e-3) 0;border-top:1px solid var(--line)}
+dl.licences dt{font-weight:600;text-align:left}
+dl.licences dd{padding-right:0}
+dl.licences dd b{font-weight:600}
+table.versions{width:100%;table-layout:fixed}
+table.versions col.c-version{width:41%}table.versions col.c-donnees{width:35%}table.versions col.c-rapports{width:24%}
+/* un DOI ne se coupe jamais dans le tableau des versions (coupé en « 244586 / 12 » à 1 024 px, 25 novembre 2026) */
+table.versions td.doi{white-space:nowrap}
+table.versions td,table.versions th{white-space:normal}
+table.versions td .rap{display:block;white-space:nowrap}
+table.versions td .suite{display:block;font-size:var(--t-note);color:var(--muted);font-weight:400}
+.methode details.anciennes{margin:var(--e-3) 0}
+.methode ul.reemploi,.methode ul.adresses{padding-left:1.2em}
+.methode ul.reemploi li,.methode ul.adresses li{text-align:left!important;margin:var(--e-2) 0}
+.methode .adr{font-family:var(--sans);font-variant-numeric:tabular-nums}
+@media (min-width:901px) and (max-width:1180px){.citer-cles .c-v{font-size:var(--t-encadre)}}
+@media (max-width:900px){.citer-cles{grid-template-columns:minmax(0,1fr)}.doi-grille{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:700px){dl.licences{grid-template-columns:minmax(0,1fr)}dl.licences dd{border-top:0;padding-top:0}
+  table.versions thead,table.versions colgroup{display:none}table.versions{table-layout:auto}table.versions,table.versions tbody,table.versions tr,table.versions td{display:block;width:auto}
+  table.versions tr{border-top:1px solid var(--line);padding:var(--e-2) 0}table.versions td{border:0!important;padding:2px 0!important;min-width:0!important}
+  table.versions td[data-l]::before{content:attr(data-l) " ";color:var(--muted);font-size:var(--t-note)}
+  table.versions td.d{font-weight:600}table.versions td .rap{display:inline-block;margin-right:var(--e-3)}}
 .filtre-tableau{display:flex;flex-wrap:wrap;align-items:center;gap:6px 10px;margin:10px 0 var(--e-1);font-size:var(--t-note);color:var(--muted)}
 .filtre-tableau input{font:inherit;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:2px;padding:var(--e-1) var(--e-2);min-width:min(260px,100%)}
 .sommaire-sources ul{columns:2 320px;column-gap:28px;padding-left:1.1em;margin:12px 0 28px}
