@@ -1,0 +1,18 @@
+﻿type;indice_concentration;ic95_bas;ic95_haut;intercommunalites;libelle_type
+lieu_cmp_adultes;-0,0799655;-0,182361;0,01206;1238;CMP pour adultes
+lieu_cmp_enfants;-0,105276;-0,209328;-0,0116704;1238;CMP pour enfants et adolescents
+lieu_cattp;-0,151608;-0,255444;-0,0513662;1238;CATTP, accueil thérapeutique à temps partiel
+lieu_hdj_psy_adultes;-0,118958;-0,207124;-0,0335394;1238;Hôpitaux de jour en psychiatrie, adultes
+lieu_hdj_psy_enfants;-0,139366;-0,221523;-0,0569597;1238;Hôpitaux de jour en psychiatrie, enfants et adolescents
+lieu_hc_psy_adultes;-0,137276;-0,23019;-0,0486441;1238;Hospitalisation complète en psychiatrie, adultes
+lieu_cmpp;-0,10792;-0,237494;-0,00672034;1238;CMPP, centres médico-psycho-pédagogiques
+lieu_camsp;-0,100368;-0,183318;-0,0217289;1238;CAMSP, centres d'action médico-sociale précoce
+lieu_csapa;-0,121334;-0,219153;-0,0387212;1238;CSAPA, soins et prévention en addictologie
+lieu_caarud;-0,118605;-0,203866;-0,0266417;1238;CAARUD, réduction des risques
+lieu_urgences;-0,0951956;-0,185219;-0,00708669;1238;Services d'urgences
+lieu_maternite;-0,125753;-0,212485;-0,0445002;1238;Maternités
+lieu_ehpad;-0,103039;-0,184967;-0,0227833;1238;EHPAD
+lieu_ime;-0,111504;-0,199214;-0,024084;1238;Instituts médico-éducatifs (IME)
+lieu_sessad;-0,102302;-0,198421;-0,0180005;1238;Services d'éducation spéciale et de soins à domicile (SESSAD)
+lieu_msp;-0,0551682;-0,145084;0,0318157;1238;Maisons de santé pluriprofessionnelles
+lieu_centre_sante;-0,123678;-0,253275;-0,028244;1238;Centres de santé

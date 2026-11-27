@@ -1,0 +1,689 @@
+﻿niveau;prof;classe;territoires;population;densite_mediane;densite_agregee
+epci;allergologue;Très peu dense (moins de 25 hab./km²);210;2244801;0;0
+epci;allergologue;Peu dense (25 à 100);594;14511775;0;0,0234292
+epci;allergologue;Intermédiaire (100 à 300);315;17262644;0;0,0509771
+epci;allergologue;Dense (plus de 300);133;34075060;0,03741;0,110932
+epci;anatomopathologiste;Très peu dense (moins de 25 hab./km²);210;2244801;0;0
+epci;anatomopathologiste;Peu dense (25 à 100);594;14511775;0;0,0709768
+epci;anatomopathologiste;Intermédiaire (100 à 300);315;17262644;0;0,599561
+epci;anatomopathologiste;Dense (plus de 300);133;34075060;0,1818;0,698752
+epci;anesthesiste;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,227192
+epci;anesthesiste;Peu dense (25 à 100);594;14511775;0;0,547831
+epci;anesthesiste;Intermédiaire (100 à 300);315;17262644;0,153773;1,39434
+epci;anesthesiste;Dense (plus de 300);133;34075060;1,79136;2,89126
+epci;appareilleur;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,258375
+epci;appareilleur;Peu dense (25 à 100);594;14511775;0;0,287353
+epci;appareilleur;Intermédiaire (100 à 300);315;17262644;0,307546;0,605353
+epci;appareilleur;Dense (plus de 300);133;34075060;0,46307;0,808803
+epci;assistant_de_service_social;Très peu dense (moins de 25 hab./km²);210;2244801;0;1,06023
+epci;assistant_de_service_social;Peu dense (25 à 100);594;14511775;0,693203;1,84195
+epci;assistant_de_service_social;Intermédiaire (100 à 300);315;17262644;1,14073;3,01055
+epci;assistant_de_service_social;Dense (plus de 300);133;34075060;2,96224;4,37505
+epci;assistant_dentaire;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,418745
+epci;assistant_dentaire;Peu dense (25 à 100);594;14511775;0,469185;0,743534
+epci;assistant_dentaire;Intermédiaire (100 à 300);315;17262644;0,819627;1,25184
+epci;assistant_dentaire;Dense (plus de 300);133;34075060;1,24954;1,97446
+epci;audioprothesiste;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,882038
+epci;audioprothesiste;Peu dense (25 à 100);594;14511775;1,21173;1,46502
+epci;audioprothesiste;Intermédiaire (100 à 300);315;17262644;1,5837;1,65386
+epci;audioprothesiste;Dense (plus de 300);133;34075060;1,44097;1,36728
+epci;biologiste;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,0490021
+epci;biologiste;Peu dense (25 à 100);594;14511775;0;0,126794
+epci;biologiste;Intermédiaire (100 à 300);315;17262644;0;0,305863
+epci;biologiste;Dense (plus de 300);133;34075060;0,291694;0,668231
+epci;cardiologue;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,351924
+epci;cardiologue;Peu dense (25 à 100);594;14511775;0;0,732509
+epci;cardiologue;Intermédiaire (100 à 300);315;17262644;0,627924;1,24778
+epci;cardiologue;Dense (plus de 300);133;34075060;1,67847;1,91254
+epci;chiropracteur;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,111368
+epci;chiropracteur;Peu dense (25 à 100);594;14511775;0;0,212241
+epci;chiropracteur;Intermédiaire (100 à 300);315;17262644;0,103169;0,318028
+epci;chiropracteur;Dense (plus de 300);133;34075060;0,23671;0,331034
+epci;chirurgien_dentiste;Très peu dense (moins de 25 hab./km²);210;2244801;3,23125;3,81771
+epci;chirurgien_dentiste;Peu dense (25 à 100);594;14511775;4,26046;4,76992
+epci;chirurgien_dentiste;Intermédiaire (100 à 300);315;17262644;6,29635;7,02268
+epci;chirurgien_dentiste;Dense (plus de 300);133;34075060;8,46166;9,79661
+epci;chirurgien_general;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,106914
+epci;chirurgien_general;Peu dense (25 à 100);594;14511775;0;0,149534
+epci;chirurgien_general;Intermédiaire (100 à 300);315;17262644;0;0,282112
+epci;chirurgien_general;Dense (plus de 300);133;34075060;0,318766;0,45077
+epci;chirurgien_maxillo_facial;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,0133642
+epci;chirurgien_maxillo_facial;Peu dense (25 à 100);594;14511775;0;0,035833
+epci;chirurgien_maxillo_facial;Intermédiaire (100 à 300);315;17262644;0;0,12976
+epci;chirurgien_maxillo_facial;Dense (plus de 300);133;34075060;0,167847;0,301393
+epci;chirurgien_orthopediste;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,218282
+epci;chirurgien_orthopediste;Peu dense (25 à 100);594;14511775;0;0,416903
+epci;chirurgien_orthopediste;Intermédiaire (100 à 300);315;17262644;0,283435;0,792463
+epci;chirurgien_orthopediste;Dense (plus de 300);133;34075060;0,985005;1,05913
+epci;chirurgien_pediatrique;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,00445474
+epci;chirurgien_pediatrique;Peu dense (25 à 100);594;14511775;0;0,00482367
+epci;chirurgien_pediatrique;Intermédiaire (100 à 300);315;17262644;0;0,0266471
+epci;chirurgien_pediatrique;Dense (plus de 300);133;34075060;0;0,130594
+epci;chirurgien_plasticien;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,017819
+epci;chirurgien_plasticien;Peu dense (25 à 100);594;14511775;0;0,0372112
+epci;chirurgien_plasticien;Intermédiaire (100 à 300);315;17262644;0;0,133815
+epci;chirurgien_plasticien;Dense (plus de 300);133;34075060;0,214581;0,363609
+epci;chirurgien_thoracique;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,00890948
+epci;chirurgien_thoracique;Peu dense (25 à 100);594;14511775;0;0,0206729
+epci;chirurgien_thoracique;Intermédiaire (100 à 300);315;17262644;0;0,0399707
+epci;chirurgien_thoracique;Dense (plus de 300);133;34075060;0,0450432;0,193103
+epci;chirurgien_vasculaire;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,0668211
+epci;chirurgien_vasculaire;Peu dense (25 à 100);594;14511775;0;0,0840697
+epci;chirurgien_vasculaire;Intermédiaire (100 à 300);315;17262644;0;0,144242
+epci;chirurgien_vasculaire;Dense (plus de 300);133;34075060;0,178102;0,197505
+epci;chirurgien_visceral;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,0579116
+epci;chirurgien_visceral;Peu dense (25 à 100);594;14511775;0;0,183989
+epci;chirurgien_visceral;Intermédiaire (100 à 300);315;17262644;0;0,276898
+epci;chirurgien_visceral;Dense (plus de 300);133;34075060;0,301013;0,355979
+epci;dermatologue;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,151461
+epci;dermatologue;Peu dense (25 à 100);594;14511775;0;0,192947
+epci;dermatologue;Intermédiaire (100 à 300);315;17262644;0,178063;0,364371
+epci;dermatologue;Dense (plus de 300);133;34075060;0,450432;0,848715
+epci;dieteticien;Très peu dense (moins de 25 hab./km²);210;2244801;1,57443;2,13382
+epci;dieteticien;Peu dense (25 à 100);594;14511775;1,57986;1,92671
+epci;dieteticien;Intermédiaire (100 à 300);315;17262644;2,26973;2,60041
+epci;dieteticien;Dense (plus de 300);133;34075060;2,77661;3,09435
+epci;endocrinologue;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,0668211
+epci;endocrinologue;Peu dense (25 à 100);594;14511775;0;0,121281
+epci;endocrinologue;Intermédiaire (100 à 300);315;17262644;0;0,301228
+epci;endocrinologue;Dense (plus de 300);133;34075060;0,374827;0,561114
+epci;ens_medecin_specialiste;Très peu dense (moins de 25 hab./km²);210;2244801;1,94744;6,13863
+epci;ens_medecin_specialiste;Peu dense (25 à 100);594;14511775;3,98739;10,9408
+epci;ens_medecin_specialiste;Intermédiaire (100 à 300);315;17262644;13,4767;20,293
+epci;ens_medecin_specialiste;Dense (plus de 300);133;34075060;26,0125;33,9019
+epci;ergotherapeute;Très peu dense (moins de 25 hab./km²);210;2244801;1,27886;2,02691
+epci;ergotherapeute;Peu dense (25 à 100);594;14511775;1,54877;2,31398
+epci;ergotherapeute;Intermédiaire (100 à 300);315;17262644;2,32924;3,0007
+epci;ergotherapeute;Dense (plus de 300);133;34075060;2,83262;2,90623
+epci;esm_assistant_de_service_social;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,124733
+epci;esm_assistant_de_service_social;Peu dense (25 à 100);594;14511775;0;0,301824
+epci;esm_assistant_de_service_social;Intermédiaire (100 à 300);315;17262644;0;0,480807
+epci;esm_assistant_de_service_social;Dense (plus de 300);133;34075060;0,194394;0,591048
+epci;esm_dieteticien;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,0267284
+epci;esm_dieteticien;Peu dense (25 à 100);594;14511775;0;0,0303202
+epci;esm_dieteticien;Intermédiaire (100 à 300);315;17262644;0;0,0561907
+epci;esm_dieteticien;Dense (plus de 300);133;34075060;0;0,0410858
+epci;esm_ergotherapeute;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,115823
+epci;esm_ergotherapeute;Peu dense (25 à 100);594;14511775;0;0,104053
+epci;esm_ergotherapeute;Intermédiaire (100 à 300);315;17262644;0;0,117016
+epci;esm_ergotherapeute;Dense (plus de 300);133;34075060;0,0191352;0,179017
+epci;esm_infirmier;Très peu dense (moins de 25 hab./km²);210;2244801;0;2,47238
+epci;esm_infirmier;Peu dense (25 à 100);594;14511775;0;2,93072
+epci;esm_infirmier;Intermédiaire (100 à 300);315;17262644;0,192378;5,11741
+epci;esm_infirmier;Dense (plus de 300);133;34075060;1,30186;4,88216
+epci;esm_manipulateur_erm;Très peu dense (moins de 25 hab./km²);210;2244801;0;0
+epci;esm_manipulateur_erm;Peu dense (25 à 100);594;14511775;0;0,0179165
+epci;esm_manipulateur_erm;Intermédiaire (100 à 300);315;17262644;0;0,0144821
+epci;esm_manipulateur_erm;Dense (plus de 300);133;34075060;0;0,0205429
+epci;esm_masseur_kinesitherapeute;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,00445474
+epci;esm_masseur_kinesitherapeute;Peu dense (25 à 100);594;14511775;0;0,0254965
+epci;esm_masseur_kinesitherapeute;Intermédiaire (100 à 300);315;17262644;0;0,0359157
+epci;esm_masseur_kinesitherapeute;Dense (plus de 300);133;34075060;0;0,0407923
+epci;esm_medecin_autre;Très peu dense (moins de 25 hab./km²);210;2244801;0;0
+epci;esm_medecin_autre;Peu dense (25 à 100);594;14511775;0;0,0206729
+epci;esm_medecin_autre;Intermédiaire (100 à 300);315;17262644;0;0,03244
+epci;esm_medecin_autre;Dense (plus de 300);133;34075060;0;0,0542919
+epci;esm_medecin_generaliste;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,0623663
+epci;esm_medecin_generaliste;Peu dense (25 à 100);594;14511775;0;0,172274
+epci;esm_medecin_generaliste;Intermédiaire (100 à 300);315;17262644;0;0,265313
+epci;esm_medecin_generaliste;Dense (plus de 300);133;34075060;0,147828;0,249743
+epci;esm_orthophoniste;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,0267284
+epci;esm_orthophoniste;Peu dense (25 à 100);594;14511775;0;0,128861
+epci;esm_orthophoniste;Intermédiaire (100 à 300);315;17262644;0;0,235769
+epci;esm_orthophoniste;Dense (plus de 300);133;34075060;0,136191;0,250623
+epci;esm_pediatre;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,00890948
+epci;esm_pediatre;Peu dense (25 à 100);594;14511775;0;0,00895824
+epci;esm_pediatre;Intermédiaire (100 à 300);315;17262644;0;0,0133236
+epci;esm_pediatre;Dense (plus de 300);133;34075060;0;0,0220102
+epci;esm_pedopsychiatre;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,00445474
+epci;esm_pedopsychiatre;Peu dense (25 à 100);594;14511775;0;0,021362
+epci;esm_pedopsychiatre;Intermédiaire (100 à 300);315;17262644;0;0,0318607
+epci;esm_pedopsychiatre;Dense (plus de 300);133;34075060;0;0,0563462
+epci;esm_pharmacien;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,0445474
+epci;esm_pharmacien;Peu dense (25 à 100);594;14511775;0;0,0461694
+epci;esm_pharmacien;Intermédiaire (100 à 300);315;17262644;0;0,0782035
+epci;esm_pharmacien;Dense (plus de 300);133;34075060;0;0,0801172
+epci;esm_psychiatre;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,138097
+epci;esm_psychiatre;Peu dense (25 à 100);594;14511775;0;0,427239
+epci;esm_psychiatre;Intermédiaire (100 à 300);315;17262644;0;0,76987
+epci;esm_psychiatre;Dense (plus de 300);133;34075060;0,246581;1,0518
+epci;esm_psychologue;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,485566
+epci;esm_psychologue;Peu dense (25 à 100);594;14511775;0;0,99023
+epci;esm_psychologue;Intermédiaire (100 à 300);315;17262644;0,181538;1,60926
+epci;esm_psychologue;Dense (plus de 300);133;34075060;0,949904;1,8248
+epci;esm_psychomotricien;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,0890948
+epci;esm_psychomotricien;Peu dense (25 à 100);594;14511775;0;0,265991
+epci;esm_psychomotricien;Intermédiaire (100 à 300);315;17262644;0;0,45416
+epci;esm_psychomotricien;Dense (plus de 300);133;34075060;0,330109;0,519441
+epci;esm_psychotherapeute;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,124733
+epci;esm_psychotherapeute;Peu dense (25 à 100);594;14511775;0;0,301824
+epci;esm_psychotherapeute;Intermédiaire (100 à 300);315;17262644;0;0,530046
+epci;esm_psychotherapeute;Dense (plus de 300);133;34075060;0,267153;0,620689
+epci;gastro_enterologue;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,138097
+epci;gastro_enterologue;Peu dense (25 à 100);594;14511775;0;0,354195
+epci;gastro_enterologue;Intermédiaire (100 à 300);315;17262644;0,173995;0,550321
+epci;gastro_enterologue;Dense (plus de 300);133;34075060;0,760514;0,929419
+epci;geriatre;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,191554
+epci;geriatre;Peu dense (25 à 100);594;14511775;0;0,303202
+epci;geriatre;Intermédiaire (100 à 300);315;17262644;0,334764;0,487179
+epci;geriatre;Dense (plus de 300);133;34075060;0,583388;0,677915
+epci;gynecologue;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,26283
+epci;gynecologue;Peu dense (25 à 100);594;14511775;0;0,436887
+epci;gynecologue;Intermédiaire (100 à 300);315;17262644;0,412677;1,0404
+epci;gynecologue;Dense (plus de 300);133;34075060;1,46166;1,84035
+epci;hematologue;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,017819
+epci;hematologue;Peu dense (25 à 100);594;14511775;0;0,0227402
+epci;hematologue;Intermédiaire (100 à 300);315;17262644;0;0,115278
+epci;hematologue;Dense (plus de 300);133;34075060;0,103033;0,298752
+epci;infectiologue;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,00890948
+epci;infectiologue;Peu dense (25 à 100);594;14511775;0;0,0206729
+epci;infectiologue;Intermédiaire (100 à 300);315;17262644;0;0,0417086
+epci;infectiologue;Dense (plus de 300);133;34075060;0;0,117388
+epci;infirmier;Très peu dense (moins de 25 hab./km²);210;2244801;43,5081;53,3143
+epci;infirmier;Peu dense (25 à 100);594;14511775;41,6029;53,786
+epci;infirmier;Intermédiaire (100 à 300);315;17262644;46,0595;73,1186
+epci;infirmier;Dense (plus de 300);133;34075060;71,3415;87,4367
+epci;interniste;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,133642
+epci;interniste;Peu dense (25 à 100);594;14511775;0;0,139197
+epci;interniste;Intermédiaire (100 à 300);315;17262644;0;0,323821
+epci;interniste;Dense (plus de 300);133;34075060;0,327206;0,621569
+epci;manipulateur_erm;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,975588
+epci;manipulateur_erm;Peu dense (25 à 100);594;14511775;0;1,79303
+epci;manipulateur_erm;Intermédiaire (100 à 300);315;17262644;0,760052;4,08744
+epci;manipulateur_erm;Dense (plus de 300);133;34075060;5,31145;7,18707
+epci;masseur_kinesitherapeute;Très peu dense (moins de 25 hab./km²);210;2244801;10,5122;13,0836
+epci;masseur_kinesitherapeute;Peu dense (25 à 100);594;14511775;10,3356;11,7353
+epci;masseur_kinesitherapeute;Intermédiaire (100 à 300);315;17262644;13,6224;15,9379
+epci;masseur_kinesitherapeute;Dense (plus de 300);133;34075060;16,2834;17,4013
+epci;medecin_autre;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,00445474
+epci;medecin_autre;Peu dense (25 à 100);594;14511775;0;0,00758005
+epci;medecin_autre;Intermédiaire (100 à 300);315;17262644;0;0,0312814
+epci;medecin_autre;Dense (plus de 300);133;34075060;0;0,150843
+epci;medecin_generaliste;Très peu dense (moins de 25 hab./km²);210;2244801;10,3152;11,8585
+epci;medecin_generaliste;Peu dense (25 à 100);594;14511775;10,023;11,501
+epci;medecin_generaliste;Intermédiaire (100 à 300);315;17262644;11,7954;14,2359
+epci;medecin_generaliste;Dense (plus de 300);133;34075060;14,5228;15,8145
+epci;medecin_mpr;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,0890948
+epci;medecin_mpr;Peu dense (25 à 100);594;14511775;0;0,177098
+epci;medecin_mpr;Intermédiaire (100 à 300);315;17262644;0;0,378853
+epci;medecin_mpr;Dense (plus de 300);133;34075060;0,367897;0,548202
+epci;medecin_nucleaire;Très peu dense (moins de 25 hab./km²);210;2244801;0;0
+epci;medecin_nucleaire;Peu dense (25 à 100);594;14511775;0;0,0268747
+epci;medecin_nucleaire;Intermédiaire (100 à 300);315;17262644;0;0,177261
+epci;medecin_nucleaire;Dense (plus de 300);133;34075060;0,109592;0,276449
+epci;medecin_sante_publique;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,0222737
+epci;medecin_sante_publique;Peu dense (25 à 100);594;14511775;0;0,0344548
+epci;medecin_sante_publique;Intermédiaire (100 à 300);315;17262644;0;0,102534
+epci;medecin_sante_publique;Dense (plus de 300);133;34075060;0,0948744;0,293763
+epci;medecin_travail;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,017819
+epci;medecin_travail;Peu dense (25 à 100);594;14511775;0;0,118524
+epci;medecin_travail;Intermédiaire (100 à 300);315;17262644;0;0,419982
+epci;medecin_travail;Dense (plus de 300);133;34075060;0,388061;0,977548
+epci;medecin_vasculaire;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,0623663
+epci;medecin_vasculaire;Peu dense (25 à 100);594;14511775;0;0,139886
+epci;medecin_vasculaire;Intermédiaire (100 à 300);315;17262644;0;0,262416
+epci;medecin_vasculaire;Dense (plus de 300);133;34075060;0,29851;0,36537
+epci;nephrologue;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,0935495
+epci;nephrologue;Peu dense (25 à 100);594;14511775;0;0,161937
+epci;nephrologue;Intermédiaire (100 à 300);315;17262644;0;0,353364
+epci;nephrologue;Dense (plus de 300);133;34075060;0,449615;0,533822
+epci;neurochirurgien;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,00445474
+epci;neurochirurgien;Peu dense (25 à 100);594;14511775;0;0,0296311
+epci;neurochirurgien;Intermédiaire (100 à 300);315;17262644;0;0,0614043
+epci;neurochirurgien;Dense (plus de 300);133;34075060;0,0522253;0,215994
+epci;neurologue;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,0712758
+epci;neurologue;Peu dense (25 à 100);594;14511775;0;0,141265
+epci;neurologue;Intermédiaire (100 à 300);315;17262644;0;0,396811
+epci;neurologue;Dense (plus de 300);133;34075060;0,490808;0,83815
+epci;oncologue;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,0311832
+epci;oncologue;Peu dense (25 à 100);594;14511775;0;0,064775
+epci;oncologue;Intermédiaire (100 à 300);315;17262644;0;0,205646
+epci;oncologue;Dense (plus de 300);133;34075060;0,269578;0,468084
+epci;ophtalmologue;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,311832
+epci;ophtalmologue;Peu dense (25 à 100);594;14511775;0;0,818646
+epci;ophtalmologue;Intermédiaire (100 à 300);315;17262644;0,842531;1,29818
+epci;ophtalmologue;Dense (plus de 300);133;34075060;1,39634;1,60528
+epci;opticien_lunetier;Très peu dense (moins de 25 hab./km²);210;2244801;1,96223;2,73521
+epci;opticien_lunetier;Peu dense (25 à 100);594;14511775;4,43755;5,55411
+epci;opticien_lunetier;Intermédiaire (100 à 300);315;17262644;6,21283;7,09161
+epci;opticien_lunetier;Dense (plus de 300);133;34075060;6,55939;6,69082
+epci;orl;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,115823
+epci;orl;Peu dense (25 à 100);594;14511775;0;0,188123
+epci;orl;Intermédiaire (100 à 300);315;17262644;0,14766;0,39739
+epci;orl;Dense (plus de 300);133;34075060;0,503945;0,709023
+epci;orthophoniste;Très peu dense (moins de 25 hab./km²);210;2244801;2,07222;2,51247
+epci;orthophoniste;Peu dense (25 à 100);594;14511775;2,89798;3,25942
+epci;orthophoniste;Intermédiaire (100 à 300);315;17262644;4,09584;4,40836
+epci;orthophoniste;Dense (plus de 300);133;34075060;4,88603;5,42215
+epci;orthoptiste;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,33856
+epci;orthoptiste;Peu dense (25 à 100);594;14511775;0,401525;0,63259
+epci;orthoptiste;Intermédiaire (100 à 300);315;17262644;0,862329;1,02302
+epci;orthoptiste;Dense (plus de 300);133;34075060;1,13195;1,41423
+epci;osteopathe;Très peu dense (moins de 25 hab./km²);210;2244801;3,95262;4,65075
+epci;osteopathe;Peu dense (25 à 100);594;14511775;3,88829;4,3923
+epci;osteopathe;Intermédiaire (100 à 300);315;17262644;5,06694;5,52986
+epci;osteopathe;Dense (plus de 300);133;34075060;5,50224;5,93425
+epci;pediatre;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,302922
+epci;pediatre;Peu dense (25 à 100);594;14511775;0;0,395541
+epci;pediatre;Intermédiaire (100 à 300);315;17262644;0,377245;0,975517
+epci;pediatre;Dense (plus de 300);133;34075060;1,44138;2,22303
+epci;pedicure_podologue;Très peu dense (moins de 25 hab./km²);210;2244801;1,76206;1,85317
+epci;pedicure_podologue;Peu dense (25 à 100);594;14511775;2,0548;2,17685
+epci;pedicure_podologue;Intermédiaire (100 à 300);315;17262644;2,41028;2,49093
+epci;pedicure_podologue;Dense (plus de 300);133;34075060;2,46885;2,40029
+epci;pedopsychiatre;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,0222737
+epci;pedopsychiatre;Peu dense (25 à 100);594;14511775;0;0,0489258
+epci;pedopsychiatre;Intermédiaire (100 à 300);315;17262644;0;0,07299
+epci;pedopsychiatre;Dense (plus de 300);133;34075060;0,0870645;0,165517
+epci;pharmacien;Très peu dense (moins de 25 hab./km²);210;2244801;7,80238;8,03189
+epci;pharmacien;Peu dense (25 à 100);594;14511775;7,56091;7,988
+epci;pharmacien;Intermédiaire (100 à 300);315;17262644;8,36132;9,37226
+epci;pharmacien;Dense (plus de 300);133;34075060;10,0351;11,2129
+epci;physicien_medical;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,00445474
+epci;physicien_medical;Peu dense (25 à 100);594;14511775;0;0,00620186
+epci;physicien_medical;Intermédiaire (100 à 300);315;17262644;0;0,08921
+epci;physicien_medical;Dense (plus de 300);133;34075060;0,045397;0,181364
+epci;pneumologue;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,142552
+epci;pneumologue;Peu dense (25 à 100);594;14511775;0;0,191569
+epci;pneumologue;Intermédiaire (100 à 300);315;17262644;0,128222;0,463428
+epci;pneumologue;Dense (plus de 300);133;34075060;0,610986;0,781803
+epci;psychiatre;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,730577
+epci;psychiatre;Peu dense (25 à 100);594;14511775;0,283128;0,934414
+epci;psychiatre;Intermédiaire (100 à 300);315;17262644;0,776292;1,72627
+epci;psychiatre;Dense (plus de 300);133;34075060;2,15662;3,47762
+epci;psychologue;Très peu dense (moins de 25 hab./km²);210;2244801;5,68186;6,97166
+epci;psychologue;Peu dense (25 à 100);594;14511775;6,65637;8,4614
+epci;psychologue;Intermédiaire (100 à 300);315;17262644;8,86967;11,3899
+epci;psychologue;Dense (plus de 300);133;34075060;12,252;15,9108
+epci;psychomotricien;Très peu dense (moins de 25 hab./km²);210;2244801;0,896465;1,56361
+epci;psychomotricien;Peu dense (25 à 100);594;14511775;1,57109;2,16514
+epci;psychomotricien;Intermédiaire (100 à 300);315;17262644;2,36586;3,0175
+epci;psychomotricien;Dense (plus de 300);133;34075060;3,26215;3,47674
+epci;psychotherapeute;Très peu dense (moins de 25 hab./km²);210;2244801;1,01166;1,3676
+epci;psychotherapeute;Peu dense (25 à 100);594;14511775;1,27612;1,78476
+epci;psychotherapeute;Intermédiaire (100 à 300);315;17262644;1,87906;2,61779
+epci;psychotherapeute;Dense (plus de 300);133;34075060;2,66901;3,8245
+epci;q_addictologie;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,0623663
+epci;q_addictologie;Peu dense (25 à 100);594;14511775;0;0,0944061
+epci;q_addictologie;Intermédiaire (100 à 300);315;17262644;0;0,13787
+epci;q_addictologie;Dense (plus de 300);133;34075060;0,161746;0,224798
+epci;q_psychiatrie_enfant;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,111368
+epci;q_psychiatrie_enfant;Peu dense (25 à 100);594;14511775;0;0,125415
+epci;q_psychiatrie_enfant;Intermédiaire (100 à 300);315;17262644;0;0,211439
+epci;q_psychiatrie_enfant;Dense (plus de 300);133;34075060;0,224874;0,470726
+epci;radiologue;Très peu dense (moins de 25 hab./km²);210;2244801;0;1,39879
+epci;radiologue;Peu dense (25 à 100);594;14511775;0;2,57928
+epci;radiologue;Intermédiaire (100 à 300);315;17262644;1,48173;2,66761
+epci;radiologue;Dense (plus de 300);133;34075060;2,35466;2,63242
+epci;radiotherapeute;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,0400926
+epci;radiotherapeute;Peu dense (25 à 100);594;14511775;0;0,0799351
+epci;radiotherapeute;Intermédiaire (100 à 300);315;17262644;0;0,243879
+epci;radiotherapeute;Dense (plus de 300);133;34075060;0,242225;0,328686
+epci;reanimateur;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,00445474
+epci;reanimateur;Peu dense (25 à 100);594;14511775;0;0,0441021
+epci;reanimateur;Intermédiaire (100 à 300);315;17262644;0;0,155249
+epci;reanimateur;Dense (plus de 300);133;34075060;0,162085;0,254438
+epci;rhumatologue;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,120278
+epci;rhumatologue;Peu dense (25 à 100);594;14511775;0;0,146777
+epci;rhumatologue;Intermédiaire (100 à 300);315;17262644;0;0,323241
+epci;rhumatologue;Dense (plus de 300);133;34075060;0,41151;0,592515
+epci;sage_femme;Très peu dense (moins de 25 hab./km²);210;2244801;1,11075;1,90217
+epci;sage_femme;Peu dense (25 à 100);594;14511775;1,38169;2,51451
+epci;sage_femme;Intermédiaire (100 à 300);315;17262644;2,21887;4,06948
+epci;sage_femme;Dense (plus de 300);133;34075060;4,29894;4,98224
+epci;technicien_labo;Très peu dense (moins de 25 hab./km²);210;2244801;0;1,53688
+epci;technicien_labo;Peu dense (25 à 100);594;14511775;0,80168;3,17949
+epci;technicien_labo;Intermédiaire (100 à 300);315;17262644;2,59501;5,82008
+epci;technicien_labo;Dense (plus de 300);133;34075060;6,01287;10,7803
+epci;urgentiste;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,142552
+epci;urgentiste;Peu dense (25 à 100);594;14511775;0;0,22878
+epci;urgentiste;Intermédiaire (100 à 300);315;17262644;0;0,488338
+epci;urgentiste;Dense (plus de 300);133;34075060;0,479906;0,598972
+epci;urologue;Très peu dense (moins de 25 hab./km²);210;2244801;0;0,316286
+epci;urologue;Peu dense (25 à 100);594;14511775;0;0,347993
+epci;urologue;Intermédiaire (100 à 300);315;17262644;0;0,410134
+epci;urologue;Dense (plus de 300);133;34075060;0,415679;0,472486
+dep;allergologue;Très peu dense (moins de 25 hab./km²);4;654063;0;0,015289
+dep;allergologue;Peu dense (25 à 100);51;18181740;0,0376091;0,0451002
+dep;allergologue;Intermédiaire (100 à 300);33;30395249;0,0679593;0,0694187
+dep;allergologue;Dense (plus de 300);12;18863228;0,0734364;0,107617
+dep;anatomopathologiste;Très peu dense (moins de 25 hab./km²);4;654063;0,128315;0,15289
+dep;anatomopathologiste;Peu dense (25 à 100);51;18181740;0,345965;0,574752
+dep;anatomopathologiste;Intermédiaire (100 à 300);33;30395249;0,376263;0,424079
+dep;anatomopathologiste;Dense (plus de 300);12;18863228;0,366972;0,488252
+dep;anesthesiste;Très peu dense (moins de 25 hab./km²);4;654063;0,862399;1,07023
+dep;anesthesiste;Peu dense (25 à 100);51;18181740;1,20598;1,37336
+dep;anesthesiste;Intermédiaire (100 à 300);33;30395249;1,84191;1,79897
+dep;anesthesiste;Dense (plus de 300);12;18863228;2,14431;2,44232
+dep;appareilleur;Très peu dense (moins de 25 hab./km²);4;654063;0,438194;0,535117
+dep;appareilleur;Peu dense (25 à 100);51;18181740;0,487917;0,592903
+dep;appareilleur;Intermédiaire (100 à 300);33;30395249;0,591543;0,642535
+dep;appareilleur;Dense (plus de 300);12;18863228;0,431121;0,611772
+dep;assistant_de_service_social;Très peu dense (moins de 25 hab./km²);4;654063;3,0052;3,02723
+dep;assistant_de_service_social;Peu dense (25 à 100);51;18181740;3,20484;3,18671
+dep;assistant_de_service_social;Intermédiaire (100 à 300);33;30395249;3,07164;3,10147
+dep;assistant_de_service_social;Dense (plus de 300);12;18863228;3,03998;3,89859
+dep;assistant_dentaire;Très peu dense (moins de 25 hab./km²);4;654063;0,394885;0,366937
+dep;assistant_dentaire;Peu dense (25 à 100);51;18181740;1,06948;1,05765
+dep;assistant_dentaire;Intermédiaire (100 à 300);33;30395249;1,38219;1,36008
+dep;assistant_dentaire;Dense (plus de 300);12;18863228;1,78447;2,10886
+dep;audioprothesiste;Très peu dense (moins de 25 hab./km²);4;654063;0,971039;0,657429
+dep;audioprothesiste;Peu dense (25 à 100);51;18181740;1,11305;1,1539
+dep;audioprothesiste;Intermédiaire (100 à 300);33;30395249;1,07943;1,08076
+dep;audioprothesiste;Dense (plus de 300);12;18863228;1,17368;1,21082
+dep;biologiste;Très peu dense (moins de 25 hab./km²);4;654063;0,214133;0,290492
+dep;biologiste;Peu dense (25 à 100);51;18181740;0,267722;0,326151
+dep;biologiste;Intermédiaire (100 à 300);33;30395249;0,392613;0,403682
+dep;biologiste;Dense (plus de 300);12;18863228;0,469114;0,60276
+dep;cardiologue;Très peu dense (moins de 25 hab./km²);4;654063;0,822277;0,825609
+dep;cardiologue;Peu dense (25 à 100);51;18181740;1,06932;1,06975
+dep;cardiologue;Intermédiaire (100 à 300);33;30395249;1,10696;1,18374
+dep;cardiologue;Dense (plus de 300);12;18863228;1,35809;1,74201
+dep;chiropracteur;Très peu dense (moins de 25 hab./km²);4;654063;0,0467594;0,0458671
+dep;chiropracteur;Peu dense (25 à 100);51;18181740;0,226833;0,299751
+dep;chiropracteur;Intermédiaire (100 à 300);33;30395249;0,22051;0,275043
+dep;chiropracteur;Dense (plus de 300);12;18863228;0,221557;0,295814
+dep;chirurgien_dentiste;Très peu dense (moins de 25 hab./km²);4;654063;4,01829;4,31151
+dep;chirurgien_dentiste;Peu dense (25 à 100);51;18181740;5,68545;6,02308
+dep;chirurgien_dentiste;Intermédiaire (100 à 300);33;30395249;7,05857;7,56796
+dep;chirurgien_dentiste;Dense (plus de 300);12;18863228;8,16464;10,0121
+dep;chirurgien_general;Très peu dense (moins de 25 hab./km²);4;654063;0,279505;0,275203
+dep;chirurgien_general;Peu dense (25 à 100);51;18181740;0,214585;0,234851
+dep;chirurgien_general;Intermédiaire (100 à 300);33;30395249;0,232245;0,255961
+dep;chirurgien_general;Dense (plus de 300);12;18863228;0,407434;0,485071
+dep;chirurgien_maxillo_facial;Très peu dense (moins de 25 hab./km²);4;654063;0;0,0917343
+dep;chirurgien_maxillo_facial;Peu dense (25 à 100);51;18181740;0,0775275;0,1067
+dep;chirurgien_maxillo_facial;Intermédiaire (100 à 300);33;30395249;0,155917;0,162196
+dep;chirurgien_maxillo_facial;Dense (plus de 300);12;18863228;0,198059;0,297404
+dep;chirurgien_orthopediste;Très peu dense (moins de 25 hab./km²);4;654063;0,811446;0,718585
+dep;chirurgien_orthopediste;Peu dense (25 à 100);51;18181740;0,617049;0,647353
+dep;chirurgien_orthopediste;Intermédiaire (100 à 300);33;30395249;0,676215;0,709321
+dep;chirurgien_orthopediste;Dense (plus de 300);12;18863228;0,695127;0,92349
+dep;chirurgien_pediatrique;Très peu dense (moins de 25 hab./km²);4;654063;0;0,0458671
+dep;chirurgien_pediatrique;Peu dense (25 à 100);51;18181740;0;0,0396002
+dep;chirurgien_pediatrique;Intermédiaire (100 à 300);33;30395249;0,0773322;0,0736957
+dep;chirurgien_pediatrique;Dense (plus de 300);12;18863228;0,0972352;0,106557
+dep;chirurgien_plasticien;Très peu dense (moins de 25 hab./km²);4;654063;0,0297523;0,0764452
+dep;chirurgien_plasticien;Peu dense (25 à 100);51;18181740;0,0693501;0,10835
+dep;chirurgien_plasticien;Intermédiaire (100 à 300);33;30395249;0,160619;0,183252
+dep;chirurgien_plasticien;Dense (plus de 300);12;18863228;0,194583;0,390707
+dep;chirurgien_thoracique;Très peu dense (moins de 25 hab./km²);4;654063;0,0432799;0,0305781
+dep;chirurgien_thoracique;Peu dense (25 à 100);51;18181740;0,0334829;0,0627003
+dep;chirurgien_thoracique;Intermédiaire (100 à 300);33;30395249;0,096416;0,103635
+dep;chirurgien_thoracique;Dense (plus de 300);12;18863228;0,0995745;0,156919
+dep;chirurgien_vasculaire;Très peu dense (moins de 25 hab./km²);4;654063;0,017007;0,0611562
+dep;chirurgien_vasculaire;Peu dense (25 à 100);51;18181740;0,128434;0,137501
+dep;chirurgien_vasculaire;Intermédiaire (100 à 300);33;30395249;0,109747;0,121401
+dep;chirurgien_vasculaire;Dense (plus de 300);12;18863228;0,124893;0,150557
+dep;chirurgien_visceral;Très peu dense (moins de 25 hab./km²);4;654063;0,315164;0,275203
+dep;chirurgien_visceral;Peu dense (25 à 100);51;18181740;0,251666;0,250801
+dep;chirurgien_visceral;Intermédiaire (100 à 300);33;30395249;0,260308;0,264186
+dep;chirurgien_visceral;Dense (plus de 300);12;18863228;0,228892;0,283621
+dep;dermatologue;Très peu dense (moins de 25 hab./km²);4;654063;0,175817;0,275203
+dep;dermatologue;Peu dense (25 à 100);51;18181740;0,281395;0,366302
+dep;dermatologue;Intermédiaire (100 à 300);33;30395249;0,484992;0,509948
+dep;dermatologue;Dense (plus de 300);12;18863228;0,463863;0,825415
+dep;dieteticien;Très peu dense (moins de 25 hab./km²);4;654063;2,17212;1,94171
+dep;dieteticien;Peu dense (25 à 100);51;18181740;2,38174;2,47611
+dep;dieteticien;Intermédiaire (100 à 300);33;30395249;2,55532;2,56323
+dep;dieteticien;Dense (plus de 300);12;18863228;2,53141;2,77736
+dep;endocrinologue;Très peu dense (moins de 25 hab./km²);4;654063;0,221052;0,198758
+dep;endocrinologue;Peu dense (25 à 100);51;18181740;0,262405;0,281601
+dep;endocrinologue;Intermédiaire (100 à 300);33;30395249;0,301803;0,322419
+dep;endocrinologue;Dense (plus de 300);12;18863228;0,425402;0,551867
+dep;ens_medecin_specialiste;Très peu dense (moins de 25 hab./km²);4;654063;15,6753;15,5795
+dep;ens_medecin_specialiste;Peu dense (25 à 100);51;18181740;15,7332;17,4356
+dep;ens_medecin_specialiste;Intermédiaire (100 à 300);33;30395249;19,8495;20,5476
+dep;ens_medecin_specialiste;Dense (plus de 300);12;18863228;21,5918;31,15
+dep;ergotherapeute;Très peu dense (moins de 25 hab./km²);4;654063;2,56692;2,61443
+dep;ergotherapeute;Peu dense (25 à 100);51;18181740;2,55449;2,61416
+dep;ergotherapeute;Intermédiaire (100 à 300);33;30395249;2,52188;2,69845
+dep;ergotherapeute;Dense (plus de 300);12;18863228;2,29416;2,52926
+dep;esm_assistant_de_service_social;Très peu dense (moins de 25 hab./km²);4;654063;0,230128;0,214047
+dep;esm_assistant_de_service_social;Peu dense (25 à 100);51;18181740;0,476415;0,487302
+dep;esm_assistant_de_service_social;Intermédiaire (100 à 300);33;30395249;0,364431;0,420789
+dep;esm_assistant_de_service_social;Dense (plus de 300);12;18863228;0,47812;0,591097
+dep;esm_dieteticien;Très peu dense (moins de 25 hab./km²);4;654063;0,0432799;0,0305781
+dep;esm_dieteticien;Peu dense (25 à 100);51;18181740;0,0370302;0,0511502
+dep;esm_dieteticien;Intermédiaire (100 à 300);33;30395249;0,0357364;0,0371769
+dep;esm_dieteticien;Dense (plus de 300);12;18863228;0,0349901;0,04029
+dep;esm_ergotherapeute;Très peu dense (moins de 25 hab./km²);4;654063;0,0432799;0,214047
+dep;esm_ergotherapeute;Peu dense (25 à 100);51;18181740;0,119903;0,155101
+dep;esm_ergotherapeute;Intermédiaire (100 à 300);33;30395249;0,109747;0,129626
+dep;esm_ergotherapeute;Dense (plus de 300);12;18863228;0,133468;0,158509
+dep;esm_infirmier;Très peu dense (moins de 25 hab./km²);4;654063;6,22418;4,15862
+dep;esm_infirmier;Peu dense (25 à 100);51;18181740;6,13366;5,74312
+dep;esm_infirmier;Intermédiaire (100 à 300);33;30395249;4,14867;4,08781
+dep;esm_infirmier;Dense (plus de 300);12;18863228;3,28872;3,74538
+dep;esm_manipulateur_erm;Très peu dense (moins de 25 hab./km²);4;654063;0;0
+dep;esm_manipulateur_erm;Peu dense (25 à 100);51;18181740;0;0,0275001
+dep;esm_manipulateur_erm;Intermédiaire (100 à 300);33;30395249;0,00812817;0,012831
+dep;esm_manipulateur_erm;Dense (plus de 300);12;18863228;0,00963596;0,0169642
+dep;esm_masseur_kinesitherapeute;Très peu dense (moins de 25 hab./km²);4;654063;0;0
+dep;esm_masseur_kinesitherapeute;Peu dense (25 à 100);51;18181740;0,014153;0,0407002
+dep;esm_masseur_kinesitherapeute;Intermédiaire (100 à 300);33;30395249;0,0140956;0,0296099
+dep;esm_masseur_kinesitherapeute;Dense (plus de 300);12;18863228;0,0197776;0,0397599
+dep;esm_medecin_autre;Très peu dense (moins de 25 hab./km²);4;654063;0;0,015289
+dep;esm_medecin_autre;Peu dense (25 à 100);51;18181740;0,0177596;0,0396002
+dep;esm_medecin_autre;Intermédiaire (100 à 300);33;30395249;0,0268895;0,0292809
+dep;esm_medecin_autre;Dense (plus de 300);12;18863228;0,0354199;0,056194
+dep;esm_medecin_generaliste;Très peu dense (moins de 25 hab./km²);4;654063;0,246152;0,16818
+dep;esm_medecin_generaliste;Peu dense (25 à 100);51;18181740;0,251926;0,315701
+dep;esm_medecin_generaliste;Intermédiaire (100 à 300);33;30395249;0,196186;0,204637
+dep;esm_medecin_generaliste;Dense (plus de 300);12;18863228;0,155069;0,174944
+dep;esm_orthophoniste;Très peu dense (moins de 25 hab./km²);4;654063;0,0823785;0,0917343
+dep;esm_orthophoniste;Peu dense (25 à 100);51;18181740;0,239456;0,262901
+dep;esm_orthophoniste;Intermédiaire (100 à 300);33;30395249;0,161921;0,183252
+dep;esm_orthophoniste;Dense (plus de 300);12;18863228;0,190926;0,212583
+dep;esm_pediatre;Très peu dense (moins de 25 hab./km²);4;654063;0;0
+dep;esm_pediatre;Peu dense (25 à 100);51;18181740;0;0,0176001
+dep;esm_pediatre;Intermédiaire (100 à 300);33;30395249;0,00951195;0,0161209
+dep;esm_pediatre;Dense (plus de 300);12;18863228;0,00952122;0,0153738
+dep;esm_pedopsychiatre;Très peu dense (moins de 25 hab./km²);4;654063;0,0297523;0,0305781
+dep;esm_pedopsychiatre;Peu dense (25 à 100);51;18181740;0,0304374;0,0357502
+dep;esm_pedopsychiatre;Intermédiaire (100 à 300);33;30395249;0,0260308;0,0352029
+dep;esm_pedopsychiatre;Dense (plus de 300);12;18863228;0,0505187;0,0530132
+dep;esm_pharmacien;Très peu dense (moins de 25 hab./km²);4;654063;0,0432799;0,0611562
+dep;esm_pharmacien;Peu dense (25 à 100);51;18181740;0,0830475;0,0863504
+dep;esm_pharmacien;Intermédiaire (100 à 300);33;30395249;0,0650254;0,0641548
+dep;esm_pharmacien;Dense (plus de 300);12;18863228;0,0500914;0,0657364
+dep;esm_psychiatre;Très peu dense (moins de 25 hab./km²);4;654063;0,505832;0,32107
+dep;esm_psychiatre;Peu dense (25 à 100);51;18181740;0,687887;0,721053
+dep;esm_psychiatre;Intermédiaire (100 à 300);33;30395249;0,82756;0,724126
+dep;esm_psychiatre;Dense (plus de 300);12;18863228;1,06799;1,03323
+dep;esm_psychologue;Très peu dense (moins de 25 hab./km²);4;654063;1,62028;1,10081
+dep;esm_psychologue;Peu dense (25 à 100);51;18181740;1,70013;1,70611
+dep;esm_psychologue;Intermédiaire (100 à 300);33;30395249;1,38875;1,28211
+dep;esm_psychologue;Dense (plus de 300);12;18863228;1,78232;1,80987
+dep;esm_psychomotricien;Très peu dense (moins de 25 hab./km²);4;654063;0,293694;0,244625
+dep;esm_psychomotricien;Peu dense (25 à 100);51;18181740;0,391885;0,459802
+dep;esm_psychomotricien;Intermédiaire (100 à 300);33;30395249;0,363008;0,360912
+dep;esm_psychomotricien;Dense (plus de 300);12;18863228;0,478488;0,52377
+dep;esm_psychotherapeute;Très peu dense (moins de 25 hab./km²);4;654063;0,116312;0,15289
+dep;esm_psychotherapeute;Peu dense (25 à 100);51;18181740;0,389686;0,543952
+dep;esm_psychotherapeute;Intermédiaire (100 à 300);33;30395249;0,462438;0,441845
+dep;esm_psychotherapeute;Dense (plus de 300);12;18863228;0,51246;0,599579
+dep;gastro_enterologue;Très peu dense (moins de 25 hab./km²);4;654063;0,365591;0,366937
+dep;gastro_enterologue;Peu dense (25 à 100);51;18181740;0,479613;0,516452
+dep;gastro_enterologue;Intermédiaire (100 à 300);33;30395249;0,542542;0,579696
+dep;gastro_enterologue;Dense (plus de 300);12;18863228;0,614519;0,867826
+dep;geriatre;Très peu dense (moins de 25 hab./km²);4;654063;0,347143;0,336359
+dep;geriatre;Peu dense (25 à 100);51;18181740;0,418215;0,424602
+dep;geriatre;Intermédiaire (100 à 300);33;30395249;0,439228;0,44349
+dep;geriatre;Dense (plus de 300);12;18863228;0,698425;0,711967
+dep;gynecologue;Très peu dense (moins de 25 hab./km²);4;654063;0,838514;1,14668
+dep;gynecologue;Peu dense (25 à 100);51;18181740;0,776527;0,857454
+dep;gynecologue;Intermédiaire (100 à 300);33;30395249;1,0205;1,09326
+dep;gynecologue;Dense (plus de 300);12;18863228;1,42772;1,89946
+dep;hematologue;Très peu dense (moins de 25 hab./km²);4;654063;0,0340141;0,0458671
+dep;hematologue;Peu dense (25 à 100);51;18181740;0,0857688;0,123751
+dep;hematologue;Intermédiaire (100 à 300);33;30395249;0,166539;0,162196
+dep;hematologue;Dense (plus de 300);12;18863228;0,194615;0,266126
+dep;infectiologue;Très peu dense (moins de 25 hab./km²);4;654063;0,0432799;0,229336
+dep;infectiologue;Peu dense (25 à 100);51;18181740;0,0326873;0,0500502
+dep;infectiologue;Intermédiaire (100 à 300);33;30395249;0,0555131;0,0582328
+dep;infectiologue;Dense (plus de 300);12;18863228;0,088966;0,112388
+dep;infirmier;Très peu dense (moins de 25 hab./km²);4;654063;89,64;73,418
+dep;infirmier;Peu dense (25 à 100);51;18181740;77,6252;78,5304
+dep;infirmier;Intermédiaire (100 à 300);33;30395249;72,4754;73,3309
+dep;infirmier;Dense (plus de 300);12;18863228;71,3644;72,548
+dep;interniste;Très peu dense (moins de 25 hab./km²);4;654063;0,339009;0,48925
+dep;interniste;Peu dense (25 à 100);51;18181740;0,279918;0,322301
+dep;interniste;Intermédiaire (100 à 300);33;30395249;0,347815;0,371769
+dep;interniste;Dense (plus de 300);12;18863228;0,433062;0,582085
+dep;manipulateur_erm;Très peu dense (moins de 25 hab./km²);4;654063;3,24317;2,72145
+dep;manipulateur_erm;Peu dense (25 à 100);51;18181740;3,79883;4,39177
+dep;manipulateur_erm;Intermédiaire (100 à 300);33;30395249;4,82518;4,86556
+dep;manipulateur_erm;Dense (plus de 300);12;18863228;4,94738;6,04297
+dep;masseur_kinesitherapeute;Très peu dense (moins de 25 hab./km²);4;654063;13,7766;11,3903
+dep;masseur_kinesitherapeute;Peu dense (25 à 100);51;18181740;12,3252;14,0834
+dep;masseur_kinesitherapeute;Intermédiaire (100 à 300);33;30395249;14,274;16,0074
+dep;masseur_kinesitherapeute;Dense (plus de 300);12;18863228;16,1549;15,8456
+dep;medecin_autre;Très peu dense (moins de 25 hab./km²);4;654063;0,0432799;0,0611562
+dep;medecin_autre;Peu dense (25 à 100);51;18181740;0;0,0484002
+dep;medecin_autre;Intermédiaire (100 à 300);33;30395249;0,0872348;0,0861977
+dep;medecin_autre;Dense (plus de 300);12;18863228;0,0775717;0,116629
+dep;medecin_generaliste;Très peu dense (moins de 25 hab./km²);4;654063;15,1884;13,9283
+dep;medecin_generaliste;Peu dense (25 à 100);51;18181740;13,1255;13,5015
+dep;medecin_generaliste;Intermédiaire (100 à 300);33;30395249;14,2171;13,4982
+dep;medecin_generaliste;Dense (plus de 300);12;18863228;13,6844;14,1095
+dep;medecin_mpr;Très peu dense (moins de 25 hab./km²);4;654063;0,395344;0,412804
+dep;medecin_mpr;Peu dense (25 à 100);51;18181740;0,279918;0,318451
+dep;medecin_mpr;Intermédiaire (100 à 300);33;30395249;0,384113;0,414209
+dep;medecin_mpr;Dense (plus de 300);12;18863228;0,400396;0,435768
+dep;medecin_nucleaire;Très peu dense (moins de 25 hab./km²);4;654063;0;0
+dep;medecin_nucleaire;Peu dense (25 à 100);51;18181740;0,161615;0,188101
+dep;medecin_nucleaire;Intermédiaire (100 à 300);33;30395249;0,156646;0,158906
+dep;medecin_nucleaire;Dense (plus de 300);12;18863228;0,163037;0,189787
+dep;medecin_sante_publique;Très peu dense (moins de 25 hab./km²);4;654063;0,116312;0,229336
+dep;medecin_sante_publique;Peu dense (25 à 100);51;18181740;0,0902888;0,1111
+dep;medecin_sante_publique;Intermédiaire (100 à 300);33;30395249;0,109657;0,168118
+dep;medecin_sante_publique;Dense (plus de 300);12;18863228;0,223317;0,257644
+dep;medecin_travail;Très peu dense (moins de 25 hab./km²);4;654063;0,188602;0,290492
+dep;medecin_travail;Peu dense (25 à 100);51;18181740;0,372951;0,415802
+dep;medecin_travail;Intermédiaire (100 à 300);33;30395249;0,53134;0,560285
+dep;medecin_travail;Dense (plus de 300);12;18863228;0,538696;0,930382
+dep;medecin_vasculaire;Très peu dense (moins de 25 hab./km²);4;654063;0,154628;0,16818
+dep;medecin_vasculaire;Peu dense (25 à 100);51;18181740;0,178497;0,204051
+dep;medecin_vasculaire;Intermédiaire (100 à 300);33;30395249;0,287847;0,270766
+dep;medecin_vasculaire;Dense (plus de 300);12;18863228;0,216224;0,28309
+dep;nephrologue;Très peu dense (moins de 25 hab./km²);4;654063;0,382598;0,397515
+dep;nephrologue;Peu dense (25 à 100);51;18181740;0,249143;0,275551
+dep;nephrologue;Intermédiaire (100 à 300);33;30395249;0,350222;0,332618
+dep;nephrologue;Dense (plus de 300);12;18863228;0,345304;0,44372
+dep;neurochirurgien;Très peu dense (moins de 25 hab./km²);4;654063;0;0,015289
+dep;neurochirurgien;Peu dense (25 à 100);51;18181740;0,0322116;0,0764503
+dep;neurochirurgien;Intermédiaire (100 à 300);33;30395249;0,132929;0,127981
+dep;neurochirurgien;Dense (plus de 300);12;18863228;0,119282;0,172293
+dep;neurologue;Très peu dense (moins de 25 hab./km²);4;654063;0,318832;0,32107
+dep;neurologue;Peu dense (25 à 100);51;18181740;0,324835;0,414702
+dep;neurologue;Intermédiaire (100 à 300);33;30395249;0,468555;0,48297
+dep;neurologue;Dense (plus de 300);12;18863228;0,501072;0,751727
+dep;oncologue;Très peu dense (moins de 25 hab./km²);4;654063;0,154628;0,122312
+dep;oncologue;Peu dense (25 à 100);51;18181740;0,163623;0,202951
+dep;oncologue;Intermédiaire (100 à 300);33;30395249;0,220633;0,243788
+dep;oncologue;Dense (plus de 300);12;18863228;0,232775;0,415623
+dep;ophtalmologue;Très peu dense (moins de 25 hab./km²);4;654063;0,7763;0,580984
+dep;ophtalmologue;Peu dense (25 à 100);51;18181740;0,794372;0,860204
+dep;ophtalmologue;Intermédiaire (100 à 300);33;30395249;0,883403;0,965282
+dep;ophtalmologue;Dense (plus de 300);12;18863228;1,16517;1,50982
+dep;opticien_lunetier;Très peu dense (moins de 25 hab./km²);4;654063;4,08707;3,08839
+dep;opticien_lunetier;Peu dense (25 à 100);51;18181740;5,70998;6,16113
+dep;opticien_lunetier;Intermédiaire (100 à 300);33;30395249;6,5814;6,43752
+dep;opticien_lunetier;Dense (plus de 300);12;18863228;4,79345;5,7742
+dep;orl;Très peu dense (moins de 25 hab./km²);4;654063;0,188602;0,244625
+dep;orl;Peu dense (25 à 100);51;18181740;0,290666;0,339351
+dep;orl;Intermédiaire (100 à 300);33;30395249;0,383796;0,42704
+dep;orl;Dense (plus de 300);12;18863228;0,460877;0,706136
+dep;orthophoniste;Très peu dense (moins de 25 hab./km²);4;654063;3,02015;2,56856
+dep;orthophoniste;Peu dense (25 à 100);51;18181740;3,3452;3,57612
+dep;orthophoniste;Intermédiaire (100 à 300);33;30395249;4,34299;4,73989
+dep;orthophoniste;Dense (plus de 300);12;18863228;4,37243;5,08397
+dep;orthoptiste;Très peu dense (moins de 25 hab./km²);4;654063;0,450587;0,428093
+dep;orthoptiste;Peu dense (25 à 100);51;18181740;0,762851;0,807403
+dep;orthoptiste;Intermédiaire (100 à 300);33;30395249;0,895246;0,995879
+dep;orthoptiste;Dense (plus de 300);12;18863228;1,25113;1,4075
+dep;osteopathe;Très peu dense (moins de 25 hab./km²);4;654063;4,71709;3,914
+dep;osteopathe;Peu dense (25 à 100);51;18181740;4,10896;4,96817
+dep;osteopathe;Intermédiaire (100 à 300);33;30395249;5,07791;5,42716
+dep;osteopathe;Dense (plus de 300);12;18863228;4,76534;5,4752
+dep;pediatre;Très peu dense (moins de 25 hab./km²);4;654063;0,927771;1,43717
+dep;pediatre;Peu dense (25 à 100);51;18181740;0,762851;0,905854
+dep;pediatre;Intermédiaire (100 à 300);33;30395249;1,32757;1,26368
+dep;pediatre;Dense (plus de 300);12;18863228;1,68492;2,1465
+dep;pedicure_podologue;Très peu dense (moins de 25 hab./km²);4;654063;1,43185;1,2537
+dep;pedicure_podologue;Peu dense (25 à 100);51;18181740;2,10721;2,13731
+dep;pedicure_podologue;Intermédiaire (100 à 300);33;30395249;2,09893;2,25627
+dep;pedicure_podologue;Dense (plus de 300);12;18863228;2,21393;2,2467
+dep;pedopsychiatre;Très peu dense (moins de 25 hab./km²);4;654063;0,0765117;0,0611562
+dep;pedopsychiatre;Peu dense (25 à 100);51;18181740;0,070765;0,0748003
+dep;pedopsychiatre;Intermédiaire (100 à 300);33;30395249;0,0648729;0,0931067
+dep;pedopsychiatre;Dense (plus de 300);12;18863228;0,108063;0,155859
+dep;pharmacien;Très peu dense (moins de 25 hab./km²);4;654063;10,2975;7,75155
+dep;pharmacien;Peu dense (25 à 100);51;18181740;9,33387;9,60469
+dep;pharmacien;Intermédiaire (100 à 300);33;30395249;9,76792;9,741
+dep;pharmacien;Dense (plus de 300);12;18863228;9,09759;10,4155
+dep;physicien_medical;Très peu dense (moins de 25 hab./km²);4;654063;0;0
+dep;physicien_medical;Peu dense (25 à 100);51;18181740;0,0902888;0,10505
+dep;physicien_medical;Intermédiaire (100 à 300);33;30395249;0,12686;0,117782
+dep;physicien_medical;Dense (plus de 300);12;18863228;0,104101;0,1214
+dep;pneumologue;Très peu dense (moins de 25 hab./km²);4;654063;0,184381;0,229336
+dep;pneumologue;Peu dense (25 à 100);51;18181740;0,386744;0,424602
+dep;pneumologue;Intermédiaire (100 à 300);33;30395249;0,504133;0,497446
+dep;pneumologue;Dense (plus de 300);12;18863228;0,557328;0,698184
+dep;psychiatre;Très peu dense (moins de 25 hab./km²);4;654063;1,5526;1,31486
+dep;psychiatre;Peu dense (25 à 100);51;18181740;1,35998;1,59611
+dep;psychiatre;Intermédiaire (100 à 300);33;30395249;1,95865;2,05493
+dep;psychiatre;Dense (plus de 300);12;18863228;2,27393;3,47183
+dep;psychologue;Très peu dense (moins de 25 hab./km²);4;654063;11,2712;9,11227
+dep;psychologue;Peu dense (25 à 100);51;18181740;10,4343;10,4885
+dep;psychologue;Intermédiaire (100 à 300);33;30395249;10,8731;11,4219
+dep;psychologue;Dense (plus de 300);12;18863228;12,1307;15,492
+dep;psychomotricien;Très peu dense (moins de 25 hab./km²);4;654063;2,43361;2,38509
+dep;psychomotricien;Peu dense (25 à 100);51;18181740;2,23287;2,45851
+dep;psychomotricien;Intermédiaire (100 à 300);33;30395249;2,33987;2,50368
+dep;psychomotricien;Dense (plus de 300);12;18863228;3,52439;3,69555
+dep;psychotherapeute;Très peu dense (moins de 25 hab./km²);4;654063;2,13065;1,48304
+dep;psychotherapeute;Peu dense (25 à 100);51;18181740;1,99854;2,29241
+dep;psychotherapeute;Intermédiaire (100 à 300);33;30395249;2,72045;2,88729
+dep;psychotherapeute;Dense (plus de 300);12;18863228;2,54859;3,41882
+dep;q_addictologie;Très peu dense (moins de 25 hab./km²);4;654063;0,124876;0,122312
+dep;q_addictologie;Peu dense (25 à 100);51;18181740;0,113332;0,141351
+dep;q_addictologie;Intermédiaire (100 à 300);33;30395249;0,122366;0,131929
+dep;q_addictologie;Dense (plus de 300);12;18863228;0,187051;0,227427
+dep;q_psychiatrie_enfant;Très peu dense (moins de 25 hab./km²);4;654063;0,248849;0,198758
+dep;q_psychiatrie_enfant;Peu dense (25 à 100);51;18181740;0,163683;0,211751
+dep;q_psychiatrie_enfant;Intermédiaire (100 à 300);33;30395249;0,245844;0,264186
+dep;q_psychiatrie_enfant;Dense (plus de 300);12;18863228;0,298401;0,473408
+dep;radiologue;Très peu dense (moins de 25 hab./km²);4;654063;0,959841;0,932632
+dep;radiologue;Peu dense (25 à 100);51;18181740;1,45453;1,52241
+dep;radiologue;Intermédiaire (100 à 300);33;30395249;1,53966;1,58347
+dep;radiologue;Dense (plus de 300);12;18863228;1,79513;2,44762
+dep;radiotherapeute;Très peu dense (moins de 25 hab./km²);4;654063;0;0,0917343
+dep;radiotherapeute;Peu dense (25 à 100);51;18181740;0,182275;0,218901
+dep;radiotherapeute;Intermédiaire (100 à 300);33;30395249;0,170287;0,188845
+dep;radiotherapeute;Dense (plus de 300);12;18863228;0,173187;0,232198
+dep;reanimateur;Très peu dense (moins de 25 hab./km²);4;654063;0,114788;0,15289
+dep;reanimateur;Peu dense (25 à 100);51;18181740;0,129606;0,150151
+dep;reanimateur;Intermédiaire (100 à 300);33;30395249;0,161337;0,149036
+dep;reanimateur;Dense (plus de 300);12;18863228;0,20195;0,23962
+dep;rhumatologue;Très peu dense (moins de 25 hab./km²);4;654063;0,278601;0,198758
+dep;rhumatologue;Peu dense (25 à 100);51;18181740;0,300959;0,339351
+dep;rhumatologue;Intermédiaire (100 à 300);33;30395249;0,363193;0,365847
+dep;rhumatologue;Dense (plus de 300);12;18863228;0,322272;0,541795
+dep;sage_femme;Très peu dense (moins de 25 hab./km²);4;654063;3,57405;5,7181
+dep;sage_femme;Peu dense (25 à 100);51;18181740;3,51107;3,62562
+dep;sage_femme;Intermédiaire (100 à 300);33;30395249;4,04258;3,93614
+dep;sage_femme;Dense (plus de 300);12;18863228;4,23388;4,27763
+dep;technicien_labo;Très peu dense (moins de 25 hab./km²);4;654063;5,23936;5,09125
+dep;technicien_labo;Peu dense (25 à 100);51;18181740;5,63225;6,31293
+dep;technicien_labo;Intermédiaire (100 à 300);33;30395249;7,42934;7,20343
+dep;technicien_labo;Dense (plus de 300);12;18863228;8,05703;9,56305
+dep;urgentiste;Très peu dense (moins de 25 hab./km²);4;654063;0,262377;0,764452
+dep;urgentiste;Peu dense (25 à 100);51;18181740;0,47586;0,473552
+dep;urgentiste;Intermédiaire (100 à 300);33;30395249;0,41047;0,43033
+dep;urgentiste;Dense (plus de 300);12;18863228;0,401595;0,452733
+dep;urologue;Très peu dense (moins de 25 hab./km²);4;654063;0,588762;0,428093
+dep;urologue;Peu dense (25 à 100);51;18181740;0,290032;0,316801
+dep;urologue;Intermédiaire (100 à 300);33;30395249;0,310674;0,318471
+dep;urologue;Dense (plus de 300);12;18863228;0,278411;0,378514

@@ -1,0 +1,13 @@
+﻿prof;variable;rho_tous;n_tous;rho_sans_ile_de_france;n_sans_ile_de_france
+psychiatre;suicides;-0,451147;100;-0,431239;92
+psychiatre;hospit_gestes_auto_infliges;-0,406999;100;-0,373606;92
+psychiatre;urgences_gestes_auto_infliges;0,0151215;100;0,0980072;92
+psychologue;suicides;-0,247616;100;-0,189411;92
+psychologue;hospit_gestes_auto_infliges;-0,187835;100;-0,124867;92
+psychologue;urgences_gestes_auto_infliges;0,0726313;100;0,190111;92
+q_psychiatrie_enfant;suicides;-0,197536;100;-0,149958;92
+q_psychiatrie_enfant;hospit_gestes_auto_infliges;-0,205231;100;-0,159453;92
+q_psychiatrie_enfant;urgences_gestes_auto_infliges;0,0989739;100;0,189772;92
+medecin_generaliste;suicides;-0,0929768;100;-0,226783;92
+medecin_generaliste;hospit_gestes_auto_infliges;-0,156685;100;-0,276906;92
+medecin_generaliste;urgences_gestes_auto_infliges;0,0646145;100;-0,0274032;92

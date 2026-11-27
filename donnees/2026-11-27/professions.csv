@@ -1,0 +1,88 @@
+﻿id;libelle;groupe;famille;nature;base
+psychiatre;Psychiatre;Psychiatrie;Santé mentale;profession;
+pedopsychiatre;Pédopsychiatre;Psychiatrie;Santé mentale;profession;
+psychologue;Psychologue;Psychologie et psychothérapie;Santé mentale;profession;
+psychotherapeute;Psychothérapeute;Psychologie et psychothérapie;Santé mentale;profession;
+q_addictologie;Médecin qualifié en addictologie;Qualifications complémentaires;Santé mentale;qualification;
+q_psychiatrie_enfant;Psychiatre qualifié pour l'enfant et l'adolescent (toutes voies);Qualifications complémentaires;Santé mentale;qualification;
+ens_medecin_specialiste;Médecin spécialiste (toutes spécialités);Médecins spécialistes, ensemble;Santé;ensemble;
+appareilleur;Appareilleur;Appareillage;Santé;profession;
+audioprothesiste;Audioprothésiste;Appareillage;Santé;profession;
+opticien_lunetier;Opticien-lunetier;Appareillage;Santé;profession;
+assistant_de_service_social;Assistant de service social;Autres;Santé;profession;
+medecin_autre;Médecin, autre spécialité;Autres médecins;Santé;profession;
+medecin_non_precise;Médecin, spécialité non renseignée;Autres médecins;Santé;profession;
+manipulateur_erm;Manipulateur en électroradiologie;Médico-technique;Santé;profession;
+physicien_medical;Physicien médical;Médico-technique;Santé;profession;
+technicien_labo;Technicien de laboratoire;Médico-technique;Santé;profession;
+assistant_dentaire;Assistant dentaire;Premier recours;Santé;profession;
+chirurgien_dentiste;Chirurgien-dentiste;Premier recours;Santé;profession;
+infirmier;Infirmier;Premier recours;Santé;profession;
+medecin_generaliste;Médecin généraliste;Premier recours;Santé;profession;
+pharmacien;Pharmacien;Premier recours;Santé;profession;
+sage_femme;Sage-femme;Premier recours;Santé;profession;
+medecin_sante_publique;Médecin de santé publique;Prévention et santé publique;Santé;profession;
+medecin_travail;Médecin du travail;Prévention et santé publique;Santé;profession;
+chiropracteur;Chiropracteur;Rééducation;Santé;profession;
+dieteticien;Diététicien;Rééducation;Santé;profession;
+ergotherapeute;Ergothérapeute;Rééducation;Santé;profession;
+masseur_kinesitherapeute;Masseur-kinésithérapeute;Rééducation;Santé;profession;
+orthophoniste;Orthophoniste;Rééducation;Santé;profession;
+orthoptiste;Orthoptiste;Rééducation;Santé;profession;
+osteopathe;Ostéopathe;Rééducation;Santé;profession;
+psychomotricien;Psychomotricien;Rééducation;Santé;profession;
+pedicure_podologue;Pédicure-podologue;Rééducation;Santé;profession;
+chirurgien_general;Chirurgien général;Spécialités chirurgicales;Santé;profession;
+chirurgien_maxillo_facial;Chirurgien maxillo-facial et stomatologue;Spécialités chirurgicales;Santé;profession;
+chirurgien_orthopediste;Chirurgien orthopédiste;Spécialités chirurgicales;Santé;profession;
+chirurgien_plasticien;Chirurgien plasticien;Spécialités chirurgicales;Santé;profession;
+chirurgien_pediatrique;Chirurgien pédiatrique;Spécialités chirurgicales;Santé;profession;
+chirurgien_thoracique;Chirurgien thoracique et cardiovasculaire;Spécialités chirurgicales;Santé;profession;
+chirurgien_vasculaire;Chirurgien vasculaire;Spécialités chirurgicales;Santé;profession;
+chirurgien_visceral;Chirurgien viscéral et digestif;Spécialités chirurgicales;Santé;profession;
+gynecologue;Gynécologue;Spécialités chirurgicales;Santé;profession;
+neurochirurgien;Neurochirurgien;Spécialités chirurgicales;Santé;profession;
+ophtalmologue;Ophtalmologue;Spécialités chirurgicales;Santé;profession;
+orl;Oto-rhino-laryngologiste (ORL);Spécialités chirurgicales;Santé;profession;
+urologue;Urologue;Spécialités chirurgicales;Santé;profession;
+allergologue;Allergologue;Spécialités médicales;Santé;profession;
+cardiologue;Cardiologue;Spécialités médicales;Santé;profession;
+dermatologue;Dermatologue;Spécialités médicales;Santé;profession;
+endocrinologue;Endocrinologue;Spécialités médicales;Santé;profession;
+gastro_enterologue;Gastro-entérologue;Spécialités médicales;Santé;profession;
+geriatre;Gériatre;Spécialités médicales;Santé;profession;
+hematologue;Hématologue;Spécialités médicales;Santé;profession;
+infectiologue;Infectiologue;Spécialités médicales;Santé;profession;
+medecin_mpr;Médecin de médecine physique et de réadaptation;Spécialités médicales;Santé;profession;
+interniste;Médecin interniste;Spécialités médicales;Santé;profession;
+reanimateur;Médecin réanimateur;Spécialités médicales;Santé;profession;
+urgentiste;Médecin urgentiste;Spécialités médicales;Santé;profession;
+medecin_vasculaire;Médecin vasculaire;Spécialités médicales;Santé;profession;
+neurologue;Neurologue;Spécialités médicales;Santé;profession;
+nephrologue;Néphrologue;Spécialités médicales;Santé;profession;
+oncologue;Oncologue médical;Spécialités médicales;Santé;profession;
+pneumologue;Pneumologue;Spécialités médicales;Santé;profession;
+pediatre;Pédiatre;Spécialités médicales;Santé;profession;
+rhumatologue;Rhumatologue;Spécialités médicales;Santé;profession;
+anatomopathologiste;Anatomopathologiste;Spécialités médico-techniques;Santé;profession;
+anesthesiste;Anesthésiste-réanimateur;Spécialités médico-techniques;Santé;profession;
+biologiste;Biologiste médical;Spécialités médico-techniques;Santé;profession;
+medecin_nucleaire;Médecin nucléaire;Spécialités médico-techniques;Santé;profession;
+radiologue;Radiologue;Spécialités médico-techniques;Santé;profession;
+radiotherapeute;Radiothérapeute;Spécialités médico-techniques;Santé;profession;
+esm_assistant_de_service_social;Assistant de service social, en établissement psychiatrique;Salariés des établissements psychiatriques (périmètre élargi);Santé mentale;perimetre_elargi;assistant_de_service_social
+esm_dieteticien;Diététicien, en établissement psychiatrique;Salariés des établissements psychiatriques (périmètre élargi);Santé mentale;perimetre_elargi;dieteticien
+esm_ergotherapeute;Ergothérapeute, en établissement psychiatrique;Salariés des établissements psychiatriques (périmètre élargi);Santé mentale;perimetre_elargi;ergotherapeute
+esm_infirmier;Infirmier, en établissement psychiatrique;Salariés des établissements psychiatriques (périmètre élargi);Santé mentale;perimetre_elargi;infirmier
+esm_manipulateur_erm;Manipulateur en électroradiologie, en établissement psychiatrique;Salariés des établissements psychiatriques (périmètre élargi);Santé mentale;perimetre_elargi;manipulateur_erm
+esm_masseur_kinesitherapeute;Masseur-kinésithérapeute, en établissement psychiatrique;Salariés des établissements psychiatriques (périmètre élargi);Santé mentale;perimetre_elargi;masseur_kinesitherapeute
+esm_medecin_autre;Médecin, autre spécialité, en établissement psychiatrique;Salariés des établissements psychiatriques (périmètre élargi);Santé mentale;perimetre_elargi;medecin_autre
+esm_medecin_generaliste;Médecin généraliste, en établissement psychiatrique;Salariés des établissements psychiatriques (périmètre élargi);Santé mentale;perimetre_elargi;medecin_generaliste
+esm_orthophoniste;Orthophoniste, en établissement psychiatrique;Salariés des établissements psychiatriques (périmètre élargi);Santé mentale;perimetre_elargi;orthophoniste
+esm_pediatre;Pédiatre, en établissement psychiatrique;Salariés des établissements psychiatriques (périmètre élargi);Santé mentale;perimetre_elargi;pediatre
+esm_pedopsychiatre;Pédopsychiatre, en établissement psychiatrique;Salariés des établissements psychiatriques (périmètre élargi);Santé mentale;perimetre_elargi;pedopsychiatre
+esm_pharmacien;Pharmacien, en établissement psychiatrique;Salariés des établissements psychiatriques (périmètre élargi);Santé mentale;perimetre_elargi;pharmacien
+esm_psychiatre;Psychiatre, en établissement psychiatrique;Salariés des établissements psychiatriques (périmètre élargi);Santé mentale;perimetre_elargi;psychiatre
+esm_psychologue;Psychologue, en établissement psychiatrique;Salariés des établissements psychiatriques (périmètre élargi);Santé mentale;perimetre_elargi;psychologue
+esm_psychomotricien;Psychomotricien, en établissement psychiatrique;Salariés des établissements psychiatriques (périmètre élargi);Santé mentale;perimetre_elargi;psychomotricien
+esm_psychotherapeute;Psychothérapeute, en établissement psychiatrique;Salariés des établissements psychiatriques (périmètre élargi);Santé mentale;perimetre_elargi;psychotherapeute

@@ -1,0 +1,121 @@
+﻿niveau;code;nom;cattp;sae_cattp;sae_cattp_adultes;sae_cattp_enfants;ecart_relatif;concordance
+dep;01;Ain;19;19;13;6;0;les sources concordent
+dep;02;Aisne;9;7;7;0;0,285714;écart modéré entre les sources
+dep;03;Allier;10;10;6;4;0;les sources concordent
+dep;04;Alpes-de-Haute-Provence;0;0;0;0;;
+dep;05;Hautes-Alpes;12;9;3;6;0,333333;écart modéré entre les sources
+dep;06;Alpes-Maritimes;11;14;10;4;-0,214286;écart modéré entre les sources
+dep;07;Ardèche;10;10;5;5;0;les sources concordent
+dep;08;Ardennes;14;11;6;5;0,272727;écart modéré entre les sources
+dep;09;Ariège;1;3;2;1;-0,666667;écart important entre les sources
+dep;10;Aube;14;14;6;8;0;les sources concordent
+dep;11;Aude;14;12;9;3;0,166667;les sources concordent
+dep;12;Aveyron;14;14;10;4;0;les sources concordent
+dep;13;Bouches-du-Rhône;43;47;31;16;-0,0851064;les sources concordent
+dep;14;Calvados;14;12;8;4;0,166667;les sources concordent
+dep;15;Cantal;2;2;2;0;0;les sources concordent
+dep;16;Charente;10;13;7;6;-0,230769;écart modéré entre les sources
+dep;17;Charente-Maritime;18;30;16;14;-0,4;écart modéré entre les sources
+dep;18;Cher;12;3;1;2;3;écart important entre les sources
+dep;19;Corrèze;6;4;4;0;0,5;écart important entre les sources
+dep;21;Côte-d'Or;17;28;17;11;-0,392857;écart modéré entre les sources
+dep;22;Côtes-d'Armor;26;15;10;5;0,733333;écart important entre les sources
+dep;23;Creuse;5;10;10;0;-0,5;écart important entre les sources
+dep;24;Dordogne;2;11;6;5;-0,818182;écart important entre les sources
+dep;25;Doubs;8;20;8;12;-0,6;écart important entre les sources
+dep;26;Drôme;13;12;9;3;0,0833333;les sources concordent
+dep;27;Eure;13;14;9;5;-0,0714286;les sources concordent
+dep;28;Eure-et-Loir;13;10;5;5;0,3;écart modéré entre les sources
+dep;29;Finistère;46;43;32;11;0,0697674;les sources concordent
+dep;2A;Corse-du-Sud;10;14;7;7;-0,285714;écart modéré entre les sources
+dep;2B;Haute-Corse;0;0;0;0;;
+dep;30;Gard;5;3;3;0;0,666667;écart important entre les sources
+dep;31;Haute-Garonne;24;24;14;10;0;les sources concordent
+dep;32;Gers;8;8;8;0;0;les sources concordent
+dep;33;Gironde;11;22;14;8;-0,5;écart important entre les sources
+dep;34;Hérault;11;16;15;1;-0,3125;écart modéré entre les sources
+dep;35;Ille-et-Vilaine;36;37;21;16;-0,027027;les sources concordent
+dep;36;Indre;15;15;6;9;0;les sources concordent
+dep;37;Indre-et-Loire;11;7;4;3;0,571429;écart important entre les sources
+dep;38;Isère;43;40;24;16;0,075;les sources concordent
+dep;39;Jura;3;14;6;8;-0,785714;écart important entre les sources
+dep;40;Landes;10;13;5;8;-0,230769;écart modéré entre les sources
+dep;41;Loir-et-Cher;13;10;3;7;0,3;écart modéré entre les sources
+dep;42;Loire;19;19;12;7;0;les sources concordent
+dep;43;Haute-Loire;7;11;8;3;-0,363636;écart modéré entre les sources
+dep;44;Loire-Atlantique;37;26;15;11;0,423077;écart important entre les sources
+dep;45;Loiret;12;13;4;9;-0,0769231;les sources concordent
+dep;46;Lot;11;12;6;6;-0,0833333;les sources concordent
+dep;47;Lot-et-Garonne;8;9;3;6;-0,111111;les sources concordent
+dep;48;Lozère;11;0;0;0;;
+dep;49;Maine-et-Loire;26;25;15;10;0,04;les sources concordent
+dep;50;Manche;19;11;9;2;0,727273;écart important entre les sources
+dep;51;Marne;13;13;9;4;0;les sources concordent
+dep;52;Haute-Marne;12;19;9;10;-0,368421;écart modéré entre les sources
+dep;53;Mayenne;9;7;4;3;0,285714;écart modéré entre les sources
+dep;54;Meurthe-et-Moselle;23;26;15;11;-0,115385;les sources concordent
+dep;55;Meuse;8;7;4;3;0,142857;les sources concordent
+dep;56;Morbihan;39;46;31;15;-0,152174;les sources concordent
+dep;57;Moselle;18;27;18;9;-0,333333;écart modéré entre les sources
+dep;58;Nièvre;12;12;11;1;0;les sources concordent
+dep;59;Nord;69;67;51;16;0,0298507;les sources concordent
+dep;60;Oise;36;28;15;13;0,285714;écart modéré entre les sources
+dep;61;Orne;20;21;9;12;-0,047619;les sources concordent
+dep;62;Pas-de-Calais;40;33;17;16;0,212121;écart modéré entre les sources
+dep;63;Puy-de-Dôme;13;21;15;6;-0,380952;écart modéré entre les sources
+dep;64;Pyrénées-Atlantiques;14;32;26;6;-0,5625;écart important entre les sources
+dep;65;Hautes-Pyrénées;8;12;6;6;-0,333333;écart modéré entre les sources
+dep;66;Pyrénées-Orientales;8;22;14;8;-0,636364;écart important entre les sources
+dep;67;Bas-Rhin;27;15;7;8;0,8;écart important entre les sources
+dep;68;Haut-Rhin;15;23;16;7;-0,347826;écart modéré entre les sources
+dep;69;Rhône;70;61;36;25;0,147541;les sources concordent
+dep;70;Haute-Saône;3;3;3;0;0;les sources concordent
+dep;71;Saône-et-Loire;10;7;7;0;0,428571;écart important entre les sources
+dep;72;Sarthe;17;23;9;14;-0,26087;écart modéré entre les sources
+dep;73;Savoie;20;27;11;16;-0,259259;écart modéré entre les sources
+dep;74;Haute-Savoie;14;14;8;6;0;les sources concordent
+dep;75;Paris;40;53;35;18;-0,245283;écart modéré entre les sources
+dep;76;Seine-Maritime;46;27;13;14;0,703704;écart important entre les sources
+dep;77;Seine-et-Marne;19;22;11;11;-0,136364;les sources concordent
+dep;78;Yvelines;18;21;12;9;-0,142857;les sources concordent
+dep;79;Deux-Sèvres;11;5;4;1;1,2;écart important entre les sources
+dep;80;Somme;15;14;9;5;0,0714286;les sources concordent
+dep;81;Tarn;25;18;13;5;0,388889;écart modéré entre les sources
+dep;82;Tarn-et-Garonne;6;5;4;1;0,2;les sources concordent
+dep;83;Var;20;25;16;9;-0,2;les sources concordent
+dep;84;Vaucluse;16;30;27;3;-0,466667;écart important entre les sources
+dep;85;Vendée;27;10;8;2;1,7;écart important entre les sources
+dep;86;Vienne;0;4;4;0;-1;écart important entre les sources
+dep;87;Haute-Vienne;0;6;6;0;-1;écart important entre les sources
+dep;88;Vosges;10;5;5;0;1;écart important entre les sources
+dep;89;Yonne;15;15;9;6;0;les sources concordent
+dep;90;Territoire de Belfort;1;1;1;0;0;les sources concordent
+dep;91;Essonne;20;30;18;12;-0,333333;écart modéré entre les sources
+dep;92;Hauts-de-Seine;32;31;21;10;0,0322581;les sources concordent
+dep;93;Seine-Saint-Denis;49;50;24;26;-0,02;les sources concordent
+dep;94;Val-de-Marne;31;24;14;10;0,291667;écart modéré entre les sources
+dep;95;Val-d'Oise;19;26;12;14;-0,269231;écart modéré entre les sources
+dep;971;Guadeloupe;2;11;9;2;-0,818182;écart important entre les sources
+dep;972;Martinique;16;16;7;9;0;les sources concordent
+dep;973;Guyane;1;4;2;2;-0,75;écart important entre les sources
+dep;974;La Réunion;12;22;11;11;-0,454545;écart important entre les sources
+dep;976;Mayotte;0;2;1;1;-1;écart important entre les sources
+reg;01;Guadeloupe;2;11;9;2;-0,818182;écart important entre les sources
+reg;02;Martinique;16;16;7;9;0;les sources concordent
+reg;03;Guyane;1;4;2;2;-0,75;écart important entre les sources
+reg;04;La Réunion;12;22;11;11;-0,454545;écart important entre les sources
+reg;06;Mayotte;0;2;1;1;-1;écart important entre les sources
+reg;11;Île-de-France;228;257;147;110;-0,11284;les sources concordent
+reg;24;Centre-Val de Loire;76;58;23;35;0,310345;écart modéré entre les sources
+reg;27;Bourgogne-Franche-Comté;69;100;62;38;-0,31;écart modéré entre les sources
+reg;28;Normandie;112;85;48;37;0,317647;écart modéré entre les sources
+reg;32;Hauts-de-France;169;149;99;50;0,134228;les sources concordent
+reg;44;Grand Est;154;160;95;65;-0,0375;les sources concordent
+reg;52;Pays de la Loire;116;91;51;40;0,274725;écart modéré entre les sources
+reg;53;Bretagne;147;141;94;47;0,0425532;les sources concordent
+reg;75;Nouvelle-Aquitaine;95;159;105;54;-0,402516;écart important entre les sources
+reg;76;Occitanie;146;149;104;45;-0,0201342;les sources concordent
+reg;84;Auvergne-Rhône-Alpes;240;246;149;97;-0,0243902;les sources concordent
+reg;93;Provence-Alpes-Côte d'Azur;102;125;87;38;-0,184;les sources concordent
+reg;94;Corse;10;14;7;7;-0,285714;écart modéré entre les sources
+fr;FR;France;1695;1789;1101;688;-0,0525433;les sources concordent
