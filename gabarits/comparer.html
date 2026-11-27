@@ -7,15 +7,8 @@
 <style>
 main.comparer{max-width:var(--largeur-page)}
 main.comparer [hidden]{display:none!important}
-main.comparer .seul-tel{display:none}@media (max-width:640px){main.comparer .seul-tel{display:block}}
 main.comparer .semblables button{display:inline-block}
-@media (max-width:640px){main.comparer .semblables{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}main.comparer .semblables button{margin:0}
-  /* téléphone, deux colonnes étroites, valeur, repère et position sans l'effectif, dégradé de bord (point I9 ; le
-     repère et la position restent visibles, défaut relevé à l'étape 1 du plan de reprise) */
-  main.comparer table.comp td .eff{display:none!important}main.comparer table.comp thead th{min-width:96px!important}main.comparer table.comp td{padding:8px 6px!important}
-  /* alignées à droite dans des colonnes plus larges que l'écran, la valeur et le nom du territoire restaient hors de
-     la vue (audit du 12 novembre 2026) */
-  main.comparer table.comp td,main.comparer table.comp thead th{text-align:left!important}}
+@media (max-width:640px){main.comparer .semblables{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:center}main.comparer .semblables button{margin:0}}
 main.comparer h1{border:0;padding:0}
 main.comparer .chapeau{}
 main.comparer .cherche{position:relative;max-width:40rem;margin-top:20px}
@@ -70,13 +63,60 @@ main.comparer .puce button{border-radius:0}
 main.comparer .defile-comp{border:0;border-top:2px solid var(--ink);border-radius:0;background:none}
 main.comparer table.comp{min-width:0;width:auto}
 main.comparer table.comp th[scope=row],main.comparer table.comp thead th{background:var(--bg)}
+/* structure validée le 26 novembre 2026 (prototypes/structure_2026-11-25, planches 4) : colonne « Repère » écrite une
+   fois par ligne, réglette du site où les territoires sont placés sous l'axe, au téléphone une carte par indicateur */
+main.comparer table.comp.cmp2{width:100%}
+main.comparer table.comp.cmp2 td,main.comparer table.comp.cmp2 thead th,main.comparer table.comp.cmp2 td span{white-space:normal}
+main.comparer .cmp2 th.terr{width:200px}main.comparer .cmp2 th.terr .nm{display:block}
+main.comparer table.comp.cmp2 td{max-width:220px;min-width:150px}
+main.comparer table.comp.cmp2.n2 td{min-width:180px}
+main.comparer table.comp.cmp2.mixte td{max-width:none;min-width:270px}
+main.comparer table.comp.cmp2.mixte th[scope=row]{width:22%;min-width:170px}
+main.comparer table.comp.cmp2.mixte .fiche{display:flex;justify-content:flex-end;margin-top:6px}
+main.comparer table.comp.cmp2 td .rg-lab{white-space:nowrap}
+main.comparer table.comp.cmp2.mixte .rg.cmp{flex:0 0 260px;width:260px}
+main.comparer .cmp2 th.rep-col,main.comparer .cmp2 td.rep-col{width:120px;min-width:110px;color:var(--ink)}
+main.comparer .cmp2 td.rg-col,main.comparer .cmp2 th.rg-col{width:290px;min-width:270px;max-width:none;text-align:left!important}
+main.comparer .cmp2 .rep-v{color:var(--ink)}
+main.comparer .rg.cmp{width:270px;max-width:calc(100% - 14px);margin-top:0}
+.fiche .rg.petite.cmp .rg-hist{top:16px;height:28px}
+/* le trait du repère s'arrête à l'axe ; les marques, une rangée par territoire, et le triangle de la médiane sont
+   placés par presentation/comparer.js (top en ligne), sous l'axe */
+.fiche .rg.petite.cmp .rg-ens{top:16px;height:28px}
+.fiche .rg.petite.cmp .rg-pt{margin-top:0;background:var(--ink)}
+.fiche .rg.petite.cmp .rg-pt.t2{background:var(--halo);border:2px solid var(--ink);border-radius:0;transform:rotate(45deg);width:11px;height:11px;margin-left:-5.5px;box-shadow:none;z-index:5}
+.fiche .rg.petite.cmp .rg-pt.t3{border-radius:0;width:10px;height:10px;margin-left:-5px}
+.fiche .rg.petite.cmp .rg-pt.t4{background:var(--halo);border:2px solid var(--ink)}
+main.comparer i.m{display:inline-block;flex:none;width:10px;height:10px;margin-right:6px;vertical-align:0;background:var(--ink);border-radius:50%;box-sizing:border-box}
+main.comparer i.m.t2{background:transparent;border:2px solid var(--ink);border-radius:0;transform:rotate(45deg);width:9px;height:9px}
+main.comparer i.m.t3{border-radius:0;width:9px;height:9px}
+main.comparer i.m.t4{background:transparent;border:2px solid var(--ink)}
+main.comparer .puce i.m{margin-right:4px}
+main.comparer .leg-pts{display:inline-flex;flex-wrap:wrap;gap:2px 18px;margin-left:18px}
+main.comparer .semblables .critere{display:block;flex-basis:100%;font-size:var(--t-note);color:var(--muted);margin-top:6px;text-align:left;max-width:60rem}
+main.comparer .cartes-tel{display:none}
+main.comparer .leg-rg{display:block;margin-top:2px}
+/* le tableau tient jusqu'à 1 100 px ; en deçà (tablette, ordinateur étroit), une carte par indicateur, comme au téléphone */
+@media (max-width:1100px){main.comparer table.comp.cmp2{display:none}main.comparer .cartes-tel{display:block;max-width:44rem}
+ main.comparer .leg-pts{display:flex;margin:4px 0 0}
+ main.comparer .defile-comp{overflow:visible}
+ main.comparer .carte-g{font-family:var(--serif);font-size:var(--t-texte);font-weight:500;margin:18px 0 4px}
+ main.comparer .carte-i{padding:10px 0 12px;border-bottom:1px solid var(--line)}
+ main.comparer .carte-i .ci-t{margin:0 0 4px;font-weight:500;font-size:var(--t-note);text-align:left}
+ main.comparer .carte-i .ci-t .u{color:var(--muted);font-weight:400}
+ main.comparer .carte-i .rg.cmp{width:auto;max-width:none;margin-right:14px}
+ main.comparer .ci-v{display:grid;grid-template-columns:1fr 1fr;gap:4px 14px}
+ main.comparer .ci-m{margin-top:6px}
+ main.comparer .ci-v .v,main.comparer .ci-v1 .v{font-variant-numeric:tabular-nums;font-size:var(--t-texte)}
+ main.comparer .ci-v .eff,main.comparer .ci-v .rep,main.comparer .ci-v .np,main.comparer .ci-v1 .eff,main.comparer .ci-v1 .rep,main.comparer .ci-v1 .np{display:block;font-size:var(--t-note);color:var(--muted);text-align:left;font-style:normal}
+ main.comparer .ci-rep{margin:4px 0 0;font-size:var(--t-note);color:var(--muted);text-align:left!important}}
 </style>
 <header class="tete">
   <h1>Comparer des territoires</h1>
   <p class="chapeau">Jusqu’à quatre territoires côte à côte, de niveaux différents. Chaque valeur est suivie du repère de son niveau, l’ensemble des territoires de ce niveau calculé de la même façon, et de sa position parmi eux.</p>
   <div class="cherche">
     <label for="q">Ajouter un territoire, par sa commune, son code postal ou son nom</label>
-    <input id="q" type="search" autocomplete="off" placeholder="Commune, code postal, intercommunalité, département" role="combobox" aria-controls="sugg" aria-autocomplete="list" aria-expanded="false">
+    <input id="q" type="search" autocomplete="off" placeholder="Commune ou territoire" role="combobox" aria-controls="sugg" aria-autocomplete="list" aria-expanded="false">
     <ul class="suggestions" id="sugg" role="listbox" hidden></ul>
     <p class="cherche-msg" id="msg" aria-live="polite"></p>
   </div>
@@ -90,9 +130,8 @@ main.comparer table.comp th[scope=row],main.comparer table.comp thead th{backgro
 </div>
 <p class="discret" id="leg-comp" style="margin:0 0 6px"></p>
 <div class="defile-comp" id="defile"></div>
-<p class="discret seul-tel" style="margin-top:6px">Sur téléphone, les valeurs seules. Les repères et les effectifs sont sur un écran plus large et dans le fichier CSV.</p>
 <div id="notes" style="max-width:55rem;margin-top:10px"></div>
-<p class="comment-lire" style="margin-top:10px;max-width:48rem"><strong>Comment lire.</strong> Repère, l’ensemble des territoires du même niveau calculé comme le territoire : somme des professionnels ou des structures rapportée à la somme des habitants concernés, distance médiane de tous les habitants pour une distance, territoire médian pour un indicateur qui ne s’additionne pas. La position dit la part des territoires du niveau dont la valeur est plus basse. Une valeur n’est en canard ou en cuivre que pour l’offre de soins, sous 0,8 fois ou au-dessus de 1,25 fois le repère et au-delà de ce que le hasard explique. Une valeur non publiée dit pourquoi. Mayotte compte dans les repères et les positions des départements, sauf pour les données de l’Assurance Maladie, au régime non comparable, et pour les distances de la population concernée, sans recensement ; ses densités sont surestimées d’environ un quart (population de 2017), et elle est écartée des croisements entre départements. Sur téléphone, la première colonne reste en place quand le tableau glisse.</p>
+<p class="comment-lire" style="margin-top:10px;max-width:48rem"><strong>Comment lire.</strong> Repère, l’ensemble des territoires du même niveau calculé comme le territoire : somme des professionnels ou des structures rapportée à la somme des habitants concernés, distance médiane de tous les habitants pour une distance, territoire médian pour un indicateur qui ne s’additionne pas. La position dit la part des territoires du niveau dont la valeur est plus basse. Une valeur n’est en canard ou en cuivre que pour l’offre de soins, sous 0,8 fois ou au-dessus de 1,25 fois le repère et au-delà de ce que le hasard explique. Une valeur non publiée dit pourquoi. Mayotte compte dans les repères et les positions des départements, sauf pour les données de l’Assurance Maladie, au régime non comparable, et pour les distances de la population concernée, sans recensement ; ses densités sont surestimées d’environ un quart (population de 2017), et elle est écartée des croisements entre départements. La réglette de chaque ligne montre la répartition des territoires du niveau, le trait du repère et le triangle de la médiane ; chaque territoire comparé y est placé sous l’axe, sur sa rangée. Sur un écran étroit, une carte par indicateur, avec les mêmes éléments.</p>
 <script src="presentation/atelier_donnees.js"></script>
 <script src="presentation/chiffres.js"></script>
 <script src="presentation/recherche.js"></script>

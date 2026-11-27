@@ -794,7 +794,9 @@ class Affichage:
                 "axe": f"axe de {nombre(bas, g)} à {nombre(haut, g)}{u}" + (", quelques territoires au-delà" if vals[-1] > haut else "")
                        + (", arrêté au 90e centile, la répartition étant très étalée" if centile == 90 else "")
                        + (f", {part} des territoires sans {'inscrit' if kind == 'prof' else 'structure'}" if detache else ""),
-                "aucun": part, "aucun_lab": aucun_lab, "comptes": comptes}
+                "aucun": part, "aucun_lab": aucun_lab, "comptes": comptes,
+                # bornes de l'axe, pour placer d'autres territoires sur la même réglette (Comparer)
+                "bas": bas, "haut": haut}
 
     # -- publication pour les pages en JavaScript ---------------------------------------------------------------------
     def publier(self, ident: str, lv: str, garde: list[int]) -> dict | None:

@@ -159,6 +159,79 @@ def chiffres_nationaux(site_data: dict, dernier: Path) -> list[dict]:
     return out
 
 
+def deux_totaux(T) -> dict | None:
+    """Phrase des deux totaux de l'accueil (structure du site validée le 26 novembre 2026, planche_5_deux_totaux) : le
+    repère des fiches, l'ensemble des intercommunalités, pour les psychologues de la première tuile, calculé une seule
+    fois (affichage.Affichage, le même que les fiches)."""
+    from . import affichage as AF
+    S = T.serie("prof:psychologue", "epci")
+    if S is None or S.ref is None:
+        return None
+    return {"ensemble": AF.nombre(S.ref, S.genre), "lien": "indicateur/prof-psychologue.html#t-tot",
+            "titre_lien": "Pourquoi plusieurs totaux, et lequel citer"}
+
+
+def carte_accueil(site_data: dict, dernier: Path, T, citation: str) -> dict | None:
+    """Carte des psychiatres par département, la figure de la page Santé mentale (question 1), à la place de l'atlas
+    intégré (structure du site validée le 26 novembre 2026, planche_2_accueil_carte). La légende du dessin, en texte de
+    8 unités, illisible au téléphone, devient une légende de page, titrée de la valeur de l'ensemble des départements ;
+    son « Comment lire » reprend la page Santé mentale et la définition du repère. Rien n'est recalculé : la figure est
+    celle du rapport, les classes celles de pipeline/cartes.py, le repère et l'indice de Gini ceux de la version."""
+    import re
+    from . import affichage as AF, cartes as CA
+    from .lecture import nombre as nombre_l
+    from .pages_domaine import QUESTIONS, morceaux, sections
+    from .site import md_html
+    graphiques = dernier / "graphiques"
+    if not (graphiques / "carte_dep_sm.svg").exists():
+        return None
+    fig = md_html("<!--GRAPHIQUE carte_dep_sm-->", graphiques,
+                  donnees={"prefixe": f"donnees/{dernier.name}/", "dossier": dernier})[1]
+    # le dessin s'arrête au-dessus de sa légende (premier carré de classe, x = 8)
+    ys = [int(y) for y in re.findall(r'<rect x="8" y="(\d+)" width="14" height="12"', fig)]
+    if not ys:
+        return None
+    fig = re.sub(r'viewBox="0 0 (\d+) (\d+)"', lambda m: f'viewBox="0 0 {m.group(1)} {min(ys) - 4}"', fig, count=1)
+    S = T.serie("prof:psychiatre", "dep")
+    if S is None or S.ref is None:
+        return None
+    ens = AF.nombre(S.ref, S.genre)
+    classes = [{"couleur": c, "texte": lab} for c, lab in
+               zip([c for _b, c, _l in CA.CLASSES], CA.libelles_classes(hasard=True))]
+    # phrase des cartes du « Comment lire » de la question 1 de la page Santé mentale, reprise telle quelle
+    cartes_txt = ""
+    f = dernier / "rapport_sante_mentale.md"
+    if f.exists():
+        q1 = QUESTIONS["sm"][0]
+        m = morceaux(sections(f.read_text(encoding="utf-8")).get(q1[1], []), q1[2])
+        lire = re.sub(r"\*\*[^*]+\*\*\s*", "", m["lire"] or "")
+        if "Sur les cartes" in lire:
+            cartes_txt = lire[lire.index("Sur les cartes"):].strip()
+    gini = {r["prof"]: r["gini"] for r in site_data.get("inegalites", [])
+            if r["niv"] == "epci" and r["mode"] == "all" and r["prof"] in ("psychiatre", "psychologue")}
+    # typographie des pages : apostrophe courbe et espaces insécables du français (« hasard : », « ! »)
+    from .typographie import texte as typo
+    courbe = lambda t: typo(t.replace("'", "’"))  # noqa: E731
+    classes = [dict(c, texte=courbe(c["texte"])) for c in classes]
+    return {"figure": fig, "ensemble": ens, "classes": classes, "mayotte": courbe(CA.SIGNAL_MAYOTTE), "cartes": courbe(cartes_txt),
+            "citation": citation,
+            "gini": ({"psychiatre": nombre_l(gini["psychiatre"], 2), "psychologue": nombre_l(gini["psychologue"], 2)}
+                     if len(gini) == 2 else None)}
+
+
+def questions_sm_accueil() -> list[dict]:
+    """Questions de santé mentale de l'accueil, chacune vers sa section publiée (un seul lieu par question, 26 novembre
+    2026), titres lus dans la table unique (pipeline/questions.py), avec une étiquette claire."""
+    from . import questions as QQ
+    out = []
+    for titre, etiquette in ((QQ.NIVEAU_DE_VIE, "niveau de vie"), (QQ.DISTANCE_SM, "distances"),
+                             (QQ.SANS_L_AUTRE, "présences et absences"), (QQ.ADDICTO, "addictologie")):
+        adr = QQ.section("sm", titre)
+        if adr:
+            out.append({"titre": QQ.sans_coupure(titre), "adresse": adr, "etiquette": etiquette})
+    return out
+
+
 def part_psychologue_sans_psychiatre(dernier: Path):
     """Part des habitants dans une intercommunalité où exerce un psychologue mais aucun psychiatre déclaré."""
     lignes = [l for l in _lire(dernier / "combinaisons.csv") if l["niveau"] == "epci" and l["psychologue"] == "True"
@@ -219,7 +292,16 @@ def construire(env, commun: dict, dernier: Path, site_data: dict, site: Path, ga
     pages += pages_domaine.construire(env, commun, A, site_data, dernier, site, registre, doi_cite("donnees", dernier.name), fiches)
     # pages des thèmes transversaux (navigation, étape 2, 8 novembre 2026)
     pages += pages_domaine.construire_themes(env, commun, site_data, dernier, site, A, fiches, doi_cite("donnees", dernier.name))
+    # accueil plus court (structure du site validée le 26 novembre 2026) : chiffres de la France en tête avec la phrase
+    # des deux totaux, carte des psychiatres à la place de l'atlas intégré, questions vers leur section
+    from . import affichage as AF
+    T_acc = AF.Affichage(site_data, dernier)
+    doi = doi_cite("donnees", dernier.name)
+    cit_carte = (f"{commun['citation_auteur']} ({commun['annee_version']}). Santé mentale, questions et figures. Ubi Cura, "
+                 f"version du {commun['date_longue']}" + (f", doi:{doi}" if doi else ""))
     ctx = dict(commun, racine="", page="accueil", tuiles=tuiles, nationaux=chiffres_nationaux(site_data, dernier),
+               deux_totaux=deux_totaux(T_acc), carte=carte_accueil(site_data, dernier, T_acc, cit_carte),
+               questions_sm=questions_sm_accueil(),
                part_sans_psychiatre=(nombre(part * 100, "distance") + FINE + "%") if part else None,
                n_sm=nsm, n_total=len(cat), ajouts=derniers_ajouts(config.RACINE / "contenus" / "journal_resume.csv"),
                dernier=dernier.name, classe_main="accueil")
@@ -250,7 +332,7 @@ def construire(env, commun: dict, dernier: Path, site_data: dict, site: Path, ga
     from . import zone
     zone.construire(dernier, site, commun["date_longue"], doi_cite("donnees", dernier.name), site_data)
     (site / "zone.html").write_text(env.get_template("zone.html").render(
-        dict(commun, racine="", page="territoires", titre="Autour d’un lieu, ou sur un périmètre", classe_main="zone",
+        dict(commun, racine="", page="zone", titre="Autour d’un lieu, ou sur un périmètre", classe_main="zone",
              description="Les habitants et les structures de soins dans un rayon autour d'une commune, ou sur un périmètre composé commune par commune.")),
         encoding="utf-8")
     pages.append(site / "zone.html")

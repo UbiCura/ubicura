@@ -32,8 +32,12 @@
   var SH="­",couperBrut=createHyphenator(hyphenationPatternsFr,{hyphenChar:SH,minWordLength:6});
   var MOT=/[A-Za-zÀ-ÖØ-öø-ÿŒœÆæ]+(?:['’][A-Za-zÀ-ÖØ-öø-ÿŒœÆæ]+)?/g,MAJ=/^[A-ZÀ-ÖØ-ÞŒÆ]/;
   var EXCLUS="table,nav.site,code,pre,svg,figcaption,button,select,h1,h2,h3,h4,h5,h6,.legende,.legende-cat,.legende-barre,.tip,#bulle,#glo-bulle,.bulle-fig,.sommaire,.titres-constats,.citation-fig,a[href^='http']";
+  // un mot qui porte une majuscule après sa première lettre ne se coupe jamais : un sigle, ou un sigle ou un nom propre
+  // élidé, dont la majuscule était cachée derrière « l' » (« l'INSEE » se coupait en « l'IN-/SEE », audit du
+  // 25 novembre 2026)
+  var CAP=/[A-ZÀ-ÖØ-ÞŒÆ]/;
   function couper(w){
-    if(w.length<6||MAJ.test(w))return w;
+    if(w.length<6||MAJ.test(w)||CAP.test(w.slice(1)))return w;
     var parts=couperBrut(w).split(SH);if(parts.length<2)return w;
     var out=parts[0],avant=parts[0].length;
     for(var i=1;i<parts.length;i++){if(avant>=3&&w.length-avant>=2)out+=SH;out+=parts[i];avant+=parts[i].length}

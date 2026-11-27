@@ -33,14 +33,14 @@ function croisementsBases(){
       return '<svg viewBox="0 0 132 16" aria-hidden="true"><line x1="6" x2="126" y1="8" y2="8" stroke="'+css("--line")+'"/><line x1="66" x2="66" y1="2" y2="14" stroke="'+css("--muted")+'" stroke-width="1"/>'
         +'<line x1="'+X(Math.max(-1,x.lo))+'" x2="'+X(Math.min(1,x.hi))+'" y1="8" y2="8" stroke="'+c+'" stroke-width="2" stroke-linecap="round"/>'
         +'<circle cx="'+X(x.rho)+'" cy="8" r="4.5" fill="'+(net?c:css("--panel"))+'" stroke="'+c+'" stroke-width="1.6"/></svg>'};
-    boite.innerHTML='<h3>Questions préparées</h3><p class="note">Un clic charge la question dans le nuage, par département. Pour ces questions, chaque lien porte sa fourchette plausible, sa valeur à densité de population égale et la correction pour tests multiples. Un croisement choisi librement donne un coefficient descriptif quand il n’a pas été calculé à l’avance.</p>'
+    boite.innerHTML='<h3>Questions préparées</h3><p class="note">Un clic charge la question dans le nuage, par département. Pour ces questions, chaque lien porte son intervalle de confiance à 95 %, sa valeur à densité de population égale et la correction pour tests multiples. Un croisement choisi librement donne un coefficient descriptif quand il n’a pas été calculé à l’avance.</p>'
       +'<div class="cb-axe"><span></span><span><span>−1</span><span>0</span><span>+1</span></span><span style="text-align:right">rho</span></div>'
       +qs.map(t=>{const g=T.filter(x=>x.theme===t),q=(g.find(x=>x.question)||{}).question||"";
         return '<div class="cb-q">'+esc(q)+'</div>'+g.map(x=>{const k=T.indexOf(x);
           return '<button type="button" class="cb-ligne'+(x===cur?' on':'')+'" data-cb="'+k+'" aria-label="'+esc(phraseCroisement(x))+'"><span>'+esc(x.x+" et "+minuscule(x.y))+'</span>'+mini(x)+'<span class="rho">'+f2.format(x.rho)+'</span></button>'}).join("")}).join("")}
   // une ligne de titre par question, puis un croisement par ligne, le lien écrit en mots avec sa valeur
   const motLien=(v,lo,hi)=>lo!=null&&lo<=0&&hi>=0?"incertain":forceLien(v);
-  document.getElementById("cbTable").innerHTML='<thead><tr><th>Croisement</th><th>Lien entre départements</th><th>Fourchette plausible</th><th>À densité de population égale</th><th class="num">Départements</th></tr></thead><tbody>'
+  document.getElementById("cbTable").innerHTML='<thead><tr><th>Croisement</th><th>Lien entre départements</th><th>Intervalle de confiance à 95 %</th><th>À densité de population égale</th><th class="num">Départements</th></tr></thead><tbody>'
     +qs.map(t=>{const g=T.filter(x=>x.theme===t),q=(g.find(x=>x.question)||{}).question||"";
       return '<tr class="cb-titre"><th colspan="5">'+esc(q)+'</th></tr>'+g.map(x=>'<tr><td>'+esc(x.x)+'<br><span class="muted">et '+esc(minuscule(x.y))+'</span></td>'
         +'<td>'+motLien(x.rho,x.lo,x.hi)+' ('+f2.format(x.rho)+')</td><td>de '+f2.format(x.lo)+' à '+f2.format(x.hi)+'</td>'
@@ -106,7 +106,7 @@ function scatter(){
   let etiq=null;
   if(choisi){const cx0=xs(Math.max(choisi.x,xs.domain()[0])),cy0=ys(choisi.y),adroite=cx0<w-160;
     etiq=svg.append("text").attr("x",cx0+(adroite?9:-9)).attr("y",cy0-8).attr("text-anchor",adroite?"start":"end").attr("font-weight",600).attr("fill",css("--ink")).text(choisi.u.nm)}
-  // quadrants offre et besoin, pour un indicateur de santé mentale au niveau départemental
+  // quadrants de l'offre face à un indicateur de santé mentale, au niveau départemental
   let quad="",quadListe="",medX=null,medY=null;
   if(lv==="dep"&&cx.famille&&!cy){
     // Mayotte écartée des croisements entre départements, comme dans les rapports

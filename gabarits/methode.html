@@ -292,12 +292,34 @@
 {% endif %}
 {% endif %}
 {% if vue == 'fichiers' %}
+{#- en tête l'archive complète et trois fichiers principaux, puis les fichiers rangés par thème, chacun avec son niveau, et
+    un seul champ « Filtrer le tableau » pour tous les thèmes (structure du site validée le 26 novembre 2026,
+    planche_7_telecharger). Thèmes et niveaux : pipeline/dictionnaire.py, un fichier ajouté y prend place de lui-même. #}
 <h2 id="telecharger">Données à télécharger</h2>
-<p><a href="{{ archive.lien }}">Télécharger toutes les données de la version</a> (archive zip, {{ archive.taille }}).</p>
 <p>Fichiers CSV de la version du {{ date_longue }}, séparateur point-virgule et virgule décimale, pour s'ouvrir directement dans un tableur. Les plus gros sont compressés en zip. Le <a href="{{ lien_dictionnaire }}">dictionnaire des colonnes</a> décrit chaque fichier et chaque colonne.</p>
-<div class="defile"><table class="simple filtrable fichiers"><thead><tr><th>Fichier</th><th>Contenu</th><th>Taille</th></tr></thead><tbody>
-{% for f in fichiers %}<tr><td><a href="{{ f.lien }}">{{ f.nom }}</a></td><td>{{ f.description }}</td><td>{{ f.taille }}</td></tr>{% endfor %}
+<h2 id="principaux">Les fichiers principaux</h2>
+<ul class="principaux">
+<li><a href="{{ archive.lien }}"><strong>Toutes les données de la version</strong></a><span>Archive zip, {{ archive.taille }}, les {{ fichiers|length }} fichiers et le dictionnaire.</span></li>
+{% for f in principaux %}<li><a href="{{ f.lien }}"><strong>{{ f.nom }}</strong></a><span>{{ f.description }} {{ f.taille }}.</span></li>
+{% endfor %}</ul>
+<h2 id="par-theme">Par thème</h2>
+<label class="filtre-tableau"><span>Filtrer le tableau</span><input type="search" autocomplete="off" id="filtre-fichiers"><span class="small muted" id="filtre-fichiers-n"></span></label>
+{% for t in themes_fichiers %}
+<h3 class="theme-f" id="{{ t.ancre }}">{{ t.titre }}<span>{{ t.fichiers|length }} fichier{{ 's' if t.fichiers|length > 1 }}, {{ t.description }}</span></h3>
+<div class="defile"><table class="simple fichiers"><thead><tr><th>Fichier</th><th>Contenu</th><th>Niveau</th><th>Taille</th></tr></thead><tbody>
+{% for f in t.fichiers %}<tr><td><a href="{{ f.lien }}">{{ f.nom }}</a></td><td>{{ f.description }}</td><td class="f-niveau">{{ f.niveau }}</td><td class="f-taille">{{ f.taille }}</td></tr>{% endfor %}
 </tbody></table></div>
+{% endfor %}
+<script>
+// un champ pour tous les thèmes : il filtre les lignes de chaque tableau, et un thème sans ligne retenue se replie
+(function(){var c=document.getElementById("filtre-fichiers"),n=document.getElementById("filtre-fichiers-n");if(!c)return;
+var norm=function(x){return x.normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase()};
+var lignes=[].slice.call(document.querySelectorAll("table.fichiers tbody tr"));
+c.addEventListener("input",function(){var q=norm(c.value.trim()),k=0;
+  lignes.forEach(function(r){var ok=!q||norm(r.textContent).indexOf(q)>=0;r.hidden=!ok;if(ok)k++});
+  document.querySelectorAll("h3.theme-f").forEach(function(h){var d=h.nextElementSibling,vis=d.querySelectorAll("tbody tr:not([hidden])").length;h.hidden=d.hidden=!!q&&!vis});
+  n.textContent=q?k+" fichier"+(k>1?"s":"")+" sur "+lignes.length:""})})();
+</script>
 {% endif %}
 {% if vue == 'citer' and citer %}{% set C = citer %}
 {#- Citer et réutiliser (maquette prototypes/citer/, validée le 24 novembre 2026) : chaque valeur vient de

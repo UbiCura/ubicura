@@ -180,6 +180,7 @@ def donnees(sd: dict, dernier: Path, fond: Path, registre: Path, version: str, d
     T = AF.Affichage(sd, dernier)
     ref = {lv: {} for lv in NIVEAUX}
     aff = {"lv": {lv: {} for lv in NIVEAUX}, "ind": {}, **AF.pour_js()}
+    regl = {}
     for e in ind:
         if e.get("type") not in ("ctx", "prof"):
             continue
@@ -199,6 +200,10 @@ def donnees(sd: dict, dernier: Path, fond: Path, registre: Path, version: str, d
             if x:
                 pub["x"] = x
             aff["lv"][lv][e["id"]] = pub
+            if e.get("type") == "ctx" or e.get("mode") == "all":
+                rg = _reglette(T, S, e["id"], lv, sd["niveaux"][lv]["units"][g[0]]["c"])
+                if rg:
+                    regl.setdefault(lv, {})[e["id"]] = rg
             if S.ref is not None:
                 ref[lv][e["id"]] = round(S.ref, 6)
                 if e.get("type") == "prof":
@@ -210,9 +215,133 @@ def donnees(sd: dict, dernier: Path, fond: Path, registre: Path, version: str, d
         from .fiche_indicateur import slug
         e["fi"] = slug(f"prof:{e['prof']}:all" if e.get("type") == "prof" else e["id"])
     return {"version": version, "doi": doi, "niveaux": NOMS_NIV, "units": {lv: units[lv]["u"] for lv in NIVEAUX},
-            "n": cnt, "ref": ref, "aff": aff, "ind": ind, "val": val, "geo": _fond(fond, sd), "W": 660, "H": 560, "encarts": ENCARTS,
+            "n": cnt, "ref": ref, "aff": aff, "rg": regl, "ind": ind, "val": val, "geo": _fond(fond, sd), "W": 660, "H": 560, "encarts": ENCARTS,
             "domaines": [{"id": d["id"], "nom": d["nom"], "court": d["court"], "sous": d["sous"]} for d in D.DOMAINES],
-            "citation": config.CITATION_AUTEUR}
+            "citation": config.CITATION_AUTEUR, **_semblables(sd, dernier, units), "cb": _questions(sd)}
+
+
+def _questions(sd: dict) -> list:
+    """Questions préparées entre départements (croisements.csv, publiées dans site_data.json), pour le tableau de Croiser
+    qui reprend celui d'Explorer : libellés, corrélation de rang, intervalle de confiance à 95 %, valeur à densité de
+    population égale, nombre de départements ; x et y, les identifiants de l'atelier, pour charger la question."""
+    from .questions import titrer_preparees
+    out = []
+    # titre de chaque question lu dans la table unique (pipeline/questions.py), jamais vide
+    for r in titrer_preparees(sd.get("croisements_bases")):
+        out.append({"q": r["question"], "fam": r.get("famille", ""), "lx": r["x"], "ly": r["y"],
+                    "x": _id_croisement(r["xk"]), "y": _id_croisement(r["yk"]), "rho": r["rho"], "lo": r["lo"],
+                    "hi": r["hi"], "rp": r.get("rp"), "lop": r.get("lop"), "hip": r.get("hip"), "n": r["n"]})
+    return out
+
+
+def _num(x: str):
+    x = (x or "").strip().replace(",", ".")
+    try:
+        v = float(x)
+    except ValueError:
+        return None
+    return v if math.isfinite(v) else None
+
+
+def _id_croisement(m: str) -> str:
+    """Identifiant de l'atelier d'une mesure de croisements.csv : dens:p, dens_lib:p, ctx:v."""
+    for pre, mode in (("dens:", "all"), ("dens_lib:", "lib"), ("dens_sal:", "sal")):
+        if m.startswith(pre):
+            return f"prof:{m[len(pre):]}:{mode}"
+    return m[4:] if m.startswith("ctx:") else m
+
+
+def familles(dernier: Path) -> dict:
+    """Familles de tests publiées avec la version (option B de la structure validée le 26 novembre 2026) : Croiser ne
+    corrige plus les tests multiples sur les croisements de la visite, il lit la probabilité corrigée publiée du couple.
+    - « contexte » : correlations_contexte.csv, chaque profession face aux indicateurs du profil des habitants, une
+      famille par niveau et par mode d'exercice (colonne q_bh, Benjamini-Hochberg sur les couples testés) ;
+    - « questions » : croisements.csv, les questions préparées entre départements, une famille, dont la valeur, montrée
+      aussi dans le tableau des questions préparées, l'emporte pour un couple des deux familles.
+    Rendu : {"n": {famille: taille}, "B": tirages, "c": {niveau: {id1: {id2: [rho, q, bas, haut, n]}}},
+    "q": {id1: {id2: [rho, q, bas, haut, n]}}}, ids triés ; la famille d'un couple du contexte est celle de son niveau
+    et du mode d'exercice de sa profession. bas et haut, l'intervalle de confiance à 95 % publié (bootstrap, None quand
+    le fichier n'en donne pas), n le nombre de territoires du calcul publié : la page écrit ces valeurs, jamais un
+    intervalle recalculé par une autre formule (audit du 27 novembre 2026, « −0,12 à 0,29 » écrit pour « −0,12 à 0,27 »
+    publié). Un couple hors de ces familles n'a pas de verdict : la page donne sa corrélation et son intervalle,
+    calculé dans la page par la méthode du fichier (bootstrap des centiles, B tirages, config.BOOTSTRAP), sans dire
+    s'il y a un lien (règle du lien, pipeline/regle_lien.py, appliquée à la valeur publiée)."""
+    import csv
+    from . import regle_lien as RL
+    n, c, qp = {}, {}, {}
+
+    # arrondis qui allègent le fichier sans jamais changer le verdict de la règle du lien : plus de chiffres près des
+    # seuils (|rho| près de 0,3, q près de 0,05), contrôlé par un test sur tous les couples publiés
+    def rho(x):
+        if x is None:
+            return None
+        v = round(x, 6 if abs(abs(x) - RL.SEUIL_RHO) < 1e-3 else 4)
+        # l'arrondi ne change jamais le chiffre écrit par la page (deux décimales, presentation/atelier.js, r2)
+        return v if ecrit_r2(v) == ecrit_r2(x) else x
+
+    def qv(x):
+        return float(f"{x:.6g}") if abs(x - RL.ALPHA) < 1e-3 else float(f"{x:.3g}")
+
+    def nb(x):
+        v = _num(x)
+        return None if v is None else int(round(v))
+
+    f = Path(dernier) / "correlations_contexte.csv"
+    if f.exists():
+        with open(f, encoding="utf-8-sig", newline="") as fh:
+            for l in csv.DictReader(fh, delimiter=";"):
+                q = _num(l.get("q_bh"))
+                if q is None or l["niveau"] not in NIVEAUX:
+                    continue
+                fam = f"contexte:{l['niveau']}:{l['mode']}"
+                n[fam] = n.get(fam, 0) + 1
+                a, b = sorted([f"prof:{l['prof']}:{l['mode']}", l["variable"]])
+                c.setdefault(l["niveau"], {}).setdefault(a, {})[b] = [rho(_num(l["rho_spearman"])), qv(q),
+                                                                      rho(_num(l["ic95_bas"])), rho(_num(l["ic95_haut"])),
+                                                                      nb(l.get("n"))]
+    f = Path(dernier) / "croisements.csv"
+    if f.exists():
+        with open(f, encoding="utf-8-sig", newline="") as fh:
+            ls = [l for l in csv.DictReader(fh, delimiter=";") if _num(l.get("q_bh")) is not None]
+        for l in ls:
+            a, b = sorted([_id_croisement(l["mesure"]), _id_croisement(l["variable"])])
+            qp.setdefault(a, {})[b] = [rho(_num(l["rho"])), qv(_num(l["q_bh"])), rho(_num(l["ic95_bas"])),
+                                       rho(_num(l["ic95_haut"])), nb(l.get("departements"))]
+        if ls:
+            n["questions"] = len(ls)
+    return {"n": n, "B": config.BOOTSTRAP, "c": c, "q": qp}
+
+
+def ecrit_r2(v) -> str | None:
+    """Le nombre tel que Croiser l'écrit à deux décimales (presentation/atelier.js, r2 : Math.round(v * 100) / 100,
+    zéro sans signe), pour vérifier qu'un arrondi du fichier de la page ne change aucun chiffre écrit."""
+    if v is None:
+        return None
+    x = math.floor(v * 100 + 0.5) / 100
+    return f"{0.0 if x == 0 else x:.2f}"
+
+
+def _reglette(T, S, ident: str, lv: str, code: str) -> dict | None:
+    """Réglette d'un indicateur à un niveau, sans territoire placé, par la règle de la fiche (affichage.histogramme) :
+    histogramme, bornes de l'axe, repère et médiane. Comparer y place ses territoires (presentation/comparer.js)."""
+    cel = T.cellule(ident, lv, code)
+    if cel is None:
+        return None
+    h = T.histogramme(ident, lv, dict(cel, v=None, statut=None))
+    if not h:
+        return None
+    return {"c": h["chemin"], "nb": h["nb"], "b": _r4(h["bas"]), "h": _r4(h["haut"]), "k": int(bool(h["chevron"])),
+            "r": h["rep"], "rt": h["rep_txt"], "m": h["med"], "mt": h["med_txt"], "al": h["aucun_lab"], "ax": h["axe"]}
+
+
+def _semblables(sd: dict, dernier: Path, units: dict) -> dict:
+    """Territoires semblables proposés par Comparer, par la définition unique du site (pipeline/semblables.py), et leur
+    critère en clair. Seuls les territoires gardés dans les croisements sont proposés."""
+    from . import semblables as SB
+    s = SB.depuis_site(sd, dernier)
+    garde = {lv: {u["c"] for u in units[lv]["u"]} for lv in SB.NIVEAUX}
+    return {"semb": {lv: {c: [x for x in v if x in garde[lv]] for c, v in s[lv].items() if c in garde[lv]} for lv in SB.NIVEAUX},
+            "sembCrit": {lv: SB.critere(lv) for lv in SB.NIVEAUX}}
 
 
 # -- fond de carte, projeté une fois pour toutes (métropole et encarts d'outre-mer) --------------------------------
@@ -318,4 +447,7 @@ def construire(site_data: dict, dernier: Path, site: Path, registre: Path, versi
     f = site / "presentation" / "atelier_donnees.js"
     f.parent.mkdir(parents=True, exist_ok=True)
     f.write_text("const A=" + json.dumps(A, ensure_ascii=False, separators=(",", ":")) + ";\n", encoding="utf-8")
+    # familles de tests publiées, lues par Croiser seulement (presentation/atelier.js), dans un fichier à part
+    (site / "presentation" / "atelier_familles.js").write_text(
+        "const FAM=" + json.dumps(familles(dernier), ensure_ascii=False, separators=(",", ":")) + ";\n", encoding="utf-8")
     return A

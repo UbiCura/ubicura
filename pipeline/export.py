@@ -124,6 +124,13 @@ def _sans_non_recenses(d: pd.DataFrame) -> pd.DataFrame:
 def _csv(df, chemin: Path):
     if df is None or (isinstance(df, pd.DataFrame) and df.empty):
         return
+    # une colonne de texte qui ne tient que des nombres (None mêlé à des flottants) redevient une colonne de nombres,
+    # sinon elle s'écrit avec le point décimal (lits du ROR, version du 27 novembre 2026)
+    if isinstance(df, pd.DataFrame):
+        for c in df.columns[df.dtypes == object]:
+            v = df[c].dropna()
+            if len(v) and v.map(lambda z: isinstance(z, (int, float, np.integer, np.floating)) and not isinstance(z, bool)).all():
+                df = df.assign(**{c: pd.to_numeric(df[c])})
     df.to_csv(chemin, sep=";", decimal=",", index=False, encoding="utf-8-sig", float_format=_nombre_csv)
 
 
@@ -317,7 +324,7 @@ def _lieux_csv(agg, noms, lab, out: Path, contexte: dict | None = None):
         "emplacement": x["precision"].map(lieux_mod.PRECISIONS),
         "provenance": x["provenance"].map(lieux_mod.PROVENANCES),
         "categories_ror": x.get("categories_ror"), "categorie_finess": x.get("categorie_finess"),
-        "age_min": x.get("age_min"), "age_max": x.get("age_max"), "lits_ror": x.get("lits"),
+        "age_min": x.get("age_min"), "age_max": x.get("age_max"), "lits_ror": (pd.to_numeric(x["lits"], errors="coerce").round().astype("Int64") if "lits" in x else None),
         "unites_ror": x.get("unites_ror"),
         "verification": x.get("statut_verification", pd.Series(index=x.index, dtype=object)).map(sv.STATUTS),
         "source_verification": x.get("source_verification"), "adresse_source_verification": x.get("adresse_source"),
@@ -1042,6 +1049,9 @@ def _croisements_bases_site(R, professions, insee):
     eq = (ta.drop_duplicates("equipement").set_index("equipement")["libelle"].to_dict()
           if isinstance(ta, pd.DataFrame) and not ta.empty else {})
     questions = {t: (f, q) for f, d in THEMES_CROISEMENTS.items() for t, q in d.items()}
+    # addictologie : titre de la table unique (pipeline/questions.py), famille laissée vide comme avant
+    from .questions import PREPAREES
+    questions.update({t: ("", q) for t, q in PREPAREES["addicto"].items()})
     # questions préparées des descripteurs de la voie légère, avec leur famille d'après leurs indicateurs
     fam_ind = {d["id"]: d.get("famille", "") for d in indicateurs.liste(insee)}
     for xa, yb, theme, q in cr.attrs.get("questions", []):

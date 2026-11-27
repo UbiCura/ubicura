@@ -17,38 +17,12 @@ from . import domaines as D
 from .fiche_indicateur import NOMS, de, repartition
 from .typographie import insecables  # espaces insécables du français, comme les autres pages (10 novembre 2026)
 
-# questions du centre : titre de la question, intertitre du rapport, figures reprises de la section, autre page utile ;
-# « -⁠ils », gardé sur une ligne au téléphone par un gluon invisible (audit du 6 novembre 2026)
-QUESTIONS = {
-    "sm": [
-        ("Combien de professionnels, et où exercent-⁠ils ?", "Les professions de santé mentale", ["carte_dep_sm", "lorenz_sm"], None),
-        ("Qui est compté dans les densités ?", "Du répertoire aux densités", ["parcours_sm"], None),
-        ("L’offre suit-elle le niveau de vie des habitants ?", "Offre selon le niveau de vie des territoires", ["escalier_sm"], None),
-        ("À quelle distance sont les structures de soins psychiques ?", "Distance aux structures de soins selon le niveau de vie et le type de territoire", ["eloignement_sm"],
-         ("zone.html", "Autour d’un lieu, les structures de votre zone")),
-        ("Quelle accessibilité, au-delà de la distance ?", "Distance et accessibilité", ["distance_sm"], None),
-        ("Quels territoires s’écartent plus que le hasard ?", "Écarts qui dépassent le hasard", ["entonnoir_sm"], None),
-        ("L’offre suit-elle le profil des habitants ?", "Liens avec le profil des habitants", ["effet_ville_sm"],
-         ("croiser.html", "Croiser librement deux indicateurs")),
-        ("L’offre est-elle là où les indicateurs de recours sont élevés ?", "Offre face aux indicateurs de besoin", ["quadrants_sm"],
-         ("croiser.html", "Croiser librement deux indicateurs")),
-        ("Qui porte l’offre ?", "Qui porte l'offre", ["porte_sm"], None),
-        ("Où trouve-t-on une profession sans l’autre ?", "Quelles professions sont présentes ensemble", ["combinaisons_sm"], None),
-        ("De l’offre aux consommations en addictologie", "Consommations d'alcool et de tabac, par région", ["addicto_regions"], None),
-    ],
-    "sante": [
-        ("Combien de professionnels, et où exercent-⁠ils ?", "Les professions de santé", ["carte_dep_sante", "lorenz_sante"], None),
-        ("Qui est compté dans les densités ?", "Du répertoire aux densités", ["parcours_sante"], None),
-        ("L’offre suit-elle le niveau de vie des habitants ?", "Offre selon le niveau de vie des territoires", ["escalier_sante"], None),
-        ("À quelle distance sont les structures de soins ?", "Distance aux structures de soins selon le niveau de vie et le type de territoire", ["eloignement_sante"],
-         ("zone.html#fam=sante", "Autour d’un lieu, les structures de votre zone")),
-        ("Quelle accessibilité, au-delà de la distance ?", "Distance et accessibilité", ["distance_sante"], None),
-        ("Quels territoires s’écartent plus que le hasard ?", "Écarts qui dépassent le hasard", ["entonnoir_sante"], None),
-        ("L’offre suit-elle le profil des habitants ?", "Liens avec le profil des habitants", ["effet_ville_sante"],
-         ("croiser.html", "Croiser librement deux indicateurs")),
-        ("Qui porte l’offre ?", "Qui porte l'offre", ["porte_sante"], None),
-    ],
-}
+# questions du centre : titre de la question, intertitre du rapport, figures reprises de la section, autre page utile,
+# lus dans la table unique des questions (pipeline/questions.py, « un seul lieu par question », 26 novembre 2026), que
+# lisent aussi Offre de soins, l'accueil, les thèmes, la recherche et Explorer
+from . import questions as QQ
+
+QUESTIONS = {cle: [(QQ.sans_coupure(q["titre"]), q["intertitre"], q["figures"], q["autre"]) for q in L] for cle, L in QQ.FAMILLES.items()}
 PAGES_CENTRE = {"sm": ("sante-mentale", "Santé mentale", "rapport_sante_mentale.md", "sante-mentale",
                        "Psychologues, psychiatres et structures de soins psychiques, rapportés aux habitants et croisés avec leur profil. Les professions de santé générale sont sur la page Santé, jamais additionnées à celles-ci."),
                 "sante": ("sante", "Santé", "rapport_sante.md", "sante",
@@ -173,6 +147,7 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
     from .page_indicateurs import donnees as catalogue_page
     CAT = catalogue_page(sd, dernier, A, fiches)
     n_ind_sm = sum("Santé mentale" in e["themes"] for e in CAT)
+    par_famille = {}
     for cle, (nom_page, titre, rapport, page_rapport, chapeau) in PAGES_CENTRE.items():
         f = dernier / rapport
         if not f.exists():
@@ -180,7 +155,9 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
         secs = sections(f.read_text(encoding="utf-8"))
         qs = []
         for k, (question, intertitre, figs, autre) in enumerate(QUESTIONS[cle]):
-            if intertitre not in secs:
+            # un intertitre renommé se retrouve aussi sous son ancien nom, dans un rapport écrit avant (27 novembre 2026)
+            intertitre = next((x for x in (intertitre, *QQ.INTERTITRES_ANCIENS.get(intertitre, ())) if x in secs), None)
+            if intertitre is None:
                 continue
             m = morceaux(secs[intertitre], figs)
             haut = "\n\n".join([m["resultat"]] + [f"<!--GRAPHIQUE {x}-->" for x in m["figures"]] + m["varier"]
@@ -192,8 +169,14 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
             # pronom inversé jamais séparé de son verbe en fin de ligne (« trouve-t-on », « exercent-ils »), par un gluon
             # invisible après chaque trait d'union (contre-audit du 6 novembre 2026)
             question = re.sub(r"-(?!⁠)(?=(?:t-)?(?:ils?|elles?|on)\b|t-)", "-⁠", question)
+            # renvoi vers l'outil où la question se règle (table unique des questions, 26 novembre 2026), quand la
+            # section du rapport n'a pas déjà son lien « Faire varier cette figure » vers Explorer
+            rg = QQ.reglage(QQ.FAMILLES[cle][k], cle)
+            regler = rg if rg and rg[1] == "Explorer" and "explorer.html" not in html else None
             qs.append({"id": f"q{k + 1}", "question": question, "html": html, "preuve": preuve, "autre": autre,
+                       "regler": regler, "reglage": rg, "titre": QQ.FAMILLES[cle][k]["titre"],
                        "section": f"../rapports/{dernier.name}/{page_rapport}.html#{_ancre(intertitre, '-')}"})
+        par_famille[cle] = qs
         # bases à venir de l'offre (et du recours pour la santé mentale), rangées selon qu'elles parlent de santé mentale
         sm_mot = re.compile(r"psy|mentale|secteur|suicid|addict", re.I)
         venir = [n for d, ns in D.bases_a_venir(registre).items() for n in ns
@@ -216,9 +199,22 @@ def construire(env, commun: dict, A: dict, sd: dict, dernier: Path, site: Path, 
     E = [e for e in CAT if e["domaine"] == centre["nom"]]
     detail = ", ".join(f"{s[0].lower() + s[1:]} ({n})" for s, n in Counter(e["sous"] for e in E).items())
     porte_cat = {"n": len(E), "detail": (detail[:1].upper() + detail[1:]).replace("'", "’"), "dom": centre["nom"]}
+    # table des questions des deux familles, chacune vers sa section, avec l'outil où elle se règle, et les questions
+    # d'Explorer seulement (structure du site validée le 26 novembre 2026, planche_1_offre_de_soins)
+    intro = {"sm": "Psychologues, psychiatres, psychothérapeutes, CMP, CATTP, hôpitaux de jour et structures "
+                   "d’addictologie. {n} questions, chacune avec sa figure, sa lecture, sa méthode et la section du rapport.",
+             "sante": "Médecins généralistes et spécialistes, infirmiers, autres professions de santé, urgences, "
+                      "maternités, maisons et centres de santé. {n} questions, sur le même modèle."}
+    familles = [{"cle": cle, "titre": PAGES_CENTRE[cle][1], "page": f"{PAGES_CENTRE[cle][0]}.html",
+                 "intro": intro[cle].format(n=len(qs)),
+                 "questions": [{"id": q["id"], "titre": QQ.sans_coupure(q["titre"]), "reglage": q["reglage"]} for q in qs]}
+                for cle, qs in par_famille.items() if qs]
+    seules = [{"id": qid, "titre": QQ.EXPLORER[qid]} for qid in QQ.EXPLORER_SEULEMENT]
+    from .portail import chiffres_nationaux
     html = env.get_template("page_domaine.html").render(dict(
         commun, racine="../", page="offre", titre=centre["nom"], classe_main="domaine", centre=False, porte=True,
-        porte_cat=porte_cat, d=centre, chapeau=centre["pourquoi"], citation=None,
+        porte_cat=porte_cat, d=centre, chapeau=centre["pourquoi"], citation=None, familles=familles, seules=seules,
+        nationaux=chiffres_nationaux(sd, dernier),
         description="L'offre de soins, en santé mentale et en santé, au centre des sept domaines du site."))
     (dossier / "offre-de-soins.html").write_text(insecables(html), encoding="utf-8")
     pages.append(dossier / "offre-de-soins.html")

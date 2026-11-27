@@ -21,7 +21,9 @@
   function mot(m) { return m.length > 3 ? m.replace(/(s|x)$/, "") : m; }
   // mots vides retirés de la recherche : « psychiatres à Rodez » cherchait « a » au début de « ans » ou « adolescent »
   // (audit indépendant du 8 novembre 2026)
-  var VIDES = { a: 1, au: 1, aux: 1, en: 1, de: 1, du: 1, des: 1, d: 1, l: 1, le: 1, la: 1, les: 1, dans: 1, pour: 1, et: 1, ou: 1, sur: 1, par: 1, un: 1, une: 1 };
+  // et les mots d'une question posée en phrase (« combien de psychiatres à Rodez », audit du 25 novembre 2026)
+  var VIDES = { a: 1, au: 1, aux: 1, en: 1, de: 1, du: 1, des: 1, d: 1, l: 1, le: 1, la: 1, les: 1, dans: 1, pour: 1, et: 1, ou: 1, sur: 1, par: 1, un: 1, une: 1,
+    avec: 1, chez: 1, il: 1, sont: 1, ce: 1, ces: 1, cette: 1, quel: 1, quelle: 1, quels: 1, quelles: 1, combien: 1, qui: 1, que: 1, qu: 1, mon: 1, ma: 1, mes: 1 };
   function mots(s) { return base(s).split(/[^a-z0-9]+/).filter(Boolean).map(mot); }
   // les mots vides sont retirés avant la coupe du pluriel : « dans » devenait « dan » et n'était plus reconnu (contrôle du
   // 8 novembre 2026, « psychologues dans l'Aveyron »)
@@ -64,7 +66,8 @@
     if (!P || !u) return null;
     var ep = t.t === "com" ? epci[t.epci] : null;
     return { g: "partie", nm: t.nm + " : " + P[1].toLowerCase(), url: u.slice(racine.length) + "#" + p,
-      prec: (ep ? "fiche de " + ep[1] : NIV[lv]) + ", partie " + P[0] + " de la fiche" };
+      // la fiche courte n'est plus numérotée : la partie se dit par son nom (structure validée le 26 novembre 2026)
+      prec: (ep ? "fiche de " + ep[1] : NIV[lv]) + ", partie " + P[1].toLowerCase() + " de la fiche" };
   }
   // une clé de la table retrouvée malgré une faute ou une inversion par mot (« dpéression »), comme le reste de la recherche
   function cles(T, k) {
@@ -95,7 +98,7 @@
         var t = lieuExact(x[1].join(" ")); if (t) th.forEach(function (p) { var e = partie(t, p); if (e) o.partie.push(e);
           // un département : la même partie de la fiche de sa région, quand des indicateurs n'y sont publiés que par région
           var nr = ((D.mots || {}).reg_seul || {})[p] || 0, rg = t.t === "dep" ? idx.filter(function (z) { return z.t === "reg" && z.nm === t.p; })[0] : null;
-          if (nr && rg) { var e3 = partie(rg, p); if (e3) { e3.prec = "région, partie " + D.mots.parties[p][0] + " : " + nr + " indicateur" + (nr > 1 ? "s" : "") + " publié" + (nr > 1 ? "s" : "") + " seulement par région"; o.partie.push(e3); } } });
+          if (nr && rg) { var e3 = partie(rg, p); if (e3) { e3.prec = "région, partie " + D.mots.parties[p][1].toLowerCase() + " : " + nr + " indicateur" + (nr > 1 ? "s" : "") + " publié" + (nr > 1 ? "s" : "") + " seulement par région"; o.partie.push(e3); } } });
       });
     }
     return o;
@@ -236,6 +239,44 @@
     }
     return best;
   }
+  // une phrase dont tous les mots ne se retrouvent pas ensemble (« densité des psychiatres », « temps d'attente
+  // urgences », audit du 25 novembre 2026) : plutôt que rien, des résultats approchants. Les mots sans aucune
+  // correspondance sont d'abord laissés de côté, et le reste de la phrase est cherché comme d'habitude, réponse directe
+  // comprise ; sinon, les entrées qui retrouvent le plus de mots, puis les mots les plus longs, donc les plus précis.
+  // Un nom de lieu ne compte que s'il est écrit en entier. Une phrase dont aucun mot n'est connu ne trouve rien.
+  function approche(q) {
+    var V = q.split(/[^\p{L}\p{N}]+/u).filter(function (o) { var b = base(o).replace(/[^a-z0-9]/g, ""); return b && !VIDES[b]; })
+      .map(function (o) { var k = mot(base(o).replace(/[^a-z0-9]/g, "")); return { o: o, k: k, alts: SYN[k] ? SYN[k].split("|").map(mots) : [[k]] }; })
+      .filter(function (x) { return x.k.length >= 3; });
+    if (!V.length) return null;
+    function va(e, x) { return x.alts.some(function (alt) { return alt.every(function (v) { return e.g === "terr" ? e.m.indexOf(v) >= 0 : present(v, e); }); }); }
+    var connus = V.filter(function (x) { return idx.some(function (e) { return va(e, x); }); });
+    if (!connus.length) return null;
+    var res = { ind: [], q: [], page: [], terr: [], mots: [], a: null, sans: [] };
+    if (connus.length < V.length) {
+      var q2 = connus.map(function (x) { return x.o; }).join(" "), r2 = trouver(q2), a2 = analyser(q2);
+      if (a2 || r2.ind.length || r2.q.length || r2.page.length || r2.terr.length) {
+        res.ind = r2.ind; res.q = r2.q; res.page = r2.page; res.terr = r2.terr; res.a = a2;
+        res.mots = connus.map(function (x) { return x.o; });
+        res.sans = V.filter(function (x) { return connus.indexOf(x) < 0; }).map(function (x) { return x.o; });
+        return res;
+      }
+    }
+    var best = [], bn = 0, bw = 0;
+    idx.forEach(function (e) {
+      var n = 0, w = 0, vus = [];
+      connus.forEach(function (x) { if (va(e, x)) { n++; w += x.k.length; vus.push(x); } });
+      if (!n) return;
+      if (n > bn || (n === bn && w > bw)) { bn = n; bw = w; best = []; }
+      if (n === bn && w === bw) best.push({ e: e, v: vus });
+    });
+    best.forEach(function (b) { res[b.e.g].push(b.e); b.v.forEach(function (x) { if (res.mots.indexOf(x.o) < 0) res.mots.push(x.o); }); });
+    // l'indicateur dont le nom commence par un mot retrouvé d'abord, puis le plus court, comme pour une recherche entière
+    var ks = connus.map(function (x) { return x.k; }), tete = function (e) { var m0 = mots(e.nm)[0] || ""; return ks.some(function (k) { return m0.indexOf(k) === 0; }) ? 0 : 1; };
+    res.ind.sort(function (a, b) { return tete(a) - tete(b) || a.nm.length - b.nm.length || a.rang - b.rang; });
+    res.terr.sort(function (a, b) { return (b.pop || 0) - (a.pop || 0); });
+    return res;
+  }
   // « Autour d'Avignon », « Autour du Havre », « Autour des Abymes », « Autour de Rodez »
   function autour(nm) {
     if (/^Le /.test(nm)) return "Autour du " + nm.slice(3);
@@ -338,7 +379,9 @@
       bloc.appendChild(l);
       // une seule apostrophe dans la réponse et ses liens, la droite, comme le reste du texte des fiches
       bloc.innerHTML = bloc.innerHTML.replace(/’/g, "'");
-      sortie.insertBefore(bloc, sortie.firstChild);
+      // sous la phrase qui dit que la recherche a été approchée, quand elle l'a été
+      var ap = sortie.querySelector(":scope > p.approche");
+      sortie.insertBefore(bloc, ap ? ap.nextSibling : sortie.firstChild);
       // les autres lieux du même nom, proposés sous la réponse (« Saint-Denis » : La Réunion et la Seine-Saint-Denis)
       if (a.homonymes && a.homonymes.length) {
         var g = document.createElement("div"); g.className = "groupes";
@@ -364,8 +407,19 @@
     // une seule apostrophe dans tout le panneau, la droite (contre-audit du 8 novembre 2026)
     // une recherche qui mène aux indicateurs du suicide : la ligne du 3114 au-dessus des résultats (décision du
     // 23 novembre 2026)
+    // rien pour toute la phrase : des résultats approchants, en le disant, plutôt que rien
+    var x = !h && !a ? approche(q) : null;
+    if (x) {
+      var cite = function (l) { return "« " + l.map(esc).join(" », « ") + " »"; };
+      h = groupe("Indicateurs", x.ind, 6) + groupe("Questions", x.q, 4) + groupe("Pages et outils", x.page, 4) + groupe("Territoires", x.terr, 5);
+      avant = '<p class="vide approche">' + (x.sans.length ? "Résultats pour " + cite(x.mots) + ", sans " + cite(x.sans) + ", qui ne correspond" + (x.sans.length > 1 ? "ent" : "") + " à rien sur le site."
+        : "Rien ne répond à toute la phrase. Résultats approchants, pour " + cite(x.mots) + ".") + "</p>";
+      a = x.a;
+      // la ligne du 3114 suit les indicateurs du suicide, même trouvés de façon approchée (décision du 23 novembre 2026)
+      if (x.ind.some(function (e) { return ((D.mots || {}).aide || []).indexOf(e.c) >= 0; })) L.aide = true;
+    }
     if (L.aide) avant = '<p class="aide-3114">Si vous pensez au suicide, ou si un proche vous inquiète, le <a href="tel:3114">3114</a> répond jour et nuit, gratuitement.</p>' + avant;
-    sortie.innerHTML = h ? avant + '<div class="groupes">' + h.replace(/’/g, "'") + "</div>" : (a ? "" :'<p class="vide">Rien ne porte ce nom. Essayez le début d\'un nom de commune, un code postal, ou un mot comme « CMP », « revenu » ou « logement ».</p>');
+    sortie.innerHTML = h || x ? avant + (h ? '<div class="groupes">' + h.replace(/’/g, "'") + "</div>" : "") : (a ? "" :'<p class="vide">Rien ne porte ce nom. Essayez le début d\'un nom de commune, un code postal, ou un mot comme « CMP », « revenu » ou « logement ».</p>');
     annoncer();
     if (a) reponse(a, numero);
   }
@@ -397,4 +451,45 @@
   });
   // fonctions reprises par le contrôle de la recherche (outils/controle_recherche.py), qui l'essaie dans le navigateur
   window.UbiChercher = { charger: charger, analyser: analyser, chercher: function (q) { champ.value = q; montrer(); } };
+})();
+
+// Texte d'aide des champs, sur toutes les pages : le plus long qui tient dans le champ, sinon une forme plus courte, de
+// la plus longue à la plus courte (table ci-dessous, rangée par texte d'aide complet, ou attribut data-aide-courte aux
+// formes séparées par « | »). Refait à chaque largeur, quand la police arrive et quand un champ s'ouvre : un texte
+// d'aide n'est jamais coupé (« Commune, code postal, indicateu » de l'accueil au téléphone, 26 novembre 2026 ;
+// outils/controle_finition.js le vérifie sur toutes les pages contrôlées, ordinateur et téléphone).
+(function () {
+  var COURTES = {
+    "Une commune, un territoire, un indicateur, une question": ["Commune, territoire, indicateur", "Commune ou indicateur"],
+    "Commune, territoire ou indicateur": ["Commune ou indicateur"],
+    "Commune, code postal ou territoire": ["Commune ou territoire"],
+    "un département, par son nom ou son numéro": ["un département, nom ou numéro", "nom ou numéro"]
+  };
+  var c = document.createElement("canvas").getContext("2d");
+  function tient(el, t) {
+    var s = getComputedStyle(el);
+    c.font = s.fontStyle + " " + s.fontWeight + " " + s.fontSize + " " + s.fontFamily;
+    return c.measureText(t).width <= el.clientWidth - parseFloat(s.paddingLeft) - parseFloat(s.paddingRight) - (parseFloat(s.textIndent) || 0) + 0.5;
+  }
+  function ajuster() {
+    document.querySelectorAll("input[placeholder]").forEach(function (el) {
+      if (el.dataset.aide == null) el.dataset.aide = el.getAttribute("placeholder") || "";
+      var autres = el.dataset.aideCourte ? el.dataset.aideCourte.split("|") : COURTES[el.dataset.aide];
+      if (!autres || !el.clientWidth) return;
+      var formes = [el.dataset.aide].concat(autres);
+      var t = formes.filter(function (f) { return tient(el, f); })[0] || formes[formes.length - 1];
+      if (el.placeholder !== t) el.placeholder = t;
+    });
+  }
+  var attente = 0;
+  function bientot() { if (!attente) attente = setTimeout(function () { attente = 0; ajuster(); }, 30); }
+  window.UbiAides = ajuster;
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", ajuster); else ajuster();
+  addEventListener("load", ajuster); addEventListener("resize", bientot);
+  document.addEventListener("click", bientot); document.addEventListener("focusin", bientot);
+  if (document.fonts) document.fonts.ready.then(ajuster);
+  // et quand un champ change de largeur sans que la fenêtre change (mise en page qui se règle après le chargement)
+  if (window.ResizeObserver) { var o = new ResizeObserver(bientot);
+    var suivre = function () { document.querySelectorAll("input[placeholder]").forEach(function (el) { o.observe(el); }); };
+    if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", suivre); else suivre(); }
 })();

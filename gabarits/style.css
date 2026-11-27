@@ -280,6 +280,10 @@ table.indicateurs thead th.pos{white-space:normal;line-height:1.35}
 table.indicateurs td.eff{font-size:var(--t-note);color:var(--muted);line-height:1.4}
 table.indicateurs .statut{white-space:normal}
 table.indicateurs td.v .note{text-align:right}
+/* une note dans une cellule de tableau passe sous sa valeur, en petit et atténuée, sur toutes les pages : en ligne, elle
+   se collait au chiffre (« 0509 territoires à 0 » des pages d'indicateur, audit du 25 novembre 2026). Les fiches ont
+   leurs propres réglages, plus précis. */
+:is(td,th) .note{display:block;font-size:var(--t-note);color:var(--muted);font-weight:400;line-height:1.4}
 table.indicateurs td.pos{color:var(--ink);padding-right:0}
 /* l'écart suit la règle du point : coloré et appuyé quand il est net, en gris discret sinon ; la position passe avant */
 .ec.haut{color:var(--chiffre);font-weight:600}.ec.bas{color:var(--chiffre-bas);font-weight:600}.ec.neutre{color:var(--muted);font-size:var(--t-note)}
@@ -524,6 +528,10 @@ dl.licences{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);margi
 dl.licences dt,dl.licences dd{margin:0;padding:var(--e-3) var(--e-4) var(--e-3) 0;border-top:1px solid var(--line)}
 dl.licences dt{font-weight:600;text-align:left}
 dl.licences dd{padding-right:0}
+/* la description d'une licence fait les trois cinquièmes de la liste : justifiée seulement à partir de 560 px, donc
+   d'une liste de 934 px (406 px à 1 024 px, contrôle du 25 novembre 2026) */
+dl.licences{container-type:inline-size}
+@container (max-width:933px){dl.licences dd{text-align:left}}
 dl.licences dd b{font-weight:600}
 table.versions{width:100%;table-layout:fixed}
 table.versions col.c-version{width:41%}table.versions col.c-donnees{width:35%}table.versions col.c-rapports{width:24%}
@@ -870,49 +878,54 @@ a.vers-repliee{opacity:.7}
 .fiche .ind-boutons{display:flex;flex-wrap:wrap;gap:6px}
 .fiche details.pourquoi summary{cursor:pointer;font-size:var(--t-note);color:var(--lien);min-height:32px;display:flex;align-items:center}
 .fiche details.pourquoi p{font-size:var(--t-note);line-height:1.5;margin-top:6px;color:var(--texte2)}
-.fiche .rg{position:relative;height:82px;margin:2px 14px 2px 0}
+.fiche .rg{position:relative;height:94px;margin:2px 14px 2px 0}
 /* piste en retrait de 7 px de chaque bord : un point ou un triangle posé au bord de l'axe reste entier ; le point
-   passe au-dessus de toutes les marques et des étiquettes (reprise de lisibilité du 31 octobre 2026) */
+   passe au-dessus de toutes les marques et des étiquettes (reprise de lisibilité du 31 octobre 2026). Le point se pose
+   juste sous l'axe, comme dans Comparer, et la médiane sous lui : il ne touche ni ne recouvre jamais une barre, la barre
+   détachée « aucun » ni le chevron, même tout au bord de l'axe (audit du 27 novembre 2026, contrôle de finition) */
 .fiche .rg-piste{position:absolute;left:7px;right:7px;top:0;bottom:0}
 .fiche .rg-hist{position:absolute;left:0;top:20px;width:100%;height:26px}
 .fiche .rg-hist rect,.fiche .rg-hist path{fill:var(--hist)}
 .fiche .rg-axe{position:absolute;left:0;right:0;top:46px;height:1px;background:var(--hist)}
 .fiche .rg-chev{position:absolute;right:-12px;top:42px;width:8px;height:8px;border-top:2px solid var(--muted);border-right:2px solid var(--muted);transform:rotate(45deg)}
 .fiche .rg-ens{position:absolute;top:18px;height:36px;width:2px;margin-left:-1px;background:var(--ink);z-index:1}
-.fiche .rg-med{position:absolute;top:56px;margin-left:-6px;width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:8px solid var(--muted);z-index:1}
+.fiche .rg-med{position:absolute;top:68px;margin-left:-6px;width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:8px solid var(--muted);z-index:1}
 .fiche .rg-lab{position:absolute;font-size:var(--t-rg);line-height:1;white-space:nowrap;z-index:2}
 .fiche .rg-lab.haut{top:0;color:var(--ink)}
-.fiche .rg-lab.bas{top:67px;color:var(--muted)}
+.fiche .rg-lab.bas{top:79px;color:var(--muted)}
 .fiche .rg-lab.lab-c{transform:translateX(-50%)}
 .fiche .rg-lab.lab-g{transform:translateX(-3px)}
 .fiche .rg-lab.lab-d{transform:translateX(calc(-100% + 3px))}
-.fiche .rg-pt{position:absolute;top:40px;width:12px;height:12px;margin-left:-6px;box-sizing:border-box;border-radius:50%;background:var(--ink);box-shadow:0 0 0 3px var(--halo);z-index:4}
+.fiche .rg-pt{position:absolute;top:52px;width:12px;height:12px;margin-left:-6px;box-sizing:border-box;border-radius:50%;background:var(--ink);box-shadow:0 0 0 3px var(--halo);z-index:4}
 .fiche .rg.haut .rg-pt{background:var(--haut)}
 .fiche .rg.bas .rg-pt{background:var(--bas)}
 .fiche .rg.petit .rg-pt{background:var(--halo);border:2px solid var(--ink)}
-.fiche .rg.petite{height:78px}
+.fiche .rg.petite{height:92px}
 .fiche .rg.petite .rg-hist{top:16px;height:28px}
 .fiche .rg.petite .rg-axe{top:44px}
 .fiche .rg.petite .rg-chev{top:40px}
 .fiche .rg.petite .rg-ens{top:16px;height:36px}
-.fiche .rg.petite .rg-pt{top:38px}
-.fiche .rg.petite .rg-med{top:52px}
-.fiche .rg.petite .rg-lab.bas{top:63px}
+.fiche .rg.petite .rg-pt{top:50px}
+.fiche .rg.petite .rg-med{top:66px}
+.fiche .rg.petite .rg-lab.bas{top:77px}
 /* une seule taille dans les tableaux : 240 px de large, histogramme de 28 px (relecture esthétique du 31 octobre 2026) */
 .fiche table .rg.petite{width:240px;max-width:calc(100% - 14px)}
 /* étiquette de la médiane avec la part des territoires sans inscrit : sur deux lignes au besoin, réglette plus haute */
 .fiche .rg.deux .rg-lab.bas{white-space:normal;max-width:100%;line-height:1.2}
+/* la part des territoires sans inscrit ne se coupe jamais à l'intérieur de sa parenthèse : elle passe entière à la ligne
+   (audit du 27 novembre 2026, contrôle de finition) */
+.fiche .rg-part{white-space:nowrap}
 .fiche .rg-lab.rg-aucun{color:var(--muted)}
-.fiche .rg.petite.deux{height:96px}
-.fiche .rg.deux{height:100px}
-.fiche .rg.grande{height:92px}
+.fiche .rg.petite.deux{height:110px}
+.fiche .rg.deux{height:112px}
+.fiche .rg.grande{height:104px}
 .fiche .rg.grande .rg-hist{top:20px;height:34px}
 .fiche .rg.grande .rg-axe{top:54px}
 .fiche .rg.grande .rg-chev{top:50px}
 .fiche .rg.grande .rg-ens{top:18px;height:44px}
-.fiche .rg.grande .rg-pt{top:48px}
-.fiche .rg.grande .rg-med{top:64px}
-.fiche .rg.grande .rg-lab.bas{top:75px}
+.fiche .rg.grande .rg-pt{top:60px}
+.fiche .rg.grande .rg-med{top:76px}
+.fiche .rg.grande .rg-lab.bas{top:87px}
 .fiche .defile{overflow-x:auto}
 .fiche table.indicateurs{width:100%;border-collapse:collapse;table-layout:fixed;font-size:var(--t-corps)}
 .fiche table.indicateurs col.col-nom{width:28%}
@@ -1136,35 +1149,60 @@ a.vers-repliee{opacity:.7}
 .accueil .suggestions span{font-size:var(--t-note);color:var(--muted)}
 .accueil .cherche-msg{min-height:1.5em;margin:var(--e-2) 0 0;font-size:var(--t-note);color:var(--muted)}
 .accueil .date-calc{font-size:var(--t-note);color:var(--muted);margin:6px 0 0}
-/* carte cliquable de l'atlas sur la première page (demande du 2 novembre 2026), dans un cadre sans bord dont la
-   hauteur suit son contenu ; la hauteur de départ évite que la page saute pendant le chargement */
-.accueil .carte-accueil{padding:var(--e-4) 0 28px;border-top:1px solid var(--line-fort)}
-.accueil .carte-accueil h2{font-size:var(--t-section);margin:0 0 var(--e-2);border:0;padding:0}
-.accueil .carte-accueil .chapeau-carte{max-width:var(--mesure);margin:0 0 var(--e-4);color:var(--ink)}
-.accueil .carte-accueil iframe{display:block;width:100%;height:1100px;border:0;background:transparent}
-.accueil .carte-accueil .vers-atlas{margin:var(--e-3) 0 0;font-size:var(--t-note)}
-@media (max-width:760px){.accueil .carte-accueil iframe{height:900px}}
-/* colonne d'outils de l'accueil (navigation, étape 3, 8 novembre 2026, prototypes/outils_cote/ variante 1) : sur les
-   cinq colonnes laissées libres à droite du titre, sous la recherche au téléphone */
-.accueil .tete.avec-outils{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);column-gap:48px;align-items:start}
-.accueil .tete.avec-outils > :not(.outils){grid-column:1}
-.accueil .tete.avec-outils > .outils{grid-column:2;grid-row:1 / span 6;margin-top:var(--e-2)}
-.accueil .outils .outils-titre{font-size:var(--t-note);color:var(--muted);margin:0 0 4px;letter-spacing:.04em;text-align:left}
-.accueil .outils a{display:block;padding:12px 0 14px;border-top:1px solid var(--line);color:var(--ink);text-decoration:none}
-.accueil .outils a:first-of-type{border-top:1px solid var(--line-fort)}
-.accueil .outils a:hover strong{text-decoration:underline;text-underline-offset:4px}
-.accueil .outils strong{display:block;font-family:var(--serif);font-weight:400;font-size:var(--t-encadre);line-height:1.25}
-.accueil .outils span{display:block;font-size:var(--t-note);color:var(--muted);margin-top:2px;text-align:left}
-.accueil .outils a.phare strong::after{content:" \2192";font-family:var(--sans)}
-@media (max-width:860px){.accueil .tete.avec-outils{grid-template-columns:minmax(0,1fr)}
-  .accueil .tete.avec-outils > .outils{grid-column:1;grid-row:auto;margin-top:var(--e-4)}}
+/* accueil plus court (structure du site validée le 26 novembre 2026, planches 2 et 5) : en-tête 7 + 5, titre, présentation
+   et recherche à gauche, chiffres de la France à droite en tuiles de même hauteur, puis la phrase des deux totaux ; au
+   téléphone, les chiffres sous la recherche */
+.accueil .tete.avec-chiffres{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);column-gap:48px;align-items:start}
+.accueil .tete.avec-chiffres > :not(.tete-chiffres){grid-column:1}
+.accueil .tete.avec-chiffres > .tete-chiffres{grid-column:2;grid-row:1 / span 6;margin-top:var(--e-2)}
+.accueil .nationaux.tete-chiffres{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto repeat(3,1fr) auto;gap:0;padding:0;border:0}
+.accueil .tete-chiffres h2{font-family:var(--sans);font-size:var(--t-note);font-weight:600;color:var(--muted);margin:0 0 var(--e-2);border:0;padding:0}
+.accueil .tete-chiffres > div{display:grid;grid-template-columns:8rem minmax(0,1fr);column-gap:18px;align-items:start;padding:var(--e-3) 0;border-top:1px solid var(--line)}
+.accueil .tete-chiffres > div .n{font-size:var(--t-encadre);line-height:1.25}
+.accueil .tete-chiffres > div p{margin:0;max-width:none;font-size:var(--t-note);text-align:left}
+.accueil .tete-chiffres .deux-totaux{margin:0;padding:var(--e-2) 0 var(--e-3);border-top:1px solid var(--line);font-size:var(--t-note);color:var(--ink);max-width:none;text-align:left}
+@media (max-width:860px){.accueil .tete.avec-chiffres{grid-template-columns:minmax(0,1fr)}
+  .accueil .tete.avec-chiffres > .tete-chiffres{grid-column:1;grid-row:auto;margin-top:var(--e-4)}
+  .accueil .nationaux.tete-chiffres{grid-template-rows:none}}
+@media (max-width:560px){.accueil .tete-chiffres > div{grid-template-columns:6.5rem minmax(0,1fr);column-gap:12px}}
 /* sous-titre de l'accueil, dans la colonne de gauche de l'en-tête : justifié seulement quand elle fait au moins 560 px
    ((largeur de l'en-tête - 48) x 7 / 12, soit un en-tête de 1 008 px), à gauche en dessous, comme dans toute colonne
    étroite (règle 8 ; 523 px à 1 024 px d'écran, 10 novembre 2026) */
-.accueil .tete.avec-outils{container:tete-accueil / inline-size}
+.accueil .tete.avec-chiffres{container:tete-accueil / inline-size}
 @media screen and (min-width:861px){@container tete-accueil (max-width:1007px){
-  .accueil .tete.avec-outils > .chapeau{text-wrap:balance;text-align:left!important;hyphens:none;-webkit-hyphens:none}
-  .accueil .tete.avec-outils > :not(.outils) p{text-align:left}}}
+  .accueil .tete.avec-chiffres > .chapeau{text-wrap:balance;text-align:left!important;hyphens:none;-webkit-hyphens:none}
+  .accueil .tete.avec-chiffres > :not(.tete-chiffres) p{text-align:left}}}
+/* la carte des psychiatres par département, à la place de l'atlas intégré (planche_2_accueil_carte) : le dessin sur sept
+   colonnes, sa légende de page et le renvoi vers l'atlas sur cinq ; au téléphone, la légende juste sous le dessin */
+.accueil .carte-accueil{padding:var(--e-4) 0 28px;border-top:1px solid var(--line-fort)}
+.accueil .carte-accueil h2{font-size:var(--t-section);margin:0 0 var(--e-2);border:0;padding:0}
+.accueil .carte-accueil .carte-grille{display:grid;grid-template-columns:minmax(0,7fr) minmax(0,5fr);gap:var(--e-4) 48px;align-items:start}
+.accueil .carte-accueil .carte-grille > *{container-type:inline-size}
+.accueil .carte-accueil figure{margin:0;max-width:600px}
+.accueil .carte-accueil .carte-texte p{text-align:left;margin:0 0 var(--e-3)}
+.accueil .carte-accueil .ouvrir a{font-family:var(--serif);font-size:var(--t-encadre)}
+.accueil .carte-accueil .pourquoi-carte{color:var(--muted);font-size:var(--t-note)}
+.accueil .carte-accueil .leg-titre{font-size:var(--t-note);font-weight:600;margin:0 0 var(--e-2);text-align:left}
+.accueil .leg-carte{list-style:none;margin:var(--e-2) 0 var(--e-4);padding:0;font-size:var(--t-texte);text-align:left}
+.accueil .leg-carte li{display:flex;gap:12px;align-items:flex-start;margin:0 0 10px;line-height:1.4}
+.accueil .leg-carte i{flex:0 0 18px;height:14px;margin-top:4px;border:1px solid var(--line)}
+.accueil .leg-carte i.sig{flex:0 0 16px;border:0;height:16px;border-radius:50%;background:var(--signal);color:var(--bg);font:700 var(--t-note)/16px var(--sans);text-align:center;font-style:normal}
+.accueil .carte-accueil .leg-tel{display:none}
+.accueil .carte-accueil .lire-carte{font-size:var(--t-note);margin-top:var(--e-3)}
+@media (max-width:860px){.accueil .carte-accueil .carte-grille{grid-template-columns:minmax(0,1fr)}
+  .accueil .carte-accueil .leg-tel{display:block}.accueil .carte-accueil .leg-ord{display:none}
+  .accueil .leg-carte{font-size:var(--t-note)}}
+/* une seule liste d'outils (planche_2_accueil), après la santé mentale : quatre colonnes sur ordinateur */
+.accueil .outils.liste-unique{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--e-4) var(--e-5);padding:var(--e-4) 0 var(--e-5);border-top:1px solid var(--line-fort)}
+.accueil .outils.liste-unique > *{container-type:inline-size}
+.accueil .outils.liste-unique .outils-titre{grid-column:1/-1;font-size:var(--t-section);margin:0;border:0;padding:0}
+.accueil .outils.liste-unique a{display:block;color:var(--ink);text-decoration:none;border-top:1px solid var(--line);padding-top:var(--e-2);min-height:44px}
+.accueil .outils.liste-unique a:hover strong{text-decoration-color:var(--ink)}
+.accueil .outils.liste-unique strong{display:block;font-family:var(--serif);font-weight:400;font-size:var(--t-encadre);line-height:1.25;text-decoration:underline;text-decoration-color:var(--line-fort);text-decoration-thickness:1px;text-underline-offset:3px}
+.accueil .outils.liste-unique span{display:block;font-size:var(--t-note);color:var(--muted);margin-top:4px;text-align:left}
+.accueil .outils.liste-unique a.phare strong::after{content:" \2192";font-family:var(--sans)}
+@media (max-width:960px){.accueil .outils.liste-unique{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:560px){.accueil .outils.liste-unique{grid-template-columns:minmax(0,1fr)}}
 .accueil .portes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--e-4);padding:var(--e-4) 0 28px}
 .accueil .portes a{display:block;padding:var(--e-3) 0 0;border:0;border-top:1px solid var(--line-fort);border-radius:0;background:none;color:var(--ink);text-decoration:none;min-height:44px}
 .accueil .portes a:hover{border-top-color:var(--ink)}
@@ -1213,7 +1251,12 @@ button.lien-a:hover,button.lien-a:focus-visible{color:var(--action);text-decorat
 .accueil .ajouts li{display:grid;grid-template-columns:7.5rem minmax(0,1fr);gap:var(--e-1) var(--e-3);padding:10px 0;border-bottom:1px solid var(--line);margin:0}
 .accueil .ajouts time{color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
 .accueil .ajouts .plus{grid-column:2;margin:var(--e-2) 0 0;font-size:var(--t-note);color:var(--muted)}
+.accueil .ajouts .plus p{margin:0}
 .accueil .transverse{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:var(--e-4);padding:var(--e-5) 0;border-top:1px solid var(--line)}
+/* chaque case des grilles de l'accueil est la colonne qui décide du justifié : la page entière décidait, et les textes
+   des cases, de 282 à 402 px, étaient justifiés tant que le script de césure n'était pas passé (audit du 25 novembre
+   2026). Pistes en minmax(0, fr) : la case garde sa largeur. */
+.accueil :is(.portes,.nationaux,.sm,.ajouts,.autour-tete,.tuiles-dom,.transverse) > *{container-type:inline-size}
 .accueil .transverse h3{margin:0}
 .accueil .transverse h3 a{color:var(--ink)}
 .accueil .transverse p{margin-top:var(--e-2)}
@@ -1244,6 +1287,8 @@ button.lien-a:hover,button.lien-a:focus-visible{color:var(--action);text-decorat
 .domaines .modele figcaption{font-size:var(--t-note);color:var(--muted);margin-top:var(--e-2);max-width:72ch}
 .domaines .modele .ech{display:inline-block;width:26px;border-top:1.5px dashed var(--action);vertical-align:middle;margin-right:6px}
 .domaines .liste-tel{display:none}
+/* chaque case des grilles de la page Domaines décide du justifié de son texte (315 à 480 px, contrôle du 25 novembre 2026) */
+.domaines :is(.regles,.dom) > *{container-type:inline-size}
 .domaines .regles{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--e-4) var(--e-5);padding:28px 0;border-top:1px solid var(--line)}
 .domaines .regles h2{font-size:var(--t-encadre);margin:0 0 10px}
 .domaines .dom{padding:var(--e-5) 0;border-top:1px solid var(--line);display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:10px var(--e-5)}
@@ -1295,6 +1340,11 @@ h2{margin-top:var(--e-5)}
 .sommaire .bouton-sommaire{display:block;width:100%;text-align:left;background:none;border:0;color:var(--ink);font:inherit;font-weight:600;padding:6px 0;cursor:pointer}
 .sommaire .bouton-sommaire::after{content:" ▾";color:var(--muted)}
 .sommaire.ouvert .bouton-sommaire::after{content:" ▴"}
+/* sommaire replié au-dessus du texte : l'écart de la grille (48 px) et la marge haute du premier bloc s'ajoutaient au
+   filet du sommaire, 84 px de vide sur Territoires, 60 px sur Télécharger et les rapports (exigence 9, audit du
+   27 novembre 2026) ; 28 px en tout, mesurés par le contrôle de finition */
+.rapport{row-gap:var(--e-3)}
+.rapport > :not(.sommaire) > :first-child,.rapport > :not(.sommaire) > :first-child > :first-child{margin-top:0}
 }
 @media (max-width:760px){
   /* au téléphone, l'« En bref » donne ses trois premiers constats, la carte vient juste après, les autres plus bas */
@@ -1528,6 +1578,22 @@ main td a{overflow-wrap:break-word}
    « 6,7 / Mo », audit du 12 novembre 2026, point 19) ; au téléphone le nom peut passer à la ligne après un trait bas */
 main table.fichiers td:first-child a,main table.fichiers td:last-child{white-space:nowrap}
 @media (max-width:640px){main table.fichiers td:first-child a{white-space:normal}}
+/* fichiers à télécharger par thème, quatre fichiers en tête (structure du site validée le 26 novembre 2026,
+   planche_7_telecharger) ; au téléphone, une ligne par fichier : nom, contenu, puis niveau et taille */
+.methode ul.principaux{list-style:none;padding:0;margin:var(--e-2) 0 var(--e-5);display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--e-3) var(--gouttiere)}
+.methode ul.principaux li{border-top:1px solid var(--line-fort);padding-top:var(--e-2);margin:0;text-align:left}
+.methode ul.principaux strong{font-family:var(--serif);font-weight:400;font-size:var(--t-encadre)}
+.methode ul.principaux span{display:block;font-size:var(--t-note);color:var(--muted);margin-top:4px}
+.methode h3.theme-f{margin:var(--e-5) 0 var(--e-1)}
+.methode h3.theme-f span{display:block;font-family:var(--sans);font-size:var(--t-note);color:var(--muted);font-weight:400;margin-top:2px}
+main table.fichiers td.f-niveau{white-space:nowrap}
+@media (max-width:760px){.methode ul.principaux{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:640px){.methode table.fichiers thead{display:none}
+  .methode table.fichiers tr{display:block;padding:8px 0;border-bottom:1px solid var(--line)}
+  .methode table.fichiers td{display:block;border:0!important;padding:2px 0!important;white-space:normal!important;text-align:left!important}
+  .methode table.fichiers td.f-niveau,.methode table.fichiers td.f-taille{display:inline;font-size:var(--t-note);color:var(--muted)}
+  .methode table.fichiers td.f-niveau::before{content:"Niveau\00a0: "}
+  .methode table.fichiers td.f-taille::before{content:"\00a0· Taille\00a0: "}}
 .fiche .cles-fiche{margin-top:20px}
 .fiche .cle-ensemble{font-size:var(--t-note);color:var(--muted);line-height:1.5;margin:14px 0 0;max-width:var(--mesure)}
 
@@ -1542,7 +1608,7 @@ main table.fichiers td:first-child a,main table.fichiers td:last-child{white-spa
 
 /* -- tableau de bord, 7 + 5 */
 .fiche .bord{display:grid;grid-template-columns:var(--sept) minmax(0,1fr);gap:var(--gouttiere);margin-top:28px;align-items:start}
-.fiche .bord-carte{display:flex;flex-direction:column;gap:20px;min-width:0}
+.fiche .bord-carte{display:flex;flex-direction:column;gap:calc(20px + var(--g-plus,0px));min-width:0}
 .fiche .bord .carte-terr .bloc-tete{margin-bottom:12px}
 .fiche .bord .carte-terr h2,.fiche .en-bref h2{font-size:var(--t-encadre);font-family:var(--f-bloc);font-weight:400}
 .fiche .reperes-courts{border-top:1px solid var(--line-fort);padding-top:12px;display:flex;flex-direction:column;gap:8px;font-size:var(--t-note);line-height:1.5;color:var(--texte2)}
@@ -1572,13 +1638,13 @@ main table.fichiers td:first-child a,main table.fichiers td:last-child{white-spa
 .fiche .en-bref .date-calc{margin:0}
 
 /* réglette de la matrice, sans étiquettes (le nom accessible les dit) : histogramme, ensemble, médiane, point */
-.fiche .rg.micro{height:42px;width:200px;max-width:calc(100% - 10px);margin:0 10px 0 0}
+.fiche .rg.micro{height:54px;width:200px;max-width:calc(100% - 10px);margin:0 10px 0 0}
 .fiche .rg.micro .rg-hist{top:2px;height:24px}
 .fiche .rg.micro .rg-axe{top:26px}
 .fiche .rg.micro .rg-chev{top:22px;right:-10px;width:6px;height:6px}
 .fiche .rg.micro .rg-ens{top:0;height:32px}
-.fiche .rg.micro .rg-pt{top:20px}
-.fiche .rg.micro .rg-med{top:33px;margin-left:-5px;border-left-width:5px;border-right-width:5px;border-bottom-width:7px}
+.fiche .rg.micro .rg-pt{top:30px}
+.fiche .rg.micro .rg-med{top:46px;margin-left:-5px;border-left-width:5px;border-right-width:5px;border-bottom-width:7px}
 .fiche .rg.micro .rg-lab{display:none}
 
 /* -- bande de domaine, le même gabarit pour tous */
@@ -1872,6 +1938,11 @@ main table.fichiers td:first-child a,main table.fichiers td:last-child{white-spa
 /* « Comment lire » d'un groupe : justifié seulement quand sa colonne fait au moins 560 px (relecture, M3) */
 .fiche .groupe-tete{container-type:inline-size}
 @container (max-width:983px){.fiche .groupe-lire,.fiche .groupe-evol{text-align:left}}
+/* les sources d'un groupe, dans sa colonne de droite (486 px à 1 280 px), ne sont jamais justifiées, comme toute note en
+   marge ; les cases des professions et des établissements décident de leur justifié (« Catégorie FINESS… » justifié
+   sur 282 px). Relevé par le contrôle « justifié étroit » élargi le 25 novembre 2026. */
+.fiche .groupe-tete .source{text-align:left}
+.fiche .ex-prof > *{container-type:inline-size}
 /* téléphone : l'effectif et la valeur sur un rang, sans se chevaucher */
 @container (max-width:820px){
   .fiche table.indicateurs.ligne-type tbody tr{grid-template-columns:minmax(0,1fr) minmax(0,1.6fr)}
@@ -2024,6 +2095,9 @@ p.glossaire{text-align:left!important}
   main.croiser .garde ul,main.croiser .panneau,main.croiser .note-escalier,main.liens .lecture,main.domaine .sources-note,
   .fiche table.ligne-type tr.suite-ligne .lim-ligne,.fiche table.ligne-type tr.suite-ligne .defn,
   .fiche table.ligne-type tr.suite-ligne .note,.fiche table.ligne-type .phrase-tuile{max-width:none!important}
+  /* un chapeau posé dans la colonne de texte, sous la recherche (Territoires), va au bord droit des paragraphes et du
+     tableau de sa colonne : il s'arrêtait à 690 px dans une colonne de 800 (audit du 27 novembre 2026) */
+  main .colonne .corps .chapeau:not(.version){max-width:none!important}
 }
 
 /* audit de la navigation, étape 1 validée le 8 novembre 2026 : territoires contenus dans celui de la fiche,
@@ -2101,6 +2175,9 @@ nav.site .chercher[aria-expanded="true"]{border-bottom-color:var(--ink)}
 .panneau-recherche li{padding:7px 0;border-bottom:1px solid var(--line)}
 .panneau-recherche li span{display:block;color:var(--muted);font-size:var(--t-note)}
 .panneau-recherche .vide{font-size:var(--t-note);color:var(--muted);margin:14px 0 0;text-align:left}
+/* recherche approchée (phrase dont tous les mots ne se retrouvent pas ensemble, 25 novembre 2026) : la phrase qui le dit
+   se lit avant les résultats, en couleur du texte */
+.panneau-recherche .approche{color:var(--ink)}
 .panneau-recherche .reponse{margin-top:18px;padding:14px 0 16px;border-top:2px solid var(--ink);border-bottom:1px solid var(--line-fort);display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:24px;align-items:start;text-align:left}
 .panneau-recherche .reponse .n{font-family:var(--serif);font-size:var(--t-section);line-height:1;grid-row:1 / span 4}
 .panneau-recherche .reponse .t{font-size:var(--t-texte);line-height:1.4}
@@ -2243,6 +2320,8 @@ nav.site .chercher[aria-expanded="true"]{border-bottom-color:var(--ink)}
 .fiche table.tt tr[hidden]{display:none}
 .fiche table.tt td.v{text-align:right;font-variant-numeric:tabular-nums}
 .fiche table.tt td.v b{font-weight:600;font-size:var(--t-texte)}
+/* le nombre de lieux sous la valeur, au téléphone aussi : en ligne, « 3,6 10 lieux » se lisait comme un seul nombre
+   (contrôle « valeur collée à sa note », 25 novembre 2026) */
 .fiche table.tt .tt-n{display:block;color:var(--muted);text-align:right}
 .fiche table.tt .tt-rl{display:block;color:var(--muted)}
 .fiche table.tt .tt-rd{display:none}
@@ -2275,7 +2354,6 @@ nav.site .chercher[aria-expanded="true"]{border-bottom-color:var(--ink)}
  .fiche table.tt tr{padding:10px 0;border-bottom:1px solid var(--line)}
  .fiche table.tt th,.fiche table.tt td,.fiche table.tt td.rep{border:0;padding:2px 0}
  .fiche table.tt td.v,.fiche table.tt .tt-n{text-align:left}
- .fiche table.tt td.v .tt-n{display:inline;margin-left:8px}
  .fiche table.tt .tt-rd{display:inline;color:var(--muted)}
  .fiche table.tt td.rep .tt-rl{display:none}
  .fiche table.tt tr.tt-sous{padding-top:18px}
@@ -2292,3 +2370,105 @@ nav.site .chercher[aria-expanded="true"]{border-bottom-color:var(--ink)}
 .fiche .legende-rg .note{margin:0}
 .fiche .legende-rg i.trait.plein{width:0;height:14px;border-top:0;border-left:2px solid var(--ink);margin:0 6px}
 @media (max-width:560px){.fiche .legende-rg dl div{grid-template-columns:1fr}}
+/* Fiche courte et dossier complet (structure validée le 26 novembre 2026, prototypes/structure_2026-11-25/, planches 8
+   et 5) : tuiles suivies de leur réglette et de leur lecture, Repères en deux colonnes, carte en 7 + 5, domaines en trois
+   indicateurs phares ; au dossier complet, le lien de retour et le chiffre de la France sous chaque profession */
+.fiche .retour-fiche{margin:0 0 var(--e-2);font-size:var(--t-note);text-align:left}
+.fiche .retour-fiche a{font-weight:600}
+.fiche .groupe-totaux{margin:0;font-size:var(--t-note);line-height:1.5;color:var(--texte2)}
+.fiche .groupe-tete .groupe-totaux{grid-column:1;max-width:var(--mesure)}
+@container (max-width:983px){.fiche .groupe-tete .groupe-totaux{text-align:left}}
+.fiche .groupe-totaux b{color:var(--ink)}
+.fiche .groupe-totaux a{hyphens:manual;-webkit-hyphens:manual}
+.fiche table.ligne-type td.pos .note.france{display:block;color:var(--texte2)}
+.fiche-courte .cles-fiche li.cle-tuile{padding-bottom:var(--e-3)}
+.fiche-courte .cles-fiche .sous-tuile{margin-top:var(--e-2);padding-top:var(--e-2);border-top:1px solid var(--line);font-size:var(--t-note)}
+.fiche-courte .cles-fiche .sous-tuile .rg.petite{width:auto;max-width:calc(100% - 14px)}
+.fiche-courte .cles-fiche .sous-tuile p{margin:4px 0 0;text-align:left}
+.fiche-courte .cles-fiche .cle-ensemble{margin-bottom:0}
+.fiche-courte .cles-fiche .groupe-totaux{margin-top:var(--e-2)}
+.fiche-courte .st-lien a,.fiche-courte .vers-complet a{font-weight:600}
+.fiche-courte .bande.reperes-fiche{margin-top:var(--e-4)}
+.fiche-courte .reperes-fiche .lire-reglette{margin:0 0 var(--e-4)}
+.fiche-courte .reperes-bloc{margin-top:var(--e-5)}
+.fiche-courte .reperes-bloc:first-of-type{margin-top:0}
+.fiche-courte .reperes-bloc .bloc-tete{display:flex;align-items:baseline;gap:16px;margin:0 0 var(--e-2)}
+.fiche-courte .reperes-bloc h2{font-size:var(--t-encadre);font-family:var(--f-bloc);font-weight:400;margin:0}
+.fiche-courte .reperes-bloc > .comment-lire,.fiche-courte .reperes-bloc > .groupe-totaux{font-size:var(--t-note);line-height:1.5;text-align:left;margin:0 0 var(--e-1);color:var(--texte2)}
+.fiche-courte .reperes-bloc > .comment-lire b{color:var(--ink)}
+.fiche-courte .lim-bloc{margin:0 0 var(--e-2)}
+.fiche-courte .m-def,.fiche-courte .m-lim,.fiche-courte .m-phrase,.fiche-courte .m-rep,.fiche-courte .m-fr{margin:4px 0 0;font-size:var(--t-note);line-height:1.45;text-align:left}
+.fiche-courte .m-def,.fiche-courte .m-rep{color:var(--ink)}
+.fiche-courte .m-phrase,.fiche-courte .m-fr{color:var(--texte2)}
+.fiche-courte .m-lim{display:flex;gap:6px;color:var(--ink)}
+.fiche-courte .m-lim b{color:var(--signal)}
+.fiche-courte .m-menu{margin-top:2px}
+.fiche-courte .m-menu details{display:inline-block}
+.fiche-courte table.matrice .etiq{display:block;font-size:var(--t-note);color:var(--texte2);font-weight:400}
+.fiche-courte table.matrice tbody th .note{display:block}
+.fiche-courte .vers-complet{margin:var(--e-3) 0 0;text-align:left}
+/* Repères en deux colonnes, domaines en trois, sur ordinateur ; les valeurs alignées en colonne */
+@media (min-width:861px){
+ .fiche-courte .reperes-bloc table.matrice thead{display:none}
+ .fiche-courte .reperes-bloc table.matrice tbody,.fiche-courte table.matrice.cartes-3 tbody{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));column-gap:var(--gouttiere)}
+ .fiche-courte table.matrice.cartes-3 tbody{grid-template-columns:repeat(3,minmax(0,1fr))}
+ .fiche-courte .reperes-bloc table.matrice tbody tr,.fiche-courte table.matrice.cartes-3 tbody tr{display:block;border-top:1px solid var(--line);padding:10px 0}
+ .fiche-courte .reperes-bloc table.matrice tbody th,.fiche-courte .reperes-bloc table.matrice tbody td,
+ .fiche-courte table.matrice.cartes-3 tbody th,.fiche-courte table.matrice.cartes-3 tbody td{display:block;border:0;padding:0;width:auto}
+}
+@media (max-width:860px){
+ .fiche-courte table.matrice,.fiche-courte table.matrice tbody{display:block}
+ .fiche-courte table.matrice thead{display:none}
+ .fiche-courte table.matrice tr{display:block;padding:10px 0;border-top:1px solid var(--line);border-bottom:0}
+ .fiche-courte table.matrice tbody th,.fiche-courte table.matrice td{display:block;border:0;padding:0}
+}
+.fiche-courte table.matrice.cartes-3{width:100%;margin-top:var(--e-2)}
+.fiche-courte .m-ligne{display:grid;grid-template-columns:minmax(0,1fr) 6.5rem;align-items:center;column-gap:8px}
+.fiche-courte .m-ligne .m-v{text-align:right}
+/* au téléphone et sur tablette, la réglette occupe la ligne jusqu'à la valeur, au bord droit juste après son chevron :
+   pas de vide entre les deux (exigence 9, audit du 27 novembre 2026, contrôle de finition 7 ter) */
+@media (max-width:860px){
+ .fiche-courte .m-ligne{grid-template-columns:minmax(0,1fr) auto;column-gap:8px}
+ .fiche-courte table.matrice .m-ligne .rg.petite{width:auto;max-width:none}
+}
+/* la carte en 7 + 5 : à sa droite, ses textes et le bloc « CMP pour adultes » */
+.fiche-courte .bord.bord-courte{display:block;margin-top:var(--e-5)}
+.fiche-courte .bord-courte .carte-terr{display:grid;grid-template-columns:var(--sept) minmax(0,1fr);column-gap:var(--gouttiere);align-items:start}
+.fiche-courte .bord-courte .bc-g,.fiche-courte .bord-courte .bc-d{min-width:0}
+.fiche-courte .bord-courte .bc-d{padding-top:56px;display:flex;flex-direction:column;gap:var(--e-3)}
+.fiche-courte .bord-courte .carte-texte-d{display:flex;flex-direction:column;gap:8px;padding-bottom:var(--e-3);border-bottom:1px solid var(--line)}
+.fiche-courte .bord-courte .carte-texte-d[hidden]{display:none}
+.fiche-courte .bord-courte .carte-texte-d p{margin:0;font-size:var(--t-note);line-height:1.5;text-align:left}
+.fiche-courte .bord-courte .carte-texte-d .comment-lire{color:var(--ink)}
+.fiche-courte .bord-courte .reperes-courts{border-top:0;padding-top:0}
+.fiche-courte .bord-courte .carte-terr > .bc-d:only-child{grid-column:1/-1;padding-top:0}
+@media (max-width:860px){
+ .fiche-courte .bord-courte .carte-terr{grid-template-columns:minmax(0,1fr)}
+ .fiche-courte .bord-courte .bc-d{padding-top:var(--e-3)}
+}
+/* domaines en trois indicateurs phares */
+.fiche-courte .bande.dom-courte{padding-top:16px;border-top:1px solid var(--line)}
+.fiche-courte .bande.dom-courte .titre-bande{font-size:var(--t-encadre);margin:0}
+/* domaines sans base, territoires, citer */
+.fiche-courte .renvoi-a-venir{margin:var(--e-5) 0 0;padding:var(--e-3) 0;border-top:1px solid var(--line-fort);border-bottom:1px solid var(--line-fort);color:var(--ink)}
+.fiche-courte .renvoi-a-venir p{margin:0 0 var(--e-2);text-align:left;max-width:none}
+.fiche-courte .renvoi-a-venir p:last-child{margin:0}
+.fiche-courte .terr-fiche h2{font-size:var(--t-encadre);font-family:var(--f-bloc);font-weight:400;margin:0 0 var(--e-3)}
+.fiche-courte .terr-fiche .terr-grille{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--e-4) var(--gouttiere)}
+.fiche-courte .terr-fiche .terr-bloc h3{margin:0 0 var(--e-2);font-size:var(--t-texte);font-weight:600}
+.fiche-courte .terr-fiche ul{list-style:none;margin:0;padding:0;columns:2 14rem;column-gap:24px}
+.fiche-courte .terr-fiche li{margin:0 0 6px;break-inside:avoid;text-align:left}
+.fiche-courte .terr-fiche .communes{text-align:left;font-size:var(--t-note);margin:0}
+@media (max-width:860px){.fiche-courte .terr-fiche .terr-grille{grid-template-columns:minmax(0,1fr)}}
+.fiche-courte .bande.citer-sec{margin-top:var(--e-5)}
+.fiche-courte .bande.citer-sec .citer-fiche{margin-top:0;padding-top:var(--e-3);border-top:1px solid var(--line)}
+@media print{
+ .fiche-courte .m-menu,.fiche-courte .st-lien,.fiche-courte .vers-complet{display:none}
+ .fiche-courte .cles-fiche ul.n4,.fiche-courte .cles-fiche ul.n3{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .fiche-courte .reperes-bloc table.matrice tbody tr,.fiche-courte table.matrice.cartes-3 tbody tr,.fiche-courte .cles-fiche li.cle-tuile{break-inside:avoid;page-break-inside:avoid}
+}
+@media (max-width:860px){
+ .fiche-courte .cles-fiche ul{grid-template-columns:minmax(0,1fr)!important}
+ .fiche-courte .cles-fiche li.cle-tuile{border-top:1px solid var(--line);padding-top:var(--e-2)}
+ .fiche-courte .cles-fiche li.cle-tuile:first-child{border-top:0}
+}

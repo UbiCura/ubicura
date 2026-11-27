@@ -62,6 +62,7 @@ def entete_densite(C, profs) -> str:
             if any(C.fac(p) == 100000 for p in profs) else f"Pour 10{AF.FINE}000 habitants")
 
 SM, SANTE = config.SANTE_MENTALE, config.SANTE
+from . import questions as _QQ  # noqa: E402
 PRINCIPALES = {
     SM: ["psychologue", "psychiatre", "pedopsychiatre", "psychotherapeute"],
     SANTE: ["medecin_generaliste", "infirmier", "masseur_kinesitherapeute", "orthophoniste", "psychomotricien",
@@ -674,7 +675,7 @@ def _recours(C: Contexte, insee, ctxlab):
         return []
     T = pd.DataFrame(lignes)
     r0 = T.iloc[0]
-    L = ["### Besoins et recours aux soins en santé mentale", "",
+    L = ["### État de santé mentale et recours aux soins", "",
          "Aucune donnée ne mesure directement le besoin de soins en santé mentale. Le rapport en réunit plusieurs "
          "approches, présentées côte à côte et jamais combinées en un score.", "",
          "#### Personnes prises en charge par l'Assurance Maladie", "",
@@ -825,7 +826,7 @@ def _besoins_spf(C: Contexte, insee):
         "Le nombre de personnes soignées pour un trouble psychique peut dépendre en partie du nombre de soignants. Là où ils "
         "sont plus nombreux, plus de personnes sont repérées et suivies. Les décès par suicide, les gestes "
         "auto-infligés et les réponses à une enquête dépendent beaucoup moins du nombre de soignants. Ils donnent donc "
-        "un second regard sur les besoins, à lire avec le premier. Les passages aux urgences sont une part de l'activité des urgences et non un taux rapporté à la population. "
+        "un second regard, à lire avec le premier. Les passages aux urgences sont une part de l'activité des urgences et non un taux rapporté à la population. "
         "Mayotte, dont les données sont moins complètes, n'est pas retenue pour désigner les valeurs extrêmes.",
         # les lignes du Baromètre sont nommées d'après leur source, jamais « les trois dernières » (audit du 13 novembre
         # 2026, C3 : l'entretien postnatal, par département, s'y trouvait compté)
@@ -844,7 +845,7 @@ def _besoins_spf(C: Contexte, insee):
             profs = [p for p in ["psychiatre", "psychologue"] if p in f.index]
             # un lien n'est présenté comme établi que s'il passe la règle unique du site (regle_lien)
             incertains = {p for p in profs if not regle_lien.est_lien(f.at[p, "rho_spearman"], f.at[p, "q_bh"])}
-            phr = [f"{nombre(f.at[p, 'rho_spearman'], 2)} pour les {pluriel(C.lab[p])} (fourchette plausible de "
+            phr = [f"{nombre(f.at[p, 'rho_spearman'], 2)} pour les {pluriel(C.lab[p])} (intervalle de confiance à 95 % de "
                    f"{nombre(f.at[p, 'ic95_bas'], 2)} à {nombre(f.at[p, 'ic95_haut'], 2)})" for p in profs]
             texte = (f"Entre départements, la corrélation de rang entre le taux de décès par suicide et la densité de "
                      f"professionnels vaut {_liste(phr)}.")
@@ -1215,7 +1216,8 @@ def _route(C: Contexte, famille):
         "Le plus proche n'est pas toujours disponible. Un professionnel peut ne plus accepter de nouveaux patients, "
         "avoir des délais longs ou pratiquer des dépassements d'honoraires. Ce tableau mesure une proximité, pas un "
         "accès effectif.",
-        "Le lien entre ces temps de trajet et le taux de suicide est décrit plus bas, dans la partie sur les besoins "
+        "Le lien entre ces temps de trajet et le taux de suicide est décrit plus bas, dans la partie sur l'état de "
+        "santé mentale et le recours aux soins "
         "(section [« Croisements entre bases »](#croisements-entre-bases))." if famille == SM else "")
     cr, ca = C.R.get("comparaison_route"), C.R.get("comparaison_apl")
     plus = [f"Source, INSEE, données sur la localisation et l'accès de la population aux "
@@ -1906,7 +1908,7 @@ def _eloignement(C, L, famille):
     if isinstance(co, pd.DataFrame) and tid in set(co["type"]):
         r = co.set_index("type").loc[tid]
         b3 = lambda v: nombre(v, 3) if abs(v) < .005 else f2(v)  # noqa: E731
-        fourchette = f"fourchette plausible de {b3(r['ic95_bas'])} à {b3(r['ic95_haut'])}"
+        fourchette = f"intervalle de confiance à 95 % de {b3(r['ic95_bas'])} à {b3(r['ic95_haut'])}"
         if r["ic95_bas"] <= 0 <= r["ic95_haut"]:
             tete += (f" L'indice de concentration de cet éloignement selon le niveau de vie vaut {f2(r['indice_concentration'])} "
                      f"({fourchette}), sans lien net avec le niveau de vie.")
@@ -2293,13 +2295,13 @@ def _chercheurs(C: Contexte):
 
 
 def _quadrants(C: Contexte, ctxlab):
-    """Offre face aux indicateurs de besoin, par département."""
+    """Offre face aux indicateurs de santé mentale, par département."""
     qd = C.R.get("quadrants")
     if not isinstance(qd, pd.DataFrame) or qd.empty:
         return []
     noms = C.ref.deps.set_index("code")["nom"]
     var = "suicides" if "suicides" in set(qd["variable"]) else qd["variable"].iloc[0]
-    L = ["#### Offre face aux indicateurs de besoin", ""]
+    L = ["#### Offre face aux indicateurs de santé mentale", ""]
     phrases, tableaux = [], []
     for p in ["psychiatre", "psychologue"]:
         x = qd[(qd["prof"] == p) & (qd["variable"] == var)].dropna(subset=["quadrant"])
@@ -2325,7 +2327,7 @@ def _quadrants(C: Contexte, ctxlab):
     autres = sorted(set(qd["variable"]) - {var})
     L += [" ".join(phrases), ""] + graphique("quadrants_sm") + tableaux
     L += _comment_lire(
-        "Chaque département est situé selon deux critères, sa densité de professionnels et un indicateur de besoin, "
+        "Chaque département est situé selon deux critères, sa densité de professionnels et un indicateur de santé mentale, "
         "chacun comparé à sa médiane (la valeur qui partage les départements en deux moitiés). On obtient quatre "
         "groupes. Les listes repliées donnent, par ordre alphabétique, les départements au-dessus de la médiane "
         "pour l'indicateur et au-dessous pour la densité.",
@@ -2334,7 +2336,7 @@ def _quadrants(C: Contexte, ctxlab):
         "signale les départements d'Île-de-France, où les suicides sont nettement sous-déclarés.",
         limites.phrase_md(["suicides"]))
     L += _plus_loin([f"Seuils, médianes des départements (Mayotte exclue des indicateurs de l'Assurance Maladie). Le "
-                     f"même classement est calculé pour les {len(autres)} autres indicateurs de besoin et de recours "
+                     f"même classement est calculé pour les {len(autres)} autres indicateurs d'état de santé et de recours aux soins "
                      f"et pour les psychiatres qualifiés pour l'enfant et les médecins généralistes, dans quadrants.csv "
                      f"et quadrants_odbl.csv. Un département proche d'une médiane peut changer de groupe d'une année "
                      f"à l'autre sans changement réel."])
@@ -2350,7 +2352,7 @@ REF_WAGSTAFF = ("Wagstaff A, Paci P, van Doorslaer E. On the measurement of ineq
 def _sens_concentration(lo, hi, variable=""):
     # les personnes prises en charge (Assurance Maladie) mesurent le recours aux soins, pas le besoin (relecture du
     # 17 novembre 2026)
-    quoi = "le recours mesuré" if str(variable).startswith("pec_") else "le besoin mesuré"
+    quoi = "le recours mesuré" if str(variable).startswith("pec_") else "l'indicateur"
     if lo > 0:
         return f"plus présents là où {quoi} est élevé"
     if hi < 0:
@@ -2359,7 +2361,7 @@ def _sens_concentration(lo, hi, variable=""):
 
 
 def _loi_inverse(C: Contexte, ctxlab):
-    """Loi inverse des soins, indice de concentration de l'offre selon le besoin (départements)."""
+    """Loi inverse des soins, indice de concentration de l'offre selon un indicateur de santé mentale (départements)."""
     li = C.R.get("loi_inverse")
     if not isinstance(li, pd.DataFrame) or li.empty:
         return []
@@ -2372,7 +2374,7 @@ def _loi_inverse(C: Contexte, ctxlab):
         r = r.iloc[0]
         tete = (f"Quand on classe les départements du taux de suicide le plus faible au plus fort, les psychiatres sont "
                 f"{r['lecture']} (indice de concentration {nombre(r['indice_concentration'], 2)}, fourchette {r['fourchette']}).")
-    L = ["#### L'offre va-t-elle là où le besoin est le plus fort ?", "", tete, "",
+    L = ["#### L'offre est-elle plus présente là où les indicateurs de santé mentale sont élevés ?", "", tete, "",
          _tableau(t, ["libelle", "besoin", "indice_concentration", "fourchette", "lecture"],
                   ["Profession", "Départements classés selon", "Indice de concentration", "Fourchette (95 %)", "Lecture"],
                   {"indice_concentration": lambda v: nombre(v, 2)}), ""]
@@ -2380,11 +2382,11 @@ def _loi_inverse(C: Contexte, ctxlab):
         "En 1971, le médecin Julian Tudor Hart a décrit une « loi inverse des soins », selon laquelle l'offre de soins "
         "tend à être plus faible là où les besoins sont les plus forts. L'indice de concentration la mesure. Il vaut "
         "0 si les professionnels suivent la population, il est négatif s'ils sont plus présents dans les départements "
-        "où le besoin mesuré est faible, positif dans l'autre cas.",
+        "où l'indicateur est faible, positif dans l'autre cas.",
         "Les personnes prises en charge par l'Assurance Maladie dépendent elles-mêmes de l'offre, un indice positif "
         "avec cet indicateur est donc attendu et ne prouve pas que l'offre répond au besoin. Le suicide en dépend "
         "beaucoup moins. Ces liens portent sur des départements, pas sur des personnes.")
-    L += _plus_loin([f"Indice de concentration (méthode de Wagstaff), départements triés selon l'indicateur de besoin, "
+    L += _plus_loin([f"Indice de concentration (méthode de Wagstaff), départements triés selon l'indicateur, "
                      f"pondérés par leur population, intervalle à 95 % par bootstrap ({config.BOOTSTRAP} tirages). "
                      f"Mayotte est exclue. Détail dans loi_inverse.csv et loi_inverse_odbl.csv. Références, "
                      f"{REF_TUDOR_HART}. {REF_WAGSTAFF}."])
@@ -2392,14 +2394,14 @@ def _loi_inverse(C: Contexte, ctxlab):
 
 
 def _concordance(C: Contexte, ctxlab):
-    """Les indicateurs de besoin désignent-ils les mêmes départements ?"""
+    """Les indicateurs de santé mentale désignent-ils les mêmes départements ?"""
     co = C.R.get("concordance_besoins")
     if not isinstance(co, pd.DataFrame) or co.empty:
         return []
     t = co.assign(a=co["variable_a"].map(lambda v: ctxlab.get(v, v)), b=co["variable_b"].map(lambda v: ctxlab.get(v, v)))
     t = t.sort_values("rho", ascending=False)
     fort = int((t["rho"].abs() >= .5).sum())
-    L = ["#### Les indicateurs de besoin désignent-ils les mêmes départements ?", "",
+    L = ["#### Les indicateurs de santé mentale désignent-ils les mêmes départements ?", "",
          f"Sur {len(t)} paires d'indicateurs, {fort} sont fortement liées (corrélation de rang d'au moins 0,5 en valeur "
          f"absolue), et la médiane des corrélations vaut {nombre(t['rho'].median(), 2)}. Les indicateurs ne désignent "
          f"donc pas tous les mêmes départements, d'où l'intérêt de les lire côte à côte plutôt que d'en retenir un seul.",
@@ -2412,21 +2414,8 @@ def _concordance(C: Contexte, ctxlab):
     return L
 
 
-THEMES_CROISEMENTS = {
-    SM: {"hopital_liberal": "L'offre hospitalière est-elle plus forte là où les psychiatres libéraux sont moins nombreux ?",
-         "secteur2_revenu": "Dans les territoires aisés, l'offre de psychiatres est-elle plus chère ?",
-         "enfance": "L'offre en psychiatrie de l'enfant suit-elle la protection de l'enfance ?",
-         "trajet_suicide": "Les départements éloignés d'un psychiatre libéral ont-ils plus de suicides, au-delà de la ruralité ?",
-         "lieux_psy": "Les CMP, CATTP et hôpitaux de jour sont-ils plus nombreux là où les psychiatres manquent ?",
-         "lieux_enfants": "Les structures de soins pour enfants suivent-elles l'offre de psychiatres pour l'enfant ?",
-         "lieux_social": "Les habitants des départements modestes sont-ils plus loin des CMP et des CSAPA ?"},
-    SANTE: {"reeducation": "L'offre libérale de rééducation suit-elle l'offre médico-sociale pour les enfants ?",
-            "medecin_traitant": "Les patients sans médecin traitant sont-ils plus nombreux là où les généralistes "
-                                "libéraux manquent, ou là où la population est âgée ?",
-            "lieux_urgences": "Les départements éloignés des urgences comptent-ils plus ou moins de passages pour "
-                              "geste auto-infligé ?",
-            "lieux_maternite": "Les départements où les maternités sont loin ont-ils moins d'enfants ?",
-            "charge_liberaux": "Là où les libéraux sont moins nombreux, chacun voit-il plus de patients ?"}}
+# titres des questions préparées, table unique pipeline/questions.py (PREPAREES)
+THEMES_CROISEMENTS = {SM: _QQ.PREPAREES["sm"], SANTE: _QQ.PREPAREES["sante"]}
 COMMENT_CROISEMENTS = {
     "hopital_liberal": "Une corrélation négative dirait que l'offre hospitalière est plus forte là où les psychiatres "
                        "libéraux sont moins nombreux, sans dire que l'une compense l'autre, une corrélation positive que "
@@ -2469,8 +2458,7 @@ COMMENT_CROISEMENTS = {
 }
 
 
-THEMES_ADDICTO = {"lieux_addicto": "Les structures d'addictologie sont-elles plus nombreuses là où plus de personnes "
-                                     "sont prises en charge pour une addiction ?"}
+THEMES_ADDICTO = _QQ.PREPAREES["addicto"]
 
 
 def _croisements(C: Contexte, ctxlab, famille=SM, niveau="####", themes=None):

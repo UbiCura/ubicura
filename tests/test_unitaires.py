@@ -286,7 +286,8 @@ def test_methode_en_pages():
         for ident in re.findall(r'<h2 id="(\w+)"', corps):
             # les pages venues après la méthode en cinq pages (Étendue des données et Citer et réutiliser, 24 novembre
             # 2026) n'ont jamais été des sections de methode.html : aucune adresse ancienne à rediriger
-            if vue not in ("entree", "etendue", "citer"):
+            # de même pour « Fichiers principaux » de Télécharger (structure validée le 26 novembre 2026)
+            if vue not in ("entree", "etendue", "citer") and ident not in ("principaux",):
                 assert redir.get(ident) == f"methode-{vue}.html", (ident, vue)
 
 
@@ -2207,6 +2208,16 @@ def test_doi_reserves_et_publication_du_site():
         config.DONNEES = ancien
 
 
+def test_sept_groupes_de_pages_notes_comme_construction_complete():
+    """« --pages » avec les sept groupes refait tout le site : la citation est notée comme celle d'une construction
+    complète, sans « mélange » de versions de Zenodo (27 novembre 2026)."""
+    import inspect
+    from pipeline import site
+    src = inspect.getsource(site.construire)
+    assert "noter_citation(groupes is None or set(GROUPES) <= set(groupes))" in src
+    assert "groupes is None or g in groupes" in src             # chaque groupe demandé est refait en entier
+
+
 def test_limite_psychologues_calculee():
     """La limite des psychologues est écrite avec les écarts de concordance_effectifs.csv, sens et valeurs compris, et
     relue depuis site_data quand le site est refait seul (demande du 30 octobre 2026, audit externe)."""
@@ -3376,7 +3387,8 @@ def test_carte_corse_et_plan_des_structures():
     assert 0 < d < 2
     assert "estCorse(lv,f)?P.corse:P.metro" in t and "metro([ll[0]-DLON_CORSE,ll[1]])" in t
     assert "CORSE.includes(f.properties.dep)?{...f,geometry:decaler(f.geometry)}" in t
-    assert "zones,epci,corse" in t and any(g[0] == "corse" for g in GLOSSAIRE)
+    # le « Comment lire » de la carte suit la mesure choisie (25 novembre 2026) et porte toujours la note sur la Corse
+    assert 'zones:"zones"' in t and 'S.level==="epci"?"epci":"","corse"' in t and any(g[0] == "corse" for g in GLOSSAIRE)
     assert ".lx-corps{display:grid;grid-template-columns:minmax(0,1fr);" in t
     assert "position:sticky;top:200px" not in t
     # commandes de la carte dans la barre de titre, plus posées sur la carte
@@ -3482,8 +3494,10 @@ def test_moteur_atlas_modules():
     assert "(function(){\n/*MOTEUR*/\n})();" in gabarit.replace("\r\n", "\n") and "function render(" not in gabarit
     assert ca.source().count("function render(") == 1
     assert 'id="scatter"' not in ca.source() and 'id="lienNuage"' in ca.source()
+    # « Croiser deux indicateurs » a rejoint Croiser (structure validée le 26 novembre 2026) : Explorer ne charge plus le
+    # nuage du moteur, et la case des corrélations de l'atlas mène à Croiser
     page = (ca.ICI.parent / "gabarits" / "explorer.html").read_text(encoding="utf-8")
-    assert 'id="scatter"' in page and "data-moteur" in page
+    assert 'id="scatter"' not in page and "data-moteur" not in page and 'id="cxCroiser"' in page
 
 
 def test_meme_largeur_atlas_explorer():
@@ -4117,7 +4131,7 @@ def test_corrections_fiche_avant_mise_en_ligne():
             for fig in re.findall(r"<figure\b[^>]*>", corps):
                 assert "data-titre" in fig or "carte-fig" in fig, fig
             assert corps.count('class="citer-encadre"') >= corps.count('<figure class="carte-bloc"') + 2, p.name
-            if p.stem == "248400251":                                                     # M5 rendu
+            if p.stem in ("248400251", "248400251-complet"):                              # M5 rendu
                 # les départements sont des liens vers leur fiche depuis l'étape 1 de la navigation (8 novembre 2026)
                 tete = re.sub(r"<[^>]+>", "", re.search(r'class="tete-l2">(.*?)</p>', h, flags=re.S).group(1))
                 assert "Vaucluse et Gard" in tete and 'class="groupe-note note-deps"' in h
@@ -4275,9 +4289,10 @@ def test_relecture_v2_fiches_construites():
         dist.columns = [c.lstrip("﻿") for c in dist.columns]
         nulles = dist[(dist["type"] == "lieu_cmp_adultes")
                       & (pd.to_numeric(dist["distance_mediane_km"].str.replace(",", "."), errors="coerce") == 0)]
-        code = next((c for c in nulles["code"] if (S.SITE / "territoire" / "epci" / f"{c}.html").exists()), None)
+        # la phrase est au dossier complet, la fiche courte ne garde que les Repères
+        code = next((c for c in nulles["code"] if (S.SITE / "territoire" / "epci" / f"{c}-complet.html").exists()), None)
         assert code, "aucune intercommunalité à distance médiane nulle d'un CMP pour adultes"
-        nbt = (S.SITE / "territoire" / "epci" / f"{code}.html").read_text(encoding="utf-8")
+        nbt = (S.SITE / "territoire" / "epci" / f"{code}-complet.html").read_text(encoding="utf-8")
         assert AF.DANS_COMMUNE in nbt and "un CMP pour adultes dans la commune d'au moins la moitié des habitants" in nbt, code
     ard = pages["dep/08"].read_text(encoding="utf-8")
     import html as H
@@ -4522,7 +4537,8 @@ def test_position_dit_son_ensemble():
         pages = FT.construire(env, S._commun(r, sd), r, sd, site, config.RACINE / "docs" / "veille" / "registre_bases.csv",
                               config.ADRESSE_SITE, config.CITATION_AUTEUR,
                               {("epci", "200090561"), ("dep", "971"), ("reg", "24")})
-        assert len(pages) == 3
+        # chaque territoire a sa fiche courte et son dossier complet (structure validée le 26 novembre 2026)
+        assert len(pages) == 6
         for f in pages:
             fautes = positions_sans_ensemble(f.read_text(encoding="utf-8"))
             assert not fautes, (f.name, fautes[:5])
@@ -6170,6 +6186,51 @@ def test_distances_sans_traverser_la_mer():
     assert loin.empty, loin[["code", "type", "distance_mediane_km"]].head().to_dict("records")
 
 
+def test_fiches_d_intercommunalites_disparues_redirigees():
+    """Référentiel Etalab 6.1.0 (26 novembre 2026) : quatre intercommunalités fusionnées en deux. Chaque ancienne est
+    rattachée à celle qui réunit le plus d'habitants de ses communes, et, dans le site construit, sa fiche courte et son
+    dossier complet renvoient vers ceux de la nouvelle, sans données périmées. Sur les vraies versions en cache."""
+    import re
+    from pipeline import config, site as S
+    R = config.RESULTATS
+    vs = sorted(p for p in R.glob("20*") if (p / "accessibilite_communes.csv").exists())
+    if not any(p.name <= "2026-11-23" for p in vs) or vs[-1].name < "2026-11-27":
+        raise Ignore("versions d'avant et d'après le référentiel 6.1.0 absentes")
+    attendu = {"241200658": "994579670", "241200765": "994579670", "245701222": "992367730", "245701362": "992367730"}
+    succ = S.successeurs_intercommunalites(vs[-1], set(attendu) | {"000000000"})
+    assert {k: v[1] for k, v in succ.items()} == attendu, succ
+    assert succ["245701222"][0] == "CA du Val de Fensch" and succ["245701222"][2] == "CA Thionville Fensch Agglomération"
+    rep = S.SITE / "territoire" / "epci"
+    if (rep / "992367730.html").exists():
+        for a, n in attendu.items():
+            for suf in ("", "-complet"):
+                h = (rep / f"{a}{suf}.html").read_text(encoding="utf-8")
+                assert f'location.replace("{n}{suf}.html"' in h and 'http-equiv="refresh"' in h and "noindex" in h, (a, suf)
+                assert re.search(r"n’existe plus sous ce nom", h), (a, suf)
+                # le nom avec son article, jamais « font désormais partie de CC du Lévézou »
+                assert not re.search(r"\b(?:partie de|<p>)(?:CC|CA|CU) ", h), (a, suf)
+            assert not (rep / f"{a}.json").exists(), a
+    lev = (rep / "241200658.html").read_text(encoding="utf-8") if (rep / "241200658.html").exists() else ""
+    assert not lev or ("<p>La communauté de communes du Pays de Salars n’existe plus" in lev
+                       and "partie de la communauté de communes du Lévézou." in lev), lev[-300:]
+
+
+def test_csv_colonne_de_nombres_en_texte_ecrite_avec_la_virgule():
+    """export._csv écrit avec la virgule une colonne de texte qui ne tient que des nombres (lits du ROR sortis
+    « 44.0 » dans la version du 27 novembre 2026, 8 540 lignes) ; une colonne de texte ou de booléens reste telle quelle."""
+    import tempfile
+    from pathlib import Path
+    import pandas as pd
+    from pipeline import config, export as E
+    d = pd.DataFrame({"code": ["01", "02", "03"], "lits": pd.Series([44.0, None, 7.5], dtype=object),
+                      "t": ["a", None, "b"], "b": pd.Series([True, None, False], dtype=object)})
+    with tempfile.TemporaryDirectory() as tmp:
+        f = Path(tmp) / "x.csv"
+        E._csv(d, f)
+        assert f.read_text(encoding="utf-8-sig").splitlines() == ["code;lits;t;b", "01;44;a;True", "02;;;", "03;7,5;b;False"]
+    assert "astype(\"Int64\")" in (config.RACINE / "pipeline" / "export.py").read_text(encoding="utf-8")
+
+
 def test_csv_publies_virgule_decimale():
     """Chaque nombre des fichiers CSV publiés s'écrit avec la virgule décimale. Défaut du 17 novembre 2026 : les
     distances vidées pour les PMI changeaient les colonnes de nombres en texte, et les fichiers distances_lieux_* de
@@ -6387,12 +6448,19 @@ def test_referencement():
     assert f"{config.ADRESSE_SITE.rstrip('/')}/" in locs and atlas_dans_plan == (PRESENTATION.get("accueil") == "portail")
     # une page de travail (« _planche.html ») ne part pas en ligne et n'a pas de référencement ; toutes les autres en ont
     assert "/XF _*.html" in (config.RACINE / "outils" / "publier.ps1").read_text(encoding="utf-8-sig")
+    # un dossier de travail (« site/_maquette_structure/ ») ne part pas non plus, et le contrôle des décisions l'ignore
+    assert " _* /XF" in (config.RACINE / "outils" / "publier.ps1").read_text(encoding="utf-8-sig")
+    assert 'top.startswith(("prototype", "_"))' in (config.RACINE / "outils" / "controle_decisions.py").read_text(encoding="utf-8")
     assert not any(p.name.startswith("_") for p in rf.pages_publiques(site))
     assert not any(re.search(r"/_[^/]*\.html$", u) for u in locs)
     publiques = rf.pages_publiques(site)
     assert len(publiques) > 1000
     for p in publiques:
         t = p.read_text(encoding="utf-8")
+        if p.relative_to(site).as_posix() == "404.html":
+            # la page d'une adresse inconnue n'a pas d'adresse de référence ni de place dans le plan (25 novembre 2026)
+            assert 'rel="canonical"' not in t and not any(u.endswith("/404.html") for u in locs), p
+            continue
         assert t.count('rel="canonical"') == 1 and t.count(rf.MARQUE) <= 1, p
     fichiers = (site / "methode-fichiers.html").read_text(encoding="utf-8")
     jeu = json.loads(re.search(r'<script type="application/ld\+json">(.*?)</script>', fichiers).group(1))
@@ -7158,7 +7226,10 @@ def test_offre_hors_site_publie():
     ps1 = (racine / "outils" / "publier.ps1").read_text(encoding="utf-8-sig")
     xd = re.search(r"robocopy[^\n]*/XD ([^/\n]*)/", ps1)
     assert xd, "copie des pages publiques introuvable dans publier.ps1"
-    assert set(V.DOSSIERS_EXCLUS) <= set(xd.group(1).split()), xd.group(1)
+    # robocopy lit les motifs : « _* » écarte « _maquettes » et tout autre dossier de brouillon (25 novembre 2026)
+    import fnmatch
+    motifs = xd.group(1).split()
+    assert all(any(fnmatch.fnmatchcase(d, m) for m in motifs) for d in V.DOSSIERS_EXCLUS), xd.group(1)
     assert "verifier_site_public.py" in ps1
     site = racine / "site"
     if not (site / "index.html").exists():
@@ -7232,9 +7303,10 @@ def test_limites_visibles_fiche_territoire():
         pages = FT.construire(S._environnement(), S._commun(r, sd), r, sd, Path(d),
                               config.RACINE / "docs" / "veille" / "registre_bases.csv", "https://ubicura.fr", "Pithon L.",
                               {("epci", "200090561"), ("dep", "01")})
-        assert len(pages) == 2
+        # la fiche courte et le dossier complet ; la fiche entière, qui porte tous les tableaux, est le dossier complet
+        assert len(pages) == 4
         vues = set()
-        for p in pages:
+        for p in [p for p in pages if p.stem.endswith("-complet")]:
             h = p.read_text(encoding="utf-8")
             # aucun « ! » qui ne dise sa limite qu'au survol
             assert not re.search(r'class="sig"[^>]*title=', h)
@@ -7735,6 +7807,8 @@ def test_constats_fiche_territoire():
     mots_ok |= {"habitants", "par", "km", "pour", "mm", "communauté", "communes", "agglomération", "urbaine", "métropole",
                 "département", "région", "intercommunalité", "confirmé", "confirmés", "tous", "aucun", "confirmer", "du", "de", "la", "le", "d", "âge", "égal", "inscrit", "inscrits"}
     mots_ok |= set(re.findall(r"[a-zàâçéèêëîïôûùüÿœæ]+", " ".join(K.AF.SENS_POSITION.values())))   # mots de la position
+    from pipeline.sources import ameli_ald as _ald      # unité qui nomme sa population (27 novembre 2026)
+    mots_ok |= set(re.findall(r"[a-zàâçéèêëîïôûùüÿœæ]+", _ald.UNITE.lower()))
     mots_ok |= set(re.findall(r"[a-zàâçéèêëîïôûùüÿœæ]+", " ".join(  # écart en mots et clé des sens contraires
         [K.AF.ecart_mots(-.1), K.AF.ecart_mots(.1), K.AF.ecart_mots(0)] + list(K.AF.CLE_CONTRAIRE.values())).lower()))
     for lv in ("epci", "dep", "reg"):   # noms des niveaux et du territoire médian, mis dans les modèles
@@ -8422,12 +8496,10 @@ def test_boutons_de_zoom_sans_boite_partout():
             if re.search(r"(^|;)\s*border\s*:\s*\d+px\s+solid", decl) or boite_fond:
                 fautes.append(f"{f.name}: {s[-60:]}")
     assert not fautes, fautes
+    # le nuage d'Explorer a rejoint Croiser (structure validée le 26 novembre 2026) : plus de barre de zoom posée sur lui ;
+    # le contrôle de mise en page signale deux barres superposées sur toute page
     ex = (config.RACINE / "gabarits" / "explorer.html").read_text(encoding="utf-8")
-    regle = re.search(r"#qCroisements \.zoombar\{([^}]*)\}", ex).group(1)
-    assert "position:static" in regle
-    # le nuage a sa propre barre (elle redessine les axes) : pas de seconde barre des figures du site par-dessus, et le
-    # contrôle de mise en page signale deux barres superposées sur toute page
-    assert re.search(r'<figure class="graphique" id="figCxNuage">', ex)
+    assert "#qCroisements .zoombar" not in ex and 'id="figCxNuage"' not in ex
     js = (config.RACINE / "outils" / "controle_finition.js").read_text(encoding="utf-8")
     assert "barres de zoom superposées" in js
 
@@ -8438,7 +8510,9 @@ def test_explorer_jamais_justifie_au_telephone_ni_en_citation():
     toujours à gauche, et le contrôle de mise en page regarde aussi ce qui est replié."""
     ex = (config.RACINE / "gabarits" / "explorer.html").read_text(encoding="utf-8")
     assert ".outil .fen-corps p{max-width:none;text-align:justify}" not in ex
-    assert "@media (min-width:560px){.outil .fen-corps p{text-align:justify}}" in ex
+    # la colonne décide, pas la largeur de l'écran (contrôle du 25 novembre 2026, note de 427 px justifiée à 1 024 px)
+    assert "@container (min-width:560px){.outil .fen-corps p{text-align:justify}}" in ex
+    assert "@media (min-width:560px){.outil .fen-corps p{text-align:justify}}" not in ex
     assert ".outil .fen-corps .citation-fig p{text-align:left}" in ex
     js = (config.RACINE / "outils" / "controle_finition.js").read_text(encoding="utf-8")
     assert "citation justifiée" in js and "texte justifié au téléphone, même replié" in js
@@ -9208,11 +9282,12 @@ def test_fiche_departement_indicateurs_de_la_region():
         pages = FT.construire(S._environnement(), S._commun(r, sd), r, sd, Path(d),
                               config.RACINE / "docs" / "veille" / "registre_bases.csv", "https://ubicura.fr", "Pithon L.",
                               {("dep", c) for c in deps} | {("reg", c) for c in regs})
-        assert len(pages) == len(deps) + len(regs)
-        fiches_reg = {c: lignes((Path(d) / "territoire" / "reg" / f"{c}.html").read_text(encoding="utf-8")) for c in regs}
+        # les indicateurs publiés seulement par région sont au dossier complet de la fiche (structure du 26 novembre 2026)
+        assert len(pages) == 2 * (len(deps) + len(regs))
+        fiches_reg = {c: lignes((Path(d) / "territoire" / "reg" / f"{c}-complet.html").read_text(encoding="utf-8")) for c in regs}
         non_publiees, vues = [], 0
         for c in deps:
-            h = (Path(d) / "territoire" / "dep" / f"{c}.html").read_text(encoding="utf-8")
+            h = (Path(d) / "territoire" / "dep" / f"{c}-complet.html").read_text(encoding="utf-8")
             assert h.count('class="groupe groupe-region"') == 1, c
             k = h.index('class="groupe groupe-region"')
             # dans la partie « 01 Santé mentale », avant la partie suivante
@@ -9433,12 +9508,16 @@ def test_fiches_portes_et_liens_etape_2():
     fautes = []
     n = 0
     for lv in ("reg", "dep", "epci"):
-        for f in sorted((site / "territoire" / lv).glob("*.html")):
+        # la porte et le tableau complet sont au dossier complet (<code>-complet.html), la fiche courte a ses tests
+        for f in sorted((site / "territoire" / lv).glob("*-complet.html")):
             h = f.read_text(encoding="utf-8")
+            if 'http-equiv="refresh"' in h and 'content="noindex"' in h:
+                continue                # intercommunalité disparue, page de renvoi (site.rediriger_fiches_disparues)
             n += 1
-            j = json.loads(f.with_suffix(".json").read_text(encoding="utf-8"))
+            code = f.stem.removesuffix("-complet")
+            j = json.loads((f.parent / f"{code}.json").read_text(encoding="utf-8"))
             m = re.search(r'<div class="porte seul-ecran" id="porte" data-niv="([^"]+)" data-code="([^"]+)"(?: data-reg="([^"]*)")?', h)
-            if not m or m.group(1) != lv or m.group(2) != f.stem or (lv == "dep" and m.group(3) != j.get("reg")):
+            if not m or m.group(1) != lv or m.group(2) != code or (lv == "dep" and m.group(3) != j.get("reg")):
                 fautes.append(f"{lv}/{f.stem} : porte absente ou mal renseignée")
                 continue
             if h.find('id="porte"') < h.find('class="cles-fiche"') or 'id="tout-terr"' not in h or 'href="#tout-terr"' not in h \
@@ -10355,8 +10434,9 @@ def test_total_des_structures_chacune_une_fois():
     fautes = []
     for f in sorted((config.RACINE / "site" / "territoire" / "dep").glob("*.html")):
         m = re.search(r"([\d  ]+) structures? de soins psychiques (?:sont inscrites|est inscrite)", f.read_text(encoding="utf-8"))
-        if m and int(re.sub(r"\D", "", m.group(1))) != int(attendu.get(f.stem, 0)):
-            fautes.append((f.stem, m.group(1), int(attendu.get(f.stem, 0))))
+        code = f.stem.removesuffix("-complet")   # fiche courte et dossier complet
+        if m and int(re.sub(r"\D", "", m.group(1))) != int(attendu.get(code, 0)):
+            fautes.append((f.stem, m.group(1), int(attendu.get(code, 0))))
     assert not fautes, fautes[:6]
 
 
@@ -10699,7 +10779,9 @@ def test_liste_indicateurs_dans_l_archive():
     with zipfile.ZipFile(ddir / f"donnees_{d.name}.zip") as zz:
         dans_zip = {n for n in zz.namelist() if n.endswith(".csv")}
     if S.version_figee(d.name):
-        assert not (d / "liste_indicateurs.csv").exists() and dans_zip == {f.name for f in d.glob("*.csv")}
+        # archivée avant la liste, elle ne l'a ni au dossier ni au zip ; archivée après (brouillons du 27 novembre 2026,
+        # faits du dossier qui l'avait déjà reçue), elle l'a aux deux : le zip est toujours le dossier
+        assert dans_zip == {f.name for f in d.glob("*.csv")}
     else:
         assert (d / "liste_indicateurs.csv").exists() and "liste_indicateurs.csv" in dans_zip
 
@@ -10907,7 +10989,8 @@ def test_citer_au_pied_de_chaque_page():
     import re
     from pipeline import config
     site, *_ = _citer_publiee()
-    lien = re.compile(r'<a href="((?:\.\./)*)methode-fichiers\.html">Télécharger les données</a> '
+    # « / » : la page d'une adresse inconnue (404.html) a des liens absolus depuis la racine (25 novembre 2026)
+    lien = re.compile(r'<a href="((?:\.\./)*|/)methode-fichiers\.html">Télécharger les données</a> '
                       r'<a href="\1methode-citer\.html">Citer et réutiliser</a>')
     for g in (config.RACINE / "gabarits" / "base.html", config.RACINE / "atlas" / "atlas_template.html"):
         assert len(lien.findall(g.read_text(encoding="utf-8").replace("{{ racine }}", ""))) == 1, g.name
@@ -10968,7 +11051,13 @@ def test_citer_doi_egaux_a_la_citation_du_site():
     import re
     from pipeline import citer, config, site as S
     _site, h, corps, texte, sc = _citer_publiee()
-    assert not sc["reservee"] and not sc["melange"]
+    assert not sc["melange"]
+    if sc["reservee"]:
+        # site construit avec les DOI réservés des brouillons, avant la publication de Zenodo (27 novembre 2026)
+        import json
+        zj = json.loads((config.DONNEES / "zenodo.json").read_text(encoding="utf-8"))
+        assert zj.get("en_preparation") == sc["version"], (zj.get("en_preparation"), sc["version"])
+        assert {c: b["doi"] for c, b in zj["brouillons"].items()} == sc["dois"], sc["dois"]
     d = sc["dois"]
     ed = S.date_longue(sc["version"])
     tete = re.search(r'<ul class="citer-cles".*?</ul>', corps, flags=re.S).group(0)
@@ -10985,7 +11074,13 @@ def test_citer_doi_egaux_a_la_citation_du_site():
         assert f"https://doi.org/{d[cle]}" in c and f"Version du {ed}" in c, c
     assert cits[3] == citer.citation_site().replace(" ", " ").replace(" ", " "), cits[3]
     en_ligne = re.findall(r"<tr><td class=\"d\">[^<]*\(en ligne\).*?</tr>", corps, flags=re.S)
-    assert len(en_ligne) == 1 and all(f"https://doi.org/{d[c]}" in en_ligne[0] for c in d), en_ligne
+    # un site construit d'une version de travail, plus récente que la version citée, ne dit aucune version « en ligne »
+    # (citer.contexte, en_ligne) ; le site à publier, construit de la version citée, en dit une
+    site_iso = max(p.name for p in (_site / "rapports").iterdir() if re.fullmatch(r"\d{4}-\d{2}-\d{2}", p.name))
+    if site_iso != sc["version"]:
+        assert not en_ligne, en_ligne
+    else:
+        assert len(en_ligne) == 1 and all(f"https://doi.org/{d[c]}" in en_ligne[0] for c in d), en_ligne
 
 
 def test_citer_sans_date_d_edition_future():
@@ -11064,10 +11159,11 @@ def test_citer_nombres_et_versions():
     with zipfile.ZipFile(zp) as z:
         dans = [n.rsplit("/", 1)[-1] for n in z.namelist() if n.endswith(".csv")]
     n, n_odbl = len(dans), sum("_odbl" in x for x in dans)
-    tableau = re.search(r'<table class="[^"]*\bfichiers\b[^"]*">(.*?)</table>', mf, flags=re.S).group(1)
+    # Télécharger range les fichiers par thème, un tableau par thème (structure validée le 26 novembre 2026)
+    tableau = " ".join(re.findall(r'<table class="[^"]*\bfichiers\b[^"]*">(.*?)</table>', mf, flags=re.S))
     sur_site = [re.sub(r"\.zip$", "", x) for x in re.findall(r'<td><a href="donnees/[^/]+/([^"]+)"', tableau)]
     a_part = sorted(set(sur_site) - set(dans))
-    taille = re.search(r"\(archive zip, ([^)]+)\)", mf).group(1).replace(" ", " ").replace(" ", " ")
+    taille = re.sub(r"[\u00a0\u202f]", " ", re.search(r"Archive zip, ([^,]+), les", mf).group(1))
     assert f"{n} fichiers CSV, en une archive zip de {taille}" in texte
     assert f"Les {n - n_odbl} fichiers CSV sans suffixe de l’archive" in texte
     assert f"Les {n_odbl} fichiers suffixés _odbl" in texte and f"Les {n} fichiers CSV de la version" in texte
@@ -11077,6 +11173,9 @@ def test_citer_nombres_et_versions():
     # versions archivées et ce qu'en dit leur description
     hist = json.loads((config.DONNEES / "zenodo_versions.json").read_text(encoding="utf-8"))
     V = citer.versions(hist)
+    if sc["reservee"] and V[0]["iso"] != sc["version"]:
+        # version aux DOI réservés, pas encore publiée sur Zenodo : la page la met en tête (citer.contexte)
+        V.insert(0, {"iso": sc["version"], "doi": sc["dois"]})
     assert V[0]["iso"] == sc["version"] and V[0]["doi"] == sc["dois"]
     assert f"{len(V)} versions" in texte and f"depuis le {S.date_longue(V[-1]['iso'])}" in texte
     visibles = corps[:corps.index('<details class="anciennes">')]
@@ -11091,7 +11190,9 @@ def test_citer_nombres_et_versions():
     # au téléphone, les colonnes fixes de l'ordinateur ne serrent pas les lignes du tableau (filet réduit au tiers de la
     # largeur, 25 novembre 2026)
     assert re.search(r"table\.versions thead,table\.versions colgroup\{display:none\}table\.versions\{table-layout:auto\}", css)
-    tetes = sorted(hist["depots"]["donnees"], key=lambda x: (x["date"], x["cree"]), reverse=True)[1:]
+    # versions remplacées : toutes celles du relevé quand la version citée n'y est pas encore (DOI réservés)
+    reservee_en_tete = "corrigee" not in V[0]
+    tetes = sorted(hist["depots"]["donnees"], key=lambda x: (x["date"], x["cree"]), reverse=True)[0 if reservee_en_tete else 1:]
     renvoi = sum(1 for x in tetes if x["tete"].startswith("Version remplacée. Cette version est remplacée par")
                  or "Utiliser la version corrigée du" in x["tete"])
     assert f"{renvoi} des {len(tetes)} versions remplacées y renvoient" in texte
@@ -11174,7 +11275,8 @@ def test_aucun_lien_vers_une_ancre_absente():
             if href.startswith(("http", "mailto")):
                 continue
             page, frag = href.split("#", 1)
-            if re.search(r"[=?&/:]", frag):
+            if re.search(r"[=?&/:]", frag) or frag == "imprimer":
+                # « #imprimer » commande l'impression du dossier complet à l'arrivée, ce n'est pas une ancre
                 continue
             cible = Path(posixpath.normpath((p.parent / page).as_posix())) if page else p
             I = ancres(cible)
@@ -11182,6 +11284,350 @@ def test_aucun_lien_vers_une_ancre_absente():
             if I is None or frag not in I:
                 manques.append((r, href))
     assert n > 1000 and not manques, (n, manques[:10])
+
+
+def _fiches_courtes(*pages):
+    """Les fiches courtes construites demandées (« epci/243500139 »), avec leur dossier complet : {page: (courte, complet)}."""
+    from pipeline import config
+    site = config.RACINE / "site" / "territoire"
+    out = {}
+    for p in pages:
+        c, k = site / f"{p}.html", site / f"{p}-complet.html"
+        if c.exists() and k.exists():
+            out[p] = (c.read_text(encoding="utf-8"), k.read_text(encoding="utf-8"))
+    return out
+
+
+def test_fiche_courte_choix_et_regles():
+    """Fiche courte (structure validée le 26 novembre 2026, prototypes/structure_2026-11-25/, notes.md, 3 bis) : les
+    Repères suivent la règle écrite (d'abord « En bref » sans les tuiles, puis les lignes suivantes des tableaux de la
+    partie, jusqu'à dix, un indicateur qu'aucun territoire du niveau n'a étant écarté), les mêmes pour tous les territoires
+    d'un niveau ; les domaines, leurs trois premiers phares ; les unités disent leur population ; les distances se
+    nomment « Distance au … » ; une limite répétée dans un bloc s'écrit une fois ; le repère d'un taux qui ne s'additionne
+    pas est dit une fois. Sur Rennes Métropole, les listes de la maquette validée."""
+    import re
+    from pipeline import fiche_courte as FC
+    # règles pures
+    assert FC._nom({"id": "dist_lieu_urgences", "lib": "Service d'urgences"}) == "Distance au service d'urgences"
+    assert FC._nom({"id": "dist_lieu_cmp_adultes", "lib": "CMP pour adultes"}) == "Distance au CMP pour adultes"
+    assert FC._nom({"id": "dist_lieu_x", "lib": "Distance à la structure la plus proche, EHPAD, km"}).startswith("Distance à la")
+    cat = {"ald_23": {"unite": "pour 100 000 personnes du régime général, standardisé sur l'âge"},
+           "lieux_lieu_cmp_adultes": {"unite": "pour 100 000 hab."}}
+    assert FC._unite({"id": "ald_23", "kind": "ctx"}, cat, "epci") == cat["ald_23"]["unite"]
+    assert FC._unite({"id": "lieux_lieu_cmp_adultes", "kind": "lieux"}, cat, "epci") == "pour 100 000 habitants"
+    assert FC._unite({"kind": "prof", "fac": 100000}, cat, "epci") == "pour 100 000 habitants"
+    assert FC._unite({"kind": "dist"}, cat, "epci") == "km, médiane des habitants"
+    r = [{"lims": ["a", "b"]}, {"lims": ["a"]}, {"lims": ["c"]}]
+    assert FC.limites_communes(r) == ["a"] and [x["lims"] for x in r] == [["b"], [], ["c"]]
+    assert FC.adresse_complet("243500139") == "243500139-complet.html"
+    assert "la somme des intercommunalités compte dans chacune" in FC.phrase_totaux("epci")
+    # sur la fiche construite
+    F = _fiches_courtes("epci/243500139", "epci/200039204")
+    if "epci/243500139" not in F:
+        raise Ignore("fiche courte de Rennes Métropole non construite")
+
+    def ids_bloc(h, ancre):
+        i = h.index(f'id="{ancre}"')
+        j = h.index("</section>", i)
+        return re.findall(r'<tr id="[^"]+" data-ind="([^"]+)"', h[i:j])
+    h, _ = F["epci/243500139"]
+    assert ids_bloc(h, "d-sm") == ["lieux_lieu_cmp_adultes", "prof:q_psychiatrie_enfant:all", "ald_23",
+                                   "prof:pedopsychiatre:all", "prof:psychotherapeute:all", "prof:q_addictologie:all",
+                                   "lieux_lieu_cmp_enfants", "lieux_lieu_cattp", "lieux_lieu_hdj_psy_adultes",
+                                   "lieux_lieu_hdj_psy_enfants"], ids_bloc(h, "d-sm")
+    assert ids_bloc(h, "d-sante") == ["prof:medecin_generaliste:all", "prof:infirmier:all", "dist_lieu_urgences",
+                                      "prof:masseur_kinesitherapeute:all", "prof:chirurgien_dentiste:all", "prof:pediatre:all",
+                                      "prof:sage_femme:all", "prof:orthophoniste:all", "prof:psychomotricien:all",
+                                      "prof:pharmacien:all"], ids_bloc(h, "d-sante")
+    assert ids_bloc(h, "d-population") == ["densite_pop", "part_0_14", "part_80p"], ids_bloc(h, "d-population")
+    assert ids_bloc(h, "d-revenus") == ["revenu_median", "taux_pauvrete", "taux_chomage"], ids_bloc(h, "d-revenus")
+    import html as H
+    t = re.sub(r"[   ]", " ", H.unescape(h)).replace("'", "’")
+    # les affections de longue durée nomment leur population (audit du 27 novembre 2026)
+    assert "Distance au service d’urgences" in t and "pour 100 000 personnes du régime général, standardisé" in t
+    assert "Repère, médiane des départements : 2 408 (taux standardisé sur l’âge, qui ne s’additionne pas)." in t
+    assert "Les 6 autres indicateurs de ce domaine" in t and "Les 9 autres indicateurs de ce domaine" in t
+    assert "Ses 43 communes" in t and t.count('href="../epci/') >= 10
+    # les mêmes Repères d'un territoire à l'autre du niveau
+    if "epci/200039204" in F:
+        h2 = F["epci/200039204"][0]
+        assert ids_bloc(h2, "d-sm") == ids_bloc(h, "d-sm") and ids_bloc(h2, "d-sante") == ids_bloc(h, "d-sante")
+
+
+# une unité « pour 10 000 » ou « pour 100 000 » qui ne nomme pas sa population : suivie d'une ponctuation, d'une balise,
+# d'un guillemet ou de la fin du texte (« pour 100 000, standardisé », « 2,3 pour 10 000, 15 746 personnes »)
+RX_UNITE_SEULE = r"pour (?:1|10|100|1 000)(?: 000)(?=\s*(?:[,.;:)\"<]|$))"
+
+
+def test_unites_population_nommee():
+    """Règle de la planche 8 (structure validée le 26 novembre 2026, notes.md, 3 bis) : jamais « pour 100 000 » seul,
+    la population de référence toujours nommée (audit du 27 novembre 2026 : « Diabète (ALD 8), pour 100 000,
+    standardisé », chiffre de la France sous les professions, « Pourquoi on le dit » des structures, choix de la carte,
+    cellules du dossier complet). Contrôlé à la source (unité des affections de longue durée, catalogue de la version),
+    dans le code des fiches, et sur toutes les fiches construites, fiche courte et dossier complet."""
+    import json
+    import re
+    from pipeline import config
+    from pipeline import fiche_courte as FC
+    from pipeline.sources import ameli_ald
+    rx = re.compile(RX_UNITE_SEULE)
+    norm = lambda s: re.sub(r"[   ]", " ", s)   # noqa: E731
+    assert not rx.search(ameli_ald.UNITE) and "régime général" in ameli_ald.UNITE and "standardis" in ameli_ald.UNITE
+    assert FC._unite({"id": "ald_8", "kind": "ctx"}, {"ald_8": {"unite": ameli_ald.UNITE}}, "dep") == ameli_ald.UNITE
+    # le code des fiches n'écrit aucune unité seule
+    fichiers = [*(config.RACINE / "pipeline").glob("fiche_*.py"), config.RACINE / "pipeline" / "bandes_fiche.py",
+                *(config.RACINE / "gabarits").glob("fiche_*.html")]
+    for f in fichiers:
+        for m in re.finditer(r"""['"](?:ensemble )?pour 1?00? 000['"]""", f.read_text(encoding="utf-8")):
+            raise AssertionError(f"{f.name} : unité sans population {m.group(0)}")
+    # le catalogue de la dernière version (site_data.json) : chaque unité « pour N » nomme sa population
+    res = sorted(p for p in (config.RACINE / "resultats").glob("20*") if (p / "site_data.json").exists())
+    if res:
+        sd = json.loads((res[-1] / "site_data.json").read_text(encoding="utf-8"))
+        seules = [(c["id"], c.get("unite")) for c in sd.get("contexte", []) if rx.search(norm(c.get("unite") or ""))]
+        assert not seules, ("catalogue de " + res[-1].name + " : unités sans population, à refaire par run.py", seules[:5])
+    dossier = config.RACINE / "site" / "territoire"
+    if not dossier.exists():
+        raise Ignore("site non construit")
+    n, fautes = 0, []
+    for f in sorted(dossier.glob("*/*.html")):
+        if f.name.startswith("_"):
+            continue
+        h = norm(re.sub(r"<script\b.*?</script>", " ", f.read_text(encoding="utf-8"), flags=re.S))
+        n += 1
+        for m in rx.finditer(h):
+            fautes.append(f"{f.relative_to(dossier).as_posix()} : « {h[max(0, m.start() - 40):m.end() + 15]} »")
+    assert n > 100 and not fautes, (n, len(fautes), fautes[:6])
+
+
+def test_fiche_comment_lire_recours_menu_pdf():
+    """Audit du 27 novembre 2026 sur la fiche courte et le dossier complet :
+    - le « Comment lire » d'un domaine ne dit qu'une fois qu'il ne mesure pas un besoin de soins, et celui de l'état de
+      santé et du recours ne le dit pas des « conditions de vie » (fiche_territoire._lire_domaine) ;
+    - sur une fiche, l'entrée Territoires du menu est allumée avec aria-current="true", comme l'atlas : « page » est
+      réservé à la page même de l'entrée ;
+    - le bouton PDF de la fiche courte imprime le dossier complet (notes 3 bis) : il y mène (#imprimer), et le dossier
+      complet lance l'impression à son arrivée ; aucune fiche courte n'imprime sa propre page."""
+    import re
+    from pipeline import config
+    from pipeline.domaines import DOMAINES
+    from pipeline.fiche_territoire import _lire_domaine
+    vus = 0
+    for d in DOMAINES:
+        if not d.get("pourquoi"):
+            continue
+        for ids in ([], [{"id": "caf_aah"}, {"id": "ase_enfance"}]):
+            t = _lire_domaine(d, ids)
+            assert t.count("besoin de soins") <= 1, (d["id"], t)
+        if d["id"] == "recours":
+            assert "besoin de soins" in t and "conditions de vie" not in t, t
+            vus += 1
+    assert vus == 1
+    nav = (config.RACINE / "gabarits" / "nav.html").read_text(encoding="utf-8")
+    assert "'fiche': 'territoires'" in nav
+    assert 'page="territoires"' not in (config.RACINE / "pipeline" / "fiche_territoire.py").read_text(encoding="utf-8")
+    dossier = config.RACINE / "site" / "territoire"
+    if not dossier.exists():
+        raise Ignore("site non construit")
+    n, fautes = 0, []
+    for f in sorted(dossier.glob("*/*.html")):
+        if f.name.startswith("_"):
+            continue
+        h, nom = f.read_text(encoding="utf-8"), f.relative_to(dossier).as_posix()
+        if 'http-equiv="refresh"' in h and 'content="noindex"' in h:
+            continue                    # intercommunalité disparue, page de renvoi (site.rediriger_fiches_disparues)
+        m = re.search(r'<nav class="site".*?</nav>', h, re.S)
+        if m:
+            on = re.findall(r'<a class="l on"[^>]*>', m.group(0))
+            if len(on) != 1 or 'aria-current="true"' not in on[0]:
+                fautes.append(f"{nom} : menu {on}")
+        complet = f.stem.endswith("-complet")
+        for x in re.findall(r'<p class="lire-bande">(.*?)</p>', h, re.S):
+            if x.count("besoin de soins") > 1:
+                fautes.append(f"{nom} : « besoin de soins » deux fois dans un Comment lire")
+        if not complet and (f.parent / f"{f.stem}-complet.html").exists():
+            n += 1
+            if "window.print()" in h or not re.search(rf'href="{re.escape(f.stem)}-complet\.html#imprimer"[^>]*>PDF<', h):
+                fautes.append(f"{nom} : le PDF n'est pas imprimé depuis le dossier complet")
+        if complet and 'location.hash !== "#imprimer"' not in h:
+            fautes.append(f"{nom} : le dossier complet n'imprime pas à l'arrivée")
+    assert n > 100 and not fautes, (n, len(fautes), fautes[:6])
+
+
+def test_reglette_point_sous_axe():
+    """Le point d'une réglette ne touche ni ne recouvre jamais une barre, la barre détachée « aucun » ni le chevron
+    (audit du 27 novembre 2026 : psychologues à 98 %, distance au CMP, CMP pour adultes) : à chaque taille, il se pose
+    sous l'axe, halo compris, et la médiane sous lui ; la part « (aucun : 69 %) » ne se coupe pas dans sa parenthèse ;
+    au téléphone, la réglette d'une ligne de la fiche courte va jusqu'à sa valeur. Le contrôle de finition (5 et 7 ter)
+    le mesure dans la page, à 1 280 et à 375 px."""
+    import re
+    from pipeline import config
+    css = (config.RACINE / "gabarits" / "style.css").read_text(encoding="utf-8")
+
+    def top(sel):
+        m = re.search(re.escape(sel) + r"\{[^}]*?top:(\d+)px", css)
+        return int(m.group(1)) if m else None
+    halo = int(re.search(r"\.fiche \.rg-pt\{[^}]*box-shadow:0 0 0 (\d+)px", css).group(1))
+    for taille in ("", ".petite", ".grande", ".micro"):
+        pre = ".fiche .rg" + taille + " " if taille else ".fiche "
+        axe, pt, med = top(pre + ".rg-axe"), top(pre + ".rg-pt"), top(pre + ".rg-med")
+        assert None not in (axe, pt, med), taille
+        assert pt >= axe + 1 + halo, (taille, "point sur les barres", axe, pt)
+        assert med >= pt + 12 + halo, (taille, "médiane sous le point", pt, med)
+        lab = top(pre + ".rg-lab.bas")
+        if lab is not None:
+            assert lab >= med + 8 + 2, (taille, lab, med)
+    assert re.search(r"\.fiche \.rg-part\{white-space:nowrap\}", css)
+    rg = (config.RACINE / "gabarits" / "reglette.html").read_text(encoding="utf-8")
+    assert ' <span class="rg-part" hidden>(aucun' in rg
+    assert re.search(r"@media \(max-width:860px\)\{\s*\.fiche-courte \.m-ligne\{grid-template-columns:minmax\(0,1fr\) auto[;}]",
+                     css), "fiche courte au téléphone : la réglette ne va pas jusqu'à sa valeur"
+    cf = (config.RACINE / "outils" / "controle_finition.js").read_text(encoding="utf-8")
+    assert "point qui touche ou recouvre les barres" in cf and "point qui touche le chevron" in cf
+    assert "» coupée\")" in cf and "entre la réglette et la valeur" in cf
+
+
+def test_fiche_courte_construite():
+    """La fiche courte, dans l'ordre validé (en-tête, tuiles et leur lecture, Repères en santé mentale et en santé, carte
+    en 7 + 5 et « CMP pour adultes », domaines, domaines sans base, territoires, citer), à l'adresse de la fiche ; le dossier
+    complet à côté, avec son lien de retour. Chaque valeur de la fiche courte est celle de la même ligne du dossier
+    complet ; chaque ligne montrée garde sa position, sa définition ou sa limite, et sa phrase de lecture quand la fiche
+    entière la montre ; chaque lien vers le dossier complet mène à une ancre qui y existe ; une ancre absente de la fiche
+    courte y renvoie. Sur une intercommunalité, un département, une région et un petit territoire d'outre-mer."""
+    import re
+    F = _fiches_courtes("epci/243500139", "dep/35", "reg/53", "epci/249710047")
+    if len(F) < 2:
+        raise Ignore("fiches courtes non construites")
+
+    def ids(h):
+        return set(re.findall(r'\bid="([^"]+)"', h))
+
+    def valeurs(h):
+        out = {}
+        for m in re.finditer(r'<tr[^>]*\bdata-ind="([^"]+)"[^>]*>(.*?)</tr>', h, re.S):
+            b = re.search(r'<(?:td class="v"|span class="m-v")>\s*<b>(.*?)</b>', m.group(2), re.S)
+            out.setdefault(m.group(1), re.sub(r"\s*km$", "", b.group(1).strip()) if b else None)
+        return out
+    for p, (h, k) in F.items():
+        code = p.split("/")[1]
+        ordre = [h.index(x) for x in ('class="tete-fiche', 'class="cles-fiche"', 'id="d-sm"', 'id="d-sante"', 'id="bord"',
+                                      'class="renvoi-a-venir"', 'id="citer"')]
+        assert ordre == sorted(ordre), (p, ordre)
+        assert h.count('class="sous-tuile"') >= 3 and h.count("Sa ligne détaillée") >= 2, p
+        assert f'href="{code}-complet.html">Dossier complet</a>' in h, p
+        assert f'<a href="{code}.html">Fiche ' in k and "Dossier complet : tous les indicateurs" in re.sub(r"[  ]", " ", k), p
+        # la fiche entière reste entière au dossier complet
+        I_k = ids(k)
+        for a in ("porte", "bord", "t-bref", "comparer", "confiance", "tout-terr", "t-sm-pro", "t-sa-pro", "d-sm", "d-sante",
+                  "t-reperes", "citer"):
+            assert a in I_k, (p, a)
+        # chaque lien vers le dossier complet mène à une ancre qui y existe
+        for a in re.findall(rf'href="{code}-complet\.html#([^"]+)"', h):
+            assert a in I_k or a == "imprimer", (p, a)        # « #imprimer » lance l'impression, pas une ancre
+        # les ancres des domaines restent sur la fiche courte
+        I_h = ids(h)
+        for a in ("d-sm", "d-sante", "d-recours", "d-population", "d-revenus", "d-enfance", "d-mobilite", "d-violences",
+                  "d-environnement", "citer", "bord", "t-reperes", "t-lire-r"):
+            assert a in I_h, (p, a)
+        if not p.startswith("epci"):
+            assert "territoires-inclus" in I_h, p
+        assert f'location.replace("{code}-complet.html"' in h, p
+        # mêmes valeurs que les lignes du dossier complet
+        vh, vk = valeurs(h), valeurs(k)
+        assert len(vh) >= 20, (p, len(vh))
+        for i, v in vh.items():
+            assert i in vk and vk[i] == v, (p, i, v, vk.get(i))
+        # chaque ligne montrée : position ou statut, et son menu
+        for m in re.finditer(r'<tr id="[^"]+" data-ind="([^"]+)"[^>]*>(.*?)</tr>', h, re.S):
+            c = m.group(2)
+            assert 'class="m-pos"' in c or 'class="statut"' in c, (p, m.group(1))
+            assert 'class="m-menu"' in c, (p, m.group(1))
+        # aucun « Voir sur la carte » : la carte de bloc est au dossier complet
+        assert "voir-carte\" data-carte" not in h, p
+        assert len(re.findall(r'<tr id="[^"]+" data-ind=', h[h.index('id="d-sm"'):h.index('id="d-sante"')])) <= 10, p
+
+
+def test_chiffre_de_la_france_fiche_et_page_indicateur():
+    """Sous la position de chaque profession, « France : 2,3 pour 10 000 habitants, 15 746 personnes », lu une fois dans
+    effectifs_france.csv (pipeline/fiche_courte.france_professions), est le chiffre de la page de l'indicateur ; la
+    phrase des deux totaux est écrite une fois par bloc de professions, avec le lien « Pourquoi plusieurs totaux, et
+    lequel citer » vers une section qui existe (planche 5 validée le 26 novembre 2026)."""
+    import re
+    from pipeline import config
+    F = _fiches_courtes("epci/243500139", "dep/35")
+    if not F:
+        raise Ignore("fiches non construites")
+    site = config.RACINE / "site"
+    vus = 0
+    for p, (h, k) in F.items():
+        for page in (h, k):
+            t = re.sub(r"[  ]", " ", page)
+            for m in re.finditer(r'<tr[^>]*data-ind="prof:([a-z_]+):all"[^>]*>(.*?)</tr>', t, re.S):
+                fr = re.search(r"France : ([\d ,]+) pour (10 000|100 000) habitants, ([\d ]+) personnes", m.group(2))
+                assert fr, (p, m.group(1))
+                ind = site / "indicateur" / f"prof-{m.group(1).replace('_', '-')}.html"
+                if not ind.exists():
+                    continue
+                q = re.sub(r"[  ]", " ", ind.read_text(encoding="utf-8"))
+                r = re.search(r"<strong>([\d ,]+)</strong> [^<]*? pour (10 000|100 000) habitants en France, soit ([\d ]+) "
+                              r"personnes distinctes", q)
+                assert r and r.groups() == fr.groups(), (p, m.group(1), fr.groups(), r and r.groups())
+                vus += 1
+            assert t.count("Repère et chiffre de la France.") >= 2, p
+            for a in re.findall(r'href="\.\./\.\./(indicateur/[^"#]+)#t-tot"', page):
+                assert 'id="t-tot"' in (site / a).read_text(encoding="utf-8"), a
+    assert vus >= 20, vus
+
+
+def test_voisins_du_fond_de_carte_et_de_l_ign():
+    """Les voisins de la fiche courte sont lus dans le fond de carte du site (sommets communs) : comparés au découpage de
+    l'IGN (ADMIN EXPRESS, contours des communes en cache), aucun voisin n'est faux ; il en manque au plus 1 % entre
+    intercommunalités (contact par un point ou par un tronçon effacé par la simplification), aucun entre départements
+    ni entre régions. Rennes Métropole a dix intercommunalités voisines, l'Ille-et-Vilaine six départements."""
+    from pipeline import config, fiche_courte as FC
+    from pipeline.atelier import fond_carte
+    fond = fond_carte(config.RACINE / "site")
+    ign = config.BRUT / "contours_communes_ign.geojson"
+    d = _dernier_resultats()
+    acc = d / "accessibilite_communes.csv" if d else None
+    if fond is None or not ign.exists() or not (config.BRUT / "ref_communes.json").exists() or not (acc and acc.exists()):
+        raise Ignore("fond de carte ou découpage de l'IGN absent du cache")
+    F = FC.voisins_fond(fond)
+    I = FC.voisins_ign(ign, config.BRUT / "ref_communes.json", acc)
+    for niv, tol in (("epci", .01), ("dep", 0), ("reg", 0)):
+        pf = {(a, b) for a, v in F[niv].items() for b in v}
+        pi = {(a, b) for a, v in I[niv].items() for b in v}
+        assert not pf - pi, (niv, sorted(pf - pi)[:5])
+        assert len(pi - pf) <= tol * len(pi), (niv, len(pi - pf), sorted(pi - pf)[:5])
+    assert len(F["epci"]["243500139"]) == 10 and F["dep"]["35"] == ["22", "44", "49", "50", "53", "56"]
+
+
+def test_fiche_courte_ne_perd_rien():
+    """Ne rien perdre (règle 18) : chaque bloc de la fiche entière a sa place, sur la fiche courte ou au dossier complet,
+    avec son ancre (pipeline/fiche_courte.PLACES, planche_8_ne_rien_perdre.png validée le 26 novembre 2026) ; chaque ligne
+    et chaque réglette de la fiche courte est aussi au dossier complet ; le dossier complet garde la carte du territoire,
+    les cartes de bloc et la barre des domaines. Le contrôle de mise en page couvre les deux pages."""
+    import re
+    from pipeline import config, fiche_courte as FC
+    assert len(FC.PLACES) >= 20 and all(len(x) == 4 for x in FC.PLACES)
+    cmp_ = (config.RACINE / "outils" / "controle_mise_en_page.py").read_text(encoding="utf-8")
+    assert "territoire/dep/12-complet.html" in cmp_ and "territoire/epci/243500139.html" in cmp_
+    F = _fiches_courtes("epci/243500139", "dep/35", "reg/53", "epci/249710047")
+    if not F:
+        raise Ignore("fiches non construites")
+    for p, (h, k) in F.items():
+        ih, ik = set(re.findall(r'\bid="([^"]+)"', h)), set(re.findall(r'\bid="([^"]+)"', k))
+        for bloc, ancre_k, place, cible in FC.PLACES:
+            if ancre_k:
+                assert ancre_k in ik or (ancre_k == "territoires-inclus" and p.startswith("epci")), (p, bloc, ancre_k)
+            if cible:
+                assert cible in ih or f'class="{cible}' in h or (cible == "territoires-inclus" and p.startswith("epci")), \
+                    (p, bloc, cible)
+        dh, dk = set(re.findall(r'data-ind="([^"]+)"', h)), set(re.findall(r'data-ind="([^"]+)"', k))
+        assert dh <= dk, (p, dh - dk)
+        assert k.count('class="rg ') >= h.count('class="rg '), p
+        assert 'class="carte-svg plan' in k and 'class="barre-dom' in k and 'class="carte-bloc"' in k, p
+        assert 'class="carte-svg plan' in h, p
 
 
 def test_citer_fonctions():
@@ -11214,6 +11660,608 @@ def test_citer_fonctions():
         assert v["licences"] == {"donnees": ["odc-odbl"], "sante-mentale": ["etalab-2.0"], "sante": ["etalab-2.0"]}, v
     # la plus récente n'a pas de suite ; une version remplacée le dit en tête de sa description
     assert V[0]["suite"] == "" and sum(1 for v in V if v["suite"]) >= len(V) // 2
+
+
+def test_notes_des_tableaux_sous_leur_valeur():
+    """Une note qui suit une valeur dans un tableau passe sous elle, jamais collée (« 0509 territoires à 0 » des pages
+    d'indicateur, audit du 25 novembre 2026) : sur toutes les pages d'indicateur construites, chaque note qui suit un
+    chiffre est dans une cellule, et la feuille de style met toute note de cellule sur sa propre ligne."""
+    import re
+    from pipeline import config
+    css = (config.RACINE / "gabarits" / "style.css").read_text(encoding="utf-8")
+    assert re.search(r":is\(td,th\) \.note\{display:block", css)
+    dossier = config.RACINE / "site" / "indicateur"
+    if not dossier.exists():
+        raise Ignore("site non construit")
+    n, hors = 0, []
+    for f in sorted(dossier.glob("*.html")):
+        h = f.read_text(encoding="utf-8")
+        for m in re.finditer(r'\d[\s  ]*<(span|small|em|i|b)\b[^>]*class="[^"]*\bnote\b[^"]*"[^>]*>\s*\d', h):
+            n += 1
+            avant = h[:m.start()]
+            if avant.rfind("<td") < max(avant.rfind("</td>"), avant.rfind("<tr")):
+                hors.append(f"{f.name} : {h[m.start() - 30:m.end() + 20]!r}")
+    assert n > 0 and not hors, (n, hors[:5])
+
+
+def test_page_404():
+    """Page d'une adresse inconnue (audit du 25 novembre 2026) : elle existe, porte l'en-tête commun (menu à sept
+    entrées, bouton « Chercher » et son champ) et le pied de page, mène à l'accueil, aux territoires et aux indicateurs,
+    et n'a que des liens absolus depuis la racine, puisque GitHub Pages la sert à n'importe quelle profondeur. Elle part
+    en ligne (publier.ps1 n'exclut que les pages « _*.html ») sans entrer dans le plan du site."""
+    import re
+    from pipeline import config
+    pub = (config.RACINE / "outils" / "publier.ps1").read_text(encoding="utf-8-sig")
+    copie = next(l for l in pub.splitlines() if l.strip().startswith("robocopy") and '"site"' in l)
+    assert "/XF _*.html" in copie and "404" not in copie
+    f = config.RACINE / "site" / "404.html"
+    if not f.exists():
+        raise Ignore("site non construit")
+    h = f.read_text(encoding="utf-8")
+    assert 'data-racine="/"' in h and '<nav class="site"' in h and 'id="bouton-chercher"' in h and 'id="q-tete"' in h
+    assert len(re.findall(r'<a class="l(?: on)?" href=', h)) == 7 and "<footer>" in h and "Page introuvable" in h
+    for cible in ("/index.html", "/territoires/index.html", "/indicateurs.html"):
+        assert f'href="{cible}"' in h, cible
+    # attributs des balises seulement, le texte des scripts écrit ses propres liens à partir de data-racine
+    liens = re.findall(r'\b(?:href|src)="([^"]*)"', re.sub(r"(<script\b[^>]*>).*?</script>", r"\1", h, flags=re.S))
+    relatifs = [u for u in liens if not u.startswith(("/", "http://", "https://", "#", "mailto:", "tel:", "data:"))]
+    assert liens and not relatifs, relatifs[:10]
+    plan = config.RACINE / "site" / "sitemap.xml"
+    assert not plan.exists() or f"{config.ADRESSE_SITE.rstrip('/')}/404.html<" not in plan.read_text(encoding="utf-8")
+
+
+def test_reglettes_part_aucun_toujours_reportable():
+    """« aucun : 40 % » chevauchait « ensemble 2,4 » sur les fiches à 1 440 px (audit du 25 novembre 2026) : les
+    étiquettes étaient placées à des moments fixes, avant que la police n'arrive. Sur toutes les fiches construites,
+    chaque réglette qui écrit la part des territoires sans inscrit sur sa barre porte aussi la même part dans l'étiquette
+    de la médiane, où figures.js la reporte ; figures.js replace une réglette dès que sa largeur ou celle d'une étiquette
+    change ; le contrôle de finition élargit les étiquettes pour le vérifier, au chargement, avant tout clic."""
+    import re
+    from pipeline import config
+    fig = (config.RACINE / "gabarits" / "figures.js").read_text(encoding="utf-8")
+    assert "new ResizeObserver" in fig and 'querySelectorAll(".rg-lab").forEach(function(l){obs.observe(l)})' in fig
+    cf = (config.RACINE / "outils" / "controle_finition.js").read_text(encoding="utf-8")
+    assert "quand leur police s'élargit" in cf and cf.index("etiquettesQuiSeTouchent(\"au chargement\")") < cf.index("// 0. fiche")
+    dossier = config.RACINE / "site" / "territoire"
+    if not dossier.exists():
+        raise Ignore("site non construit")
+    n, sans = 0, []
+    for f in sorted(dossier.glob("*/*.html")):
+        if f.name.startswith("_"):    # brouillon, jamais publié
+            continue
+        h = f.read_text(encoding="utf-8")
+        for m in re.finditer(r'<span class="rg-lab haut lab-g rg-aucun"[^>]*>aucun\s*:\s*([^<]+)</span>', h):
+            n += 1
+            debut = h.rfind('<div class="rg ', 0, m.start())
+            bloc = h[debut:h.find("</div>", m.end())]
+            if not re.search(r'<span class="rg-part" hidden> ?\(aucun\s*:\s*' + re.escape(m.group(1)) + r'\)</span>', bloc):
+                sans.append(f"{f.relative_to(dossier).as_posix()} : aucun {m.group(1)}")
+    assert n > 1000 and not sans, (n, sans[:5])
+
+
+def test_valeur_sur_barre_sans_halo():
+    """« 12,2 » et « 11,5 » de l'escalier du niveau de vie (Explorer) étaient écrits dans leur barre avec un liseré clair,
+    une pastille que le trait de l'ensemble, juste au-dessus, semblait barrer (audit du 25 novembre 2026) : toute
+    étiquette posée sur une barre perd son liseré et prend l'encre la plus lisible sur la barre ; le contrôle de finition
+    refuse une étiquette détourée sur une barre et une étiquette traversée par un trait."""
+    from pipeline import config
+    js = (config.RACINE / "gabarits" / "explorer.js").read_text(encoding="utf-8")
+    figer = js[js.index("function figer(svg)"):js.index("\n}\n", js.index("function figer(svg)"))]
+    assert "surLesBarres(svg)" in figer and figer.index("surLesBarres(svg)") > figer.index('s.selectAll(".etiq.forte")')
+    corps = js[js.index("function surLesBarres(svg)"):]
+    assert 't.removeAttribute("stroke")' in corps and 't.removeAttribute("paint-order")' in corps
+    cf = (config.RACINE / "outils" / "controle_finition.js").read_text(encoding="utf-8")
+    assert "étiquette détourée posée sur une barre" in cf and "traversée par un trait" in cf
+    page = config.RACINE / "site" / "explorer.html"
+    if page.exists():
+        assert "function surLesBarres" in page.read_text(encoding="utf-8") or any(
+            "function surLesBarres" in p.read_text(encoding="utf-8") for p in (config.RACINE / "site" / "explorer").glob("*.js"))
+
+
+def test_atlas_comment_lire_carte_suit_la_mesure():
+    """Le « Comment lire » de la carte de l'atlas suit la mesure choisie (la mesure « Évolution » expliquait la densité et
+    l'écart à l'attendu, audit du 25 novembre 2026) : chaque mesure du sélecteur a ses définitions, toutes au glossaire,
+    la carte les récrit à chaque dessin, et le contrôle de finition passe chaque mesure en revue."""
+    import re
+    from pipeline import lecture
+    tpl = (config.RACINE / "atlas" / "atlas_template.html").read_text(encoding="utf-8")
+    js = (config.RACINE / "atlas" / "moteur" / "atlas.js").read_text(encoding="utf-8")
+    noyau = (config.RACINE / "atlas" / "moteur" / "noyau.js").read_text(encoding="utf-8")
+    seg = tpl[tpl.index('id="metricSeg"'):]
+    mesures = re.findall(r'data-v="([a-z]+)"', seg[:seg.index("</div>")])
+    table = dict(re.findall(r'([a-z]+):"([a-z_,]+)"', re.search(r"const HOW_MESURE=\{([^}]*)\}", js).group(1)))
+    assert len(mesures) >= 8 and set(mesures) <= set(table), (mesures, table)
+    connues = {g[0] for g in lecture.GLOSSAIRE}
+    assert {c for v in table.values() for c in v.split(",")} <= connues
+    assert table["evol"] == "evolution" and "attendu" not in table["dens"]
+    assert "commentLireCarte();" in js[js.index("function drawMap(){"):][:200] and 'id="mapHow"' in tpl
+    assert "function majCommentLire(b)" in noyau and "b._txt=t" in noyau
+    cf = (config.RACINE / "outils" / "controle_finition.js").read_text(encoding="utf-8")
+    assert '« Comment lire » de la carte sans la définition de la mesure' in cf and "qui explique aussi" in cf
+
+
+def test_valeurs_voisines_ecartees():
+    """« 13,9 » et « 13,6 » de l'escalier d'Explorer au téléphone se touchaient presque (audit du 25 novembre 2026) : les
+    valeurs d'une même ligne gardent 4 px entre elles, la figure réduisant leur taille au besoin, jamais sous 9 px ; le
+    contrôle de finition refuse deux étiquettes d'une même ligne à moins de 4 px."""
+    js = (config.RACINE / "gabarits" / "explorer.js").read_text(encoding="utf-8")
+    figer = js[js.index("function figer(svg)"):js.index("\n}\n", js.index("function figer(svg)"))]
+    assert figer.index("surLesBarres(svg)") < figer.index("ecarterValeurs(svg)") < figer.index("dansLeCadre(svg)")
+    assert "const ECART_VALEURS = 4, TAILLE_MIN_VALEURS = 9;" in js
+    cf = (config.RACINE / "outils" / "controle_finition.js").read_text(encoding="utf-8")
+    assert "étiquettes à moins de 4 px" in cf and "ox > -4" in cf
+    # graduations de la figure d'addictologie : une pour 44 px d'axe au plus
+    assert "X.ticks(Math.max(2, Math.min(4, Math.floor((x1 - x0) / 44))))" in (config.RACINE / "gabarits" / "explorer_addicto.js").read_text(encoding="utf-8")
+
+
+def test_bord_colonne_gauche_espacee():
+    """Couche « Secteurs » de Rennes Métropole : la carte doublée, la colonne de gauche finissait encore 123 px avant celle
+    de droite (25 novembre 2026). Le reste se répartit entre ses blocs, 48 px au plus par intervalle, et la fiche est
+    dans le contrôle de mise en page."""
+    g = (config.RACINE / "gabarits" / "fiche_territoire.html").read_text(encoding="utf-8")
+    assert "function espacer(px)" in g and "Math.min(px / n, 48)" in g and "espacer(d.getBoundingClientRect().height" in g
+    css = (config.RACINE / "gabarits" / "style.css").read_text(encoding="utf-8")
+    assert ".fiche .bord-carte{display:flex;flex-direction:column;gap:calc(20px + var(--g-plus,0px))" in css
+    assert "territoire/epci/243500139.html" in (config.RACINE / "outils" / "controle_mise_en_page.py").read_text(encoding="utf-8")
+
+
+def test_textes_d_aide_qui_tiennent():
+    """Au téléphone, le texte d'aide des champs de recherche était coupé (« Commune, code postal, indicateu » de l'accueil,
+    « …intercommur » de Comparer, 26 novembre 2026). Une seule règle, dans presentation/chercher.js chargé par toutes les
+    pages : la forme la plus longue qui tient, sinon une plus courte ; chaque forme courte de la table répond à un texte
+    d'aide réel ; plus de réglage propre à une page ; le contrôle de finition mesure chaque champ, celui de l'en-tête ouvert."""
+    import re
+    g = config.RACINE / "gabarits"
+    js = (g / "presentation" / "chercher.js").read_text(encoding="utf-8")
+    table = js[js.index("var COURTES = {"):js.index("};", js.index("var COURTES = {"))]
+    longs = re.findall(r'^\s*"([^"]+)": \[', table, re.M)
+    gabarits = "".join(f.read_text(encoding="utf-8") for f in list(g.glob("*.html")) + list(g.glob("*.js")))
+    assert len(longs) >= 4 and all(f'placeholder="{t}"' in gabarits for t in longs), longs
+    for t in longs:
+        courtes = re.search(re.escape(f'"{t}": [') + r"([^\]]*)\]", table).group(1)
+        formes = re.findall(r'"([^"]+)"', courtes)
+        assert formes and all(len(a) > len(b) for a, b in zip([t] + formes, formes)), (t, formes)
+    assert "function ajuster()" in js and "measureText" in js and 'document.querySelectorAll("input[placeholder]")' in js
+    assert '.placeholder = "' not in (g / "portail.html").read_text(encoding="utf-8")
+    cf = (config.RACINE / "outils" / "controle_finition.js").read_text(encoding="utf-8")
+    assert "texte d'aide tronqué" in cf and "if (vis(q)) aideTronquee(q);" in cf
+
+
+def test_telechargement_compresse_pas_pris_pour_tronque():
+    """Un fichier envoyé compressé (gzip, brotli) annonce la taille compressée : le contrôle « fichier tronqué » compare
+    les octets reçus sur le réseau, pas le fichier décompressé. Sans cela, le référentiel Etalab 6.1.0, servi en brotli
+    par jsDelivr, arrêtait toute la chaîne (26 novembre 2026)."""
+    from pipeline import config
+    u = (config.RACINE / "pipeline" / "util.py").read_text(encoding="utf-8")
+    assert 'r.headers.get("Content-Encoding"' in u and "r.raw.tell() if compresse else tmp.stat().st_size" in u
+    assert "if total and recus != total:" in u and "if total and tmp.stat().st_size != total" not in u
+
+
+# ---- structure du 26 novembre 2026 : Comparer, Croiser, Explorer et territoires semblables -------------------------
+def _resultats_complets():
+    """Dossier de résultats le plus récent qui porte site_data.json et les fichiers de contexte."""
+    import re
+    from pipeline import config
+    ds = [d for d in config.RESULTATS.glob("*") if d.is_dir() and re.match(r"\d{4}-\d{2}-\d{2}$", d.name)
+          and (d / "site_data.json").exists() and (d / "contexte_epci.csv").exists()]
+    if not ds:
+        raise Ignore("aucun dossier resultats/AAAA-MM-JJ complet, lancer run.py --hors-ligne")
+    return max(ds, key=lambda d: d.name)
+
+
+def test_semblables_definition_unique():
+    """Territoires semblables (notes.md de la structure validée le 26 novembre 2026, section 4) : sept mesures de
+    l'INSEE ramenées à leur dispersion, distance euclidienne, les cinq plus proches du même niveau, hors outre-mer,
+    calculés dans pipeline/semblables.py seulement. Sur les vraies données : l'Ille-et-Vilaine garde exactement les cinq
+    départements de sa fiche (44, 38, 49, 01, 25), Rennes Métropole reçoit les cinq intercommunalités de la planche."""
+    import json
+    from pipeline import config, rapport_territoire as RT, semblables as SB
+    d = _resultats_complets()
+    sd = json.loads((d / "site_data.json").read_text(encoding="utf-8"))
+    s = SB.depuis_site(sd, d)
+    assert s["dep"]["35"] == ["44", "38", "49", "01", "25"], s["dep"]["35"]
+    assert s["epci"]["243500139"] == ["244400404", "243300316", "200040715", "244900015", "242900314"], s["epci"]["243500139"]
+    # la fiche et les rapports lisent la même fonction, sur le même fichier
+    assert RT.semblables(SB.lire_contexte(d, "dep")) == s["dep"]
+    assert RT.SEMBLABLES == SB.MESURES and RT.NB_SEMBLABLES == SB.NOMBRE == 5 and len(SB.MESURES) == 7
+    parents = {u["c"]: u.get("p") for u in sd["niveaux"]["epci"]["units"]}
+    om = SB.outre_mer("epci", parents) | set(config.DEPS_DROM)
+    for lv in ("dep", "epci"):
+        assert len(s[lv]) > {"dep": 90, "epci": 1150}[lv], (lv, len(s[lv]))
+        for c, v in s[lv].items():
+            assert c not in om and len(v) == 5 and c not in v and not (set(v) & om), (lv, c, v)
+    # plus de seconde définition dans Comparer, qui lit A.semb et écrit le critère en clair
+    g = config.RACINE / "gabarits" / "presentation" / "comparer.js"
+    js = g.read_text(encoding="utf-8")
+    assert "A.semb" in js and "densite_pop\", \"revenu_median\", \"part_80p\"" not in js and "Math.log(" not in js
+    assert "semb" in (config.RACINE / "pipeline" / "atelier.py").read_text(encoding="utf-8")
+    assert "sept mesures de l'INSEE" in SB.critere("epci") and "hors outre-mer" in SB.critere("dep")
+
+
+def test_croiser_famille_publiee_option_b():
+    """Croiser, option B (structure validée le 26 novembre 2026, notes.md, section 6) : la probabilité corrigée est celle
+    publiée pour le couple dans sa famille de tests (correlations_contexte.csv par niveau et mode d'exercice, croisements.csv
+    pour les questions préparées), jamais une correction propre à la visite. Psychologues et niveau de vie médian entre
+    intercommunalités, tous modes réunis : 0,052 dans une famille de 5 418 couples. Taux de pauvreté et taux de chômage :
+    hors famille, sans verdict. Les arrondis du fichier ne changent aucun verdict de la règle unique."""
+    import csv
+    from pipeline import atelier as AT, config, regle_lien as RL
+    d = _resultats_complets()
+    F = AT.familles(d)
+    assert F["n"]["contexte:epci:all"] == 5418 and F["n"]["questions"] >= 20, F["n"]
+    rho, q = F["c"]["epci"]["prof:psychologue:all"]["revenu_median"][:2]
+    # la valeur publiée de la version (0,052 le 23 novembre, 0,069 le 27 après le passage à 1 238 intercommunalités)
+    with open(d / "correlations_contexte.csv", encoding="utf-8-sig", newline="") as fh:
+        pub = next(l for l in csv.DictReader(fh, delimiter=";")
+                   if (l["niveau"], l["mode"], l["prof"], l["variable"]) == ("epci", "all", "psychologue", "revenu_median"))
+    assert abs(q - AT._num(pub["q_bh"])) < 5e-4 and abs(rho - AT._num(pub["rho_spearman"])) < 5e-4, (rho, q, pub)
+    assert 0.05 < q < 0.1 and not RL.est_lien(rho, q), (rho, q)
+    # couple hors famille : ni dans le contexte, ni dans les questions préparées
+    for lv in ("dep", "epci"):
+        assert "taux_chomage" not in F["c"][lv].get("taux_pauvrete", {}) and "taux_pauvrete" not in F["c"][lv].get("taux_chomage", {})
+    assert "taux_chomage" not in F["q"].get("taux_pauvrete", {})
+    # la famille est celle du fichier publié, couple par couple, et l'arrondi ne change aucun verdict
+    vus = 0
+    with open(d / "correlations_contexte.csv", encoding="utf-8-sig", newline="") as fh:
+        for l in csv.DictReader(fh, delimiter=";"):
+            qq = AT._num(l["q_bh"])
+            if qq is None or l["niveau"] not in ("dep", "epci"):
+                continue
+            a, b = sorted([f"prof:{l['prof']}:{l['mode']}", l["variable"]])
+            r = F["c"][l["niveau"]][a][b]
+            assert RL.est_lien(r[0], r[1]) == RL.est_lien(AT._num(l["rho_spearman"]), qq), (l["niveau"], a, b)
+            vus += 1
+    assert vus == sum(v for k, v in F["n"].items() if k.startswith("contexte:"))
+    # la page : plus de correction propre à la visite ; la règle unique dit seule « lien », sur la valeur publiée
+    g = config.RACINE / "gabarits"
+    js = (g / "presentation" / "atelier.js").read_text(encoding="utf-8")
+    assert "HISTO" not in js and "function bh(" not in js and "padj" not in js and "de la visite</span>" not in js
+    assert "Lien.est(fa.rho, fa.q)" in js and js.count("Lien.est(") == js.count("Lien.est(fa.rho, fa.q)")
+    assert "n’appartiennent à aucune famille de tests publiée" in js and ">sans verdict<" in js
+    assert "probabilité corrigée publiée, " in js and "intervalle de confiance à 95 %" in js
+    h = (g / "croiser.html").read_text(encoding="utf-8")
+    assert '<script src="presentation/atelier_familles.js"></script>' in h and "à force d'essais" not in h
+    assert 'atelier_familles.js' in (config.RACINE / "pipeline" / "atelier.py").read_text(encoding="utf-8")
+    f = config.RACINE / "site" / "presentation" / "atelier_familles.js"
+    if f.exists():
+        import json
+        t = f.read_text(encoding="utf-8")
+        P = json.loads(t[t.index("=") + 1:t.rindex(";")])
+        # le fichier de la page reprend la famille de la version construite (atelier.familles)
+        from pipeline import atelier as AT
+        F = AT.familles(_resultats_complets())
+        assert P["c"]["epci"]["prof:psychologue:all"]["revenu_median"][:2] == F["c"]["epci"]["prof:psychologue:all"]["revenu_median"][:2]
+        assert P["n"]["contexte:epci:all"] == F["n"]["contexte:epci:all"] == 5418
+
+
+def test_croiser_reprend_la_fenetre_d_explorer():
+    """Croiser montre ce que montrait la fenêtre « Croiser deux indicateurs » d'Explorer (planches 6) : réglage de
+    l'échelle de l'axe vertical, logarithmique au départ ; trois vues annoncées ; légendes des repères en texte de page ;
+    tableau filtrable et triable des données par territoire ; tableau des questions préparées avec l'intervalle de
+    confiance à 95 % (plus de « fourchette plausible ») et la valeur à densité de population égale, bornes négatives
+    avec le signe « − » et des espaces insécables."""
+    import json
+    from pipeline import atelier as AT, config
+    g = config.RACINE / "gabarits"
+    js = (g / "presentation" / "atelier.js").read_text(encoding="utf-8")
+    h = (g / "croiser.html").read_text(encoding="utf-8")
+    assert 'e: "log" }' in js and "function logPossible(" in js and "function gradLog(" in js
+    assert 'data-ech="log">Logarithmique</button><button type="button" data-ech="lin">Linéaire' in h
+    assert all(x in h for x in ('href="#donnees-terr">Données par territoire</a>', 'href="#questions-prep">Questions préparées</a>',
+                                'id="leg-reperes"', 'id="filtre-terr"', 'id="table-terr"', 'id="table-prep"'))
+    assert 'class="reftxt"' not in js and '$("leg-reperes").innerHTML' in js and ", trait horizontal" in js
+    assert "fourchette plausible" not in (js + h).lower() and "Intervalle de confiance à 95\\u00a0%" in js
+    assert '<td>de\\u00a0" + nb2(r.lo) + "\\u00a0à\\u00a0" + nb2(r.hi)' in js and 'replace("-", "−")' in js
+    assert "function tableTerr(" in js and "data-tri" in js and "prep-csv" in js
+    d = _resultats_complets()
+    sd = json.loads((d / "site_data.json").read_text(encoding="utf-8"))
+    cb = AT._questions(sd)
+    assert len(cb) == len(sd.get("croisements_bases") or []) >= 20
+    assert all(r["lo"] <= r["rho"] <= r["hi"] for r in cb if r["lo"] is not None)
+    assert any(r["x"] == "prof:psychiatre:lib" for r in cb)
+
+
+def test_comparer_structure_26_novembre():
+    """Comparer (planches 4) : une colonne « Repère » écrite une fois par ligne ; la réglette du site (même histogramme,
+    repère et médiane que la fiche, affichage.histogramme, publiés dans A.rg) où chaque territoire est placé sous l'axe,
+    sur sa rangée ; « aucun inscrit » plutôt que 0 ; au téléphone une carte par indicateur sans rien de masqué ; le
+    critère des semblables en clair ; une réglette par territoire quand les niveaux diffèrent ; le texte d'aide
+    « Commune ou territoire » ; et le contrôle de mise en page des marques."""
+    import json
+    from pipeline import affichage as AF, atelier as AT, config
+    g = config.RACINE / "gabarits"
+    js = (g / "presentation" / "comparer.js").read_text(encoding="utf-8")
+    h = (g / "comparer.html").read_text(encoding="utf-8")
+    assert 'placeholder="Commune ou territoire"' in h and "seul-tel" not in h and ".eff{display:none" not in h
+    assert 'class="rep-col">Repère' in js and 'class="cartes-tel"' in js and "function reglette(id, lv, pts, avecRep)" in js
+    assert '"aucun inscrit" : "aucune structure"' in js and "A.sembCrit" in js and "etiquettesReglettes" in js
+    assert "50 + RANGEE * r" in js and "50 + RANGEE * n - 2" in js   # rangées sous l'axe, puis le triangle
+    assert ".fiche .rg.petite.cmp .rg-ens{top:16px;height:28px}" in h   # le trait du repère s'arrête à l'axe (44 px)
+    cf = (config.RACINE / "outils" / "controle_finition.js").read_text(encoding="utf-8")
+    assert "réglette de Comparer" in cf
+    d = _resultats_complets()
+    sd = json.loads((d / "site_data.json").read_text(encoding="utf-8"))
+    T = AF.Affichage(sd, d)
+    code = sd["niveaux"]["epci"]["units"][0]["c"]
+    r = AT._reglette(T, T.serie("prof:psychologue:all", "epci"), "prof:psychologue:all", "epci", code)
+    assert r and r["b"] == 0 and r["h"] > 12.8 and r["rt"] == "12,8" and 0 < r["r"] < 100 and r["nb"] == 30
+    r = AT._reglette(T, T.serie("prof:q_psychiatrie_enfant:all", "epci"), "prof:q_psychiatrie_enfant:all", "epci", code)
+    assert r["mt"] == ": aucun inscrit" and r["al"].startswith("aucun : ")
+
+
+def test_explorer_renvois_et_fenetre_partie_dans_croiser():
+    """Explorer (planches 1) : titres de la table unique (pipeline/questions.py) ; sous chaque question qui a sa section,
+    « Résultat publié et méthode » avec ses renvois en toutes lettres (Santé mentale, question 1 ...), cible d'au moins
+    44 px au téléphone ; « Voir cette profession sur la carte de l'atlas » gardé. La fenêtre « Croiser deux indicateurs »
+    a quitté Explorer pour Croiser : un renvoi à sa place, les adresses anciennes (#cxFenNuage) et les liens de l'atlas
+    mènent à Croiser réglé de même."""
+    import re
+    from pipeline import config, questions as QQ
+    g = config.RACINE / "gabarits"
+    ex = (g / "explorer.html").read_text(encoding="utf-8")
+    assert "Résultat publié et méthode&nbsp;:" in ex and "min-height:44px" in ex
+    for q in QQ.EXPLORER:
+        assert ex.count("{{ qx.%s }}" % q) >= 2 and f'{{{{ renvoi("{q}") }}}}' in ex, q
+    r = QQ.renvois_explorer()
+    assert [(f, k) for f, k, _u in r["qInegalites"]] == [("sm", 1), ("sm", 3), ("sm", 6), ("sante", 1), ("sante", 3), ("sante", 6)]
+    assert [(f, k) for f, k, _u in r["qCroisements"]] == [("sm", 7), ("sante", 7)]
+    assert "qTypologie" not in r and "qTraj" not in r
+    assert ex.count("Voir cette profession sur la carte de l'atlas") == 2 and 'id="cxVersAtlas"' in ex
+    assert 'id="cxFenNuage"' not in ex and "data-moteur" not in ex and 'id="cxCroiser"' in ex and 'location.replace("{{ racine }}croiser.html#' in ex
+    assert "qx=QQ.EXPLORER, renvois=QQ.renvois_explorer()" in (config.RACINE / "pipeline" / "site.py").read_text(encoding="utf-8")
+    at = (config.RACINE / "atlas" / "moteur" / "atlas.js").read_text(encoding="utf-8")
+    assert 'function lienNuage(o){return "croiser.html#x="' in at and "explorer.html#cxFenNuage" not in at
+    assert 'href="croiser.html">Croiser</a>' in (config.RACINE / "atlas" / "atlas_template.html").read_text(encoding="utf-8")
+    page = config.RACINE / "site" / "explorer.html"
+    if page.exists() and 'id="cxCroiser"' in page.read_text(encoding="utf-8"):
+        h = page.read_text(encoding="utf-8")
+        assert "{{" not in h and len(re.findall(r'<p class="renvois-q">', h)) == 5
+        assert 'href="domaine/sante-mentale.html#q1">Santé mentale, question&nbsp;1</a>' in h
+
+
+def test_groupe_repete_pas_dans_un_nom_compose():
+    """Le contrôle des groupes de mots repris après une virgule trouve « vers les urgences, Vers les urgences » mais
+    pas une liste de communes où un nom composé finit par le nom suivant (« Fleurieux-sur-l'Arbresle, L'Arbresle »,
+    fiche de la communauté de communes du Pays de L'Arbresle, 26 novembre 2026)."""
+    import importlib.util
+    from pipeline import config
+    spec = importlib.util.spec_from_file_location("cd", config.RACINE / "outils" / "controle_decisions.py")
+    cd = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(cd)
+    trouve = lambda x: [m for m in cd.RX_REPETE.finditer(x) if m.group(2)[0].isupper() and m.group(1)[0].islower()]  # noqa: E731
+    assert trouve("publie vers les urgences, Vers les urgences, 5,0 %")
+    assert not trouve("Dommartin, Éveux, Fleurieux-sur-l'Arbresle, L'Arbresle, Lentilly, Sain-Bel")
+    assert not trouve("Fleurieux-sur-l’Arbresle, L’Arbresle")
+
+
+def test_croiser_intervalle_publie_pour_tous_les_couples():
+    """Croiser écrit, pour tout couple d'un fichier publié (correlations_contexte.csv par niveau et mode d'exercice,
+    croisements.csv pour les questions préparées), la corrélation, l'intervalle de confiance à 95 % et le nombre de
+    territoires de ce fichier, jamais un intervalle recalculé par une autre formule (audit du 27 novembre 2026 : taux de
+    pauvreté et psychiatres entre départements, la page écrivait « −0,12 à 0,29 » par la transformation de Fisher pour
+    « −0,12 à 0,27 » publié). Comparé, sur les vraies données, chiffre écrit par chiffre écrit (deux décimales, comme
+    r2 de la page), pour tous les couples publiés. Hors des fichiers, la page calcule l'intervalle par la méthode du
+    pipeline (bootstrap des centiles, config.BOOTSTRAP tirages)."""
+    import csv
+    from pipeline import atelier as AT, config
+    d = _resultats_complets()
+    F = AT.familles(d)
+    assert F["B"] == config.BOOTSTRAP
+    e = AT.ecrit_r2
+    vus = avec_ic = 0
+    fautes = []
+    with open(d / "correlations_contexte.csv", encoding="utf-8-sig", newline="") as fh:
+        for l in csv.DictReader(fh, delimiter=";"):
+            if AT._num(l["q_bh"]) is None or l["niveau"] not in ("dep", "epci"):
+                continue
+            a, b = sorted([f"prof:{l['prof']}:{l['mode']}", l["variable"]])
+            rho, _q, lo, hi, n = F["c"][l["niveau"]][a][b]
+            flo, fhi = AT._num(l["ic95_bas"]), AT._num(l["ic95_haut"])
+            if (e(rho), e(lo), e(hi), n) != (e(AT._num(l["rho_spearman"])), e(flo), e(fhi), int(float(l["n"]))):
+                fautes.append((l["niveau"], a, b, rho, lo, hi, n, l["rho_spearman"], flo, fhi, l["n"]))
+            vus += 1
+            avec_ic += flo is not None
+    with open(d / "croisements.csv", encoding="utf-8-sig", newline="") as fh:
+        for l in csv.DictReader(fh, delimiter=";"):
+            if AT._num(l.get("q_bh")) is None:
+                continue
+            a, b = sorted([AT._id_croisement(l["mesure"]), AT._id_croisement(l["variable"])])
+            rho, _q, lo, hi, n = F["q"][a][b]
+            if (e(rho), e(lo), e(hi), n) != (e(AT._num(l["rho"])), e(AT._num(l["ic95_bas"])), e(AT._num(l["ic95_haut"])),
+                                             int(float(l["departements"]))):
+                fautes.append(("questions", a, b, rho, lo, hi, n))
+            vus += 1
+            avec_ic += 1
+    assert not fautes, (len(fautes), fautes[:5])
+    assert vus > 30000 and avec_ic > 2000, (vus, avec_ic)
+    # l'exemple de l'audit : écrit « −0,12 à 0,27 », comme le fichier
+    _r, _q, lo, hi, n = F["c"]["dep"]["prof:psychiatre:all"]["taux_pauvrete"]
+    assert (e(lo), e(hi)) == ("-0.12", "0.27") and n == 97, (lo, hi, n)
+    # la page : l'intervalle publié d'abord, sinon le bootstrap de la page ; plus de formule de Fisher
+    js = (config.RACINE / "gabarits" / "presentation" / "atelier.js").read_text(encoding="utf-8")
+    assert "Math.atanh" not in js and "function ic(" not in js and "1.06 /" not in js
+    assert "st.ic = publie.ic(fa) || icDe(st)" in js and "lo: p[2], hi: p[3], nt: p[4]" in js
+    assert "if (fa && fa.nt != null) st.n = fa.nt;" in js and "FAM.B" in js and "function icBoot(" in js
+    assert "centile(bs, 0.025), centile(bs, 0.975)" in js
+    f = config.RACINE / "site" / "presentation" / "atelier_familles.js"
+    if f.exists():
+        import json
+        s = f.read_text(encoding="utf-8")
+        P = json.loads(s[s.index("=") + 1:s.rindex(";")])
+        if "B" in P and P["n"] == F["n"]:
+            assert P["c"]["dep"]["prof:psychiatre:all"]["taux_pauvrete"] == F["c"]["dep"]["prof:psychiatre:all"]["taux_pauvrete"]
+            assert P["q"] == F["q"]
+
+
+def test_questions_preparees_titre_de_la_table_unique():
+    """Les questions préparées de Croiser et d'Explorer prennent leur titre dans la table unique (pipeline/questions.py,
+    PREPAREES), jamais vide : les trois lignes de l'addictologie étaient sous un titre vide (thème lieux_addicto absent
+    de la table des rapports, audit du 27 novembre 2026). Les rapports lisent la même table."""
+    import json
+    from pipeline import atelier as AT, config, explorer as EX, questions as QQ, rapport
+    assert {c[2] for c in config.CROISEMENTS} <= {t for g in QQ.PREPAREES.values() for t in g}
+    assert rapport.THEMES_ADDICTO is QQ.PREPAREES["addicto"] and rapport.THEMES_CROISEMENTS[rapport.SM] is QQ.PREPAREES["sm"]
+    assert rapport.THEMES_CROISEMENTS[rapport.SANTE] is QQ.PREPAREES["sante"]
+    assert "PREPAREES" in (config.RACINE / "pipeline" / "export.py").read_text(encoding="utf-8")
+    d = _resultats_complets()
+    sd = json.loads((d / "site_data.json").read_text(encoding="utf-8"))
+    cb = AT._questions(sd)
+    assert cb and all(r["q"] for r in cb), [r for r in cb if not r["q"]][:3]
+    addicto = [r for r in cb if r["q"] == QQ.PREPAREES["addicto"]["lieux_addicto"]]
+    assert len(addicto) == sum(1 for r in sd["croisements_bases"] if r["theme"] == "lieux_addicto") == 3
+    dn = EX.donnees_nuage(sd)
+    assert dn and all(r["question"] and r["question"] == QQ.titre_preparee(r["theme"], r["question"])
+                      for r in dn["croisements_bases"])
+
+
+def test_un_seul_nom_pour_l_intervalle_de_confiance():
+    """« fourchette plausible » ne nomme plus l'intervalle de confiance à 95 %, nulle part (audit du 27 novembre 2026,
+    Explorer, « Distance au plus proche ») : ni dans les gabarits, ni dans l'atlas, ni dans les rapports ; le contrôle
+    des décisions la refuse dans tout le site construit (pages, scripts, données) et dans les rapports de la version,
+    versions archivées exceptées."""
+    import importlib.util
+    import tempfile
+    from pathlib import Path
+    from pipeline import config
+    R = config.RACINE
+    sources = [*(R / "gabarits").rglob("*.*"), *(R / "atlas" / "moteur").glob("*.js"), R / "atlas" / "atlas_template.html",
+               *(R / "pipeline").glob("*.py"), *(R / "contenus").rglob("*.*")]
+    fautes = [p.relative_to(R).as_posix() for p in sources if p.is_file() and p.suffix in (".py", ".js", ".html", ".md", ".csv", ".css")
+              and "fourchette plausible" in p.read_text(encoding="utf-8", errors="ignore").lower()]
+    assert not fautes, fautes
+    spec = importlib.util.spec_from_file_location("cd", R / "outils" / "controle_decisions.py")
+    cd = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(cd)
+    with tempfile.TemporaryDirectory() as t, tempfile.TemporaryDirectory() as t2:
+        s = Path(t)
+        (s / "explorer").mkdir()
+        (s / "explorer" / "x.js").write_text("texte = 'fourchette plausible à 95 %';", encoding="utf-8")
+        (s / "rapports" / "2026-10-09").mkdir(parents=True)
+        (s / "rapports" / "2026-10-09" / "sante.html").write_text("<p>Fourchette plausible</p>", encoding="utf-8")
+        (s / "page.html").write_text("<p>intervalle de confiance à 95 %</p>", encoding="utf-8")
+        md = Path(t2) / "rapport_sante.md"
+        md.write_text("(fourchettes plausibles de 0,1 à 0,2)", encoding="utf-8")
+        r = cd.fourchettes_plausibles("2026-11-27", s, [md])
+        assert sorted(x[0] for x in r) == ["explorer/x.js", "rapport_sante.md"], r
+    assert "fourchettes_plausibles(date, SITE" in (R / "outils" / "controle_decisions.py").read_text(encoding="utf-8")
+
+
+def test_croiser_sur_la_grille_commune_et_renvois_d_explorer():
+    """Une seule grille (exigence 19) : Croiser ne s'étend plus au-delà de la grille commune (43 à 1 379 px à 1 440 px de
+    large au lieu de 111 à 1 311 px, audit du 27 novembre 2026) ; aucune page ne déclare un contenu plus large que
+    l'en-tête, et le contrôle de finition le mesure dans le navigateur. Les renvois « Résultat publié et méthode »
+    d'Explorer, au téléphone, un par ligne au même bord, cible de 44 px, mesurés aussi par le contrôle de finition."""
+    import re
+    from pipeline import config
+    g = config.RACINE / "gabarits"
+    h = (g / "croiser.html").read_text(encoding="utf-8")
+    assert "main.croiser{max-width:var(--largeur-page)}" in h and "max-width:1400px" not in h
+    for f in [*g.glob("*.html"), g / "style.css"]:
+        for m in re.finditer(r"(?<![\w.-])main(?:\.[\w-]+)*\{[^}]*?max-width:(\d+)px", f.read_text(encoding="utf-8")):
+            assert int(m.group(1)) <= 1264, (f.name, m.group(0))
+    ex = (g / "explorer.html").read_text(encoding="utf-8")
+    assert ("@media (max-width:700px){.renvois-q{display:flex;flex-direction:column;align-items:flex-start}"
+            ".renvois-q .lib{display:block}.renvois-q .sep{display:none}.renvois-q a{display:inline-flex;align-items:center;"
+            "min-height:44px}}") in ex
+    cf = (config.RACINE / "outils" / "controle_finition.js").read_text(encoding="utf-8")
+    assert "contenu plus large que la grille commune" in cf and "renvois mal répartis au téléphone" in cf
+
+
+def _textes_dictionnaire():
+    """Description de chaque fichier et de chaque colonne du dictionnaire (pipeline/dictionnaire.py), lue dans le code :
+    les parties variables d'une description calculée sont remplacées par « {} »."""
+    import ast
+    from pipeline import config
+    arbre = ast.parse((config.RACINE / "pipeline" / "dictionnaire.py").read_text(encoding="utf-8"))
+
+    def texte(n):
+        if isinstance(n, ast.Lambda):
+            return texte(n.body)
+        if isinstance(n, ast.Constant) and isinstance(n.value, str):
+            return n.value
+        if isinstance(n, ast.JoinedStr):
+            return "".join(v.value if isinstance(v, ast.Constant) else "{}" for v in n.values)
+        if isinstance(n, ast.BinOp):
+            return (texte(n.left) or "") + "{}"
+        return None
+    out = {}
+    for n in arbre.body:
+        if isinstance(n, ast.Assign) and any(getattr(c, "id", "") in ("FICHIERS", "COLONNES") for c in n.targets):
+            for e in n.value.elts:
+                if isinstance(e, ast.Tuple) and len(e.elts) >= 2 and texte(e.elts[1]):
+                    out[e.elts[0].value] = texte(e.elts[1])
+    return out
+
+
+def test_dictionnaire_chaque_description_se_lit_seule():
+    """Chaque description du dictionnaire se lit seule, sans renvoyer à une ligne voisine : depuis le tri par thème de la
+    page Télécharger, « Mêmes activités comptées par territoire » suivait un autre fichier que celui qu'elle reprenait
+    (audit du 27 novembre 2026). Aucune ne présente non plus une mesure comme un besoin de soins (règles, partie 5)."""
+    import re
+    from pipeline import libelles
+    D = _textes_dictionnaire()
+    assert len(D) > 300, len(D)
+    renvoi = re.compile(r"^(Même|Mêmes|Idem|Id\.|Le même|La même|Les mêmes|Pareil|De même|Comme (ci-dessus|plus haut|"
+                        r"précédemment|le précédent|la précédente))\b|ci-dessus|(décrite?s?|vue?s?) plus haut|(ligne|colonne|fichier) "
+                        r"(précédente?|voisine?|suivante?)", re.I)
+    assert not [(m, t) for m, t in D.items() if renvoi.search(t)], [(m, t[:60]) for m, t in D.items() if renvoi.search(t)]
+    besoin = [(m, x) for m, t in D.items() for x in libelles.termes_proscrits(t) if "besoin de soins" in x]
+    assert not besoin, besoin
+    assert "par {}" in D[r"^activites_particulieres_(\w+)\.csv$"]
+
+
+def test_aucune_mesure_presentee_comme_un_besoin():
+    """L'effectif attendu ni aucun indicateur n'est présenté comme un besoin de soins (règles, partie 5) : « indicateurs
+    de besoin » sur Territoires et Télécharger, « le besoin mesuré » dans les rapports (audit du 27 novembre 2026). Le
+    contrôle du vocabulaire refuse ces tournures et garde les phrases qui disent que l'on ne mesure pas le besoin ; les
+    textes lus par le public qui en portaient n'en portent plus."""
+    import ast
+    import re
+    from pipeline import config, libelles
+
+    def refus(t):
+        return [x for x in libelles.termes_proscrits(t) if "besoin de soins" in x]
+    for t in ["indicateurs de besoin et de recours aux soins", "Offre face aux indicateurs de besoin",
+              "plus présents là où le besoin mesuré est faible", "Montre si les approches du besoin vont dans le même sens",
+              "Moran local bivarié offre et besoin", "un indicateur de santé mentale mesure un besoin ou un recours",
+              "l'indicateur de besoin du département"]:
+        assert refus(t), t
+    for t in ["Mesure le recours aux soins, pas le besoin.", "ils ne mesurent pas un besoin de soins",
+              "Ce n'est pas une mesure du besoin de soins.", "Il ne propose pas de score de besoin",
+              "Aucune donnée ne mesure directement le besoin de soins en santé mentale.",
+              "indicateurs d'état de santé et de recours aux soins", "offre_besoin_lisa.csv", "concordance_besoins.csv",
+              "Ces patients ont particulièrement besoin d'un médecin traitant."]:
+        assert not refus(t), t
+    R = config.RACINE
+    for f in ["gabarits/territoires.html", "gabarits/rapports.html", "atlas/atlas_template.html", "atlas/moteur/atlas.js"]:
+        t = re.sub(r"\{#.*?#\}|//[^\n]*|/\*.*?\*/", " ", (R / f).read_text(encoding="utf-8"), flags=re.S)
+        assert not refus(t), (f, refus(t)[:2])
+    # une page de domaine retrouve la question sous l'ancien intertitre, dans un rapport écrit avant le changement
+    from pipeline import questions as QQ
+    anciens = {x for v in QQ.INTERTITRES_ANCIENS.values() for x in v}
+    for f in ["rapport.py", "rapport_territoire.py", "rapport_bases.py", "croisements_indicateurs.py", "indicateurs.py",
+              "questions.py", "dictionnaire.py"]:
+        chaines = [n.value for n in ast.walk(ast.parse((R / "pipeline" / f).read_text(encoding="utf-8")))
+                   if isinstance(n, ast.Constant) and isinstance(n.value, str) and n.value not in anciens]
+        assert not [c for c in chaines if refus(c)], (f, [c[:80] for c in chaines if refus(c)][:3])
+    assert QQ.INTERTITRES_ANCIENS["Offre face aux indicateurs de santé mentale"] == ("Offre face aux indicateurs de besoin",)
+    assert "QQ.INTERTITRES_ANCIENS.get(intertitre" in (R / "pipeline" / "pages_domaine.py").read_text(encoding="utf-8")
+
+
+def test_sommaire_replie_sans_vide_et_chapeau_au_bord_de_sa_colonne():
+    """Territoires et Télécharger (audit du 27 novembre 2026) : au téléphone, plus de vide sous le sommaire replié
+    (84 px avant le champ de recherche, 60 px sur Télécharger et les rapports, exigence 9) ; à 1 440 px, le chapeau
+    posé dans la colonne de texte de Territoires va au bord droit des paragraphes et du tableau (il s'arrêtait à 690 px
+    dans une colonne de 800). Le contrôle de finition mesure les deux dans le navigateur, sur toutes les pages."""
+    from pipeline import config
+    css = (config.RACINE / "gabarits" / "style.css").read_text(encoding="utf-8")
+    i = css.index(".rapport{row-gap:var(--e-3)}")
+    assert css.rfind("@media (max-width:900px){", 0, i) > css.rfind("}\n}", 0, i), "écart hors du bloc du téléphone"
+    assert ".rapport > :not(.sommaire) > :first-child,.rapport > :not(.sommaire) > :first-child > :first-child{margin-top:0}" in css
+    assert "main .colonne .corps .chapeau:not(.version){max-width:none!important}" in css
+    cf = (config.RACINE / "outils" / "controle_finition.js").read_text(encoding="utf-8")
+    assert "sous le sommaire replié" in cf and 'haut - rs.bottom > 40' in cf
+    assert '!p.matches(".colonne .corps .chapeau:not(.version)")' in cf
 
 
 def test_serie_lancee_en_dernier():

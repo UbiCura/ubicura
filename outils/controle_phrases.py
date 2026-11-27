@@ -204,7 +204,7 @@ def csapa_etablissements(V, C):
         C.ok.append(f"SM, CSAPA, {etab} établissements pour {ofdt} au bilan de l'OFDT")
     else:
         C.fautes.append(f"SM, CSAPA : {etab} établissements de FINESS pour {lieux_} lieux et {ofdt} CSAPA au bilan de "
-                        f"l'OFDT, hors de la fourchette plausible")
+                        f"l'OFDT, hors de la fourchette attendue")
 
 
 @regle
@@ -256,7 +256,10 @@ def suicide(V, C):
             continue
         if r["n"] > 100:
             C.fautes.append(f"SM, suicide, {lab} : {int(r['n'])} départements, Mayotte comprise")
-        C.egal("SM, suicide", f"{f(r['rho_spearman'], 2)} pour les {lab} (fourchette plausible de "
+        # les chiffres seulement : le nom de l'intervalle (jamais « fourchette plausible » depuis l'audit du
+        # 27 novembre 2026) est jugé par outils/controle_decisions.py, un rapport écrit avant garde l'ancien nom
+        nom_ic = "fourchette plausible" if "(fourchette plausible de " in s else "intervalle de confiance à 95 %"
+        C.egal("SM, suicide", f"{f(r['rho_spearman'], 2)} pour les {lab} ({nom_ic} de "
                               f"{f(r['ic95_bas'], 2)} à {f(r['ic95_haut'], 2)})", s, lab)
         suite = s
         lien = regle_lien.est_lien(r["rho_spearman"], r["q_bh"])

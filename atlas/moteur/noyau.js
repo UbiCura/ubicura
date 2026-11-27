@@ -37,12 +37,12 @@ const phraseGini=g=>g<.2?"assez homogène sur le territoire":g<.35?"modérément
 function fois(a,b){if(!b||!isFinite(a/b))return"";const r=a/b;if(r>=1.5)return f1.format(r)+" fois plus";if(r>=1)return Math.round((r-1)*100)+" % de plus";if(r>.67)return Math.round((1-r)*100)+" % de moins";return r>0?f1.format(1/r)+" fois moins":"aucun"}
 const minuscule=s=>!s||(s.length>1&&s[1]===s[1].toUpperCase()&&s[1]!==s[1].toLowerCase())?s:s[0].toLowerCase()+s.slice(1);
 function phraseCorrelation(rho,indic,lab,ic){if(rho==null||!isFinite(rho))return"";const f=forceLien(rho);
-  if(ic&&ic[0]!=null&&ic[1]!=null&&ic[0]<0&&ic[1]>0&&f!=="négligeable")return"Aucun lien net n’apparaît entre l’indicateur « "+minuscule(indic)+" » et la présence "+deMot(pluriel(lab))+". La corrélation mesurée ("+f2.format(rho)+") est trop incertaine pour conclure, elle pourrait aussi bien être nulle (fourchette plausible de "+f2.format(ic[0])+" à "+f2.format(ic[1])+").";if(f==="négligeable")return"Aucun lien notable entre l’indicateur « "+minuscule(indic)+" » et la présence "+deMot(pluriel(lab))+".";return"Les territoires où l’indicateur « "+minuscule(indic)+" » est élevé comptent plutôt "+(rho>0?"plus":"moins")+" "+deMot(pluriel(lab))+". Le lien est "+f+" (rho = "+f2.format(rho)+"). Ce lien décrit des territoires et ne dit rien d’une cause."}
+  if(ic&&ic[0]!=null&&ic[1]!=null&&ic[0]<0&&ic[1]>0&&f!=="négligeable")return"Aucun lien net n’apparaît entre l’indicateur « "+minuscule(indic)+" » et la présence "+deMot(pluriel(lab))+". La corrélation mesurée ("+f2.format(rho)+") est trop incertaine pour conclure, elle pourrait aussi bien être nulle (intervalle de confiance à 95 % de "+f2.format(ic[0])+" à "+f2.format(ic[1])+").";if(f==="négligeable")return"Aucun lien notable entre l’indicateur « "+minuscule(indic)+" » et la présence "+deMot(pluriel(lab))+".";return"Les territoires où l’indicateur « "+minuscule(indic)+" » est élevé comptent plutôt "+(rho>0?"plus":"moins")+" "+deMot(pluriel(lab))+". Le lien est "+f+" (rho = "+f2.format(rho)+"). Ce lien décrit des territoires et ne dit rien d’une cause."}
 function valeursReg(xs){return(xs.length>1?"les valeurs de ":"la valeur de ")+(xs.length<2?xs.join(""):xs.slice(0,-1).join(", ")+" et "+xs[xs.length-1])+(xs.length>1?" sont plus hautes":" est plus haute")}
 function phraseDeux(rho,ic,xl,yl,lv){if(rho==null||!isFinite(rho))return"";const f=forceLien(rho),qui=lv==="dep"?"Les départements":lv==="reg"?"Les régions":"Les intercommunalités";
-  if(ic&&ic[0]!=null&&ic[0]<0&&ic[1]>0&&f!=="négligeable")return"Aucun lien net n’apparaît entre « "+minuscule(xl)+" » et « "+minuscule(yl)+" ». La corrélation mesurée ("+f2.format(rho)+") est trop incertaine pour conclure, elle pourrait aussi bien être nulle (fourchette plausible de "+f2.format(ic[0])+" à "+f2.format(ic[1])+").";
+  if(ic&&ic[0]!=null&&ic[0]<0&&ic[1]>0&&f!=="négligeable")return"Aucun lien net n’apparaît entre « "+minuscule(xl)+" » et « "+minuscule(yl)+" ». La corrélation mesurée ("+f2.format(rho)+") est trop incertaine pour conclure, elle pourrait aussi bien être nulle (intervalle de confiance à 95 % de "+f2.format(ic[0])+" à "+f2.format(ic[1])+").";
   if(f==="négligeable")return"Aucun lien notable entre « "+minuscule(xl)+" » et « "+minuscule(yl)+" ».";
-  return qui+" où « "+minuscule(xl)+" » est élevé ont plutôt une valeur "+(rho>0?"plus élevée":"plus basse")+" de « "+minuscule(yl)+" ». Le lien est "+f+" (rho = "+f2.format(rho)+(ic&&ic[0]!=null?", fourchette plausible de "+f2.format(ic[0])+" à "+f2.format(ic[1]):"")+"). Il décrit des territoires et ne dit rien d’une cause."}
+  return qui+" où « "+minuscule(xl)+" » est élevé ont plutôt une valeur "+(rho>0?"plus élevée":"plus basse")+" de « "+minuscule(yl)+" ». Le lien est "+f+" (rho = "+f2.format(rho)+(ic&&ic[0]!=null?", intervalle de confiance à 95 % de "+f2.format(ic[0])+" à "+f2.format(ic[1]):"")+"). Il décrit des territoires et ne dit rien d’une cause."}
 function liste(ps){ps=ps.slice(0,3).map(pluriel);return ps.length===1?ps[0]:ps.slice(0,-1).join(", ")+" et "+ps[ps.length-1]}
 
 // ---------- limites connues des données, avec leurs sources (config.LIMITES)
@@ -181,7 +181,7 @@ function svgExport(id,citation){
   // légende des cartes, recopiée depuis la légende affichée sous la carte (HTML)
   const leg=[],lg=id==="map"?document.getElementById("legend"):id==="tmap"?document.getElementById("tyLegende"):null;
   if(id==="lxCarte")leg.push({cle:css("--ink"),t:"Point plein, structure confirmée par une source indépendante de FINESS et du ROR"},{t:"Point creux, structure inscrite dans FINESS ou le ROR seulement, à confirmer"},{t:"Point creux tireté, structure non confirmée, aucune source officielle de moins de trois ans trouvée"});
-  if(id==="regPlot")leg.push({cle:css("--r4"),t:"Lien positif"},{cle:css("--d1"),t:"Lien négatif"},{t:"Point et trait, départements de l’Hexagone avec leur fourchette plausible à 95 %, couleur pâle si la fourchette englobe zéro."},{cle:css("--muted"),t:"Losange gris, sans l’Île-de-France"});
+  if(id==="regPlot")leg.push({cle:css("--r4"),t:"Lien positif"},{cle:css("--d1"),t:"Lien négatif"},{t:"Point et trait, départements de l’Hexagone avec leur intervalle de confiance à 95 %, couleur pâle si l’intervalle englobe zéro."},{cle:css("--muted"),t:"Losange gris, sans l’Île-de-France"});
   if(lg&&id==="tmap")lg.querySelectorAll("li").forEach(li=>leg.push({cle:getComputedStyle(li.querySelector("i")).backgroundColor,t:li.querySelector("span").textContent}));
   else if(lg)[...lg.children].forEach(el=>{
     if(el.querySelector(".sw"))leg.push({rampe:[...el.querySelectorAll(".sw span")].map(s=>s.style.background),ticks:[...el.querySelectorAll(".ticks span")].map(s=>s.textContent)});
@@ -294,14 +294,21 @@ document.addEventListener("click",e=>{const b=e.target.closest("button.how");if(
 function texteHow(b){let t=b.nextElementSibling;
   if(!t||!t.classList.contains("howtxt")){t=b.parentElement.nextElementSibling;while(t&&t.classList.contains("citation"))t=t.nextElementSibling}
   return t&&t.classList.contains("howtxt")?t:null}
-function deplierCommentLire(){document.querySelectorAll("button.how:not([data-vu])").forEach(b=>{const t=texteHow(b);if(!t)return;b.dataset.vu="1";
-  t.innerHTML='<p class="cl-tete"><strong>Comment lire.</strong></p>'+howHtml(b.dataset.how);t.classList.remove("hidden");b.hidden=true;b.setAttribute("aria-expanded","true");
+// un bouton dont les définitions changent (carte : celles de la mesure choisie) récrit son texte, où qu'il ait été déplacé
+function remplirCommentLire(b,t){t.innerHTML='<p class="cl-tete"><strong>Comment lire.</strong></p>'+howHtml(b.dataset.how);b.dataset.rempli=b.dataset.how}
+function majCommentLire(b){if(b._txt&&b.dataset.rempli!==b.dataset.how)remplirCommentLire(b,b._txt)}
+function deplierCommentLire(){document.querySelectorAll("button.how[data-vu]").forEach(majCommentLire);
+  document.querySelectorAll("button.how:not([data-vu])").forEach(b=>{const t=texteHow(b);if(!t)return;b.dataset.vu="1";b._txt=t;
+  remplirCommentLire(b,t);t.classList.remove("hidden");b.hidden=true;b.setAttribute("aria-expanded","true");
   // le résultat en tête du bloc, l'explication juste en dessous (règles du projet, partie 6) : le texte quitte la tête de
   // l'encadré pour suivre sa figure ou son tableau, avant les limites
   const boite=t.closest(".panel,.mapbox,.selzone");if(!boite)return;
   const fig=[...boite.querySelectorAll("svg.map,svg.fig,.leaflet-container,table,.hmbox,dl,.legend,.fiche-legende")].filter(x=>!t.contains(x)&&!x.closest(".howtxt")).pop();
   const lim=boite.querySelector(".asavoir,.limites");
-  if(lim&&(!fig||fig.compareDocumentPosition(lim)&Node.DOCUMENT_POSITION_FOLLOWING))lim.before(t);else if(fig)(fig.closest(".hmbox,.scroll,.tabdonnees")||fig).after(t);else boite.appendChild(t)})}
+  // devant le bloc des limites tout entier : posé dans « #mapLimite », que chaque dessin de la carte récrit, le texte
+  // disparaissait au premier changement de mesure ou à l'ouverture de la carte au téléphone (25 novembre 2026)
+  let ancre=lim;while(ancre&&ancre.parentElement!==boite&&!(fig&&ancre.parentElement.contains(fig)))ancre=ancre.parentElement;
+  if(lim&&(!fig||fig.compareDocumentPosition(lim)&Node.DOCUMENT_POSITION_FOLLOWING))(ancre||lim).before(t);else if(fig)(fig.closest(".hmbox,.scroll,.tabdonnees")||fig).after(t);else boite.appendChild(t)})}
 {let attente=0;new MutationObserver(()=>{if(!attente)attente=setTimeout(()=>{attente=0;deplierCommentLire()},0)}).observe(document.documentElement,{childList:true,subtree:true})}
 
 // ---------- familles

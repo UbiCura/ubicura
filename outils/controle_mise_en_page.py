@@ -35,12 +35,22 @@ def pages_types(date: str) -> list[tuple[str, bool]]:
     def premier(motif: str) -> str | None:
         f = sorted(SITE.glob(motif))
         return f[0].relative_to(SITE).as_posix() if f else None
-    pages = [("index.html", False), ("atlas.html", False), ("atlas.html#?fam=tout&prof=ens_medecin_specialiste&niv=epci", False), ("explorer.html", False), ("croiser.html", False),
-             ("comparer.html", False), ("comparer.html#t=dep:12,dep:81,epci:241200187", False), ("domaines.html", False), ("liens.html", False), ("methode.html", False),
+    pages = [("index.html", False), ("atlas.html", False), ("atlas.html#?fam=tout&prof=ens_medecin_specialiste&niv=epci", False),
+             # mesure lue dans l'adresse, gardée et suivie par le panneau de la France entière (audit du 25 novembre 2026)
+             ("atlas.html#?fam=sm&prof=psychiatre&niv=dep&mesure=evol", False),
+             # page d'erreur servie à toute adresse inconnue (audit du 25 novembre 2026)
+             ("404.html", False),
+             ("explorer.html", False), ("croiser.html", False),
+             ("comparer.html", False), ("comparer.html#t=dep:12,dep:81,epci:241200187", False),
+             # Comparer et Croiser de la structure validée le 26 novembre 2026 : deux intercommunalités sur la même
+             # réglette, et un couple hors des familles de tests publiées
+             ("comparer.html#t=epci:243500139,epci:200059889", False), ("croiser.html#x=taux_pauvrete&y=taux_chomage&lv=epci", False), ("domaines.html", False), ("liens.html", False), ("methode.html", False),
              # page « Étendue des données » et page Indicateurs, avec la liste des indicateurs en CSV (étape 6 des portes d'entrée)
              ("methode-etendue.html", False), ("indicateurs.html", False),
              # page « Citer et réutiliser » (maquette validée le 24 novembre 2026)
              ("methode-citer.html", False),
+             # fichiers à télécharger rangés par thème (structure du site validée le 26 novembre 2026)
+             ("methode-fichiers.html", False),
              ("zone.html", False), ("zone.html#lieu=12202&rayon=20", False), ("rapports.html", False), ("journal.html", False), ("donnees-sources.html", False),
              ("territoires/index.html", False), ("domaine/offre-de-soins.html", False),
              ("domaine/sante-mentale.html", False), ("domaine/sante.html", False),
@@ -48,6 +58,13 @@ def pages_types(date: str) -> list[tuple[str, bool]]:
              (premier("indicateur/lieux-*.html") or "", False),
              ("territoire/dep/12.html", True), ("territoire/dep/971.html", True), ("territoire/reg/76.html", True),
              ("territoire/epci/200018653.html", True),
+             # fiche sectorisée dont la couche « Secteurs » a un pied court : sa colonne de gauche finissait 123 px avant
+             # l'autre (Rennes Métropole, 25 novembre 2026)
+             ("territoire/epci/243500139.html", False),
+             # dossier complet, la fiche entière à sa propre adresse, la fiche courte restant à l'adresse de chaque fiche
+             # (structure validée le 26 novembre 2026, pipeline/fiche_courte.py)
+             ("territoire/dep/12-complet.html", True), ("territoire/reg/76-complet.html", True),
+             ("territoire/epci/243500139-complet.html", False),
              (f"rapports/{date}/sante-mentale.html", True), (f"rapports/{date}/sante.html", True),
              (f"territoires/{date}/dep-12-sante-mentale.html", True), (f"territoires/{date}/reg-76-sante.html", True)]
     vus, out = set(), []

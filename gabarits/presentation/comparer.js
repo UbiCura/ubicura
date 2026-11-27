@@ -37,61 +37,112 @@
   var MOT_TYPE = { "lieu_cmp_adultes": "CMP pour adultes", "lieu_cmp_enfants": "CMP pour enfants", "lieu_cattp": "CATTP", "lieu_hdj_psy_enfants": "jour en psychiatrie pour enfants", "lieu_hdj_psy_adultes": "jour en psychiatrie pour adultes" };
   function concerne(id, t) { var m = /(?:lieux_|dist_)(lieu_\w+)/.exec(id); if (!m || !MOT_TYPE[m[1]] || !t) return true; return t.indexOf(MOT_TYPE[m[1]]) >= 0; }
   function limTerr(i, lv, u, id) { if (!i || !i.limT) return null; var t = lv === "reg" ? i.limT["reg:" + u.c] : (i.limT[u.c] || (lv === "epci" && u.p ? i.limT[u.p] : null)); return t && concerne(id, t) ? t : null; }
+  // territoires semblables, par la définition unique du site (pipeline/semblables.py, publiée dans A.semb) : sept
+  // mesures de l'INSEE, les cinq plus proches du même niveau, hors outre-mer ; leur critère en clair dans A.sembCrit
   function semblables(lv, k) {
-    var crit = ["densite_pop", "revenu_median", "part_80p"], us = A.units[lv];
-    var st = crit.map(function (id) { var a = A.val[lv][id].filter(function (v) { return v != null; }), mu = a.reduce(function (x, y) { return x + y; }, 0) / a.length, sd = Math.sqrt(a.reduce(function (x, y) { return x + (y - mu) * (y - mu); }, 0) / a.length); return { id: id, mu: mu, sd: sd || 1 }; });
-    function vec(j) { return st.map(function (s) { var v = A.val[lv][s.id][j]; return v == null ? null : (s.id === "densite_pop" ? Math.log(v + 1) : v); }); }
-    var stl = st.map(function (s) { if (s.id !== "densite_pop") return s; var a = A.val[lv][s.id].filter(function (v) { return v != null; }).map(function (v) { return Math.log(v + 1); }), mu = a.reduce(function (x, y) { return x + y; }, 0) / a.length; return { id: s.id, mu: mu, sd: Math.sqrt(a.reduce(function (x, y) { return x + (y - mu) * (y - mu); }, 0) / a.length) }; });
-    var v0 = vec(k); if (v0.some(function (x) { return x == null; })) return [];
-    var d = []; us.forEach(function (u, j) { if (j === k) return; var v = vec(j); if (v.some(function (x) { return x == null; })) return; var s = 0; v.forEach(function (x, q) { var z = (x - v0[q]) / stl[q].sd; s += z * z; }); d.push([s, j]); });
-    d.sort(function (a, b) { return a[0] - b[0]; });
-    return d.slice(0, 3).map(function (x) { return { t: lv, c: us[x[1]].c, nm: us[x[1]].nm }; });
+    var u = A.units[lv][k], l = (A.semb && A.semb[lv] && u && A.semb[lv][u.c]) || [];
+    return l.map(function (c) { var j = unite(lv, c); return j >= 0 ? { t: lv, c: c, nm: A.units[lv][j].nm } : null; }).filter(Boolean);
   }
   function etat() { return "t=" + S.t.map(function (x) { return x.t + ":" + x.c; }).join(","); }
   function lire() {
     var h = location.hash.slice(1), m = /(?:^|&)t=([^&]*)/.exec(h);
     if (m) S.t = m[1].split(",").map(function (s) { var p = s.split(":"), k = unite(p[0], p[1]); return k >= 0 ? { t: p[0], c: p[1], nm: A.units[p[0]][k].nm } : null; }).filter(Boolean).slice(0, 4);
   }
+  // réglette du site (gabarits/reglette.html, même histogramme, même repère et même médiane, publiés par
+  // pipeline/atelier.py dans A.rg) où les territoires comparés sont placés sous l'axe, chacun sur sa rangée, dans l'ordre
+  // de la légende (rond plein, losange, carré, rond creux), au-dessus du triangle de la médiane : deux valeurs égales
+  // restent visibles et aucune marque ne touche les barres, le trait du repère, arrêté à l'axe, ni le triangle.
+  // avecRep, le repère écrit sur la réglette (téléphone, niveaux différents) ; sinon il est dans sa colonne.
+  var NB = " ", RANGEE = 18;
+  function cote(x) { return x < 14 ? "g" : x > 86 ? "d" : "c"; }
+  function reglette(id, lv, pts, avecRep) {
+    var R = A.rg && A.rg[lv] && A.rg[lv][id]; if (!R) return "";
+    var X = function (v) { return +Math.max(0, Math.min(100, (v - R.b) / (R.h - R.b || 1) * 100)).toFixed(2); };
+    var marques = pts.filter(function (p) { return p.v != null; }), n = Math.max(1, marques.length);
+    var med = 50 + RANGEE * n - 2, lab = med + 10, mots = [];
+    var s = '<span class="rg-piste" aria-hidden="true"><svg class="rg-hist" viewBox="0 0 ' + R.nb + ' 18" preserveAspectRatio="none" aria-hidden="true"><path d="' + R.c + '"/></svg><span class="rg-axe"></span>' + (R.k ? '<span class="rg-chev"></span>' : "");
+    if (R.r != null) {
+      s += '<span class="rg-ens" style="left:' + R.r + '%"></span>' + (avecRep ? '<span class="rg-lab haut lab-' + cote(R.r) + '" style="left:' + R.r + '%">ensemble ' + R.rt + "</span>" : "");
+      mots.push(A.aff.ensemble[lv].toLowerCase() + " " + R.rt);
+    }
+    // la part des territoires sans inscrit, sur sa propre ligne sous l'étiquette de la médiane : elle ne touche jamais
+    // l'étiquette du repère, quelle que soit la largeur (contrôle de mise en page du 26 novembre 2026)
+    var bas = R.al ? 17 : 0;
+    if (R.m != null) {
+      s += '<span class="rg-med" style="left:' + R.m + "%;top:" + med + 'px"></span><span class="rg-lab bas lab-' + cote(R.m) + '" style="left:' + R.m + "%;top:" + lab + 'px">médiane ' + R.mt + "</span>" +
+        (R.al ? '<span class="rg-lab bas lab-g rg-sans" style="left:0%;top:' + (lab + bas) + 'px">' + R.al + "</span>" : "");
+      mots.push("médiane " + R.mt.replace(/^: /, ""));
+    }
+    marques.forEach(function (p, r) { s += '<span class="rg-pt t' + p.j + '" style="left:' + X(p.v) + "%;top:" + (50 + RANGEE * r) + 'px"></span>'; mots.push(p.nm + " " + p.txt); });
+    return '<div class="fiche"><div class="rg petite cmp" style="height:' + (lab + 12 + (bas || 0)) + 'px" role="img" tabindex="0" aria-label="Répartition des ' + NIVPL[lv] + " ; " + esc(mots.join(" ; ")) + " ; " + esc(R.ax) + '">' + s + "</span></div></div>";
+  }
+  function marque(j) { return '<i class="m t' + j + '" aria-hidden="true"></i>'; }
+  // contenu d'une cellule : valeur (« aucun inscrit » plutôt que 0), effectif, statut, position ; court, sans le niveau
+  function contenu(id, x, c, i, notes, court) {
+    var k = unite(x.t, x.c), u = A.units[x.t][k], lim = limTerr(i, x.t, u, id);
+    if (!c) return '<span class="np">non publié à ce niveau</span>';
+    var n = compte(id, c.lv, c.k), np = i && i.np && i.np[c.lv] && i.np[c.lv][A.units[c.lv][c.k].c];
+    if (lim) notes[x.nm + "|" + lim] = [x.nm, lim];
+    var sig = lim ? '<b class="sig" title="' + esc(lim) + '" aria-label="Limite, ' + esc(lim) + '">!</b>' : "";
+    var txt = c.txt, coul = c.couleur, st = c.statut || (c.txt ? "" : np || "sans donnée");
+    // un 0 n'est jamais laissé seul : « aucun inscrit », « aucune structure », comme la fiche (relecture indépendante
+    // du 5 novembre 2026, CMPP de l'Ain ; structure validée le 26 novembre 2026)
+    var mot = id.indexOf("prof:") === 0 ? "aucun inscrit" : "aucune structure";
+    if (c.code === "a" || (n === 0 && c.lv === x.t && /^0([,.]0+)?$/.test(String(txt || "").trim()))) { txt = mot; coul = null; n = null; if (st === mot || c.code === "a") st = ""; }
+    var pos = c.pos_txt && !/[aprn]/.test(c.code) ? c.pos_txt : "";
+    if (court) pos = pos.replace(/ des (intercommunalités|départements|régions)$/, "");
+    return (txt ? '<span class="v' + (coul ? " ecart-" + coul : "") + '">' + txt + "</span>" + sig : "") +
+      (n != null && c.lv === x.t ? '<span class="eff">' + fr0.format(n) + (id.indexOf("prof:") === 0 ? " professionnel" + (n > 1 ? "s" : "") : " structure" + (n > 1 ? "s" : "")) + "</span>" : "") +
+      (st ? '<span class="np">' + esc(st) + (txt ? "" : sig) + "</span>" : "") + (pos ? '<span class="rep">' + esc(pos) + "</span>" : "");
+  }
   function rendre() {
     history.replaceState(null, "", "#" + etat());
-    $("puces").innerHTML = S.t.map(function (x, j) { return '<span class="puce">' + esc(x.nm) + ' <button type="button" data-retirer="' + j + '" aria-label="Retirer ' + esc(x.nm) + '">×</button></span>'; }).join("");
+    $("puces").innerHTML = S.t.map(function (x, j) { return '<span class="puce">' + marque(j + 1) + esc(x.nm) + ' <button type="button" data-retirer="' + j + '" aria-label="Retirer ' + esc(x.nm) + '">×</button></span>'; }).join("");
     var p = S.t[0], sb = p ? semblables(p.t, unite(p.t, p.c)) : [];
-    $("semblables").innerHTML = sb.length && S.t.length < 4 ? "Territoires semblables à " + esc(p.nm) + ", " + sb.map(function (x) { return '<button type="button" data-ajout="' + x.t + ":" + x.c + '">' + esc(x.nm) + "</button>"; }).join("") : "";
+    $("semblables").innerHTML = sb.length && S.t.length < 4 ? "Territoires semblables à " + esc(p.nm) + NB + ": " + sb.map(function (x) { return '<button type="button" data-ajout="' + x.t + ":" + x.c + '">' + esc(x.nm) + "</button>"; }).join("") +
+      '<span class="critere">' + esc((A.sembCrit || {})[p.t] || "") + "</span>" : "";
     // outils cachés tant que le tableau est vide (F11)
     document.querySelector(".outils-c").hidden = !S.t.length;
     if (!S.t.length) { $("defile").innerHTML = '<p class="vide-comp">Ajoutez un premier territoire avec le champ ci-dessus, par exemple votre commune.</p>'; $("leg-comp").textContent = ""; $("notes").innerHTML = ""; return; }
-    var notes = {};
-    $("leg-comp").textContent = "Comparaison de " + S.t.length + " territoire" + (S.t.length > 1 ? "s" : "") + ", version du " + A.version;
-    var h = '<table class="comp" aria-labelledby="leg-comp"><thead><tr><th scope="col">Indicateur</th>' +
-      S.t.map(function (x) { var k = unite(x.t, x.c), u = A.units[x.t][k]; return '<th scope="col"><a href="territoire/' + x.t + "/" + encodeURIComponent(x.c) + '.html">' + esc(x.nm) + '</a><span class="niv">' + NIV1[x.t] + ", " + fr0.format(u.pop) + " habitants</span></th>"; }).join("") + "</tr></thead><tbody>";
+    var notes = {}, T = S.t.map(function (x, j) { var k = unite(x.t, x.c); return { t: x.t, c: x.c, nm: x.nm, k: k, j: j + 1, pop: A.units[x.t][k].pop }; });
+    var lv = T[0].t, meme = T.every(function (x) { return x.t === lv; }), ENS = A.aff.ensemble[lv];
+    $("leg-comp").innerHTML = "Comparaison de " + T.length + " territoire" + (T.length > 1 ? "s" : "") + ", version du " + A.version +
+      '<span class="leg-pts">' + T.map(function (x) { return "<span>" + marque(x.j) + esc(x.nm) + "</span>"; }).join("") + "</span>" +
+      '<span class="leg-rg">' + (meme ? "Sur chaque réglette, la répartition des " + NIVPL[lv] + ", le trait de l’" + ENS.charAt(0).toLowerCase() + ENS.slice(1) + " et le triangle de la médiane" + NB + "; sous l’axe, chaque territoire sur sa rangée, dans l’ordre de la légende. La position se lit parmi les " + NIVPL[lv] + "."
+        : "Les territoires ne sont pas tous du même niveau" + NB + ": chacun est placé sur la réglette de son niveau, avec le repère de ce niveau, et sa position se lit parmi les territoires de ce niveau.") + "</span>";
+    var ncol = T.length + 1 + (meme ? 2 : 0);
+    var h = '<table class="comp cmp2' + (meme ? "" : " mixte") + " n" + T.length + '" aria-labelledby="leg-comp"><thead><tr><th scope="col">Indicateur</th>' +
+      T.map(function (x) { return '<th scope="col" class="terr"><span class="nm">' + marque(x.j) + '<a href="territoire/' + x.t + "/" + encodeURIComponent(x.c) + '.html">' + esc(x.nm) + '</a></span><span class="niv">' + NIV1[x.t] + ", " + fr0.format(x.pop) + " habitants</span></th>"; }).join("") +
+      (meme ? '<th scope="col" class="rep-col">Repère<span class="niv">' + esc(ENS) + '</span></th><th scope="col" class="rg-col">Répartition des ' + NIVPL[lv] + "</th>" : "") + "</tr></thead><tbody>";
+    var cartes = "";
     LIGNES.forEach(function (g) {
-      h += '<tr class="groupe"><th scope="row" colspan="' + (S.t.length + 1) + '"><span class="g">' + g[0] + "</span></th></tr>";
+      h += '<tr class="groupe"><th scope="row" colspan="' + ncol + '"><span class="g">' + g[0] + "</span></th></tr>";
+      cartes += '<h3 class="carte-g">' + g[0] + "</h3>";
       g[1].forEach(function (l) {
-        var id = l[0], i = IND[id];
-        h += '<tr><th scope="row">' + esc(l[1]) + '<span class="u">' + esc(l[2]) + "</span></th>";
-        S.t.forEach(function (x) {
-          var k = unite(x.t, x.c), u = A.units[x.t][k], lim = limTerr(i, x.t, u, id), c = cel(id, x.t, k);
-          if (!c) { h += '<td><span class="np">non publié à ce niveau</span></td>'; return; }
-          var n = compte(id, c.lv, c.k), np = i && i.np && i.np[c.lv] && i.np[c.lv][A.units[c.lv][c.k].c];
-          if (lim) notes[x.nm + "|" + lim] = [x.nm, lim];
-          var sig = lim ? '<b class="sig" title="' + esc(lim) + '" aria-label="Limite, ' + esc(lim) + '">!</b>' : "";
-          var st = c.statut || (c.txt ? "" : np || "sans donnée");
-          // un 0 n'est jamais laissé seul : sans structure ni professionnel, « aucune » ou « aucun », comme la fiche
-          // (relecture indépendante du 5 novembre 2026, CMPP de l'Ain)
-          var zero = n === 0 && c.lv === x.t && /^0([,.]0+)?$/.test(String(c.txt || "").trim());
-          if (zero) { c = Object.assign({}, c, {txt: id.indexOf("prof:") === 0 ? "aucun" : "aucune", couleur: null}); n = null; }
-          h += "<td>" + (c.txt ? '<span class="v' + (c.couleur ? " ecart-" + c.couleur : "") + '">' + c.txt + "</span>" : "") + (c.txt ? sig : "") +
-            (n != null && c.lv === x.t ? '<span class="eff">' + fr0.format(n) + (id.indexOf("prof:") === 0 ? " professionnel" + (n > 1 ? "s" : "") : " structure" + (n > 1 ? "s" : "")) + "</span>" : "") +
-            (st ? '<span class="np">' + esc(st) + (c.txt ? "" : sig) + "</span>" : "") +
-            (c.ref_txt ? '<span class="rep">' + esc(c.ref_lib) + ", " + c.ref_txt + "</span>" : "") +
-            (c.pos_txt && !/[aprn]/.test(c.code) ? '<span class="rep">' + esc(c.pos_txt) + "</span>" : "") + "</td>";
-        });
-        h += "</tr>";
+        var id = l[0], i = IND[id], cs = T.map(function (x) { return cel(id, x.t, x.k); });
+        var tete = '<th scope="row">' + esc(l[1]) + '<span class="u">' + esc(l[2]) + "</span></th>", titre = '<p class="ci-t">' + esc(l[1]) + ' <span class="u">' + esc(l[2]) + "</span></p>";
+        // une réglette commune quand les valeurs se lisent toutes au même niveau (donnée du département comprise)
+        var niv = cs.filter(Boolean).map(function (c) { return c.lv; }), lvR = niv.length && niv.every(function (v) { return v === niv[0]; }) ? niv[0] : null;
+        var pts = function (js) { return js.map(function (j) { var c = cs[j]; return { v: c ? c.v : null, j: T[j].j, nm: T[j].nm, txt: c ? (c.code === "a" ? "aucun" : c.txt) : "" }; }); };
+        if (meme) {
+          var c0 = cs.filter(Boolean)[0], tous = T.map(function (x, j) { return j; });
+          var rep = c0 && c0.ref_txt ? '<span class="v rep-v">' + c0.ref_txt + "</span>" + (c0.ref_lib !== ENS ? '<span class="rep">' + esc(c0.ref_lib) + "</span>" : "") : "";
+          var rg = lvR ? reglette(id, lvR, pts(tous), false) : "";
+          h += "<tr>" + tete + cs.map(function (c, j) { return "<td>" + contenu(id, T[j], c, i, notes) + "</td>"; }).join("") + '<td class="rep-col">' + rep + '</td><td class="rg-col">' + rg + "</td></tr>";
+          cartes += '<div class="carte-i">' + titre + (lvR ? reglette(id, lvR, pts(tous), true) : "") + (c0 && c0.ref_txt && (!lvR || !(A.rg[lvR] && A.rg[lvR][id] && A.rg[lvR][id].r != null)) ? '<p class="ci-rep">Repère' + NB + ": " + esc(c0.ref_lib.toLowerCase()) + ", " + c0.ref_txt + "</p>" : "") +
+            '<div class="ci-v">' + cs.map(function (c, j) { return "<div>" + marque(T[j].j) + contenu(id, T[j], c, i, notes, true) + "</div>"; }).join("") + "</div></div>";
+        } else {
+          var une = function (c, j) { return c ? reglette(id, c.lv, pts([j]), true) : ""; };
+          h += "<tr>" + tete + cs.map(function (c, j) { return "<td>" + contenu(id, T[j], c, i, notes) + une(c, j) + "</td>"; }).join("") + "</tr>";
+          cartes += '<div class="carte-i">' + titre + cs.map(function (c, j) { return '<div class="ci-m"><div class="ci-v1">' + marque(T[j].j) + contenu(id, T[j], c, i, notes) + "</div>" + une(c, j) + "</div>"; }).join("") + "</div>";
+        }
       });
     });
-    $("defile").innerHTML = h + "</tbody></table>";
+    $("defile").innerHTML = h + '</tbody></table><div class="cartes-tel">' + cartes + "</div>";
     var ks = Object.keys(notes);
     $("notes").innerHTML = ks.map(function (k) { return '<p class="limite"><b aria-hidden="true">!</b><span><strong>' + esc(notes[k][0]) + "</strong>, " + esc(notes[k][1]) + "</span></p>"; }).join("");
+    // étiquettes gardées dans leur réglette, part des territoires sans inscrit placée comme sur la fiche (figures.js)
+    if (window.etiquettesReglettes) requestAnimationFrame(window.etiquettesReglettes);
   }
   document.addEventListener("click", function (e) {
     var t = e.target;

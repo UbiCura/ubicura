@@ -161,7 +161,7 @@ if ($Restaurer) {
     }
     Ecrire "Copie des pages publiques."
     # les pages de travail, dont le nom commence par « _ » (planche de style, contrôles), ne partent jamais en ligne
-    robocopy (Join-Path $racine "site") $temp /E /XD prototype prototype2 prototype3 prototype4 maquettes _maquettes /XF _*.html /NFL /NDL /NJH /NJS /NP | Out-Null
+    robocopy (Join-Path $racine "site") $temp /E /XD prototype prototype2 prototype3 prototype4 maquettes _* /XF _*.html /NFL /NDL /NJH /NJS /NP | Out-Null
     # aucune page de l'offre professionnelle ne part avant que l'offre soit finalisée (décision du 28 octobre 2026)
     $offre = & $python (Join-Path $racine "outils\verifier_site_public.py") $temp
     if ($LASTEXITCODE -ne 0) { Ecrire "Page de l'offre dans le site, rien n'est envoyé. $offre"; Prevenir "Une page de l'offre professionnelle est dans le site. Rien n'a été mis en ligne.`n`n$offre"; exit 1 }

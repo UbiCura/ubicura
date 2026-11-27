@@ -13,6 +13,8 @@ import csv
 from functools import lru_cache
 from pathlib import Path
 
+from . import questions as _Q
+
 FICHIER = Path(__file__).with_name("themes_indicateurs.csv")
 
 # questions des pages santé mentale et santé reprises sur la page du thème, avec leur figure et leur « Comment lire »
@@ -31,8 +33,9 @@ THEMES = [
                 "l’offre de soins se répartit selon eux.",
      "questions": [("sm", "Offre selon le niveau de vie des territoires", "L’offre de santé mentale suit-elle le niveau de vie des habitants ?"),
                    ("sante", "Offre selon le niveau de vie des territoires", "L’offre de santé suit-elle le niveau de vie des habitants ?")],
-     "explorer": [("explorer.html#qInegalites", "Les territoires modestes sont-ils moins bien dotés ?"),
-                  ("explorer.html#trajectoires", "Les départements modestes rattrapent-ils leur retard depuis 2016 ?")]},
+     # titres de la table unique des questions (pipeline/questions.py, 26 novembre 2026)
+     "explorer": [("explorer.html#qInegalites", _Q.EXPLORER["qInegalites"]),
+                  ("explorer.html#trajectoires", _Q.EXPLORER["qTraj"])]},
     {"id": "grand_age", "nom": "Grand âge",
      "chapeau": "Les habitants de 65 ans et plus, ceux qui vivent seuls, les EHPAD, les gériatres et les maladies qui "
                 "touchent surtout le grand âge.",

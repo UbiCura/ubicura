@@ -92,7 +92,7 @@ svg text.signature{font-size:10px;opacity:.75}
 .bar:not(.ouvert) .seg{display:none}
 .phrase,.note,.lede,.asavoir{text-align:left}
 /* texte justifié avec césures sur ordinateur, aligné à gauche au téléphone (règle 8) */
-.howtxt p{text-align:justify;hyphens:auto;-webkit-hyphens:auto}
+@container (min-width:560px){.howtxt p{text-align:justify;hyphens:auto;-webkit-hyphens:auto}}
 @media (max-width:640px){.howtxt p{text-align:left;hyphens:manual}}
 }
 .grid{display:grid;grid-template-columns:minmax(0,1fr) clamp(280px,32vw,360px);gap:24px;align-items:start}
@@ -106,7 +106,10 @@ svg text.signature{font-size:10px;opacity:.75}
 @media (max-width:760px){
   .grid.carte>.side{order:0}.grid.carte>.voir-carte{order:1}.grid.carte>.mapbox{order:2}.grid.carte>.selzone{order:3}
   .grid.carte .side .natcard,.grid.carte #natCard{max-height:none}
+  /* sans conteneur de requête : « .grid > * » en fait un, dont la largeur propre est nulle, et le bouton tombait à 4 px,
+     un mot par ligne (« Voir », « la », « carte », vu au téléphone le 25 novembre 2026) */
   .voir-carte{display:block;min-height:44px;padding:0 2px;font:inherit;font-size:var(--t-note);background:none;border:0;border-bottom:1px solid var(--ink);border-radius:0;color:var(--ink);cursor:pointer;justify-self:start}
+  .grid.carte>.voir-carte{container-type:normal}
   .grid.carte:not(.carte-ouverte)>.mapbox{display:none}
   header.top .lede{display:none}header.top h1{font-size:2.5rem;margin-bottom:0}#maj{font-size:var(--t-note)}
   .bar:not(.ouvert) .groupe-reg,.bar:not(.ouvert) .raisons-mesure,#famNote{display:none}
@@ -160,7 +163,12 @@ body .collant .bar>.groupe-reg.plein{flex:1 1 100%}
 body .collant .bar>.groupe-reg.plein>.seg{display:flex;flex:1 1 auto;justify-content:space-between;column-gap:20px}
 /* « À savoir » justifié, « Lire la suite » à la fin de la phrase au lieu d'une colonne qui rétrécissait le texte
    (remarque du 23 octobre 2026, « j'aime bien les choses justifiées et cohérentes ») */
-body .asavoir,body details.asavoir>summary{text-align:justify;hyphens:auto;-webkit-hyphens:auto}
+/* 584 px : le texte de « À savoir » est en retrait de 24 px, il fait ainsi au moins 560 px ; un « À savoir » qui se
+   déplie est lui-même la colonne de son résumé (552 px sous la carte à 1 024 px, contrôle du 25 novembre 2026) */
+details.asavoir{container-type:inline-size}
+body details.asavoir>summary{text-align:left}
+@container (min-width:584px){body .asavoir{text-align:justify;hyphens:auto;-webkit-hyphens:auto}}
+@container (min-width:560px){body details.asavoir>summary{text-align:justify;hyphens:auto;-webkit-hyphens:auto}}
 body details.asavoir>summary{padding-right:0}
 /* sur téléphone, un « À savoir » justifié laissait de grands blancs (la césure manque souvent), aligné à gauche comme
    les encadrés des rapports (relecture du 30 octobre 2026, règle 19) */
@@ -178,7 +186,12 @@ body details.asavoir>summary::after{position:static;display:inline;margin-left:.
 #cbPlot,#indPlot,#regPlot{display:block}
 table td,table th{hyphens:manual;-webkit-hyphens:manual;overflow-wrap:normal;word-break:normal}
 /* texte courant justifié (consigne du 9 octobre 2026), avec césures, jamais dans les tableaux ni les infobulles */
-p,li,dd{text-align:justify;hyphens:auto;-webkit-hyphens:auto;hyphenate-limit-chars:7 3 3}
+/* justifié dans une colonne d'au moins 560 px seulement, comme le reste du site (règle 8) : la page, chaque case des
+   grilles et chaque moitié sont des conteneurs, la plus proche décide. La colonne de droite (360 px au plus) et les
+   encadrés étroits étaient justifiés tant que le script n'était pas passé (contrôle élargi du 25 novembre 2026). */
+.wrap,.grid>*,.two>*,.parcours>*{container-type:inline-size}
+p,li,dd{text-align:left;hyphens:manual;-webkit-hyphens:manual;hyphenate-limit-chars:7 3 3}
+@container (min-width:560px){p,li,dd{text-align:justify;hyphens:auto;-webkit-hyphens:auto}}
 td p,th p,td li,.tip p,.tip li,.legend p,nav li{text-align:left;hyphens:manual}
 /* justifié seulement sur une ligne assez longue. Le navigateur ne coupe pas toujours les mots français (césure absente
    de certains navigateurs sous Windows), et une colonne étroite justifiée laisse alors de grands blancs entre les mots.
@@ -797,7 +810,7 @@ html.vue-accueil{overflow:hidden}html.vue-accueil body{background:transparent;ma
       <div class="legend" id="legend"></div>
       <div class="lieuxbar" id="lieuxBar" hidden><label for="lieuxType">Structures de soins sur la carte</label> <select id="lieuxType"><option value="">Aucun</option></select></div>
       <div class="lieuinfo small" id="lieuInfo" hidden aria-live="polite"></div>
-      <div id="mapOutils" style="padding:0 16px 8px"><span class="map-titre" id="mapTitre"></span><div class="map-commandes"><div class="vuebar"><div class="seg" data-k="vue" role="group" aria-label="Présentation de la carte"><button data-v="carte" title="Chaque territoire à sa forme et à sa surface">Carte</button><button data-v="tuiles" title="Un carré de même taille par département, quelle que soit sa surface (niveau des départements)">À taille égale</button></div></div><div class="zoombar" role="group" aria-label="Zoom de la carte" data-carte="map"><button type="button" data-z="in" title="Rapprocher (ou Ctrl et molette)" aria-label="Rapprocher la carte"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M6 2.25a3.75 3.75 0 1 0 0 7.5a3.75 3.75 0 1 0 0-7.5M8.75 8.75L12 12M4.25 6h3.5M6 4.25v3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" data-z="out" title="Éloigner" aria-label="Éloigner la carte"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M6 2.25a3.75 3.75 0 1 0 0 7.5a3.75 3.75 0 1 0 0-7.5M8.75 8.75L12 12M4.25 6h3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" data-z="reset" title="Revenir à la vue d’ensemble" aria-label="Revenir à la vue d’ensemble de la carte"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 5V2h3M9 2h3v3M12 9v3H9M5 12H2V9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div><span class="outils outils-encadre" data-elements="map"><button class="how" data-how="densite,attendu,accessibilite,zones,epci,corse">Comment lire</button></span><div class="howtxt hidden"></div></div>
+      <div id="mapOutils" style="padding:0 16px 8px"><span class="map-titre" id="mapTitre"></span><div class="map-commandes"><div class="vuebar"><div class="seg" data-k="vue" role="group" aria-label="Présentation de la carte"><button data-v="carte" title="Chaque territoire à sa forme et à sa surface">Carte</button><button data-v="tuiles" title="Un carré de même taille par département, quelle que soit sa surface (niveau des départements)">À taille égale</button></div></div><div class="zoombar" role="group" aria-label="Zoom de la carte" data-carte="map"><button type="button" data-z="in" title="Rapprocher (ou Ctrl et molette)" aria-label="Rapprocher la carte"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M6 2.25a3.75 3.75 0 1 0 0 7.5a3.75 3.75 0 1 0 0-7.5M8.75 8.75L12 12M4.25 6h3.5M6 4.25v3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" data-z="out" title="Éloigner" aria-label="Éloigner la carte"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M6 2.25a3.75 3.75 0 1 0 0 7.5a3.75 3.75 0 1 0 0-7.5M8.75 8.75L12 12M4.25 6h3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button><button type="button" data-z="reset" title="Revenir à la vue d’ensemble" aria-label="Revenir à la vue d’ensemble de la carte"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M2 5V2h3M9 2h3v3M12 9v3H9M5 12H2V9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div></div><span class="outils outils-encadre" data-elements="map"><button class="how" data-how="densite,moyenne,corse">Comment lire</button></span><div class="howtxt hidden" id="mapHow"></div></div>
       <div id="mapLimite" style="padding:0 16px 14px"></div>
       <div class="tip" id="tip"></div>
     </div>
@@ -837,7 +850,7 @@ html.vue-accueil{overflow:hidden}html.vue-accueil body{background:transparent;ma
 
 <!-- CROISEMENTS -->
 <section data-p="croisements" class="hidden">
-  <p class="vers-explorer">« Croiser deux indicateurs », le nuage des territoires avec les questions préparées entre bases, se règle dans <a id="lienNuage" href="explorer.html#cxFenNuage">Explorer</a>, comme les territoires qui ont une profession sans l'autre et l'évolution de l'offre depuis 2016. Une case des corrélations ou une barre des indicateurs croisés entre eux y ouvre le nuage réglé.</p>
+  <p class="vers-explorer">« Croiser deux indicateurs », le nuage des territoires avec les questions préparées entre bases, se règle dans <a id="lienNuage" href="croiser.html">Croiser</a> ; les territoires qui ont une profession sans l'autre et l'évolution de l'offre depuis 2016 sont dans Explorer. Une case des corrélations ou une barre des indicateurs croisés entre eux ouvre le nuage réglé dans Croiser.</p>
   <div class="panel pad">
     <h2>Corrélations par groupe d’indicateurs <button class="how" data-how="correlation,force,q">Comment lire</button></h2><div class="howtxt hidden"></div>
     <p class="note" style="margin:0 0 8px">Corrélation de rang (Spearman) entre la densité de chaque profession et chaque indicateur, au niveau choisi. Chaque groupe d’indicateurs a son cadre sous cette ligne, avec ses propres exports. Les cases pâles correspondent à des liens incertains, qui peuvent tenir au hasard. Cliquez sur une case pour l’afficher dans le nuage.</p>
@@ -845,16 +858,16 @@ html.vue-accueil{overflow:hidden}html.vue-accueil body{background:transparent;ma
   </div>
   <div id="hmCadres"></div>
   <div class="two" style="margin-top:24px">
-    <div class="panel pad"><h2>Besoins, recours et conditions de vie, croisés entre eux <button class="how" data-how="correlation,force,ecologique">Comment lire</button></h2><div class="howtxt hidden"></div>
+    <div class="panel pad"><h2>État de santé, recours et conditions de vie, croisés entre eux <button class="how" data-how="correlation,force,ecologique">Comment lire</button></h2><div class="howtxt hidden"></div>
       <p class="note">Par département, hors Mayotte (population de référence incertaine). Trois sortes d’indicateurs sont réunies ici, ceux liés à la santé mentale (suicide, gestes auto-infligés, personnes prises en charge, affections psychiatriques de longue durée, antidépresseurs), des situations suivies par les services publics (aide sociale à l’enfance, allocations liées au handicap, RSA) et des conditions de vie connues pour peser sur la santé mentale (pauvreté, chômage, isolement, diplôme, logement, âge). Aucun ne mesure à lui seul la santé mentale d’une population. Choisissez un indicateur pour voir ses liens avec les autres, puis cliquez sur une barre pour afficher la paire dans le nuage de points.</p>
       <div class="bar" style="padding:6px 0"><select id="indRef" aria-label="Indicateur de référence"></select></div>
-      <p class="phrase" id="indPhrase"></p><svg id="indPlot" role="img" aria-label="Liens entre indicateurs de besoin, de recours et de conditions de vie" viewBox="0 0 560 400"></svg>
-      <p class="note">Barre foncée, lien net. Barre pâle, lien incertain dont la fourchette plausible comprend zéro. Le trait donne la fourchette.</p></div>
+      <p class="phrase" id="indPhrase"></p><svg id="indPlot" role="img" aria-label="Liens entre indicateurs d’état de santé, de recours et de conditions de vie" viewBox="0 0 560 400"></svg>
+      <p class="note">Barre foncée, lien net. Barre pâle, lien incertain dont l’intervalle de confiance à 95 % comprend zéro. Le trait donne l’intervalle.</p></div>
     <div class="panel pad"><h2>À autres indicateurs égaux <button class="how" data-how="regression_multiple,ecologique">Comment lire</button></h2><div class="howtxt hidden"></div>
       <p class="note">Régression multiple sur les 96 départements de l’Hexagone. Chaque point dit de combien l’indicateur étudié varie, en écarts-types, quand un autre indicateur augmente d’un écart-type, les autres restant égaux.</p>
       <div class="bar" style="padding:6px 0"><select id="regRes" aria-label="Indicateur étudié"></select></div>
       <p class="phrase" id="regPhrase"></p><p class="note" id="regCompense"></p><svg id="regPlot" role="img" aria-label="Coefficients de la régression multiple" viewBox="0 0 520 260"></svg>
-      <p class="note">Point plein, tous les départements de l’Hexagone. Losange, sans l’Île-de-France. Le trait donne la fourchette plausible.</p>
+      <p class="note">Point plein, tous les départements de l’Hexagone. Losange, sans l’Île-de-France. Le trait donne l’intervalle de confiance à 95 %.</p>
       <div id="regLimite"></div></div>
   </div>
   <div class="two" style="margin-top:24px">

@@ -38,8 +38,65 @@ function figer(svg) {
   s.selectAll(".etiq.forte").attr("fill", "var(--ink, #1C2028)");
   s.selectAll(".territoire").attr("stroke", "var(--contour, #F4F4F1)").attr("stroke-width", .3);
   s.selectAll(".curseur").attr("stroke", "var(--muted, #5D6371)");
+  surLesBarres(svg);
+  ecarterValeurs(svg);
   dansLeCadre(svg);
   glisser(svg);
+}
+
+// une valeur écrite sur une barre n'a pas de liseré : clair sur une barre grise, il en faisait une pastille que le trait
+// de l'ensemble, tiré juste au-dessus, semblait barrer (« 12,2 » et « 11,5 » de l'escalier du niveau de vie, audit du
+// 25 novembre 2026). Elle prend l'encre la plus lisible sur la couleur de sa barre, celle du texte ou le blanc.
+function rgbDe(c) { const i = document.createElement("i"); i.style.color = c; document.body.appendChild(i); const v = getComputedStyle(i).color; i.remove(); return (v.match(/[\d.]+/g) || []).slice(0, 3).map(Number); }
+function contrasteRgb(a, b) { const l = c => c.map(x => { x /= 255; return x <= .03928 ? x / 12.92 : Math.pow((x + .055) / 1.055, 2.4); }).reduce((s, x, i) => s + x * [.2126, .7152, .0722][i], 0);
+  const x = l(a), y = l(b); return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); }
+// couleur du fond sur lequel la figure est posée : le premier parent au fond opaque
+function fondSous(el) { for (let e = el; e; e = e.parentElement) { const c = getComputedStyle(e).backgroundColor, a = (c.match(/[\d.]+/g) || [])[3];
+  if (c !== "transparent" && (a === undefined || +a > .5)) return rgbDe(c); } return rgbDe("#FFFFFF"); }
+function surLesBarres(svg) {
+  // une barre visible seulement : le rectangle transparent qui sert au survol d'une colonne n'en est pas une
+  const pleine = r => { const s = getComputedStyle(r), a = (s.fill.match(/[\d.]+/g) || [])[3];
+    return s.fill !== "none" && s.fill !== "transparent" && (a === undefined || +a > 0) && +s.fillOpacity > 0; };
+  const barres = [...svg.querySelectorAll("rect")].filter(pleine).map(r => ({r, b: r.getBBox()}));
+  if (!barres.length) return;
+  svg.querySelectorAll("text.etiq").forEach(t => {
+    // posée sur la barre : son milieu dans la barre, en largeur comme en hauteur (au téléphone, « 12,2 » est plus large
+    // que sa barre et la déborde)
+    const b = t.getBBox(); if (!b.width) return;
+    const cx = b.x + b.width / 2, cy = b.y + b.height / 2;
+    const sous = barres.find(({b: r}) => cx > r.x && cx < r.x + r.width && cy > r.y && cy < r.y + r.height);
+    if (!sous) return;
+    // l'encre se lit sur la barre et, quand l'étiquette en déborde, sur le fond de la page aussi
+    const deborde = b.x < sous.b.x - .5 || b.x + b.width > sous.b.x + sous.b.width + .5;
+    const fonds = [rgbDe(getComputedStyle(sous.r).fill)].concat(deborde ? [fondSous(svg)] : []);
+    const encres = ["var(--ink, #1C2028)", "#FFFFFF"];
+    const encre = encres.map(e => [Math.min(...fonds.map(f => contrasteRgb(rgbDe(e), f))), e]).sort((x, y) => y[0] - x[0])[0][1];
+    t.removeAttribute("stroke"); t.removeAttribute("stroke-width"); t.removeAttribute("paint-order"); t.removeAttribute("stroke-linejoin");
+    t.classList.add("sur-barre"); t.setAttribute("fill", encre);
+  });
+}
+
+// deux valeurs voisines sur une même ligne restent à 4 px au moins l'une de l'autre : quand les colonnes sont étroites
+// (téléphone), toutes les valeurs de la figure prennent ensemble une taille un peu plus petite, jamais sous 9 px
+// (« 13,9 » et « 13,6 » de l'escalier du niveau de vie se touchaient presque, audit du 25 novembre 2026)
+const ECART_VALEURS = 4, TAILLE_MIN_VALEURS = 9;
+function ecarterValeurs(svg) {
+  const ts = [...svg.querySelectorAll("text.etiq.forte")].filter(t => t.getAttribute("text-anchor") === "middle" && t.textContent.trim());
+  if (ts.length < 2) return;
+  // mesurée à la taille d'origine, et refaite quand la police arrive (mesurées dans la police de secours, plus étroite, les
+  // valeurs restaient trop proches) ; la taille se règle en style, la feuille de style l'emportant sur l'attribut
+  ts.forEach(t => { t.style.fontSize = ""; });
+  const taille = +ts[0].dataset.taille || parseFloat(getComputedStyle(ts[0]).fontSize) || 12;
+  ts.forEach(t => { t.dataset.taille = taille; });
+  if (document.fonts && document.fonts.status !== "loaded" && !svg.dataset.attentePolice) {
+    svg.dataset.attentePolice = "1"; document.fonts.ready.then(() => { delete svg.dataset.attentePolice; if (svg.isConnected) ecarterValeurs(svg); }); }
+  // 4 px à l'écran : la figure dessinée à 320 unités au moins est réduite dans une colonne plus étroite
+  const vb = svg.viewBox && svg.viewBox.baseVal, ech = vb && vb.width ? (svg.getBoundingClientRect().width || vb.width) / vb.width : 1;
+  const ecart = () => { const bs = ts.map(t => t.getBBox()).sort((a, c) => a.x - c.x); let m = Infinity;
+    for (let i = 0; i < bs.length; i++) for (let j = i + 1; j < bs.length; j++) { const a = bs[i], c = bs[j];
+      if (Math.min(a.y + a.height, c.y + c.height) - Math.max(a.y, c.y) > Math.min(a.height, c.height) / 2) m = Math.min(m, c.x - (a.x + a.width)); }
+    return m * ech; };
+  for (let t2 = taille; ecart() < ECART_VALEURS && t2 - .25 >= TAILLE_MIN_VALEURS / ech; ) { t2 -= .25; ts.forEach(t => { t.style.fontSize = t2 + "px"; }); }
 }
 
 // toute étiquette reste dans le cadre de sa figure : décalée vers l'intérieur de ce qui dépasse (« 100 % » de la

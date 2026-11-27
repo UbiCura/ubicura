@@ -60,8 +60,11 @@ def _texte(fragment: str) -> str:
 
 
 def _fiche(site: Path, lv: str, code: str) -> dict:
-    """Valeur, repère et textes des lignes marquées data-ind de la fiche d'un territoire."""
+    """Valeur, repère et textes des lignes marquées data-ind de la fiche d'un territoire, lus dans son dossier complet,
+    qui porte toutes les lignes (la fiche courte en reprend les valeurs, test_fiche_courte_construite)."""
     f = site / "territoire" / lv / f"{code}.html"
+    if not code.endswith("-complet") and (site / "territoire" / lv / f"{code}-complet.html").exists():
+        f = site / "territoire" / lv / f"{code}-complet.html"
     if not f.exists():
         return {}
     s = f.read_text(encoding="utf-8")
@@ -420,6 +423,8 @@ ZERO = re.compile(r"^0(?:,0+)?$")
 def zeros(site: Path) -> list[tuple[str, str]]:
     out, n = [], 0
     for f in sorted((site / "territoire").rglob("*.html")) if (site / "territoire").exists() else []:
+        if f.with_name(f"{f.stem}-complet.html").exists():
+            continue   # lue dans son dossier complet, qui porte toutes ses lignes
         for ident, l in _fiche(site, f.parent.name, f.stem).items():
             if "v" in l and ZERO.match(l["v"] or ""):
                 n += 1

@@ -22,6 +22,16 @@ COURT = {"sm": "Santé mentale", "sante": "Offre de soins", "recours": "État de
          "revenus": "Revenus", "enfance": "Enfance", "mobilite": "Distances", "violences": "Violences",
          "environnement": "Cadre de vie"}
 LISTE_COURTE = 5    # lignes visibles d'une liste longue (« Où exercent »), le reste replié
+# les classes de confirmation des structures, écrites une fois : sous le tableau des structures et, sur la fiche courte,
+# sous la tuile des structures confirmées (pipeline/fiche_courte.py)
+LIRE_CONFIRMATION = (
+    "Confirmée, d'après la liste de l'établissement, une autre source publique, la HAS ou Sirene ; « recoupée » quand la "
+    "statistique annuelle des établissements (SAE) confirme leur nombre, pas leur adresse ; « à confirmer » quand elle "
+    "n'est inscrite que dans FINESS ou le ROR et pas encore vérifiée une à une ; « non confirmée » quand aucune source "
+    "officielle de moins de trois ans ne l'a confirmée sur les sources de son établissement, ce qui ne veut pas dire "
+    "qu'elle est fermée ; « sans source de confirmation » quand aucune liste publique ne couvre ce type ; un type mal "
+    "recensé s'écrit « non recensé ». Les CMP pour adultes et pour enfants sont aussi comptés parmi les CMP tous publics, "
+    "et une seule fois dans le total des structures.")
 
 
 def ancre(ident: str) -> str:
@@ -125,14 +135,7 @@ def bandes(ctx: dict) -> list[dict]:
             {"titre": "Structures de soins psychiques", "id": "t-sm-str", "quoi": "Type de structure", "eff_titre": "Inscrites",
              "unite": "Pour 100 000", "avec_eff": True,
              "lire": "Une structure est comptée là où les patients sont reçus. Le taux se rapporte à tous les habitants, et "
-                     "pour les structures pour enfants aux moins de 15 ans. Confirmée, d'après la liste de l'établissement, une autre source publique, la HAS ou "
-                     "Sirene ; « recoupée » quand la statistique annuelle des établissements (SAE) confirme leur nombre, pas "
-                     "leur adresse ; « à confirmer » quand elle n'est inscrite que dans FINESS ou le ROR et pas encore "
-                     "vérifiée une à une ; « non confirmée » quand aucune source officielle de moins de trois ans ne l'a "
-                     "confirmée sur les sources de son établissement, ce qui ne veut pas dire qu'elle est fermée ; « sans "
-                     "source de confirmation » quand aucune liste publique ne couvre ce type ; un type mal recensé s'écrit "
-                     "« non recensé ». Les CMP pour adultes et pour enfants sont aussi comptés parmi les CMP tous publics, "
-                     "et une seule fois dans le total des structures.",
+                     "pour les structures pour enfants aux moins de 15 ans. " + LIRE_CONFIRMATION,
              "source": "Sources : FINESS et Répertoire opérationnel des ressources. Licence Ouverte 2.0. " + ctx["confiance_france"],
              "limite": ctx.get("limite_sae"), "reserves": f["reserves_structures"],
              "lignes": [ligne(s["ligne"], s=s) for s in f["structures"]], "contraire": f["contraire"].get("structures")},
@@ -227,8 +230,9 @@ def bandes(ctx: dict) -> list[dict]:
         # pour adultes » en densité et en distance ; relecture du 1er novembre 2026, mineur 6)
         courts = [c["nom"].split(", ")[0] for c in b["cartes"]]
         for c, n in zip(b["cartes"], courts):
-            c["choix"] = n if courts.count(n) == 1 else (n + ", distance" if c["id"].startswith("dist_") else n + ", nombre pour 100 000"
-                                                          if c["id"].startswith("lieux_") else c["nom"])
+            c["choix"] = n if courts.count(n) == 1 else (
+                n + ", distance" if c["id"].startswith("dist_") else n + ", nombre pour 100 000 habitants"
+                if c["id"].startswith("lieux_") else c["nom"])
         b["versions"] = [{"nom": (k.get("nom_ind") or k["nom"]).split(",")[0], "serie": k["serie"]} for k in ks if k["serie"] and k["id"] in ids]
         b["a_venir_ic"] = any(par_id[i]["intervalle"] for i in ids if i in par_id)
         b["att"] = any(l.get("att") for g in b["groupes"] for l in g["lignes"])

@@ -19,6 +19,8 @@ from ..util import JOURNAL, choisir_ressource, lire_meta, norm, ressources_datag
 SOURCE = "Assurance Maladie, affections de longue durée"
 DEST = config.BRUT / "ald_departements.xls"
 PAGE = "https://www.data.gouv.fr/datasets/beneficiaires-du-dispositif-des-affections-de-longue-duree-ald"
+# taux standardisé sur l'âge, rapporté aux personnes protégées du régime général (tableau VIII de l'Assurance Maladie)
+UNITE = "pour 100 000 personnes du régime général, standardisé sur l'âge"
 
 
 def _tableau(feuille: pd.DataFrame) -> pd.DataFrame:
@@ -89,7 +91,9 @@ def charger(hors_ligne=False, rafraichir=False):
             continue
         iid = f"ald_{num}"
         ctx[iid] = x.set_index("code")["taux_standardise"]
-        defs.append({"id": iid, "libelle": f"{lab} (ALD {num})", "unite": "pour 100 000, standardisé",
+        # l'unité nomme sa population de référence, jamais « pour 100 000 » seul (planche 8 de la structure validée le
+        # 26 novembre 2026, audit du 27 novembre 2026, test_unites_population_nommee)
+        defs.append({"id": iid, "libelle": f"{lab} (ALD {num})", "unite": UNITE,
                      "explication": (f"Personnes en affection de longue durée n° {num} ({noms.get(num, lab)}) pour "
                                      f"100 000 personnes protégées du régime général, taux standardisé sur l'âge pour "
                                      f"comparer des départements jeunes et âgés. Année {annee}."),

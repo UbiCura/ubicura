@@ -39,9 +39,9 @@ EQUIPEMENTS = {SM: ["psychologue_liberal", "psychiatre_liberal", "psychiatrie_am
                     "addictions"],
                SANTE: ["generaliste_liberal", "pediatre_liberal", "orthophoniste_liberal", "infirmier_liberal",
                        "psychomotricien_liberal", "urgences"]}
-# indicateurs INSEE de base qui définissent les départements de profil semblable (jamais l'offre de soins)
-SEMBLABLES = ["densite_pop", "part_0_14", "part_65_79", "part_80p", "revenu_median", "taux_pauvrete", "taux_chomage"]
-NB_SEMBLABLES = 5
+# indicateurs INSEE de base qui définissent les territoires semblables (jamais l'offre de soins), définition unique
+# dans pipeline/semblables.py
+from .semblables import MESURES as SEMBLABLES, NOMBRE as NB_SEMBLABLES  # noqa: E402
 PIECES_MIN = 3   # en dessous, la répartition interne d'un département est décrite par commune
 UNITES = {c[0]: c[2] for c in config.CONTEXTE_VULNERABILITE}
 ND_TERRITOIRE = "non publié pour ce territoire"
@@ -88,22 +88,10 @@ def position(v, valeurs, lv: str = "dep", kind: str = "") -> str:
 
 
 def semblables(ctx_dep: pd.DataFrame | None, k=NB_SEMBLABLES) -> dict:
-    """Pour chaque département de l'Hexagone, les k départements de l'Hexagone les plus proches sur les
-    indicateurs INSEE de base standardisés (distance euclidienne). Les départements d'outre-mer, au profil
-    trop différent, n'en ont pas."""
-    if ctx_dep is None:
-        return {}
-    cols = [c for c in SEMBLABLES if c in ctx_dep]
-    x = ctx_dep.loc[~ctx_dep.index.isin(config.DEPS_DROM), cols].astype(float).copy()
-    if "densite_pop" in x:
-        x["densite_pop"] = np.log(x["densite_pop"].clip(lower=1))
-    x = x.dropna()
-    if len(x) <= k:
-        return {}
-    z = (x - x.mean()) / x.std(ddof=0)
-    d = np.sqrt(((z.to_numpy()[:, None, :] - z.to_numpy()[None, :, :]) ** 2).sum(-1))
-    np.fill_diagonal(d, np.inf)
-    return {c: [x.index[j] for j in np.argsort(d[i])[:k]] for i, c in enumerate(x.index)}
+    """Départements de profil semblable, par la définition unique du site (pipeline/semblables.py) : les k départements
+    de l'Hexagone et de la Corse les plus proches sur les sept mesures de l'INSEE. Ceux d'outre-mer n'en ont pas."""
+    from . import semblables as SB
+    return SB.semblables(ctx_dep, SB.outre_mer("dep"), k)
 
 
 class Base:
@@ -1033,9 +1021,9 @@ def _modes(B, T, famille):
 
 
 def _besoins(B, T):
-    """Recours aux soins, indicateurs de Santé publique France, offre face au besoin, vulnérabilité."""
+    """Recours aux soins, indicateurs de Santé publique France, offre face aux indicateurs, vulnérabilité."""
     niv, code = T["niveau"], T["code"]
-    L = ["## Besoins et recours aux soins en santé mentale", "",
+    L = ["## État de santé mentale et recours aux soins", "",
          "Aucune donnée ne mesure directement le besoin de soins en santé mentale. Plusieurs approches sont "
          "présentées côte à côte, sans être réunies en un score.", ""]
     lignes = []
@@ -1081,7 +1069,7 @@ def _besoins(B, T):
             "Les personnes prises en charge par l'Assurance Maladie mesurent le recours aux soins, pas le besoin. Leur "
             "nombre dépend en partie du nombre de soignants, car là où ils sont plus nombreux, plus de personnes sont "
             "repérées et suivies. Les décès par suicide et les gestes auto-infligés dépendent beaucoup moins du nombre "
-            "de soignants. Ils donnent donc un second regard sur les besoins, à lire avec le premier.",
+            "de soignants. Ils donnent donc un second regard, à lire avec le premier.",
             limites.phrase_md(["suicides", "hospit_gestes_auto_infliges", "urgences_gestes_auto_infliges"],
                               T["code"] if T["niveau"] == "dep" else None),
             "Les indicateurs du Baromètre de Santé publique France viennent d'une enquête, avec une marge "

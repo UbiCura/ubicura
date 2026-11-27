@@ -28,6 +28,14 @@
 .reglages-page .q-reglages[hidden]{display:none}
 .reglages-page .q-reglages .fin{margin-left:auto}
 .cache-visuel{position:absolute!important;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+/* renvois vers la section publiée de chaque question (26 novembre 2026), cible d'au moins 44 px au téléphone */
+.renvois-q{margin:-4px 0 14px;font-size:var(--t-note);text-align:left;line-height:1.5}
+.renvois-q .lib{font-weight:600;margin-right:4px}
+.renvois-q a{color:var(--ink);white-space:nowrap}
+.renvois-q .sep{color:var(--muted)}
+/* au téléphone, un renvoi par ligne, tous au même bord, cible de 44 px (deux seuls sur leur ligne puis deux par
+   ligne, audit du 27 novembre 2026) */
+@media (max-width:700px){.renvois-q{display:flex;flex-direction:column;align-items:flex-start}.renvois-q .lib{display:block}.renvois-q .sep{display:none}.renvois-q a{display:inline-flex;align-items:center;min-height:44px}}
 .vers-atlas-l{margin:0 0 18px;font-size:var(--t-note);text-align:right}
 @media (max-width:700px){.reglages-page{gap:6px 20px}.reglages-page .q-reglages .fin{margin-left:0}}
 /* sommaire des questions sur plusieurs colonnes, chaque question avec ses fenêtres, sans rogner leur largeur */
@@ -47,6 +55,7 @@
 .q-reglages .lib{font-size:var(--t-note);color:var(--muted)}
 .q-reglages .lib:not(:first-child){margin-left:14px}
 .vers-atlas-l a{color:var(--ink)}
+.vers-croiser{font-size:var(--t-note);margin:0 0 18px;max-width:none}
 .question>.a-savoir{max-width:none;margin:-6px 0 0;font-size:var(--t-note);color:var(--muted)}
 /* long tableau (un territoire par ligne) dans une hauteur limitée, en-tête gardé en haut */
 .table-haute{max-height:560px;overflow:auto}
@@ -56,6 +65,9 @@
 .outil details.plus{margin:12px 0 0;font-size:var(--t-note)}
 .outil details.plus summary{cursor:pointer;color:var(--muted)}
 /* typologie, carte et groupes côte à côte sur un écran large, l'un sous l'autre sinon */
+/* chaque moitié des fenêtres en deux colonnes décide du justifié de son texte (545 et 463 px, contrôle du 25 novembre
+   2026) */
+:is(.typo-corps,.cote) > *{container-type:inline-size}
 .typo-corps{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:28px;align-items:start}
 .tylegende{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:12px}
 .tylegende li{display:grid;grid-template-columns:14px minmax(0,1fr);column-gap:10px;font-size:var(--t-note);line-height:1.4;text-align:left}
@@ -147,7 +159,8 @@
 /* justifié seulement à partir de 560 px, jamais au téléphone ni dans une citation (règle du 30 octobre 2026 ; la
    citation de « Citer et exporter » s'étirait au téléphone, signalé le 25 novembre 2026) */
 .outil .fen-corps p{max-width:none}
-@media (min-width:560px){.outil .fen-corps p{text-align:justify}}
+/* la colonne décide, pas l'écran : une note de 427 px restait justifiée à 1 024 px (contrôle du 25 novembre 2026) */
+@container (min-width:560px){.outil .fen-corps p{text-align:justify}}
 .outil .fen-corps .citation-fig p{text-align:left}
 .outil .fen-tete p{max-width:none}
 .legende-x{display:flex;flex-wrap:wrap;gap:6px 18px;font-size:var(--t-note);color:var(--muted);margin:4px 0 10px}
@@ -191,11 +204,6 @@ td i.pastille{display:inline-block;width:10px;height:10px;border-radius:2px;marg
 @media (max-width:820px){.reglages{grid-template-columns:minmax(0,1fr)}.cote,.grille-t{grid-template-columns:1fr!important}}
 /* « Croiser deux indicateurs » (lot 2 du 29 octobre 2026), même moteur que l'atlas. Règles des questions préparées
    reprises de l'atlas, qui ne montre plus le nuage, et règles du moteur limitées à la question */
-#cbTable{min-width:640px}
-#cbTable td{vertical-align:top;line-height:1.4}
-#cbTable td:first-child{min-width:280px}
-#cbTable .cb-titre th{text-align:left;font-weight:600;padding-top:14px;border-bottom:1px solid var(--line);white-space:normal}
-#cbTable .num{text-align:right}
 .suggestions{margin-top:22px}
 .sc-hote{position:relative}
 .suggestions h3{font-family:var(--serif);font-size:var(--t-texte);font-weight:500;margin:0 0 4px}
@@ -209,31 +217,15 @@ td i.pastille{display:inline-block;width:10px;height:10px;border-radius:2px;marg
 .cb-ligne:focus-visible{outline:2px solid var(--focus);outline-offset:1px}
 .cb-ligne svg{width:132px;height:16px;display:block}
 .cb-ligne .rho{text-align:right;font-variant-numeric:tabular-nums;color:var(--muted)}
-#qCroisements select.natif{display:none}
-#qCroisements .reglages .seg{display:contents}
-#qCroisements svg text{fill:var(--muted);font-family:var(--sans);font-size:11px}
-#qCroisements svg text.signature{font-size:10px;opacity:.75}
-#qCroisements #scatter{display:block;width:100%;height:auto;max-width:none}
 /* mêmes boutons de zoom que les figures du site (.zoom-boutons), en signes soulignés d'un filet, sans boîte
    (12 novembre 2026), au-dessus du nuage et non sur lui, pour qu'aucun point ne passe dessous (25 novembre 2026) */
-#qCroisements .zoombar{position:static;display:flex;justify-content:flex-end;gap:14px;margin:0 0 4px;padding:0;border:0;background:none}
-#qCroisements .zoombar button{font:inherit;font-size:1.0625rem;min-width:22px;min-height:28px;padding:0 2px 2px;border:0;border-bottom:1px solid var(--line-fort);border-radius:0;background:none;color:var(--ink);cursor:pointer}
-#qCroisements .zoombar button:hover{border-bottom-color:var(--ink)}
-#qCroisements .legende-signaux{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:var(--t-note);color:var(--muted);margin:6px 0}
-#qCroisements .asavoir{box-sizing:border-box;border-left:3px solid var(--accent, #8A5A0E);background:color-mix(in srgb,var(--accent, #8A5A0E) 8%,transparent);padding:5px 11px;font-size:var(--t-note);margin:10px 0 0;border-radius:0 4px 4px 0}
-#qCroisements details.asavoir>summary{cursor:pointer;list-style:none}
-#qCroisements details.asavoir>summary::-webkit-details-marker{display:none}
-#qCroisements details.asavoir>summary::after{content:"Lire la suite";margin-left:.6em;font-size:var(--t-note);color:var(--muted);text-decoration:underline;white-space:nowrap}
-#qCroisements details.asavoir[open]>summary::after{content:"Replier"}
-#qCroisements details.asavoir>p{margin:6px 0 2px;max-width:none}
-#qCroisements .asavoir-terr{font-weight:600}
-#qCroisements .note{font-size:var(--t-note);color:var(--muted);max-width:none}
-#qCroisements .comment-lire p{margin:0 0 8px}
-#qCroisements .resultat[hidden]{display:none}
-#qCroisements .indice-defil{font-size:var(--t-note);color:var(--muted);margin:4px 0 0;text-align:right}
 .tip{position:fixed;pointer-events:none;background:var(--ink);color:var(--bg);font-size:var(--t-note);padding:8px 10px;border-radius:4px;max-width:min(470px,calc(100vw - 16px));opacity:0;z-index:40}
 </style>
 
+{# « Résultat publié et méthode » sous chaque question qui a sa section dans une page de famille, chaque renvoi en toutes
+   lettres et cliquable (structure du site validée le 26 novembre 2026, planche_1_explorer_*), lus dans la table unique
+   des questions (pipeline/questions.py, renvois_explorer) #}
+{% macro renvoi(q) %}{% set r = renvois.get(q, []) %}{% if r %}<p class="renvois-q"><span class="lib">Résultat publié et méthode&nbsp;:</span> {% for fam, k, url in r %}<a href="{{ racine }}{{ url }}">{{ "Santé mentale" if fam == "sm" else "Santé" }}, question&nbsp;{{ k }}</a>{% if not loop.last %}<span class="sep" aria-hidden="true"> · </span>{% endif %}{% endfor %}</p>{% endif %}{% endmacro %}
 <div class="explorer" data-citation="{{ citation }}">
 <div class="tete">
 <h1>Explorer les données</h1>
@@ -244,19 +236,20 @@ td i.pastille{display:inline-block;width:10px;height:10px;border-radius:2px;marg
 <!-- sommaire par question (note du 28 octobre 2026), les outils de l'atlas viendront s'y ranger lot par lot -->
 <nav class="sommaire-questions" aria-label="Questions de la page">
   <div class="tout"><button type="button" data-fenetres="replier">Tout replier</button><button type="button" data-fenetres="deplier">Tout déplier</button></div>
-  <div class="grp"><p class="q">Les territoires modestes sont-ils moins bien dotés ?</p><ul><li><a href="#iFenEscalier">Selon le niveau de vie</a></li><li><a href="#iFenEntonnoir">Écarts qui dépassent le hasard</a></li><li><a href="#iFenConcentration">Concentration de l'offre</a></li></ul></div>
-  <div class="grp"><p class="q">À quelle distance des structures de soins vit-on ?</p><ul><li><a href="#iFenDistNv">Selon le niveau de vie</a></li><li><a href="#iFenDistType">Selon le type de territoire</a></li></ul></div>
-  <div class="grp"><p class="q">Quels profils d'offre distinguent les intercommunalités ?</p><ul><li><a href="#tyFenProfils">Profils d'offre des intercommunalités</a></li><li><a href="#tyFenAcp">Ce qui distingue les intercommunalités</a></li></ul></div>
-  <div class="grp"><p class="q">Où trouve-t-on une profession sans l'autre ?</p><ul><li><a href="#paires">Une profession sans l'autre</a></li></ul></div>
-  <div class="grp"><p class="q">Les départements modestes rattrapent-ils leur retard depuis 2016 ?</p><ul><li><a href="#trajectoires">Croiser des trajectoires</a></li></ul></div>
-  <div class="grp"><p class="q">L'addictologie, de l'offre aux consommations</p><ul><li><a href="#adFenConso">Consommations et décès attribuables, par région</a></li><li><a href="#adFenOffre">L'offre en addictologie en France</a></li></ul></div>
-  <div class="grp"><p class="q">L'offre suit-elle le profil des habitants ?</p><ul><li><a href="#cxFenNuage">Croiser deux indicateurs</a></li></ul></div>
+  <div class="grp"><p class="q">{{ qx.qInegalites }}</p><ul><li><a href="#iFenEscalier">Selon le niveau de vie</a></li><li><a href="#iFenEntonnoir">Écarts qui dépassent le hasard</a></li><li><a href="#iFenConcentration">Concentration de l'offre</a></li></ul></div>
+  <div class="grp"><p class="q">{{ qx.qDistances }}</p><ul><li><a href="#iFenDistNv">Selon le niveau de vie</a></li><li><a href="#iFenDistType">Selon le type de territoire</a></li></ul></div>
+  <div class="grp"><p class="q">{{ qx.qTypologie }}</p><ul><li><a href="#tyFenProfils">Profils d'offre des intercommunalités</a></li><li><a href="#tyFenAcp">Ce qui distingue les intercommunalités</a></li></ul></div>
+  <div class="grp"><p class="q">{{ qx.qPaires }}</p><ul><li><a href="#paires">Une profession sans l'autre</a></li></ul></div>
+  <div class="grp"><p class="q">{{ qx.qTraj }}</p><ul><li><a href="#trajectoires">Croiser des trajectoires</a></li></ul></div>
+  <div class="grp"><p class="q">{{ qx.qAddicto }}</p><ul><li><a href="#adFenConso">Consommations et décès attribuables, par région</a></li><li><a href="#adFenOffre">L'offre en addictologie en France</a></li></ul></div>
+  <div class="grp"><p class="q">{{ qx.qCroisements }}</p><ul><li><a href="#cxCroiser">Réglages dans Croiser</a></li></ul></div>
 </nav>
 
 <!-- ============================================================ inégalités, outils repris de l'atlas (lot 2) -->
 <section class="question" id="qInegalites" aria-labelledby="qInegalitesT">
-<h2 class="q-titre" id="qInegalitesT">Les territoires modestes sont-ils moins bien dotés ?</h2>
-<div class="q-reglages" role="group" aria-label="Réglages de la question « Les territoires modestes sont-ils moins bien dotés ? »"><span class="lib cache-visuel">Profession</span><div id="iProf"></div><span class="lib cache-visuel">Niveau</span><div class="choix fin" id="iNiv"></div></div>
+<h2 class="q-titre" id="qInegalitesT">{{ qx.qInegalites }}</h2>
+{{ renvoi("qInegalites") }}
+<div class="q-reglages" role="group" aria-label="Réglages de la question « {{ qx.qInegalites }} »"><span class="lib cache-visuel">Profession</span><div id="iProf"></div><span class="lib cache-visuel">Niveau</span><div class="choix fin" id="iNiv"></div></div>
 <p class="vers-atlas-l"><a id="iVersAtlas" href="{{ racine }}{{ page_atlas|default('index.html') }}">Voir cette profession sur la carte de l'atlas</a></p>
 
 <article class="fenetre repliable outil" id="iFenEscalier" aria-labelledby="iEsH">
@@ -308,8 +301,9 @@ td i.pastille{display:inline-block;width:10px;height:10px;border-radius:2px;marg
 
 <!-- ============================================================ distances aux structures de soins (lot 2) -->
 <section class="question" id="qDistances" aria-labelledby="qDistancesT">
-<h2 class="q-titre" id="qDistancesT">À quelle distance des structures de soins vit-on ?</h2>
-<div class="q-reglages" role="group" aria-label="Réglages de la question « À quelle distance des structures de soins vit-on ? »"><span class="lib cache-visuel">Structure de soins, pour les deux fenêtres</span><div id="iType"></div></div>
+<h2 class="q-titre" id="qDistancesT">{{ qx.qDistances }}</h2>
+{{ renvoi("qDistances") }}
+<div class="q-reglages" role="group" aria-label="Réglages de la question « {{ qx.qDistances }} »"><span class="lib cache-visuel">Structure de soins, pour les deux fenêtres</span><div id="iType"></div></div>
 
 <article class="fenetre repliable outil" id="iFenDistNv" aria-labelledby="iDnH">
   <div class="fen-tete"><span class="pastilles"></span><div class="fen-titre"><h3 id="iDnH">Selon le niveau de vie</h3><p class="fen-resume"></p></div>
@@ -345,7 +339,8 @@ td i.pastille{display:inline-block;width:10px;height:10px;border-radius:2px;marg
 
 <!-- ============================================================ typologie, reprise de l'atlas (lot 3) -->
 <section class="question" id="qTypologie" aria-labelledby="qTypologieT">
-<h2 class="q-titre" id="qTypologieT">Quels profils d'offre distinguent les intercommunalités ?</h2>
+<h2 class="q-titre" id="qTypologieT">{{ qx.qTypologie }}</h2>
+{{ renvoi("qTypologie") }}
 
 <article class="fenetre repliable outil" id="tyFenProfils" aria-labelledby="tyH">
   <div class="fen-tete"><span class="pastilles"></span><div class="fen-titre"><h3 id="tyH">Profils d'offre des intercommunalités</h3><p class="fen-resume"></p></div>
@@ -383,7 +378,8 @@ td i.pastille{display:inline-block;width:10px;height:10px;border-radius:2px;marg
 
 <!-- ============================================================ une profession sans l'autre -->
 <section class="question" aria-labelledby="qPaires">
-<h2 class="q-titre" id="qPaires">Où trouve-t-on une profession sans l'autre ?</h2>
+<h2 class="q-titre" id="qPaires">{{ qx.qPaires }}</h2>
+{{ renvoi("qPaires") }}
 <article class="fenetre repliable outil" id="paires" aria-labelledby="pH">
   <div class="fen-tete"><span class="pastilles"></span><div class="fen-titre"><h3 id="pH">Une profession sans l'autre</h3><p class="fen-resume"></p></div>
     <div class="fen-outils"></div></div>
@@ -413,7 +409,8 @@ td i.pastille{display:inline-block;width:10px;height:10px;border-radius:2px;marg
 
 <!-- ============================================================ trajectoires -->
 <section class="question" aria-labelledby="qTraj">
-<h2 class="q-titre" id="qTraj">Les départements modestes rattrapent-ils leur retard depuis 2016 ?</h2>
+<h2 class="q-titre" id="qTraj">{{ qx.qTraj }}</h2>
+{{ renvoi("qTraj") }}
 <article class="fenetre repliable outil" id="trajectoires" aria-labelledby="tH">
   <div class="fen-tete"><span class="pastilles"></span><div class="fen-titre"><h3 id="tH">Croiser des trajectoires</h3><p class="fen-resume"></p></div>
     <div class="fen-outils"></div></div>
@@ -445,8 +442,9 @@ td i.pastille{display:inline-block;width:10px;height:10px;border-radius:2px;marg
 
 <!-- ============================================================ addictologie, reprise de l'atlas (choix du 29 octobre 2026) -->
 <section class="question" id="qAddicto" aria-labelledby="qAddictoT">
-<h2 class="q-titre" id="qAddictoT">L'addictologie, de l'offre aux consommations</h2>
-<div class="q-reglages" role="group" aria-label="Réglages de la question « L'addictologie, de l'offre aux consommations »"><span class="lib cache-visuel">Région repérée</span><div id="adReg"></div></div>
+<h2 class="q-titre" id="qAddictoT">{{ qx.qAddicto }}</h2>
+{{ renvoi("qAddicto") }}
+<div class="q-reglages" role="group" aria-label="Réglages de la question « {{ qx.qAddicto }} »"><span class="lib cache-visuel">Région repérée</span><div id="adReg"></div></div>
 
 <article class="fenetre repliable outil" id="adFenConso" aria-labelledby="adConsoH">
   <div class="fen-tete"><span class="pastilles"></span><div class="fen-titre"><h3 id="adConsoH">Consommations et décès attribuables, par région</h3><p class="fen-resume"></p></div>
@@ -466,49 +464,32 @@ td i.pastille{display:inline-block;width:10px;height:10px;border-radius:2px;marg
     <div class="fen-lire"><p class="comment-lire"><strong>Comment lire.</strong> Les centres de soins, d'accompagnement et de prévention en addictologie (CSAPA) sont comptés à trois niveaux, les lieux où ils reçoivent, les établissements et les structures principales. Ces trois comptes décrivent la même offre et ne s'additionnent pas. Les CAARUD accueillent et accompagnent les personnes qui consomment des drogues, pour réduire les risques. Les unités d'addictologie à l'hôpital comprennent les équipes de liaison (ELSA), qui interviennent dans les services sans lieu propre. Les médecins qualifiés en addictologie sont un comptage de qualification, qui ne s'ajoute pas à celui de leur spécialité.</p></div>
     <p class="resultat" id="adOffreResultat"></p>
     <figure class="graphique" id="figAdOffre"><figcaption class="small muted"><span class="leg">L'offre en addictologie en France, d'après FINESS, le Répertoire opérationnel des ressources et le RPPS</span>.</figcaption><div class="fig-corps"><div id="adOffre"></div></div></figure>
-    <p class="small">Le croisement entre les CSAPA, les personnes prises en charge pour une addiction et les médecins addictologues, par département, est l'une des questions préparées de <a href="#cxFenNuage">« Croiser deux indicateurs »</a>.</p>
+    <p class="small">Le croisement entre les CSAPA, les personnes prises en charge pour une addiction et les médecins addictologues, par département, est l'une des questions préparées de <a href="{{ racine }}croiser.html#questions-prep">Croiser</a>.</p>
   </div>
 </article>
 <p class="a-savoir" id="adSavoir"></p>
 </section>
 
-<!-- ============================================================ croiser deux indicateurs, moteur de l'atlas (lot 2 du 29 octobre 2026) -->
-<section class="question" id="qCroisements" aria-labelledby="qCroisementsT" data-moteur>
-<h2 class="q-titre" id="qCroisementsT">L'offre suit-elle le profil des habitants ?</h2>
-<div class="q-reglages" role="group" aria-label="Réglages de la question « L'offre suit-elle le profil des habitants ? »"><span class="lib cache-visuel">Profession</span><span id="cxProfAncre"></span><span class="lib cache-visuel">Niveau</span><div class="choix" id="cxNiv"></div><span class="lib cache-visuel">Exercice</span><div class="choix fin" id="cxMode"></div></div>
+<!-- ============================================================ profil des habitants : la fenêtre « Croiser deux
+     indicateurs » a rejoint Croiser (structure du site validée le 26 novembre 2026, planche_1_explorer_profil), qui
+     montre le nuage, les données par territoire, l'échelle logarithmique et les questions préparées ; la question garde
+     ici ses renvois vers sa section publiée, le lien vers l'atlas et un renvoi vers Croiser pour les réglages -->
+<section class="question" id="qCroisements" aria-labelledby="qCroisementsT">
+<h2 class="q-titre" id="qCroisementsT">{{ qx.qCroisements }}</h2>
+{{ renvoi("qCroisements") }}
 <p class="vers-atlas-l"><a id="cxVersAtlas" href="{{ racine }}{{ page_atlas|default('index.html') }}">Voir cette profession sur la carte de l'atlas</a></p>
-<div hidden><span id="maj"></span><select id="prof" aria-label="Profession"></select><select id="grp" aria-hidden="true"></select><span id="famNote"></span></div>
-
-<article class="fenetre repliable outil" id="cxFenNuage" aria-labelledby="cxH">
-  <div class="fen-tete"><span class="pastilles"></span><div class="fen-titre"><h3 id="cxH">Croiser deux indicateurs</h3><p class="fen-resume" id="cxResume"></p></div>
-    <div class="fen-outils"></div></div>
-  <div class="fen-corps">
-    <div class="fen-lire"><p class="comment-lire"><strong>Comment lire.</strong> Chaque point est un territoire, placé selon l'indicateur choisi en abscisse et la densité de la profession, ou un second indicateur, en ordonnée.</p></div>
-    <p class="resultat" id="scPhrase"></p><p class="resultat" id="scPrepare"></p>
-    <div class="reglages">
-      <span class="lib">En abscisse</span><div class="choix"><select id="xvar" aria-label="Indicateur en abscisse"></select></div>
-      <span class="lib">En ordonnée</span><div class="choix"><select id="yvar" aria-label="Axe vertical"></select></div>
-      <span class="seg" data-k="ylog"><span class="lib">Échelle</span><div class="choix" id="cxLog"></div></span>
-    </div>
-    <div class="onglets" role="tablist"><button type="button" role="tab" data-vue="cxVueNuage">Nuage</button><button type="button" role="tab" data-vue="cxVueDonnees">Données par territoire</button><button type="button" role="tab" data-vue="cxVueQuestions">Questions préparées</button></div>
-    <div class="vue" id="cxVueNuage" role="tabpanel">
-      <figure class="graphique" id="figCxNuage"><figcaption class="small muted"><span class="leg" id="cxTitre"></span>.</figcaption><div class="fig-corps"><svg id="scatter" role="img" aria-label="Nuage de points des territoires" viewBox="0 0 560 420"></svg></div></figure>
-      <div id="scLimite"></div>
-      <p class="note" id="xvarNote"></p>
-    </div>
-    <div class="vue" id="cxVueDonnees" role="tabpanel" hidden>
-      <div class="choix"><input type="search" id="scFiltre" placeholder="Filtrer les territoires" aria-label="Filtrer les territoires"></div>
-      <div class="table-haute tabdonnees"><table id="scTable" data-export="scTable"></table></div>
-    </div>
-    <div class="vue" id="cxVueQuestions" role="tabpanel" hidden>
-      <div class="suggestions" id="scSuggestions"></div>
-      <details class="plus"><summary>Toutes les questions préparées, en tableau</summary><div class="table-haute"><table id="cbTable"></table></div></details>
-    </div>
-    <details class="plus"><summary>Pour aller plus loin</summary><p id="scNote"></p></details>
-  </div>
-</article>
-<p class="a-savoir"><strong>À savoir.</strong> Analyse écologique, un lien entre territoires ne dit rien des personnes ni d'une cause. Les questions préparées portent leur fourchette plausible, leur valeur à densité de population égale et la correction de Benjamini-Hochberg pour tests multiples. Mayotte est écartée des croisements entre départements. Sources, Annuaire santé, extractions en libre accès du RPPS (data.gouv), INSEE et les bases du catalogue des indicateurs, chacune avec sa fiche sur la page « Sources des données ».</p>
-<div class="tip" id="tip" role="tooltip"></div>
+<p class="vers-croiser" id="cxCroiser"><strong>Réglages dans Croiser.</strong> Le nuage d’une profession face à un indicateur du profil des habitants, ses données par territoire, l’échelle logarithmique et le tableau des questions préparées sont réunis dans <a href="{{ racine }}croiser.html">Croiser</a>, qui croise tout indicateur avec tout autre. Les questions préparées y gardent leur intervalle de confiance à 95&nbsp;%, leur valeur à densité de population égale et leur correction des tests multiples.</p>
+<script>
+// une adresse ancienne vers la fenêtre (#cxFenNuage?cxProf=…&cxX=…, depuis un signet, une citation ou l'atlas d'avant)
+// mène à Croiser, réglé de même : même profession, même indicateur, même niveau, même mode d'exercice
+(function () {
+  var h = location.hash; if (!/^#cxFenNuage/.test(h)) return;
+  var o = {}; (h.split("?")[1] || "").split("&").forEach(function (kv) { var p = kv.split("="); if (p[0]) o[p[0]] = decodeURIComponent(p[1] || ""); });
+  var y = o.cxY || (o.cxProf ? "prof:" + o.cxProf + ":all" : "");
+  location.replace("{{ racine }}croiser.html#" + ["x=" + encodeURIComponent(o.cxX || "revenu_median"), y ? "y=" + encodeURIComponent(y) : "",
+    "lv=" + (o.cxNiv === "dep" ? "dep" : "epci"), "m=" + (/^(lib|sal)$/.test(o.cxMode) ? o.cxMode : "all")].filter(Boolean).join("&"));
+})();
+</script>
 </section>
 </div>
 <div class="bulle-x" id="bulle" role="status"></div>

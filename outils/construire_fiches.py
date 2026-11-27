@@ -1,7 +1,8 @@
 """Construit quelques fiches de territoire dans le site déjà construit, sans refaire tout le site : pour contrôler un
 échantillon avant la construction complète (exécution lourde), après un changement de la fiche.
 
-Écrit site/territoire/<niveau>/<code>.html pour chaque territoire demandé, et recopie gabarits/style.css dans le site.
+Écrit site/territoire/<niveau>/<code>.html (fiche courte) et <code>-complet.html (dossier complet) pour chaque territoire
+demandé, et recopie gabarits/style.css dans le site.
 Les données sont celles de la dernière version de resultats/.
 
     $env:PYTHONUTF8=1

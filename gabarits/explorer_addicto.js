@@ -89,7 +89,9 @@ function consommationsA() {
       else if (k % 2 === 0) svg.append("rect").attr("x", x0 - 10).attr("y", y).attr("width", x1 - x0 + 20).attr("height", pas).attr("fill", "var(--line)").attr("opacity", .25);
       if (empile || j === 0) svg.append("text").attr("x", g0 - 8).attr("y", y + pas / 2 + 4).attr("text-anchor", "end").attr("font-size", fs)
         .attr("font-weight", c === rep ? 600 : 400).attr("fill", "var(--ink)").text(nomRegA(c)); });
-    const ticks = X.ticks(4), ft = ticks.every(Number.isInteger) ? f0 : f1;
+    // une graduation pour 44 px d'axe au plus : au téléphone, « 100 », « 150 », « 200 », « 250 » se suivaient à moins de
+    // 4 px (contrôle de finition, 25 novembre 2026)
+    const ticks = X.ticks(Math.max(2, Math.min(4, Math.floor((x1 - x0) / 44)))), ft = ticks.every(Number.isInteger) ? f0 : f1;
     ticks.forEach(v => { svg.append("line").attr("x1", X(v)).attr("x2", X(v)).attr("y1", haut0).attr("y2", bas0).attr("stroke", "var(--line)");
       svg.append("text").attr("x", X(v)).attr("y", bas0 + 16).attr("text-anchor", "middle").attr("font-size", 11).attr("fill", "var(--muted)").text(ft(v)); });
     const med = d3.median(vals, x => x[0]);

@@ -2,12 +2,12 @@
 {% block contenu %}
 <div class="etroit">
 <h1>Rapports nationaux</h1>
-<p class="chapeau">L'offre de soins en France, en santé mentale et en santé générale. Effectifs et densités par profession, inégalités entre territoires, liens avec le profil des habitants, temps d'accès, évolution depuis 2016 et indicateurs de besoin, avec les précautions de lecture et les sources de chaque chiffre.</p>
+<p class="chapeau">L'offre de soins en France, en santé mentale et en santé générale. Effectifs et densités par profession, inégalités entre territoires, liens avec le profil des habitants, temps d'accès, évolution depuis 2016, indicateurs d'état de santé et de recours aux soins, avec les précautions de lecture et les sources de chaque chiffre.</p>
 {% set derniere = versions[0] %}
 <div class="cartes">
   <div class="carte rapport-carte">
     <strong>Santé mentale</strong>
-    <span>Psychologues, psychiatres et psychiatres de l'enfant, psychiatrie à l'hôpital, besoins et recours aux soins, protection de l'enfance, handicap et précarité.</span>
+    <span>Psychologues, psychiatres et psychiatres de l'enfant, psychiatrie à l'hôpital, état de santé mentale et recours aux soins, protection de l'enfance, handicap et précarité.</span>
     <span class="version">Version du {{ derniere.date_longue }}</span>
     <span class="actions"><a class="bouton" href="{{ derniere.dossier }}/sante-mentale.html">Lire le rapport</a>{% if derniere.pdf_sm %} <a class="bouton secondaire" href="{{ derniere.dossier }}/sante-mentale.pdf">PDF</a>{% endif %}</span>
   </div>

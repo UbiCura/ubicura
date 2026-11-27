@@ -3,7 +3,7 @@
 
 Deux analyses. (1) Corrélation de rang entre chaque paire d'indicateurs (config.INDICATEURS_CROISES), avec intervalle
 de confiance par bootstrap et correction de Benjamini-Hochberg. (2) Régression linéaire multiple de quelques indicateurs
-de besoin (config.REGRESSION_RESULTATS) sur un petit jeu d'indicateurs sociaux (config.REGRESSION_EXPLICATIVES),
+de santé mentale (config.REGRESSION_RESULTATS) sur un petit jeu d'indicateurs sociaux (config.REGRESSION_EXPLICATIVES),
 variables centrées et réduites, erreurs standard robustes (HC3), sur les départements de l'Hexagone, avec un contrôle sans
 l'Île-de-France. Ce sont des analyses écologiques, elles décrivent des départements et ne disent rien d'une cause."""
 from __future__ import annotations
@@ -110,7 +110,7 @@ def croiser(ctx, rng) -> pd.DataFrame | None:
     t = pd.DataFrame(out)
     t["q_bh"] = benjamini_hochberg(t["p"].to_numpy())
     nets = int(((t["ic95_bas"] > 0) | (t["ic95_haut"] < 0)).sum())
-    JOURNAL.controle("Croisement des indicateurs de besoin, de recours et de conditions de vie entre eux",
+    JOURNAL.controle("Croisement des indicateurs d'état de santé, de recours et de conditions de vie entre eux",
                      f"{len(vs)} indicateurs, {len(t)} paires, {nets} liens dont la fourchette exclut zéro")
     return t
 
@@ -126,7 +126,7 @@ def _libelles() -> dict:
 
 
 def regressions(ctx) -> pd.DataFrame | None:
-    """Régression de chaque indicateur de besoin sur les indicateurs sociaux, départements de l'Hexagone, avec et sans
+    """Régression de chaque indicateur de santé mentale sur les indicateurs sociaux, départements de l'Hexagone, avec et sans
     l'Île-de-France."""
     if ctx is None or "dep" not in ctx:
         return None

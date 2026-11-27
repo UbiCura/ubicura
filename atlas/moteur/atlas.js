@@ -8,7 +8,7 @@
 // (remarque du 22 octobre 2026, la phrase de résultat n'était qu'un exemple parmi les croisements possibles)
 const RESUMES={
   "Corrélations par groupe d’indicateurs":"Les indicateurs qui varient avec la présence de chaque profession, groupe par groupe.",
-  "Besoins, recours et conditions de vie, croisés entre eux":"Comparer entre eux, par département, les indicateurs de besoin, de recours aux soins et de conditions de vie.",
+  "État de santé, recours et conditions de vie, croisés entre eux":"Comparer entre eux, par département, les indicateurs d'état de santé, de recours aux soins et de conditions de vie.",
   "À autres indicateurs égaux":"Mesurer ce qui reste du lien entre deux indicateurs quand les autres sont tenus égaux (régression multiple).",
   "Addictologie":"L’offre en addictologie, le recours aux soins et les consommations d’alcool et de tabac, réunis au même endroit.",
   "Offre et indicateur sur une même carte":"Situer sur la carte les départements où l’offre et un indicateur sont ensemble hauts, bas ou opposés.",
@@ -48,7 +48,7 @@ function sommaireOnglet(onglet){
 const QUESTIONS={
   croisements:[["La densité et le profil des habitants",["Corrélations par groupe d’indicateurs","L’effet ville retiré"]],
     ["Cartes croisées, par territoire",["Offre et indicateur sur une même carte","Le lien avec le niveau de vie, d’une région à l’autre"]],
-    ["Les indicateurs entre eux",["Besoins, recours et conditions de vie, croisés entre eux","À autres indicateurs égaux"]],
+    ["Les indicateurs entre eux",["État de santé, recours et conditions de vie, croisés entre eux","À autres indicateurs égaux"]],
     ["Offre, recours et consommations",["Addictologie"]]],
 };
 // l'analyse en cours est celle dont le haut a passé la barre des réglages ; la marge se place sous cette barre
@@ -66,8 +66,15 @@ function suivreMarge(){
   const planifier=()=>{if(!f)f=requestAnimationFrame(()=>{f=0;maj()})};addEventListener("scroll",planifier,{passive:true});addEventListener("resize",planifier)}
 let M=null,TM=null;
 
+// « Comment lire » de la carte : les définitions de la mesure choisie, et seulement elles (la mesure « Évolution »
+// renvoyait à la densité et à l'écart à l'attendu, relevé le 25 novembre 2026). La place de la Corse vaut pour toutes
+// les cartes, l'intercommunalité pour celles des intercommunalités.
+const HOW_MESURE={dens:"densite,moyenne",n:"effectif",ecart:"attendu",acces:"accessibilite",trajet:"temps_trajet",lieux:"lieux,confirmation",evol:"evolution",zones:"zones"};
+function commentLireCarte(){const b=document.querySelector("#mapOutils button.how");if(!b)return;
+  b.dataset.how=[HOW_MESURE[S.metric]||HOW_MESURE.dens,S.level==="epci"?"epci":"","corse"].filter(Boolean).join(",");majCommentLire(b)}
 function drawMap(){
   if(!M)M=mapInit("map");
+  commentLireCarte();
   const lv=S.level,p=S.prof,feats=geom[lv];
   const vals=D.niveaux[lv].units.map((u,i)=>u.pop?val(lv,p,i):null);
   let color,legend;
@@ -202,6 +209,15 @@ function bulle(lv,i,p){const u=D.niveaux[lv].units[i];
   const t=trajet(lv,p,i),e=routeEq(p);if(t)h+='<div class="tl">'+esc(e.lib)+' le plus proche, '+(t[1]!=null?f1.format(t[1])+' min en voiture pour la moitié des habitants, ':'')+(t[0]>0&&t[0]<.005?'moins de 1':fmt.format(Math.round(t[0]*100)))+' % des habitants à plus de 20 minutes.</div>';
   return h}
 function natCard(){
+  // la mesure « Évolution » choisie, le panneau de la France entière la suit : il gardait la densité (audit du
+  // 25 novembre 2026). Évolution nationale de la DREES, puis le nombre de territoires du niveau où elle monte ou baisse.
+  const e=S.metric==="evol"?evolInfo(S.prof):null;
+  if(e&&e.fr){const a=D.niveaux[S.level].evolution?.[S.prof]||[],v=a.filter(x=>x&&x[2]!=null).map(x=>x[2]),
+      hausse=v.filter(x=>x>0).length,baisse=v.filter(x=>x<0).length,lib=e.lib.split(",")[0].toLowerCase();
+    const ph="De "+e.debut+" à "+e.fin+", la densité "+deMot(lib)+" a évolué de "+signe(e.fr[2])+" en France, d’après les séries de la DREES, qui comptent chaque professionnel dans un seul département."
+      +(v.length?" Elle a augmenté dans "+fmt.format(hausse)+" "+NIVLAB[S.level]+" sur "+fmt.format(v.length)+(baisse?" et baissé dans "+fmt.format(baisse):"")+".":"");
+    document.getElementById("natCard").innerHTML='<h2>'+esc(profLab(S.prof))+' <button class="how" data-how="evolution,densite">Comment lire</button></h2><div class="howtxt hidden"></div><div class="muted small">France entière, '+modeLab[S.mode]+'</div><div class="big">'+signe(e.fr[2])+'</div><div class="muted small">évolution de la densité de '+e.debut+' à '+e.fin+'</div><p class="phrase">'+esc(ph)+'</p>'+limiteHtml(["evol:"]);
+    return}
   const p=S.prof,ineg=(D.inegalites||[]).find(r=>r.niv===S.level&&r.mode===S.mode&&r.prof===p);
   const sp=(D.spatial||[]).find(r=>r.niveau===S.level&&r.prof===p);
   const pr=IDX.prof.get(p)||{},lab=profLab(p),niv=NIVLAB[S.level];
@@ -457,10 +473,11 @@ function regionDe(lv,c){const R=D.niveaux.reg;if(!R)return null;if(lv==="reg")re
 // région à la française dans une phrase (« en Bretagne », « dans les Hauts-de-France », « à La Réunion »)
 function enRegion(c){const u=D.niveaux.reg.units[IDX.reg.get(c)],n=u?u.nm:c;
   return /^(La Réunion|Mayotte)$/.test(n)?"à "+n:/^(Hauts|Pays)/.test(n)?"dans les "+n:/^(Grand Est|Centre)/.test(n)?"dans le "+n:"en "+n}
-// « Croiser deux indicateurs » vit dans Explorer (lot 2 du 29 octobre 2026). Une case des corrélations ou une barre des
-// indicateurs entre eux y ouvre le nuage réglé sur la même profession, le même indicateur et le même niveau.
-function lienNuage(o){return "explorer.html#cxFenNuage?fam="+famCle()+"&cxProf="+encodeURIComponent(o.prof||S.prof)
-  +"&cxNiv="+(o.niveau||(S.level==="dep"?"dep":"epci"))+"&cxMode="+S.mode+"&cxX="+encodeURIComponent(o.x||S.xvar||"")+"&cxY="+encodeURIComponent(o.y||"")}
+// « Croiser deux indicateurs » vit dans Croiser (structure du site validée le 26 novembre 2026, auparavant dans
+// Explorer). Une case des corrélations ou une barre des indicateurs entre eux y ouvre le nuage réglé sur la même
+// profession (ou le second indicateur), le même indicateur, le même niveau et le même mode d'exercice.
+function lienNuage(o){return "croiser.html#x="+encodeURIComponent(o.x||S.xvar||"revenu_median")
+  +"&y="+encodeURIComponent(o.y||("prof:"+(o.prof||S.prof)+":all"))+"&lv="+(o.niveau||(S.level==="dep"?"dep":"epci"))+"&m="+S.mode}
 function ouvrirNuage(o){location.href=lienNuage(o)}
 // accès aux structures de soins par territoire, temps par la route de l'INSEE et distance à la structure la plus proche
 function accesLieux(){const tab=document.getElementById("alTable"),lv=S.level==="reg"?"dep":S.level,N=D.niveaux[lv];
@@ -628,6 +645,10 @@ function render(){
 // choisi s'écrivent dans l'adresse, qu'on peut copier et citer ; elle se relit au chargement
 function adresseAtlas(){try{const fam={[SM]:"sm",[SANTE]:"sante","*":"tout"}[S.fam]||"",q=new URLSearchParams();
   if(fam)q.set("fam",fam);q.set("prof",S.prof);q.set("niv",S.level);if(S.tab&&S.tab!=="carte")q.set("onglet",S.tab);
+  // la mesure de la carte, son mode d'exercice et le type de structure d'une distance : un lien partagé après le choix
+  // « Évolution » rouvrait la densité (audit du 25 novembre 2026)
+  if(S.mode&&S.mode!=="all")q.set("mode",S.mode);if(S.metric&&S.metric!=="dens")q.set("mesure",S.metric);
+  if(S.metric==="lieux"&&S.lieux)q.set("structure",S.lieux);
   if(S.sel)q.set("terr",S.sel.lv+":"+S.sel.c);history.replaceState(null,"","#?"+q.toString())}catch(e){}}
 document.getElementById("tabs").addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;S.tab=b.dataset.t;document.querySelectorAll("#tabs button").forEach(x=>x.setAttribute("aria-selected",String(x===b)));render()});
 document.querySelectorAll(".seg[data-k]").forEach(sg=>sg.addEventListener("click",e=>{const b=e.target.closest("button");if(!b||b.disabled)return;S[sg.dataset.k]=b.dataset.v;if(sg.dataset.k==="level"){S.sel=null;S.niveauAuto=false}if(sg.dataset.k==="vue"&&S.vue==="tuiles"&&S.level!=="dep"){S.level="dep";S.sel=null}if(sg.dataset.k==="fam"){S.sort=null;buildSelects()}render()}));
@@ -701,6 +722,11 @@ document.querySelectorAll("[data-repli]").forEach(p=>{const h=p.querySelector("h
 {const q=new URLSearchParams((location.hash.split("?")[1])||""),fam={sm:SM,sante:SANTE,tout:"*"}[q.get("fam")];
   if(fam)S.fam=fam;if(q.get("niv")&&["reg","dep","epci"].includes(q.get("niv")))S.level=q.get("niv");
   if(q.get("prof")&&(D.professions||[]).some(p=>p.id===q.get("prof")))S.prof=q.get("prof");
+  // mesure, mode et structure relus seulement s'ils existent dans la barre ; une mesure indisponible pour ce choix
+  // revient à la densité (syncBar)
+  if(q.get("mode")&&document.querySelector('.seg[data-k="mode"] [data-v="'+CSS.escape(q.get("mode"))+'"]'))S.mode=q.get("mode");
+  if(q.get("mesure")&&document.querySelector('#metricSeg [data-v="'+CSS.escape(q.get("mesure"))+'"]'))S.metric=q.get("mesure");
+  if(/^[\w-]+$/.test(q.get("structure")||""))S.lieux=q.get("structure");   // type inconnu retiré par lieuxOptions
   const ong=q.get("onglet");if(ong&&document.querySelector('#tabs [data-t="'+ong+'"]')){S.tab=ong;document.querySelectorAll("#tabs button").forEach(x=>x.setAttribute("aria-selected",String(x.dataset.t===ong)))}
   const t=(q.get("terr")||"").split(":");if(t.length===2&&D.niveaux[t[0]]&&D.niveaux[t[0]].units.some(u=>u.c===t[1])){S.level=t[0];S.sel={lv:t[0],c:t[1]}}}
 // carte à la demande sur téléphone : la recherche et les chiffres d'abord, la carte s'ouvre d'un bouton

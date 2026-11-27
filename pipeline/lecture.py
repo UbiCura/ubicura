@@ -42,6 +42,14 @@ GLOSSAIRE = [
      "habitants, soit environ un pour 2 000 habitants. Pour une profession rare, moins d'un professionnel pour 10 000 "
      "habitants en France, la densité est donnée pour 100 000 habitants, pour garder des chiffres lisibles. C'est la "
      "mesure qui permet de comparer un petit territoire et une grande ville.", ""),
+    # « Comment lire » de la mesure « Évolution » de l'atlas, qui renvoyait à la seule densité (relevé le 25 novembre 2026)
+    ("evolution", "Évolution de la densité",
+     "Écart relatif entre la densité de la dernière année et celle de la première année des séries de la DREES. "
+     "Une évolution de +10 % signifie que la densité de la dernière année dépasse d'un dixième celle de la première. "
+     "La densité rapporte le nombre de professionnels à la population de la même année : elle peut monter parce que "
+     "les professionnels sont plus nombreux, ou parce que la population baisse. Ces séries comptent chaque "
+     "professionnel une seule fois, dans le département de son activité principale : leurs densités diffèrent un peu "
+     "de celles des autres mesures, qui comptent une personne dans chaque territoire où elle exerce.", ""),
     ("moyenne", "Ensemble des territoires",
      "Densité de référence à laquelle un territoire est comparé, par exemple l'ensemble des départements. C'est le "
      "nombre de professionnels de tous les départements rapporté à la population de la France, compté comme pour "

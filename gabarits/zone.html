@@ -33,6 +33,8 @@ main.zone .perim-act{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0 0}
 main.zone .perim-act button{min-height:40px;padding:0 12px;background:none;border:1px solid var(--line);border-radius:4px;color:var(--ink);font:inherit;font-size:.875rem;cursor:pointer}
 main.zone .perim-act button:hover{border-color:var(--r4)}
 main.zone .perim-act button[disabled]{color:var(--muted);cursor:not-allowed}
+/* chaque moitié décide du justifié de son « Comment lire » (453 px à 1 024 px, contrôle du 25 novembre 2026) */
+main.zone .z-grille > *{container-type:inline-size}
 main.zone .z-grille{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px 36px;align-items:start;margin-top:22px}
 main.zone .fen{border:1px solid var(--line);border-radius:4px;background:var(--panel)}
 main.zone .barre{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:0 8px;padding:4px 6px 4px 14px;border-bottom:1px solid var(--line);font-size:.875rem}

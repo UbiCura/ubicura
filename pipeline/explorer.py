@@ -192,6 +192,10 @@ def donnees_nuage(site_data: dict) -> dict | None:
     if not all(lv in niv for lv in NIVEAUX_NUAGE) or not site_data.get("contexte"):
         return None
     d = {k: site_data.get(k) for k in CLES_NUAGE}
+    # titres des questions préparées lus dans la table unique (pipeline/questions.py)
+    from .questions import titrer_preparees
+    if d.get("croisements_bases"):
+        d["croisements_bases"] = titrer_preparees(d["croisements_bases"])
     # « lieux », nombre de structures de chaque type par territoire, montré à côté de son taux (décision du
     # 30 octobre 2026)
     d["niveaux"] = {lv: {k: niv[lv][k] for k in ("units", "n", "route", "lieux") if k in niv[lv]} for lv in NIVEAUX_NUAGE}

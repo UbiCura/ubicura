@@ -24,7 +24,7 @@ function indicateursEntreEux(){
     libelleMulti(g,m.l-8,y0+bh/2,r.lignes);
     g.append("rect").attr("x",Math.min(x(0),x(r.rho))).attr("width",Math.abs(x(r.rho)-x(0))).attr("y",y0+bh/2-6).attr("height",12).attr("fill",css(r.rho<0?"--d1":"--r4")).attr("opacity",r.net?1:.35);
     if(r.lo!=null)g.append("line").attr("x1",x(r.lo)).attr("x2",x(r.hi)).attr("y1",y0+bh/2).attr("y2",y0+bh/2).attr("stroke",css("--ink")).attr("stroke-opacity",.6);
-    g.append("title").text(lab(ref)+" et "+lab(r.v)+", corrélation "+f2.format(r.rho)+(r.lo!=null?", fourchette plausible de "+f2.format(r.lo)+" à "+f2.format(r.hi):"")+(r.net?"":", lien incertain"))});
+    g.append("title").text(lab(ref)+" et "+lab(r.v)+", corrélation "+f2.format(r.rho)+(r.lo!=null?", intervalle de confiance à 95 % de "+f2.format(r.lo)+" à "+f2.format(r.hi):"")+(r.net?"":", lien incertain"))});
   const plus=rows.filter(r=>r.net&&r.rho>=.3).slice(0,3),moins=rows.filter(r=>r.net&&r.rho<=-.3).sort((a,b)=>a.rho-b.rho).slice(0,3);
   let ph="Entre départements, « "+minuscule(lab(ref))+" » a un lien net avec "+rows.filter(r=>r.net).length+" des "+rows.length+" autres indicateurs.";
   if(plus.length)ph+=" Il va surtout avec "+plus.map(r=>"« "+minuscule(lab(r.v))+" »").join(", ").replace(/, ([^,]*)$/," et $1")+".";
@@ -160,7 +160,7 @@ function heatmap(){
         if(r){rho=r.rho;q=r.q}else if(L.units[0].x){const s=spearman(L.units.map(u=>u.x[c.i]),L.units.map((u,i)=>unitD(lv,p.id,i)));rho=s.rho;q=null}
         const incertain=(q!=null&&q>=.05)||(r&&r.lo!=null&&r.lo<0&&r.hi>0);
         if(rho!=null&&!isNaN(rho)&&!incertain&&(!fort||Math.abs(rho)>Math.abs(fort.rho)))fort={rho,p:p.libelle,c:c.label};
-        const tt=rho==null||isNaN(rho)?"":p.libelle+" et "+c.label+", rho "+f2.format(rho)+(r&&r.lo!=null?", fourchette plausible de "+f2.format(r.lo)+" à "+f2.format(r.hi):"")+(incertain?", lien incertain":"");
+        const tt=rho==null||isNaN(rho)?"":p.libelle+" et "+c.label+", rho "+f2.format(rho)+(r&&r.lo!=null?", intervalle de confiance à 95 % de "+f2.format(r.lo)+" à "+f2.format(r.hi):"")+(incertain?", lien incertain":"");
         h+='<td data-p="'+p.id+'" data-x="'+c.id+'" title="'+esc(tt)+'" style="'+styleCase(rho==null||isNaN(rho)?null:sc(rho),incertain)+'">'+(rho==null||isNaN(rho)?"":f2.format(rho))+'</td>';
       }
       h+='</tr>';

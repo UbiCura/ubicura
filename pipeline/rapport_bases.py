@@ -394,12 +394,12 @@ def indicateurs_entre_eux(C, ctxlab):
     top = nets.sort_values("force", ascending=False).head(12).assign(
         a=lambda d: d["variable_a"].map(lab), b=lambda d: d["variable_b"].map(lab),
         ic=lambda d: [f"de {nombre(x, 2)} à {nombre(y, 2)}" for x, y in zip(d["ic95_bas"], d["ic95_haut"])])
-    L = ["#### Besoins, recours aux soins et conditions de vie, croisés entre eux", "",
+    L = ["#### État de santé, recours aux soins et conditions de vie, croisés entre eux", "",
          INTRO_ENTRE_EUX, "",
          f"Entre départements, {len(nets)} des {len(t)} paires de ces indicateurs sont liées. "
          f"{regle_lien.phrase_seuil()} Le tableau donne les liens les plus forts.", "",
          _tableau(top, ["a", "b", "rho", "ic", "rho_sans_ile_de_france"],
-                  ["Indicateur", "Indicateur", "Corrélation de rang", "Fourchette plausible", "Sans l'Île-de-France"],
+                  ["Indicateur", "Indicateur", "Corrélation de rang", "Intervalle de confiance à 95 %", "Sans l'Île-de-France"],
                   {"rho": lambda v: nombre(v, 2), "rho_sans_ile_de_france": lambda v: nombre(v, 2)}), ""]
     L += _comment_lire(
         "Une corrélation proche de 1 signifie que les deux indicateurs classent les départements de la même façon, "
@@ -497,7 +497,7 @@ def _regressions(r, lab):
             phrase = f"À autres indicateurs égaux, aucun de ces indicateurs n'est nettement lié à {nom}."
         phrase += f" Ensemble, ils résument {pct(g['r2'].iloc[0], 0)} des écarts entre départements."
         cols = ["v", "coef_standardise", "ic", "net"]
-        ents = ["Indicateur", "Coefficient standardisé", "Fourchette plausible", "Fourchette sans zéro"]
+        ents = ["Indicateur", "Coefficient standardisé", "Intervalle de confiance à 95 %", "Fourchette sans zéro"]
         if "rho_simple" in g:
             cols.insert(1, "rho_simple")
             ents.insert(1, "Lien simple (rho)")
@@ -548,7 +548,7 @@ def profil_egal(C):
                      ic=[f"de {nombre((a - 1) * 100, 0)} à {nombre((b - 1) * 100, 0)} %" for a, b in zip(g["ic95_bas"], g["ic95_haut"])],
                      net=["oui" if (a > 1 or b < 1) else "non" for a, b in zip(g["ic95_bas"], g["ic95_haut"])])
         L += [f"**{pluriel(C.lab.get(p, p)).capitalize()}**", "", _tableau(g, ["v", "effet", "ic", "net"],
-              ["Caractéristique (un écart-type de plus)", "Effectif", "Fourchette plausible", "Fourchette sans zéro"]), ""]
+              ["Caractéristique (un écart-type de plus)", "Effectif", "Intervalle de confiance à 95 %", "Fourchette sans zéro"]), ""]
     L += _comment_lire(
         "Par exemple, « +20 % » signifie qu'à autres caractéristiques égales, une intercommunalité dont cette "
         "caractéristique est plus élevée d'un écart-type compte en moyenne 20 % de professionnels de plus. La densité de "
@@ -605,8 +605,8 @@ def offre_besoin_carte(C, insee, ctxlab, prof="psychiatre", var="suicides"):
         "Chaque département reçoit une couleur selon deux tiers à la fois. En allant vers le canard, l'offre est plus "
         "dense. En allant vers le cuivre, l'indicateur est plus élevé. Le cuivre pur signale un indicateur dans le tiers le plus "
         "haut et une offre dans le tiers le plus bas. Les tiers comparent les départements entre eux et ne disent "
-        "pas ce qui serait un bon niveau. Un indicateur de santé mentale mesure un besoin ou un recours, jamais les deux "
-        "à la fois. Un rond ocre marqué « ! » signale une donnée fragile, les départements d'Île-de-France pour le "
+        "pas ce qui serait un bon niveau. Un indicateur de santé mentale mesure un état de santé ou un recours aux "
+        "soins, jamais les deux à la fois. Un rond ocre marqué « ! » signale une donnée fragile, les départements d'Île-de-France pour le "
         "suicide et Mayotte, écartée des tiers.", limites.phrase_md(["suicides", "mayotte"]))
     L += _plus_loin(["Tiers calculés sur les départements, Mayotte écartée. Moran local bivarié, indicateur du "
                      "département rapproché de la densité moyenne de ses voisins (densité en logarithme, poids égaux "

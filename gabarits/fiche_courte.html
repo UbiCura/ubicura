@@ -1,0 +1,218 @@
+{% extends "fiche_territoire.html" %}
+{#- Fiche courte d'un territoire, à l'adresse de la fiche (structure du site validée le 26 novembre 2026, maquettes dans
+    prototypes/structure_2026-11-25/, planches 8 et 5). Dans l'ordre : l'en-tête ; les tuiles de chiffres clés, chacune
+    suivie de sa réglette, de sa phrase de lecture, de sa définition et de sa limite ; « Lire les réglettes » ; « Repères
+    en santé mentale » et « Repères en santé », dix indicateurs chacun ; la carte « Où les patients sont reçus » en 7 + 5,
+    avec à sa droite ses textes et le bloc « CMP pour adultes » ; chaque domaine en trois indicateurs phares, avec le lien
+    vers les autres ; les domaines sans base en une ligne de renvoi ; les territoires contenus et voisins ; « Citer cette
+    fiche ». Le dossier complet (la fiche entière, fiche_territoire.html) est à côté, à l'adresse <code>-complet.html.
+    Lignes, valeurs, réglettes, positions, définitions, limites et phrases sont celles de la fiche entière, choisies et
+    rangées par pipeline/fiche_courte.py : le gabarit ne calcule ni n'arrondit rien. Les macros (en-tête, ligne,
+    menu, carte, citation) sont celles de fiche_territoire.html. -#}
+{#- une ligne des Repères et des domaines : nom (vers la page de l'indicateur), étiquette et unité ; réglette et
+    valeur ; position ; chiffre de la France ; repère d'un taux qui ne s'additionne pas ; définition, limites, phrase de
+    lecture ; menu de la ligne -#}
+{% macro rang(m) -%}
+<tr{% if m.ancre %} id="{{ m.ancre }}"{% endif %}{% if m.id %} data-ind="{{ m.id }}"{% endif %}{% if m.lv %} data-niv="{{ m.lv }}:{{ m.code_terr or '' }}"{% endif %} data-titre="{{ m.nom }}">
+  <th scope="row"><span class="nom-ligne">{% if m.page %}{{ vers_indicateur({'page': m.page, 'lib': m.nom}, m.sig) }}{% else %}{{ m.nom }}{% if m.sig %} <b class="sig" aria-hidden="true">!</b>{% endif %}{% endif %}</span>{% if m.etiq %}<span class="etiq">{{ m.etiq }}</span>{% endif %}{% if m.unite %}<span class="note">{{ m.unite }}</span>{% endif %}</th>
+  <td class="m-cel">
+    <div class="m-ligne">{{ reglette(m.reg, 'petite') }}<span class="m-v">{% if m.v %}<b>{{ m.v }}</b>{% else %}<span class="statut">{{ m.statut }}</span>{% endif %}</span></div>
+    {%- if m.pos %}
+    <p class="m-pos">{% if m.avant %}<span class="{{ 'ec ' ~ (m.couleur or 'neutre') if m.avant_ecart else 'ens-pos' }}">{{ m.avant }}</span>{{ ', mais ' if m.mais else ', ' }}{% endif %}{{ m.pos }}{% if m.marge %}<span class="note marge">{{ marge_ligne }}</span>{% endif %}</p>
+    {%- endif %}
+    {%- if m.france %}<p class="m-fr">{{ m.france }}</p>{% endif %}
+    {%- if m.ic %}<p class="m-def">Entre {{ m.ic[0] }} et {{ m.ic[1] }}, intervalle de confiance publié.</p>{% endif %}
+    {%- if m.zero %}<p class="m-def">{{ m.zero }}</p>{% endif %}
+    {%- if m.raison %}<p class="m-def">Non publié : {{ m.raison }}.</p>{% endif %}
+    {%- if m.note %}<p class="m-def">{{ m.note[:1]|upper }}{{ m.note[1:] }}.</p>{% endif %}
+    {%- if m.rep_med %}<p class="m-rep">{{ m.rep_med }}</p>{% endif %}
+    {%- if m.defn %}<p class="m-def">{{ m.defn }}</p>{% endif %}
+    {%- for x in m.lims %}<p class="m-lim"><b aria-hidden="true">!</b><span>{{ x }}</span></p>{% endfor %}
+    {%- if m.phrase %}<p class="m-phrase">{{ m.phrase }}</p>{% endif %}
+    <div class="m-menu">{{ menu(m.menu) }}</div>
+  </td>
+</tr>
+{%- endmacro %}
+{% macro limites_bloc(L) -%}
+{%- for x in L %}<p class="m-lim lim-bloc"><b aria-hidden="true">!</b><span>{{ x }}</span></p>{% endfor -%}
+{%- endmacro %}
+{#- sous une tuile : sa réglette, le chiffre de la France, sa phrase de lecture, sa définition, sa limite, son menu et le
+    lien vers sa ligne détaillée ; la tuile des structures : les classes de confirmation, la part confirmée dans
+    l'ensemble des territoires et la limite de FINESS et du ROR -#}
+{% macro sous_tuile(st) -%}
+<div class="sous-tuile">
+  {%- if st.structures %}
+  <p class="m-def">{{ st.defn }}</p>
+  {% if st.ensemble %}<p class="m-def">{{ st.ensemble }}</p>{% endif %}
+  {%- for x in st.lims %}<p class="m-lim"><b aria-hidden="true">!</b><span>{{ x }}</span></p>{% endfor %}
+  <p class="st-lien seul-ecran"><a href="{{ st.lien }}">Les structures, type par type</a></p>
+  {%- else %}
+  {% if st.reg %}<div class="st-rg">{{ reglette(st.reg, 'petite') }}</div>{% endif %}
+  {%- if st.france %}<p class="m-fr">{{ st.france }}</p>{% endif %}
+  {%- if st.zero %}<p class="m-def">{{ st.zero }}</p>{% endif %}
+  {%- if st.phrase %}<p class="m-phrase">{{ st.phrase }}</p>{% endif %}
+  {%- if st.defn %}<p class="m-def">{{ st.defn }}</p>{% endif %}
+  {%- for x in st.lims %}<p class="m-lim"><b aria-hidden="true">!</b><span>{{ x }}</span></p>{% endfor %}
+  <div class="m-menu" data-titre="{{ st.nom }}">{{ menu(st.menu) }}</div>
+  <p class="st-lien seul-ecran"><a href="{{ st.lien }}">Sa ligne détaillée</a></p>
+  {%- endif %}
+</div>
+{%- endmacro %}
+{% block contenu %}
+{{ formes|safe }}
+<div id="cite" hidden data-auteur="{{ citation_auteur }}" data-annee="{{ annee_version }}" data-titre="Fiche {{ f.de_nom }}" data-projet="{{ nom_projet }}" data-version="{{ date_longue }}" data-iso="{{ f.version }}" data-cle="{{ f.niveau }}_{{ f.code }}" data-adresse="https://{{ adresse_fiche }}" data-doi="{{ '' if doi_toutes else (doi_donnees or '') }}" data-doi-general="{{ doi_donnees if doi_toutes else (doi_general or '') }}"></div>
+
+{{ tete_fiche() }}
+
+{% if f.cles %}
+<section class="cles-fiche" aria-label="Chiffres clés">
+  <ul class="n{{ f.cles|length }}">{% for c in f.cles %}{% set st = C.sous_tuiles[loop.index0] %}<li class="cle-tuile"><span class="tuile-n{{ ' tuile-mot' if c.mot }}">{{ c.n }}</span><span class="tuile-t">{{ c.texte }}</span><span class="tuile-r">
+    {%- if c.ecart %}<span class="ec {{ c.couleur or 'neutre' }}">{{ c.ecart }}</span>{{ ', mais ' if c.contraire else ', ' }}{{ c.position }}{% else %}{{ c.rep }}{% endif %}</span>{% if st %}{{ sous_tuile(st) }}{% endif %}</li>{% endfor %}</ul>
+  <p class="cle-ensemble">{{ f.cle_tuiles }}</p>
+  {% if C.totaux_tuiles %}{{ deux_totaux(C.totaux_tuiles, C.page_totaux_tuiles) }}{% endif %}
+</section>
+{% endif %}
+
+{#- les Repères : dix indicateurs par partie, choisis par la règle écrite (pipeline/fiche_courte.choix_reperes) ; les
+    ancres des parties (#d-sm, #d-sante) restent sur la fiche courte -#}
+<section class="bande reperes-fiche" aria-label="Repères">
+  {{ lire_reglettes() }}
+  {% for B in C.reperes %}
+  <section class="reperes-bloc" id="{{ B.id }}" aria-labelledby="{{ B.tid }}" data-titre="{{ B.titre }}">
+    <div class="bloc-tete"><h2 id="{{ B.tid }}">{{ B.titre }}</h2><div class="encadre-outils seul-ecran"><button type="button" class="citer-encadre" aria-expanded="false">Citer et exporter</button></div></div>
+    <p class="comment-lire"><b>Comment lire.</b> {{ B.n_mot }} indicateurs, les mêmes d’un territoire à l’autre : {{ B.quoi }}, puis les suivants du tableau complet de la partie, dans son ordre.{% if B.tuiles %} Psychologues, psychiatres et distance au CMP pour adultes sont en tête de fiche, avec leur réglette, et ne sont pas répétés ici.{% endif %} Chacun situe le territoire parmi les {{ f.nb_territoires|nombre('entier') }} {{ niv }}, avec l’ensemble{% if B.medians %}, ou le territoire médian pour un taux qui ne s’additionne pas{% endif %}, et la position en mots (voir « Lire les réglettes »). Un point n’est en cuivre ou en canard que si l’écart sort de 0,8 à 1,25 fois l’ensemble et dépasse ce que le hasard explique ; un point vide signale moins de 5 inscrits.</p>
+    {% if B.totaux %}{{ deux_totaux(B.totaux, B.page_totaux) }}{% endif %}
+    {{ limites_bloc(B.communes) }}
+    {#- une intercommunalité sur plusieurs départements : ses chiffres au département sont ceux de son département de
+        rattachement, dit là où ils se lisent -#}
+    {% if f.deps|length > 1 and B.rangs|selectattr('etiq')|list %}{{ note_deps() }}{% endif %}
+    <table class="matrice reperes-m" data-cite="1"><thead><tr><th scope="col">Indicateur</th><th scope="col">Valeur et position</th></tr></thead>
+      <tbody>{% for m in B.rangs %}{{ rang(m) }}{% endfor %}</tbody></table>
+    <p class="vers-complet seul-ecran"><a href="{{ B.lien }}">Tous les indicateurs de cette partie</a>, avec leurs tableaux, leurs cartes et leur évolution depuis 2016, dans le dossier complet</p>
+  </section>
+  {% endfor %}
+</section>
+
+{#- la carte du territoire sur sept colonnes, à sa droite ses textes et le bloc « CMP pour adultes » (grille 7 + 5) ;
+    les textes de chaque couche suivent la couche montrée -#}
+{% set R = f.reperes %}
+{% macro bloc_cmp(R) -%}
+<div class="reperes-courts" aria-labelledby="t-reperes">
+  <h3 id="t-reperes">{{ 'Sectorisation et CMP pour adultes' if R.publie else 'CMP pour adultes' }}</h3>
+  <p class="rep-cmp">{{ cmp_adultes(R, false) }}</p>
+  {{ sectorisation(R) }}
+</div>
+{%- endmacro %}
+<section class="bord bord-courte" id="bord" aria-label="Carte du territoire">
+  {% set RG = extras.carte_region %}
+  {% if RG %}
+  <div class="carte-terr" data-titre="Ses départements">
+    <div class="bc-g">
+      <div class="bloc-tete"><h2 id="t-carte">Ses départements</h2><div class="encadre-outils seul-ecran"><button type="button" class="citer-encadre" aria-expanded="false">Citer et exporter</button></div></div>
+      <figure class="carte-fig">{{ RG.svg|safe }}</figure>
+      <div class="carte-pied">{{ legende_region(RG) }}</div>
+    </div>
+    <div class="bc-d">
+      <div class="carte-texte-d">{{ textes_region(RG) }}</div>
+      {{ bloc_cmp(R) }}
+    </div>
+  </div>
+  {% elif carte_situation %}
+  <div class="carte-terr" data-titre="Où les patients sont reçus">
+    <div class="bc-g">
+      <div class="bloc-tete">
+        <h2 id="t-carte">Où les patients sont reçus</h2>
+        <div class="encadre-outils seul-ecran"><button type="button" class="citer-encadre" aria-expanded="false">Citer et exporter</button></div>
+        {% if f.carte_couches %}
+        <div role="group" class="segmente seul-ecran" aria-label="Couche affichée sur la carte">
+          <button type="button" aria-pressed="true" data-couche="structures">Structures</button><button type="button" aria-pressed="false" data-couche="temps">Temps<span class="seg-long"> d'accès</span></button><button type="button" aria-pressed="false" data-couche="secteurs">Secteurs</button>
+        </div>
+        {% endif %}
+      </div>
+      {% if f.carte_outremer and not f.carte_points %}<p class="note note-avant">Les structures d'outre-mer ne sont pas encore placées sur la carte ; elles sont comptées dans les chiffres de cette fiche.</p>{% endif %}
+      <figure class="carte-fig" data-couche="structures">
+        {{ carte_situation|safe }}
+        {% if f.carte_couches and not R.publie %}
+        <div class="non-diffuse superpose" data-pour="secteurs">
+          <p class="nd-titre">Sectorisation non publiée pour ce département</p>
+          <p>Les secteurs de psychiatrie ne sont publiés, sur ce site, que pour les Hauts-de-France, d'après les arrêtés qui les fixent commune par commune.</p>
+          <a href="{{ racine }}methode-structures.html">La méthode des structures</a>
+        </div>
+        {% endif %}
+      </figure>
+      <div class="carte-pied" data-pour="structures">{{ legende_carte('structures') }}</div>
+      {% if f.carte_couches %}
+      <div class="carte-pied" data-pour="temps" hidden>{{ legende_carte('temps') }}</div>
+      {% if R.publie %}<div class="carte-pied" data-pour="secteurs" hidden>{{ legende_carte('secteurs') }}</div>{% endif %}
+      {% endif %}
+    </div>
+    <div class="bc-d">
+      <div class="carte-texte-d" data-pour="structures">{{ textes_carte('structures') }}</div>
+      {% if f.carte_couches %}
+      <div class="carte-texte-d" data-pour="temps" hidden>{{ textes_carte('temps') }}</div>
+      <div class="carte-texte-d" data-pour="secteurs" hidden>{{ textes_carte('secteurs') }}</div>
+      {% endif %}
+      {{ bloc_cmp(R) }}
+    </div>
+  </div>
+  {% else %}
+  <div class="carte-terr"><div class="bc-d">{{ bloc_cmp(R) }}</div></div>
+  {% endif %}
+</section>
+
+{#- chaque domaine en ses trois indicateurs phares, un seul « Comment lire », et le lien vers les autres au dossier
+    complet, à l'ancre du domaine -#}
+{% for D in C.domaines %}
+<section class="bande dom dom-courte" id="{{ D.id }}" aria-labelledby="t-{{ D.id }}" data-titre="{{ D.nom }}">
+  <div class="dom-ligne">
+    <h2 id="t-{{ D.id }}" class="titre-bande">{{ D.nom }}</h2>
+    <div class="dom-texte">
+      <p class="compte">{{ D.compte }}</p>
+      <p class="lire-bande"><b>Comment lire.</b> {{ D.lire }}</p>
+      {{ limites_bloc(D.communes) }}
+      {% if f.deps|length > 1 and D.rangs|selectattr('etiq')|list %}{{ note_deps() }}{% endif %}
+    </div>
+  </div>
+  <table class="matrice cartes-3" data-cite="1"><tbody>{% for m in D.rangs %}{{ rang(m) }}{% endfor %}</tbody></table>
+  {% if D.autres > 0 %}<p class="vers-complet seul-ecran"><a href="{{ D.lien }}">{{ "L'autre indicateur" if D.autres == 1 else 'Les ' ~ D.autres ~ ' autres indicateurs' }} de ce domaine</a>, avec {{ 'sa carte' if D.autres == 1 else 'leurs cartes' }}, dans le dossier complet</p>{% endif %}
+</section>
+{% endfor %}
+
+{#- les domaines sans base : une ligne de renvoi, qui nomme les bases annoncées -#}
+{% if C.renvois %}
+<div class="renvoi-a-venir">
+  {% for V in C.renvois %}<p id="{{ V.id }}"><b>{{ V.nom }}.</b> {% if V.bases %}Aucune base n’est encore intégrée ; {{ V.bases|length }} {{ 'bases sont annoncées' if V.bases|length > 1 else 'base est annoncée' }} : {{ V.bases|join(' ; ') }}.{% else %}Aucune base n’est encore intégrée ni annoncée.{% endif %}</p>
+  {% endfor %}<p>Chaque domaine aura sa partie dès qu’une de ses bases sera intégrée. Le calendrier est dans <a href="{{ racine }}a-venir.html">À venir</a>.</p>
+</div>
+{% endif %}
+
+{#- les territoires : ceux qu'il contient, ses communes pour une intercommunalité, ses voisins du même niveau -#}
+{% set T = C.territoires %}
+{% if niveaux.enfants or T.communes or T.voisins %}
+<section class="bande terr-fiche seul-ecran" id="territoires" aria-labelledby="t-terr">
+  <h2 id="t-terr">Territoires</h2>
+  <div class="terr-grille">
+    {% if niveaux.enfants %}<div class="terr-bloc" id="territoires-inclus"><h3 id="t-inclus">{{ niveaux.enfants_titre }}</h3><ul>{% for c, n in niveaux.enfants %}<li><a href="../{{ niveaux.enfants_niveau }}/{{ c }}.html">{{ n }}</a></li>{% endfor %}</ul></div>{% endif %}
+    {% if T.communes %}<div class="terr-bloc" id="communes"><h3>{{ 'Sa commune' if T.communes|length == 1 else 'Ses ' ~ T.communes|length ~ ' communes' }}</h3><p class="communes">{{ T.communes|join(', ') }}. <a href="{{ zone or racine ~ 'zone.html' }}">Autour d’un lieu</a></p></div>{% endif %}
+    {% if T.voisins %}<div class="terr-bloc" id="voisins"><h3>{{ T.voisins_titre }}</h3><ul>{% for c, n in T.voisins %}<li><a href="../{{ T.voisins_niveau }}/{{ c }}.html">{{ n }}</a></li>{% endfor %}</ul></div>{% endif %}
+  </div>
+</section>
+{% endif %}
+
+<section class="bande citer-sec" id="citer-sec" aria-label="Citer cette fiche">
+  {{ citer_fiche() }}
+  <p class="seul-papier">Le dossier complet, avec tous les indicateurs, leurs tableaux et leurs cartes : {{ adresse_fiche }}-complet.</p>
+</section>
+
+{{ self.papier_fin() }}
+<script>
+// une ancre de la fiche entière absente de la fiche courte (lien profond, signet, citation) mène au dossier complet, à la
+// même ancre ; l'adresse et son paramètre (?commune=) sont gardés
+(function () {
+  function aller() { var a = decodeURIComponent(location.hash.slice(1));
+    if (a && !/[=&?:\/]/.test(a) && !document.getElementById(a)) location.replace("{{ adresse_complet }}" + location.search + "#" + encodeURIComponent(a)); }
+  aller(); addEventListener("hashchange", aller);
+})();
+</script>
+{{ self.scripts_fiche() }}
+{% endblock %}

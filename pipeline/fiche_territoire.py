@@ -516,11 +516,11 @@ def fiche(dn: Donnees, lv: str, code: str, version: str) -> dict:
             if d["statut"] == "aucun" or not d["n"]:
                 # jamais un 0 seul en tête de fiche (relecture du 31 octobre 2026, 509 fiches) : « aucun psychiatre
                 # inscrit », avec le repère, sans densité nulle ni position
-                cles.append({"n": "aucun", "texte": f"{un} inscrit au répertoire",
+                cles.append({"id": f"prof:{p}:all", "n": "aucun", "texte": f"{un} inscrit au répertoire",
                              "rep": f"{d['ref_lib'].lower()} : {d['ref_txt']} {AF.txt_unite(d['fac'])}",
                              "ecart": "", "position": "", "contraire": False, "couleur": None})
                 continue
-            cles.append({"n": nombre(d["n"], "entier"),
+            cles.append({"id": f"prof:{p}:all", "n": nombre(d["n"], "entier"),
                          "texte": f"{un if d['n'] == 1 else plus}, soit {d['v_txt']} {AF.txt_unite(d['fac'])}",
                          "rep": rep, "ecart": ecart, "position": d["pos_txt"], "contraire": bool(sens), "sens": sens,
                          "couleur": d["couleur"]})
@@ -530,7 +530,7 @@ def fiche(dn: Donnees, lv: str, code: str, version: str) -> dict:
         lien_d = ", mais " if sens_d else ", "
         # une médiane qui s'arrondit à 0 : jamais « 0 km » seul (relecture v2, Nord Basse-Terre et Montluçon)
         nul = AF.distance_nulle(dd["v_txt"])
-        cles.append({"n": "sur place" if nul else f"{dd['v_txt']} km", "mot": nul,
+        cles.append({"id": "dist_lieu_cmp_adultes", "n": "sur place" if nul else f"{dd['v_txt']} km", "mot": nul,
                      "texte": "un CMP pour adultes dans la commune d'au moins la moitié des habitants" if nul
                      else "la moitié des habitants vit plus près d'un CMP pour adultes",
                      "rep": (f"{AF.avant_position('', False, True, dd['ref_txt'], 'dist', dd['v_txt']).split(' (')[0].replace('ensemble', dd['ref_lib'].lower())} "
@@ -545,7 +545,8 @@ def fiche(dn: Donnees, lv: str, code: str, version: str) -> dict:
             n_c, t_c = confirmees, f"des {tot} structures de soins psychiques {'sont confirmées' if confirmees > 1 else 'est confirmée'}"
         else:
             n_c, t_c = "aucune", f"des {tot} structures de soins psychiques n'est encore confirmée"
-        cles.append({"n": n_c, "texte": t_c, "rep": "par la liste de l'établissement ou une source indépendante"})
+        cles.append({"id": "structures", "n": n_c, "texte": t_c,
+                     "rep": "par la liste de l'établissement ou une source indépendante"})
     # la même tournure dans le bloc Confiance : « 6 des 10 structures … sont confirmées »
     f["confiance_structures"] = "" if not tot else (
         f"{n_c[:1].upper() + n_c[1:] if isinstance(n_c, str) else n_c} {t_c}" if tot > 1
@@ -984,13 +985,18 @@ def _lire_domaine(d, rows) -> str:
     """« Comment lire » d'un domaine du contexte (rapports territoriaux, repris le 31 octobre 2026) : ce que le domaine
     éclaire, puis ce que disent les allocations et la protection de l'enfance quand le domaine les montre."""
     ids = {r["id"] for r in rows}
-    p = [d["pourquoi"], "Ces indicateurs décrivent les habitants et leurs conditions de vie, ils ne mesurent pas un "
-                        "besoin de soins.", "Le comptage en tête du domaine suit la seule marge de 0,8 à 1,25 fois le "
-                        "repère, sans test du hasard, et aucune couleur ne marque ces écarts."]
+    # « besoin de soins » n'est dit qu'une fois par domaine : l'état de santé et le recours le disent dans leur propre
+    # phrase (domaines.py), et ne décrivent pas des « conditions de vie » (audit du 27 novembre 2026)
+    p = [d["pourquoi"]]
+    if "besoin de soins" not in d["pourquoi"]:
+        p.append("Ces indicateurs décrivent les habitants et leurs conditions de vie, ils ne mesurent pas un besoin de "
+                 "soins.")
+    p.append("Le comptage en tête du domaine suit la seule marge de 0,8 à 1,25 fois le repère, sans test du hasard, et "
+             "aucune couleur ne marque ces écarts.")
     if any(i.startswith("caf_") for i in ids):
         p.append("L'AAH, l'AEEH et le RSA signalent un handicap reconnu ou une situation de pauvreté.")
     if any("enfance" in i or i.startswith(("ase_", "aide_sociale")) for i in ids):
-        p.append("Les chiffres de la protection de l'enfance décrivent l'activité du département, pas un besoin de soins.")
+        p.append("Les chiffres de la protection de l'enfance décrivent l'activité du département.")
     return " ".join(p)
 
 
@@ -1470,14 +1476,16 @@ def _pourquoi(dn: Donnees, k: dict, cat: dict, date_rpps: str | None) -> dict:
         from . import lieux_profil
         lab = lieux_profil.denominateur(k["id"][6:])[1] if c["kind"] == "lieux" else ""
         public = f"habitants de {lab}" if lab else "habitants"
-        unite = AF.txt_unite(c['fac']) if c['kind'] == 'prof' else 'pour 100 000'
+        unite = AF.txt_unite(c['fac']) if c['kind'] == 'prof' else f'pour 100 000 {public}'
         if c["n"] == 0 and base:
             # jamais un 0 seul (règles du projet, partie 4, défaut M3) : « aucun inscrit », sans densité nulle
             calcul.append(f"{'Aucun inscrit au répertoire RPPS' + (f' du {date_rpps}' if date_rpps else '') if c['kind'] == 'prof' else 'Aucune structure inscrite'} "
                           f"pour {nombre(base, 'entier')} {public}.")
         elif c["n"] is not None and base:
-            calcul.append(f"{nombre(c['n'], 'entier')} {qui}, {rapporte} à {nombre(base, 'entier')} {public} : "
-                          f"{c['v_txt']} {unite}.")
+            # un taux non publié (trop peu d'inscrits) n'est pas écrit : jamais « 37 843 habitants : pour 100 000. »
+            # sans valeur (audit du 27 novembre 2026)
+            calcul.append(f"{nombre(c['n'], 'entier')} {qui}, {rapporte} à {nombre(base, 'entier')} {public}"
+                          + (f" : {c['v_txt']} {unite}." if c.get("v_txt") else "."))
         calcul.append(f"Le repère, « {c['ref_lib']} », est la {AF.NATURE_REPERE[c['ref_type']]} ({c['ref_txt']}). "
                       f"La position compte les {niv} dont la valeur est plus basse ; {c['med_lib'].lower()} : "
                       # jamais un 0 seul (relecture du prototype resserré, m6) : « aucun inscrit », comme la réglette
@@ -1573,6 +1581,10 @@ def construire(env, commun: dict, dernier: Path, site_data: dict, site: Path, re
     cat = {e["id"]: e for e in dn.catalogue()}
     cat_pages = pages_catalogue(dn)
     gabarit = env.get_template("fiche_territoire.html")
+    gabarit_courte = env.get_template("fiche_courte.html")
+    from . import fiche_courte as FC
+    france = FC.france_professions(dernier, site_data)
+    voisins = FC.voisins_fond(f_fond)
     # part des structures de soins psychiques confirmées en France, sur les mêmes types
     tot = conf = 0
     for t, _ in STRUCT_SM:
@@ -1779,30 +1791,51 @@ def construire(env, commun: dict, dernier: Path, site_data: dict, site: Path, re
                      "confiance_france": confiance_ensemble(lv), "limite_sae": (lim_sae or {}).get("territoire")}
             bandes_f, bord_f = BF.bandes(ctx_b), BF.tableau_de_bord(ctx_b)
             pages_indicateur(bandes_f, cat_pages)
+            # le chiffre de la France sous la position de chaque profession, et la phrase des deux totaux une fois par
+            # bloc (planche 5 validée le 26 novembre 2026)
+            for b in bandes_f:
+                for g in b["groupes"]:
+                    if g.get("id") in ("t-sm-pro", "t-sa-pro"):
+                        FC.poser_france(g["lignes"], france)
+                        g["totaux"] = FC.phrase_totaux(lv)
+                        g["page_totaux"] = FC.page_totaux(g["lignes"], cat_pages)
             # la région d'un département, pour le tableau complet (indicateurs publiés seulement par région)
             extras["code_region"] = reg_code.get(u.get("p")) if lv == "dep" else None
             titre = f"{f['nom']}, offre de soins et santé mentale"
             adr = f"{adresse.replace('https://', '').rstrip('/')}/territoire/{lv}/{u['c']}"
-            html = gabarit.render(commun, f=f, marge_ligne=MARGE_LIGNE, racine="../../", titre=titre, page="territoires", classe_main="fiche",
-                                  carte_situation=carte, constats=ks, bandes=bandes_f, bord=bord_f, extras=extras,
-                                  phares_absents=BF.phares_absents(ks), nb_phares=len(K.CANDIDATS),
-                                  formes=F.defs() if F else "",
-                                  sections=[s for s in K.SECTIONS if any(k["section"] == s[0] for k in ks)],
-                                  description=f"Fiche {f['de_nom']}, professionnels, structures de soins psychiques et profil "
-                                              f"des habitants, situés parmi les {f['niv_pluriel']}.",
-                                  liens_fiche=liens, comparer=comparer, confiance_france=confiance_ensemble(lv), sources_fiche=sources,
-                                  zone=f"../../zone.html#epci={u['c']}" if lv == "epci" else None, niveaux=niveaux,
-                                  limite_sae=(lim_sae or {}).get("territoire"), venir=venir, limites_papier=limites_papier,
-                                  doi_donnees=doi, doi_toutes=doi == config.DOI_DONNEES, terr_id=comp, adresse_fiche=adr, menu_six=True, temps_bornes=TEMPS_BORNES,
-                                  src_route=config.SRC_INSEE_ROUTE[0], lim_route=config.LIMITES_COURT.get("route"),
-                                  lim_route_cmp=config.LIMITES_COURT.get("route_psychiatrie_ambulatoire"),
-                                  doi_general=config.DOI_DONNEES if config.DOI_DONNEES != doi else None,
-                                  citation_fiche=f"{citation_auteur} ({dernier.name[:4]}). Fiche {f['de_nom']}. Ubi Cura, "
-                                                 f"version du {commun['date_longue']}, {adr}"
-                                                 + ((f", toutes les versions doi:{doi}" if doi == config.DOI_DONNEES else f", doi:{doi}") if doi else "") + ".")
+            # la fiche courte à l'adresse de la fiche, le dossier complet (la fiche entière) à côté (structure validée le
+            # 26 novembre 2026, pipeline/fiche_courte.py)
+            C = FC.donnees(f, bandes_f, ks, dn, cat, cat_pages, niveaux, voisins, BF.LIRE_CONFIRMATION,
+                           confiance_ensemble(lv))
+            ctx_page = dict(
+                commun, f=f, C=C, adresse_courte=f"{u['c']}.html", adresse_complet=FC.adresse_complet(u["c"]),
+                marge_ligne=MARGE_LIGNE, racine="../../", page="fiche", classe_main="fiche",
+                carte_situation=carte, constats=ks, bandes=bandes_f, bord=bord_f, extras=extras,
+                phares_absents=BF.phares_absents(ks), nb_phares=len(K.CANDIDATS),
+                formes=F.defs() if F else "",
+                sections=[s for s in K.SECTIONS if any(k["section"] == s[0] for k in ks)],
+                liens_fiche=liens, comparer=comparer, confiance_france=confiance_ensemble(lv), sources_fiche=sources,
+                zone=f"../../zone.html#epci={u['c']}" if lv == "epci" else None, niveaux=niveaux,
+                limite_sae=(lim_sae or {}).get("territoire"), venir=venir, limites_papier=limites_papier,
+                doi_donnees=doi, doi_toutes=doi == config.DOI_DONNEES, terr_id=comp, adresse_fiche=adr, menu_six=True,
+                temps_bornes=TEMPS_BORNES, src_route=config.SRC_INSEE_ROUTE[0], lim_route=config.LIMITES_COURT.get("route"),
+                lim_route_cmp=config.LIMITES_COURT.get("route_psychiatrie_ambulatoire"),
+                doi_general=config.DOI_DONNEES if config.DOI_DONNEES != doi else None,
+                citation_fiche=f"{citation_auteur} ({dernier.name[:4]}). Fiche {f['de_nom']}. Ubi Cura, "
+                               f"version du {commun['date_longue']}, {adr}"
+                               + ((f", toutes les versions doi:{doi}" if doi == config.DOI_DONNEES else f", doi:{doi}") if doi else "") + ".")
+            html_complet = gabarit.render(
+                ctx_page, vue="complet", titre=f"{f['nom']}, dossier complet",
+                description=f"Dossier complet de la fiche {f['de_nom']} : tous les indicateurs, leurs tableaux et leurs "
+                            f"cartes, situés parmi les {f['niv_pluriel']}.")
+            html = gabarit_courte.render(
+                ctx_page, vue="courte", titre=titre, classe_main="fiche fiche-courte",
+                description=f"Fiche {f['de_nom']}, professionnels, structures de soins psychiques et profil des habitants, "
+                            f"situés parmi les {f['niv_pluriel']}.")
             # espaces insécables du français, comme les pages rendues par site.rendre
             (dossier / f"{u['c']}.html").write_text(insecables(html), encoding="utf-8")
-            pages.append(dossier / f"{u['c']}.html")
+            (dossier / FC.adresse_complet(u["c"])).write_text(insecables(html_complet), encoding="utf-8")
+            pages += [dossier / f"{u['c']}.html", dossier / FC.adresse_complet(u["c"])]
     return pages
 
 

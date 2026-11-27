@@ -256,16 +256,30 @@
   // Réglettes : chaque étiquette (ensemble, médiane) reste dans sa réglette ; près d'un bord, elle glisse vers
   // l'intérieur au lieu de sortir de sa cellule (« médiane : aucune structure » au téléphone ; reprise de lisibilité
   // du 31 octobre 2026). Refait quand la largeur change ou qu'un repli s'ouvre.
-  function etiquettesReglettes(){
-    // la part des territoires sans inscrit : sur sa barre, ou dans l'étiquette de la médiane si celle de l'ensemble la touche
-    document.querySelectorAll(".rg").forEach(function(rg){var z=rg.querySelector(".rg-aucun"),p=rg.querySelector(".rg-part");
-      if(!z||!p||!rg.getBoundingClientRect().width)return;z.hidden=false;p.hidden=true;rg.classList.remove("deux");
+  // Chaque réglette est replacée dès que sa largeur ou celle d'une de ses étiquettes change, quelle qu'en soit la cause
+  // (police chargée après la première mesure, colonnes d'un tableau élargies par un contenu venu après coup) : replacées
+  // à des moments fixes seulement, les étiquettes « aucun : 40 % » et « ensemble 2,4 » restaient mesurées dans la police de
+  // secours et se chevauchaient sur les fiches à 1 440 px (audit du 25 novembre 2026).
+  function rentrer(rg,R){rg.querySelectorAll(".rg-lab").forEach(function(l){l.style.marginLeft="";var a=l.getBoundingClientRect(),d=0;
+    if(a.left<R.left)d=R.left-a.left;else if(a.right>R.right)d=R.right-a.right;
+    if(d)l.style.marginLeft=d.toFixed(1)+"px"})}
+  var largeursRg=new WeakMap();
+  function placerReglette(rg){var R=rg.getBoundingClientRect();if(!R.width)return;largeursRg.set(rg,R.width);
+    // la part des territoires sans inscrit : sur sa barre, ou dans l'étiquette de la médiane si celle de l'ensemble la
+    // touche, mesurée après que chaque étiquette est rentrée dans la réglette
+    var z=rg.querySelector(".rg-aucun"),p=rg.querySelector(".rg-part");
+    if(z&&p){z.hidden=false;p.hidden=true;rg.classList.remove("deux");rentrer(rg,R);
       var a=z.getBoundingClientRect(),e=rg.querySelector(".rg-lab.haut:not(.rg-aucun)"),b=e&&e.getBoundingClientRect();
-      if(b&&Math.min(a.right,b.right)-Math.max(a.left,b.left)>-6){z.hidden=true;p.hidden=false;rg.classList.add("deux")}});
-    document.querySelectorAll(".rg").forEach(function(rg){var R=rg.getBoundingClientRect();if(!R.width)return;
-      rg.querySelectorAll(".rg-lab").forEach(function(l){l.style.marginLeft="";var a=l.getBoundingClientRect(),d=0;
-        if(a.left<R.left)d=R.left-a.left;else if(a.right>R.right)d=R.right-a.right;
-        if(d)l.style.marginLeft=d.toFixed(1)+"px"})})}
+      if(b&&Math.min(a.right,b.right)-Math.max(a.left,b.left)>-6){z.hidden=true;p.hidden=false;rg.classList.add("deux");R=rg.getBoundingClientRect()}}
+    rentrer(rg,R)}
+  // une étiquette masquée (largeur nulle) ou remise à sa largeur déjà connue ne relance rien : pas de boucle
+  var suivies=new WeakSet(),obs=window.ResizeObserver?new ResizeObserver(function(es){var aFaire=new Set();es.forEach(function(x){var w=x.target.getBoundingClientRect().width;
+    if(w&&w!==largeursRg.get(x.target)){largeursRg.set(x.target,w);aFaire.add(x.target.closest(".rg"))}});
+    aFaire.forEach(function(rg){if(rg)placerReglette(rg)})}):null;
+  // chaque réglette placée est ensuite suivie, y compris celles qu'une page ajoute après coup (« Votre territoire »
+  // des pages d'indicateur, presentation/indicateur.js)
+  function etiquettesReglettes(){document.querySelectorAll(".rg").forEach(function(rg){placerReglette(rg);
+    if(obs&&!suivies.has(rg)){suivies.add(rg);obs.observe(rg);rg.querySelectorAll(".rg-lab").forEach(function(l){obs.observe(l)})}})}
   // relancé quand une infobulle de réglette s'ouvre ou se ferme dans le fil d'un tableau (presentation/fiche_tout.js)
   window.etiquettesReglettes=etiquettesReglettes;
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",etiquettesReglettes);else etiquettesReglettes();

@@ -1,49 +1,55 @@
 {% extends "base.html" %}
-{# Accueil de la présentation du 30 octobre 2026 (maquette a-accueil validée après les trois audits externes) :
-   la recherche d'un territoire ou d'un indicateur, la colonne d'outils (8 novembre 2026), trois chiffres datés, la santé mentale d'abord,
-   puis les sept domaines autour de l'offre et les derniers ajouts. Valeurs préparées par pipeline/portail.py. #}
+{# Accueil de la présentation du 30 octobre 2026 (maquette a-accueil validée après les trois audits externes), plus court
+   depuis la structure du site validée le 26 novembre 2026 (prototypes/structure_2026-11-25/, planches 2 et 5) : en tête,
+   la recherche à gauche et les chiffres de la France à droite avec la phrase des deux totaux ; la carte des psychiatres
+   par département à la place de l'atlas intégré, qui reste entier à un clic ; la santé mentale et ses questions, chacune
+   vers sa section ; une seule liste d'outils ; les sept domaines autour de l'offre et les derniers ajouts. Valeurs
+   préparées par pipeline/portail.py. #}
 {% block contenu %}
-<header class="tete avec-outils">
+<header class="tete avec-chiffres">
   <h1>L’offre de soins en France, territoire par territoire</h1>
   <p class="chapeau">Où exercent les professionnels de santé et de santé mentale, où sont les structures de soins, et qui vit autour. Les données viennent des bases publiques, chaque chiffre est sourcé et citable. Un projet de recherche indépendant, ouvert à tous.</p>
   <div class="cherche">
     <label for="q">Votre commune, votre territoire, ou un indicateur comme « logement suroccupé »</label>
-    <input id="q" type="search" autocomplete="off" placeholder="Commune, code postal, territoire ou indicateur" role="combobox" aria-controls="sugg" aria-autocomplete="list" aria-expanded="false">
+    {#- texte d'aide entier au téléphone (planche_2_accueil) #}
+    <input id="q" type="search" autocomplete="off" placeholder="Commune, territoire ou indicateur" role="combobox" aria-controls="sugg" aria-autocomplete="list" aria-expanded="false">
     <ul class="suggestions" id="sugg" role="listbox" hidden></ul>
     <p class="cherche-msg" id="msg" aria-live="polite"></p>
   </div>
   <p class="date-calc"><a href="donnees-sources.html">Sources et dates de chaque base</a></p>
-  {# colonne d'outils (navigation, étape 3, validée le 8 novembre 2026, prototypes/outils_cote/ variante 1) :
-     à droite du titre sur ordinateur, sous la recherche au téléphone ; les quatre portes de l'accueil y sont passées #}
-  <nav class="outils" aria-label="Outils">
-    <p class="outils-titre">Outils</p>
-    <a class="phare" href="zone.html"><strong>Autour d’un lieu</strong><span>Les habitants et les structures de soins dans un rayon de 5 à 30 km autour d’une commune, ou sur un périmètre comme celui d’une CPTS.</span></a>
-    <a href="territoires/index.html"><strong>Mon territoire</strong><span>La fiche d’une intercommunalité, d’un département ou d’une région, imprimable, et ses rapports.</span></a>
-    <a href="comparer.html"><strong>Comparer</strong><span>Deux à quatre territoires côte à côte, avec des territoires semblables proposés.</span></a>
-    <a href="explorer.html"><strong>Explorer</strong><span>Les questions des rapports, en figures que l’on règle soi-même, avec leur méthode et leurs limites.</span></a>
-    <a href="croiser.html"><strong>Croiser</strong><span>Tout indicateur contre tout autre, avec la mesure du lien.</span></a>
-    <a href="methode-fichiers.html"><strong>Télécharger les données</strong><span>Les fichiers, leur dictionnaire, leur licence et leur archive.</span></a>
-  </nav>
+  {% if nationaux %}
+  {#- chiffres de la France à droite du titre, en tuiles de même hauteur, puis la phrase des deux totaux, avec les deux
+      raisons de l'écart, comme sur la fiche (planches 2 et 5) #}
+  <section class="nationaux tete-chiffres" aria-labelledby="t-nat">
+    <h2 id="t-nat">En France, version du {{ date_longue }}</h2>
+    {% for c in nationaux %}<div><span class="n">{{ c.n }}</span><p>{{ c.texte }} <span class="src">{{ c.source }}</span></p></div>{% endfor %}
+    {% if deux_totaux %}<p class="deux-totaux">Sur les fiches, une intercommunalité se compare à l’ensemble des intercommunalités, {{ deux_totaux.ensemble }} psychologues pour 10&#8239;000 habitants, où une personne qui exerce dans deux d’entre elles compte dans chacune&#8239;; le chiffre de la France compte chaque personne une fois, y compris celles qu’aucun territoire ne compte (téléconsultation, activités sans soins à la population). <a href="{{ deux_totaux.lien }}">{{ deux_totaux.titre_lien }}</a>.</p>{% endif %}
+  </section>
+  {% endif %}
 </header>
 
-<section class="carte-accueil" aria-labelledby="t-carte-acc">
+{% if carte %}
+{#- la carte des psychiatres par département de la page Santé mentale, à la place de l'atlas intégré (planche_2_accueil_carte) :
+    sa légende de page, lisible au téléphone, à droite sur ordinateur et sous le dessin au téléphone ; son « Comment lire » ;
+    « Citer et exporter » (figures.js, citation de la page Santé mentale) ; puis ce que montre l'atlas et « Ouvrir l’atlas » #}
+{% set legende %}<p class="leg-titre">Écart à l’ensemble des départements, {{ carte.ensemble }} psychiatres pour 10&#8239;000 habitants</p>
+<ul class="leg-carte">{% for c in carte.classes %}<li><i style="background:{{ c.couleur }}"></i>{{ c.texte }}</li>{% endfor %}<li><i class="sig" aria-hidden="true">!</i>{{ carte.mayotte }}</li></ul>{% endset %}
+<section class="carte-accueil simple" aria-labelledby="t-carte-acc">
   <h2 id="t-carte-acc">La carte, territoire par territoire</h2>
-  <p class="chapeau-carte">Choisissez une profession et un niveau, puis un territoire sur la carte : ses chiffres, profession par profession, le profil de ses habitants et ses structures de soins s’affichent à côté, avec le lien vers sa fiche complète.</p>
-  <iframe id="cadre-atlas" src="{{ page_atlas }}?vue=accueil" title="Carte de l’offre de soins par territoire, avec l’encadré du territoire choisi" loading="lazy"></iframe>
-  <p class="vers-atlas"><a href="{{ page_atlas }}">L’atlas complet</a>, avec le tableau par profession, les croisements, les notions et les sources.</p>
-</section>
-<script>
-// hauteur du cadre donnée par l'atlas, et fond clair ou sombre transmis quand le lecteur le change
-(function(){var f=document.getElementById("cadre-atlas");if(!f)return;
-addEventListener("message",function(e){if(e.origin===location.origin&&e.source===f.contentWindow&&e.data&&e.data.ubicura==="hauteur")f.style.height=e.data.h+"px"});
-addEventListener("theme",function(){try{f.contentWindow.postMessage({ubicura:"theme"},location.origin)}catch(e){}})})();
-</script>
-
-
-{% if nationaux %}
-<section class="nationaux" aria-labelledby="t-nat">
-  <h2 id="t-nat" class="discret-titre">En France, version du {{ date_longue }}</h2>
-  {% for c in nationaux %}<div><span class="n">{{ c.n }}</span><p>{{ c.texte }} <span class="src">{{ c.source }}</span></p></div>{% endfor %}
+  <div class="carte-grille">
+    <div class="carte-fig" data-citation="{{ carte.citation }}">
+      {{ carte.figure|safe }}
+      <div class="leg-tel">{{ legende }}</div>
+      <p class="comment-lire lire-carte"><strong>Comment lire.</strong> Chaque département est coloré selon sa densité de psychiatres pour 10&#8239;000 habitants, comparée à l’ensemble des départements, {{ carte.ensemble }}&#8239;: le nombre de psychiatres de tous les départements rapporté à la population, compté comme pour chaque département. Cuivre sous 0,8 fois l’ensemble, canard au-dessus de 1,25 fois. {{ carte.cartes }} À Mayotte, la population de référence date de 2017&#8239;: sa densité est surestimée d’environ un quart.</p>
+    </div>
+    <div class="carte-texte">
+      <div class="leg-ord">{{ legende }}</div>
+      {% if carte.gini %}<p class="pourquoi-carte">La carte montre les psychiatres, plus inégalement répartis que les psychologues de la tuile ci-dessus (indice de Gini entre intercommunalités, {{ carte.gini.psychiatre }} contre {{ carte.gini.psychologue }}, page <a href="domaine/sante-mentale.html#q1">Santé mentale</a>).</p>{% endif %}
+      <p>Dans l’atlas, chaque profession à chaque niveau&#8239;; pour un territoire choisi sur la carte, ses chiffres, profession par profession, le profil de ses habitants et ses structures de soins, avec le lien vers sa fiche complète.</p>
+      <p class="ouvrir"><a href="{{ page_atlas }}">Ouvrir l’atlas</a></p>
+      <p class="discret">L’atlas porte aussi le tableau par profession, les croisements, les notions et les sources.</p>
+    </div>
+  </div>
 </section>
 {% endif %}
 
@@ -54,22 +60,36 @@ addEventListener("theme",function(){try{f.contentWindow.postMessage({ubicura:"th
       <p>des habitants vivent dans une intercommunalité où exerce au moins un psychologue mais aucun psychiatre déclaré.</p></div>{% endif %}
   </div>
   <div>
+    {#- chaque question mène à sa section publiée, son lieu principal ; titres de la table unique (pipeline/questions.py,
+        un seul lieu par question, 26 novembre 2026) #}
     <ul class="questions">
-      <li><a href="explorer.html#qInegalites">L’offre suit-elle le niveau de vie des habitants ?<span>escalier, inégalités</span></a></li>
-      <li><a href="explorer.html#qDistances">À quelle distance est le CMP le plus proche ?<span>distances</span></a></li>
-      <li><a href="explorer.html#qPaires">Où trouve-t-on une profession sans l’autre ?<span>combinaisons</span></a></li>
-      <li><a href="explorer.html#qAddicto">De l’offre aux consommations en addictologie<span>addictologie</span></a></li>
-      <li><a href="rapports/{{ dernier }}/sante-mentale.html">Le rapport national de santé mentale<span>rapport complet</span></a></li>
+      {% for q in questions_sm %}<li><a href="{{ q.adresse }}">{{ q.titre }}<span>{{ q.etiquette }}</span></a></li>
+      {% endfor %}<li><a href="rapports/{{ dernier }}/sante-mentale.html">Le rapport national de santé mentale<span>rapport complet</span></a></li>
     </ul>
     {#- les compteurs mènent à la page Indicateurs, filtrée ou non (portes d'entrée, étape 5) #}
     <p class="bases"><a class="compte-lien" href="indicateurs.html#th={{ 'Santé mentale'|urlencode }}">{{ n_sm }} indicateurs de santé mentale</a> sur les <a class="compte-lien" href="indicateurs.html">{{ n_total }} du site</a>, dans l’offre, le recours aux soins et les distances.</p>
   </div>
 </section>
 
+{#- une seule liste d'outils (26 novembre 2026, planche_2_accueil) : les six de l'en-tête d'avant, plus Rapports et Pour la
+    recherche, qui étaient seuls en bas de page #}
+<nav class="outils liste-unique" aria-labelledby="t-outils">
+  <h2 class="outils-titre" id="t-outils">Outils</h2>
+  <a class="phare" href="zone.html"><strong>Autour d’un lieu</strong><span>Les habitants et les structures de soins dans un rayon de 5 à 30 km autour d’une commune, ou sur un périmètre comme celui d’une CPTS.</span></a>
+  <a href="territoires/index.html"><strong>Mon territoire</strong><span>La fiche d’une intercommunalité, d’un département ou d’une région, imprimable, et ses rapports.</span></a>
+  <a href="comparer.html"><strong>Comparer</strong><span>Deux à quatre territoires côte à côte, avec des territoires semblables proposés.</span></a>
+  <a href="explorer.html"><strong>Explorer</strong><span>Les questions des rapports, en figures que l’on règle soi-même, avec leur méthode et leurs limites.</span></a>
+  <a href="croiser.html"><strong>Croiser</strong><span>Tout indicateur contre tout autre, avec la mesure du lien.</span></a>
+  <a href="methode-fichiers.html"><strong>Télécharger les données</strong><span>Les fichiers, leur dictionnaire, leur licence et leur archive.</span></a>
+  <a href="rapports.html"><strong>Rapports</strong><span>Les rapports nationaux de santé mentale et de santé, complets et archivés avec leur DOI, et les rapports de chaque région et de chaque département.</span></a>
+  <a href="methode.html"><strong>Pour la recherche</strong><span>Données en téléchargement, dictionnaire des colonnes, archives sur Zenodo, méthode et contrôles.</span></a>
+</nav>
+
 <section class="autour-acc" id="domaines" aria-labelledby="t-doms">
   <div class="autour-tete">
     <h2 id="t-doms">Autour de l’offre, sept domaines</h2>
-    <p>L’offre de soins est au centre. Sept domaines la mettent en regard de qui vit sur le territoire, de ce qu’il demande et de la façon d’y accéder. Chacun a ses questions, ses indicateurs et les bases qui viendront.</p>
+    {#- le texte dans sa propre case : la case décide du justifié (container query), un p de la grille ne le pouvait pas (25 novembre 2026) #}
+    <div class="autour-texte"><p>L’offre de soins est au centre. Sept domaines la mettent en regard de qui vit sur le territoire, de ce qu’il demande et de la façon d’y accéder. Chacun a ses questions, ses indicateurs et les bases qui viendront.</p></div>
   </div>
   <div class="tuiles-dom">
     {#- le titre mène à la page du domaine, sur toute la tuile ; le compteur à la liste filtrée de ses indicateurs #}
@@ -85,19 +105,11 @@ addEventListener("theme",function(){try{f.contentWindow.postMessage({ubicura:"th
 <section class="ajouts" aria-labelledby="t-ajouts">
   <h2 id="t-ajouts">Derniers ajouts</h2>
   <ol>{% for a in ajouts %}<li><time datetime="{{ a[0] }}">{{ a[1] }}</time><span>{{ a[2] }}</span></li>{% endfor %}</ol>
-  <p class="plus"><a href="journal.html">Journal des mises à jour</a>, et la page <a href="a-venir.html">À venir</a> pour ce qui est prévu.</p>
+  <div class="plus"><p><a href="journal.html">Journal des mises à jour</a>, et la page <a href="a-venir.html">À venir</a> pour ce qui est prévu.</p></div>
 </section>
 {% endif %}
-
-<section class="transverse" aria-label="Accès transversaux">
-  <div><h3><a href="zone.html">Autour d’un lieu</a></h3><p>Les habitants et les structures de soins dans un rayon autour d’une commune, ou sur un périmètre composé commune par commune, comme celui d’une CPTS.</p></div>
-  <div><h3><a href="croiser.html">Croiser librement</a></h3><p>N’importe quel indicateur contre n’importe quel autre, par région, département ou intercommunalité, avec la mesure du lien et les limites des deux sources.</p></div>
-  <div><h3><a href="rapports.html">Rapports</a></h3><p>Les rapports nationaux de santé mentale et de santé, complets et archivés avec leur DOI, et les rapports de chaque région et de chaque département.</p></div>
-  <div><h3><a href="methode.html">Pour la recherche</a></h3><p>Données en téléchargement, dictionnaire des colonnes, archives sur Zenodo, méthode et contrôles.</p></div>
-</section>
 <script src="presentation/recherche.js"></script>
-<script>Recherche.brancher(document.getElementById("q"), document.getElementById("sugg"), document.getElementById("msg"), "");
-// au téléphone, un texte indicatif qui tient dans le champ (audit du 6 novembre 2026, « territoire o » coupé)
-if (matchMedia("(max-width: 480px)").matches) document.getElementById("q").placeholder = "Commune, code postal, indicateur";</script>
+<script>Recherche.brancher(document.getElementById("q"), document.getElementById("sugg"), document.getElementById("msg"), "");</script>
+{# le texte d'aide du champ tient dans sa largeur par la règle commune de presentation/chercher.js (26 novembre 2026) #}
 <script src="presentation/glossaire.js" defer></script>
 {% endblock %}

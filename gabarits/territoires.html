@@ -1,5 +1,13 @@
 {% extends "base.html" %}
 {% block contenu %}
+<style>
+table.pages-terr td.pages-t{display:flex;flex-wrap:wrap;gap:4px 22px}
+table.pages-terr td.pages-t a{white-space:nowrap}
+@media (max-width:640px){table.pages-terr thead{display:none}table.pages-terr tr{display:block;padding:8px 0;border-bottom:1px solid var(--line)}
+ table.pages-terr td{display:block;border:0!important;padding:0!important;text-align:left}
+ table.pages-terr td.pages-t{display:flex;margin-top:4px;gap:4px 18px}
+ table.pages-terr td.pages-t a{min-height:44px;display:inline-flex;align-items:center}}
+</style>
 <div class="etroit">
 <h1>Territoires</h1>
 <div class="cherche-fiche accueil">
@@ -12,7 +20,9 @@
 </div>
 {#- les deux outils voisins de la fiche, sous la recherche (audit de la navigation, étape 1 validée le 8 novembre 2026) #}
 <p class="outils-ligne"><a href="../zone.html">Autour d’un lieu</a> : les habitants et les structures de soins dans un rayon autour d’une commune, ou sur un périmètre composé commune par commune. <a href="../comparer.html">Comparer</a> deux à quatre territoires.</p>
-<p class="chapeau">Chaque territoire a sa fiche en tableau de bord, imprimable, et chaque région et chaque département ses deux rapports. Pour chaque région et chaque département, l'offre de soins en santé mentale et l'offre de soins générale. Effectifs et densités par profession, répartition dans le territoire, temps de trajet, évolution depuis 2016, indicateurs de besoin et de recours aux soins, comparés à la région, à l’ensemble des départements et à des départements de profil comparable. Chaque chiffre renvoie à sa source.</p>
+{#- porte vers l'atlas, qui allume l'entrée Territoires du menu (structure du site validée le 26 novembre 2026) #}
+<p class="outils-ligne porte-atlas"><a href="../{{ page_atlas }}">L’atlas</a> : la carte de chaque profession par région, département ou intercommunalité ; pour un territoire choisi sur la carte, ses chiffres, le profil de ses habitants et ses structures de soins, avec le lien vers sa fiche.</p>
+<p class="chapeau">Chaque territoire a sa fiche en tableau de bord, imprimable, et chaque région et chaque département ses deux rapports. Pour chaque région et chaque département, l'offre de soins en santé mentale et l'offre de soins générale. Effectifs et densités par profession, répartition dans le territoire, temps de trajet, évolution depuis 2016, indicateurs d’état de santé et de recours aux soins, comparés à la région, à l’ensemble des départements et à des départements de profil comparable. Chaque chiffre renvoie à sa source.</p>
 <p class="small muted">{{ date_calcul|default('Données du ' ~ date_longue) }}. Pour les régions d'outre-mer, qui ne comptent qu'un département, le rapport départemental tient lieu de rapport régional. Chaque rapport s'enregistre en PDF.</p>
 {# la citation d'exemple, avec son adresse, dans un paragraphe à elle et alignée à gauche, comme toute citation : dans la
    phrase justifiée, sa date tenue par les espaces insécables et son adresse étiraient une ligne à 2,6 fois l'espace
@@ -21,17 +31,16 @@
 <p class="small muted" style="text-align:left">{{ exemple_citation|liens }}</p>
 {% for r in regions %}
 <h2>{{ r.nom }}</h2>
-<table class="simple">
-<thead><tr><th>Territoire</th><th>Fiche</th><th>Rapport santé mentale</th><th>Rapport santé</th></tr></thead>
+{#- liens qui disent où ils mènent, réunis dans une colonne « Pages du territoire » ; au téléphone, le nom sur sa ligne
+    et les trois liens dessous (structure du site validée le 26 novembre 2026, planche_7_territoires). Les rapports
+    s'enregistrent en PDF depuis leur page : ce ne sont pas des fichiers PDF, la mention « (PDF) » n'est pas mise. #}
+<table class="simple pages-terr">
+<thead><tr><th>Territoire</th><th>Pages du territoire</th></tr></thead>
 <tbody>
 {% if r.rapport %}<tr><td><strong>Ensemble de la région</strong></td>
-  <td>{% if r.fiche %}<a href="{{ r.fiche }}">Ouvrir</a>{% endif %}</td>
-  <td>{% if r.rapport.sm %}<a href="{{ r.rapport.sm }}">Lire</a>{% endif %}</td>
-  <td>{% if r.rapport.sante %}<a href="{{ r.rapport.sante }}">Lire</a>{% endif %}</td></tr>{% endif %}
+  <td class="pages-t">{% if r.fiche %}<a href="{{ r.fiche }}">Fiche</a>{% endif %}{% if r.rapport.sm %}<a href="{{ r.rapport.sm }}">Rapport santé mentale</a>{% endif %}{% if r.rapport.sante %}<a href="{{ r.rapport.sante }}">Rapport santé</a>{% endif %}</td></tr>{% endif %}
 {% for d in r.deps %}<tr><td>{{ d.nom }} ({{ d.code }})</td>
-  <td><a href="../territoire/dep/{{ d.code }}.html">Ouvrir</a></td>
-  <td>{% if d.sm %}<a href="{{ d.sm }}">Lire</a>{% endif %}</td>
-  <td>{% if d.sante %}<a href="{{ d.sante }}">Lire</a>{% endif %}</td></tr>
+  <td class="pages-t"><a href="../territoire/dep/{{ d.code }}.html">Fiche</a>{% if d.sm %}<a href="{{ d.sm }}">Rapport santé mentale</a>{% endif %}{% if d.sante %}<a href="{{ d.sante }}">Rapport santé</a>{% endif %}</td></tr>
 {% endfor %}
 </tbody>
 </table>

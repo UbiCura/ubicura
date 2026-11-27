@@ -305,7 +305,7 @@ def main(argv=None) -> int:
     finally:
         serveur.shutdown()
     for page in args.pages:
-        defauts += [f"{page} : {d}" for d in liseres((site / page).read_text(encoding="utf-8"))]
+        defauts += [f"{page} : {d}" for d in liseres((site / page.partition("#")[0]).read_text(encoding="utf-8"))]
     for d in dict.fromkeys(defauts):
         print("DÉFAUT", d)
     print("contrôle de finition :", "aucun défaut" if not defauts else f"{len(defauts)} défauts")

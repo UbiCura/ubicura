@@ -248,10 +248,15 @@ def telecharger(url: str, dest: Path, famille: str, rafraichir=False, hors_ligne
                             pct = f" ({lu / total:.0%})" if total else ""
                             log.info("  %s : %.0f Mo%s", dest.name, lu / 1e6, pct)
                             dernier = time.time()
+                # Content-Length compte les octets transmis : compressés quand le serveur envoie le fichier en gzip
+                # ou brotli (jsDelivr, référentiel Etalab 6.1.0, 26 novembre 2026), alors que le fichier écrit est
+                # décompressé. On compare donc les octets reçus sur le réseau, pas la taille du fichier.
+                compresse = bool(r.headers.get("Content-Encoding", "").strip().lower() not in ("", "identity"))
+                recus = r.raw.tell() if compresse else tmp.stat().st_size
             if tmp.stat().st_size < taille_min:
                 raise IOError(f"fichier trop petit ({tmp.stat().st_size} octets)")
-            if total and tmp.stat().st_size != total:
-                raise IOError(f"fichier tronqué ({tmp.stat().st_size} octets sur {total})")
+            if total and recus != total:
+                raise IOError(f"fichier tronqué ({recus} octets reçus sur {total})")
             # le contrôle de signature porte sur le nom final (l'extension .part masque le type)
             tmp_type = dest.with_name(dest.stem + ".verif" + dest.suffix)
             tmp.replace(tmp_type)

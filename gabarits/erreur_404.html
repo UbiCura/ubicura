@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{# Page servie par GitHub Pages à toute adresse inconnue, à n'importe quelle profondeur (audit du 25 novembre 2026 : une
+   adresse fausse ouvrait une page d'erreur de l'hébergeur, en anglais, sans lien vers le site). Même en-tête, même menu,
+   même bouton « Chercher » et même pied de page que les autres pages ; tous ses liens partent de la racine du site
+   (racine « / »), puisqu'elle est servie à la place de n'importe quelle page. #}
+{% block contenu %}
+<div class="corps erreur-404">
+<header class="tete">
+  <h1>Page introuvable</h1>
+  <p class="chapeau">Cette adresse ne mène à aucune page du site. Elle a pu être mal recopiée, ou la page a changé d’adresse.</p>
+</header>
+<p class="cherche-404"><button type="button" class="bouton" id="chercher-404" aria-controls="panneau-chercher">Chercher un territoire, un indicateur ou une page</button></p>
+<p>Ou repartez de l’une de ces pages :</p>
+<ul class="liens-404">
+  <li><a href="{{ racine }}index.html">L’accueil</a>, avec la carte et les chiffres clés</li>
+  <li><a href="{{ racine }}territoires/index.html">Les territoires</a>, la fiche de chaque région, département et intercommunalité</li>
+  <li><a href="{{ racine }}indicateurs.html">Les indicateurs</a>, chacun avec sa définition, sa carte et sa source</li>
+</ul>
+<script>
+// le bouton ouvre le champ de recherche de l'en-tête, le même que sur toutes les pages
+document.getElementById("chercher-404").addEventListener("click", function () {
+  var b = document.getElementById("bouton-chercher"), p = document.getElementById("panneau-chercher");
+  if (b && p && p.hidden) b.click(); else if (p) document.getElementById("q-tete").focus();
+});
+</script>
+</div>
+{% endblock %}

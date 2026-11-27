@@ -83,6 +83,9 @@ function reglagesInegalites(apres) {
   // retour vers la carte de l'atlas, même profession, même niveau, même famille (l'atlas lit ces réglages dans l'adresse)
   const a = document.getElementById("iVersAtlas");
   if (a) a.href = a.getAttribute("href").split("#")[0] + `#?fam=${ETAT.fam}&prof=${encodeURIComponent(ETAT.iProf)}&niv=${ETAT.iNiv}`;
+  // la question du profil des habitants (sans fenêtre depuis le 26 novembre 2026) mène à la même carte
+  const b = document.getElementById("cxVersAtlas");
+  if (b && a) b.href = a.href;
 }
 
 // ---------------------------------------------------------------- selon le niveau de vie (escalier)
@@ -251,7 +254,7 @@ function distancesI(apres) {
   let ph = `La moitié des habitants de la tranche la plus modeste vit à moins de ${f1(v[0])} km de la structure la plus proche (${lib}), contre ${f1(v[9])} km pour la tranche la plus aisée.`;
   if (c) ph += (c.ic95_bas <= 0 && c.ic95_haut >= 0) ? " L'éloignement n'a pas de lien net avec le niveau de vie." : ` L'éloignement pèse ${Math.abs(c.indice_concentration) < .15 ? "un peu " : ""}davantage sur les territoires ${c.indice_concentration < 0 ? "modestes" : "aisés"}.`;
   document.getElementById("iDnResultat").textContent = ph;
-  document.getElementById("iDnNote").textContent = c ? `Indice de concentration des habitants-kilomètres selon le niveau de vie ${f2(c.indice_concentration)}, fourchette plausible à 95 % de ${borneIC(c.ic95_bas)} à ${borneIC(c.ic95_haut)} (tirages des intercommunalités). Il vaut 0 quand l'éloignement suit la population, il est négatif quand il pèse surtout sur les territoires modestes. Les intercommunalités sans niveau de vie publié (Guadeloupe, Martinique, Guyane, Mayotte) sont écartées. Une intercommunalité très peuplée peut remplir presque seule une tranche, d'où des ruptures dans l'escalier.` : "";
+  document.getElementById("iDnNote").textContent = c ? `Indice de concentration des habitants-kilomètres selon le niveau de vie ${f2(c.indice_concentration)}, intervalle de confiance à 95 % de ${borneIC(c.ic95_bas)} à ${borneIC(c.ic95_haut)} (tirages des intercommunalités). Il vaut 0 quand l'éloignement suit la population, il est négatif quand il pèse surtout sur les territoires modestes. Les intercommunalités sans niveau de vie publié (Guadeloupe, Martinique, Guyane, Mayotte) sont écartées. Une intercommunalité très peuplée peut remplir presque seule une tranche, d'où des ruptures dans l'escalier.` : "";
   document.getElementById("iDnTable").innerHTML = tableau(`Distance médiane à la structure la plus proche (${lib}) par tranche de niveau de vie`, ["Tranche", "Niveau de vie médian, de", "à", "Distance médiane, km", "Habitants à plus de 20 km"],
     es.map(d => [d.decile, f0(d.niveau_de_vie_min) + " €", f0(d.niveau_de_vie_max) + " €", f1(d.distance_mediane_km), pc(d.part_plus_20_km)]));
   donneesFigure("figIDn", `distance_niveau_de_vie_${ty.id}.csv`, [["tranche", "niveau_de_vie_min", "niveau_de_vie_max", "distance_mediane_km", "part_plus_20_km"], ...es.map(d => [d.decile, d.niveau_de_vie_min, d.niveau_de_vie_max, d.distance_mediane_km, d.part_plus_20_km])]);

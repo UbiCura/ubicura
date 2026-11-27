@@ -20,18 +20,220 @@ def _texte(chemin) -> str:
     return re.sub(r"\s+", " ", _html.unescape(re.sub(r"<[^>]+>", " ", t)))
 
 
-def test_accueil_montre_la_carte_cliquable_de_l_atlas():
-    """Décision du 2 novembre 2026 : l'accueil garde la carte cliquable de l'atlas, avec l'encadré du territoire et celui des
-    structures de soins. L'atlas a une vue « accueil » sans en-tête ni onglets, et la page d'accueil l'affiche."""
+# Table des déplacements de la structure validée le 26 novembre 2026 (prototypes/structure_2026-11-25/notes.md) : ce qui
+# quitte une page y laisse un renvoi, ou trouve une place nouvelle. (élément, place d'avant, place nouvelle, page
+# construite où la place nouvelle se vérifie, marque qui la prouve). Rien ne disparaît sans place nouvelle (règle 18).
+DEPLACEMENTS = [
+    ("Atlas réglable intégré à l'accueil (carte, encadré du territoire)", "index.html, cadre « La carte, territoire par territoire »",
+     "atlas.html entier, à un clic : « Ouvrir l’atlas » sous la carte des psychiatres de l'accueil", "index.html",
+     'href="atlas.html">Ouvrir l’atlas</a>'),
+    ("Carte des psychiatres par département", "domaine/sante-mentale.html, question 1",
+     "gardée à sa place, et reprise sur l'accueil avec sa légende et son « Comment lire »", "index.html",
+     'class="carte-accueil'),
+    ("Chiffres de la France (trois tuiles)", "index.html, sous la carte", "en-tête de l'accueil, à droite, et page Offre de soins",
+     "domaine/offre-de-soins.html", 'class="nationaux"'),
+    ("Accès transversaux (Autour d'un lieu, Croiser, Rapports, Pour la recherche)", "index.html, bas de page",
+     "liste unique d'outils de l'accueil", "index.html", 'href="rapports.html"><strong>Rapports</strong>'),
+    ("Portes Santé mentale et Santé de l'Offre de soins", "domaine/offre-de-soins.html, deux portes",
+     "têtes de liste des deux familles, avec leur texte", "domaine/offre-de-soins.html", 'id="t-fam-sm"'),
+    ("Lien vers l'archive complète des données", "methode-fichiers.html, en tête",
+     "« Les fichiers principaux », première carte", "methode-fichiers.html", "<strong>Toutes les données de la version</strong>"),
+    ("Liste alphabétique des fichiers", "methode-fichiers.html, un tableau", "mêmes fichiers, rangés par thème",
+     "methode-fichiers.html", 'class="theme-f"'),
+    ("Liens « Ouvrir », « Lire », « Lire »", "territoires/index.html, trois colonnes",
+     "« Fiche », « Rapport santé mentale », « Rapport santé », colonne « Pages du territoire »", "territoires/index.html",
+     ">Rapport santé mentale</a>"),
+    # la fenêtre « Croiser deux indicateurs » d'Explorer rejoint Croiser (planches 1 et 6)
+    ("Nuage des territoires de « Croiser deux indicateurs »", "explorer.html, question du profil des habitants",
+     "Croiser, encadré « Nuage des territoires »", "croiser.html", 'id="t-nuage">Nuage des territoires'),
+    ("Échelle logarithmique de l'axe vertical du nuage", "explorer.html, réglage de la fenêtre",
+     "Croiser, réglage « Échelle de l’axe vertical », logarithmique au départ", "croiser.html", 'data-ech="log"'),
+    ("Données par territoire du nuage, tableau filtrable", "explorer.html, onglet de la fenêtre",
+     "Croiser, encadré « Données par territoire »", "croiser.html", 'id="filtre-terr"'),
+    ("Tableau des questions préparées entre départements", "explorer.html, onglet de la fenêtre",
+     "Croiser, encadré « Questions préparées »", "croiser.html", 'id="table-prep"'),
+    ("Fenêtre « Croiser deux indicateurs »", "explorer.html, question du profil des habitants",
+     "renvoi « Réglages dans Croiser » à sa place", "explorer.html", 'id="cxCroiser"'),
+]
+
+
+def test_table_des_deplacements_rien_ne_disparait():
+    """Structure du site validée le 26 novembre 2026 : chaque élément déplacé a sa place nouvelle dans le site construit
+    (table DEPLACEMENTS), et ce qui partait de l'accueil y laisse un renvoi."""
+    assert len(DEPLACEMENTS) >= 8 and all(len(d) == 5 and all(d) for d in DEPLACEMENTS)
+    if not (SITE / "index.html").exists() or 'id="cadre-atlas"' in (SITE / "index.html").read_text(encoding="utf-8"):
+        return   # site d'avant la structure du 26 novembre 2026
+    manque = [(d[0], d[3]) for d in DEPLACEMENTS
+              if not (SITE / d[3]).exists() or d[4] not in (SITE / d[3]).read_text(encoding="utf-8")]
+    assert not manque, manque
+
+
+def test_accueil_structure_du_26_novembre():
+    """Accueil plus court (décision du 26 novembre 2026, planche_2_accueil) : la carte des psychiatres par département,
+    avec sa légende de page, son « Comment lire », « Citer et exporter » et « Ouvrir l’atlas », à la place de l'atlas
+    intégré (qui remplace la décision du 2 novembre) ; les chiffres de la France en tête avec la phrase des deux totaux ;
+    une seule liste d'outils avec Rapports et Pour la recherche ; les questions de santé mentale vers leur section ; des
+    étiquettes claires ; le texte d'aide « Commune, territoire ou indicateur »."""
     p = (GAB / "portail.html").read_text(encoding="utf-8")
-    assert 'id="cadre-atlas"' in p and "?vue=accueil" in p and 'loading="lazy"' in p
-    at = (config.RACINE / "atlas" / "moteur" / "atlas.js").read_text(encoding="utf-8")
-    assert 'get("vue")==="accueil"' in at and 'ubicura:"hauteur"' in at
-    tpl = (config.RACINE / "atlas" / "atlas_template.html").read_text(encoding="utf-8")
-    assert "html.vue-accueil" in tpl and 'classList.add("vue-accueil")' in tpl
+    assert 'id="cadre-atlas"' not in p and 'class="transverse"' not in p
+    for x in ('class="leg-carte"', "Ouvrir l’atlas", 'class="comment-lire lire-carte"', "deux_totaux", "data-citation",
+              'href="rapports.html"', "Pour la recherche", 'placeholder="Commune, territoire ou indicateur"',
+              "questions_sm"):
+        assert x in p, x
+    assert "escalier, inégalités" not in p and "<span>combinaisons</span>" not in p
+    assert p.count('<nav class="outils') == 1
     idx = SITE / "index.html"
-    if idx.exists() and 'id="cadre-atlas"' in idx.read_text(encoding="utf-8"):
-        assert "atlas.html?vue=accueil" in idx.read_text(encoding="utf-8")
+    if not idx.exists() or 'id="cadre-atlas"' in idx.read_text(encoding="utf-8"):
+        return
+    h = idx.read_text(encoding="utf-8")
+    t = _texte(idx).replace(" ", " ").replace("\xa0", " ")
+    fig = re.search(r'<section class="carte-accueil.*?</section>', h, flags=re.S).group(0)
+    # la carte des psychiatres, zoomable, avec ses données ; sa légende de page (six classes et Mayotte), sur ordinateur
+    # et au téléphone, et la valeur de l'échelle
+    assert fig.count("<path") > 90 and "zoomable" in fig and 'data-donnees="donnees/' in fig
+    assert fig.count('<li><i style="background:') == 12 and fig.count("Mayotte, données incomplètes") >= 2
+    assert re.search(r"Écart à l’ensemble des départements, \d+,\d psychiatres pour 10 000 habitants", t)
+    # la légende dessinée (texte de 8 unités) est hors du cadre : le dessin s'arrête au-dessus d'elle
+    vb = int(re.search(r'viewBox="0 0 560 (\d+)"', fig).group(1))
+    ys = [int(y) for y in re.findall(r'<rect x="8" y="(\d+)" width="14" height="12"', fig)]
+    assert ys and vb < min(ys)
+    assert "Sur les cartes, un département reste en gris" in t and "indice de Gini entre intercommunalités" in t
+    # les deux totaux, avec le lien au titre de la page d'indicateur, et sa cible
+    assert "le chiffre de la France compte chaque personne une fois" in t and "Pourquoi plusieurs totaux, et lequel citer" in t
+    assert 'id="t-tot"' in (SITE / "indicateur" / "prof-psychologue.html").read_text(encoding="utf-8")
+    # les questions mènent à leur section publiée, qui existe
+    sm = (SITE / "domaine" / "sante-mentale.html").read_text(encoding="utf-8")
+    liste = re.search(r'<ul class="questions">(.*?)</ul>', h, flags=re.S).group(1)
+    cibles = re.findall(r'href="domaine/sante-mentale\.html#(q\d+)"', liste)
+    assert len(cibles) == 4 and all(f'id="{q}"' in sm for q in cibles), cibles
+    assert not re.search(r'<ul class="questions">(?:(?!</ul>).)*explorer\.html', h, flags=re.S)
+
+
+def test_questions_un_seul_titre_et_un_seul_lieu():
+    """Un seul lieu par question (26 novembre 2026) : la table unique (pipeline/questions.py) donne le titre de chaque
+    question, le même dans les pages de famille, Offre de soins, l'accueil, les thèmes et Explorer ; chaque réglage
+    mène à une ancre qui existe dans Explorer ; les questions qui se règlent sont celles de la planche (santé mentale 1,
+    3, 4, 6, 10 et 11 dans Explorer, 7 et 8 dans Croiser ; santé 1, 3, 4 et 6 dans Explorer, 7 dans Croiser)."""
+    from pipeline import pages_domaine as PD, questions as QQ, themes as TH
+    outil = {fam: {k: (QQ.reglage(q, fam) or (None, None))[1] for k, q in enumerate(L, 1)} for fam, L in QQ.FAMILLES.items()}
+    assert [k for k, o in outil["sm"].items() if o == "Explorer"] == [1, 3, 4, 6, 10, 11]
+    assert [k for k, o in outil["sm"].items() if o == "Croiser"] == [7, 8]
+    assert [k for k, o in outil["sante"].items() if o == "Explorer"] == [1, 3, 4, 6]
+    assert [k for k, o in outil["sante"].items() if o == "Croiser"] == [7]
+    assert [q[0].replace("⁠", "") for q in PD.QUESTIONS["sm"]] == [q["titre"] for q in QQ.FAMILLES["sm"]]
+    anciens = ("moins bien dotés", "vit-on", "L'addictologie, de l'offre", "L’addictologie, de l’offre")
+    for th in TH.THEMES:
+        assert not any(a in t for _u, t in th.get("explorer", []) for a in anciens), th["id"]
+    assert QQ.EXPLORER["qInegalites"] == QQ.NIVEAU_DE_VIE and QQ.EXPLORER["qAddicto"] == QQ.ADDICTO
+    assert set(QQ.EXPLORER_SEULEMENT) <= set(QQ.EXPLORER)
+    ex = SITE / "explorer.html"
+    if ex.exists():
+        h = ex.read_text(encoding="utf-8")
+        for fam, L in QQ.FAMILLES.items():
+            for q in L:
+                r = QQ.reglage(q, fam)
+                if r and r[1] == "Explorer":
+                    ancre = r[0].split("#", 1)[1].split("?", 1)[0]
+                    assert f'id="{ancre}"' in h, (fam, q["titre"], ancre)
+        for qid in QQ.EXPLORER:
+            assert f'id="{qid}' in h, qid
+
+
+def test_offre_de_soins_table_des_questions():
+    """La page « Offre de soins » devient la table des questions de l'offre (planche_1_offre_de_soins) : les chiffres de
+    la France, chaque question des deux familles vers sa section, son réglage sur sa propre ligne, les deux questions
+    d'Explorer seulement, les portes de l'atlas et des indicateurs."""
+    from pipeline import questions as QQ
+    f = SITE / "domaine" / "offre-de-soins.html"
+    if not f.exists() or 'class="questions-offre"' not in f.read_text(encoding="utf-8"):
+        return
+    h = f.read_text(encoding="utf-8")
+    assert len(re.findall(r'<section class="nationaux"', h)) == 1 and h.count('<span class="n">') == 3
+    for fam, L in QQ.FAMILLES.items():
+        page = QQ.PAGES[fam][0]
+        cible = (SITE / "domaine" / f"{page}.html").read_text(encoding="utf-8")
+        for k, q in enumerate(L, 1):
+            m = re.search(rf'<li><a href="{page}\.html#q{k}">([^<]+)</a>(<a class="reg-q" href="\.\./([^"]+)">la '
+                          rf'régler dans (\w+)</a>)?</li>', h)
+            assert m, (fam, k)
+            lu = re.sub("[  ]", " ", _html.unescape(m.group(1)).replace("⁠", ""))
+            assert lu == q["titre"], (fam, k, lu)
+            assert f'id="q{k}"' in cible
+            r = QQ.reglage(q, fam)
+            assert (m.group(4) if m.group(2) else None) == (r[1] if r else None), (fam, k)
+            if r:
+                assert _html.unescape(m.group(3)) == r[0]
+    for qid in QQ.EXPLORER_SEULEMENT:
+        assert f'href="../explorer.html#{qid}"' in h
+    assert "Dans Explorer seulement" in h and "L’atlas et les indicateurs" in h
+    assert 'href="../atlas.html"><strong>L’atlas</strong>' in h and 'href="../indicateurs.html#dom=' in h
+
+
+def test_menu_allume_l_entree_de_la_page():
+    """Entrée du menu allumée (26 novembre 2026, planche_1_lieux_schema) : l'atlas allume Territoires ; À venir, Journal
+    et Publications allument Méthode et données ; les pages de famille gardent Offre de soins."""
+    from jinja2 import Environment, FileSystemLoader
+    env = Environment(loader=FileSystemLoader(str(GAB)))
+    attendu = {"atlas": "Territoires", "a-venir": "Méthode et données", "journal": "Méthode et données",
+               "publications": "Méthode et données", "offre_famille": "Offre de soins", "offre": "Offre de soins",
+               "territoires": "Territoires", "indicateur": "Domaines"}
+    for page, entree in attendu.items():
+        h = env.get_template("nav.html").render(racine="", page=page, nom_projet="Ubi Cura", sous_titre="")
+        assert re.findall(r'<a class="l on"[^>]*>([^<]+)</a>', h) == [entree], page
+    for nom, entree in (("atlas.html", "Territoires"), ("a-venir.html", "Méthode et données"),
+                        ("journal.html", "Méthode et données"), ("publications.html", "Méthode et données")):
+        f = SITE / nom
+        if not f.exists():
+            continue
+        nav = re.search(r'<div class="liens" id="liens-site">(.*?)</div>', f.read_text(encoding="utf-8"), flags=re.S)
+        if nav and "l on" in nav.group(1):
+            assert re.findall(r'<a class="l on"[^>]*>([^<]+)</a>', nav.group(1)) == [entree], nom
+
+
+def test_territoires_liens_qui_disent_ou_ils_menent():
+    """Territoires (planche_7_territoires) : « Fiche », « Rapport santé mentale », « Rapport santé » dans une colonne
+    « Pages du territoire », à la place de « Ouvrir », « Lire », « Lire », et une porte vers l'atlas."""
+    g = (GAB / "territoires.html").read_text(encoding="utf-8")
+    assert ">Ouvrir</a>" not in g and ">Lire</a>" not in g and "<th>Pages du territoire</th>" in g
+    assert "{{ page_atlas }}" in g and "(PDF)</a>" not in g
+    f = SITE / "territoires" / "index.html"
+    if f.exists() and "Pages du territoire" in f.read_text(encoding="utf-8"):
+        h = f.read_text(encoding="utf-8")
+        lignes = re.findall(r'<td class="pages-t">(.*?)</td>', h, flags=re.S)
+        assert len(lignes) > 100 and all(">Fiche</a>" in x for x in lignes)
+        assert all(">Rapport santé mentale</a>" in x and ">Rapport santé</a>" in x for x in lignes)
+        assert 'href="../atlas.html">L’atlas</a>' in h
+
+
+def test_telecharger_par_theme():
+    """Télécharger (planche_7_telecharger) : l'archive complète et trois fichiers principaux en tête, puis chaque fichier
+    dans un thème, avec son niveau, et un seul champ « Filtrer le tableau ». Le thème vient de pipeline/dictionnaire.py :
+    un fichier ajouté y prend place de lui-même ; aucun fichier n'est perdu."""
+    from pipeline import dictionnaire as DI
+    assert DI.theme_fichier("effectifs_epci_all.csv") == "Professionnels"
+    assert DI.theme_fichier("lieux_soins_dep.csv") == "Structures de soins"
+    assert DI.theme_fichier("prevalences_odbl.csv") == "Assurance Maladie, sous licence ODbL"
+    assert DI.theme_fichier("concordance_effectifs.csv") == "Contrôles, concordances et sensibilité"
+    assert DI.theme_fichier("liste_indicateurs.csv") == "Références"
+    assert DI.theme_fichier("un_fichier_nouveau.csv") in DI.ORDRE_THEMES
+    assert DI.niveau_fichier("effectifs_dep_all.csv") == "Département" and DI.niveau_fichier("lisa.csv") == "Plusieurs ou aucun"
+    assert set(DI.ORDRE_THEMES) == {t for t, _d, _m in DI.THEMES_FICHIERS} | {DI.THEME_REFERENCES[0], DI.THEME_CONTROLES[0]}
+    f = SITE / "methode-fichiers.html"
+    if not f.exists() or 'class="theme-f"' not in f.read_text(encoding="utf-8"):
+        return
+    h = f.read_text(encoding="utf-8")
+    themes = re.findall(r'<h3 class="theme-f" id="([^"]+)">([^<]+)<span>(\d+)(?:\xa0| | )fichiers?', h)
+    assert [t[1] for t in themes] == [t for t in DI.ORDRE_THEMES if any(x[1] == t for x in themes)] and len(themes) >= 7
+    tables = re.findall(r'<table class="simple fichiers">.*?</table>', h, flags=re.S)
+    n = sum(x.count("<tr><td>") for x in tables)
+    assert n == sum(int(t[2]) for t in themes) and n >= 140
+    dossier = sorted((SITE / "donnees").glob("20*"))[-1]
+    publies = {p.name for p in dossier.glob("*.csv")} | {p.name for p in dossier.glob("*.csv.zip")}
+    assert len(publies) == n, (len(publies), n)
+    assert h.count('id="filtre-fichiers"') == 1 and "filtrable fichiers" not in h
+    principaux = re.search(r'<ul class="principaux">(.*?)</ul>', h, flags=re.S).group(1)
+    assert principaux.count("<li>") == 1 + len(DI.FICHIERS_PRINCIPAUX)
+    assert all(x in principaux for x in DI.FICHIERS_PRINCIPAUX)
 
 
 def test_offre_de_soins_mene_a_l_atlas():

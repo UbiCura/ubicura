@@ -14,7 +14,10 @@
                       ('explorer', 'explorer.html', 'Explorer'),
                       ('croiser', 'croiser.html', 'Croiser'), ('methode', 'methode.html', 'Méthode et données')] %}
     {#- septième entrée « Explorer », entre Comparer et Croiser (8 novembre 2026, version A sur captures) #}
-    {% set actif = {'atlas': 'offre', 'liens': 'croiser', 'sources': 'methode', 'rapports': 'methode', 'domaine': 'domaines', 'theme': 'domaines', 'indicateurs': 'domaines', 'indicateur': 'domaines', 'offre_famille': 'offre'}.get(page, page) %}
+    {#- l'atlas allume Territoires ; À venir, Journal et Publications allument Méthode et données (structure du site
+        validée le 26 novembre 2026, planche_1_lieux_schema). Une fiche de territoire allume Territoires avec
+        aria-current="true", comme l'atlas : « page » est réservé à la page même de l'entrée (audit du 27 novembre 2026) #}
+    {% set actif = {'atlas': 'territoires', 'fiche': 'territoires', 'zone': 'territoires', 'rapport_territoire': 'territoires', 'a-venir': 'methode', 'journal': 'methode', 'publications': 'methode', 'liens': 'croiser', 'sources': 'methode', 'rapports': 'methode', 'domaine': 'domaines', 'theme': 'domaines', 'indicateurs': 'domaines', 'indicateur': 'domaines', 'offre_famille': 'offre'}.get(page, page) %}
     {% for cle, lien, titre in entrees %}<a class="l{% if actif == cle %} on{% endif %}" href="{{ racine }}{{ lien }}"{% if actif == cle %} aria-current="{{ 'page' if page == cle else 'true' }}"{% endif %}>{{ titre }}</a>
     {% endfor %}
     <button class="theme" id="bascule-theme" type="button">Fond clair</button>

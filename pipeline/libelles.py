@@ -58,6 +58,12 @@ VOCABULAIRE_A_EVITER = [
     (r"\boffre (payante|professionnelle)\b|\bacces (pro|professionnel)\b|\bversion (complete|professionnelle|reelle)\b"
      r"|\bservices? payants?\b|\bapi payante\b|\babonnements?\b|\bcharte du gratuit\b|\bce qui restera gratuit\b"
      r"|\brestera(ont)? (toujours )?gratuit", "allusion à l'offre payante, interdite sur le site avant sa validation"),
+    # une mesure n'est jamais présentée comme un besoin de soins (règles, partie 5 ; audit du 27 novembre 2026,
+    # « indicateurs de besoin » sur Territoires et Télécharger) : on dit ce qu'elle mesure, état de santé ou recours aux
+    # soins. Les phrases qui disent que l'on ne mesure pas le besoin restent permises.
+    (r"\bindicateurs? (de|du|des) besoins?\b|\b(le|les) besoins? mesures?\b|\bapproches? du besoin\b"
+     r"|\b(offre|densite) (face (au|aux)|et) (le |les )?besoins?\b|\bmesure(nt)? un besoin ou un recours\b",
+     "mesure présentée comme un besoin de soins, dire ce qu'elle mesure (état de santé, recours aux soins)"),
 ]
 
 # Noms propres d'institutions conservés tels quels (validé pour la MDPH).

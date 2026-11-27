@@ -2,8 +2,10 @@
 {# Atelier « Croiser » (présentation du 30 octobre 2026, maquette de l'atelier validée) : tout indicateur du catalogue
    contre tout autre, à chaque niveau où les deux existent, avec la mesure du lien, sa précision et les limites des
    deux sources. Il reprend « Croiser deux indicateurs » d'Explorer sans rien perdre (troisième indicateur en couleur,
-   en taille ou tenu égal, modes d'exercice, chemin depuis 2016, carte des deux indicateurs, correction sur les
-   croisements de la visite). Données préparées par pipeline/atelier.py, calculs dans la page (atelier.js). #}
+   en taille ou tenu égal, modes d'exercice, chemin depuis 2016, carte des deux indicateurs, échelle logarithmique,
+   données par territoire, questions préparées ; structure validée le 26 novembre 2026, planches 6). La probabilité
+   corrigée et le verdict sont ceux publiés pour le couple dans sa famille de tests (option B), jamais une correction
+   propre à la visite. Données préparées par pipeline/atelier.py, calculs dans la page (atelier.js). #}
 {% block contenu %}
 <style>
 main.croiser .tete{padding:8px 0 20px}
@@ -134,6 +136,8 @@ main.croiser #bulle[hidden]{display:none}
 main.croiser #bulle b{display:block;font-size:var(--t-note);color:var(--ink);margin-bottom:2px}
 main.croiser #bulle .sig{color:var(--signal);font-weight:700}
 
+/* chaque colonne de l'atelier décide du justifié de ses notes (300 et 408 px, contrôle du 25 novembre 2026) */
+main.croiser :is(.atelier,.dessous) > *{container-type:inline-size}
 main.croiser .dessous{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:28px;margin-top:22px}
 main.croiser .carte-terr h3,main.croiser .histo h3,main.croiser .garde h3{font-family:var(--serif);font-size:var(--t-encadre);font-weight:400;margin:0 0 8px}
 main.croiser .carte-terr table{table-layout:fixed}
@@ -162,7 +166,7 @@ main.croiser .garde li{margin:4px 0}
   main.croiser .mesures .n{font-size:var(--t-encadre)}
 }
 
-main.croiser{max-width:1400px}
+main.croiser{max-width:var(--largeur-page)}
 main.croiser h1,main.croiser h2,main.croiser h3{border:0;padding:0}
 main.croiser .af-fen .af-barre .af-outils button{background:none;border:0;border-radius:0;color:var(--muted);font:inherit;font-size:var(--t-note);padding:var(--e-1) 0;cursor:pointer;text-decoration:underline;text-decoration-color:color-mix(in srgb,var(--muted) 45%,transparent);text-underline-offset:4px}
 main.croiser .af-fen .af-barre .af-outils button[aria-expanded="true"],main.croiser .af-fen .af-barre .af-outils button:hover{color:var(--ink);text-decoration-color:currentColor}
@@ -177,6 +181,46 @@ main.croiser .note-escalier[hidden]{display:none}
 main.croiser table{border-collapse:collapse;width:100%;font-size:var(--t-note);font-variant-numeric:tabular-nums}
 main.croiser th,main.croiser td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left}
 main.croiser td.v,main.croiser th.v{text-align:right;white-space:nowrap}
+/* structure validée le 26 novembre 2026 (planches 6) : trois vues annoncées dans la fenêtre du nuage, légendes des
+   repères en texte de page, données par territoire et questions préparées sous les figures */
+main.croiser .af-fen .af-barre .onglets-cr{display:flex;flex-wrap:wrap;gap:4px 18px;margin:0 0 var(--e-2);font-size:var(--t-note)}
+main.croiser .onglets-cr a{color:var(--muted);text-decoration:none;border-bottom:2px solid transparent;padding:0 0 3px;min-height:28px;display:inline-flex;align-items:flex-end}
+main.croiser .onglets-cr a:hover{color:var(--ink)}
+main.croiser .onglets-cr a[aria-current="true"]{color:var(--ink);border-bottom-color:var(--ink)}
+main.croiser #leg-nuage{display:flex;flex-wrap:wrap;gap:4px 20px;align-items:center}
+main.croiser .leg-reperes{display:flex;flex-wrap:wrap;gap:4px 24px;font-size:var(--t-note);color:var(--muted);margin:0 0 6px;text-align:left}
+main.croiser .leg-reperes > span{display:inline-flex;align-items:center;gap:8px}
+main.croiser .leg-reperes .ech-h{display:inline-block;flex:none;width:20px;border-top:2px dashed currentColor}
+main.croiser .leg-reperes .ech-v{display:inline-block;flex:none;height:14px;border-left:2px dashed currentColor}
+main.croiser .figs-plus{display:grid;grid-template-columns:minmax(0,1fr);gap:var(--e-5);margin-top:var(--e-5)}
+main.croiser #donnees-terr .dedans{max-width:52rem}
+main.croiser .figs-plus .note-terr,main.croiser .figs-plus .comment-lire{text-align:left;font-size:var(--t-note)}
+main.croiser .figs-plus .filtre{width:100%;max-width:22rem;min-height:44px;margin:0 0 var(--e-2);padding:0 2px;font:inherit;font-size:var(--t-note);color:var(--ink);background:transparent;border:0;border-bottom:1px solid var(--line-fort);border-radius:0}
+main.croiser .figs-plus .filtre:focus{outline:none;border-bottom:2px solid var(--ink)}
+main.croiser .figs-plus table{width:100%;font-size:var(--t-note)}
+main.croiser .figs-plus .num{text-align:right}
+main.croiser .figs-plus thead th{vertical-align:bottom}
+main.croiser .figs-plus th button{background:none;border:0;padding:0;font:inherit;font-weight:600;color:var(--ink);cursor:pointer;text-align:inherit;min-height:32px}
+main.croiser .figs-plus th .u{display:block;font-weight:400;color:var(--muted)}
+main.croiser table.questions-prep td{vertical-align:top;line-height:1.4}
+main.croiser table.questions-prep .cb-titre th{font-weight:600;padding-top:14px;white-space:normal}
+main.croiser table.questions-prep .et{display:block;color:var(--muted)}
+main.croiser table.questions-prep button.charger{background:none;border:0;padding:0;font:inherit;color:var(--ink);text-align:left;cursor:pointer;min-height:32px;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:4px}
+main.croiser table.questions-prep button.charger:hover{text-decoration-color:var(--ink)}
+/* au téléphone, les quatre colonnes des données tiennent dans la largeur, sans rien masquer */
+main.croiser table.donnees-terr .pop-tel{display:none}
+/* au téléphone, le nombre d'habitants passe sous le nom du territoire : trois colonnes tiennent dans la largeur */
+@media (max-width:640px){main.croiser table.donnees-terr th,main.croiser table.donnees-terr td{padding:6px 3px}
+ main.croiser table.donnees-terr :is(th,td):nth-child(2){display:none}
+ main.croiser table.donnees-terr .pop-tel{display:block;color:var(--muted)}}
+@media (max-width:640px){main.croiser table.questions-prep thead{display:none}
+ main.croiser table.questions-prep tr{display:block;padding:8px 0;border-bottom:1px solid var(--line)}
+ main.croiser table.questions-prep th,main.croiser table.questions-prep td{display:block;border:0!important;padding:2px 0!important;text-align:left!important}
+ main.croiser table.questions-prep td:nth-child(2)::before{content:"Lien entre départements : "}
+ main.croiser table.questions-prep td:nth-child(3)::before{content:"Intervalle de confiance à 95 % : "}
+ main.croiser table.questions-prep td:nth-child(4)::before{content:"À densité de population égale : "}
+ main.croiser table.questions-prep td:nth-child(5)::before{content:"Départements : "}
+ main.croiser table.questions-prep td::before{color:var(--muted)}}
 </style>
 <header class="tete">
     <h1>Croiser librement</h1>
@@ -210,6 +254,9 @@ main.croiser td.v,main.croiser th.v{text-align:right;white-space:nowrap}
         </div>
       </div>
       <div class="champ"><label class="nom" for="region">Territoires montrés</label><select id="region"></select></div>
+      <div class="champ"><span class="nom">Échelle de l’axe vertical</span>
+        <div class="seg" id="echelle" role="group" aria-label="Échelle de l’axe vertical"><button type="button" data-ech="log">Logarithmique</button><button type="button" data-ech="lin">Linéaire</button></div>
+      </div>
       <div class="champ" id="champ-temps"><span class="nom">Dans le temps</span>
         <label class="coche"><input type="checkbox" id="traj"> <span id="traj-lib">Montrer le chemin depuis 2016</span></label>
         <p class="note-niv" id="note-temps"></p>
@@ -228,9 +275,10 @@ main.croiser td.v,main.croiser th.v{text-align:right;white-space:nowrap}
       <div class="figs">
         <section class="af-fen" aria-labelledby="t-nuage">
           <div class="af-barre"><strong id="t-nuage">Nuage des territoires</strong>
+            <nav class="onglets-cr" aria-label="Vues du croisement"><a href="#t-nuage" aria-current="true">Nuage</a><a href="#donnees-terr">Données par territoire</a><a href="#questions-prep">Questions préparées</a></nav>
             <div class="af-outils"><button type="button" data-panneau="citer" aria-expanded="false">Citer et exporter</button></div></div>
           <div class="panneau" id="citer" hidden></div>
-          <div class="dedans"><svg class="fig" id="nuage" viewBox="0 0 560 430" role="img" aria-labelledby="t-nuage"></svg>
+          <div class="dedans"><div class="leg-reperes" id="leg-reperes"></div><svg class="fig" id="nuage" viewBox="0 0 560 430" role="img" aria-labelledby="t-nuage"></svg>
             <div class="legende-carte" id="leg-nuage"></div></div>
           <p class="comment-lire" id="lire-nuage"><strong>Comment lire.</strong> Chaque point est un territoire. Sa position donne ses deux valeurs, sa taille suit la population ou le troisième indicateur. Les deux lignes en tirets sont le repère de chaque indicateur, le même que sur la fiche des territoires : l’ensemble des territoires du même niveau calculé comme eux, ou le territoire médian pour un indicateur qui ne s’additionne pas. Survoler un point donne ses valeurs, un clic le repère aussi sur la carte.</p>
         </section>
@@ -249,10 +297,28 @@ main.croiser td.v,main.croiser th.v{text-align:right;white-space:nowrap}
         </section>
       </div>
 
+      <div class="figs-plus">
+        <section class="af-fen" id="donnees-terr" aria-labelledby="t-donnees">
+          <div class="af-barre"><strong id="t-donnees">Données par territoire</strong>
+            <div class="af-outils"><button type="button" data-panneau="citer-donnees" aria-expanded="false">Citer et exporter</button></div></div>
+          <div class="panneau" id="citer-donnees" hidden></div>
+          <div class="dedans"><input type="search" class="filtre" id="filtre-terr" placeholder="Filtrer les territoires" aria-label="Filtrer les territoires">
+            <table class="donnees-terr" id="table-terr" aria-labelledby="t-donnees" data-cite="1"></table>
+            <p class="discret note-terr" id="note-terr"></p><button type="button" class="mini" id="tout-terr" aria-controls="table-terr" hidden></button></div>
+        </section>
+        <section class="af-fen" id="questions-prep" aria-labelledby="t-prep">
+          <div class="af-barre"><strong id="t-prep">Questions préparées</strong>
+            <div class="af-outils"><button type="button" data-panneau="citer-prep" aria-expanded="false">Citer et exporter</button></div></div>
+          <div class="panneau" id="citer-prep" hidden></div>
+          <div class="dedans"><p class="comment-lire">Un clic charge la question dans le nuage, par département. Pour ces questions, chaque lien porte son intervalle de confiance à 95&nbsp;%, sa valeur à densité de population égale et la correction pour tests multiples. Un croisement choisi librement porte la probabilité corrigée publiée de sa famille de tests quand il en a une, sinon sa corrélation et son intervalle, sans verdict.</p>
+            <table class="questions-prep" id="table-prep" aria-labelledby="t-prep" data-cite="1"></table></div>
+        </section>
+      </div>
+
       <div class="dessous">
         <section class="carte-terr" aria-live="polite" id="terr"><h3>Territoire repéré</h3><p class="vide-txt">Cliquez un point ou un territoire de la carte.</p></section>
         <section class="histo"><h3>Vos croisements de cette visite</h3>
-          <p class="discret" style="margin:0 0 8px">La correction de Benjamini-Hochberg porte sur tous les croisements essayés, pour qu'un lien trouvé à force d'essais ne passe pas pour solide.</p>
+          <p class="discret" style="margin:0 0 8px">Pour revenir à un croisement déjà vu. La probabilité corrigée est celle de la famille de tests publiée à laquelle appartient le croisement ; elle ne dépend pas des croisements essayés pendant la visite.</p>
           <ol id="histo"></ol></section>
       </div>
 
@@ -276,6 +342,7 @@ main.croiser td.v,main.croiser th.v{text-align:right;white-space:nowrap}
   <div class="menu-corps"><div class="menu-doms" id="menu-doms"></div><div class="menu-liste" id="menu-liste"></div></div>
 </dialog>
 <script src="presentation/atelier_donnees.js"></script>
+<script src="presentation/atelier_familles.js"></script>
 <script src="presentation/chiffres.js"></script>
 <script src="presentation/lien.js"></script>
 <script src="presentation/atelier.js"></script>

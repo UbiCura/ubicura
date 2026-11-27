@@ -139,6 +139,18 @@ RENDUS = [
     # page « Citer et réutiliser » (maquette validée le 24 novembre 2026)
     ("citer", ["Citer et réutiliser"], ["Rien ne porte ce nom"]),
     ("DOI", ["Citer et réutiliser"], ["Rien ne porte ce nom"]),
+    # phrases naturelles (audit du 25 novembre 2026) : les mots vides et les mots inconnus laissés de côté, des
+    # résultats approchants plutôt que rien, classés par nombre de mots retrouvés ; rien du tout reste dit honnêtement
+    ("densité des psychiatres", [r"Résultats approchants, pour « psychiatres »", r"Indicateurs\s*Psychiatre"],
+     ["Rien ne porte ce nom", "Densité de population"]),
+    ("temps d'attente urgences", [r"Résultats approchants, pour « urgences »", r"Services d.urgences"],
+     ["Rien ne porte ce nom", "temps plein"]),
+    ("nombre de psychologues dans le Rhône", [r"sans « nombre »", r"psychologues dans le Rhône, soit"], ["Rien ne porte ce nom"]),
+    ("combien de psychiatres à Rodez", ["4,8 pour 10 000 habitants"], ["Rien ne porte ce nom", "approchants"]),
+    # « trouver » se retrouve, à une lettre près, dans la question « Où trouve-t-on une profession sans l'autre ? » :
+    # le mot le plus long, « psychiatre », passe devant
+    ("où trouver un psychiatre", [r"Résultats approchants, pour « psychiatre »", r"Indicateurs\s*Psychiatre"], ["Rien ne porte ce nom"]),
+    ("xqzwv blorptane", ["Rien ne porte ce nom"], ["approchants", "Indicateurs"]),
 ]
 
 

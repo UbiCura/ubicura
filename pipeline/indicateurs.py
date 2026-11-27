@@ -66,7 +66,7 @@ def liste(contexte: dict | None) -> list[dict]:
             for c in config.CONTEXTE_VULNERABILITE if c[0] in presents]
     autres =[{"id": d["id"], "label": d["libelle"], "unite": d.get("unite", ""), "explication": d.get("explication", ""),
                "source": d.get("source", ""), "famille": d.get("famille", ""), "licence": d.get("licence", ""),
-               "base": False, "groupe": d.get("groupe") or ("Santé mentale, besoins et recours aux soins"
+               "base": False, "groupe": d.get("groupe") or ("Santé mentale, état de santé et recours aux soins"
                                                            if d.get("famille") else "Autres indicateurs")}
               # raison écrite de chaque valeur non publiée, par niveau et territoire (taux de dépassement, 30 octobre 2026)
               | ({"non_publies": d["non_publies"]} if d.get("non_publies") else {})

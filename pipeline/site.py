@@ -1070,6 +1070,7 @@ def construire(pdf=True, groupes: set | None = None) -> Path:
     if fait("fiches"):
         pages += fiche_territoire.construire(env, commun, dernier, site_data, SITE, config.RACINE / "docs" / "veille" / "registre_bases.csv",
                                          config.ADRESSE_SITE, config.CITATION_AUTEUR)
+        rediriger_fiches_disparues(dernier)
 
     # données à télécharger et dictionnaire des colonnes
     # seule la dernière version des données est publiée (les précédentes iront sur Zenodo). Les fichiers de plus
@@ -1087,6 +1088,7 @@ def construire(pdf=True, groupes: set | None = None) -> Path:
             from . import portail
             pages += portail.construire(env, commun, dernier, site_data, SITE, GABARITS,
                                         config.RACINE / "docs" / "veille" / "registre_bases.csv")
+            pages.append(construire_404(env, commun))
     else:
         (SITE / "atlas.html").write_text(ATLAS_REDIRECTION, encoding="utf-8")
     # la méthode vient après le portail : la page « Étendue des données » et la liste des indicateurs (étape 6 des
@@ -1095,8 +1097,19 @@ def construire(pdf=True, groupes: set | None = None) -> Path:
         construire_methode(env, commun, dernier, site_data, ddir, pages, fiches_sources)
     finir(env, commun, dernier, site_data, pages, rapports_cites, tout, fiches_sources, exe, fait("rapports"),
           len(versions), rapide=groupes is not None)
-    noter_citation(groupes is None)
+    # les sept groupes demandés ensemble refont tout le site, comme une construction complète (27 novembre 2026)
+    noter_citation(groupes is None or set(GROUPES) <= set(groupes))
     return SITE
+
+
+def construire_404(env, commun) -> Path:
+    """Page d'une adresse inconnue (audit du 25 novembre 2026 : GitHub Pages servait sa propre page d'erreur, en anglais).
+    GitHub Pages sert 404.html à la place de n'importe quelle page, à n'importe quelle profondeur : tous ses liens
+    partent de la racine du site (racine « / »)."""
+    ctx = dict(commun, racine="/", page="erreur", titre="Page introuvable",
+               description="Cette adresse ne mène à aucune page du site.")
+    (SITE / "404.html").write_text(rendre(env, "erreur_404.html", ctx), encoding="utf-8")
+    return SITE / "404.html"
 
 
 CITATION_SITE = config.DONNEES / "site_citation.json"
@@ -1146,6 +1159,29 @@ def preparer_liste(dossier: Path, cat: list[dict]) -> Path:
     return liste
 
 
+def fichiers_par_theme(fichiers: list[dict]) -> tuple[list[dict], list[dict]]:
+    """Fichiers à télécharger rangés par thème, chacun avec son niveau, et les fichiers mis en avant en tête de page
+    (structure du site validée le 26 novembre 2026, planche_7_telecharger). Thèmes et niveaux sont lus dans
+    pipeline/dictionnaire.py, si bien qu'un fichier ajouté prend place de lui-même."""
+    import unicodedata
+    DI = dictionnaire
+    groupes = {t: [] for t in DI.ORDRE_THEMES}
+    for f in fichiers:
+        brut = f["lien"].rsplit("/", 1)[-1].removesuffix(".zip")
+        f = dict(f, niveau=DI.niveau_fichier(brut), brut=brut)
+        groupes[DI.theme_fichier(brut)].append(f)
+    themes = []
+    for t in DI.ORDRE_THEMES:
+        L = sorted(groupes[t], key=lambda f: (DI.ORDRE_NIVEAUX.index(f["niveau"]), f["brut"]))
+        if L:
+            themes.append({"titre": t, "description": DI.description_theme(t), "fichiers": L,
+                           "ancre": "f-" + re.sub(r"[^a-z]+", "-", unicodedata.normalize("NFD", t.lower())
+                                                  .encode("ascii", "ignore").decode()).strip("-")})
+    par_nom = {f["lien"].rsplit("/", 1)[-1].removesuffix(".zip"): f for f in fichiers}
+    principaux = [par_nom[n] for n in DI.FICHIERS_PRINCIPAUX if n in par_nom]
+    return themes, principaux
+
+
 def construire_methode(env, commun, dernier, site_data, ddir, pages, fiches_sources):
     """Données à télécharger, dictionnaire, pages de méthode, à propos, à venir, données sources, journal, publications."""
     if (SITE / "donnees").exists():
@@ -1187,6 +1223,7 @@ def construire_methode(env, commun, dernier, site_data, ddir, pages, fiches_sour
                                         "domaine, thèmes, niveaux, années, source, licence, limite et adresse de sa page.",
                          "taille": taille_fichier(liste.stat().st_size)})
         fichiers.sort(key=lambda f: f["nom"])
+    themes_fichiers, principaux = fichiers_par_theme(fichiers)
     md = (dernier / "dictionnaire_des_colonnes.md").read_text(encoding="utf-8")
     if cat_publie is not None:
         md = dictionnaire.ajouter_section(md, ddir / etendue.LISTE)
@@ -1208,7 +1245,8 @@ def construire_methode(env, commun, dernier, site_data, ddir, pages, fiches_sour
     # ensemble de consultation, sommaire commun
     contenu = dict(sources=sources_publiques(journal["sources"]), controles=controles_publics(journal["controles"]),
                    indicateurs=site_data["contexte"], depot_code=DEPOT_CODE,
-                   libelles=table_lib, fichiers=fichiers, concordance=concordance, inscrits=inscrits, lieux=lieux_m,
+                   libelles=table_lib, fichiers=fichiers, themes_fichiers=themes_fichiers, principaux=principaux,
+                   concordance=concordance, inscrits=inscrits, lieux=lieux_m,
                    archive={"lien": f"donnees/{dernier.name}/{tout.name}", "taille": f"{tout.stat().st_size / 1e6:.0f} Mo"},
                    lien_dictionnaire=f"donnees/{dernier.name}/dictionnaire.html",
                    lien_libelles=f"donnees/{dernier.name}/libelles.csv",
@@ -1324,8 +1362,10 @@ def construire_explorer(env, commun, dernier, site_data, pages):
                     *explorer.FICHIERS_OUTILS)
         empreinte = hashlib.sha1(b"".join((SITE / "explorer" / f).read_bytes() for f in fichiers
                                           if (SITE / "explorer" / f).exists())).hexdigest()[:10]
-        (SITE / "explorer.html").write_text(rendre(env, "explorer.html", ctx, citation=cit, version_explorer=empreinte),
-                                            encoding="utf-8")
+        # titres des questions et renvois vers leur section publiée, lus dans la table unique (26 novembre 2026)
+        from . import questions as QQ
+        (SITE / "explorer.html").write_text(rendre(env, "explorer.html", ctx, citation=cit, version_explorer=empreinte,
+                                                   qx=QQ.EXPLORER, renvois=QQ.renvois_explorer()), encoding="utf-8")
         pages.append(SITE / "explorer.html")
 
 
@@ -1372,6 +1412,88 @@ ATLAS_REDIRECTION = ('<!doctype html>' + chr(10) + '<html lang="fr"><head><meta 
                      '<style>body{font-family:system-ui,sans-serif;background:#F4F4F1;color:#1C2028;padding:40px}a{color:#0E5A5A}</style>'
                      '</head><body><p>L’atlas de l’offre de soins est désormais la première page du site. '
                      '<a href="index.html">Ouvrir l’atlas</a>.</p></body></html>' + chr(10))
+
+
+def successeurs_intercommunalites(dernier: Path, anciens: set[str]) -> dict[str, tuple[str, str, str]]:
+    """Intercommunalité d'aujourd'hui de chaque ancienne intercommunalité (fusion ou partage du référentiel) :
+    celle qui réunit le plus d'habitants de ses anciennes communes. Les communes de l'ancienne sont lues dans la
+    version de résultats la plus récente qui la connaît (accessibilite_communes.csv), leur intercommunalité actuelle
+    dans la dernière version. {ancien code: (nom ancien, code actuel, nom actuel)}."""
+    import pandas as pd
+
+    def communes(d: Path):
+        f = d / "accessibilite_communes.csv"
+        if not f.exists():
+            return None
+        t = pd.read_csv(f, sep=";", decimal=",", dtype={"code": str, "epci": str}, usecols=["code", "epci", "population"])
+        return t.drop_duplicates("code")
+
+    def noms(d: Path) -> dict:
+        f = d / "distances_lieux_epci.csv"
+        return dict(pd.read_csv(f, sep=";", dtype=str, usecols=["code", "nom"]).drop_duplicates("code").values) \
+            if f.exists() else {}
+
+    actuel = communes(dernier)
+    if actuel is None or not anciens:
+        return {}
+    epci_de, noms_act = actuel.set_index("code")["epci"], noms(dernier)
+    reste, out = set(anciens), {}
+    for d in sorted((p for p in config.RESULTATS.glob("20*") if p.is_dir() and p.name < dernier.name), reverse=True):
+        if not reste:
+            break
+        t = communes(d)
+        if t is None:
+            continue
+        noms_d = noms(d)
+        for code in sorted(reste & set(t["epci"].dropna())):
+            c = t[t["epci"] == code].assign(nouveau=lambda x: x["code"].map(epci_de)).dropna(subset=["nouveau"])
+            if c.empty:
+                continue
+            nv = c.groupby("nouveau")["population"].sum().idxmax()
+            out[code] = (noms_d.get(code, ""), nv, noms_act.get(nv, ""))
+            reste.discard(code)
+    return out
+
+
+def rediriger_fiches_disparues(dernier: Path) -> list[str]:
+    """Fiche d'une intercommunalité qui n'existe plus (référentiel Etalab 6.1.0, 26 novembre 2026 : quatre
+    intercommunalités fusionnées en deux) : sa fiche courte et son dossier complet renvoient vers ceux de
+    l'intercommunalité qui réunit ses communes, pour que les liens déjà diffusés restent bons ; ses données, qui ne
+    sont plus à jour, sont retirées. Renvoie la liste des anciens codes redirigés."""
+    import html as H
+    import pandas as pd
+    rep, f = SITE / "territoire" / "epci", dernier / "accessibilite_communes.csv"
+    if not (rep.is_dir() and f.exists()):
+        return []
+    actuels = set(pd.read_csv(f, sep=";", dtype=str, usecols=["epci"])["epci"].dropna())
+    anciens = {p.stem.removesuffix("-complet") for p in rep.glob("*.html")} - actuels
+    succ = successeurs_intercommunalites(dernier, anciens)
+    for code in sorted(anciens):
+        if code not in succ:
+            log.warning("fiche de l'intercommunalité %s : aucune intercommunalité actuelle trouvée", code)
+            continue
+        nom_a, nv, nom_n = succ[code]
+        for suffixe in ("", "-complet"):
+            cible = f"{nv}{suffixe}.html"
+            # avec leur article, « la communauté de communes du Lévézou » (relecture indépendante du 27 novembre 2026)
+            from .fiche_territoire import avec_article
+            sujet = H.escape(avec_article(nom_a)) if nom_a else "Cette intercommunalité"
+            texte = (f"{sujet[:1].upper() + sujet[1:]} n’existe plus sous ce nom : ses communes font désormais partie "
+                     f"de {H.escape(avec_article(nom_n)) if nom_n else 'une autre intercommunalité'}.")
+            (rep / f"{code}{suffixe}.html").write_text(
+                '<!doctype html>\n<html lang="fr"><head><meta charset="utf-8">'
+                '<meta name="viewport" content="width=device-width, initial-scale=1">'
+                f'<title>{H.escape(nom_n or nom_a)} · {config.NOM_PROJET}</title><meta name="robots" content="noindex">'
+                f'<link rel="canonical" href="{cible}"><meta http-equiv="refresh" content="0; url={cible}">'
+                f'<script>location.replace("{cible}" + location.search + location.hash)</script>'
+                '<style>body{font-family:system-ui,sans-serif;background:#F4F4F1;color:#1C2028;padding:40px}'
+                'a{color:#0E5A5A}</style></head>'
+                f'<body><p>{texte} <a href="{cible}">Ouvrir sa fiche</a>.</p></body></html>\n', encoding="utf-8")
+        (rep / f"{code}.json").unlink(missing_ok=True)
+    if succ:
+        JOURNAL.controle("Fiches d'intercommunalités disparues du référentiel, redirigées",
+                         ", ".join(f"{c} vers {succ[c][1]}" for c in sorted(succ)))
+    return sorted(succ)
 
 
 def finir(env, commun, dernier, site_data, pages, rapports_cites, tout, fiches_sources, exe, rapports_faits,
@@ -1470,7 +1592,7 @@ def _territoires(env, commun, dernier) -> list[Path]:
                 f'<body><p>La dernière version de ce rapport est à <a href="{dernier.name}/{base}-{cle}.html">cette adresse datée</a>.</p></body></html>',
                 encoding="utf-8")
             for cible, racine in ((date_dossier, "../../"),):
-                ctx = dict(commun, date_longue=date_longue(dernier.name), racine=racine, page="territoires",
+                ctx = dict(commun, date_longue=date_longue(dernier.name), racine=racine, page="rapport_territoire",
                            classe_main="territoire", titre=titre_r)
                 html = env.get_template("territoire.html").render(
                     ctx, titre_rapport=titre_r, corps=corps.replace("@RACINE@", racine), sommaire=sommaire,

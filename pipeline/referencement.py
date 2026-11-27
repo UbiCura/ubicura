@@ -185,7 +185,9 @@ def appliquer(site: Path, iso: str, rapports: dict[str, dict], fichiers: dict | 
     rapports, {chemin relatif: {cle, iso, titre, pdf}} ; fichiers, {page, archive, sources} pour la page des données."""
     avec_image = image_apercu(site, carte_svg, exe, iso)
     # une page de renvoi (atlas.html vers index.html) garde sa propre adresse de référence et sort du plan du site
-    pages = [p for p in pages_publiques(site) if 'http-equiv="refresh"' not in p.read_text(encoding="utf-8")]
+    # la page d'une adresse inconnue (404.html) n'a ni adresse de référence ni place dans le plan du site
+    pages = [p for p in pages_publiques(site) if 'http-equiv="refresh"' not in p.read_text(encoding="utf-8")
+             and p.relative_to(site).as_posix() != "404.html"]
     n_cit = n_jeu = 0
     for p in pages:
         chemin = _chemin(site, p)

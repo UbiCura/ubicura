@@ -26,6 +26,9 @@ from pipeline.affichage import nombre, unite_prof  # noqa: E402
 from pipeline.libelles import sans_raisons_sociales, termes_proscrits  # noqa: E402
 
 SITE = RACINE / "site"
+# un groupe de mots repris aussitôt après une virgule ; le groupe ne commence pas au milieu d'un nom composé
+# (« Fleurieux-sur-l'Arbresle, L'Arbresle » est une liste de communes, 26 novembre 2026)
+RX_REPETE = re.compile(r"(?<![-‑\w])(\w+(?:['’ ]\w+){1,4}), (\1)\b", re.I)
 # menu à sept entrées depuis le 8 novembre 2026 (Explorer entre Comparer et Croiser, version A validée sur captures)
 MENU = ["Offre de soins", "Domaines", "Territoires", "Comparer", "Explorer", "Croiser", "Méthode et données"]
 # entrée du menu allumée selon la page (gabarits/nav.html)
@@ -33,7 +36,9 @@ MENU_ATTENDU = {"comparer.html": "Comparer", "croiser.html": "Croiser", "liens.h
                 "domaines.html": "Domaines", "methode.html": "Méthode et données", "domaine/offre-de-soins.html": "Offre de soins",
                 # les deux pages centre (santé mentale, santé) relèvent de l'offre de soins (pipeline/pages_domaine.py)
                 "domaine/sante-mentale.html": "Offre de soins", "domaine/sante.html": "Offre de soins",
-                "atlas.html": "Offre de soins", "territoires/index.html": "Territoires"}
+                # l'atlas allume Territoires ; À venir, Journal et Publications, Méthode et données (26 novembre 2026)
+                "atlas.html": "Territoires", "territoires/index.html": "Territoires", "a-venir.html": "Méthode et données",
+                "journal.html": "Méthode et données", "publications.html": "Méthode et données"}
 ESP = "[\\s  ]"
 defauts: dict[str, list] = collections.OrderedDict()
 
@@ -85,7 +90,8 @@ def pages_publiques(date: str) -> list[Path]:
     for p in SITE.rglob("*.html"):
         rel = p.relative_to(SITE).as_posix()
         top = rel.split("/")[0]
-        if top.startswith("prototype") or top in ("maquettes", "_maquettes") or p.name.startswith("_"):
+        # un dossier ou une page qui commence par « _ » est un brouillon : publier.ps1 ne le copie pas
+        if top.startswith(("prototype", "_")) or top == "maquettes" or p.name.startswith("_"):
             continue
         # versions archivées, publiées telles quelles
         m = re.match(r"(rapports|territoires)/(\d{4}-\d{2}-\d{2})/", rel)
@@ -93,6 +99,34 @@ def pages_publiques(date: str) -> list[Path]:
             continue
         out.append(p)
     return sorted(out)
+
+
+# un seul nom pour l'intervalle de confiance à 95 % (audit du 27 novembre 2026, « fourchette plausible » dans Explorer)
+NOM_IC_REFUSE = re.compile(r"fourchettes?\s+plausibles?", re.I)
+
+
+def fourchettes_plausibles(date: str, site: Path = SITE, rapports=()) -> list:
+    """« fourchette plausible » refusée dans tout le site : pages, scripts et données (versions archivées et brouillons
+    exceptés, comme pages_publiques), et dans les rapports Markdown de la version (rapports)."""
+    out = []
+    fichiers = [p for p in site.rglob("*") if p.suffix.lower() in (".html", ".js", ".json", ".md", ".txt") and p.is_file()]
+    for p in fichiers + [Path(x) for x in rapports]:
+        try:
+            rel = p.relative_to(site).as_posix()
+        except ValueError:
+            rel = p.name
+        else:
+            top = rel.split("/")[0]
+            if top.startswith(("prototype", "_")) or top == "maquettes" or p.name.startswith("_"):
+                continue
+            m = re.match(r"(rapports|territoires)/(\d{4}-\d{2}-\d{2})/", rel)
+            if m and m.group(2) != date:
+                continue
+        t = p.read_text(encoding="utf-8", errors="ignore")
+        m = NOM_IC_REFUSE.search(t)
+        if m:
+            out.append((rel, t[max(0, m.start() - 50):m.end() + 30].replace(chr(10), " ")))
+    return out
 
 
 def controler() -> int:
@@ -128,7 +162,9 @@ def controler() -> int:
             if re.match(r"(https?:|mailto:|data:|javascript:|tel:|#|//)", h) or "${" in h or "{{" in h:
                 continue
             chemin = unquote(urlsplit(h).path)
-            if chemin and not (p.parent / chemin).resolve().exists():
+            # un lien qui part de la racine du site (« /index.html », page 404.html, 25 novembre 2026)
+            base = SITE if chemin.startswith("/") else p.parent
+            if chemin and not (base / chemin.lstrip("/")).resolve().exists():
                 casses.append((rel(p), h))
     note("Liens internes vers un fichier absent", casses)
 
@@ -200,8 +236,12 @@ def controler() -> int:
     # 3 quinquies. chaque fiche de territoire garde sa carte (« Où les patients sont reçus », « Ses départements ») :
     # construites dans un dossier neuf, les fiches du brouillon du 10 novembre 2026 l'avaient perdue sans bruit, le fond
     # de carte d'Explorer n'y étant pas encore écrit (ne rien perdre, règle 18)
+    # la fiche d'une intercommunalité disparue du référentiel n'est plus qu'une page de renvoi vers celle qui l'a
+    # remplacée (site.rediriger_fiches_disparues, 27 novembre 2026) : ni carte ni navigation à y chercher
+    def renvoi(s):
+        return 'http-equiv="refresh"' in s and 'name="robots" content="noindex"' in s
     sans_carte = [(rel(p), "fiche sans sa carte") for p, s in sources.items()
-                  if re.match(r"territoire/(dep|reg|epci)/[^/_][^/]*\.html$", rel(p))
+                  if re.match(r"territoire/(dep|reg|epci)/[^/_][^/]*\.html$", rel(p)) and not renvoi(s)
                   and not re.search(r'class="carte-svg plan\b', s)]
     note("Chaque fiche de territoire garde sa carte", sans_carte)
 
@@ -379,7 +419,7 @@ def controler() -> int:
     # un groupe de mots répété aussitôt après une virgule, la reprise en majuscule (« publie vers les urgences, Vers les
     # urgences, 5,0 % », audit du 13 novembre 2026, R5), dans les paragraphes seulement (les listes de tableaux se
     # répètent par nature)
-    repete, rx_rep = [], re.compile(r"\b(\w+(?:['’ ]\w+){1,4}), (\1)\b", re.I)
+    repete, rx_rep = [], RX_REPETE
     for p, s in sources.items():
         for par in re.findall(r"<p\b[^>]*>(.*?)</p>", s, flags=re.S):
             x = html.unescape(re.sub(r"<[^>]+>", "", par))
@@ -513,7 +553,7 @@ def controler() -> int:
     for p, s in sources.items():
         r = rel(p)
         m = re.match(r"territoire/(reg|dep|epci)/([^/]+)\.html$", r)
-        if m:
+        if m and not renvoi(s):
             lv = m.group(1)
             tete = re.search(r'<p class="tete-l2">(.*?)</p>', s, flags=re.S)
             tete = tete.group(1) if tete else ""
@@ -566,11 +606,44 @@ def controler() -> int:
         deux += [("presentation/catalogue.json", x["nom"]) for x in json.loads(f_cat.read_text(encoding="utf-8")) if rep.search(x["nom"])]
     note("Aucune unité écrite deux fois de suite", deux)
 
+    # 17 bis. un seul lieu par question (structure du site validée le 26 novembre 2026) : aucune page ne garde un ancien
+    #     titre de question d'Explorer ; la page Offre de soins mène à chaque question des deux familles, chacune vers sa
+    #     section, qui existe ; l'accueil n'envoie plus ses questions de santé mentale vers Explorer
+    from pipeline import questions as QQ
+    lieux = []
+    anciens = ("Les territoires modestes sont-ils moins bien dotés", "À quelle distance des structures de soins vit-on",
+               "L'addictologie, de l'offre aux consommations", "L’addictologie, de l’offre aux consommations")
+    for p, t in textes.items():
+        for a in anciens:
+            if a in t.replace("⁠", ""):
+                lieux.append((rel(p), f"ancien titre « {a} »"))
+    offre = SITE / "domaine" / "offre-de-soins.html"
+    if offre in sources:
+        so = sources[offre]
+        for fam, L in QQ.FAMILLES.items():
+            page = QQ.PAGES[fam][0]
+            cible = (SITE / "domaine" / f"{page}.html")
+            cs = cible.read_text(encoding="utf-8") if cible.exists() else ""
+            for k, _q in enumerate(L, 1):
+                if f'href="{page}.html#q{k}"' not in so or f'id="q{k}"' not in cs:
+                    lieux.append(("domaine/offre-de-soins.html", f"{page}, question {k} sans lien ou sans section"))
+    acc = SITE / "index.html"
+    if acc in sources:
+        q = re.search(r'<ul class="questions">(.*?)</ul>', sources[acc], flags=re.S)
+        if q and "explorer.html" in q.group(1):
+            lieux.append(("index.html", "question de santé mentale envoyée vers Explorer"))
+    note("Un seul lieu par question (titres, table de l'Offre de soins, accueil)", lieux)
+
     # 18. recherche de l'en-tête et réponses directes (outils/controle_recherche.py) : articles, « aucun » sans position,
     #     département de rattachement, pluriels, codes postaux, et requêtes types essayées dans le navigateur
     sys.path.insert(0, str(RACINE / "outils"))
     import controle_recherche
     note("Recherche de l'en-tête et réponses directes", controle_recherche.controler())
+
+    # 19. l'intervalle de confiance à 95 % porte ce seul nom partout, jamais « fourchette plausible » (audit du
+    #     27 novembre 2026), dans les pages, les scripts, les données et les rapports de la version
+    note("Intervalle de confiance à 95 % nommé de même partout (jamais « fourchette plausible »)",
+         fourchettes_plausibles(date, SITE, sorted(R.glob("rapport*.md"))))
 
     # compte rendu
     total = 0

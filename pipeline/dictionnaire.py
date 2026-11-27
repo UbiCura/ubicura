@@ -187,21 +187,25 @@ FICHIERS = [
     (r"^activites_particulieres\.csv$", lambda m: "Professionnels qui déclarent des activités sans soins à la "
                                                   "population (retirées des densités) ou pour un public particulier "
                                                   "(gardées), en France."),
-    (r"^activites_particulieres_(\w+)\.csv$", lambda m: f"Mêmes activités comptées par territoire ({NIVEAUX.get(m.group(1), m.group(1))})."),
+    (r"^activites_particulieres_(\w+)\.csv$", lambda m: "Professionnels qui déclarent des activités sans soins "
+                                                        "à la population (retirées des densités) ou pour un public "
+                                                        f"particulier (gardées), par {NIVEAUX.get(m.group(1), m.group(1))}."),
     (r"^exercice_multisites\.csv$", lambda m: "Part des professionnels qui exercent dans plusieurs communes ou "
                                               "intercommunalités."),
     (r"^liens_entre_intercommunalites\.csv$", lambda m: "Nombre de professionnels exerçant à la fois dans deux "
                                                         "intercommunalités (au moins 3)."),
     (r"^feminisation\.csv$", lambda m: "Part de femmes (civilité déclarée) par profession, en France et par "
                                        "département."),
-    (r"^concordance_besoins\.csv$", lambda m: "Corrélation de rang entre deux indicateurs de besoin ou de recours aux "
-                                               "soins en santé mentale, entre départements. Montre si les approches "
-                                               "du besoin vont dans le même sens."),
+    (r"^concordance_besoins\.csv$", lambda m: "Corrélation de rang entre deux indicateurs d'état de santé ou de recours "
+                                               "aux soins en santé mentale, entre départements. Montre si ces "
+                                               "indicateurs classent les départements dans le même ordre."),
     (r"^croisements\.csv$", lambda m: "Croisements départementaux entre une mesure de l'offre et un indicateur du "
-                                       "profil ou du besoin, corrélation de rang brute et à densité de population "
-                                       "égale, avec intervalles de confiance par bootstrap."),
+                                       "profil des habitants ou de santé mentale, corrélation de rang brute et à densité "
+                                       "de population égale, avec intervalles de confiance par bootstrap."),
     (r"^loi_inverse\.csv$", lambda m: "Indice de concentration des professionnels entre départements classés de la "
-                                       "valeur la plus faible à la plus forte d'un indicateur de besoin. Négatif, "
+                                       "valeur la plus faible à la plus forte d'un indicateur de santé mentale (suicides, "
+                                       "hospitalisations pour geste auto-infligé, personnes prises en charge). "
+                                       "Négatif, "
                                        "l'offre est plus présente là où l'indicateur est faible."),
     (r"^sensibilite_accessibilite\.csv$", lambda m: "Sensibilité de l'accessibilité à deux étapes à la portée retenue, "
                                                      "comparée au calcul de référence à 20 km."),
@@ -231,11 +235,11 @@ FICHIERS = [
                                               "les infirmiers salariés), données des trajectoires de la page Explorer."),
     (r"^evolution_offre_resume\.csv$", lambda m: "Évolution de la densité entre la première et la dernière année de "
                                                   "la période, par profession et territoire."),
-    (r"^sensibilite_ile_de_france\.csv$", lambda m: "Corrélation de rang entre l'offre de santé mentale et les "
-                                                     "indicateurs de besoin, avec tous les départements et sans ceux "
-                                                     "d'Île-de-France, où les suicides sont nettement sous-déclarés."),
+    (r"^sensibilite_ile_de_france\.csv$", lambda m: "Corrélation de rang entre l'offre de soins en santé mentale "
+                                                     "et les indicateurs de santé mentale, avec tous les départements et "
+                                                     "sans ceux d'Île-de-France, où les suicides sont nettement sous-déclarés."),
     (r"^quadrants\.csv$", lambda m: "Position de chaque département selon sa densité de professionnels et un "
-                                    "indicateur de besoin, chacun comparé à sa médiane."),
+                                    "indicateur de santé mentale, chacun comparé à sa médiane."),
     (r"^temps_acces_communes\.csv$", lambda m: "Temps de trajet médian en voiture des habitants de chaque commune "
                                               "jusqu'à la structure de psychiatrie ambulatoire (CMP) et au service "
                                               "d'urgences les plus proches, données des cartes des rapports "
@@ -244,8 +248,8 @@ FICHIERS = [
                                       "plus proche (INSEE), par France, région, département et intercommunalité."),
     (r"^comparaison_route\.csv$", lambda m: "Ressemblance, commune par commune, entre la distance à vol d'oiseau "
                                             "calculée ici et le temps de trajet de l'INSEE."),
-    (r"^offre_besoin_lisa\.csv$", lambda m: "Moran local bivarié par département, indicateur de besoin du département "
-                                             "et densité moyenne de ses voisins, pour les principales professions de "
+    (r"^offre_besoin_lisa\.csv$", lambda m: "Moran local bivarié par département, indicateur de santé mentale du "
+                                             "département et densité moyenne de ses voisins, pour les principales professions de "
                                              "santé mentale, 999 permutations, correction de Benjamini-Hochberg."),
     (r"^gwr_coefficients\.csv$", lambda m: "Régression géographiquement pondérée, coefficients locaux par "
                                             "intercommunalité de l'Hexagone (psychologues, psychiatres, généralistes)."),
@@ -273,6 +277,57 @@ FICHIERS = [
      lambda m: "Personnes prises en charge pour troubles psychiques ou sous psychotropes, par département et région "
                "(Assurance Maladie, cartographie des pathologies). Mesure le recours aux soins, pas le besoin."),
 ]
+
+# Thème de chaque fichier sur la page « Fichiers à télécharger » (structure du site validée le 26 novembre 2026,
+# planche_7_telecharger) : (thème, ce qu'il réunit, motif sur le nom du fichier). Un fichier ajouté prend place de
+# lui-même ; la règle se lit dans cet ordre : les références, puis les contrôles (hors fichiers _odbl), puis les thèmes
+# ci-dessous, le premier dont le motif convient ; les analyses réunissent le reste.
+THEME_REFERENCES = ("Références", "libellés, liste des indicateurs, professions", r"^(libelles|liste_indicateurs|professions)\.")
+THEME_CONTROLES = ("Contrôles, concordances et sensibilité", "ce qui vérifie les chiffres publiés",
+                   r"^(concordance|controle|sensibilite|robustesse|relecture|verdicts|sirene_sans|structures_non_retenues|"
+                   r"structures_gardees|etablissements_verifies|comparaison_|declares_|charge_cmp|inscrits_sans|"
+                   r"lieux_couverture|lieux_references|outre_mer|tests_)")
+THEMES_FICHIERS = [
+    ("Professionnels", "effectifs, densités, âge, modes et lieux d’exercice, évolution",
+     r"^(effectifs|professions|age_prof|feminisation|activites_part|exercice|parcours|diplomes|secteurs\.|evolution|"
+     r"composition|porte_offre)"),
+    ("Structures de soins", "lieux où les patients sont reçus, catégories, public, psychiatrie à l’hôpital",
+     r"^(lieux_soins|structures_princ|categories|cmp_par|public_cible|psychiatrie_hopital|typologie_lieux|secteurs_psy)"),
+    ("Distances et temps d’accès", "distance à vol d’oiseau, temps par la route, accessibilité",
+     r"^(distances|temps_|accessibilite|double_elo|zones_elo|concentration_distance|escalier_distance|ombre)"),
+    ("Profil des habitants", "population, revenus, santé, allocations",
+     r"^(contexte_(com|dep|epci|reg)\.|allocataires|ald_|population_conc|sante_mentale_sante|classes_densite)"),
+    ("Assurance Maladie, sous licence ODbL", "fichiers suffixés _odbl, partage à l’identique", r"_odbl"),
+    ("Analyses des rapports, d’Explorer et de Croiser", "inégalités, écarts, typologie, croisements, modèles", r"."),
+]
+# ordre des thèmes sur la page
+ORDRE_THEMES = ["Professionnels", "Structures de soins", "Distances et temps d’accès", "Profil des habitants",
+                "Analyses des rapports, d’Explorer et de Croiser", "Références", "Contrôles, concordances et sensibilité",
+                "Assurance Maladie, sous licence ODbL"]
+# fichiers mis en avant en tête de la page, après l'archive complète
+FICHIERS_PRINCIPAUX = ["effectifs_epci_all.csv", "contexte_epci.csv", "lieux_soins.csv"]
+NIVEAUX_FICHIERS = [(r"_reg[._]", "Région"), (r"_dep[._]", "Département"), (r"_epci[._]", "Intercommunalité"),
+                    (r"_com(munes)?[._]", "Commune"), (r"_france[._]", "France")]
+ORDRE_NIVEAUX = ["France", "Région", "Département", "Intercommunalité", "Commune", "Plusieurs ou aucun"]
+
+
+def theme_fichier(nom: str) -> str:
+    """Thème d'un fichier de données, d'après son nom (sans « .zip »)."""
+    if re.search(THEME_REFERENCES[2], nom):
+        return THEME_REFERENCES[0]
+    if re.search(THEME_CONTROLES[2], nom) and "_odbl" not in nom:
+        return THEME_CONTROLES[0]
+    return next(t for t, _, m in THEMES_FICHIERS if re.search(m, nom))
+
+
+def description_theme(theme: str) -> str:
+    return {t: d for t, d, _ in THEMES_FICHIERS + [THEME_REFERENCES, THEME_CONTROLES]}[theme]
+
+
+def niveau_fichier(nom: str) -> str:
+    """Niveau géographique d'un fichier, d'après son nom ; « Plusieurs ou aucun » quand le nom n'en dit pas."""
+    return next((n for m, n in NIVEAUX_FICHIERS if re.search(m, nom)), "Plusieurs ou aucun")
+
 
 # (motif sur le nom de colonne, description)
 COLONNES = [
@@ -686,7 +741,8 @@ COLONNES = [
      "traverser la mer, la moyenne sur les seuls habitants dont le territoire compte au moins un de ces professionnels."),
     (r"^part_population_a_plus_de_(\d+)_km$", "Part des habitants à plus de {0} km du professionnel le plus proche."),
     (r"^accessibilite$", "Accessibilité potentielle à deux étapes, en professionnels pour 10 000 habitants."),
-    (r"^accessibilite_liberale$", "Même calcul limité aux professionnels libéraux, pour comparer avec l'APL de la DREES (cinq professions seulement)."),
+    (r"^accessibilite_liberale$", "Accessibilité potentielle à deux étapes calculée avec les seuls professionnels libéraux, "
+                                   "pour comparer avec l'APL de la DREES (cinq professions seulement)."),
     (r"^equipement$", "Type d'équipement ou de professionnel libéral de la base permanente des équipements (INSEE)."),
     (r"^temps_(moyen|median)_min$", "Temps de trajet {0} en voiture (minutes) vers l'équipement le plus proche, "
                                     "pondéré par la population, à tous les niveaux."),
@@ -759,7 +815,10 @@ COLONNES = [
     (r"^part_population$", "Part de la population."),
     (r"^psychiatres$", "Nombre de psychiatres."),
     (r"^psychologues_par_psychiatre$", "Nombre de psychologues pour un psychiatre (vide sans psychiatre)."),
-    (r"^quadrant$", "besoin+offre- (indicateur au-dessus de la médiane, densité au-dessous), et ainsi de suite."),
+    (r"^quadrant$", "Position du département : besoin+offre-, indicateur de santé mentale au-dessus de sa médiane et "
+                    "densité au-dessous ; besoin+offre+, les deux au-dessus ; besoin-offre-, les deux au-dessous ; "
+                    "besoin-offre+, indicateur au-dessous et densité au-dessus. Le mot « besoin » du code désigne "
+                    "l'indicateur, qui ne mesure pas un besoin de soins."),
     (r"^mediane_(densite|indicateur)$", "Médiane des départements utilisée comme seuil."),
     (r"^valeur$", "Valeur de l'indicateur, dans l'unité indiquée par le dictionnaire des indicateurs."),
     (r"^ic_(bas|haut)$", "Borne de l'intervalle de confiance à 95 % (indicateurs d'enquête)."),

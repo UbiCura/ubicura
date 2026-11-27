@@ -1,7 +1,11 @@
 // Atelier « Croiser » (présentation du 30 octobre 2026). Lit presentation/atelier_donnees.js (const A, préparé par
 // pipeline/atelier.py), dessine le nuage et la carte en SVG,
-// calcule la corrélation de rang, son intervalle, la corrélation partielle et la correction de Benjamini-Hochberg
-// sur les croisements essayés pendant la visite.
+// calcule la corrélation de rang, son intervalle et la corrélation partielle. Pour un couple d'une famille de tests
+// publiée (presentation/atelier_familles.js, const FAM, pipeline/atelier.familles), la corrélation, l'intervalle de
+// confiance, le nombre de territoires et la probabilité corrigée sont ceux du fichier publié, jamais recalculés (un
+// chiffre publié est calculé en un seul endroit, audit du 27 novembre 2026) ; le verdict « lien » ne dépend plus des
+// croisements essayés pendant la visite (option B de la structure validée le 26 novembre 2026). Hors de ces familles,
+// la corrélation et son intervalle, calculé par la méthode du pipeline (bootstrap des centiles), sans verdict.
 (function () {
   "use strict";
   var fr = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 2 });
@@ -21,8 +25,10 @@
   var REGCODE = {}; A.units.reg.forEach(function (u) { REGCODE[u.nm] = u.c; });
   var DEPREG = {}; A.units.dep.forEach(function (u) { DEPREG[u.c] = REGCODE[u.p]; });
 
-  var S = { x: "taux_pauvrete", y: "prof:psychiatre:all", z: "", zm: "t", lv: "dep", m: "all", r: "", traj: false, v: "b", sel: null };
-  var HISTO = [];
+  var S = { x: "taux_pauvrete", y: "prof:psychiatre:all", z: "", zm: "t", lv: "dep", m: "all", r: "", traj: false, v: "b", sel: null, e: "log" };
+  // croisements vus pendant la visite, pour y revenir ; ils ne changent aucune probabilité
+  var VUS = [];
+  var MODE_TXT = { all: "tous modes d’exercice réunis", lib: "exercice libéral", sal: "exercice salarié" };
 
   function $(id) { return document.getElementById(id); }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]; }); }
@@ -95,16 +101,35 @@
     return x < (a + 1) / (a + b + 2) ? bt * betacf(a, b, x) / a : 1 - bt * betacf(b, a, 1 - x) / b;
   }
   function pCorr(r, df) { if (Math.abs(r) >= 1) return 0; var t2 = r * r * df / (1 - r * r); return ibeta(df / (df + t2), df / 2, 0.5); }
-  function ic(r, n, k) { // intervalle à 95 %, transformation de Fisher, erreur type de Fieller pour le rang
-    var se = Math.sqrt(1.06 / (n - 3 - k)), z = Math.atanh(Math.max(-0.9999, Math.min(0.9999, r)));
-    return [Math.tanh(z - 1.96 * se), Math.tanh(z + 1.96 * se)];
+  // Intervalle de confiance à 95 % d'un croisement que le fichier publié ne donne pas, par la méthode du pipeline
+  // (analyses.spearman_bootstrap et spearman_partiel_bootstrap) : FAM.B tirages avec remise des territoires
+  // (config.BOOTSTRAP), corrélation de rang de chaque tirage (partielle : rangs corrigés de leur relation linéaire avec
+  // ceux de l'indicateur tenu égal), centiles 2,5 et 97,5 interpolés comme numpy. Tirages semés par la clé du croisement,
+  // le même intervalle à chaque visite ; gardé en mémoire pendant la visite.
+  var IC_VUS = {};
+  function alea(cle) {
+    var h = 2166136261; for (var k = 0; k < cle.length; k++) { h ^= cle.charCodeAt(k); h = Math.imul(h, 16777619); }
+    var a = h >>> 0;
+    return function () { a = (a + 0x6D2B79F5) | 0; var x = Math.imul(a ^ (a >>> 15), 1 | a); x = (x + Math.imul(x ^ (x >>> 7), 61 | x)) ^ x; return ((x ^ (x >>> 14)) >>> 0) / 4294967296; };
+  }
+  function centre(r) { var n = r.length, m = 0, k; for (k = 0; k < n; k++) m += r[k]; m /= n; var o = new Array(n); for (k = 0; k < n; k++) o[k] = r[k] - m; return o; }
+  function residus(r, rz) { var a = centre(r), b = centre(rz), sab = 0, sbb = 0, k; for (k = 0; k < a.length; k++) { sab += a[k] * b[k]; sbb += b[k] * b[k]; } var pe = sbb ? sab / sbb : 0; return a.map(function (v, j) { return v - pe * b[j]; }); }
+  function corrC(a, b) { var s = 0, aa = 0, bb = 0; for (var k = 0; k < a.length; k++) { s += a[k] * b[k]; aa += a[k] * a[k]; bb += b[k] * b[k]; } return aa > 0 && bb > 0 ? s / Math.sqrt(aa * bb) : NaN; }
+  function centile(a, q) { var h = (a.length - 1) * q, b = Math.floor(h); return b + 1 < a.length ? a[b] + (a[b + 1] - a[b]) * (h - b) : a[b]; }
+  function icBoot(xs, ys, zs, cle) {
+    if (IC_VUS[cle]) return IC_VUS[cle];
+    var n = xs.length, B = (typeof FAM !== "undefined" && FAM.B) || 500, tire = alea(cle), bs = [];
+    for (var b = 0; b < B; b++) {
+      var ix = new Array(n); for (var k = 0; k < n; k++) ix[k] = Math.floor(tire() * n);
+      var rx = rangs(ix.map(function (j) { return xs[j]; })), ry = rangs(ix.map(function (j) { return ys[j]; })), v;
+      if (zs) { var rz = rangs(ix.map(function (j) { return zs[j]; })); v = corrC(residus(rx, rz), residus(ry, rz)); }
+      else v = corrC(centre(rx), centre(ry));
+      if (!isNaN(v)) bs.push(v);
+    }
+    bs.sort(function (p, q) { return p - q; });
+    return (IC_VUS[cle] = bs.length ? [centile(bs, 0.025), centile(bs, 0.975)] : [NaN, NaN]);
   }
   function force(r) { var a = Math.abs(r); return a < 0.1 ? "négligeable" : a < 0.3 ? "faible" : a < 0.5 ? "modéré" : "fort"; }
-  function bh(ps) { // p ajustées de Benjamini-Hochberg, dans l'ordre d'origine
-    var n = ps.length, o = ps.map(function (p, k) { return [p, k]; }).sort(function (a, b) { return a[0] - b[0]; }), out = new Array(n), m = 1;
-    for (var j = n - 1; j >= 0; j--) { m = Math.min(m, o[j][0] * n / (j + 1)); out[o[j][1]] = m; }
-    return out;
-  }
   function r2(v) { var x = Math.round(v * 100) / 100; return fr.format(x === 0 ? 0 : x).replace("-", "−"); }
   // probabilité au millième : le format commun (deux décimales) écrivait « 0 » de 0,001 à 0,005
   var fr3 = new Intl.NumberFormat("fr-FR", { maximumFractionDigits: 3 });
@@ -125,23 +150,39 @@
   function stats(pts) {
     var p = pts.filter(function (q) { return q.dedans && (S.zm !== "p" || !S.z || q.z != null); }), n = p.length;
     if (n < 10) return { n: n, trop: true };
-    var rx = rangs(p.map(function (q) { return q.x; })), ry = rangs(p.map(function (q) { return q.y; })), r = pearson(rx, ry), k = 0;
+    var xs = p.map(function (q) { return q.x; }), ys = p.map(function (q) { return q.y; }), zs = null;
+    var rx = rangs(xs), ry = rangs(ys), r = pearson(rx, ry), k = 0;
     if (S.zm === "p" && S.z && dispo(S.z, S.lv)) {
-      var rz = rangs(p.map(function (q) { return q.z; })), rxz = pearson(rx, rz), ryz = pearson(ry, rz);
+      zs = p.map(function (q) { return q.z; });
+      var rz = rangs(zs), rxz = pearson(rx, rz), ryz = pearson(ry, rz);
       r = (r - rxz * ryz) / Math.sqrt((1 - rxz * rxz) * (1 - ryz * ryz)); k = 1;
     }
-    return { n: n, r: r, ic: ic(r, n, k), p: pCorr(r, n - 2 - k), partiel: !!k };
+    // l'intervalle n'est calculé qu'à la demande (icDe), un couple publié prend celui du fichier
+    return { n: n, r: r, xs: xs, ys: ys, zs: zs, p: pCorr(r, n - 2 - k), partiel: !!k };
   }
+  function icDe(st) { return icBoot(st.xs, st.ys, st.zs, cle()); }
 
+  // Famille de tests publiée du croisement affiché (option B, 26 novembre 2026) : les questions préparées entre
+  // départements (croisements.csv), puis chaque profession face au profil des habitants, par niveau et mode d'exercice
+  // (correlations_contexte.csv). Seulement pour le calcul publié : toute la France, sans indicateur tenu égal ni série
+  // annuelle, hors régions. Rend la corrélation et la probabilité corrigée publiées, et le nom de la famille.
+  var publie = { ic: function (fa) { return fa && fa.lo != null && fa.hi != null ? [fa.lo, fa.hi] : null; } };
+  function famille() {
+    if (typeof FAM === "undefined" || S.lv === "reg" || S.r || S.traj || (S.zm === "p" && S.z)) return null;
+    var a = eff(S.x), b = eff(S.y), k = [a, b].sort(), p;
+    // [rho, q, bas et haut de l'intervalle publié (null s'il n'est pas publié), territoires du calcul publié]
+    if (S.lv === "dep" && FAM.q[k[0]] && (p = FAM.q[k[0]][k[1]])) return { rho: p[0], q: p[1], lo: p[2], hi: p[3], nt: p[4], n: FAM.n.questions, nom: "questions préparées entre départements" };
+    p = FAM.c[S.lv] && FAM.c[S.lv][k[0]] && FAM.c[S.lv][k[0]][k[1]];
+    if (!p) return null;
+    var pr = IND[a] && IND[a].type === "prof" ? IND[a] : IND[b];
+    return { rho: p[0], q: p[1], lo: p[2], hi: p[3], nt: p[4], n: FAM.n["contexte:" + S.lv + ":" + pr.mode], nom: "famille des professions face au profil des habitants, " + NIV_PL[S.lv] + ", " + MODE_TXT[pr.mode] };
+  }
   function cle() { return [eff(S.x), eff(S.y), S.lv, S.r, S.zm === "p" ? S.z : "", S.traj ? 1 : 0].join("|"); }
-  function noter(st) {
+  function noter(st, fa) {
     if (st.trop) return;
-    var c = cle(), h = HISTO.filter(function (e) { return e.c === c; })[0];
-    if (!h) { h = { c: c, s: JSON.parse(JSON.stringify(S)) }; HISTO.push(h); }
-    h.r = st.r; h.p = st.p; h.n = st.n;
-    var adj = bh(HISTO.map(function (e) { return e.p; }));
-    HISTO.forEach(function (e, j) { e.padj = adj[j]; });
-    return h;
+    var c = cle(), h = VUS.filter(function (e) { return e.c === c; })[0];
+    if (!h) { h = { c: c, s: JSON.parse(JSON.stringify(S)) }; VUS.push(h); }
+    h.r = st.r; h.q = fa ? fa.q : null;
   }
 
   // couleurs, lues sur les jetons de la page pour suivre le thème
@@ -179,22 +220,36 @@
     return l;
   }
 
+  // échelle logarithmique de l'axe vertical, celle de départ comme dans Explorer : possible quand aucune valeur montrée
+  // n'est négative ; les territoires à 0 sortent alors du dessin (comme dans Explorer), la légende dit combien
+  function logPossible(pts) { var d = pts.filter(function (p) { return p.dedans; }); return d.some(function (p) { return p.y > 0; }) && !d.some(function (p) { return p.y < 0 || (p.y0 != null && p.y0 < 0); }); }
+  function gradLog(lo, hi) {
+    function serie(m) { var o = []; for (var k = Math.floor(Math.log10(lo)) - 1; k <= Math.ceil(Math.log10(hi)); k++) m.forEach(function (x) { var v = x * Math.pow(10, k); if (v >= lo * 0.999 && v <= hi * 1.001) o.push(+v.toPrecision(3)); }); return o; }
+    var o = serie([1, 2, 5]); if (o.length > 7) o = serie([1]); if (o.length < 3) o = serie([1, 1.5, 2, 3, 5, 7]); return o;
+  }
+
   // dessin du nuage
   function dessinerNuage(pts, refx, refy) {
-    var svg = $("nuage"), W = Math.round(Math.max(320, Math.min(700, svg.parentNode.clientWidth - 24 || 560))), H = Math.round(W < 500 ? W * 0.95 : Math.min(460, W * 0.68)), ml = 52, mr = 14, mt = 40, mb = 52;
+    var svg = $("nuage"), W = Math.round(Math.max(320, Math.min(700, svg.parentNode.clientWidth - 24 || 560))), H = Math.round(W < 500 ? W * 0.95 : Math.min(460, W * 0.68)), ml = 52, mr = 14, mt = 14, mb = 52;
     svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+    var lg = S.e === "log" && logPossible(pts);
     var dd = pts.filter(function (p) { return p.dedans; });
     var xs = dd.map(function (p) { return p.x; }).concat(dd.map(function (p) { return p.x0; }).filter(function (v) { return v != null; }));
     var ys = dd.map(function (p) { return p.y; }).concat(dd.map(function (p) { return p.y0; }).filter(function (v) { return v != null; }));
-    if (refx) xs.push(refx.v); if (refy) ys.push(refy.v);
+    if (lg) ys = ys.filter(function (v) { return v > 0; });
+    if (refx) xs.push(refx.v); if (refy && (!lg || refy.v > 0)) ys.push(refy.v);
     var x0 = Math.min.apply(null, xs), x1 = Math.max.apply(null, xs), y0 = Math.min.apply(null, ys), y1 = Math.max.apply(null, ys);
-    var px = (x1 - x0) * 0.05 || 1, py = (y1 - y0) * 0.06 || 1; x0 -= px; x1 += px; y0 -= py; y1 += py;
+    var px = (x1 - x0) * 0.05 || 1, py = (y1 - y0) * 0.06 || 1; x0 -= px; x1 += px;
+    if (lg) { y0 /= 1.15; y1 *= 1.15; } else { y0 -= py; y1 += py; }
     // Marge gauche à la mesure des graduations, pour que « 25 000 » ne touche jamais le titre de l'axe.
-    var gy = graduations(y0, y1, W < 500 ? 5 : 6);
+    var gy = lg ? gradLog(y0, y1) : graduations(y0, y1, W < 500 ? 5 : 6);
     ml = Math.max(52, 32 + Math.max.apply(null, gy.map(function (v) { return f(v).length; })) * 6.4) +
       15 * (lignesAxe(court(IND[eff(S.y)]), H - mt - mb).length - 1);
     mb = 52 + 15 * (lignesAxe(court(IND[eff(S.x)]), W - ml - mr).length - 1);
-    var sx = function (v) { return ml + (v - x0) / (x1 - x0) * (W - ml - mr); }, sy = function (v) { return H - mb - (v - y0) / (y1 - y0) * (H - mt - mb); };
+    var l0 = Math.log(y0), l1 = Math.log(y1);
+    var sx = function (v) { return ml + (v - x0) / (x1 - x0) * (W - ml - mr); };
+    var sy = lg ? function (v) { return H - mb - (Math.log(v) - l0) / (l1 - l0) * (H - mt - mb); } : function (v) { return H - mb - (v - y0) / (y1 - y0) * (H - mt - mb); };
+    var vu = function (v) { return v != null && (!lg || v > 0); };
     var Z = S.z && dispo(S.z, S.lv) ? IND[eff(S.z)] : null, zv = pts.map(function (p) { return p.z; }), zb = Z && S.zm === "c" ? quantiles(zv, 5) : null;
     var zmax = Math.max.apply(null, (Z && S.zm === "t" ? zv : pts.map(function (p) { return p.u.pop; })).filter(function (v) { return v != null && v > 0; }));
     var rmax = S.lv === "epci" ? 11 : S.lv === "dep" ? 15 : 22;
@@ -211,36 +266,20 @@
     s += '<text class="lab" transform="translate(14,' + (mt + (H - mt - mb) / 2) + ') rotate(-90)" text-anchor="middle">' +
       ly.map(function (t, k) { return '<tspan x="0" dy="' + (k ? 15 : 0) + '">' + esc(t) + "</tspan>"; }).join("") + "</text>";
     if (refx) s += '<line class="ref" x1="' + sx(refx.v) + '" x2="' + sx(refx.v) + '" y1="' + mt + '" y2="' + (H - mb) + '"/>';
-    // étiquettes des repères hors du cadre des points, dans la bande du haut (audit de contrôle du 30 octobre 2026, F5) :
-    // la verticale au-dessus de son trait, l'horizontale à droite, précédée d'un petit trait qui la désigne
-    // largeur de l'étiquette estimée (12 px, environ 6,4 px par signe) : elle se pose à droite du trait si elle tient,
-    // sinon à gauche, sinon au bord gauche du cadre ; elle ne sort jamais de la figure (relecture de l'étape 4, téléphone)
-    // la précision « trait vertical » ou « horizontal » se raccourcit si la place manque, jamais au point de rendre
-    // les deux étiquettes identiques tant qu'un mot tient (relecture indépendante du 5 novembre 2026, téléphone)
-    function suffixe(t, long, court, x0) { return x0 + (t.length + long.length) * 5.9 <= W - mr ? long : x0 + (t.length + court.length) * 5.9 <= W - mr ? court : ""; }
-    var xl = 4;   // légende des repères au bord gauche de la figure, au-dessus des graduations, dont elle prend la place
-    var ax = refx ? sx(refx.v) : 0, lw = refx ? (refx.t.length + 16) * 6.4 : 0;
-    var ancre = refx && ax + 4 + lw > W - mr ? (ax - 4 - lw >= ml ? "end" : "bord") : "start";
-    // au bord gauche, loin de son trait, l'étiquette de la verticale est précédée d'un court trait vertical en tirets
-    var etiq = refx ? (ancre === "bord" ? '<line class="ref" x1="' + (xl + 10) + '" x2="' + (xl + 10) + '" y1="' + (mt - 32) + '" y2="' + (mt - 20) + '"/>' : "") +
-      '<text class="reftxt" x="' + (ancre === "end" ? ax - 4 : ancre === "bord" ? xl + 26 : ax + 4) + '" y="' + (mt - 22) + '" text-anchor="' + (ancre === "bord" ? "start" : ancre) + '">' + esc(refx.t) + (ancre === "bord" ? suffixe(refx.t, ", trait vertical", ", vertical", xl + 26) : ", trait vertical") + "</text>" : "";
-    if (refy) s += '<line class="ref" x1="' + ml + '" x2="' + (W - mr) + '" y1="' + sy(refy.v) + '" y2="' + sy(refy.v) + '"/>';
-    // l'étiquette de l'horizontale, loin de son trait, est précédée d'un court trait en tirets, le même que sa ligne,
-    // qui la relie à elle comme dans une légende, au bord gauche du cadre, à 6 px du texte (relecture du 5 novembre 2026)
-    if (refy) etiq += '<line class="ref" x1="' + xl + '" x2="' + (xl + 20) + '" y1="' + (mt - 10) + '" y2="' + (mt - 10) + '"/>' +
-      '<text class="reftxt" x="' + (xl + 26) + '" y="' + (mt - 6) + '" text-anchor="start">' + esc(refy.t) + suffixe(refy.t, ", trait horizontal", ", horizontal", xl + 26) + "</text>";
+    if (refy && vu(refy.v)) s += '<line class="ref" x1="' + ml + '" x2="' + (W - mr) + '" y1="' + sy(refy.v) + '" y2="' + sy(refy.v) + '"/>';
     var tri = pts.slice().sort(function (a, b) { return (b.z != null && S.zm === "t" ? b.z : b.u.pop) - (a.z != null && S.zm === "t" ? a.z : a.u.pop); });
     tri.forEach(function (p) {
-      if (S.traj && (p.x0 != null || p.y0 != null)) s += '<line class="traj" x1="' + sx(p.x0 != null ? p.x0 : p.x) + '" y1="' + sy(p.y0 != null ? p.y0 : p.y) + '" x2="' + sx(p.x) + '" y2="' + sy(p.y) + '"' + (p.dedans ? "" : ' opacity=".08"') + "/>";
+      if (S.traj && (p.x0 != null || p.y0 != null) && vu(p.y) && vu(p.y0 != null ? p.y0 : p.y)) s += '<line class="traj" x1="' + sx(p.x0 != null ? p.x0 : p.x) + '" y1="' + sy(p.y0 != null ? p.y0 : p.y) + '" x2="' + sx(p.x) + '" y2="' + sy(p.y) + '"' + (p.dedans ? "" : ' opacity=".08"') + "/>";
     });
-    var sig = [];
+    var sig = [], horsLog = 0;
     tri.forEach(function (p) {
+      if (!vu(p.y)) { if (p.dedans) horsLog++; return; }
       var t = Z && S.zm === "t" ? p.z : p.u.pop, r = t != null && t > 0 ? Math.max(2.2, Math.sqrt(t / zmax) * rmax) : 2.2;
       var col = zb ? (p.z == null ? jeton("--nodata") : seq(classe(p.z, zb))) : jeton("--r3");
       s += '<circle class="pt' + (p.dedans ? "" : " hors") + (S.sel === p.u.c ? " sel" : "") + '" data-c="' + p.u.c + '" cx="' + sx(p.x).toFixed(1) + '" cy="' + sy(p.y).toFixed(1) + '" r="' + r.toFixed(1) + '" fill="' + col + '" fill-opacity="' + (zb ? 0.95 : 0.7) + '"/>';
       if (signalT(p.u)) sig.push({ x: sx(p.x), y: sy(p.y), r: r });
     });
-    // Signal « ! » posé à côté du point, à la première place libre, pour que deux signaux ne se recouvrent jamais.
+    // Signal « ! » posé à côté du point, à la première place libre, pour que deux signaux ne se recouvrent jamais.
     var pris = [];
     sig.forEach(function (q) {
       var places = [[q.r + 2, -q.r + 2], [-q.r - 6, -q.r + 2], [q.r + 2, q.r + 8], [-q.r - 6, q.r + 8], [-2, -q.r - 4], [-2, q.r + 13], [q.r + 9, 4], [-q.r - 13, 4]];
@@ -252,13 +291,17 @@
       pris.push([q.x + c[0], q.y + c[1]]);
       s += '<text class="signal" x="' + (q.x + c[0]).toFixed(1) + '" y="' + (q.y + c[1]).toFixed(1) + '">!</text>';
     });
-    // Étiquettes des repères posées après les points, pour qu'aucune bulle ne les couvre.
-    s += etiq;
     svg.innerHTML = s;
+    // légendes des deux repères en texte de page, au-dessus du dessin, le même libellé sur ordinateur et au téléphone
+    // (structure validée le 26 novembre 2026, planche 6) : un court trait en tirets, horizontal ou vertical, puis le nom
+    $("leg-reperes").innerHTML = (refy && vu(refy.v) ? '<span><i class="ech-h" aria-hidden="true"></i><span>' + esc(refy.t) + ", trait horizontal</span></span>" : "") +
+      (refx ? '<span><i class="ech-v" aria-hidden="true"></i><span>' + esc(refx.t) + ", trait vertical</span></span>" : "");
     var leg = "";
     if (zb) leg = '<span>' + esc(court(Z)) + '</span><span class="seq">' + [0, 1, 2, 3, 4].map(function (k) { return '<i style="background:' + seq(k) + '"></i>'; }).join("") + "</span><span>du cinquième le plus bas au plus haut, de " + f(Math.min.apply(null, zv.filter(function (v) { return v != null; }))) + " à " + f(Math.max.apply(null, zv.filter(function (v) { return v != null; }))) + "</span>";
     else leg = "<span>Taille des points selon " + (Z && S.zm === "t" ? esc(court(Z)) : "la population") + "</span>";
     if (S.traj && (trajSerie(S.x, S.lv) || trajSerie(S.y, S.lv))) leg += '<span>Trait gris, chemin depuis le début de la série</span>';
+    if (lg) leg += "<span>Axe vertical en échelle logarithmique" + (horsLog ? ", " + fr0.format(horsLog) + " " + (horsLog > 1 ? NIV_PL[S.lv] : NIV_SING[S.lv]) + " à 0 hors du dessin, compté" + (horsLog > 1 ? "s" : "") + " dans le calcul" : "") + "</span>";
+    else if (S.e === "log") leg += "<span>Échelle linéaire : l’axe vertical a des valeurs négatives</span>";
     $("leg-nuage").innerHTML = leg;
   }
 
@@ -326,23 +369,31 @@
 
   // règle unique du lien (presentation/lien.js, pipeline/regle_lien.py) : |rho| d'au moins 0,3 et probabilité
   // corrigée par Benjamini-Hochberg sous 0,05, la même que les rapports et l'escalier
-  function phrase(st, h) {
+  function phrase(st, fa) {
     var ix = IND[eff(S.x)], iy = IND[eff(S.y)], niv = NIV_PL[S.lv];
     if (st.trop) return "Trop peu de " + niv + " ont les deux indicateurs pour mesurer un lien (" + st.n + ").";
     var sens = st.r > 0 ? "plus élevé aussi" : "plus bas", t = force(st.r), eg = st.partiel ? ", en tenant égal l’indicateur « " + low(court(IND[eff(S.z)])) + " »" : "";
     if (S.lv === "reg") return "Entre régions, trop peu de territoires pour dire un lien. La corrélation de rang vaut " + r2(st.r) + eg + ", à lire avec son intervalle.";
-    if (!Lien.est(st.r, h ? h.padj : st.p)) return "Les indicateurs « " + low(court(ix)) + " » et « " + low(court(iy)) + " » ne sont pas liés au-delà du seuil retenu sur tout le site" + eg + " (corrélation de rang " + r2(st.r) + ", lien dit à partir de 0,3 et après correction des tests multiples).";
-    return "Dans les " + niv + " où l'indicateur « " + low(court(ix)) + " » est plus élevé, l'indicateur « " + low(court(iy)) + " » tend à être " + sens + eg + ". Le lien est " + t + ".";
+    // hors des familles de tests publiées : la corrélation et son intervalle, sans dire s'il y a un lien
+    if (!fa) {
+      var cond = S.r ? "restreint à " + REGNOM[S.r] : st.partiel ? "en tenant égal l’indicateur « " + low(court(IND[eff(S.z)])) + " »" : S.traj ? "sur la série annuelle du répertoire" : "";
+      var suite = " : la corrélation de rang" + (st.partiel ? " partielle" : "") + " (" + r2(st.r) + ") et son intervalle de confiance à 95 % (" + r2(st.ic[0]) + " à " + r2(st.ic[1]) + ") sont donnés, sans dire s’il y a un lien.";
+      return cond ? "Ce croisement, " + cond + ", n’appartient à aucune famille de tests publiée" + suite
+        : "Les indicateurs « " + low(court(ix)) + " » et « " + low(court(iy)) + " » n’appartiennent à aucune famille de tests publiée" + suite;
+    }
+    if (!Lien.est(fa.rho, fa.q)) return "Les indicateurs « " + low(court(ix)) + " » et « " + low(court(iy)) + " » ne sont pas liés au-delà du seuil retenu sur tout le site (corrélation de rang " + r2(st.r) + ", lien dit à partir de 0,3 et après correction des tests multiples).";
+    return "Dans les " + niv + " où l'indicateur « " + low(court(ix)) + " » est plus élevé, l'indicateur « " + low(court(iy)) + " » tend à être " + sens + ". Le lien est " + t + ".";
   }
   function low(s) { return /^[A-Z]{2}/.test(s) ? s : s.charAt(0).toLowerCase() + s.slice(1); }
 
-  function mesures(st, h) {
+  function mesures(st, fa) {
     if (st.trop) { $("mesures").innerHTML = ""; return; }
-    var adj = h ? h.padj : st.p;
+    var lien = fa ? (Lien.est(fa.rho, fa.q) ? ", lien " + force(fa.rho) : ", sous le seuil du lien") : "";
     $("mesures").innerHTML =
-      '<div><span class="n">' + r2(st.r) + '</span><span class="l">corrélation de rang' + (st.partiel ? " partielle" : "") + ", " + (S.lv !== "reg" && Lien.est(st.r, adj) ? "lien " + force(st.r) : "sous le seuil du lien") + "</span></div>" +
+      '<div><span class="n">' + r2(st.r) + '</span><span class="l">corrélation de rang' + (st.partiel ? " partielle" : "") + lien + "</span></div>" +
       '<div><span class="n">' + r2(st.ic[0]) + " à " + r2(st.ic[1]) + '</span><span class="l">intervalle de confiance à 95 %</span></div>' +
-      '<div><span class="n">' + fp(adj) + '</span><span class="l">probabilité corrigée sur ' + HISTO.length + " croisement" + (HISTO.length > 1 ? "s" : "") + " de la visite</span></div>" +
+      (fa ? '<div><span class="n">' + fp(fa.q) + '</span><span class="l">probabilité corrigée publiée, ' + esc(fa.nom) + " (" + fr0.format(fa.n) + " couples)</span></div>"
+          : '<div><span class="n">sans verdict</span><span class="l">' + (S.lv === "reg" ? "entre régions, aucun lien n’est dit" : "ce couple n’appartient à aucune famille de tests publiée") + "</span></div>") +
       '<div><span class="n">' + fr0.format(st.n) + '</span><span class="l">' + NIV_PL[S.lv] + " dans le calcul" + (S.r ? ", dans " + esc(REGNOM[S.r]) : "") + "</span></div>";
   }
 
@@ -377,9 +428,9 @@
 
   function histo() {
     var c = cle();
-    $("histo").innerHTML = HISTO.slice().reverse().map(function (e) {
-      var j = HISTO.indexOf(e), s = e.s, ix = IND[eff2(s.x, s.m)], iy = IND[eff2(s.y, s.m)];
-      return '<li' + (e.c === c ? ' aria-current="true"' : "") + '><button type="button" data-h="' + j + '"><span class="q">' + esc(court(ix)) + " et " + esc(low(court(iy))) + ", " + NIV_PL[s.lv] + (s.r ? ", " + esc(REGNOM[s.r]) : "") + (s.zm === "p" && s.z ? ", en tenant égal « " + esc(low(court(IND[eff2(s.z, s.m)]))) + " »" : "") + '</span><span class="r">' + r2(e.r) + "<br>p corr. " + fp(e.padj) + "</span></button></li>";
+    $("histo").innerHTML = VUS.slice().reverse().map(function (e) {
+      var j = VUS.indexOf(e), s = e.s, ix = IND[eff2(s.x, s.m)], iy = IND[eff2(s.y, s.m)];
+      return '<li' + (e.c === c ? ' aria-current="true"' : "") + '><button type="button" data-h="' + j + '"><span class="q">' + esc(court(ix)) + " et " + esc(low(court(iy))) + ", " + NIV_PL[s.lv] + (s.r ? ", " + esc(REGNOM[s.r]) : "") + (s.zm === "p" && s.z ? ", en tenant égal « " + esc(low(court(IND[eff2(s.z, s.m)]))) + " »" : "") + '</span><span class="r">' + r2(e.r) + "<br>" + (e.q != null ? "q publiée " + fp(e.q) : "sans verdict") + "</span></button></li>";
     }).join("");
   }
   // la rangée n'a de largeur qu'une fois la fenêtre ouverte : mesurée après showModal (relecture du 5 novembre 2026)
@@ -404,14 +455,21 @@
     }
     if ($("citer-carte")) { $("citer-carte").classList.add("citation-fig"); $("citer-carte").innerHTML = boite("carte du croisement", "de la carte", "carte-png", "carte-svg"); }
     $("citer").classList.add("citation-fig"); $("citer").innerHTML = boite("croisement", "du nuage", "png", "svg");
+    function boiteDonnees(t, exp, quoi) {
+      return '<p class="cit">' + esc(t).replace(/doi:(\S+?)\.$/, function (m, d) { return 'doi:<a href="https://doi.org/' + d + '">' + d + "</a>."; }) + "</p>" +
+        '<div class="citation-actions"><button type="button" data-copier="' + esc(t) + '">Copier la citation</button></div>' +
+        '<ul class="exports"><li><span class="nom"><span class="genre">Données</span> ' + quoi + '</span><span class="citation-actions"><button type="button" data-export="' + exp + '">CSV</button></span></li></ul>';
+    }
+    $("citer-donnees").classList.add("citation-fig"); $("citer-donnees").innerHTML = boiteDonnees(texte("données par territoire"), "csv", "par territoire");
+    $("citer-prep").classList.add("citation-fig"); $("citer-prep").innerHTML = boiteDonnees(A.citation + ", Ubi Cura, questions préparées entre départements, version du " + A.version + (A.doi ? ", doi:" + A.doi : "") + ".", "prep-csv", "des questions préparées");
   }
 
   // état dans l'adresse, pour le lien permanent
-  function etat() { return ["x=" + S.x, "y=" + S.y, "z=" + S.z, "zm=" + S.zm, "lv=" + S.lv, "m=" + S.m, "r=" + S.r, "t=" + (S.traj ? 1 : 0), "v=" + S.v, "s=" + (S.sel || "")].join("&"); }
+  function etat() { return ["x=" + S.x, "y=" + S.y, "z=" + S.z, "zm=" + S.zm, "lv=" + S.lv, "m=" + S.m, "r=" + S.r, "t=" + (S.traj ? 1 : 0), "v=" + S.v, "e=" + S.e, "s=" + (S.sel || "")].join("&"); }
   function lireEtat() {
     var h = location.hash.slice(1); if (!h) return;
     h.split("&").forEach(function (kv) { var p = kv.split("="), k = p[0], v = decodeURIComponent(p[1] || "");
-      if (k === "x" || k === "y") { if (IND[v]) S[k] = v; } else if (k === "z") S.z = IND[v] ? v : ""; else if (k === "zm" || k === "m" || k === "r" || k === "v") S[k] = v; else if (k === "lv" && A.units[v]) S.lv = v; else if (k === "t") S.traj = v === "1"; else if (k === "s") S.sel = v || null; });
+      if (k === "x" || k === "y") { if (IND[v]) S[k] = v; } else if (k === "z") S.z = IND[v] ? v : ""; else if (k === "zm" || k === "m" || k === "r" || k === "v") S[k] = v; else if (k === "e") S.e = v === "lin" ? "lin" : "log"; else if (k === "lv" && A.units[v]) S.lv = v; else if (k === "t") S.traj = v === "1"; else if (k === "s") S.sel = v || null; });
   }
 
   function reglages() {
@@ -437,6 +495,7 @@
     $("traj").disabled = !tx; $("traj").checked = S.traj && !!tx;
     $("note-temps").textContent = tx ? "Les densités passent alors à la série annuelle du répertoire, la même aux deux dates." : "Possible quand un axe porte une profession suivie depuis 2016 (généralistes, psychiatres, pédiatres, sages-femmes...) ou une évolution.";
     $("traj-lib").textContent = "Montrer le chemin depuis " + (tx ? tx.debut : 2016);
+    document.querySelectorAll("#echelle button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-ech") === S.e)); });
     document.querySelectorAll("#vue-carte button").forEach(function (b) { b.setAttribute("aria-pressed", String(b.getAttribute("data-v") === S.v)); });
     $("resume-tel").textContent = court(IND[eff(S.x)]) + " et " + low(court(IND[eff(S.y)])) + ", " + NIV_PL[S.lv];
   }
@@ -446,10 +505,16 @@
     if (S.lv === "reg") S.r = "";
     if (S.traj && !(trajSerie(S.x, S.lv) || trajSerie(S.y, S.lv))) S.traj = false;
     reglages();
-    var pts = points(), st = stats(pts), h = noter(st);
+    var pts = points(), st = stats(pts), fa = st.trop ? null : famille();
+    // dans une famille publiée, la corrélation, l'intervalle et le nombre de territoires du fichier publié, avec lesquels
+    // la règle du lien a été appliquée (publié.ic) ; sinon l'intervalle par la méthode du pipeline (icDe)
+    if (fa && fa.rho != null) st.r = fa.rho;
+    if (fa && fa.nt != null) st.n = fa.nt;
+    if (!st.trop) st.ic = publie.ic(fa) || icDe(st);
+    noter(st, fa);
     var rx = reference(S.x, S.lv, valeurs(S.x, S.lv)), ry = reference(S.y, S.lv, valeurs(S.y, S.lv));
     $("titre").textContent = court(IND[eff(S.x)]) + " et " + low(court(IND[eff(S.y)])) + ", par " + NIV_SING[S.lv];
-    $("phrase").textContent = phrase(st, h);
+    $("phrase").textContent = phrase(st, fa);
     // quand l'escalier d'Explorer répond à la même question, une ligne dit ce qui les distingue (audit de contrôle du
     // 30 octobre 2026, point I6)
     var esc1 = /^prof:([a-z_]+):all$/.exec(S.y) || /^prof:([a-z_]+):all$/.exec(S.x), autre = esc1 && (S.x === "revenu_median" || S.y === "revenu_median");
@@ -457,12 +522,65 @@
     if (!pe) { pe = document.createElement("p"); pe.id = "escalier-note"; pe.className = "note-escalier"; $("phrase").after(pe); }
     pe.hidden = !(autre && !st.trop);
     if (autre && !st.trop) pe.innerHTML = "La corrélation dit si l’offre monte régulièrement avec le niveau de vie, d’un territoire à l’autre. L’escalier d’Explorer range les habitants en dix tranches de niveau de vie et compare les tranches entre elles, il peut montrer un écart entre les extrêmes sans lien régulier. <a href=\"explorer.html#iFenEscalier?fam=" + (IND[eff("prof:" + esc1[1] + ":all")] && IND[eff("prof:" + esc1[1] + ":all")].sm ? "sm" : "sante") + "&iProf=" + esc1[1] + "\">Voir l’escalier dans Explorer</a>.";
-    mesures(st, h); limites(); dessinerNuage(pts, rx, ry); dessinerCarte(pts); carteTerr(pts, rx, ry); histo(); citer();
+    PTS = pts;
+    mesures(st, fa); limites(); dessinerNuage(pts, rx, ry); dessinerCarte(pts); carteTerr(pts, rx, ry); histo(); tableTerr(); citer();
     $("t-carte").textContent = S.v === "b" ? "Carte des deux indicateurs" : "Carte, " + low(court(IND[eff(S.v === "x" ? S.x : S.y)]));
     try { history.replaceState(null, "", "#" + etat()); } catch (e) {}
     PTS = pts;
   }
   var PTS = [];
+
+  // Données par territoire (repris de la fenêtre « Croiser deux indicateurs » d'Explorer) : une ligne par territoire du
+  // croisement, valeurs écrites comme sur les fiches, triables, filtrables, et le tout en CSV par « Citer et exporter »
+  // les dix premières lignes dans l'ordre choisi (comme la maquette validée), toutes sur demande ou quand un filtre est
+  // écrit : jamais de tableau qui défile dans la page
+  var TRI = { k: "nm", asc: true }, TOUT = false, PREMIERES = 10;
+  function tableTerr() {
+    var ix = IND[eff(S.x)], iy = IND[eff(S.y)], q = norm(($("filtre-terr").value || "").trim());
+    var d = PTS.filter(function (p) { return p.dedans; }), n = d.length;
+    var val = function (p) { return TRI.k === "nm" ? p.u.nm : TRI.k === "pop" ? p.u.pop : TRI.k === "x" ? p.x : p.y; };
+    var rows = d.filter(function (p) { return !q || norm(p.u.nm).indexOf(q) >= 0; }).sort(function (a, b) {
+      var u = val(a), v = val(b); return (typeof u === "string" ? u.localeCompare(v, "fr") : u - v) * (TRI.asc ? 1 : -1); });
+    var th = function (k, t, u, num) { return '<th scope="col"' + (num ? ' class="num"' : "") + '><button type="button" data-tri="' + k + '" aria-label="Trier par ' + esc(t) + '">' + esc(t) + (TRI.k === k ? (TRI.asc ? " ▲" : " ▼") : "") + (u ? '<span class="u">' + esc(u) + "</span>" : "") + "</button></th>"; };
+    $("table-terr").innerHTML = "<thead><tr>" + th("nm", NIV_SING[S.lv].charAt(0).toUpperCase() + NIV_SING[S.lv].slice(1)) + th("pop", "Habitants", "", true) + th("x", court(ix), ix.u, true) + th("y", court(iy), iy.u, true) + "</tr></thead><tbody>" +
+      rows.slice(0, TOUT || q ? rows.length : PREMIERES).map(function (p) { return "<tr><td>" + esc(p.u.nm) + '<span class="pop-tel">' + fr0.format(p.u.pop) + " habitants</span>" + '</td><td class="num">' + fr0.format(p.u.pop) + '</td><td class="num">' + esc(fv(S.x, S.lv, p.k, p.x)) + '</td><td class="num">' + esc(fv(S.y, S.lv, p.k, p.y)) + "</td></tr>"; }).join("") + "</tbody>";
+    var vus = TOUT || q ? rows.length : Math.min(PREMIERES, rows.length);
+    $("note-terr").textContent = (vus < n ? (q ? fr0.format(vus) + " sur " : "Les " + fr0.format(vus) + " premières lignes des ") : "") + fr0.format(n) + " " + (n > 1 ? NIV_PL[S.lv] : NIV_SING[S.lv]) + " du croisement" + (S.r ? ", dans " + REGNOM[S.r] : "") + ". Un clic sur l’en-tête d’une colonne la trie ; le tableau complet se filtre, se montre en entier et se télécharge en CSV par « Citer et exporter ».";
+    var b = $("tout-terr"); b.hidden = !!q || rows.length <= PREMIERES; b.textContent = TOUT ? "Montrer les " + PREMIERES + " premières lignes" : "Montrer les " + fr0.format(rows.length) + " lignes";
+    b.setAttribute("aria-expanded", String(TOUT));
+  }
+
+  // Questions préparées entre départements (croisements.csv, A.cb), le tableau d'Explorer : lien, intervalle de confiance
+  // à 95 %, valeur à densité de population égale, nombre de départements. Un nombre négatif porte le signe « − » et les
+  // bornes ne se séparent pas (espaces insécables).
+  // deux décimales toujours, comme le tableau d'Explorer (« de 0,30 à 0,64 »), signe « − » des nombres négatifs
+  var fr2f = new Intl.NumberFormat("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  function nb2(v) { var x = Math.round(v * 100) / 100; return fr2f.format(x === 0 ? 0 : x).replace("-", "−"); }
+  function motLien(v, lo, hi) { return lo != null && lo <= 0 && hi >= 0 ? "incertain" : force(v); }
+  function chargeable(cb) {
+    var ix = IND[cb.x], iy = IND[cb.y]; if (!ix || !iy || ix.type === "venir" || iy.type === "venir") return null;
+    var m = ix.type === "prof" ? ix.mode : iy.type === "prof" ? iy.mode : "all";
+    if (ix.type === "prof" && iy.type === "prof" && ix.mode !== iy.mode) return null;
+    var x = ix.type === "prof" ? "prof:" + ix.prof + ":all" : cb.x, y = iy.type === "prof" ? "prof:" + iy.prof + ":all" : cb.y;
+    if (!(IND[x] && IND[y])) return null;
+    var lv0 = S.lv, m0 = S.m; S.lv = "dep"; S.m = m; var ok = dispo(x, "dep") && dispo(y, "dep"); S.lv = lv0; S.m = m0;
+    return ok ? { x: x, y: y, m: m } : null;
+  }
+  function questions() {
+    var qs = [], h = "";
+    A.cb.forEach(function (r) { if (qs.indexOf(r.q) < 0) qs.push(r.q); });
+    qs.forEach(function (q) {
+      h += '<tr class="cb-titre"><th scope="rowgroup" colspan="5">' + esc(q) + "</th></tr>";
+      A.cb.forEach(function (r, k) {
+        if (r.q !== q) return;
+        var nom = esc(r.lx) + '<span class="et">et ' + esc(low(r.ly)) + "</span>";
+        h += "<tr><td>" + (chargeable(r) ? '<button type="button" class="charger" data-cb="' + k + '" aria-label="Charger dans le nuage : ' + esc(r.lx) + " et " + esc(low(r.ly)) + '">' + nom + "</button>" : nom) + "</td>" +
+          "<td>" + motLien(r.rho, r.lo, r.hi) + " (" + nb2(r.rho) + ")</td><td>de\u00a0" + nb2(r.lo) + "\u00a0à\u00a0" + nb2(r.hi) + "</td>" +
+          "<td>" + (r.rp == null ? "non calculé" : motLien(r.rp, r.lop, r.hip) + " (" + nb2(r.rp) + ")") + '</td><td class="num">' + r.n + "</td></tr>";
+      });
+    });
+    $("table-prep").innerHTML = '<thead><tr><th scope="col">Croisement</th><th scope="col">Lien entre départements</th><th scope="col">Intervalle de confiance à 95\u00a0%</th><th scope="col">À densité de population égale</th><th scope="col" class="num">Départements</th></tr></thead><tbody>' + h + "</tbody>";
+  }
 
   // sélecteur d'indicateur
   // Sélecteur d'indicateur, pensé pour plusieurs centaines d'indicateurs (partie 6 du second audit externe).
@@ -569,7 +687,11 @@
     if (t.matches("[data-lv]")) { S.lv = t.getAttribute("data-lv"); S.sel = null; return rendre(); }
     if (t.matches("[data-m]")) { S.m = t.getAttribute("data-m"); return rendre(); }
     if (t.matches("[data-v]")) { S.v = t.getAttribute("data-v"); return rendre(); }
-    if (t.matches("[data-h]")) { var e = HISTO[+t.getAttribute("data-h")]; var sel = S.sel; Object.assign(S, JSON.parse(JSON.stringify(e.s))); S.sel = sel; return rendre(); }
+    if (t.matches("[data-ech]")) { S.e = t.getAttribute("data-ech"); return rendre(); }
+    if (t.id === "tout-terr") { TOUT = !TOUT; tableTerr(); return; }
+    if (t.matches("[data-tri]")) { var k2 = t.getAttribute("data-tri"); if (TRI.k === k2) TRI.asc = !TRI.asc; else { TRI.k = k2; TRI.asc = k2 === "nm"; } tableTerr(); return; }
+    if (t.matches("[data-cb]")) { var cb = A.cb[+t.getAttribute("data-cb")], ch = chargeable(cb); if (!ch) return; S.x = ch.x; S.y = ch.y; S.m = ch.m; S.lv = "dep"; S.z = ""; S.zm = "t"; S.r = ""; S.traj = false; S.sel = null; rendre(); $("titre").scrollIntoView({ block: "start" }); return; }
+    if (t.matches("[data-h]")) { var e = VUS[+t.getAttribute("data-h")]; var sel = S.sel; Object.assign(S, JSON.parse(JSON.stringify(e.s))); S.sel = sel; return rendre(); }
     if (t.matches("[data-q]")) { var p = t.getAttribute("data-q").split(":"), q = (p[0] === "pistes" ? QUESTIONS : INATTENDUS)[+p[1]]; S.x = q[1]; S.y = q[2]; S.lv = q[3]; S.z = ""; S.zm = "t"; S.m = "all"; S.v = "b"; S.r = ""; S.traj = false; S.sel = null; rendre(); $("titre").scrollIntoView({ block: "start" }); return; }
     if (t.matches("[data-paire]")) { var pr = t.getAttribute("data-paire").split("|"); S.x = pr[0]; S.y = pr[1]; S.sel = null; $("trouves").innerHTML = ""; rendre(); $("titre").scrollIntoView({ block: "start" }); return; }
     if (t.matches("[data-mettre]")) { var mm = t.getAttribute("data-mettre").split("|"); S[mm[0]] = mm[1]; S.sel = null; rendre(); return; }
@@ -581,6 +703,7 @@
   $("region").addEventListener("change", function (e) { S.r = e.target.value; rendre(); });
   $("traj").addEventListener("change", function (e) { S.traj = e.target.checked; rendre(); });
   $("menu-q").addEventListener("input", listeMenu);
+  $("filtre-terr").addEventListener("input", tableTerr);
   $("menu-venir").addEventListener("change", function (e) { voirVenir = e.target.checked; listeMenu(); });
   $("q").addEventListener("input", chercher);
   // Sur téléphone, une invite courte, l'exemple ne tiendrait pas dans le champ.
@@ -607,9 +730,14 @@
   function exporter(k) {
     var ix = IND[eff(S.x)], iy = IND[eff(S.y)];
     if (k === "csv") {
-      var l = ["code;territoire;" + ix.lab + ";" + iy.lab];
-      PTS.filter(function (p) { return p.dedans; }).forEach(function (p) { l.push(p.u.c + ";" + p.u.nm + ";" + String(p.x).replace(".", ",") + ";" + String(p.y).replace(".", ",")); });
+      var l = ["code;territoire;habitants;" + ix.lab + ";" + iy.lab];
+      PTS.filter(function (p) { return p.dedans; }).forEach(function (p) { l.push(p.u.c + ";" + p.u.nm + ";" + p.u.pop + ";" + String(p.x).replace(".", ",") + ";" + String(p.y).replace(".", ",")); });
       telecharger(new Blob(["﻿" + l.join("\n")], { type: "text/csv" }), "croisement.csv");
+    } else if (k === "prep-csv") {
+      var lq = ["question;indicateur_1;indicateur_2;rho;ic95_bas;ic95_haut;rho_a_densite_egale;ic95_bas_a_densite_egale;ic95_haut_a_densite_egale;departements"];
+      var c = function (v) { return v == null ? "" : String(v).replace(".", ","); }, g = function (s) { return '"' + String(s).replace(/"/g, '""') + '"'; };
+      A.cb.forEach(function (r) { lq.push([g(r.q), g(r.lx), g(r.ly), c(r.rho), c(r.lo), c(r.hi), c(r.rp), c(r.lop), c(r.hip), r.n].join(";")); });
+      telecharger(new Blob(["\ufeff" + lq.join("\n") + "\n# Source, " + A.citation + ", Ubi Cura, version du " + A.version + (A.doi ? ", doi:" + A.doi : "") + "\n"], { type: "text/csv" }), "questions_preparees.csv");
     } else if (k === "svg") telecharger(new Blob([$("nuage").outerHTML], { type: "image/svg+xml" }), "croisement.svg");
     else if (k === "carte-svg" || k === "carte-png") {
       var racine = document.documentElement, avant = racine.getAttribute("data-theme"); racine.setAttribute("data-theme", "light"); rendre();
@@ -649,7 +777,7 @@
     o.parentNode.querySelectorAll("[data-panneau]").forEach(function (x) { x.setAttribute("aria-expanded", "false"); var q = $(x.getAttribute("data-panneau")); if (q) q.hidden = true; });
     if (!ouvert && p) { o.setAttribute("aria-expanded", "true"); p.hidden = false; }
   });
-  pistes("pistes", QUESTIONS); pistes("pistes2", INATTENDUS);
+  pistes("pistes", QUESTIONS); pistes("pistes2", INATTENDUS); questions();
   lireEtat(); rendre();
   var tempo; addEventListener("resize", function () { clearTimeout(tempo); tempo = setTimeout(rendre, 200); });
   new MutationObserver(function () { rendre(); }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
